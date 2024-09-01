@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.HåndterePermisjoner;
@@ -43,12 +44,14 @@ public class InaktiveArbeidsforholdUtleder {
     private InaktiveArbeidsforholdUtleder() {
     }
 
-    public static Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> finnKunAktive(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, BehandlingReferanse referanse,
+    public static Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> finnKunAktive(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger,
+                                                                                Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
+                                                                                BehandlingReferanse referanse, Skjæringstidspunkt stp,
                                                                                 boolean taHensynTilPermisjon) {
         Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> kunAktiveArbeidsforhold = new HashMap<>();
 
         påkrevdeInntektsmeldinger.forEach((key, value) -> {
-            var erInaktivt = erInaktivt(key, inntektArbeidYtelseGrunnlag, referanse.aktørId(), referanse.getUtledetSkjæringstidspunkt(),
+            var erInaktivt = erInaktivt(key, inntektArbeidYtelseGrunnlag, referanse.aktørId(), stp.getUtledetSkjæringstidspunkt(),
                 referanse.saksnummer());
             if (!erInaktivt) {
                 List<InternArbeidsforholdRef> aktiveArbeidsforholdsRef = new ArrayList<>();
@@ -56,7 +59,7 @@ public class InaktiveArbeidsforholdUtleder {
                 value.forEach(internArbeidsforholdRef -> {
                     if (taHensynTilPermisjon) {
                         if (!erIPermisjonPåStp(key, internArbeidsforholdRef, inntektArbeidYtelseGrunnlag, referanse.aktørId(),
-                            referanse.getUtledetSkjæringstidspunkt())) {
+                            stp.getUtledetSkjæringstidspunkt())) {
                             aktiveArbeidsforholdsRef.add(internArbeidsforholdRef);
                         }
                     } else {

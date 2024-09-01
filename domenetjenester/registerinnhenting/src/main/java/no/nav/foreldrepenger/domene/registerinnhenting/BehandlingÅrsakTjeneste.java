@@ -79,12 +79,13 @@ public class BehandlingÅrsakTjeneste {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
             return endringsresultatDiff.erSporedeFeltEndret() ? Collections.singleton(EndringResultatType.REGISTEROPPLYSNING) : Collections.emptySet();
         }
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
+        var ref = BehandlingReferanse.fra(behandling);
+        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         //For alle aggregat som har endringer, utled behandlingsårsak.
         return endringsresultatDiff.hentDelresultater().stream()
             .filter(EndringsresultatDiff::erSporedeFeltEndret)
             .map(diff -> finnUtleder(diff.getGrunnlag())
-                .utledEndringsResultat(ref, diff.getGrunnlagId1(), diff.getGrunnlagId2()))
+                .utledEndringsResultat(ref, stp, diff.getGrunnlagId1(), diff.getGrunnlagId2()))
             .flatMap(Collection::stream)
             .collect(Collectors.toSet());
     }

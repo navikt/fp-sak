@@ -14,7 +14,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -49,7 +48,7 @@ class FaktaUttakArbeidsforholdTjenesteTest extends EntityManagerAwareTest {
         var virksomhet456 = Arbeidsgiver.virksomhet(virksomhetOrgnr2);
         var person = Arbeidsgiver.person(aktørId);
 
-        var input = new UttakInput(lagReferanse(behandling), null, null)
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build(), null, null)
                 .medBeregningsgrunnlagStatuser(Set.of(
                     new BeregningsgrunnlagStatus(AktivitetStatus.ARBEIDSTAKER, virksomhet123, InternArbeidsforholdRef.nyRef()),
                     new BeregningsgrunnlagStatus(AktivitetStatus.ARBEIDSTAKER, virksomhet123, InternArbeidsforholdRef.nyRef()),
@@ -97,15 +96,11 @@ class FaktaUttakArbeidsforholdTjenesteTest extends EntityManagerAwareTest {
         var behandling = scenario.lagre(new BehandlingRepositoryProvider(getEntityManager()));
 
 
-        var input = new UttakInput(lagReferanse(behandling), null, null)
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build(), null, null)
                 .medBeregningsgrunnlagStatuser(Set.of(new BeregningsgrunnlagStatus(AktivitetStatus.DAGPENGER)));
         var arbeidsforhold = FaktaUttakArbeidsforholdTjeneste.hentArbeidsforhold(input);
 
         assertThat(arbeidsforhold).isEmpty();
-    }
-
-    private BehandlingReferanse lagReferanse(Behandling behandling) {
-        return BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
     }
 
     private Virksomhet lagVirksomhet(String orgnr, String navn) {

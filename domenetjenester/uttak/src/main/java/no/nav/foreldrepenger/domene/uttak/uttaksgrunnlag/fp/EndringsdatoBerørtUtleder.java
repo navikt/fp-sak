@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
@@ -44,7 +45,7 @@ public final class EndringsdatoBerørtUtleder {
                                                                            String loggPrefix) {
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         var familieHendelser = fpGrunnlag.getFamilieHendelser();
-        var utenMinsterett = uttakInput.getBehandlingReferanse().getSkjæringstidspunkt().utenMinsterett();
+        var utenMinsterett = Optional.ofNullable(uttakInput.getSkjæringstidspunkt()).filter(Skjæringstidspunkt::utenMinsterett).isPresent();
         if (berørtUttakOpt.isEmpty() || finnMinAktivDato(berørtUttakOpt.get()).isEmpty() || finnMinAktivDato(utløsendeUttak, berørtUttakOpt.get()).isEmpty()) {
             return Optional.empty();
         }

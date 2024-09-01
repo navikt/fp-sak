@@ -57,8 +57,8 @@ class FastsettePerioderRegelResultatKonvertererTest {
         repositoryProvider.getFpUttakRepository(), repositoryProvider.getYtelsesFordelingRepository());
 
     private UttakInput lagInput(Behandling behandling, LocalDate stp) {
-        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build());
-        return new UttakInput(ref, iayTjeneste.hentGrunnlag(behandling.getId()),
+        var ref = BehandlingReferanse.fra(behandling);
+        return new UttakInput(ref, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build(), iayTjeneste.hentGrunnlag(behandling.getId()),
             new ForeldrepengerGrunnlag()).medBeregningsgrunnlagStatuser(beregningsandelTjeneste.hentStatuser());
     }
 

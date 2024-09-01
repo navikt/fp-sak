@@ -9,6 +9,7 @@ import jakarta.inject.Inject;
 
 import no.nav.abakus.iaygrunnlag.Periode;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningsperioderUtenOverstyringTjeneste;
@@ -38,6 +39,7 @@ public class OpptjeningForBeregningTjeneste {
      * @return {@link OpptjeningsperiodeForSaksbehandling}er
      */
     List<OpptjeningsperiodeForSaksbehandling> hentRelevanteOpptjeningsaktiviteterForBeregning(BehandlingReferanse behandlingReferanse,
+                                                                                              Skjæringstidspunkt stp,
                                                                                               InntektArbeidYtelseGrunnlag iayGrunnlag) {
 
         var behandlingId = behandlingReferanse.behandlingId();
@@ -52,17 +54,17 @@ public class OpptjeningForBeregningTjeneste {
             opptjening.getFom() : opptjening.getTom().minusMonths(4);
 
         var opptjeningsaktiviteterPerYtelse = new OpptjeningsaktiviteterPerYtelse(behandlingReferanse.fagsakYtelseType());
-        var aktiviteter = opptjeningsperioderTjeneste.mapPerioderForSaksbehandling(behandlingReferanse, iayGrunnlag, vurderOpptjening);
+        var aktiviteter = opptjeningsperioderTjeneste.mapPerioderForSaksbehandling(behandlingReferanse, stp, iayGrunnlag, vurderOpptjening);
         return aktiviteter.stream()
-            .filter(oa -> oa.getPeriode().getFomDato().isBefore(behandlingReferanse.getUtledetSkjæringstidspunkt()))
+            .filter(oa -> oa.getPeriode().getFomDato().isBefore(stp.getUtledetSkjæringstidspunkt()))
             .filter(oa -> !oa.getPeriode().getTomDato().isBefore(opptjeningsperiodeFom))
             .filter(oa -> opptjeningsaktiviteterPerYtelse.erRelevantAktivitet(oa.getOpptjeningAktivitetType()))
             .toList();
     }
 
-    public Optional<OpptjeningAktiviteter> hentOpptjeningForBeregning(BehandlingReferanse ref,
+    public Optional<OpptjeningAktiviteter> hentOpptjeningForBeregning(BehandlingReferanse ref, Skjæringstidspunkt stp,
                                                                       InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        var opptjeningsPerioder = hentRelevanteOpptjeningsaktiviteterForBeregning(ref, iayGrunnlag).stream()
+        var opptjeningsPerioder = hentRelevanteOpptjeningsaktiviteterForBeregning(ref, stp, iayGrunnlag).stream()
             .map(this::mapOpptjeningPeriode).toList();
         if(opptjeningsPerioder.isEmpty()) {
             return Optional.empty();

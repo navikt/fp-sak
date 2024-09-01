@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
@@ -98,7 +99,7 @@ class SvpDtoTjenesteTest extends EntityManagerAwareTest {
         repositoryProvider.getSvangerskapspengerUttakResultatRepository().lagre(behandling.getId(), uttak);
 
         var inntektsmelding = lagInntektsmeldingMedferie();
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(BehandlingReferanse.class), any(LocalDate.class))).thenReturn(
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(BehandlingReferanse.class), any(Skjæringstidspunkt.class), any(LocalDate.class))).thenReturn(
             List.of(inntektsmelding));
 
         var dto = (SvpSak) tjeneste.hentSak(behandling.getFagsak());

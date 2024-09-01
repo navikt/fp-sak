@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
@@ -35,19 +36,19 @@ public abstract class KontrollerFaktaTjenesteInngangsVilkår implements Kontroll
     }
 
     @Override
-    public List<AksjonspunktResultat> utledAksjonspunkter(BehandlingReferanse ref) {
-        return utled(ref);
+    public List<AksjonspunktResultat> utledAksjonspunkter(BehandlingReferanse ref, Skjæringstidspunkt stp) {
+        return utled(ref, stp);
     }
 
     @Override
-    public List<AksjonspunktResultat> utledAksjonspunkterTilHøyreForStartpunkt(BehandlingReferanse ref, StartpunktType startpunktType) {
-        var aksjonspunktResultat = utledAksjonspunkter(ref);
+    public List<AksjonspunktResultat> utledAksjonspunkterTilHøyreForStartpunkt(BehandlingReferanse ref, Skjæringstidspunkt stp, StartpunktType startpunktType) {
+        var aksjonspunktResultat = utledAksjonspunkter(ref, stp);
         return filtrerAksjonspunkterTilVenstreForStartpunkt(ref, aksjonspunktResultat, startpunktType);
     }
 
     @Override
-    public List<AksjonspunktResultat> utledAksjonspunkterFomSteg(BehandlingReferanse ref, BehandlingStegType steg) {
-        return utledAksjonspunkter(ref).stream()
+    public List<AksjonspunktResultat> utledAksjonspunkterFomSteg(BehandlingReferanse ref, Skjæringstidspunkt stp, BehandlingStegType steg) {
+        return utledAksjonspunkter(ref, stp).stream()
                 .filter(ap -> skalBeholdeAksjonspunkt(ref, steg, ap.getAksjonspunktDefinisjon()))
                 .toList();
     }
@@ -78,11 +79,11 @@ public abstract class KontrollerFaktaTjenesteInngangsVilkår implements Kontroll
         return skalBeholde;
     }
 
-    private List<AksjonspunktResultat> utled(BehandlingReferanse ref) {
+    private List<AksjonspunktResultat> utled(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var aksjonspunktUtleders = utlederTjeneste.utledUtledereFor(ref);
         List<AksjonspunktResultat> aksjonspunktResultater = new ArrayList<>();
         for (var aksjonspunktUtleder : aksjonspunktUtleders) {
-            aksjonspunktResultater.addAll(aksjonspunktUtleder.utledAksjonspunkterFor(new AksjonspunktUtlederInput(ref)));
+            aksjonspunktResultater.addAll(aksjonspunktUtleder.utledAksjonspunkterFor(new AksjonspunktUtlederInput(ref, stp)));
         }
         return aksjonspunktResultater.stream()
                 .distinct() // Unngå samme aksjonspunkt flere multipliser

@@ -20,6 +20,7 @@ import no.nav.folketrygdloven.kalkulus.felles.v1.Beløp;
 import no.nav.folketrygdloven.kalkulus.felles.v1.Organisasjon;
 import no.nav.folketrygdloven.kalkulus.felles.v1.Periode;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -35,7 +36,7 @@ import no.nav.vedtak.konfig.Tid;
 
 public class MapKravperioder {
 
-    public static List<KravperioderPrArbeidsforhold> map(BehandlingReferanse referanse,
+    public static List<KravperioderPrArbeidsforhold> map(BehandlingReferanse referanse, Skjæringstidspunkt stp,
                                                          Collection<Inntektsmelding> alleInntektsmeldingerPåSak,
                                                          InntektArbeidYtelseGrunnlag grunnlagDto) {
         var aktiveInntektsmeldinger = grunnlagDto.getInntektsmeldinger()
@@ -54,7 +55,7 @@ public class MapKravperioder {
             .entrySet()
             .stream()
             .filter(e -> sisteIMPrArbeidsforhold.containsKey(e.getKey()))
-            .map(e -> mapTilKravPrArbeidsforhold(referanse, yrkesaktiviteter, sisteIMPrArbeidsforhold, e))
+            .map(e -> mapTilKravPrArbeidsforhold(stp, yrkesaktiviteter, sisteIMPrArbeidsforhold, e))
             .toList();
     }
 
@@ -75,14 +76,14 @@ public class MapKravperioder {
         return grupperEneste(filtrerKunRefusjon(inntektsmeldinger));
     }
 
-    private static KravperioderPrArbeidsforhold mapTilKravPrArbeidsforhold(BehandlingReferanse referanse,
-                                                                              Collection<Yrkesaktivitet> yrkesaktiviteter,
-                                                                              Map<Kravnøkkel, Inntektsmelding> sisteIMPrArbeidsforhold,
-                                                                              Map.Entry<Kravnøkkel, List<Inntektsmelding>> e) {
-        var alleTidligereKravPerioder = lagPerioderForAlle(referanse, yrkesaktiviteter, e.getValue());
+    private static KravperioderPrArbeidsforhold mapTilKravPrArbeidsforhold(Skjæringstidspunkt stp,
+                                                                           Collection<Yrkesaktivitet> yrkesaktiviteter,
+                                                                           Map<Kravnøkkel, Inntektsmelding> sisteIMPrArbeidsforhold,
+                                                                           Map.Entry<Kravnøkkel, List<Inntektsmelding>> e) {
+        var alleTidligereKravPerioder = lagPerioderForAlle(stp, yrkesaktiviteter, e.getValue());
         var sistePerioder = lagPerioderForKrav(
             sisteIMPrArbeidsforhold.get(e.getKey()),
-            referanse.getSkjæringstidspunkt().getSkjæringstidspunktOpptjening(),
+            stp.getSkjæringstidspunktOpptjening(),
             yrkesaktiviteter);
         return new KravperioderPrArbeidsforhold(
             mapTilAktør(e.getKey().arbeidsgiver),
@@ -98,9 +99,10 @@ public class MapKravperioder {
         return new AktørIdPersonident(arbeidsgiver.getIdentifikator());
     }
 
-    private static List<PerioderForKrav> lagPerioderForAlle(BehandlingReferanse referanse, Collection<Yrkesaktivitet> yrkesaktiviteter, List<Inntektsmelding> inntektsmeldinger) {
+    private static List<PerioderForKrav> lagPerioderForAlle(Skjæringstidspunkt stp,
+                                                            Collection<Yrkesaktivitet> yrkesaktiviteter, List<Inntektsmelding> inntektsmeldinger) {
         return inntektsmeldinger.stream()
-            .map(im -> lagPerioderForKrav(im, referanse.getSkjæringstidspunkt().getSkjæringstidspunktOpptjening(), yrkesaktiviteter))
+            .map(im -> lagPerioderForKrav(im, stp.getSkjæringstidspunktOpptjening(), yrkesaktiviteter))
             .toList();
     }
 

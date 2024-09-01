@@ -179,15 +179,16 @@ class FastsettePerioderTjenesteTest {
     }
 
     private UttakInput lagInput(Behandling behandling, LocalDate fødselsdato) {
-        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
+        var ref = BehandlingReferanse.fra(behandling);
+        var stp = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(fødselsdato)
             .medKreverSammenhengendeUttak(false)
-            .medUtenMinsterett(true).build());
+            .medUtenMinsterett(true).build();
         var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.behandlingId());
         var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(), 0);
         var familieHendelser = new FamilieHendelser().medBekreftetHendelse(familieHendelse);
         var fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser);
-        return new UttakInput(ref, iayGrunnlag, fpGrunnlag)
+        return new UttakInput(ref, stp, iayGrunnlag, fpGrunnlag)
             .medBeregningsgrunnlagStatuser(beregningsandelTjeneste.hentStatuser());
     }
 
@@ -603,8 +604,8 @@ class FastsettePerioderTjenesteTest {
         var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1);
         var fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
             new FamilieHendelser().medSøknadHendelse(familieHendelse));
-        var input = new UttakInput(BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(fødselsdato).medUtenMinsterett(true).build()),
-            iayTjeneste.hentGrunnlag(behandling.getId()), fpGrunnlag)
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(fødselsdato).medUtenMinsterett(true).build(),
+                iayTjeneste.hentGrunnlag(behandling.getId()), fpGrunnlag)
             .medBeregningsgrunnlagStatuser(beregningsandelTjeneste.hentStatuser());
         tjeneste().fastsettePerioder(input, kontoer);
 
@@ -711,7 +712,7 @@ class FastsettePerioderTjenesteTest {
 
         // Act
         fastsettePerioderTjeneste.manueltFastsettePerioder(
-            new UttakInput(BehandlingReferanse.fra(behandling), null, null), perioder);
+            new UttakInput(BehandlingReferanse.fra(behandling), null, null, null), perioder);
 
         // Assert
         var uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(

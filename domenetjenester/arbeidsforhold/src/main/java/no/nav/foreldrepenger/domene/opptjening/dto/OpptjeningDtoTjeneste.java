@@ -10,6 +10,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
@@ -40,7 +41,7 @@ public class OpptjeningDtoTjeneste {
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
     }
 
-    public Optional<OpptjeningDto> mapFra(BehandlingReferanse ref) {
+    public Optional<OpptjeningDto> mapFra(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var behandlingId = ref.behandlingId();
         var fastsattOpptjening = forSaksbehandlingTjeneste.hentOpptjeningHvisFinnes(behandlingId);
 
@@ -52,13 +53,13 @@ public class OpptjeningDtoTjeneste {
         if (fastsattOpptjening.isPresent()) {
 
             resultat.setOpptjeningAktivitetList(
-                    forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref)
+                    forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref, stp)
                             .stream()
                             .map(this::lagDtoFraOAPeriode)
                             .toList());
             // Ta med ferdiglignete år dersom finnes aktivitet næring
             if (resultat.getOpptjeningAktivitetList().stream().anyMatch(oa -> OpptjeningAktivitetType.NÆRING.equals(oa.getAktivitetType()))) {
-                var ferdiglignet = forSaksbehandlingTjeneste.hentFerdiglignetNæring(ref).stream()
+                var ferdiglignet = forSaksbehandlingTjeneste.hentFerdiglignetNæring(ref, stp).stream()
                     .collect(Collectors.groupingBy(FerdiglignetNæring::år, Collectors.reducing(0L, FerdiglignetNæring::beløp, Long::sum)))
                     .entrySet().stream()
                     .map(e -> new FerdiglignetNæringDto(e.getKey(), e.getValue()))

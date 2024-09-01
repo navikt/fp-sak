@@ -74,7 +74,7 @@ class SvpUtledeAvslutningsdatoTest {
         behandling = lagBehandling();
         fagsak = behandling.getFagsak();
 
-        when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(new UttakInput(BehandlingReferanse.fra(behandling), null, new SvangerskapspengerGrunnlag()));
+        when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(new UttakInput(BehandlingReferanse.fra(behandling), null, null, new SvangerskapspengerGrunnlag()));
         when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
     }
 

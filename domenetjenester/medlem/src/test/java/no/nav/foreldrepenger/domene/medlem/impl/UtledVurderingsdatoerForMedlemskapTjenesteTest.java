@@ -108,7 +108,7 @@ class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         var revudering = opprettRevudering(behandling);
 
         // Act
-        var vurderingsdatoer = tjeneste.finnVurderingsdatoer(lagRef(revudering, startdato, sluttdato));
+        var vurderingsdatoer = tjeneste.finnVurderingsdatoer(lagRef(revudering), lagStp(startdato, sluttdato));
 
         // Assert
         assertThat(vurderingsdatoer).isEmpty();
@@ -159,7 +159,7 @@ class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         medlemskapRepository.lagreMedlemskapRegisterOpplysninger(revurderingId, List.of(periode, endretPeriode));
 
         // Act
-        var vurderingsdatoer = tjeneste.finnVurderingsdatoer(lagRef(revudering, startdato, sluttdato));
+        var vurderingsdatoer = tjeneste.finnVurderingsdatoer(lagRef(revudering), lagStp(startdato, sluttdato));
 
         // Assert
         assertThat(vurderingsdatoer).containsExactly(endringsdato);
@@ -186,7 +186,7 @@ class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         oppdaterMedlem(datoMedEndring, periode, revurderingId);
 
         // Act
-        var vurderingsdatoer = tjeneste.finnVurderingsdatoer(lagRef(revudering, startdato, sluttdato));
+        var vurderingsdatoer = tjeneste.finnVurderingsdatoer(lagRef(revudering), lagStp(startdato, sluttdato));
 
         // Assert
         assertThat(vurderingsdatoer).containsExactly(datoMedEndring);
@@ -219,7 +219,7 @@ class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         var behandlingId = behandling.getId();
 
         // Act
-        var vurderingsdatoer = tjeneste.finnVurderingsdatoer(lagRef(behandling, startdato, sluttdato));
+        var vurderingsdatoer = tjeneste.finnVurderingsdatoer(lagRef(behandling), lagStp(startdato, sluttdato));
 
         assertThat(vurderingsdatoer).containsExactlyInAnyOrder(startdato.plusYears(1), startdato.plusYears(2));
     }
@@ -256,7 +256,7 @@ class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         personopplysningRepository.lagre(behandlingId, personInformasjonBuilder);
 
         // Act
-        var vurderingsdatoer = tjeneste.finnVurderingsdatoer(lagRef(behandling, startdato, sluttdato));
+        var vurderingsdatoer = tjeneste.finnVurderingsdatoer(lagRef(behandling), lagStp(startdato, sluttdato));
 
         assertThat(vurderingsdatoer).containsExactlyInAnyOrder(andreÅr.getFomDato());
     }
@@ -293,7 +293,7 @@ class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         personopplysningRepository.lagre(behandlingId, personInformasjonBuilder);
 
         // Act
-        var vurderingsdatoer = tjeneste.finnVurderingsdatoer(lagRef(behandling, startdato, sluttdato));
+        var vurderingsdatoer = tjeneste.finnVurderingsdatoer(lagRef(behandling), lagStp(startdato, sluttdato));
 
         assertThat(vurderingsdatoer).containsExactlyInAnyOrder(førsteÅr.getTomDato().plusDays(1), tredjeÅr.getFomDato());
     }
@@ -322,7 +322,7 @@ class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         personopplysningRepository.lagre(behandlingId, personInformasjonBuilder);
 
         // Act
-        var vurderingsdatoer = tjeneste.finnVurderingsdatoer(lagRef(behandling, startdato, sluttdato));
+        var vurderingsdatoer = tjeneste.finnVurderingsdatoer(lagRef(behandling), lagStp(startdato, sluttdato));
 
         assertThat(vurderingsdatoer).containsExactlyInAnyOrder(startdato.plusMonths(9).plusDays(1));
     }
@@ -359,18 +359,22 @@ class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         personopplysningRepository.lagre(behandlingId, personInformasjonBuilder);
 
         // Act
-        var vurderingsdatoer = tjeneste.finnVurderingsdatoer(lagRef(behandling, startdato, sluttdato));
+        var vurderingsdatoer = tjeneste.finnVurderingsdatoer(lagRef(behandling), lagStp(startdato, sluttdato));
 
         assertThat(vurderingsdatoer).isEmpty();
     }
 
-    private BehandlingReferanse lagRef(Behandling behandling, LocalDate fom, LocalDate tom) {
-        return BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
+    private BehandlingReferanse lagRef(Behandling behandling) {
+        return BehandlingReferanse.fra(behandling);
+    }
+
+    private Skjæringstidspunkt lagStp(LocalDate fom, LocalDate tom) {
+        return Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(fom)
             .medUttaksintervall(new LocalDateInterval(fom, tom))
             .medFørsteUttaksdato(fom)
             .medSkjæringstidspunktOpptjening(fom)
-            .build());
+            .build();
     }
 
     private void oppdaterMedlem(LocalDate datoMedEndring, MedlemskapPerioderEntitet periode, Long behandlingId) {

@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.domene.medlem.MedlemskapPerioderTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
@@ -50,8 +51,8 @@ public class AvklarOmErBosatt {
     }
 
     public Optional<MedlemResultat> utled(BehandlingReferanse ref, LocalDate vurderingsdato) {
-        var personopplysninger = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(ref, vurderingsdato);
-        if (harPersonstatusSomSkalAvklares(ref, personopplysninger)) {
+        var personopplysninger = personopplysningTjeneste.hentPersonopplysninger(ref);
+        if (harPersonstatusSomSkalAvklares(ref, personopplysninger, vurderingsdato)) {
             return Optional.of(MedlemResultat.AVKLAR_OM_ER_BOSATT);
         }
         if (søkerHarSøktPåTerminOgSkalOppholdeSegIUtlandetImerEnn12M(ref, vurderingsdato)) {
@@ -60,7 +61,7 @@ public class AvklarOmErBosatt {
         if (harBrukerTilknytningHjemland(ref) == NEI) {
             return Optional.of(MedlemResultat.AVKLAR_OM_ER_BOSATT);
         }
-        if (harBrukerUtenlandskPostadresse(ref, personopplysninger) == NEI) {
+        if (harBrukerUtenlandskPostadresse(ref, personopplysninger, vurderingsdato) == NEI) {
             return Optional.empty();
         }
         if (erFrivilligMedlemEllerIkkeMedlem(ref, vurderingsdato) == NEI) {
@@ -69,8 +70,8 @@ public class AvklarOmErBosatt {
         return Optional.empty();
     }
 
-    private boolean harPersonstatusSomSkalAvklares(BehandlingReferanse ref, PersonopplysningerAggregat personopplysninger) {
-        var personstatus = Optional.ofNullable(personopplysninger.getPersonstatusFor(ref.aktørId()))
+    private boolean harPersonstatusSomSkalAvklares(BehandlingReferanse ref, PersonopplysningerAggregat personopplysninger, LocalDate vurderingsdato) {
+        var personstatus = Optional.ofNullable(personopplysninger.getPersonstatusFor(ref.aktørId(), SimpleLocalDateInterval.enDag(vurderingsdato)))
             .map(PersonstatusEntitet::getPersonstatus).orElse(PersonstatusType.UDEFINERT);
         return !STATUS_UTEN_AVKLARINGSBEHOV.contains(personstatus);
     }
@@ -108,9 +109,9 @@ public class AvklarOmErBosatt {
         return new LocalDateSegment<>(fom, tom, true);
     }
 
-    private Utfall harBrukerUtenlandskPostadresse(BehandlingReferanse ref, PersonopplysningerAggregat personopplysninger) {
-        if (personopplysninger.getAdresserFor(ref.aktørId()).stream().anyMatch(adresse -> AdresseType.POSTADRESSE_UTLAND.equals(adresse.getAdresseType()) ||
-            !Landkoder.erNorge(adresse.getLand()))) {
+    private Utfall harBrukerUtenlandskPostadresse(BehandlingReferanse ref, PersonopplysningerAggregat personopplysninger, LocalDate vurderingsdato) {
+        if (personopplysninger.getAdresserFor(ref.aktørId(), SimpleLocalDateInterval.enDag(vurderingsdato)).stream()
+            .anyMatch(adresse -> AdresseType.POSTADRESSE_UTLAND.equals(adresse.getAdresseType()) || !Landkoder.erNorge(adresse.getLand()))) {
             return JA;
         }
         return NEI;

@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
@@ -42,52 +41,19 @@ public class PersonopplysningTjeneste implements StandardPersonopplysningTjenest
 
     @Override
     public PersonopplysningerAggregat hentPersonopplysninger(BehandlingReferanse ref) {
-        var stp = ref.getUtledetSkjæringstidspunkt();
-        return hentGjeldendePersoninformasjonPåTidspunkt(ref, stp);
+        return hentPersonopplysningerHvisEksisterer(ref.behandlingId(), ref.aktørId())
+            .orElseThrow(() -> new IllegalStateException("Utvikler feil: Har ikke innhentet opplysninger fra register enda."));
     }
 
     @Override
     public Optional<PersonopplysningerAggregat> hentPersonopplysningerHvisEksisterer(BehandlingReferanse ref) {
-        var stp = ref.getUtledetSkjæringstidspunktHvisUtledet().orElseGet(LocalDate::now);
-        return hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(ref, stp);
+        return hentPersonopplysningerHvisEksisterer(ref.behandlingId(), ref.aktørId());
     }
 
     @Override
-    public PersonopplysningerAggregat hentGjeldendePersoninformasjonPåTidspunkt(BehandlingReferanse ref, LocalDate tidspunkt) {
-        var grunnlagOpt = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(ref.behandlingId());
-        if (grunnlagOpt.isPresent()) {
-            tidspunkt = tidspunkt == null ? LocalDate.now() : tidspunkt;
-            return new PersonopplysningerAggregat(grunnlagOpt.get(), ref.aktørId(), tidspunkt, ref.getUtledetSkjæringstidspunkt());
-        }
-        throw new IllegalStateException("Utvikler feil: Har ikke innhentet opplysninger fra register enda.");
-    }
-
-    public Optional<PersonopplysningerAggregat> hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(Long behandlingId, AktørId aktørId, LocalDate tidspunkt) {
-        var grunnlagOpt = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(behandlingId);
-        if (grunnlagOpt.isPresent()) {
-            tidspunkt = tidspunkt == null ? LocalDate.now() : tidspunkt;
-            return Optional.of(new PersonopplysningerAggregat(grunnlagOpt.get(), aktørId, tidspunkt, tidspunkt));
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<PersonopplysningerAggregat> hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(BehandlingReferanse ref, LocalDate tidspunkt) {
-        var grunnlagOpt = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(ref.behandlingId());
-        if (grunnlagOpt.isPresent()) {
-            tidspunkt = tidspunkt == null ? LocalDate.now() : tidspunkt;
-            return Optional.of(new PersonopplysningerAggregat(grunnlagOpt.get(), ref.aktørId(), tidspunkt, ref.getUtledetSkjæringstidspunkt()));
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<PersonopplysningerAggregat> hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(BehandlingReferanse ref, DatoIntervallEntitet forPeriode) {
-        var grunnlagOpt = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(ref.behandlingId());
-        if (grunnlagOpt.isPresent()) {
-            return Optional.of(new PersonopplysningerAggregat(grunnlagOpt.get(), ref.aktørId(), forPeriode, ref.getUtledetSkjæringstidspunkt()));
-        }
-        return Optional.empty();
+    public Optional<PersonopplysningerAggregat> hentPersonopplysningerHvisEksisterer(Long behandlingId, AktørId aktørId) {
+        return getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(behandlingId)
+            .map(grunnlag -> new PersonopplysningerAggregat(grunnlag, aktørId));
     }
 
     private PersonopplysningRepository getPersonopplysningRepository() {

@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -23,7 +24,7 @@ public class RelevantOpptjeningMapper {
 
     public static List<OpptjeningAktiviteter.OpptjeningPeriode> map(OpptjeningAktiviteter opptjeningAktiviteter,
                                                                     InntektArbeidYtelseGrunnlag iayGrunnlag,
-                                                                    BehandlingReferanse ref) {
+                                                                    BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var inntektsmeldinger = iayGrunnlag.getInntektsmeldinger()
             .map(InntektsmeldingAggregat::getAlleInntektsmeldinger)
             .orElse(Collections.emptyList());
@@ -31,7 +32,7 @@ public class RelevantOpptjeningMapper {
             iayGrunnlag.getAktørArbeidFraRegister(ref.aktørId()));
         return opptjeningAktiviteter.getOpptjeningPerioder()
             .stream()
-            .filter(opp -> finnesInntektsmeldingForEllerKanBeregnesUten(opp, inntektsmeldinger, yrkesfilter, ref.getUtledetSkjæringstidspunkt()))
+            .filter(opp -> finnesInntektsmeldingForEllerKanBeregnesUten(opp, inntektsmeldinger, yrkesfilter, stp.getUtledetSkjæringstidspunkt()))
             .toList();
     }
 

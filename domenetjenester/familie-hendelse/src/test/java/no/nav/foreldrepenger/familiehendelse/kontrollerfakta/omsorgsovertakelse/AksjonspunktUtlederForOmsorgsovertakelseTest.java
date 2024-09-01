@@ -40,7 +40,7 @@ class AksjonspunktUtlederForOmsorgsovertakelseTest {
 
     private List<AksjonspunktResultat> aksjonspunktForFakta(FarSøkerType farSøkerType) {
         var behandling = byggBehandling(farSøkerType);
-        return aksjonspunktUtleder.utledAksjonspunkterFor(new AksjonspunktUtlederInput(BehandlingReferanse.fra(behandling)));
+        return aksjonspunktUtleder.utledAksjonspunkterFor(new AksjonspunktUtlederInput(BehandlingReferanse.fra(behandling), null));
     }
 
     private Behandling byggBehandling(FarSøkerType farSøkerType) {

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling;
 
-import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -12,7 +11,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 /**
  * Minimal metadata for en behandling.
@@ -39,17 +37,12 @@ public record BehandlingReferanse(Saksnummer saksnummer,
                                   BehandlingType behandlingType,
                                   Long originalBehandlingId,
                                   AktørId aktørId,
-                                  RelasjonsRolleType relasjonRolle,
-                                  Skjæringstidspunkt skjæringstidspunkt) {
+                                  RelasjonsRolleType relasjonRolle) {
 
     /**
      * Oppretter referanse uten skjæringstidspunkt fra behandling.
      */
     public static BehandlingReferanse fra(Behandling behandling) {
-        return fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(null).build());
-    }
-
-    public static BehandlingReferanse fra(Behandling behandling, Skjæringstidspunkt skjæringstidspunkt) {
         return new BehandlingReferanse(
                 behandling.getFagsak().getSaksnummer(),
                 behandling.getFagsakId(),
@@ -60,69 +53,16 @@ public record BehandlingReferanse(Saksnummer saksnummer,
                 behandling.getType(),
                 behandling.getOriginalBehandlingId().orElse(null),
                 behandling.getAktørId(),
-                behandling.getRelasjonsRolleType(),
-                skjæringstidspunkt);
+                behandling.getRelasjonsRolleType());
     }
 
-    /**
-     * Lag immutable copy av referanse med mulighet til å legge til
-     * skjæringstidspunkt av flere typer
-     */
-    public BehandlingReferanse medSkjæringstidspunkt(Skjæringstidspunkt skjæringstidspunkt) {
-        return new BehandlingReferanse(
-            saksnummer(),
-            fagsakId(),
-            fagsakYtelseType(),
-            behandlingId(),
-            behandlingUuid(),
-            behandlingStatus(),
-            behandlingType(),
-            originalBehandlingId(),
-            aktørId(),
-            relasjonRolle(),
-            skjæringstidspunkt);
-    }
 
     public Optional<Long> getOriginalBehandlingId() {
         return Optional.ofNullable(originalBehandlingId);
     }
 
-    public LocalDate getUtledetSkjæringstidspunkt() {
-        sjekkSkjæringstidspunkt();
-        return skjæringstidspunkt.getUtledetSkjæringstidspunkt();
-    }
-
-    public Optional<LocalDate> getUtledetSkjæringstidspunktHvisUtledet() {
-        sjekkSkjæringstidspunkt();
-        return skjæringstidspunkt.getSkjæringstidspunktHvisUtledet();
-    }
-
-    public Optional<LocalDateInterval> getUttaksintervall() {
-        sjekkSkjæringstidspunkt();
-        return skjæringstidspunkt.getUttaksintervall();
-    }
-
-
-    public LocalDateInterval getUtledetMedlemsintervall() {
-        sjekkSkjæringstidspunkt();
-        return skjæringstidspunkt.getUttaksintervall().orElse(null);
-    }
-
-    public Skjæringstidspunkt getSkjæringstidspunkt() {
-        sjekkSkjæringstidspunkt();
-        return skjæringstidspunkt;
-    }
-
     public boolean erRevurdering() {
         return BehandlingType.REVURDERING.equals(behandlingType);
-    }
-
-    /**
-     * Hvis skjæringstidspunkt ikke er satt, så kastes NPE ved bruk. Utvikler-feil
-     */
-    private void sjekkSkjæringstidspunkt() {
-        Objects.requireNonNull(skjæringstidspunkt,
-                "Utvikler-feil: skjæringstidspunkt er ikke satt på BehandlingReferanse. Sørg for at det er satt ifht. anvendelse");
     }
 
     @Override
@@ -154,7 +94,6 @@ public record BehandlingReferanse(Saksnummer saksnummer,
     public String toString() {
         return getClass().getSimpleName() + String.format(
             "<saksnummer=%s, behandlingId=%s, fagsakType=%s, behandlingType=%s, rolle=%s, aktørId=%s, status=%s, skjæringstidspunjkt=%s, originalBehandlingId=%s>",
-            saksnummer, behandlingId, fagsakYtelseType, behandlingType, relasjonRolle, aktørId, behandlingStatus, skjæringstidspunkt,
-            originalBehandlingId);
+            saksnummer, behandlingId, fagsakYtelseType, behandlingType, relasjonRolle, aktørId, behandlingStatus, originalBehandlingId);
     }
 }

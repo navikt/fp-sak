@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = BekreftArbeidInntektsmeldingAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
@@ -27,6 +28,7 @@ public class AvklarArbeidInntektsmeldingOppdaterer implements AksjonspunktOppdat
     private static final List<ArbeidsforholdHandlingType> HANDLINGER_SOM_LEDER_TIL_TOTRINN = Arrays.asList(ArbeidsforholdHandlingType.LAGT_TIL_AV_SAKSBEHANDLER,
         ArbeidsforholdHandlingType.BASERT_PÅ_INNTEKTSMELDING);
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
     AvklarArbeidInntektsmeldingOppdaterer() {
@@ -35,14 +37,17 @@ public class AvklarArbeidInntektsmeldingOppdaterer implements AksjonspunktOppdat
 
     @Inject
     AvklarArbeidInntektsmeldingOppdaterer(ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste,
+                                          SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                           InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
         this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
     }
 
     @Override
     public OppdateringResultat oppdater(BekreftArbeidInntektsmeldingAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
-        var alleMangler = arbeidsforholdInntektsmeldingMangelTjeneste.utledAlleManglerPåArbeidsforholdInntektsmelding(param.getRef());
+        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(param.getBehandlingId());
+        var alleMangler = arbeidsforholdInntektsmeldingMangelTjeneste.utledAlleManglerPåArbeidsforholdInntektsmelding(param.getRef(), stp);
         var alleSaksbehandlersValg = arbeidsforholdInntektsmeldingMangelTjeneste.hentArbeidsforholdValgForSak(param.getRef());
         validerArbeidsforholdSomManglerInntektsmelding(alleMangler, alleSaksbehandlersValg);
 

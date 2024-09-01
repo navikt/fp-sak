@@ -42,6 +42,10 @@ public class DatoIntervallEntitet extends AbstractLocalDateInterval {
         return new DatoIntervallEntitet(fomDato, tomDato);
     }
 
+    public static DatoIntervallEntitet enDag(LocalDate fomTomDato) {
+        return new DatoIntervallEntitet(fomTomDato, fomTomDato);
+    }
+
     public static DatoIntervallEntitet fraOgMed(LocalDate fomDato) {
         return new DatoIntervallEntitet(fomDato, Tid.TIDENES_ENDE);
     }

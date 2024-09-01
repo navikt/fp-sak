@@ -89,7 +89,7 @@ class VurderInnsynOppdatererTest {
         var frist = nå.toLocalDate().plusDays(3);
         var dto = new VurderInnsynDto("grunn", InnsynResultatType.INNVILGET, frist, sattPåVent, Collections.emptyList(), frist);
 
-        var oppdateringResultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(innsynbehandling, null), dto));
+        var oppdateringResultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(innsynbehandling), dto));
 
         // Assert
         Assertions.assertThat(oppdateringResultat.getOverhoppKontroll()).isEqualTo(OverhoppKontroll.UTEN_OVERHOPP);

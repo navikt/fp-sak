@@ -88,7 +88,7 @@ class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
 
         // Act
         fastsettBeregningsgrunnlagATFLHistorikkTjeneste.lagHistorikk(
-            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto), dto, bg);
+            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto), dto, bg);
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
         var historikkInnslag = tekstBuilder.build(historikkinnslag);
@@ -119,7 +119,7 @@ class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
 
         // Act
         fastsettBeregningsgrunnlagATFLHistorikkTjeneste.lagHistorikk(
-            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto), dto, bg);
+            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto), dto, bg);
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
         var historikkInnslag = tekstBuilder.build(historikkinnslag);

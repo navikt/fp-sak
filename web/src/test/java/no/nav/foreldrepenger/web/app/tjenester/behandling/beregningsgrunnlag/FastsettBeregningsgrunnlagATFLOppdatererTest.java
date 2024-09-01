@@ -82,7 +82,7 @@ class FastsettBeregningsgrunnlagATFLOppdatererTest {
         // Dto
         var dto = new FastsettBeregningsgrunnlagATFLDto("begrunnelse", Collections.emptyList(), null);
         // Act
-        var resultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, ap));
+        var resultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, ap));
 
         // Assert
         assertThat(resultat.getEkstraAksjonspunktResultat()).hasSize(1);

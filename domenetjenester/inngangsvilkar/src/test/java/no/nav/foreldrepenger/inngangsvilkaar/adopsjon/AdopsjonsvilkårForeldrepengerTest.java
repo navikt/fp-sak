@@ -53,7 +53,7 @@ class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {
-        return BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
+        return BehandlingReferanse.fra(behandling);
     }
 
     @Test

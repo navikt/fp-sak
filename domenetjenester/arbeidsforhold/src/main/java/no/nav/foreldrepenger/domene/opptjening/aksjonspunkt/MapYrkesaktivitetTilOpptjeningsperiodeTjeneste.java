@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
@@ -38,14 +39,14 @@ public final class MapYrkesaktivitetTilOpptjeningsperiodeTjeneste {
     private MapYrkesaktivitetTilOpptjeningsperiodeTjeneste() {
     }
 
-    public static List<OpptjeningsperiodeForSaksbehandling> mapYrkesaktivitet(BehandlingReferanse behandlingReferanse,
+    public static List<OpptjeningsperiodeForSaksbehandling> mapYrkesaktivitet(BehandlingReferanse behandlingReferanse, Skjæringstidspunkt stp,
             Yrkesaktivitet registerAktivitet,
             InntektArbeidYtelseGrunnlag grunnlag,
             OpptjeningAktivitetVurdering vurderForSaksbehandling,
             Map<ArbeidType, Set<OpptjeningAktivitetType>> mapArbeidOpptjening,
             Yrkesaktivitet overstyrtAktivitet) {
         var type = utledOpptjeningType(mapArbeidOpptjening, registerAktivitet.getArbeidType());
-        return new ArrayList<>(mapAktivitetsavtaler(behandlingReferanse, registerAktivitet, grunnlag,
+        return new ArrayList<>(mapAktivitetsavtaler(behandlingReferanse, stp, registerAktivitet, grunnlag,
                 vurderForSaksbehandling, type, overstyrtAktivitet));
     }
 
@@ -57,14 +58,14 @@ public final class MapYrkesaktivitetTilOpptjeningsperiodeTjeneste {
                 .orElse(OpptjeningAktivitetType.UDEFINERT);
     }
 
-    private static List<OpptjeningsperiodeForSaksbehandling> mapAktivitetsavtaler(BehandlingReferanse behandlingReferanse,
+    private static List<OpptjeningsperiodeForSaksbehandling> mapAktivitetsavtaler(BehandlingReferanse behandlingReferanse, Skjæringstidspunkt stp,
             Yrkesaktivitet registerAktivitet,
             InntektArbeidYtelseGrunnlag grunnlag,
             OpptjeningAktivitetVurdering vurderForSaksbehandling,
             OpptjeningAktivitetType type,
             Yrkesaktivitet overstyrtAktivitet) {
         List<OpptjeningsperiodeForSaksbehandling> perioderForAktivitetsavtaler = new ArrayList<>();
-        var skjæringstidspunkt = behandlingReferanse.getUtledetSkjæringstidspunkt();
+        var skjæringstidspunkt = stp.getUtledetSkjæringstidspunkt();
         // Avtale er i praksis en ansettelsesavtale
         for (var avtale : gjeldendeAvtaler(behandlingReferanse, grunnlag, skjæringstidspunkt, registerAktivitet, overstyrtAktivitet)) {
             var builder = OpptjeningsperiodeForSaksbehandling.Builder.ny()
@@ -72,9 +73,9 @@ public final class MapYrkesaktivitetTilOpptjeningsperiodeTjeneste {
                     .medPeriode(avtale.getPeriode())
                     .medBegrunnelse(avtale.getBeskrivelse())
                     .medStillingsandel(finnStillingsprosent(registerAktivitet, avtale));
-            harSaksbehandlerVurdert(builder, type, behandlingReferanse, registerAktivitet, vurderForSaksbehandling, grunnlag);
+            harSaksbehandlerVurdert(builder, type, behandlingReferanse, stp, registerAktivitet, vurderForSaksbehandling, grunnlag);
             settArbeidsgiverInformasjon(gjeldendeAktivitet(registerAktivitet, overstyrtAktivitet), builder);
-            var vurdering = vurderForSaksbehandling.vurderStatus(type, behandlingReferanse, overstyrtAktivitet, grunnlag,
+            var vurdering = vurderForSaksbehandling.vurderStatus(type, behandlingReferanse, stp, overstyrtAktivitet, grunnlag,
                 grunnlag.harBlittSaksbehandlet(), registerAktivitet, avtale);
             builder.medVurderingsStatus(vurdering);
             if (harEndretPåPeriode(avtale.getPeriode(), overstyrtAktivitet)) {
@@ -151,9 +152,9 @@ public final class MapYrkesaktivitetTilOpptjeningsperiodeTjeneste {
     }
 
     private static void harSaksbehandlerVurdert(OpptjeningsperiodeForSaksbehandling.Builder builder, OpptjeningAktivitetType type,
-            BehandlingReferanse behandlingReferanse, Yrkesaktivitet registerAktivitet,
+            BehandlingReferanse behandlingReferanse, Skjæringstidspunkt stp, Yrkesaktivitet registerAktivitet,
             OpptjeningAktivitetVurdering vurderForSaksbehandling, InntektArbeidYtelseGrunnlag grunnlag) {
-        if (vurderForSaksbehandling.vurderStatus(type, behandlingReferanse, registerAktivitet, grunnlag, false)
+        if (vurderForSaksbehandling.vurderStatus(type, behandlingReferanse, stp, registerAktivitet, grunnlag, false)
                 .equals(VurderingsStatus.TIL_VURDERING)) {
             builder.medErManueltBehandlet();
         }

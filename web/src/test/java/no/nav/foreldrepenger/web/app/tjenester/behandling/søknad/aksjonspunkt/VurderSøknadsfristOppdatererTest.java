@@ -66,7 +66,7 @@ class VurderSøknadsfristOppdatererTest {
 
     private AksjonspunktOppdaterParameter aksjonspunktParam(Behandling behandling, BekreftetAksjonspunktDto dto) {
         var ap = behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRIST);
-        return new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, ap);
+        return new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, ap);
     }
 
     @Test

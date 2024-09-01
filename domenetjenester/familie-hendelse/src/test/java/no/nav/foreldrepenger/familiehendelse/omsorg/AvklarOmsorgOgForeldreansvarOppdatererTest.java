@@ -7,8 +7,6 @@ import static org.mockito.Mockito.mock;
 import java.time.LocalDate;
 import java.util.Objects;
 
-import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -37,6 +35,7 @@ import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.AvklarOmsorgOgForeldre
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
+import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 
 class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwareTest {
 
@@ -94,7 +93,7 @@ class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwareTest 
     private OppdateringResultat avklarOmsorgOgForeldreansvar(Behandling behandling, AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto) {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         var resultat = new AvklarOmsorgOgForeldreansvarOppdaterer(repositoryProvider, mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste, lagMockHistory())
-            .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+            .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
         byggVilkårResultat(vilkårBuilder, resultat);
         return resultat;
     }

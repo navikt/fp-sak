@@ -20,14 +20,6 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.validation.Validation;
 
-import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
-import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.prosess.BeregningTjenesteInMemory;
-
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -61,9 +53,16 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntit
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
+import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjenesteInMemory;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -123,8 +122,9 @@ class StønadsstatistikkTjenesteTest {
         var andel = beregningsresultatPeriode.getBeregningsresultatAndelList().getFirst();
 
 
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
-        var vedtak = stønadsstatistikkTjeneste.genererVedtak(ref);
+        var ref = BehandlingReferanse.fra(behandling);
+        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+        var vedtak = stønadsstatistikkTjeneste.genererVedtak(ref, stp);
 
         assertThat(vedtak.getBehandlingUuid()).isEqualTo(behandling.getUuid());
         assertThat(vedtak.getSkjæringstidspunkt()).isEqualTo(fødselsdato);
@@ -244,8 +244,9 @@ class StønadsstatistikkTjenesteTest {
         var andel = beregningsresultatPeriode.getBeregningsresultatAndelList().getFirst();
 
 
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
-        var vedtak = stønadsstatistikkTjeneste. genererVedtak(ref);
+        var ref = BehandlingReferanse.fra(behandling);
+        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+        var vedtak = stønadsstatistikkTjeneste. genererVedtak(ref, stp);
 
         assertThat(vedtak.getFamilieHendelse().hendelseType()).isEqualTo(HendelseType.FØDSEL);
         assertThat(vedtak.getFamilieHendelse().adopsjonsdato()).isNull();
@@ -325,8 +326,9 @@ class StønadsstatistikkTjenesteTest {
         var andel = beregningsresultatPeriode.getBeregningsresultatAndelList().getFirst();
 
 
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
-        var vedtak = stønadsstatistikkTjeneste.genererVedtak(ref);
+        var ref = BehandlingReferanse.fra(behandling);
+        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+        var vedtak = stønadsstatistikkTjeneste.genererVedtak(ref, stp);
 
         assertThat(vedtak.getBehandlingUuid()).isEqualTo(behandling.getUuid());
         assertThat(vedtak.getSkjæringstidspunkt()).isEqualTo(baselineDato);

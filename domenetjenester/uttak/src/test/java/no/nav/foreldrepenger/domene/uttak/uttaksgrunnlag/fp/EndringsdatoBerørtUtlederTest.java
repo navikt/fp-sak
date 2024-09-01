@@ -88,7 +88,7 @@ class EndringsdatoBerørtUtlederTest {
     }
 
     private static UttakInput getUttakInput(Behandling behandling, LocalDate fødselsdato) {
-        return new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag().medFamilieHendelser(
+        return new UttakInput(BehandlingReferanse.fra(behandling), null, null, new ForeldrepengerGrunnlag().medFamilieHendelser(
             new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(null, fødselsdato, List.of(), 1))));
     }
 

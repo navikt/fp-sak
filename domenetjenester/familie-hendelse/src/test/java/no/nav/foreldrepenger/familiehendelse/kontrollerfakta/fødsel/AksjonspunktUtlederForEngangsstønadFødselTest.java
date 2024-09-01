@@ -70,7 +70,7 @@ class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManagerAware
     }
 
     private AksjonspunktUtlederInput lagInput(Behandling behandling) {
-        return new AksjonspunktUtlederInput(BehandlingReferanse.fra(behandling));
+        return new AksjonspunktUtlederInput(BehandlingReferanse.fra(behandling), null);
     }
 
     @Test

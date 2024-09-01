@@ -126,7 +126,7 @@ class FpUtledeAvslutningsdatoTest {
             .medKreverSammenhengendeUttak(false);
 
         when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
-            new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, new ForeldrepengerGrunnlag()));
+            new UttakInput(BehandlingReferanse.fra(behandling), stp.build(), null, new ForeldrepengerGrunnlag()));
 
         var forventetAvslutningsdato = LocalDate.now().plusDays(1);
 
@@ -153,7 +153,7 @@ class FpUtledeAvslutningsdatoTest {
             .medKreverSammenhengendeUttak(false);
 
         when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
-            new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, ytelsespesifiktGrunnlag));
+            new UttakInput(BehandlingReferanse.fra(behandling), stp.build(), null, ytelsespesifiktGrunnlag));
 
         var forventetAvslutningsdatoMin = dødsdato.plusDays(1)
             .plusWeeks(UttakParametre.ukerTilgjengeligEtterDødsfall(LocalDate.now()))
@@ -184,7 +184,7 @@ class FpUtledeAvslutningsdatoTest {
             .medKreverSammenhengendeUttak(false);
 
         when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
-            new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, ytelsespesifiktGrunnlag));
+            new UttakInput(BehandlingReferanse.fra(behandling), stp.build(), null, ytelsespesifiktGrunnlag));
 
         var forventetAvslutningsdato = fødselsdato.plusYears(UttakParametre.årMaksimalStønadsperiode(LocalDate.now()));
         // Act and assert
@@ -215,7 +215,7 @@ class FpUtledeAvslutningsdatoTest {
             .medKreverSammenhengendeUttak(false);
 
         when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
-            new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, ytelsespesifiktGrunnlag));
+            new UttakInput(BehandlingReferanse.fra(behandling), stp.build(), null, ytelsespesifiktGrunnlag));
         when(saldoUtregning.saldo(any(Stønadskontotype.class))).thenReturn(0);
         when(stønadskontoSaldoTjeneste.finnStønadRest(saldoUtregning)).thenReturn(0);
 
@@ -249,7 +249,7 @@ class FpUtledeAvslutningsdatoTest {
             .medKreverSammenhengendeUttak(false);
 
         when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
-            new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, ytelsespesifiktGrunnlag));
+            new UttakInput(BehandlingReferanse.fra(behandling), stp.build(), null, ytelsespesifiktGrunnlag));
         when(saldoUtregning.saldo(any(Stønadskontotype.class))).thenReturn(0);
         when(stønadskontoSaldoTjeneste.finnStønadRest(saldoUtregning)).thenReturn(0);
 
@@ -281,7 +281,7 @@ class FpUtledeAvslutningsdatoTest {
             .medKreverSammenhengendeUttak(false);
 
         when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
-            new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, ytelsespesifiktGrunnlag));
+            new UttakInput(BehandlingReferanse.fra(behandling), stp.build(), null, ytelsespesifiktGrunnlag));
         when(saldoUtregning.saldo(any(Stønadskontotype.class))).thenReturn(0);
         when(stønadskontoSaldoTjeneste.finnStønadRest(saldoUtregning)).thenReturn(0);
 
@@ -317,7 +317,7 @@ class FpUtledeAvslutningsdatoTest {
             .medKreverSammenhengendeUttak(false);
 
         when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
-            new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, ytelsespesifiktGrunnlag));
+            new UttakInput(BehandlingReferanse.fra(behandling), stp.build(), null, ytelsespesifiktGrunnlag));
 
         var totalRest = 3;
         when(saldoUtregning.saldo(any(Stønadskontotype.class))).thenReturn(1);
@@ -358,7 +358,7 @@ class FpUtledeAvslutningsdatoTest {
             .medKreverSammenhengendeUttak(false);
 
         when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
-            new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, ytelsespesifiktGrunnlag));
+            new UttakInput(BehandlingReferanse.fra(behandling), stp.build(), null, ytelsespesifiktGrunnlag));
 
         var trekkdager = new Trekkdager(0);
         when(saldoUtregning.restSaldoEtterNesteStønadsperiode()).thenReturn(trekkdager);
@@ -398,7 +398,7 @@ class FpUtledeAvslutningsdatoTest {
             .medKreverSammenhengendeUttak(false);
 
         when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
-            new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, ytelsespesifiktGrunnlag));
+            new UttakInput(BehandlingReferanse.fra(behandling), stp.build(), null, ytelsespesifiktGrunnlag));
 
         var totalRest = 22;
         var trekkdager = new Trekkdager(22);

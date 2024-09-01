@@ -26,17 +26,14 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.inngangsvilkaar.opptjening.fp.InngangsvilkårOpptjeningsperiode;
-import no.nav.foreldrepenger.inngangsvilkaar.opptjening.fp.OpptjeningsperiodeVilkårTjenesteImpl;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsPeriode;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteImpl;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettBehandling2022;
 
 class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private OpptjeningsperiodeVilkårTjeneste opptjeningsperiodeVilkårTjeneste;
+    private InngangsvilkårOpptjeningsperiode opptjeningsperiodeVilkårTjeneste;
 
     @BeforeEach
     void setUp() {
@@ -45,9 +42,9 @@ class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
         var ytelseMaksdatoTjeneste = new YtelseMaksdatoTjeneste(new RelatertBehandlingTjeneste(repositoryProvider, fagsakRelasjonTjeneste), repositoryProvider.getFpUttakRepository(),
             fagsakRelasjonTjeneste);
         var minsterett2022 = new MinsterettBehandling2022(repositoryProvider, fagsakRelasjonTjeneste);
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste, minsterett2022);
-        opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(
-            repositoryProvider.getFamilieHendelseRepository(), ytelseMaksdatoTjeneste);
+        var skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste, minsterett2022);
+        opptjeningsperiodeVilkårTjeneste = new InngangsvilkårOpptjeningsperiode(repositoryProvider.getFamilieHendelseRepository(),
+            ytelseMaksdatoTjeneste, skjæringstidspunktTjeneste);
     }
 
     @Test
@@ -72,8 +69,7 @@ class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
                 .medNavnPå("Doktor Dankel"));
         var behandling = scenario.lagre(repositoryProvider);
 
-        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
-            lagRef(behandling));
+        var data = opptjeningsperiodeVilkårTjeneste.vurderVilkår(lagRef(behandling));
 
         var op = (OpptjeningsPeriode) data.ekstraVilkårresultat();
         assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(skjæringstidspunkt);
@@ -91,8 +87,7 @@ class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
         scenario.medBekreftetHendelse().medFødselsDato(LocalDate.now()).medAntallBarn(1);
         var behandling = scenario.lagre(repositoryProvider);
 
-        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
-            lagRef(behandling));
+        var data = opptjeningsperiodeVilkårTjeneste.vurderVilkår(lagRef(behandling));
 
         var op = (OpptjeningsPeriode) data.ekstraVilkårresultat();
         assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(LocalDate.now().minusDays(1L));
@@ -125,8 +120,7 @@ class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
         scenario.medBekreftetHendelse().medFødselsDato(LocalDate.now().plusWeeks(14)).medAntallBarn(1);
         var behandling = scenario.lagre(repositoryProvider);
 
-        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
-            lagRef(behandling));
+        var data = opptjeningsperiodeVilkårTjeneste.vurderVilkår(lagRef(behandling));
 
         var op = (OpptjeningsPeriode) data.ekstraVilkårresultat();
         assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(skjæringstidspunkt);
@@ -161,8 +155,7 @@ class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
         scenario.medRegisterOpplysninger(fødtBarn);
         var behandling = scenario.lagre(repositoryProvider);
 
-        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
-            lagRef(behandling));
+        var data = opptjeningsperiodeVilkårTjeneste.vurderVilkår(lagRef(behandling));
 
         var op = (OpptjeningsPeriode) data.ekstraVilkårresultat();
         assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(LocalDate.now().minusDays(1L));
@@ -180,8 +173,7 @@ class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
             .medOppgittFordeling(oppgittFordeling);
         repositoryProvider.getYtelsesFordelingRepository().lagre(behandling.getId(), yfBuilder.build());
 
-        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
-            lagRef(behandling));
+        var data = opptjeningsperiodeVilkårTjeneste.vurderVilkår(lagRef(behandling));
 
         var op = (OpptjeningsPeriode) data.ekstraVilkårresultat();
         assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(LocalDate.of(2018, 1, 1).minusDays(1L));
@@ -199,8 +191,7 @@ class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
             .medOppgittFordeling(oppgittFordeling);
         repositoryProvider.getYtelsesFordelingRepository().lagre(behandling.getId(), yfBuilder.build());
 
-        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
-            lagRef(behandling));
+        var data = opptjeningsperiodeVilkårTjeneste.vurderVilkår(lagRef(behandling));
 
         var op = (OpptjeningsPeriode) data.ekstraVilkårresultat();
         assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(LocalDate.of(2018, 1, 1).minusDays(1L));
@@ -248,8 +239,8 @@ class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {
-        return BehandlingReferanse.fra(behandling,
-            skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
+        return BehandlingReferanse.fra(behandling
+        );
     }
 
 }

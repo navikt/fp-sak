@@ -89,7 +89,7 @@ class MedlemsvilkårOversetterTest {
         medlemskapRepository.lagreMedlemskapVurdering(behandling.getId(), vurdertMedlemskap);
 
         // Act
-        var grunnlag = medlemsoversetter.oversettTilRegelModellMedlemskap(lagRef(behandling));
+        var grunnlag = medlemsoversetter.oversettTilRegelModellMedlemskap(BehandlingReferanse.fra(behandling), skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
 
         // Assert
         assertThat(grunnlag.brukerAvklartBosatt()).isTrue();
@@ -111,7 +111,7 @@ class MedlemsvilkårOversetterTest {
         opprettArbeidOgInntektForBehandling(behandling, skjæringstidspunkt.minusMonths(5), skjæringstidspunkt.minusDays(1), true);
 
         // Act
-        var grunnlag = medlemsoversetter.oversettTilRegelModellMedlemskap(lagRef(behandling));
+        var grunnlag = medlemsoversetter.oversettTilRegelModellMedlemskap(BehandlingReferanse.fra(behandling), skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
 
         // Assert
         assertThat(grunnlag.harSøkerArbeidsforholdOgInntekt()).isFalse();
@@ -127,7 +127,7 @@ class MedlemsvilkårOversetterTest {
         opprettArbeidOgInntektForBehandling(behandling, skjæringstidspunkt.minusMonths(5), skjæringstidspunkt.plusDays(10), false);
 
         // Act
-        var grunnlag = medlemsoversetter.oversettTilRegelModellMedlemskap(lagRef(behandling));
+        var grunnlag = medlemsoversetter.oversettTilRegelModellMedlemskap(BehandlingReferanse.fra(behandling), skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
 
         // Assert
         assertThat(grunnlag.harSøkerArbeidsforholdOgInntekt()).isFalse();
@@ -218,10 +218,6 @@ class MedlemsvilkårOversetterTest {
             aktørInntektBuilder.leggTilInntekt(inntektBuilder);
             inntektArbeidYtelseAggregatBuilder.leggTilAktørInntekt(aktørInntektBuilder);
         });
-    }
-
-    private BehandlingReferanse lagRef(Behandling behandling) {
-        return BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
     }
 
 }

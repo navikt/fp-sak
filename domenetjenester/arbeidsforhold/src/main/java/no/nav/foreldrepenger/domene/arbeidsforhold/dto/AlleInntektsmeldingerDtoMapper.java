@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
@@ -27,18 +28,17 @@ public class AlleInntektsmeldingerDtoMapper {
         this.virksomhetTjeneste = virksomhetTjeneste;
     }
 
-    public InntektsmeldingerDto mapInntektsmeldinger(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
+    public InntektsmeldingerDto mapInntektsmeldinger(BehandlingReferanse ref, Skjæringstidspunkt stp, InntektArbeidYtelseGrunnlag iayGrunnlag) {
         if (!FagsakYtelseType.ENGANGSTØNAD.equals(ref.fagsakYtelseType())) {
-            return new InntektsmeldingerDto(lagInntektsmeldingDto(ref, iayGrunnlag));
+            return new InntektsmeldingerDto(lagInntektsmeldingDto(ref, stp, iayGrunnlag));
         } else {
             return new InntektsmeldingerDto(List.of());
         }
     }
 
-    private List<InntektsmeldingDto> lagInntektsmeldingDto(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        var dato = ref.getUtledetSkjæringstidspunkt();
-        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, dato, iayGrunnlag,
-            ref.getSkjæringstidspunkt().getFørsteUttaksdatoSøknad().isPresent());
+    private List<InntektsmeldingDto> lagInntektsmeldingDto(BehandlingReferanse ref, Skjæringstidspunkt stp, InntektArbeidYtelseGrunnlag iayGrunnlag) {
+        var dato = stp.getUtledetSkjæringstidspunkt();
+        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, stp, dato, iayGrunnlag, stp.getFørsteUttaksdatoSøknad().isPresent());
         return inntektsmeldinger.stream()
                 .map(inntektsmelding -> {
                     var virksomhet = virksomhetTjeneste.finnOrganisasjon(inntektsmelding.getArbeidsgiver().getOrgnr());

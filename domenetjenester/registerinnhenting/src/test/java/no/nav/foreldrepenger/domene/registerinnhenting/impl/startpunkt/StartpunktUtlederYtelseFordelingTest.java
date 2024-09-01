@@ -74,7 +74,7 @@ class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest {
         var revSkjæringstidspunkt = Skjæringstidspunkt.builder().medFørsteUttaksdato(endretUttaksdato).medUtledetSkjæringstidspunkt(endretUttaksdato).build();
 
         // Act/Assert
-        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, revSkjæringstidspunkt), 1L, 2L)).isEqualTo(INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
+        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering), revSkjæringstidspunkt, 1L, 2L)).isEqualTo(INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
     }
 
     @Test
@@ -94,7 +94,7 @@ class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest {
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
         // Act/Assert
-        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, revSkjæringstidspunkt), 1L, 2L)).isEqualTo(INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
+        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering), revSkjæringstidspunkt, 1L, 2L)).isEqualTo(INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
     }
 
     @Test
@@ -112,7 +112,7 @@ class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest {
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
         // Act/Assert
-        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt), 1L, 2L)).isEqualTo(BEREGNING);
+        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering), skjæringstidspunkt, 1L, 2L)).isEqualTo(BEREGNING);
     }
 
     @Test
@@ -129,7 +129,7 @@ class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest {
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
         // Act/Assert
-        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt), 1L, 2L)).isEqualTo(UTTAKSVILKÅR);
+        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering), skjæringstidspunkt, 1L, 2L)).isEqualTo(UTTAKSVILKÅR);
     }
 
     @Test
@@ -147,7 +147,7 @@ class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest {
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
         // Act/Assert
-        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt), 1L, 2L)).isEqualTo(BEREGNING);
+        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering), skjæringstidspunkt, 1L, 2L)).isEqualTo(BEREGNING);
     }
 
     @Test
@@ -165,7 +165,7 @@ class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest {
         opprettYtelsesFordelingMedGradering(revurdering, AG1, ARBEIDSPROSENT_30);
 
         // Act/Assert
-        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt), 1L, 2L)).isEqualTo(BEREGNING);
+        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering), skjæringstidspunkt, 1L, 2L)).isEqualTo(BEREGNING);
     }
 
     @Test
@@ -183,7 +183,7 @@ class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest {
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
         // Act
-        var startpunkt = utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt), 1L, 2L);
+        var startpunkt = utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering), skjæringstidspunkt, 1L, 2L);
 
         // Assert
         assertThat(startpunkt).isEqualTo(BEREGNING);
@@ -204,7 +204,7 @@ class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest {
         lagreEndringssøknad(revurdering);
 
         // Act
-        var startpunkt = utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt), 1L, 2L);
+        var startpunkt = utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering), skjæringstidspunkt, 1L, 2L);
 
         // Assert
         assertThat(startpunkt).isEqualTo(UTTAKSVILKÅR);

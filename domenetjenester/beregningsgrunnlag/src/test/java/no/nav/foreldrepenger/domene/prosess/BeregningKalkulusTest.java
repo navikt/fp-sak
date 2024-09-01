@@ -1,19 +1,14 @@
 package no.nav.foreldrepenger.domene.prosess;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKobling;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKoblingRepository;
-import no.nav.foreldrepenger.domene.mappers.KalkulusInputTjeneste;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
-import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.jboss.weld.exceptions.IllegalStateException;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,16 +17,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKobling;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKoblingRepository;
+import no.nav.foreldrepenger.domene.mappers.KalkulusInputTjeneste;
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ExtendWith(MockitoExtension.class)
 class BeregningKalkulusTest {
@@ -132,8 +129,7 @@ class BeregningKalkulusTest {
             BehandlingType.FØRSTEGANGSSØKNAD,
             null,
             new AktørId("9999999999999"),
-            RelasjonsRolleType.MORA,
-            Skjæringstidspunkt.builder().medSkjæringstidspunktOpptjening(LocalDate.now().minusMonths(1)).build());
+            RelasjonsRolleType.MORA);
     }
 
 }

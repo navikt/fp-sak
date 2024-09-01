@@ -74,7 +74,7 @@ class KompletthetsjekkerRevurderingImplTest extends EntityManagerAwareTest {
 
         // Act
         assertThat(kompletthetsjekkerRevurderingImpl).isNotNull();
-        var kompletthetResultat = kompletthetsjekkerRevurderingImpl.vurderForsendelseKomplett(lagRef(behandling));
+        var kompletthetResultat = kompletthetsjekkerRevurderingImpl.vurderForsendelseKomplett(lagRef(behandling), null);
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
@@ -93,7 +93,7 @@ class KompletthetsjekkerRevurderingImplTest extends EntityManagerAwareTest {
 
         // Act
         assertThat(kompletthetsjekkerRevurderingImpl).isNotNull();
-        var kompletthetResultat = kompletthetsjekkerRevurderingImpl.vurderForsendelseKomplett(lagRef(behandling));
+        var kompletthetResultat = kompletthetsjekkerRevurderingImpl.vurderForsendelseKomplett(lagRef(behandling), null);
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isTrue();

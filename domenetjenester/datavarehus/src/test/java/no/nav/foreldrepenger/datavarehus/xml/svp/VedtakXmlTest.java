@@ -121,8 +121,8 @@ class VedtakXmlTest {
 
         var poXmlFelles = new PersonopplysningXmlFelles(personinfoAdapter);
         var personopplysningXmlTjeneste = new PersonopplysningXmlTjenesteImpl(poXmlFelles,
-            repositoryProvider, personopplysningTjeneste, iayTjeneste, ytelseFordelingTjeneste,
-            mock(VergeRepository.class), mock(VirksomhetTjeneste.class));
+            repositoryProvider, personopplysningTjeneste, iayTjeneste,
+                mock(VergeRepository.class), mock(VirksomhetTjeneste.class));
         var vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
         fpSakVedtakXmlTjeneste = new FatteVedtakXmlTjeneste(repositoryProvider, vedtakXmlTjeneste,
                 new UnitTestLookupInstanceImpl<>(personopplysningXmlTjeneste),

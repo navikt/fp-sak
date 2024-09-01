@@ -62,7 +62,7 @@ class BekreftErMedlemOppdatererTest extends EntityManagerAwareTest {
         var medlemskapTjeneste = new MedlemskapAksjonspunktTjeneste(repositoryProvider, mock(HistorikkTjenesteAdapter.class),
             skjæringstidspunktTjeneste);
         new BekreftErMedlemVurderingOppdaterer(repositoryProvider, lagMockHistory(), medlemskapTjeneste)
-                .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+                .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
 
         // Assert
         var vurdertMedlemskap = getVurdertMedlemskap(behandling.getId(), repositoryProvider);

@@ -6,6 +6,7 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FamilieHendelseDato;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -40,11 +41,11 @@ class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
     }
 
     @Override
-    public StartpunktType utledStartpunkt(BehandlingReferanse ref, Object id1, Object id2) {
+    public StartpunktType utledStartpunkt(BehandlingReferanse ref, Skjæringstidspunkt stp, Object id1, Object id2) {
         var grunnlag1 = (long) id1;
         var grunnlag2 = (long) id2;
 
-        if (erSkjæringstidspunktEndret(ref)) {
+        if (erSkjæringstidspunktEndret(ref, stp)) {
             FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT, "skjæringstidspunkt", grunnlag1, grunnlag2);
             return StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
         }
@@ -65,12 +66,12 @@ class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
         return StartpunktType.UTTAKSVILKÅR;
     }
 
-    private boolean erSkjæringstidspunktEndret(BehandlingReferanse ref) {
-        var nySkjæringstidspunkt = ref.getUtledetSkjæringstidspunkt();
+    private boolean erSkjæringstidspunktEndret(BehandlingReferanse ref, Skjæringstidspunkt stp) {
+        var nySkjæringstidspunkt = stp.getUtledetSkjæringstidspunkt();
         var origSkjæringstidspunkt = ref.getOriginalBehandlingId()
             .map(origId -> skjæringstidspunktTjeneste.getSkjæringstidspunkter(origId).getUtledetSkjæringstidspunkt());
 
-        var nyBekreftetFødselsdato = ref.getSkjæringstidspunkt().getFamilieHendelseDato()
+        var nyBekreftetFødselsdato = stp.getFamilieHendelseDato()
             .map(FamilieHendelseDato::familieHendelseDato).orElse(null);
         var origBekreftetFødselsdato = ref.getOriginalBehandlingId()
             .flatMap(origId -> familieHendelseTjeneste.hentAggregat(origId).getGjeldendeBekreftetVersjon())
@@ -87,7 +88,7 @@ class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
                     return true;
                 }
             }
-            if (!RelasjonsRolleType.MORA.equals(ref.relasjonRolle()) && ref.getSkjæringstidspunkt().uttakSkalJusteresTilFødselsdato() && !nyBekreftetFødselsdato.equals(origBekreftetFødselsdato)) {
+            if (!RelasjonsRolleType.MORA.equals(ref.relasjonRolle()) && stp.uttakSkalJusteresTilFødselsdato() && !nyBekreftetFødselsdato.equals(origBekreftetFødselsdato)) {
                 var nyFørsteUttaksdato = VirkedagUtil.fomVirkedag(nyBekreftetFødselsdato);
                 if (!nyFørsteUttaksdato.equals(nySkjæringstidspunkt) || origSkjæringstidspunkt.filter(nyFørsteUttaksdato::equals).isEmpty()) {
                     return true;

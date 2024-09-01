@@ -16,6 +16,7 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
@@ -47,27 +48,26 @@ public class OpptjeningsperioderUtenOverstyringTjeneste {
         this.opptjeningRepository = opptjeningRepository;
     }
 
-    public List<OpptjeningsperiodeForSaksbehandling> mapPerioderForSaksbehandling(BehandlingReferanse behandlingReferanse,
+    public List<OpptjeningsperiodeForSaksbehandling> mapPerioderForSaksbehandling(BehandlingReferanse behandlingReferanse, Skjæringstidspunkt skjæringstidspunkt,
             InntektArbeidYtelseGrunnlag grunnlag,
             OpptjeningAktivitetVurdering vurderOpptjening) {
         var aktørId = behandlingReferanse.aktørId();
         List<OpptjeningsperiodeForSaksbehandling> perioder = new ArrayList<>();
-        var skjæringstidspunkt = behandlingReferanse.getUtledetSkjæringstidspunkt();
 
         var mapArbeidOpptjening = OpptjeningAktivitetType.hentFraArbeidTypeRelasjoner();
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(aktørId))
-                .før(skjæringstidspunkt);
+                .før(skjæringstidspunkt.getUtledetSkjæringstidspunkt());
         for (var yrkesaktivitet : filter.getYrkesaktiviteterForBeregning()) {
             var opptjeningsperioder = MapYrkesaktivitetTilOpptjeningsperiodeTjeneste.mapYrkesaktivitet(
-                    behandlingReferanse, yrkesaktivitet, grunnlag, vurderOpptjening, mapArbeidOpptjening, null);
+                    behandlingReferanse, skjæringstidspunkt, yrkesaktivitet, grunnlag, vurderOpptjening, mapArbeidOpptjening, null);
             perioder.addAll(opptjeningsperioder);
         }
 
         var oppgittOpptjening = grunnlag.getGjeldendeOppgittOpptjening();
         perioder.addAll(mapOppgittOpptjening(mapArbeidOpptjening, oppgittOpptjening));
         perioder.addAll(MapYtelseperioderTjeneste.mapYtelsePerioder(behandlingReferanse, grunnlag, vurderOpptjening, skjæringstidspunkt));
-        lagOpptjeningsperiodeForFrilansAktivitet(behandlingReferanse, oppgittOpptjening.orElse(null), grunnlag, perioder, skjæringstidspunkt,
-                mapArbeidOpptjening).ifPresent(perioder::add);
+        lagOpptjeningsperiodeForFrilansAktivitet(behandlingReferanse, oppgittOpptjening.orElse(null), grunnlag, perioder,
+            skjæringstidspunkt.getUtledetSkjæringstidspunkt(), mapArbeidOpptjening).ifPresent(perioder::add);
 
         return perioder.stream().sorted(Comparator.comparing(OpptjeningsperiodeForSaksbehandling::getPeriode)).toList();
     }

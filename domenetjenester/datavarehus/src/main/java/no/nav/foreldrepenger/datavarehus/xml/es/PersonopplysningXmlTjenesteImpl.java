@@ -31,6 +31,7 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.es.v2.Addresse;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.es.v2.Adopsjon;
@@ -78,17 +79,17 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
             var familieHendelseGrunnlag = familieHendelseAggregatOptional.get();
             setAdopsjon(personopplysninger, familieHendelseGrunnlag, personopplysningerAggregat);
             setFoedsel(personopplysninger, familieHendelseGrunnlag);
-            setVerge(behandlingId, personopplysninger);
+            setVerge(behandlingId,  personopplysninger);
             setMedlemskapsperioder(behandlingId, personopplysninger);
             setOmsorgsovertakelse(personopplysninger, familieHendelseGrunnlag);
             setTerminbekreftelse(personopplysninger, familieHendelseGrunnlag);
         }
 
         var skjæringstidspunkt = skjæringstidspunkter.getUtledetSkjæringstidspunkt();
-        setAdresse(personopplysninger, personopplysningerAggregat);
+        setAdresse(skjæringstidspunkter, personopplysninger, personopplysningerAggregat);
         setInntekter(behandlingId, personopplysninger, skjæringstidspunkt);
-        setBruker(personopplysninger, personopplysningerAggregat);
-        setFamilierelasjoner(personopplysninger, personopplysningerAggregat);
+        setBruker(skjæringstidspunkter, personopplysninger, personopplysningerAggregat);
+        setFamilierelasjoner(skjæringstidspunkter, personopplysninger, personopplysningerAggregat);
         setRelaterteYtelser(behandlingId, aktørId, personopplysninger, skjæringstidspunkt);
         return personopplysningObjectFactory.createPersonopplysningerEngangsstoenad(personopplysninger);
     }
@@ -192,7 +193,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
         }
     }
 
-    private void setFamilierelasjoner(PersonopplysningerEngangsstoenad personopplysninger, PersonopplysningerAggregat aggregat) {
+    private void setFamilierelasjoner(Skjæringstidspunkt stp, PersonopplysningerEngangsstoenad personopplysninger, PersonopplysningerAggregat aggregat) {
         var aktørPersonopplysningMap = aggregat.getAktørPersonopplysningMap();
         var tilPersoner = aggregat.getSøkersRelasjoner().stream().filter(r -> aktørPersonopplysningMap.get(r.getTilAktørId()) != null).toList();
         if (!tilPersoner.isEmpty()) {
@@ -200,12 +201,12 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
             personopplysninger.setFamilierelasjoner(familierelasjoner);
             tilPersoner.forEach(relasjon -> personopplysninger.getFamilierelasjoner()
                 .getFamilierelasjon()
-                .add(lagRelasjon(relasjon, aktørPersonopplysningMap.get(relasjon.getTilAktørId()), aggregat)));
+                .add(lagRelasjon(stp, relasjon, aktørPersonopplysningMap.get(relasjon.getTilAktørId()), aggregat)));
         }
     }
 
-    private void setBruker(PersonopplysningerEngangsstoenad personopplysninger, PersonopplysningerAggregat personopplysningerAggregat) {
-        var person = personopplysningFellesTjeneste.lagBruker(personopplysningerAggregat, personopplysningerAggregat.getSøker());
+    private void setBruker(Skjæringstidspunkt stp, PersonopplysningerEngangsstoenad personopplysninger, PersonopplysningerAggregat personopplysningerAggregat) {
+        var person = personopplysningFellesTjeneste.lagBruker(stp, personopplysningerAggregat, personopplysningerAggregat.getSøker());
         personopplysninger.setBruker(person);
     }
 
@@ -241,9 +242,9 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
         return inntektList;
     }
 
-    private void setAdresse(PersonopplysningerEngangsstoenad personopplysninger, PersonopplysningerAggregat personopplysningerAggregat) {
+    private void setAdresse(Skjæringstidspunkt stp, PersonopplysningerEngangsstoenad personopplysninger, PersonopplysningerAggregat personopplysningerAggregat) {
         var personopplysning = personopplysningerAggregat.getSøker();
-        var opplysningAdresser = personopplysningerAggregat.getAdresserFor(personopplysning.getAktørId());
+        var opplysningAdresser = personopplysningerAggregat.getAdresserFor(personopplysning.getAktørId(), SimpleLocalDateInterval.enDag(stp.getUtledetSkjæringstidspunkt()));
         if (opplysningAdresser != null) {
             opplysningAdresser.forEach(addresse -> personopplysninger.getAdresse().add(lagAdresse(personopplysning, addresse)));
         }
@@ -302,9 +303,9 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
         return adopsjonAdopsjonsbarn;
     }
 
-    private Familierelasjon lagRelasjon(PersonRelasjonEntitet relasjon, PersonopplysningEntitet tilPerson, PersonopplysningerAggregat aggregat) {
+    private Familierelasjon lagRelasjon(Skjæringstidspunkt stp, PersonRelasjonEntitet relasjon, PersonopplysningEntitet tilPerson, PersonopplysningerAggregat aggregat) {
         var familierelasjon = personopplysningObjectFactory.createFamilierelasjon();
-        var person = personopplysningFellesTjeneste.lagBruker(aggregat, tilPerson);
+        var person = personopplysningFellesTjeneste.lagBruker(stp, aggregat, tilPerson);
         familierelasjon.setTilPerson(person);
         familierelasjon.setRelasjon(VedtakXmlUtil.lagKodeverksOpplysning(relasjon.getRelasjonsrolle()));
         return familierelasjon;

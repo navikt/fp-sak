@@ -273,14 +273,14 @@ class FastsettePerioderRegelAdapterTest {
             //Stp ikke relevant for testene, må bare være fom første søkte periode
             .medUtledetSkjæringstidspunkt(utledetStp)
             .build();
-        var ref = BehandlingReferanse.fra(behandling, stp);
+        var ref = BehandlingReferanse.fra(behandling);
         var originalBehandling = behandling.getOriginalBehandlingId().isPresent() ? new OriginalBehandling(
             behandling.getOriginalBehandlingId().get(), null) : null;
         YtelsespesifiktGrunnlag ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag()
             .medErBerørtBehandling(berørtBehandling)
             .medFamilieHendelser(familieHendelser)
             .medOriginalBehandling(originalBehandling);
-        return new UttakInput(ref, iayTjeneste.hentGrunnlag(behandling.getId()), ytelsespesifiktGrunnlag)
+        return new UttakInput(ref, stp, iayTjeneste.hentGrunnlag(behandling.getId()), ytelsespesifiktGrunnlag)
             .medBeregningsgrunnlagStatuser(beregningsandelTjeneste.hentStatuser());
     }
 
@@ -816,12 +816,12 @@ class FastsettePerioderRegelAdapterTest {
 
         var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1);
         var familieHendelser = new FamilieHendelser().medBekreftetHendelse(familieHendelse);
-        var ref = BehandlingReferanse.fra(morBehandlingRevurdering, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(fødselsdato).medUtenMinsterett(true).build());
+        var ref = BehandlingReferanse.fra(morBehandlingRevurdering);
         var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medErBerørtBehandling(true)
             .medFamilieHendelser(familieHendelser)
             .medAnnenpart(new Annenpart(farBehandling.getId(), fødselsdato.atStartOfDay()))
             .medOriginalBehandling(new OriginalBehandling(morBehandling.getId(), null));
-        var input = new UttakInput(ref, tomIay(), ytelsespesifiktGrunnlag)
+        var input = new UttakInput(ref, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(fødselsdato).medUtenMinsterett(true).build(), tomIay(), ytelsespesifiktGrunnlag)
             .medBeregningsgrunnlagStatuser(andelTjeneste.hentStatuser());
         var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input, lagStønadskontoer());
 

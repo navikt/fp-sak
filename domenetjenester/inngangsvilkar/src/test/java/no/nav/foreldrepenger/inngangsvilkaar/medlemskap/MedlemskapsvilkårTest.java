@@ -48,7 +48,6 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.AvklarMedlemskapUtleder;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
 @CdiDbAwareTest
@@ -59,13 +58,10 @@ class MedlemskapsvilkårTest {
     @Inject
     private PersonopplysningTjeneste personopplysningTjeneste;
 
-    private MedlemsvilkårOversetter oversetter;
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
     private InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     private InngangsvilkårMedlemskap vurderMedlemskapsvilkarEngangsstonad;
     private YrkesaktivitetBuilder yrkesaktivitetBuilder;
@@ -79,10 +75,10 @@ class MedlemskapsvilkårTest {
 
     @BeforeEach
     public void before() {
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider);
-        this.oversetter = new MedlemsvilkårOversetter(repositoryProvider, personopplysningTjeneste, iayTjeneste);
+        var skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider);
+        var oversetter = new MedlemsvilkårOversetter(repositoryProvider, personopplysningTjeneste, iayTjeneste);
         this.vurderMedlemskapsvilkarEngangsstonad = new InngangsvilkårMedlemskap(oversetter, repositoryProvider.getBehandlingRepository(),
-            avklarMedlemskapUtleder);
+            avklarMedlemskapUtleder, skjæringstidspunktTjeneste);
     }
 
     /**
@@ -595,7 +591,7 @@ class MedlemskapsvilkårTest {
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {
-        return BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
+        return BehandlingReferanse.fra(behandling);
     }
 
 }

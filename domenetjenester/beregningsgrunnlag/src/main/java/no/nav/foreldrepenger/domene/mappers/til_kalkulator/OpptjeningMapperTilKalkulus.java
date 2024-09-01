@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.folketrygdloven.kalkulator.modell.opptjening.OpptjeningAktiviteterDto;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.mappers.RelevantOpptjeningMapper;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
@@ -18,8 +19,9 @@ public class OpptjeningMapperTilKalkulus {
     }
 
     public static OpptjeningAktiviteterDto mapOpptjeningAktiviteter(OpptjeningAktiviteter opptjeningAktiviteter,
-                                                                    InntektArbeidYtelseGrunnlag iayGrunnlag, BehandlingReferanse ref) {
-        var relevanteAktiviteter = RelevantOpptjeningMapper.map(opptjeningAktiviteter, iayGrunnlag, ref);
+                                                                    InntektArbeidYtelseGrunnlag iayGrunnlag,
+                                                                    BehandlingReferanse ref, Skjæringstidspunkt stp) {
+        var relevanteAktiviteter = RelevantOpptjeningMapper.map(opptjeningAktiviteter, iayGrunnlag, ref, stp);
         var opptjeningInput = new OpptjeningAktiviteterDto(relevanteAktiviteter
             .stream()
             .map(opptjeningPeriode -> OpptjeningAktiviteterDto.nyPeriode(

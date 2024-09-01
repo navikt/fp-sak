@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPe
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.vedtak.konfig.Tid;
 
 /**
@@ -40,7 +41,7 @@ public class MedlemskapPerioderTjeneste {
 
         // Premiss alternativ 2: Bruker er registert med dekningstype "Unntatt", og ikke er bosatt med statsb. USA/PNG
         var erPeriodeRegistrertSomUnntatt = erRegistrertSomUnntatt(dekningTyper);
-        var harStatsborgerskapUsaEllerPng = harStatsborgerskapUsaEllerPng(personopplysningerAggregat);
+        var harStatsborgerskapUsaEllerPng = harStatsborgerskapUsaEllerPng(personopplysningerAggregat, skjæringstidspunkt);
 
         var erIkkeUsaEllerPngOgUntatt = !harStatsborgerskapUsaEllerPng
             && erPeriodeRegistrertSomUnntatt;
@@ -99,19 +100,21 @@ public class MedlemskapPerioderTjeneste {
      * @param personopplysningerAggregat
      */
 
-    public boolean harStatsborgerskapUsaEllerPng(PersonopplysningerAggregat personopplysningerAggregat) {
+    public boolean harStatsborgerskapUsaEllerPng(PersonopplysningerAggregat personopplysningerAggregat, LocalDate skjæringstidspunkt) {
         if (personopplysningerAggregat == null) {
             return false;
         }
-        return personopplysningerAggregat.harStatsborgerskap(personopplysningerAggregat.getSøker().getAktørId(), Landkoder.USA) ||
-            personopplysningerAggregat.harStatsborgerskap(personopplysningerAggregat.getSøker().getAktørId(), Landkoder.PNG);
+        var forPeriode = SimpleLocalDateInterval.enDag(skjæringstidspunkt);
+        return personopplysningerAggregat.harStatsborgerskap(personopplysningerAggregat.getSøker().getAktørId(), Landkoder.USA, forPeriode) ||
+            personopplysningerAggregat.harStatsborgerskap(personopplysningerAggregat.getSøker().getAktørId(), Landkoder.PNG, forPeriode);
     }
 
-    public boolean erStatusUtvandret(PersonopplysningerAggregat bruker) {
+    public boolean erStatusUtvandret(PersonopplysningerAggregat bruker, LocalDate vurderingsdato) {
+        var vurderingsIntervall = SimpleLocalDateInterval.enDag(vurderingsdato);
         return bruker != null && bruker.getSøker() != null
-            && bruker.getPersonstatusFor(bruker.getSøker().getAktørId()) != null
-            && bruker.getPersonstatusFor(bruker.getSøker().getAktørId()).getPersonstatus() != null
-            && bruker.getPersonstatusFor(bruker.getSøker().getAktørId()).getPersonstatus().equals(PersonstatusType.UTVA);
+            && bruker.getPersonstatusFor(bruker.getSøker().getAktørId(), vurderingsIntervall) != null
+            && bruker.getPersonstatusFor(bruker.getSøker().getAktørId(), vurderingsIntervall).getPersonstatus() != null
+            && bruker.getPersonstatusFor(bruker.getSøker().getAktørId(), vurderingsIntervall).getPersonstatus().equals(PersonstatusType.UTVA);
     }
 
     /**

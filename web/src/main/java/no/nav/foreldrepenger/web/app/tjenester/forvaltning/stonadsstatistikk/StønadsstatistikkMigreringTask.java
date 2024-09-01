@@ -124,7 +124,7 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
         LOG.info("Produserer stønadsstatistikk for sak {} behandling {} vedtak {} fattet {}", behandling.getFagsak().getSaksnummer().getVerdi(), behandling.getId(),
             vedtak.getId(), vedtak.getOpprettetTidspunkt());
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-        var generertVedtak = stønadsstatistikkTjeneste.genererVedtak(BehandlingReferanse.fra(behandling, stp));
+        var generertVedtak = stønadsstatistikkTjeneste.genererVedtak(BehandlingReferanse.fra(behandling), stp);
         var violations = validator.validate(generertVedtak);
         if (!violations.isEmpty()) {
             // Har feilet validering

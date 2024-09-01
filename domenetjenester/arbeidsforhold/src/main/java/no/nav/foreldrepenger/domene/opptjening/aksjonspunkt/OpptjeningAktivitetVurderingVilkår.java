@@ -29,16 +29,17 @@ public class OpptjeningAktivitetVurderingVilkår implements OpptjeningAktivitetV
 
     @Override
     public VurderingsStatus vurderStatus(OpptjeningAktivitetType type,
-            BehandlingReferanse behandlingReferanse,
+            BehandlingReferanse behandlingReferanse, Skjæringstidspunkt skjæringstidspunkt,
             Yrkesaktivitet overstyrtAktivitet,
             InntektArbeidYtelseGrunnlag iayGrunnlag,
             boolean harVærtSaksbehandlet) {
-        return vurderStatus(type, behandlingReferanse, overstyrtAktivitet, iayGrunnlag, harVærtSaksbehandlet, null, null);
+        return vurderStatus(type, behandlingReferanse, skjæringstidspunkt, overstyrtAktivitet, iayGrunnlag, harVærtSaksbehandlet, null, null);
     }
 
     @Override
     public VurderingsStatus vurderStatus(OpptjeningAktivitetType type,
                                          BehandlingReferanse behandlingReferanse,
+                                         Skjæringstidspunkt skjæringstidspunkt,
                                          Yrkesaktivitet overstyrtAktivitet,
                                          InntektArbeidYtelseGrunnlag iayGrunnlag,
                                          boolean harVærtSaksbehandlet,
@@ -48,7 +49,6 @@ public class OpptjeningAktivitetVurderingVilkår implements OpptjeningAktivitetV
             return vurderAnnenOpptjening(overstyrtAktivitet);
         }
         if (OpptjeningAktivitetType.NÆRING.equals(type)) {
-            var skjæringstidspunkt = behandlingReferanse.getSkjæringstidspunkt();
             return vurderNæring(behandlingReferanse.behandlingId(), behandlingReferanse.aktørId(), iayGrunnlag, overstyrtAktivitet,
                 skjæringstidspunkt);
         }

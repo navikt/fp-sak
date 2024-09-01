@@ -39,7 +39,6 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
 public class FpDtoTjeneste {
@@ -50,7 +49,6 @@ public class FpDtoTjeneste {
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
     private PersonopplysningTjeneste personopplysningTjeneste;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private UføretrygdRepository uføretrygdRepository;
     private DtoTjenesteFelles felles;
 
@@ -59,7 +57,6 @@ public class FpDtoTjeneste {
                          ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
                          PersonopplysningTjeneste personopplysningTjeneste,
                          YtelseFordelingTjeneste ytelseFordelingTjeneste,
-                         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                          UføretrygdRepository uføretrygdRepository,
                          DtoTjenesteFelles felles,
                          DekningsgradTjeneste dekningsgradTjeneste) {
@@ -68,7 +65,6 @@ public class FpDtoTjeneste {
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
-        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.uføretrygdRepository = uføretrygdRepository;
         this.felles = felles;
     }
@@ -150,8 +146,7 @@ public class FpDtoTjeneste {
     }
 
     private Set<String> finnFødteBarn(Behandling behandling) {
-        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        var ref = BehandlingReferanse.fra(behandling);
         return personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref)
             .map(pi -> pi.getBarna().stream().map(barn -> barn.getAktørId().getId()).collect(Collectors.toSet()))
             .orElse(Set.of());

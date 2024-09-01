@@ -57,7 +57,7 @@ class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityManagerAwar
 
     private AksjonspunktUtlederInput lagRef(Behandling behandling) {
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
-        return new AksjonspunktUtlederInput(BehandlingReferanse.fra(behandling, skjæringstidspunkt));
+        return new AksjonspunktUtlederInput(BehandlingReferanse.fra(behandling), skjæringstidspunkt);
     }
 
     @Test

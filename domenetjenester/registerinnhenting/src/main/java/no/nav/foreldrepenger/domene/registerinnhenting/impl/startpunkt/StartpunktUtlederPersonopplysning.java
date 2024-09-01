@@ -9,6 +9,7 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
@@ -44,19 +45,19 @@ class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
     }
 
     @Override
-    public StartpunktType utledStartpunkt(BehandlingReferanse ref, Object grunnlagId1, Object grunnlagId2) {
+    public StartpunktType utledStartpunkt(BehandlingReferanse ref, Skjæringstidspunkt stp, Object grunnlagId1, Object grunnlagId2) {
         var grunnlag1 = personopplysningRepository.hentGrunnlagPåId((Long)grunnlagId1);
         var grunnlag2 = personopplysningRepository.hentGrunnlagPåId((Long)grunnlagId2);
 
-        return hentAlleStartpunktForPersonopplysninger(ref, grunnlag1, grunnlag2).stream()
+        return hentAlleStartpunktForPersonopplysninger(ref, stp, grunnlag1, grunnlag2).stream()
             .min(Comparator.comparing(StartpunktType::getRangering))
             .orElse(StartpunktType.UDEFINERT);
     }
 
     // Finn endringer per aggregat under grunnlaget og map dem mot startpunkt. Dekker bruker og PDL-relaterte personer (barn, ekte). Bør spisses der det er behov.
-    private List<StartpunktType> hentAlleStartpunktForPersonopplysninger(BehandlingReferanse ref,
+    private List<StartpunktType> hentAlleStartpunktForPersonopplysninger(BehandlingReferanse ref, Skjæringstidspunkt stp,
                                                                          PersonopplysningGrunnlagEntitet grunnlag1, PersonopplysningGrunnlagEntitet grunnlag2) {
-        var skjæringstidspunkt = ref.getUtledetSkjæringstidspunkt();
+        var skjæringstidspunkt = stp.getUtledetSkjæringstidspunkt();
         var aktørId = ref.aktørId();
 
         var poDiff = new PersonopplysningGrunnlagDiff(aktørId, grunnlag1, grunnlag2);

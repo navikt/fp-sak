@@ -57,7 +57,8 @@ public class Kompletthetskontroller {
     void persisterDokumentOgVurderKompletthet(Behandling behandling, MottattDokument mottattDokument) {
         // Ta snapshot av gjeldende grunnlag-id-er før oppdateringer
         var behandlingId = behandling.getId();
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
+        var ref = BehandlingReferanse.fra(behandling);
+        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
 
         var grunnlagSnapshot = behandlingProsesseringTjeneste.taSnapshotAvBehandlingsgrunnlag(behandling);
 
@@ -66,7 +67,7 @@ public class Kompletthetskontroller {
 
         // Vurder kompletthet etter at dokument knyttet til behandling - med mindre man venter på registrering av papirsøknad
         var åpneAksjonspunkter = behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT).stream().map(Aksjonspunkt::getAksjonspunktDefinisjon).toList();
-        var kompletthetResultat = kompletthetModell.vurderKompletthet(ref, åpneAksjonspunkter);
+        var kompletthetResultat = kompletthetModell.vurderKompletthet(ref, stp, åpneAksjonspunkter);
 
         if (!kompletthetResultat.erOppfylt() && behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD)) {
             var åpenKompletthet = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD).orElseThrow();
@@ -93,9 +94,10 @@ public class Kompletthetskontroller {
 
     private void vurderKompletthetForKøetBehandling(Behandling behandling) {
         var autoPunkter = kompletthetModell.rangerKompletthetsfunksjonerKnyttetTilAutopunkt(behandling.getFagsakYtelseType(), behandling.getType());
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
+        var ref = BehandlingReferanse.fra(behandling);
+        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         for (var autopunkt : autoPunkter) {
-            var kompletthetResultat = kompletthetModell.vurderKompletthet(ref, autopunkt);
+            var kompletthetResultat = kompletthetModell.vurderKompletthet(ref, stp, autopunkt);
             if (!kompletthetResultat.erOppfylt()) {
                 // Et av kompletthetskriteriene er ikke oppfylt, og evt. brev er sendt ut. Logger historikk og avbryter
                 if (!kompletthetResultat.erFristUtløpt()) {

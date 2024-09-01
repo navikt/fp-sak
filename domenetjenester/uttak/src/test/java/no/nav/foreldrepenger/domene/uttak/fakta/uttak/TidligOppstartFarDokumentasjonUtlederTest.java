@@ -209,7 +209,7 @@ class TidligOppstartFarDokumentasjonUtlederTest {
     }
 
     private static UttakInput getInput(Behandling behandling, ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
-        return new UttakInput(BehandlingReferanse.fra(behandling), null, foreldrepengerGrunnlag);
+        return new UttakInput(BehandlingReferanse.fra(behandling), null, null, foreldrepengerGrunnlag);
     }
 
     @Test

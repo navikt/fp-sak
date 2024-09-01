@@ -78,7 +78,7 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest extend
     }
 
     private AksjonspunktUtlederInput lagInput(Behandling behandling) {
-        return new AksjonspunktUtlederInput(BehandlingReferanse.fra(behandling, skjæringstidspunkt));
+        return new AksjonspunktUtlederInput(BehandlingReferanse.fra(behandling), skjæringstidspunkt);
     }
 
     @Test

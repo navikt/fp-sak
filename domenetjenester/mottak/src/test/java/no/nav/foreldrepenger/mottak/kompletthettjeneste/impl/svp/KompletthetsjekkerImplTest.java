@@ -76,9 +76,9 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     public void before() {
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.anyLong()))
             .thenReturn(skjæringstidspunkt);
-        lenient().when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(any(), anyBoolean()))
+        lenient().when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(any(), any(), anyBoolean()))
             .thenReturn(new HashMap<>());
-        lenient().when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(any(), anyBoolean()))
+        lenient().when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(any(), any(), anyBoolean()))
             .thenReturn(new HashMap<>());
 
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
@@ -100,11 +100,11 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         mockManglendeInntektsmeldingGrunnlag();
         testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(1),
             STARTDATO_PERMISJON);
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(Collections.emptyList());
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any(), any())).thenReturn(Collections.emptyList());
 
         // Act
         var kompletthetResultat = kompletthetsjekkerImpl.vurderEtterlysningInntektsmelding(
-            lagRef(behandling, STARTDATO_PERMISJON));
+            lagRef(behandling), Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(STARTDATO_PERMISJON).build());
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
@@ -112,15 +112,14 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         verify(dokumentBestillerTjenesteMock, times(1)).bestillDokument(any(DokumentBestilling.class), any());
     }
 
-    private BehandlingReferanse lagRef(Behandling behandling, LocalDate stpDate) {
-        var stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stpDate).build();
-        return BehandlingReferanse.fra(behandling, stp);
+    private BehandlingReferanse lagRef(Behandling behandling) {
+        return BehandlingReferanse.fra(behandling);
     }
 
     private void mockManglendeInntektsmeldingGrunnlag() {
         var manglendeInntektsmeldinger = new HashMap<Arbeidsgiver, Set<InternArbeidsforholdRef>>();
         manglendeInntektsmeldinger.put(Arbeidsgiver.virksomhet("1"), new HashSet<>());
-        when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(any(), anyBoolean())).thenReturn(
+        when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(any(), any(), anyBoolean())).thenReturn(
             manglendeInntektsmeldinger);
     }
 }

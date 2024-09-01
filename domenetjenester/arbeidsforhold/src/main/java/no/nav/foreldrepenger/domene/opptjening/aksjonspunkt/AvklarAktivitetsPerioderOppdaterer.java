@@ -37,6 +37,7 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
@@ -51,6 +52,7 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
     private AksjonspunktutlederForVurderOppgittOpptjening vurderOppgittOpptjening;
     private OpptjeningsperioderTjeneste opptjeningsperioderTjeneste;
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     AvklarAktivitetsPerioderOppdaterer() {
         // for CDI proxy
@@ -61,12 +63,14 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
                                               AksjonspunktutlederForVurderOppgittOpptjening vurderOppgittOpptjening,
                                               HistorikkTjenesteAdapter historikkAdapter,
                                               OpptjeningsperioderTjeneste opptjeningsperioderTjeneste,
-                                              ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
+                                              ArbeidsgiverTjeneste arbeidsgiverTjeneste,
+                                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.vurderOppgittOpptjening = vurderOppgittOpptjening;
         this.historikkAdapter = historikkAdapter;
         this.opptjeningsperioderTjeneste = opptjeningsperioderTjeneste;
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
     @Override
@@ -77,9 +81,10 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
         }
         var overstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId).getArbeidsforholdInformasjon()
             .map(ArbeidsforholdInformasjon::getOverstyringer).orElse(Collections.emptyList());
-        var opptjeningsaktiviteter = opptjeningsperioderTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(param.getRef());
+        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
+        var opptjeningsaktiviteter = opptjeningsperioderTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(param.getRef(), skjæringstidspunkt);
         var bekreftOpptjeningPerioder = map(dto.getOpptjeningsaktiviteter(), overstyringer);
-        var skjæringstidspunkt = param.getRef().skjæringstidspunkt();
+
 
         var aktørId = param.getAktørId();
         new BekreftOpptjeningPeriodeAksjonspunkt(inntektArbeidYtelseTjeneste, vurderOppgittOpptjening)

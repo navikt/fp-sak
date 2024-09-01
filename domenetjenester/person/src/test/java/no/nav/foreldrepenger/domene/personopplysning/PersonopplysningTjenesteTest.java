@@ -7,12 +7,11 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.fpsak.tidsserie.LocalDateInterval;
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 
 class PersonopplysningTjenesteTest {
 
@@ -37,15 +36,12 @@ class PersonopplysningTjenesteTest {
         var personopplysningTjeneste = new PersonopplysningTjeneste(scenario.mockBehandlingRepositoryProvider().getPersonopplysningRepository());
         var behandling = scenario.lagMocked();
 
-        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
-                .medUtledetSkjæringstidspunkt(tidspunkt)
-                .medUttaksintervall(new LocalDateInterval(tidspunkt, tidspunkt.plusWeeks(31)))
-                .medFørsteUttaksdato(tidspunkt).build());
+        var ref = BehandlingReferanse.fra(behandling);
 
         // Act
-        var personopplysningerAggregat = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(ref, tidspunkt);
+        var personopplysningerAggregat = personopplysningTjeneste.hentPersonopplysninger(ref);
         // Assert
-        assertThat(personopplysningerAggregat.getPersonstatuserFor(behandling.getAktørId())).isNotEmpty();
+        assertThat(personopplysningerAggregat.getPersonstatuserFor(behandling.getAktørId(), SimpleLocalDateInterval.enDag(tidspunkt))).isNotEmpty();
     }
 
 }

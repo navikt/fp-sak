@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
@@ -23,11 +24,11 @@ class StartpunktUtlederMedlemskap implements StartpunktUtleder {
     }
 
     @Override
-    public StartpunktType utledStartpunkt(BehandlingReferanse ref, Object grunnlagId1, Object grunnlagId2) {
+    public StartpunktType utledStartpunkt(BehandlingReferanse ref, Skjæringstidspunkt stp, Object grunnlagId1, Object grunnlagId2) {
         var grunnlag1 = medlemskapRepository.hentMedlemskapPåId((Long) grunnlagId1);
         var grunnlag2 = medlemskapRepository.hentMedlemskapPåId((Long) grunnlagId2);
 
-        var skjæringstidspunkt = ref.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
+        var skjæringstidspunkt = stp.getUtledetSkjæringstidspunkt();
         var periode = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt, skjæringstidspunkt);
         if (MedlemEndringIdentifiserer.erEndretForPeriode(grunnlag1, grunnlag2, periode)) {
             FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP,

@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.domene.uttak.fakta.omsorg;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_LØPENDE_OMSORG;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -77,8 +79,8 @@ class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
 
     private UttakInput lagInput(Behandling behandling, FamilieHendelser familieHendelser) {
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(FØDSELSDATO).build();
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
-        return new UttakInput(ref, null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
+        var ref = BehandlingReferanse.fra(behandling);
+        return new UttakInput(ref, skjæringstidspunkt, null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
     }
 
     @Test
@@ -184,7 +186,7 @@ class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
     private Behandling opprettBehandlingForFødselSammeBosted(LocalDate fødselsdato) {
         var behandling = opprettBehandling(fødselsdato);
 
-        when(personopplysninger.barnHarSammeBosted(BehandlingReferanse.fra(behandling))).thenReturn(true);
+        when(personopplysninger.barnHarSammeBosted(eq(BehandlingReferanse.fra(behandling)), any())).thenReturn(true);
         return behandling;
     }
 
@@ -200,7 +202,7 @@ class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
 
         var behandling = scenario.lagre(repositoryProvider);
 
-        when(personopplysninger.barnHarSammeBosted(BehandlingReferanse.fra(behandling))).thenReturn(false);
+        when(personopplysninger.barnHarSammeBosted(eq(BehandlingReferanse.fra(behandling)), any())).thenReturn(false);
 
         return behandling;
     }
@@ -216,7 +218,7 @@ class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
 
         var behandling = scenario.lagre(repositoryProvider);
 
-        when(personopplysninger.barnHarSammeBosted(BehandlingReferanse.fra(behandling))).thenReturn(false);
+        when(personopplysninger.barnHarSammeBosted(eq(BehandlingReferanse.fra(behandling)), any())).thenReturn(false);
 
         return behandling;
     }
@@ -232,7 +234,7 @@ class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
 
         var behandling = scenario.lagre(repositoryProvider);
 
-        when(personopplysninger.barnHarSammeBosted(BehandlingReferanse.fra(behandling))).thenReturn(true);
+        when(personopplysninger.barnHarSammeBosted(eq(BehandlingReferanse.fra(behandling)), any())).thenReturn(true);
 
         return behandling;
     }

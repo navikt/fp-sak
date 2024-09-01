@@ -96,7 +96,7 @@ class VurdereYtelseSammeBarnAnnenForelderOppdatererTest {
         // Act
         var resultat = new VurdereYtelseSammeBarnOppdaterer.VurdereYtelseSammeBarnAnnenForelderOppdaterer(mockHistory,
             repositoryProvider.getBehandlingsresultatRepository(), repositoryProvider.getBehandlingRepository())
-            .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+            .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
         byggVilkårResultat(vilkårBuilder, resultat);
         vilkårBuilder.buildFor(behandling);
     }

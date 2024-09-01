@@ -172,10 +172,10 @@ class InaktiveArbeidsforholdUtlederTest {
         var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER)
             .medBruker(AKTØR);
         var behandling = scenario.lagMocked();
-        var behandlingReferanse = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(STP));
+        var behandlingReferanse = BehandlingReferanse.fra(behandling);
 
         // Act
-        var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse, true);
+        var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse, medUtledetSkjæringstidspunkt(STP), true);
 
         // Assert
         assertThat(aktiveArbeidsforhold).hasSize(1)
@@ -195,10 +195,10 @@ class InaktiveArbeidsforholdUtlederTest {
         var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER)
             .medBruker(AKTØR);
         var behandling = scenario.lagMocked();
-        var behandlingReferanse = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(STP));
+        var behandlingReferanse = BehandlingReferanse.fra(behandling);
 
         // Act
-        var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse, true);
+        var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse, medUtledetSkjæringstidspunkt(STP), true);
 
         // Assert
         assertThat(aktiveArbeidsforhold)
@@ -219,10 +219,10 @@ class InaktiveArbeidsforholdUtlederTest {
         var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER)
             .medBruker(AKTØR);
         var behandling = scenario.lagMocked();
-        var behandlingReferanse = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(STP));
+        var behandlingReferanse = BehandlingReferanse.fra(behandling);
 
         // Act
-        var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse, true);
+        var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse, medUtledetSkjæringstidspunkt(STP), true);
 
         // Assert
         assertThat(aktiveArbeidsforhold).isEmpty();
@@ -241,10 +241,10 @@ class InaktiveArbeidsforholdUtlederTest {
         var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER)
             .medBruker(AKTØR);
         var behandling = scenario.lagMocked();
-        var behandlingReferanse = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(STP));
+        var behandlingReferanse = BehandlingReferanse.fra(behandling);
 
         // Act
-        var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse, false);
+        var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse, medUtledetSkjæringstidspunkt(STP), false);
 
         // Assert
         assertThat(aktiveArbeidsforhold).hasSize(1);
@@ -267,10 +267,10 @@ class InaktiveArbeidsforholdUtlederTest {
         var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER)
             .medBruker(AKTØR);
         var behandling = scenario.lagMocked();
-        var behandlingReferanse = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(STP));
+        var behandlingReferanse = BehandlingReferanse.fra(behandling);
 
         // Act
-        var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse, true);
+        var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse, medUtledetSkjæringstidspunkt(STP), true);
 
         // Assert
         assertThat(aktiveArbeidsforhold).hasSize(1);

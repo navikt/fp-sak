@@ -16,18 +16,21 @@ import no.nav.foreldrepenger.inngangsvilkaar.opptjening.OpptjeningsVilkårTjenes
 import no.nav.foreldrepenger.inngangsvilkaar.opptjening.OpptjeningsgrunnlagAdapter;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.InngangsvilkårRegler;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelYtelse;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 public class OpptjeningsVilkårTjenesteImpl implements OpptjeningsVilkårTjeneste {
     private OpptjeningInntektArbeidYtelseTjeneste opptjeningTjeneste;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     public OpptjeningsVilkårTjenesteImpl() {
     }
 
     @Inject
-    public OpptjeningsVilkårTjenesteImpl(OpptjeningInntektArbeidYtelseTjeneste opptjeningTjeneste) {
+    public OpptjeningsVilkårTjenesteImpl(OpptjeningInntektArbeidYtelseTjeneste opptjeningTjeneste, SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.opptjeningTjeneste = opptjeningTjeneste;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
 
@@ -35,9 +38,10 @@ public class OpptjeningsVilkårTjenesteImpl implements OpptjeningsVilkårTjenest
     public VilkårData vurderOpptjeningsVilkår(BehandlingReferanse behandlingReferanse) {
         var behandlingId = behandlingReferanse.behandlingId();
         var aktørId = behandlingReferanse.aktørId();
-        var skjæringstidspunkt = behandlingReferanse.getUtledetSkjæringstidspunkt();
+        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
+        var skjæringstidspunkt = stp.getUtledetSkjæringstidspunkt();
 
-        var relevanteOpptjeningAktiveter = opptjeningTjeneste.hentRelevanteOpptjeningAktiveterForVilkårVurdering(behandlingReferanse);
+        var relevanteOpptjeningAktiveter = opptjeningTjeneste.hentRelevanteOpptjeningAktiveterForVilkårVurdering(behandlingReferanse, stp);
         var relevanteOpptjeningInntekter = opptjeningTjeneste.hentRelevanteOpptjeningInntekterForVilkårVurdering(behandlingId, aktørId, skjæringstidspunkt);
         var opptjening = opptjeningTjeneste.hentOpptjening(behandlingId);
 

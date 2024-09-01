@@ -17,7 +17,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -49,7 +48,6 @@ import no.nav.foreldrepenger.domene.person.verge.dto.VergeBehandlingsmenyEnum;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 class VergeTjenesteTest extends EntityManagerAwareTest {
@@ -64,8 +62,6 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
     private VergeRepository vergeRepository;
     private HistorikkRepository historikkRepository;
     @Mock
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    @Mock
     private PersonopplysningTjeneste personopplysningTjeneste;
 
     private VergeTjeneste vergeTjeneste;
@@ -78,7 +74,7 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
         vergeRepository = new VergeRepository(entityManager, new BehandlingLåsRepository(entityManager));
         historikkRepository = new HistorikkRepository(entityManager);
         vergeTjeneste = new VergeTjeneste(behandlingskontrollTjeneste, behandlingProsesseringTjeneste, vergeRepository,
-            historikkRepository, behandlingRepository, skjæringstidspunktTjeneste, personopplysningTjeneste);
+            historikkRepository, behandlingRepository, personopplysningTjeneste);
     }
 
     @Test
@@ -94,9 +90,8 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
 
         var personopplysningGrunnlagEntitet = opprettPersonopplysningGrunnlag(behandling.getAktørId(),
             LocalDate.now().minusYears(15));
-        var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagEntitet, behandling.getAktørId(), LocalDate.now(), LocalDate.now());
-        when(personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(any())).thenReturn(Optional.of(personopplysningerAggregat));
-        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
+        var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagEntitet, behandling.getAktørId());
+        when(personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(any(), any())).thenReturn(Optional.of(personopplysningerAggregat));
         when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.FORESLÅ_VEDTAK)).thenReturn(true);
 
         // Act
@@ -116,9 +111,8 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
 
         var personopplysningGrunnlagEntitet = opprettPersonopplysningGrunnlag(behandling.getAktørId(),
             LocalDate.now().minusYears(15));
-        var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagEntitet, behandling.getAktørId(), LocalDate.now(), LocalDate.now());
+        var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagEntitet, behandling.getAktørId());
         lenient().when(personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(any())).thenReturn(Optional.of(personopplysningerAggregat));
-        lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
 
         // Act
         var resultat = vergeTjeneste.utledBehandlingsmeny(behandling.getId());

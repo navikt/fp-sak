@@ -48,8 +48,8 @@ public class TotrinnskontrollAktivitetDtoTjeneste {
         if (AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING.equals(aksjonspunkt.getAksjonspunktDefinisjon())) {
             List<OpptjeningsperiodeForSaksbehandling> aktivitetPerioder;
             var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-            var behandlingReferanse = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
-            aktivitetPerioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingReferanse);
+            var behandlingReferanse = BehandlingReferanse.fra(behandling);
+            aktivitetPerioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingReferanse, skjæringstidspunkt);
             return aktivitetPerioder.stream()
                 .filter(periode -> periode.erManueltBehandlet() || periode.getBegrunnelse() != null)
                 .map(this::lagDtoAvPeriode)

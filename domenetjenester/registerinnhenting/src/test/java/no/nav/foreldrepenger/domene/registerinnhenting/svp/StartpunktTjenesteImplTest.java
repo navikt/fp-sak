@@ -26,7 +26,7 @@ class StartpunktTjenesteImplTest {
 
         // Mock startpunktutlederprovider
         var utledere = new UnitTestLookupInstanceImpl<StartpunktUtleder>(
-            (behandling, grunnlagId1, grunnlagId2) -> StartpunktType.BEREGNING);
+            (behandling, stp, grunnlagId1, grunnlagId2) -> StartpunktType.BEREGNING);
 
         startpunktTjenesteSvp = new StartpunktTjenesteImpl(utledere, endringsresultatSjekker);
     }
@@ -37,7 +37,7 @@ class StartpunktTjenesteImplTest {
         var endringsresultatDiff = opprettEndringsresultat(1L, 2L);// Forskjellig ID indikerer endring
 
         // Act
-        var startpunktType = startpunktTjenesteSvp.utledStartpunktForDiffBehandlingsgrunnlag(null, endringsresultatDiff);
+        var startpunktType = startpunktTjenesteSvp.utledStartpunktForDiffBehandlingsgrunnlag(null, null, endringsresultatDiff);
 
         // Assert
         assertThat(startpunktType).isEqualTo(StartpunktType.BEREGNING);
@@ -49,7 +49,7 @@ class StartpunktTjenesteImplTest {
         var endringsresultatDiff = opprettEndringsresultat(1L, 1L);// Lik ID indikerer ingen endring
 
         // Act
-        var startpunktType = startpunktTjenesteSvp.utledStartpunktForDiffBehandlingsgrunnlag(null, endringsresultatDiff);
+        var startpunktType = startpunktTjenesteSvp.utledStartpunktForDiffBehandlingsgrunnlag(null, null, endringsresultatDiff);
 
         // Assert
         assertThat(startpunktType).isEqualTo(StartpunktType.UDEFINERT);

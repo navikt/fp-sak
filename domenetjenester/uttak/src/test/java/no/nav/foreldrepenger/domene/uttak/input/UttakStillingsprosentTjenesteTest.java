@@ -300,8 +300,9 @@ class UttakStillingsprosentTjenesteTest {
     }
 
     private UttakYrkesaktiviteter tjeneste(Behandling behandling, InntektArbeidYtelseGrunnlag grunnlag, List<Yrkesaktivitet> yrkesaktiviteter) {
-        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
-        var input = new UttakInput(ref, grunnlag, null);
+        var ref = BehandlingReferanse.fra(behandling);
+        var stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
+        var input = new UttakInput(ref, stp, grunnlag, null);
         var bgStatuser = yrkesaktiviteter.stream().map((Yrkesaktivitet y) -> {
             var arbeidsforholdRef = y.getArbeidsforholdRef();
             var arbeidsgiver = y.getArbeidsgiver();

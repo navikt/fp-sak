@@ -57,7 +57,8 @@ public class BeregnStønadskontoerTjeneste {
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         var annenpartsGjeldendeUttaksplan = hentAnnenpartsUttak(fpGrunnlag);
         var dekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref);
-        return stønadskontoRegelAdapter.beregnKontoerSjekkDiff(ref, ytelseFordelingAggregat, dekningsgrad, annenpartsGjeldendeUttaksplan, fpGrunnlag, tidligereBeregning);
+        return stønadskontoRegelAdapter.beregnKontoerSjekkDiff(ref, uttakInput.getSkjæringstidspunkt(),
+            ytelseFordelingAggregat, dekningsgrad, annenpartsGjeldendeUttaksplan, fpGrunnlag, tidligereBeregning);
     }
 
     private Optional<ForeldrepengerUttak> hentAnnenpartsUttak(ForeldrepengerGrunnlag fpGrunnlag) {

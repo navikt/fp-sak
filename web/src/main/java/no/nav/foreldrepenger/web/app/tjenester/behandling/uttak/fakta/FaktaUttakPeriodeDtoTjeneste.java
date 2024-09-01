@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
@@ -75,9 +74,8 @@ public class FaktaUttakPeriodeDtoTjeneste {
             var uttakOriginalBehandling = uttakRepository.hentUttakResultatHvisEksisterer(behandling.getOriginalBehandlingId().orElseThrow());
             if (uttakOriginalBehandling.isPresent()) {
                 var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
-                var behandlingReferanse = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
                 var fraDato = behandlingSomJusteresFarsUttakVedFødsel(behandling, yfa) ?
-                    behandlingReferanse.getUtledetSkjæringstidspunktHvisUtledet().orElse(LocalDate.MIN) : LocalDate.MIN;
+                    skjæringstidspunkt.getSkjæringstidspunktHvisUtledet().orElse(LocalDate.MIN) : LocalDate.MIN;
                 perioder = slåSammenLikePerioder(VedtaksperioderHelper.opprettOppgittePerioder(uttakOriginalBehandling.get(), perioder,
                     fraDato, false));
             }

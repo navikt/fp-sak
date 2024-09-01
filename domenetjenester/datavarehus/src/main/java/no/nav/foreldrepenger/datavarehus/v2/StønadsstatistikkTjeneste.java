@@ -158,11 +158,10 @@ public class StønadsstatistikkTjeneste {
         //CDI
     }
 
-    public StønadsstatistikkVedtak genererVedtak(BehandlingReferanse behandlingReferanse) {
+    public StønadsstatistikkVedtak genererVedtak(BehandlingReferanse behandlingReferanse, Skjæringstidspunkt stp) {
         var behandlingId = behandlingReferanse.behandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var vedtak = behandlingVedtakRepository.hentForBehandling(behandlingId);
-        var stp = behandlingReferanse.getSkjæringstidspunkt();
         var forrigeBehandlingUuid = behandling.getOriginalBehandlingId().map(id -> behandlingRepository.hentBehandling(id)).map(Behandling::getUuid);
         var utlandMarkering = fagsakEgenskapRepository.finnFagsakMarkeringer(behandling.getFagsakId());
         var familiehendelse = familieHendelseTjeneste.finnAggregat(behandlingId)

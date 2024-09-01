@@ -30,6 +30,7 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.dvh.es.v2.Addresse;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.dvh.es.v2.Adopsjon;
@@ -85,10 +86,10 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
         });
 
         var skjæringstidspunkt = skjæringstidspunkter.getUtledetSkjæringstidspunkt();
-        setAdresse(personopplysninger, personopplysningerAggregat);
+        setAdresse(skjæringstidspunkter, personopplysninger, personopplysningerAggregat);
         setInntekter(behandlingId, personopplysninger, skjæringstidspunkt);
-        setBruker(personopplysninger, personopplysningerAggregat);
-        setFamilierelasjoner(personopplysninger, personopplysningerAggregat);
+        setBruker(skjæringstidspunkter, personopplysninger, personopplysningerAggregat);
+        setFamilierelasjoner(skjæringstidspunkter, personopplysninger, personopplysningerAggregat);
         setRelaterteYtelser(behandlingId, aktørId, personopplysninger, skjæringstidspunkt);
 
         return personopplysningDvhObjectFactory.createPersonopplysningerDvhEngangsstoenad(personopplysninger);
@@ -105,7 +106,7 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
         }
     }
 
-    private void setFamilierelasjoner(PersonopplysningerDvhEngangsstoenad personopplysninger, PersonopplysningerAggregat aggregat) {
+    private void setFamilierelasjoner(Skjæringstidspunkt stp, PersonopplysningerDvhEngangsstoenad personopplysninger, PersonopplysningerAggregat aggregat) {
         var aktørPersonopplysningMap = aggregat.getAktørPersonopplysningMap();
         var tilPersoner = aggregat.getSøkersRelasjoner().stream().filter(r -> aktørPersonopplysningMap.get(r.getTilAktørId()) != null).toList();
         if (!tilPersoner.isEmpty()) {
@@ -113,20 +114,20 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
             personopplysninger.setFamilierelasjoner(familierelasjoner);
             tilPersoner.forEach(relasjon -> personopplysninger.getFamilierelasjoner()
                 .getFamilierelasjon()
-                .add(lagRelasjon(relasjon, aktørPersonopplysningMap.get(relasjon.getTilAktørId()), aggregat)));
+                .add(lagRelasjon(stp, relasjon, aktørPersonopplysningMap.get(relasjon.getTilAktørId()), aggregat)));
         }
     }
 
-    private Familierelasjon lagRelasjon(PersonRelasjonEntitet relasjon, PersonopplysningEntitet tilPerson, PersonopplysningerAggregat aggregat) {
+    private Familierelasjon lagRelasjon(Skjæringstidspunkt stp, PersonRelasjonEntitet relasjon, PersonopplysningEntitet tilPerson, PersonopplysningerAggregat aggregat) {
         var familierelasjon = personopplysningDvhObjectFactory.createFamilierelasjon();
-        var person = personopplysningFellesTjeneste.lagUidentifiserbarBruker(aggregat, tilPerson);
+        var person = personopplysningFellesTjeneste.lagUidentifiserbarBruker(stp, aggregat, tilPerson);
         familierelasjon.setTilPerson(person);
         familierelasjon.setRelasjon(VedtakXmlUtil.lagKodeverksOpplysning(relasjon.getRelasjonsrolle()));
         return familierelasjon;
     }
 
-    private void setBruker(PersonopplysningerDvhEngangsstoenad personopplysninger, PersonopplysningerAggregat personopplysningerAggregat) {
-        var person = personopplysningFellesTjeneste.lagUidentifiserbarBruker(personopplysningerAggregat, personopplysningerAggregat.getSøker());
+    private void setBruker(Skjæringstidspunkt stp, PersonopplysningerDvhEngangsstoenad personopplysninger, PersonopplysningerAggregat personopplysningerAggregat) {
+        var person = personopplysningFellesTjeneste.lagUidentifiserbarBruker(stp, personopplysningerAggregat, personopplysningerAggregat.getSøker());
         personopplysninger.setBruker(person);
     }
 
@@ -244,9 +245,9 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
         return adopsjonsbarn;
     }
 
-    private void setAdresse(PersonopplysningerDvhEngangsstoenad personopplysninger, PersonopplysningerAggregat personopplysningerAggregat) {
+    private void setAdresse(Skjæringstidspunkt stp, PersonopplysningerDvhEngangsstoenad personopplysninger, PersonopplysningerAggregat personopplysningerAggregat) {
         var personopplysning = personopplysningerAggregat.getSøker();
-        var opplysningAdresser = personopplysningerAggregat.getAdresserFor(personopplysning.getAktørId());
+        var opplysningAdresser = personopplysningerAggregat.getAdresserFor(personopplysning.getAktørId(), SimpleLocalDateInterval.enDag(stp.getUtledetSkjæringstidspunkt()));
         if (opplysningAdresser != null) {
             opplysningAdresser.forEach(adresse -> personopplysninger.getAdresse().add(lagAdresse(adresse)));
         }

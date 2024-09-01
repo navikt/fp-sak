@@ -43,7 +43,7 @@ class AvklarteDatoerTjeneste {
         var termindato = svpGrunnlag.getFamilieHendelse().getTermindato().orElseThrow(() -> new IllegalStateException("Det skal alltid være termindato på svangerskapspenger søknad."));
         var fødselsdatoOptional = svpGrunnlag.getFamilieHendelse().getFødselsdato();
         var dødsdatoBarnOptional = finnMuligDødsdatoBarn(svpGrunnlag.getFamilieHendelse().getBarna());
-        var dødsdatoBrukerOptional = personopplysninger.søkersDødsdatoGjeldendePåDato(ref, LocalDate.now());
+        var dødsdatoBrukerOptional = personopplysninger.søkersDødsdato(ref);
 
         var medlemskapOpphørsdatoOptional = input.getMedlemskapOpphørsdato();
         var startdatoNesteSak = svpGrunnlag.nesteSakEntitet().map(NesteSakGrunnlagEntitet::getStartdato);

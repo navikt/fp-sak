@@ -105,7 +105,7 @@ class FagsakTjenesteTest {
         var personopplysningGrunnlag = personopplysningRepository.hentPersonopplysninger(behandlingId);
 
         var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlag,
-                forelderAktørId, LocalDate.now(), LocalDate.now());
+                forelderAktørId);
 
         // Act
         tjeneste.oppdaterFagsak(behandling, personopplysningerAggregat, personopplysningerAggregat.getBarna());
