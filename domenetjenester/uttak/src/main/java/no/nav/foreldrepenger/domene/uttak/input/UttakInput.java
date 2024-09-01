@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -15,6 +16,7 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 public class UttakInput {
 
     private final BehandlingReferanse behandlingReferanse;
+    private final Skjæringstidspunkt skjæringstidspunkt;
     private final InntektArbeidYtelseGrunnlag iayGrunnlag;
     private final YtelsespesifiktGrunnlag ytelsespesifiktGrunnlag;
     private Set<BeregningsgrunnlagStatus> beregningsgrunnlagStatuser = Set.of();
@@ -25,15 +27,17 @@ public class UttakInput {
     private boolean finnesAndelerMedGraderingUtenBeregningsgrunnlag;
 
     public UttakInput(BehandlingReferanse behandlingReferanse,
+                      Skjæringstidspunkt skjæringstidspunkt,
                       InntektArbeidYtelseGrunnlag iayGrunnlag,
                       YtelsespesifiktGrunnlag ytelsespesifiktGrunnlag) {
         this.behandlingReferanse = Objects.requireNonNull(behandlingReferanse, "behandlingReferanse");
+        this.skjæringstidspunkt = skjæringstidspunkt;
         this.iayGrunnlag = iayGrunnlag;
         this.ytelsespesifiktGrunnlag = ytelsespesifiktGrunnlag;
     }
 
     private UttakInput(UttakInput input) {
-        this(input.getBehandlingReferanse(), input.getIayGrunnlag(), input.getYtelsespesifiktGrunnlag());
+        this(input.getBehandlingReferanse(), input.getSkjæringstidspunkt(), input.getIayGrunnlag(), input.getYtelsespesifiktGrunnlag());
         this.beregningsgrunnlagStatuser = Set.copyOf(input.beregningsgrunnlagStatuser);
         this.søknadOpprettetTidspunkt = input.søknadOpprettetTidspunkt;
         this.medlemskapOpphørsdato = input.medlemskapOpphørsdato;
@@ -44,6 +48,10 @@ public class UttakInput {
 
     public BehandlingReferanse getBehandlingReferanse() {
         return behandlingReferanse;
+    }
+
+    public Skjæringstidspunkt getSkjæringstidspunkt() {
+        return skjæringstidspunkt;
     }
 
     public Set<BeregningsgrunnlagStatus> getBeregningsgrunnlagStatuser() {

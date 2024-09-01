@@ -12,6 +12,7 @@ import jakarta.inject.Inject;
 
 import no.nav.folketrygdloven.kalkulator.modell.besteberegning.Ytelsegrunnlag;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -75,15 +76,15 @@ public class BesteberegningFødendeKvinneTjeneste {
         this.fagsakRepository = fagsakRepository;
     }
 
-    public boolean brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(BehandlingReferanse behandlingReferanse) {
+    public boolean brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(BehandlingReferanse behandlingReferanse, Skjæringstidspunkt stp) {
         if (!erFødendeKvinneSomSøkerForeldrepenger(behandlingReferanse)) {
             return false;
         }
 
-        var opptjeningForBeregning = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(behandlingReferanse,
+        var opptjeningForBeregning = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(behandlingReferanse, stp,
             inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.behandlingId()));
         return opptjeningForBeregning.map(
-            opptjeningAktiviteter -> brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(behandlingReferanse,
+            opptjeningAktiviteter -> brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(behandlingReferanse, stp,
                 opptjeningAktiviteter)).orElse(false);
     }
 
@@ -99,8 +100,8 @@ public class BesteberegningFødendeKvinneTjeneste {
         return erFødendeKvinne(behandlingReferanse.relasjonRolle(), familiehendelseType);
     }
 
-    public boolean kvalifisererTilAutomatiskBesteberegning(BehandlingReferanse behandlingReferanse) {
-        if (!brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(behandlingReferanse)) {
+    public boolean kvalifisererTilAutomatiskBesteberegning(BehandlingReferanse behandlingReferanse, Skjæringstidspunkt stp) {
+        if (!brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(behandlingReferanse, stp)) {
             return false;
         }
         if (erDagpengerManueltFjernetFraBeregningen(behandlingReferanse)) {
@@ -114,7 +115,7 @@ public class BesteberegningFødendeKvinneTjeneste {
         }
 
         // Foreløpig besteberegner vi ikke saker med frilans eller næring automatisk.
-        return harAktiviteterSomErGodkjentForAutomatiskBeregning(behandlingReferanse);
+        return harAktiviteterSomErGodkjentForAutomatiskBeregning(behandlingReferanse, stp);
     }
 
     private boolean erDagpengerManueltFjernetFraBeregningen(BehandlingReferanse behandlingReferanse) {
@@ -137,11 +138,11 @@ public class BesteberegningFødendeKvinneTjeneste {
         return bg.map(Beregningsgrunnlag::isOverstyrt).orElse(false);
     }
 
-    public List<Ytelsegrunnlag> lagBesteberegningYtelseinput(BehandlingReferanse behandlingReferanse) {
+    public List<Ytelsegrunnlag> lagBesteberegningYtelseinput(BehandlingReferanse behandlingReferanse, Skjæringstidspunkt stp) {
         var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.behandlingId());
         var ytelseFilter = new YtelseFilter(iayGrunnlag.getAktørYtelseFraRegister(behandlingReferanse.aktørId()));
-        var periodeYtelserKanVæreRelevantForBB = behandlingReferanse.getSkjæringstidspunkt().getSkjæringstidspunktHvisUtledet()
-            .map(stp -> DatoIntervallEntitet.fraOgMedTilOgMed(stp.minusMonths(12), stp));
+        var periodeYtelserKanVæreRelevantForBB = stp.getSkjæringstidspunktHvisUtledet()
+            .map(t -> DatoIntervallEntitet.fraOgMedTilOgMed(t.minusMonths(12), t));
         if (periodeYtelserKanVæreRelevantForBB.isEmpty()) {
             return Collections.emptyList();
         }
@@ -182,9 +183,9 @@ public class BesteberegningFødendeKvinneTjeneste {
             .orElse(Collections.emptyList()).stream().anyMatch(tilf ->tilf.equals(FaktaOmBeregningTilfelle.VURDER_BESTEBEREGNING));
     }
 
-    private boolean harAktiviteterSomErGodkjentForAutomatiskBeregning(BehandlingReferanse ref) {
+    private boolean harAktiviteterSomErGodkjentForAutomatiskBeregning(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var iay = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.behandlingId());
-        var opptjening = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(ref, iay);
+        var opptjening = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(ref, stp, iay);
         var opptjeningAktiviteter = opptjening.map(OpptjeningAktiviteter::getOpptjeningPerioder).orElse(Collections.emptyList());
         return opptjeningAktiviteter.stream().allMatch(a -> GODKJENT_FOR_AUTOMATISK_BEREGNING.contains(a.opptjeningAktivitetType()));
     }
@@ -198,9 +199,9 @@ public class BesteberegningFødendeKvinneTjeneste {
         return erMoren && FØDSEL_HENDELSER.contains(type);
     }
 
-    private boolean brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(BehandlingReferanse behandlingReferanse,
+    private boolean brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(BehandlingReferanse behandlingReferanse, Skjæringstidspunkt stp,
                                                                          OpptjeningAktiviteter opptjeningAktiviteter) {
-        var skjæringstidspunkt = behandlingReferanse.getUtledetSkjæringstidspunkt();
+        var skjæringstidspunkt = stp.getUtledetSkjæringstidspunkt();
         var ytelser = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.behandlingId())
             .getAktørYtelseFraRegister(behandlingReferanse.aktørId())
             .map(AktørYtelse::getAlleYtelser)

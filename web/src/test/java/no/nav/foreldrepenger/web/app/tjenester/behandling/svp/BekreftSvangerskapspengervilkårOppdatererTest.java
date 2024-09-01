@@ -42,7 +42,7 @@ class BekreftSvangerskapspengervilkårOppdatererTest {
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SVANGERSKAPSPENGERVILKÅRET,
             BehandlingStegType.VURDER_SVANGERSKAPSPENGERVILKÅR);
         var behandling = scenario.lagre(repositoryProvider);
-        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto);
+        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto);
         var resultat = oppdaterer.oppdater(dto, param);
 
         assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
@@ -58,7 +58,7 @@ class BekreftSvangerskapspengervilkårOppdatererTest {
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SVANGERSKAPSPENGERVILKÅRET,
             BehandlingStegType.VURDER_SVANGERSKAPSPENGERVILKÅR);
         var behandling = scenario.lagre(repositoryProvider);
-        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto);
+        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto);
         var resultat = oppdaterer.oppdater(dto, param);
 
         var builder = VilkårResultat.builder();
@@ -78,7 +78,7 @@ class BekreftSvangerskapspengervilkårOppdatererTest {
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SVANGERSKAPSPENGERVILKÅRET,
             BehandlingStegType.VURDER_SVANGERSKAPSPENGERVILKÅR);
         var behandling = scenario.lagre(repositoryProvider);
-        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto);
+        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto);
         var resultat = oppdaterer.oppdater(dto, param);
 
         var builder = VilkårResultat.builder();

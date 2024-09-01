@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 public abstract class ForeslåBehandlingsresultatStegFelles implements ForeslåBehandlingsresultatSteg {
 
@@ -21,16 +20,12 @@ public abstract class ForeslåBehandlingsresultatStegFelles implements ForeslåB
     private BehandlingRepository behandlingRepository;
     private Instance<ForeslåBehandlingsresultatTjeneste> foreslåBehandlingsresultatTjeneste;
 
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-
     protected ForeslåBehandlingsresultatStegFelles() {
         // for CDI proxy
     }
 
     public ForeslåBehandlingsresultatStegFelles(BehandlingRepositoryProvider repositoryProvider,
-            @Any Instance<ForeslåBehandlingsresultatTjeneste> foreslåBehandlingsresultatTjeneste,
-            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
-        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+            @Any Instance<ForeslåBehandlingsresultatTjeneste> foreslåBehandlingsresultatTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.foreslåBehandlingsresultatTjeneste = foreslåBehandlingsresultatTjeneste;
     }
@@ -38,8 +33,7 @@ public abstract class ForeslåBehandlingsresultatStegFelles implements ForeslåB
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(kontekst.getBehandlingId());
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        var ref = BehandlingReferanse.fra(behandling);
         LOG.info("Foreslår behandlingsresultat for behandling {}", ref);
 
         var tjeneste = FagsakYtelseTypeRef.Lookup.find(foreslåBehandlingsresultatTjeneste, ref.fagsakYtelseType()).orElseThrow();

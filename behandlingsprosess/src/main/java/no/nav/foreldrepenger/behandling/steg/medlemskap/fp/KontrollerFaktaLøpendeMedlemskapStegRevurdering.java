@@ -101,17 +101,17 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements Kontrol
                 throw new IllegalStateException("Utvikler-feil: Behandler bare revudering i foreldrepengerkontekst!.");
             }
             var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
-            var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
-            var finnVurderingsdatoer = tjeneste.finnVurderingsdatoer(ref);
+            var ref = BehandlingReferanse.fra(behandling);
+            var finnVurderingsdatoer = tjeneste.finnVurderingsdatoer(ref, skjæringstidspunkter);
             var resultat = new HashSet<MedlemResultat>();
             if (!finnVurderingsdatoer.isEmpty()) {
-                finnVurderingsdatoer.forEach(dato -> resultat.addAll(vurderMedlemskapTjeneste.vurderMedlemskap(ref, dato)));
+                finnVurderingsdatoer.forEach(dato -> resultat.addAll(vurderMedlemskapTjeneste.vurderMedlemskap(ref, skjæringstidspunkter, dato)));
             }
             if (!resultat.isEmpty()) {
                 aksjonspunkter.add(AksjonspunktResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FORTSATT_MEDLEMSKAP));
             }
             try {
-                var årsaker = avklarMedlemskapUtleder.utledForFortsattMedlem(ref);
+                var årsaker = avklarMedlemskapUtleder.utledForFortsattMedlem(ref, skjæringstidspunkter);
                 var gammelUtledetÅrsaker = resultat.stream().map(mr -> map(mr.getAksjonspunktDefinisjon())).collect(Collectors.toSet());
                 logDiff(årsaker, gammelUtledetÅrsaker, behandling.getFagsakYtelseType(),
                     "fortsattMedlem");

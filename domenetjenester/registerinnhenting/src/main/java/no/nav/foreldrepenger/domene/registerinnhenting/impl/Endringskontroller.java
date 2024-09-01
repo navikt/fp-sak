@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
@@ -81,18 +82,18 @@ public class Endringskontroller {
         if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_FEILUTBETALING) ||
             !behandling.getÅpneAksjonspunkter(AksjonspunktDefinisjon.getForeslåVedtakAksjonspunkter()).isEmpty()) {
             var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-            doSpolTilSteg(kontekst, behandling, BehandlingStegType.SIMULER_OPPDRAG, null);
+            doSpolTilSteg(kontekst, behandling, BehandlingStegType.SIMULER_OPPDRAG, null, null);
         }
     }
 
     public void spolTilStartpunkt(Behandling behandling, EndringsresultatDiff endringsresultat, StartpunktType senesteStartpunkt) {
         var behandlingId = behandling.getId();
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
+        var ref = BehandlingReferanse.fra(behandling);
 
         var startpunkt = FagsakYtelseTypeRef.Lookup.find(startpunktTjenester, behandling.getFagsakYtelseType())
             .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + behandling.getFagsakYtelseType().getKode()))
-            .utledStartpunktForDiffBehandlingsgrunnlag(ref, endringsresultat);
+            .utledStartpunktForDiffBehandlingsgrunnlag(ref, skjæringstidspunkter, endringsresultat);
 
         if (startpunkt.getRangering() > senesteStartpunkt.getRangering()) {
             startpunkt = senesteStartpunkt;
@@ -101,15 +102,15 @@ public class Endringskontroller {
         if (startpunkt.equals(StartpunktType.UDEFINERT)) {
             if (harUtførtKontrollerFakta(behandling) && STARTPUNKT_STEG_INNGANG_VILKÅR.contains(behandling.getAktivtBehandlingSteg())) {
                 var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-                utledAksjonspunkterTilHøyreForStartpunkt(kontekst, behandling.getAktivtBehandlingSteg(), ref, behandling);
+                utledAksjonspunkterTilHøyreForStartpunkt(kontekst, behandling.getAktivtBehandlingSteg(), ref, skjæringstidspunkter, behandling);
             }
             return; // Ingen detekterte endringer - ingen tilbakespoling
         }
 
-        doSpolTilStartpunkt(ref, behandling, startpunkt);
+        doSpolTilStartpunkt(ref, skjæringstidspunkter, behandling, startpunkt);
     }
 
-    private void doSpolTilStartpunkt(BehandlingReferanse ref, Behandling behandling, StartpunktType startpunktType) {
+    private void doSpolTilStartpunkt(BehandlingReferanse ref, Skjæringstidspunkt stp, Behandling behandling, StartpunktType startpunktType) {
         var startPunktSteg = startpunktType.getBehandlingSteg();
         var skalSpesialHåndteres = behandling.getÅpentAksjonspunktMedDefinisjonOptional(SPESIALHÅNDTERT_AKSJONSPUNKT).isPresent() &&
             behandlingskontrollTjeneste.sammenlignRekkefølge(behandling.getFagsakYtelseType(), behandling.getType(),
@@ -118,17 +119,17 @@ public class Endringskontroller {
 
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         oppdaterStartpunktVedBehov(behandling, startpunktType);
-        doSpolTilSteg(kontekst, behandling, tilSteg, ref);
+        doSpolTilSteg(kontekst, behandling, tilSteg, ref, stp);
     }
 
-    private void doSpolTilSteg(BehandlingskontrollKontekst kontekst, Behandling behandling, BehandlingStegType tilSteg, BehandlingReferanse ref) {
+    private void doSpolTilSteg(BehandlingskontrollKontekst kontekst, Behandling behandling, BehandlingStegType tilSteg, BehandlingReferanse ref, Skjæringstidspunkt stp) {
         // Inkluderer tilbakeføring samme steg UTGANG->INNGANG
         var fraSteg = behandling.getAktivtBehandlingSteg();
         var tilbakeføres = skalTilbakeføres(behandling, fraSteg, tilSteg);
         // Gjør aksjonspunktutledning utenom steg kun dersom man står i eller skal gå tilbake til inngangsvilkår
         var sjekkSteg = tilbakeføres ? tilSteg : fraSteg;
         if (ref != null && harUtførtKontrollerFakta(behandling) && STARTPUNKT_STEG_INNGANG_VILKÅR.contains(sjekkSteg)) {
-            utledAksjonspunkterTilHøyreForStartpunkt(kontekst, sjekkSteg, ref, behandling);
+            utledAksjonspunkterTilHøyreForStartpunkt(kontekst, sjekkSteg, ref, stp, behandling);
         }
 
         if (tilbakeføres) {
@@ -173,10 +174,10 @@ public class Endringskontroller {
     }
 
     // Orkestrerer aksjonspunktene for kontroll av fakta som utføres ifm tilbakehopp til et sted innen inngangsvilkår
-    private void utledAksjonspunkterTilHøyreForStartpunkt(BehandlingskontrollKontekst kontekst, BehandlingStegType fomSteg, BehandlingReferanse ref, Behandling behandling) {
+    private void utledAksjonspunkterTilHøyreForStartpunkt(BehandlingskontrollKontekst kontekst, BehandlingStegType fomSteg, BehandlingReferanse ref, Skjæringstidspunkt stp, Behandling behandling) {
         var resultater = FagsakYtelseTypeRef.Lookup.find(KontrollerFaktaInngangsVilkårUtleder.class, kontrollerFaktaTjenester, ref.fagsakYtelseType())
             .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + ref.fagsakYtelseType().getKode()))
-            .utledAksjonspunkterFomSteg(ref, fomSteg);
+            .utledAksjonspunkterFomSteg(ref, stp, fomSteg);
         var resultatDef = resultater.stream().map(AksjonspunktResultat::getAksjonspunktDefinisjon).collect(Collectors.toSet());
         var avbrytes = behandling.getÅpneAksjonspunkter().stream()
             .filter(ap -> !ap.erManueltOpprettet() && !ap.erAutopunkt() && !SPESIALHÅNDTERT_AKSJONSPUNKT.equals(ap.getAksjonspunktDefinisjon()))

@@ -13,7 +13,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -31,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopp
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.medlem.MedlemskapPerioderTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
-import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @CdiDbAwareTest
 class AvklarOmErBosattTest {
@@ -387,9 +385,6 @@ class AvklarOmErBosattTest {
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {
-        return BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
-            .medUtledetSkjæringstidspunkt(SKJÆRINGSDATO)
-            .medUttaksintervall(new LocalDateInterval(SKJÆRINGSDATO.minusWeeks(4), SKJÆRINGSDATO.plusWeeks(4)))
-            .medFørsteUttaksdato(SKJÆRINGSDATO).build());
+        return BehandlingReferanse.fra(behandling);
     }
 }

@@ -22,8 +22,6 @@ import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelKjønn;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
 @CdiDbAwareTest
 class FødselsvilkårOversetterTest {
@@ -36,11 +34,9 @@ class FødselsvilkårOversetterTest {
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
 
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     @BeforeEach
     public void oppsett() {
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider);
         fødselsoversetter = new FødselsvilkårOversetter(repositoryProvider, personopplysningTjeneste, null);
     }
 
@@ -54,7 +50,7 @@ class FødselsvilkårOversetterTest {
         var fødselFødselsdato = now.plusDays(7);
         var behandling = opprettBehandlingForFødsel(now, now, fødselFødselsdato, RelasjonsRolleType.MORA);
 
-        var grunnlag = fødselsoversetter.oversettTilRegelModellFødsel(lagRef(behandling));
+        var grunnlag = fødselsoversetter.oversettTilRegelModellFødsel(lagRef(behandling), false);
 
         // Assert
         assertThat(grunnlag.søkersKjønn()).isEqualTo(RegelKjønn.KVINNE);
@@ -72,7 +68,7 @@ class FødselsvilkårOversetterTest {
         var fødselFødselsdato = now.plusDays(7);
         var behandling = opprettBehandlingForFødsel(now, now, fødselFødselsdato, RelasjonsRolleType.FARA);
 
-        var grunnlag = fødselsoversetter.oversettTilRegelModellFødsel(lagRef(behandling));
+        var grunnlag = fødselsoversetter.oversettTilRegelModellFødsel(lagRef(behandling), false);
 
         // Assert
         assertThat(grunnlag.søkersKjønn()).isEqualTo(RegelKjønn.KVINNE); // snodig, men søker er kvinne her med rolle FARA
@@ -123,7 +119,7 @@ class FødselsvilkårOversetterTest {
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {
-        return BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
+        return BehandlingReferanse.fra(behandling);
     }
 
 }

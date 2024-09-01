@@ -252,7 +252,7 @@ class VurderUttakDokumentasjonOppdatererTest {
 
     private OppdateringResultat kjørOppdatering(Behandling behandling, VurderUttakDokumentasjonDto dto) {
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-        return oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, stp), dto,
+        return oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto,
             behandling.getAksjonspunktFor(AksjonspunktDefinisjon.VURDER_UTTAK_DOKUMENTASJON)));
     }
 }

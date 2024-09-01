@@ -76,7 +76,7 @@ class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
                 .medRegisterUføretrygd(false, null, null).build()));
         dto.setAnnenforelderMottarUføretrygd(Boolean.TRUE);
 
-        oppdaterer().oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+        oppdaterer().oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
         var historikkinnslagDeler = tekstBuilder.build(historikkinnslag);
@@ -109,7 +109,7 @@ class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon()).get();
 
         var resultat = oppdaterer().oppdater(dto,
-            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
         //assert
         assertThat(behandling.harAksjonspunktMedType(AKSONSPUNKT_DEF)).isTrue();
         assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
@@ -132,7 +132,7 @@ class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon()).get();
 
         var resultat = oppdaterer().oppdater(dto,
-            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
         //assert
         assertThat(resultat.kreverTotrinnsKontroll()).isFalse();
 
@@ -141,7 +141,7 @@ class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
             .medRegisterUføretrygd(false, null, null).build()));
         dto.setAnnenforelderMottarUføretrygd(true);  //skal ikke påvirker her
         var resultat1 = oppdaterer().oppdater(dto,
-            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
         //assert
         assertThat(resultat1.kreverTotrinnsKontroll()).isTrue();
     }

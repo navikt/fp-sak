@@ -69,7 +69,7 @@ class AnnenForelderHarRettAksjonspunktUtlederTest {
         var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser)
             .medOppgittAnnenForelderHarEngangsstønadForSammeBarn(annenForelderES)
             .medAnnenpart(annenpart);
-        return new UttakInput(BehandlingReferanse.fra(behandling, lagSkjæringstidspunkt(LocalDate.now())), null,
+        return new UttakInput(BehandlingReferanse.fra(behandling), lagSkjæringstidspunkt(LocalDate.now()), null,
             ytelsespesifiktGrunnlag);
     }
 
@@ -208,7 +208,7 @@ class AnnenForelderHarRettAksjonspunktUtlederTest {
         var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser)
             .medOppgittAnnenForelderHarEngangsstønadForSammeBarn(annenForelderES)
             .medAnnenpart(null).medUføretrygdGrunnlag(uføreBuilder.build()).medAnnenpart(annenpart);
-        return new UttakInput(BehandlingReferanse.fra(behandling, lagSkjæringstidspunkt(LocalDate.now())), null,
+        return new UttakInput(BehandlingReferanse.fra(behandling), lagSkjæringstidspunkt(LocalDate.now()), null,
             ytelsespesifiktGrunnlag);
     }
 

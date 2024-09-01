@@ -12,6 +12,7 @@ import jakarta.inject.Inject;
 import jakarta.persistence.NoResultException;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
@@ -58,12 +59,12 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
     }
 
     @Override
-    public KompletthetResultat vurderSøknadMottattForTidlig(BehandlingReferanse ref) {
+    public KompletthetResultat vurderSøknadMottattForTidlig(Skjæringstidspunkt stp) {
         throw new UnsupportedOperationException("Metode brukes ikke i ES");
     }
 
     @Override
-    public KompletthetResultat vurderForsendelseKomplett(BehandlingReferanse ref) {
+    public KompletthetResultat vurderForsendelseKomplett(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         if (utledAlleManglendeVedleggForForsendelse(ref).isEmpty()) {
             return KompletthetResultat.oppfylt();
         }

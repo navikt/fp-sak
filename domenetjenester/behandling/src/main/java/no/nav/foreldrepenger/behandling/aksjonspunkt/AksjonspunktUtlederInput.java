@@ -12,11 +12,13 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class AksjonspunktUtlederInput {
 
-    private BehandlingReferanse ref;
+    private final BehandlingReferanse ref;
+    private final Skjæringstidspunkt stp;
 
-    public AksjonspunktUtlederInput(BehandlingReferanse ref) {
+    public AksjonspunktUtlederInput(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         Objects.requireNonNull(ref, "ref");
         this.ref = ref;
+        this.stp = stp;
     }
 
     public Long getBehandlingId() {
@@ -44,7 +46,7 @@ public class AksjonspunktUtlederInput {
     }
 
     public Skjæringstidspunkt getSkjæringstidspunkt() {
-        return ref.getSkjæringstidspunkt();
+        return stp;
     }
 
     public Saksnummer getSaksnummer() {

@@ -204,7 +204,7 @@ class EndringsdatoRevurderingUtlederTest {
 
     private UttakInput lagInput(BehandlingReferanse ref, ForeldrepengerGrunnlag ytelsespesifiktGrunnlag) {
         var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.behandlingId());
-        return new UttakInput(ref, iayGrunnlag, ytelsespesifiktGrunnlag).medBeregningsgrunnlagStatuser(
+        return new UttakInput(ref, null, iayGrunnlag, ytelsespesifiktGrunnlag).medBeregningsgrunnlagStatuser(
             uttakBeregningsandelTjeneste.hentStatuser());
     }
 
@@ -367,7 +367,7 @@ class EndringsdatoRevurderingUtlederTest {
             .medFamilieHendelser(familieHendelser)
             .medAnnenpart(new Annenpart(behandlingFar.getId(), FØDSELSDATO.atStartOfDay()));
         var iayGrunnlag = iayTjeneste.hentGrunnlag(revurderingBerørtSak.getId());
-        var input = new UttakInput(BehandlingReferanse.fra(revurderingBerørtSak), iayGrunnlag,
+        var input = new UttakInput(BehandlingReferanse.fra(revurderingBerørtSak), null, iayGrunnlag,
             fpGrunnlag).medBehandlingÅrsaker(Set.of(BERØRT_BEHANDLING));
 
         // Act
@@ -402,7 +402,7 @@ class EndringsdatoRevurderingUtlederTest {
             .medFamilieHendelser(familieHendelser)
             .medAnnenpart(new Annenpart(behandlingFar.getId(), FØDSELSDATO.atStartOfDay()));
         var iayGrunnlag = iayTjeneste.hentGrunnlag(revurderingBerørtSak.getId());
-        var input = new UttakInput(BehandlingReferanse.fra(revurderingBerørtSak), iayGrunnlag,
+        var input = new UttakInput(BehandlingReferanse.fra(revurderingBerørtSak), null, iayGrunnlag,
             fpGrunnlag).medBehandlingÅrsaker(Set.of(BERØRT_BEHANDLING));
 
         // Act
@@ -469,7 +469,7 @@ class EndringsdatoRevurderingUtlederTest {
         // Arrange
         var revurdering = testUtil.opprettRevurdering(RE_HENDELSE_FØDSEL);
         var bekreftetHendelse = FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of(new Barn()), 1);
-        var ref = BehandlingReferanse.fra(revurdering, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(bekreftetHendelse.getFamilieHendelseDato()).build());
+        var ref = BehandlingReferanse.fra(revurdering);
         var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.behandlingId());
         var familiehendelser = new FamilieHendelser().medBekreftetHendelse(bekreftetHendelse);
         var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag()
@@ -477,7 +477,7 @@ class EndringsdatoRevurderingUtlederTest {
             .medDødsfall(true)
             .medOriginalBehandling(new OriginalBehandling(revurdering.getOriginalBehandlingId().orElseThrow(),
                 new FamilieHendelser().medBekreftetHendelse(bekreftetHendelse)));
-        var input = new UttakInput(ref, iayGrunnlag, ytelsespesifiktGrunnlag).medBeregningsgrunnlagStatuser(
+        var input = new UttakInput(ref, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(bekreftetHendelse.getFamilieHendelseDato()).build(), iayGrunnlag, ytelsespesifiktGrunnlag).medBeregningsgrunnlagStatuser(
             uttakBeregningsandelTjeneste.hentStatuser());
 
         // Act
@@ -535,7 +535,7 @@ class EndringsdatoRevurderingUtlederTest {
             familieHendelser)
             .medOriginalBehandling(
                 new OriginalBehandling(revurdering.getOriginalBehandlingId().get(), familieHendelser));
-        var uttakInput = new UttakInput(ref, iayGrunnlag, ytelsespesifiktGrunnlag).medBeregningsgrunnlagStatuser(
+        var uttakInput = new UttakInput(ref, null, iayGrunnlag, ytelsespesifiktGrunnlag).medBeregningsgrunnlagStatuser(
             uttakBeregningsandelTjeneste.hentStatuser());
 
         // Act
@@ -558,7 +558,7 @@ class EndringsdatoRevurderingUtlederTest {
             familieHendelser)
             .medOriginalBehandling(
                 new OriginalBehandling(revurdering.getOriginalBehandlingId().get(), familieHendelser));
-        var uttakInput = new UttakInput(ref, iayGrunnlag, ytelsespesifiktGrunnlag).medBeregningsgrunnlagStatuser(
+        var uttakInput = new UttakInput(ref, null, iayGrunnlag, ytelsespesifiktGrunnlag).medBeregningsgrunnlagStatuser(
             uttakBeregningsandelTjeneste.hentStatuser());
 
         // Act
@@ -781,7 +781,7 @@ class EndringsdatoRevurderingUtlederTest {
             .medFamilieHendelser(familieHendelser)
             .medAnnenpart(new Annenpart(behandlingFar.getId(), FØDSELSDATO.atStartOfDay()));
         var iayGrunnlag = iayTjeneste.hentGrunnlag(revurderingBerørtSak.getId());
-        var input = new UttakInput(BehandlingReferanse.fra(revurderingBerørtSak), iayGrunnlag,
+        var input = new UttakInput(BehandlingReferanse.fra(revurderingBerørtSak), null, iayGrunnlag,
             fpGrunnlag).medBehandlingÅrsaker(Set.of(BERØRT_BEHANDLING));
 
         var endringsdatoMor = utleder.utledEndringsdato(input);
@@ -832,13 +832,13 @@ class EndringsdatoRevurderingUtlederTest {
     }
 
     private UttakInput lagInput(Behandling behandling, FamilieHendelse bekreftetHendelse) {
-        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(bekreftetHendelse.getFamilieHendelseDato()).build());
+        var ref = BehandlingReferanse.fra(behandling);
         var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.behandlingId());
         var familiehendelser = new FamilieHendelser().medBekreftetHendelse(bekreftetHendelse);
         var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(familiehendelser)
             .medOriginalBehandling(new OriginalBehandling(behandling.getOriginalBehandlingId().get(),
                 new FamilieHendelser().medBekreftetHendelse(bekreftetHendelse)));
-        return new UttakInput(ref, iayGrunnlag, ytelsespesifiktGrunnlag).medBeregningsgrunnlagStatuser(
+        return new UttakInput(ref, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(bekreftetHendelse.getFamilieHendelseDato()).build(), iayGrunnlag, ytelsespesifiktGrunnlag).medBeregningsgrunnlagStatuser(
             uttakBeregningsandelTjeneste.hentStatuser());
     }
 
@@ -852,7 +852,7 @@ class EndringsdatoRevurderingUtlederTest {
     }
 
     private UttakInput lagInput(Behandling behandling, FamilieHendelse bekreftetHendelse, LocalDate startdatoNySak) {
-        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(bekreftetHendelse.getFamilieHendelseDato()).build());
+        var ref = BehandlingReferanse.fra(behandling);
         var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.behandlingId());
         var familiehendelser = new FamilieHendelser().medBekreftetHendelse(bekreftetHendelse);
         var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(familiehendelser)
@@ -860,7 +860,7 @@ class EndringsdatoRevurderingUtlederTest {
                 new FamilieHendelser().medBekreftetHendelse(bekreftetHendelse)))
             .medNesteSakGrunnlag(NesteSakGrunnlagEntitet.Builder.oppdatere(Optional.empty()).medSaksnummer(new Saksnummer("1234")).medBehandlingId(behandling.getId())
                 .medStartdato(startdatoNySak).medHendelsedato(startdatoNySak.plusWeeks(3)).build());
-        return new UttakInput(ref, iayGrunnlag, ytelsespesifiktGrunnlag).medBeregningsgrunnlagStatuser(
+        return new UttakInput(ref, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(bekreftetHendelse.getFamilieHendelseDato()).build(), iayGrunnlag, ytelsespesifiktGrunnlag).medBeregningsgrunnlagStatuser(
             uttakBeregningsandelTjeneste.hentStatuser());
     }
 

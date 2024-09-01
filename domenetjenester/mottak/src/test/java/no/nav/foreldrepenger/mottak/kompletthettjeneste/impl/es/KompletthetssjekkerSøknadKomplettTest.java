@@ -41,7 +41,7 @@ class KompletthetssjekkerSøknadKomplettTest {
 
     private BehandlingReferanse lagRef(Behandling behandling) {
         var stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
-        return BehandlingReferanse.fra(behandling, stp);
+        return BehandlingReferanse.fra(behandling);
     }
 
     @Test

@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.domene.uttak.fakta.omsorg;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -49,7 +51,7 @@ class BrukerHarAleneomsorgAksjonspunktUtlederTest {
     void aksjonspunkt_dersom_søker_oppgitt_ha_aleneomsorg_men_oppgitt_annenForeldre_og_ha_samme_address_som_bruker() {
         var behandling = behandlingMedOppgittRettighet(false, true);
         var ref = BehandlingReferanse.fra(behandling);
-        when(personopplysninger.annenpartHarSammeBosted(ref)).thenReturn(true);
+        when(personopplysninger.annenpartHarSammeBosted(eq(ref), any())).thenReturn(true);
         when(personopplysninger.harOppgittAnnenpartMedNorskID(ref)).thenReturn(true);
 
         var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling));
@@ -61,7 +63,7 @@ class BrukerHarAleneomsorgAksjonspunktUtlederTest {
     @Test
     void aksjonspunkt_dersom_bruker_ikke_oppgitt_annenForeldre_men_er_gift_og_ha_samme_address_som_bruker() {
         var behandling = behandlingMedOppgittRettighet(false, true);
-        when(personopplysninger.ektefelleHarSammeBosted(BehandlingReferanse.fra(behandling))).thenReturn(true);
+        when(personopplysninger.ektefelleHarSammeBosted(any(), any())).thenReturn(true);
         when(personopplysninger.harOppgittAnnenpartMedNorskID(BehandlingReferanse.fra(behandling))).thenReturn(false);
 
         var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling));
@@ -79,7 +81,7 @@ class BrukerHarAleneomsorgAksjonspunktUtlederTest {
             .lagre(repositoryProvider);
 
         var ref = BehandlingReferanse.fra(behandling);
-        when(personopplysninger.annenpartHarSammeBosted(ref)).thenReturn(false);
+        when(personopplysninger.annenpartHarSammeBosted(eq(ref), any())).thenReturn(false);
         when(personopplysninger.harOppgittAnnenpartMedNorskID(ref)).thenReturn(false);
 
         var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling));
@@ -98,7 +100,7 @@ class BrukerHarAleneomsorgAksjonspunktUtlederTest {
 
     private UttakInput lagInput(Behandling behandling) {
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
-        return new UttakInput(BehandlingReferanse.fra(behandling, skjæringstidspunkt), null, null);
+        return new UttakInput(BehandlingReferanse.fra(behandling), skjæringstidspunkt, null, null);
     }
 
     private OppgittRettighetEntitet oppgittRettighet(Boolean harAnnenForeldreRett, Boolean harAleneomsorgForBarnet) {

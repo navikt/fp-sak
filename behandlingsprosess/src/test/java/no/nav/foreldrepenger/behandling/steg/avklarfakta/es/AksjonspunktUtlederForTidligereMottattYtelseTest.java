@@ -55,7 +55,7 @@ class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityManagerAwar
     }
 
     private AksjonspunktUtlederInput lagRef(Behandling behandling) {
-        return new AksjonspunktUtlederInput(BehandlingReferanse.fra(behandling, skjæringstidspunkt));
+        return new AksjonspunktUtlederInput(BehandlingReferanse.fra(behandling), skjæringstidspunkt);
     }
 
     @Test

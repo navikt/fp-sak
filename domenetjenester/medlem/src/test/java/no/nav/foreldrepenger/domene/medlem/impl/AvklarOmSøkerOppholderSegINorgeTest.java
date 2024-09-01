@@ -163,10 +163,11 @@ class AvklarOmSøkerOppholderSegINorgeTest {
     }
 
     private Optional<MedlemResultat> kallTjeneste(Behandling behandling, LocalDate dato) {
-        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(dato)
+        var ref = BehandlingReferanse.fra(behandling);
+        var stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(dato)
             .medUttaksintervall(new LocalDateInterval(dato.minusWeeks(4), dato.plusWeeks(4)))
-            .build());
-        return tjeneste.utledVedSTP(ref);
+            .build();
+        return tjeneste.utledVedSTP(ref, stp);
     }
 
     @Test

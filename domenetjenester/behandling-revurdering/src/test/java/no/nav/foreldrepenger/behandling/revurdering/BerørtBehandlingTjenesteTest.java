@@ -79,7 +79,7 @@ class BerørtBehandlingTjenesteTest {
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultOppgittDekningsgrad().lagre(repositoryProvider);
         var behandlingAnnenpart = ScenarioFarSøkerForeldrepenger.forFødsel().medDefaultOppgittDekningsgrad().lagre(repositoryProvider);
 
-        var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling), null,
+        var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling), null, null,
             new ForeldrepengerGrunnlag().medErBerørtBehandling(true));
         when(uttakInputTjeneste.lagInput(behandling.getId())).thenReturn(uttakInput);
 
@@ -178,7 +178,7 @@ class BerørtBehandlingTjenesteTest {
             .getFødselsdato().orElse(null);
         var fpGrunnlag = new ForeldrepengerGrunnlag()
             .medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1)));
-        var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling), null, fpGrunnlag);
+        var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling), null, null, fpGrunnlag);
         when(uttakInputTjeneste.lagInput(behandling.getId())).thenReturn(uttakInput);
         return uttakInput;
     }
@@ -194,7 +194,7 @@ class BerørtBehandlingTjenesteTest {
             .medKreverSammenhengendeUttak(true);
         var fpGrunnlag = new ForeldrepengerGrunnlag()
             .medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1)));
-        var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, fpGrunnlag);
+        var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling), stp.build(), null, fpGrunnlag);
         when(uttakInputTjeneste.lagInput(behandling.getId())).thenReturn(uttakInput);
         return uttakInput;
     }
@@ -209,7 +209,7 @@ class BerørtBehandlingTjenesteTest {
             .medUtenMinsterett(true);
         var fpGrunnlag = new ForeldrepengerGrunnlag()
             .medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1)));
-        var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, fpGrunnlag);
+        var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling), stp.build(), null, fpGrunnlag);
         when(uttakInputTjeneste.lagInput(behandling.getId())).thenReturn(uttakInput);
         return uttakInput;
     }

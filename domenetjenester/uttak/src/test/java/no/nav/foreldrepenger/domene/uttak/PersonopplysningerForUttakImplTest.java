@@ -10,6 +10,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartBuilder;
@@ -24,6 +25,7 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 class PersonopplysningerForUttakImplTest {
 
@@ -68,7 +70,7 @@ class PersonopplysningerForUttakImplTest {
         var personopplysningGrunnlagBuilder = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty())
             .medOppgittAnnenPart(new OppgittAnnenPartBuilder().medAktørId(AktørId.dummy()).build());
         var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagBuilder.build(),
-            behandling.getAktørId(), LocalDate.MIN, LocalDate.now());
+            behandling.getAktørId());
         when(personopplysningTjeneste.hentPersonopplysninger(ref)).thenReturn(personopplysningerAggregat);
 
         assertThat(personopplysninger.harOppgittAnnenpartMedNorskID(ref)).isTrue();
@@ -85,7 +87,7 @@ class PersonopplysningerForUttakImplTest {
         var personopplysningGrunnlagBuilder = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty());
         //Ingen annenpart
         var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagBuilder.build(),
-            behandling.getAktørId(), LocalDate.MIN, LocalDate.now());
+            behandling.getAktørId());
         when(personopplysningTjeneste.hentPersonopplysninger(ref)).thenReturn(personopplysningerAggregat);
 
         assertThat(personopplysninger.harOppgittAnnenpartMedNorskID(ref)).isFalse();
@@ -98,6 +100,8 @@ class PersonopplysningerForUttakImplTest {
 
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(new UttakRepositoryStubProvider());
         var ref = BehandlingReferanse.fra(behandling);
+        var stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now())
+            .medUttaksintervall(new LocalDateInterval(LocalDate.now().minusYears(1), LocalDate.now())).build();
 
         var aktørId = behandling.getAktørId();
         var ekteFelleAktørId = AktørId.dummy();
@@ -114,11 +118,10 @@ class PersonopplysningerForUttakImplTest {
             RelasjonsRolleType.EKTE).harSammeBosted(true));
         var personopplysningGrunnlagBuilder = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty())
             .medRegistrertVersjon(personInformasjonBuilder);
-        var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagBuilder.build(),
-            aktørId, LocalDate.MIN, LocalDate.now());
+        var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagBuilder.build(), aktørId);
         when(personopplysningTjeneste.hentPersonopplysninger(ref)).thenReturn(personopplysningerAggregat);
 
-        assertThat(personopplysninger.ektefelleHarSammeBosted(ref)).isTrue();
+        assertThat(personopplysninger.ektefelleHarSammeBosted(ref, stp)).isTrue();
     }
 
     @Test
@@ -132,7 +135,7 @@ class PersonopplysningerForUttakImplTest {
         var personopplysningGrunnlagBuilder = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty())
             .medOppgittAnnenPart(new OppgittAnnenPartBuilder().medAktørId(null).medUtenlandskFnr("123").build());
         var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagBuilder.build(),
-            behandling.getAktørId(), LocalDate.MIN, LocalDate.now());
+            behandling.getAktørId());
         when(personopplysningTjeneste.hentPersonopplysninger(ref)).thenReturn(personopplysningerAggregat);
 
         assertThat(personopplysninger.oppgittAnnenpartUtenNorskID(ref)).isTrue();
@@ -150,7 +153,7 @@ class PersonopplysningerForUttakImplTest {
             //Ukjent forelder lagres slik i db
             .medOppgittAnnenPart(new OppgittAnnenPartBuilder().medAktørId(null).medUtenlandskFnrLand(null).medUtenlandskFnr(null).build());
         var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagBuilder.build(),
-            behandling.getAktørId(), LocalDate.MIN, LocalDate.now());
+            behandling.getAktørId());
         when(personopplysningTjeneste.hentPersonopplysninger(ref)).thenReturn(personopplysningerAggregat);
 
         assertThat(personopplysninger.oppgittAnnenpartUtenNorskID(ref)).isFalse();
@@ -167,7 +170,7 @@ class PersonopplysningerForUttakImplTest {
         var personopplysningGrunnlagBuilder = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty())
             .medOppgittAnnenPart(new OppgittAnnenPartBuilder().medAktørId(AktørId.dummy()).medAktørId(AktørId.dummy()).build());
         var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagBuilder.build(),
-            behandling.getAktørId(), LocalDate.MIN, LocalDate.now());
+            behandling.getAktørId());
         when(personopplysningTjeneste.hentPersonopplysninger(ref)).thenReturn(personopplysningerAggregat);
 
         assertThat(personopplysninger.oppgittAnnenpartUtenNorskID(ref)).isFalse();
@@ -180,8 +183,8 @@ class PersonopplysningerForUttakImplTest {
             personInformasjonBuilder.getPersonopplysningBuilder(behandling.getAktørId()).medDødsdato(dødsdato));
         var personopplysningGrunnlagBuilder = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty())
             .medRegistrertVersjon(personInformasjonBuilder);
-        return new PersonopplysningerAggregat(personopplysningGrunnlagBuilder.build(), behandling.getAktørId(),
-            LocalDate.MIN, LocalDate.now());
+        return new PersonopplysningerAggregat(personopplysningGrunnlagBuilder.build(), behandling.getAktørId()
+        );
     }
 
 }

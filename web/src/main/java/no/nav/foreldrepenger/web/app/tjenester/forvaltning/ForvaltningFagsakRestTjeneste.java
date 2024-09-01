@@ -2,7 +2,9 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 
-import java.util.EmptyStackException;
+import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
+import java.util.List;
 import java.util.function.Function;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -16,20 +18,22 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
@@ -40,14 +44,24 @@ import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.kontrakter.fordel.YtelseTypeDto;
 import no.nav.foreldrepenger.produksjonsstyring.fagsakstatus.OppdaterFagsakStatusTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SokefeltDto;
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.OpprettSakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.KobleFagsakerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerJournalpostDto;
+import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
+import no.nav.pdl.HentIdenterQueryRequest;
+import no.nav.pdl.IdentGruppe;
+import no.nav.pdl.IdentInformasjonResponseProjection;
+import no.nav.pdl.IdentlisteResponseProjection;
+import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.exception.VLException;
+import no.nav.vedtak.felles.integrasjon.person.Persondata;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType;
@@ -69,6 +83,7 @@ public class ForvaltningFagsakRestTjeneste {
     private OpprettSakTjeneste opprettSakTjeneste;
     private AktørTjeneste aktørTjeneste;
     private NavBrukerTjeneste brukerTjeneste;
+    private Persondata pdlKlient;
 
     public ForvaltningFagsakRestTjeneste() {
         // For CDI
@@ -80,7 +95,8 @@ public class ForvaltningFagsakRestTjeneste {
                                          OpprettSakTjeneste opprettSakTjeneste,
                                          AktørTjeneste aktørTjeneste,
                                          NavBrukerTjeneste brukerTjeneste,
-                                         FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
+                                         FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
+                                         Persondata pdlKlient) {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
@@ -88,6 +104,7 @@ public class ForvaltningFagsakRestTjeneste {
         this.opprettSakTjeneste = opprettSakTjeneste;
         this.aktørTjeneste = aktørTjeneste;
         this.brukerTjeneste = brukerTjeneste;
+        this.pdlKlient = pdlKlient;
     }
 
     @POST
@@ -300,6 +317,59 @@ public class ForvaltningFagsakRestTjeneste {
         }
         var forvaltningInfoDto = mapTilDto(fagsakRepository.finnEksaktFagsakReadOnly(fagsakId));
         return Response.ok(forvaltningInfoDto).build();
+    }
+
+    @POST
+    @Path("/fagsak/identhistorikk")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Finner identhistorikk gitt en aktørId eller personident", tags = "FORVALTNING-fagsak")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response sokInfotrygd(@TilpassetAbacAttributt(supplierClass = SøkeFeltAbacDataSupplier.class)
+                                 @Parameter(description = "Søkestreng kan være aktørId, fødselsnummer eller D-nummer.") @Valid SokefeltDto søkestreng) {
+        var trimmed = søkestreng.getSearchString() != null ? søkestreng.getSearchString().trim() : "";
+        var ident = PersonIdent.erGyldigFnr(trimmed) || AktørId.erGyldigAktørId(trimmed) ? trimmed : null;
+        if (ident == null) {
+            return Response.status(HttpURLConnection.HTTP_BAD_REQUEST).build();
+        }
+        return Response.ok(finnAlleHistoriskeFødselsnummer(ident)).build();
+    }
+
+    private List<String> finnAlleHistoriskeFødselsnummer(String inputIdent) {
+        var request = new HentIdenterQueryRequest();
+        request.setIdent(inputIdent);
+        request.setGrupper(List.of(IdentGruppe.FOLKEREGISTERIDENT, IdentGruppe.NPID, IdentGruppe.AKTORID));
+        request.setHistorikk(Boolean.TRUE);
+        var projection = new IdentlisteResponseProjection()
+            .identer(new IdentInformasjonResponseProjection().ident());
+
+        try {
+            var identliste = pdlKlient.hentIdenter(request, projection);
+            return identliste.getIdenter().stream().map(i -> i.getIdent() + (i.getHistorisk() ? "H" : "A")).toList();
+        } catch (VLException v) {
+            if (Persondata.PDL_KLIENT_NOT_FOUND_KODE.equals(v.getKode())) {
+                return List.of();
+            }
+            throw v;
+        } catch (ProcessingException e) {
+            throw e.getCause() instanceof SocketTimeoutException ? new IntegrasjonException("FP-723618", "PDL timeout") : e;
+        }
+    }
+
+    public static class SøkeFeltAbacDataSupplier implements Function<Object, AbacDataAttributter> {
+
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var req = (SokefeltDto) obj;
+            var attributter = AbacDataAttributter.opprett();
+            var søkestring = req.getSearchString() != null ? req.getSearchString().trim() : "";
+            if (søkestring.length() == 13 /* guess - aktørId */) {
+                attributter.leggTil(AppAbacAttributtType.AKTØR_ID, søkestring);
+            } else if (søkestring.length() == 11 /* guess - FNR */) {
+                attributter.leggTil(AppAbacAttributtType.FNR, søkestring);
+            }
+            return attributter;
+        }
     }
 
     public static class AbacEmptySupplier implements Function<Object, AbacDataAttributter> {

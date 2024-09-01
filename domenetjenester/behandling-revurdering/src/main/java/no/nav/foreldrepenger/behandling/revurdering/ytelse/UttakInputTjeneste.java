@@ -82,12 +82,12 @@ public class UttakInputTjeneste {
 
     public UttakInput lagInput(Behandling behandling, InntektArbeidYtelseGrunnlag iayGrunnlag, LocalDate medlemskapOpphørsdato) {
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        var ref = BehandlingReferanse.fra(behandling);
         var søknadEntitet = søknadRepository.hentSøknadHvisEksisterer(ref.behandlingId());
         var søknadOpprettetTidspunkt = søknadEntitet.map(SøknadEntitet::getOpprettetTidspunkt).orElse(null);
         var ytelsespesifiktGrunnlag = lagYtelsesspesifiktGrunnlag(ref);
         var årsaker = finnÅrsaker(ref);
-        var input = new UttakInput(ref, iayGrunnlag, ytelsespesifiktGrunnlag)
+        var input = new UttakInput(ref, skjæringstidspunkt, iayGrunnlag, ytelsespesifiktGrunnlag)
             .medMedlemskapOpphørsdato(medlemskapOpphørsdato)
             .medSøknadOpprettetTidspunkt(søknadOpprettetTidspunkt)
             .medBehandlingÅrsaker(map(årsaker))

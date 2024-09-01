@@ -34,9 +34,9 @@ import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseStørrelse;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
-import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.svp.v2.Addresse;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.svp.v2.FamilieHendelse;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.svp.v2.Inntekt;
@@ -54,7 +54,6 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
 
     private FamilieHendelseRepository familieHendelseRepository;
     private MedlemskapRepository medlemskapRepository;
-    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private VirksomhetTjeneste virksomhetTjeneste;
     private PersonopplysningXmlFelles personopplysningFellesTjeneste;
@@ -68,9 +67,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
     public PersonopplysningXmlTjenesteImpl(PersonopplysningXmlFelles fellesTjeneste,
                                            BehandlingRepositoryProvider provider,
                                            PersonopplysningTjeneste personopplysningTjeneste,
-                                           InntektArbeidYtelseTjeneste iayTjeneste,
-                                           YtelseFordelingTjeneste ytelseFordelingTjeneste,
-                                           VergeRepository vergeRepository,
+                                           InntektArbeidYtelseTjeneste iayTjeneste, VergeRepository vergeRepository,
                                            VirksomhetTjeneste virksomhetTjeneste) {
         super(personopplysningTjeneste);
         this.personopplysningFellesTjeneste = fellesTjeneste;
@@ -78,7 +75,6 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
         this.virksomhetTjeneste = virksomhetTjeneste;
         this.familieHendelseRepository = provider.getFamilieHendelseRepository();
         this.medlemskapRepository = provider.getMedlemskapRepository();
-        this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.vergeRepository = vergeRepository;
     }
 
@@ -92,9 +88,9 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
             setVerge(behandlingId, personopplysninger);
         });
         var skjæringstidspunkt = skjæringstidspunkter.getUtledetSkjæringstidspunkt();
-        setAdresse(personopplysninger, personopplysningerAggregat);
+        setAdresse(skjæringstidspunkter, personopplysninger, personopplysningerAggregat);
         setInntekter(behandlingId, personopplysninger, skjæringstidspunkt);
-        setBruker(personopplysninger, personopplysningerAggregat);
+        setBruker(skjæringstidspunkter, personopplysninger, personopplysningerAggregat);
         setRelaterteYtelser(behandlingId, aktørId, personopplysninger, skjæringstidspunkt);
 
         return personopplysningObjectFactory.createPersonopplysningerSvangerskapspenger(personopplysninger);
@@ -233,14 +229,14 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
         return inntektList;
     }
 
-    private void setBruker(PersonopplysningerSvangerskapspenger personopplysninger, PersonopplysningerAggregat personopplysningerAggregat) {
-        var person = personopplysningFellesTjeneste.lagBruker(personopplysningerAggregat, personopplysningerAggregat.getSøker());
+    private void setBruker(Skjæringstidspunkt stp, PersonopplysningerSvangerskapspenger personopplysninger, PersonopplysningerAggregat personopplysningerAggregat) {
+        var person = personopplysningFellesTjeneste.lagBruker(stp, personopplysningerAggregat, personopplysningerAggregat.getSøker());
         personopplysninger.setBruker(person);
     }
 
-    private void setAdresse(PersonopplysningerSvangerskapspenger personopplysninger, PersonopplysningerAggregat personopplysningerAggregat) {
+    private void setAdresse(Skjæringstidspunkt stp, PersonopplysningerSvangerskapspenger personopplysninger, PersonopplysningerAggregat personopplysningerAggregat) {
         var personopplysning = personopplysningerAggregat.getSøker();
-        var opplysningAdresser = personopplysningerAggregat.getAdresserFor(personopplysning.getAktørId());
+        var opplysningAdresser = personopplysningerAggregat.getAdresserFor(personopplysning.getAktørId(), SimpleLocalDateInterval.enDag(stp.getUtledetSkjæringstidspunkt()));
         if (opplysningAdresser != null) {
             opplysningAdresser.forEach(adresse -> personopplysninger.getAdresse().add(lagAdresse(personopplysning, adresse)));
         }

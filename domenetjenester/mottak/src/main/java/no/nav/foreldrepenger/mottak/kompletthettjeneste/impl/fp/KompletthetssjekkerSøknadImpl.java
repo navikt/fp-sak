@@ -11,6 +11,7 @@ import java.util.Set;
 import jakarta.persistence.NoResultException;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
@@ -39,8 +40,8 @@ public abstract class KompletthetssjekkerSøknadImpl implements Kompletthetssjek
     }
 
     @Override
-    public Optional<LocalDateTime> erSøknadMottattForTidlig(BehandlingReferanse ref) {
-        var permisjonsstart = ref.getSkjæringstidspunkt().getSkjæringstidspunktHvisUtledet();
+    public Optional<LocalDateTime> erSøknadMottattForTidlig(Skjæringstidspunkt stp) {
+        var permisjonsstart = stp.getSkjæringstidspunktHvisUtledet();
         if (permisjonsstart.isPresent()) {
             var ventefrist = permisjonsstart.get().minus(ventefristForTidligSøknad);
             var erSøknadMottattForTidlig = ventefrist.isAfter(LocalDate.now());

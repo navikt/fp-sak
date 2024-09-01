@@ -55,12 +55,12 @@ public class FatteVedtakXmlTjeneste {
         var fagsak = fagsakRepository.finnEksaktFagsak(behandling.getFagsakId());
         var vedtak = factory.createVedtak();
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
+        var ref = BehandlingReferanse.fra(behandling);
         vedtakXmlTjeneste.setVedtaksopplysninger(vedtak, fagsak, behandling);
         var ytelseType = fagsak.getYtelseType();
         var ikkeFunnet = "Ingen implementasjoner funnet for ytelse: " + ytelseType.getKode();
         FagsakYtelseTypeRef.Lookup.find(personopplysningXmlTjenester, ytelseType).orElseThrow(() -> new IllegalStateException(ikkeFunnet))
-            .setPersonopplysninger(vedtak, ref);
+            .setPersonopplysninger(vedtak, ref, skjæringstidspunkter);
 
         behandlingsresultatXmlTjenester.setBehandlingresultat(vedtak, behandling);
 

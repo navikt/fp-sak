@@ -11,6 +11,7 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
@@ -48,19 +49,19 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
     }
 
     @Override
-    public StartpunktType utledStartpunktMotOriginalBehandling(BehandlingReferanse revurdering) {
+    public StartpunktType utledStartpunktMotOriginalBehandling(BehandlingReferanse revurdering, Skjæringstidspunkt stp) {
         throw new IllegalStateException("Utviklerfeil: Skal ikke kalle startpunkt mot original for Engangsstønad, sak: " + revurdering.saksnummer().getVerdi());
     }
 
     @Override
-    public StartpunktType utledStartpunktForDiffBehandlingsgrunnlag(BehandlingReferanse revurdering, EndringsresultatDiff differanse) {
-        var startpunkt = utledStartpunkterES(revurdering, differanse).stream()
+    public StartpunktType utledStartpunktForDiffBehandlingsgrunnlag(BehandlingReferanse revurdering, Skjæringstidspunkt stp, EndringsresultatDiff differanse) {
+        var startpunkt = utledStartpunkterES(revurdering, stp, differanse).stream()
             .min(Comparator.comparing(StartpunktType::getRangering))
             .orElse(StartpunktType.UDEFINERT);
         return StartpunktType.inngangsVilkårStartpunkt().contains(startpunkt) ? startpunkt : StartpunktType.UDEFINERT;
     }
 
-    private List<StartpunktType> utledStartpunkterES(BehandlingReferanse revurdering, EndringsresultatDiff differanse) {
+    private List<StartpunktType> utledStartpunkterES(BehandlingReferanse revurdering, Skjæringstidspunkt stp, EndringsresultatDiff differanse) {
         List<StartpunktType> startpunkter = new ArrayList<>();
         var grunnlagForBehandling = familieHendelseTjeneste.hentAggregat(revurdering.behandlingId());
         if (skalSjekkeForManglendeFødsel(grunnlagForBehandling))
@@ -73,23 +74,23 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
         differanse.hentDelresultat(MedlemskapAggregat.class).filter(EndringsresultatDiff::erSporedeFeltEndret)
             .ifPresent(diff -> startpunkter.add(StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP));
         differanse.hentDelresultat(PersonInformasjonEntitet.class).filter(EndringsresultatDiff::erSporedeFeltEndret)
-            .ifPresent(diff -> startpunkter.add(utledStartpunktForDelresultat(revurdering, diff)));
+            .ifPresent(diff -> startpunkter.add(utledStartpunktForDelresultat(revurdering, stp, diff)));
         differanse.hentDelresultat(InntektArbeidYtelseGrunnlag.class).filter(EndringsresultatDiff::erSporedeFeltEndret).ifPresent(diff -> {
             var grunnlag1 = iayTjeneste.hentGrunnlagPåId(revurdering.behandlingId(), (UUID)diff.getGrunnlagId1());
             var grunnlag2 = iayTjeneste.hentGrunnlagPåId(revurdering.behandlingId(), (UUID)diff.getGrunnlagId2());
             var iayGrunnlagDiff = new IAYGrunnlagDiff(grunnlag1, grunnlag2);
             var aktørYtelseEndringForSøker = iayGrunnlagDiff
-                .endringPåAktørYtelseForAktør(revurdering.saksnummer(), revurdering.getUtledetSkjæringstidspunkt(), revurdering.aktørId());
+                .endringPåAktørYtelseForAktør(revurdering.saksnummer(), stp.getUtledetSkjæringstidspunkt(), revurdering.aktørId());
             if (aktørYtelseEndringForSøker.erEksklusiveYtelserEndret())
                 startpunkter.add(StartpunktType.SØKERS_RELASJON_TIL_BARNET);
         });
         return startpunkter;
     }
 
-    private StartpunktType utledStartpunktForDelresultat(BehandlingReferanse revurdering, EndringsresultatDiff diff) {
+    private StartpunktType utledStartpunktForDelresultat(BehandlingReferanse revurdering, Skjæringstidspunkt stp, EndringsresultatDiff diff) {
         var utleder = GrunnlagRef.Lookup.find(StartpunktUtleder.class, utledere, diff.getGrunnlag()).orElseThrow();
         return diff.erSporedeFeltEndret() ?
-            utleder.utledStartpunkt(revurdering, diff.getGrunnlagId1(), diff.getGrunnlagId2()) : StartpunktType.UDEFINERT;
+            utleder.utledStartpunkt(revurdering, stp, diff.getGrunnlagId1(), diff.getGrunnlagId2()) : StartpunktType.UDEFINERT;
     }
 
     private boolean erAntallBekreftedeBarnEndret(Long id1, Long id2) {

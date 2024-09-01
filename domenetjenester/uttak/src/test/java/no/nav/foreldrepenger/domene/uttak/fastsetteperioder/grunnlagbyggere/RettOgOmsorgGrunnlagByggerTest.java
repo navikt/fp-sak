@@ -283,7 +283,7 @@ class RettOgOmsorgGrunnlagByggerTest {
     private RettOgOmsorg byggGrunnlag(Behandling behandling) {
         var bygger = grunnlagBygger();
         var fpGrunnlag = new ForeldrepengerGrunnlag();
-        return bygger.byggGrunnlag(new UttakInput(BehandlingReferanse.fra(behandling), null, fpGrunnlag)).build();
+        return bygger.byggGrunnlag(new UttakInput(BehandlingReferanse.fra(behandling), null, null, fpGrunnlag)).build();
     }
 
     private RettOgOmsorg byggGrunnlagMedRegisterUføre(Behandling behandling, boolean uføreVerdi) {
@@ -294,7 +294,7 @@ class RettOgOmsorgGrunnlagByggerTest {
                 .medBehandlingId(behandling.getId())
                 .medAktørIdUføretrygdet(uføreVerdi ? AktørId.dummy() : null)
                 .build());
-        return bygger.byggGrunnlag(new UttakInput(BehandlingReferanse.fra(behandling), null, fpGrunnlag)).build();
+        return bygger.byggGrunnlag(new UttakInput(BehandlingReferanse.fra(behandling), null, null, fpGrunnlag)).build();
     }
 
 }

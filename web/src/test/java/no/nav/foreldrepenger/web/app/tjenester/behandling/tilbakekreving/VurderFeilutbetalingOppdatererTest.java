@@ -48,7 +48,7 @@ class VurderFeilutbetalingOppdatererTest {
         var varseltekst = "varsel";
         var dto = new VurderFeilutbetalingDto("lorem ipsum", TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING, varseltekst);
 
-        oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto));
+        oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
 
         verify(repository).lagre(eq(behandling), captor.capture());
 
@@ -63,7 +63,7 @@ class VurderFeilutbetalingOppdatererTest {
     void skal_feile_når_Inntrekk_er_forsøkt_valgt() {
         var dto = new VurderFeilutbetalingDto("lorem ipsum", TilbakekrevingVidereBehandling.INNTREKK, null);
 
-        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto);
+        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto);
         assertThrows(IllegalArgumentException.class, () -> oppdaterer.oppdater(dto, param));
 
     }

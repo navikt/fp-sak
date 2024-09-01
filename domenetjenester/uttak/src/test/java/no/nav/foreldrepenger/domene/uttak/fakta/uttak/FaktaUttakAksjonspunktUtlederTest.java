@@ -8,19 +8,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
-import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
-import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
-import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.vedtak.konfig.Tid;
-
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -32,12 +19,24 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
+import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
+import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.input.BeregningsgrunnlagStatus;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.vedtak.konfig.Tid;
 
 class FaktaUttakAksjonspunktUtlederTest {
 
@@ -57,7 +56,7 @@ class FaktaUttakAksjonspunktUtlederTest {
             .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(avklartDato).build());
         var behandling = scenario.lagre(repositoryProvider);
 
-        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null);
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null, null);
         var ap = utleder.utledAksjonspunkterFor(input);
 
         assertThat(ap).hasSize(1);
@@ -70,7 +69,7 @@ class FaktaUttakAksjonspunktUtlederTest {
             .medJustertFordeling(new OppgittFordelingEntitet(List.of(), true));
         var behandling = scenario.lagre(repositoryProvider);
 
-        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null);
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null, null);
         var ap = utleder.utledAksjonspunkterFor(input);
 
         assertThat(ap).hasSize(1);
@@ -90,7 +89,7 @@ class FaktaUttakAksjonspunktUtlederTest {
             .medJustertFordeling(new OppgittFordelingEntitet(List.of(gradering), true));
         var behandling = scenario.lagre(repositoryProvider);
 
-        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null)
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null, null)
             .medBeregningsgrunnlagStatuser(Set.of(new BeregningsgrunnlagStatus(AktivitetStatus.ARBEIDSTAKER, Arbeidsgiver.virksomhet("000000000"), null)));
         var ap = utleder.utledAksjonspunkterFor(input);
 
@@ -111,7 +110,7 @@ class FaktaUttakAksjonspunktUtlederTest {
             .medJustertFordeling(new OppgittFordelingEntitet(List.of(gradering), true));
         var behandling = scenario.lagre(repositoryProvider);
 
-        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null)
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null, null)
             .medBeregningsgrunnlagStatuser(Set.of(new BeregningsgrunnlagStatus(AktivitetStatus.FRILANSER, null, null)))
             .medFinnesAndelerMedGraderingUtenBeregningsgrunnlag(true);
         var ap = utleder.utledAksjonspunkterFor(input);
@@ -147,7 +146,7 @@ class FaktaUttakAksjonspunktUtlederTest {
         var inntektArbeidYtelseGrunnlagBuilder = InntektArbeidYtelseGrunnlagBuilder.oppdatere(Optional.empty());
         inntektArbeidYtelseGrunnlagBuilder.medData(aggregat);
 
-        var input = new UttakInput(behandlingRef, inntektArbeidYtelseGrunnlagBuilder.build(), null)
+        var input = new UttakInput(behandlingRef, null, inntektArbeidYtelseGrunnlagBuilder.build(), null)
             .medBeregningsgrunnlagStatuser(Set.of(new BeregningsgrunnlagStatus(AktivitetStatus.ARBEIDSTAKER, arbeidsgiverIAY, null)))
             .medFinnesAndelerMedGraderingUtenBeregningsgrunnlag(false);
         var ap = utleder.utledAksjonspunkterFor(input);

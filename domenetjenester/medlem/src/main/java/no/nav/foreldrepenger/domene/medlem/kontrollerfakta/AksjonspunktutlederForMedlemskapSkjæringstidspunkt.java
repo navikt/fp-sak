@@ -27,7 +27,7 @@ public class AksjonspunktutlederForMedlemskapSkjæringstidspunkt implements Aksj
     @Override
     public List<AksjonspunktResultat> utledAksjonspunkterFor(AksjonspunktUtlederInput param) {
         var skjæringstidspunkt = param.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
-        var resultat = tjeneste.vurderMedlemskap(param.getRef(), skjæringstidspunkt);
+        var resultat = tjeneste.vurderMedlemskap(param.getRef(), param.getSkjæringstidspunkt(), skjæringstidspunkt);
         return resultat.stream().map(mr -> AksjonspunktResultat.opprettForAksjonspunkt(mr.getAksjonspunktDefinisjon())).toList();
     }
 

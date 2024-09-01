@@ -7,6 +7,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
 
@@ -26,7 +27,7 @@ public class SykemeldingVentTjeneste {
         this.besteberegningFødendeKvinneTjeneste = besteberegningFødendeKvinneTjeneste;
     }
 
-    public Optional<LocalDate> skalVentePåSykemelding(BehandlingReferanse referanse) {
+    public Optional<LocalDate> skalVentePåSykemelding(BehandlingReferanse referanse, Skjæringstidspunkt stp) {
         var erFødendeKvinneSomSøkerForeldrepenger = besteberegningFødendeKvinneTjeneste.erFødendeKvinneSomSøkerForeldrepenger(referanse);
 
         if (!erFødendeKvinneSomSøkerForeldrepenger) {
@@ -35,6 +36,6 @@ public class SykemeldingVentTjeneste {
 
         var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(referanse.behandlingUuid());
         var filter = new YtelseFilter(iayGrunnlag.getAktørYtelseFraRegister(referanse.aktørId()));
-        return VentPåSykemelding.utledVenteFrist(filter, referanse.getSkjæringstidspunkt().getSkjæringstidspunktOpptjening(), LocalDate.now());
+        return VentPåSykemelding.utledVenteFrist(filter, stp.getSkjæringstidspunktOpptjening(), LocalDate.now());
     }
 }

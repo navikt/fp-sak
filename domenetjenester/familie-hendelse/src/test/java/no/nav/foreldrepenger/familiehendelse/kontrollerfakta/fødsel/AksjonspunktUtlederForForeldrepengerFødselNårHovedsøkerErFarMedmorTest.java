@@ -69,12 +69,12 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedmorTest 
     }
 
     private AksjonspunktUtlederInput lagInput(Behandling behandling, LocalDate stp) {
-        return new AksjonspunktUtlederInput(BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtenMinsterett(true).medUtledetSkjæringstidspunkt(
-            stp).build()));
+        return new AksjonspunktUtlederInput(BehandlingReferanse.fra(behandling), Skjæringstidspunkt.builder().medUtenMinsterett(true).medUtledetSkjæringstidspunkt(
+            stp).build());
     }
 
     private AksjonspunktUtlederInput lagInputMedMinsterettFar(Behandling behandling, LocalDate stp) {
-        return new AksjonspunktUtlederInput(BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build()));
+        return new AksjonspunktUtlederInput(BehandlingReferanse.fra(behandling), Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build());
     }
 
     @Test

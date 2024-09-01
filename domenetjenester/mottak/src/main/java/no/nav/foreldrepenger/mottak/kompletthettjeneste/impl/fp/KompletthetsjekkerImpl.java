@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
@@ -53,8 +54,8 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
     }
 
     @Override
-    public KompletthetResultat vurderSøknadMottattForTidlig(BehandlingReferanse ref) {
-        var forTidligFrist = kompletthetssjekkerSøknad.erSøknadMottattForTidlig(ref);
+    public KompletthetResultat vurderSøknadMottattForTidlig(Skjæringstidspunkt stp) {
+        var forTidligFrist = kompletthetssjekkerSøknad.erSøknadMottattForTidlig(stp);
         if (forTidligFrist.isPresent()) {
             return KompletthetResultat.ikkeOppfylt(forTidligFrist.get(), Venteårsak.FOR_TIDLIG_SOKNAD);
         }
@@ -62,13 +63,13 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
     }
 
     @Override
-    public KompletthetResultat vurderForsendelseKomplett(BehandlingReferanse ref) {
+    public KompletthetResultat vurderForsendelseKomplett(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var behandlingId = ref.behandlingId();
         if (BehandlingStatus.OPPRETTET.equals(ref.behandlingStatus())) {
             return KompletthetResultat.oppfylt();
         }
         // Kalles fra VurderKompletthetSteg (en gang) som setter autopunkt 7003 + fra KompletthetsKontroller (dokument på åpen behandling, hendelser)
-        var kompletthetManglendeIM = fellesUtil.getInntektsmeldingKomplett(ref);
+        var kompletthetManglendeIM = fellesUtil.getInntektsmeldingKomplett(ref, stp);
         if (kompletthetManglendeIM.isPresent()) {
             return kompletthetManglendeIM.get();
         }
@@ -102,8 +103,8 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
     }
 
     @Override
-    public KompletthetResultat vurderEtterlysningInntektsmelding(BehandlingReferanse ref) {
-        return fellesUtil.vurderEtterlysningInntektsmelding(ref);
+    public KompletthetResultat vurderEtterlysningInntektsmelding(BehandlingReferanse ref, Skjæringstidspunkt stp) {
+        return fellesUtil.vurderEtterlysningInntektsmelding(ref, stp);
     }
 
 }

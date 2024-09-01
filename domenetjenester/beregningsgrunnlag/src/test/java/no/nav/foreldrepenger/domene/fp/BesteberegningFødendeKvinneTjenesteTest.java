@@ -55,6 +55,7 @@ class BesteberegningFødendeKvinneTjenesteTest {
     private static final String ORGNR = OrgNummer.KUNSTIG_ORG;
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.of(2018, 7, 1);
     private BehandlingReferanse behandlingReferanse;
+    private static final Skjæringstidspunkt STP = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
     private static final ÅpenDatoIntervallEntitet OPPTJENINGSPERIODE = fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusYears(1),
         SKJÆRINGSTIDSPUNKT.plusYears(10));
 
@@ -76,8 +77,7 @@ class BesteberegningFødendeKvinneTjenesteTest {
     @BeforeEach
     public void setUp() {
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
-        behandlingReferanse = BehandlingReferanse.fra(behandling,
-            Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build());
+        behandlingReferanse = BehandlingReferanse.fra(behandling);
         inntektArbeidYtelseTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         inntektArbeidYtelseTjeneste.lagreIayAggregat(behandlingReferanse.behandlingId(),
             InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER));
@@ -117,10 +117,10 @@ class BesteberegningFødendeKvinneTjenesteTest {
         when(familieHendelseRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(lagfamilieHendelse()));
         var opptjeningAktiviteter = OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER,
             new Periode(OPPTJENINGSPERIODE.getFomDato(), SKJÆRINGSTIDSPUNKT.plusDays(1)));
-        when(opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(any(), any())).thenReturn(Optional.of(opptjeningAktiviteter));
+        when(opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(any(), any(), any())).thenReturn(Optional.of(opptjeningAktiviteter));
 
         // Act
-        var resultat = besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(behandlingReferanse);
+        var resultat = besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(behandlingReferanse, STP);
 
         // Assert
         assertThat(resultat).isTrue();
@@ -131,7 +131,7 @@ class BesteberegningFødendeKvinneTjenesteTest {
         when(familieHendelseRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(lagfamilieHendelse()));
         var opptjeningAktiviteter = OpptjeningAktiviteter.fraOrgnr(OpptjeningAktivitetType.ARBEID,
             new Periode(OPPTJENINGSPERIODE.getFomDato(), OPPTJENINGSPERIODE.getTomDato()), ORGNR);
-        when(opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(any(), any())).thenReturn(Optional.of(opptjeningAktiviteter));
+        when(opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(any(), any(), any())).thenReturn(Optional.of(opptjeningAktiviteter));
 
         var oppdatere = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
         var aktørYtelseBuilder = oppdatere.getAktørYtelseBuilder(behandlingReferanse.aktørId());
@@ -147,7 +147,7 @@ class BesteberegningFødendeKvinneTjenesteTest {
         inntektArbeidYtelseTjeneste.lagreIayAggregat(behandlingReferanse.behandlingId(), oppdatere);
 
         // Act
-        var resultat = besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(behandlingReferanse);
+        var resultat = besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(behandlingReferanse, STP);
 
         // Assert
         assertThat(resultat).isTrue();
@@ -158,9 +158,9 @@ class BesteberegningFødendeKvinneTjenesteTest {
         when(familieHendelseRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(lagfamilieHendelse()));
         var opptjeningAktiviteter = OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER,
             new Periode(OPPTJENINGSPERIODE.getFomDato(), SKJÆRINGSTIDSPUNKT.minusDays(3)));
-        when(opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(any(), any())).thenReturn(Optional.of(opptjeningAktiviteter));
+        when(opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(any(), any(), any())).thenReturn(Optional.of(opptjeningAktiviteter));
         // Act
-        var resultat = besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(behandlingReferanse);
+        var resultat = besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(behandlingReferanse, STP);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -173,11 +173,11 @@ class BesteberegningFødendeKvinneTjenesteTest {
             new Periode(OPPTJENINGSPERIODE.getFomDato(), SKJÆRINGSTIDSPUNKT.plusDays(1)));
         var bg = Beregningsgrunnlag.builder().medSkjæringstidspunkt(LocalDate.now()).medOverstyring(true).build();
         var overstyrtGrunnlag = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(bg).build(BeregningsgrunnlagTilstand.FORESLÅTT);
-        when(opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(any(), any())).thenReturn(Optional.of(opptjeningAktiviteter));
+        when(opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(any(), any(), any())).thenReturn(Optional.of(opptjeningAktiviteter));
         when(beregningTjeneste.hent(any())).thenReturn(Optional.of(overstyrtGrunnlag));
 
         // Act
-        var resultat = besteberegningFødendeKvinneTjeneste.kvalifisererTilAutomatiskBesteberegning(behandlingReferanse);
+        var resultat = besteberegningFødendeKvinneTjeneste.kvalifisererTilAutomatiskBesteberegning(behandlingReferanse, STP);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -194,11 +194,11 @@ class BesteberegningFødendeKvinneTjenesteTest {
             .medRegisterAktiviteter(lagAggregat(OpptjeningAktivitetType.ARBEID, OpptjeningAktivitetType.DAGPENGER))
             .medSaksbehandletAktiviteter(lagAggregat(OpptjeningAktivitetType.ARBEID))
             .build(BeregningsgrunnlagTilstand.FORESLÅTT);
-        when(opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(any(), any())).thenReturn(Optional.of(opptjeningAktiviteter));
+        when(opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(any(), any(), any())).thenReturn(Optional.of(opptjeningAktiviteter));
         when(beregningTjeneste.hent(any())).thenReturn(Optional.of(bgGr));
 
         // Act
-        var resultat = besteberegningFødendeKvinneTjeneste.kvalifisererTilAutomatiskBesteberegning(behandlingReferanse);
+        var resultat = besteberegningFødendeKvinneTjeneste.kvalifisererTilAutomatiskBesteberegning(behandlingReferanse, STP);
 
         // Assert
         assertThat(resultat).isFalse();

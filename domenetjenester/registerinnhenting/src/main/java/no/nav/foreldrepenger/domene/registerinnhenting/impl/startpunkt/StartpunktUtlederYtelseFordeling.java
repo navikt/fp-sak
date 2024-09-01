@@ -9,6 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -43,7 +44,7 @@ class StartpunktUtlederYtelseFordeling implements StartpunktUtleder {
     }
 
     @Override
-    public StartpunktType utledStartpunkt(BehandlingReferanse ref, Object grunnlagId1, Object grunnlagId2) {
+    public StartpunktType utledStartpunkt(BehandlingReferanse ref, Skjæringstidspunkt stp, Object grunnlagId1, Object grunnlagId2) {
         // Ser på forhold fra endringssøknader og kun en gang - ved KOFAK siden mottak merger/henlegger ved ny søknad. (andre utledere ser på fødsel, mm.).
         var originalBehandling = ref.getOriginalBehandlingId().orElse(null);
         var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
@@ -51,7 +52,7 @@ class StartpunktUtlederYtelseFordeling implements StartpunktUtleder {
             FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR, "ikke revurdering el passert kofak", grunnlagId1, grunnlagId2);
             return StartpunktType.UTTAKSVILKÅR;
         }
-        if (erSkjæringsdatoEndret(ref, originalBehandling)) {
+        if (erSkjæringsdatoEndret(stp, originalBehandling)) {
             FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT, "endring i skjæringsdato", grunnlagId1, grunnlagId2);
             return StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
         }
@@ -63,8 +64,8 @@ class StartpunktUtlederYtelseFordeling implements StartpunktUtleder {
         return StartpunktType.UTTAKSVILKÅR;
     }
 
-    private boolean erSkjæringsdatoEndret(BehandlingReferanse ref, Long originalBehandlingId) {
-        var nySkjæringsdato = ref.getSkjæringstidspunkt().getSkjæringstidspunktHvisUtledet().orElse(null);
+    private boolean erSkjæringsdatoEndret(Skjæringstidspunkt stp, Long originalBehandlingId) {
+        var nySkjæringsdato = stp.getSkjæringstidspunktHvisUtledet().orElse(null);
         var originalSkjæringsdato = skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandlingId).getSkjæringstidspunktHvisUtledet().orElse(null);
         return !Objects.equals(originalSkjæringsdato, nySkjæringsdato);
     }

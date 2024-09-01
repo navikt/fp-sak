@@ -35,7 +35,7 @@ class StartpunktUtlederNesteSakTest {
         when(nesteSakRepository.hentGrunnlagPåId(anyLong())).thenReturn(null);
         // Act/Assert
         var utleder = new StartpunktUtlederNesteSak(nesteSakRepository);
-        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(behandling, null), 1L, 2L)).isEqualTo(StartpunktType.UDEFINERT);
+        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(behandling), null, 1L, 2L)).isEqualTo(StartpunktType.UDEFINERT);
     }
 
     @Test
@@ -54,7 +54,7 @@ class StartpunktUtlederNesteSakTest {
         when(nesteSakRepository.hentGrunnlagPåId(2L)).thenReturn(nestesak2);
         // Act/Assert
         var utleder = new StartpunktUtlederNesteSak(nesteSakRepository);
-        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(behandling, null), 1L, 2L)).isEqualTo(StartpunktType.UDEFINERT);
+        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(behandling), null, 1L, 2L)).isEqualTo(StartpunktType.UDEFINERT);
     }
 
     @Test
@@ -72,7 +72,7 @@ class StartpunktUtlederNesteSakTest {
         when(nesteSakRepository.hentGrunnlagPåId(2L)).thenReturn(null);
         // Act/Assert
         var utleder = new StartpunktUtlederNesteSak(nesteSakRepository);
-        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(behandling, null), 1L, 2L)).isEqualTo(StartpunktType.UTTAKSVILKÅR);
+        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(behandling), null, 1L, 2L)).isEqualTo(StartpunktType.UTTAKSVILKÅR);
     }
 
     @Test
@@ -94,7 +94,7 @@ class StartpunktUtlederNesteSakTest {
         when(nesteSakRepository.hentGrunnlagPåId(2L)).thenReturn(nestesak2);
         // Act/Assert
         var utleder = new StartpunktUtlederNesteSak(nesteSakRepository);
-        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(behandling, null), 1L, 2L)).isEqualTo(StartpunktType.UTTAKSVILKÅR);
+        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(behandling), null, 1L, 2L)).isEqualTo(StartpunktType.UTTAKSVILKÅR);
     }
 
 

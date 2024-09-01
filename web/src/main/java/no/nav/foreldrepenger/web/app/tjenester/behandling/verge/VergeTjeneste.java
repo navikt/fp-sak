@@ -6,7 +6,6 @@ import java.util.List;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -24,8 +23,8 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesser
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBehandlingsmenyDto;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBehandlingsmenyEnum;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
@@ -36,7 +35,6 @@ public class VergeTjeneste {
     private VergeRepository vergeRepository;
     private HistorikkRepository historikkRepository;
     private BehandlingRepository behandlingRepository;
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private PersonopplysningTjeneste personopplysningTjeneste;
 
     @Inject
@@ -44,15 +42,12 @@ public class VergeTjeneste {
                          BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                          VergeRepository vergeRepository,
                          HistorikkRepository historikkRepository,
-                         BehandlingRepository behandlingRepository,
-                         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                         PersonopplysningTjeneste personopplysningTjeneste) {
+                         BehandlingRepository behandlingRepository, PersonopplysningTjeneste personopplysningTjeneste) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.vergeRepository = vergeRepository;
         this.historikkRepository = historikkRepository;
         this.behandlingRepository = behandlingRepository;
-        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.personopplysningTjeneste = personopplysningTjeneste;
     }
 
@@ -67,9 +62,7 @@ public class VergeTjeneste {
         var harVergeAksjonspunkt = behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE);
         var iForeslåVedtakllerSenereSteg = behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandlingId, BehandlingStegType.FORESLÅ_VEDTAK);
         var iFatteVedtakEllerSenereSteg = behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandlingId, BehandlingStegType.FATTE_VEDTAK);
-        var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
-        var behandlingReferanse = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
-        var under18År = erSøkerUnder18ar(behandlingReferanse);
+        var under18År = erSøkerUnder18ar(behandlingId, behandling.getAktørId());
 
         if (harRegistrertVerge && under18År && iForeslåVedtakllerSenereSteg || SpesialBehandling.erSpesialBehandling(behandling)
             || iFatteVedtakEllerSenereSteg) {
@@ -124,8 +117,8 @@ public class VergeTjeneste {
         historikkRepository.lagre(historikkinnslag);
     }
 
-    private boolean erSøkerUnder18ar(BehandlingReferanse ref) {
-        return personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref)
+    private boolean erSøkerUnder18ar(Long behandlingId, AktørId aktørId) {
+        return personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(behandlingId, aktørId)
             .map(PersonopplysningerAggregat::getSøker)
             .map(PersonopplysningEntitet::getFødselsdato)
             .filter(d -> d.isAfter(LocalDate.now().minusYears(18))).isPresent();

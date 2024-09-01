@@ -69,8 +69,8 @@ public class VurderTilbaketrekkSteg implements BehandlingSteg {
         }
 
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
-        var harBehovForTilbaketrekk = vurderTilbaketrekkTjeneste.skalVurdereTilbaketrekk(ref);
+        var ref = BehandlingReferanse.fra(behandling);
+        var harBehovForTilbaketrekk = vurderTilbaketrekkTjeneste.skalVurdereTilbaketrekk(ref, skjæringstidspunkter);
 
         if (!harBehovForTilbaketrekk) {
             // I saker som er opprettet pga feriepenger må reberegnes kan det komme tilfeller der vi ikke kan omfordele igjen pga tilkommede arbeidsforhold,

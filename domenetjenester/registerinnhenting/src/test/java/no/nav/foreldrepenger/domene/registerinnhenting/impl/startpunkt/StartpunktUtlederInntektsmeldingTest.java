@@ -527,6 +527,6 @@ class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest {
     private BehandlingReferanse lagReferanse(Behandling behandling, LocalDate førsteUttaksdato) {
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medFørsteUttaksdato(førsteUttaksdato)
                 .medUtledetSkjæringstidspunkt(førsteUttaksdato).build();
-        return BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        return BehandlingReferanse.fra(behandling);
     }
 }

@@ -67,10 +67,11 @@ class OppholdTjenesteTest {
         var inntektsmeldingUtenFerie = lagInntektsmelding(null, null);
 
         SvangerskapspengerGrunnlag svangerskapspengerGrunnlag = new SvangerskapspengerGrunnlag().medSvpGrunnlagEntitet(svpGrunnlag);
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(BehandlingReferanse.class), any())).thenReturn(List.of(inntektsmeldingUtenFerie));
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(BehandlingReferanse.class), any(), any())).thenReturn(List.of(inntektsmeldingUtenFerie));
 
         //forventet resultat
-        var oppholdFraSaksbehandlerOgInntektsmeldingMap = oppholdTjeneste.finnOppholdFraTilretteleggingOgInntektsmelding(lagBehandlingReferanse(), svangerskapspengerGrunnlag);
+        var oppholdFraSaksbehandlerOgInntektsmeldingMap = oppholdTjeneste.finnOppholdFraTilretteleggingOgInntektsmelding(lagBehandlingReferanse(),
+            Skjæringstidspunkt.builder().medSkjæringstidspunktOpptjening(LocalDate.now().minusMonths(1)).build(), svangerskapspengerGrunnlag);
 
         var arbeidsforhold = Arbeidsforhold.virksomhet(AktivitetType.ARBEID, "123456789", null );
         var oppholdForventet = oppholdFraSaksbehandlerOgInntektsmeldingMap.get(arbeidsforhold);
@@ -99,10 +100,11 @@ class OppholdTjenesteTest {
 
         SvangerskapspengerGrunnlag svangerskapspengerGrunnlag = new SvangerskapspengerGrunnlag().medSvpGrunnlagEntitet(svpGrunnlag);
 
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(BehandlingReferanse.class), any())).thenReturn(List.of(inntektsmeldingUtenFerie));
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(BehandlingReferanse.class), any(), any())).thenReturn(List.of(inntektsmeldingUtenFerie));
 
         //forventet resultat
-        var oppholdFraSaksbehandlerOgInntektsmeldingMap = oppholdTjeneste.finnOppholdFraTilretteleggingOgInntektsmelding(lagBehandlingReferanse(), svangerskapspengerGrunnlag);
+        var oppholdFraSaksbehandlerOgInntektsmeldingMap = oppholdTjeneste.finnOppholdFraTilretteleggingOgInntektsmelding(lagBehandlingReferanse(),
+            Skjæringstidspunkt.builder().medSkjæringstidspunktOpptjening(LocalDate.now().minusMonths(1)).build(), svangerskapspengerGrunnlag);
 
         var arbeidsforhold1 = Arbeidsforhold.virksomhet(AktivitetType.ARBEID, "123456789", null );
         var arbeidsforhold2 = Arbeidsforhold.annet(AktivitetType.FRILANS);
@@ -138,10 +140,11 @@ class OppholdTjenesteTest {
 
         SvangerskapspengerGrunnlag svangerskapspengerGrunnlag = new SvangerskapspengerGrunnlag().medSvpGrunnlagEntitet(svpGrunnlag);
 
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(BehandlingReferanse.class), any())).thenReturn(List.of(inntektsmeldingMedFerie));
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(BehandlingReferanse.class), any(), any())).thenReturn(List.of(inntektsmeldingMedFerie));
 
         //forventet resultat
-        var oppholdFraSaksbehandlerOgInntektsmeldingMap = oppholdTjeneste.finnOppholdFraTilretteleggingOgInntektsmelding(lagBehandlingReferanse(), svangerskapspengerGrunnlag);
+        var oppholdFraSaksbehandlerOgInntektsmeldingMap = oppholdTjeneste.finnOppholdFraTilretteleggingOgInntektsmelding(lagBehandlingReferanse(),
+            Skjæringstidspunkt.builder().medSkjæringstidspunktOpptjening(LocalDate.now().minusMonths(1)).build(), svangerskapspengerGrunnlag);
 
         var arbeidsforhold1 = Arbeidsforhold.virksomhet(AktivitetType.ARBEID, "123456789", null );
         var arbeidsforhold2 = Arbeidsforhold.annet(AktivitetType.FRILANS);
@@ -231,8 +234,7 @@ class OppholdTjenesteTest {
             BehandlingType.FØRSTEGANGSSØKNAD,
             null,
             null,
-            RelasjonsRolleType.MORA,
-            Skjæringstidspunkt.builder().medSkjæringstidspunktOpptjening(LocalDate.now().minusMonths(1)).build());
+            RelasjonsRolleType.MORA);
     }
 
 }

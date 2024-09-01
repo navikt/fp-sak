@@ -75,8 +75,7 @@ class VurderTilbaketrekkTjenesteTest {
             BehandlingType.REVURDERING,
             ORIGINAL_BEHANDLING_ID,
             behandling.getAktørId(),
-            null,
-            Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build());
+            null);
     }
 
     private Behandling opprettBehandling() {
@@ -93,7 +92,7 @@ class VurderTilbaketrekkTjenesteTest {
         lagIayForAvsluttetOgTilkommetArbeid(behandling);
 
         // Act
-        var aksjonspunktResultater = vurderTilbaketrekkTjeneste.skalVurdereTilbaketrekk(mockReferanse(behandling));
+        var aksjonspunktResultater = vurderTilbaketrekkTjeneste.skalVurdereTilbaketrekk(mockReferanse(behandling), Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build());
 
         // Assert
         assertThat(aksjonspunktResultater).isTrue();
@@ -122,7 +121,7 @@ class VurderTilbaketrekkTjenesteTest {
         lagBeregningsresultatForTilkommetArbeidMedRefusjon(ARBEIDSGIVER2, ARBEIDSGIVER1, SKJÆRINGSTIDSPUNKT.plusMonths(1), behandling.getId());
 
         // Act
-        var aksjonspunktResultater = vurderTilbaketrekkTjeneste.skalVurdereTilbaketrekk(mockReferanse(behandling));
+        var aksjonspunktResultater = vurderTilbaketrekkTjeneste.skalVurdereTilbaketrekk(mockReferanse(behandling), Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build());
 
         // Assert
         assertThat(aksjonspunktResultater).isTrue();

@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
@@ -45,37 +46,37 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
     }
 
     @Override
-    public StartpunktType utledStartpunktMotOriginalBehandling(BehandlingReferanse revurdering) {
+    public StartpunktType utledStartpunktMotOriginalBehandling(BehandlingReferanse revurdering, Skjæringstidspunkt stp) {
         var origBehandlingId = revurdering.getOriginalBehandlingId()
             .orElseThrow(() -> new IllegalStateException("Original behandling mangler på revurdering - skal ikke skje"));
 
         var snapshotOriginalBehandling = endringsresultatSjekker.opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(origBehandlingId);
         var diff = endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(revurdering.behandlingId(), snapshotOriginalBehandling);
         LOG.info("Endringsresultat ved revurdering={} er: {}", revurdering.behandlingId(), diff);
-        return getStartpunktType(revurdering, diff, false);
+        return getStartpunktType(revurdering, stp, diff, false);
     }
 
     @Override
-    public StartpunktType utledStartpunktForDiffBehandlingsgrunnlag(BehandlingReferanse revurdering, EndringsresultatDiff differanse) {
-        return getStartpunktType(revurdering, differanse, true);
+    public StartpunktType utledStartpunktForDiffBehandlingsgrunnlag(BehandlingReferanse revurdering, Skjæringstidspunkt stp, EndringsresultatDiff differanse) {
+        return getStartpunktType(revurdering, stp, differanse, true);
     }
 
-    private StartpunktType getStartpunktType(BehandlingReferanse revurdering, EndringsresultatDiff differanse, boolean normalDiff) {
+    private StartpunktType getStartpunktType(BehandlingReferanse revurdering, Skjæringstidspunkt stp, EndringsresultatDiff differanse, boolean normalDiff) {
         return Stream.of(InntektArbeidYtelseGrunnlag.class, NesteSakGrunnlagEntitet.class)
             .map(differanse::hentDelresultat)
             .flatMap(Optional::stream)
             .filter(EndringsresultatDiff::erSporedeFeltEndret)
-            .map(diff -> utledStartpunktForDelresultat(revurdering, diff, normalDiff))
+            .map(diff -> utledStartpunktForDelresultat(revurdering, stp, diff, normalDiff))
             .min(Comparator.comparing(StartpunktType::getRangering))
             .orElse(StartpunktType.UDEFINERT);
     }
 
-    private StartpunktType utledStartpunktForDelresultat(BehandlingReferanse revurdering, EndringsresultatDiff diff, boolean normalDiff) {
+    private StartpunktType utledStartpunktForDelresultat(BehandlingReferanse revurdering, Skjæringstidspunkt stp, EndringsresultatDiff diff, boolean normalDiff) {
         if (!diff.erSporedeFeltEndret())
             return StartpunktType.UDEFINERT;
         var utleder = GrunnlagRef.Lookup.find(StartpunktUtleder.class, utledere, diff.getGrunnlag()).orElseThrow();
-        return normalDiff ? utleder.utledStartpunkt(revurdering, diff.getGrunnlagId1(), diff.getGrunnlagId2()) :
-            utleder.utledInitieltStartpunktRevurdering(revurdering, diff.getGrunnlagId1(), diff.getGrunnlagId2());
+        return normalDiff ? utleder.utledStartpunkt(revurdering, stp, diff.getGrunnlagId1(), diff.getGrunnlagId2()) :
+            utleder.utledInitieltStartpunktRevurdering(revurdering, stp, diff.getGrunnlagId1(), diff.getGrunnlagId2());
     }
 
 

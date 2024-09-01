@@ -11,6 +11,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
@@ -64,10 +65,11 @@ public class InntektsmeldingFilterYtelseImpl implements InntektsmeldingFilterYte
 
     @Override
     public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> filtrerInntektsmeldingerForYtelseUtvidet(BehandlingReferanse referanse,
+                                                                                                    Skjæringstidspunkt stp,
                                                                                                     Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
                                                                                                     Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevde,
                                                                                                     boolean taHensynTilPermisjon) {
-        var kunAktive = InaktiveArbeidsforholdUtleder.finnKunAktive(påkrevde, inntektArbeidYtelseGrunnlag, referanse, true);
+        var kunAktive = InaktiveArbeidsforholdUtleder.finnKunAktive(påkrevde, inntektArbeidYtelseGrunnlag, referanse, stp, true);
 
         // Legger inn alle arbeidsforhold det er søkt tilrettelegging i
         var arbeidsforholdFraSøknad = getArbeidsforholdSøktTilretteleggingI(referanse);

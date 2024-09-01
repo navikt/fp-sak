@@ -69,7 +69,7 @@ class AvklarFortsattMedlemskapOppdatererTest {
 
         // Act
         new AvklarFortsattMedlemskapOppdaterer(medlemskapTjeneste)
-                .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+                .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
 
         // Assert
         var vurdertMedlemskap = getVurdertLøpendeMedlemskap(behandling.getId(), repositoryProvider);

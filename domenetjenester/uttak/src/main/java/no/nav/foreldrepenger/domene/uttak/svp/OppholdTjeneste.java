@@ -10,6 +10,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
@@ -32,7 +33,7 @@ public class OppholdTjeneste {
     OppholdTjeneste() {
         //CDI
     }
-    public Map<Arbeidsforhold, List<Opphold>> finnOppholdFraTilretteleggingOgInntektsmelding(BehandlingReferanse behandlingRef, SvangerskapspengerGrunnlag svpGrunnlag) {
+    public Map<Arbeidsforhold, List<Opphold>> finnOppholdFraTilretteleggingOgInntektsmelding(BehandlingReferanse behandlingRef, Skjæringstidspunkt stp, SvangerskapspengerGrunnlag svpGrunnlag) {
         Map<Arbeidsforhold, List<Opphold>> oppholdForAlleArbeidsforholdMap = new HashMap<>();
         svpGrunnlag.getGrunnlagEntitet()
             .map(SvpGrunnlagEntitet::hentTilretteleggingerSomSkalBrukes)
@@ -46,7 +47,7 @@ public class OppholdTjeneste {
 
             //henter ferier fra inntektsmelding meldt av arbeidsgiver
             tilrettelegging.getArbeidsgiver().ifPresent( arbeidsgiver -> {
-                var oppholdListeArbeidsforholdFraInntektsmelding = finnOppholdFraIMForArbeidsgiver(behandlingRef, arbeidsgiver, tilrettelegging.getInternArbeidsforholdRef().orElse(InternArbeidsforholdRef.nullRef()));
+                var oppholdListeArbeidsforholdFraInntektsmelding = finnOppholdFraIMForArbeidsgiver(behandlingRef, stp, arbeidsgiver, tilrettelegging.getInternArbeidsforholdRef().orElse(InternArbeidsforholdRef.nullRef()));
                 alleOppholdForArbeidsforhold.addAll(oppholdListeArbeidsforholdFraInntektsmelding);
             });
             oppholdForAlleArbeidsforholdMap.put(arbeidsforhold, alleOppholdForArbeidsforhold);
@@ -60,8 +61,8 @@ public class OppholdTjeneste {
         return oppholdListeFraSaksbehandler;
     }
 
-    private List<Opphold> finnOppholdFraIMForArbeidsgiver(BehandlingReferanse behandlingRef, Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef internRef) {
-        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingRef, behandlingRef.getSkjæringstidspunkt().getSkjæringstidspunktOpptjening());
+    private List<Opphold> finnOppholdFraIMForArbeidsgiver(BehandlingReferanse behandlingRef, Skjæringstidspunkt stp, Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef internRef) {
+        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingRef, stp, stp.getSkjæringstidspunktOpptjening());
         List<Opphold> oppholdListe = new ArrayList<>();
         inntektsmeldinger.stream()
             .filter(inntektsmelding -> inntektsmelding.getArbeidsgiver().equals(arbeidsgiver) && inntektsmelding.getArbeidsforholdRef()

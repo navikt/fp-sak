@@ -57,14 +57,14 @@ public class UttakPerioderDtoTjeneste {
     }
 
     public UttakResultatPerioderDto mapFra(Behandling behandling) {
-        return mapFra(behandling, false, false);
+        return mapFra(behandling, false);
     }
 
     public UttakResultatPerioderDto mapFra(Behandling behandling, Skjæringstidspunkt skjæringstidspunkt) {
-        return mapFra(behandling, skjæringstidspunkt.kreverSammenhengendeUttak(), skjæringstidspunkt.utenMinsterett());
+        return mapFra(behandling, skjæringstidspunkt.utenMinsterett());
     }
 
-    private UttakResultatPerioderDto mapFra(Behandling behandling, boolean kreverSammenhengendeUttak, boolean utenMinsterett) {
+    private UttakResultatPerioderDto mapFra(Behandling behandling, boolean utenMinsterett) {
         var ytelseFordeling = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId());
 
         final List<UttakResultatPeriodeDto> annenpartUttaksperioder;
@@ -86,7 +86,7 @@ public class UttakPerioderDtoTjeneste {
         }
 
         var perioderSøker = finnUttakResultatPerioderSøker(behandling.getId());
-        var filter = new UttakResultatPerioderDto.FilterDto(UtsettelseCore2021.kreverSammenhengendeUttakTilOgMed(), kreverSammenhengendeUttak, utenMinsterett,
+        var filter = new UttakResultatPerioderDto.FilterDto(UtsettelseCore2021.kreverSammenhengendeUttakTilOgMed(), utenMinsterett,
             RelasjonsRolleType.erMor(behandling.getRelasjonsRolleType()));
         var annenForelderHarRett = ytelseFordeling.filter(yf -> yf.harAnnenForelderRett(annenpartUttak.filter(ForeldrepengerUttak::harUtbetaling).isPresent())).isPresent();
         var aleneomsorg = ytelseFordeling.map(a -> a.robustHarAleneomsorg(behandling.getRelasjonsRolleType())).orElse(false);

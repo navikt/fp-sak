@@ -14,14 +14,12 @@ import no.nav.folketrygdloven.kalkulator.modell.iay.KravperioderPrArbeidsforhold
 import no.nav.folketrygdloven.kalkulus.kodeverk.AvklaringsbehovDefinisjon;
 import no.nav.folketrygdloven.kalkulus.kodeverk.AvklaringsbehovStatus;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.IAYMapperTilKalkulus;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.KravperioderMapper;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.MapBehandlingRef;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 public abstract class BeregningsgrunnlagGUIInputFelles {
@@ -48,22 +46,21 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
 
     public Optional<BeregningsgrunnlagGUIInput> lagInput(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId());
-        var refMedStp = ref.medSkjæringstidspunkt(skjæringstidspunkt);
         var aksjonspunkter = behandlingRepository.hentBehandling(ref.behandlingId()).getAksjonspunkter();
-        return lagInput(refMedStp, iayGrunnlag, aksjonspunkter);
+        return lagInput(ref, skjæringstidspunkt, iayGrunnlag, aksjonspunkter);
     }
 
     /**
      * Returnerer input hvis data er på tilgjengelig for det, ellers
      * Optional.empty().
      */
-    private Optional<BeregningsgrunnlagGUIInput> lagInput(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag, Set<Aksjonspunkt> aksjonspunkter) {
-        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, ref.getUtledetSkjæringstidspunkt(), iayGrunnlag, true);
+    private Optional<BeregningsgrunnlagGUIInput> lagInput(BehandlingReferanse ref, Skjæringstidspunkt stp, InntektArbeidYtelseGrunnlag iayGrunnlag, Set<Aksjonspunkt> aksjonspunkter) {
+        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, stp, stp.getUtledetSkjæringstidspunkt(), iayGrunnlag, true);
         var iayGrunnlagDto = IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag, inntektsmeldinger, ref.aktørId());
-        var ytelseGrunnlag = getYtelsespesifiktGrunnlag(ref);
-        var kravperioder = mapKravperioder(ref, iayGrunnlag);
+        var ytelseGrunnlag = getYtelsespesifiktGrunnlag(ref, stp);
+        var kravperioder = mapKravperioder(ref, stp, iayGrunnlag);
         var input = new BeregningsgrunnlagGUIInput(
-            MapBehandlingRef.mapRef(ref),
+            MapBehandlingRef.mapRef(ref, stp),
             iayGrunnlagDto,
             kravperioder,
             ytelseGrunnlag);
@@ -105,10 +102,10 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
         return Optional.of(new AvklaringsbehovDto(definisjon, status, ap.getBegrunnelse(), false, ap.getEndretAv(), ap.getEndretTidspunkt()));
     }
 
-    private List<KravperioderPrArbeidsforholdDto> mapKravperioder(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
+    private List<KravperioderPrArbeidsforholdDto> mapKravperioder(BehandlingReferanse ref, Skjæringstidspunkt stp, InntektArbeidYtelseGrunnlag iayGrunnlag) {
         var alleInntektsmeldingerForFagsak = inntektsmeldingTjeneste.hentAlleInntektsmeldingerForFagsak(ref.saksnummer());
-        return KravperioderMapper.map(ref, alleInntektsmeldingerForFagsak, iayGrunnlag);
+        return KravperioderMapper.map(ref, stp, alleInntektsmeldingerForFagsak, iayGrunnlag);
     }
 
-    public abstract YtelsespesifiktGrunnlag getYtelsespesifiktGrunnlag(BehandlingReferanse ref);
+    public abstract YtelsespesifiktGrunnlag getYtelsespesifiktGrunnlag(BehandlingReferanse ref, Skjæringstidspunkt stp);
 }

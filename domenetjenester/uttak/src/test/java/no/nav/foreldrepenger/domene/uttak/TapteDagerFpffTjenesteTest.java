@@ -60,7 +60,7 @@ class TapteDagerFpffTjenesteTest {
 
         var termindato = søktFpff.getTom().plusDays(1);
         var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse(termindato, null));
-        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
         var resultat = tjeneste().antallTapteDagerFpff(input, 5);
 
         assertThat(resultat).isZero();
@@ -86,7 +86,7 @@ class TapteDagerFpffTjenesteTest {
         var termindato = søktFpff.getTom().plusDays(5);
         var fødselsdato = søktFpff.getTom().plusDays(1);
         var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse(termindato, fødselsdato));
-        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
         var resultat = tjeneste().antallTapteDagerFpff(input, 5);
 
         assertThat(resultat).isZero();
@@ -114,7 +114,7 @@ class TapteDagerFpffTjenesteTest {
         var familieHendelser = new FamilieHendelser()
             .medSøknadHendelse(familieHendelse(termindato, null))
             .medBekreftetHendelse(familieHendelse(termindato, fødselsdato));
-        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
         var resultat = tjeneste().antallTapteDagerFpff(input, 4);
 
         //Føder 4 dager før termin
@@ -144,7 +144,7 @@ class TapteDagerFpffTjenesteTest {
         var familieHendelser = new FamilieHendelser()
             .medSøknadHendelse(familieHendelse(termindato, null))
             .medBekreftetHendelse(familieHendelse(termindato, fødselsdato));
-        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
         var resultat = tjeneste().antallTapteDagerFpff(input, 15);
 
         assertThat(resultat).isEqualTo(maksdager);
@@ -174,7 +174,7 @@ class TapteDagerFpffTjenesteTest {
         var familieHendelser = new FamilieHendelser()
             .medSøknadHendelse(familieHendelse(termindato, null))
             .medBekreftetHendelse(familieHendelse(temindateBekreftetHendelse, fødselsdato));
-        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
         var resultat = tjeneste().antallTapteDagerFpff(input, 0);
 
         assertThat(resultat).isZero();
@@ -204,7 +204,7 @@ class TapteDagerFpffTjenesteTest {
         var familieHendelser = new FamilieHendelser()
             .medSøknadHendelse(familieHendelse(termindato, null))
             .medBekreftetHendelse(familieHendelse(temindateBekreftetHendelse, fødselsdato));
-        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
         var resultat = tjeneste().antallTapteDagerFpff(input, 5);
 
         assertThat(resultat).isEqualTo(3);
@@ -268,7 +268,7 @@ class TapteDagerFpffTjenesteTest {
         var fpGrunnlag = new ForeldrepengerGrunnlag()
             .medFamilieHendelser(familieHendelser)
             .medOriginalBehandling(new OriginalBehandling(førstegangsBehandling.getId(), null));
-        var input = new UttakInput(BehandlingReferanse.fra(revurderingBehandling), null, fpGrunnlag);
+        var input = new UttakInput(BehandlingReferanse.fra(revurderingBehandling), null, null, fpGrunnlag);
         var resultat = tjeneste().antallTapteDagerFpff(input, 5);
 
         //Føder 2 virkedager før termin
@@ -320,7 +320,7 @@ class TapteDagerFpffTjenesteTest {
         var fpGrunnlag = new ForeldrepengerGrunnlag()
             .medFamilieHendelser(familieHendelser)
             .medOriginalBehandling(new OriginalBehandling(førstegangsBehandling.getId(), null));
-        var input = new UttakInput(BehandlingReferanse.fra(revurderingBehandling), null, fpGrunnlag);
+        var input = new UttakInput(BehandlingReferanse.fra(revurderingBehandling), null, null, fpGrunnlag);
         var resultat = tjeneste().antallTapteDagerFpff(input, 5);
 
         assertThat(resultat).isEqualTo(2);
@@ -377,7 +377,7 @@ class TapteDagerFpffTjenesteTest {
         var fpGrunnlag = new ForeldrepengerGrunnlag()
             .medFamilieHendelser(familieHendelser)
             .medOriginalBehandling(new OriginalBehandling(førstegangsBehandling.getId(), null));
-        var input = new UttakInput(BehandlingReferanse.fra(revurderingBehandling), null, fpGrunnlag);
+        var input = new UttakInput(BehandlingReferanse.fra(revurderingBehandling), null, null, fpGrunnlag);
         var resultat = tjeneste().antallTapteDagerFpff(input, 0);
 
         //Føder 2 virkedager før termin, fellesperiode spises
@@ -426,7 +426,7 @@ class TapteDagerFpffTjenesteTest {
         var familieHendelser = new FamilieHendelser()
             .medSøknadHendelse(familieHendelse(termindato, null))
             .medBekreftetHendelse(familieHendelse(termindato, fødselsdato));
-        var input = new UttakInput(BehandlingReferanse.fra(førstegangsBehandling), null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
+        var input = new UttakInput(BehandlingReferanse.fra(førstegangsBehandling), null, null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
         var resultat = tjeneste().antallTapteDagerFpff(input, 0);
 
         //Føder 2 virkedager før termin, fellesperiode spises
@@ -455,7 +455,7 @@ class TapteDagerFpffTjenesteTest {
         var familieHendelser = new FamilieHendelser()
             .medSøknadHendelse(familieHendelse(termindato, null))
             .medBekreftetHendelse(familieHendelse(termindato, fødselsdato));
-        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
         var resultat = tjeneste().antallTapteDagerFpff(input, 7);
 
         //Føder 2 virkedager før termin
@@ -484,7 +484,7 @@ class TapteDagerFpffTjenesteTest {
         var familieHendelser = new FamilieHendelser()
             .medSøknadHendelse(familieHendelse(termindato, null))
             .medBekreftetHendelse(familieHendelse(termindato, fødselsdato));
-        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
         var resultat = tjeneste().antallTapteDagerFpff(input, 15);
 
         //Taper kun 2 dager siden det er dette som er søkt om

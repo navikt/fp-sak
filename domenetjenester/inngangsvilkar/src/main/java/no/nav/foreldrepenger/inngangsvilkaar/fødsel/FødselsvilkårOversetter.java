@@ -60,8 +60,8 @@ public class FødselsvilkårOversetter {
         this.tidligstUtstedelseFørTermin = tidligsteUtstedelseAvTerminBekreftelse;
     }
 
-    public FødselsvilkårGrunnlag oversettTilRegelModellFødsel(BehandlingReferanse ref) {
-        var medFarMedmorUttakRundtFødsel = !ref.getSkjæringstidspunkt().utenMinsterett();
+    public FødselsvilkårGrunnlag oversettTilRegelModellFødsel(BehandlingReferanse ref, boolean utenMinsterett) {
+        var medFarMedmorUttakRundtFødsel = !utenMinsterett;
         var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregat(ref.behandlingId());
         var bekreftetFamilieHendelse = familieHendelseGrunnlag.getGjeldendeBekreftetVersjon();
         var gjeldendeTerminbekreftelse = familieHendelseGrunnlag.getGjeldendeTerminbekreftelse();

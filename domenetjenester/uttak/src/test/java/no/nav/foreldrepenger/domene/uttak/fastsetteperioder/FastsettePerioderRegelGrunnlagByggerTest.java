@@ -144,13 +144,13 @@ class FastsettePerioderRegelGrunnlagByggerTest {
     }
 
     private UttakInput lagInput(Behandling behandling) {
-        var ref = lagRef(behandling);
+        var ref = BehandlingReferanse.fra(behandling);
         var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.behandlingId());
         var bekreftetFamilieHendelse = FamilieHendelse.forFødsel(null, LocalDate.now().minusWeeks(2),
             List.of(new Barn()), 1);
         var fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
             new FamilieHendelser().medBekreftetHendelse(bekreftetFamilieHendelse));
-        return new UttakInput(ref, iayGrunnlag, fpGrunnlag).medBeregningsgrunnlagStatuser(
+        return new UttakInput(ref, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build(), iayGrunnlag, fpGrunnlag).medBeregningsgrunnlagStatuser(
             beregningsandelTjeneste.hentStatuser());
     }
 
@@ -395,14 +395,14 @@ class FastsettePerioderRegelGrunnlagByggerTest {
         beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet,
             InternArbeidsforholdRef.ref(aktivitet.getArbeidsforholdId()));
         // Act
-        var ref = lagRef(farsBehandling);
+        var ref = BehandlingReferanse.fra(farsBehandling);
         var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.behandlingId());
         var bekreftetFamilieHendelse = FamilieHendelse.forFødsel(null, LocalDate.now().minusWeeks(2),
             List.of(new Barn()), 1);
         var fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
             new FamilieHendelser().medBekreftetHendelse(bekreftetFamilieHendelse))
             .medAnnenpart(new Annenpart(morsBehandling.getId(), LocalDateTime.now()));
-        var input = new UttakInput(ref, iayGrunnlag, fpGrunnlag).medBeregningsgrunnlagStatuser(
+        var input = new UttakInput(ref, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build(), iayGrunnlag, fpGrunnlag).medBeregningsgrunnlagStatuser(
             beregningsandelTjeneste.hentStatuser());
         var grunnlag = grunnlagBygger.byggGrunnlag(input, kontoer);
 
@@ -473,10 +473,6 @@ class FastsettePerioderRegelGrunnlagByggerTest {
         assertThat(oppittePerioder).isNotEmpty();
         assertThat(oppittePerioder.get(0).getSamtidigUttaksprosent().decimalValue()).isEqualTo(
             SamtidigUttaksprosent.TEN.decimalValue());
-    }
-
-    private BehandlingReferanse lagRef(Behandling behandling) {
-        return BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
     }
 
     private Behandling setup(OppgittPeriodeEntitet oppgittPeriode,

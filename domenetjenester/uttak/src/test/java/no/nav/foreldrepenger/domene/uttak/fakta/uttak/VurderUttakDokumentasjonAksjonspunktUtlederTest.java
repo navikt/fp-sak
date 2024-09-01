@@ -71,7 +71,7 @@ class VurderUttakDokumentasjonAksjonspunktUtlederTest {
         var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 0);
         var fpGrunnlag = new ForeldrepengerGrunnlag()
             .medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(familieHendelse));
-        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, fpGrunnlag);
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null, fpGrunnlag);
         var utledetAp = utleder.utledAksjonspunktFor(input);
 
         assertThat(utledetAp).isTrue();
@@ -106,7 +106,7 @@ class VurderUttakDokumentasjonAksjonspunktUtlederTest {
         var familieHendelse = FamilieHendelse.forFødsel(LocalDate.now(), LocalDate.now(), List.of(), 0);
         var fpGrunnlag = new ForeldrepengerGrunnlag()
             .medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(familieHendelse));
-        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, fpGrunnlag);
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null, fpGrunnlag);
         var aksjonspunktDefinisjon = utleder.utledAksjonspunktFor(input);
         var behov = utleder.utledDokumentasjonVurderingBehov(input);
 

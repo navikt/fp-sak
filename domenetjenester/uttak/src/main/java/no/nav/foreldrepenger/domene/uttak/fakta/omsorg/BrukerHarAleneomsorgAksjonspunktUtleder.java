@@ -9,6 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
@@ -46,20 +47,20 @@ public class BrukerHarAleneomsorgAksjonspunktUtleder implements OmsorgRettAksjon
 
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
 
-        return trengerAvklaring(ref, ytelseFordelingAggregat) ? List.of(MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG) : List.of();
+        return trengerAvklaring(ref, input.getSkjæringstidspunkt(), ytelseFordelingAggregat) ? List.of(MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG) : List.of();
     }
 
-    private boolean trengerAvklaring(BehandlingReferanse ref, YtelseFordelingAggregat ytelseFordelingAggregat) {
+    private boolean trengerAvklaring(BehandlingReferanse ref, Skjæringstidspunkt skjæringstidspunkt, YtelseFordelingAggregat ytelseFordelingAggregat) {
         if (!harOppgittÅHaAleneomsorg(ytelseFordelingAggregat)) {
             return false;
         }
         return RelasjonsRolleType.erFarEllerMedmor(ref.relasjonRolle())
-            || oppgittNorskAnnenpartMedSammeBosted(ref)
-            || personopplysninger.ektefelleHarSammeBosted(ref);
+            || oppgittNorskAnnenpartMedSammeBosted(ref, skjæringstidspunkt)
+            || personopplysninger.ektefelleHarSammeBosted(ref, skjæringstidspunkt);
     }
 
-    private boolean oppgittNorskAnnenpartMedSammeBosted(BehandlingReferanse ref) {
-        return personopplysninger.harOppgittAnnenpartMedNorskID(ref) && personopplysninger.annenpartHarSammeBosted(ref);
+    private boolean oppgittNorskAnnenpartMedSammeBosted(BehandlingReferanse ref, Skjæringstidspunkt skjæringstidspunkt) {
+        return personopplysninger.harOppgittAnnenpartMedNorskID(ref) && personopplysninger.annenpartHarSammeBosted(ref, skjæringstidspunkt);
     }
 
     private boolean harOppgittÅHaAleneomsorg(YtelseFordelingAggregat ytelseFordelingAggregat) {

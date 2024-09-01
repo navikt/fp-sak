@@ -17,6 +17,7 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -31,6 +32,7 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.domene.medlem.api.VurderingsÅrsak;
 import no.nav.foreldrepenger.domene.medlem.impl.MedlemEndringssjekker;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
@@ -66,34 +68,34 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
      * @param ref behandlingreferanse
      * @return datoer med diff i medlemskap
      */
-    public Set<LocalDate> finnVurderingsdatoer(BehandlingReferanse ref) {
+    public Set<LocalDate> finnVurderingsdatoer(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var endringssjekker = FagsakYtelseTypeRef.Lookup.find(alleEndringssjekkere, ref.fagsakYtelseType())
             .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + ref.fagsakYtelseType().getKode()));
 
         Set<LocalDate> datoer = new HashSet<>();
 
-        datoer.addAll(utledVurderingsdatoerForTPS(ref).keySet());
+        datoer.addAll(utledVurderingsdatoerForTPS(ref, stp).keySet());
         datoer.addAll(utledVurderingsdatoerForMedlemskap(ref.behandlingId(), endringssjekker).keySet());
 
         // ønsker bare å se på datoer etter skjæringstidspunktet
-        return datoer.stream().filter(d -> d.isAfter(ref.getUtledetSkjæringstidspunkt()) && ref.getUtledetMedlemsintervall().encloses(d)).collect(Collectors.toSet());
+        return datoer.stream().filter(d -> d.isAfter(stp.getUtledetSkjæringstidspunkt()) && stp.getUttaksintervall().orElseThrow().encloses(d)).collect(Collectors.toSet());
     }
 
-    public Set<LocalDate> finnVurderingsDatoerForutForStpEngangsstønad(BehandlingReferanse ref) {
+    public Set<LocalDate> finnVurderingsDatoerForutForStpEngangsstønad(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var endringssjekker = FagsakYtelseTypeRef.Lookup.find(alleEndringssjekkere, ref.fagsakYtelseType())
             .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + ref.fagsakYtelseType().getKode()));
-        var fom = ref.getUtledetSkjæringstidspunkt().minusMonths(12);
+        var fom = stp.getUtledetSkjæringstidspunkt().minusMonths(12);
 
         Set<LocalDate> datoer = new HashSet<>();
 
-        datoer.addAll(utledVurderingsdatoerForTPS(ref, fom, ref.getUtledetSkjæringstidspunkt()).keySet());
+        datoer.addAll(utledVurderingsdatoerForTPS(ref, stp, fom, stp.getUtledetSkjæringstidspunkt()).keySet());
         datoer.addAll(utledVurderingsdatoerForMedlemskap(ref.behandlingId(), endringssjekker).keySet());
         datoer.add(fom);
 
-        return datoer.stream().filter(d -> d.isBefore(ref.getUtledetSkjæringstidspunkt())).filter(d -> !d.isBefore(fom)).collect(Collectors.toSet());
+        return datoer.stream().filter(d -> d.isBefore(stp.getUtledetSkjæringstidspunkt())).filter(d -> !d.isBefore(fom)).collect(Collectors.toSet());
     }
 
-    Map<LocalDate, Set<VurderingsÅrsak>> finnVurderingsdatoerMedÅrsak(BehandlingReferanse ref) {
+    Map<LocalDate, Set<VurderingsÅrsak>> finnVurderingsdatoerMedÅrsak(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var endringssjekker = FagsakYtelseTypeRef.Lookup.find(alleEndringssjekkere, ref.fagsakYtelseType())
             .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + ref.fagsakYtelseType().getKode()));
         Map<LocalDate, Set<VurderingsÅrsak>> datoer = new HashMap<>();
@@ -102,32 +104,31 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
         if (!BehandlingType.REVURDERING.equals(ref.behandlingType())) {
             return datoer;
         }
-        var utledetSkjæringstidspunkt = ref.getUtledetSkjæringstidspunkt();
-        datoer.putAll(utledVurderingsdatoerForTPS(ref));
+        var utledetSkjæringstidspunkt = stp.getUtledetSkjæringstidspunkt();
+        datoer.putAll(utledVurderingsdatoerForTPS(ref, stp));
         datoer.putAll(utledVurderingsdatoerForMedlemskap(ref.behandlingId(), endringssjekker));
 
         // ønsker bare å se på datoer etter skjæringstidspunktet
         return datoer.entrySet().stream()
-            .filter(entry -> entry.getKey().isAfter(utledetSkjæringstidspunkt) && ref.getUtledetMedlemsintervall().encloses(entry.getKey()))
+            .filter(entry -> entry.getKey().isAfter(utledetSkjæringstidspunkt) && stp.getUttaksintervall().orElseThrow().encloses(entry.getKey()))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    private Map<LocalDate, Set<VurderingsÅrsak>> utledVurderingsdatoerForTPS(BehandlingReferanse ref) {
-        return utledVurderingsdatoerForTPS(ref, ref.getUtledetMedlemsintervall().getFomDato(), ref.getUtledetMedlemsintervall().getTomDato());
+    private Map<LocalDate, Set<VurderingsÅrsak>> utledVurderingsdatoerForTPS(BehandlingReferanse ref, Skjæringstidspunkt stp) {
+        return utledVurderingsdatoerForTPS(ref, stp, stp.getUttaksintervall().orElseThrow().getFomDato(), stp.getUttaksintervall().orElseThrow().getTomDato());
     }
 
-    private Map<LocalDate, Set<VurderingsÅrsak>> utledVurderingsdatoerForTPS(BehandlingReferanse ref, LocalDate fom, LocalDate tom) {
+    private Map<LocalDate, Set<VurderingsÅrsak>> utledVurderingsdatoerForTPS(BehandlingReferanse ref, Skjæringstidspunkt stp, LocalDate fom, LocalDate tom) {
         final Map<LocalDate, Set<VurderingsÅrsak>> utledetResultat = new HashMap<>();
         var relevantPeriodeEntitet = DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom);
 
-        var personopplysningerOpt = personopplysningTjeneste
-            .hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(ref, relevantPeriodeEntitet);
+        var personopplysningerOpt = personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref);
         if (personopplysningerOpt.isPresent()) {
             var personopplysningerAggregat = personopplysningerOpt.get();
 
-            utledetResultat.putAll(hentEndringForStatsborgerskap(personopplysningerAggregat, ref));
-            mergeResultat(utledetResultat, hentEndringForPersonstatus(personopplysningerAggregat, ref));
-            mergeResultat(utledetResultat, hentEndringForAdresse(personopplysningerAggregat, ref));
+            utledetResultat.putAll(hentEndringForStatsborgerskap(personopplysningerAggregat, ref, stp, relevantPeriodeEntitet));
+            mergeResultat(utledetResultat, hentEndringForPersonstatus(personopplysningerAggregat, ref, relevantPeriodeEntitet));
+            mergeResultat(utledetResultat, hentEndringForAdresse(personopplysningerAggregat, ref, relevantPeriodeEntitet));
             mergeResultat(utledetResultat, hentEndringForOppholdstillatelse(ref));
         }
         return utledetResultat;
@@ -175,8 +176,9 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
     }
 
     // PDL gir en del samtidige adresser
-    private Map<LocalDate, Set<VurderingsÅrsak>> hentEndringForAdresse(PersonopplysningerAggregat personopplysningerAggregat, BehandlingReferanse ref) {
-        var adresseSegmenter = personopplysningerAggregat.getAdresserFor(ref.aktørId()).stream()
+    private Map<LocalDate, Set<VurderingsÅrsak>> hentEndringForAdresse(PersonopplysningerAggregat personopplysningerAggregat,
+                                                                       BehandlingReferanse ref, AbstractLocalDateInterval intervall) {
+        var adresseSegmenter = personopplysningerAggregat.getAdresserFor(ref.aktørId(), intervall).stream()
             .filter(PersonAdresseEntitet::erUtlandskAdresse)
             .map(PersonAdresseEntitet::getPeriode)
             .toList();
@@ -194,8 +196,9 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
     }
 
     // PDL gir strengt periodisert informasjon om personstatus
-    private Map<LocalDate, Set<VurderingsÅrsak>> hentEndringForPersonstatus(PersonopplysningerAggregat personopplysningerAggregat, BehandlingReferanse ref) {
-        var personstatus = personopplysningerAggregat.getPersonstatuserFor(ref.aktørId())
+    private Map<LocalDate, Set<VurderingsÅrsak>> hentEndringForPersonstatus(PersonopplysningerAggregat personopplysningerAggregat,
+                                                                            BehandlingReferanse ref, AbstractLocalDateInterval intervall) {
+        var personstatus = personopplysningerAggregat.getPersonstatuserFor(ref.aktørId(), intervall)
             .stream().sorted(Comparator.comparing(s -> s.getPeriode().getFomDato()))
             .toList();
         final Map<LocalDate, Set<VurderingsÅrsak>> utledetResultat = new HashMap<>();
@@ -214,8 +217,9 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
     }
 
     // PDL har flere samtidige statsborgerskap - dermed må man sjekke region ved hvert brudd
-    private Map<LocalDate, Set<VurderingsÅrsak>> hentEndringForStatsborgerskap(PersonopplysningerAggregat aggregat, BehandlingReferanse ref) {
-        var statsborgerskapene = aggregat.getStatsborgerskapFor(ref.aktørId());
+    private Map<LocalDate, Set<VurderingsÅrsak>> hentEndringForStatsborgerskap(PersonopplysningerAggregat aggregat, BehandlingReferanse ref,
+                                                                               Skjæringstidspunkt stp, AbstractLocalDateInterval intervall) {
+        var statsborgerskapene = aggregat.getStatsborgerskapFor(ref.aktørId(), intervall);
         var statsborgerskapDatoer = statsborgerskapene.stream()
             .map(StatsborgerskapEntitet::getPeriode).map(DatoIntervallEntitet::getFomDato)
             .collect(Collectors.toSet());
@@ -228,8 +232,8 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
             if (i != max) { // sjekker om det er siste element
                 var førsteElement = statsborgerskap.get(i);
                 var nesteElement = statsborgerskap.get(i + 1);
-                if (!aggregat.getStatsborgerskapRegionVedTidspunkt(ref.aktørId(), førsteElement)
-                    .equals(aggregat.getStatsborgerskapRegionVedTidspunkt(ref.aktørId(), nesteElement))) {
+                if (!aggregat.getStatsborgerskapRegionVedTidspunkt(ref.aktørId(), førsteElement, stp.getUtledetSkjæringstidspunkt())
+                    .equals(aggregat.getStatsborgerskapRegionVedTidspunkt(ref.aktørId(), nesteElement, stp.getUtledetSkjæringstidspunkt()))) {
                     utledetResultat.put(nesteElement, Set.of(VurderingsÅrsak.STATSBORGERSKAP));
                 }
             }

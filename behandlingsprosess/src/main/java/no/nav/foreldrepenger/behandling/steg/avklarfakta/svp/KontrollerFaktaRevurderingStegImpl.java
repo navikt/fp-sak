@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.steg.avklarfakta.KontrollerFaktaSteg;
 import no.nav.foreldrepenger.behandling.steg.avklarfakta.RyddRegisterData;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
@@ -133,7 +134,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
+        var ref = BehandlingReferanse.fra(behandling);
 
         // Spesialhåndtering for enkelte behandlinger - kun feriepenger i denne omgang
         if (SpesialBehandling.erSpesialBehandling(behandling)) {
@@ -146,11 +147,11 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         // Spesialhåndtering for enkelte behandlinger
         behandlingÅrsakTjeneste.lagHistorikkForRegisterEndringerMotOriginalBehandling(behandling);
 
-        var startpunkt = utledStartpunkt(ref, behandling);
+        var startpunkt = utledStartpunkt(ref, skjæringstidspunkter, behandling);
         behandling.setStartpunkt(startpunkt);
 
         List<AksjonspunktResultat> aksjonspunktResultater = startpunkt.getRangering() <= StartpunktType.OPPTJENING.getRangering() ?
-            tjeneste.utledAksjonspunkterTilHøyreForStartpunkt(ref, startpunkt) : List.of();
+            tjeneste.utledAksjonspunkterTilHøyreForStartpunkt(ref, skjæringstidspunkter, startpunkt) : List.of();
         kopierResultaterAvhengigAvStartpunkt(behandling, kontekst);
 
         return utledStegResultat(startpunkt, aksjonspunktResultater);
@@ -163,13 +164,13 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     }
 
 
-    private StartpunktType utledStartpunkt(BehandlingReferanse ref, Behandling revurdering) {
-        var startpunkt = initieltStartPunkt(ref, revurdering);
+    private StartpunktType utledStartpunkt(BehandlingReferanse ref, Skjæringstidspunkt stp, Behandling revurdering) {
+        var startpunkt = initieltStartPunkt(ref, stp, revurdering);
         startpunkt = sjekkÅpneAksjonspunkt(ref, revurdering, startpunkt);
 
         // Undersøk behov for GRegulering. Med mindre vi allerede skal til BEREGNING eller tidligere steg
         if (startpunkt.getRangering() > StartpunktType.BEREGNING.getRangering()) {
-            var greguleringStartpunkt = utledBehovForGRegulering(ref, revurdering);
+            var greguleringStartpunkt = utledBehovForGRegulering(stp, revurdering);
             startpunkt = startpunkt.getRangering() < greguleringStartpunkt.getRangering() ? startpunkt : greguleringStartpunkt;
         }
 
@@ -181,7 +182,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         return startpunkt;
     }
 
-    private StartpunktType initieltStartPunkt(BehandlingReferanse ref, Behandling revurdering) {
+    private StartpunktType initieltStartPunkt(BehandlingReferanse ref, Skjæringstidspunkt stp, Behandling revurdering) {
         var kreverManuell = revurdering.getBehandlingÅrsaker().stream()
             .map(BehandlingÅrsak::getBehandlingÅrsakType)
             .anyMatch(ba -> BehandlingÅrsakType.årsakerRelatertTilDød().contains(ba) || BehandlingÅrsakType.årsakerForEtterkontroll().contains(ba))
@@ -197,7 +198,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         if (orgBehandlingsresultat == null || orgBehandlingsresultat.isVilkårAvslått()) {
             return DEFAULT_STARTPUNKT;
         }
-        var startpunkt = startpunktTjeneste.utledStartpunktMotOriginalBehandling(ref);
+        var startpunkt = startpunktTjeneste.utledStartpunktMotOriginalBehandling(ref, stp);
         if (StartpunktType.UDEFINERT.equals(startpunkt)) {
             return StartpunktType.UTTAKSVILKÅR;
         }
@@ -226,7 +227,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
             startpunkt.getBehandlingSteg(), behandlingSteg);
     }
 
-    private StartpunktType utledBehovForGRegulering(BehandlingReferanse ref, Behandling revurdering) {
+    private StartpunktType utledBehovForGRegulering(Skjæringstidspunkt stp, Behandling revurdering) {
         var opprinneligBehandlingId = revurdering.getOriginalBehandlingId()
                 .orElseThrow(() -> new IllegalStateException("Revurdering skal ha en basisbehandling - skal ikke skje"));
         var forrigeBeregning = hentBeregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(opprinneligBehandlingId);
@@ -235,7 +236,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
             return StartpunktType.BEREGNING;
         }
 
-        var grunnbeløp = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, ref.getSkjæringstidspunkt().getFørsteUttaksdatoGrunnbeløp());
+        var grunnbeløp = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, stp.getFørsteUttaksdatoGrunnbeløp());
         long satsIBeregning = forrigeBeregning.map(BeregningsgrunnlagEntitet::getGrunnbeløp).map(Beløp::getVerdi).map(BigDecimal::longValue).orElse(0L);
 
         if (grunnbeløp.getVerdi() - satsIBeregning > 1) {

@@ -73,7 +73,7 @@ class HåndterePermisjonerTest {
         var grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
 
         // Act
-        var arbForholdMedPermUtenSluttdato = HåndterePermisjoner.finnArbForholdMedPermisjonUtenSluttdatoMangel(behandlingReferanse, grunnlag);
+        var arbForholdMedPermUtenSluttdato = HåndterePermisjoner.finnArbForholdMedPermisjonUtenSluttdatoMangel(behandlingReferanse, lagStp(behandling), grunnlag);
 
         assertThat(arbForholdMedPermUtenSluttdato).isEmpty();
     }
@@ -102,7 +102,7 @@ class HåndterePermisjonerTest {
         var grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
 
         // Act
-        var arbForholdMedPermUtenSluttdato = HåndterePermisjoner.finnArbForholdMedPermisjonUtenSluttdatoMangel(behandlingReferanse, grunnlag);
+        var arbForholdMedPermUtenSluttdato = HåndterePermisjoner.finnArbForholdMedPermisjonUtenSluttdatoMangel(behandlingReferanse, lagStp(behandling), grunnlag);
 
         assertThat(arbForholdMedPermUtenSluttdato).hasSize(1);
     }
@@ -136,7 +136,7 @@ class HåndterePermisjonerTest {
         var grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
 
         // Assert
-        var arbForholdMedPermUtenSluttdato = HåndterePermisjoner.finnArbForholdMedPermisjonUtenSluttdatoMangel(behandlingReferanse, grunnlag);
+        var arbForholdMedPermUtenSluttdato = HåndterePermisjoner.finnArbForholdMedPermisjonUtenSluttdatoMangel(behandlingReferanse, lagStp(behandling), grunnlag);
 
         assertThat(arbForholdMedPermUtenSluttdato).hasSize(1);
         assertThat(arbForholdMedPermUtenSluttdato.get(0).ref()).isEqualTo(ref);
@@ -172,7 +172,7 @@ class HåndterePermisjonerTest {
         var grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
 
         // Assert
-        var arbForholdMedPermUtenSluttdato = HåndterePermisjoner.finnArbForholdMedPermisjonUtenSluttdatoMangel(behandlingReferanse, grunnlag);
+        var arbForholdMedPermUtenSluttdato = HåndterePermisjoner.finnArbForholdMedPermisjonUtenSluttdatoMangel(behandlingReferanse, lagStp(behandling), grunnlag);
 
         assertThat(arbForholdMedPermUtenSluttdato).hasSize(1);
         assertThat(arbForholdMedPermUtenSluttdato.get(0).ref()).isEqualTo(ref);
@@ -264,10 +264,13 @@ class HåndterePermisjonerTest {
     }
 
     private BehandlingReferanse lagReferanse(Behandling behandling) {
-        return BehandlingReferanse.fra(behandling,
-            Skjæringstidspunkt.builder()
+        return BehandlingReferanse.fra(behandling);
+    }
+
+    private Skjæringstidspunkt lagStp(Behandling behandling) {
+        return Skjæringstidspunkt.builder()
                 .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
                 .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT)
-                .build());
+                .build();
     }
 }

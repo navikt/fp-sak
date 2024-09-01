@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
 
 public class PersonopplysningerForUttakStub implements PersonopplysningerForUttak {
@@ -14,27 +15,22 @@ public class PersonopplysningerForUttakStub implements PersonopplysningerForUtta
     }
 
     @Override
-    public Optional<LocalDate> søkersDødsdatoGjeldendePåDato(BehandlingReferanse ref, LocalDate dato) {
-        return Optional.empty();
-    }
-
-    @Override
     public boolean harOppgittAnnenpartMedNorskID(BehandlingReferanse ref) {
         return true;
     }
 
     @Override
-    public boolean ektefelleHarSammeBosted(BehandlingReferanse ref) {
+    public boolean ektefelleHarSammeBosted(BehandlingReferanse ref, Skjæringstidspunkt skjæringstidspunkt) {
         return true;
     }
 
     @Override
-    public boolean annenpartHarSammeBosted(BehandlingReferanse ref) {
+    public boolean annenpartHarSammeBosted(BehandlingReferanse ref, Skjæringstidspunkt skjæringstidspunkt) {
         return true;
     }
 
     @Override
-    public boolean barnHarSammeBosted(BehandlingReferanse ref) {
+    public boolean barnHarSammeBosted(BehandlingReferanse ref, Skjæringstidspunkt skjæringstidspunkt) {
         return true;
     }
 

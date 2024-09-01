@@ -118,7 +118,7 @@ class AvklarArbeidPermisjonUtenSluttdatoOppdatererTest {
 
         //Act
         var resultat = avklarArbeidPermisjonUtenSluttdatoOppdaterer.oppdater(bekreftetArbeidMedPermisjonUtenSluttdato, new AksjonspunktOppdaterParameter(
-            BehandlingReferanse.fra(behandling, skjæringstidspunkt), bekreftetArbeidMedPermisjonUtenSluttdato, aksjonspunkt));
+            BehandlingReferanse.fra(behandling), bekreftetArbeidMedPermisjonUtenSluttdato, aksjonspunkt));
 
         //Assert
         var behandlingRepository = provider.getBehandlingRepository();
@@ -164,7 +164,7 @@ class AvklarArbeidPermisjonUtenSluttdatoOppdatererTest {
 
         //Act
         var resultat = avklarArbeidPermisjonUtenSluttdatoOppdaterer.oppdater(bekreftetArbeidMedPermisjonUtenSluttdato, new AksjonspunktOppdaterParameter(
-            BehandlingReferanse.fra(behandling, skjæringstidspunkt), bekreftetArbeidMedPermisjonUtenSluttdato, aksjonspunkt));
+            BehandlingReferanse.fra(behandling), bekreftetArbeidMedPermisjonUtenSluttdato, aksjonspunkt));
 
         //Assert
         var behandlingRepository = provider.getBehandlingRepository();

@@ -15,6 +15,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -115,18 +116,18 @@ public class MedlemTjeneste {
         if (revurderingBehandling.erRevurdering() && FagsakYtelseType.FORELDREPENGER.equals(revurderingBehandling.getFagsakYtelseType())) {
             var aktørId = revurderingBehandling.getAktørId();
             var intervall = DatoIntervallEntitet.fraOgMedTilOgMed(finnStartdato(revurderingBehandling), LocalDate.now());
-            var historikkAggregat = personopplysningTjeneste.hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(ref, intervall);
+            var historikkAggregat = personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref);
 
             historikkAggregat.ifPresent(historikk -> {
-                sjekkEndringer(historikk.getStatsborgerskapFor(aktørId)
+                sjekkEndringer(historikk.getStatsborgerskapFor(aktørId, intervall)
                     .stream()
                     .map(e -> new ElementMedGyldighetsintervallWrapper<>(e.getStatsborgerskap(), e.getPeriode())), builder);
 
-                sjekkEndringer(historikk.getPersonstatuserFor(aktørId)
+                sjekkEndringer(historikk.getPersonstatuserFor(aktørId, intervall)
                     .stream()
                     .map(e -> new ElementMedGyldighetsintervallWrapper<>(e.getPersonstatus(), e.getPeriode())), builder);
 
-                sjekkEndringer(historikk.getAdresserFor(aktørId)
+                sjekkEndringer(historikk.getAdresserFor(aktørId, intervall)
                     .stream()
                     .map(e -> new ElementMedGyldighetsintervallWrapper<>(e.getAdresseType(), e.getPeriode())), builder);
             });
@@ -134,12 +135,12 @@ public class MedlemTjeneste {
         return builder.build();
     }
 
-    public Map<LocalDate, VurderMedlemskap> utledVurderingspunkterMedAksjonspunkt(BehandlingReferanse ref) {
-        var vurderingsdatoer = utledVurderingsdatoerTjeneste.finnVurderingsdatoerMedÅrsak(ref);
+    public Map<LocalDate, VurderMedlemskap> utledVurderingspunkterMedAksjonspunkt(BehandlingReferanse ref, Skjæringstidspunkt stp) {
+        var vurderingsdatoer = utledVurderingsdatoerTjeneste.finnVurderingsdatoerMedÅrsak(ref, stp);
         var map = new HashMap<LocalDate, VurderMedlemskap>();
         for (var entry : vurderingsdatoer.entrySet()) {
             var vurderingsdato = entry.getKey();
-            var vurderinger = vurderMedlemskapTjeneste.vurderMedlemskap(ref, vurderingsdato);
+            var vurderinger = vurderMedlemskapTjeneste.vurderMedlemskap(ref, stp, vurderingsdato);
             if (!vurderinger.isEmpty()) {
                 map.put(vurderingsdato, mapTilVurderMeldemspa(vurderinger, entry.getValue()));
             }

@@ -40,7 +40,7 @@ class StartpunktTjenesteImplTest {
 
         // Mock startpunktutlederprovider
         var utledere = new UnitTestLookupInstanceImpl<StartpunktUtleder>(
-            (behandling, grunnlagId1, grunnlagId2) -> StartpunktType.OPPTJENING);
+            (behandling, stp, grunnlagId1, grunnlagId2) -> StartpunktType.OPPTJENING);
 
         tjeneste = new StartpunktTjenesteImpl(utledere, endringsresultatSjekker, familietjeneste, mock(FagsakRelasjonTjeneste.class),
             mock(DekningsgradTjeneste.class));
@@ -57,7 +57,7 @@ class StartpunktTjenesteImplTest {
             .thenReturn(endringsresultat);
 
         // Act/Assert
-        assertThat(tjeneste.utledStartpunktForDiffBehandlingsgrunnlag(lagRef(), endringsresultat)).isEqualTo(OPPTJENING);
+        assertThat(tjeneste.utledStartpunktForDiffBehandlingsgrunnlag(lagRef(), null, endringsresultat)).isEqualTo(OPPTJENING);
     }
 
     private BehandlingReferanse lagRef() {
@@ -76,7 +76,7 @@ class StartpunktTjenesteImplTest {
             .thenReturn(endringsresultat);
 
         // Act/Assert
-        assertThat(tjeneste.utledStartpunktForDiffBehandlingsgrunnlag(lagRef(), endringsresultat)).isEqualTo(UDEFINERT);
+        assertThat(tjeneste.utledStartpunktForDiffBehandlingsgrunnlag(lagRef(), null, endringsresultat)).isEqualTo(UDEFINERT);
     }
 
     @Test
@@ -86,7 +86,7 @@ class StartpunktTjenesteImplTest {
         when(endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(Mockito.anyLong(), any(EndringsresultatSnapshot.class))).thenReturn(endringsresultat);
 
         // Act/Assert
-        assertThat(tjeneste.utledStartpunktForDiffBehandlingsgrunnlag(lagRef(), endringsresultat)).isEqualTo(UDEFINERT);
+        assertThat(tjeneste.utledStartpunktForDiffBehandlingsgrunnlag(lagRef(), null, endringsresultat)).isEqualTo(UDEFINERT);
     }
 
     private EndringsresultatDiff opprettEndringsresultat(Long grunnlagId1, Long grunnlagId2) {

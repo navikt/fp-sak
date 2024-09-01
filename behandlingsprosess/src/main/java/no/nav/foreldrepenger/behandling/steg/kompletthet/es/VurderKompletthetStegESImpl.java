@@ -46,13 +46,13 @@ public class VurderKompletthetStegESImpl implements VurderKompletthetSteg {
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(kontekst.getBehandlingId());
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
+        var ref = BehandlingReferanse.fra(behandling);
 
         if (skalPassereKompletthet(behandling)) {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
 
-        var kompletthetResultat = vurderKompletthetTjeneste.vurderForsendelseKomplett(ref);
+        var kompletthetResultat = vurderKompletthetTjeneste.vurderForsendelseKomplett(ref, skjæringstidspunkter);
         if (!kompletthetResultat.erOppfylt() && !VurderKompletthetStegFelles.autopunktAlleredeUtført(AUTO_VENTER_PÅ_KOMPLETT_SØKNAD, behandling)) {
             return VurderKompletthetStegFelles.evaluerUoppfylt(kompletthetResultat, AUTO_VENTER_PÅ_KOMPLETT_SØKNAD);
         }

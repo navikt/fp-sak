@@ -18,7 +18,6 @@ import org.mockito.ArgumentMatchers;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.RevurderingBehandlingsresultatutleder;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -110,13 +109,7 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
     }
 
     private Behandlingsresultat foreslåBehandlingsresultat(Behandling behandling) {
-        var ref = BehandlingReferanse.fra(behandling,
-                Skjæringstidspunkt.builder()
-                        .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT)
-                        .medSkjæringstidspunktBeregning(SKJÆRINGSTIDSPUNKT)
-                        .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
-                        .medFørsteUttaksdato(SKJÆRINGSTIDSPUNKT.plusDays(1))
-                        .build());
+        var ref = BehandlingReferanse.fra(behandling);
         return tjeneste.foreslåBehandlingsresultat(ref);
     }
 

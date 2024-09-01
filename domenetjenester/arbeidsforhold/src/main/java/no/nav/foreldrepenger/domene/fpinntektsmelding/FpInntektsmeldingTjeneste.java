@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
 import no.nav.foreldrepenger.konfig.Environment;
@@ -38,7 +39,7 @@ public class FpInntektsmeldingTjeneste {
         prosessTaskTjeneste.lagre(taskdata);
     }
 
-    void lagForespørsel(String ag, BehandlingReferanse refMedStp) {
+    void lagForespørsel(String ag, BehandlingReferanse ref, Skjæringstidspunkt stp) {
         // Toggler av for prod og lokalt, ikke støtte lokalt
         if (!Environment.current().isDev()) {
             return;
@@ -46,9 +47,9 @@ public class FpInntektsmeldingTjeneste {
         if (!OrganisasjonsNummerValidator.erGyldig(ag)) {
             return;
         }
-        var request = new OpprettForespørselRequest(new OpprettForespørselRequest.AktørIdDto(refMedStp.aktørId().getId()),
-            new OpprettForespørselRequest.OrganisasjonsnummerDto(ag), refMedStp.getUtledetSkjæringstidspunkt(), mapYtelsetype(refMedStp.fagsakYtelseType()),
-            new OpprettForespørselRequest.SaksnummerDto(refMedStp.saksnummer().getVerdi()));
+        var request = new OpprettForespørselRequest(new OpprettForespørselRequest.AktørIdDto(ref.aktørId().getId()),
+            new OpprettForespørselRequest.OrganisasjonsnummerDto(ag), stp.getUtledetSkjæringstidspunkt(), mapYtelsetype(ref.fagsakYtelseType()),
+            new OpprettForespørselRequest.SaksnummerDto(ref.saksnummer().getVerdi()));
         klient.opprettForespørsel(request);
     }
 

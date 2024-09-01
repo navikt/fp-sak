@@ -78,17 +78,21 @@ class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         var ref = lagRef(behandling);
 
         // Act
-        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+        var resultat = tjeneste.utled(ref, lagStp(), behandling, SKJÆRINGSDATO_FØDSEL);
 
         // Assert
         assertThat(resultat).isEmpty();
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {
-        return BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
+        return BehandlingReferanse.fra(behandling);
+    }
+
+    private Skjæringstidspunkt lagStp() {
+        return Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(SKJÆRINGSDATO_FØDSEL)
             .medUttaksintervall(new LocalDateInterval(SKJÆRINGSDATO_FØDSEL.minusWeeks(4), SKJÆRINGSDATO_FØDSEL.plusWeeks(4)))
-            .medFørsteUttaksdato(SKJÆRINGSDATO_FØDSEL).build());
+            .medFørsteUttaksdato(SKJÆRINGSDATO_FØDSEL).build();
     }
 
     @Test
@@ -110,7 +114,7 @@ class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         var ref = lagRef(behandling);
 
         // Act
-        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+        var resultat = tjeneste.utled(ref, lagStp(), behandling, SKJÆRINGSDATO_FØDSEL);
 
 
         // Assert
@@ -137,7 +141,7 @@ class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         var ref = lagRef(behandling);
 
         // Act
-        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+        var resultat = tjeneste.utled(ref, lagStp(), behandling, SKJÆRINGSDATO_FØDSEL);
 
 
         // Assert
@@ -163,7 +167,7 @@ class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         var ref = lagRef(behandling);
 
         // Act
-        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+        var resultat = tjeneste.utled(ref, lagStp(), behandling, SKJÆRINGSDATO_FØDSEL);
 
 
         // Assert
@@ -189,7 +193,7 @@ class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         var ref = lagRef(behandling);
 
         // Act
-        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+        var resultat = tjeneste.utled(ref, lagStp(), behandling, SKJÆRINGSDATO_FØDSEL);
 
 
         // Assert
@@ -215,7 +219,7 @@ class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         var ref = lagRef(behandling);
 
         // Act
-        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+        var resultat = tjeneste.utled(ref, lagStp(), behandling, SKJÆRINGSDATO_FØDSEL);
 
 
         // Assert
@@ -233,7 +237,7 @@ class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         var ref = lagRef(behandling);
 
         // Act
-        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+        var resultat = tjeneste.utled(ref, lagStp(), behandling, SKJÆRINGSDATO_FØDSEL);
 
 
         // Assert
@@ -251,7 +255,7 @@ class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         var ref = lagRef(behandling);
 
         // Act
-        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+        var resultat = tjeneste.utled(ref, lagStp(), behandling, SKJÆRINGSDATO_FØDSEL);
 
 
         // Assert
@@ -282,7 +286,7 @@ class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         var ref = lagRef(behandling);
 
         // Act
-        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+        var resultat = tjeneste.utled(ref, lagStp(), behandling, SKJÆRINGSDATO_FØDSEL);
 
 
         // Assert
@@ -304,7 +308,7 @@ class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         var ref = lagRef(behandling);
 
         // Act
-        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+        var resultat = tjeneste.utled(ref, lagStp(), behandling, SKJÆRINGSDATO_FØDSEL);
 
 
         // Assert
@@ -322,7 +326,7 @@ class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         var ref = lagRef(behandling);
 
         // Act
-        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL.plusMonths(1));
+        var resultat = tjeneste.utled(ref, lagStp(), behandling, SKJÆRINGSDATO_FØDSEL.plusMonths(1));
 
 
         // Assert
@@ -340,7 +344,7 @@ class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         var ref = lagRef(behandling);
 
         // Act
-        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+        var resultat = tjeneste.utled(ref, lagStp(), behandling, SKJÆRINGSDATO_FØDSEL);
 
 
         // Assert
@@ -358,7 +362,7 @@ class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         var ref = lagRef(behandling);
 
         // Act
-        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+        var resultat = tjeneste.utled(ref, lagStp(), behandling, SKJÆRINGSDATO_FØDSEL);
 
 
         // Assert
@@ -376,7 +380,7 @@ class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         var ref = lagRef(behandling);
 
         // Act
-        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+        var resultat = tjeneste.utled(ref, lagStp(), behandling, SKJÆRINGSDATO_FØDSEL);
 
 
         // Assert
@@ -394,7 +398,7 @@ class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         var ref = lagRef(behandling);
 
         // Act
-        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+        var resultat = tjeneste.utled(ref, lagStp(), behandling, SKJÆRINGSDATO_FØDSEL);
 
 
         // Assert

@@ -20,7 +20,6 @@ import org.mockito.Mock;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
@@ -958,7 +957,7 @@ class RevurderingBehandlingsresultatutlederTest {
 
     private void bestemBehandlingsresultatForRevurdering(Behandling revurdering,
                                                          boolean erVarselOmRevurderingSendt) {
-        var ref = BehandlingReferanse.fra(revurdering, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_BEREGNING).build());
+        var ref = BehandlingReferanse.fra(revurdering);
         revurderingBehandlingsresultatutleder.bestemBehandlingsresultatForRevurdering(ref, erVarselOmRevurderingSendt);
     }
 

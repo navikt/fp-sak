@@ -9,8 +9,7 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Opptjening;
 public class OpptjeningGrunnlagBygger {
 
     public Opptjening.Builder byggGrunnlag(UttakInput input) {
-        var ref = input.getBehandlingReferanse();
         return new Opptjening.Builder()
-            .skjæringstidspunkt(ref.getUtledetSkjæringstidspunkt());
+            .skjæringstidspunkt(input.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt());
     }
 }

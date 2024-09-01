@@ -110,7 +110,7 @@ class SkalKopiereUttakTjenesteTest {
                 .medSøknadHendelse(søknadHendelse)
                 .medBekreftetHendelse(bekreftetHendelse)
             );
-        var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling), null, ytelsespesifiktGrunnlag)
+        var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling), null, null, ytelsespesifiktGrunnlag)
             .medBehandlingÅrsaker(Set.of(RE_ENDRET_INNTEKTSMELDING));
 
         var tjeneste = opprettTjeneste(false);
@@ -161,7 +161,7 @@ class SkalKopiereUttakTjenesteTest {
                 årsaker);
         }
         var behandling = scenario.lagre(repositoryProvider);
-        return new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag().medDødsfall(dødsfall))
+        return new UttakInput(BehandlingReferanse.fra(behandling), null, null, new ForeldrepengerGrunnlag().medDødsfall(dødsfall))
             .medBehandlingÅrsaker(årsaker);
     }
 }
