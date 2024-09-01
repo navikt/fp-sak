@@ -10,6 +10,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.BeregningUttakTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.GraderingUtenBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -81,7 +82,7 @@ public class UttakInputTjeneste {
     }
 
     public UttakInput lagInput(Behandling behandling, InntektArbeidYtelseGrunnlag iayGrunnlag, LocalDate medlemskapOpphørsdato) {
-        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+        var skjæringstidspunkt = finnSkjæringstidspunkt(behandling.getId());
         var ref = BehandlingReferanse.fra(behandling);
         var søknadEntitet = søknadRepository.hentSøknadHvisEksisterer(ref.behandlingId());
         var søknadOpprettetTidspunkt = søknadEntitet.map(SøknadEntitet::getOpprettetTidspunkt).orElse(null);
@@ -100,6 +101,15 @@ public class UttakInputTjeneste {
                     .medFinnesAndelerMedGraderingUtenBeregningsgrunnlag(finnesAndelerMedGraderingUtenBeregningsgrunnlag);
         }
         return input;
+    }
+
+    private Skjæringstidspunkt finnSkjæringstidspunkt(Long behandlingId) {
+        // Bruker denne tilnærmingen siden UttakInput brukes mye i Dto-produksjon. Kaster exception der STP faktisk er påkrevd (APutledning + regler)
+        try {
+            return skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private boolean finnesAndelerMedGraderingUtenBeregningsgrunnlag(BehandlingReferanse ref, Beregningsgrunnlag beregningsgrunnlag) {

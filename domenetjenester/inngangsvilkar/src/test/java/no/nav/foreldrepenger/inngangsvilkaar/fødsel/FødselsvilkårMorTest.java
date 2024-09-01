@@ -22,26 +22,18 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
 class FødselsvilkårMorTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
-
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private FødselsvilkårOversetter oversetter;
 
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider);
         var personopplysningTjeneste = new PersonopplysningTjeneste(
             repositoryProvider.getPersonopplysningRepository());
         oversetter = new FødselsvilkårOversetter(repositoryProvider, personopplysningTjeneste, Period.parse("P18W3D"));
@@ -58,7 +50,7 @@ class FødselsvilkårMorTest extends EntityManagerAwareTest {
         var behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        var data = new InngangsvilkårFødselMor(oversetter, skjæringstidspunktTjeneste).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårFødselMor(oversetter).vurderVilkår(lagRef(behandling));
 
         var jsonNode =  StandardJsonConfig.fromJsonAsTree(data.regelInput());
         var soekersKjonn = jsonNode.get("soekersKjonn").asText();
@@ -86,7 +78,7 @@ class FødselsvilkårMorTest extends EntityManagerAwareTest {
         var behandling = lagBehandlingMedMorEllerMedmor(RelasjonsRolleType.MORA);
 
         // Act
-        var data = new InngangsvilkårFødselMor(oversetter, skjæringstidspunktTjeneste).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårFødselMor(oversetter).vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(data.vilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_MOR);
@@ -99,7 +91,7 @@ class FødselsvilkårMorTest extends EntityManagerAwareTest {
         var behandling = lagBehandlingMedMorEllerMedmor(RelasjonsRolleType.FARA);
 
         // Act
-        var data = new InngangsvilkårFødselMor(oversetter, skjæringstidspunktTjeneste).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårFødselMor(oversetter).vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(data.vilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_MOR);
@@ -129,7 +121,7 @@ class FødselsvilkårMorTest extends EntityManagerAwareTest {
         var behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        var data = new InngangsvilkårFødselMor(oversetter, skjæringstidspunktTjeneste).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårFødselMor(oversetter).vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(data.vilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_MOR);
@@ -159,7 +151,7 @@ class FødselsvilkårMorTest extends EntityManagerAwareTest {
         var behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        var data = new InngangsvilkårFødselMor(oversetter, skjæringstidspunktTjeneste).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårFødselMor(oversetter).vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(data.vilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_MOR);
@@ -188,7 +180,7 @@ class FødselsvilkårMorTest extends EntityManagerAwareTest {
         var behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        var data = new InngangsvilkårFødselMor(oversetter, skjæringstidspunktTjeneste).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårFødselMor(oversetter).vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(data.vilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_MOR);
@@ -215,7 +207,7 @@ class FødselsvilkårMorTest extends EntityManagerAwareTest {
         var behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        var data = new InngangsvilkårFødselMor(oversetter, skjæringstidspunktTjeneste).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårFødselMor(oversetter).vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(data.vilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_MOR);
@@ -234,7 +226,7 @@ class FødselsvilkårMorTest extends EntityManagerAwareTest {
         var behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        var data = new InngangsvilkårFødselMor(oversetter, skjæringstidspunktTjeneste).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårFødselMor(oversetter).vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(data.vilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_MOR);
@@ -253,7 +245,7 @@ class FødselsvilkårMorTest extends EntityManagerAwareTest {
         var behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        var data = new InngangsvilkårFødselMor(oversetter, skjæringstidspunktTjeneste).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårFødselMor(oversetter).vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(data.vilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_MOR);
@@ -273,7 +265,7 @@ class FødselsvilkårMorTest extends EntityManagerAwareTest {
         var behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        var data = new InngangsvilkårFødselMor(oversetter, skjæringstidspunktTjeneste).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårFødselMor(oversetter).vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(data.vilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_MOR);

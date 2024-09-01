@@ -37,7 +37,7 @@ public class UttakInput {
     }
 
     private UttakInput(UttakInput input) {
-        this(input.getBehandlingReferanse(), input.getSkjæringstidspunkt(), input.getIayGrunnlag(), input.getYtelsespesifiktGrunnlag());
+        this(input.getBehandlingReferanse(), input.getSkjæringstidspunkt().orElse(null), input.getIayGrunnlag(), input.getYtelsespesifiktGrunnlag());
         this.beregningsgrunnlagStatuser = Set.copyOf(input.beregningsgrunnlagStatuser);
         this.søknadOpprettetTidspunkt = input.søknadOpprettetTidspunkt;
         this.medlemskapOpphørsdato = input.medlemskapOpphørsdato;
@@ -50,8 +50,8 @@ public class UttakInput {
         return behandlingReferanse;
     }
 
-    public Skjæringstidspunkt getSkjæringstidspunkt() {
-        return skjæringstidspunkt;
+    public Optional<Skjæringstidspunkt> getSkjæringstidspunkt() {
+        return Optional.ofNullable(skjæringstidspunkt);
     }
 
     public Set<BeregningsgrunnlagStatus> getBeregningsgrunnlagStatuser() {

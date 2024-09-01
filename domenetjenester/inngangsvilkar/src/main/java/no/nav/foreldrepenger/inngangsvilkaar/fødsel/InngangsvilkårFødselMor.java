@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårTypeRef;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.InngangsvilkårRegler;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 /**
  * Adapter for å evaluere fødselsvilkåret.
@@ -21,22 +20,20 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 public class InngangsvilkårFødselMor implements Inngangsvilkår {
 
     private FødselsvilkårOversetter fødselsvilkårOversetter;
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     InngangsvilkårFødselMor() {
         // for CDI proxy
     }
 
     @Inject
-    public InngangsvilkårFødselMor(FødselsvilkårOversetter fødselsvilkårOversetter, SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+    public InngangsvilkårFødselMor(FødselsvilkårOversetter fødselsvilkårOversetter) {
         this.fødselsvilkårOversetter = fødselsvilkårOversetter;
-        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
     @Override
     public VilkårData vurderVilkår(BehandlingReferanse ref) {
-        var utenMinsterett = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId()).utenMinsterett();
-        var grunnlag = fødselsvilkårOversetter.oversettTilRegelModellFødsel(ref, utenMinsterett);
+        // Minsterett ikke relevant for mors vilkår, kun far. Bruker derfor default (med minsterett)
+        var grunnlag = fødselsvilkårOversetter.oversettTilRegelModellFødsel(ref, false);
 
         var resultat = InngangsvilkårRegler.fødsel(RegelSøkerRolle.MORA, grunnlag);
 

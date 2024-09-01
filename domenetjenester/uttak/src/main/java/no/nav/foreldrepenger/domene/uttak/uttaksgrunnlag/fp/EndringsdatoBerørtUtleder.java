@@ -45,7 +45,7 @@ public final class EndringsdatoBerørtUtleder {
                                                                            String loggPrefix) {
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         var familieHendelser = fpGrunnlag.getFamilieHendelser();
-        var utenMinsterett = Optional.ofNullable(uttakInput.getSkjæringstidspunkt()).filter(Skjæringstidspunkt::utenMinsterett).isPresent();
+        var utenMinsterett = uttakInput.getSkjæringstidspunkt().filter(Skjæringstidspunkt::utenMinsterett).isPresent();
         if (berørtUttakOpt.isEmpty() || finnMinAktivDato(berørtUttakOpt.get()).isEmpty() || finnMinAktivDato(utløsendeUttak, berørtUttakOpt.get()).isEmpty()) {
             return Optional.empty();
         }

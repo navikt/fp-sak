@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
+import java.time.LocalDate;
 import java.util.Objects;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -97,6 +98,19 @@ public class ForvaltningUttakRestTjeneste {
         Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
 
         forvaltningUttakTjeneste.endreMorUføretrygd(dto.getBehandlingUuid(), morUforetrygd);
+        return Response.noContent().build();
+    }
+
+    @POST
+    @Path("/startdato")
+    @Produces(MediaType.TEXT_PLAIN)
+    @Operation(description = "Setter overstyrt startdato for saken (ved manglende uttak)", tags = "FORVALTNING-uttak")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response settStartdato(@BeanParam @Valid ForvaltningBehandlingIdDto dto,
+                                    @NotNull @Valid LocalDate startdato) {
+        Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
+
+        forvaltningUttakTjeneste.setStartdato(dto.getBehandlingUuid(), startdato);
         return Response.noContent().build();
     }
 }

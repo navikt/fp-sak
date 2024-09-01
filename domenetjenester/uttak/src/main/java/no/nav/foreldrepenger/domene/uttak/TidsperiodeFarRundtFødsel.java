@@ -18,7 +18,7 @@ public final class TidsperiodeFarRundtFødsel {
 
     public static Optional<LocalDateInterval> intervallFarRundtFødsel(UttakInput uttakInput) {
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
-        var utenMinsterett = Optional.ofNullable(uttakInput.getSkjæringstidspunkt()).filter(Skjæringstidspunkt::utenMinsterett).isPresent();
+        var utenMinsterett = uttakInput.getSkjæringstidspunkt().filter(Skjæringstidspunkt::utenMinsterett).isPresent();
         return intervallFarRundtFødsel(fpGrunnlag.getFamilieHendelser(), utenMinsterett);
     }
 

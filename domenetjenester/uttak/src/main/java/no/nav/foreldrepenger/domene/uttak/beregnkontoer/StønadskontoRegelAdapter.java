@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.uttak.beregnkontoer;
 
 import static no.nav.foreldrepenger.domene.uttak.UttakEnumMapper.map;
 
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,7 +36,7 @@ public class StønadskontoRegelAdapter {
     }
 
     public Optional<Stønadskontoberegning> beregnKontoerSjekkDiff(BehandlingReferanse ref,
-                                                                  Skjæringstidspunkt skjæringstidspunkt,
+                                                                  LocalDate skjæringstidspunkt,
                                                                   YtelseFordelingAggregat ytelseFordelingAggregat,
                                                                   Dekningsgrad dekningsgrad,
                                                                   Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
@@ -47,7 +48,7 @@ public class StønadskontoRegelAdapter {
     }
 
     private StønadskontoResultat beregnKontoerMedResultat(BehandlingReferanse ref,
-                                                          Skjæringstidspunkt skjæringstidspunkt,
+                                                          LocalDate skjæringstidspunkt,
                                                          YtelseFordelingAggregat ytelseFordelingAggregat,
                                                          Dekningsgrad dekningsgrad,
                                                          Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
