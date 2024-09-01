@@ -50,7 +50,7 @@ class BekreftSøkersOpplysningspliktManuellOppdatererTest {
         // Act
         var aksjonspunkt = behandling.getAksjonspunktFor(bekreftSokersOpplysningspliktManuDto.getAksjonspunktDefinisjon());
         var resultat = oppdaterer.oppdater(bekreftSokersOpplysningspliktManuDto,
-                new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), bekreftSokersOpplysningspliktManuDto, aksjonspunkt));
+                new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), bekreftSokersOpplysningspliktManuDto, aksjonspunkt));
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
         var historikkInnslag = tekstBuilder.build(historikkinnslag);

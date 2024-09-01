@@ -7,12 +7,12 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
+import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValgRepository;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk.ArbeidInntektHistorikkinnslagTjeneste;
@@ -56,9 +56,9 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
-    public void lagreManglendeOpplysningerVurdering(BehandlingReferanse behandlingReferanse, ManglendeOpplysningerVurderingDto dto) {
+    public void lagreManglendeOpplysningerVurdering(BehandlingReferanse behandlingReferanse, Skjæringstidspunkt skjæringstidspunkt, ManglendeOpplysningerVurderingDto dto) {
 
-        var arbeidsforholdMedMangler = arbeidsforholdInntektsmeldingsMangelUtleder.finnAlleManglerIArbeidsforholdInntektsmeldinger(behandlingReferanse);
+        var arbeidsforholdMedMangler = arbeidsforholdInntektsmeldingsMangelUtleder.finnAlleManglerIArbeidsforholdInntektsmeldinger(behandlingReferanse, skjæringstidspunkt);
         var entiteter = ArbeidsforholdInntektsmeldingMangelMapper.mapManglendeOpplysningerVurdering(dto, arbeidsforholdMedMangler);
         sjekkUnikeReferanser(entiteter); // Skal kun være en avklaring pr referanse
         entiteter.forEach(ent -> arbeidsforholdValgRepository.lagre(ent, behandlingReferanse.behandlingId()));
@@ -90,8 +90,8 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
         }
     }
 
-    public void lagreManuelleArbeidsforhold(BehandlingReferanse behandlingReferanse, ManueltArbeidsforholdDto dto) {
-        var arbeidsforholdMedMangler = arbeidsforholdInntektsmeldingsMangelUtleder.finnAlleManglerIArbeidsforholdInntektsmeldinger(behandlingReferanse);
+    public void lagreManuelleArbeidsforhold(BehandlingReferanse behandlingReferanse, Skjæringstidspunkt stp, ManueltArbeidsforholdDto dto) {
+        var arbeidsforholdMedMangler = arbeidsforholdInntektsmeldingsMangelUtleder.finnAlleManglerIArbeidsforholdInntektsmeldinger(behandlingReferanse, stp);
         var eksisterendeValg = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(behandlingReferanse.behandlingId());
         var valgSomMåRyddesBort = ArbeidsforholdInntektsmeldingRyddeTjeneste.valgSomMåRyddesBortVedOpprettelseAvArbeidsforhold(dto, eksisterendeValg);
 
@@ -107,12 +107,12 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
         arbeidsforholdTjeneste.lagreOverstyring(behandlingReferanse.behandlingId(), oppdatertBuilder);
     }
 
-    public List<ArbeidsforholdMangel> utledAlleManglerPåArbeidsforholdInntektsmelding(BehandlingReferanse behandlingReferanse) {
-        return arbeidsforholdInntektsmeldingsMangelUtleder.finnAlleManglerIArbeidsforholdInntektsmeldinger(behandlingReferanse);
+    public List<ArbeidsforholdMangel> utledAlleManglerPåArbeidsforholdInntektsmelding(BehandlingReferanse behandlingReferanse, Skjæringstidspunkt skjæringstidspunkt) {
+        return arbeidsforholdInntektsmeldingsMangelUtleder.finnAlleManglerIArbeidsforholdInntektsmeldinger(behandlingReferanse, skjæringstidspunkt);
     }
 
-    public List<ArbeidsforholdMangel> utledUavklarteManglerPåArbeidsforholdInntektsmelding(BehandlingReferanse behandlingReferanse) {
-        var alleMangler = arbeidsforholdInntektsmeldingsMangelUtleder.finnAlleManglerIArbeidsforholdInntektsmeldinger(behandlingReferanse);
+    public List<ArbeidsforholdMangel> utledUavklarteManglerPåArbeidsforholdInntektsmelding(BehandlingReferanse behandlingReferanse, Skjæringstidspunkt skjæringstidspunkt) {
+        var alleMangler = arbeidsforholdInntektsmeldingsMangelUtleder.finnAlleManglerIArbeidsforholdInntektsmeldinger(behandlingReferanse, skjæringstidspunkt);
         var alleAvklaringer = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(behandlingReferanse.behandlingId());
         var uavklarteMangler = alleMangler.stream().filter(mangel -> !finnesAvklaringSomGjelderMangel(mangel, alleAvklaringer)).toList();
         return uavklarteMangler;
@@ -132,9 +132,9 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
      * Tjeneste for å rydde vekk valg som ikke er relevant i behandlingen etter kopiering fra forrige behandling.
      * @param ref
      */
-    public void ryddVekkUgyldigeValg(BehandlingReferanse ref) {
+    public void ryddVekkUgyldigeValg(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var valgPåBehandlingen = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(ref.behandlingId());
-        var manglerPåBehandlingen = utledAlleManglerPåArbeidsforholdInntektsmelding(ref);
+        var manglerPåBehandlingen = utledAlleManglerPåArbeidsforholdInntektsmelding(ref, stp);
         var valgSomMåDeaktiveres = ArbeidsforholdInntektsmeldingRyddeTjeneste.finnUgyldigeValgSomErGjort(valgPåBehandlingen, manglerPåBehandlingen);
         valgSomMåDeaktiveres.forEach(valg -> {
             LOG.info("Deaktiverer valg som ikke lenger er gyldig: {}", valg);
@@ -180,10 +180,9 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
      */
     public List<ArbeidsforholdInntektsmeldingStatus> finnStatusForInntektsmeldingArbeidsforhold(BehandlingReferanse referanse) {
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(referanse.behandlingId());
-        var refMedStp = referanse.medSkjæringstidspunkt(skjæringstidspunkter);
-        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(refMedStp, false);
-        var allePåkrevdeInntektsmeldinger = inntektsmeldingRegisterTjeneste.hentAllePåkrevdeInntektsmeldinger(refMedStp);
-        var saksbehandlersValg = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(refMedStp.behandlingId());
+        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(referanse, skjæringstidspunkter,false);
+        var allePåkrevdeInntektsmeldinger = inntektsmeldingRegisterTjeneste.hentAllePåkrevdeInntektsmeldinger(referanse, skjæringstidspunkter);
+        var saksbehandlersValg = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(referanse.behandlingId());
         return InntektsmeldingStatusMapper.mapInntektsmeldingStatus(allePåkrevdeInntektsmeldinger, manglendeInntektsmeldinger, saksbehandlersValg);
     }
 

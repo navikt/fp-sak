@@ -206,7 +206,7 @@ class StønadskontoSaldoTjenesteTest {
         var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag()
             .medFamilieHendelser(new FamilieHendelser().medSøknadHendelse(FamilieHendelse.forFødsel(null, LocalDate.now(),
                 List.of(), 1)));
-        return new UttakInput(BehandlingReferanse.fra(behandling), null, foreldrepengerGrunnlag);
+        return new UttakInput(BehandlingReferanse.fra(behandling), null, null, foreldrepengerGrunnlag);
     }
 
     @Test

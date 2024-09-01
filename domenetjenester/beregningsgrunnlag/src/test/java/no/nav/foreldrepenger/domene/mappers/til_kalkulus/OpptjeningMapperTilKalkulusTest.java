@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.OpptjeningMapperTilKalkulus;
 import org.junit.jupiter.api.Test;
 
 import no.nav.abakus.iaygrunnlag.Periode;
@@ -27,6 +26,7 @@ import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulator.OpptjeningMapperTilKalkulus;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -35,7 +35,8 @@ import no.nav.vedtak.konfig.Tid;
 class OpptjeningMapperTilKalkulusTest {
     private static final LocalDate STP = LocalDate.now().minusDays(7);
     private static final Periode PERIODE = new Periode(LocalDate.now().minusMonths(12), LocalDate.now());
-    private static final BehandlingReferanse REF = BehandlingReferanse.fra(ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked(), Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(STP).build());
+    private static final BehandlingReferanse REF = BehandlingReferanse.fra(ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked());
+    private static final Skjæringstidspunkt STPT = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(STP).build();
     private InntektArbeidYtelseAggregatBuilder data = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
     private InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder arbeidBuilder = data.getAktørArbeidBuilder(REF.aktørId());
     private List<Inntektsmelding> inntektsmeldinger = new ArrayList<>();
@@ -46,7 +47,7 @@ class OpptjeningMapperTilKalkulusTest {
         var orgnr = "999999999";
         lagArbeid(orgnr, ref1);
         var p1 = OpptjeningAktiviteter.nyPeriode(OpptjeningAktivitetType.ARBEID, PERIODE, orgnr, null, ref1);
-        var resultat = OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(new OpptjeningAktiviteter(p1), byggIAY(), REF);
+        var resultat = OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(new OpptjeningAktiviteter(p1), byggIAY(), REF, STPT);
         assertThat(resultat.getOpptjeningPerioder()).hasSize(1);
         assertFinnes(resultat, orgnr, ref1);
     }
@@ -65,7 +66,7 @@ class OpptjeningMapperTilKalkulusTest {
         lagIM(orgnr, ref3); // Irrelevant IM
 
         var p1 = OpptjeningAktiviteter.nyPeriode(OpptjeningAktivitetType.ARBEID, new Periode(STP.minusMonths(12), STP.minusDays(1)), orgnr, null, ref1);
-        var resultat = OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(new OpptjeningAktiviteter(p1), byggIAY(), REF);
+        var resultat = OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(new OpptjeningAktiviteter(p1), byggIAY(), REF, STPT);
         assertThat(resultat.getOpptjeningPerioder()).hasSize(1);
         assertFinnes(resultat, orgnr, ref1);
     }
@@ -77,7 +78,7 @@ class OpptjeningMapperTilKalkulusTest {
         lagIM(orgnr, ref1);
         lagArbeid(orgnr, ref1);
         var p1 = OpptjeningAktiviteter.nyPeriode(OpptjeningAktivitetType.ARBEID, PERIODE, orgnr, null, ref1);
-        var resultat = OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(new OpptjeningAktiviteter(p1), byggIAY(), REF);
+        var resultat = OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(new OpptjeningAktiviteter(p1), byggIAY(), REF, STPT);
         assertThat(resultat.getOpptjeningPerioder()).hasSize(1);
         assertFinnes(resultat, orgnr, ref1);
     }
@@ -89,7 +90,7 @@ class OpptjeningMapperTilKalkulusTest {
         lagIM(orgnr, null);
         lagArbeid(orgnr, ref1);
         var p1 = OpptjeningAktiviteter.nyPeriode(OpptjeningAktivitetType.ARBEID, PERIODE, orgnr, null, ref1);
-        var resultat = OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(new OpptjeningAktiviteter(p1), byggIAY(), REF);
+        var resultat = OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(new OpptjeningAktiviteter(p1), byggIAY(), REF, STPT);
         assertThat(resultat.getOpptjeningPerioder()).hasSize(1);
         assertFinnes(resultat, orgnr, ref1);
     }
@@ -107,7 +108,7 @@ class OpptjeningMapperTilKalkulusTest {
         var p1 = OpptjeningAktiviteter.nyPeriode(OpptjeningAktivitetType.ARBEID, PERIODE, orgnr, null, ref1);
         var p2 = OpptjeningAktiviteter.nyPeriode(OpptjeningAktivitetType.ARBEID, PERIODE, orgnr, null, ref2);
         var p3 = OpptjeningAktiviteter.nyPeriode(OpptjeningAktivitetType.ARBEID, PERIODE, orgnr, null, ref3);
-        var resultat = OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(new OpptjeningAktiviteter(p1, p2, p3), byggIAY(), REF);
+        var resultat = OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(new OpptjeningAktiviteter(p1, p2, p3), byggIAY(), REF, STPT);
         assertThat(resultat.getOpptjeningPerioder()).hasSize(3);
         assertFinnes(resultat, orgnr, ref1);
         assertFinnes(resultat, orgnr, ref2);
@@ -133,7 +134,7 @@ class OpptjeningMapperTilKalkulusTest {
         var p2 = OpptjeningAktiviteter.nyPeriode(OpptjeningAktivitetType.ARBEID, PERIODE, orgnr1, null, ref2);
         var p3 = OpptjeningAktiviteter.nyPeriode(OpptjeningAktivitetType.ARBEID, PERIODE, orgnr2, null, ref3);
         var p4 = OpptjeningAktiviteter.nyPeriode(OpptjeningAktivitetType.ARBEID, PERIODE, orgnr2, null, ref4);
-        var resultat = OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(new OpptjeningAktiviteter(p1, p2, p3, p4), byggIAY(), REF);
+        var resultat = OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(new OpptjeningAktiviteter(p1, p2, p3, p4), byggIAY(), REF, STPT);
         assertThat(resultat.getOpptjeningPerioder()).hasSize(4);
         assertFinnes(resultat, orgnr1, ref1);
         assertFinnes(resultat, orgnr1, ref2);
@@ -155,7 +156,7 @@ class OpptjeningMapperTilKalkulusTest {
         var p1 = OpptjeningAktiviteter.nyPeriode(OpptjeningAktivitetType.ARBEID, PERIODE, orgnr1, null, ref1);
         var p2 = OpptjeningAktiviteter.nyPeriode(OpptjeningAktivitetType.ARBEID, PERIODE, orgnr1, null, ref2);
         var p3 = OpptjeningAktiviteter.nyPeriode(OpptjeningAktivitetType.ARBEID, PERIODE, orgnr1, null, ref3);
-        var resultat = OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(new OpptjeningAktiviteter(p1, p2, p3), byggIAY(), REF);
+        var resultat = OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(new OpptjeningAktiviteter(p1, p2, p3), byggIAY(), REF, STPT);
         assertThat(resultat.getOpptjeningPerioder()).hasSize(2);
         assertFinnes(resultat, orgnr1, ref1);
         assertFinnes(resultat, orgnr1, ref2);

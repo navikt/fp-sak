@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
@@ -54,8 +55,8 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(kontekst.getBehandlingId());
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
-        if (skalBeregnesAutomatisk(ref)) {
+        var ref = BehandlingReferanse.fra(behandling);
+        if (skalBeregnesAutomatisk(ref, skjæringstidspunkt)) {
             var resultat = beregningTjeneste.beregn(ref, BehandlingStegType.FORESLÅ_BESTEBEREGNING);
             var aksjonspunkter = new ArrayList<>(resultat.getAksjonspunkter());
 
@@ -69,8 +70,8 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
         return BehandleStegResultat.utførtUtenAksjonspunkter();
     }
 
-    private boolean skalBeregnesAutomatisk(BehandlingReferanse ref) {
-        return besteberegningFødendeKvinneTjeneste.kvalifisererTilAutomatiskBesteberegning(ref);
+    private boolean skalBeregnesAutomatisk(BehandlingReferanse ref, Skjæringstidspunkt stp) {
+        return besteberegningFødendeKvinneTjeneste.kvalifisererTilAutomatiskBesteberegning(ref, stp);
     }
 
     @Override

@@ -61,7 +61,7 @@ class FødselsvilkårFarTest extends EntityManagerAwareTest {
         var behandling = lagBehandlingMedFarEllerMedmor(RelasjonsRolleType.FARA, NavBrukerKjønn.MANN, true, false, true);
 
         // Act
-        var data = new InngangsvilkårFødselFar(oversetter).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårFødselFar(oversetter, skjæringstidspunktTjeneste).vurderVilkår(lagRef(behandling));
 
         var jsonNode = StandardJsonConfig.fromJsonAsTree(data.regelInput());
         var soekersKjonn = jsonNode.get("soekersKjonn").asText();
@@ -74,7 +74,7 @@ class FødselsvilkårFarTest extends EntityManagerAwareTest {
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {
-        return BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
+        return BehandlingReferanse.fra(behandling);
     }
 
     @Test // FP_VK 11.2 Vilkårsutfall oppfylt
@@ -83,7 +83,7 @@ class FødselsvilkårFarTest extends EntityManagerAwareTest {
         var behandling = lagBehandlingMedFarEllerMedmor(RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, true, false, true);
 
         // Act
-        var data = new InngangsvilkårFødselFar(oversetter).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårFødselFar(oversetter, skjæringstidspunktTjeneste).vurderVilkår(lagRef(behandling));
 
         var jsonNode = StandardJsonConfig.fromJsonAsTree(data.regelInput());
         var soekersKjonn = jsonNode.get("soekersKjonn").asText();
@@ -102,7 +102,7 @@ class FødselsvilkårFarTest extends EntityManagerAwareTest {
             LocalDate.of(2020,1,1));
         when(mockMinsterett.utenMinsterett(any())).thenReturn(true);
         // Act
-        var data = new InngangsvilkårFødselFar(oversetter).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårFødselFar(oversetter, skjæringstidspunktTjeneste).vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(data.vilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR);
@@ -116,7 +116,7 @@ class FødselsvilkårFarTest extends EntityManagerAwareTest {
         var behandling = lagBehandlingMedFarEllerMedmor(RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, false, false, false);
         when(mockMinsterett.utenMinsterett(any())).thenReturn(false);
         // Act
-        var data = new InngangsvilkårFødselFar(oversetter).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårFødselFar(oversetter, skjæringstidspunktTjeneste).vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(data.vilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR);
@@ -129,7 +129,7 @@ class FødselsvilkårFarTest extends EntityManagerAwareTest {
         var behandling = lagBehandlingMedFarEllerMedmor(RelasjonsRolleType.FARA, NavBrukerKjønn.MANN, false, true, false);
 
         // Act
-        var data = new InngangsvilkårFødselFar(oversetter).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårFødselFar(oversetter, skjæringstidspunktTjeneste).vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(data.vilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR);

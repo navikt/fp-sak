@@ -34,16 +34,17 @@ class MedlemskapVurderingPeriodeTjenesteTest {
         var behandling = ScenarioMorSøkerEngangsstønad.forFødsel()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagMocked();
 
-        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
+        var ref = BehandlingReferanse.fra(behandling);
+        var stp = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(termindato)
             .medUttaksintervall(new LocalDateInterval(termindato, termindato))
             .medFamilieHendelseDato(FamilieHendelseDato.forFødsel(termindato, null))
-            .build());
+            .build();
 
         // Act/Assert
-        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).bosattVurderingsintervall(ref))
+        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).bosattVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(LocalDate.now().minus(BOSATT_TILBAKE), termindato));
-        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref))
+        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(termindato, termindato));
     }
 
@@ -56,16 +57,17 @@ class MedlemskapVurderingPeriodeTjenesteTest {
         var behandling = ScenarioMorSøkerEngangsstønad.forFødsel()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagMocked();
 
-        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
+        var ref = BehandlingReferanse.fra(behandling);
+        var stp = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(fødselsdato)
             .medUttaksintervall(new LocalDateInterval(fødselsdato, fødselsdato))
             .medFamilieHendelseDato(FamilieHendelseDato.forFødsel(termindato, fødselsdato))
-            .build());
+            .build();
 
         // Act/Assert
-        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).bosattVurderingsintervall(ref))
+        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).bosattVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(fødselsdato.minus(BOSATT_TILBAKE), fødselsdato));
-        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref))
+        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(fødselsdato, fødselsdato));
     }
 
@@ -77,16 +79,17 @@ class MedlemskapVurderingPeriodeTjenesteTest {
         var behandling = ScenarioMorSøkerEngangsstønad.forFødsel()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagMocked();
 
-        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
+        var ref = BehandlingReferanse.fra(behandling);
+        var stp = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(fødselsdato)
             .medUttaksintervall(new LocalDateInterval(fødselsdato, fødselsdato))
             .medFamilieHendelseDato(FamilieHendelseDato.forFødsel(null, fødselsdato))
-            .build());
+            .build();
 
         // Act/Assert
-        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).bosattVurderingsintervall(ref))
+        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).bosattVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(fødselsdato.minus(BOSATT_TILBAKE), fødselsdato));
-        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref))
+        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(fødselsdato, fødselsdato));
     }
 
@@ -98,16 +101,17 @@ class MedlemskapVurderingPeriodeTjenesteTest {
         var behandling = ScenarioMorSøkerEngangsstønad.forAdopsjon()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagMocked();
 
-        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
+        var ref = BehandlingReferanse.fra(behandling);
+        var stp = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(omsorgsdato)
             .medUttaksintervall(new LocalDateInterval(omsorgsdato, omsorgsdato))
             .medFamilieHendelseDato(FamilieHendelseDato.forAdopsjonOmsorg(omsorgsdato))
-            .build());
+            .build();
 
         // Act/Assert
-        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).bosattVurderingsintervall(ref))
+        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).bosattVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(omsorgsdato.minus(BOSATT_TILBAKE), omsorgsdato));
-        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref))
+        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(omsorgsdato, omsorgsdato));
     }
 
@@ -120,16 +124,17 @@ class MedlemskapVurderingPeriodeTjenesteTest {
         var behandling = ScenarioMorSøkerEngangsstønad.forFødsel()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagMocked();
 
-        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
+        var ref = BehandlingReferanse.fra(behandling);
+        var stp= Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(termindato)
             .medUttaksintervall(new LocalDateInterval(termindato, termindato))
             .medFamilieHendelseDato(FamilieHendelseDato.forFødsel(termindato, null))
-            .build());
+            .build();
 
         // Act/Assert
-        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).bosattVurderingsintervall(ref))
+        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).bosattVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(LocalDate.now().minus(ES_MEDLEMSKAP), termindato));
-        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref))
+        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(LocalDate.now().minus(ES_MEDLEMSKAP), termindato));
     }
 
@@ -142,16 +147,17 @@ class MedlemskapVurderingPeriodeTjenesteTest {
         var behandling = ScenarioMorSøkerEngangsstønad.forFødsel()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagMocked();
 
-        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
+        var ref = BehandlingReferanse.fra(behandling);
+        var stp = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(fødselsdato)
             .medUttaksintervall(new LocalDateInterval(fødselsdato, fødselsdato))
             .medFamilieHendelseDato(FamilieHendelseDato.forFødsel(termindato, fødselsdato))
-            .build());
+            .build();
 
         // Act/Assert
-        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).bosattVurderingsintervall(ref))
+        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).bosattVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(LocalDate.now().minus(ES_MEDLEMSKAP), termindato));
-        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref))
+        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(LocalDate.now().minus(ES_MEDLEMSKAP), termindato));
     }
 
@@ -163,16 +169,17 @@ class MedlemskapVurderingPeriodeTjenesteTest {
         var behandling = ScenarioMorSøkerEngangsstønad.forFødsel()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagMocked();
 
-        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
+        var ref = BehandlingReferanse.fra(behandling);
+        var stp = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(fødselsdato)
             .medUttaksintervall(new LocalDateInterval(fødselsdato, fødselsdato))
             .medFamilieHendelseDato(FamilieHendelseDato.forFødsel(null, fødselsdato))
-            .build());
+            .build();
 
         // Act/Assert
-        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).bosattVurderingsintervall(ref))
+        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).bosattVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(fødselsdato.minus(ES_MEDLEMSKAP), fødselsdato));
-        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref))
+        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(fødselsdato.minus(ES_MEDLEMSKAP), fødselsdato));
     }
 
@@ -184,16 +191,17 @@ class MedlemskapVurderingPeriodeTjenesteTest {
         var behandling = ScenarioMorSøkerEngangsstønad.forAdopsjon()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagMocked();
 
-        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
+        var ref = BehandlingReferanse.fra(behandling);
+        var stp = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(omsorgsdato)
             .medUttaksintervall(new LocalDateInterval(omsorgsdato, omsorgsdato))
             .medFamilieHendelseDato(FamilieHendelseDato.forAdopsjonOmsorg(omsorgsdato))
-            .build());
+            .build();
 
         // Act/Assert
-        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).bosattVurderingsintervall(ref))
+        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).bosattVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(LocalDate.now().minus(ES_MEDLEMSKAP), omsorgsdato));
-        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref))
+        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(LocalDate.now().minus(ES_MEDLEMSKAP), omsorgsdato));
     }
 
@@ -207,16 +215,17 @@ class MedlemskapVurderingPeriodeTjenesteTest {
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagMocked();
 
-        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
+        var ref = BehandlingReferanse.fra(behandling);
+        var stp = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(skjæringstidspunkt)
             .medUttaksintervall(new LocalDateInterval(skjæringstidspunkt, maxdato))
             .medFamilieHendelseDato(FamilieHendelseDato.forFødsel(termindato, null))
-            .build());
+            .build();
 
         // Act/Assert
-        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).bosattVurderingsintervall(ref))
+        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).bosattVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(LocalDate.now().minus(BOSATT_TILBAKE), maxdato));
-        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref))
+        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(skjæringstidspunkt, maxdato));
     }
 
@@ -229,16 +238,17 @@ class MedlemskapVurderingPeriodeTjenesteTest {
         var behandling = ScenarioMorSøkerForeldrepenger.forAdopsjon()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagMocked();
 
-        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
+        var ref = BehandlingReferanse.fra(behandling);
+        var stp =  Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(omsorgsdato)
             .medUttaksintervall(new LocalDateInterval(omsorgsdato, maxdato))
             .medFamilieHendelseDato(FamilieHendelseDato.forAdopsjonOmsorg(omsorgsdato))
-            .build());
+            .build();
 
         // Act/Assert
-        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).bosattVurderingsintervall(ref))
+        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).bosattVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(omsorgsdato.minus(BOSATT_TILBAKE), maxdato));
-        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref))
+        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(omsorgsdato, maxdato));
     }
 
@@ -252,16 +262,17 @@ class MedlemskapVurderingPeriodeTjenesteTest {
         var behandling = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagMocked();
 
-        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
+        var ref = BehandlingReferanse.fra(behandling);
+        var stp = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(skjæringstidspunkt)
             .medUttaksintervall(new LocalDateInterval(skjæringstidspunkt, maxdato))
             .medFamilieHendelseDato(FamilieHendelseDato.forFødsel(termindato, null))
-            .build());
+            .build();
 
         // Act/Assert
-        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).bosattVurderingsintervall(ref))
+        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).bosattVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(skjæringstidspunkt.minus(BOSATT_TILBAKE), maxdato));
-        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref))
+        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(skjæringstidspunkt, maxdato));
     }
 
@@ -274,16 +285,17 @@ class MedlemskapVurderingPeriodeTjenesteTest {
         var behandling = ScenarioMorSøkerForeldrepenger.forAdopsjon()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagMocked();
 
-        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
+        var ref = BehandlingReferanse.fra(behandling);
+        var stp = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(omsorgsdato)
             .medUttaksintervall(new LocalDateInterval(omsorgsdato, maxdato))
             .medFamilieHendelseDato(FamilieHendelseDato.forAdopsjonOmsorg(omsorgsdato))
-            .build());
+            .build();
 
         // Act/Assert
-        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).fortsattBosattVurderingsintervall(ref))
+        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).fortsattBosattVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(omsorgsdato, maxdato));
-        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref))
+        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(omsorgsdato, maxdato));
     }
 
@@ -297,16 +309,17 @@ class MedlemskapVurderingPeriodeTjenesteTest {
         var behandling = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger()
             .medBehandlingType(BehandlingType.REVURDERING).lagMocked();
 
-        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
+        var ref = BehandlingReferanse.fra(behandling);
+        var stp = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(skjæringstidspunkt)
             .medUttaksintervall(new LocalDateInterval(skjæringstidspunkt, maxdato))
             .medFamilieHendelseDato(FamilieHendelseDato.forFødsel(termindato, null))
-            .build());
+            .build();
 
         // Act/Assert
-        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).fortsattBosattVurderingsintervall(ref))
+        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).fortsattBosattVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(skjæringstidspunkt, maxdato));
-        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref))
+        assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(skjæringstidspunkt, maxdato));
     }
 

@@ -100,11 +100,11 @@ class DatoerGrunnlagByggerTest {
     }
 
     private UttakInput lagInput(Behandling behandling, FamilieHendelse bekreftetFamilieHendelse) {
-        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(førsteUttaksdato).build());
+        var ref = BehandlingReferanse.fra(behandling);
         var familieHendelser = new FamilieHendelser().medBekreftetHendelse(bekreftetFamilieHendelse);
         YtelsespesifiktGrunnlag ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
             familieHendelser);
-        return new UttakInput(ref, null, ytelsespesifiktGrunnlag);
+        return new UttakInput(ref, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(førsteUttaksdato).build(), null, ytelsespesifiktGrunnlag);
     }
 
     private Behandling scenarioMedDatoer(AbstractTestScenario<?> scenario,

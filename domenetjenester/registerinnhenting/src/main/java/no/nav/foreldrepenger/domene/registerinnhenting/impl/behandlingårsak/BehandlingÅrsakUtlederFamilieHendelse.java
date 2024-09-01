@@ -4,9 +4,9 @@ import java.util.Collections;
 import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 
@@ -14,13 +14,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 @GrunnlagRef(FamilieHendelseGrunnlagEntitet.ENTITY_NAME)
 class BehandlingÅrsakUtlederFamilieHendelse implements BehandlingÅrsakUtleder {
 
-    @Inject
     public BehandlingÅrsakUtlederFamilieHendelse() {
         //For CDI
     }
 
     @Override
-    public Set<EndringResultatType> utledEndringsResultat(BehandlingReferanse ref, Object grunnlagId1, Object grunnlagId2) {
+    public Set<EndringResultatType> utledEndringsResultat(BehandlingReferanse ref, Skjæringstidspunkt stp, Object grunnlagId1, Object grunnlagId2) {
         return Collections.singleton(EndringResultatType.REGISTEROPPLYSNING);
     }
 }

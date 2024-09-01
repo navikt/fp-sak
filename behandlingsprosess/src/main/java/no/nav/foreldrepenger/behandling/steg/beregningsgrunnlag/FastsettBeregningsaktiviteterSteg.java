@@ -67,8 +67,8 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
 
     private Optional<AksjonspunktResultat> skalVentePåSykemelding(Behandling behandling) {
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-        var referanse = BehandlingReferanse.fra(behandling, stp);
-        var ventefrist = sykemeldingVentTjeneste.skalVentePåSykemelding(referanse);
+        var referanse = BehandlingReferanse.fra(behandling);
+        var ventefrist = sykemeldingVentTjeneste.skalVentePåSykemelding(referanse, stp);
         if (ventefrist.isEmpty()) {
             return Optional.empty();
         }

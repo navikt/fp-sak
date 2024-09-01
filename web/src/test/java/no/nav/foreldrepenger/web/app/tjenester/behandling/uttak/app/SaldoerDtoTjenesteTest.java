@@ -197,8 +197,8 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             .medFørsteUttaksdato(skjæringstidspunkt)
             .medUtenMinsterett(true)
             .medKreverSammenhengendeUttak(false);
-        return new UttakInput(BehandlingReferanse.fra(behandling, stp.build()),
-            InntektArbeidYtelseGrunnlagBuilder.nytt().build(), fpGrunnlag(annenpart, skjæringstidspunkt, antallBarn));
+        return new UttakInput(BehandlingReferanse.fra(behandling), stp.build(),
+                InntektArbeidYtelseGrunnlagBuilder.nytt().build(), fpGrunnlag(annenpart, skjæringstidspunkt, antallBarn));
     }
 
     private UttakInput input(Behandling behandling, ForeldrepengerGrunnlag fpGrunnlag, LocalDate skjæringstidspunkt) {
@@ -207,8 +207,8 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             .medFørsteUttaksdato(skjæringstidspunkt)
             .medUtenMinsterett(true)
             .medKreverSammenhengendeUttak(false);
-        return new UttakInput(BehandlingReferanse.fra(behandling, stp.build()),
-            InntektArbeidYtelseGrunnlagBuilder.nytt().build(), fpGrunnlag);
+        return new UttakInput(BehandlingReferanse.fra(behandling), stp.build(),
+                InntektArbeidYtelseGrunnlagBuilder.nytt().build(), fpGrunnlag);
     }
 
     private UttakInput inputFAB(Behandling behandling, ForeldrepengerGrunnlag fpGrunnlag, LocalDate skjæringstidspunkt) {
@@ -217,8 +217,8 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             .medFørsteUttaksdato(skjæringstidspunkt)
             .medUtenMinsterett(false)
             .medKreverSammenhengendeUttak(false);
-        return new UttakInput(BehandlingReferanse.fra(behandling, stp.build()),
-            InntektArbeidYtelseGrunnlagBuilder.nytt().build(), fpGrunnlag);
+        return new UttakInput(BehandlingReferanse.fra(behandling), stp.build(),
+                InntektArbeidYtelseGrunnlagBuilder.nytt().build(), fpGrunnlag);
     }
 
     private UttakInput input(Behandling behandling, LocalDate skjæringstidspunkt) {

@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.uttak;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
@@ -17,7 +18,8 @@ public final class TidsperiodeFarRundtFødsel {
 
     public static Optional<LocalDateInterval> intervallFarRundtFødsel(UttakInput uttakInput) {
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
-        return intervallFarRundtFødsel(fpGrunnlag.getFamilieHendelser(), uttakInput.getBehandlingReferanse().getSkjæringstidspunkt().utenMinsterett());
+        var utenMinsterett = Optional.ofNullable(uttakInput.getSkjæringstidspunkt()).filter(Skjæringstidspunkt::utenMinsterett).isPresent();
+        return intervallFarRundtFødsel(fpGrunnlag.getFamilieHendelser(), utenMinsterett);
     }
 
     public static Optional<LocalDateInterval> intervallFarRundtFødsel(FamilieHendelser familieHendelser, boolean utenMinsterett) {

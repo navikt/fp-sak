@@ -70,7 +70,7 @@ class AvklarteDatoerTjenesteTest {
     private UttakInput input(Behandling behandling, LocalDate termindato, LocalDate fødselsdato) {
         YtelsespesifiktGrunnlag ytelsespesifiktGrunnlag = new SvangerskapspengerGrunnlag().medFamilieHendelse(
             FamilieHendelse.forFødsel(termindato, fødselsdato, List.of(new Barn()), 1));
-        return new UttakInput(lagReferanse(behandling), null, ytelsespesifiktGrunnlag);
+        return new UttakInput(lagReferanse(behandling), null, null, ytelsespesifiktGrunnlag);
     }
 
     private BehandlingReferanse lagReferanse(Behandling behandling) {

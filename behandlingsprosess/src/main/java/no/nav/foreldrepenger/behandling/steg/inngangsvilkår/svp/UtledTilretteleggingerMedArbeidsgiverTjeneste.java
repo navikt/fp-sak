@@ -54,7 +54,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
         }
 
         var stp = skjæringstidspunkt.getUtledetSkjæringstidspunkt();
-        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(BehandlingReferanse.fra(behandling, skjæringstidspunkt), stp);
+        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(BehandlingReferanse.fra(behandling), skjæringstidspunkt, stp);
         var iayGrunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
         var arbeidsforholdInformasjonOpt = iayGrunnlag.getArbeidsforholdInformasjon();
         var aktørArbeidFraRegisterOpt = iayGrunnlag.getAktørArbeidFraRegister(behandling.getAktørId());

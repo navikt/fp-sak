@@ -57,7 +57,7 @@ class OmsorgsvilkårOppdatererTest {
         var dto = new OmsorgsvilkårAksjonspunktDto("begrunnelse", true, "-");
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         var omsorgsvilkarOppdaterer = new OmsorgsvilkårAksjonspunktOppdaterer.OmsorgsvilkårOppdaterer(mockHistory, scenario.mockBehandlingRepository());
-        var resultat = omsorgsvilkarOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto,
+        var resultat = omsorgsvilkarOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto,
             aksjonspunkt));
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
@@ -94,7 +94,7 @@ class OmsorgsvilkårOppdatererTest {
         var dto = new Foreldreansvarsvilkår1AksjonspunktDto("begrunnelse", true, "-");
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         var oppdaterer = new OmsorgsvilkårAksjonspunktOppdaterer.Foreldreansvarsvilkår1Oppdaterer(mockHistory, scenario.mockBehandlingRepository());
-        var resultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+        var resultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
         var historikkInnslag = tekstBuilder.build(historikkinnslag);
@@ -128,7 +128,7 @@ class OmsorgsvilkårOppdatererTest {
         var dto = new Foreldreansvarsvilkår2AksjonspunktDto("begrunnelse", false, Avslagsårsak.IKKE_FORELDREANSVAR_ALENE_ETTER_BARNELOVA.getKode());
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         var oppdaterer = new OmsorgsvilkårAksjonspunktOppdaterer.Foreldreansvarsvilkår2Oppdaterer(mockHistory, scenario.mockBehandlingRepository());
-        var resultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+        var resultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
         var historikkInnslag = tekstBuilder.build(historikkinnslag);

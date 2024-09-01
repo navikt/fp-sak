@@ -40,19 +40,20 @@ public abstract class OpptjeningFaktaStegFelles implements BehandlingSteg {
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandlingId = kontekst.getBehandlingId();
         var behandling = repositoryProvider.getBehandlingRepository().hentBehandling(behandlingId);
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId));
-
+        var ref = BehandlingReferanse.fra(behandling);
         var resultat = opptjeningsVilkårTjeneste.vurderOpptjeningsVilkår(ref);
         if (VilkårUtfallType.OPPFYLT.equals(resultat.utfallType())) {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
 
-        var resultatOppgitt = aksjonspunktutlederOppgitt.utledAksjonspunkterFor(new AksjonspunktUtlederInput(ref));
+        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
+
+        var resultatOppgitt = aksjonspunktutlederOppgitt.utledAksjonspunkterFor(new AksjonspunktUtlederInput(ref, stp));
         if (!resultatOppgitt.isEmpty()) {
             return BehandleStegResultat.utførtMedAksjonspunktResultater(resultatOppgitt);
         }
 
-        var resultatRegister = aksjonspunktutlederBekreftet.utledAksjonspunkterFor(new AksjonspunktUtlederInput(ref));
+        var resultatRegister = aksjonspunktutlederBekreftet.utledAksjonspunkterFor(new AksjonspunktUtlederInput(ref, stp));
         return BehandleStegResultat.utførtMedAksjonspunktResultater(resultatRegister);
     }
 }

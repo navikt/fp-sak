@@ -100,7 +100,7 @@ public class ForvaltningStønadsstatistikkRestTjeneste {
             return null;
         }
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-        return stønadsstatistikkTjeneste.genererVedtak(BehandlingReferanse.fra(behandling, stp));
+        return stønadsstatistikkTjeneste.genererVedtak(BehandlingReferanse.fra(behandling), stp);
     }
 
     @POST

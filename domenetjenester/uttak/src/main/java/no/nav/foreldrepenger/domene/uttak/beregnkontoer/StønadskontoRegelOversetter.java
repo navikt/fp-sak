@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
@@ -27,6 +28,7 @@ public class StønadskontoRegelOversetter {
     private static final LocalDate START_FPSAK = LocalDate.of(2019, Month.JANUARY, 1);
 
     public static BeregnKontoerGrunnlag tilRegelmodell(YtelseFordelingAggregat ytelseFordelingAggregat,
+                                                       Skjæringstidspunkt skjæringstidspunkt,
                                                        Dekningsgrad dekningsgrad,
                                                        Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
                                                        ForeldrepengerGrunnlag fpGrunnlag,
@@ -49,7 +51,7 @@ public class StønadskontoRegelOversetter {
 
 
         leggTilFamileHendelseDatoer(grunnlagBuilder, familieHendelse, fpGrunnlag.getFamilieHendelser().gjelderTerminFødsel());
-        utledRegelvalgsdato(ref, dekningsgrad, familieHendelse).ifPresent(grunnlagBuilder::regelvalgsdato);
+        utledRegelvalgsdato(skjæringstidspunkt, dekningsgrad, familieHendelse).ifPresent(grunnlagBuilder::regelvalgsdato);
         return grunnlagBuilder
             .build();
     }
@@ -91,9 +93,9 @@ public class StønadskontoRegelOversetter {
      *
      * Ikrafttredelsesmekanismer kan også foreligge her
      */
-    private static Optional<LocalDate> utledRegelvalgsdato(BehandlingReferanse ref, Dekningsgrad dekningsgrad, FamilieHendelse familieHendelse) {
+    private static Optional<LocalDate> utledRegelvalgsdato(Skjæringstidspunkt skjæringstidspunkt, Dekningsgrad dekningsgrad, FamilieHendelse familieHendelse) {
         if (familieHendelse.getFamilieHendelseDato().isBefore(START_FPSAK) && dekningsgrad.isÅtti()) {
-            return ref.getUtledetSkjæringstidspunktHvisUtledet().filter(stp -> !stp.isBefore(START_FPSAK));
+            return Optional.ofNullable(skjæringstidspunkt).flatMap(Skjæringstidspunkt::getSkjæringstidspunktHvisUtledet).filter(stp -> !stp.isBefore(START_FPSAK));
         }
         return Optional.empty();
     }

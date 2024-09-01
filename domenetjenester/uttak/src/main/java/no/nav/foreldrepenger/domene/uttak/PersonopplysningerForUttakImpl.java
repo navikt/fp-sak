@@ -47,11 +47,10 @@ public class PersonopplysningerForUttakImpl implements PersonopplysningerForUtta
     }
 
     @Override
-    public boolean ektefelleHarSammeBosted(BehandlingReferanse ref) {
-        var forPeriode = Optional.ofNullable(ref.getSkjæringstidspunkt())
-            .flatMap(Skjæringstidspunkt::getUttaksintervall)
+    public boolean ektefelleHarSammeBosted(BehandlingReferanse ref, Skjæringstidspunkt skjæringstidspunkt) {
+        var forPeriode = skjæringstidspunkt.getUttaksintervall()
             .map(intervall -> DatoIntervallEntitet.fraOgMedTilOgMed(intervall.getFomDato(), intervall.getTomDato()))
-            .orElseGet(() -> DatoIntervallEntitet.enDag(ref.getUtledetSkjæringstidspunkt()));
+            .orElseGet(() -> DatoIntervallEntitet.enDag(skjæringstidspunkt.getUtledetSkjæringstidspunkt()));
         var personopplysningerAggregat = personopplysningTjeneste.hentPersonopplysninger(ref);
 
 
@@ -60,11 +59,10 @@ public class PersonopplysningerForUttakImpl implements PersonopplysningerForUtta
     }
 
     @Override
-    public boolean annenpartHarSammeBosted(BehandlingReferanse ref) {
-        var forPeriode = Optional.ofNullable(ref.getSkjæringstidspunkt())
-            .flatMap(Skjæringstidspunkt::getUttaksintervall)
+    public boolean annenpartHarSammeBosted(BehandlingReferanse ref, Skjæringstidspunkt skjæringstidspunkt) {
+        var forPeriode = skjæringstidspunkt.getUttaksintervall()
             .map(intervall -> DatoIntervallEntitet.fraOgMedTilOgMed(intervall.getFomDato(), intervall.getTomDato()))
-            .orElseGet(() -> DatoIntervallEntitet.enDag(ref.getUtledetSkjæringstidspunkt()));
+            .orElseGet(() -> DatoIntervallEntitet.enDag(skjæringstidspunkt.getUtledetSkjæringstidspunkt()));
         var personopplysningerAggregat = personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref).orElseThrow();
 
         var annenPart = personopplysningerAggregat.getAnnenPart().map(PersonopplysningEntitet::getAktørId);
@@ -73,11 +71,11 @@ public class PersonopplysningerForUttakImpl implements PersonopplysningerForUtta
     }
 
     @Override
-    public boolean barnHarSammeBosted(BehandlingReferanse ref) {
-        var forPeriode = Optional.ofNullable(ref.getSkjæringstidspunkt())
+    public boolean barnHarSammeBosted(BehandlingReferanse ref, Skjæringstidspunkt skjæringstidspunkt) {
+        var forPeriode = Optional.ofNullable(skjæringstidspunkt)
             .flatMap(Skjæringstidspunkt::getUttaksintervall)
             .map(intervall -> DatoIntervallEntitet.fraOgMedTilOgMed(intervall.getFomDato(), intervall.getTomDato()))
-            .orElseGet(() -> DatoIntervallEntitet.enDag(ref.getUtledetSkjæringstidspunkt()));
+            .orElseGet(() -> DatoIntervallEntitet.enDag(skjæringstidspunkt.getUtledetSkjæringstidspunkt()));
         var personopplysningerAggregat = personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref).orElseThrow();
         var barnRelasjoner = personopplysningerAggregat.getSøkersRelasjoner()
             .stream()

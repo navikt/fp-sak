@@ -84,7 +84,7 @@ public class SøknadDtoTjeneste {
     }
 
     private SoknadDto getSøknadDto(Behandling behandling, SøknadEntitet søknad) {
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
+        var ref = BehandlingReferanse.fra(behandling);
         var fhGrunnlag = familieHendelseRepository.hentAggregat(behandling.getId());
         if (fhGrunnlag.getSøknadVersjon().getGjelderFødsel()) {
             return lagSoknadFodselDto(søknad, fhGrunnlag.getSøknadVersjon(), ref);

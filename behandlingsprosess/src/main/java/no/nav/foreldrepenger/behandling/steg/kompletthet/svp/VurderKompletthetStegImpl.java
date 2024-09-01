@@ -46,18 +46,18 @@ public class VurderKompletthetStegImpl implements VurderKompletthetSteg {
         var behandlingId = kontekst.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
+        var ref = BehandlingReferanse.fra(behandling);
 
         if (skalPassereKompletthet(behandling) || kanPassereKompletthet(behandling)) {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
 
-        var søknadMottatt = kompletthetsjekker.vurderSøknadMottattForTidlig(ref);
+        var søknadMottatt = kompletthetsjekker.vurderSøknadMottattForTidlig(skjæringstidspunkter);
         if (!søknadMottatt.erOppfylt()) {
             return VurderKompletthetStegFelles.evaluerUoppfylt(søknadMottatt, VENT_PGA_FOR_TIDLIG_SØKNAD);
         }
 
-        var forsendelseMottatt = kompletthetsjekker.vurderForsendelseKomplett(ref);
+        var forsendelseMottatt = kompletthetsjekker.vurderForsendelseKomplett(ref, skjæringstidspunkter);
         if (!forsendelseMottatt.erOppfylt() && !VurderKompletthetStegFelles.autopunktAlleredeUtført(AUTO_VENTER_PÅ_KOMPLETT_SØKNAD, behandling)) {
             return VurderKompletthetStegFelles.evaluerUoppfylt(forsendelseMottatt, AUTO_VENTER_PÅ_KOMPLETT_SØKNAD);
         }

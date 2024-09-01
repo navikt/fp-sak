@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.fpinntektsmelding;
 
 import jakarta.enterprise.context.ApplicationScoped;
-
 import jakarta.inject.Inject;
 
 import org.slf4j.Logger;
@@ -45,7 +44,7 @@ public class FpinntektsmeldingTask extends GenerellProsessTask {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var arbeidsgiverIdent = prosessTaskData.getPropertyValue(ARBEIDSGIVER_KEY);
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
-        var ref = BehandlingReferanse.fra(behandling, stp);
-        fpInntektsmeldingTjeneste.lagForespørsel(arbeidsgiverIdent, ref);
+        var ref = BehandlingReferanse.fra(behandling);
+        fpInntektsmeldingTjeneste.lagForespørsel(arbeidsgiverIdent, ref, stp);
     }
 }

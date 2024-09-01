@@ -35,7 +35,7 @@ class YtelserGrunnlagByggerTest {
 
     @Test
     void tom_ytelser_hvis_ikke_pleiepenger() {
-        var input = new UttakInput(lagBehandlingReferanse(), iay(), new ForeldrepengerGrunnlag());
+        var input = new UttakInput(lagBehandlingReferanse(), null, iay(), new ForeldrepengerGrunnlag());
 
         var ytelser = new YtelserGrunnlagBygger().byggGrunnlag(input);
         assertThat(ytelser.pleiepenger()).isEmpty();
@@ -64,7 +64,7 @@ class YtelserGrunnlagByggerTest {
                     .build())
                 .medKilde(Fagsystem.K9SAK)
                 .medYtelseType(RelatertYtelseType.PLEIEPENGER_SYKT_BARN));
-        var input = new UttakInput(lagBehandlingReferanse(), iay(aktørYtelseBuilder),
+        var input = new UttakInput(lagBehandlingReferanse(), null, iay(aktørYtelseBuilder),
             new ForeldrepengerGrunnlag().medPleiepengerGrunnlag(pleiepengerGrunnlag));
 
         var ytelser = new YtelserGrunnlagBygger().byggGrunnlag(input);
@@ -94,7 +94,7 @@ class YtelserGrunnlagByggerTest {
                     .build())
                 .medKilde(Fagsystem.K9SAK)
                 .medYtelseType(RelatertYtelseType.PLEIEPENGER_SYKT_BARN));
-        var input = new UttakInput(lagBehandlingReferanse(), iay(aktørYtelseBuilder), new ForeldrepengerGrunnlag());
+        var input = new UttakInput(lagBehandlingReferanse(), null, iay(aktørYtelseBuilder), new ForeldrepengerGrunnlag());
 
         var ytelser = new YtelserGrunnlagBygger().byggGrunnlag(input);
 
@@ -126,7 +126,6 @@ class YtelserGrunnlagByggerTest {
             BehandlingType.FØRSTEGANGSSØKNAD,
             5432L,
             null,
-            RelasjonsRolleType.MORA,
-            null);
+            RelasjonsRolleType.MORA);
     }
 }

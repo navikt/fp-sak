@@ -99,8 +99,9 @@ class PersonopplysningerForUttakImplTest {
         var personopplysninger = new PersonopplysningerForUttakImpl(personopplysningTjeneste);
 
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(new UttakRepositoryStubProvider());
-        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now())
-            .medUttaksintervall(new LocalDateInterval(LocalDate.now().minusYears(1), LocalDate.now())).build());
+        var ref = BehandlingReferanse.fra(behandling);
+        var stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now())
+            .medUttaksintervall(new LocalDateInterval(LocalDate.now().minusYears(1), LocalDate.now())).build();
 
         var aktørId = behandling.getAktørId();
         var ekteFelleAktørId = AktørId.dummy();
@@ -120,7 +121,7 @@ class PersonopplysningerForUttakImplTest {
         var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagBuilder.build(), aktørId);
         when(personopplysningTjeneste.hentPersonopplysninger(ref)).thenReturn(personopplysningerAggregat);
 
-        assertThat(personopplysninger.ektefelleHarSammeBosted(ref)).isTrue();
+        assertThat(personopplysninger.ektefelleHarSammeBosted(ref, stp)).isTrue();
     }
 
     @Test

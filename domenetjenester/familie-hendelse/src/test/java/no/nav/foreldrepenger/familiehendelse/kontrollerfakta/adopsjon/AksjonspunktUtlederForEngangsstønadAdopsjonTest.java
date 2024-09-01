@@ -47,7 +47,7 @@ class AksjonspunktUtlederForEngangsstønadAdopsjonTest {
     }
 
     private AksjonspunktUtlederInput lagInput(Behandling behandling) {
-        return new AksjonspunktUtlederInput(BehandlingReferanse.fra(behandling));
+        return new AksjonspunktUtlederInput(BehandlingReferanse.fra(behandling), null);
     }
 
     private List<AksjonspunktResultat> aksjonspunktForFaktaForMor() {

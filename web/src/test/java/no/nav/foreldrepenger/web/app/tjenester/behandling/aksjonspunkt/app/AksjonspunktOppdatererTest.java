@@ -99,7 +99,7 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
                 behandlingDokumentRepository);
 
         // Act
-        foreslaVedtakAksjonspunktOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto));
+        foreslaVedtakAksjonspunktOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
 
         // Assert
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
@@ -130,7 +130,7 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
                 behandlingDokumentRepository);
 
         // Act
-        foreslaVedtakAksjonspunktOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto));
+        foreslaVedtakAksjonspunktOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
 
         // Assert
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
@@ -158,7 +158,7 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
 
         var aksjonspunktDto = new FatterVedtakAksjonspunktDto("", Collections.singletonList(aksGodkjDto));
         new FatterVedtakAksjonspunktOppdaterer(fatterVedtakAksjonspunkt).oppdater(aksjonspunktDto,
-                new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), aksjonspunktDto, null));
+                new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), aksjonspunktDto, null));
 
         var totrinnsvurderinger = totrinnRepository.hentTotrinnaksjonspunktvurderinger(behandling.getId());
         assertThat(totrinnsvurderinger).hasSize(1);
@@ -187,7 +187,7 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
 
         var aksjonspunktDto = new FatterVedtakAksjonspunktDto("", Collections.singletonList(aksGodkjDto));
         new FatterVedtakAksjonspunktOppdaterer(fatterVedtakAksjonspunkt).oppdater(aksjonspunktDto,
-                new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), aksjonspunktDto, null));
+                new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), aksjonspunktDto, null));
 
         var totrinnsvurderinger = totrinnRepository.hentTotrinnaksjonspunktvurderinger(behandling.getId());
         assertThat(totrinnsvurderinger).hasSize(1);

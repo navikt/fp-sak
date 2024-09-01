@@ -51,7 +51,7 @@ class InngangsvilkårGrunnlagByggerTest {
     }
 
     private UttakInput input(Behandling behandling) {
-        return new UttakInput(BehandlingReferanse.fra(behandling), null, null);
+        return new UttakInput(BehandlingReferanse.fra(behandling), null, null, null);
     }
 
     @Test

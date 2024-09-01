@@ -14,6 +14,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
@@ -109,11 +110,11 @@ public class VurderLøpendeMedlemskap {
     private Map<LocalDate, MedlemskapsvilkårGrunnlag> lagGrunnlag(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        var ref = BehandlingReferanse.fra(behandling);
 
         var medlemskap = medlemskapRepository.hentMedlemskap(behandlingId);
         var vurdertMedlemskapPeriode = medlemskap.flatMap(MedlemskapAggregat::getVurderingLøpendeMedlemskap);
-        var vurderingsdatoerListe = utledVurderingsdatoerMedlemskap.finnVurderingsdatoer(ref)
+        var vurderingsdatoerListe = utledVurderingsdatoerMedlemskap.finnVurderingsdatoer(ref, skjæringstidspunkt)
             .stream()
             .sorted(LocalDate::compareTo)
             .toList();
@@ -124,10 +125,10 @@ public class VurderLøpendeMedlemskap {
 
         var map = mapVurderingFraSaksbehandler(vurdertMedlemskapPeriode);
 
+        var personopplysningerAggregat = personopplysningTjeneste.hentPersonopplysninger(ref);
         Map<LocalDate, MedlemskapsvilkårGrunnlag> resulatat = new TreeMap<>();
         for (var vurderingsdato : vurderingsdatoerListe) {
             var vurdertOpt = Optional.ofNullable(map.get(vurderingsdato));
-            var personopplysningerAggregat = personopplysningTjeneste.hentPersonopplysninger(ref);
 
             // // FP VK 2.13
             var vurdertErMedlem = brukerErMedlemEllerIkkeRelevantPeriode(medlemskap, vurdertOpt, personopplysningerAggregat, vurderingsdato);
@@ -140,9 +141,9 @@ public class VurderLøpendeMedlemskap {
 
             var grunnlag = new MedlemskapsvilkårGrunnlag(
                 tilPersonStatusType(personopplysningerAggregat, vurderingsdato), // FP VK 2.1
-                brukerNorskNordisk(personopplysningerAggregat, vurderingsdato, ref.getUtledetSkjæringstidspunkt()), // FP VK 2.11
+                brukerNorskNordisk(personopplysningerAggregat, vurderingsdato, skjæringstidspunkt.getUtledetSkjæringstidspunkt()), // FP VK 2.11
                 vurdertOpt.map(v -> defaultValueTrue(v.getErEøsBorger())).orElse(true), // FP VIK 2.12
-                harOppholdstillatelsePåDato(ref, vurderingsdato),
+                harOppholdstillatelsePåDato(ref, skjæringstidspunkt, vurderingsdato),
                 finnOmSøkerHarArbeidsforholdOgInntekt(behandling, vurderingsdato),
                 vurdertErMedlem,
                 avklartPliktigEllerFrivillig,
@@ -270,9 +271,9 @@ public class VurderLøpendeMedlemskap {
     }
 
 
-    public boolean harOppholdstillatelsePåDato(BehandlingReferanse ref, LocalDate vurderingsdato) {
-        if (ref.getUtledetMedlemsintervall().encloses(vurderingsdato)) {
-            return personopplysningTjeneste.harOppholdstillatelseForPeriode(ref.behandlingId(), ref.getUtledetMedlemsintervall());
+    public boolean harOppholdstillatelsePåDato(BehandlingReferanse ref, Skjæringstidspunkt stp, LocalDate vurderingsdato) {
+        if (stp.getUttaksintervall().filter(i -> i.encloses(vurderingsdato)).isPresent()) {
+            return personopplysningTjeneste.harOppholdstillatelseForPeriode(ref.behandlingId(), stp.getUttaksintervall().orElseThrow());
         }
         return personopplysningTjeneste.harOppholdstillatelsePåDato(ref.behandlingId(), vurderingsdato);
     }

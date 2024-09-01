@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @BehandlingStegRef(BehandlingStegType.FORESLÅ_BEHANDLINGSRESULTAT)
 @FagsakYtelseTypeRef
@@ -25,8 +24,7 @@ class ForeslåBehandlingsresultatStegFørstegang extends ForeslåBehandlingsresu
 
     @Inject
     ForeslåBehandlingsresultatStegFørstegang(BehandlingRepositoryProvider repositoryProvider,
-            @Any Instance<ForeslåBehandlingsresultatTjeneste> foreslåBehandlingsresultatTjeneste,
-            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
-        super(repositoryProvider, foreslåBehandlingsresultatTjeneste, skjæringstidspunktTjeneste);
+            @Any Instance<ForeslåBehandlingsresultatTjeneste> foreslåBehandlingsresultatTjeneste) {
+        super(repositoryProvider, foreslåBehandlingsresultatTjeneste);
     }
 }

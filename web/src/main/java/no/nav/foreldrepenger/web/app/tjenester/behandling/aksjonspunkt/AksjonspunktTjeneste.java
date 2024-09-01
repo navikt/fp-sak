@@ -15,7 +15,6 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktKode;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
@@ -48,7 +47,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat.Builder;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
@@ -71,7 +69,6 @@ public class AksjonspunktTjeneste {
 
     private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
 
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private BehandlingEventPubliserer behandlingEventPubliserer;
 
     public AksjonspunktTjeneste() {
@@ -82,13 +79,11 @@ public class AksjonspunktTjeneste {
     public AksjonspunktTjeneste(BehandlingRepositoryProvider repositoryProvider,
                                 BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                 BehandlingsprosessTjeneste behandlingsprosessTjeneste,
-                                SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                 HistorikkTjenesteAdapter historikkTjenesteAdapter,
                                 HenleggBehandlingTjeneste henleggBehandlingTjeneste,
                                 BehandlingEventPubliserer behandlingEventPubliserer) {
 
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
-        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.historikkTjenesteAdapter = historikkTjenesteAdapter;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
@@ -105,9 +100,7 @@ public class AksjonspunktTjeneste {
 
         spoolTilbakeTilTidligsteAksjonspunkt(bekreftedeAksjonspunktDtoer, kontekst);
 
-        var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
-
-        var overhoppResultat = bekreftAksjonspunkter(kontekst, bekreftedeAksjonspunktDtoer, behandling, skjæringstidspunkter);
+        var overhoppResultat = bekreftAksjonspunkter(kontekst, bekreftedeAksjonspunktDtoer, behandling);
 
         historikkTjenesteAdapter.opprettHistorikkInnslag(behandling.getId(), HistorikkinnslagType.FAKTA_ENDRET);
 
@@ -326,8 +319,7 @@ public class AksjonspunktTjeneste {
 
     private OverhoppResultat bekreftAksjonspunkter(BehandlingskontrollKontekst kontekst,
                                                    Collection<BekreftetAksjonspunktDto> bekreftedeAksjonspunktDtoer,
-                                                   Behandling behandling,
-                                                   Skjæringstidspunkt skjæringstidspunkter) {
+                                                   Behandling behandling) {
 
         var overhoppResultat = OverhoppResultat.tomtResultat();
 
@@ -336,7 +328,7 @@ public class AksjonspunktTjeneste {
             : VilkårResultat.builder();
 
         bekreftedeAksjonspunktDtoer
-            .forEach(dto -> bekreftAksjonspunkt(kontekst, behandling, skjæringstidspunkter, vilkårBuilder, overhoppResultat, dto));
+            .forEach(dto -> bekreftAksjonspunkt(kontekst, behandling, vilkårBuilder, overhoppResultat, dto));
 
         var vilkårResultat = vilkårBuilder.buildFor(behandling);
         behandlingRepository.lagre(vilkårResultat, kontekst.getSkriveLås());
@@ -349,16 +341,14 @@ public class AksjonspunktTjeneste {
     }
 
     private void bekreftAksjonspunkt(BehandlingskontrollKontekst kontekst,
-                                     Behandling behandling,
-                                     Skjæringstidspunkt skjæringstidspunkter,
-                                     Builder vilkårBuilder,
+                                     Behandling behandling, Builder vilkårBuilder,
                                      OverhoppResultat overhoppResultat,
                                      BekreftetAksjonspunktDto dto) {
         // Endringskontroll for aksjonspunkt
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
         var oppdaterer = finnAksjonspunktOppdaterer(dto.getClass(), dto.getAksjonspunktDefinisjon());
-        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, skjæringstidspunkter), dto, aksjonspunkt);
+        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt);
         var delresultat = oppdaterer.oppdater(dto, param);
         overhoppResultat.leggTil(delresultat);
         byggVilkårResultat(vilkårBuilder, delresultat);

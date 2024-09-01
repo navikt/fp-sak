@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderEntitet;
@@ -42,7 +43,7 @@ public class AvklaringFaktaMedlemskap {
         this.personopplysningTjeneste = personopplysningTjeneste;
     }
 
-    public Optional<MedlemResultat> utled(BehandlingReferanse ref, Behandling behandling, LocalDate vurderingsdato) {
+    public Optional<MedlemResultat> utled(BehandlingReferanse ref, Skjæringstidspunkt stp, Behandling behandling, LocalDate vurderingsdato) {
         var behandlingId = behandling.getId();
         var medlemskap = medlemskapRepository.hentMedlemskap(behandlingId);
 
@@ -57,7 +58,7 @@ public class AvklaringFaktaMedlemskap {
                 return Optional.empty();
             }
             if (erUnntatt(vurderingsdato, medlemskapPerioder) == JA) {
-                if (harStatsborgerskapUSAellerPNG(personopplysninger, ref.getUtledetSkjæringstidspunkt()) == JA) {
+                if (harStatsborgerskapUSAellerPNG(personopplysninger, stp.getUtledetSkjæringstidspunkt()) == JA) {
                     if (harStatusUtvandret(personopplysninger, vurderingsdato) == JA) {
                         return Optional.empty();
                     }
@@ -74,11 +75,11 @@ public class AvklaringFaktaMedlemskap {
             if (harStatusUtvandret(personopplysninger, vurderingsdato) == JA) {
                 return Optional.empty();
             }
-            if (harOppholdstilltatelseVed(ref, vurderingsdato) == JA) {
+            if (harOppholdstilltatelseVed(ref, stp, vurderingsdato) == JA) {
                 return Optional.empty();
             }
-            var erEtterSkjæringstidspunkt = vurderingsdato.isAfter(ref.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt());
-            var region = statsborgerskap(personopplysninger, vurderingsdato, ref.getUtledetSkjæringstidspunkt());
+            var erEtterSkjæringstidspunkt = vurderingsdato.isAfter(stp.getUtledetSkjæringstidspunkt());
+            var region = statsborgerskap(personopplysninger, vurderingsdato, stp.getUtledetSkjæringstidspunkt());
             return switch (region) {
                 case EØS -> harInntektSiste3mnd(ref, vurderingsdato) == JA || erEtterSkjæringstidspunkt ? Optional.empty() : Optional.of(MedlemResultat.AVKLAR_OPPHOLDSRETT);
                 case TREDJE_LANDS_BORGER -> Optional.of(MedlemResultat.AVKLAR_LOVLIG_OPPHOLD);
@@ -97,9 +98,9 @@ public class AvklaringFaktaMedlemskap {
         };
     }
 
-    private Utfall harOppholdstilltatelseVed(BehandlingReferanse ref, LocalDate vurderingsdato) {
-        if (ref.getUtledetMedlemsintervall().encloses(vurderingsdato)) {
-            return personopplysningTjeneste.harOppholdstillatelseForPeriode(ref.behandlingId(), ref.getUtledetMedlemsintervall()) ? JA : NEI;
+    private Utfall harOppholdstilltatelseVed(BehandlingReferanse ref, Skjæringstidspunkt stp, LocalDate vurderingsdato) {
+        if (stp.getUttaksintervall().filter(i -> i.encloses(vurderingsdato)).isPresent()) {
+            return personopplysningTjeneste.harOppholdstillatelseForPeriode(ref.behandlingId(), stp.getUttaksintervall().orElseThrow()) ? JA : NEI;
         }
         return personopplysningTjeneste.harOppholdstillatelsePåDato(ref.behandlingId(), vurderingsdato) ? JA : NEI;
     }

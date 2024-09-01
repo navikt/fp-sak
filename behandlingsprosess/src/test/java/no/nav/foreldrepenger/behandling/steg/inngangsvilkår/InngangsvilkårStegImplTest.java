@@ -10,7 +10,6 @@ import static no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTrans
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -46,7 +45,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.inngangsvilkaar.RegelOrkestrerer;
 import no.nav.foreldrepenger.inngangsvilkaar.RegelResultat;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsvilkårResultat;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 class InngangsvilkårStegImplTest {
@@ -77,7 +75,7 @@ class InngangsvilkårStegImplTest {
 
         var val = new RegelResultat(behandling.getBehandlingsresultat().getVilkårResultat(), emptyList(), emptyMap());
         when(regelOrkestrerer.vurderInngangsvilkår(eq(Set.of(medlVilkårType)), any(), any())).thenReturn(val);
-        var inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(regelOrkestrerer, mock(SkjæringstidspunktTjeneste.class));
+        var inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(regelOrkestrerer);
         // Act
         var stegResultat = new SutMedlemskapsvilkårSteg(repositoryProvider, inngangsvilkårFellesTjeneste).utførSteg(kontekst);
 
@@ -107,7 +105,7 @@ class InngangsvilkårStegImplTest {
 
         var val = lagRegelResultatOpptjening(behandling);
         when(regelOrkestrerer.vurderInngangsvilkår(eq(Set.of(oppVilkårType)), any(), any())).thenReturn(val);
-        var inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(regelOrkestrerer, mock(SkjæringstidspunktTjeneste.class));
+        var inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(regelOrkestrerer);
         // Act
         var stegResultat = new SutOpptjeningSteg(repositoryProvider, inngangsvilkårFellesTjeneste)
                 .utførSteg(kontekst);
@@ -147,7 +145,7 @@ class InngangsvilkårStegImplTest {
 
         var val = lagRegelResultatOpptjening(revurdering);
         when(regelOrkestrerer.vurderInngangsvilkår(eq(Set.of(oppVilkårType)), any(), any())).thenReturn(val);
-        var inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(regelOrkestrerer, mock(SkjæringstidspunktTjeneste.class));
+        var inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(regelOrkestrerer);
         // Act
         var stegResultat = new SutOpptjeningSteg(repositoryProvider, inngangsvilkårFellesTjeneste)
                 .utførSteg(kontekst);
@@ -193,7 +191,7 @@ class InngangsvilkårStegImplTest {
 
         var val = new RegelResultat(revurdering.getBehandlingsresultat().getVilkårResultat(), emptyList(), emptyMap());
         when(regelOrkestrerer.vurderInngangsvilkår(eq(Set.of(oppVilkårType, medlVilkårType)), any(), any())).thenReturn(val);
-        var inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(regelOrkestrerer, mock(SkjæringstidspunktTjeneste.class));
+        var inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(regelOrkestrerer);
         // Act
         var stegResultat = new SutOpptjeningOgMedlVilkårSteg(repositoryProvider, inngangsvilkårFellesTjeneste).utførSteg(kontekst);
 
@@ -230,7 +228,7 @@ class InngangsvilkårStegImplTest {
         when(regelOrkestrerer.vurderInngangsvilkår(eq(Set.of(oppVilkårType, medlVilkårType)), any(), any())).thenReturn(val);
         var behrepo = revurderingsscenario.mockBehandlingRepository();
         when(behrepo.hentBehandling(førstegangsbehandling.getId())).thenReturn(førstegangsbehandling);
-        var inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(regelOrkestrerer, mock(SkjæringstidspunktTjeneste.class));
+        var inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(regelOrkestrerer);
         // Act
         var stegResultat = new SutOpptjeningOgMedlVilkårSteg(repositoryProvider, inngangsvilkårFellesTjeneste).utførSteg(kontekst);
 
@@ -273,7 +271,7 @@ class InngangsvilkårStegImplTest {
 
         var val = new RegelResultat(revurdering2.getBehandlingsresultat().getVilkårResultat(), emptyList(), emptyMap());
         when(regelOrkestrerer.vurderInngangsvilkår(eq(Set.of(oppVilkårType, medlVilkårType)), any(), any())).thenReturn(val);
-        var inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(regelOrkestrerer, mock(SkjæringstidspunktTjeneste.class));
+        var inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(regelOrkestrerer);
         var behrepo = andreRevurderingsscenario.mockBehandlingRepository();
         when(behrepo.hentBehandling(førstegangsbehandling.getId())).thenReturn(førstegangsbehandling);
         when(behrepo.hentBehandling(revurdering1.getId())).thenReturn(revurdering1);
@@ -297,7 +295,7 @@ class InngangsvilkårStegImplTest {
                 .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         var kontekst = new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(),
                 repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
-        var inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(regelOrkestrerer, mock(SkjæringstidspunktTjeneste.class));
+        var inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(regelOrkestrerer);
         // Act
         new SutMedlemskapsvilkårSteg(repositoryProvider, inngangsvilkårFellesTjeneste)
                 .vedTransisjon(kontekst, modell, BehandlingSteg.TransisjonType.HOPP_OVER_BAKOVER, null, null);
@@ -324,7 +322,7 @@ class InngangsvilkårStegImplTest {
         var mockMedlemskapRepository = scenario.mockBehandlingRepositoryProvider().getMedlemskapRepository();
         var kontekst = new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(),
                 repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
-        var inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(regelOrkestrerer, mock(SkjæringstidspunktTjeneste.class));
+        var inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(regelOrkestrerer);
         // Act
         new SutMedlemskapsvilkårSteg(repositoryProvider, inngangsvilkårFellesTjeneste)
                 .vedTransisjon(kontekst, modell, BehandlingSteg.TransisjonType.HOPP_OVER_FRAMOVER, null, null);

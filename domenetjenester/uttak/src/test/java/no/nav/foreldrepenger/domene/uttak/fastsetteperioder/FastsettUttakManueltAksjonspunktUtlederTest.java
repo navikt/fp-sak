@@ -57,7 +57,7 @@ class FastsettUttakManueltAksjonspunktUtlederTest {
     private UttakInput lagInput(Behandling behandling, boolean dødsfall) {
         var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medDødsfall(dødsfall).medFamilieHendelser(
             new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(LocalDate.now(), null, List.of(), 1)));
-        return new UttakInput(BehandlingReferanse.fra(behandling), iayTjeneste.hentGrunnlag(behandling.getId()), ytelsespesifiktGrunnlag);
+        return new UttakInput(BehandlingReferanse.fra(behandling), null, iayTjeneste.hentGrunnlag(behandling.getId()), ytelsespesifiktGrunnlag);
     }
 
     @Test

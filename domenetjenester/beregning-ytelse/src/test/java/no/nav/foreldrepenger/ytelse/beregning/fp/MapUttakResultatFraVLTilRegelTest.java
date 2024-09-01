@@ -101,8 +101,8 @@ class MapUttakResultatFraVLTilRegelTest {
     }
 
     private UttakInput lagRef(Behandling behandling) {
-        return new UttakInput(BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build()),
-            null, null);
+        return new UttakInput(BehandlingReferanse.fra(behandling), Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build(),
+                null, null);
     }
 
     @Test
@@ -196,7 +196,7 @@ class MapUttakResultatFraVLTilRegelTest {
                 arbeidsgiver, arbeidsforholdRef);
         }).collect(Collectors.toSet());
 
-        return new UttakInput(BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build()), iayGrunnlag, null).medBeregningsgrunnlagStatuser(bgStatuser);
+        return new UttakInput(BehandlingReferanse.fra(behandling), Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build(), iayGrunnlag, null).medBeregningsgrunnlagStatuser(bgStatuser);
     }
 
     @Test

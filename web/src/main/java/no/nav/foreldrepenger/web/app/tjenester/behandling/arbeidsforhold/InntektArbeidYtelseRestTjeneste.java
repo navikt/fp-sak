@@ -27,7 +27,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -146,16 +145,9 @@ public class InntektArbeidYtelseRestTjeneste {
     }
 
     private IAYYtelseDto getYtelserFraBehandling(Behandling behandling) {
-        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-
-        if (erSkjæringstidspunktIkkeUtledet(skjæringstidspunkt)) {
-            // Tilfelle papirsøknad før registrering
-            return new IAYYtelseDto();
-        }
-
         // finn annen part
         var annenPartAktørId = getAnnenPart(behandling.getId());
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        var ref = BehandlingReferanse.fra(behandling);
         return iayTjeneste.finnGrunnlag(behandling.getId())
             .map(iayg -> ytelseMapper.mapFra(ref, iayg, annenPartAktørId))
             .orElseGet(IAYYtelseDto::new);
@@ -163,10 +155,6 @@ public class InntektArbeidYtelseRestTjeneste {
 
     private Optional<AktørId> getAnnenPart(Long behandlingId) {
         return personopplysningTjeneste.hentOppgittAnnenPartAktørId(behandlingId);
-    }
-
-    private boolean erSkjæringstidspunktIkkeUtledet(Skjæringstidspunkt skjæringstidspunkt) {
-        return skjæringstidspunkt == null || skjæringstidspunkt.getSkjæringstidspunktHvisUtledet().isEmpty();
     }
 
     @GET
@@ -177,9 +165,9 @@ public class InntektArbeidYtelseRestTjeneste {
                                                           @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        var ref = BehandlingReferanse.fra(behandling);
         return iayTjeneste.finnGrunnlag(behandling.getId())
-            .map(g -> alleInntektsmeldingerMapper.mapInntektsmeldinger(ref, g))
+            .map(g -> alleInntektsmeldingerMapper.mapInntektsmeldinger(ref, skjæringstidspunkt, g))
             .orElseGet(() -> new InntektsmeldingerDto(List.of()));
     }
 
@@ -191,9 +179,7 @@ public class InntektArbeidYtelseRestTjeneste {
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
 
-        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-
-        if (erSkjæringstidspunktIkkeUtledet(skjæringstidspunkt)) {
+        if (!behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.REGISTRER_SØKNAD)) {
             return new ArbeidsgiverOversiktDto();
         }
 

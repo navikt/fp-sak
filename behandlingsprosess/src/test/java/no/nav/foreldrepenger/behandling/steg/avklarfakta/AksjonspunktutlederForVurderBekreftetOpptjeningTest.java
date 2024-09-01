@@ -67,9 +67,8 @@ class AksjonspunktutlederForVurderBekreftetOpptjeningTest extends EntityManagerA
     }
 
     private AksjonspunktUtlederInput lagInput(Behandling behandling) {
-        var ref = BehandlingReferanse.fra(behandling,
-                Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
-        return new AksjonspunktUtlederInput(ref);
+        var ref = BehandlingReferanse.fra(behandling);
+        return new AksjonspunktUtlederInput(ref, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
     }
 
     @Test

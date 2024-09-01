@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
@@ -39,11 +40,11 @@ public class AvklarOmSøkerOppholderSegINorge {
         this.personopplysningTjeneste = personopplysningTjeneste;
     }
 
-    public Optional<MedlemResultat> utledVedSTP(BehandlingReferanse ref) {
-        var vurderingstidspunkt = ref.getUtledetSkjæringstidspunkt();
+    public Optional<MedlemResultat> utledVedSTP(BehandlingReferanse ref, Skjæringstidspunkt stp) {
+        var vurderingstidspunkt = stp.getUtledetSkjæringstidspunkt();
         var behandlingId = ref.behandlingId();
         var personopplysninger = personopplysningTjeneste.hentPersonopplysninger(ref);
-        var region = getRegion(ref, personopplysninger);
+        var region = getRegion(ref, stp, personopplysninger);
         if (harFødselsdato(behandlingId) == JA || harDatoForOmsorgsovertakelse(behandlingId) == JA) {
             return Optional.empty();
         }
@@ -53,7 +54,7 @@ public class AvklarOmSøkerOppholderSegINorge {
         if (erGiftMedNordiskBorger(personopplysninger, vurderingstidspunkt) == JA || erGiftMedBorgerMedANNETStatsborgerskap(personopplysninger, vurderingstidspunkt) == JA) {
             return Optional.empty();
         }
-        if (harOppholdstilltatelseVed(ref, vurderingstidspunkt) == JA) {
+        if (harOppholdstilltatelseVed(ref, stp, vurderingstidspunkt) == JA) {
             return Optional.empty();
         }
         if (harSøkerHattInntektINorgeDeSiste3Mnd(ref, vurderingstidspunkt) == JA) {
@@ -135,14 +136,14 @@ public class AvklarOmSøkerOppholderSegINorge {
     }
 
 
-    private Utfall harOppholdstilltatelseVed(BehandlingReferanse ref, LocalDate vurderingsdato) {
-        if (ref.getUtledetMedlemsintervall().encloses(vurderingsdato)) {
-            return personopplysningTjeneste.harOppholdstillatelseForPeriode(ref.behandlingId(), ref.getUtledetMedlemsintervall()) ? JA : NEI;
+    private Utfall harOppholdstilltatelseVed(BehandlingReferanse ref, Skjæringstidspunkt stp, LocalDate vurderingsdato) {
+        if (stp.getUttaksintervall().filter(i -> i.encloses(vurderingsdato)).isPresent()) {
+            return personopplysningTjeneste.harOppholdstillatelseForPeriode(ref.behandlingId(), stp.getUttaksintervall().orElseThrow()) ? JA : NEI;
         }
         return personopplysningTjeneste.harOppholdstillatelsePåDato(ref.behandlingId(), vurderingsdato) ? JA : NEI;
     }
 
-    private Region getRegion(BehandlingReferanse ref, PersonopplysningerAggregat personopplysninger) {
-        return personopplysninger.getStatsborgerskapRegionVedSkjæringstidspunkt(ref.aktørId(), ref.getUtledetSkjæringstidspunkt());
+    private Region getRegion(BehandlingReferanse ref, Skjæringstidspunkt stp, PersonopplysningerAggregat personopplysninger) {
+        return personopplysninger.getStatsborgerskapRegionVedSkjæringstidspunkt(ref.aktørId(), stp.getUtledetSkjæringstidspunkt());
     }
 }

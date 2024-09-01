@@ -77,12 +77,12 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
         var behandlingId = kontekst.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
+        var ref = BehandlingReferanse.fra(behandling);
 
         oppdaterFagsakEgenskaper(behandling);
 
         if (!skalPassereUtenBrevEtterlysInntektsmelding(behandling)) {
-            var etterlysIM = kompletthetModell.vurderKompletthet(ref, List.of(AUTO_VENT_ETTERLYST_INNTEKTSMELDING));
+            var etterlysIM = kompletthetModell.vurderKompletthet(ref, skjæringstidspunkter, List.of(AUTO_VENT_ETTERLYST_INNTEKTSMELDING));
             // Dette autopunktet har tilbakehopp/gjenopptak. Går ut av steget hvis auto utført før frist (manuelt av vent).
             // Utført på/etter frist antas automatisk gjenopptak.
             if (!etterlysIM.erOppfylt() && !etterlysIM.erFristUtløpt() &&

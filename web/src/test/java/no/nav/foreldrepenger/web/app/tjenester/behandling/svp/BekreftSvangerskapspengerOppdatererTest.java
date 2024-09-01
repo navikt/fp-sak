@@ -14,8 +14,6 @@ import java.util.Optional;
 
 import jakarta.persistence.EntityManager;
 
-import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,6 +54,7 @@ import no.nav.foreldrepenger.domene.registerinnhenting.StønadsperioderInnhenter
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
+import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
 
 @ExtendWith(MockitoExtension.class)
@@ -118,7 +117,7 @@ class BekreftSvangerskapspengerOppdatererTest {
             List.of(new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO.plusWeeks(1), TilretteleggingType.INGEN_TILRETTELEGGING, null)),
             null);
 
-        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto);
+        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto);
 
         oppdaterer.oppdater(dto, param);
 
@@ -154,7 +153,7 @@ class BekreftSvangerskapspengerOppdatererTest {
                 null)),
             null);
 
-        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto);
+        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto);
 
         var resultat = oppdaterer.oppdater(dto, param);
 
@@ -178,7 +177,7 @@ class BekreftSvangerskapspengerOppdatererTest {
             List.of(new SvpTilretteleggingDatoDto(TLR_FRA_2, TilretteleggingType.INGEN_TILRETTELEGGING, null),
                 new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO, TilretteleggingType.DELVIS_TILRETTELEGGING, BigDecimal.valueOf(50))),
             null);
-        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto);
+        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto);
 
         var resultat = oppdaterer.oppdater(dto, param);
 
@@ -200,7 +199,7 @@ class BekreftSvangerskapspengerOppdatererTest {
             List.of(new SvpTilretteleggingDatoDto(TLR_FRA_2, TilretteleggingType.INGEN_TILRETTELEGGING, null),
                 new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO, TilretteleggingType.DELVIS_TILRETTELEGGING, BigDecimal.valueOf(50))),
             null);
-        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto);
+        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto);
 
         var resultat = oppdaterer.oppdater(dto, param);
 
@@ -226,7 +225,7 @@ class BekreftSvangerskapspengerOppdatererTest {
             List.of(new SvpAvklartOppholdPeriodeDto(BEHOV_FRA_DATO,BEHOV_FRA_DATO.plusWeeks(1), SvpOppholdÅrsak.SYKEPENGER, false ),
                 new SvpAvklartOppholdPeriodeDto(TLR_FRA_2, TLR_FRA_2.plusWeeks(3), SvpOppholdÅrsak.FERIE, false)));
 
-        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto);
+        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto);
 
         var resultat = oppdaterer.oppdater(dto, param);
 
@@ -248,7 +247,7 @@ class BekreftSvangerskapspengerOppdatererTest {
             new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO, TilretteleggingType.DELVIS_TILRETTELEGGING, BigDecimal.valueOf(50))),
             List.of(new SvpAvklartOppholdPeriodeDto(BEHOV_FRA_DATO, BEHOV_FRA_DATO.plusWeeks(1), SvpOppholdÅrsak.SYKEPENGER, false),
             new SvpAvklartOppholdPeriodeDto(TLR_FRA_2, TLR_FRA_2.plusWeeks(4), SvpOppholdÅrsak.FERIE, false)));
-        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto);
+        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto);
 
         var resultat = oppdaterer.oppdater(dto, param);
 
@@ -269,7 +268,7 @@ class BekreftSvangerskapspengerOppdatererTest {
             List.of(new SvpTilretteleggingDatoDto(TLR_FRA_2, TilretteleggingType.INGEN_TILRETTELEGGING, null),
                 new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO, TilretteleggingType.DELVIS_TILRETTELEGGING, BigDecimal.valueOf(50))),
             Collections.emptyList());
-        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto);
+        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto);
 
         var resultat = oppdaterer.oppdater(dto, param);
 
@@ -288,7 +287,7 @@ class BekreftSvangerskapspengerOppdatererTest {
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_SVP_TILRETTELEGGING,
             BehandlingStegType.VURDER_TILRETTELEGGING);
         var behandling = scenario.lagre(repositoryProvider);
-        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto);
+        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto);
 
         assertThatThrownBy(() -> oppdaterer.oppdater(dto, param)).isInstanceOf(FunksjonellException.class)
             .hasMessageContaining("FP-682318");
@@ -308,7 +307,7 @@ class BekreftSvangerskapspengerOppdatererTest {
             List.of(new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO.plusWeeks(1), TilretteleggingType.DELVIS_TILRETTELEGGING, null)),
             null);
 
-        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto);
+        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto);
         assertDoesNotThrow(() -> oppdaterer.oppdater(dto, param));
     }
 

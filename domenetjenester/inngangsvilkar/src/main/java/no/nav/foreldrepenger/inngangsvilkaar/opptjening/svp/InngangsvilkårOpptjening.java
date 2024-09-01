@@ -30,6 +30,7 @@ public class InngangsvilkårOpptjening implements Inngangsvilkår {
 
     @Override
     public VilkårData vurderVilkår(BehandlingReferanse ref) {
+
         // returner egen output i tillegg for senere lagring
         return opptjeningsVilkårTjeneste.vurderOpptjeningsVilkår(ref);
     }

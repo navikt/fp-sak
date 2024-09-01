@@ -10,13 +10,13 @@ public class MapBehandlingRef {
     private MapBehandlingRef() {
     }
 
-    public static KoblingReferanse mapRef(BehandlingReferanse behandlingReferanse) {
+    public static KoblingReferanse mapRef(BehandlingReferanse behandlingReferanse, no.nav.foreldrepenger.behandling.Skjæringstidspunkt stp) {
         return KoblingReferanse.fra(KodeverkTilKalkulusMapper.mapFagsakytelsetype(behandlingReferanse.fagsakYtelseType()),
             new AktørId(behandlingReferanse.aktørId().getId()),
             behandlingReferanse.behandlingId(),
             behandlingReferanse.behandlingUuid(),
             behandlingReferanse.getOriginalBehandlingId(),
-            mapSkjæringstidspunkt(behandlingReferanse.getSkjæringstidspunkt()));
+            mapSkjæringstidspunkt(stp));
     }
 
     private static Skjæringstidspunkt mapSkjæringstidspunkt(no.nav.foreldrepenger.behandling.Skjæringstidspunkt skjæringstidspunkt) {

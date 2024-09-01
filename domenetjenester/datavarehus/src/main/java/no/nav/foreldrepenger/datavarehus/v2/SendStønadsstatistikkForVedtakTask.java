@@ -51,7 +51,7 @@ public class SendStønadsstatistikkForVedtakTask extends GenerellProsessTask {
             throw new IllegalStateException("Prøver å sende stønadsstatistikk på en behandling som ikke er ytelsebehandling eller er henlagt");
         }
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-        var vedtak = stønadsstatistikkTjeneste.genererVedtak(BehandlingReferanse.fra(behandling, stp));
+        var vedtak = stønadsstatistikkTjeneste.genererVedtak(BehandlingReferanse.fra(behandling), stp);
 
         valider(vedtak);
         var header = new KafkaSender.KafkaHeader("stønadstype", vedtak.getYtelseType().name().getBytes());

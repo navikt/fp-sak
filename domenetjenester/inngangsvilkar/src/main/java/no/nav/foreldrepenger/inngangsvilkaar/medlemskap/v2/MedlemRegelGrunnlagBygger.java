@@ -13,6 +13,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
@@ -59,21 +60,21 @@ class MedlemRegelGrunnlagBygger {
         //CDI
     }
 
-    MedlemInngangsvilkårRegelGrunnlag lagRegelGrunnlagInngangsvilkår(BehandlingReferanse behandlingRef) {
-        var vurderingsperiodeBosatt = vurderingPeriodeTjeneste.bosattVurderingsintervall(behandlingRef);
-        var vurderingsperiodeLovligOpphold = vurderingPeriodeTjeneste.lovligOppholdVurderingsintervall(behandlingRef);
+    MedlemInngangsvilkårRegelGrunnlag lagRegelGrunnlagInngangsvilkår(BehandlingReferanse behandlingRef, Skjæringstidspunkt skjæringstidspunkt) {
+        var vurderingsperiodeBosatt = vurderingPeriodeTjeneste.bosattVurderingsintervall(behandlingRef, skjæringstidspunkt);
+        var vurderingsperiodeLovligOpphold = vurderingPeriodeTjeneste.lovligOppholdVurderingsintervall(behandlingRef, skjæringstidspunkt);
         var registrertMedlemskapPerioder = hentMedlemskapPerioder(behandlingRef)
             .stream().map(MedlemFortsattRegelGrunnlag.RegisterMedlemskapBeslutning::interval)
             .collect(Collectors.toSet());
         var opplysningsperiode = SimpleLocalDateInterval.fraOgMedTomNotNull(
             LocalDateInterval.min(vurderingsperiodeBosatt.getFomDato(), vurderingsperiodeLovligOpphold.getFomDato()),
             LocalDateInterval.max(vurderingsperiodeBosatt.getTomDato(), vurderingsperiodeLovligOpphold.getTomDato()));
-        var personopplysningGrunnlag = hentPersonopplysninger(behandlingRef, opplysningsperiode);
+        var personopplysningGrunnlag = hentPersonopplysninger(behandlingRef, skjæringstidspunkt, opplysningsperiode);
         var søknad = hentSøknad(behandlingRef);
         var arbeid =  inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingRef.behandlingId())
             .map(iay -> new MedlemInngangsvilkårRegelGrunnlag.Arbeid(hentAnsettelsePerioder(iay, behandlingRef), hentInntekt(iay, behandlingRef)))
             .orElse(new MedlemInngangsvilkårRegelGrunnlag.Arbeid(Set.of(), Set.of()));
-        var utledetSkjæringstidspunkt = behandlingRef.getUtledetSkjæringstidspunkt();
+        var utledetSkjæringstidspunkt = skjæringstidspunkt.getUtledetSkjæringstidspunkt();
         var behandlingsdato = LocalDate.now();
         var grunnbeløp = new MedlemInngangsvilkårRegelGrunnlag.Beløp(BigDecimal.valueOf(satsRepository.finnGjeldendeSats(BeregningSatsType.GRUNNBELØP).getVerdi()));
 
@@ -81,12 +82,12 @@ class MedlemRegelGrunnlagBygger {
             personopplysningGrunnlag, søknad, arbeid, utledetSkjæringstidspunkt, behandlingsdato, grunnbeløp);
     }
 
-    MedlemFortsattRegelGrunnlag lagRegelGrunnlagFortsattMedlem(BehandlingReferanse behandlingRef) {
-        var vurderingsperiode = vurderingPeriodeTjeneste.fortsattBosattVurderingsintervall(behandlingRef);
+    MedlemFortsattRegelGrunnlag lagRegelGrunnlagFortsattMedlem(BehandlingReferanse behandlingRef, Skjæringstidspunkt skjæringstidspunkt) {
+        var vurderingsperiode = vurderingPeriodeTjeneste.fortsattBosattVurderingsintervall(behandlingRef, skjæringstidspunkt);
         var registrertMedlemskapPerioder = hentMedlemskapPerioder(behandlingRef);
         var opplysningsperiode = SimpleLocalDateInterval.fraOgMedTomNotNull(vurderingsperiode.getFomDato().minusDays(1),
             vurderingsperiode.getTomDato()); //minus 1 dag her for at fortsatt medlem må ha gjeldende personstatus ved start av vurderingsperioden
-        var personopplysningGrunnlag = hentPersonopplysninger(behandlingRef, opplysningsperiode);
+        var personopplysningGrunnlag = hentPersonopplysninger(behandlingRef, skjæringstidspunkt, opplysningsperiode);
         var iay = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingRef.behandlingId());
         var arbeid = new MedlemFortsattRegelGrunnlag.Arbeid(hentAnsettelsePerioder(iay, behandlingRef));
 
@@ -133,10 +134,10 @@ class MedlemRegelGrunnlagBygger {
             .collect(Collectors.toSet());
     }
 
-    private Personopplysninger hentPersonopplysninger(BehandlingReferanse behandlingRef, AbstractLocalDateInterval opplysningsperiode) {
+    private Personopplysninger hentPersonopplysninger(BehandlingReferanse behandlingRef, Skjæringstidspunkt stp, AbstractLocalDateInterval opplysningsperiode) {
         var personopplysningerAggregat = personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(behandlingRef).orElseThrow();
         var aktørId = behandlingRef.aktørId();
-        var regioner = personopplysningerAggregat.getStatsborgerskapRegionIInterval(aktørId, opplysningsperiode, behandlingRef.getUtledetSkjæringstidspunkt())
+        var regioner = personopplysningerAggregat.getStatsborgerskapRegionIInterval(aktørId, opplysningsperiode, stp.getUtledetSkjæringstidspunkt())
             .stream()
             .map(s -> new RegionPeriode(s.getLocalDateInterval(), map(s.getValue())))
             .collect(Collectors.toSet());

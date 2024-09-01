@@ -11,7 +11,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.es.RevurderingEndringImpl;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -65,10 +64,7 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
     }
 
     private void foreslåBehandlingsresultat(Behandling behandling) {
-        var ref = BehandlingReferanse.fra(behandling,
-                Skjæringstidspunkt.builder()
-                        .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
-                        .build());
+        var ref = BehandlingReferanse.fra(behandling);
         foreslåVedtaTjenesteES.foreslåBehandlingsresultat(ref);
     }
 

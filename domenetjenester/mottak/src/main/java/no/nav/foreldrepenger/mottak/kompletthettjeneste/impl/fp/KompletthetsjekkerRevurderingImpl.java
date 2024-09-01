@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -53,13 +54,13 @@ public class KompletthetsjekkerRevurderingImpl implements Kompletthetsjekker {
     }
 
     @Override
-    public KompletthetResultat vurderSøknadMottattForTidlig(BehandlingReferanse ref) {
+    public KompletthetResultat vurderSøknadMottattForTidlig(Skjæringstidspunkt stp) {
         // Ikke relevant for revurdering - denne kontrollen er allerede håndtert av førstegangsbehandlingen
         return KompletthetResultat.oppfylt();
     }
 
     @Override
-    public KompletthetResultat vurderForsendelseKomplett(BehandlingReferanse ref) {
+    public KompletthetResultat vurderForsendelseKomplett(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var behandling = fellesUtil.hentBehandling(ref.behandlingId());
         if (SpesialBehandling.skalGrunnlagBeholdes(behandling)) {
             return KompletthetResultat.oppfylt();

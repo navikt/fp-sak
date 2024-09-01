@@ -7,6 +7,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakRepository;
@@ -29,7 +30,7 @@ class StartpunktUtlederNesteSak implements StartpunktUtleder {
     }
 
     @Override
-    public StartpunktType utledStartpunkt(BehandlingReferanse ref, Object grunnlagId1, Object grunnlagId2) {
+    public StartpunktType utledStartpunkt(BehandlingReferanse ref, Skjæringstidspunkt stp, Object grunnlagId1, Object grunnlagId2) {
         var startdato1 = Optional.ofNullable(nesteSakRepository.hentGrunnlagPåId((Long)grunnlagId1))
             .map(NesteSakGrunnlagEntitet::getStartdato).orElse(null);
         var startdato2 =Optional.ofNullable(nesteSakRepository.hentGrunnlagPåId((Long)grunnlagId2))

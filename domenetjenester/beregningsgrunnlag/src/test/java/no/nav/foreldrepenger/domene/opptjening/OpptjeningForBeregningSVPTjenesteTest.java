@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 class OpptjeningForBeregningSVPTjenesteTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT_OPPTJENING = LocalDate.of(2018, 12, 12);
+    private static final Skjæringstidspunkt STP = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING).build();
 
     private final InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
     private final List<OpptjeningsperiodeForSaksbehandling> opptjeningsperioder = new ArrayList<>();
@@ -42,8 +43,8 @@ class OpptjeningForBeregningSVPTjenesteTest {
     public void setUp() {
         var behandling= ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
         var opptjeningsperioderTjeneste = mock(OpptjeningsperioderUtenOverstyringTjeneste.class);
-        behandlingReferanse = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING).build());
-        when(opptjeningsperioderTjeneste.mapPerioderForSaksbehandling(any(), any(), any())).thenReturn(
+        behandlingReferanse = BehandlingReferanse.fra(behandling);
+        when(opptjeningsperioderTjeneste.mapPerioderForSaksbehandling(any(), any(), any(), any())).thenReturn(
             opptjeningsperioder);
         var opptjening = new Opptjening(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusDays(28),
             SKJÆRINGSTIDSPUNKT_OPPTJENING.minusDays(1));
@@ -54,7 +55,7 @@ class OpptjeningForBeregningSVPTjenesteTest {
     @Test
     void skal_returnere_empty() {
         var relevante = opptjeningForBeregningTjeneste.hentRelevanteOpptjeningsaktiviteterForBeregning(
-            behandlingReferanse, null);
+            behandlingReferanse, STP, null);
         assertThat(relevante).isEmpty();
     }
 
@@ -68,7 +69,7 @@ class OpptjeningForBeregningSVPTjenesteTest {
 
         // Act
         var relevante = opptjeningForBeregningTjeneste.hentRelevanteOpptjeningsaktiviteterForBeregning(
-            behandlingReferanse, iayTjeneste.hentGrunnlag(behandlingReferanse.behandlingId()));
+            behandlingReferanse, STP, iayTjeneste.hentGrunnlag(behandlingReferanse.behandlingId()));
 
         // Assert
         assertThat(relevante).hasSize(1);
@@ -82,7 +83,7 @@ class OpptjeningForBeregningSVPTjenesteTest {
 
         // Act
         var relevante = opptjeningForBeregningTjeneste.hentRelevanteOpptjeningsaktiviteterForBeregning(
-            behandlingReferanse, InntektArbeidYtelseGrunnlagBuilder.nytt().build());
+            behandlingReferanse, STP, InntektArbeidYtelseGrunnlagBuilder.nytt().build());
 
         // Assert
         assertThat(relevante).hasSize(1);
@@ -97,7 +98,7 @@ class OpptjeningForBeregningSVPTjenesteTest {
 
         // Act
         var relevante = opptjeningForBeregningTjeneste.hentRelevanteOpptjeningsaktiviteterForBeregning(
-            behandlingReferanse, InntektArbeidYtelseGrunnlagBuilder.nytt().build());
+            behandlingReferanse, STP, InntektArbeidYtelseGrunnlagBuilder.nytt().build());
 
         // Assert
         assertThat(relevante).hasSize(2);
@@ -112,7 +113,7 @@ class OpptjeningForBeregningSVPTjenesteTest {
 
         // Act
         var relevante = opptjeningForBeregningTjeneste.hentRelevanteOpptjeningsaktiviteterForBeregning(
-            behandlingReferanse, null);
+            behandlingReferanse, STP, null);
 
         // Assert
         assertThat(relevante).isEmpty();
@@ -125,7 +126,7 @@ class OpptjeningForBeregningSVPTjenesteTest {
 
         // Act
         var relevante = opptjeningForBeregningTjeneste.hentRelevanteOpptjeningsaktiviteterForBeregning(
-            behandlingReferanse, null);
+            behandlingReferanse, STP, null);
 
         // Assert
         assertThat(relevante).isEmpty();

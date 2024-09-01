@@ -19,6 +19,7 @@ import no.nav.folketrygdloven.kalkulator.modell.typer.InternArbeidsforholdRefDto
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.folketrygdloven.kalkulus.typer.AktørId;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -34,7 +35,7 @@ import no.nav.vedtak.konfig.Tid;
 
 public class KravperioderMapper {
 
-    public static List<KravperioderPrArbeidsforholdDto> map(BehandlingReferanse referanse,
+    public static List<KravperioderPrArbeidsforholdDto> map(BehandlingReferanse referanse, Skjæringstidspunkt stp,
                                                             Collection<Inntektsmelding> alleInntektsmeldingerPåSak,
                                                             InntektArbeidYtelseGrunnlag grunnlagDto) {
         var aktiveInntektsmeldinger = grunnlagDto.getInntektsmeldinger()
@@ -53,7 +54,7 @@ public class KravperioderMapper {
             .entrySet()
             .stream()
             .filter(e -> sisteIMPrArbeidsforhold.containsKey(e.getKey()))
-            .map(e -> mapTilKravPrArbeidsforhold(referanse, yrkesaktiviteter, sisteIMPrArbeidsforhold, e))
+            .map(e -> mapTilKravPrArbeidsforhold(referanse, stp, yrkesaktiviteter, sisteIMPrArbeidsforhold, e))
             .toList();
     }
 
@@ -74,14 +75,14 @@ public class KravperioderMapper {
         return grupperEneste(filtrerKunRefusjon(inntektsmeldinger));
     }
 
-    private static KravperioderPrArbeidsforholdDto mapTilKravPrArbeidsforhold(BehandlingReferanse referanse,
+    private static KravperioderPrArbeidsforholdDto mapTilKravPrArbeidsforhold(BehandlingReferanse referanse, Skjæringstidspunkt stp,
                                                                               Collection<Yrkesaktivitet> yrkesaktiviteter,
                                                                               Map<Kravnøkkel, Inntektsmelding> sisteIMPrArbeidsforhold,
                                                                               Map.Entry<Kravnøkkel, List<Inntektsmelding>> e) {
-        var alleTidligereKravPerioder = lagPerioderForAlle(referanse, yrkesaktiviteter, e.getValue());
+        var alleTidligereKravPerioder = lagPerioderForAlle(stp, yrkesaktiviteter, e.getValue());
         var sistePerioder = lagPerioderForKrav(
             sisteIMPrArbeidsforhold.get(e.getKey()),
-            referanse.getSkjæringstidspunkt().getSkjæringstidspunktOpptjening(),
+            stp.getSkjæringstidspunktOpptjening(),
             yrkesaktiviteter);
         return new KravperioderPrArbeidsforholdDto(
             mapTilArbeidsgiver(e.getKey().arbeidsgiver),
@@ -96,9 +97,9 @@ public class KravperioderMapper {
             : no.nav.folketrygdloven.kalkulator.modell.typer.Arbeidsgiver.virksomhet(arbeidsgiver.getOrgnr());
     }
 
-    private static List<PerioderForKravDto> lagPerioderForAlle(BehandlingReferanse referanse, Collection<Yrkesaktivitet> yrkesaktiviteter, List<Inntektsmelding> inntektsmeldinger) {
+    private static List<PerioderForKravDto> lagPerioderForAlle(Skjæringstidspunkt stp, Collection<Yrkesaktivitet> yrkesaktiviteter, List<Inntektsmelding> inntektsmeldinger) {
         return inntektsmeldinger.stream()
-            .map(im -> lagPerioderForKrav(im, referanse.getSkjæringstidspunkt().getSkjæringstidspunktOpptjening(), yrkesaktiviteter))
+            .map(im -> lagPerioderForKrav(im, stp.getSkjæringstidspunktOpptjening(), yrkesaktiviteter))
             .toList();
     }
 

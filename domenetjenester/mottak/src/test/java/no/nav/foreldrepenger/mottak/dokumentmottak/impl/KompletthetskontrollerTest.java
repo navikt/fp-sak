@@ -90,7 +90,7 @@ class KompletthetskontrollerTest {
         var ventefrist = LocalDateTime.now().plusDays(1);
 
         when(kompletthetsjekkerProvider.finnKompletthetsjekkerFor(any(), any())).thenReturn(kompletthetsjekker);
-        when(kompletthetsjekker.vurderForsendelseKomplett(any())).thenReturn(KompletthetResultat.ikkeOppfylt(ventefrist, Venteårsak.AVV_FODSEL));
+        when(kompletthetsjekker.vurderForsendelseKomplett(any(), any())).thenReturn(KompletthetResultat.ikkeOppfylt(ventefrist, Venteårsak.AVV_FODSEL));
 
         kompletthetskontroller.persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
 
@@ -106,7 +106,7 @@ class KompletthetskontrollerTest {
         var ventefrist = LocalDateTime.now().plusDays(1);
 
         when(kompletthetsjekkerProvider.finnKompletthetsjekkerFor(any(), any())).thenReturn(kompletthetsjekker);
-        when(kompletthetsjekker.vurderEtterlysningInntektsmelding(any())).thenReturn(
+        when(kompletthetsjekker.vurderEtterlysningInntektsmelding(any(), any())).thenReturn(
             KompletthetResultat.ikkeOppfylt(ventefrist, Venteårsak.AVV_FODSEL));
         lenient().when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.REGISTRER_SØKNAD)).thenReturn(true);
 
@@ -117,7 +117,7 @@ class KompletthetskontrollerTest {
         verify(behandlingProsesseringTjeneste, times(0)).opprettTasksForGjenopptaOppdaterFortsett(eq(behandling), any());
 
         // Arrange 2
-        when(kompletthetsjekker.vurderEtterlysningInntektsmelding(any())).thenReturn(KompletthetResultat.oppfylt());
+        when(kompletthetsjekker.vurderEtterlysningInntektsmelding(any(), any())).thenReturn(KompletthetResultat.oppfylt());
 
         // Act 2
         kompletthetskontroller.persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
@@ -212,8 +212,8 @@ class KompletthetskontrollerTest {
         var frist = LocalDateTime.now();
         when(kompletthetsjekker.vurderSøknadMottatt(any())).thenReturn(KompletthetResultat.oppfylt());
         when(kompletthetsjekker.vurderSøknadMottattForTidlig(any())).thenReturn(KompletthetResultat.oppfylt());
-        when(kompletthetsjekker.vurderForsendelseKomplett(any())).thenReturn(KompletthetResultat.ikkeOppfylt(frist, Venteårsak.AVV_DOK));
-        when(kompletthetsjekker.vurderEtterlysningInntektsmelding(any())).thenReturn(KompletthetResultat.oppfylt());
+        when(kompletthetsjekker.vurderForsendelseKomplett(any(), any())).thenReturn(KompletthetResultat.ikkeOppfylt(frist, Venteårsak.AVV_DOK));
+        when(kompletthetsjekker.vurderEtterlysningInntektsmelding(any(), any())).thenReturn(KompletthetResultat.oppfylt());
 
         // Act
         kompletthetskontroller.persisterKøetDokumentOgVurderKompletthet(behandling, mottattDokument, Optional.empty());

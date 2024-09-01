@@ -8,6 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
@@ -75,17 +76,17 @@ public class PersonopplysningDtoTjeneste {
         return aggregat.getStatsborgerskapRegionVedTidspunkt(personopplysning.getAktørId(), tidspunkt, stp);
     }
 
-    public Optional<PersonopplysningMedlemDto> lagPersonopplysningMedlemskapDto(BehandlingReferanse ref, LocalDate tidspunkt) {
+    public Optional<PersonopplysningMedlemDto> lagPersonopplysningMedlemskapDto(BehandlingReferanse ref,  Optional<Skjæringstidspunkt> stp, LocalDate tidspunkt) {
         return personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref)
-            .map(aggregat -> enkelMappingMedlemskap(aggregat.getSøker(), aggregat, tidspunkt, ref.getUtledetSkjæringstidspunkt()));
+            .map(aggregat -> enkelMappingMedlemskap(aggregat.getSøker(), aggregat, tidspunkt, stp.flatMap(Skjæringstidspunkt::getSkjæringstidspunktHvisUtledet)));
     }
 
-    public Optional<PersonopplysningMedlemDto> lagAnnenpartPersonopplysningMedlemskapDto(BehandlingReferanse ref, LocalDate tidspunkt) {
+    public Optional<PersonopplysningMedlemDto> lagAnnenpartPersonopplysningMedlemskapDto(BehandlingReferanse ref,  Optional<Skjæringstidspunkt> stp, LocalDate tidspunkt) {
         return personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref)
-            .flatMap(agg -> mapAnnenpartMedlemskap(agg, tidspunkt, ref.getUtledetSkjæringstidspunkt()));
+            .flatMap(agg -> mapAnnenpartMedlemskap(agg, tidspunkt, stp.flatMap(Skjæringstidspunkt::getSkjæringstidspunktHvisUtledet)));
     }
 
-    private Optional<PersonopplysningMedlemDto> mapAnnenpartMedlemskap(PersonopplysningerAggregat aggregat, LocalDate tidspunkt, LocalDate stp) {
+    private Optional<PersonopplysningMedlemDto> mapAnnenpartMedlemskap(PersonopplysningerAggregat aggregat, LocalDate tidspunkt, Optional<LocalDate> stp) {
         var oppgittAnnenPart = aggregat.getOppgittAnnenPart()
             .filter(oap -> oap.getAktørId() == null && harOppgittLand(oap));
         return oppgittAnnenPart.map(this::enkelUtenlandskAnnenPartMappingMedlemskap)
@@ -103,10 +104,10 @@ public class PersonopplysningDtoTjeneste {
     }
 
     private PersonopplysningMedlemDto enkelMappingMedlemskap(PersonopplysningEntitet personopplysning, PersonopplysningerAggregat aggregat,
-                                                             LocalDate tidspunkt, LocalDate skjæringstidspunkt) {
+                                                             LocalDate tidspunkt, Optional<LocalDate> skjæringstidspunkt) {
         var dto = new PersonopplysningMedlemDto();
         dto.setAktoerId(personopplysning.getAktørId());
-        dto.setRegion(hentRegion(personopplysning, aggregat, tidspunkt, skjæringstidspunkt));
+        dto.setRegion(hentRegion(personopplysning, aggregat, tidspunkt, skjæringstidspunkt.orElseGet(LocalDate::now)));
         dto.setPersonstatus(hentPersonstatus(personopplysning, aggregat, tidspunkt));
         dto.setAdresser(lagAddresseDto(personopplysning, aggregat, tidspunkt));
         return dto;

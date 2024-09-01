@@ -60,7 +60,7 @@ public class MedlemsvilkårOversetter {
         this.personopplysningTjeneste = personopplysningTjeneste;
     }
 
-    public MedlemskapsvilkårGrunnlag oversettTilRegelModellMedlemskap(BehandlingReferanse ref) {
+    public MedlemskapsvilkårGrunnlag oversettTilRegelModellMedlemskap(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var behandlingId = ref.behandlingId();
         var personopplysninger = personopplysningTjeneste.hentPersonopplysninger(ref);
         var iayOpt = iayTjeneste.finnGrunnlag(behandlingId);
@@ -70,21 +70,21 @@ public class MedlemsvilkårOversetter {
         var vurdertMedlemskap = medlemskap.flatMap(MedlemskapAggregat::getVurdertMedlemskap);
 
         // // FP VK 2.13
-        var vurdertErMedlem = brukerErMedlemEllerIkkeRelevantPeriode(medlemskap, personopplysninger, ref.getSkjæringstidspunkt());
+        var vurdertErMedlem = brukerErMedlemEllerIkkeRelevantPeriode(medlemskap, personopplysninger, stp);
         // FP VK 2.2 Er bruker avklart som pliktig eller frivillig medlem?
-        var avklartPliktigEllerFrivillig = erAvklartSomPliktigEllerFrivillingMedlem(medlemskap, ref.getSkjæringstidspunkt());
+        var avklartPliktigEllerFrivillig = erAvklartSomPliktigEllerFrivillingMedlem(medlemskap, stp);
         // defaulter uavklarte fakta til true
         var vurdertBosatt = vurdertMedlemskap.map(VurdertMedlemskap::getBosattVurdering).orElse(true);
         var vurdertLovligOpphold = vurdertMedlemskap.map(VurdertMedlemskap::getLovligOppholdVurdering).orElse(true);
         var vurdertOppholdsrett = vurdertMedlemskap.map(VurdertMedlemskap::getOppholdsrettVurdering).orElse(true);
 
-        var harOppholdstillatelse = personopplysningTjeneste.harOppholdstillatelseForPeriode(ref.behandlingId(), ref.getUtledetMedlemsintervall());
-        var harArbeidInntekt = FinnOmSøkerHarArbeidsforholdOgInntekt.finn(iayOpt, ref.getUtledetSkjæringstidspunkt(), ref.aktørId());
+        var harOppholdstillatelse = personopplysningTjeneste.harOppholdstillatelseForPeriode(ref.behandlingId(), stp.getUttaksintervall().orElse(null));
+        var harArbeidInntekt = FinnOmSøkerHarArbeidsforholdOgInntekt.finn(iayOpt, stp.getUtledetSkjæringstidspunkt(), ref.aktørId());
 
         return new MedlemskapsvilkårGrunnlag(
-            tilPersonStatusType(personopplysninger, ref.getUtledetSkjæringstidspunkt()), // FP VK 2.1
-            brukerNorskNordisk(personopplysninger, ref.getUtledetSkjæringstidspunkt()), // FP VK 2.11
-            brukerBorgerAvEOS(vurdertMedlemskap, personopplysninger, ref.getUtledetSkjæringstidspunkt()), // FP VIK 2.12
+            tilPersonStatusType(personopplysninger, stp.getUtledetSkjæringstidspunkt()), // FP VK 2.1
+            brukerNorskNordisk(personopplysninger, stp.getUtledetSkjæringstidspunkt()), // FP VK 2.11
+            brukerBorgerAvEOS(vurdertMedlemskap, personopplysninger, stp.getUtledetSkjæringstidspunkt()), // FP VIK 2.12
             harOppholdstillatelse,
             harArbeidInntekt,
             vurdertErMedlem,

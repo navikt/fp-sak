@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel.Fødselsvilkår
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.MedlemskapsvilkårGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.RegelPersonStatusType;
 import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerProvider;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.es.v2.Adopsjon;
 import no.nav.vedtak.felles.xml.vedtak.vilkaarsgrunnlag.es.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.vilkaarsgrunnlag.v2.Vilkaarsgrunnlag;
@@ -33,8 +32,7 @@ import no.nav.vedtak.felles.xml.vedtak.vilkaarsgrunnlag.v2.Vilkaarsgrunnlag;
 @ApplicationScoped
 public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste {
 
-    private ObjectFactory vilkårObjectFactory = new ObjectFactory();
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private final ObjectFactory vilkårObjectFactory = new ObjectFactory();
 
     public VilkårsgrunnlagXmlTjenesteImpl() {
         //For CDI
@@ -42,10 +40,8 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
 
     @Inject
     public VilkårsgrunnlagXmlTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
-                                                   KompletthetsjekkerProvider kompletthetsjekkerProvider,
-                                                   SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                                   KompletthetsjekkerProvider kompletthetsjekkerProvider) {
         super(repositoryProvider, kompletthetsjekkerProvider);
-        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
 
     }
 
@@ -191,7 +187,7 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
             elektroniskSøknad = false;
             erBarnetFødt = false;
         } else {
-            var ref = BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
+            var ref = BehandlingReferanse.fra(behandling);
             var søknad = optionalSøknad.get();
             komplettSøknad = erKomplettSøknad(ref);
             elektroniskSøknad = søknad.getElektroniskRegistrert();

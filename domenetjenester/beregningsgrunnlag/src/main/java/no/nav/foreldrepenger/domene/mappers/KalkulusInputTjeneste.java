@@ -44,23 +44,22 @@ public class KalkulusInputTjeneste {
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
     }
 
-    public KalkulatorInputDto lagKalkulusInput(BehandlingReferanse refUtenStp) {
-        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(refUtenStp.behandlingId());
-        var ref = refUtenStp.medSkjæringstidspunkt(skjæringstidspunkt);
+    public KalkulatorInputDto lagKalkulusInput(BehandlingReferanse ref) {
+        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId());
         var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.behandlingId());
 
-        var opptjeningAktiviteter = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(ref, iayGrunnlag);
+        var opptjeningAktiviteter = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(ref, skjæringstidspunkt, iayGrunnlag);
         if (opptjeningAktiviteter.isEmpty()) {
             throw new IllegalStateException(String.format("No value present: Fant ikke forventet OpptjeningAktiviteter for behandling: %s med saksnummer: %s", ref.behandlingId(), ref.saksnummer()));
         }
-        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, ref.getUtledetSkjæringstidspunkt(), iayGrunnlag, true);
-        var kravperioderDto = MapKravperioder.map(ref, inntektsmeldinger, iayGrunnlag);
+        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunkt, skjæringstidspunkt.getUtledetSkjæringstidspunkt(), iayGrunnlag, true);
+        var kravperioderDto = MapKravperioder.map(ref, skjæringstidspunkt, inntektsmeldinger, iayGrunnlag);
         var iayDto = MapIAYTilKalkulusInput.mapIAY(iayGrunnlag, inntektsmeldinger, ref);
-        var opptjeningDto = MapOpptjeningTilKalkulusInput.mapOpptjening(opptjeningAktiviteter.get(), iayGrunnlag, ref);
-        var kalkulatorInputDto = new KalkulatorInputDto(iayDto, opptjeningDto, ref.getSkjæringstidspunkt().getSkjæringstidspunktOpptjening());
+        var opptjeningDto = MapOpptjeningTilKalkulusInput.mapOpptjening(opptjeningAktiviteter.get(), iayGrunnlag, ref, skjæringstidspunkt);
+        var kalkulatorInputDto = new KalkulatorInputDto(iayDto, opptjeningDto, skjæringstidspunkt.getSkjæringstidspunktOpptjening());
         kalkulatorInputDto.medRefusjonsperioderPrInntektsmelding(kravperioderDto);
         var ytelseMapper = FagsakYtelseTypeRef.Lookup.find(ytelsegrunnlagMappere, ref.fagsakYtelseType()).orElseThrow();
-        YtelsespesifiktGrunnlagDto ytelsegrunnlag = ytelseMapper.mapYtelsegrunnlag(ref);
+        YtelsespesifiktGrunnlagDto ytelsegrunnlag = ytelseMapper.mapYtelsegrunnlag(ref, skjæringstidspunkt);
         kalkulatorInputDto.medYtelsespesifiktGrunnlag(ytelsegrunnlag);
         return kalkulatorInputDto;
     }

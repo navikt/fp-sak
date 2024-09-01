@@ -77,7 +77,7 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
         // steget skriver ned vilkåresultat)
 
         // Kall regelmotor
-        var ref = BehandlingReferanse.fra(behandling, inngangsvilkårFellesTjeneste.getSkjæringstidspunkter(behandling.getId()));
+        var ref = BehandlingReferanse.fra(behandling);
         var regelResultat = inngangsvilkårFellesTjeneste.vurderInngangsvilkår(vilkårTyper, behandling, ref);
 
         // Oppdater behandling

@@ -56,7 +56,8 @@ class UttakYrkesaktiviteterTest {
         var iayGrunnlag = InntektArbeidYtelseGrunnlagBuilder.nytt()
             .medData(iayAggregat)
             .build();
-        var input = new UttakInput(BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(dato).build()), iayGrunnlag, null)
+        var stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(dato).build();
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), stp, iayGrunnlag, null)
             .medBeregningsgrunnlagStatuser(Set.of(new BeregningsgrunnlagStatus(AktivitetStatus.ARBEIDSTAKER, arbeidsgiver, null)));
         var uttakYrkesaktiviteter = new UttakYrkesaktiviteter(input);
 
@@ -92,7 +93,8 @@ class UttakYrkesaktiviteterTest {
         var iayGrunnlag = InntektArbeidYtelseGrunnlagBuilder.nytt()
             .medData(iayAggregat)
             .build();
-        var input = new UttakInput(BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(dato).build()), iayGrunnlag, null)
+        var stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(dato).build();
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), stp, iayGrunnlag, null)
             .medBeregningsgrunnlagStatuser(Set.of(new BeregningsgrunnlagStatus(AktivitetStatus.ARBEIDSTAKER, arbeidsgiver, null)));
         var uttakYrkesaktiviteter = new UttakYrkesaktiviteter(input);
 

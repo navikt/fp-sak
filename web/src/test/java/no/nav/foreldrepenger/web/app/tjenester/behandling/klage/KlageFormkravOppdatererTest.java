@@ -87,7 +87,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         initKlage();
         var klageTilbakekrevingDto = new KlageTilbakekrevingDto(TILBAKEKREVING_BEHANDLING_UUID, LocalDate.now(), TILBAKEKREVING_BEHANDLING_TYPE);
         var klageFormkravAksjonspunktDto = lagKlageAksjonspunktDto(true, klageTilbakekrevingDto);
-        var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), klageFormkravAksjonspunktDto,
+        var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), klageFormkravAksjonspunktDto,
             behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP));
 
         klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
@@ -104,7 +104,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
     void skal_oppdatere_klage_aksjonspunkt_til_tilbakekreving_behandling() {
         initKlage();
         var klageFormkravAksjonspunktDto = lagKlageAksjonspunktDto(false, null);
-        var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), klageFormkravAksjonspunktDto,
+        var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), klageFormkravAksjonspunktDto,
             behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP));
         klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
         fellesKlageAssert();
@@ -147,7 +147,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         initKlage();
         var klageTilbakekrevingDto = new KlageTilbakekrevingDto(TILBAKEKREVING_BEHANDLING_UUID, LocalDate.now(), TILBAKEKREVING_BEHANDLING_TYPE);
         var klageFormkravAksjonspunktDto = lagKlageAksjonspunktDto(true, klageTilbakekrevingDto);
-        var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), klageFormkravAksjonspunktDto,
+        var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), klageFormkravAksjonspunktDto,
             behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP));
 
         klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
@@ -198,7 +198,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         initKlage();
         var klageTilbakekrevingDto = new KlageTilbakekrevingDto(TILBAKEKREVING_BEHANDLING_UUID, LocalDate.now(), TILBAKEKREVING_BEHANDLING_TYPE);
         var klageFormkravAksjonspunktDto = lagKlageAksjonspunktDto(true, klageTilbakekrevingDto);
-        var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), klageFormkravAksjonspunktDto,
+        var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), klageFormkravAksjonspunktDto,
             behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP));
 
         klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
@@ -240,7 +240,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         initKlage();
         var klageTilbakekrevingDto = new KlageTilbakekrevingDto(TILBAKEKREVING_BEHANDLING_UUID, LocalDate.now(), TILBAKEKREVING_BEHANDLING_TYPE);
         var klageFormkravAksjonspunktDto = lagKlageAksjonspunktDto(true, klageTilbakekrevingDto);
-        var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), klageFormkravAksjonspunktDto,
+        var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), klageFormkravAksjonspunktDto,
             behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP));
 
         klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
@@ -283,7 +283,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         final String fritekstTilBrev = "Tester at fritekst lagres på vurderingsresulatet";
 
         var klageAvvistMedFritekst = new KlageFormkravAksjonspunktDto(true, true, false, true, behandling.getUuid(), "test", false, null, fritekstTilBrev);
-        var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), klageAvvistMedFritekst,
+        var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), klageAvvistMedFritekst,
             behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP));
 
         klageFormkravOppdaterer.oppdater(klageAvvistMedFritekst, aksjonspunktOppdaterParameter);
@@ -301,7 +301,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         klageRepository.lagreVurderingsResultat(behandling, vurderingResBuilder);
 
         var klageAvvistUtenFritekst = new KlageFormkravAksjonspunktDto(true, true, true, true, behandling.getUuid(), "test", false, null, null);
-        var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), klageAvvistUtenFritekst,
+        var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), klageAvvistUtenFritekst,
             behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP));
 
         klageFormkravOppdaterer.oppdater(klageAvvistUtenFritekst, aksjonspunktOppdaterParameter);

@@ -52,7 +52,7 @@ public class AksjonspunktUtlederForArbForholdMedPermisjoner implements Aksjonspu
             var referanse = param.getRef();
             var erEndringssøknad = erEndringssøknad(referanse);
             if (!erEndringssøknad) {
-                var arbForholdMedPermisjonUtenSluttdato = finnArbForholdMedPermisjonUtenSluttdatoMangel(referanse, iayGrunnlag);
+                var arbForholdMedPermisjonUtenSluttdato = finnArbForholdMedPermisjonUtenSluttdatoMangel(referanse, param.getSkjæringstidspunkt(), iayGrunnlag);
 
                 if (!arbForholdMedPermisjonUtenSluttdato.isEmpty()) {
                     return opprettListeForAksjonspunkt(AksjonspunktDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO);

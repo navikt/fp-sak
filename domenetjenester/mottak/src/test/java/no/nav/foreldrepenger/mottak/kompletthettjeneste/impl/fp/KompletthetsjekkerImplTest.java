@@ -92,9 +92,9 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         manglendeInntektsmeldinger.put(Arbeidsgiver.virksomhet("1"), new HashSet<>());
 
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.anyLong())).thenReturn(skjæringstidspunkt);
-        lenient().when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(any(), anyBoolean())).thenReturn(
+        lenient().when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(any(), any(), anyBoolean())).thenReturn(
                 new HashMap<>());
-        lenient().when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(any(), anyBoolean())).thenReturn(
+        lenient().when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(any(), any(), anyBoolean())).thenReturn(
                 new HashMap<>());
 
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
@@ -117,7 +117,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
 
         // Act
-        var kompletthetResultat = kompletthetsjekkerImpl.vurderForsendelseKomplett(lagRef(behandling));
+        var kompletthetResultat = kompletthetsjekkerImpl.vurderForsendelseKomplett(lagRef(behandling), lagStp());
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isTrue();
@@ -133,7 +133,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         behandling.setStatus(BehandlingStatus.UTREDES);
 
         // Act
-        var kompletthetResultat = kompletthetsjekkerImpl.vurderForsendelseKomplett(lagRef(behandling));
+        var kompletthetResultat = kompletthetsjekkerImpl.vurderForsendelseKomplett(lagRef(behandling), lagStp());
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
@@ -148,12 +148,12 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         mockManglendeInntektsmeldingKompletthet(Collections.emptyMap());
         testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(2),
                 STARTDATO_PERMISJON);
-        lenient().when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(
+        lenient().when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any(), any())).thenReturn(
                 List.of(InntektsmeldingBuilder.builder().build()));
 
         // Act
         var kompletthetResultat = kompletthetsjekkerImpl.vurderEtterlysningInntektsmelding(
-                lagRef(behandling, STARTDATO_PERMISJON));
+                lagRef(behandling), lagStp(STARTDATO_PERMISJON));
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isTrue();
@@ -167,12 +167,12 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         mockManglendeInntektsmeldingKompletthet(manglendeInntektsmeldinger);
         testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(3), LocalDate.now());
-        lenient().when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(
+        lenient().when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any(), any())).thenReturn(
                 List.of(InntektsmeldingBuilder.builder().medInnsendingstidspunkt(LocalDateTime.now().minusDays(10)).build()));
 
         // Act
         var kompletthetResultat = kompletthetsjekkerImpl.vurderEtterlysningInntektsmelding(
-                lagRef(behandling, LocalDate.now()));
+                lagRef(behandling) , lagStp(LocalDate.now()));
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
@@ -192,7 +192,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
 
         // Act
         var kompletthetResultat = kompletthetsjekkerImpl.vurderEtterlysningInntektsmelding(
-                lagRef(behandling, STARTDATO_PERMISJON));
+                lagRef(behandling), lagStp(STARTDATO_PERMISJON));
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
@@ -207,11 +207,11 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         mockManglendeInntektsmeldingKompletthet(manglendeInntektsmeldinger);
         testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(1), stp);
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(Collections.emptyList());
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any(), any())).thenReturn(Collections.emptyList());
 
         // Act
         var kompletthetResultat = kompletthetsjekkerImpl.vurderEtterlysningInntektsmelding(
-                lagRef(behandling, stp));
+                lagRef(behandling), lagStp(stp));
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
@@ -221,7 +221,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Act 2
         stp = LocalDate.now().plusWeeks(3);
         var kompletthetResultat2 = kompletthetsjekkerImpl.vurderEtterlysningInntektsmelding(
-                lagRef(behandling, stp));
+                lagRef(behandling), lagStp(stp));
 
         // Assert
         assertThat(kompletthetResultat2.erOppfylt()).isFalse();
@@ -236,11 +236,11 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         mockManglendeInntektsmeldingKompletthet(manglendeInntektsmeldinger);
         testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(1),
                 STARTDATO_PERMISJON);
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(Collections.emptyList());
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any(), any())).thenReturn(Collections.emptyList());
 
         // Act
         var kompletthetResultat = kompletthetsjekkerImpl.vurderEtterlysningInntektsmelding(
-                lagRef(behandling, STARTDATO_PERMISJON));
+                lagRef(behandling), lagStp(STARTDATO_PERMISJON));
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
@@ -255,7 +255,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         opprettSøknadMedPåkrevdVedlegg(behandling);
         behandling.setStatus(BehandlingStatus.UTREDES);
         // Act
-        var kompletthetResultat = kompletthetsjekkerImpl.vurderForsendelseKomplett(lagRef(behandling));
+        var kompletthetResultat = kompletthetsjekkerImpl.vurderForsendelseKomplett(lagRef(behandling), lagStp());
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
@@ -271,7 +271,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         opprettSøknadMedPåkrevdVedlegg(behandling);
 
         // Act
-        var kompletthetResultat = kompletthetsjekkerImpl.vurderForsendelseKomplett(lagRef(behandling));
+        var kompletthetResultat = kompletthetsjekkerImpl.vurderForsendelseKomplett(lagRef(behandling), lagStp());
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isTrue();
@@ -279,13 +279,15 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {
-        var stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
-        return BehandlingReferanse.fra(behandling, stp);
+        return BehandlingReferanse.fra(behandling);
     }
 
-    private BehandlingReferanse lagRef(Behandling behandling, LocalDate stpDate) {
-        var stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stpDate).build();
-        return BehandlingReferanse.fra(behandling, stp);
+    private Skjæringstidspunkt lagStp() {
+        return Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
+    }
+
+    private Skjæringstidspunkt lagStp(LocalDate stpDate) {
+        return Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stpDate).build();
     }
 
     @Test
@@ -320,12 +322,12 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     private void mockManglendeInntektsmelding() {
         var manglendeInntektsmeldinger = new HashMap<Arbeidsgiver, Set<EksternArbeidsforholdRef>>();
         manglendeInntektsmeldinger.put(Arbeidsgiver.virksomhet("1"), new HashSet<>());
-        when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(any(), anyBoolean())).thenReturn(
+        when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(any(), any(), anyBoolean())).thenReturn(
                 manglendeInntektsmeldinger);
     }
 
     private void mockManglendeInntektsmeldingKompletthet(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> manglendeIM) {
-        when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(any(), anyBoolean())).thenReturn(
+        when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(any(), any(), anyBoolean())).thenReturn(
             manglendeIM);
     }
 }

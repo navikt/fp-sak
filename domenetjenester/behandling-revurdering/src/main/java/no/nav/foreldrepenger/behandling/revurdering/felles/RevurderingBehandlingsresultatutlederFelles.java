@@ -223,14 +223,10 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
 
     private VurderOpphørFørDagensDato erOpphørtFørDagensDato() {
         return resultat -> {
-            var ref = lagRef(behandlingRepository.hentBehandling(resultat.getBehandlingId()));
-            return opphørUttakTjeneste.getOpphørsdato(ref, resultat).orElse(LocalDate.MAX).isBefore(LocalDate.now());
+            var ref = BehandlingReferanse.fra(behandlingRepository.hentBehandling(resultat.getBehandlingId()));
+            var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(resultat.getBehandlingId());
+            return opphørUttakTjeneste.getOpphørsdato(ref, stp, resultat).orElse(LocalDate.MAX).isBefore(LocalDate.now());
         };
-    }
-
-    private BehandlingReferanse lagRef(Behandling behandling) {
-        var behandlingId = behandling.getId();
-        return BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId));
     }
 
     private void validerReferanser(BehandlingReferanse ref, Long behandlingId) {

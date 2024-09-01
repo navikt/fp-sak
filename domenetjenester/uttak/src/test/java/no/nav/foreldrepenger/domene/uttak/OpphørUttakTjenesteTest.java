@@ -39,13 +39,14 @@ class OpphørUttakTjenesteTest {
         var revurdering = opprettOpphørtRevurdering(originalBehandling);
 
         lagreSkjæringstidspunkt(revurdering, skjæringstidspunkt);
-        var ref = BehandlingReferanse.fra(revurdering, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(skjæringstidspunkt).build());
+        var ref = BehandlingReferanse.fra(revurdering);
+        var stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(skjæringstidspunkt).build();
 
-        var kallPåOpphørTjenesteForOpphørBehandling = opphørUttakTjeneste.getOpphørsdato(ref,
+        var kallPåOpphørTjenesteForOpphørBehandling = opphørUttakTjeneste.getOpphørsdato(ref, stp,
             getBehandlingsresultat(revurdering.getId()));
         assertThat(kallPåOpphørTjenesteForOpphørBehandling).isNotEmpty();
 
-        var kallPåOpphørTjenesteForInnvilgetBehandling = opphørUttakTjeneste.getOpphørsdato(ref,
+        var kallPåOpphørTjenesteForInnvilgetBehandling = opphørUttakTjeneste.getOpphørsdato(ref, stp,
             getBehandlingsresultat(originalBehandling.getId()));
         assertThat(kallPåOpphørTjenesteForInnvilgetBehandling).isEmpty();
     }
@@ -74,7 +75,8 @@ class OpphørUttakTjenesteTest {
         var originalBehandling = opprettOriginalBehandling(repositoryProvider);
         var revurdering = opprettOpphørtRevurdering(originalBehandling);
         lagreSkjæringstidspunkt(revurdering, skjæringstidspunkt);
-        var ref = BehandlingReferanse.fra(revurdering, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(skjæringstidspunkt).build());
+        var ref = BehandlingReferanse.fra(revurdering);
+        var stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(skjæringstidspunkt).build();
         var opphørsÅrsaker = PeriodeResultatÅrsak.opphørsAvslagÅrsaker().iterator();
         new MockUttakResultatBuilder(skjæringstidspunkt.plusDays(10))
             .medInnvilgetPeriode(PeriodeResultatÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER, 10)
@@ -85,7 +87,7 @@ class OpphørUttakTjenesteTest {
             .medAvslåttPeriode(opphørsÅrsaker.next(), 10)
             .buildFor(revurdering.getId());
         // act
-        var opphørsdato = opphørUttakTjeneste.getOpphørsdato(ref, getBehandlingsresultat(revurdering.getId()));
+        var opphørsdato = opphørUttakTjeneste.getOpphørsdato(ref, stp, getBehandlingsresultat(revurdering.getId()));
         // assert
         assertThat(opphørsdato.orElseThrow()).isEqualTo(skjæringstidspunkt.plusDays(54));
     }
@@ -96,14 +98,15 @@ class OpphørUttakTjenesteTest {
         var originalBehandling = opprettOriginalBehandling(repositoryProvider);
         var revurdering = opprettOpphørtRevurdering(originalBehandling);
         var skjæringstidspunkt = lagreSkjæringstidspunkt(revurdering, LocalDate.now());
-        var ref = BehandlingReferanse.fra(revurdering, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(skjæringstidspunkt).build());
+        var ref = BehandlingReferanse.fra(revurdering);
+        var stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(skjæringstidspunkt).build();
         var opphørsÅrsaker = PeriodeResultatÅrsak.opphørsAvslagÅrsaker().iterator();
         new MockUttakResultatBuilder(skjæringstidspunkt.plusDays(7))
             .medAvslåttPeriode(opphørsÅrsaker.next(), 14).medAvslåttPeriode(opphørsÅrsaker.next(), 61)
             .medAvslåttPeriode(opphørsÅrsaker.next(), 14).medAvslåttPeriode(opphørsÅrsaker.next(), 62)
             .buildFor(revurdering.getId());
         // act
-        var opphørsdato = opphørUttakTjeneste.getOpphørsdato(ref, getBehandlingsresultat(revurdering.getId()));
+        var opphørsdato = opphørUttakTjeneste.getOpphørsdato(ref, stp, getBehandlingsresultat(revurdering.getId()));
         // assert
         assertThat(opphørsdato.orElseThrow()).isEqualTo(skjæringstidspunkt);
     }

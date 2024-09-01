@@ -60,8 +60,8 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
         var behandlingId = kontekst.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
-        var aksjonspunktResultater = tjeneste.utledAksjonspunkter(ref);
+        var ref = BehandlingReferanse.fra(behandling);
+        var aksjonspunktResultater = tjeneste.utledAksjonspunkter(ref, skjæringstidspunkter);
         utledVilkår(kontekst);
         behandling.setStartpunkt(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT); // Settes til første steg i Inngangsvilkår.
         return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunktResultater);

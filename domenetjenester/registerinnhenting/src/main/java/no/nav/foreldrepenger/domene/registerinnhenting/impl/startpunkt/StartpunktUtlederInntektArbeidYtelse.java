@@ -9,6 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -59,20 +60,20 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
     }
 
     @Override
-    public StartpunktType utledStartpunkt(BehandlingReferanse ref, Object grunnlagId1, Object grunnlagId2) {
-        return hentAlleStartpunktForInntektArbeidYtelse(ref, true, (UUID) grunnlagId1, (UUID) grunnlagId2).stream()
+    public StartpunktType utledStartpunkt(BehandlingReferanse ref, Skjæringstidspunkt stp, Object grunnlagId1, Object grunnlagId2) {
+        return hentAlleStartpunktForInntektArbeidYtelse(ref, stp, true, (UUID) grunnlagId1, (UUID) grunnlagId2).stream()
             .min(Comparator.comparing(StartpunktType::getRangering))
             .orElse(StartpunktType.UDEFINERT);
     }
 
     @Override
-    public StartpunktType utledInitieltStartpunktRevurdering(BehandlingReferanse ref, Object grunnlagId1, Object grunnlagId2) {
-        return hentAlleStartpunktForInntektArbeidYtelse(ref, false, (UUID) grunnlagId1, (UUID) grunnlagId2).stream()
+    public StartpunktType utledInitieltStartpunktRevurdering(BehandlingReferanse ref, Skjæringstidspunkt stp, Object grunnlagId1, Object grunnlagId2) {
+        return hentAlleStartpunktForInntektArbeidYtelse(ref, stp, false, (UUID) grunnlagId1, (UUID) grunnlagId2).stream()
             .min(Comparator.comparing(StartpunktType::getRangering))
             .orElse(StartpunktType.UDEFINERT);
     }
 
-    private List<StartpunktType> hentAlleStartpunktForInntektArbeidYtelse(BehandlingReferanse ref, boolean vurderArbeidsforhold,
+    private List<StartpunktType> hentAlleStartpunktForInntektArbeidYtelse(BehandlingReferanse ref, Skjæringstidspunkt stp, boolean vurderArbeidsforhold,
                                                                           UUID grunnlagId1, UUID grunnlagId2) {
         List<StartpunktType> startpunkter = new ArrayList<>();
         // Revurderinger skal normalt begynne i uttak.
@@ -81,7 +82,7 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
         var grunnlag1 = iayTjeneste.hentGrunnlagPåId(ref.behandlingId(), grunnlagId1);
         var grunnlag2 = iayTjeneste.hentGrunnlagPåId(ref.behandlingId(), grunnlagId2);
 
-        var skjæringstidspunkt = ref.getUtledetSkjæringstidspunkt();
+        var skjæringstidspunkt = stp.getUtledetSkjæringstidspunkt();
 
         var iayGrunnlagDiff = new IAYGrunnlagDiff(grunnlag1, grunnlag2);
         var erAktørArbeidEndretForSøker = iayGrunnlagDiff.erEndringPåAktørArbeidForAktør(skjæringstidspunkt, ref.aktørId());
@@ -101,8 +102,8 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
             var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.behandlingId()); // TODO burde ikke være nødvendig (bør velge grunnlagId1, grunnlagId2)
 
             //Må rydde opp eventuelle tidligere aksjonspunkt
-            var erPåkrevdManuelleAvklaringer = trengsManuelleAvklaringer(ref);
-            var måVurderePermisjonUtenSluttdato = sjekkOmMåVurderePermisjonerUtenSluttdato(ref, iayGrunnlag);
+            var erPåkrevdManuelleAvklaringer = trengsManuelleAvklaringer(ref, stp);
+            var måVurderePermisjonUtenSluttdato = sjekkOmMåVurderePermisjonerUtenSluttdato(ref, stp, iayGrunnlag);
 
             if (erPåkrevdManuelleAvklaringer) {
                 leggTilStartpunkt(startpunkter, grunnlagId1, grunnlagId2, StartpunktType.KONTROLLER_ARBEIDSFORHOLD, "manuell vurdering av arbeidsforhold");
@@ -147,12 +148,12 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
         return startpunkter;
     }
 
-    private boolean trengsManuelleAvklaringer(BehandlingReferanse ref) {
-        return !arbeidsforholdInntektsmeldingMangelTjeneste.utledUavklarteManglerPåArbeidsforholdInntektsmelding(ref).isEmpty();
+    private boolean trengsManuelleAvklaringer(BehandlingReferanse ref, Skjæringstidspunkt stp) {
+        return !arbeidsforholdInntektsmeldingMangelTjeneste.utledUavklarteManglerPåArbeidsforholdInntektsmelding(ref, stp).isEmpty();
     }
 
-    private boolean sjekkOmMåVurderePermisjonerUtenSluttdato(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
-        return !HåndterePermisjoner.finnArbForholdMedPermisjonUtenSluttdatoMangel(ref, inntektArbeidYtelseGrunnlag).isEmpty();
+    private boolean sjekkOmMåVurderePermisjonerUtenSluttdato(BehandlingReferanse ref, Skjæringstidspunkt stp, InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
+        return !HåndterePermisjoner.finnArbForholdMedPermisjonUtenSluttdatoMangel(ref, stp, inntektArbeidYtelseGrunnlag).isEmpty();
     }
 
     /*

@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.KravperioderMapper;
 import org.junit.jupiter.api.Test;
 
 import no.nav.folketrygdloven.kalkulator.modell.iay.KravperioderPrArbeidsforholdDto;
@@ -33,6 +32,7 @@ import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulator.KravperioderMapper;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
@@ -41,7 +41,8 @@ import no.nav.vedtak.konfig.Tid;
 class KravperioderMapperTest {
     private static final LocalDate STP = LocalDate.of(2021,12,1);
     private static final Behandling BEHANDLING = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
-    private static final BehandlingReferanse BEHANDLING_REF = BehandlingReferanse.fra(BEHANDLING, Skjæringstidspunkt.builder().medSkjæringstidspunktOpptjening(STP).build());
+    private static final BehandlingReferanse BEHANDLING_REF = BehandlingReferanse.fra(BEHANDLING);
+    private static final Skjæringstidspunkt STPT = Skjæringstidspunkt.builder().medSkjæringstidspunktOpptjening(STP).build();
     private InntektArbeidYtelseAggregatBuilder data = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
     private InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder arbeidBuilder = data.getAktørArbeidBuilder(BEHANDLING_REF.aktørId());
     private ArbeidsforholdInformasjonBuilder arbeidsforholdOverstyringer = ArbeidsforholdInformasjonBuilder.builder(Optional.empty());
@@ -54,7 +55,7 @@ class KravperioderMapperTest {
         lagRegisterArbeid(ag, ref, førStp(500), etterSTP(500));
         aktiveInntektsmeldinger.add(lagIM(ag, ref, 500_000, 500_000, STP));
 
-        var resultat = KravperioderMapper.map(BEHANDLING_REF, aktiveInntektsmeldinger, byggIAY());
+        var resultat = KravperioderMapper.map(BEHANDLING_REF, STPT, aktiveInntektsmeldinger, byggIAY());
 
         assertThat(resultat).hasSize(1);
         assertKrav(resultat, ag, ref, 500_000, STP, Tid.TIDENES_ENDE);
@@ -71,7 +72,7 @@ class KravperioderMapperTest {
         aktiveInntektsmeldinger.add(lagIM(ag, ref, 500_000, 500_000, STP));
         aktiveInntektsmeldinger.add(lagIM(ag2, ref2, 300_000, 300_000, STP));
 
-        var resultat = KravperioderMapper.map(BEHANDLING_REF, aktiveInntektsmeldinger, byggIAY());
+        var resultat = KravperioderMapper.map(BEHANDLING_REF, STPT, aktiveInntektsmeldinger, byggIAY());
 
         assertThat(resultat).hasSize(2);
         assertKrav(resultat, ag, ref, 500_000, STP, Tid.TIDENES_ENDE);
@@ -87,7 +88,7 @@ class KravperioderMapperTest {
         lagRegisterArbeid(ag, ref2, førStp(200), etterSTP(100));
         aktiveInntektsmeldinger.add(lagIM(ag, InternArbeidsforholdRef.nullRef(), 500_000, 500_000, STP));
 
-        var resultat = KravperioderMapper.map(BEHANDLING_REF, aktiveInntektsmeldinger, byggIAY());
+        var resultat = KravperioderMapper.map(BEHANDLING_REF, STPT, aktiveInntektsmeldinger, byggIAY());
 
         assertThat(resultat).hasSize(1);
         assertKrav(resultat, ag, InternArbeidsforholdRef.nullRef(), 500_000, STP, Tid.TIDENES_ENDE);
@@ -101,7 +102,7 @@ class KravperioderMapperTest {
         lagRegisterArbeid(ag, InternArbeidsforholdRef.nullRef(), etterSTP(50), Tid.TIDENES_ENDE);
         aktiveInntektsmeldinger.add(lagIM(ag, InternArbeidsforholdRef.nullRef(), 500_000, 500_000, STP));
 
-        var resultat = KravperioderMapper.map(BEHANDLING_REF, aktiveInntektsmeldinger, byggIAY());
+        var resultat = KravperioderMapper.map(BEHANDLING_REF, STPT, aktiveInntektsmeldinger, byggIAY());
 
         assertThat(resultat).hasSize(1);
         assertKrav(resultat, ag, InternArbeidsforholdRef.nullRef(), 500_000, STP, Tid.TIDENES_ENDE);
@@ -114,7 +115,7 @@ class KravperioderMapperTest {
         lagOverstyrtArbeid(ag, ref, førStp(500), etterSTP(500));
         aktiveInntektsmeldinger.add(lagIM(ag, ref, 500_000, 500_000, STP));
 
-        var resultat = KravperioderMapper.map(BEHANDLING_REF, aktiveInntektsmeldinger, byggIAY());
+        var resultat = KravperioderMapper.map(BEHANDLING_REF, STPT, aktiveInntektsmeldinger, byggIAY());
 
         assertThat(resultat).hasSize(1);
         assertKrav(resultat, ag, ref, 500_000, STP, Tid.TIDENES_ENDE);
@@ -131,7 +132,7 @@ class KravperioderMapperTest {
         aktiveInntektsmeldinger.add(lagIM(ag1, ref1, 500_000, 500_000, STP));
         aktiveInntektsmeldinger.add(lagIM(ag2, ref2, 150_000, 150_000, STP));
 
-        var resultat = KravperioderMapper.map(BEHANDLING_REF, aktiveInntektsmeldinger, byggIAY());
+        var resultat = KravperioderMapper.map(BEHANDLING_REF, STPT, aktiveInntektsmeldinger, byggIAY());
 
         assertThat(resultat).hasSize(2);
         assertKrav(resultat, ag1, ref1, 500_000, STP, Tid.TIDENES_ENDE);
@@ -150,7 +151,7 @@ class KravperioderMapperTest {
         aktiveInntektsmeldinger.add(aktivIM);
         var alleIMPåSak = Arrays.asList(aktivIM, tidligereInnsendtIM);
 
-        var resultat = KravperioderMapper.map(BEHANDLING_REF, alleIMPåSak, byggIAY());
+        var resultat = KravperioderMapper.map(BEHANDLING_REF, STPT, alleIMPåSak, byggIAY());
 
         assertThat(resultat).hasSize(1);
         var krav = resultat.get(0);
@@ -189,7 +190,7 @@ class KravperioderMapperTest {
         aktiveInntektsmeldinger.add(aktivIM);
         var alleIMPåSak = Arrays.asList(aktivIM, tidligereInnsendtIM);
 
-        var resultat = KravperioderMapper.map(BEHANDLING_REF, alleIMPåSak, byggIAY());
+        var resultat = KravperioderMapper.map(BEHANDLING_REF, STPT, alleIMPåSak, byggIAY());
 
         assertThat(resultat).hasSize(1);
         var krav = resultat.get(0);

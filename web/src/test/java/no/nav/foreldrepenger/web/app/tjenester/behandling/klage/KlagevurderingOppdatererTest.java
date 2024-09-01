@@ -81,7 +81,7 @@ class KlagevurderingOppdatererTest {
         // Act
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         getKlageVurderer(repositoryProvider, klageRepository).oppdater(dto, new AksjonspunktOppdaterParameter(
-            BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+            BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
 
         // Assert
 

@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.opptjening.aksjonspunkt;
 
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,6 +10,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -39,23 +39,23 @@ public class MapYtelseperioderTjeneste {
     }
 
     public static List<OpptjeningsperiodeForSaksbehandling> mapYtelsePerioder(BehandlingReferanse behandlingReferanse, InntektArbeidYtelseGrunnlag grunnlag,
-            OpptjeningAktivitetVurdering vurderOpptjening, LocalDate skjæringstidspunkt) {
+            OpptjeningAktivitetVurdering vurderOpptjening, Skjæringstidspunkt skjæringstidspunkt) {
         var aktørId = behandlingReferanse.aktørId();
-        var filter = new YtelseFilter(grunnlag.getAktørYtelseFraRegister(aktørId)).før(skjæringstidspunkt);
+        var filter = new YtelseFilter(grunnlag.getAktørYtelseFraRegister(aktørId)).før(skjæringstidspunkt.getUtledetSkjæringstidspunkt());
         List<OpptjeningsperiodeForSaksbehandling> ytelsePerioder = new ArrayList<>();
         filter.getFiltrertYtelser().stream()
                 .filter(ytelse -> !(Fagsystem.INFOTRYGD.equals(ytelse.getKilde()) && RelatertYtelseTilstand.ÅPEN.equals(ytelse.getStatus())))
                 .filter(ytelse -> !(ytelse.getKilde().equals(Fagsystem.FPSAK) && ytelse.getSaksnummer().equals(behandlingReferanse.saksnummer())))
                 .filter(ytelse -> ytelse.getRelatertYtelseType().girOpptjeningsTid(behandlingReferanse.fagsakYtelseType()))
                 .forEach(behandlingRelaterteYtelse -> {
-                    var periode = mapYtelseAnvist(behandlingRelaterteYtelse, behandlingReferanse, grunnlag,
+                    var periode = mapYtelseAnvist(behandlingRelaterteYtelse, behandlingReferanse, skjæringstidspunkt, grunnlag,
                             vurderOpptjening);
                     ytelsePerioder.addAll(periode);
                 });
         return slåSammenYtelseTimelines(ytelsePerioder);
     }
 
-    private static List<OpptjeningsperiodeForSaksbehandling> mapYtelseAnvist(Ytelse ytelse, BehandlingReferanse behandlingReferanse,
+    private static List<OpptjeningsperiodeForSaksbehandling> mapYtelseAnvist(Ytelse ytelse, BehandlingReferanse behandlingReferanse, Skjæringstidspunkt skjæringstidspunkt,
             InntektArbeidYtelseGrunnlag iayGrunnlag,
             OpptjeningAktivitetVurdering vurderForSaksbehandling) {
         var type = mapYtelseType(ytelse);
@@ -74,7 +74,7 @@ public class MapYtelseperioderTjeneste {
                         var builder = OpptjeningsperiodeForSaksbehandling.Builder.ny()
                                 .medPeriode(hentUtDatoIntervall(ytelse, ytelseAnvist))
                                 .medOpptjeningAktivitetType(type)
-                                .medVurderingsStatus(vurderForSaksbehandling.vurderStatus(type, behandlingReferanse, null, iayGrunnlag, false));
+                                .medVurderingsStatus(vurderForSaksbehandling.vurderStatus(type, behandlingReferanse, skjæringstidspunkt, null, iayGrunnlag, false));
                         ytelserAnvist.add(builder.build());
                     } else {
                         orgnumre.forEach(orgnr -> {
@@ -83,7 +83,7 @@ public class MapYtelseperioderTjeneste {
                                     .medOpptjeningAktivitetType(type)
                                     .medArbeidsgiver(Arbeidsgiver.virksomhet(orgnr))
                                     .medOpptjeningsnøkkel(Opptjeningsnøkkel.forOrgnummer(orgnr))
-                                    .medVurderingsStatus(vurderForSaksbehandling.vurderStatus(type, behandlingReferanse, null, iayGrunnlag, false));
+                                    .medVurderingsStatus(vurderForSaksbehandling.vurderStatus(type, behandlingReferanse, skjæringstidspunkt, null, iayGrunnlag, false));
                             ytelserAnvist.add(builder.build());
                         });
                     }

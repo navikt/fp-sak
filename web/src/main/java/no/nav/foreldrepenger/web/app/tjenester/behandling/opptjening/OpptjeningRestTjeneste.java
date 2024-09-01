@@ -88,12 +88,8 @@ public class OpptjeningRestTjeneste {
     }
 
     private OpptjeningDto getOpptjeningFraBehandling(Behandling behandling) {
-        var behandlingReferanse = behandlingRef(behandling);
-        return dtoMapper.mapFra(behandlingReferanse).orElse(null);
-    }
-
-    private BehandlingReferanse behandlingRef(Behandling behandling) {
+        var behandlingReferanse = BehandlingReferanse.fra(behandling);
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-        return BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        return dtoMapper.mapFra(behandlingReferanse, skjæringstidspunkt).orElse(null);
     }
 }

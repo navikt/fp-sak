@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -27,6 +28,7 @@ import no.nav.foreldrepenger.inngangsvilkaar.VilkårTypeRef;
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.AvklarMedlemskapUtleder;
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAksjonspunktÅrsak;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.InngangsvilkårRegler;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
 @VilkårTypeRef(VilkårType.MEDLEMSKAPSVILKÅRET)
@@ -37,6 +39,7 @@ public class InngangsvilkårMedlemskap implements Inngangsvilkår {
     private MedlemsvilkårOversetter medlemsvilkårOversetter;
     private BehandlingRepository behandlingRepository;
     private AvklarMedlemskapUtleder avklarMedlemskapUtleder;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     InngangsvilkårMedlemskap() {
         // for CDI proxy
@@ -45,15 +48,18 @@ public class InngangsvilkårMedlemskap implements Inngangsvilkår {
     @Inject
     public InngangsvilkårMedlemskap(MedlemsvilkårOversetter medlemsvilkårOversetter,
                                     BehandlingRepository behandlingRepository,
-                                    AvklarMedlemskapUtleder avklarMedlemskapUtleder) {
+                                    AvklarMedlemskapUtleder avklarMedlemskapUtleder,
+                                    SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.medlemsvilkårOversetter = medlemsvilkårOversetter;
         this.behandlingRepository = behandlingRepository;
         this.avklarMedlemskapUtleder = avklarMedlemskapUtleder;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
     @Override
     public VilkårData vurderVilkår(BehandlingReferanse ref) {
-        var grunnlag = medlemsvilkårOversetter.oversettTilRegelModellMedlemskap(ref);
+        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId());
+        var grunnlag = medlemsvilkårOversetter.oversettTilRegelModellMedlemskap(ref, skjæringstidspunkt);
 
         var resultat = InngangsvilkårRegler.medlemskap(grunnlag);
 
@@ -62,7 +68,7 @@ public class InngangsvilkårMedlemskap implements Inngangsvilkår {
         try {
             var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
 
-            var nyUtledingResultat = utledNyttMedlemskapAksjonspunkt(ref);
+            var nyUtledingResultat = utledNyttMedlemskapAksjonspunkt(ref, skjæringstidspunkt);
             var gammelUtledetÅrsaker = behandling.getAksjonspunkter()
                 .stream()
                 .map(Aksjonspunkt::getAksjonspunktDefinisjon)
@@ -100,8 +106,8 @@ public class InngangsvilkårMedlemskap implements Inngangsvilkår {
         }
     }
 
-    private Set<MedlemskapAksjonspunktÅrsak> utledNyttMedlemskapAksjonspunkt(BehandlingReferanse behandlingRef) {
-        return avklarMedlemskapUtleder.utledForInngangsvilkår(behandlingRef);
+    private Set<MedlemskapAksjonspunktÅrsak> utledNyttMedlemskapAksjonspunkt(BehandlingReferanse behandlingRef, Skjæringstidspunkt stp) {
+        return avklarMedlemskapUtleder.utledForInngangsvilkår(behandlingRef, stp);
     }
 
     public static MedlemskapAksjonspunktÅrsak map(AksjonspunktDefinisjon aksjonspunktDefinisjon) {

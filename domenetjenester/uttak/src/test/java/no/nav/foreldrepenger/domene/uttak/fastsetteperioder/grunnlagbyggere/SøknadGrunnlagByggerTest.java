@@ -40,7 +40,7 @@ class SøknadGrunnlagByggerTest {
             .medFordeling(new OppgittFordelingEntitet(List.of(søknadsperiode), true))
             .lagre(repositoryProvider);
         var ytelsespesifiktGrunnlag = fpGrunnlag(fom);
-        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, ytelsespesifiktGrunnlag);
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null, ytelsespesifiktGrunnlag);
         var grunnlag = søknadGrunnlagBygger.byggGrunnlag(input).build();
 
         assertThat(grunnlag.getOppgittePerioder()).hasSize(1);

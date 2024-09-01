@@ -19,6 +19,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -31,14 +32,14 @@ import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerProvider;
 @ApplicationScoped
 public class KompletthetModell {
 
-    private static Map<AksjonspunktDefinisjon, BiFunction<KompletthetModell, BehandlingReferanse, KompletthetResultat>> KOMPLETTHETSFUNKSJONER;
+    private static final Map<AksjonspunktDefinisjon, BiFunction<KompletthetModell, ReferanseSkjæring, KompletthetResultat>> KOMPLETTHETSFUNKSJONER;
 
     static {
-        Map<AksjonspunktDefinisjon, BiFunction<KompletthetModell, BehandlingReferanse, KompletthetResultat>> map = new EnumMap<>(AksjonspunktDefinisjon.class);
-        map.put(AUTO_VENTER_PÅ_KOMPLETT_SØKNAD, (kontroller, ref) -> finnKompletthetssjekker(kontroller, ref).vurderForsendelseKomplett(ref));
-        map.put(VENT_PGA_FOR_TIDLIG_SØKNAD, (kontroller, ref) -> finnKompletthetssjekker(kontroller, ref).vurderSøknadMottattForTidlig(ref));
-        map.put(VENT_PÅ_SØKNAD, (kontroller, ref) -> finnKompletthetssjekker(kontroller, ref).vurderSøknadMottatt(ref));
-        map.put(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, (kontroller, ref) -> finnKompletthetssjekker(kontroller, ref).vurderEtterlysningInntektsmelding(ref));
+        Map<AksjonspunktDefinisjon, BiFunction<KompletthetModell, ReferanseSkjæring, KompletthetResultat>> map = new EnumMap<>(AksjonspunktDefinisjon.class);
+        map.put(AUTO_VENTER_PÅ_KOMPLETT_SØKNAD, (kontroller, ref) -> finnKompletthetssjekker(kontroller, ref).vurderForsendelseKomplett(ref.ref(), ref.stp()));
+        map.put(VENT_PGA_FOR_TIDLIG_SØKNAD, (kontroller, ref) -> finnKompletthetssjekker(kontroller, ref).vurderSøknadMottattForTidlig(ref.stp()));
+        map.put(VENT_PÅ_SØKNAD, (kontroller, ref) -> finnKompletthetssjekker(kontroller, ref).vurderSøknadMottatt(ref.ref()));
+        map.put(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, (kontroller, ref) -> finnKompletthetssjekker(kontroller, ref).vurderEtterlysningInntektsmelding(ref.ref(), ref.stp()));
 
         // Køet behandling kan inntreffe FØR kompletthetssteget er passert - men er ikke tilknyttet til noen kompletthetssjekk
         map.put(AUTO_KØET_BEHANDLING, (kontroller, behandling) -> KompletthetResultat.oppfylt());
@@ -60,8 +61,8 @@ public class KompletthetModell {
         this.kompletthetsjekkerProvider = kompletthetsjekkerProvider;
     }
 
-    private static Kompletthetsjekker finnKompletthetssjekker(KompletthetModell kompletthetModell, BehandlingReferanse ref) {
-        return kompletthetModell.kompletthetsjekkerProvider.finnKompletthetsjekkerFor(ref.fagsakYtelseType(), ref.behandlingType());
+    private static Kompletthetsjekker finnKompletthetssjekker(KompletthetModell kompletthetModell, ReferanseSkjæring rs) {
+        return kompletthetModell.kompletthetsjekkerProvider.finnKompletthetsjekkerFor(rs.ref().fagsakYtelseType(), rs.ref().behandlingType());
     }
 
     /**
@@ -93,11 +94,11 @@ public class KompletthetModell {
         return behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandlingId, BehandlingStegType.VURDER_KOMPLETTHET);
     }
 
-    public KompletthetResultat vurderKompletthet(BehandlingReferanse ref, List<AksjonspunktDefinisjon> åpneAksjonspunkter) {
+    public KompletthetResultat vurderKompletthet(BehandlingReferanse ref, Skjæringstidspunkt stp, List<AksjonspunktDefinisjon> åpneAksjonspunkter) {
         var åpentAutopunkt = åpneAksjonspunkter.stream()
             .findFirst();
         if (åpentAutopunkt.isPresent() && erAutopunktTilknyttetKompletthetssjekk(åpentAutopunkt)) {
-            return vurderKompletthet(ref, åpentAutopunkt.get());
+            return vurderKompletthet(ref, stp, åpentAutopunkt.get());
         }
         if (!erKompletthetssjekkPassert(ref.behandlingId())) {
             // Kompletthetssjekk er ikke passert, men står heller ikke på autopunkt tilknyttet kompletthet som skal sjekkes
@@ -105,7 +106,7 @@ public class KompletthetModell {
         }
         // Default dersom ingen match på åpent autopunkt tilknyttet kompletthet OG kompletthetssjekk er passert
         var defaultAutopunkt = finnSisteAutopunktKnyttetTilKompletthetssjekk(ref);
-        return vurderKompletthet(ref, defaultAutopunkt);
+        return vurderKompletthet(ref, stp, defaultAutopunkt);
     }
 
     private boolean erAutopunktTilknyttetKompletthetssjekk(Optional<AksjonspunktDefinisjon> åpentAutopunkt) {
@@ -121,9 +122,11 @@ public class KompletthetModell {
         return rangerteAutopunkter.getLast();
     }
 
-    public KompletthetResultat vurderKompletthet(BehandlingReferanse ref, AksjonspunktDefinisjon autopunkt) {
+    public KompletthetResultat vurderKompletthet(BehandlingReferanse ref, Skjæringstidspunkt stp, AksjonspunktDefinisjon autopunkt) {
         return Optional.ofNullable(KOMPLETTHETSFUNKSJONER.get(autopunkt))
-            .map(kompletthetsfunksjon -> kompletthetsfunksjon.apply(this, ref))
+            .map(kompletthetsfunksjon -> kompletthetsfunksjon.apply(this, new ReferanseSkjæring(ref, stp)))
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Kan ikke finne kompletthetsfunksjon for autopunkt: " + autopunkt.getKode()));
     }
+
+    private record ReferanseSkjæring(BehandlingReferanse ref, Skjæringstidspunkt stp) {}
 }

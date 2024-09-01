@@ -106,7 +106,7 @@ class FastsettUttakOppdatererTest {
         var ytelseFordelingAggregat = ytelsesFordelingRepository.opprettBuilder(behandling.getId()).medAvklarteDatoer(avklarteUttakDatoer).build();
         ytelsesFordelingRepository.lagre(behandling.getId(), ytelseFordelingAggregat);
 
-        var result = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto));
+        var result = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
 
         var lagretUttak = uttakTjeneste.hentUttak(behandling.getId());
 
@@ -146,7 +146,7 @@ class FastsettUttakOppdatererTest {
             .build();
         FastsetteUttakDto dto = new FastsetteUttakDto.FastsetteUttakPerioderDto(List.of(dtoPeriode));
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
-        var resultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto));
+        var resultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
 
         var avbrutt = resultat.getEkstraAksjonspunktResultat()
             .stream()

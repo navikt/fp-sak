@@ -123,7 +123,7 @@ class BeregnStønadskontoerTjenesteTest {
     }
 
     private UttakInput input(Behandling behandling, ForeldrepengerGrunnlag fpGrunnlag) {
-        return new UttakInput(BehandlingReferanse.fra(behandling), null, fpGrunnlag);
+        return new UttakInput(BehandlingReferanse.fra(behandling), null, null, fpGrunnlag);
     }
 
     @Test

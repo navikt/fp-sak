@@ -48,11 +48,11 @@ public class VurderKompletthetRevurderingStegImpl implements VurderKompletthetSt
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(kontekst.getBehandlingId());
-        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
+        var ref = BehandlingReferanse.fra(behandling);
         if (skalPassereKompletthet(behandling)) {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
-        var kompletthetResultat = kompletthetsjekker.vurderForsendelseKomplett(ref);
+        var kompletthetResultat = kompletthetsjekker.vurderForsendelseKomplett(ref, skjæringstidspunkter);
         if (!kompletthetResultat.erOppfylt() && !VurderKompletthetStegFelles.autopunktAlleredeUtført(AUTO_VENTER_PÅ_KOMPLETT_SØKNAD, behandling)) {
             return VurderKompletthetStegFelles.evaluerUoppfylt(kompletthetResultat, AUTO_VENTER_PÅ_KOMPLETT_SØKNAD);
         }

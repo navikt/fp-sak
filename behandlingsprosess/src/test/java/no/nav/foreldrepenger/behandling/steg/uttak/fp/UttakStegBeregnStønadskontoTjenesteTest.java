@@ -81,7 +81,7 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
         var revurdering = revurderingScenario.lagre(repositoryProvider);
 
         var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1));
-        var input = new UttakInput(BehandlingReferanse.fra(revurdering), null, ytelsespesifiktGrunnlag);
+        var input = new UttakInput(BehandlingReferanse.fra(revurdering), null, null, ytelsespesifiktGrunnlag);
         var resultat = tjeneste.fastsettStønadskontoerForBehandling(input);
 
         assertThat(resultat.getStønadskontoutregning()).containsKey(StønadskontoType.FELLESPERIODE);
@@ -104,7 +104,7 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
         var revurdering = revurderingScenario.lagre(repositoryProvider);
 
         var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1));
-        var input = new UttakInput(BehandlingReferanse.fra(revurdering), null, ytelsespesifiktGrunnlag);
+        var input = new UttakInput(BehandlingReferanse.fra(revurdering), null, null, ytelsespesifiktGrunnlag);
         var resultat = tjeneste.fastsettStønadskontoerForBehandling(input);
 
         assertThat(resultat.getStønadskontoutregning()).containsKey(StønadskontoType.FELLESPERIODE);
@@ -141,7 +141,7 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
 
         var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1))
                 .medAnnenpart(new Annenpart(førsteBehandling.getId(), LocalDateTime.now()));
-        var input = new UttakInput(BehandlingReferanse.fra(revurdering), null, ytelsespesifiktGrunnlag);
+        var input = new UttakInput(BehandlingReferanse.fra(revurdering), null, null, ytelsespesifiktGrunnlag);
         var resultat = tjeneste.fastsettStønadskontoerForBehandling(input);
 
         assertThat(resultat.getStønadskontoutregning()).containsKey(StønadskontoType.FELLESPERIODE);
@@ -165,7 +165,7 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
 
         var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1))
                 .medAnnenpart(new Annenpart(morBehandling.getId(), LocalDateTime.now()));
-        var input = new UttakInput(BehandlingReferanse.fra(farBehandling), null, ytelsespesifiktGrunnlag);
+        var input = new UttakInput(BehandlingReferanse.fra(farBehandling), null, null, ytelsespesifiktGrunnlag);
         var resultat = tjeneste.fastsettStønadskontoerForBehandling(input);
 
         assertThat(resultat.getStønadskontoutregning()).containsKey(StønadskontoType.FELLESPERIODE);
@@ -191,7 +191,7 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
         fagsakRelasjonTjeneste.kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak());
 
         var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1));
-        var input = new UttakInput(BehandlingReferanse.fra(farBehandling), null, ytelsespesifiktGrunnlag);
+        var input = new UttakInput(BehandlingReferanse.fra(farBehandling), null, null, ytelsespesifiktGrunnlag);
         var resultat = tjeneste.fastsettStønadskontoerForBehandling(input);
 
         assertThat(resultat.getStønadskontoutregning()).containsKey(StønadskontoType.FELLESPERIODE);
@@ -213,7 +213,7 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
         fagsakRelasjonTjeneste.kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak());
 
         var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1));
-        var input = new UttakInput(BehandlingReferanse.fra(farBehandling), null, ytelsespesifiktGrunnlag);
+        var input = new UttakInput(BehandlingReferanse.fra(farBehandling), null, null, ytelsespesifiktGrunnlag);
         var resultat = tjeneste.fastsettStønadskontoerForBehandling(input);
 
         assertThat(resultat.getStønadskontoutregning()).containsKey(StønadskontoType.FELLESPERIODE);

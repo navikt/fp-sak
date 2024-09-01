@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidInntektsmelding;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Function;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -17,9 +16,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
-import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.InntektsmeldingDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,8 +33,10 @@ import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntekts
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ManglendeOpplysningerVurderingDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ManueltArbeidsforholdDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.ArbeidOgInntektsmeldingDto;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.InntektsmeldingDto;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.tilganger.BrukerProfilKlient;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdVersjonDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
@@ -104,8 +102,10 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public ArbeidOgInntektsmeldingDto getArbeidOgInntektsmeldinger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                           @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        var ref = lagReferanse(uuidDto.getBehandlingUuid());
-        return arbeidOgInntektsmeldingDtoTjeneste.lagDto(ref).orElse(null);
+        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+        var ref = BehandlingReferanse.fra(behandling);
+        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+        return arbeidOgInntektsmeldingDtoTjeneste.lagDto(ref, stp).orElse(null);
     }
 
     @GET
@@ -114,8 +114,11 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public List<InntektsmeldingDto> getAlleInntektsmeldinger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                                    @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        var ref = lagReferanse(uuidDto.getBehandlingUuid());
-        return arbeidOgInntektsmeldingDtoTjeneste.hentAlleInntektsmeldingerForFagsak(ref);
+        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+        var ref = BehandlingReferanse.fra(behandling);
+        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+
+        return arbeidOgInntektsmeldingDtoTjeneste.hentAlleInntektsmeldingerForFagsak(ref, stp);
     }
 
 
@@ -132,8 +135,11 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
         if (manglendeOpplysningerVurderingDto.getBehandlingVersjon() != null) {
             behandlingutredningTjeneste.kanEndreBehandling(behandlingRepository.hentBehandling(manglendeOpplysningerVurderingDto.getBehandlingUuid()), manglendeOpplysningerVurderingDto.getBehandlingVersjon());
         }
-        var ref = lagReferanse(manglendeOpplysningerVurderingDto.getBehandlingUuid());
-        arbeidsforholdInntektsmeldingMangelTjeneste.lagreManglendeOpplysningerVurdering(ref, manglendeOpplysningerVurderingDto);
+        var behandling = behandlingRepository.hentBehandling(manglendeOpplysningerVurderingDto.getBehandlingUuid());
+        var ref = BehandlingReferanse.fra(behandling);
+        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+
+        arbeidsforholdInntektsmeldingMangelTjeneste.lagreManglendeOpplysningerVurdering(ref, stp, manglendeOpplysningerVurderingDto);
         return Response.ok().build();
     }
 
@@ -144,7 +150,10 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
     public Response lagreManuelleArbeidsforhold(@TilpassetAbacAttributt(supplierClass = ManueltArbeidsforholdDtoAbacDataSupplier.class)
                                                  @NotNull @Parameter(description = "Registrering av arbeidsforhold.") @Valid ManueltArbeidsforholdDto manueltArbeidsforholdDto) {
-        var ref = lagReferanse(manueltArbeidsforholdDto.getBehandlingUuid());
+        var behandling = behandlingRepository.hentBehandling(manueltArbeidsforholdDto.getBehandlingUuid());
+        var ref = BehandlingReferanse.fra(behandling);
+        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+
         if (manueltArbeidsforholdDto.getBehandlingVersjon() != null) {
             behandlingutredningTjeneste.kanEndreBehandling(behandlingRepository.hentBehandling(manueltArbeidsforholdDto.getBehandlingUuid()), manueltArbeidsforholdDto.getBehandlingVersjon());
         }
@@ -153,7 +162,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
                     "Feil: Prøve å gjøre endringer på et helmanuelt arbeidsforhold uten å være overstyrer på behandling %s", ref.behandlingId());
             throw new TekniskException("FP-657812", msg);
         }
-        arbeidsforholdInntektsmeldingMangelTjeneste.lagreManuelleArbeidsforhold(ref, manueltArbeidsforholdDto);
+        arbeidsforholdInntektsmeldingMangelTjeneste.lagreManuelleArbeidsforhold(ref, stp, manueltArbeidsforholdDto);
         return Response.ok().build();
     }
 
@@ -172,12 +181,6 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
             arbeidOgInntektsmeldingProsessTjeneste.tillTilbakeOgOpprettAksjonspunkt(behandlingIdVersjonDto, true);
         }
         return Response.ok().build();
-    }
-
-    private BehandlingReferanse lagReferanse(UUID uuid) {
-        var behandling = behandlingRepository.hentBehandling(uuid);
-        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-        return BehandlingReferanse.fra(behandling, stp);
     }
 
     private boolean erOverstyringLovlig() {

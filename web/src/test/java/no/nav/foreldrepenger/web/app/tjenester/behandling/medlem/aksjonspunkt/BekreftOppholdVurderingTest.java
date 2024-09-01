@@ -77,7 +77,7 @@ class BekreftOppholdVurderingTest extends EntityManagerAwareTest {
 
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         var bekreftOppholdOppdaterer = new BekreftOppholdOppdaterer.BekreftOppholdsrettVurderingOppdaterer(lagMockHistory(), medlemskapTjeneste, medlemskapAksjonspunktTjeneste);
-        bekreftOppholdOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+        bekreftOppholdOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
 
         // Assert
         var vurdertMedlemskap = getVurdertMedlemskap(behandling.getId(), repositoryProvider);
@@ -119,7 +119,7 @@ class BekreftOppholdVurderingTest extends EntityManagerAwareTest {
 
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         var bekreftOppholdOppdaterer = new BekreftOppholdOppdaterer.BekreftLovligOppholdVurderingOppdaterer(lagMockHistory(), medlemskapTjeneste, medlemskapAksjonspunktTjeneste);
-        bekreftOppholdOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+        bekreftOppholdOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
 
         // Assert
         var behandlingId = behandling.getId();
@@ -129,7 +129,7 @@ class BekreftOppholdVurderingTest extends EntityManagerAwareTest {
 
         // Act 2
         bekreftetPeriode.setBegrunnelse("test2");
-        bekreftOppholdOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+        bekreftOppholdOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
 
         // Assert 2
         vurdertMedlemskap = getVurdertMedlemskap(behandlingId, repositoryProvider);

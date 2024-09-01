@@ -100,8 +100,8 @@ class OpptjeningInntektArbeidYtelseTjenesteTest {
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgitt);
 
         // Assert
-        var ref = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(skjæringstidspunkt));
-        var perioder = opptjeningTjeneste.hentRelevanteOpptjeningAktiveterForVilkårVurdering(ref)
+        var ref = BehandlingReferanse.fra(behandling);
+        var perioder = opptjeningTjeneste.hentRelevanteOpptjeningAktiveterForVilkårVurdering(ref, medUtledetSkjæringstidspunkt(skjæringstidspunkt))
                 .stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.NÆRING)).toList();
 
         assertThat(perioder).hasSize(1);
@@ -129,8 +129,8 @@ class OpptjeningInntektArbeidYtelseTjenesteTest {
         iayTjeneste.lagreIayAggregat(behandling.getId(), saksbehandling);
 
         // Act
-        var ref = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(skjæringstidspunkt));
-        var perioder = opptjeningTjeneste.hentRelevanteOpptjeningAktiveterForVilkårVurdering(ref);
+        var ref = BehandlingReferanse.fra(behandling);
+        var perioder = opptjeningTjeneste.hentRelevanteOpptjeningAktiveterForVilkårVurdering(ref, medUtledetSkjæringstidspunkt(skjæringstidspunkt));
         assertThat(perioder).hasSize(1);
         assertThat(
                 perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.FERDIG_VURDERT_GODKJENT)).toList())
@@ -161,8 +161,8 @@ class OpptjeningInntektArbeidYtelseTjenesteTest {
         iayTjeneste.lagreIayAggregat(behandling.getId(), overstyrt);
 
         // Act
-        var behandlingReferanse = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(skjæringstidspunkt));
-        var perioder = opptjeningTjeneste.hentRelevanteOpptjeningAktiveterForVilkårVurdering(behandlingReferanse);
+        var behandlingReferanse = BehandlingReferanse.fra(behandling);
+        var perioder = opptjeningTjeneste.hentRelevanteOpptjeningAktiveterForVilkårVurdering(behandlingReferanse, medUtledetSkjæringstidspunkt(skjæringstidspunkt));
         assertThat(perioder).hasSize(1);
         assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.FERDIG_VURDERT_UNDERKJENT))
                 .toList())

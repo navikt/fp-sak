@@ -64,7 +64,7 @@ class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
         var dto = new VurderFaresignalerDto("Dustemikkel", FaresignalVurdering.INNVILGET_UENDRET);
 
         // Act
-        vurderFaresignalerOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto));
+        vurderFaresignalerOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
 
         // Assert
         var tekstBuilder = historikkAdapter.tekstBuilder().ferdigstillHistorikkinnslagDel();
@@ -90,7 +90,7 @@ class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
         var dto = new VurderFaresignalerDto("Dustemikkel", FaresignalVurdering.INNVILGET_REDUSERT);
 
         // Act
-        vurderFaresignalerOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto));
+        vurderFaresignalerOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
 
         // Assert
         var tekstBuilder = historikkAdapter.tekstBuilder().ferdigstillHistorikkinnslagDel();
@@ -117,7 +117,7 @@ class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
         var dto = new VurderFaresignalerDto("Dustemikkel", FaresignalVurdering.INGEN_INNVIRKNING);
 
         // Act
-        vurderFaresignalerOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto));
+        vurderFaresignalerOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
 
         // Assert
         var tekstBuilder = historikkAdapter.tekstBuilder().ferdigstillHistorikkinnslagDel();
@@ -144,7 +144,7 @@ class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
         var dto = new VurderFaresignalerDto("Dustemikkel", FaresignalVurdering.AVSLAG_FARESIGNAL);
 
         // Act
-        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto);
+        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto);
         assertThrows(IllegalStateException.class, () -> vurderFaresignalerOppdaterer.oppdater(dto, param));
     }
 

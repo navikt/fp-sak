@@ -10,6 +10,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
@@ -39,22 +40,22 @@ public class ArbeidsforholdInntektsmeldingsMangelUtleder {
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
     }
 
-    public List<ArbeidsforholdMangel> finnAlleManglerIArbeidsforholdInntektsmeldinger(BehandlingReferanse referanse) {
+    public List<ArbeidsforholdMangel> finnAlleManglerIArbeidsforholdInntektsmeldinger(BehandlingReferanse referanse, Skjæringstidspunkt stp) {
         var iayGrunnlag = iayTjeneste.finnGrunnlag(referanse.behandlingId());
         List<ArbeidsforholdMangel> mangler = new ArrayList<>();
         if (iayGrunnlag.isPresent()) {
             mangler.addAll(lagArbeidsforholdMedMangel(inntektsmeldingRegisterTjeneste
-                .utledManglendeInntektsmeldingerFraGrunnlag(referanse, false), AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING));
+                .utledManglendeInntektsmeldingerFraGrunnlag(referanse, stp, false), AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING));
             mangler.addAll(lagArbeidsforholdMedMangel(InntektsmeldingUtenArbeidsforholdTjeneste
-                .utledManglendeArbeidsforhold(hentRelevanteInntektsmeldinger(referanse, iayGrunnlag.get()),
-                    iayGrunnlag.get(),referanse.aktørId(), referanse.getUtledetSkjæringstidspunkt()), AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD));
+                .utledManglendeArbeidsforhold(hentRelevanteInntektsmeldinger(referanse, stp, iayGrunnlag.get()),
+                    iayGrunnlag.get(),referanse.aktørId(), stp.getUtledetSkjæringstidspunkt()), AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD));
         }
 
         return mangler;
     }
 
-    private List<Inntektsmelding> hentRelevanteInntektsmeldinger(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        return inntektsmeldingTjeneste.hentInntektsmeldinger(ref, ref.getUtledetSkjæringstidspunkt(), iayGrunnlag, true);
+    private List<Inntektsmelding> hentRelevanteInntektsmeldinger(BehandlingReferanse ref, Skjæringstidspunkt stp, InntektArbeidYtelseGrunnlag iayGrunnlag) {
+        return inntektsmeldingTjeneste.hentInntektsmeldinger(ref, stp, stp.getUtledetSkjæringstidspunkt(), iayGrunnlag, true);
     }
     private List<ArbeidsforholdMangel> lagArbeidsforholdMedMangel(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsgiverSetMap, AksjonspunktÅrsak manglendeInntektsmelding) {
         return arbeidsgiverSetMap.entrySet().stream()

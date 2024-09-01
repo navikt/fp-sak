@@ -8,6 +8,7 @@ import no.nav.folketrygdloven.kalkulus.felles.v1.Periode;
 import no.nav.folketrygdloven.kalkulus.opptjening.v1.OpptjeningAktiviteterDto;
 import no.nav.folketrygdloven.kalkulus.opptjening.v1.OpptjeningPeriodeDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.mappers.RelevantOpptjeningMapper;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulator.KodeverkTilKalkulusMapper;
@@ -21,8 +22,8 @@ public class MapOpptjeningTilKalkulusInput {
 
     public static OpptjeningAktiviteterDto mapOpptjening(OpptjeningAktiviteter opptjeningAktiviteter,
                                                          InntektArbeidYtelseGrunnlag iayGrunnlag,
-                                                         BehandlingReferanse ref ) {
-        var relevanteAktiviteter = RelevantOpptjeningMapper.map(opptjeningAktiviteter, iayGrunnlag, ref);
+                                                         BehandlingReferanse ref, Skjæringstidspunkt stp) {
+        var relevanteAktiviteter = RelevantOpptjeningMapper.map(opptjeningAktiviteter, iayGrunnlag, ref, stp);
         return new OpptjeningAktiviteterDto(relevanteAktiviteter.stream()
             .map(opptjeningPeriode -> new OpptjeningPeriodeDto(
                 KodeverkTilKalkulusMapper.mapOpptjeningAktivitetType(opptjeningPeriode.opptjeningAktivitetType()),

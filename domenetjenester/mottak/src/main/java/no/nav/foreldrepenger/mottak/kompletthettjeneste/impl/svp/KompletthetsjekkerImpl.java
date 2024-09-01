@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
@@ -56,15 +57,15 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
     }
 
     @Override
-    public KompletthetResultat vurderSøknadMottattForTidlig(BehandlingReferanse ref) {
-        var forTidligFrist = kompletthetssjekkerSøknad.erSøknadMottattForTidlig(ref);
+    public KompletthetResultat vurderSøknadMottattForTidlig(Skjæringstidspunkt stp) {
+        var forTidligFrist = kompletthetssjekkerSøknad.erSøknadMottattForTidlig(stp);
         return forTidligFrist.map(localDateTime -> KompletthetResultat.ikkeOppfylt(localDateTime, Venteårsak.FOR_TIDLIG_SOKNAD)).orElseGet(KompletthetResultat::oppfylt);
     }
 
     @Override
-    public KompletthetResultat vurderForsendelseKomplett(BehandlingReferanse ref) {
+    public KompletthetResultat vurderForsendelseKomplett(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         // Kalles fra VurderKompletthetSteg (en ganger) som setter autopunkt 7003 + fra KompletthetsKontroller (dokument på åpen behandling, hendelser)
-        var kompletthetManglendeIM = fellesUtil.getInntektsmeldingKomplett(ref);
+        var kompletthetManglendeIM = fellesUtil.getInntektsmeldingKomplett(ref, stp);
         return kompletthetManglendeIM.orElseGet(KompletthetResultat::oppfylt);
     }
 
@@ -84,8 +85,8 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
     }
 
     @Override
-    public KompletthetResultat vurderEtterlysningInntektsmelding(BehandlingReferanse ref) {
-        return fellesUtil.vurderEtterlysningInntektsmelding(ref);
+    public KompletthetResultat vurderEtterlysningInntektsmelding(BehandlingReferanse ref, Skjæringstidspunkt stp) {
+        return fellesUtil.vurderEtterlysningInntektsmelding(ref, stp);
     }
 
     private LocalDateTime finnVentefristTilManglendeSøknad() {

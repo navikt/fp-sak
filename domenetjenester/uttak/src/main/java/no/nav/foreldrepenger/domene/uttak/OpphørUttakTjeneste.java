@@ -10,6 +10,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
@@ -31,11 +32,11 @@ public class OpphørUttakTjeneste {
         this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
     }
 
-    public Optional<LocalDate> getOpphørsdato(BehandlingReferanse ref, Behandlingsresultat behandlingsresultat) {
+    public Optional<LocalDate> getOpphørsdato(BehandlingReferanse ref, Skjæringstidspunkt stp, Behandlingsresultat behandlingsresultat) {
         if (!behandlingsresultat.isBehandlingsresultatOpphørt()) {
             return Optional.empty();
         }
-        var skjæringstidspunkt = ref.getUtledetSkjæringstidspunkt();
+        var skjæringstidspunkt = stp.getUtledetSkjæringstidspunkt();
         var opphørsdato = utledOpphørsdatoFraUttak(hentUttakResultatFor(ref.behandlingId()), skjæringstidspunkt);
 
         return Optional.ofNullable(opphørsdato);

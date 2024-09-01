@@ -111,7 +111,7 @@ class MedlemRegelGrunnlagByggerTest {
                 .leggTilAktørInntekt(aktørInntektBuilder));
 
         var resultat = regelGrunnlagBygger.lagRegelGrunnlagInngangsvilkår(
-            BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId())));
+            BehandlingReferanse.fra(behandling), skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
 
         assertThat(resultat.personopplysninger().adresser()).hasSize(1);
         var adresse1 = resultat.personopplysninger().adresser().stream().findFirst().orElseThrow();
@@ -203,7 +203,7 @@ class MedlemRegelGrunnlagByggerTest {
                         .leggTilAktivitetsAvtale(nyAktivitetsAvtaleBuilder().medPeriode(yrkesAktivitetPeriode)))));
 
         var resultat = regelGrunnlagBygger.lagRegelGrunnlagFortsattMedlem(
-            BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId())));
+            BehandlingReferanse.fra(behandling), skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
 
         assertThat(resultat.personopplysninger().adresser()).hasSize(1);
         var adresse1 = resultat.personopplysninger().adresser().stream().findFirst().orElseThrow();

@@ -36,7 +36,7 @@ public class UttakYrkesaktiviteter {
         }
         var bgStatuser = input.getBeregningsgrunnlagStatuser();
         var ref = input.getBehandlingReferanse();
-        var skjæringstidspunkt = ref.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
+        var skjæringstidspunkt = input.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
 
         var aktørId = ref.aktørId();
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(),
@@ -70,9 +70,8 @@ public class UttakYrkesaktiviteter {
                                                          InternArbeidsforholdRef arbeidsforholdRef,
                                                          LocalDate dato) {
         var yrkesAktiviteter = hentYrkesAktiviteterOrdinærtArbeidsforhold(input);
-        var ref = input.getBehandlingReferanse();
         return finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbeidsforholdRef, yrkesAktiviteter, dato,
-            ref.getSkjæringstidspunkt());
+            input.getSkjæringstidspunkt());
     }
 
     public Set<AktivitetIdentifikator> tilAktivitetIdentifikatorer() {
@@ -124,7 +123,7 @@ public class UttakYrkesaktiviteter {
             return BigDecimal.ZERO;
         }
         var ref = input.getBehandlingReferanse();
-        var skjæringstidspunkt = ref.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
+        var skjæringstidspunkt = input.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
 
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(),
             grunnlag.getAktørArbeidFraRegister(ref.aktørId())).etter(skjæringstidspunkt);
