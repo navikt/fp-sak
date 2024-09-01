@@ -32,12 +32,10 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
 
     @Inject
     public BeregningsgrunnlagGUIInputTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
-                                              InntektArbeidYtelseTjeneste iayTjeneste,
                                               SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                               BeregnTilrettleggingsperioderTjeneste tilrettleggingsperioderTjeneste,
-                                              InntektsmeldingTjeneste inntektsmeldingTjeneste,
-                                              OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste) {
-        super(behandlingRepositoryProvider.getBehandlingRepository(), iayTjeneste, skjæringstidspunktTjeneste,
+                                              InntektsmeldingTjeneste inntektsmeldingTjeneste) {
+        super(behandlingRepositoryProvider.getBehandlingRepository(), skjæringstidspunktTjeneste,
                 inntektsmeldingTjeneste);
         this.tilrettleggingsperioderTjeneste = Objects.requireNonNull(tilrettleggingsperioderTjeneste, "tilrettleggingsperioderTjeneste");
     }

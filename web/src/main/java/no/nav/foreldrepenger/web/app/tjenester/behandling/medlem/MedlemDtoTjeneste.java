@@ -149,7 +149,7 @@ public class MedlemDtoTjeneste {
         var personopplysningerAggregat = personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref);
         // Tomt innhold hvis det mangler behandlingsgrunnlag.
         if (personopplysningerAggregat.map(PersonopplysningerAggregat::getSøker).isPresent()) {
-            mapSkjæringstidspunkt(dto, medlemskapOpt.orElse(null), behandling.getAksjonspunkter(), ref, stp);
+            stp.ifPresent(s -> mapSkjæringstidspunkt(dto, medlemskapOpt.orElse(null), behandling.getAksjonspunkter(), ref, s));
             mapRegistrerteMedlPerioder(dto, medlemskapOpt.map(MedlemskapAggregat::getRegistrertMedlemskapPerioder).orElse(Collections.emptySet()));
             dto.setOpphold(mapOppholdstillatelser(behandlingId));
             dto.setFom(mapMedlemV2Fom(behandling, ref, stp, personopplysningerAggregat, medlemskapOpt).orElse(null));
@@ -184,7 +184,10 @@ public class MedlemDtoTjeneste {
             if (!endredeAttributter.isEmpty()) {
                 return endringerIPersonopplysninger.getGjeldendeFra();
             }
-            var forPeriode = SimpleLocalDateInterval.enDag(stp.map(Skjæringstidspunkt::getUtledetSkjæringstidspunkt).orElseGet(LocalDate::now));
+            if (stp.map(Skjæringstidspunkt::getUtledetSkjæringstidspunkt).or(() -> fom).isEmpty()) {
+                return fom;
+            }
+            var forPeriode = SimpleLocalDateInterval.enDag(stp.map(Skjæringstidspunkt::getUtledetSkjæringstidspunkt).or(() -> fom).orElseThrow());
             /* Ingen endringer i personopplysninger (siden siste vedtatte medlemskapsperiode),
             så vi setter gjeldende f.o.m fra nyeste endring i personstatus. Denne vises b.a. ifm. aksjonspunkt 5022 */
             if (fom.isPresent() && personopplysningerAggregat.get().getPersonstatusFor(ref.aktørId(), forPeriode) != null
@@ -212,7 +215,7 @@ public class MedlemDtoTjeneste {
         var dtoPerioder = dto.getPerioder();
         for (var entrySet : vurderingspunkter.entrySet()) {
             var vurdertMedlemskap = finnVurderMedlemskap(perioder, entrySet);
-            var medlemPeriodeDto = mapTilPeriodeDto(ref, stp, vurdertMedlemskap, entrySet.getKey(), entrySet.getValue().årsaker(),
+            var medlemPeriodeDto = mapTilPeriodeDto(ref, stp.get(), vurdertMedlemskap, entrySet.getKey(), entrySet.getValue().årsaker(),
                 vurdertMedlemskap.map(VurdertMedlemskap::getBegrunnelse).orElse(null));
             medlemPeriodeDto.setAksjonspunkter(entrySet.getValue().aksjonspunkter().stream().map(Kodeverdi::getKode).collect(Collectors.toSet()));
             dtoPerioder.add(medlemPeriodeDto);
@@ -239,10 +242,10 @@ public class MedlemDtoTjeneste {
     }
 
     private void mapSkjæringstidspunkt(MedlemV2Dto dto, MedlemskapAggregat aggregat, Set<Aksjonspunkt> aksjonspunkter,
-                                       BehandlingReferanse ref,  Optional<Skjæringstidspunkt> stp) {
+                                       BehandlingReferanse ref,  Skjæringstidspunkt stp) {
         var aggregatOpts = Optional.ofNullable(aggregat);
         var vurdertMedlemskapOpt = aggregatOpts.flatMap(MedlemskapAggregat::getVurdertMedlemskap);
-        var vurderingsdato = stp.flatMap(Skjæringstidspunkt::getSkjæringstidspunktHvisUtledet).orElse(null);
+        var vurderingsdato = stp.getSkjæringstidspunktHvisUtledet().orElse(null);
         var begrunnelse = vurdertMedlemskapOpt.map(VurdertMedlemskap::getBegrunnelse).orElseGet(() -> hentBegrunnelseFraAksjonspuntk(aksjonspunkter));
         var periodeDto = mapTilPeriodeDto(ref, stp, vurdertMedlemskapOpt, vurderingsdato, Set.of(VurderingsÅrsak.SKJÆRINGSTIDSPUNKT), begrunnelse);
         periodeDto.setAksjonspunkter(aksjonspunkter.stream()
@@ -253,7 +256,7 @@ public class MedlemDtoTjeneste {
         dto.getPerioder().add(periodeDto);
     }
 
-    private MedlemPeriodeDto mapTilPeriodeDto(BehandlingReferanse ref,  Optional<Skjæringstidspunkt> stp, Optional<VurdertMedlemskap> vurdertMedlemskapOpt,
+    private MedlemPeriodeDto mapTilPeriodeDto(BehandlingReferanse ref,  Skjæringstidspunkt stp, Optional<VurdertMedlemskap> vurdertMedlemskapOpt,
                                               LocalDate vurderingsdato, Set<VurderingsÅrsak> årsaker, String begrunnelse) {
         var periodeDto = new MedlemPeriodeDto();
         periodeDto.setÅrsaker(årsaker);
