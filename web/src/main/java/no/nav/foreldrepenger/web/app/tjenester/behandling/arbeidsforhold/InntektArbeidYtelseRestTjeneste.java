@@ -145,12 +145,27 @@ public class InntektArbeidYtelseRestTjeneste {
     }
 
     private IAYYtelseDto getYtelserFraBehandling(Behandling behandling) {
+        if (erSkjæringstidspunktIkkeUtledet(behandling)) {
+            // Tilfelle papirsøknad før registrering
+            return new IAYYtelseDto();
+        }
         // finn annen part
         var annenPartAktørId = getAnnenPart(behandling.getId());
         var ref = BehandlingReferanse.fra(behandling);
         return iayTjeneste.finnGrunnlag(behandling.getId())
             .map(iayg -> ytelseMapper.mapFra(ref, iayg, annenPartAktørId))
             .orElseGet(IAYYtelseDto::new);
+    }
+
+    private boolean erSkjæringstidspunktIkkeUtledet(Behandling behandling) {
+        try {
+            var skjæringstidspunkt = behandling.erSaksbehandlingAvsluttet() ?
+                skjæringstidspunktTjeneste.getSkjæringstidspunkterForAvsluttetBehandling(behandling.getId()) :
+                skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+            return skjæringstidspunkt == null || skjæringstidspunkt.getSkjæringstidspunktHvisUtledet().isEmpty();
+        } catch (Exception e) {
+            return true;
+        }
     }
 
     private Optional<AktørId> getAnnenPart(Long behandlingId) {
@@ -179,7 +194,7 @@ public class InntektArbeidYtelseRestTjeneste {
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
 
-        if (!behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.REGISTRER_SØKNAD)) {
+        if (erSkjæringstidspunktIkkeUtledet(behandling)) {
             return new ArbeidsgiverOversiktDto();
         }
 

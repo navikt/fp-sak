@@ -30,7 +30,7 @@ final class MedlemFellesRegler {
     static boolean sjekkOmManglendeBosted(Personopplysninger personopplysninger, LocalDateInterval vurderingsperiode) {
         var bostedsadresserSegments = personopplysninger.adresser()
             .stream()
-            .filter(a -> a.type() == BOSTEDSADRESSE)
+            .filter(a -> a.type() == BOSTEDSADRESSE && !a.erUtenlandsk())
             .map(a -> new LocalDateSegment<>(a.periode(), Boolean.TRUE))
             .collect(Collectors.toSet());
         var timeline = new LocalDateTimeline<>(bostedsadresserSegments, StandardCombinators::alwaysTrueForMatch);
