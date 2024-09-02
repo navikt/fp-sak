@@ -5,11 +5,9 @@
                  https://jakarta.ee/xml/ns/persistence/orm/orm_3_0.xsd"
                  version="3.0">
 
-	<sequence-generator name="SEQ_TOTRINNRESULTATGRUNNLAG" allocation-size="50" sequence-name="SEQ_TOTRINNRESULTATGRUNNLAG" />
 	<sequence-generator name="SEQ_TOTRINNSVURDERING" allocation-size="50" sequence-name="SEQ_TOTRINNSVURDERING" />
 	<sequence-generator name="SEQ_VURDER_AARSAK_TTVURDERING" allocation-size="50" sequence-name="SEQ_VURDER_AARSAK_TTVURDERING" />
 
-	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.totrinn.Totrinnresultatgrunnlag" />
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.totrinn.Totrinnsvurdering" />
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.totrinn.VurderÅrsakTotrinnsvurdering" />
 
