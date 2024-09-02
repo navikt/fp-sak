@@ -55,7 +55,7 @@ public class ArbeidsforholdInntektsmeldingsMangelUtleder {
     }
 
     private List<Inntektsmelding> hentRelevanteInntektsmeldinger(BehandlingReferanse ref, Skjæringstidspunkt stp, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        return inntektsmeldingTjeneste.hentInntektsmeldinger(ref, stp, stp.getUtledetSkjæringstidspunkt(), iayGrunnlag, true);
+        return inntektsmeldingTjeneste.hentInntektsmeldinger(ref, stp.getUtledetSkjæringstidspunkt(), iayGrunnlag, true);
     }
     private List<ArbeidsforholdMangel> lagArbeidsforholdMedMangel(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsgiverSetMap, AksjonspunktÅrsak manglendeInntektsmelding) {
         return arbeidsgiverSetMap.entrySet().stream()

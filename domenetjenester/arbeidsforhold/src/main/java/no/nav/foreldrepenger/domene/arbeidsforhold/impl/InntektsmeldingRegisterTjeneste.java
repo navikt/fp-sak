@@ -212,7 +212,7 @@ public class InntektsmeldingRegisterTjeneste {
         if (erEndringssøknad && referanse.erRevurdering()) {
             inntektsmeldinger = inntektsmeldingTjeneste.hentAlleInntektsmeldingerMottattEtterGjeldendeVedtak(referanse);
         } else {
-            inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(referanse, stp, stp.getUtledetSkjæringstidspunkt());
+            inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(referanse, stp.getUtledetSkjæringstidspunkt());
         }
 
         for (var inntektsmelding : inntektsmeldinger) {

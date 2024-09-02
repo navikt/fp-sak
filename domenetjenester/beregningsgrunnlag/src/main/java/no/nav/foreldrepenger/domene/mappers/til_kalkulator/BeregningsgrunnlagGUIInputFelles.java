@@ -58,7 +58,7 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
      * Optional.empty().
      */
     private Optional<BeregningsgrunnlagGUIInput> lagInput(BehandlingReferanse ref, Skjæringstidspunkt stp, InntektArbeidYtelseGrunnlag iayGrunnlag, Set<Aksjonspunkt> aksjonspunkter) {
-        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, stp, stp.getUtledetSkjæringstidspunkt(), iayGrunnlag, true);
+        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, stp.getUtledetSkjæringstidspunkt(), iayGrunnlag, true);
         var iayGrunnlagDto = IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag, inntektsmeldinger, ref.aktørId());
         var ytelseGrunnlag = getYtelsespesifiktGrunnlag(ref, stp);
         var kravperioder = mapKravperioder(ref, stp, iayGrunnlag);

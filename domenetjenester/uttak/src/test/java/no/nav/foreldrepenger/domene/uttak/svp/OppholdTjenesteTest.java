@@ -67,7 +67,7 @@ class OppholdTjenesteTest {
         var inntektsmeldingUtenFerie = lagInntektsmelding(null, null);
 
         SvangerskapspengerGrunnlag svangerskapspengerGrunnlag = new SvangerskapspengerGrunnlag().medSvpGrunnlagEntitet(svpGrunnlag);
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(BehandlingReferanse.class), any(), any())).thenReturn(List.of(inntektsmeldingUtenFerie));
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(BehandlingReferanse.class), any())).thenReturn(List.of(inntektsmeldingUtenFerie));
 
         //forventet resultat
         var oppholdFraSaksbehandlerOgInntektsmeldingMap = oppholdTjeneste.finnOppholdFraTilretteleggingOgInntektsmelding(lagBehandlingReferanse(),
@@ -100,7 +100,7 @@ class OppholdTjenesteTest {
 
         SvangerskapspengerGrunnlag svangerskapspengerGrunnlag = new SvangerskapspengerGrunnlag().medSvpGrunnlagEntitet(svpGrunnlag);
 
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(BehandlingReferanse.class), any(), any())).thenReturn(List.of(inntektsmeldingUtenFerie));
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(BehandlingReferanse.class), any())).thenReturn(List.of(inntektsmeldingUtenFerie));
 
         //forventet resultat
         var oppholdFraSaksbehandlerOgInntektsmeldingMap = oppholdTjeneste.finnOppholdFraTilretteleggingOgInntektsmelding(lagBehandlingReferanse(),
@@ -140,7 +140,7 @@ class OppholdTjenesteTest {
 
         SvangerskapspengerGrunnlag svangerskapspengerGrunnlag = new SvangerskapspengerGrunnlag().medSvpGrunnlagEntitet(svpGrunnlag);
 
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(BehandlingReferanse.class), any(), any())).thenReturn(List.of(inntektsmeldingMedFerie));
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(BehandlingReferanse.class), any())).thenReturn(List.of(inntektsmeldingMedFerie));
 
         //forventet resultat
         var oppholdFraSaksbehandlerOgInntektsmeldingMap = oppholdTjeneste.finnOppholdFraTilretteleggingOgInntektsmelding(lagBehandlingReferanse(),
