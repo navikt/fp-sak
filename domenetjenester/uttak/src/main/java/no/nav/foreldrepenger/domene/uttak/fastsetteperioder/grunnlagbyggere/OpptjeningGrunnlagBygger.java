@@ -10,6 +10,6 @@ public class OpptjeningGrunnlagBygger {
 
     public Opptjening.Builder byggGrunnlag(UttakInput input) {
         return new Opptjening.Builder()
-            .skjæringstidspunkt(input.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt());
+            .skjæringstidspunkt(input.getSkjæringstidspunkt().orElseThrow().getUtledetSkjæringstidspunkt());
     }
 }

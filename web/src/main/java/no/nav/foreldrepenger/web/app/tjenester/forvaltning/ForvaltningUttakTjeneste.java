@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -8,11 +9,13 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.BeregnStønadskontoerTjeneste;
@@ -57,6 +60,24 @@ public class ForvaltningUttakTjeneste {
         var fagsak = fagsakRepository.finnEksaktFagsak(input.getBehandlingReferanse().fagsakId());
         fagsakRelasjonTjeneste.nullstillOverstyrtStønadskontoberegning(fagsak);
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
+    }
+
+    public void setStartdato(UUID behandlingId, LocalDate startdato) {
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        ytelseFordelingTjeneste.aksjonspunktAvklarStartdatoForPerioden(behandling.getId(), startdato);
+
+        var historikkinnslag = new Historikkinnslag();
+        historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
+        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
+        historikkinnslag.setBehandlingId(behandling.getId());
+
+        var historieBuilder = new HistorikkInnslagTekstBuilder()
+            .medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
+            .medSkjermlenke(SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER)
+            .medEndretFelt(HistorikkEndretFeltType.STARTDATO_FRA_SOKNAD, null, startdato)
+            .medBegrunnelse(String.format("FORVALTNING - satt startdato til %s pga manglende uttak", startdato));
+        historieBuilder.build(historikkinnslag);
+        historikkRepository.lagre(historikkinnslag);
     }
 
     public void endreAnnenForelderHarRett(UUID behandlingUUID, boolean harRett) {

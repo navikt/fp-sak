@@ -8,6 +8,7 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
@@ -57,7 +58,8 @@ public class BeregnStønadskontoerTjeneste {
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         var annenpartsGjeldendeUttaksplan = hentAnnenpartsUttak(fpGrunnlag);
         var dekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgrad(ref);
-        return stønadskontoRegelAdapter.beregnKontoerSjekkDiff(ref, uttakInput.getSkjæringstidspunkt(),
+        var stp = uttakInput.getSkjæringstidspunkt().flatMap(Skjæringstidspunkt::getSkjæringstidspunktHvisUtledet).orElse(null);
+        return stønadskontoRegelAdapter.beregnKontoerSjekkDiff(ref, stp,
             ytelseFordelingAggregat, dekningsgrad, annenpartsGjeldendeUttaksplan, fpGrunnlag, tidligereBeregning);
     }
 

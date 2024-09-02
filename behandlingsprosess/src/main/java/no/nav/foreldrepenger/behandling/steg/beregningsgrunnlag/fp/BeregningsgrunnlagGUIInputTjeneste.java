@@ -51,14 +51,13 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
 
     @Inject
     public BeregningsgrunnlagGUIInputTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
-                                              InntektArbeidYtelseTjeneste iayTjeneste,
                                               SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                               BeregningUttakTjeneste beregningUttakTjeneste,
                                               BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste,
                                               InntektsmeldingTjeneste inntektsmeldingTjeneste,
                                               HentOgLagreBeregningsgrunnlagTjeneste hentOgLagreBeregningsgrunnlagTjeneste,
                                               DekningsgradTjeneste dekningsgradTjeneste) {
-        super(behandlingRepositoryProvider.getBehandlingRepository(), iayTjeneste, skjæringstidspunktTjeneste, inntektsmeldingTjeneste);
+        super(behandlingRepositoryProvider.getBehandlingRepository(), skjæringstidspunktTjeneste, inntektsmeldingTjeneste);
         this.dekningsgradTjeneste = Objects.requireNonNull(dekningsgradTjeneste, "fagsakRelasjonTjeneste");
         this.besteberegningFødendeKvinneTjeneste = besteberegningFødendeKvinneTjeneste;
         this.hentOgLagreBeregningsgrunnlagTjeneste = hentOgLagreBeregningsgrunnlagTjeneste;

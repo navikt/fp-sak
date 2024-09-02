@@ -76,14 +76,15 @@ public class ArbeidsforholdInntektsmeldingFormidlingRestTjeneste {
             return responseBuilder.build();
         }
         var ref = BehandlingReferanse.fra(behandling.get());
+        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId());
         var alleYrkesaktiviteter = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.behandlingId()).getAktørArbeidFraRegister(ref.aktørId())
             .map(AktørArbeid::hentAlleYrkesaktiviteter)
             .orElse(Collections.emptyList());
-        var arbeidsforholdInntektsmeldingStatuser = arbeidsforholdInntektsmeldingMangelTjeneste.finnStatusForInntektsmeldingArbeidsforhold(ref);
+        var arbeidsforholdInntektsmeldingStatuser = arbeidsforholdInntektsmeldingMangelTjeneste.finnStatusForInntektsmeldingArbeidsforhold(ref, stp);
 
-        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId()).getUtledetSkjæringstidspunkt();
+
         var arbeidsforholdInntektsmeldinger = ArbeidsforholdInntektsmeldingDtoTjeneste.mapInntektsmeldingStatus(arbeidsforholdInntektsmeldingStatuser,
-            alleYrkesaktiviteter, stp);
+            alleYrkesaktiviteter, stp.getUtledetSkjæringstidspunkt());
 
         var responseBuilder = Response.ok(arbeidsforholdInntektsmeldinger);
         return responseBuilder.build();

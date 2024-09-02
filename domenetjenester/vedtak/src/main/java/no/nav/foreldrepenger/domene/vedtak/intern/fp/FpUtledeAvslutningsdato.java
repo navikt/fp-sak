@@ -9,6 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -123,7 +124,7 @@ public class FpUtledeAvslutningsdato implements UtledeAvslutningsdatoFagsak {
                                                   int stønadRest,
                                                   LocalDate sisteUttaksdatoFraBeggeParterMedRestOgEnDag,
                                                   LocalDate maksDatoFraStp) {
-        var friUtsettelse = !uttakInput.getSkjæringstidspunkt().kreverSammenhengendeUttak();
+        var friUtsettelse = uttakInput.getSkjæringstidspunkt().filter(Skjæringstidspunkt::kreverSammenhengendeUttak).isEmpty();
         if (friUtsettelse) {
             if (stønadRest <= 0)
             {

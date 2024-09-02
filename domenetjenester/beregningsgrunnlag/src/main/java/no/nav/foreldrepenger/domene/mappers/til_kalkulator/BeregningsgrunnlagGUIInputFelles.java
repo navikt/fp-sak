@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -25,17 +24,14 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 public abstract class BeregningsgrunnlagGUIInputFelles {
 
     private BehandlingRepository behandlingRepository;
-    private InntektArbeidYtelseTjeneste iayTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
 
     @Inject
     public BeregningsgrunnlagGUIInputFelles(BehandlingRepository behandlingRepository,
-                                            InntektArbeidYtelseTjeneste iayTjeneste,
                                             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                             InntektsmeldingTjeneste inntektsmeldingTjeneste) {
         this.behandlingRepository = Objects.requireNonNull(behandlingRepository, "behandlingRepository");
-        this.iayTjeneste = Objects.requireNonNull(iayTjeneste, "iayTjeneste");
         this.skjæringstidspunktTjeneste = Objects.requireNonNull(skjæringstidspunktTjeneste, "skjæringstidspunktTjeneste");
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
     }
@@ -45,9 +41,16 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
     }
 
     public Optional<BeregningsgrunnlagGUIInput> lagInput(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId());
         var aksjonspunkter = behandlingRepository.hentBehandling(ref.behandlingId()).getAksjonspunkter();
-        return lagInput(ref, skjæringstidspunkt, iayGrunnlag, aksjonspunkter);
+        return finnSkjæringstidspunkt(ref).flatMap(stp -> lagInput(ref, stp, iayGrunnlag, aksjonspunkter));
+    }
+
+    private Optional<Skjæringstidspunkt> finnSkjæringstidspunkt(BehandlingReferanse ref) {
+        try {
+            return Optional.of(skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId()));
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
     /**
