@@ -51,7 +51,7 @@ public class AvklarLøpendeOmsorgAksjonspunktUtleder {
             return Optional.empty();
         }
         if (bekreftetFH.isPresent() && erBarnetFødt(bekreftetFH.get()) == Utfall.JA
-            && !personopplysninger.barnHarSammeBosted(ref, input.getSkjæringstidspunkt())) {
+            && !personopplysninger.barnHarSammeBosted(ref, input.getSkjæringstidspunkt().orElseThrow())) {
             return Optional.of(AVKLAR_LØPENDE_OMSORG);
         }
         return Optional.empty();

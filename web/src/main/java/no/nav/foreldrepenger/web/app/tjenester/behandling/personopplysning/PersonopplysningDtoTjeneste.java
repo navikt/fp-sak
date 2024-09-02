@@ -76,14 +76,14 @@ public class PersonopplysningDtoTjeneste {
         return aggregat.getStatsborgerskapRegionVedTidspunkt(personopplysning.getAktørId(), tidspunkt, stp);
     }
 
-    public Optional<PersonopplysningMedlemDto> lagPersonopplysningMedlemskapDto(BehandlingReferanse ref,  Optional<Skjæringstidspunkt> stp, LocalDate tidspunkt) {
+    public Optional<PersonopplysningMedlemDto> lagPersonopplysningMedlemskapDto(BehandlingReferanse ref,  Skjæringstidspunkt stp, LocalDate tidspunkt) {
         return personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref)
-            .map(aggregat -> enkelMappingMedlemskap(aggregat.getSøker(), aggregat, tidspunkt, stp.flatMap(Skjæringstidspunkt::getSkjæringstidspunktHvisUtledet)));
+            .map(aggregat -> enkelMappingMedlemskap(aggregat.getSøker(), aggregat, tidspunkt, stp.getSkjæringstidspunktHvisUtledet()));
     }
 
-    public Optional<PersonopplysningMedlemDto> lagAnnenpartPersonopplysningMedlemskapDto(BehandlingReferanse ref,  Optional<Skjæringstidspunkt> stp, LocalDate tidspunkt) {
+    public Optional<PersonopplysningMedlemDto> lagAnnenpartPersonopplysningMedlemskapDto(BehandlingReferanse ref,  Skjæringstidspunkt stp, LocalDate tidspunkt) {
         return personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref)
-            .flatMap(agg -> mapAnnenpartMedlemskap(agg, tidspunkt, stp.flatMap(Skjæringstidspunkt::getSkjæringstidspunktHvisUtledet)));
+            .flatMap(agg -> mapAnnenpartMedlemskap(agg, tidspunkt, stp.getSkjæringstidspunktHvisUtledet()));
     }
 
     private Optional<PersonopplysningMedlemDto> mapAnnenpartMedlemskap(PersonopplysningerAggregat aggregat, LocalDate tidspunkt, Optional<LocalDate> stp) {
@@ -107,7 +107,7 @@ public class PersonopplysningDtoTjeneste {
                                                              LocalDate tidspunkt, Optional<LocalDate> skjæringstidspunkt) {
         var dto = new PersonopplysningMedlemDto();
         dto.setAktoerId(personopplysning.getAktørId());
-        dto.setRegion(hentRegion(personopplysning, aggregat, tidspunkt, skjæringstidspunkt.orElseGet(LocalDate::now)));
+        dto.setRegion(hentRegion(personopplysning, aggregat, tidspunkt, skjæringstidspunkt.orElse(null)));
         dto.setPersonstatus(hentPersonstatus(personopplysning, aggregat, tidspunkt));
         dto.setAdresser(lagAddresseDto(personopplysning, aggregat, tidspunkt));
         return dto;

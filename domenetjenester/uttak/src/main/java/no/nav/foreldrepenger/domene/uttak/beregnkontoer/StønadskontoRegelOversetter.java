@@ -28,7 +28,7 @@ public class StønadskontoRegelOversetter {
     private static final LocalDate START_FPSAK = LocalDate.of(2019, Month.JANUARY, 1);
 
     public static BeregnKontoerGrunnlag tilRegelmodell(YtelseFordelingAggregat ytelseFordelingAggregat,
-                                                       Skjæringstidspunkt skjæringstidspunkt,
+                                                       LocalDate skjæringstidspunkt,
                                                        Dekningsgrad dekningsgrad,
                                                        Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
                                                        ForeldrepengerGrunnlag fpGrunnlag,
@@ -93,9 +93,9 @@ public class StønadskontoRegelOversetter {
      *
      * Ikrafttredelsesmekanismer kan også foreligge her
      */
-    private static Optional<LocalDate> utledRegelvalgsdato(Skjæringstidspunkt skjæringstidspunkt, Dekningsgrad dekningsgrad, FamilieHendelse familieHendelse) {
+    private static Optional<LocalDate> utledRegelvalgsdato(LocalDate skjæringstidspunkt, Dekningsgrad dekningsgrad, FamilieHendelse familieHendelse) {
         if (familieHendelse.getFamilieHendelseDato().isBefore(START_FPSAK) && dekningsgrad.isÅtti()) {
-            return Optional.ofNullable(skjæringstidspunkt).flatMap(Skjæringstidspunkt::getSkjæringstidspunktHvisUtledet).filter(stp -> !stp.isBefore(START_FPSAK));
+            return Optional.ofNullable(skjæringstidspunkt).filter(stp -> !stp.isBefore(START_FPSAK));
         }
         return Optional.empty();
     }

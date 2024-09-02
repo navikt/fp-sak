@@ -56,7 +56,8 @@ public class FastsettUttaksresultatTjeneste {
         var inngangsvilkår = inngangsvilkårSvpBygger.byggInngangsvilårSvp(behandlingsresultat.getVilkårResultat());
         Map<Arbeidsforhold, List<Opphold>> oppholdListePerArbeidsforholdMap = new HashMap<>();
         avklarteDatoer.getFørsteLovligeUttaksdato()
-            .ifPresent(dato -> oppholdListePerArbeidsforholdMap.putAll(oppholdTjeneste.finnOppholdFraTilretteleggingOgInntektsmelding(input.getBehandlingReferanse(), input.getSkjæringstidspunkt(), input.getYtelsespesifiktGrunnlag())));
+            .ifPresent(dato -> oppholdListePerArbeidsforholdMap.putAll(oppholdTjeneste.finnOppholdFraTilretteleggingOgInntektsmelding(input.getBehandlingReferanse(),
+                input.getSkjæringstidspunkt().orElseThrow(), input.getYtelsespesifiktGrunnlag())));
 
 
         var uttaksperioder = fastsettPerioderTjeneste.fastsettePerioder(nyeSøknader, avklarteDatoer, inngangsvilkår, oppholdListePerArbeidsforholdMap);

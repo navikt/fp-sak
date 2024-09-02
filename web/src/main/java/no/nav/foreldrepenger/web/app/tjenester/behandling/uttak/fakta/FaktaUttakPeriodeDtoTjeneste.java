@@ -73,14 +73,22 @@ public class FaktaUttakPeriodeDtoTjeneste {
         if (behandling.erRevurdering()) {
             var uttakOriginalBehandling = uttakRepository.hentUttakResultatHvisEksisterer(behandling.getOriginalBehandlingId().orElseThrow());
             if (uttakOriginalBehandling.isPresent()) {
-                var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
                 var fraDato = behandlingSomJusteresFarsUttakVedFødsel(behandling, yfa) ?
-                    skjæringstidspunkt.getSkjæringstidspunktHvisUtledet().orElse(LocalDate.MIN) : LocalDate.MIN;
+                    skjæringstidspunktEllerMIN(behandlingId) : LocalDate.MIN;
                 perioder = slåSammenLikePerioder(VedtaksperioderHelper.opprettOppgittePerioder(uttakOriginalBehandling.get(), perioder,
                     fraDato, false));
             }
         }
         return perioder.stream().sorted(Comparator.comparing(OppgittPeriodeEntitet::getTom));
+    }
+
+    private LocalDate skjæringstidspunktEllerMIN(Long behandlingId) {
+        try {
+            var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
+            return skjæringstidspunkt.getSkjæringstidspunktHvisUtledet().orElse(LocalDate.MIN);
+        } catch (Exception e) {
+            return LocalDate.MIN;
+        }
     }
 
     private static boolean behandlingSomJusteresFarsUttakVedFødsel(Behandling behandling, YtelseFordelingAggregat yfa) {
