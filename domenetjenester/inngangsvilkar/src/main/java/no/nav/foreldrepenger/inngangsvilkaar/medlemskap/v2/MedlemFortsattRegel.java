@@ -31,19 +31,8 @@ final class MedlemFortsattRegel {
 
         // LOVLIG OPPHOLD
         utledLovligOppholdÅrsak(grunnlag).ifPresent(resultat::add);
-        utledOppholdsrettÅrsak(grunnlag).ifPresent(resultat::add);
+        // Oppholdsrett vurdert som kke relevant for fortsatt medlemskap
         return resultat;
-    }
-
-    private static Optional<MedlemskapAksjonspunktÅrsak> utledOppholdsrettÅrsak(MedlemFortsattRegelGrunnlag grunnlag) {
-        if (!harRegionIPeriode(grunnlag.personopplysninger(), Personopplysninger.Region.EØS, grunnlag.vurderingsperiode())) {
-            return Optional.empty();
-        }
-        if (sjekkOmAnsettelseIHelePeriodenMedEøsRegion(grunnlag.arbeid().ansettelsePerioder(), grunnlag.personopplysninger(),
-            grunnlag.vurderingsperiode())) {
-            return Optional.empty();
-        }
-        return Optional.of(OPPHOLDSRETT);
     }
 
     private static Optional<MedlemskapAksjonspunktÅrsak> utledLovligOppholdÅrsak(MedlemFortsattRegelGrunnlag grunnlag) {
