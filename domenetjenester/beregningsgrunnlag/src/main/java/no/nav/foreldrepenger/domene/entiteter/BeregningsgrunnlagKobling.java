@@ -81,9 +81,6 @@ public class BeregningsgrunnlagKobling extends BaseEntitet {
     }
 
     void oppdaterMedReguleringsbehov(boolean reguleringsbehov) {
-        if (this.reguleringsbehov != null) {
-            throw new IllegalArgumentException("Reguleringsbehov er allerede satt, skal ikke oppdateres");
-        }
         this.reguleringsbehov = reguleringsbehov;
     }
 
