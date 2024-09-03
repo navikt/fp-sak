@@ -38,7 +38,7 @@ public class AlleInntektsmeldingerDtoMapper {
 
     private List<InntektsmeldingDto> lagInntektsmeldingDto(BehandlingReferanse ref, Skjæringstidspunkt stp, InntektArbeidYtelseGrunnlag iayGrunnlag) {
         var dato = stp.getUtledetSkjæringstidspunkt();
-        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, stp, dato, iayGrunnlag, stp.getFørsteUttaksdatoSøknad().isPresent());
+        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, dato, iayGrunnlag, stp.getFørsteUttaksdatoSøknad().isPresent());
         return inntektsmeldinger.stream()
                 .map(inntektsmelding -> {
                     var virksomhet = virksomhetTjeneste.finnOrganisasjon(inntektsmelding.getArbeidsgiver().getOrgnr());

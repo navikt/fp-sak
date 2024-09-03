@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.Ambasade;
@@ -39,6 +38,7 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 
 @ApplicationScoped
 public class InntektsmeldingTjeneste {
@@ -66,17 +66,17 @@ public class InntektsmeldingTjeneste {
      *                                        som aktive
      * @return Liste med inntektsmeldinger {@link Inntektsmelding}
      */
-    public List<Inntektsmelding> hentInntektsmeldinger(BehandlingReferanse ref, Skjæringstidspunkt stp, LocalDate skjæringstidspunktForOpptjening) {
+    public List<Inntektsmelding> hentInntektsmeldinger(BehandlingReferanse ref, LocalDate skjæringstidspunktForOpptjening) {
         return iayTjeneste.finnGrunnlag(ref.behandlingId())
-            .map(g -> hentInntektsmeldinger(ref, stp, skjæringstidspunktForOpptjening, g, true))
+            .map(g -> hentInntektsmeldinger(ref, skjæringstidspunktForOpptjening, g, true))
             .orElse(Collections.emptyList());
     }
 
-    public List<Inntektsmelding> hentInntektsmeldinger(BehandlingReferanse ref, Skjæringstidspunkt stp, LocalDate skjæringstidspunktForOpptjening,
+    public List<Inntektsmelding> hentInntektsmeldinger(BehandlingReferanse ref, LocalDate skjæringstidspunktForOpptjening,
                                                        InntektArbeidYtelseGrunnlag iayGrunnlag, boolean filtrerForStartdato) {
         var skalIkkeFiltrereStartdato = !filtrerForStartdato ||
             !FagsakYtelseType.FORELDREPENGER.equals(ref.fagsakYtelseType()) ||
-            stp.kreverSammenhengendeUttak();
+            UtsettelseCore2021.kreverSammenhengendeUttak(skjæringstidspunktForOpptjening);
         var datoFilterDato = Optional.ofNullable(skjæringstidspunktForOpptjening).orElseGet(LocalDate::now);
         var inntektsmeldinger = iayGrunnlag.getInntektsmeldinger()
             .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes).orElse(emptyList())

@@ -94,7 +94,7 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
                                                                         Skjæringstidspunkt stp,
                                                                         List<ArbeidsforholdMangel> mangler,
                                                                         List<ArbeidsforholdValg> saksbehandlersVurderinger) {
-        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(referanse, stp, stp.getUtledetSkjæringstidspunkt(), iayGrunnlag, true);
+        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(referanse, stp.getUtledetSkjæringstidspunkt(), iayGrunnlag, true);
         var referanser = iayGrunnlag.getArbeidsforholdInformasjon()
             .map(ArbeidsforholdInformasjon::getArbeidsforholdReferanser)
             .orElse(Collections.emptyList());
@@ -154,7 +154,7 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
         var arbeidsforholdValgListe = arbeidsforholdInntektsmeldingMangelTjeneste.hentArbeidsforholdValgForSak(referanse);
 
         var mapAvIMTilBehandlingIder = behandlinger.stream()
-            .flatMap(behandling -> inntektsmeldingTjeneste.hentInntektsmeldinger( BehandlingReferanse.fra(behandling), stp, stp.getUtledetSkjæringstidspunkt())
+            .flatMap(behandling -> inntektsmeldingTjeneste.hentInntektsmeldinger( BehandlingReferanse.fra(behandling), stp.getUtledetSkjæringstidspunkt())
                 .stream()
                 .filter(im -> arbeidsforholdValgListe.stream().noneMatch(arbeidsforholdValg -> {
                     var matchendeArbeidsforhold = arbeidsforholdValg.getArbeidsgiver().getIdentifikator().equals(im.getArbeidsgiver().getIdentifikator());

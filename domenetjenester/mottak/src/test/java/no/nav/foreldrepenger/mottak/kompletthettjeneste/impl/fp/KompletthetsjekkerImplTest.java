@@ -148,7 +148,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         mockManglendeInntektsmeldingKompletthet(Collections.emptyMap());
         testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(2),
                 STARTDATO_PERMISJON);
-        lenient().when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any(), any())).thenReturn(
+        lenient().when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(
                 List.of(InntektsmeldingBuilder.builder().build()));
 
         // Act
@@ -167,7 +167,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         mockManglendeInntektsmeldingKompletthet(manglendeInntektsmeldinger);
         testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(3), LocalDate.now());
-        lenient().when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any(), any())).thenReturn(
+        lenient().when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(
                 List.of(InntektsmeldingBuilder.builder().medInnsendingstidspunkt(LocalDateTime.now().minusDays(10)).build()));
 
         // Act
@@ -207,7 +207,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         mockManglendeInntektsmeldingKompletthet(manglendeInntektsmeldinger);
         testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(1), stp);
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any(), any())).thenReturn(Collections.emptyList());
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(Collections.emptyList());
 
         // Act
         var kompletthetResultat = kompletthetsjekkerImpl.vurderEtterlysningInntektsmelding(
@@ -236,7 +236,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         mockManglendeInntektsmeldingKompletthet(manglendeInntektsmeldinger);
         testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(1),
                 STARTDATO_PERMISJON);
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any(), any())).thenReturn(Collections.emptyList());
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(Collections.emptyList());
 
         // Act
         var kompletthetResultat = kompletthetsjekkerImpl.vurderEtterlysningInntektsmelding(

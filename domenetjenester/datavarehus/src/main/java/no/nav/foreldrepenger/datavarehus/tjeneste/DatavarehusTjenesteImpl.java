@@ -170,14 +170,14 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
             return Optional.empty();
         }
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) || BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
-            return finnUttakEllerUtledetSkjæringstidspunkt(behandling, skjæringstidspunkt);
+            return finnUttakEllerUtledetSkjæringstidspunkt(skjæringstidspunkt);
         }
         var endretUttakFom = FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) ?
             finnEndringsdatoForeldrepenger(behandling) : finnEndringsdatoSvangerskapspenger(behandling);
-        return endretUttakFom.or(() -> finnUttakEllerUtledetSkjæringstidspunkt(behandling, skjæringstidspunkt));
+        return endretUttakFom.or(() -> finnUttakEllerUtledetSkjæringstidspunkt(skjæringstidspunkt));
     }
 
-    private Optional<LocalDate> finnUttakEllerUtledetSkjæringstidspunkt(Behandling behandling, Skjæringstidspunkt skjæringstidspunkt) {
+    private Optional<LocalDate> finnUttakEllerUtledetSkjæringstidspunkt(Skjæringstidspunkt skjæringstidspunkt) {
         try {
             return Optional.ofNullable(skjæringstidspunkt).flatMap(Skjæringstidspunkt::getFørsteUttaksdatoSøknad)
                 .or(() -> Optional.ofNullable(skjæringstidspunkt).flatMap(Skjæringstidspunkt::getSkjæringstidspunktHvisUtledet));

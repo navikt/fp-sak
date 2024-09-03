@@ -100,7 +100,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         mockManglendeInntektsmeldingGrunnlag();
         testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(1),
             STARTDATO_PERMISJON);
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any(), any())).thenReturn(Collections.emptyList());
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(Collections.emptyList());
 
         // Act
         var kompletthetResultat = kompletthetsjekkerImpl.vurderEtterlysningInntektsmelding(
