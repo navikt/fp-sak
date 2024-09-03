@@ -152,7 +152,7 @@ public class MedlemDtoTjeneste {
             stp.ifPresent(s -> mapSkjæringstidspunkt(dto, medlemskapOpt.orElse(null), behandling.getAksjonspunkter(), ref, s));
             mapRegistrerteMedlPerioder(dto, medlemskapOpt.map(MedlemskapAggregat::getRegistrertMedlemskapPerioder).orElse(Collections.emptySet()));
             dto.setOpphold(mapOppholdstillatelser(behandlingId));
-            dto.setFom(mapMedlemV2Fom(behandling, ref, stp, personopplysningerAggregat, medlemskapOpt).orElse(null));
+            stp.ifPresent(s -> dto.setFom(mapMedlemV2Fom(behandling, ref, s, personopplysningerAggregat, medlemskapOpt).orElse(null)));
 
             if (behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_FORTSATT_MEDLEMSKAP)) {
                 mapAndrePerioder(dto, medlemskapOpt.flatMap(MedlemskapAggregat::getVurderingLøpendeMedlemskap)
@@ -173,7 +173,7 @@ public class MedlemDtoTjeneste {
     /*
      * Skal finne evt opphør FOM dato for revurderinger
      */
-    private Optional<LocalDate> mapMedlemV2Fom(Behandling behandling, BehandlingReferanse ref, Optional<Skjæringstidspunkt> stp,
+    private Optional<LocalDate> mapMedlemV2Fom(Behandling behandling, BehandlingReferanse ref, Skjæringstidspunkt stp,
                                                Optional<PersonopplysningerAggregat> personopplysningerAggregat,
                                                Optional<MedlemskapAggregat> medlemskapAggregat) {
         var fom = medlemV2FomFraMedlemskap(stp, medlemskapAggregat);
@@ -184,10 +184,7 @@ public class MedlemDtoTjeneste {
             if (!endredeAttributter.isEmpty()) {
                 return endringerIPersonopplysninger.getGjeldendeFra();
             }
-            if (stp.map(Skjæringstidspunkt::getUtledetSkjæringstidspunkt).or(() -> fom).isEmpty()) {
-                return fom;
-            }
-            var forPeriode = SimpleLocalDateInterval.enDag(stp.map(Skjæringstidspunkt::getUtledetSkjæringstidspunkt).or(() -> fom).orElseThrow());
+            var forPeriode = SimpleLocalDateInterval.enDag(stp.getUtledetSkjæringstidspunkt());
             /* Ingen endringer i personopplysninger (siden siste vedtatte medlemskapsperiode),
             så vi setter gjeldende f.o.m fra nyeste endring i personstatus. Denne vises b.a. ifm. aksjonspunkt 5022 */
             if (fom.isPresent() && personopplysningerAggregat.get().getPersonstatusFor(ref.aktørId(), forPeriode) != null
@@ -199,8 +196,8 @@ public class MedlemDtoTjeneste {
         return fom;
     }
 
-    private Optional<LocalDate> medlemV2FomFraMedlemskap( Optional<Skjæringstidspunkt> skjæringstidspunkt, Optional<MedlemskapAggregat> medlemskapAggregat) {
-        return medlemskapAggregat.flatMap(MedlemskapAggregat::getVurdertMedlemskap).isPresent() ? skjæringstidspunkt.flatMap(Skjæringstidspunkt::getSkjæringstidspunktHvisUtledet) : Optional.empty();
+    private Optional<LocalDate> medlemV2FomFraMedlemskap(Skjæringstidspunkt skjæringstidspunkt, Optional<MedlemskapAggregat> medlemskapAggregat) {
+        return medlemskapAggregat.flatMap(MedlemskapAggregat::getVurdertMedlemskap).isPresent() ? skjæringstidspunkt.getSkjæringstidspunktHvisUtledet() : Optional.empty();
     }
 
     private void mapRegistrerteMedlPerioder(MedlemV2Dto dto, Set<MedlemskapPerioderEntitet> perioder) {
