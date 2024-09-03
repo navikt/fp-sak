@@ -12,20 +12,20 @@ public class BeregningRefusjonOverstyring {
 
     private Arbeidsgiver arbeidsgiver;
     private LocalDate førsteMuligeRefusjonFom;
+    private boolean erFristUtvidet;
     private List<BeregningRefusjonPeriode> refusjonPerioder = new ArrayList<>();
-
-    public BeregningRefusjonOverstyring(Arbeidsgiver arbeidsgiver, LocalDate førsteMuligeRefusjonFom) {
-        Objects.requireNonNull(arbeidsgiver);
-        Objects.requireNonNull(førsteMuligeRefusjonFom);
-        this.førsteMuligeRefusjonFom = førsteMuligeRefusjonFom;
-        this.arbeidsgiver = arbeidsgiver;
-    }
 
     public BeregningRefusjonOverstyring(Arbeidsgiver arbeidsgiver,
                                         LocalDate førsteMuligeRefusjonFom,
+                                        boolean erFristUtvidet,
                                         List<BeregningRefusjonPeriode> refusjonPerioder) {
+        Objects.requireNonNull(arbeidsgiver);
         this.arbeidsgiver = arbeidsgiver;
-        this.førsteMuligeRefusjonFom = førsteMuligeRefusjonFom;
+        if (erFristUtvidet) {
+            Objects.requireNonNull(førsteMuligeRefusjonFom);
+            this.førsteMuligeRefusjonFom = førsteMuligeRefusjonFom;
+        }
+        this.erFristUtvidet = erFristUtvidet;
         this.refusjonPerioder = refusjonPerioder;
     }
 
@@ -39,5 +39,9 @@ public class BeregningRefusjonOverstyring {
 
     public List<BeregningRefusjonPeriode> getRefusjonPerioder() {
         return refusjonPerioder;
+    }
+
+    public boolean isErFristUtvidet() {
+        return erFristUtvidet;
     }
 }
