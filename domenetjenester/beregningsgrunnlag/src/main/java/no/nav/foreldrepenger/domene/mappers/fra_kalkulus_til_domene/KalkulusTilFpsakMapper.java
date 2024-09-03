@@ -176,6 +176,7 @@ public final class KalkulusTilFpsakMapper {
             .medRedusertBrukersAndelPrÅr(mapTilBigDecimal(beregningsgrunnlagPrStatusOgAndelDto.getRedusertBrukersAndelPrÅr()))
             .medRedusertPrÅr(mapTilBigDecimal(beregningsgrunnlagPrStatusOgAndelDto.getRedusertPrÅr()))
             .medRedusertRefusjonPrÅr(mapTilBigDecimal(beregningsgrunnlagPrStatusOgAndelDto.getRedusertRefusjonPrÅr()))
+            .medKilde(beregningsgrunnlagPrStatusOgAndelDto.getKilde() == null ? null : KodeverkFraKalkulusMapper.mapKilde(beregningsgrunnlagPrStatusOgAndelDto.getKilde()))
             .medÅrsbeløpFraTilstøtendeYtelse(mapTilBigDecimal(beregningsgrunnlagPrStatusOgAndelDto.getÅrsbeløpFraTilstøtendeYtelse()))
             .medDagsatsBruker(beregningsgrunnlagPrStatusOgAndelDto.getDagsatsBruker())
             .medDagsatsArbeidsgiver(beregningsgrunnlagPrStatusOgAndelDto.getDagsatsArbeidsgiver());
