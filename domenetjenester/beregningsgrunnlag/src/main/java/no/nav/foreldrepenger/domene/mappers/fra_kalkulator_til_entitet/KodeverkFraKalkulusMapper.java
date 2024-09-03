@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.mappers.fra_kalkulator_til_entitet;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningAktivitetHandlingType;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle;
@@ -159,6 +160,18 @@ public class KodeverkFraKalkulusMapper {
             case FASTSATT -> BeregningsgrunnlagTilstand.FASTSATT;
             case UDEFINERT -> BeregningsgrunnlagTilstand.UDEFINERT;
             case VURDERT_TILKOMMET_INNTEKT, VURDERT_TILKOMMET_INNTEKT_UT -> throw new IllegalArgumentException(ukjentKodeFeil("BeregningsgrunnlagTilstand", beregningsgrunnlagTilstand.getKode()));
+        };
+    }
+
+    public static AndelKilde mapKilde(no.nav.folketrygdloven.kalkulus.kodeverk.AndelKilde kilde) {
+        return switch (kilde) {
+            case PROSESS_START -> AndelKilde.PROSESS_START;
+            case SAKSBEHANDLER_KOFAKBER -> AndelKilde.SAKSBEHANDLER_KOFAKBER;
+            case PROSESS_BESTEBEREGNING -> AndelKilde.PROSESS_BESTEBEREGNING;
+            case SAKSBEHANDLER_FORDELING -> AndelKilde.SAKSBEHANDLER_FORDELING;
+            case PROSESS_PERIODISERING -> AndelKilde.PROSESS_PERIODISERING;
+            case PROSESS_OMFORDELING -> AndelKilde.PROSESS_OMFORDELING;
+            case PROSESS_PERIODISERING_TILKOMMET_INNTEKT -> throw new IllegalStateException(ukjentKodeFeil("AndelKilde", kilde.getKode()));
         };
     }
 }

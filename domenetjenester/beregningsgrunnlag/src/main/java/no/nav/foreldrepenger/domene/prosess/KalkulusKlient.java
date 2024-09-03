@@ -50,10 +50,10 @@ public class KalkulusKlient {
         this.beregn = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/beregn");
         this.hentGrunnlag = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/grunnlag");
         this.hentGrunnlagGui = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/grunnlag/gui");
-        this.kopierGrunnlag = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/grunnlag/kopier");
+        this.kopierGrunnlag = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/kopier");
         this.avklaringsbehov = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/avklaringsbehov");
-        this.deatkvier = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/grunnlag/deaktiver");
-        this.avslutt = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/grunnlag/avslutt");
+        this.deatkvier = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/deaktiver");
+        this.avslutt = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/avslutt");
     }
 
     public KalkulusRespons beregn(BeregnRequestDto request) {
