@@ -160,7 +160,7 @@ public class KompletthetsjekkerFelles {
         // Sikre noen dager etter sendt brev
         var fristBasertPåSendtBrev = sendtEtterlysningDato.plusWeeks(1);
         var baseline = frist.minusWeeks(VENTEFRIST_ETTER_ETTERLYSNING_UKER).minusWeeks(VENTEFRIST_ETTER_MOTATT_DATO_UKER);
-        var inntektsmeldingerEtterAktuellSøknad = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, stp, stp.getUtledetSkjæringstidspunkt()).stream()
+        var inntektsmeldingerEtterAktuellSøknad = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, stp.getUtledetSkjæringstidspunkt()).stream()
             .filter(im -> baseline.isBefore(im.getInnsendingstidspunkt()))  // Filtrer ut IM sendt før søknad
             .toList();
         if (inntektsmeldingerEtterAktuellSøknad.isEmpty()) {

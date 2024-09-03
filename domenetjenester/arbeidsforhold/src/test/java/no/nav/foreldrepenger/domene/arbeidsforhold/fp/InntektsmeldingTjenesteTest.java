@@ -206,7 +206,7 @@ class InntektsmeldingTjenesteTest {
         // Act+Assert
         assertThat(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(behandlingReferanse, skjæringstidspunkt, true)).isEmpty();
 
-        var nyeInntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingReferanse, skjæringstidspunkt, I_DAG);
+        var nyeInntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingReferanse, I_DAG);
         assertThat(nyeInntektsmeldinger).hasSize(1);
     }
 
@@ -231,7 +231,7 @@ class InntektsmeldingTjenesteTest {
         avsluttBehandlingOgFagsak(behandling);
 
         var ref = lagReferanse(behandling);
-        var inntektsmeldingerFørGjeldendeVedtak = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunkt, I_DAG);
+        var inntektsmeldingerFørGjeldendeVedtak = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, I_DAG);
 
         var revurdering = opprettRevurderingsbehandling(behandling);
         iayTjeneste.kopierGrunnlagFraEksisterendeBehandling(behandling.getId(), revurdering.getId());
@@ -260,7 +260,7 @@ class InntektsmeldingTjenesteTest {
         lagreInntektsmelding(I_DAG.minusDays(2), behandling, ARBEIDSFORHOLD_ID, ARBEIDSFORHOLD_ID_EKSTERN);
 
         // Assert
-        assertThat(inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunkt, I_DAG)).hasSize(1);
+        assertThat(inntektsmeldingTjeneste.hentInntektsmeldinger(ref, I_DAG)).hasSize(1);
 
         // Arrange: Arbeidsforholdet blir oppdater i AA-reg, blir inaktivt
         var inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
@@ -272,7 +272,7 @@ class InntektsmeldingTjenesteTest {
         iayTjeneste.lagreIayAggregat(behandling.getId(), inntektArbeidYtelseAggregatBuilder);
 
         // Act
-        var inntektsmeldingerPåAktiveArbeidsforhold = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunkt, I_DAG);
+        var inntektsmeldingerPåAktiveArbeidsforhold = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, I_DAG);
 
         // Assert
         assertThat(inntektsmeldingerPåAktiveArbeidsforhold).isEmpty();
@@ -293,7 +293,7 @@ class InntektsmeldingTjenesteTest {
         lagreInntektsmelding(I_DAG.minusDays(2), behandling, ARBEIDSFORHOLD_ID, ARBEIDSFORHOLD_ID_EKSTERN);
 
         // Assert
-        assertThat(inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunkt, I_DAG)).hasSize(1);
+        assertThat(inntektsmeldingTjeneste.hentInntektsmeldinger(ref, I_DAG)).hasSize(1);
 
         // Arrange: Arbeidsforholdet blir oppdater i AA-reg, blir inaktivt
         var inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
@@ -305,7 +305,7 @@ class InntektsmeldingTjenesteTest {
         iayTjeneste.lagreIayAggregat(behandling.getId(), inntektArbeidYtelseAggregatBuilder);
 
         // Act
-        var inntektsmeldingerPåAktiveArbeidsforhold = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunkt, I_DAG);
+        var inntektsmeldingerPåAktiveArbeidsforhold = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, I_DAG);
 
         // Assert
         assertThat(inntektsmeldingerPåAktiveArbeidsforhold).hasSize(1);
@@ -326,7 +326,7 @@ class InntektsmeldingTjenesteTest {
         lagreInntektsmelding(I_DAG.minusDays(2), behandling, ARBEIDSFORHOLD_ID, ARBEIDSFORHOLD_ID_EKSTERN, BigDecimal.TEN, arbeidsgiver2);
 
         // Assert
-        assertThat(inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunkt, I_DAG)).hasSize(1);
+        assertThat(inntektsmeldingTjeneste.hentInntektsmeldinger(ref, I_DAG)).hasSize(1);
 
     }
 
@@ -343,12 +343,12 @@ class InntektsmeldingTjenesteTest {
             ARBEIDSFORHOLD_ID, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN);
 
         lagreInntektsmelding(skjæringstidspunktet.minusMonths(1).minusWeeks(5), behandling, ARBEIDSFORHOLD_ID, ARBEIDSFORHOLD_ID_EKSTERN, BigDecimal.TEN, arbeidsgiver, skjæringstidspunktet.minusMonths(1));
-        assertThat(inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunkt, skjæringstidspunktet)).isEmpty();
+        assertThat(inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunktet)).isEmpty();
 
         lagreInntektsmelding(skjæringstidspunktet.minusWeeks(3), behandling, ARBEIDSFORHOLD_ID, ARBEIDSFORHOLD_ID_EKSTERN, BigDecimal.TEN, arbeidsgiver, skjæringstidspunktet);
 
         // Assert
-        assertThat(inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunkt, skjæringstidspunktet)).hasSize(1);
+        assertThat(inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunktet)).hasSize(1);
 
     }
 
@@ -369,7 +369,7 @@ class InntektsmeldingTjenesteTest {
         lagreInntektsmelding(skalAksepteres, behandling, ARBEIDSFORHOLD_ID, ARBEIDSFORHOLD_ID_EKSTERN, BigDecimal.TEN, arbeidsgiver, skjæringstidspunktet);
 
         // Assert
-        assertThat(inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunkt, skjæringstidspunktet)).hasSize(1);
+        assertThat(inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunktet)).hasSize(1);
 
     }
 

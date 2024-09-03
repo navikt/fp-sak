@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -63,7 +62,7 @@ public class OppholdTjeneste {
     }
 
     private List<Opphold> finnOppholdFraIMForArbeidsgiver(BehandlingReferanse behandlingRef, Skjæringstidspunkt stp, Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef internRef) {
-        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingRef, stp, stp.getSkjæringstidspunktOpptjening());
+        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingRef, stp.getSkjæringstidspunktOpptjening());
         List<Opphold> oppholdListe = new ArrayList<>();
         inntektsmeldinger.stream()
             .filter(inntektsmelding -> inntektsmelding.getArbeidsgiver().equals(arbeidsgiver) && inntektsmelding.getArbeidsforholdRef()

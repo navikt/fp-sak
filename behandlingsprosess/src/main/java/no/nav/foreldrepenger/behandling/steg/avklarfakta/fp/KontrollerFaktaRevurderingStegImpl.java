@@ -56,14 +56,17 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.FaktaAggregat;
+import no.nav.foreldrepenger.domene.modell.FaktaAktør;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.modell.typer.FaktaVurdering;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.BehandlingÅrsakTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktTjeneste;
 import no.nav.foreldrepenger.domene.typer.Beløp;
@@ -88,7 +91,6 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     private BehandlingRepository behandlingRepository;
     private KontrollerFaktaTjeneste tjeneste;
     private BehandlingRepositoryProvider repositoryProvider;
-    private HentOgLagreBeregningsgrunnlagTjeneste hentBeregningsgrunnlagTjeneste;
     private StartpunktTjeneste startpunktTjeneste;
     private BehandlingÅrsakTjeneste behandlingÅrsakTjeneste;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
@@ -111,7 +113,6 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     @Inject
     KontrollerFaktaRevurderingStegImpl(BehandlingRepositoryProvider repositoryProvider,
                                        BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
-                                       HentOgLagreBeregningsgrunnlagTjeneste hentBeregningsgrunnlagTjeneste,
                                        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                        @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) KontrollerFaktaTjeneste tjeneste,
                                        @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) StartpunktTjeneste startpunktTjeneste,
@@ -127,7 +128,6 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.tjeneste = tjeneste;
-        this.hentBeregningsgrunnlagTjeneste = hentBeregningsgrunnlagTjeneste;
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.startpunktTjeneste = startpunktTjeneste;
         this.behandlingÅrsakTjeneste = behandlingÅrsakTjeneste;
@@ -271,8 +271,8 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     private StartpunktType utledBehovForGRegulering(BehandlingReferanse ref, Skjæringstidspunkt stp, Behandling revurdering) {
         var opprinneligBehandlingId = revurdering.getOriginalBehandlingId()
                 .orElseThrow(() -> new IllegalStateException("Revurdering skal ha en basisbehandling - skal ikke skje"));
-        var forrigeBeregning = hentBeregningsgrunnlagTjeneste
-                .hentBeregningsgrunnlagEntitetForBehandling(opprinneligBehandlingId);
+        var opprinneligRef = BehandlingReferanse.fra(behandlingRepository.hentBehandling(opprinneligBehandlingId));
+        var forrigeBeregning = beregningTjeneste.hent(opprinneligRef).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
 
         if (forrigeBeregning.isEmpty()) {
             return StartpunktType.BEREGNING;
@@ -283,11 +283,11 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         }
 
         var grunnbeløp = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, stp.getFørsteUttaksdatoGrunnbeløp());
-        long satsIBeregning = forrigeBeregning.map(BeregningsgrunnlagEntitet::getGrunnbeløp).map(Beløp::getVerdi).map(BigDecimal::longValue)
+        long satsIBeregning = forrigeBeregning.map(Beregningsgrunnlag::getGrunnbeløp).map(Beløp::getVerdi).map(BigDecimal::longValue)
                 .orElse(0L);
 
         if (grunnbeløp.getVerdi() - satsIBeregning > 1) {
-            var bruttoPrÅr = forrigeBeregning.map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder)
+            var bruttoPrÅr = forrigeBeregning.map(Beregningsgrunnlag::getBeregningsgrunnlagPerioder)
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(BeregningsgrunnlagPeriode::getBruttoPrÅr)
@@ -298,11 +298,11 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
             var militærUnder = BeregningsresultatRepository.militærMultiplikatorG();
             var grenseMilitær = new BigDecimal(grunnbeløp.getVerdi() * militærUnder);
             var over6G = bruttoPrÅr.compareTo(grenseAvkorting) >= 0;
-            var erMilitærUnderGrense = forrigeBeregning.stream()
+            var erMilitær = forrigeBeregning.stream().flatMap(bg -> bg.getAktivitetStatuser().stream())
+                .anyMatch(as -> as.getAktivitetStatus().equals(AktivitetStatus.MILITÆR_ELLER_SIVIL));
+            var erMilitærUnderGrense = erMilitær && forrigeBeregning.stream()
                 .flatMap(bg -> bg.getBeregningsgrunnlagPerioder().stream())
-                .flatMap(p -> p.getBeregningsgrunnlagPrStatusOgAndelList().stream())
-                .anyMatch(a -> a.getAktivitetStatus().equals(AktivitetStatus.MILITÆR_ELLER_SIVIL)
-                    && a.getBeregningsgrunnlagPeriode().getBruttoPrÅr().compareTo(grenseMilitær) < 0);
+                .anyMatch(p -> p.getBruttoPrÅr().compareTo(grenseMilitær) < 0);
             var erNæringsdrivende = forrigeBeregning.stream()
                 .flatMap(bg -> bg.getAktivitetStatuser().stream())
                 .map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus)
@@ -333,24 +333,32 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
      * @return Startpunkt for g-regulering
      */
     private StartpunktType finnStartpunktForGRegulering(Behandling revurdering) {
-        var beregningsgrunnlagEntitet = hentBeregningsgrunnlagTjeneste
-                .hentBeregningsgrunnlagEntitetForBehandling(revurdering.getId());
-        if (mottarYtelseForAktivitet(beregningsgrunnlagEntitet) || harBesteberegning(beregningsgrunnlagEntitet)) {
+        var gr = beregningTjeneste.hent(BehandlingReferanse.fra(revurdering));
+        if (mottarYtelseForAktivitet(gr) || harBesteberegning(gr)) {
             return StartpunktType.BEREGNING;
         }
         return StartpunktType.BEREGNING_FORESLÅ;
     }
 
-    private boolean harBesteberegning(Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagEntitet) {
-        return beregningsgrunnlagEntitet.stream().flatMap(bg -> bg.getBeregningsgrunnlagPerioder().stream())
-                .flatMap(p -> p.getBeregningsgrunnlagPrStatusOgAndelList().stream())
-                .anyMatch(a -> a.getBesteberegningPrÅr() != null);
+    private boolean harBesteberegning(Optional<BeregningsgrunnlagGrunnlag> gr) {
+        var bgPerioder = gr.flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag)
+            .map(Beregningsgrunnlag::getBeregningsgrunnlagPerioder)
+            .orElse(List.of());
+        return bgPerioder.stream().anyMatch(p -> p.getBeregningsgrunnlagPrStatusOgAndelList().stream().anyMatch(a -> a.getBesteberegnetPrÅr() != null));
     }
 
-    private boolean mottarYtelseForAktivitet(Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagEntitet) {
-        return beregningsgrunnlagEntitet.stream().flatMap(bg -> bg.getBeregningsgrunnlagPerioder().stream())
-                .flatMap(p -> p.getBeregningsgrunnlagPrStatusOgAndelList().stream())
-                .anyMatch(a -> a.mottarYtelse().orElse(false));
+    private boolean mottarYtelseForAktivitet(Optional<BeregningsgrunnlagGrunnlag> gr) {
+        var mottarYtelseFL = gr.flatMap(BeregningsgrunnlagGrunnlag::getFaktaAggregat)
+            .flatMap(FaktaAggregat::getFaktaAktør)
+            .map(FaktaAktør::getHarFLMottattYtelse)
+            .map(FaktaVurdering::getVurdering)
+            .orElse(false);
+        var mottarYtelseAT = gr.flatMap(BeregningsgrunnlagGrunnlag::getFaktaAggregat)
+            .map(FaktaAggregat::getFaktaArbeidsforhold)
+            .orElse(List.of())
+            .stream()
+            .anyMatch(a -> Boolean.TRUE.equals(a.getHarMottattYtelseVurdering()));
+        return mottarYtelseFL || mottarYtelseAT;
     }
 
     private void kopierResultaterAvhengigAvStartpunkt(Behandling revurdering,
@@ -385,8 +393,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     }
 
     private Behandling finnBehandlingSomHarKjørtBeregning(Behandling behandling) {
-        if (!behandling.erRevurdering() || hentBeregningsgrunnlagTjeneste
-                .hentSisteBeregningsgrunnlagGrunnlagEntitet(behandling.getId(), BeregningsgrunnlagTilstand.OPPRETTET).isPresent()) {
+        if (!behandling.erRevurdering() || beregningTjeneste.hent(BehandlingReferanse.fra(behandling)).isPresent()) {
             return behandling;
         }
         return finnBehandlingSomHarKjørtBeregning(behandling.getOriginalBehandlingId().map(behandlingRepository::hentBehandling)

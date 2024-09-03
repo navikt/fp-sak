@@ -60,10 +60,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.BehandlingÅrsakTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktTjeneste;
 import no.nav.foreldrepenger.domene.typer.Beløp;
@@ -84,7 +84,6 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     private KontrollerFaktaTjeneste tjeneste;
     private BehandlingRepositoryProvider repositoryProvider;
     private SvangerskapspengerRepository svangerskapspengerRepository;
-    private HentOgLagreBeregningsgrunnlagTjeneste hentBeregningsgrunnlagTjeneste;
     private BeregningTjeneste beregningTjeneste;
     private StartpunktTjeneste startpunktTjeneste;
     private BehandlingÅrsakTjeneste behandlingÅrsakTjeneste;
@@ -103,7 +102,6 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     @Inject
     KontrollerFaktaRevurderingStegImpl(BehandlingRepositoryProvider repositoryProvider,
                                        BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                       HentOgLagreBeregningsgrunnlagTjeneste hentBeregningsgrunnlagTjeneste,
                                        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                        @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) KontrollerFaktaTjeneste tjeneste,
                                        @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) StartpunktTjeneste startpunktTjeneste,
@@ -115,7 +113,6 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.tjeneste = tjeneste;
-        this.hentBeregningsgrunnlagTjeneste = hentBeregningsgrunnlagTjeneste;
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.startpunktTjeneste = startpunktTjeneste;
         this.behandlingÅrsakTjeneste = behandlingÅrsakTjeneste;
@@ -230,14 +227,15 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     private StartpunktType utledBehovForGRegulering(Skjæringstidspunkt stp, Behandling revurdering) {
         var opprinneligBehandlingId = revurdering.getOriginalBehandlingId()
                 .orElseThrow(() -> new IllegalStateException("Revurdering skal ha en basisbehandling - skal ikke skje"));
-        var forrigeBeregning = hentBeregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(opprinneligBehandlingId);
+        var opprinneligRef = BehandlingReferanse.fra(behandlingRepository.hentBehandling(opprinneligBehandlingId));
+        var forrigeBeregning = beregningTjeneste.hent(opprinneligRef).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
 
         if (forrigeBeregning.isEmpty() || revurdering.harBehandlingÅrsak(BehandlingÅrsakType.RE_SATS_REGULERING)) {
             return StartpunktType.BEREGNING;
         }
 
         var grunnbeløp = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, stp.getFørsteUttaksdatoGrunnbeløp());
-        long satsIBeregning = forrigeBeregning.map(BeregningsgrunnlagEntitet::getGrunnbeløp).map(Beløp::getVerdi).map(BigDecimal::longValue).orElse(0L);
+        long satsIBeregning = forrigeBeregning.map(Beregningsgrunnlag::getGrunnbeløp).map(Beløp::getVerdi).map(BigDecimal::longValue).orElse(0L);
 
         if (grunnbeløp.getVerdi() - satsIBeregning > 1) {
             return StartpunktType.BEREGNING;

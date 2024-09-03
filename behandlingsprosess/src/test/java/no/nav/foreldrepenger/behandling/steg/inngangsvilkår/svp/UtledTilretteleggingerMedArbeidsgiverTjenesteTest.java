@@ -86,7 +86,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
                 lagYrkesaktivitet(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, InternArbeidsforholdRef.nyRef(),
                         SKJÆRINGSTIDSPUNKT.minusYears(2), Tid.TIDENES_ENDE))));
 
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any(), any())).thenReturn(List.of(
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(List.of(
                 lagInntektsmelding(DEFAULT_VIRKSOMHET, InternArbeidsforholdRef.nullRef())));
 
         // Act
@@ -112,7 +112,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
                 lagYrkesaktivitet(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, ref_2, SKJÆRINGSTIDSPUNKT.minusYears(2),
                         Tid.TIDENES_ENDE))));
 
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any(), any())).thenReturn(List.of(
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(List.of(
                 lagInntektsmelding(DEFAULT_VIRKSOMHET, ref_1),
                 lagInntektsmelding(DEFAULT_VIRKSOMHET, ref_2)));
 
@@ -140,7 +140,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
                 lagYrkesaktivitet(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, ref_1, SKJÆRINGSTIDSPUNKT.minusYears(1), Tid.TIDENES_ENDE),
                 lagYrkesaktivitet(person, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, ref_2, SKJÆRINGSTIDSPUNKT.minusYears(2), Tid.TIDENES_ENDE))));
 
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any(), any())).thenReturn(List.of(
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(List.of(
                 lagInntektsmelding(DEFAULT_VIRKSOMHET, ref_1),
                 lagInntektsmelding(person, ref_2)));
 
@@ -170,7 +170,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
                         SKJÆRINGSTIDSPUNKT.minusDays(1)),
                 lagYrkesaktivitet(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, ref_3, SKJÆRINGSTIDSPUNKT.plusDays(1), Tid.TIDENES_ENDE))));
 
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any(), any())).thenReturn(List.of(
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(List.of(
                 lagInntektsmelding(DEFAULT_VIRKSOMHET, ref_1),
                 lagInntektsmelding(DEFAULT_VIRKSOMHET, ref_2),
                 lagInntektsmelding(DEFAULT_VIRKSOMHET, ref_3)));
@@ -199,7 +199,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
                 lagYrkesaktivitet(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, ref_2, SKJÆRINGSTIDSPUNKT.minusYears(2),
                         Tid.TIDENES_ENDE))));
 
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any(), any())).thenReturn(List.of());
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(List.of());
 
         // Act
         var result = utledTilretteleggingerMedArbeidsgiverTjeneste.utled(behandling, skjæringstidspunkt, tilrettelegginger);
@@ -224,7 +224,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
                 lagYrkesaktivitet(DEFAULT_VIRKSOMHET, ArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE, ref_1, SKJÆRINGSTIDSPUNKT.minusYears(1),
                         Tid.TIDENES_ENDE))));
 
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any(), any())).thenReturn(List.of(
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(List.of(
                 lagInntektsmelding(DEFAULT_VIRKSOMHET, ref_1)));
 
         // Act
@@ -257,7 +257,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
                 lagYrkesaktivitet(person, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, ref_3, SKJÆRINGSTIDSPUNKT.minusYears(1), Tid.TIDENES_ENDE),
                 lagYrkesaktivitet(person, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, ref_4, SKJÆRINGSTIDSPUNKT.minusYears(2), Tid.TIDENES_ENDE))));
 
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any(), any())).thenReturn(List.of());
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(List.of());
 
         // Act
         var result = utledTilretteleggingerMedArbeidsgiverTjeneste.utled(behandling, skjæringstidspunkt, tilrettelegginger);
@@ -287,7 +287,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
             lagYrkesaktivitet(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, ref_1, SKJÆRINGSTIDSPUNKT.minusYears(1), Tid.TIDENES_ENDE),
             lagYrkesaktivitet(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, ref_2, SKJÆRINGSTIDSPUNKT.minusYears(2), Tid.TIDENES_ENDE))));
 
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any(), any())).thenReturn(List.of(
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(List.of(
             lagInntektsmelding(DEFAULT_VIRKSOMHET, ref_1),
             lagInntektsmelding(DEFAULT_VIRKSOMHET, ref_2),
             lagInntektsmelding(VIRKSOMHET_2, INTERN_ARBEIDSFORHOLD_REF_3)));
@@ -318,7 +318,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
             lagYrkesaktivitet(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_1, SKJÆRINGSTIDSPUNKT.minusYears(1), Tid.TIDENES_ENDE),
             lagYrkesaktivitet(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_2, SKJÆRINGSTIDSPUNKT.minusYears(2), Tid.TIDENES_ENDE))));
 
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any(), any())).thenReturn(List.of(
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(List.of(
             lagInntektsmelding(DEFAULT_VIRKSOMHET, INTERN_ARBEIDSFORHOLD_REF_1),
             lagInntektsmelding(DEFAULT_VIRKSOMHET, INTERN_ARBEIDSFORHOLD_REF_2),
             lagInntektsmelding(VIRKSOMHET_2, INTERN_ARBEIDSFORHOLD_REF_3)));
@@ -350,7 +350,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
             lagYrkesaktivitet(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_2, SKJÆRINGSTIDSPUNKT.minusYears(2), Tid.TIDENES_ENDE),
             lagYrkesaktivitet(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_3, SKJÆRINGSTIDSPUNKT.minusYears(2), Tid.TIDENES_ENDE))));
 
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any(), any())).thenReturn(List.of(
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(List.of(
             lagInntektsmelding(DEFAULT_VIRKSOMHET, INTERN_ARBEIDSFORHOLD_REF_1),
             lagInntektsmelding(DEFAULT_VIRKSOMHET, INTERN_ARBEIDSFORHOLD_REF_2)));
 
@@ -378,7 +378,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
             lagYrkesaktivitet(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_1, SKJÆRINGSTIDSPUNKT.minusYears(1), Tid.TIDENES_ENDE),
             lagYrkesaktivitet(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_2, SKJÆRINGSTIDSPUNKT.minusYears(2), Tid.TIDENES_ENDE))));
 
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any(), any())).thenReturn(List.of(
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(List.of(
             lagInntektsmelding(DEFAULT_VIRKSOMHET, null)));
 
         // Act
