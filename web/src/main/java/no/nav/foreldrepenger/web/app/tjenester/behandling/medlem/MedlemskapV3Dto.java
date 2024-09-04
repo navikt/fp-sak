@@ -27,6 +27,8 @@ public record MedlemskapV3Dto(ManuellBehandling manuellBehandling,
                               Set<MedlemskapPeriode> medlemskapsperioder,
                               Annenpart annenpart) {
 
+    private static final LocalDate OPPHOLD_CUTOFF = LocalDate.of(2018, 7, 1);
+
 
     /**
      * Settes hvis det krever manuell behandling og gammel vurdering ikke finnes.
@@ -84,7 +86,8 @@ public record MedlemskapV3Dto(ManuellBehandling manuellBehandling,
 
     record Oppholdstillatelse(LocalDate fom, LocalDate tom, OppholdstillatelseType type) {
         public static Oppholdstillatelse map(OppholdstillatelseEntitet oe) {
-            return new Oppholdstillatelse(oe.getPeriode().getFomDato(), oe.getPeriode().getTomDato(), oe.getTillatelse());
+            var fom = oe.getPeriode().getFomDato().isBefore(OPPHOLD_CUTOFF) ? null : oe.getPeriode().getFomDato();
+            return new Oppholdstillatelse(fom, oe.getPeriode().getTomDato(), oe.getTillatelse());
         }
     }
 
@@ -95,6 +98,7 @@ public record MedlemskapV3Dto(ManuellBehandling manuellBehandling,
         }
     }
 
-    record Annenpart(Set<Adresse> adresser, Set<Region> regioner, Set<Personstatus> personstatuser){ } // TODO: Perioderisert? Historisk?
+    record Annenpart(Set<Adresse> adresser, Set<Region> regioner, Set<Personstatus> personstatuser) {
+    }
 }
 

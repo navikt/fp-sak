@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
  * @param aktørId Søkers aktørid.
  * @param relasjonRolle Søkers rolle ifht. subjekt for ytelsen (eks. barn).
  * @param originalBehandlingId Original behandling id (i tilfelle dette f.eks er en revurdering av en annen behandling.
- * @param skjæringstidspunkt Inneholder relevante tidspunkter for en behandling
  *
  */
 public record BehandlingReferanse(Saksnummer saksnummer,
@@ -93,7 +92,7 @@ public record BehandlingReferanse(Saksnummer saksnummer,
     @Override
     public String toString() {
         return getClass().getSimpleName() + String.format(
-            "<saksnummer=%s, behandlingId=%s, fagsakType=%s, behandlingType=%s, rolle=%s, aktørId=%s, status=%s, skjæringstidspunjkt=%s, originalBehandlingId=%s>",
+            "<saksnummer=%s, behandlingId=%s, fagsakType=%s, behandlingType=%s, rolle=%s, aktørId=%s, status=%s, originalBehandlingId=%s>",
             saksnummer, behandlingId, fagsakYtelseType, behandlingType, relasjonRolle, aktørId, behandlingStatus, originalBehandlingId);
     }
 }

@@ -181,7 +181,7 @@ public class MedlemDtoTjeneste {
     }
 
     private Optional<MedlemskapV3Dto.ManuellBehandling> manuellBehandling(BehandlingReferanse ref) {
-        return Optional.empty(); // TODO: Hent regelresutlat fra databasen. Utledningen er allerede gjort?
+        return Optional.empty(); // TODO: Kjøre simulering av regler, hente avvik
     }
 
     private static Optional<MedlemskapV3Dto.Annenpart> annenpart(PersonopplysningerAggregat personopplysningerAggregat,
@@ -353,10 +353,5 @@ public class MedlemDtoTjeneste {
     //TODO(OJR) Hack!!! kan fjernes hvis man ønsker å utføre en migrerning(kompleks) av gamle medlemskapvurdering i produksjon
     private String hentBegrunnelseFraAksjonspuntk(Set<Aksjonspunkt> aksjonspunkter) {
         return aksjonspunkter.stream().filter(a -> VilkårType.MEDLEMSKAPSVILKÅRET.equals(a.getAksjonspunktDefinisjon().getVilkårType())).findFirst().map(Aksjonspunkt::getBegrunnelse).orElse(null);
-    }
-
-    public enum Kontekst {
-        INNGANGSVILKÅR,
-        FORSATT;
     }
 }

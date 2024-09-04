@@ -250,7 +250,7 @@ class MedlemDtoTjenesteTest {
             .statsborgerskap(Landkoder.GEO, statsborgerFom, statsborgerTom)
             .statsborgerskap(Landkoder.CAN, statsborgerFom, statsborgerTom)
             .personstatus(PersonstatusType.BOSA, personstatusFom, personstatusTom)
-            .opphold(OppholdstillatelseType.PERMANENT, oppholdstillatelseFom, oppholdstillatelseTom).build();
+            .build();
 
 
         var behandling = scenario.medOppgittTilknytning(new MedlemskapOppgittTilknytningEntitet.Builder().medOppholdNå(true)
@@ -301,7 +301,6 @@ class MedlemDtoTjenesteTest {
         assertThat(medl2Periode1.dekningType()).isEqualTo(registerMedlemskapsperiode.getDekningType());
         assertThat(medl2Periode1.beslutningsdato()).isEqualTo(registerMedlemskapsperiode.getBeslutningsdato());
 
-        // TODO verifiser til annenpart
         assertThat(dto.annenpart().adresser()).hasSize(1);
         var adresseAP1 = dto.adresser().stream().findFirst().orElseThrow();
         assertThat(adresseAP1.fom()).isEqualTo(adresse.getPeriode().getFomDato());
@@ -309,14 +308,14 @@ class MedlemDtoTjenesteTest {
         assertThat(adresseAP1.adresse().getAdresseType()).isEqualTo(AdresseType.BOSTEDSADRESSE);
 
         assertThat(dto.annenpart().regioner()).hasSize(1);
-        var regionPeriodeAP1 = dto.regioner().stream().findFirst().orElseThrow();
-        assertThat(regionPeriodeAP1.type()).isEqualTo(Region.EOS);
+        var regionPeriodeAP1 = dto.annenpart().regioner().stream().findFirst().orElseThrow();
+        assertThat(regionPeriodeAP1.type()).isEqualTo(Region.TREDJELANDS_BORGER);
         assertThat(regionPeriodeAP1.fom()).isEqualTo(statsborgerFom);
         assertThat(regionPeriodeAP1.tom()).isEqualTo(statsborgerTom);
         assertThat(dto.annenpart().personstatuser()).hasSize(1);
 
         assertThat(dto.annenpart().personstatuser()).hasSize(1);
-        var personstatusAP1 = dto.personstatuser().stream().findFirst().orElseThrow();
+        var personstatusAP1 = dto.annenpart().personstatuser().stream().findFirst().orElseThrow();
         assertThat(personstatusAP1.fom()).isEqualTo(personstatusFom);
         assertThat(personstatusAP1.tom()).isEqualTo(personstatusTom);
         assertThat(personstatusAP1.type()).isEqualTo(PersonstatusType.BOSA);
