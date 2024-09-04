@@ -58,37 +58,33 @@ class MedlemDtoTjenesteTest {
         scenario.medBruker(søkerAktørId);
 
         var søker = scenario.opprettBuilderForRegisteropplysninger()
-                .leggTilPersonopplysninger(
-                        Personopplysning.builder()
-                                .aktørId(søkerAktørId)
-                                .navn(navn))
-                .build();
+            .leggTilPersonopplysninger(Personopplysning.builder().aktørId(søkerAktørId).navn(navn))
+            .build();
 
         scenario.medRegisterOpplysninger(søker);
         scenario.leggTilMedlemskapPeriode(new MedlemskapPerioderBuilder().medMedlemskapType(MedlemskapType.ENDELIG).build());
 
         scenario.medMedlemskap()
-                .medErEosBorger(true)
-                .medBosattVurdering(true)
-                .medOppholdsrettVurdering(true)
-                .medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.MEDLEM)
-                .medLovligOppholdVurdering(true);
+            .medErEosBorger(true)
+            .medBosattVurdering(true)
+            .medOppholdsrettVurdering(true)
+            .medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.MEDLEM)
+            .medLovligOppholdVurdering(true);
 
         var behandling = scenario.lagMocked();
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
 
-        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider
-        );
+        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider);
 
         var personopplysningTjenesteMock = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
         var medlemTjenesteMock = mock(MedlemTjeneste.class);
         var personDtoTjeneste = new PersonopplysningDtoTjeneste(personopplysningTjenesteMock, repositoryProvider);
 
-        when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any(), any()))
-                .thenReturn(EndringsresultatPersonopplysningerForMedlemskap.builder().build());
+        when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any(), any())).thenReturn(
+            EndringsresultatPersonopplysningerForMedlemskap.builder().build());
 
-        var dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste,
-            medlemTjenesteMock, personopplysningTjenesteMock, personDtoTjeneste);
+        var dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste, medlemTjenesteMock, personopplysningTjenesteMock,
+            personDtoTjeneste);
 
         var medlemDtoOpt = dtoTjeneste.lagMedlemV2Dto(behandling.getId());
         assertThat(medlemDtoOpt).hasValueSatisfying(medlemDto -> {
@@ -106,39 +102,35 @@ class MedlemDtoTjenesteTest {
         scenario.medBruker(søkerAktørId);
 
         var søker = scenario.opprettBuilderForRegisteropplysninger()
-                .leggTilPersonopplysninger(
-                        Personopplysning.builder()
-                                .aktørId(søkerAktørId)
-                                .navn(navn))
-                .build();
+            .leggTilPersonopplysninger(Personopplysning.builder().aktørId(søkerAktørId).navn(navn))
+            .build();
 
         scenario.medRegisterOpplysninger(søker);
         scenario.leggTilMedlemskapPeriode(new MedlemskapPerioderBuilder().medMedlemskapType(MedlemskapType.ENDELIG).build());
 
         scenario.medMedlemskap()
-                .medErEosBorger(true)
-                .medBosattVurdering(true)
-                .medOppholdsrettVurdering(true)
-                .medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.MEDLEM)
-                .medLovligOppholdVurdering(true);
+            .medErEosBorger(true)
+            .medBosattVurdering(true)
+            .medOppholdsrettVurdering(true)
+            .medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.MEDLEM)
+            .medLovligOppholdVurdering(true);
 
         var behandling = scenario.lagMocked();
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
 
-        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider
-        );
+        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider);
 
         var personopplysningTjenesteMock = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
         var medlemTjenesteMock = mock(MedlemTjeneste.class);
         var personDtoTjeneste = new PersonopplysningDtoTjeneste(personopplysningTjenesteMock, repositoryProvider);
         var endringFraDato = LocalDate.now().minusDays(5);
         var endringsresultatPersonopplysningerForMedlemskap = EndringsresultatPersonopplysningerForMedlemskap.builder()
-                .leggTilEndring(DatoIntervallEntitet.fraOgMed(endringFraDato), "", "2")
-                .build();
+            .leggTilEndring(DatoIntervallEntitet.fraOgMed(endringFraDato), "", "2")
+            .build();
         when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any(), any())).thenReturn(endringsresultatPersonopplysningerForMedlemskap);
 
-        var dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste,
-            medlemTjenesteMock, personopplysningTjenesteMock, personDtoTjeneste);
+        var dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste, medlemTjenesteMock, personopplysningTjenesteMock,
+            personDtoTjeneste);
 
         var medlemDtoOpt = dtoTjeneste.lagMedlemV2Dto(behandling.getId());
         assertThat(medlemDtoOpt.get().getFom()).isEqualTo(endringFraDato);
@@ -157,40 +149,33 @@ class MedlemDtoTjenesteTest {
         scenario.leggTilMedlemskapPeriode(new MedlemskapPerioderBuilder().medMedlemskapType(MedlemskapType.ENDELIG).build());
 
         var personInformasjon = scenario.opprettBuilderForRegisteropplysninger()
-                .leggTilPersonopplysninger(
-                        Personopplysning.builder()
-                                .aktørId(aktørIdSøker)
-                                .navn(navn))
-                .leggTilPersonopplysninger(
-                        Personopplysning.builder()
-                                .aktørId(aktørIdAnnenPart)
-                                .navn(annenPart))
-                .build();
+            .leggTilPersonopplysninger(Personopplysning.builder().aktørId(aktørIdSøker).navn(navn))
+            .leggTilPersonopplysninger(Personopplysning.builder().aktørId(aktørIdAnnenPart).navn(annenPart))
+            .build();
 
         scenario.medRegisterOpplysninger(personInformasjon);
 
         scenario.medMedlemskap()
-                .medErEosBorger(true)
-                .medBosattVurdering(true)
-                .medOppholdsrettVurdering(true)
-                .medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.MEDLEM)
-                .medLovligOppholdVurdering(true);
+            .medErEosBorger(true)
+            .medBosattVurdering(true)
+            .medOppholdsrettVurdering(true)
+            .medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.MEDLEM)
+            .medLovligOppholdVurdering(true);
 
         var behandling = scenario.lagMocked();
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
 
-        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider
-        );
+        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider);
 
         var personopplysningTjenesteMock = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
 
         var medlemTjenesteMock = mock(MedlemTjeneste.class);
         var personDtoTjeneste = new PersonopplysningDtoTjeneste(personopplysningTjenesteMock, repositoryProvider);
 
-        when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any(), any()))
-                .thenReturn(EndringsresultatPersonopplysningerForMedlemskap.builder().build());
-        var dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste,
-            medlemTjenesteMock, personopplysningTjenesteMock, personDtoTjeneste);
+        when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any(), any())).thenReturn(
+            EndringsresultatPersonopplysningerForMedlemskap.builder().build());
+        var dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste, medlemTjenesteMock, personopplysningTjenesteMock,
+            personDtoTjeneste);
 
         var medlemDtoOpt = dtoTjeneste.lagMedlemV2Dto(behandling.getId());
         assertThat(medlemDtoOpt).hasValueSatisfying(medlemDto -> assertThat(medlemDto.getMedlemskapPerioder()).hasSize(1));
@@ -208,16 +193,14 @@ class MedlemDtoTjenesteTest {
         var behandling = scenario.lagMocked();
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
 
-        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider
-        );
+        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider);
 
         var personopplysningTjenesteMock = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
 
         var medlemTjenesteMock = mock(MedlemTjeneste.class);
         var personDtoTjeneste = new PersonopplysningDtoTjeneste(personopplysningTjenesteMock, repositoryProvider);
-        var dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste,
-            medlemTjenesteMock,
-            personopplysningTjenesteMock, personDtoTjeneste);
+        var dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste, medlemTjenesteMock, personopplysningTjenesteMock,
+            personDtoTjeneste);
 
         var medlemDtoOpt = dtoTjeneste.lagMedlemV2Dto(behandling.getId());
         assertThat(medlemDtoOpt).hasValueSatisfying(medlemDto -> assertThat(medlemDto.getMedlemskapPerioder()).isEmpty());
@@ -227,11 +210,16 @@ class MedlemDtoTjenesteTest {
     void skal_lage_medlemskap_v3() {
         var fødselsdato = LocalDate.of(2024, 10, 15);
         var stp = fødselsdato.minusWeeks(3);
+        var aktørIdSøker = AktørId.dummy();
+        var aktørIdAnnenPart = AktørId.dummy();
         var registerMedlemskapsperiode = new MedlemskapPerioderBuilder().medPeriode(fødselsdato.minusYears(2), null).build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFødselAdopsjonsdato(fødselsdato)
             .medDefaultFordeling(stp)
             .leggTilMedlemskapPeriode(registerMedlemskapsperiode);
+
+        scenario.medSøknadAnnenPart().medAktørId(aktørIdAnnenPart).medNavn("Ola Dunk").build();
+
         var personInformasjonBuilder = scenario.opprettBuilderForRegisteropplysninger();
         var adresse = PersonAdresse.builder()
             .adresseType(AdresseType.BOSTEDSADRESSE)
@@ -245,22 +233,36 @@ class MedlemDtoTjenesteTest {
         var oppholdstillatelseTom = fødselsdato.minusWeeks(2);
         var oppgittUtenlandsopphold = new MedlemskapOppgittLandOppholdEntitet.Builder().medPeriode(fødselsdato.minusYears(1),
             fødselsdato.minusMonths(2)).medLand(Landkoder.DEU).build();
+
+       var søker = personInformasjonBuilder.medPersonas()
+           .voksenPerson(scenario.getDefaultBrukerAktørId(), SivilstandType.GIFT, NavBrukerKjønn.KVINNE)
+           .bostedsadresse(adresse)
+           .statsborgerskap(Landkoder.USA, statsborgerFom, statsborgerTom)
+           .statsborgerskap(Landkoder.SWE, statsborgerFom, statsborgerTom)
+           .personstatus(PersonstatusType.BOSA, personstatusFom, personstatusTom)
+           .opphold(OppholdstillatelseType.MIDLERTIDIG, oppholdstillatelseFom, oppholdstillatelseTom)
+           .build();
+
+
+        var annenpart = personInformasjonBuilder.medPersonas()
+            .voksenPerson(aktørIdAnnenPart, SivilstandType.GIFT, NavBrukerKjønn.MANN)
+            .bostedsadresse(adresse)
+            .statsborgerskap(Landkoder.GEO, statsborgerFom, statsborgerTom)
+            .statsborgerskap(Landkoder.CAN, statsborgerFom, statsborgerTom)
+            .personstatus(PersonstatusType.BOSA, personstatusFom, personstatusTom)
+            .build();
+
+
         var behandling = scenario.medOppgittTilknytning(new MedlemskapOppgittTilknytningEntitet.Builder().medOppholdNå(true)
                 .medOpphold(List.of(oppgittUtenlandsopphold))
                 .medOppgittDato(fødselsdato.minusMonths(1)))
-            .medRegisterOpplysninger(personInformasjonBuilder.medPersonas()
-                .voksenPerson(scenario.getDefaultBrukerAktørId(), SivilstandType.GIFT, NavBrukerKjønn.KVINNE)
-                .bostedsadresse(adresse)
-                .statsborgerskap(Landkoder.USA, statsborgerFom, statsborgerTom)
-                .statsborgerskap(Landkoder.SWE, statsborgerFom, statsborgerTom)
-                .personstatus(PersonstatusType.BOSA, personstatusFom, personstatusTom)
-                .opphold(OppholdstillatelseType.MIDLERTIDIG, oppholdstillatelseFom, oppholdstillatelseTom)
-                .build())
+            .medRegisterOpplysninger(annenpart)
+            .medRegisterOpplysninger(søker)
             .lagre(repositoryProvider);
 
         var dto = medlemDtoTjeneste.lagMedlemskap(behandling.getUuid());
 
-        assertThat(dto.aksjonspunkt()).isNull();
+        assertThat(dto.manuellBehandling()).isNull();
 
         assertThat(dto.personstatuser()).hasSize(1);
         var personstatus1 = dto.personstatuser().stream().findFirst().orElseThrow();
@@ -298,5 +300,24 @@ class MedlemDtoTjenesteTest {
         assertThat(medl2Periode1.tom()).isEqualTo(registerMedlemskapsperiode.getTom());
         assertThat(medl2Periode1.dekningType()).isEqualTo(registerMedlemskapsperiode.getDekningType());
         assertThat(medl2Periode1.beslutningsdato()).isEqualTo(registerMedlemskapsperiode.getBeslutningsdato());
+
+        assertThat(dto.annenpart().adresser()).hasSize(1);
+        var adresseAP1 = dto.adresser().stream().findFirst().orElseThrow();
+        assertThat(adresseAP1.fom()).isEqualTo(adresse.getPeriode().getFomDato());
+        assertThat(adresseAP1.tom()).isEqualTo(adresse.getPeriode().getTomDato());
+        assertThat(adresseAP1.adresse().getAdresseType()).isEqualTo(AdresseType.BOSTEDSADRESSE);
+
+        assertThat(dto.annenpart().regioner()).hasSize(1);
+        var regionPeriodeAP1 = dto.annenpart().regioner().stream().findFirst().orElseThrow();
+        assertThat(regionPeriodeAP1.type()).isEqualTo(Region.TREDJELANDS_BORGER);
+        assertThat(regionPeriodeAP1.fom()).isEqualTo(statsborgerFom);
+        assertThat(regionPeriodeAP1.tom()).isEqualTo(statsborgerTom);
+        assertThat(dto.annenpart().personstatuser()).hasSize(1);
+
+        assertThat(dto.annenpart().personstatuser()).hasSize(1);
+        var personstatusAP1 = dto.annenpart().personstatuser().stream().findFirst().orElseThrow();
+        assertThat(personstatusAP1.fom()).isEqualTo(personstatusFom);
+        assertThat(personstatusAP1.tom()).isEqualTo(personstatusTom);
+        assertThat(personstatusAP1.type()).isEqualTo(PersonstatusType.BOSA);
     }
 }
