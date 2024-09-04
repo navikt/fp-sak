@@ -6,6 +6,7 @@ import java.util.Set;
 import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDekningType;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapManuellVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittLandOppholdEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
@@ -16,9 +17,50 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAksjonspunktÅrsak;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonadresseDto;
 
-public record MedlemskapV3Dto(Aksjonspunkt aksjonspunkt, Set<Region> regioner, Set<Personstatus> personstatuser,
-                              Set<Utenlandsopphold> utenlandsopphold, Set<Adresse> adresser, Set<Oppholdstillatelse> oppholdstillatelser,
-                              Set<MedlemskapPeriode> medlemskapsperioder) { //TODO annen part?
+public record MedlemskapV3Dto(ManuellBehandling manuellBehandling,
+                              LegacyManuellBehandling legacyManuellBehandling,
+                              Set<Region> regioner,
+                              Set<Personstatus> personstatuser,
+                              Set<Utenlandsopphold> utenlandsopphold,
+                              Set<Adresse> adresser,
+                              Set<Oppholdstillatelse> oppholdstillatelser,
+                              Set<MedlemskapPeriode> medlemskapsperioder,
+                              Annenpart annenpart) {
+
+    private static final LocalDate OPPHOLD_CUTOFF = LocalDate.of(2018, 7, 1);
+
+
+    /**
+     * Settes hvis det krever manuell behandling og gammel vurdering ikke finnes.
+     */
+    record ManuellBehandling(Set<MedlemskapAksjonspunktÅrsak> årsaker, Resultat resultat) {
+
+        /**
+         * {@link #no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak} avslagsårsaker ifm medlemskap
+         */
+        public enum Resultat { // ref. Avslagsårsak.java
+            SØKER_ER_MEDLEM,
+            SØKER_ER_IKKE_MEDLEM,
+            SØKER_ER_UTVANDRET,
+            SØKER_HAR_IKKE_LOVLIG_OPPHOLD,
+            SØKER_HAR_IKKE_OPPHOLDSRETT,
+            SØKER_ER_IKKE_BOSATT,
+        }
+    }
+
+    /**
+     * Settes når gammel vurdering finnes, og ikke ny?
+     */
+    record LegacyManuellBehandling(Set<MedlemPeriode> perioder) {
+        record MedlemPeriode(LocalDate vurderingsdato,
+                             Boolean oppholdsrettVurdering,
+                             Boolean erEosBorger,
+                             Boolean lovligOppholdVurdering,
+                             Boolean bosattVurdering,
+                             MedlemskapManuellVurderingType medlemskapManuellVurderingType,
+                             String begrunnelse) {
+        }
+    }
 
     record Region(LocalDate fom, LocalDate tom, no.nav.foreldrepenger.behandlingslager.geografisk.Region type) {
     }
@@ -35,9 +77,6 @@ public record MedlemskapV3Dto(Aksjonspunkt aksjonspunkt, Set<Region> regioner, S
         }
     }
 
-    record Aksjonspunkt(Set<MedlemskapAksjonspunktÅrsak> årsaker) { //TODO resultat
-    }
-
     record Adresse(LocalDate fom, LocalDate tom, PersonadresseDto adresse) {
         public static Adresse map(PersonAdresseEntitet personAdresseEntitet) {
             return new Adresse(personAdresseEntitet.getPeriode().getFomDato(), personAdresseEntitet.getPeriode().getTomDato(),
@@ -46,9 +85,9 @@ public record MedlemskapV3Dto(Aksjonspunkt aksjonspunkt, Set<Region> regioner, S
     }
 
     record Oppholdstillatelse(LocalDate fom, LocalDate tom, OppholdstillatelseType type) {
-
         public static Oppholdstillatelse map(OppholdstillatelseEntitet oe) {
-            return new Oppholdstillatelse(oe.getPeriode().getFomDato(), oe.getPeriode().getTomDato(), oe.getTillatelse());
+            var fom = oe.getPeriode().getFomDato().isBefore(OPPHOLD_CUTOFF) ? null : oe.getPeriode().getFomDato();
+            return new Oppholdstillatelse(fom, oe.getPeriode().getTomDato(), oe.getTillatelse());
         }
     }
 
@@ -57,7 +96,9 @@ public record MedlemskapV3Dto(Aksjonspunkt aksjonspunkt, Set<Region> regioner, S
         public static MedlemskapPeriode map(MedlemskapPerioderEntitet mpe) {
             return new MedlemskapPeriode(mpe.getFom(), mpe.getTom(), mpe.getMedlemskapType(), mpe.getDekningType(), mpe.getBeslutningsdato());
         }
+    }
 
+    record Annenpart(Set<Adresse> adresser, Set<Region> regioner, Set<Personstatus> personstatuser) {
     }
 }
 
