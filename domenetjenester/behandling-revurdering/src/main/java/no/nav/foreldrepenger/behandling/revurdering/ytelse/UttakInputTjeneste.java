@@ -11,7 +11,6 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.BeregningUttakTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.GraderingUtenBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
@@ -28,6 +27,7 @@ import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.prosess.BeregningGraderingTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.BeregningsgrunnlagStatus;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -43,7 +43,7 @@ public class UttakInputTjeneste {
     private BehandlingRepository behandlingRepository;
     private BeregningTjeneste beregningTjeneste;
     private SøknadRepository søknadRepository;
-    private BeregningUttakTjeneste beregningUttakTjeneste;
+    private BeregningGraderingTjeneste beregningGraderingTjeneste;
     private no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.UttakGrunnlagTjeneste fpUttakGrunnlagTjeneste;
     private no.nav.foreldrepenger.behandling.revurdering.ytelse.svp.UttakGrunnlagTjeneste svpUttakGrunnlagTjeneste;
 
@@ -51,7 +51,7 @@ public class UttakInputTjeneste {
     public UttakInputTjeneste(BehandlingRepositoryProvider repositoryProvider, InntektArbeidYtelseTjeneste iayTjeneste,
                               SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                               MedlemTjeneste medlemTjeneste, BeregningTjeneste beregningTjeneste,
-                              BeregningUttakTjeneste beregningUttakTjeneste,
+                              BeregningGraderingTjeneste beregningGraderingTjeneste,
                               no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.UttakGrunnlagTjeneste fpUttakGrunnlagTjeneste,
                               no.nav.foreldrepenger.behandling.revurdering.ytelse.svp.UttakGrunnlagTjeneste svpUttakGrunnlagTjeneste) {
         this.iayTjeneste = Objects.requireNonNull(iayTjeneste, "iayTjeneste");
@@ -60,7 +60,7 @@ public class UttakInputTjeneste {
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.beregningTjeneste = beregningTjeneste;
-        this.beregningUttakTjeneste = beregningUttakTjeneste;
+        this.beregningGraderingTjeneste = beregningGraderingTjeneste;
         this.fpUttakGrunnlagTjeneste = fpUttakGrunnlagTjeneste;
         this.svpUttakGrunnlagTjeneste = svpUttakGrunnlagTjeneste;
     }
@@ -113,7 +113,7 @@ public class UttakInputTjeneste {
     }
 
     private boolean finnesAndelerMedGraderingUtenBeregningsgrunnlag(BehandlingReferanse ref, Beregningsgrunnlag beregningsgrunnlag) {
-        var aktivitetGradering = beregningUttakTjeneste.finnPerioderMedGradering(ref);
+        var aktivitetGradering = beregningGraderingTjeneste.finnPerioderMedGradering(ref);
         var andelerMedGraderingUtenBG = GraderingUtenBeregningsgrunnlagTjeneste.finnesAndelerMedGraderingUtenBG(beregningsgrunnlag, aktivitetGradering);
         return !andelerMedGraderingUtenBG.isEmpty();
     }

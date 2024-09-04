@@ -50,6 +50,10 @@
             <artifactId>behandlingslager-testutilities</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger</groupId>
+            <artifactId>uttak</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

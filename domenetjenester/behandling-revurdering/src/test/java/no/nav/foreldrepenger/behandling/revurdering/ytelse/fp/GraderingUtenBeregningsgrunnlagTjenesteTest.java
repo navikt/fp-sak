@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 
+import no.nav.foreldrepenger.domene.prosess.PeriodeMedGradering;
 import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
 
