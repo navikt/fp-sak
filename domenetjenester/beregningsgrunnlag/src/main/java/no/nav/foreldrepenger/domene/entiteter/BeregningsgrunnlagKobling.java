@@ -56,6 +56,14 @@ public class BeregningsgrunnlagKobling extends BaseEntitet {
         this.behandlingId = behandlingId;
     }
 
+    BeregningsgrunnlagKobling(Long behandlingId, UUID koblingUuid, LocalDate skjæringstidspunkt, Beløp grunnbeløp, boolean reguleringsbehov) {
+        this.koblingUuid = koblingUuid;
+        this.behandlingId = behandlingId;
+        this.skjæringstidspunkt = skjæringstidspunkt;
+        this.grunnbeløp = grunnbeløp;
+        this.reguleringsbehov = reguleringsbehov;
+    }
+
     public Optional<Beløp> getGrunnbeløp() {
         return Optional.ofNullable(grunnbeløp);
     }

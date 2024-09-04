@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FaktaOmBeregningTilfelleDto;
 import no.nav.folketrygdloven.kalkulus.kodeverk.AndelKilde;
 import no.nav.folketrygdloven.kalkulus.kodeverk.Inntektskategori;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulator.KodeverkTilKalkulusMapper;
 import no.nav.foreldrepenger.domene.rest.dto.ArbeidstakerandelUtenIMMottarYtelseDto;
 import no.nav.foreldrepenger.domene.rest.dto.AvklarteAktiviteterDto;
 import no.nav.foreldrepenger.domene.rest.dto.BeregningsaktivitetLagreDto;
@@ -309,11 +310,11 @@ public class OppdatererDtoMapper {
 
     private static no.nav.folketrygdloven.kalkulus.håndtering.v1.avklaraktiviteter.BeregningsaktivitetLagreDto mapTilBeregningsaktivitetLagreDto(BeregningsaktivitetLagreDto beregningsaktivitetLagreDto) {
         return no.nav.folketrygdloven.kalkulus.håndtering.v1.avklaraktiviteter.BeregningsaktivitetLagreDto.builder()
-            .medArbeidsforholdRef(UUID.fromString(beregningsaktivitetLagreDto.getArbeidsforholdRef()))
+            .medArbeidsforholdRef(beregningsaktivitetLagreDto.getArbeidsforholdRef() == null ? null : UUID.fromString(beregningsaktivitetLagreDto.getArbeidsforholdRef()))
             .medArbeidsgiverIdentifikator(beregningsaktivitetLagreDto.getArbeidsgiverIdentifikator())
             .medFom(beregningsaktivitetLagreDto.getFom())
             .medOppdragsgiverOrg(beregningsaktivitetLagreDto.getOppdragsgiverOrg())
-            .medOpptjeningAktivitetType(no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType.fraKode(beregningsaktivitetLagreDto.getOpptjeningAktivitetType().getKode()))
+            .medOpptjeningAktivitetType(KodeverkTilKalkulusMapper.mapOpptjeningAktivitetType(beregningsaktivitetLagreDto.getOpptjeningAktivitetType()))
             .medSkalBrukes(beregningsaktivitetLagreDto.getSkalBrukes())
             .medTom(beregningsaktivitetLagreDto.getTom())
             .build();
