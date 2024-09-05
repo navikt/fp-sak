@@ -35,6 +35,16 @@ public class BeregningsgrunnlagKoblingRepository {
         return hentUniktResultat(query);
     }
 
+    public BeregningsgrunnlagKobling opprettKoblingFraOriginal(BehandlingReferanse behandlingReferanse, BeregningsgrunnlagKobling original) {
+        guardMotEksisterende(behandlingReferanse);
+        var bgKobling = new BeregningsgrunnlagKobling(behandlingReferanse.behandlingId(), behandlingReferanse.behandlingUuid(),
+            original.getSkjæringstidspunkt().orElse(null),
+            original.getGrunnbeløp().orElse(null),
+            Boolean.TRUE.equals(original.getReguleringsbehov().orElse(null)));
+        lagreKobling(bgKobling);
+        return bgKobling;
+    }
+
     public BeregningsgrunnlagKobling opprettKobling(BehandlingReferanse behandlingReferanse) {
         guardMotEksisterende(behandlingReferanse);
         var bgKobling = new BeregningsgrunnlagKobling(behandlingReferanse.behandlingId(), behandlingReferanse.behandlingUuid());

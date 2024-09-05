@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.mappers.fra_kalkulus_til_domene;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,6 +27,7 @@ import no.nav.foreldrepenger.domene.modell.BeregningAktivitetOverstyring;
 import no.nav.foreldrepenger.domene.modell.BeregningAktivitetOverstyringer;
 import no.nav.foreldrepenger.domene.modell.BeregningRefusjonOverstyring;
 import no.nav.foreldrepenger.domene.modell.BeregningRefusjonOverstyringer;
+import no.nav.foreldrepenger.domene.modell.BeregningRefusjonPeriode;
 import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
@@ -64,7 +66,16 @@ public final class KalkulusTilFpsakMapper {
     }
 
     private static BeregningRefusjonOverstyring mapRefusjonoverstyring(BeregningRefusjonOverstyringDto r) {
-        return new BeregningRefusjonOverstyring(mapArbeidsgiver(r.getArbeidsgiver()), r.getFørsteMuligeRefusjonFom());
+        if (r.getRefusjonPerioder() == null) {
+            return new BeregningRefusjonOverstyring(mapArbeidsgiver(r.getArbeidsgiver()), r.getFørsteMuligeRefusjonFom(), Boolean.TRUE.equals(r.getErFristUtvidet()), Collections.emptyList());
+        }
+        var refusjonsperioder = r.getRefusjonPerioder()
+            .stream()
+            .map(rp -> new BeregningRefusjonPeriode(
+                rp.getArbeidsforholdRef() == null ? InternArbeidsforholdRef.nullRef() : InternArbeidsforholdRef.ref(
+                    rp.getArbeidsforholdRef().getAbakusReferanse()), rp.getStartdatoRefusjon()))
+            .toList();
+        return new BeregningRefusjonOverstyring(mapArbeidsgiver(r.getArbeidsgiver()), r.getFørsteMuligeRefusjonFom(), Boolean.TRUE.equals(r.getErFristUtvidet()), refusjonsperioder);
     }
 
     private static BeregningAktivitetOverstyringer mapAktivitetOverstyringer(BeregningAktivitetOverstyringerDto overstyringer) {

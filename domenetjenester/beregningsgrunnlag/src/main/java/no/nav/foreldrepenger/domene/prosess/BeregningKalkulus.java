@@ -77,7 +77,8 @@ public class BeregningKalkulus implements BeregningAPI {
         }
         var kobling = koblingOpt.orElseGet(() -> koblingRepository.opprettKobling(behandlingReferanse));
         var beregningSteg = mapTilBeregningStegType(stegType);
-        var request = lagBeregningRequest(behandlingReferanse, kobling, beregningSteg);
+        var originalKobling = behandlingReferanse.getOriginalBehandlingId().flatMap(oid -> koblingRepository.hentKobling(oid));
+        var request = lagBeregningRequest(behandlingReferanse, kobling, beregningSteg, originalKobling);
         var respons = klient.beregn(request);
         var prosessResultat = new BeregningsgrunnlagVilkårOgAkjonspunktResultat(respons.aksjonspunkter());
         // TODO Finn ut hvordan vi løser sporing av vilkåret
@@ -116,7 +117,7 @@ public class BeregningKalkulus implements BeregningAPI {
         var koblingOpt = koblingRepository.hentKobling(revurdering.behandlingId());
         var kobling = koblingOpt.orElseGet(() -> {
             LOG.info("Kobling for behandlingUuid {} finnes ikke, oppretter", revurdering.behandlingUuid());
-            return koblingRepository.opprettKobling(revurdering);
+            return koblingRepository.opprettKoblingFraOriginal(revurdering, originalKobling);
         });
         if (!tilstand.equals(BeregningsgrunnlagTilstand.FASTSATT)) {
             throw new IllegalStateException("Støtter ikke kopiering av grunnlag som ikke er fastsatt!");
@@ -174,11 +175,12 @@ public class BeregningKalkulus implements BeregningAPI {
         };
     }
 
-    private BeregnRequestDto lagBeregningRequest(BehandlingReferanse behandlingReferanse, BeregningsgrunnlagKobling kobling, BeregningSteg beregningSteg) {
+    private BeregnRequestDto lagBeregningRequest(BehandlingReferanse behandlingReferanse, BeregningsgrunnlagKobling kobling, BeregningSteg beregningSteg,
+                                                 Optional<BeregningsgrunnlagKobling> originalKobling) {
         var saksnummer = new Saksnummer(behandlingReferanse.saksnummer().getVerdi());
         var personIdent = new AktørIdPersonident(behandlingReferanse.aktørId().getId());
         var ytelse = mapYtelseSomSkalBeregnes(behandlingReferanse.fagsakYtelseType());
         var input = kalkulusInputTjeneste.lagKalkulusInput(behandlingReferanse);
-        return new BeregnRequestDto(saksnummer, kobling.getKoblingUuid(), personIdent, ytelse, beregningSteg, input, null);
+        return new BeregnRequestDto(saksnummer, kobling.getKoblingUuid(), personIdent, ytelse, beregningSteg, input, originalKobling.map(BeregningsgrunnlagKobling::getKoblingUuid).orElse(null));
     }
 }
