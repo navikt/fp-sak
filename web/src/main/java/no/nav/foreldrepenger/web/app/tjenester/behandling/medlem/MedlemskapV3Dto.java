@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Opphol
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonAdresseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAksjonspunktÅrsak;
+import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAvvik;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonadresseDto;
 
 public record MedlemskapV3Dto(ManuellBehandling manuellBehandling,
@@ -33,7 +33,7 @@ public record MedlemskapV3Dto(ManuellBehandling manuellBehandling,
     /**
      * Settes hvis det krever manuell behandling og gammel vurdering ikke finnes.
      */
-    record ManuellBehandling(Set<MedlemskapAksjonspunktÅrsak> årsaker, Resultat resultat) {
+    record ManuellBehandling(Set<MedlemskapAvvik> avvik, Resultat resultat) {
 
         /**
          * {@link #no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak} avslagsårsaker ifm medlemskap

@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -27,6 +26,7 @@ import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårTypeRef;
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.AvklarMedlemskapUtleder;
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAksjonspunktÅrsak;
+import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAvvik;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.InngangsvilkårRegler;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -68,14 +68,14 @@ public class InngangsvilkårMedlemskap implements Inngangsvilkår {
         try {
             var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
 
-            var nyUtledingResultat = utledNyttMedlemskapAksjonspunkt(ref, skjæringstidspunkt);
+            var nyUtledingResultat = utledNyttMedlemskapAksjonspunkt(ref);
             var gammelUtledetÅrsaker = behandling.getAksjonspunkter()
                 .stream()
                 .map(Aksjonspunkt::getAksjonspunktDefinisjon)
                 .filter(ap -> Set.of(AVKLAR_OM_ER_BOSATT, AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE, AVKLAR_LOVLIG_OPPHOLD, AVKLAR_OPPHOLDSRETT).contains(ap))
                 .map(InngangsvilkårMedlemskap::map)
                 .collect(Collectors.toSet());
-            logDiff(nyUtledingResultat, gammelUtledetÅrsaker, behandling.getFagsakYtelseType(), "inngangsvilkår");
+            logDiff(nyUtledingResultat, gammelUtledetÅrsaker, behandling.getFagsakYtelseType(), "inngangsvilkårv2");
         } catch (Exception e) {
             LOG.info("Medlemskap sammenligning feilet", e);
         }
@@ -98,16 +98,30 @@ public class InngangsvilkårMedlemskap implements Inngangsvilkår {
 
             nyUtledetÅrsaker.stream()
                 .filter(nyÅrsak -> !gammelUtledetÅrsaker.contains(nyÅrsak))
-                .forEach(nyÅrsak -> LOG.info("Medlemskap for ytelse {} {} diff {} {} - {}", ytelse, kontekst, gammelUtledetÅrsaker.isEmpty() ? "Ny årsak hadde ikke noen gamle" : "Ny årsak som ikke var blant de gamle", nyÅrsak, gammelUtledetÅrsaker));
+                .forEach(nyÅrsak -> LOG.info("Medlemskap for ytelse {} {} diff {} {} - {}", ytelse, kontekst,
+                    gammelUtledetÅrsaker.isEmpty() ? "Ny årsak hadde ikke noen gamle" : "Ny årsak som ikke var blant de gamle", nyÅrsak,
+                    gammelUtledetÅrsaker));
 
             gammelUtledetÅrsaker.stream()
                 .filter(gammelÅrsak -> !nyUtledetÅrsaker.contains(gammelÅrsak))
-                .forEach(gammelÅrsak -> LOG.info("Medlemskap for ytelse {} {} diff {} {} - {}", ytelse, kontekst, nyUtledetÅrsaker.isEmpty() ? "Gammel årsak hadde ikke noen nye" : "Gammel årsak som ikke var blant de nye", gammelÅrsak, nyUtledetÅrsaker));
+                .forEach(gammelÅrsak -> LOG.info("Medlemskap for ytelse {} {} diff {} {} - {}", ytelse, kontekst,
+                    nyUtledetÅrsaker.isEmpty() ? "Gammel årsak hadde ikke noen nye" : "Gammel årsak som ikke var blant de nye", gammelÅrsak,
+                    nyUtledetÅrsaker));
         }
     }
 
-    private Set<MedlemskapAksjonspunktÅrsak> utledNyttMedlemskapAksjonspunkt(BehandlingReferanse behandlingRef, Skjæringstidspunkt stp) {
-        return avklarMedlemskapUtleder.utledForInngangsvilkår(behandlingRef, stp);
+    private Set<MedlemskapAksjonspunktÅrsak> utledNyttMedlemskapAksjonspunkt(BehandlingReferanse behandlingRef) {
+        return avklarMedlemskapUtleder.utledAvvik(behandlingRef).stream().map(this::map).collect(Collectors.toSet());
+    }
+
+    private MedlemskapAksjonspunktÅrsak map(MedlemskapAvvik avvik) {
+        return switch (avvik) {
+            case BOSATT_UTENLANDSOPPHOLD, BOSATT_MANGLENDE_BOSTEDSADRESSE, BOSATT_UTENLANDSADRESSE, BOSATT_UGYLDIG_PERSONSTATUS ->
+                MedlemskapAksjonspunktÅrsak.BOSATT;
+            case TREDJELAND_MANGLENDE_LOVLIG_OPPHOLD -> MedlemskapAksjonspunktÅrsak.OPPHOLD;
+            case EØS_MANGLENDE_ANSETTELSE_MED_INNTEKT -> MedlemskapAksjonspunktÅrsak.OPPHOLDSRETT;
+            case MEDL_PERIODER -> MedlemskapAksjonspunktÅrsak.MEDLEMSKAPSPERIODER_FRA_REGISTER;
+        };
     }
 
     public static MedlemskapAksjonspunktÅrsak map(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
