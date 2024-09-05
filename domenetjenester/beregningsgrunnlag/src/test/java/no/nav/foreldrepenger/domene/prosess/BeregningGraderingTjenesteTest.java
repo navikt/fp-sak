@@ -39,7 +39,6 @@ class BeregningGraderingTjenesteTest {
             .medPeriode(LocalDate.of(2019, 5, 27), LocalDate.of(2019, 5, 31))
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .build();
-        var arbeidsgiver1 = Arbeidsgiver.virksomhet("123");
         var gradering1 = OppgittPeriodeBuilder.ny()
             .medArbeidsgiver(Arbeidsgiver.virksomhet("123"))
             .medArbeidsprosent(BigDecimal.TEN)
@@ -54,7 +53,6 @@ class BeregningGraderingTjenesteTest {
             .medPeriode(LocalDate.of(2019, 6, 21), LocalDate.of(2019, 6, 25))
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .build();
-        var arbeidsgiver2 = Arbeidsgiver.virksomhet("456");
         var gradering3 = OppgittPeriodeBuilder.ny()
             .medArbeidsgiver(Arbeidsgiver.virksomhet("456"))
             .medArbeidsprosent(BigDecimal.TEN)
@@ -101,8 +99,6 @@ class BeregningGraderingTjenesteTest {
         assertThat(sortertListe.get(3).arbeidsgiver()).isEqualTo(gradering4.getArbeidsgiver());
         assertThat(sortertListe.get(3).aktivitetStatus()).isEqualTo(AktivitetStatus.FRILANSER);
         assertThat(sortertListe.get(3).arbeidsprosent()).isEqualByComparingTo(gradering4.getArbeidsprosent());
-
-        System.out.println("test");
     }
 
     private void medFordeling(Behandling behandling, OppgittFordelingEntitet fordeling) {
