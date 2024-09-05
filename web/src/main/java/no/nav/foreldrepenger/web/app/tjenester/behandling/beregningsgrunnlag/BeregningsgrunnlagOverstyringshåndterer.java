@@ -10,18 +10,17 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AbstractOverstyringshåndte
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.OppdatererDtoMapper;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
-import no.nav.foreldrepenger.domene.rest.BeregningHåndterer;
 import no.nav.foreldrepenger.domene.rest.dto.OverstyrBeregningsgrunnlagDto;
 import no.nav.foreldrepenger.domene.rest.historikk.FaktaBeregningHistorikkHåndterer;
+import no.nav.foreldrepenger.domene.rest.historikk.kalkulus.FaktaBeregningHistorikkKalkulusTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
@@ -30,8 +29,8 @@ public class BeregningsgrunnlagOverstyringshåndterer extends AbstractOverstyrin
 
     private FaktaBeregningHistorikkHåndterer faktaBeregningHistorikkHåndterer;
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
-    private BeregningsgrunnlagInputProvider beregningsgrunnlagInputTjeneste;
-    private BeregningHåndterer beregningHåndterer;
+    private BeregningTjeneste beregningTjeneste;
+    private FaktaBeregningHistorikkKalkulusTjeneste faktaBeregningHistorikkKalkulusTjeneste;
 
     BeregningsgrunnlagOverstyringshåndterer() {
         // for CDI proxy
@@ -40,23 +39,29 @@ public class BeregningsgrunnlagOverstyringshåndterer extends AbstractOverstyrin
     @Inject
     public BeregningsgrunnlagOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter,
                                                    FaktaBeregningHistorikkHåndterer faktaBeregningHistorikkHåndterer,
+                                                   FaktaBeregningHistorikkKalkulusTjeneste faktaBeregningHistorikkKalkulusTjeneste,
                                                    HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
-                                                   BeregningsgrunnlagInputProvider beregningsgrunnlagInputTjeneste,
-                                                   BeregningHåndterer beregningHåndterer) {
+                                                   BeregningTjeneste beregningTjeneste) {
         super(historikkAdapter, AksjonspunktDefinisjon.OVERSTYRING_AV_BEREGNINGSGRUNNLAG);
         this.faktaBeregningHistorikkHåndterer = faktaBeregningHistorikkHåndterer;
+        this.faktaBeregningHistorikkKalkulusTjeneste = faktaBeregningHistorikkKalkulusTjeneste;
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
-        this.beregningsgrunnlagInputTjeneste = beregningsgrunnlagInputTjeneste;
-        this.beregningHåndterer = beregningHåndterer;
+        this.beregningTjeneste = beregningTjeneste;
     }
 
     @Override
     public OppdateringResultat håndterOverstyring(OverstyrBeregningsgrunnlagDto dto,
                                                   Behandling behandling, BehandlingskontrollKontekst kontekst) {
-        var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(behandling.getFagsakYtelseType());
-        var input = tjeneste.lagInput(BehandlingReferanse.fra(behandling));
-        beregningHåndterer.håndterBeregningsgrunnlagOverstyring(input, OppdatererDtoMapper.mapOverstyrBeregningsgrunnlagDto(dto));
-        // Lag historikk
+        var ref = BehandlingReferanse.fra(behandling);
+        var endringsaggregat = beregningTjeneste.overstyrBeregning(dto, ref);
+        if (endringsaggregat.isPresent()) {
+            faktaBeregningHistorikkKalkulusTjeneste.lagHistorikk(ref.behandlingId(), endringsaggregat.get(), dto.getBegrunnelse());
+        } else {
+            var forrigeGrunnlag = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandling.getId(), behandling.getOriginalBehandlingId(),
+                BeregningsgrunnlagTilstand.FORESLÅTT);
+            var aktivtGrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(behandling.getId());
+            faktaBeregningHistorikkHåndterer.lagHistorikkOverstyringInntekt(behandling, dto, aktivtGrunnlag, forrigeGrunnlag);
+        }
         var builder = OppdateringResultat.utenTransisjon();
         fjernOverstyrtAksjonspunkt(behandling)
             .ifPresent(ap -> builder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
@@ -69,9 +74,6 @@ public class BeregningsgrunnlagOverstyringshåndterer extends AbstractOverstyrin
 
     @Override
     protected void lagHistorikkInnslag(Behandling behandling, OverstyrBeregningsgrunnlagDto dto) {
-        var forrigeGrunnlag = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandling.getId(), behandling.getOriginalBehandlingId(),
-                BeregningsgrunnlagTilstand.FORESLÅTT);
-        var aktivtGrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(behandling.getId());
-        faktaBeregningHistorikkHåndterer.lagHistorikkOverstyringInntekt(behandling, dto, aktivtGrunnlag, forrigeGrunnlag);
+        // Håndteres sammen med selve overstyringen
     }
 }
