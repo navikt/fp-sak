@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
+package no.nav.foreldrepenger.domene.mappers.til_kalkulator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -33,17 +33,18 @@ import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.prosess.BeregningGraderingTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 
-class BeregningUttakTjenesteTest {
-
+class AktivitetGraderingTjenesteTest {
     private ForeldrepengerUttakTjeneste uttakTjeneste = Mockito.mock(ForeldrepengerUttakTjeneste.class);
     private YtelsesFordelingRepository ytelsesRepo = Mockito.mock(YtelsesFordelingRepository.class);
-    private BeregningUttakTjeneste tjeneste = new BeregningUttakTjeneste(uttakTjeneste, ytelsesRepo);
+    private BeregningGraderingTjeneste beregningGraderingTjeneste = new BeregningGraderingTjeneste(uttakTjeneste, ytelsesRepo);
+    private AktivitetGraderingTjeneste tjeneste = new AktivitetGraderingTjeneste(beregningGraderingTjeneste);
 
     private ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
 
@@ -95,7 +96,8 @@ class BeregningUttakTjenesteTest {
         assertThat(andelGraderingArbeidsgiver1).hasSize(1);
         var graderingerArbeidsgiver1 = andelGraderingArbeidsgiver1.get(0).getGraderinger();
         assertThat(graderingerArbeidsgiver1).hasSize(2);
-        assertThat(graderingerArbeidsgiver1).anySatisfy(gradering -> assertThat(gradering.getPeriode()).isEqualTo(Intervall.fraOgMedTilOgMed(gradering1.getFom(), gradering1.getTom())));
+        assertThat(graderingerArbeidsgiver1).anySatisfy(gradering -> assertThat(gradering.getPeriode()).isEqualTo(
+            Intervall.fraOgMedTilOgMed(gradering1.getFom(), gradering1.getTom())));
         assertThat(graderingerArbeidsgiver1).anySatisfy(gradering -> assertThat(gradering.getPeriode()).isEqualTo(Intervall.fraOgMedTilOgMed(gradering2.getFom(), gradering2.getTom())));
         assertThat(andelGraderingArbeidsgiver1.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(arbeidsgiver1.getIdentifikator());
         assertThat(graderingerArbeidsgiver1.get(0).getArbeidstidProsent().verdi()).isIn(gradering1.getArbeidsprosent(), gradering2.getArbeidsprosent());

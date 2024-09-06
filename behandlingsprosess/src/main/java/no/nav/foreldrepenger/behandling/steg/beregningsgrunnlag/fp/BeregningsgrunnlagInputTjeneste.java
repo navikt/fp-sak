@@ -11,7 +11,7 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.Dekningsgrad;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.BeregningUttakTjeneste;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulator.AktivitetGraderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -29,7 +29,7 @@ public class BeregningsgrunnlagInputTjeneste extends BeregningsgrunnlagInputFell
 
     private DekningsgradTjeneste dekningsgradTjeneste;
     private BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste;
-    private BeregningUttakTjeneste beregningUttakTjeneste;
+    private AktivitetGraderingTjeneste beregningUttakTjeneste;
 
     protected BeregningsgrunnlagInputTjeneste() {
         // CDI proxy
@@ -38,7 +38,7 @@ public class BeregningsgrunnlagInputTjeneste extends BeregningsgrunnlagInputFell
     @Inject
     public BeregningsgrunnlagInputTjeneste(InntektArbeidYtelseTjeneste iayTjeneste,
                                            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                           BeregningUttakTjeneste beregningUttakTjeneste,
+                                           AktivitetGraderingTjeneste beregningUttakTjeneste,
                                            OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste,
                                            BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste,
                                            InntektsmeldingTjeneste inntektsmeldingTjeneste,
