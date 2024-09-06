@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import no.nav.folketrygdloven.fpkalkulus.kontrakt.besteberegning.BesteberegningGrunnlagDto;
 import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningAktivitetAggregatDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningAktivitetDto;
@@ -34,6 +35,9 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.modell.BesteberegningGrunnlag;
+import no.nav.foreldrepenger.domene.modell.BesteberegningInntekt;
+import no.nav.foreldrepenger.domene.modell.BesteberegningMånedsgrunnlag;
 import no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagPrStatus;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -49,14 +53,37 @@ public final class KalkulusTilFpsakMapper {
         // Hindrer instansiering
     }
 
-    public static BeregningsgrunnlagGrunnlag map(BeregningsgrunnlagGrunnlagDto grunnlagDto) {
+    public static BeregningsgrunnlagGrunnlag map(BeregningsgrunnlagGrunnlagDto grunnlagDto, Optional<BesteberegningGrunnlagDto> besteberegningGrunnlagDto) {
         return BeregningsgrunnlagGrunnlagBuilder.nytt()
-            .medBeregningsgrunnlag(grunnlagDto.getBeregningsgrunnlag() == null ? null : mapGrunnlag(grunnlagDto.getBeregningsgrunnlag()))
+            .medBeregningsgrunnlag(grunnlagDto.getBeregningsgrunnlag() == null ? null : mapGrunnlag(grunnlagDto.getBeregningsgrunnlag(), besteberegningGrunnlagDto))
             .medRegisterAktiviteter(grunnlagDto.getRegisterAktiviteter() == null ? null : mapAktiviteter(grunnlagDto.getRegisterAktiviteter()))
             .medSaksbehandletAktiviteter(grunnlagDto.getSaksbehandletAktiviteter() == null ? null : mapAktiviteter(grunnlagDto.getSaksbehandletAktiviteter()))
             .medOverstyring(grunnlagDto.getOverstyringer() == null ? null : mapAktivitetOverstyringer(grunnlagDto.getOverstyringer()))
             .medRefusjonOverstyring(grunnlagDto.getRefusjonOverstyringer() == null ? null : mapRefusjonoverstyringer(grunnlagDto.getRefusjonOverstyringer()))
             .build(KodeverkFraKalkulusMapper.mapTilstand(grunnlagDto.getBeregningsgrunnlagTilstand()));
+    }
+
+    public static BesteberegningGrunnlag mapBesteberegning(BesteberegningGrunnlagDto bbg) {
+        var builder = BesteberegningGrunnlag.ny().medAvvik(mapTilBigDecimal(bbg.avvikFørsteOgTredjeLedd()));
+        bbg.seksBesteMåneder().stream().map(KalkulusTilFpsakMapper::mapBesteberegningMåned).forEach(builder::leggTilMånedsgrunnlag);
+        return builder.build();
+
+    }
+
+    private static BesteberegningMånedsgrunnlag mapBesteberegningMåned(BesteberegningGrunnlagDto.BesteberegningMånedDto m) {
+        var builder = BesteberegningMånedsgrunnlag.ny().medPeriode(m.periode().getFom(), m.periode().getTom());
+        m.inntekter().stream()
+            .map(KalkulusTilFpsakMapper::maBesteberegningInntekt)
+            .forEach(builder::leggTilInntekt);
+        return builder.build();
+    }
+
+    private static BesteberegningInntekt maBesteberegningInntekt(BesteberegningGrunnlagDto.BesteberegningInntektDto i) {
+        return BesteberegningInntekt.ny().medInntekt(mapTilBigDecimal(i.inntekt()))
+            .medArbeidsgiver(i.arbeidsgiver() == null ? null : mapArbeidsgiver(i.arbeidsgiver()))
+            .medOpptjeningAktivitetType(KodeverkFraKalkulusMapper.mapOpptjeningtype(i.opptjeningAktiviteterDto()))
+            .medArbeidsforholdRef(i.internArbeidsforholdRefDto() == null ? null : InternArbeidsforholdRef.ref(i.internArbeidsforholdRefDto().getAbakusReferanse()))
+            .build();
     }
 
     private static BeregningRefusjonOverstyringer mapRefusjonoverstyringer(BeregningRefusjonOverstyringerDto refusjonOverstyringer) {
@@ -109,7 +136,8 @@ public final class KalkulusTilFpsakMapper {
             .build();
     }
 
-    private static Beregningsgrunnlag mapGrunnlag(BeregningsgrunnlagDto beregningsgrunnlagDto) {
+    private static Beregningsgrunnlag mapGrunnlag(BeregningsgrunnlagDto beregningsgrunnlagDto,
+                                                  Optional<BesteberegningGrunnlagDto> besteberegningGrunnlagDto) {
         var builder = Beregningsgrunnlag.builder()
             .medSkjæringstidspunkt(beregningsgrunnlagDto.getSkjæringstidspunkt())
             .medGrunnbeløp(mapTilBeløp(beregningsgrunnlagDto.getGrunnbeløp()))
@@ -134,6 +162,9 @@ public final class KalkulusTilFpsakMapper {
         beregningsgrunnlagDto.getSammenligningsgrunnlagPrStatusListe().stream()
             .map(KalkulusTilFpsakMapper::mapSammenligningsgrunnlag)
             .forEach(builder::leggTilSammenligningsgrunnlagPrStatus);
+
+        // Besteberegning
+        besteberegningGrunnlagDto.ifPresent(bbg -> builder.medBesteberegningsgrunnlag(mapBesteberegning(bbg)));
 
         return builder.build();
     }

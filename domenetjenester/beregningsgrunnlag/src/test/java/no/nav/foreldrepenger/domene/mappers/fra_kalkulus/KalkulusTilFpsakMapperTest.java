@@ -3,29 +3,35 @@ package no.nav.foreldrepenger.domene.mappers.fra_kalkulus;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
-
-import no.nav.folketrygdloven.kalkulus.felles.v1.Beløp;
-import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BGAndelArbeidsforhold;
-import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningAktivitetDto;
-import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagPrStatusOgAndelDto;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.mappers.fra_kalkulator_til_entitet.KodeverkFraKalkulusMapper;
-import no.nav.foreldrepenger.domene.mappers.fra_kalkulus_til_domene.KalkulusTilFpsakMapper;
-import no.nav.foreldrepenger.domene.modell.BeregningAktivitet;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 
 import org.junit.jupiter.api.Test;
 
+import no.nav.folketrygdloven.fpkalkulus.kontrakt.besteberegning.BesteberegningGrunnlagDto;
+import no.nav.folketrygdloven.kalkulus.felles.v1.Beløp;
+import no.nav.folketrygdloven.kalkulus.felles.v1.InternArbeidsforholdRefDto;
+import no.nav.folketrygdloven.kalkulus.felles.v1.Periode;
+import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
+import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BGAndelArbeidsforhold;
+import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningAktivitetDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagGrunnlagDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagPeriodeDto;
+import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagPrStatusOgAndelDto;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
+import no.nav.foreldrepenger.domene.mappers.fra_kalkulator_til_entitet.KodeverkFraKalkulusMapper;
+import no.nav.foreldrepenger.domene.mappers.fra_kalkulus_til_domene.KalkulusTilFpsakMapper;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 
 class KalkulusTilFpsakMapperTest {
 
@@ -33,7 +39,7 @@ class KalkulusTilFpsakMapperTest {
     void skal_teste_mapping() {
         var kontraktBgg = bgFraJson();
 
-        var domeneBgg = KalkulusTilFpsakMapper.map(kontraktBgg);
+        var domeneBgg = KalkulusTilFpsakMapper.map(kontraktBgg, Optional.empty());
 
         var domenebg = domeneBgg.getBeregningsgrunnlag().orElseThrow();
         var kontraktbg = kontraktBgg.getBeregningsgrunnlag();
@@ -50,6 +56,55 @@ class KalkulusTilFpsakMapperTest {
             assertThat(domeneBgg.getRegisterAktiviteter().getSkjæringstidspunktOpptjening()).isEqualTo(kontraktBgg.getRegisterAktiviteter().getSkjæringstidspunktOpptjening());
             assertLikeAktiviteter(kontraktBgg.getRegisterAktiviteter().getAktiviteter(), domeneBgg.getRegisterAktiviteter().getBeregningAktiviteter());
         }
+    }
+
+    @Test
+    void skal_teste_mapping_med_besteberegning() {
+        var kontraktBgg = bgFraJson();
+
+
+        var arbRef = UUID.randomUUID().toString();
+        var inntektDPDto = new BesteberegningGrunnlagDto.BesteberegningInntektDto(OpptjeningAktivitetType.DAGPENGER, Beløp.fra(5000),
+            null, null);
+        var inntektATDto = new BesteberegningGrunnlagDto.BesteberegningInntektDto(OpptjeningAktivitetType.ARBEID, Beløp.fra(1234),
+            new no.nav.folketrygdloven.kalkulus.response.v1.Arbeidsgiver("999999999", null), new InternArbeidsforholdRefDto(arbRef));
+        var inntektMåned = new BesteberegningGrunnlagDto.BesteberegningMånedDto(
+            new Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 31)), List.of(inntektDPDto, inntektATDto));
+        var besteberegningDto = new BesteberegningGrunnlagDto(Collections.singletonList(inntektMåned), Beløp.fra(70000));
+        var domeneBgg = KalkulusTilFpsakMapper.map(kontraktBgg, Optional.of(besteberegningDto));
+
+        var domenebg = domeneBgg.getBeregningsgrunnlag().orElseThrow();
+        var kontraktbg = kontraktBgg.getBeregningsgrunnlag();
+        assertThat(domenebg.getSkjæringstidspunkt()).isEqualTo(kontraktbg.getSkjæringstidspunkt());
+        assertThat(domenebg.getGrunnbeløp().getVerdi()).isEqualTo(kontraktbg.getGrunnbeløp().verdi());
+        assertThat(domenebg.getAktivitetStatuser().stream().map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus))
+            .containsAll(kontraktbg.getAktivitetStatuser().stream().map(KodeverkFraKalkulusMapper::mapAktivitetstatus).collect(Collectors.toList()));
+        assertThat(domenebg.getBeregningsgrunnlagPerioder()).hasSameSizeAs(kontraktbg.getBeregningsgrunnlagPerioder());
+        assertPerioder(domenebg.getBeregningsgrunnlagPerioder().stream()
+            .sorted(Comparator.comparing(bgp -> bgp.getPeriode().getFomDato())).collect(Collectors.toList()), kontraktbg.getBeregningsgrunnlagPerioder().stream()
+            .sorted(Comparator.comparing(bgp -> bgp.getPeriode().getFom())).collect(Collectors.toList()));
+        if (kontraktBgg.getRegisterAktiviteter() != null) {
+            assertThat(domeneBgg.getRegisterAktiviteter()).isNotNull();
+            assertThat(domeneBgg.getRegisterAktiviteter().getSkjæringstidspunktOpptjening()).isEqualTo(kontraktBgg.getRegisterAktiviteter().getSkjæringstidspunktOpptjening());
+            assertLikeAktiviteter(kontraktBgg.getRegisterAktiviteter().getAktiviteter(), domeneBgg.getRegisterAktiviteter().getBeregningAktiviteter());
+        }
+
+        var domeneBbg = domenebg.getBesteberegningGrunnlag();
+        assertThat(domeneBbg).isPresent();
+        assertThat(domeneBbg.get().getAvvik().get()).isEqualByComparingTo(BigDecimal.valueOf(70000));
+        assertThat(domeneBbg.get().getSeksBesteMåneder()).hasSize(1);
+        assertThat(domeneBbg.get().getSeksBesteMåneder().stream().findFirst().get().getInntekter()).hasSize(2);
+        assertThat(domeneBbg.get().getSeksBesteMåneder().stream().findFirst().get().getPeriode().getFomDato()).isEqualTo(inntektMåned.periode().getFom());
+        assertThat(domeneBbg.get().getSeksBesteMåneder().stream().findFirst().get().getPeriode().getTomDato()).isEqualTo(inntektMåned.periode().getTom());
+        var atAndel = domeneBbg.get().getSeksBesteMåneder().stream().findFirst().get().getInntekter().stream().filter(i -> i.getOpptjeningAktivitetType().equals(
+            no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType.ARBEID)).findFirst();
+        var dpAndel = domeneBbg.get().getSeksBesteMåneder().stream().findFirst().get().getInntekter().stream().filter(i -> i.getOpptjeningAktivitetType().equals(
+            no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType.DAGPENGER)).findFirst();
+        assertThat(dpAndel.get().getInntekt()).isEqualByComparingTo(BigDecimal.valueOf(5000));
+
+        assertThat(atAndel.get().getInntekt()).isEqualByComparingTo(BigDecimal.valueOf(1234));
+        assertThat(atAndel.get().getArbeidsgiver().getIdentifikator()).isEqualTo("999999999");
+        assertThat(atAndel.get().getArbeidsforholdRef().getReferanse()).isEqualTo(arbRef);
     }
 
     private void assertLikeAktiviteter(List<BeregningAktivitetDto> kontraktAktiviteter, List<BeregningAktivitet> domeneAktiviteter) {
