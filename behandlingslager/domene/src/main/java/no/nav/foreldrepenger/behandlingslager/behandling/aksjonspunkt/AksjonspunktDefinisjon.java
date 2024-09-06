@@ -273,6 +273,10 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     VURDER_UTTAK_DOKUMENTASJON(
         AksjonspunktKodeDefinisjon.VURDER_UTTAK_DOKUMENTASJON_KODE, AksjonspunktType.MANUELL, "Vurder uttaksdokumentasjon",
         BehandlingStegType.FAKTA_UTTAK_DOKUMENTASJON, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.FAKTA_OM_UTTAK_DOKUMENTASJON, TOTRINN, EnumSet.of(FP)),
+    VURDER_MEDLEMSKAPSVILKÅRET(
+        AksjonspunktKodeDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET, AksjonspunktType.MANUELL, "Manuell vurdering av medlemskapsvilkåret",
+        BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.UT, VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.PUNKT_FOR_MEDLEMSKAP,
+        TOTRINN, EnumSet.of(FP, SVP, ES)),
 
     // Gruppe : 600
 
