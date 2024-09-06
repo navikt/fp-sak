@@ -9,6 +9,7 @@ import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
@@ -28,10 +29,14 @@ import no.nav.foreldrepenger.domene.rest.dto.AvklarteAktiviteterDto;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBGTidsbegrensetArbeidsforholdDto;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBeregningsgrunnlagATFLDto;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto;
+import no.nav.foreldrepenger.domene.rest.dto.OverstyrBeregningsaktiviteterDto;
+import no.nav.foreldrepenger.domene.rest.dto.OverstyrBeregningsgrunnlagDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderFaktaOmBeregningDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderRefusjonBeregningsgrunnlagDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderVarigEndringEllerNyoppstartetSNDto;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagDto;
+
+import org.jboss.jdeparser.FormatPreferences;
 
 @ApplicationScoped
 public class BeregningFPSAK implements BeregningAPI {
@@ -111,6 +116,24 @@ public class BeregningFPSAK implements BeregningAPI {
         return oppdater(oppdateringer, input);
     }
 
+    @Override
+    public Optional<OppdaterBeregningsgrunnlagResultat> overstyrBeregning(OverstyringAksjonspunktDto overstyring, BehandlingReferanse referanse) {
+        var tjeneste = inputTjenesteProvider.getTjeneste(referanse.fagsakYtelseType());
+        var input = tjeneste.lagInput(referanse);
+        return overstyr(overstyring, input);
+    }
+
+    private Optional<OppdaterBeregningsgrunnlagResultat> overstyr(OverstyringAksjonspunktDto overstyring, BeregningsgrunnlagInput input) {
+        if (overstyring instanceof OverstyrBeregningsaktiviteterDto dto) {
+            beregningHåndterer.håndterBeregningAktivitetOverstyring(input, OppdatererDtoMapper.mapOverstyrBeregningsaktiviteterDto(dto.getBeregningsaktivitetLagreDtoList()));
+        } else if (overstyring instanceof OverstyrBeregningsgrunnlagDto dto) {
+            beregningHåndterer.håndterBeregningsgrunnlagOverstyring(input, OppdatererDtoMapper.mapOverstyrBeregningsgrunnlagDto(dto));
+        } else {
+            throw new IllegalStateException("Ukjent overstyring for kode " + overstyring.getAksjonspunktDefinisjon());
+        }
+        return Optional.empty();
+    }
+
     private Optional<OppdaterBeregningsgrunnlagResultat> oppdater(BekreftetAksjonspunktDto oppdatering, BeregningsgrunnlagInput input) {
         if (oppdatering instanceof AvklarteAktiviteterDto dto) {
             beregningHåndterer.håndterAvklarAktiviteter(input, OppdatererDtoMapper.mapAvklarteAktiviteterDto(dto));
@@ -129,7 +152,7 @@ public class BeregningFPSAK implements BeregningAPI {
         } else if (oppdatering instanceof FordelBeregningsgrunnlagDto dto) {
             beregningHåndterer.håndterFordelBeregningsgrunnlag(input, OppdatererDtoMapper.mapFordelBeregningsgrunnlagDto(dto));
         } else {
-            throw new IllegalStateException();
+            throw new IllegalStateException("Ukjent aksjonspunkt for kode " + oppdatering.getAksjonspunktDefinisjon());
         }
         return Optional.empty();
     }
