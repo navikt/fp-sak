@@ -32,6 +32,8 @@ import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.MedlemInngangsvilkårRegelGrunnlag;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ApplicationScoped
@@ -42,25 +44,29 @@ class MedlemRegelGrunnlagBygger {
     private MedlemskapVurderingPeriodeTjeneste vurderingPeriodeTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private SatsRepository satsRepository;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     @Inject
     MedlemRegelGrunnlagBygger(MedlemTjeneste medlemTjeneste,
                               PersonopplysningTjeneste personopplysningTjeneste,
                               MedlemskapVurderingPeriodeTjeneste vurderingPeriodeTjeneste,
                               InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                              SatsRepository satsRepository) {
+                              SatsRepository satsRepository,
+                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.medlemTjeneste = medlemTjeneste;
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.vurderingPeriodeTjeneste = vurderingPeriodeTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.satsRepository = satsRepository;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
     MedlemRegelGrunnlagBygger() {
         //CDI
     }
 
-    MedlemInngangsvilkårRegelGrunnlag lagRegelGrunnlagInngangsvilkår(BehandlingReferanse behandlingRef, Skjæringstidspunkt skjæringstidspunkt) {
+    MedlemInngangsvilkårRegelGrunnlag lagRegelGrunnlagInngangsvilkår(BehandlingReferanse behandlingRef) {
+        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingRef.behandlingId());
         var vurderingsperiodeBosatt = vurderingPeriodeTjeneste.bosattVurderingsintervall(behandlingRef, skjæringstidspunkt);
         var vurderingsperiodeLovligOpphold = vurderingPeriodeTjeneste.lovligOppholdVurderingsintervall(behandlingRef, skjæringstidspunkt);
         var registrertMedlemskapPerioder = hentMedlemskapPerioder(behandlingRef)
@@ -69,7 +75,7 @@ class MedlemRegelGrunnlagBygger {
         var opplysningsperiode = SimpleLocalDateInterval.fraOgMedTomNotNull(
             LocalDateInterval.min(vurderingsperiodeBosatt.getFomDato(), vurderingsperiodeLovligOpphold.getFomDato()),
             LocalDateInterval.max(vurderingsperiodeBosatt.getTomDato(), vurderingsperiodeLovligOpphold.getTomDato()));
-        var personopplysningGrunnlag = hentPersonopplysninger(behandlingRef, skjæringstidspunkt, opplysningsperiode);
+        var personopplysningGrunnlag = hentPersonopplysningerV2(behandlingRef, skjæringstidspunkt, opplysningsperiode);
         var søknad = hentSøknad(behandlingRef);
         var arbeid =  inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingRef.behandlingId())
             .map(iay -> new MedlemInngangsvilkårRegelGrunnlag.Arbeid(hentAnsettelsePerioder(iay, behandlingRef), hentInntekt(iay, behandlingRef)))
@@ -134,6 +140,26 @@ class MedlemRegelGrunnlagBygger {
             .collect(Collectors.toSet());
     }
 
+    private no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.Personopplysninger hentPersonopplysningerV2(BehandlingReferanse behandlingRef, Skjæringstidspunkt stp, AbstractLocalDateInterval opplysningsperiode) {
+        var personopplysningerAggregat = personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(behandlingRef).orElseThrow();
+        var aktørId = behandlingRef.aktørId();
+        var regioner = personopplysningerAggregat.getStatsborgerskapRegionIInterval(aktørId, opplysningsperiode, stp.getUtledetSkjæringstidspunkt())
+            .stream()
+            .map(s -> new no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.Personopplysninger.RegionPeriode(s.getLocalDateInterval(), mapV2(s.getValue())))
+            .collect(Collectors.toSet());
+        var oppholdstillatelser = personopplysningerAggregat.getOppholdstillatelseFor(aktørId, opplysningsperiode)
+            .stream()
+            .filter(o -> !OppholdstillatelseType.UDEFINERT.equals(o.getTillatelse()))
+            .map(o -> map(o.getPeriode()))
+            .collect(Collectors.toSet());
+        var personstatus = personopplysningerAggregat.getPersonstatuserFor(aktørId, opplysningsperiode).stream().map(this::mapV2).collect(Collectors.toSet());
+        var adresser = personopplysningerAggregat.getAdresserFor(behandlingRef.aktørId(), opplysningsperiode)
+            .stream()
+            .map(a -> new no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.Personopplysninger.Adresse(map(a.getPeriode()), mapV2(a.getAdresseType()), a.erUtlandskAdresse()))
+            .collect(Collectors.toSet());
+        return new no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.Personopplysninger(regioner, oppholdstillatelser, personstatus, adresser);
+    }
+
     private Personopplysninger hentPersonopplysninger(BehandlingReferanse behandlingRef, Skjæringstidspunkt stp, AbstractLocalDateInterval opplysningsperiode) {
         var personopplysningerAggregat = personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(behandlingRef).orElseThrow();
         var aktørId = behandlingRef.aktørId();
@@ -162,6 +188,25 @@ class MedlemRegelGrunnlagBygger {
         };
     }
 
+    private no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.Personopplysninger.Region mapV2(Region region) {
+        return switch (region) {
+            case NORDEN -> no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.Personopplysninger.Region.NORDEN;
+            case EOS -> no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.Personopplysninger.Region.EØS;
+            case TREDJELANDS_BORGER, UDEFINERT -> no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.Personopplysninger.Region.TREDJELAND;
+        };
+    }
+
+    private static no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.Personopplysninger.Adresse.Type mapV2(AdresseType adresseType) {
+        return switch (adresseType) {
+            case BOSTEDSADRESSE -> no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.Personopplysninger.Adresse.Type.BOSTEDSADRESSE;
+            case POSTADRESSE -> no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.Personopplysninger.Adresse.Type.KONTAKTADRESSE;
+            case POSTADRESSE_UTLAND -> no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.Personopplysninger.Adresse.Type.KONTAKTADRESSE_UTLAND;
+            case MIDLERTIDIG_POSTADRESSE_NORGE -> no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.Personopplysninger.Adresse.Type.OPPHOLDSADRESSE_NORGE;
+            case MIDLERTIDIG_POSTADRESSE_UTLAND -> no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.Personopplysninger.Adresse.Type.OPPHOLDSADRESSE_UTLAND;
+            case UKJENT_ADRESSE -> no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.Personopplysninger.Adresse.Type.UKJENT_ADRESSE;
+        };
+    }
+
     private static Personopplysninger.Adresse.Type map(AdresseType adresseType) {
         return switch (adresseType) {
             case BOSTEDSADRESSE -> Personopplysninger.Adresse.Type.BOSTEDSADRESSE;
@@ -181,6 +226,19 @@ class MedlemRegelGrunnlagBygger {
             case FOSV -> Type.FORSVUNNET;
             case FØDR, UTVA, UREG -> Type.IKKE_BOSATT;
             case UTPE -> Type.OPPHØRT;
+            case UDEFINERT -> null;
+            case UTAN -> throw new IllegalArgumentException("Ukjent status " + personstatus.getPersonstatus());
+        });
+    }
+
+    private no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.Personopplysninger.PersonstatusPeriode mapV2(PersonstatusEntitet personstatus) {
+        return new no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.Personopplysninger.PersonstatusPeriode (map(personstatus.getPeriode()), switch (personstatus.getPersonstatus()) {
+            case ADNR -> no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.Personopplysninger.PersonstatusPeriode.Type.D_NUMMER;
+            case BOSA -> no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.Personopplysninger.PersonstatusPeriode.Type.BOSATT_ETTER_FOLKEREGISTERLOVEN;
+            case DØD -> no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.Personopplysninger.PersonstatusPeriode.Type.DØD;
+            case FOSV -> no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.Personopplysninger.PersonstatusPeriode.Type.FORSVUNNET;
+            case FØDR, UTVA, UREG -> no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.Personopplysninger.PersonstatusPeriode.Type.IKKE_BOSATT;
+            case UTPE -> no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.Personopplysninger.PersonstatusPeriode.Type.OPPHØRT;
             case UDEFINERT -> null;
             case UTAN -> throw new IllegalArgumentException("Ukjent status " + personstatus.getPersonstatus());
         });
