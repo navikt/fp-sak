@@ -40,7 +40,7 @@
 
         <fp-kontrakter.version>9.1.20</fp-kontrakter.version>
         <abakus-kontrakt.version>2.1.2</abakus-kontrakt.version>
-        <kalkulus.version>0.0.5</kalkulus.version>
+        <kalkulus.version>0.0.6</kalkulus.version>
 
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
         <sonar.projectName>fp-sak</sonar.projectName>
@@ -150,7 +150,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>jms-integrasjon</artifactId>
-                <version>3.2.7</version>
+                <version>3.2.8</version>
             </dependency>
 
             <dependency>
