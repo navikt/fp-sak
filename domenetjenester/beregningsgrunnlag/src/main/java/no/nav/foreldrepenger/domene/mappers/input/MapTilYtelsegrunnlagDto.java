@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.fp;
+package no.nav.foreldrepenger.domene.mappers.input;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import no.nav.folketrygdloven.kalkulator.modell.besteberegning.Ytelseandel;
-import no.nav.folketrygdloven.kalkulator.modell.besteberegning.Ytelsegrunnlag;
-import no.nav.folketrygdloven.kalkulator.modell.besteberegning.Ytelseperiode;
-import no.nav.folketrygdloven.kalkulator.tid.Intervall;
+import no.nav.folketrygdloven.kalkulus.beregning.v1.besteberegning.Ytelseandel;
+import no.nav.folketrygdloven.kalkulus.beregning.v1.besteberegning.Ytelsegrunnlag;
+import no.nav.folketrygdloven.kalkulus.beregning.v1.besteberegning.Ytelseperiode;
+import no.nav.folketrygdloven.kalkulus.felles.v1.Periode;
 import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
 import no.nav.folketrygdloven.kalkulus.kodeverk.Inntektskategori;
 import no.nav.folketrygdloven.kalkulus.kodeverk.YtelseType;
@@ -30,13 +30,14 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-public class BesteberegningYtelsegrunnlagMapper {
+public class MapTilYtelsegrunnlagDto {
     private static final List<RelatertYtelseType> FPSAK_YTELSER = Arrays.asList(RelatertYtelseType.FORELDREPENGER,
         RelatertYtelseType.SVANGERSKAPSPENGER);
 
-    private BesteberegningYtelsegrunnlagMapper() {
-        // Skjuler default konstruktør
+    private MapTilYtelsegrunnlagDto() {
+        // Skjuler konstruktør
     }
+
 
     public static List<Saksnummer> saksnummerSomMåHentesFraFpsak(DatoIntervallEntitet periodeYtelserKanVæreRelevantForBB, YtelseFilter ytelseFilter) {
         var ytelserFraFpsak = ytelseFilter.filter(y -> FPSAK_YTELSER.contains(y.getRelatertYtelseType()))
@@ -50,7 +51,7 @@ public class BesteberegningYtelsegrunnlagMapper {
                                                                            FagsakYtelseType ytelseType) {
         var ytelseperioder = resultat.getBeregningsresultatPerioder().stream()
             .filter(periode -> periode.getDagsats() > 0)
-            .map(BesteberegningYtelsegrunnlagMapper::mapPeriode)
+            .map(MapTilYtelsegrunnlagDto::mapPeriode)
             .toList();
         return ytelseperioder.isEmpty()
             ? Optional.empty()
@@ -67,17 +68,17 @@ public class BesteberegningYtelsegrunnlagMapper {
 
     private static Ytelseperiode mapPeriode(BeregningsresultatPeriode periode) {
         var andeler = periode.getBeregningsresultatAndelList().stream()
-            .map(BesteberegningYtelsegrunnlagMapper::mapAndel)
+            .map(MapTilYtelsegrunnlagDto::mapAndel)
             .toList();
-        return new Ytelseperiode(Intervall.fraOgMedTilOgMed(periode.getBeregningsresultatPeriodeFom(), periode.getBeregningsresultatPeriodeTom()), andeler);
+        return new Ytelseperiode(new Periode(periode.getBeregningsresultatPeriodeFom(), periode.getBeregningsresultatPeriodeTom()), andeler);
     }
 
     private static Ytelseandel mapAndel(BeregningsresultatAndel a) {
         return new Ytelseandel(AktivitetStatus.fraKode(a.getAktivitetStatus().getKode()),
             Inntektskategori.fraKode(a.getInntektskategori().getKode()),
+            null,
             (long) a.getDagsats());
     }
-
 
     private static Optional<Ytelseperiode> mapTilYtelsegrunnlag(Ytelse sp) {
         var arbeidskategori = sp.getYtelseGrunnlag()
@@ -85,9 +86,9 @@ public class BesteberegningYtelsegrunnlagMapper {
         if (arbeidskategori.isEmpty() || harUgyldigTilstandForBesteberegning(arbeidskategori.get(), sp.getStatus())) {
             return Optional.empty();
         }
-        var andel = new Ytelseandel(no.nav.folketrygdloven.kalkulus.kodeverk.Arbeidskategori.fraKode(arbeidskategori.get().getKode()),
+        var andel = new Ytelseandel(null, null, no.nav.folketrygdloven.kalkulus.kodeverk.Arbeidskategori.fraKode(arbeidskategori.get().getKode()),
             null);
-        return Optional.of(new Ytelseperiode(Intervall.fraOgMedTilOgMed(sp.getPeriode().getFomDato(), sp.getPeriode().getTomDato()),
+        return Optional.of(new Ytelseperiode(new Periode(sp.getPeriode().getFomDato(), sp.getPeriode().getTomDato()),
             Collections.singletonList(andel)));
     }
 
@@ -103,7 +104,7 @@ public class BesteberegningYtelsegrunnlagMapper {
             .getFiltrertYtelser();
         if (ytelse.equals(RelatertYtelseType.SYKEPENGER)) {
             var sykepengeperioder = ytelsevedtak.stream()
-                .map(BesteberegningYtelsegrunnlagMapper::mapTilYtelsegrunnlag)
+                .map(MapTilYtelsegrunnlagDto::mapTilYtelsegrunnlag)
                 .flatMap(Optional::stream)
                 .toList();
             return sykepengeperioder.isEmpty()
@@ -113,13 +114,13 @@ public class BesteberegningYtelsegrunnlagMapper {
         var alleAnvistePerioder = ytelsevedtak.stream().map(Ytelse::getYtelseAnvist).flatMap(Collection::stream).toList();
         var perioder = alleAnvistePerioder.stream()
             .map(
-                p -> new Ytelseperiode(Intervall.fraOgMedTilOgMed(p.getAnvistFOM(), p.getAnvistTOM()), mapAnvisteAndeler(p.getYtelseAnvistAndeler())))
+                p -> new Ytelseperiode(new Periode(p.getAnvistFOM(), p.getAnvistTOM()), mapAnvisteAndeler(p.getYtelseAnvistAndeler())))
             .toList();
         return perioder.isEmpty() ? Optional.empty() : Optional.of(new Ytelsegrunnlag(mapRelatertYtelseKode(ytelse), perioder));
     }
 
     private static List<Ytelseandel> mapAnvisteAndeler(Set<YtelseAnvistAndel> ytelseAnvistAndeler) {
-        return ytelseAnvistAndeler.stream().map(a -> new Ytelseandel(finnAktivitetstatus(a), mapInntektskategori(a.getInntektskategori()), mapDagsats(a.getDagsats()))).toList();
+        return ytelseAnvistAndeler.stream().map(a -> new Ytelseandel(finnAktivitetstatus(a), mapInntektskategori(a.getInntektskategori()), null, mapDagsats(a.getDagsats()))).toList();
     }
 
     private static AktivitetStatus finnAktivitetstatus(YtelseAnvistAndel a) {
@@ -173,5 +174,4 @@ public class BesteberegningYtelsegrunnlagMapper {
             return YtelseType.PLEIEPENGER_SYKT_BARN;
         }
         throw new IllegalArgumentException("Ukjent ytelse ved mapping til besteberegning ytelsegrunnlag: " + ytelse);
-    }
-}
+    }}
