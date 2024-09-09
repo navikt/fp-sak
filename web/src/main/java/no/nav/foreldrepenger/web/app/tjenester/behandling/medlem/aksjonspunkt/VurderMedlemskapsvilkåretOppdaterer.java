@@ -14,20 +14,23 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = VurderMedlemskapDto.class, adapter = AksjonspunktOppdaterer.class)
 public class VurderMedlemskapsvilkåretOppdaterer implements AksjonspunktOppdaterer<VurderMedlemskapDto> {
 
     private HistorikkTjenesteAdapter historikkAdapter;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+
+    @Inject
+    public VurderMedlemskapsvilkåretOppdaterer(HistorikkTjenesteAdapter historikkAdapter, SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+        this.historikkAdapter = historikkAdapter;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+    }
 
     VurderMedlemskapsvilkåretOppdaterer() {
         // for CDI proxy
-    }
-
-    @Inject
-    public VurderMedlemskapsvilkåretOppdaterer(HistorikkTjenesteAdapter historikkAdapter) {
-        this.historikkAdapter = historikkAdapter;
     }
 
     @Override
@@ -36,12 +39,14 @@ public class VurderMedlemskapsvilkåretOppdaterer implements AksjonspunktOppdate
         lagHistorikkInnslag(param, nyttUtfall, dto.getBegrunnelse());
 
         if (VilkårUtfallType.OPPFYLT.equals(nyttUtfall)) {
-            return new OppdateringResultat.Builder()
-                .leggTilManueltOppfyltVilkår(VilkårType.MEDLEMSKAPSVILKÅRET)
-                .build();
+            return oppfyltResultat();
         }
         if (!VilkårType.MEDLEMSKAPSVILKÅRET.getAvslagsårsaker().contains(dto.getAvslagskode())) {
             throw new IllegalArgumentException("Ugyldig avslagsårsak for medlemskapsvilkåret");
+        }
+        if (erOpphørEtterStp(dto, param.getBehandlingId())) {
+            //TODD lagre opphørsdato
+            return oppfyltResultat();
         }
         return OppdateringResultat.utenTransisjon()
             .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
@@ -49,6 +54,15 @@ public class VurderMedlemskapsvilkåretOppdaterer implements AksjonspunktOppdate
             .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
             .build();
 
+    }
+
+    private boolean erOpphørEtterStp(VurderMedlemskapDto dto, Long behandlingId) {
+        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId).getUtledetSkjæringstidspunkt();
+        return dto.getOpphørFom() != null && dto.getOpphørFom().isAfter(stp);
+    }
+
+    private static OppdateringResultat oppfyltResultat() {
+        return new OppdateringResultat.Builder().leggTilManueltOppfyltVilkår(VilkårType.MEDLEMSKAPSVILKÅRET).build();
     }
 
     private void lagHistorikkInnslag(AksjonspunktOppdaterParameter param, VilkårUtfallType nyVerdi, String begrunnelse) {

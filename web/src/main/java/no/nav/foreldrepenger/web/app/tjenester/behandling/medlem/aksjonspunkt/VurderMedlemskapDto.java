@@ -15,15 +15,10 @@ public class VurderMedlemskapDto extends BekreftetAksjonspunktDto {
     @ValidKodeverk
     private Avslagsårsak avslagskode;
 
-    private LocalDate medlemFom;
     private LocalDate opphørFom;
 
     public Avslagsårsak getAvslagskode() {
         return avslagskode;
-    }
-
-    public LocalDate getMedlemFom() {
-        return medlemFom;
     }
 
     public LocalDate getOpphørFom() {
