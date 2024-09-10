@@ -142,6 +142,8 @@ public class AksjonspunktKodeDefinisjon {
 
     public static final String REGISTRER_PAPIRSØKNAD_SVANGERSKAPSPENGER_KODE = "5096";
 
+    public static final String VURDER_MEDLEMSKAPSVILKÅRET = "5101";
+
     // Andre koder
     public static final SkjermlenkeType UTEN_SKJERMLENKE = null;
     public static final VilkårType UTEN_VILKÅR = null;
