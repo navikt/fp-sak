@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapTy
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppholdstillatelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonAdresseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAvvik;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonadresseDto;
@@ -35,16 +36,8 @@ public record MedlemskapV3Dto(ManuellBehandling manuellBehandling,
      */
     record ManuellBehandling(Set<MedlemskapAvvik> avvik, Resultat resultat) {
 
-        /**
-         * {@link #no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak} avslagsårsaker ifm medlemskap
-         */
-        public enum Resultat { // ref. Avslagsårsak.java
-            SØKER_ER_MEDLEM,
-            SØKER_ER_IKKE_MEDLEM,
-            SØKER_ER_UTVANDRET,
-            SØKER_HAR_IKKE_LOVLIG_OPPHOLD,
-            SØKER_HAR_IKKE_OPPHOLDSRETT,
-            SØKER_ER_IKKE_BOSATT,
+
+        public record Resultat(Avslagsårsak avslagskode, LocalDate medlemFom, LocalDate opphørFom) {
         }
     }
 

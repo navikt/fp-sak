@@ -28,6 +28,7 @@ import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.AvklarMedlemskapUtled
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAksjonspunktÅrsak;
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAvvik;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.InngangsvilkårRegler;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
@@ -35,6 +36,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 public class InngangsvilkårMedlemskap implements Inngangsvilkår {
 
     private static final Logger LOG = LoggerFactory.getLogger(InngangsvilkårMedlemskap.class);
+    private static final Environment ENV = Environment.current();
 
     private MedlemsvilkårOversetter medlemsvilkårOversetter;
     private BehandlingRepository behandlingRepository;
@@ -63,25 +65,28 @@ public class InngangsvilkårMedlemskap implements Inngangsvilkår {
 
         var resultat = InngangsvilkårRegler.medlemskap(grunnlag);
 
-        var vilkårData = RegelResultatOversetter.oversett(VilkårType.MEDLEMSKAPSVILKÅRET, resultat);
+        if (ENV.isProd()) {
+            var vilkårData = RegelResultatOversetter.oversett(VilkårType.MEDLEMSKAPSVILKÅRET, resultat);
 
-        try {
-            var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
+            try {
+                var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
 
-            var nyUtledingResultat = utledNyttMedlemskapAksjonspunkt(ref);
-            var gammelUtledetÅrsaker = behandling.getAksjonspunkter()
-                .stream()
-                .map(Aksjonspunkt::getAksjonspunktDefinisjon)
-                .filter(ap -> Set.of(AVKLAR_OM_ER_BOSATT, AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE, AVKLAR_LOVLIG_OPPHOLD, AVKLAR_OPPHOLDSRETT).contains(ap))
-                .map(InngangsvilkårMedlemskap::map)
-                .collect(Collectors.toSet());
-            logDiff(nyUtledingResultat, gammelUtledetÅrsaker, behandling.getFagsakYtelseType(), "inngangsvilkårv2");
-        } catch (Exception e) {
-            LOG.info("Medlemskap sammenligning feilet", e);
+                var nyUtledingResultat = utledNyttMedlemskapAksjonspunkt(ref);
+                var gammelUtledetÅrsaker = behandling.getAksjonspunkter()
+                    .stream()
+                    .map(Aksjonspunkt::getAksjonspunktDefinisjon)
+                    .filter(
+                        ap -> Set.of(AVKLAR_OM_ER_BOSATT, AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE, AVKLAR_LOVLIG_OPPHOLD, AVKLAR_OPPHOLDSRETT).contains(ap))
+                    .map(InngangsvilkårMedlemskap::map)
+                    .collect(Collectors.toSet());
+                logDiff(nyUtledingResultat, gammelUtledetÅrsaker, behandling.getFagsakYtelseType(), "inngangsvilkårv2");
+            } catch (Exception e) {
+                LOG.info("Medlemskap sammenligning feilet", e);
+            }
+            return vilkårData;
+        } else {
+            return avklarMedlemskapUtleder.utledForInngangsvilkår(ref);
         }
-
-        return vilkårData;
-
     }
 
     public static void logDiff(Set<MedlemskapAksjonspunktÅrsak> nyUtledetÅrsaker,

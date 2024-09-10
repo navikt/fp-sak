@@ -16,6 +16,7 @@ public enum HistorikkEndretFeltType implements Kodeverdi {
     UDEFINIERT("-", "Ikke definert"),
     ADOPSJONSVILKARET("ADOPSJONSVILKARET", "Adopsjon"),
     OPPTJENINGSVILKARET("OPPTJENINGSVILKARET", "Opptjeningsvilkåret"),
+    MEDLEMSKAPSVILKÅRET("MEDLEMSKAPSVILKÅRET", "Medlemskapsvilkåret"),
     ADOPTERER_ALENE("ADOPTERER_ALENE", "Adopterer alene"),
     AKTIVITET("AKTIVITET", "Aktivitet"),
     AKTIVITET_PERIODE("AKTIVITET_PERIODE", "Perioden med aktivitet"),
