@@ -62,6 +62,7 @@ import no.nav.foreldrepenger.domene.typer.Beløp;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -99,10 +100,19 @@ public class MapIAYTilKalkulusInput {
 
     private static ArbeidsforholdInformasjonDto mapTilArbeidsforholdInformasjonDto(ArbeidsforholdInformasjon arbeidsforholdInformasjon) {
         List<ArbeidsforholdOverstyringDto> resultat = arbeidsforholdInformasjon.getOverstyringer().stream()
-            .map(arbeidsforholdOverstyring -> new ArbeidsforholdOverstyringDto(mapTilAktør(arbeidsforholdOverstyring.getArbeidsgiver()),
-                arbeidsforholdOverstyring.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold() ? new InternArbeidsforholdRefDto(arbeidsforholdOverstyring.getArbeidsforholdRef().getReferanse())
-                    : null,
-                KodeverkTilKalkulusMapper.mapArbeidsforholdHandling(arbeidsforholdOverstyring.getHandling())))
+            .map(arbeidsforholdOverstyring -> {
+                List<Periode> perioder = arbeidsforholdOverstyring.getArbeidsforholdOverstyrtePerioder() == null
+                    ? Collections.emptyList()
+                    : arbeidsforholdOverstyring.getArbeidsforholdOverstyrtePerioder().stream().filter(p -> p.getOverstyrtePeriode() != null)
+                    .map(p -> new Periode(p.getOverstyrtePeriode().getFomDato(), p.getOverstyrtePeriode().getTomDato()))
+                    .toList();
+                return new ArbeidsforholdOverstyringDto(mapTilAktør(arbeidsforholdOverstyring.getArbeidsgiver()),
+                    arbeidsforholdOverstyring.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold() ? new InternArbeidsforholdRefDto(arbeidsforholdOverstyring.getArbeidsforholdRef().getReferanse())
+                        : null,
+                    KodeverkTilKalkulusMapper.mapArbeidsforholdHandling(arbeidsforholdOverstyring.getHandling()),
+                    arbeidsforholdOverstyring.getStillingsprosent() == null ? null : IayProsent.fra(arbeidsforholdOverstyring.getStillingsprosent().getVerdi()),
+                    perioder);
+            })
             .toList();
 
         if (!resultat.isEmpty()) {
