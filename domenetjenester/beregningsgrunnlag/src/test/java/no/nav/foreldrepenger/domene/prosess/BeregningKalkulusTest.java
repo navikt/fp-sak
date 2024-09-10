@@ -25,10 +25,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKobling;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKoblingRepository;
+import no.nav.foreldrepenger.domene.fp.BesteberegningFødendeKvinneTjeneste;
 import no.nav.foreldrepenger.domene.mappers.KalkulusInputTjeneste;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 class BeregningKalkulusTest {
@@ -38,12 +40,16 @@ class BeregningKalkulusTest {
     private KalkulusInputTjeneste kalkulusInputTjeneste;
     @Mock
     private BeregningsgrunnlagKoblingRepository koblingRepository;
+    @Mock
+    private BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste;
+    @Mock
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     private BeregningKalkulus beregningKalkulus;
 
     @BeforeEach
     void setup() {
-        beregningKalkulus = new BeregningKalkulus(kalkulusKlient, kalkulusInputTjeneste, koblingRepository);
+        beregningKalkulus = new BeregningKalkulus(kalkulusKlient, kalkulusInputTjeneste, koblingRepository, besteberegningFødendeKvinneTjeneste, skjæringstidspunktTjeneste);
     }
 
     @Test

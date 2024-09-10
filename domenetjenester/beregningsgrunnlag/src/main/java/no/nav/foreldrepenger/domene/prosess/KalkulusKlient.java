@@ -7,6 +7,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.UriBuilder;
 
+import no.nav.folketrygdloven.fpkalkulus.kontrakt.besteberegning.BesteberegningGrunnlagDto;
 import no.nav.vedtak.exception.TekniskException;
 
 import org.slf4j.Logger;
@@ -37,6 +38,7 @@ public class KalkulusKlient {
     private URI beregn;
     private URI hentGrunnlag;
     private URI hentGrunnlagGui;
+    private URI hentGrunnlagBesteberegning;
     private URI kopierGrunnlag;
     private URI avklaringsbehov;
     private URI deatkvier;
@@ -50,6 +52,7 @@ public class KalkulusKlient {
         this.beregn = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/beregn");
         this.hentGrunnlag = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/grunnlag");
         this.hentGrunnlagGui = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/grunnlag/gui");
+        this.hentGrunnlagBesteberegning = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/grunnlag/besteberegning");
         this.kopierGrunnlag = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/kopier");
         this.avklaringsbehov = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/avklaringsbehov");
         this.deatkvier = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/deaktiver");
@@ -75,6 +78,11 @@ public class KalkulusKlient {
     public Optional<BeregningsgrunnlagDto> hentGrunnlagGUI(HentBeregningsgrunnlagGUIRequest request) {
         var restRequest = RestRequest.newPOSTJson(request, hentGrunnlagGui, restConfig);
         return restClient.sendReturnOptional(restRequest, BeregningsgrunnlagDto.class);
+    }
+
+    public Optional<BesteberegningGrunnlagDto> hentGrunnlagBesteberegning(EnkelFpkalkulusRequestDto request) {
+        var restRequest = RestRequest.newPOSTJson(request, hentGrunnlagBesteberegning, restConfig);
+        return restClient.sendReturnOptional(restRequest, BesteberegningGrunnlagDto.class);
     }
 
     public void kopierGrunnlag(KopierBeregningsgrunnlagRequestDto request) {

@@ -6,9 +6,6 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.folketrygdloven.kalkulus.håndtering.v1.HåndterBeregningDto;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
-
 import org.jboss.weld.exceptions.IllegalStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,12 +16,15 @@ import no.nav.folketrygdloven.fpkalkulus.kontrakt.FpkalkulusYtelser;
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.HentBeregningsgrunnlagGUIRequest;
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.HåndterBeregningRequestDto;
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.KopierBeregningsgrunnlagRequestDto;
+import no.nav.folketrygdloven.fpkalkulus.kontrakt.besteberegning.BesteberegningGrunnlagDto;
 import no.nav.folketrygdloven.kalkulus.felles.v1.AktørIdPersonident;
 import no.nav.folketrygdloven.kalkulus.felles.v1.Saksnummer;
+import no.nav.folketrygdloven.kalkulus.håndtering.v1.HåndterBeregningDto;
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningSteg;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.aksjonspunkt.KalkulusAksjonspunktMapper;
@@ -32,12 +32,14 @@ import no.nav.foreldrepenger.domene.aksjonspunkt.MapEndringsresultat;
 import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKobling;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKoblingRepository;
+import no.nav.foreldrepenger.domene.fp.BesteberegningFødendeKvinneTjeneste;
 import no.nav.foreldrepenger.domene.mappers.KalkulusInputTjeneste;
 import no.nav.foreldrepenger.domene.mappers.fra_kalkulus_til_domene.KalkulusTilFpsakMapper;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 import no.nav.foreldrepenger.domene.typer.Beløp;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
 public class BeregningKalkulus implements BeregningAPI {
@@ -46,6 +48,8 @@ public class BeregningKalkulus implements BeregningAPI {
     private KalkulusKlient klient;
     private KalkulusInputTjeneste kalkulusInputTjeneste;
     private BeregningsgrunnlagKoblingRepository koblingRepository;
+    private BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     BeregningKalkulus() {
         // CDI
@@ -54,10 +58,14 @@ public class BeregningKalkulus implements BeregningAPI {
     @Inject
     public BeregningKalkulus(KalkulusKlient klient,
                              KalkulusInputTjeneste kalkulusInputTjeneste,
-                             BeregningsgrunnlagKoblingRepository koblingRepository) {
+                             BeregningsgrunnlagKoblingRepository koblingRepository,
+                             BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste,
+                             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.klient = klient;
         this.kalkulusInputTjeneste = kalkulusInputTjeneste;
         this.koblingRepository = koblingRepository;
+        this.besteberegningFødendeKvinneTjeneste = besteberegningFødendeKvinneTjeneste;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
     @Override
@@ -65,7 +73,10 @@ public class BeregningKalkulus implements BeregningAPI {
         var kobling = koblingRepository.hentKobling(referanse.behandlingId());
         return kobling.flatMap(k -> {
             var request = new EnkelFpkalkulusRequestDto(k.getKoblingUuid(), new Saksnummer(referanse.saksnummer().getVerdi()));
-            return klient.hentGrunnlag(request).map(KalkulusTilFpsakMapper::map);
+            var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(referanse.behandlingId());
+            var måHenteBesteberegningsgrunnlag = besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(referanse, stp);
+            Optional<BesteberegningGrunnlagDto> besteberegnetGrunnlag = måHenteBesteberegningsgrunnlag ? klient.hentGrunnlagBesteberegning(request) : Optional.empty();
+            return klient.hentGrunnlag(request).map(bgDto -> KalkulusTilFpsakMapper.map(bgDto, besteberegnetGrunnlag));
         });
     }
 
