@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.mappers.input;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +55,8 @@ public class MapKalkulusYtelsegrunnlagFP implements MapKalkulusYtelsegrunnlag {
         var aktivitetGraderinger = finnAktivitetGraderingerKalkulus(referanse);
         var dekningsgrad = BigDecimal.valueOf(dekningsgradTjeneste.finnGjeldendeDekningsgrad(referanse).getVerdi());
         var kanBesteberegnes = besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(referanse, stp);
-        return new ForeldrepengerGrunnlag(dekningsgrad, kanBesteberegnes, aktivitetGraderinger, Collections.emptyList());
+        var ytelsegrunlagDto = besteberegningFødendeKvinneTjeneste.lagYtelsegrunnlagKalkulus(referanse, stp);
+        return new ForeldrepengerGrunnlag(dekningsgrad, kanBesteberegnes, aktivitetGraderinger, ytelsegrunlagDto);
     }
 
     public AktivitetGraderingDto finnAktivitetGraderingerKalkulus(BehandlingReferanse ref) {
