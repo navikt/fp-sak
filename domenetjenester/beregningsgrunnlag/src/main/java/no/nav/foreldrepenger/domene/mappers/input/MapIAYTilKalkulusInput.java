@@ -101,9 +101,9 @@ public class MapIAYTilKalkulusInput {
     private static ArbeidsforholdInformasjonDto mapTilArbeidsforholdInformasjonDto(ArbeidsforholdInformasjon arbeidsforholdInformasjon) {
         List<ArbeidsforholdOverstyringDto> resultat = arbeidsforholdInformasjon.getOverstyringer().stream()
             .map(arbeidsforholdOverstyring -> {
-                List<Periode> perioder = arbeidsforholdOverstyring.getArbeidsforholdOverstyrtePerioder() == null
-                    ? Collections.emptyList()
-                    : arbeidsforholdOverstyring.getArbeidsforholdOverstyrtePerioder().stream().filter(p -> p.getOverstyrtePeriode() != null)
+                List<Periode> perioder = Optional.ofNullable(arbeidsforholdOverstyring.getArbeidsforholdOverstyrtePerioder()).orElseGet(List::of)
+                    .stream()
+                    .filter(p -> p.getOverstyrtePeriode() != null)
                     .map(p -> new Periode(p.getOverstyrtePeriode().getFomDato(), p.getOverstyrtePeriode().getTomDato()))
                     .toList();
                 return new ArbeidsforholdOverstyringDto(mapTilAktør(arbeidsforholdOverstyring.getArbeidsgiver()),
