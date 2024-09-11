@@ -36,8 +36,6 @@ import no.nav.foreldrepenger.domene.rest.dto.VurderRefusjonBeregningsgrunnlagDto
 import no.nav.foreldrepenger.domene.rest.dto.VurderVarigEndringEllerNyoppstartetSNDto;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagDto;
 
-import org.jboss.jdeparser.FormatPreferences;
-
 @ApplicationScoped
 public class BeregningFPSAK implements BeregningAPI {
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
@@ -121,6 +119,11 @@ public class BeregningFPSAK implements BeregningAPI {
         var tjeneste = inputTjenesteProvider.getTjeneste(referanse.fagsakYtelseType());
         var input = tjeneste.lagInput(referanse);
         return overstyr(overstyring, input);
+    }
+
+    @Override
+    public void avslutt(BehandlingReferanse referanse) {
+        // Ingenting å gjøre her når beregningen skjer i fpsak
     }
 
     private Optional<OppdaterBeregningsgrunnlagResultat> overstyr(OverstyringAksjonspunktDto overstyring, BeregningsgrunnlagInput input) {

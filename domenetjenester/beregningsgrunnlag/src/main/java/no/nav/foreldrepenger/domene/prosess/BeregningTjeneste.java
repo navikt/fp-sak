@@ -38,5 +38,10 @@ public interface BeregningTjeneste {
      */
     Optional<OppdaterBeregningsgrunnlagResultat> overstyrBeregning(OverstyringAksjonspunktDto overstyring, BehandlingReferanse referanse);
 
+    /**
+     * Markerer en kobling som avsluttet i fp-kalkulus. Dette betyr at koblingen og dens grunnlag ikke lenger skal endres, og inaktive data på sikt kan ryddes.
+     * @param referanse
+     */
+    void avslutt(BehandlingReferanse referanse);
 
 }

@@ -67,4 +67,9 @@ public class BeregningTjenesteInMemory implements BeregningTjeneste {
         return Optional.empty();
     }
 
+    @Override
+    public void avslutt(BehandlingReferanse referanse) {
+        // Ikke relevant for in-memory tjenesten
+    }
+
 }

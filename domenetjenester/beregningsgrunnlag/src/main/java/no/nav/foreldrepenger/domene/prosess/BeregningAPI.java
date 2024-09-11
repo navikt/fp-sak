@@ -23,7 +23,8 @@ public interface BeregningAPI {
     void kopier(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling, BeregningsgrunnlagTilstand tilstand);
 
     Optional<OppdaterBeregningsgrunnlagResultat> oppdaterBeregning(BekreftetAksjonspunktDto oppdateringer, BehandlingReferanse referanse);
-    
+
     Optional<OppdaterBeregningsgrunnlagResultat> overstyrBeregning(OverstyringAksjonspunktDto overstyring, BehandlingReferanse referanse);
 
+    void avslutt(BehandlingReferanse referanse);
 }
