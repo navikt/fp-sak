@@ -43,7 +43,7 @@ class StartpunktUtlederMedlemskap implements StartpunktUtleder {
                 "medlemskap uttak", grunnlagId1, grunnlagId2);
             return StartpunktType.UTTAKSVILKÅR;
         } else if (!ENV.isProd() && MedlemEndringIdentifiserer.harBeslutningsdatoInnenforPeriode(grunnlag1, grunnlag2, periode)) {
-            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR,
+            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP,
                 "medlemskap medlemsvikår (ny)", grunnlagId1, grunnlagId2);
             return StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP;
         }
