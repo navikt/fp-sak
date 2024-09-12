@@ -11,12 +11,15 @@ import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.medlem.identifiserer.MedlemEndringIdentifiserer;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktUtleder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.konfig.Environment;
 
 @ApplicationScoped
 @GrunnlagRef(GrunnlagRef.MEDLEM_GRUNNLAG)
 class StartpunktUtlederMedlemskap implements StartpunktUtleder {
 
-    private MedlemskapRepository medlemskapRepository;
+    private static final Environment ENV = Environment.current(); // TODO medlemskap2 sanere etter omlegging
+
+    private final MedlemskapRepository medlemskapRepository;
 
     @Inject
     StartpunktUtlederMedlemskap(MedlemskapRepository medlemskapRepository) {
@@ -29,15 +32,20 @@ class StartpunktUtlederMedlemskap implements StartpunktUtleder {
         var grunnlag2 = medlemskapRepository.hentMedlemskapPåId((Long) grunnlagId2);
 
         var skjæringstidspunkt = stp.getUtledetSkjæringstidspunkt();
-        var periode = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt, skjæringstidspunkt);
-        if (MedlemEndringIdentifiserer.erEndretForPeriode(grunnlag1, grunnlag2, periode)) {
+        var periode = stp.getUttaksintervall().map(i -> DatoIntervallEntitet.fraOgMedTilOgMed(i.getFomDato(), i.getTomDato()))
+            .orElseGet(() -> DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt, skjæringstidspunkt));
+        if (MedlemEndringIdentifiserer.erEndretForPeriode(grunnlag1, grunnlag2, DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt, skjæringstidspunkt))) {
             FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP,
                 "medlemskap medlemskapsvilkår", grunnlagId1, grunnlagId2);
             return StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP;
-        } else if (MedlemEndringIdentifiserer.erEndretForPeriode(grunnlag1, grunnlag2, DatoIntervallEntitet.fraOgMed(skjæringstidspunkt))) {
+        } else if (ENV.isProd() && MedlemEndringIdentifiserer.erEndretForPeriode(grunnlag1, grunnlag2, periode)) {
             FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR,
                 "medlemskap uttak", grunnlagId1, grunnlagId2);
             return StartpunktType.UTTAKSVILKÅR;
+        } else if (!ENV.isProd() && MedlemEndringIdentifiserer.harBeslutningsdatoInnenforPeriode(grunnlag1, grunnlag2, periode)) {
+            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR,
+                "medlemskap medlemsvikår (ny)", grunnlagId1, grunnlagId2);
+            return StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP;
         }
         return StartpunktType.UDEFINERT;
     }
