@@ -149,6 +149,15 @@ public class BeregningKalkulus implements BeregningAPI {
         return utførOppdatering(referanse, kalkulusDtoer);
     }
 
+    @Override
+    public void avslutt(BehandlingReferanse referanse) {
+        koblingRepository.hentKobling(referanse.behandlingId())
+            .ifPresent(k -> {
+                LOG.info("Lukker kalkuluskobling med koblingUuid {}", k.getKoblingUuid());
+                klient.avsluttKobling(new EnkelFpkalkulusRequestDto(k.getKoblingUuid(), new Saksnummer(referanse.saksnummer().getVerdi())));
+            });
+    }
+
     private Optional<OppdaterBeregningsgrunnlagResultat> utførOppdatering(BehandlingReferanse referanse,
                                                                           HåndterBeregningDto kalkulusDtoer) {
         var kobling = koblingRepository.hentKobling(referanse.behandlingId())

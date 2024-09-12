@@ -93,4 +93,14 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
         }
     }
 
+    @Override
+    public void avslutt(BehandlingReferanse referanse) {
+        if (skalKalleKalkulus) {
+            kalkulusBeregner.avslutt(referanse);
+        } else {
+            fpsakBeregner.avslutt(referanse);
+        }
+
+    }
+
 }

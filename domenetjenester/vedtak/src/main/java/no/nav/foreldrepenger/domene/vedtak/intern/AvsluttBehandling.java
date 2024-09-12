@@ -3,6 +3,9 @@ package no.nav.foreldrepenger.domene.vedtak.intern;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +32,7 @@ public class AvsluttBehandling {
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private VurderBehandlingerUnderIverksettelse vurderBehandlingerUnderIverksettelse;
     private OppdatereFagsakRelasjonVedVedtak oppdatereFagsakRelasjonVedVedtak;
+    private BeregningTjeneste beregningTjeneste;
 
     public AvsluttBehandling() {
         // CDI
@@ -40,7 +44,7 @@ public class AvsluttBehandling {
                              BehandlingEventPubliserer behandlingEventPubliserer,
                              VurderBehandlingerUnderIverksettelse vurderBehandlingerUnderIverksettelse,
                              BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
-                             OppdatereFagsakRelasjonVedVedtak oppdatereFagsakRelasjonVedVedtak) {
+                             OppdatereFagsakRelasjonVedVedtak oppdatereFagsakRelasjonVedVedtak, BeregningTjeneste beregningTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
@@ -48,6 +52,7 @@ public class AvsluttBehandling {
         this.vurderBehandlingerUnderIverksettelse = vurderBehandlingerUnderIverksettelse;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.oppdatereFagsakRelasjonVedVedtak = oppdatereFagsakRelasjonVedVedtak;
+        this.beregningTjeneste = beregningTjeneste;
     }
 
     void avsluttBehandling(Long behandlingId) {
@@ -77,6 +82,10 @@ public class AvsluttBehandling {
             LOG.info("Avslutter behandling fortsetter iverksetting av ventende behandling: {}", ventendeBehandling.getId());
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(ventendeBehandling);
         });
+
+        if (behandling.erYtelseBehandling()) {
+            beregningTjeneste.avslutt(BehandlingReferanse.fra(behandling));
+        }
 
         LOG.info("Avslutter behandling utgang: {}", behandlingId);
     }

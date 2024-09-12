@@ -14,6 +14,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,6 +59,9 @@ class AvsluttBehandlingTest {
     @Mock
     private OppdatereFagsakRelasjonVedVedtak oppdatereFagsakRelasjonVedVedtak;
 
+    @Mock
+    private BeregningTjeneste beregningTjeneste;
+
     private AvsluttBehandling avsluttBehandling;
     private Behandling behandling;
 
@@ -74,7 +79,7 @@ class AvsluttBehandlingTest {
                 repositoryProvider);
 
         avsluttBehandling = new AvsluttBehandling(repositoryProvider, behandlingskontrollTjeneste, behandlingVedtakEventPubliserer,
-            vurderBehandlingerUnderIverksettelse, behandlingProsesseringTjeneste, oppdatereFagsakRelasjonVedVedtak);
+            vurderBehandlingerUnderIverksettelse, behandlingProsesseringTjeneste, oppdatereFagsakRelasjonVedVedtak, beregningTjeneste);
 
         when(behandlingskontrollTjeneste.initBehandlingskontroll(Mockito.anyLong())).thenAnswer(invocation -> {
             Long behId = invocation.getArgument(0);
