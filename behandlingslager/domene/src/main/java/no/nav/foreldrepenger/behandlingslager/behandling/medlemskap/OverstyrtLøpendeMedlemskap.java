@@ -34,7 +34,7 @@ public class OverstyrtLøpendeMedlemskap {
     public OverstyrtLøpendeMedlemskap(LocalDate overstyringsdato, VilkårUtfallType vilkårUtfall, Avslagsårsak avslagsårsak) {
         this.overstyringsdato = overstyringsdato;
         this.vilkårUtfall = vilkårUtfall;
-        this.avslagsårsak = avslagsårsak;
+        this.avslagsårsak = avslagsårsak == null ? Avslagsårsak.UDEFINERT : avslagsårsak;
     }
 
     public Optional<LocalDate> getOverstyringsdato() {

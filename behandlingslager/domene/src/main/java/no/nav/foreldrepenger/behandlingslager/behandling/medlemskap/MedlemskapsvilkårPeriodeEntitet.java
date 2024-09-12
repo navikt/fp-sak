@@ -146,6 +146,11 @@ public class MedlemskapsvilkårPeriodeEntitet extends BaseEntitet {
             return this;
         }
 
+        public MedlemskapsvilkårPeriodeEntitet.Builder opprettOverstrying(LocalDate overstryingsdato, Avslagsårsak avslagsårsak, VilkårUtfallType utfallType) {
+            kladd.opprettOverstyringFor(overstryingsdato, utfallType, avslagsårsak);
+            return this;
+        }
+
         public MedlemskapsvilkårPerioderEntitet.Builder getBuilderForVurderingsdato(LocalDate vurderingsdato) {
             return kladd.getBuilderFor(vurderingsdato);
         }

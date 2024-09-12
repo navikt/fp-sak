@@ -11,6 +11,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
@@ -24,12 +26,18 @@ public class VurderMedlemskapsvilkåretOppdaterer implements AksjonspunktOppdate
 
     private HistorikkTjenesteAdapter historikkAdapter;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository;
+    private BehandlingRepository behandlingRepository;
 
     @Inject
     public VurderMedlemskapsvilkåretOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
-                                               SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                               SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                               MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository,
+                                               BehandlingRepository behandlingRepository) {
         this.historikkAdapter = historikkAdapter;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.medlemskapVilkårPeriodeRepository = medlemskapVilkårPeriodeRepository;
+        this.behandlingRepository = behandlingRepository;
     }
 
     VurderMedlemskapsvilkåretOppdaterer() {
@@ -45,8 +53,15 @@ public class VurderMedlemskapsvilkåretOppdaterer implements AksjonspunktOppdate
             dto.getAvslagskode() == null || erOpphørEtterStp(dto, param.getBehandlingId()) ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
         lagHistorikkInnslag(param, nyttUtfall, dto.getBegrunnelse(), dto.getOpphørFom());
 
+        var behandling = behandlingRepository.hentBehandling(param.getBehandlingId());
+        var grBuilder = medlemskapVilkårPeriodeRepository.hentBuilderFor(behandling);
+        var periodeBuilder = grBuilder.getPeriodeBuilder();
+
+        periodeBuilder.opprettOverstrying(dto.getOpphørFom(), dto.getAvslagskode(), nyttUtfall);
+
+        grBuilder.medMedlemskapsvilkårPeriode(periodeBuilder);
+        medlemskapVilkårPeriodeRepository.lagreMedlemskapsvilkår(behandling, grBuilder);
         if (VilkårUtfallType.OPPFYLT.equals(nyttUtfall)) {
-            //TODD lagre opphørsdato
             return oppfyltResultat();
         }
         return OppdateringResultat.utenTransisjon()
