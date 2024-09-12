@@ -229,10 +229,11 @@ public class ForvaltningBeregningRestTjeneste {
         task.setProperty(OverstyrInntektsmeldingTask.BEHANDLING_ID, behandling.getId().toString());
         task.setProperty(OverstyrInntektsmeldingTask.JOURNALPOST_ID, dto.getJournalpostId());
         task.setProperty(OverstyrInntektsmeldingTask.OPPHØR_FOM, dto.getRefusjonOpphørFom().toString());
-        task.setProperty(OverstyrInntektsmeldingTask.SAKSBEHANDLER_IDENT, KontekstHolder.getKontekst().getKonsumentId()); // TODO Blir dette rett?
+        task.setProperty(OverstyrInntektsmeldingTask.SAKSBEHANDLER_IDENT, KontekstHolder.getKontekst().getKonsumentId());
         taskTjeneste.lagre(task);
         return Response.ok().build();
     }
+
     @POST
     @Path("/hentRefusjonskravperioderInput")
     @Consumes(MediaType.APPLICATION_JSON)

@@ -8,9 +8,6 @@ import java.util.Optional;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
@@ -31,10 +28,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 class OverstyrInntektsmeldingTask implements ProsessTaskHandler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(OverstyrInntektsmeldingTask.class);
     public static final String JOURNALPOST_ID = "journalpostId";
     public static final String BEHANDLING_ID = "behandlingId";
-    public static final String OPPHØR_FOM = "opphørsdato";
+    public static final String OPPHØR_FOM = "opphoersdato";
     public static final String SAKSBEHANDLER_IDENT = "saksbehandlerIdent";
 
     private final InntektArbeidYtelseTjeneste iayTjeneste;
