@@ -32,6 +32,10 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.StoppRefusjonDto;
+
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +50,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -88,7 +91,6 @@ public class ForvaltningBeregningRestTjeneste {
     private ProsessTaskTjeneste taskTjeneste;
     private BehandlingRepository behandlingRepository;
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider;
-    private BeregningsresultatRepository beregningsresultatRepository;
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private SatsRepository satsRepository;
@@ -96,7 +98,6 @@ public class ForvaltningBeregningRestTjeneste {
     @Inject
     public ForvaltningBeregningRestTjeneste(ProsessTaskTjeneste taskTjeneste,
                                             BehandlingRepository behandlingRepository,
-                                            BeregningsresultatRepository beregningsresultatRepository,
                                             FagsakRepository fagsakRepository,
                                             BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider,
                                             BeregningsgrunnlagRepository beregningsgrunnlagRepository,
@@ -104,7 +105,6 @@ public class ForvaltningBeregningRestTjeneste {
                                             SatsRepository satsRepository) {
         this.taskTjeneste = taskTjeneste;
         this.behandlingRepository = behandlingRepository;
-        this.beregningsresultatRepository = beregningsresultatRepository;
         this.fagsakRepository = fagsakRepository;
         this.beregningsgrunnlagInputProvider = beregningsgrunnlagInputProvider;
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
@@ -205,6 +205,34 @@ public class ForvaltningBeregningRestTjeneste {
         return behandlingRepository.hentBehandling(dto.getBehandlingUuid());
     }
 
+    @POST
+    @Path("/stoppRefusjon")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Setter opphørsdato for refusjon for en gitt journalpost", tags = "FORVALTNING-beregning")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response opphørRefusjonInntektsmelding(@BeanParam @Valid StoppRefusjonDto dto) {
+        var behandling = behandlingRepository.hentBehandling(dto.getBehandlingUuid());
+        var inntektsmeldinger = iayTjeneste.finnGrunnlag(behandling.getId())
+            .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger)
+            .map(InntektsmeldingAggregat::getAlleInntektsmeldinger)
+            .orElse(Collections.emptyList());
+        var matchetInntektsmelding = inntektsmeldinger.stream().filter(im -> im.getJournalpostId().getVerdi().equals(dto.getJournalpostId())).findFirst();
+        if (matchetInntektsmelding.isEmpty()) {
+            var msg = String.format("Finner ikke inntektsmelding med journalpostId %s på behandling med uuid %s ", dto.getJournalpostId(),
+                dto.getBehandlingUuid());
+            return Response.ok(msg).build();
+        }
+        var task = ProsessTaskData.forProsessTask(OverstyrInntektsmeldingTask.class);
+        task.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+        task.setCallIdFraEksisterende();
+        task.setProperty(OverstyrInntektsmeldingTask.BEHANDLING_ID, behandling.getId().toString());
+        task.setProperty(OverstyrInntektsmeldingTask.JOURNALPOST_ID, dto.getJournalpostId());
+        task.setProperty(OverstyrInntektsmeldingTask.OPPHØR_FOM, dto.getRefusjonOpphørFom().toString());
+        task.setProperty(OverstyrInntektsmeldingTask.SAKSBEHANDLER_IDENT, KontekstHolder.getKontekst().getKonsumentId()); // TODO Blir dette rett?
+        taskTjeneste.lagre(task);
+        return Response.ok().build();
+    }
     @POST
     @Path("/hentRefusjonskravperioderInput")
     @Consumes(MediaType.APPLICATION_JSON)
