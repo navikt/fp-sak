@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.Skjermlenke
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
-import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -25,15 +24,12 @@ public class VurderMedlemskapsvilkåretOppdaterer implements AksjonspunktOppdate
 
     private HistorikkTjenesteAdapter historikkAdapter;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private MedlemTjeneste medlemTjeneste;
 
     @Inject
     public VurderMedlemskapsvilkåretOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
-                                               SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                               MedlemTjeneste medlemTjeneste) {
+                                               SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.historikkAdapter = historikkAdapter;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
-        this.medlemTjeneste = medlemTjeneste;
     }
 
     VurderMedlemskapsvilkåretOppdaterer() {
@@ -42,16 +38,14 @@ public class VurderMedlemskapsvilkåretOppdaterer implements AksjonspunktOppdate
 
     @Override
     public OppdateringResultat oppdater(VurderMedlemskapDto dto, AksjonspunktOppdaterParameter param) {
-        var nyttUtfall = dto.getAvslagskode() == null ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
+        if (dto.getAvslagskode() != null && !VilkårType.MEDLEMSKAPSVILKÅRET.getAvslagsårsaker().contains(dto.getAvslagskode())) {
+            throw new IllegalArgumentException("Ugyldig avslagsårsak for medlemskapsvilkåret");
+        }
+        var nyttUtfall =
+            dto.getAvslagskode() == null || erOpphørEtterStp(dto, param.getBehandlingId()) ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
         lagHistorikkInnslag(param, nyttUtfall, dto.getBegrunnelse(), dto.getOpphørFom());
 
         if (VilkårUtfallType.OPPFYLT.equals(nyttUtfall)) {
-            return oppfyltResultat();
-        }
-        if (!VilkårType.MEDLEMSKAPSVILKÅRET.getAvslagsårsaker().contains(dto.getAvslagskode())) {
-            throw new IllegalArgumentException("Ugyldig avslagsårsak for medlemskapsvilkåret");
-        }
-        if (erOpphørEtterStp(dto, param.getBehandlingId())) {
             //TODD lagre opphørsdato
             return oppfyltResultat();
         }
@@ -78,9 +72,7 @@ public class VurderMedlemskapsvilkåretOppdaterer implements AksjonspunktOppdate
         historikkAdapter.tekstBuilder().medBegrunnelse(begrunnelse, param.erBegrunnelseEndret()).medSkjermlenke(SkjermlenkeType.FAKTA_OM_MEDLEMSKAP);
 
         if (opphørFom != null) {
-            historikkAdapter.tekstBuilder()
-                .medEndretFelt(HistorikkEndretFeltType.MEDLEMSKAPSVILKÅRET_OPPHØRSDATO,
-                    medlemTjeneste.hentOpphørsdatoHvisEksisterer(param.getBehandlingId()).orElse(null), opphørFom);
+            historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.MEDLEMSKAPSVILKÅRET_OPPHØRSDATO, null, opphørFom);
         }
     }
 }
