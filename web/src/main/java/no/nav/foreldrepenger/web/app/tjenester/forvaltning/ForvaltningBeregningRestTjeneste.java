@@ -229,7 +229,7 @@ public class ForvaltningBeregningRestTjeneste {
         task.setProperty(OverstyrInntektsmeldingTask.BEHANDLING_ID, behandling.getId().toString());
         task.setProperty(OverstyrInntektsmeldingTask.JOURNALPOST_ID, dto.getJournalpostId());
         task.setProperty(OverstyrInntektsmeldingTask.OPPHØR_FOM, dto.getRefusjonOpphørFom().toString());
-        task.setProperty(OverstyrInntektsmeldingTask.SAKSBEHANDLER_IDENT, KontekstHolder.getKontekst().getKonsumentId());
+        task.setProperty(OverstyrInntektsmeldingTask.SAKSBEHANDLER_IDENT, KontekstHolder.getKontekst().getUid());
         taskTjeneste.lagre(task);
         return Response.ok().build();
     }
