@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.konfig.Environment;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +52,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @ApplicationScoped
 public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements KontrollerFaktaLøpendeMedlemskapSteg {
 
+    private static final Environment ENV = Environment.current(); // TODO medlemskap2 sanere etter omlegging
     private static final Logger LOG = LoggerFactory.getLogger(KontrollerFaktaLøpendeMedlemskapStegRevurdering.class);
 
     private BehandlingsresultatRepository behandlingsresultatRepository;
@@ -93,6 +96,10 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements Kontrol
         if (flytkontroll.uttaksProsessenSkalVente(kontekst.getBehandlingId())) {
             LOG.info("Flytkontroll UTTAK: Setter behandling {} revurdering på vent grunnet berørt eller annen part", kontekst.getBehandlingId());
             aksjonspunkter.add(AksjonspunktResultat.opprettForAksjonspunktMedFrist(AUTO_KØET_BEHANDLING, Venteårsak.VENT_ÅPEN_BEHANDLING, null));
+        }
+
+        if (!ENV.isProd()) {
+            return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
 
         var behandling = behandlingRepository.hentBehandling(behandlingId);

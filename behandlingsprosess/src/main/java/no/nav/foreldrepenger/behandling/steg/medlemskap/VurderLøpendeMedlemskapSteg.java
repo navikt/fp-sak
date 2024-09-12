@@ -25,12 +25,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMe
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.VurderLøpendeMedlemskap;
+import no.nav.foreldrepenger.konfig.Environment;
 
 @BehandlingStegRef(BehandlingStegType.VULOMED)
 @BehandlingTypeRef(BehandlingType.REVURDERING)
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @ApplicationScoped
 public class VurderLøpendeMedlemskapSteg implements BehandlingSteg {
+
+    private static final Environment ENV = Environment.current(); // TODO medlemskap2 sanere etter omlegging
 
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private VurderLøpendeMedlemskap vurderLøpendeMedlemskap;
@@ -89,6 +92,9 @@ public class VurderLøpendeMedlemskapSteg implements BehandlingSteg {
     }
 
     private boolean skalVurdereLøpendeMedlemskap(Long behandlingId) {
+        if (!ENV.isProd()) {
+            return false;
+        }
         return getBehandlingsresultat(behandlingId)
             .map(b -> b.getVilkårResultat().getVilkårene()).orElse(Collections.emptyList())
             .stream()
