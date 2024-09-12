@@ -16,6 +16,8 @@ import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapManuellVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittLandOppholdEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
@@ -85,7 +87,7 @@ class MedlemDtoTjenesteTest {
             EndringsresultatPersonopplysningerForMedlemskap.builder().build());
 
         var dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste, medlemTjenesteMock, personopplysningTjenesteMock,
-            personDtoTjeneste, null);
+            personDtoTjeneste, null, null);
 
         var medlemDtoOpt = dtoTjeneste.lagMedlemV2Dto(behandling.getId());
         assertThat(medlemDtoOpt).hasValueSatisfying(medlemDto -> {
@@ -131,7 +133,7 @@ class MedlemDtoTjenesteTest {
         when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any(), any())).thenReturn(endringsresultatPersonopplysningerForMedlemskap);
 
         var dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste, medlemTjenesteMock, personopplysningTjenesteMock,
-            personDtoTjeneste, null);
+            personDtoTjeneste, null, null);
 
         var medlemDtoOpt = dtoTjeneste.lagMedlemV2Dto(behandling.getId());
         assertThat(medlemDtoOpt.get().getFom()).isEqualTo(endringFraDato);
@@ -176,7 +178,7 @@ class MedlemDtoTjenesteTest {
         when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any(), any())).thenReturn(
             EndringsresultatPersonopplysningerForMedlemskap.builder().build());
         var dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste, medlemTjenesteMock, personopplysningTjenesteMock,
-            personDtoTjeneste, null);
+            personDtoTjeneste, null, null);
 
         var medlemDtoOpt = dtoTjeneste.lagMedlemV2Dto(behandling.getId());
         assertThat(medlemDtoOpt).hasValueSatisfying(medlemDto -> assertThat(medlemDto.getMedlemskapPerioder()).hasSize(1));
@@ -201,7 +203,7 @@ class MedlemDtoTjenesteTest {
         var medlemTjenesteMock = mock(MedlemTjeneste.class);
         var personDtoTjeneste = new PersonopplysningDtoTjeneste(personopplysningTjenesteMock, repositoryProvider);
         var dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste, medlemTjenesteMock, personopplysningTjenesteMock,
-            personDtoTjeneste, null);
+            personDtoTjeneste, null, null);
 
         var medlemDtoOpt = dtoTjeneste.lagMedlemV2Dto(behandling.getId());
         assertThat(medlemDtoOpt).hasValueSatisfying(medlemDto -> assertThat(medlemDto.getMedlemskapPerioder()).isEmpty());
@@ -259,6 +261,7 @@ class MedlemDtoTjenesteTest {
                 .medOppgittDato(fødselsdato.minusMonths(1)))
             .medRegisterOpplysninger(annenpart)
             .medRegisterOpplysninger(søker)
+            .leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET, BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR)
             .lagre(repositoryProvider);
 
         var dto = medlemDtoTjeneste.lagMedlemskap(behandling.getUuid());

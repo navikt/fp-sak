@@ -4,6 +4,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -36,7 +37,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.medlem.api.VurderMedlemskap;
@@ -64,6 +68,7 @@ public class MedlemDtoTjeneste {
     private PersonopplysningTjeneste personopplysningTjeneste;
     private PersonopplysningDtoTjeneste personopplysningDtoTjeneste;
     private AvklarMedlemskapUtleder medlemskapUtleder;
+    private VilkårResultatRepository vilkårResultatRepository;
 
     @Inject
     public MedlemDtoTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
@@ -71,7 +76,7 @@ public class MedlemDtoTjeneste {
                              MedlemTjeneste medlemTjeneste,
                              PersonopplysningTjeneste personopplysningTjeneste,
                              PersonopplysningDtoTjeneste personopplysningDtoTjeneste,
-                             AvklarMedlemskapUtleder medlemskapUtleder) {
+                             AvklarMedlemskapUtleder medlemskapUtleder, VilkårResultatRepository vilkårResultatRepository) {
 
         this.medlemskapRepository = behandlingRepositoryProvider.getMedlemskapRepository();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -80,6 +85,7 @@ public class MedlemDtoTjeneste {
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.personopplysningDtoTjeneste = personopplysningDtoTjeneste;
         this.medlemskapUtleder = medlemskapUtleder;
+        this.vilkårResultatRepository = vilkårResultatRepository;
     }
 
     MedlemDtoTjeneste() {
@@ -112,7 +118,7 @@ public class MedlemDtoTjeneste {
         var personopplysningerAggregat = po.get();
         var forPeriode = SimpleLocalDateInterval.fraOgMedTomNotNull(Tid.TIDENES_BEGYNNELSE, Tid.TIDENES_ENDE);
 
-        var manuellBehandling = manuellBehandling(ref);
+        var manuellBehandling = manuellBehandling(behandling);
         var legacyManuellBehandling = manuellBehandling.isEmpty() ? legacyManuellBehandling(ref, stp).orElse(null) : null;
 
         var aktørId = ref.aktørId();
@@ -186,13 +192,22 @@ public class MedlemDtoTjeneste {
             vurdertMedlemskap.getMedlemsperiodeManuellVurdering(), vurdertMedlemskap.getBegrunnelse());
     }
 
-    private Optional<MedlemskapV3Dto.ManuellBehandling> manuellBehandling(BehandlingReferanse ref) {
-        //TODO endre til å bare returnere avvik hvis behandling har opprettet eller utført AP?
-        var avvik = medlemskapUtleder.utledAvvik(ref);
-        if (avvik.isEmpty()) {
+    private Optional<MedlemskapV3Dto.ManuellBehandling> manuellBehandling(Behandling behandling) {
+        var medlemskapsvilkårAp = Set.of(VURDER_MEDLEMSKAPSVILKÅRET); //TODO forutgående
+        if (medlemskapsvilkårAp.stream().noneMatch(a -> behandling.harUtførtAksjonspunktMedType(a) || behandling.harÅpentAksjonspunktMedType(a))) {
             return Optional.empty();
         }
-        return Optional.of(new MedlemskapV3Dto.ManuellBehandling(avvik, null)); //TODO resultat
+        var avvik = medlemskapUtleder.utledAvvik(BehandlingReferanse.fra(behandling));
+        var medlemskapsvilkår = vilkårResultatRepository.hentHvisEksisterer(behandling.getId())
+            .stream()
+            .flatMap(vr -> vr.getVilkårene().stream())
+            .filter(v -> v.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET)) //TODO forutgående
+            .findFirst();
+        var opphørsdato = medlemTjeneste.hentOpphørsdatoHvisEksisterer(behandling.getId());
+        var avslagskode = medlemskapsvilkår.map(Vilkår::getAvslagsårsak).orElse(null);
+        var resultat = medlemskapsvilkår.filter(m -> VilkårUtfallType.erFastsatt(m.getVilkårUtfallManuelt())).isPresent() ? new MedlemskapV3Dto.ManuellBehandling.Resultat(avslagskode,
+            null, opphørsdato.orElse(null)) : null;
+        return Optional.of(new MedlemskapV3Dto.ManuellBehandling(avvik, resultat));
     }
 
     private static Optional<MedlemskapV3Dto.Annenpart> annenpart(PersonopplysningerAggregat personopplysningerAggregat,

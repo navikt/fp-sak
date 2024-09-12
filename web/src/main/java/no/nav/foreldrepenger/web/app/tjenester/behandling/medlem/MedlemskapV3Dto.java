@@ -37,7 +37,7 @@ public record MedlemskapV3Dto(ManuellBehandling manuellBehandling,
     record ManuellBehandling(Set<MedlemskapAvvik> avvik, Resultat resultat) {
 
 
-        public record Resultat(Avslagsårsak avslagskode, LocalDate medlemFom, LocalDate opphørFom) {
+        record Resultat(Avslagsårsak avslagskode, LocalDate medlemFom, LocalDate opphørFom) {
         }
     }
 

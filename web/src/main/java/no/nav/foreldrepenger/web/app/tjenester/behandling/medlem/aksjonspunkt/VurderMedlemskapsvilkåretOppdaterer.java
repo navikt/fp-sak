@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.medlem.aksjonspunkt;
 
+import java.time.LocalDate;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -13,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.Skjermlenke
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
+import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -22,11 +25,15 @@ public class VurderMedlemskapsvilkåretOppdaterer implements AksjonspunktOppdate
 
     private HistorikkTjenesteAdapter historikkAdapter;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private MedlemTjeneste medlemTjeneste;
 
     @Inject
-    public VurderMedlemskapsvilkåretOppdaterer(HistorikkTjenesteAdapter historikkAdapter, SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+    public VurderMedlemskapsvilkåretOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
+                                               SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                               MedlemTjeneste medlemTjeneste) {
         this.historikkAdapter = historikkAdapter;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.medlemTjeneste = medlemTjeneste;
     }
 
     VurderMedlemskapsvilkåretOppdaterer() {
@@ -36,7 +43,7 @@ public class VurderMedlemskapsvilkåretOppdaterer implements AksjonspunktOppdate
     @Override
     public OppdateringResultat oppdater(VurderMedlemskapDto dto, AksjonspunktOppdaterParameter param) {
         var nyttUtfall = dto.getAvslagskode() == null ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
-        lagHistorikkInnslag(param, nyttUtfall, dto.getBegrunnelse());
+        lagHistorikkInnslag(param, nyttUtfall, dto.getBegrunnelse(), dto.getOpphørFom());
 
         if (VilkårUtfallType.OPPFYLT.equals(nyttUtfall)) {
             return oppfyltResultat();
@@ -65,12 +72,15 @@ public class VurderMedlemskapsvilkåretOppdaterer implements AksjonspunktOppdate
         return new OppdateringResultat.Builder().leggTilManueltOppfyltVilkår(VilkårType.MEDLEMSKAPSVILKÅRET).build();
     }
 
-    private void lagHistorikkInnslag(AksjonspunktOppdaterParameter param, VilkårUtfallType nyVerdi, String begrunnelse) {
-        historikkAdapter.tekstBuilder()
-                .medEndretFelt(HistorikkEndretFeltType.MEDLEMSKAPSVILKÅRET, null, nyVerdi);
+    private void lagHistorikkInnslag(AksjonspunktOppdaterParameter param, VilkårUtfallType nyVerdi, String begrunnelse, LocalDate opphørFom) {
+        historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.MEDLEMSKAPSVILKÅRET, null, nyVerdi);
 
-        historikkAdapter.tekstBuilder()
-                .medBegrunnelse(begrunnelse, param.erBegrunnelseEndret())
-                .medSkjermlenke(SkjermlenkeType.PUNKT_FOR_MEDLEMSKAP);
+        historikkAdapter.tekstBuilder().medBegrunnelse(begrunnelse, param.erBegrunnelseEndret()).medSkjermlenke(SkjermlenkeType.FAKTA_OM_MEDLEMSKAP);
+
+        if (opphørFom != null) {
+            historikkAdapter.tekstBuilder()
+                .medEndretFelt(HistorikkEndretFeltType.MEDLEMSKAPSVILKÅRET_OPPHØRSDATO,
+                    medlemTjeneste.hentOpphørsdatoHvisEksisterer(param.getBehandlingId()).orElse(null), opphørFom);
+        }
     }
 }
