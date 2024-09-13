@@ -59,7 +59,7 @@ class BeregningKalkulusTest {
         when(koblingRepository.hentKobling(behandlingReferanse.behandlingId())).thenReturn(Optional.empty());
         when(koblingRepository.opprettKobling(behandlingReferanse)).thenReturn(new BeregningsgrunnlagKobling(behandlingReferanse
             .behandlingId(), behandlingReferanse.behandlingUuid()));
-        when(kalkulusKlient.beregn(any())).thenReturn(new KalkulusRespons(List.of(), true));
+        when(kalkulusKlient.beregn(any())).thenReturn(new KalkulusRespons(List.of(), new KalkulusRespons.VilkårRespons(true, "", "", "")));
         // Act
         beregningKalkulus.beregn(behandlingReferanse, BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING);
 
@@ -84,7 +84,7 @@ class BeregningKalkulusTest {
         var behandlingReferanse = lagRef();
         when(koblingRepository.hentKobling(behandlingReferanse.behandlingId())).thenReturn(Optional.of(new BeregningsgrunnlagKobling(behandlingReferanse
             .behandlingId(), behandlingReferanse.behandlingUuid())));
-        when(kalkulusKlient.beregn(any())).thenReturn(new KalkulusRespons(List.of(), true));
+        when(kalkulusKlient.beregn(any())).thenReturn(new KalkulusRespons(List.of(), new KalkulusRespons.VilkårRespons(true, "", "", "")));
 
         // Act
         beregningKalkulus.beregn(behandlingReferanse, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG);

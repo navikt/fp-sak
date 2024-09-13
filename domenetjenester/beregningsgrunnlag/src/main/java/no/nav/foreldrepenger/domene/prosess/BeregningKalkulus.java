@@ -92,8 +92,9 @@ public class BeregningKalkulus implements BeregningAPI {
         var request = lagBeregningRequest(behandlingReferanse, kobling, beregningSteg, originalKobling);
         var respons = klient.beregn(request);
         var prosessResultat = new BeregningsgrunnlagVilkårOgAkjonspunktResultat(respons.aksjonspunkter());
-        // TODO Finn ut hvordan vi løser sporing av vilkåret
-        prosessResultat.setVilkårOppfylt(respons.erVilkårOppfylt(), null, null, null);
+        if (respons.vilkårdata() != null) {
+            prosessResultat.setVilkårOppfylt(respons.vilkårdata().erVilkårOppfylt(), respons.vilkårdata().regelEvalueringSporing(), respons.vilkårdata().regelInputSporing(), respons.vilkårdata().regelVersjon());
+        }
         oppdaterKoblingMedData(behandlingReferanse, stegType, kobling);
         return prosessResultat;
     }
