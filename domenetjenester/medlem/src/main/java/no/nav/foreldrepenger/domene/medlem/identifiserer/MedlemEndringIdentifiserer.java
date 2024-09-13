@@ -21,4 +21,15 @@ public class MedlemEndringIdentifiserer {
             .collect(Collectors.toSet());
         return differ.erForskjellPå(medlemPerioder1, medlemPerioder2);
     }
+
+    public static boolean harBeslutningsdatoInnenforPeriode(MedlemskapAggregat grunnlag1, MedlemskapAggregat grunnlag2, DatoIntervallEntitet periode) {
+        var differ = new RegisterdataDiffsjekker(true);
+        var medlemPerioder1 = grunnlag1.getRegistrertMedlemskapPerioder().stream()
+            .filter(p -> p.getBeslutningsdato() == null || periode.inkluderer(p.getBeslutningsdato()))
+            .collect(Collectors.toSet());
+        var medlemPerioder2 = grunnlag2.getRegistrertMedlemskapPerioder().stream()
+            .filter(p -> p.getBeslutningsdato() == null || periode.inkluderer(p.getBeslutningsdato()))
+            .collect(Collectors.toSet());
+        return differ.erForskjellPå(medlemPerioder1, medlemPerioder2);
+    }
 }

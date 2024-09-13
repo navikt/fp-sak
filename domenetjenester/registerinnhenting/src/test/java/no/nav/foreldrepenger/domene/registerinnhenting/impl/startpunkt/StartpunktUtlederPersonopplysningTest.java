@@ -104,8 +104,8 @@ class StartpunktUtlederPersonopplysningTest extends EntityManagerAwareTest {
         var revurderingId = revurdering.getId();
 
         // Act/Assert
-        var utleder = new StartpunktUtlederPersonopplysning(repositoryProvider.getPersonopplysningRepository(), barnBorteEndringIdentifiserer,
-            dekningsgradTjeneste);
+        var utleder = new StartpunktUtlederPersonopplysning(repositoryProvider.getPersonopplysningRepository(),
+            repositoryProvider.getBehandlingRepository(), barnBorteEndringIdentifiserer, dekningsgradTjeneste);
         assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering), skjæringstidspunkt,
             repositoryProvider.getPersonopplysningRepository().hentPersonopplysninger(behandlingId).getId(),
             repositoryProvider.getPersonopplysningRepository().hentPersonopplysninger(revurderingId).getId())).isEqualTo(UDEFINERT);
@@ -190,8 +190,8 @@ class StartpunktUtlederPersonopplysningTest extends EntityManagerAwareTest {
         var revurderingId = revurdering.getId();
 
         // Act/Assert
-        var utleder = new StartpunktUtlederPersonopplysning(repositoryProvider.getPersonopplysningRepository(), barnBorteEndringIdentifiserer,
-            dekningsgradTjeneste);
+        var utleder = new StartpunktUtlederPersonopplysning(repositoryProvider.getPersonopplysningRepository(),
+            repositoryProvider.getBehandlingRepository(), barnBorteEndringIdentifiserer, dekningsgradTjeneste);
 
         // Arrange
         var revurdering2Scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING);
@@ -267,8 +267,8 @@ class StartpunktUtlederPersonopplysningTest extends EntityManagerAwareTest {
         var revurderingId = revurdering.getId();
 
         // Act/Assert
-        var utleder = new StartpunktUtlederPersonopplysning(repositoryProvider.getPersonopplysningRepository(), barnBorteEndringIdentifiserer,
-            dekningsgradTjeneste);
+        var utleder = new StartpunktUtlederPersonopplysning(repositoryProvider.getPersonopplysningRepository(),
+            repositoryProvider.getBehandlingRepository(), barnBorteEndringIdentifiserer, dekningsgradTjeneste);
         assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering), skjæringstidspunkt,
             repositoryProvider.getPersonopplysningRepository().hentPersonopplysninger(behandlingId).getId(),
             repositoryProvider.getPersonopplysningRepository().hentPersonopplysninger(revurderingId).getId())).isEqualTo(SØKERS_RELASJON_TIL_BARNET);
@@ -342,8 +342,8 @@ class StartpunktUtlederPersonopplysningTest extends EntityManagerAwareTest {
         var revurderingId = revurdering.getId();
 
         // Act/Assert
-        var utleder = new StartpunktUtlederPersonopplysning(repositoryProvider.getPersonopplysningRepository(), barnBorteEndringIdentifiserer,
-            dekningsgradTjeneste);
+        var utleder = new StartpunktUtlederPersonopplysning(repositoryProvider.getPersonopplysningRepository(),
+            repositoryProvider.getBehandlingRepository(), barnBorteEndringIdentifiserer, dekningsgradTjeneste);
         assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering), skjæringstidspunkt,
             repositoryProvider.getPersonopplysningRepository().hentPersonopplysninger(behandlingId).getId(),
             repositoryProvider.getPersonopplysningRepository().hentPersonopplysninger(revurderingId).getId())).isEqualTo(UTTAKSVILKÅR);

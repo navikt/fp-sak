@@ -22,20 +22,21 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.StatsborgerskapEntitet;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class PersonopplysningGrunnlagDiff {
-    private AktørId søkerAktørId;
-    private Optional<AktørId> annenPartAktørId;
-    private PersonopplysningGrunnlagEntitet grunnlag1;
-    private PersonopplysningGrunnlagEntitet grunnlag2;
-    private Set<AktørId> søkersBarnUnion;
-    private Set<AktørId> søkersBarnSnitt;
-    private Set<AktørId> søkersBarnDiff;
-    private Set<AktørId> personerSnitt;
+    private final AktørId søkerAktørId;
+    private final Optional<AktørId> annenPartAktørId;
+    private final PersonopplysningGrunnlagEntitet grunnlag1;
+    private final PersonopplysningGrunnlagEntitet grunnlag2;
+    private final Set<AktørId> søkersBarnUnion;
+    private final Set<AktørId> søkersBarnSnitt;
+    private final Set<AktørId> søkersBarnDiff;
+    private final Set<AktørId> personerSnitt;
 
     public PersonopplysningGrunnlagDiff(AktørId søker, PersonopplysningGrunnlagEntitet grunnlag1, PersonopplysningGrunnlagEntitet grunnlag2) {
         this.søkerAktørId = søker;
@@ -97,6 +98,13 @@ public class PersonopplysningGrunnlagDiff {
         return !Objects.equals(hentPersonstatusForPeriode(grunnlag1, søkerAktørId, periode), hentPersonstatusForPeriode(grunnlag2, søkerAktørId, periode));
     }
 
+    public boolean erPersonstatusIkkeBosattEndretForSøkerPeriode(DatoIntervallEntitet periode) {
+        var differ = new RegisterdataDiffsjekker(true);
+        return differ.erForskjellPå(
+            hentIkkeBosattPersonstatusForPeriode(grunnlag1, søkerAktørId, periode),
+            hentIkkeBosattPersonstatusForPeriode(grunnlag2, søkerAktørId, periode));
+    }
+
     public boolean erRegionEndretForSøkerPeriode(DatoIntervallEntitet periode, LocalDate skjæringstidspunkt) {
         return !Objects.equals(hentRangertRegion(grunnlag1, søkerAktørId, periode, skjæringstidspunkt),
             hentRangertRegion(grunnlag2, søkerAktørId, periode, skjæringstidspunkt));
@@ -111,6 +119,13 @@ public class PersonopplysningGrunnlagDiff {
         return differ.erForskjellPå(
             hentAdresserForPeriode(grunnlag1, personerSnitt, periode),
             hentAdresserForPeriode(grunnlag2, personerSnitt, periode));
+    }
+
+    public boolean erSøkersUtlandsAdresserEndretIPeriode(DatoIntervallEntitet periode) {
+        var differ = new RegisterdataDiffsjekker(true);
+        return differ.erForskjellPå(
+            hentUtlandAdresserForPeriode(grunnlag1, Set.of(søkerAktørId), periode),
+            hentUtlandAdresserForPeriode(grunnlag2, Set.of(søkerAktørId), periode));
     }
 
     public boolean erAdresseLandEndretForSøkerPeriode(DatoIntervallEntitet periode) {
@@ -141,10 +156,26 @@ public class PersonopplysningGrunnlagDiff {
             .collect(Collectors.toSet());
     }
 
+    private Set<PersonstatusEntitet> hentIkkeBosattPersonstatusForPeriode(PersonopplysningGrunnlagEntitet grunnlag, AktørId person, DatoIntervallEntitet periode) {
+        return registerVersjon(grunnlag).map(PersonInformasjonEntitet::getPersonstatus).orElse(Collections.emptyList()).stream()
+            .filter(ps -> person.equals(ps.getAktørId()))
+            .filter(ps -> ps.getPeriode().overlapper(periode))
+            .filter(ps -> !PersonstatusType.DØD.equals(ps.getPersonstatus()) && !PersonstatusType.BOSA.equals(ps.getPersonstatus()))
+            .collect(Collectors.toSet());
+    }
+
     private List<PersonAdresseEntitet> hentAdresserForPeriode(PersonopplysningGrunnlagEntitet grunnlag, Set<AktørId> personer, DatoIntervallEntitet periode) {
         return registerVersjon(grunnlag).map(PersonInformasjonEntitet::getAdresser).orElse(Collections.emptyList()).stream()
             .filter(adr -> personer.contains(adr.getAktørId()))
             .filter(adr -> adr.getPeriode().overlapper(periode))
+            .toList();
+    }
+
+    private List<PersonAdresseEntitet> hentUtlandAdresserForPeriode(PersonopplysningGrunnlagEntitet grunnlag, Set<AktørId> personer, DatoIntervallEntitet periode) {
+        return registerVersjon(grunnlag).map(PersonInformasjonEntitet::getAdresser).orElse(Collections.emptyList()).stream()
+            .filter(adr -> personer.contains(adr.getAktørId()))
+            .filter(adr -> adr.getPeriode().overlapper(periode))
+            .filter(adr -> !Landkoder.erNorge(adr.getLand()))
             .toList();
     }
 
@@ -216,10 +247,10 @@ public class PersonopplysningGrunnlagDiff {
     }
 
     private Optional<PersonInformasjonEntitet> registerVersjon(PersonopplysningGrunnlagEntitet grunnlag) {
-        return grunnlag != null ? grunnlag.getRegisterVersjon() : Optional.empty();
+        return Optional.ofNullable(grunnlag).flatMap(PersonopplysningGrunnlagEntitet::getRegisterVersjon);
     }
 
     private Optional<OppgittAnnenPartEntitet> oppgittAnnenPart(PersonopplysningGrunnlagEntitet grunnlag) {
-        return grunnlag != null ? grunnlag.getOppgittAnnenPart() : Optional.empty();
+        return Optional.ofNullable(grunnlag).flatMap(PersonopplysningGrunnlagEntitet::getOppgittAnnenPart);
     }
 }
