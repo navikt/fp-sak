@@ -1,19 +1,14 @@
 package no.nav.foreldrepenger.behandling.steg.medlemskap.fp;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING;
-import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.InngangsvilkårMedlemskap.logDiff;
-import static no.nav.foreldrepenger.inngangsvilkaar.medlemskap.InngangsvilkårMedlemskap.map;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import no.nav.foreldrepenger.konfig.Environment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +39,7 @@ import no.nav.foreldrepenger.domene.medlem.VurderMedlemskapTjeneste;
 import no.nav.foreldrepenger.domene.medlem.impl.MedlemResultat;
 import no.nav.foreldrepenger.domene.uttak.SkalKopiereUttakTjeneste;
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.AvklarMedlemskapUtleder;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @BehandlingStegRef(BehandlingStegType.KONTROLLER_LØPENDE_MEDLEMSKAP)
@@ -116,14 +112,6 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements Kontrol
             }
             if (!resultat.isEmpty()) {
                 aksjonspunkter.add(AksjonspunktResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FORTSATT_MEDLEMSKAP));
-            }
-            try {
-                var årsaker = avklarMedlemskapUtleder.utledForFortsattMedlem(ref, skjæringstidspunkter);
-                var gammelUtledetÅrsaker = resultat.stream().map(mr -> map(mr.getAksjonspunktDefinisjon())).collect(Collectors.toSet());
-                logDiff(årsaker, gammelUtledetÅrsaker, behandling.getFagsakYtelseType(),
-                    "fortsattMedlem");
-            } catch (Exception e) {
-                LOG.info("Medlemskap sammenligning feilet", e);
             }
         }
         var uttakInput = uttakInputTjeneste.lagInput(behandlingId);
