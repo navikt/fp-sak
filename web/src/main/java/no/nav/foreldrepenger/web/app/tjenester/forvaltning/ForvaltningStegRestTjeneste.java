@@ -3,22 +3,30 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType.KONTROLLER_FAKTA;
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING;
 
+import java.util.List;
+import java.util.UUID;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
@@ -42,6 +50,7 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @Transactional
 public class ForvaltningStegRestTjeneste {
 
+    private EntityManager entityManager;
     private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste;
@@ -51,11 +60,13 @@ public class ForvaltningStegRestTjeneste {
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
 
     @Inject
-    public ForvaltningStegRestTjeneste(BehandlingsprosessTjeneste behandlingsprosessTjeneste,
+    public ForvaltningStegRestTjeneste(EntityManager entityManager,
+                                       BehandlingsprosessTjeneste behandlingsprosessTjeneste,
                                        BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                        ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste,
                                        BehandlingRepositoryProvider repositoryProvider,
                                        ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste) {
+        this.entityManager = entityManager;
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.arbeidsforholdAdministrasjonTjeneste = arbeidsforholdAdministrasjonTjeneste;
@@ -75,12 +86,8 @@ public class ForvaltningStegRestTjeneste {
     @Path("/generell")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response hoppTilbake(@BeanParam @Valid HoppTilbakeDto dto) {
-        hoppTilbake(dto, dto.getBehandlingStegType());
+        hoppTilbake(dto.getBehandlingUuid(), dto.getBehandlingStegType());
         return Response.ok().build();
-    }
-
-    private Behandling getBehandling(ForvaltningBehandlingIdDto dto) {
-        return behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUuid());
     }
 
     @POST
@@ -89,7 +96,7 @@ public class ForvaltningStegRestTjeneste {
     @Path("/5085")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response hoppTilbakeTil5085(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        hoppTilbake(dto, KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING);
+        hoppTilbake(dto.getBehandlingUuid(), KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING);
         return Response.ok().build();
     }
 
@@ -103,7 +110,7 @@ public class ForvaltningStegRestTjeneste {
         var grunnlag = familieHendelseRepository.hentAggregat(kontekst.getBehandlingId());
         if (grunnlag.getOverstyrtVersjon().isPresent()) {
             familieHendelseRepository.slettAvklarteData(kontekst.getBehandlingId(), kontekst.getSkriveLås());
-            hoppTilbake(dto, KONTROLLER_FAKTA);
+            hoppTilbake(dto.getBehandlingUuid(), KONTROLLER_FAKTA);
             return Response.ok().build();
         }
         return Response.noContent().build();
@@ -115,8 +122,56 @@ public class ForvaltningStegRestTjeneste {
     @Path("/fjernStartpunkt")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response fjernStartpunkt(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        hoppTilbake(dto, KONTROLLER_FAKTA);
+        hoppTilbake(dto.getBehandlingUuid(), KONTROLLER_FAKTA);
         return Response.noContent().build();
+    }
+
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Setter medlemsrelaterte aksjonspunkt til avbrutt", tags = "FORVALTNING-steg-hopp")
+    @Path("/avbrytMedlemsAksjonspunkt")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response avbrytMedlemsAksjonspunkt() {
+        var medlemsaksjonspunkt = List.of(AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD, AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT,
+            AksjonspunktDefinisjon.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE, AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT);
+        entityManager.createQuery("select behandling from Aksjonspunkt ap where ap.aksjonspunktDefinisjon in (:apdef) and ap.status = :opprettet", Behandling.class)
+            .setParameter("apdef",medlemsaksjonspunkt)
+            .setParameter("opprettet", AksjonspunktStatus.OPPRETTET)
+            .getResultList()
+            .forEach(behandling -> {
+                var lås = behandlingRepository.taSkriveLås(behandling.getId());
+                var aksjonspunkt = behandling.getÅpneAksjonspunkter(medlemsaksjonspunkt);
+                var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+                behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), aksjonspunkt);
+                behandlingRepository.lagre(behandling, lås);
+                if (!behandling.isBehandlingPåVent()) {
+                    behandlingsprosessTjeneste.asynkKjørProsess(behandling);
+                }
+            });
+
+        return Response.ok().build();
+    }
+
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Setter fortsatt medlemsrelaterte aksjonspunkt til avbrutt", tags = "FORVALTNING-steg-hopp")
+    @Path("/avbrytFortsattMedlemAksjonspunkt")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response avbrytLøpendeMedlemsAksjonspunkt() {
+        entityManager.createQuery("select behandling from Aksjonspunkt ap where ap.aksjonspunktDefinisjon = :apdef and ap.status = :opprettet", Behandling.class)
+            .setParameter("apdef", AksjonspunktDefinisjon.AVKLAR_FORTSATT_MEDLEMSKAP)
+            .setParameter("opprettet", AksjonspunktStatus.OPPRETTET)
+            .getResultList()
+            .forEach(behandling -> {
+                var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+                hoppTilbake(kontekst, behandling, KONTROLLER_FAKTA);
+            });
+
+        return Response.ok().build();
     }
 
 
@@ -127,9 +182,13 @@ public class ForvaltningStegRestTjeneste {
         }
     }
 
-    private void hoppTilbake(ForvaltningBehandlingIdDto dto, BehandlingStegType tilSteg) {
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(dto.getBehandlingUuid());
-        var behandling = getBehandling(dto);
+    private void hoppTilbake(UUID behandlingUuid, BehandlingStegType tilSteg) {
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingUuid);
+        var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingUuid);
+        hoppTilbake(kontekst, behandling, tilSteg);
+    }
+
+    private void hoppTilbake(BehandlingskontrollKontekst kontekst, Behandling behandling, BehandlingStegType tilSteg) {
         if (KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING.equals(tilSteg)) {
             arbeidsforholdInntektsmeldingMangelTjeneste.ryddVekkAlleValgPåBehandling(BehandlingReferanse.fra(behandling));
             arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandler(behandling.getId());
