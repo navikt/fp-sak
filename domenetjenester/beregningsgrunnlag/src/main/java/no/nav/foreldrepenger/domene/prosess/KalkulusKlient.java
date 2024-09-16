@@ -64,7 +64,10 @@ public class KalkulusKlient {
         try {
             var respons = restClient.sendReturnOptional(restRequest, TilstandResponse.class).orElseThrow(() -> new IllegalStateException("Ugyldig tilstand, tomt svar fra kalkulus"));
             var aksjonspunkter = respons.getAvklaringsbehovMedTilstandDto().stream().map(BeregningAksjonspunktResultatMapper::mapKontrakt).toList();
-            return new KalkulusRespons(aksjonspunkter, respons.getVilkarOppfylt());
+            var vilkårRespons = respons.getVilkårResultat();
+            var vilkårResponsDto = vilkårRespons == null ? null : new KalkulusRespons.VilkårRespons(vilkårRespons.getErVilkarOppfylt(),
+                vilkårRespons.getRegelEvalueringSporing(), vilkårRespons.getRegelInputSporing(), vilkårRespons.getRegelVersjon());
+            return new KalkulusRespons(aksjonspunkter, vilkårResponsDto);
         } catch (Exception e) {
             throw new TekniskException("FP-503800", "Feil ved kall til fpkalkulus: " + e);
         }

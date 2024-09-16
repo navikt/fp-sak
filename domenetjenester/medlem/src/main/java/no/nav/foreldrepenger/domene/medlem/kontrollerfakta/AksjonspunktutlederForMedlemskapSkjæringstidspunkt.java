@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.konfig.Environment;
 @ApplicationScoped
 public class AksjonspunktutlederForMedlemskapSkjæringstidspunkt implements AksjonspunktUtleder {
 
-    private static final Environment ENV = Environment.current();
+    private static final Environment ENV = Environment.current(); // TODO medlemskap2 standardisere etter omlegging
     private VurderMedlemskapTjeneste tjeneste;
 
     AksjonspunktutlederForMedlemskapSkjæringstidspunkt() {
