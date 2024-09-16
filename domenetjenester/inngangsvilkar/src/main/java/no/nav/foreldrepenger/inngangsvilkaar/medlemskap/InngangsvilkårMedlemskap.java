@@ -85,7 +85,7 @@ public class InngangsvilkårMedlemskap implements Inngangsvilkår {
             }
             return vilkårData;
         } else {
-            return avklarMedlemskapUtleder.utledForInngangsvilkår(ref);
+            return avklarMedlemskapUtleder.utledFor(ref);
         }
     }
 

@@ -27,6 +27,7 @@ import no.nav.foreldrepenger.domene.medlem.VurderMedlemskapTjeneste;
 import no.nav.foreldrepenger.domene.medlem.impl.MedlemResultat;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
+// TODO medlemskap2 fjerne dette steget. Implementere som et annet Inngangsvilkår under medlemskapssteg
 @BehandlingStegRef(BehandlingStegType.VURDER_FORUTGÅENDE_MEDLEMSKAPVILKÅR)
 @BehandlingTypeRef
 @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD)
