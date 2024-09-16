@@ -1,7 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.medlem;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 import java.time.LocalDate;
 import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
@@ -45,6 +49,8 @@ public record MedlemskapV3Dto(ManuellBehandling manuellBehandling,
      * Settes når gammel vurdering finnes, og ikke ny?
      */
     record LegacyManuellBehandling(Set<MedlemPeriode> perioder) {
+
+        @JsonInclude(Include.NON_NULL)
         record MedlemPeriode(LocalDate vurderingsdato,
                              Boolean oppholdsrettVurdering,
                              Boolean erEosBorger,
