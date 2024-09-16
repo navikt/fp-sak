@@ -29,6 +29,7 @@ public record InntektsmeldingDto(BigDecimal inntektPrMnd,
                                  String kildeSystem,
                                  LocalDate startDatoPermisjon,
                                  List<NaturalYtelse> bortfalteNaturalytelser,
+                                 List<NaturalYtelse> aktiveNaturalytelser,
                                  List<Refusjon> refusjonsperioder,
                                  InntektsmeldingInnsendingsårsak innsendingsårsak,
                                  List<UUID> tilknyttedeBehandlingIder
