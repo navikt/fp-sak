@@ -122,6 +122,10 @@ public class KabalHendelseHåndterer implements KafkaMessageHandler.KafkaStringM
             task.setProperty(MottaFraKabalTask.UTFALL_KEY, mottattHendelse.detaljer().ankebehandlingAvsluttet().utfall().name());
             mottattHendelse.detaljer().ankebehandlingAvsluttet().journalpostReferanser().stream()
                 .findFirst().ifPresent(journalpost -> task.setProperty(MottaFraKabalTask.JOURNALPOST_KEY, journalpost));
+        } else if (KabalHendelse.BehandlingEventType.BEHANDLING_ETTER_TRYGDERETTEN_OPPHEVET_AVSLUTTET.equals(mottattHendelse.type())) {
+            task.setProperty(MottaFraKabalTask.UTFALL_KEY, mottattHendelse.detaljer().behandlingEtterTrygderettenOpphevetAvsluttet().utfall().name());
+            mottattHendelse.detaljer().behandlingEtterTrygderettenOpphevetAvsluttet().journalpostReferanser().stream()
+                .findFirst().ifPresent(journalpost -> task.setProperty(MottaFraKabalTask.JOURNALPOST_KEY, journalpost));
         } else if (KabalHendelse.BehandlingEventType.BEHANDLING_FEILREGISTRERT.equals(mottattHendelse.type())) {
             task.setProperty(MottaFraKabalTask.FEILOPPRETTET_TYPE_KEY, mottattHendelse.detaljer().behandlingFeilregistrert().type().name());
         }
