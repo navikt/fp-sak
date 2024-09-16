@@ -14,6 +14,11 @@ import jakarta.persistence.EntityManager;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,8 +47,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
@@ -67,7 +70,7 @@ class GrunnbeløpReguleringTaskTest {
     @Mock
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     @Mock
-    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
+    private BeregningTjeneste beregningTjeneste;
     @Mock
     private SatsRepository satsRepository;
 
@@ -78,8 +81,10 @@ class GrunnbeløpReguleringTaskTest {
     void setUp(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
-        lenient().when(beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(any())).thenReturn(Optional.of(BeregningsgrunnlagEntitet.ny()
-            .medGrunnbeløp(EKSISTERENDE_G).medSkjæringstidspunkt(EKSISTERENDE_STP_B).build()));
+        var gr = BeregningsgrunnlagGrunnlagBuilder.nytt()
+            .medBeregningsgrunnlag(Beregningsgrunnlag.builder().medGrunnbeløp(EKSISTERENDE_G).medSkjæringstidspunkt(EKSISTERENDE_STP_B).build())
+            .build(BeregningsgrunnlagTilstand.FASTSATT);
+        lenient().when(beregningTjeneste.hent(any())).thenReturn(Optional.of(gr));
         lenient().when(satsRepository.finnEksaktSats(eq(BeregningSatsType.GRUNNBELØP), any()))
             .thenReturn(new BeregningSats(BeregningSatsType.GRUNNBELØP, DatoIntervallEntitet.fraOgMedTilOgMed(TERMINDATO.minusYears(1), TERMINDATO),
                 EKSISTERENDE_G.getVerdi().longValue() + 1000));
@@ -121,7 +126,7 @@ class GrunnbeløpReguleringTaskTest {
 
     private GrunnbeløpReguleringTask createTask() {
         return new GrunnbeløpReguleringTask(repositoryProvider,
-            skjæringstidspunktTjeneste, prosesseringTjeneste, beregningsgrunnlagRepository, satsRepository, enhetsTjeneste, flytkontroll);
+            skjæringstidspunktTjeneste, prosesseringTjeneste, beregningTjeneste, satsRepository, enhetsTjeneste, flytkontroll);
     }
 
     @Test

@@ -5,6 +5,11 @@ import java.math.BigDecimal;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,8 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølg
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -40,7 +43,7 @@ public class GrunnbeløpReguleringTask extends FagsakProsessTask {
     private final BehandlingRepository behandlingRepository;
     private final FagsakRepository fagsakRepository;
     private final BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
-    private final BeregningsgrunnlagRepository beregningsgrunnlagRepository;
+    private final BeregningTjeneste beregningTjeneste;
     private final SatsRepository satsRepository;
     private final SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private final BehandlendeEnhetTjeneste enhetTjeneste;
@@ -50,16 +53,16 @@ public class GrunnbeløpReguleringTask extends FagsakProsessTask {
     public GrunnbeløpReguleringTask(BehandlingRepositoryProvider repositoryProvider,
                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                     BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
-                                    BeregningsgrunnlagRepository beregningsgrunnlagRepository,
+                                    BeregningTjeneste beregningTjeneste,
                                     SatsRepository satsRepository,
                                     BehandlendeEnhetTjeneste enhetTjeneste,
                                     BehandlingFlytkontroll flytkontroll) {
         super(repositoryProvider.getFagsakLåsRepository(), repositoryProvider.getBehandlingLåsRepository());
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
-        this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.beregningTjeneste = beregningTjeneste;
         this.satsRepository = satsRepository;
         this.enhetTjeneste = enhetTjeneste;
         this.flytkontroll = flytkontroll;
@@ -80,9 +83,12 @@ public class GrunnbeløpReguleringTask extends FagsakProsessTask {
         if (prosessTaskData.getPropertyValue(MANUELL_KEY) == null) {
             var sisteVedtatte = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId).orElseThrow();
             var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkterForAvsluttetBehandling(sisteVedtatte.getId());
-            var grunnbeløpFraSisteVedtatt = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(sisteVedtatte.getId())
-                .map(BeregningsgrunnlagEntitet::getGrunnbeløp)
-                .map(Beløp::getVerdi).map(BigDecimal::longValue).orElse(0L);
+            var grunnbeløpFraSisteVedtatt = beregningTjeneste.hent(BehandlingReferanse.fra(sisteVedtatte))
+                .flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag)
+                .map(Beregningsgrunnlag::getGrunnbeløp)
+                .map(Beløp::getVerdi)
+                .map(BigDecimal::longValue)
+                .orElse(0L);
             var skalBrukeGrunnbeløp = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, skjæringstidspunkt.getFørsteUttaksdatoGrunnbeløp()).getVerdi();
             if (grunnbeløpFraSisteVedtatt == skalBrukeGrunnbeløp) {
                 LOG.info("GrunnbeløpRegulering har rett G for saksnummer = {} stp {}", fagsak.getSaksnummer().getVerdi(), skjæringstidspunkt.getFørsteUttaksdatoGrunnbeløp());
