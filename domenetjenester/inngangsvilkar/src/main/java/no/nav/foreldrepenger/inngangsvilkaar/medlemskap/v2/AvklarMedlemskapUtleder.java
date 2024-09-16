@@ -8,7 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.inngangsvilkaar.RegelResultatOversetter;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
@@ -29,14 +28,14 @@ public class AvklarMedlemskapUtleder {
         //CDI
     }
 
-    public VilkårData utledForInngangsvilkår(BehandlingReferanse behandlingRef) {
-        var grunnlag = grunnlagBygger.lagRegelGrunnlagInngangsvilkår(behandlingRef);
+    public VilkårData utledFor(BehandlingReferanse behandlingRef) {
+        var grunnlag = grunnlagBygger.lagRegelGrunnlag(behandlingRef);
         var resultat = InngangsvilkårRegler.medlemskapV2(grunnlag);
         return RegelResultatOversetter.oversett(VilkårType.MEDLEMSKAPSVILKÅRET, resultat);
     }
 
     public Set<no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAvvik> utledAvvik(BehandlingReferanse behandlingRef) {
-        var vilkårData = utledForInngangsvilkår(behandlingRef);
+        var vilkårData = utledFor(behandlingRef);
         var reglerAvvik = (HashSet<MedlemskapAvvik>) vilkårData.ekstraVilkårresultat();
         return reglerAvvik.stream().map(this::map).collect(Collectors.toSet());
     }
@@ -51,11 +50,6 @@ public class AvklarMedlemskapUtleder {
             case EØS_MANGLENDE_ANSETTELSE_MED_INNTEKT -> no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAvvik.EØS_MANGLENDE_ANSETTELSE_MED_INNTEKT;
             case MEDL_PERIODER -> no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAvvik.MEDL_PERIODER;
         };
-    }
-
-    public Set<MedlemskapAksjonspunktÅrsak> utledForFortsattMedlem(BehandlingReferanse behandlingRef, Skjæringstidspunkt stp) {
-        var grunnlag = grunnlagBygger.lagRegelGrunnlagFortsattMedlem(behandlingRef, stp);
-        return MedlemFortsattRegel.kjørRegler(grunnlag);
     }
 
 }
