@@ -37,7 +37,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
@@ -204,9 +204,9 @@ public class MedlemDtoTjeneste {
             .filter(v -> v.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET)) //TODO forutgående
             .findFirst();
         var opphørsdato = medlemTjeneste.hentOpphørsdatoHvisEksisterer(behandling.getId());
-        var avslagskode = medlemskapsvilkår.map(Vilkår::getAvslagsårsak).orElse(null);
-        var resultat = medlemskapsvilkår.filter(m -> VilkårUtfallType.erFastsatt(m.getVilkårUtfallManuelt())).isPresent() ? new MedlemskapV3Dto.ManuellBehandling.Resultat(avslagskode,
-            null, opphørsdato.orElse(null)) : null;
+        var avslagskode = medlemTjeneste.hentAvslagsårsak(behandling.getId()).filter(å -> !å.equals(Avslagsårsak.UDEFINERT));
+        var resultat = medlemskapsvilkår.filter(m -> VilkårUtfallType.erFastsatt(m.getVilkårUtfallManuelt())).isPresent() ?
+            new MedlemskapV3Dto.ManuellBehandling.Resultat(avslagskode.orElse(null), null, opphørsdato.orElse(null)) : null;
         return Optional.of(new MedlemskapV3Dto.ManuellBehandling(avvik, resultat));
     }
 

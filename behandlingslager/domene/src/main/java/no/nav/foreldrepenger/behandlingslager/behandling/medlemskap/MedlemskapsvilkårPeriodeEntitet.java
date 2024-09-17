@@ -136,13 +136,18 @@ public class MedlemskapsvilkårPeriodeEntitet extends BaseEntitet {
             return this;
         }
 
-        public MedlemskapsvilkårPeriodeEntitet.Builder opprettOverstryingAvslag(LocalDate overstryingsdato, Avslagsårsak avslagsårsak) {
-            kladd.opprettOverstyringFor(overstryingsdato, VilkårUtfallType.IKKE_OPPFYLT, avslagsårsak);
+        public MedlemskapsvilkårPeriodeEntitet.Builder opprettOverstyringAvslag(LocalDate overstyringsdato, Avslagsårsak avslagsårsak) {
+            kladd.opprettOverstyringFor(overstyringsdato, VilkårUtfallType.IKKE_OPPFYLT, avslagsårsak);
             return this;
         }
 
-        public MedlemskapsvilkårPeriodeEntitet.Builder opprettOverstryingOppfylt(LocalDate overstryingsdato) {
-            kladd.opprettOverstyringFor(overstryingsdato, VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT);
+        public MedlemskapsvilkårPeriodeEntitet.Builder opprettOverstyringOppfylt(LocalDate overstyringsdato) {
+            kladd.opprettOverstyringFor(overstyringsdato, VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT);
+            return this;
+        }
+
+        public MedlemskapsvilkårPeriodeEntitet.Builder opprettOverstyring(LocalDate overstyringsdato, Avslagsårsak avslagsårsak, VilkårUtfallType utfallType) {
+            kladd.opprettOverstyringFor(overstyringsdato, utfallType, avslagsårsak);
             return this;
         }
 

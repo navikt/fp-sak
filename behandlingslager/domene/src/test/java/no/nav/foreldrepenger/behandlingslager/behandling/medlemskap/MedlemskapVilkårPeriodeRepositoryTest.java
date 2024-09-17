@@ -39,7 +39,7 @@ class MedlemskapVilkårPeriodeRepositoryTest extends EntityManagerAwareTest {
         var behandling = lagBehandling();
         var builderIkkeOppfylt = medlemskapVilkårPeriodeRepository.hentBuilderFor(behandling);
         var periodeBuilderIkkeOppylt = builderIkkeOppfylt.getPeriodeBuilder();
-        periodeBuilderIkkeOppylt.opprettOverstryingAvslag(LocalDate.now(), Avslagsårsak.SØKER_ER_IKKE_MEDLEM);
+        periodeBuilderIkkeOppylt.opprettOverstyringAvslag(LocalDate.now(), Avslagsårsak.SØKER_ER_IKKE_MEDLEM);
         builderIkkeOppfylt.medMedlemskapsvilkårPeriode(periodeBuilderIkkeOppylt);
         medlemskapVilkårPeriodeRepository.lagreMedlemskapsvilkår(behandling, builderIkkeOppfylt);
 
@@ -52,7 +52,7 @@ class MedlemskapVilkårPeriodeRepositoryTest extends EntityManagerAwareTest {
         var builderOppfylt = medlemskapVilkårPeriodeRepository.hentBuilderFor(behandling);
 
         var periodeBuilderOppfylt = builderOppfylt.getPeriodeBuilder();
-        periodeBuilderOppfylt.opprettOverstryingOppfylt(LocalDate.now());
+        periodeBuilderOppfylt.opprettOverstyringOppfylt(LocalDate.now());
         builderOppfylt.medMedlemskapsvilkårPeriode(periodeBuilderOppfylt);
 
         medlemskapVilkårPeriodeRepository.lagreMedlemskapsvilkår(behandling, builderOppfylt);

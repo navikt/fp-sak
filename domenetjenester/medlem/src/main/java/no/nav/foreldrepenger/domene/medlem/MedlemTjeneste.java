@@ -177,27 +177,37 @@ public class MedlemTjeneste {
         if (medlemskapsvilkåret.isPresent()) {
             var medlem = medlemskapsvilkåret.get();
             if (medlem.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.OPPFYLT)) {
-                var medlemLøpendeOpt = behandlingsresultat.getVilkårResultat()
-                    .getVilkårene()
-                    .stream()
-                    .filter(vilkårType -> vilkårType.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE))
-                    .findFirst();
-
-                if (medlemLøpendeOpt.isPresent()) {
-                    var medlemLøpende = medlemLøpendeOpt.get();
-                    if (medlemLøpende.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.OPPFYLT)) {
-                        return Optional.empty();
-                    }
-                    var behandling = behandlingRepository.hentBehandling(behandlingId);
-                    return medlemskapVilkårPeriodeRepository.hentOpphørsdatoHvisEksisterer(behandling);
-                }
-                return Optional.empty();
+                var behandling = behandlingRepository.hentBehandling(behandlingId);
+                return medlemskapVilkårPeriodeRepository.hentOpphørsdatoHvisEksisterer(behandling);
             }
             if (medlem.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT)) {
                 return skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId).getSkjæringstidspunktHvisUtledet();
             }
         }
         return Optional.empty();
+    }
+
+    public Optional<Avslagsårsak> hentAvslagsårsak(Long behandlingId) {
+        var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
+        var medlemskapsvilkåret = behandlingsresultat.getVilkårResultat()
+            .getVilkårene()
+            .stream()
+            .filter(vilkårType -> vilkårType.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET))
+            .findFirst();
+        if (medlemskapsvilkåret.isEmpty()) {
+            return Optional.empty();
+        }
+        var gjeldendeVilkårUtfall = medlemskapsvilkåret.get().getGjeldendeVilkårUtfall();
+        if (!VilkårUtfallType.erFastsatt(gjeldendeVilkårUtfall)) {
+            return Optional.empty();
+        }
+        if (gjeldendeVilkårUtfall.equals(VilkårUtfallType.IKKE_OPPFYLT)) {
+            return Optional.ofNullable(medlemskapsvilkåret.get().getAvslagsårsak());
+        }
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var medlemskapVilkårPeriodeGrunnlagEntitet = medlemskapVilkårPeriodeRepository.hentAggregatHvisEksisterer(behandling);
+        return medlemskapVilkårPeriodeGrunnlagEntitet.map(
+            vilkårPeriodeGrunnlagEntitet -> vilkårPeriodeGrunnlagEntitet.getMedlemskapsvilkårPeriode().getOverstyring().getAvslagsårsak());
     }
 
     private <T extends Kodeverdi> void sjekkEndringer(Stream<ElementMedGyldighetsintervallWrapper<T>> elementer,
