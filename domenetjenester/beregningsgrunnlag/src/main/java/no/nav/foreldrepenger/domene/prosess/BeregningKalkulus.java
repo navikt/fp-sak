@@ -125,16 +125,20 @@ public class BeregningKalkulus implements BeregningAPI {
         if (!revurdering.saksnummer().equals(originalbehandling.saksnummer())) {
             throw new IllegalStateException("Prøver å kopiere fra et grunnlag uten samme saksnummer, ugyldig handling");
         }
-        var originalKobling = koblingRepository.hentKobling(originalbehandling.behandlingId()).orElseThrow(() -> new IllegalStateException("Kan ikke kopiere grunnlag fra en kobling som ikke finnes!"));
+        var originalKobling = koblingRepository.hentKobling(originalbehandling.behandlingId());
+        if (originalKobling.isEmpty()) {
+            // Forrige behandling hadde ikke noe beregningsgrunnlag, ingenting å kopiere
+            return;
+        }
         var koblingOpt = koblingRepository.hentKobling(revurdering.behandlingId());
         var kobling = koblingOpt.orElseGet(() -> {
             LOG.info("Kobling for behandlingUuid {} finnes ikke, oppretter", revurdering.behandlingUuid());
-            return koblingRepository.opprettKoblingFraOriginal(revurdering, originalKobling);
+            return koblingRepository.opprettKoblingFraOriginal(revurdering, originalKobling.get());
         });
         if (!tilstand.equals(BeregningsgrunnlagTilstand.FASTSATT)) {
             throw new IllegalStateException("Støtter ikke kopiering av grunnlag som ikke er fastsatt!");
         }
-        var request = lagKopierRequest(revurdering.saksnummer().getVerdi(), kobling, originalKobling);
+        var request = lagKopierRequest(revurdering.saksnummer().getVerdi(), kobling, originalKobling.get());
         klient.kopierGrunnlag(request);
     }
 
