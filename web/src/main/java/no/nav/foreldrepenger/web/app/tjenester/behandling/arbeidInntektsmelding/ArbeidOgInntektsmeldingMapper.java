@@ -90,7 +90,6 @@ public class ArbeidOgInntektsmeldingMapper {
                 im.getKildesystem(),
                 im.getStartDatoPermisjon().orElse(null),
                 im.getNaturalYtelser(),
-                im.getNaturalYtelser(),
                 refusjonsEndringer,
                 im.getInntektsmeldingInnsendingsårsak(),
             tilknyttedeBehandlingIder != null ? tilknyttedeBehandlingIder : List.of()

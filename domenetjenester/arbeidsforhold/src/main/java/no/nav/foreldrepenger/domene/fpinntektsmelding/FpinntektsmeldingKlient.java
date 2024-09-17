@@ -24,11 +24,14 @@ public class FpinntektsmeldingKlient {
     private final RestClient restClient;
     private final RestConfig restConfig;
     private final URI uriOpprettForesporsel;
+    private final URI uriOverstyrInntektsmelding;
 
     public FpinntektsmeldingKlient() {
         this.restClient = RestClient.client();
         this.restConfig = RestConfig.forClient(FpinntektsmeldingKlient.class);
         this.uriOpprettForesporsel = toUri(restConfig.fpContextPath(), "/api/foresporsel/opprett");
+        this.uriOverstyrInntektsmelding = toUri(restConfig.fpContextPath(), "/api/overstyring/inntektsmelding");
+
     }
 
     public void opprettForespørsel(OpprettForespørselRequest request) {
@@ -39,6 +42,17 @@ public class FpinntektsmeldingKlient {
             restClient.send(rrequest, String.class);
         } catch (Exception e) {
             LOG.warn("Feil ved oversending til fpinntektsmelding med forespørsel: " + request + " Fikk feil: " + e);
+        }
+    }
+
+    public void overstyrInntektsmelding(OverstyrInntektsmeldingRequest request) {
+        Objects.requireNonNull(request, "request");
+        try {
+            LOG.info("Overstyrer inntektsmelding for arbeidsgiver" + request.arbeidsgiverIdent().ident());
+            var rrequest = RestRequest.newPOSTJson(request, uriOverstyrInntektsmelding, restConfig);
+            restClient.send(rrequest, String.class);
+        } catch (Exception e) {
+            LOG.warn("Feil ved overstyring av inntektsmelding med forespørsel: " + request + " Fikk feil: " + e);
         }
     }
 

@@ -93,7 +93,6 @@ public class MedlemskapVilkårPeriodeRepository {
         var periodeEntitet = hentAktivtGrunnlag(behandling)
                 .map(MedlemskapVilkårPeriodeGrunnlagEntitet::getMedlemskapsvilkårPeriode);
 
-        // tar hensyn til overstrying av vilkåret
         if (periodeEntitet.isPresent()) {
             var entitet = periodeEntitet.get();
             var overstyringOpt = entitet.getOverstyring();

@@ -171,7 +171,6 @@ public class ForvaltningUttrekkRestTjeneste {
         task.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         task.setCallIdFraEksisterende();
         taskTjeneste.lagre(task);
-
     }
 
     @GET
