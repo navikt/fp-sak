@@ -66,12 +66,12 @@ public class MedlemskapsvilkåretLøpendeOverstyringshåndterer extends Abstract
 
         var vilkårResultatBuilder = VilkårResultat.builderFraEksisterende(behandlingsresultatRepository.hent(behandling.getId()).getVilkårResultat());
         if (dto.getErVilkarOk()) {
-            periodeBuilder.opprettOverstryingOppfylt(dto.getOverstryingsdato());
+            periodeBuilder.opprettOverstyringOppfylt(dto.getOverstryingsdato());
             vilkårResultatBuilder.overstyrVilkår(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE, VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT);
         } else {
             var avslagsårsak = Avslagsårsak.fraDefinertKode(dto.getAvslagskode())
                 .orElseThrow(() -> new FunksjonellException("FP-MANGLER-ÅRSAK", "Ugyldig avslagsårsak", "Velg gyldig avslagsårsak"));
-            periodeBuilder.opprettOverstryingAvslag(dto.getOverstryingsdato(), avslagsårsak);
+            periodeBuilder.opprettOverstyringAvslag(dto.getOverstryingsdato(), avslagsårsak);
             vilkårResultatBuilder.overstyrVilkår(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE, VilkårUtfallType.IKKE_OPPFYLT, avslagsårsak);
         }
         var lås = kontekst.getSkriveLås();

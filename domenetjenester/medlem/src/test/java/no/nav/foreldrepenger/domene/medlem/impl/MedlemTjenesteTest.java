@@ -73,6 +73,14 @@ class MedlemTjenesteTest {
         grBuilder.medMedlemskapsvilkårPeriode(mbuilder);
         medlemskapVilkårPeriodeRepository.lagreMedlemskapsvilkår(behandling, grBuilder);
 
+        var grBuilder2 = medlemskapVilkårPeriodeRepository.hentBuilderFor(behandling);
+        var mbuilder2 = grBuilder2.getPeriodeBuilder();
+        var periode2 = mbuilder2.getBuilderForVurderingsdato(now);
+        periode2.medVilkårUtfall(VilkårUtfallType.OPPFYLT);
+        mbuilder2.leggTil(periode2);
+        grBuilder2.medMedlemskapsvilkårPeriode(mbuilder2);
+        medlemskapVilkårPeriodeRepository.lagreMedlemskapsvilkår(behandling, grBuilder2);
+
         // Act
         var localDate = tjeneste.hentOpphørsdatoHvisEksisterer(behandling.getId());
 
