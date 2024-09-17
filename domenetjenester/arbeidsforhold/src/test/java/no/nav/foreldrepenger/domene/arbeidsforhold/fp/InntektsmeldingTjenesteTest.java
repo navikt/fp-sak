@@ -122,12 +122,12 @@ class InntektsmeldingTjenesteTest {
         var behandlingReferanse = lagReferanse(behandling);
 
         // Act+Assert
-        assertThat(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(behandlingReferanse, skjæringstidspunkt, false)).isNotEmpty();
+        assertThat(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(behandlingReferanse, skjæringstidspunkt)).isNotEmpty();
 
         lagreInntektsmelding(I_DAG.minusDays(2), behandling, ARBEIDSFORHOLD_ID, ARBEIDSFORHOLD_ID_EKSTERN);
 
         // Act+Assert
-        assertThat(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(behandlingReferanse, skjæringstidspunkt, false)).isEmpty();
+        assertThat(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(behandlingReferanse, skjæringstidspunkt)).isEmpty();
     }
 
     @Test
@@ -142,7 +142,7 @@ class InntektsmeldingTjenesteTest {
         var behandlingReferanse = lagReferanse(behandling);
 
         // Act+Assert
-        assertThat(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt, false)).isNotEmpty();
+        assertThat(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt)).isNotEmpty();
     }
 
     @Test
@@ -158,7 +158,7 @@ class InntektsmeldingTjenesteTest {
         var behandlingReferanse = lagReferanse(behandling);
 
         // Act+Assert
-        assertThat(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt, false)).isEmpty();
+        assertThat(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt)).isEmpty();
         LØNNSPOST = BigDecimal.TEN;
     }
 
@@ -174,76 +174,11 @@ class InntektsmeldingTjenesteTest {
         var behandlingReferanse = lagReferanse(behandling);
 
         // Act+Assert
-        assertThat(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt, false)).isEmpty();
+        assertThat(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt)).isEmpty();
     }
 
     private BehandlingReferanse lagReferanse(Behandling behandling) {
         return BehandlingReferanse.fra(behandling);
-    }
-
-    @Test
-    void skal_utelate_inntektsmeldinger_som_er_mottatt_i_førstegangsbehandlingen_ved_revurdering() {
-
-        // Arrange
-        var behandling = opprettBehandling();
-        opprettOppgittOpptjening(behandling);
-        opprettInntektArbeidYtelseAggregatForYrkesaktivitet(behandling, AKTØRID,
-                DatoIntervallEntitet.fraOgMedTilOgMed(ARBEIDSFORHOLD_FRA, ARBEIDSFORHOLD_TIL),
-                ARBEIDSFORHOLD_ID, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN);
-        lagreInntektsmelding(I_DAG.minusDays(2), behandling, ARBEIDSFORHOLD_ID, ARBEIDSFORHOLD_ID_EKSTERN);
-        avsluttBehandlingOgFagsak(behandling);
-
-        var revurdering = opprettRevurderingsbehandling(behandling);
-        iayTjeneste.kopierGrunnlagFraEksisterendeBehandling(behandling.getId(), revurdering.getId());
-
-        var behandlingReferanse = lagReferanse(revurdering);
-
-        // Act+Assert
-        assertThat(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(behandlingReferanse, skjæringstidspunkt, true)).isNotEmpty();
-
-        lagreInntektsmelding(I_DAG, revurdering, ARBEIDSFORHOLD_ID, ARBEIDSFORHOLD_ID_EKSTERN);
-
-        // Act+Assert
-        assertThat(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(behandlingReferanse, skjæringstidspunkt, true)).isEmpty();
-
-        var nyeInntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingReferanse, I_DAG);
-        assertThat(nyeInntektsmeldinger).hasSize(1);
-    }
-
-    @Test
-    void skal_finne_inntektsmeldinger_etter_gjeldende_behandling() {
-        var arbId1 = ARBEIDSFORHOLD_ID_EKSTERN;
-        var arbId2 = EksternArbeidsforholdRef.ref("2");
-        var arbId3 = EksternArbeidsforholdRef.ref("2");
-
-        var arbId1Intern = ARBEIDSFORHOLD_ID;
-        var arbId2Intern = InternArbeidsforholdRef.nyRef();
-        var arbId3Intern = InternArbeidsforholdRef.nyRef();
-
-        // Arrange
-        var behandling = opprettBehandling();
-        opprettOppgittOpptjening(behandling);
-        opprettInntektArbeidYtelseAggregatForYrkesaktivitet(behandling, AKTØRID,
-                DatoIntervallEntitet.fraOgMedTilOgMed(ARBEIDSFORHOLD_FRA, ARBEIDSFORHOLD_TIL),
-                ARBEIDSFORHOLD_ID, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN);
-        lagreInntektsmelding(I_DAG.minusDays(2), behandling, arbId1Intern, arbId1);
-        lagreInntektsmelding(I_DAG.minusDays(3), behandling, arbId2Intern, arbId2);
-        avsluttBehandlingOgFagsak(behandling);
-
-        var ref = lagReferanse(behandling);
-        var inntektsmeldingerFørGjeldendeVedtak = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, I_DAG);
-
-        var revurdering = opprettRevurderingsbehandling(behandling);
-        iayTjeneste.kopierGrunnlagFraEksisterendeBehandling(behandling.getId(), revurdering.getId());
-        lagreInntektsmelding(I_DAG.plusWeeks(2), revurdering, arbId1Intern, arbId1);
-        lagreInntektsmelding(I_DAG.plusWeeks(3), revurdering, arbId3Intern, arbId3);
-
-        // Act+Assert
-        var refRevurdering = lagReferanse(revurdering);
-        var inntektsmeldingerEtterGjeldendeVedtak = inntektsmeldingTjeneste
-                .hentAlleInntektsmeldingerMottattEtterGjeldendeVedtak(refRevurdering);
-        assertThat(inntektsmeldingerEtterGjeldendeVedtak).hasSize(2);
-        assertThat(erDisjonkteListerAvInntektsmeldinger(inntektsmeldingerFørGjeldendeVedtak, inntektsmeldingerEtterGjeldendeVedtak)).isTrue();
     }
 
     @Test

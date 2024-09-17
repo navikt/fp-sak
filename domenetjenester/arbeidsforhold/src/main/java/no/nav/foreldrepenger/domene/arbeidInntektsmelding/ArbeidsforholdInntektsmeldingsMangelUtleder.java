@@ -45,7 +45,7 @@ public class ArbeidsforholdInntektsmeldingsMangelUtleder {
         List<ArbeidsforholdMangel> mangler = new ArrayList<>();
         if (iayGrunnlag.isPresent()) {
             mangler.addAll(lagArbeidsforholdMedMangel(inntektsmeldingRegisterTjeneste
-                .utledManglendeInntektsmeldingerFraGrunnlag(referanse, stp, false), AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING));
+                .utledManglendeInntektsmeldingerFraGrunnlag(referanse, stp), AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING));
             mangler.addAll(lagArbeidsforholdMedMangel(InntektsmeldingUtenArbeidsforholdTjeneste
                 .utledManglendeArbeidsforhold(hentRelevanteInntektsmeldinger(referanse, stp, iayGrunnlag.get()),
                     iayGrunnlag.get(),referanse.aktørId(), stp.getUtledetSkjæringstidspunkt()), AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD));

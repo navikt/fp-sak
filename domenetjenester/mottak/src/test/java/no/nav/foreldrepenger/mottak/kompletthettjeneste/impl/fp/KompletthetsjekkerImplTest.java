@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.fp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -92,9 +91,9 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         manglendeInntektsmeldinger.put(Arbeidsgiver.virksomhet("1"), new HashSet<>());
 
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.anyLong())).thenReturn(skjæringstidspunkt);
-        lenient().when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(any(), any(), anyBoolean())).thenReturn(
+        lenient().when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(any(), any())).thenReturn(
                 new HashMap<>());
-        lenient().when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(any(), any(), anyBoolean())).thenReturn(
+        lenient().when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(any(), any())).thenReturn(
                 new HashMap<>());
 
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
@@ -322,12 +321,12 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     private void mockManglendeInntektsmelding() {
         var manglendeInntektsmeldinger = new HashMap<Arbeidsgiver, Set<EksternArbeidsforholdRef>>();
         manglendeInntektsmeldinger.put(Arbeidsgiver.virksomhet("1"), new HashSet<>());
-        when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(any(), any(), anyBoolean())).thenReturn(
+        when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(any(), any())).thenReturn(
                 manglendeInntektsmeldinger);
     }
 
     private void mockManglendeInntektsmeldingKompletthet(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> manglendeIM) {
-        when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(any(), any(), anyBoolean())).thenReturn(
+        when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(any(), any())).thenReturn(
             manglendeIM);
     }
 }

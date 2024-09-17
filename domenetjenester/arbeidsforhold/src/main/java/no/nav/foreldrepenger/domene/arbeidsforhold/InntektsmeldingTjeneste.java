@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -36,7 +35,6 @@ import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 
@@ -90,34 +88,6 @@ public class InntektsmeldingTjeneste {
             return inntektsmeldinger;
         }
         return filtrerVekkInntektsmeldingPåInaktiveArbeidsforhold(filter, yrkesaktiviteter, inntektsmeldinger, datoFilterDato, iayGrunnlag.getGjeldendeOppgittOpptjening());
-    }
-
-    /**
-     * Henter ut alle inntektsmeldinger mottatt etter gjeldende vedtak Denne metoden
-     * benyttes <b>BARE</b> for revurderinger
-     *
-     * @param ref referanse til behandlingen
-     * @return Liste med inntektsmeldinger {@link Inntektsmelding}
-     */
-    public List<Inntektsmelding> hentAlleInntektsmeldingerMottattEtterGjeldendeVedtak(BehandlingReferanse ref) {
-        var behandlingId = ref.behandlingId();
-        var originalBehandlingId = ref.getOriginalBehandlingId()
-                .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Denne metoden benyttes bare for revurderinger"));
-
-        var revurderingIM = hentIMMedIndexKey(behandlingId);
-        var origIM = hentIMMedIndexKey(originalBehandlingId);
-        return revurderingIM.entrySet().stream()
-                .filter(imRevurderingEntry -> !origIM.containsKey(imRevurderingEntry.getKey())
-                        || !Objects.equals(origIM.get(imRevurderingEntry.getKey()).getJournalpostId(),
-                                imRevurderingEntry.getValue().getJournalpostId()))
-                .map(Map.Entry::getValue)
-                .toList();
-    }
-
-    public Optional<Inntektsmelding> hentInntektsMeldingFor(Long behandlingId, JournalpostId journalpostId) {
-        var grunnlag = iayTjeneste.hentGrunnlag(behandlingId);
-        return grunnlag.getInntektsmeldinger().stream().flatMap(imagg -> imagg.getAlleInntektsmeldinger().stream())
-                .filter(im -> Objects.equals(im.getJournalpostId(), journalpostId)).findFirst();
     }
 
     /**
@@ -187,7 +157,7 @@ public class InntektsmeldingTjeneste {
             Collection<Inntektsmelding> inntektsmeldinger,
             LocalDate skjæringstidspunktet,
             Optional<OppgittOpptjening> oppgittOpptjening) {
-        var kladd = new ArrayList<Inntektsmelding>(inntektsmeldinger);
+        var kladd = new ArrayList<>(inntektsmeldinger);
         List<Inntektsmelding> fjernes = new ArrayList<>();
 
         kladd.forEach(im -> {
@@ -242,16 +212,6 @@ public class InntektsmeldingTjeneste {
 
     private static boolean erAmbasade(Inntektsmelding im) {
         return im.getArbeidsgiver().getErVirksomhet() && Ambasade.erAmbasade(im.getArbeidsgiver().getOrgnr());
-    }
-
-    private Map<String, Inntektsmelding> hentIMMedIndexKey(Long behandlingId) {
-        var inntektsmeldinger = iayTjeneste.finnGrunnlag(behandlingId)
-                .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger)
-                .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
-                .orElse(Collections.emptyList());
-
-        return inntektsmeldinger.stream()
-                .collect(Collectors.toMap(Inntektsmelding::getIndexKey, im -> im));
     }
 
     private List<Inntektsmelding> hentUtAlleInntektsmeldingeneFraBehandlingene(Collection<Long> behandlingIder) {
