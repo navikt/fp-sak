@@ -84,7 +84,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
             case KLAGEBEHANDLING_AVSLUTTET -> klageAvsluttet(prosessTaskData, behandlingId, ref);
             case ANKEBEHANDLING_OPPRETTET -> ankeOpprettet(behandlingId, ref);
             case ANKE_I_TRYGDERETTENBEHANDLING_OPPRETTET -> ankeTrygdrett(prosessTaskData, behandlingId, ref);
-            case ANKEBEHANDLING_AVSLUTTET -> ankeAvsluttet(prosessTaskData, behandlingId, ref);
+            case ANKEBEHANDLING_AVSLUTTET, BEHANDLING_ETTER_TRYGDERETTEN_OPPHEVET_AVSLUTTET -> ankeAvsluttet(prosessTaskData, behandlingId, ref);
             case BEHANDLING_FEILREGISTRERT -> henleggFeilopprettet(prosessTaskData, behandlingId, ref);
         }
     }
