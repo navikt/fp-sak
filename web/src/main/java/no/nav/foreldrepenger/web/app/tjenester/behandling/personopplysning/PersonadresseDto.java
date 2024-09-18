@@ -4,6 +4,7 @@ import static no.nav.foreldrepenger.web.app.util.StringUtils.formaterMedStoreOgS
 
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonAdresseEntitet;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 
 public class PersonadresseDto {
 
@@ -22,7 +23,7 @@ public class PersonadresseDto {
         dto.setAdresselinje3(formaterMedStoreOgSmåBokstaver(adresse.getAdresselinje3()));
         dto.setPoststed(formaterMedStoreOgSmåBokstaver(adresse.getPoststed()));
         dto.setPostNummer(adresse.getPostnummer());
-        dto.setLand(adresse.getLand());
+        dto.setLand(Landkoder.fraUppercase(adresse.getLand()));
         dto.setAdresseType(adresse.getAdresseType());
         return dto;
     }

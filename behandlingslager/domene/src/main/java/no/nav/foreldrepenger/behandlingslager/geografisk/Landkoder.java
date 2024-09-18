@@ -139,7 +139,7 @@ public enum Landkoder implements Kodeverdi {
     KGZ("KGZ", "KIRGISISTAN"),
     KHM("KHM", "KAMBODSJA"),
     KIR("KIR", "KIRIBATI"),
-    KNA("KNA", "ST.KITTS OG NEVIS"),
+    KNA("KNA", "ST. KITTS OG NEVIS"),
     KOR("KOR", "SØR-KOREA"),
     KWT("KWT", "KUWAIT"),
     LAO("LAO", "LAOS"),
@@ -349,6 +349,26 @@ public enum Landkoder implements Kodeverdi {
         public Landkoder convertToEntityAttribute(String dbData) {
             return dbData == null ? null : fraKode(dbData);
         }
+    }
+
+    public static String fraUppercase(String land) {
+        if (land == null || land.isEmpty()) {
+            return null;
+        }
+        var upper = true;
+        StringBuilder target = new StringBuilder();
+        for (int i = 0; i < land.length(); i++) {
+            if (land.charAt(i) == ' ' || land.charAt(i) == '-' || land.charAt(i) == '/' || land.charAt(i) == '.') {
+                target.append(land.charAt(i));
+                upper = true;
+            } else if (upper) {
+                target.append(land.charAt(i));
+                upper = false;
+            } else {
+                target.append(String.valueOf(land.charAt(i)).toLowerCase());
+            }
+        }
+        return target.toString().replace(" Og ", " og ");
     }
 
 }

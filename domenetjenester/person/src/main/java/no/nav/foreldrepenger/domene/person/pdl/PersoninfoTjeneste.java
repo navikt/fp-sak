@@ -509,7 +509,7 @@ public class PersoninfoTjeneste {
                 .filter(Objects::nonNull).forEach(resultat::add);
         bostedsadresser.stream().map(Bostedsadresse::getUkjentBosted).filter(Objects::nonNull).map(PersoninfoTjeneste::mapUkjentadresse)
                 .forEach(resultat::add);
-        bostedsadresser.stream().map(Bostedsadresse::getUtenlandskAdresse).map(a -> mapUtenlandskadresse(AdresseType.BOSTEDSADRESSE, a))
+        bostedsadresser.stream().map(Bostedsadresse::getUtenlandskAdresse).map(a -> mapUtenlandskadresse(AdresseType.BOSTEDSADRESSE_UTLAND, a))
                 .filter(Objects::nonNull).forEach(resultat::add);
 
         oppholdsadresser.stream().map(Oppholdsadresse::getVegadresse).map(a -> mapVegadresse(AdresseType.MIDLERTIDIG_POSTADRESSE_NORGE, a))

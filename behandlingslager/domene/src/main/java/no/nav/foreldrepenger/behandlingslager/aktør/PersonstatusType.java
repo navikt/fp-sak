@@ -3,9 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.aktør;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
@@ -16,16 +13,15 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum PersonstatusType implements Kodeverdi {
 
-    ADNR("ADNR", "Aktivt D-nummer", false),
-    BOSA("BOSA", "Bosatt", true),
-    DØD("DØD", "Død", true),
-    FOSV("FOSV", "Forsvunnet/savnet", false),
-    FØDR("FØDR", "Fødselregistrert", false),
-    UREG("UREG", "Uregistrert person", false),
-    UTAN("UTAN", "Utgått person annullert tilgang Fnr", false),
-    UTPE("UTPE", "Utgått person", false),
-    UTVA("UTVA", "Utvandret", true),
-    UDEFINERT("-", "Ikke definert", false),
+    ADNR("ADNR", "D-nummer"),
+    BOSA("BOSA", "Bosatt (f.reg)"),
+    DØD("DØD", "Død"),
+    FOSV("FOSV", "Forsvunnet"),
+    FØDR("FØDR", "Fødselregistrert"),
+    UREG("UREG", "Ikke bosatt (f.reg)"),
+    UTPE("UTPE", "Opphørt"),
+    UTVA("UTVA", "Utflyttet"),
+    UDEFINERT("-", "Ikke definert"),
     ;
 
     private static final Map<String, PersonstatusType> FRA_FREG = Map.ofEntries(
@@ -49,12 +45,9 @@ public enum PersonstatusType implements Kodeverdi {
     @JsonValue
     private String kode;
 
-    private boolean fortsettBehandling;
-
-    PersonstatusType(String kode, String navn, boolean fortsettBehandling) {
+    PersonstatusType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
-        this.fortsettBehandling = fortsettBehandling;
     }
 
     public static boolean erDød(PersonstatusType personstatus) {
@@ -111,10 +104,6 @@ public enum PersonstatusType implements Kodeverdi {
             }
             return ad;
         }
-    }
-
-    public static Set<PersonstatusType> personstatusTyperFortsattBehandling() {
-        return Stream.of(values()).filter(s -> s.fortsettBehandling).collect(Collectors.toSet());
     }
 
     public static PersonstatusType fraFregPersonstatus(String fregStatus) {
