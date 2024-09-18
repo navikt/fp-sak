@@ -65,8 +65,12 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
     @Override
     public KompletthetResultat vurderForsendelseKomplett(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         // Kalles fra VurderKompletthetSteg (en ganger) som setter autopunkt 7003 + fra KompletthetsKontroller (dokument på åpen behandling, hendelser)
-        var kompletthetManglendeIM = fellesUtil.getInntektsmeldingKomplett(ref, stp);
-        return kompletthetManglendeIM.orElseGet(KompletthetResultat::oppfylt);
+        if (ref.erRevurdering()) {
+            return KompletthetResultat.oppfylt();
+        } else {
+            var kompletthetManglendeIM = fellesUtil.getInntektsmeldingKomplett(ref, stp);
+            return kompletthetManglendeIM.orElseGet(KompletthetResultat::oppfylt);
+        }
     }
 
     @Override
@@ -86,7 +90,7 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
 
     @Override
     public KompletthetResultat vurderEtterlysningInntektsmelding(BehandlingReferanse ref, Skjæringstidspunkt stp) {
-        return fellesUtil.vurderEtterlysningInntektsmelding(ref, stp);
+        return ref.erRevurdering() ? KompletthetResultat.oppfylt() : fellesUtil.vurderEtterlysningInntektsmelding(ref, stp);
     }
 
     private LocalDateTime finnVentefristTilManglendeSøknad() {

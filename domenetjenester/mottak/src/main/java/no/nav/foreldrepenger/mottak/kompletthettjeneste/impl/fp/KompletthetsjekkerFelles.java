@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.fp;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -56,6 +57,7 @@ public class KompletthetsjekkerFelles {
     private static final Integer TIDLIGST_VENTEFRIST_FØR_UTTAKSDATO_UKER = 3;
     private static final Integer VENTEFRIST_ETTER_MOTATT_DATO_UKER = 1;
     private static final Integer VENTEFRIST_ETTER_ETTERLYSNING_UKER = 3;
+    private static final Period MAX_VENT_ETTER_STP = Period.ofWeeks(4);
 
     private SøknadRepository søknadRepository;
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
@@ -185,7 +187,8 @@ public class KompletthetsjekkerFelles {
         var permisjonsstart = skjæringstidspunkt.getUtledetSkjæringstidspunkt();
         var muligFrist = permisjonsstart.minusWeeks(TIDLIGST_VENTEFRIST_FØR_UTTAKSDATO_UKER);
         var annenMuligFrist = søknadRepository.hentSøknadHvisEksisterer(behandlingId)
-            .map(s -> s.getMottattDato().plusWeeks(VENTEFRIST_ETTER_MOTATT_DATO_UKER));
+            .map(s -> s.getMottattDato().plusWeeks(VENTEFRIST_ETTER_MOTATT_DATO_UKER))
+            .filter(d -> d.isBefore(permisjonsstart.plus(MAX_VENT_ETTER_STP)));
         var ønsketFrist = annenMuligFrist.filter(muligFrist::isBefore).orElse(muligFrist);
         return finnVentefrist(ønsketFrist);
     }
@@ -196,7 +199,8 @@ public class KompletthetsjekkerFelles {
         var muligFrist = LocalDate.now().isBefore(permisjonsstart.minusWeeks(TIDLIGST_VENTEFRIST_FØR_UTTAKSDATO_UKER)) ?
             LocalDate.now() : permisjonsstart.minusWeeks(TIDLIGST_VENTEFRIST_FØR_UTTAKSDATO_UKER);
         var annenMuligFrist = søknadRepository.hentSøknadHvisEksisterer(behandlingId)
-            .map(s -> s.getMottattDato().plusWeeks(VENTEFRIST_ETTER_MOTATT_DATO_UKER));
+            .map(s -> s.getMottattDato().plusWeeks(VENTEFRIST_ETTER_MOTATT_DATO_UKER))
+            .filter(d -> d.isBefore(permisjonsstart.plus(MAX_VENT_ETTER_STP)));
         var ønsketFrist = annenMuligFrist.filter(muligFrist::isBefore).orElse(muligFrist);
         return finnVentefrist(ønsketFrist.plusWeeks(VENTEFRIST_ETTER_ETTERLYSNING_UKER));
     }
