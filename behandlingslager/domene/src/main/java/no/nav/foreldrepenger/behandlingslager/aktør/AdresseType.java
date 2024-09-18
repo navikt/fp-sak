@@ -11,16 +11,16 @@ import jakarta.persistence.Converter;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
-public enum AdresseType implements Kodeverdi, MedOffisiellKode {
+public enum AdresseType implements Kodeverdi {
 
-    BOSTEDSADRESSE("BOSTEDSADRESSE", "Bostedsadresse", "BOAD"),
-    POSTADRESSE("POSTADRESSE", "Postadresse", "POST"),
-    POSTADRESSE_UTLAND("POSTADRESSE_UTLAND", "Postadresse i utlandet", "PUTL"),
-    MIDLERTIDIG_POSTADRESSE_NORGE("MIDLERTIDIG_POSTADRESSE_NORGE", "Midlertidig postadresse i Norge", "TIAD"),
-    MIDLERTIDIG_POSTADRESSE_UTLAND("MIDLERTIDIG_POSTADRESSE_UTLAND", "Midlertidig postadresse i utlandet", "UTAD"),
-    UKJENT_ADRESSE("UKJENT_ADRESSE", "Ukjent adresse", "UKJE"),
+    BOSTEDSADRESSE("BOSTEDSADRESSE", "Bostedsadresse"),
+    BOSTEDSADRESSE_UTLAND("BOSTEDSADRESSE_UTLAND", "Bostedsadresse utland"),
+    POSTADRESSE("POSTADRESSE", "Kontaktadresse"),
+    POSTADRESSE_UTLAND("POSTADRESSE_UTLAND", "Kontaktadresse utland"),
+    MIDLERTIDIG_POSTADRESSE_NORGE("MIDLERTIDIG_POSTADRESSE_NORGE", "Oppholdsadresse"),
+    MIDLERTIDIG_POSTADRESSE_UTLAND("MIDLERTIDIG_POSTADRESSE_UTLAND", "Oppholdsadresse utland"),
+    UKJENT_ADRESSE("UKJENT_ADRESSE", "Ukjent adresse"),
     ;
 
     private static final Map<String, AdresseType> KODER = new LinkedHashMap<>();
@@ -40,12 +40,9 @@ public enum AdresseType implements Kodeverdi, MedOffisiellKode {
     @JsonValue
     private final String kode;
 
-    private final String offisiellKode;
-
-    AdresseType(String kode, String navn, String offisiellKode) {
+    AdresseType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
-        this.offisiellKode = offisiellKode;
     }
 
     public static Map<String, AdresseType> kodeMap() {
@@ -65,11 +62,6 @@ public enum AdresseType implements Kodeverdi, MedOffisiellKode {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Override
-    public String getOffisiellKode() {
-        return offisiellKode;
     }
 
     @Converter(autoApply = true)

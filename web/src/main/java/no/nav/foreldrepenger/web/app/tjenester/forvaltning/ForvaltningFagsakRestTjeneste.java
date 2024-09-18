@@ -325,7 +325,7 @@ public class ForvaltningFagsakRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Finner identhistorikk gitt en aktørId eller personident", tags = "FORVALTNING-fagsak")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response sokInfotrygd(@TilpassetAbacAttributt(supplierClass = SøkeFeltAbacDataSupplier.class)
+    public Response identhistorikk(@TilpassetAbacAttributt(supplierClass = SøkeFeltAbacDataSupplier.class)
                                  @Parameter(description = "Søkestreng kan være aktørId, fødselsnummer eller D-nummer.") @Valid SokefeltDto søkestreng) {
         var trimmed = søkestreng.getSearchString() != null ? søkestreng.getSearchString().trim() : "";
         var ident = PersonIdent.erGyldigFnr(trimmed) || AktørId.erGyldigAktørId(trimmed) ? trimmed : null;

@@ -164,7 +164,7 @@ class MedlemRegelGrunnlagBygger {
 
     private static Personopplysninger.Adresse.Type mapV2(AdresseType adresseType) {
         return switch (adresseType) {
-            case BOSTEDSADRESSE -> Personopplysninger.Adresse.Type.BOSTEDSADRESSE;
+            case BOSTEDSADRESSE, BOSTEDSADRESSE_UTLAND -> Personopplysninger.Adresse.Type.BOSTEDSADRESSE;
             case POSTADRESSE -> Personopplysninger.Adresse.Type.KONTAKTADRESSE;
             case POSTADRESSE_UTLAND ->
                 Personopplysninger.Adresse.Type.KONTAKTADRESSE_UTLAND;
@@ -184,11 +184,9 @@ class MedlemRegelGrunnlagBygger {
                 Personopplysninger.PersonstatusPeriode.Type.BOSATT_ETTER_FOLKEREGISTERLOVEN;
             case DØD -> Personopplysninger.PersonstatusPeriode.Type.DØD;
             case FOSV -> Personopplysninger.PersonstatusPeriode.Type.FORSVUNNET;
-            case FØDR, UTVA, UREG ->
+            case FØDR, UTVA, UREG, UDEFINERT ->
                 Personopplysninger.PersonstatusPeriode.Type.IKKE_BOSATT;
             case UTPE -> Personopplysninger.PersonstatusPeriode.Type.OPPHØRT;
-            case UDEFINERT -> null;
-            case UTAN -> throw new IllegalArgumentException("Ukjent status " + personstatus.getPersonstatus());
         });
     }
 
