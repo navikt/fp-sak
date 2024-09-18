@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAvvik;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonadresseDto;
 
-public record MedlemskapV3Dto(ManuellBehandling manuellBehandling,
+public record MedlemskapV3Dto(ManuellBehandlingResultat manuellBehandlingResultat,
                               LegacyManuellBehandling legacyManuellBehandling,
                               Set<Region> regioner,
                               Set<Personstatus> personstatuser,
@@ -30,6 +30,7 @@ public record MedlemskapV3Dto(ManuellBehandling manuellBehandling,
                               Set<Adresse> adresser,
                               Set<Oppholdstillatelse> oppholdstillatelser,
                               Set<MedlemskapPeriode> medlemskapsperioder,
+                              Set<MedlemskapAvvik> avvik,
                               Annenpart annenpart) {
 
     private static final LocalDate OPPHOLD_CUTOFF = LocalDate.of(2018, 7, 1);
@@ -38,11 +39,7 @@ public record MedlemskapV3Dto(ManuellBehandling manuellBehandling,
     /**
      * Settes hvis det krever manuell behandling og gammel vurdering ikke finnes.
      */
-    record ManuellBehandling(Set<MedlemskapAvvik> avvik, Resultat resultat) {
-
-
-        record Resultat(Avslagsårsak avslagskode, LocalDate medlemFom, LocalDate opphørFom) {
-        }
+    record ManuellBehandlingResultat(Avslagsårsak avslagskode, LocalDate medlemFom, LocalDate opphørFom) {
     }
 
     /**
