@@ -87,7 +87,7 @@ class MedlemDtoTjenesteTest {
             EndringsresultatPersonopplysningerForMedlemskap.builder().build());
 
         var dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste, medlemTjenesteMock, personopplysningTjenesteMock,
-            personDtoTjeneste, null, null);
+            personDtoTjeneste, null, null, null);
 
         var medlemDtoOpt = dtoTjeneste.lagMedlemV2Dto(behandling.getId());
         assertThat(medlemDtoOpt).hasValueSatisfying(medlemDto -> {
@@ -133,7 +133,7 @@ class MedlemDtoTjenesteTest {
         when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any(), any())).thenReturn(endringsresultatPersonopplysningerForMedlemskap);
 
         var dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste, medlemTjenesteMock, personopplysningTjenesteMock,
-            personDtoTjeneste, null, null);
+            personDtoTjeneste, null, null, null);
 
         var medlemDtoOpt = dtoTjeneste.lagMedlemV2Dto(behandling.getId());
         assertThat(medlemDtoOpt.get().getFom()).isEqualTo(endringFraDato);
@@ -178,7 +178,7 @@ class MedlemDtoTjenesteTest {
         when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any(), any())).thenReturn(
             EndringsresultatPersonopplysningerForMedlemskap.builder().build());
         var dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste, medlemTjenesteMock, personopplysningTjenesteMock,
-            personDtoTjeneste, null, null);
+            personDtoTjeneste, null, null, null);
 
         var medlemDtoOpt = dtoTjeneste.lagMedlemV2Dto(behandling.getId());
         assertThat(medlemDtoOpt).hasValueSatisfying(medlemDto -> assertThat(medlemDto.getMedlemskapPerioder()).hasSize(1));
@@ -203,7 +203,7 @@ class MedlemDtoTjenesteTest {
         var medlemTjenesteMock = mock(MedlemTjeneste.class);
         var personDtoTjeneste = new PersonopplysningDtoTjeneste(personopplysningTjenesteMock, repositoryProvider);
         var dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste, medlemTjenesteMock, personopplysningTjenesteMock,
-            personDtoTjeneste, null, null);
+            personDtoTjeneste, null, null, null);
 
         var medlemDtoOpt = dtoTjeneste.lagMedlemV2Dto(behandling.getId());
         assertThat(medlemDtoOpt).hasValueSatisfying(medlemDto -> assertThat(medlemDto.getMedlemskapPerioder()).isEmpty());
@@ -266,7 +266,7 @@ class MedlemDtoTjenesteTest {
 
         var dto = medlemDtoTjeneste.lagMedlemskap(behandling.getUuid());
 
-        assertThat(dto.manuellBehandling().avvik()).containsExactlyInAnyOrder(MedlemskapAvvik.MEDL_PERIODER,
+        assertThat(dto.avvik()).containsExactlyInAnyOrder(MedlemskapAvvik.MEDL_PERIODER,
             MedlemskapAvvik.BOSATT_UTENLANDSOPPHOLD);
 
         assertThat(dto.personstatuser()).hasSize(1);

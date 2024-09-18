@@ -243,7 +243,7 @@ public class MedlemTjeneste {
                 .stream()
                 .map(MedlemskapsvilkårPerioderEntitet::getFom)
                 .max(LocalDate::compareTo)
-                .orElseThrow();
+                .orElse(startDato); //Hindrer v2 feil etter at v3 ap er løst, skal etterhvert fjernes
 
             if (startDato.isBefore(date)) {
                 startDato = date;
