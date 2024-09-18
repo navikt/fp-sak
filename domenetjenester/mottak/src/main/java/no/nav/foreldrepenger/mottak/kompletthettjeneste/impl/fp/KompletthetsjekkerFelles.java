@@ -187,8 +187,7 @@ public class KompletthetsjekkerFelles {
         var permisjonsstart = skjæringstidspunkt.getUtledetSkjæringstidspunkt();
         var muligFrist = permisjonsstart.minusWeeks(TIDLIGST_VENTEFRIST_FØR_UTTAKSDATO_UKER);
         var annenMuligFrist = søknadRepository.hentSøknadHvisEksisterer(behandlingId)
-            .map(s -> s.getMottattDato().plusWeeks(VENTEFRIST_ETTER_MOTATT_DATO_UKER))
-            .filter(d -> d.isBefore(permisjonsstart.plus(MAX_VENT_ETTER_STP)));
+            .map(s -> s.getMottattDato().plusWeeks(VENTEFRIST_ETTER_MOTATT_DATO_UKER));
         var ønsketFrist = annenMuligFrist.filter(muligFrist::isBefore).orElse(muligFrist);
         return finnVentefrist(ønsketFrist);
     }
