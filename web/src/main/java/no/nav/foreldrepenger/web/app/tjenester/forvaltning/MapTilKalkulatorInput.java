@@ -185,7 +185,7 @@ class MapTilKalkulatorInput {
     }
 
     private static List<Ytelsegrunnlag> mapBesteberegningYtelsegrunnlag(List<no.nav.folketrygdloven.kalkulator.modell.besteberegning.Ytelsegrunnlag> ytelsegrunnlagBB) {
-        return ytelsegrunnlagBB.stream().map(yg -> new Ytelsegrunnlag(yg.ytelse(),mapYgPerioder(yg.perioder()))).toList();
+        return ytelsegrunnlagBB == null ? Collections.emptyList() : ytelsegrunnlagBB.stream().map(yg -> new Ytelsegrunnlag(yg.ytelse(),mapYgPerioder(yg.perioder()))).toList();
     }
 
     private static List<Ytelseperiode> mapYgPerioder(List<no.nav.folketrygdloven.kalkulator.modell.besteberegning.Ytelseperiode> perioder) {
