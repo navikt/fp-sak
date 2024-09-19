@@ -10,6 +10,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
+
+import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,12 +44,16 @@ class FpInntektsmeldingTjenesteTest {
     private ProsessTaskTjeneste taskTjeneste;
     @Mock
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    @Mock
+    private HistorikkRepository historikkRepository;
+    @Mock
+    private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
 
     private FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste;
 
     @BeforeEach
     void setup() {
-        fpInntektsmeldingTjeneste = new FpInntektsmeldingTjeneste(klient, taskTjeneste, skjæringstidspunktTjeneste);
+        fpInntektsmeldingTjeneste = new FpInntektsmeldingTjeneste(klient, taskTjeneste, skjæringstidspunktTjeneste,  historikkRepository, arbeidsgiverTjeneste);
     }
 
     @Test
