@@ -6,6 +6,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.MØDREKVOTE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -13,12 +14,14 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
@@ -27,7 +30,9 @@ import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeSøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
@@ -96,7 +101,9 @@ class FastsettUttaksgrunnlagTjenesteTest {
                 .medKreverSammenhengendeUttak(sammenhengendeUttak)
                 .build();
         var ref = BehandlingReferanse.fra(behandling);
-        return new UttakInput(ref, stp, InntektArbeidYtelseGrunnlagBuilder.nytt().build(), ytelsespesifiktGrunnlag);
+        var behandlingÅrsaker = behandling.getBehandlingÅrsaker().stream().map(BehandlingÅrsak::getBehandlingÅrsakType).collect(Collectors.toSet());
+        return new UttakInput(ref, stp, InntektArbeidYtelseGrunnlagBuilder.nytt().build(), ytelsespesifiktGrunnlag).medBehandlingÅrsaker(
+            behandlingÅrsaker);
     }
 
     @Test
@@ -405,7 +412,7 @@ class FastsettUttaksgrunnlagTjenesteTest {
     }
 
     @Test
-    void fjerner_perioder_før_endringsdato_i_revuderinger() {
+    void fjerner_perioder_før_endringsdato_i_revurderinger() {
         var fødselsdato = LocalDate.of(2024, 3, 6);
         var mødrekvote1 = ny()
             .medPeriode(fødselsdato, fødselsdato.plusWeeks(3).minusDays(1))
@@ -445,5 +452,41 @@ class FastsettUttaksgrunnlagTjenesteTest {
         assertThat(resultat.getGjeldendeFordeling().getPerioder()).hasSize(1);
         assertThat(resultat.getGjeldendeFordeling().getPerioder().getFirst().getFom()).isEqualTo(endringsdato);
         assertThat(resultat.getGjeldendeFordeling().getPerioder().getFirst().getTom()).isEqualTo(mødrekvote2.getTom());
+    }
+
+    @Test
+    void skal_ikke_få_exception_hvis_første_vedtaksperiode_mangler_mottatt_dato() {
+        var fødselsdato = LocalDate.of(2024, 3, 6);
+        var søknadsperiode = ny()
+            .medPeriode(fødselsdato.plusWeeks(6), fødselsdato.plusWeeks(15).minusDays(1))
+            .medPeriodeType(MØDREKVOTE)
+            .medMottattDato(fødselsdato.plusWeeks(10))
+            .build();
+        var fordeling = new OppgittFordelingEntitet(List.of(søknadsperiode), true);
+        var pleiepengerUtenMottattDato = new UttakResultatPeriodeEntitet.Builder(fødselsdato, fødselsdato.plusWeeks(6).minusDays(1))
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medUtsettelseType(UttakUtsettelseType.BARN_INNLAGT)
+            .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet()) //Har periodesøknad, men ikke mottattdato
+            .build();
+        var uttak = new UttakResultatPerioderEntitet().leggTilPeriode(pleiepengerUtenMottattDato);
+        var førstegangsbehandlingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medUttak(uttak)
+            .medFordeling(fordeling);
+        var pleiepengerBehandling = førstegangsbehandlingScenario.lagre(repositoryProvider);
+
+        var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medOriginalBehandling(pleiepengerBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+            .medFordeling(fordeling)
+            .lagre(repositoryProvider);
+
+        var søknadFamilieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 0);
+        var fpGrunnlag = new ForeldrepengerGrunnlag()
+            .medOriginalBehandling(new OriginalBehandling(0L, new FamilieHendelser().medSøknadHendelse(FamilieHendelse.forFødsel(fødselsdato.minusWeeks(1), null, List.of(), 0))))
+            .medFamilieHendelser(new FamilieHendelser().medSøknadHendelse(søknadFamilieHendelse));
+
+        var input = lagInput(revurdering, fpGrunnlag);
+        when(endringsdatoRevurderingUtleder.utledEndringsdato(input)).thenReturn(fødselsdato);
+
+        assertThatCode(() -> tjeneste.fastsettUttaksgrunnlag(input)).doesNotThrowAnyException();
     }
 }
