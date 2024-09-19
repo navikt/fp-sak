@@ -31,7 +31,7 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
                                  BeregningKalkulus kalkulusBeregner) {
         this.fpsakBeregner = fpsakBeregner;
         this.kalkulusBeregner = kalkulusBeregner;
-        this.skalKalleKalkulus = Environment.current().isLocal();
+        this.skalKalleKalkulus = false;
     }
 
     @Override
