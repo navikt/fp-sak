@@ -122,7 +122,7 @@ public class FpInntektsmeldingTjeneste {
         historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
         historikkinnslag.setType(HistorikkinnslagType.MIN_SIDE_ARBEIDSGIVER);
 
-        var beg = String.format("Opprettet oppgave til arbeidsgiver %s om å sende inntektsmelding", agNavn);
+        var beg = String.format("Bedt %s om å sende inntektsmelding", agNavn);
         new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.MIN_SIDE_ARBEIDSGIVER)
             .medBegrunnelse(beg)
             .build(historikkinnslag);
