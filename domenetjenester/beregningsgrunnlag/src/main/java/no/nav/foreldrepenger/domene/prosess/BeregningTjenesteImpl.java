@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResul
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
+import no.nav.foreldrepenger.konfig.Environment;
 
 @ApplicationScoped
 public class BeregningTjenesteImpl implements BeregningTjeneste {
@@ -30,7 +31,7 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
                                  BeregningKalkulus kalkulusBeregner) {
         this.fpsakBeregner = fpsakBeregner;
         this.kalkulusBeregner = kalkulusBeregner;
-        this.skalKalleKalkulus = false;
+        this.skalKalleKalkulus = Environment.current().isLocal();
     }
 
     @Override
