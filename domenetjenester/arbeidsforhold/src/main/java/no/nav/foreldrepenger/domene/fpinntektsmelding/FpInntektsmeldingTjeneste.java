@@ -120,10 +120,10 @@ public class FpInntektsmeldingTjeneste {
         historikkinnslag.setBehandlingId(ref.behandlingId());
         historikkinnslag.setFagsakId(ref.fagsakId());
         historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
-        historikkinnslag.setType(HistorikkinnslagType.BREV_BESTILT);
+        historikkinnslag.setType(HistorikkinnslagType.MIN_SIDE_ARBEIDSGIVER);
 
-        var beg = String.format("Opprettet oppgave til arbeidsgiver %s", agNavn);
-        new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.ARBEIDSGIVERPORTALEN)
+        var beg = String.format("Opprettet oppgave til arbeidsgiver %s om å sende inntektsmelding", agNavn);
+        new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.MIN_SIDE_ARBEIDSGIVER)
             .medBegrunnelse(beg)
             .build(historikkinnslag);
         historikkRepo.lagre(historikkinnslag);
