@@ -151,17 +151,25 @@ public class FastsettUttaksgrunnlagTjeneste {
             if (gjeldendeFamilieHendelseOriginalBehandling.getFødselsdato().isEmpty() &&
                 input.getBehandlingÅrsaker().contains(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER) &&
                 gjeldendeFamilieHendelse.getFødselsdato().isPresent()) {
-                var førsteUttaksperiode = perioder.stream().min(Comparator.comparing(OppgittPeriodeEntitet::getFom)).get();
-                var mottattDato = førsteUttaksperiode.getMottattDato();
+                var mottattDato = perioder.stream()
+                    .filter(p -> p.getMottattDato() != null)
+                    .min(Comparator.comparing(OppgittPeriodeEntitet::getFom))
+                    .orElseThrow()
+                    .getMottattDato();
                 var fødselsdato = gjeldendeFamilieHendelse.getFødselsdato().get();
 
                 if (mottattDato.isAfter(fødselsdato)) {
                     // TODO: return false? Ikke juster disse tilfellene?
-                    LOG.info("Termin til fødsel: Original behandling ble søkt på termin, mens ny førstegangssøknad (med fødsel) er sendt inn ETTER registert fødsel {} med mottatdato {}", fødselsdato, mottattDato);
+                    LOG.info(
+                        "Termin til fødsel: Original behandling ble søkt på termin, mens ny førstegangssøknad (med fødsel) er sendt inn ETTER registert fødsel {} med mottattdato {}",
+                        fødselsdato, mottattDato);
                 } else {
-                    LOG.info("Termin til fødsel: Original behandling ble søkt på termin, mens ny førstegangssøknad (med fødsel) er sendt inn samme dato eller før registret fødsel {} med mottatdato {}", fødselsdato, mottattDato);
+                    LOG.info(
+                        "Termin til fødsel: Original behandling ble søkt på termin, mens ny førstegangssøknad (med fødsel) er sendt inn samme dato eller før registret fødsel {} med mottattdato {}",
+                        fødselsdato, mottattDato);
                 }
 
+                var førsteUttaksperiode = perioder.stream().min(Comparator.comparing(OppgittPeriodeEntitet::getFom)).orElseThrow();
                 if (fødselsdato.isEqual(førsteUttaksperiode.getFom())) {
                     LOG.info("Termin til fødsel: Startdato for første uttaksperiode er lik fødseldato {}", fødselsdato);
                 } else if (førsteUttaksperiode.getFom().isBefore(fødselsdato)) {
