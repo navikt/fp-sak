@@ -351,7 +351,7 @@ public enum Landkoder implements Kodeverdi {
         }
     }
 
-    public static String fraUppercase(Landkoder landkode) {
+    public static String navnLesbart(Landkoder landkode) {
         if (landkode == null || landkode.getNavn().isEmpty()) {
             return null;
         }
