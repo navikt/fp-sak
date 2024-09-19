@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt.dto;
 
+import java.time.LocalDate;
+
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
@@ -25,16 +27,13 @@ public class OverstyringMedlemskapsvilkåretDto extends OverstyringAksjonspunktD
     @JsonProperty("erVilkarOk")
     private boolean erVilkarOk;
 
+    @JsonProperty("opphørFom")
+    private LocalDate opphørFom;
+
     @SuppressWarnings("unused")
     private OverstyringMedlemskapsvilkåretDto() {
         super();
         // For Jackson
-    }
-
-    public OverstyringMedlemskapsvilkåretDto(boolean erVilkarOk, String begrunnelse, String avslagskode) {
-        super(begrunnelse);
-        this.erVilkarOk = erVilkarOk;
-        this.avslagskode = avslagskode;
     }
 
     @Override
@@ -45,5 +44,9 @@ public class OverstyringMedlemskapsvilkåretDto extends OverstyringAksjonspunktD
     @Override
     public boolean getErVilkarOk() {
         return erVilkarOk;
+    }
+
+    public LocalDate getOpphørFom() {
+        return opphørFom;
     }
 }
