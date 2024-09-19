@@ -87,11 +87,11 @@ public record MedlemskapV3Dto(ManuellBehandlingResultat manuellBehandlingResulta
         }
     }
 
-    record MedlemskapPeriode(LocalDate fom, LocalDate tom, boolean erMedlem, Landkoder lovvalgsland, Landkoder studieland,
+    record MedlemskapPeriode(LocalDate fom, LocalDate tom, boolean erMedlem, String lovvalgsland, String studieland,
                              MedlemskapType medlemskapType, MedlemskapDekningType dekningType, LocalDate beslutningsdato) {
         public static MedlemskapPeriode map(MedlemskapPerioderEntitet mpe) {
-            return new MedlemskapPeriode(mpe.getFom(), mpe.getTom(), mpe.getErMedlem(), mpe.getLovvalgLand(), mpe.getStudieland(),
-                mpe.getMedlemskapType(), mpe.getDekningType(), mpe.getBeslutningsdato());
+            return new MedlemskapPeriode(mpe.getFom(), mpe.getTom(), mpe.getErMedlem(), Landkoder.navnLesbart(mpe.getLovvalgLand()),
+                Landkoder.navnLesbart(mpe.getStudieland()), mpe.getMedlemskapType(), mpe.getDekningType(), mpe.getBeslutningsdato());
         }
     }
 

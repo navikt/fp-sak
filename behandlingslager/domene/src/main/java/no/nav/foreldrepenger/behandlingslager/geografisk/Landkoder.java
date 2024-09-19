@@ -351,10 +351,11 @@ public enum Landkoder implements Kodeverdi {
         }
     }
 
-    public static String fraUppercase(String land) {
-        if (land == null || land.isEmpty()) {
+    public static String navnLesbart(Landkoder landkode) {
+        if (landkode == null || landkode.getNavn().isEmpty()) {
             return null;
         }
+        var land = landkode.getNavn();
         var upper = true;
         StringBuilder target = new StringBuilder();
         for (int i = 0; i < land.length(); i++) {
