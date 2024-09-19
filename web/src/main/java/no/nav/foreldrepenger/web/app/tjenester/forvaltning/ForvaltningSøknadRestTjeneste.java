@@ -184,22 +184,4 @@ public class ForvaltningSøknadRestTjeneste {
         return Response.ok(antall).build();
     }
 
-    @POST
-    @Path("/fiksPersonHistorikk")
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Operation(description = "Oppdater po-tabeller", tags = "FORVALTNING-søknad")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response fiksPersonHistorikk() {
-        var antall = entityManager.createNativeQuery("UPDATE po_personstatus SET personstatus = 'UTPE' WHERE personstatus = 'UTAN'")
-            .executeUpdate();
-        antall += entityManager.createNativeQuery("UPDATE po_adresse SET adresse_type = 'POSTADRESSE_UTLAND' WHERE adresse_type = 'POSTADRESSE' and land <> 'NOR'")
-            .executeUpdate();
-        antall += entityManager.createNativeQuery("UPDATE po_adresse SET adresse_type = 'BOSTEDSADRESSE_UTLAND' WHERE adresse_type = 'BOSTEDSADRESSE' and land <> 'NOR'")
-            .executeUpdate();
-        antall += entityManager.createNativeQuery("UPDATE po_adresse SET land = 'XUK' WHERE adresse_type = 'UKJENT_ADRESSE' and land is null")
-            .executeUpdate();
-        entityManager.flush();
-        return Response.ok(antall).build();
-    }
-
 }

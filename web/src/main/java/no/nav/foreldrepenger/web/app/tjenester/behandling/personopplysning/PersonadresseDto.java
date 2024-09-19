@@ -23,7 +23,7 @@ public class PersonadresseDto {
         dto.setAdresselinje3(formaterMedStoreOgSmåBokstaver(adresse.getAdresselinje3()));
         dto.setPoststed(formaterMedStoreOgSmåBokstaver(adresse.getPoststed()));
         dto.setPostNummer(adresse.getPostnummer());
-        dto.setLand(Landkoder.fraUppercase(adresse.getLand()));
+        dto.setLand(Landkoder.navnLesbart(Landkoder.fraKode(adresse.getLand())));
         dto.setAdresseType(adresse.getAdresseType());
         return dto;
     }
