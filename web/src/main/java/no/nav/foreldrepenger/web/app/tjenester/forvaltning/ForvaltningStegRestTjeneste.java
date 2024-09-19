@@ -135,7 +135,7 @@ public class ForvaltningStegRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response avbrytMedlemsAksjonspunkt() {
         var medlemsaksjonspunkt = List.of(AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD, AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT,
-            AksjonspunktDefinisjon.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE, AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT, AksjonspunktDefinisjon.OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET);
+            AksjonspunktDefinisjon.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE, AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT);
         entityManager.createQuery("select behandling from Aksjonspunkt ap where ap.aksjonspunktDefinisjon in (:apdef) and ap.status = :opprettet", Behandling.class)
             .setParameter("apdef",medlemsaksjonspunkt)
             .setParameter("opprettet", AksjonspunktStatus.OPPRETTET)

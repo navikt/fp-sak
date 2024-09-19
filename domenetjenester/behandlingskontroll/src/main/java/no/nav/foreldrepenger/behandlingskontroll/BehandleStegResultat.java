@@ -70,8 +70,8 @@ public class BehandleStegResultat {
         return new BehandleStegResultat(FellesTransisjoner.TILBAKEFØRT_TIL_AKSJONSPUNKT, aksjonspunktResultater);
     }
 
-    public static BehandleStegResultat tilbakeførtForeslåVedtak() {
-        return new BehandleStegResultat(FellesTransisjoner.TILBAKEFØRT_TIL_FORESLÅ_VEDTAK, Collections.emptyList());
+    public static BehandleStegResultat tilbakeførtMedlemskap() { // TODO medlemskap - fjern når alle behandlinger med gamle medl-ap er avsluttet
+        return new BehandleStegResultat(FellesTransisjoner.TILBAKEFØRT_TIL_MEDLEMSKAP, Collections.emptyList());
     }
 
     public static BehandleStegResultat fremoverførtMedAksjonspunkter(TransisjonIdentifikator transisjon,

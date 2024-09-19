@@ -228,7 +228,11 @@ class BehandlingStegVisitor {
 
         if (FellesTransisjoner.TILBAKEFØRT_TIL_AKSJONSPUNKT.getId().equals(transisjon.getId())) {
             // tilbakefør til tidligere steg basert på hvilke aksjonspunkter er åpne.
-            return håndterTilbakeføringTilTidligereSteg(behandling, stegModell.getBehandlingStegType());
+            return håndterTilbakeføringTilÅpentAksjonspunkt(behandling, stegModell.getBehandlingStegType());
+        }
+        if (FellesTransisjoner.TILBAKEFØRT_TIL_MEDLEMSKAP.getId().equals(transisjon.getId())) {
+            // tilbakefør til medlemskap så lenge det kan tilbakeføres legacy aksjonspunkt
+            return håndterTilbakeføringTilMedlemskap(behandling, stegModell.getBehandlingStegType(), transisjon);
         }
         if (FellesTransisjoner.HENLAGT.getId().equals(transisjon.getId())) {
             return BehandlingStegKonfigurasjon.getAvbrutt();
@@ -265,7 +269,7 @@ class BehandlingStegVisitor {
                 .anyMatch(ap -> skalHåndteresHer(behandlingStegType, ap, VurderingspunktType.UT));
     }
 
-    private BehandlingStegStatus håndterTilbakeføringTilTidligereSteg(Behandling behandling, BehandlingStegType inneværendeBehandlingStegType) {
+    private BehandlingStegStatus håndterTilbakeføringTilÅpentAksjonspunkt(Behandling behandling, BehandlingStegType inneværendeBehandlingStegType) {
         var tilbakeførtStegStatus = BehandlingStegKonfigurasjon.mapTilStatus(BehandlingStegResultat.TILBAKEFØRT);
 
         var åpneAksjonspunkter = behandling.getÅpneAksjonspunkter();
@@ -285,6 +289,23 @@ class BehandlingStegVisitor {
             var nesteStegtype = nesteBehandlingStegModell.getBehandlingStegType();
             oppdaterBehandlingStegType(forrige, nesteStegtype, nesteStegStatus.orElse(null), tilbakeførtStegStatus);
         }
+        return tilbakeførtStegStatus;
+    }
+
+    private BehandlingStegStatus håndterTilbakeføringTilMedlemskap(Behandling behandling, BehandlingStegType inneværendeBehandlingStegType, StegTransisjon transisjon) {
+        var tilbakeførtStegStatus = BehandlingStegKonfigurasjon.mapTilStatus(BehandlingStegResultat.TILBAKEFØRT);
+
+        // Eksisterende
+        var inneværendeBehandlingStegStatus = behandling.getBehandlingStegStatus();
+        var forrige = BehandlingModellImpl.tilBehandlingsStegSnapshot(behandling.getSisteBehandlingStegTilstand());
+
+        // oppdater inneværende steg
+        oppdaterBehandlingStegStatus(behandling, inneværendeBehandlingStegType, inneværendeBehandlingStegStatus, tilbakeførtStegStatus);
+
+            // oppdater nytt steg
+        var nesteStegStatus = BehandlingStegStatus.INNGANG;
+        var nesteStegtype = transisjon.getMålstegHvisHopp().orElseThrow();
+        oppdaterBehandlingStegType(forrige, nesteStegtype, nesteStegStatus, tilbakeførtStegStatus);
         return tilbakeførtStegStatus;
     }
 

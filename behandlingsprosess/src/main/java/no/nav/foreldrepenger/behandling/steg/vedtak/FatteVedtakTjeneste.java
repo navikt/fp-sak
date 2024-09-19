@@ -11,10 +11,13 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.totrinn.Totrinnsvurdering;
 import no.nav.foreldrepenger.behandlingslager.lagretvedtak.LagretVedtak;
 import no.nav.foreldrepenger.behandlingslager.lagretvedtak.LagretVedtakRepository;
@@ -27,6 +30,12 @@ import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 public class FatteVedtakTjeneste {
+
+    private static final Environment ENV = Environment.current(); // TODO medlemskap2 standardisere etter omlegging
+
+    private static final Set<AksjonspunktDefinisjon> LEGACY_MEDLEM = Set.of(AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD,
+        AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT, AksjonspunktDefinisjon.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE, AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT,
+        AksjonspunktDefinisjon.AVKLAR_FORTSATT_MEDLEMSKAP);
 
     private static final String FPSAK_IMAGE = Environment.current().imageName();
 
@@ -61,6 +70,7 @@ public class FatteVedtakTjeneste {
     private TotrinnTjeneste totrinnTjeneste;
     private BehandlingVedtakTjeneste behandlingVedtakTjeneste;
     private KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste;
+    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
 
     FatteVedtakTjeneste() {
         // for CDI proxy
@@ -68,16 +78,17 @@ public class FatteVedtakTjeneste {
 
     @Inject
     public FatteVedtakTjeneste(LagretVedtakRepository vedtakRepository,
-            KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste,
-            FatteVedtakXmlTjeneste vedtakXmlTjeneste,
-            VedtakTjeneste vedtakTjeneste, TotrinnTjeneste totrinnTjeneste,
-            BehandlingVedtakTjeneste behandlingVedtakTjeneste) {
+                               KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste,
+                               FatteVedtakXmlTjeneste vedtakXmlTjeneste,
+                               VedtakTjeneste vedtakTjeneste, TotrinnTjeneste totrinnTjeneste,
+                               BehandlingVedtakTjeneste behandlingVedtakTjeneste, BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         this.lagretVedtakRepository = vedtakRepository;
         this.klageAnkeVedtakTjeneste = klageAnkeVedtakTjeneste;
         this.vedtakXmlTjeneste = vedtakXmlTjeneste;
         this.vedtakTjeneste = vedtakTjeneste;
         this.totrinnTjeneste = totrinnTjeneste;
         this.behandlingVedtakTjeneste = behandlingVedtakTjeneste;
+        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
     }
 
     public BehandleStegResultat fattVedtak(BehandlingskontrollKontekst kontekst, Behandling behandling) {
@@ -96,8 +107,16 @@ public class FatteVedtakTjeneste {
                 var aksjonspunktDefinisjoner = totrinnaksjonspunktvurderinger.stream()
                         .filter(a -> !TRUE.equals(a.isGodkjent()))
                         .map(Totrinnsvurdering::getAksjonspunktDefinisjon).toList();
+                if (ENV.isProd() || aksjonspunktDefinisjoner.stream().noneMatch(LEGACY_MEDLEM::contains)) {
+                    return BehandleStegResultat.tilbakeførtMedAksjonspunkter(aksjonspunktDefinisjoner);
+                } else if (aksjonspunktDefinisjoner.stream()
+                    .anyMatch(ad -> behandlingskontrollTjeneste.sammenlignRekkefølge(behandling.getFagsakYtelseType(), behandling.getType(), ad.getBehandlingSteg(), BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR) < 0)) {
+                    return BehandleStegResultat.tilbakeførtMedAksjonspunkter(aksjonspunktDefinisjoner);
+                } else {
+                    return BehandleStegResultat.tilbakeførtMedlemskap();
+                }
 
-                return BehandleStegResultat.tilbakeførtMedAksjonspunkter(aksjonspunktDefinisjoner);
+
             }
         } else {
             vedtakTjeneste.lagHistorikkinnslagFattVedtak(behandling);
