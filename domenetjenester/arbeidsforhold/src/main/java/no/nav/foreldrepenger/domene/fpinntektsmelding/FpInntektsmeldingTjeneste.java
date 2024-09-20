@@ -5,12 +5,18 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
+import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
 import no.nav.foreldrepenger.domene.typer.Beløp;
+import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -28,6 +34,8 @@ public class FpInntektsmeldingTjeneste {
     private FpinntektsmeldingKlient klient;
     private ProsessTaskTjeneste prosessTaskTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private HistorikkRepository historikkRepo;
+    private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
 
     FpInntektsmeldingTjeneste() {
         // CDI
@@ -36,10 +44,14 @@ public class FpInntektsmeldingTjeneste {
     @Inject
     public FpInntektsmeldingTjeneste(FpinntektsmeldingKlient klient,
                                      ProsessTaskTjeneste prosessTaskTjeneste,
-                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                     HistorikkRepository historikkRepo,
+                                     ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
         this.klient = klient;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.historikkRepo = historikkRepo;
+        this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
     }
 
     public void lagForespørselTask(String ag, BehandlingReferanse ref) {
@@ -91,9 +103,6 @@ public class FpInntektsmeldingTjeneste {
 
     void lagForespørsel(String ag, BehandlingReferanse ref, Skjæringstidspunkt stp) {
         // Toggler av for prod og lokalt, ikke støtte lokalt
-        if (!Environment.current().isDev()) {
-            return;
-        }
         if (!OrganisasjonsNummerValidator.erGyldig(ag)) {
             return;
         }
@@ -101,6 +110,23 @@ public class FpInntektsmeldingTjeneste {
             new OpprettForespørselRequest.OrganisasjonsnummerDto(ag), stp.getUtledetSkjæringstidspunkt(), mapYtelsetype(ref.fagsakYtelseType()),
             new OpprettForespørselRequest.SaksnummerDto(ref.saksnummer().getVerdi()));
         klient.opprettForespørsel(request);
+        lagHistorikkForForespørsel(ag, ref);
+    }
+
+    private void lagHistorikkForForespørsel(String ag, BehandlingReferanse ref) {
+        var virksomhet = arbeidsgiverTjeneste.hentVirksomhet(ag);
+        var agNavn = String.format("%s (%s)", virksomhet.getNavn(), virksomhet.getOrgnr());
+        var historikkinnslag = new Historikkinnslag();
+        historikkinnslag.setBehandlingId(ref.behandlingId());
+        historikkinnslag.setFagsakId(ref.fagsakId());
+        historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
+        historikkinnslag.setType(HistorikkinnslagType.MIN_SIDE_ARBEIDSGIVER);
+
+        var beg = String.format("Oppgave til %s om å sende inntektsmelding", agNavn);
+        new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.MIN_SIDE_ARBEIDSGIVER)
+            .medBegrunnelse(beg)
+            .build(historikkinnslag);
+        historikkRepo.lagre(historikkinnslag);
     }
 
     private OpprettForespørselRequest.YtelseType mapYtelsetype(FagsakYtelseType fagsakYtelseType) {

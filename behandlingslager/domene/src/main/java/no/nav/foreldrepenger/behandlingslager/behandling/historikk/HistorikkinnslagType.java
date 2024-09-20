@@ -19,6 +19,7 @@ public enum HistorikkinnslagType implements Kodeverdi {
     // Mal Type 1
     BREV_SENT("BREV_SENT", "Brev sendt", HistorikkinnslagMal.MAL_TYPE_1),
     BREV_BESTILT("BREV_BESTILT", "Brev bestilt", HistorikkinnslagMal.MAL_TYPE_1),
+    MIN_SIDE_ARBEIDSGIVER("MIN_SIDE_ARBEIDSGIVER", "Min side - arbeidsgiver", HistorikkinnslagMal.MAL_TYPE_1),
     BEH_STARTET_PÅ_NYTT("BEH_STARTET_PÅ_NYTT", "Behandling startet på nytt", HistorikkinnslagMal.MAL_TYPE_1),
     BEH_STARTET("BEH_STARTET", "Behandling startet", HistorikkinnslagMal.MAL_TYPE_1),
     BEH_OPPDATERT_NYE_OPPL("BEH_OPPDATERT_NYE_OPPL", "Behandlingen oppdatert med nye opplysninger", HistorikkinnslagMal.MAL_TYPE_1),
