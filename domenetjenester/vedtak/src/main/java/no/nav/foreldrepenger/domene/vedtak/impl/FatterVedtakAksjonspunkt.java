@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.vedtak.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -19,10 +20,17 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.VedtakAksjonspunktData;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 @ApplicationScoped
 public class FatterVedtakAksjonspunkt {
+
+    private static final Environment ENV = Environment.current(); // TODO medlemskap2 standardisere etter omlegging
+
+    private static final Set<AksjonspunktDefinisjon> LEGACY_MEDLEM = Set.of(AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD,
+        AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT, AksjonspunktDefinisjon.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE, AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT,
+        AksjonspunktDefinisjon.AVKLAR_FORTSATT_MEDLEMSKAP);
 
     private VedtakTjeneste vedtakTjeneste;
     private TotrinnTjeneste totrinnTjeneste;
@@ -59,7 +67,11 @@ public class FatterVedtakAksjonspunkt {
             var erTotrinnGodkjent = aks.isGodkjent();
             var aksjonspunkt = behandling.getAksjonspunktFor(aks.getAksjonspunktDefinisjon());
             if (!aks.isGodkjent()) {
-                skalReåpnes.add(aksjonspunkt);
+                if (ENV.isProd()) {
+                    skalReåpnes.add(aksjonspunkt);
+                } else if (!LEGACY_MEDLEM.contains(aks.getAksjonspunktDefinisjon())) {
+                    skalReåpnes.add(aksjonspunkt);
+                }
             }
 
             var koder = aks.getVurderÅrsakskoder();
