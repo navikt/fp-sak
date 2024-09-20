@@ -56,7 +56,7 @@ public class FpInntektsmeldingTjeneste {
 
     public void lagForespørselTask(String ag, BehandlingReferanse ref) {
         // Toggler av for prod og lokalt, ikke støtte lokalt
-        if (Environment.current().isProd()) {
+        if (!Environment.current().isDev()) {
             return;
         }
         var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(FpinntektsmeldingTask.class));
