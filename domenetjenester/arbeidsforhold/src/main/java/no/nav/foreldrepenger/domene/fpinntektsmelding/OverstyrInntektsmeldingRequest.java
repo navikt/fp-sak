@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Max;
@@ -14,6 +16,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.NaturalYtelseType;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public record OverstyrInntektsmeldingRequest(@NotNull @Valid AktørIdDto aktorId,
                                              @NotNull @Valid ArbeidsgiverDto arbeidsgiverIdent,
                                              @NotNull LocalDate startdato,
