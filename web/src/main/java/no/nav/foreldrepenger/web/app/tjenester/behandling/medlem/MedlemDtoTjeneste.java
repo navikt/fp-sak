@@ -213,10 +213,12 @@ public class MedlemDtoTjeneste {
             .flatMap(vr -> vr.getVilkårene().stream())
             .filter(v -> v.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET)) //TODO forutgående
             .findFirst();
-        var opphørsdato = medlemTjeneste.hentOpphørsdatoHvisEksisterer(behandling.getId());
-        var avslagskode = medlemTjeneste.hentAvslagsårsak(behandling.getId()).filter(å -> !å.equals(Avslagsårsak.UDEFINERT));
-        return medlemskapsvilkår.filter(m -> VilkårUtfallType.erFastsatt(m.getVilkårUtfallManuelt()))
-            .map((v -> new MedlemskapV3Dto.ManuellBehandlingResultat(avslagskode.orElse(null), null, opphørsdato.orElse(null))));
+        return medlemskapsvilkår.filter(m -> VilkårUtfallType.erFastsatt(m.getVilkårUtfallManuelt())).map((v -> {
+            Optional<LocalDate> opphørsdato = v.getGjeldendeVilkårUtfall()
+                .equals(VilkårUtfallType.OPPFYLT) ? medlemTjeneste.hentOpphørsdatoHvisEksisterer(behandling.getId()) : Optional.empty();
+            var avslagskode = medlemTjeneste.hentAvslagsårsak(behandling.getId()).filter(å -> !å.equals(Avslagsårsak.UDEFINERT));
+            return new MedlemskapV3Dto.ManuellBehandlingResultat(avslagskode.orElse(null), null, opphørsdato.orElse(null));
+            }));
     }
 
     private static boolean aksjonspunktErOpprettetEllerLøst(Behandling behandling) {
