@@ -87,8 +87,7 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
     @Override
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
             BehandlingStegType fraSteg) {
-        if (!BehandlingStegType.KONTROLLER_FAKTA.equals(fraSteg)
-            || BehandlingStegType.KONTROLLER_FAKTA.equals(fraSteg) && BehandlingStegType.KONTROLLER_FAKTA.equals(tilSteg)) {
+        if (!BehandlingStegType.KONTROLLER_FAKTA.equals(fraSteg) || BehandlingStegType.KONTROLLER_FAKTA.equals(tilSteg)) {
             var rydder = new RyddRegisterData(repositoryProvider, kontekst);
             rydder.ryddRegisterdataLegacyEngangsstønad();
         }

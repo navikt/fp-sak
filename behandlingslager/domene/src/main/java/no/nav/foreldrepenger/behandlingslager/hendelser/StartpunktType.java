@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandlingslager.hendelser;
 
 import static java.util.stream.Collectors.toSet;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,24 +18,25 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum StartpunktType implements Kodeverdi {
 
-    KONTROLLER_ARBEIDSFORHOLD("KONTROLLER_ARBEIDSFORHOLD", "Startpunkt kontroller arbeidsforhold", 1, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING),
-    KONTROLLER_FAKTA("KONTROLLER_FAKTA", "Kontroller fakta", 2, BehandlingStegType.KONTROLLER_FAKTA),
-    INNGANGSVILKÅR_OPPLYSNINGSPLIKT("INNGANGSVILKÅR_OPPL", "Inngangsvilkår opplysningsplikt", 3, BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT),
-    SØKERS_RELASJON_TIL_BARNET("SØKERS_RELASJON_TIL_BARNET", "Søkers relasjon til barnet", 4, BehandlingStegType.SØKERS_RELASJON_TIL_BARN),
-    INNGANGSVILKÅR_MEDLEMSKAP("INNGANGSVILKÅR_MEDL", "Inngangsvilkår medlemskapsvilkår", 5, BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR),
-    OPPTJENING("OPPTJENING", "Opptjening", 6, BehandlingStegType.FASTSETT_OPPTJENINGSPERIODE),
-    DEKNINGSGRAD("DEKNINGSGRAD", "Dekningsgrad", 7, BehandlingStegType.DEKNINGSGRAD),
-    BEREGNING("BEREGNING", "Beregning", 8, BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING),
+    KONTROLLER_ARBEIDSFORHOLD("KONTROLLER_ARBEIDSFORHOLD", "Startpunkt kontroller arbeidsforhold", 1, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING, Set.of(FagsakYtelseType.ENGANGSTØNAD)),
+    KONTROLLER_FAKTA("KONTROLLER_FAKTA", "Kontroller fakta", 2, BehandlingStegType.KONTROLLER_FAKTA, Set.of()),
+    INNGANGSVILKÅR_OPPLYSNINGSPLIKT("INNGANGSVILKÅR_OPPL", "Inngangsvilkår opplysningsplikt", 3, BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT, Set.of()),
+    SØKERS_RELASJON_TIL_BARNET("SØKERS_RELASJON_TIL_BARNET", "Søkers relasjon til barnet", 4, BehandlingStegType.SØKERS_RELASJON_TIL_BARN, Set.of(FagsakYtelseType.SVANGERSKAPSPENGER)),
+    INNGANGSVILKÅR_MEDLEMSKAP("INNGANGSVILKÅR_MEDL", "Inngangsvilkår medlemskapsvilkår", 5, BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, Set.of()),
+    OPPTJENING("OPPTJENING", "Opptjening", 6, BehandlingStegType.FASTSETT_OPPTJENINGSPERIODE, Set.of(FagsakYtelseType.ENGANGSTØNAD)),
+    DEKNINGSGRAD("DEKNINGSGRAD", "Dekningsgrad", 7, BehandlingStegType.DEKNINGSGRAD, Set.of(FagsakYtelseType.ENGANGSTØNAD, FagsakYtelseType.SVANGERSKAPSPENGER)),
+    BEREGNING("BEREGNING", "Beregning", 8, BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, Set.of(FagsakYtelseType.ENGANGSTØNAD)),
     // StartpunktType BEREGNING_FORESLÅ skal kun brukes ved G-regulering
-    BEREGNING_FORESLÅ("BEREGNING_FORESLÅ", "Beregning foreslå", 9, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG),
-    UTTAKSVILKÅR("UTTAKSVILKÅR", "Uttaksvilkår", 10, BehandlingStegType.KONTROLLER_LØPENDE_MEDLEMSKAP), // OBS: Endrer du startsteg må du flytte køhåndtering ....
-    TILKJENT_YTELSE("TILKJENT_YTELSE", "Tilkjent ytelse", 11, BehandlingStegType.BEREGN_YTELSE),
+    BEREGNING_FORESLÅ("BEREGNING_FORESLÅ", "Beregning foreslå", 9, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG, Set.of(FagsakYtelseType.ENGANGSTØNAD)),
+    UTTAKSVILKÅR("UTTAKSVILKÅR", "Uttaksvilkår", 10, BehandlingStegType.KONTROLLER_LØPENDE_MEDLEMSKAP, Set.of(FagsakYtelseType.ENGANGSTØNAD)), // OBS: Endrer du startsteg må du flytte køhåndtering ....
+    TILKJENT_YTELSE("TILKJENT_YTELSE", "Tilkjent ytelse", 11, BehandlingStegType.BEREGN_YTELSE, Set.of()), // OBS: Ikke testet for Engangsstønad
 
-    UDEFINERT("-", "Ikke definert", 99, BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT),
+    UDEFINERT("-", "Ikke definert", 99, BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT, Set.of()),
     ;
 
     public static final String KODEVERK = "STARTPUNKT_TYPE";
@@ -108,14 +110,17 @@ public enum StartpunktType implements Kodeverdi {
 
     private final String navn;
 
+    private final Set<FagsakYtelseType> unntakYtelseTyper;
+
     @JsonValue
     private final String kode;
 
-    StartpunktType(String kode, String navn, int rangering, BehandlingStegType stegType) {
+    StartpunktType(String kode, String navn, int rangering, BehandlingStegType stegType, Set<FagsakYtelseType> unntakYtelseTyper) {
         this.kode = kode;
         this.navn = navn;
         this.rangering = rangering;
         this.behandlingSteg = stegType;
+        this.unntakYtelseTyper = unntakYtelseTyper;
     }
 
     public static Map<String, StartpunktType> kodeMap() {
@@ -160,6 +165,10 @@ public enum StartpunktType implements Kodeverdi {
 
     public int getRangering() {
         return rangering;
+    }
+
+    public static Set<StartpunktType> startpunktForYtelse(FagsakYtelseType ytelseType) {
+        return Arrays.stream(StartpunktType.values()).filter(s -> !s.unntakYtelseTyper.contains(ytelseType)).collect(toSet());
     }
 
     @Converter(autoApply = true)
