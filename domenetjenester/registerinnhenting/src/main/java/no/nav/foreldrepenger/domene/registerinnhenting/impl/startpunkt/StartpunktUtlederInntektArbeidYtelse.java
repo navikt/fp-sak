@@ -2,7 +2,9 @@ package no.nav.foreldrepenger.domene.registerinnhenting.impl.startpunkt;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -67,10 +69,8 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
     }
 
     @Override
-    public StartpunktType utledInitieltStartpunktRevurdering(BehandlingReferanse ref, Skjæringstidspunkt stp, Object grunnlagId1, Object grunnlagId2) {
-        return hentAlleStartpunktForInntektArbeidYtelse(ref, stp, false, (UUID) grunnlagId1, (UUID) grunnlagId2).stream()
-            .min(Comparator.comparing(StartpunktType::getRangering))
-            .orElse(StartpunktType.UDEFINERT);
+    public Set<StartpunktType> utledInitieltStartpunktRevurdering(BehandlingReferanse ref, Skjæringstidspunkt stp, Object grunnlagId1, Object grunnlagId2) {
+        return new HashSet<>(hentAlleStartpunktForInntektArbeidYtelse(ref, stp, false, (UUID) grunnlagId1, (UUID) grunnlagId2));
     }
 
     private List<StartpunktType> hentAlleStartpunktForInntektArbeidYtelse(BehandlingReferanse ref, Skjæringstidspunkt stp, boolean vurderArbeidsforhold,
