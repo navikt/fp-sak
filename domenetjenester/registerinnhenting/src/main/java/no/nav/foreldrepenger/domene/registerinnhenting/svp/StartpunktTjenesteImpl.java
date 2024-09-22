@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -62,7 +63,7 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
     }
 
     private StartpunktType getStartpunktType(BehandlingReferanse revurdering, Skjæringstidspunkt stp, EndringsresultatDiff differanse, boolean normalDiff) {
-        return Stream.of(InntektArbeidYtelseGrunnlag.class, NesteSakGrunnlagEntitet.class)
+        return Stream.of(InntektArbeidYtelseGrunnlag.class, PersonInformasjonEntitet.class, NesteSakGrunnlagEntitet.class)
             .map(differanse::hentDelresultat)
             .flatMap(Optional::stream)
             .filter(EndringsresultatDiff::erSporedeFeltEndret)
@@ -76,7 +77,10 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
             return StartpunktType.UDEFINERT;
         var utleder = GrunnlagRef.Lookup.find(StartpunktUtleder.class, utledere, diff.getGrunnlag()).orElseThrow();
         return normalDiff ? utleder.utledStartpunkt(revurdering, stp, diff.getGrunnlagId1(), diff.getGrunnlagId2()) :
-            utleder.utledInitieltStartpunktRevurdering(revurdering, stp, diff.getGrunnlagId1(), diff.getGrunnlagId2());
+            utleder.utledInitieltStartpunktRevurdering(revurdering, stp, diff.getGrunnlagId1(), diff.getGrunnlagId2()).stream()
+                .filter(s -> !StartpunktType.SØKERS_RELASJON_TIL_BARNET.equals(s) && StartpunktType.DEKNINGSGRAD.equals(s))
+                .min(Comparator.comparing(StartpunktType::getRangering))
+                .orElse(StartpunktType.UDEFINERT);
     }
 
 

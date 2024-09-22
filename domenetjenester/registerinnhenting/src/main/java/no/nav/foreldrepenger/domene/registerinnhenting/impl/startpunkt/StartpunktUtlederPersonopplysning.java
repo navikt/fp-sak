@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -75,18 +76,16 @@ class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
     }
 
     @Override
-    public StartpunktType utledInitieltStartpunktRevurdering(BehandlingReferanse ref, Skjæringstidspunkt stp, Object grunnlagId1, Object grunnlagId2) {
+    public Set<StartpunktType> utledInitieltStartpunktRevurdering(BehandlingReferanse ref, Skjæringstidspunkt stp, Object grunnlagId1, Object grunnlagId2) {
         var grunnlag1 = personopplysningRepository.hentGrunnlagPåId((Long)grunnlagId1);
         var grunnlag2 = personopplysningRepository.hentGrunnlagPåId((Long)grunnlagId2);
 
         var ordinæreStartpunktTyper = new HashSet<>(hentAlleStartpunktForPersonopplysninger(ref, stp, grunnlag1, grunnlag2));
         if (!ordinæreStartpunktTyper.contains(StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP) && endringssøknadManglerOppholdstillatelser(ref, stp)) {
             ordinæreStartpunktTyper.add(StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP);
-        };
+        }
 
-        return ordinæreStartpunktTyper.stream()
-            .min(Comparator.comparing(StartpunktType::getRangering))
-            .orElse(StartpunktType.UDEFINERT);
+        return ordinæreStartpunktTyper;
     }
 
     // Finn endringer per aggregat under grunnlaget og map dem mot startpunkt. Dekker bruker og PDL-relaterte personer (barn, ekte). Bør spisses der det er behov.

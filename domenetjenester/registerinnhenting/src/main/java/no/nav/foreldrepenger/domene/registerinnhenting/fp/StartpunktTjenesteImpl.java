@@ -101,7 +101,9 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
             return StartpunktType.UDEFINERT;
         var utleder = GrunnlagRef.Lookup.find(StartpunktUtleder.class, utledere, diff.getGrunnlag()).orElseThrow();
         return normalDiff ? utleder.utledStartpunkt(revurdering, stp, diff.getGrunnlagId1(), diff.getGrunnlagId2()) :
-            utleder.utledInitieltStartpunktRevurdering(revurdering, stp, diff.getGrunnlagId1(), diff.getGrunnlagId2());
+            utleder.utledInitieltStartpunktRevurdering(revurdering, stp, diff.getGrunnlagId1(), diff.getGrunnlagId2()).stream()
+                .min(Comparator.comparing(StartpunktType::getRangering))
+                .orElse(StartpunktType.UDEFINERT);
     }
 
     private boolean skalSjekkeForManglendeFødsel(FamilieHendelseGrunnlagEntitet grunnlagForBehandling) {
