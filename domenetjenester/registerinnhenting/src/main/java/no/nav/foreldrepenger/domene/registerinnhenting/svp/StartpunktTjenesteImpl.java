@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.registerinnhenting.svp;
 
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -31,6 +32,7 @@ import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktUtleder;
 public class StartpunktTjenesteImpl implements StartpunktTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(StartpunktTjenesteImpl.class);
+    private static final Set<StartpunktType> SVP_STARTPUNKT = StartpunktType.startpunktForYtelse(FagsakYtelseType.SVANGERSKAPSPENGER);
 
     private Instance<StartpunktUtleder> utledere;
     private EndringsresultatSjekker endringsresultatSjekker;
@@ -78,7 +80,7 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
         var utleder = GrunnlagRef.Lookup.find(StartpunktUtleder.class, utledere, diff.getGrunnlag()).orElseThrow();
         return normalDiff ? utleder.utledStartpunkt(revurdering, stp, diff.getGrunnlagId1(), diff.getGrunnlagId2()) :
             utleder.utledInitieltStartpunktRevurdering(revurdering, stp, diff.getGrunnlagId1(), diff.getGrunnlagId2()).stream()
-                .filter(s -> !StartpunktType.SØKERS_RELASJON_TIL_BARNET.equals(s) && StartpunktType.DEKNINGSGRAD.equals(s))
+                .filter(SVP_STARTPUNKT::contains)
                 .min(Comparator.comparing(StartpunktType::getRangering))
                 .orElse(StartpunktType.UDEFINERT);
     }
