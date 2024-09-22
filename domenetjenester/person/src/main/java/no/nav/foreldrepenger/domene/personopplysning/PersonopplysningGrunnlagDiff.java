@@ -29,6 +29,10 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class PersonopplysningGrunnlagDiff {
+
+    private static final Comparator<PersonAdresseEntitet> COMP_ADRESSE = Comparator.comparing(PersonAdresseEntitet::getAktørId).
+        thenComparing(PersonAdresseEntitet::getAdresseType).thenComparing(PersonAdresseEntitet::getFom, Comparator.nullsFirst(Comparator.naturalOrder()));
+
     private final AktørId søkerAktørId;
     private final Optional<AktørId> annenPartAktørId;
     private final PersonopplysningGrunnlagEntitet grunnlag1;
@@ -51,8 +55,13 @@ public class PersonopplysningGrunnlagDiff {
 
     public boolean erRelasjonerEndret() {
         var differ = new RegisterdataDiffsjekker(true);
-        return differ.erForskjellPå(registerVersjon(grunnlag1).map(PersonInformasjonEntitet::getRelasjoner).orElse(Collections.emptyList()),
-            registerVersjon(grunnlag2).map(PersonInformasjonEntitet::getRelasjoner).orElse(Collections.emptyList()));
+        var relasjoner1 = registerVersjon(grunnlag1).map(PersonInformasjonEntitet::getRelasjoner).orElse(List.of()).stream()
+            .sorted(Comparator.comparing(PersonRelasjonEntitet::getAktørId).thenComparing(PersonRelasjonEntitet::getTilAktørId))
+            .toList();
+        var relasjoner2 = registerVersjon(grunnlag2).map(PersonInformasjonEntitet::getRelasjoner).orElse(List.of()).stream()
+            .sorted(Comparator.comparing(PersonRelasjonEntitet::getAktørId).thenComparing(PersonRelasjonEntitet::getTilAktørId))
+            .toList();
+        return differ.erForskjellPå(relasjoner1, relasjoner2);
     }
 
     public boolean erRelasjonerEndretSøkerAntallBarn() {
@@ -91,6 +100,7 @@ public class PersonopplysningGrunnlagDiff {
     private List<PersonRelasjonEntitet> hentRelasjonerFraMenIkkeTil(PersonopplysningGrunnlagEntitet grunnlag, Set<AktørId> fra, Set<AktørId> ikkeTil) {
         return registerVersjon(grunnlag).map(PersonInformasjonEntitet::getRelasjoner).orElse(Collections.emptyList()).stream()
             .filter(rel -> fra.contains(rel.getAktørId()) && !ikkeTil.contains(rel.getTilAktørId()))
+            .sorted(Comparator.comparing(PersonRelasjonEntitet::getAktørId).thenComparing(PersonRelasjonEntitet::getTilAktørId))
             .toList();
     }
 
@@ -168,6 +178,7 @@ public class PersonopplysningGrunnlagDiff {
         return registerVersjon(grunnlag).map(PersonInformasjonEntitet::getAdresser).orElse(Collections.emptyList()).stream()
             .filter(adr -> personer.contains(adr.getAktørId()))
             .filter(adr -> adr.getPeriode().overlapper(periode))
+            .sorted(COMP_ADRESSE)
             .toList();
     }
 
@@ -176,6 +187,7 @@ public class PersonopplysningGrunnlagDiff {
             .filter(adr -> personer.contains(adr.getAktørId()))
             .filter(adr -> adr.getPeriode().overlapper(periode))
             .filter(adr -> !Landkoder.erNorge(adr.getLand()))
+            .sorted(COMP_ADRESSE)
             .toList();
     }
 

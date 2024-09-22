@@ -13,17 +13,21 @@ import no.nav.foreldrepenger.domene.typer.Beløp;
 
 public class Inntektspost implements IndexKey {
 
+    @ChangeTracked
     private InntektspostType inntektspostType;
 
+    @ChangeTracked
     private SkatteOgAvgiftsregelType skatteOgAvgiftsregelType = SkatteOgAvgiftsregelType.UDEFINERT;
 
     private Inntekt inntekt;
 
+    @ChangeTracked
     private DatoIntervallEntitet periode;
 
     @ChangeTracked
     private Beløp beløp;
 
+    @ChangeTracked
     private InntektYtelseType inntektYtelseType;
 
     public Inntektspost() {
