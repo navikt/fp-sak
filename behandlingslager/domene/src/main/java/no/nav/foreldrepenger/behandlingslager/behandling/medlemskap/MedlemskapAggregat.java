@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.medlemskap;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -30,6 +31,10 @@ public class MedlemskapAggregat {
     /** Hent Registrert medlemskapinformasjon (MEDL) slik det er innhentet. */
     public Set<MedlemskapPerioderEntitet> getRegistrertMedlemskapPerioder() {
         return registrertMedlemskapPeridoer;
+    }
+
+    public List<MedlemskapPerioderEntitet> getRegistrertMedlemskapPerioderList() {
+        return registrertMedlemskapPeridoer.stream().sorted(MedlemskapPerioderEntitet.COMP_MEDLEMSKAP_PERIODER).toList();
     }
 
     /** Hent Oppgitt tilknytning slik det er oppgitt av Søker. */

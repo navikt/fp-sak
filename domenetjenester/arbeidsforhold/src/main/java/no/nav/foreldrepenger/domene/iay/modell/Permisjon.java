@@ -13,8 +13,10 @@ public class Permisjon implements IndexKey {
 
     private Yrkesaktivitet yrkesaktivitet;
 
+    @ChangeTracked
     private PermisjonsbeskrivelseType permisjonsbeskrivelseType;
 
+    @ChangeTracked
     private DatoIntervallEntitet periode;
 
     @ChangeTracked

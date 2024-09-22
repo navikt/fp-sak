@@ -30,10 +30,12 @@ public class OppholdstillatelseEntitet extends BaseEntitet implements HarAktørI
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_PO_OPPHOLD")
     private Long id;
 
+    @ChangeTracked
     @Embedded
     @AttributeOverride(name = "aktørId", column = @Column(name = "aktoer_id", updatable = false, nullable=false))
     private AktørId aktørId;
 
+    @ChangeTracked
     @Embedded
     private DatoIntervallEntitet periode;
 

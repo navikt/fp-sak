@@ -30,6 +30,7 @@ public class PersonopplysningEntitet extends BaseEntitet implements HarAktørId,
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_PO_PERSONOPPLYSNING")
     private Long id;
 
+    @ChangeTracked
     @Embedded
     @AttributeOverride(name = "aktørId", column = @Column(name = "aktoer_id", updatable = false))
     private AktørId aktørId;

@@ -30,10 +30,12 @@ public class StatsborgerskapEntitet extends BaseEntitet implements HarAktørId, 
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_PO_STATSBORGERSKAP")
     private Long id;
 
+    @ChangeTracked
     @Embedded
     @AttributeOverride(name = "aktørId", column = @Column(name = "aktoer_id", updatable = false))
     private AktørId aktørId;
 
+    @ChangeTracked
     @Embedded
     private DatoIntervallEntitet periode;
 

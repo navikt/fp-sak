@@ -14,6 +14,7 @@ import jakarta.persistence.Table;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadAnnenPartType;
+import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.HarAktørId;
@@ -35,6 +36,7 @@ public class OppgittAnnenPartEntitet extends BaseEntitet implements HarAktørId 
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_SOEKNAD_ANNEN_PART")
     private Long id;
 
+    @ChangeTracked
     @Embedded
     @AttributeOverride(name = "aktørId", column = @Column(name = "aktoer_id", updatable = false))
     private AktørId aktørId;
@@ -42,9 +44,11 @@ public class OppgittAnnenPartEntitet extends BaseEntitet implements HarAktørId 
     @Column(name = "navn")
     private String navn;
 
+    @ChangeTracked
     @Column(name = "utl_person_ident")
     private String utenlandskPersonident;
 
+    @ChangeTracked
     @Convert(converter = Landkoder.KodeverdiConverter.class)
     @Column(name="utl_person_ident_land", nullable = false)
     private Landkoder utenlandskPersonidentLand = Landkoder.UDEFINERT;

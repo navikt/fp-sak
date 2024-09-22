@@ -16,6 +16,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -38,15 +39,18 @@ public class MedlemskapOppgittLandOppholdEntitet extends BaseEntitet implements 
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_MEDLEMSKAP_OPPG_LAND")
     private Long id;
 
+    @ChangeTracked
     @Convert(converter = Landkoder.KodeverdiConverter.class)
     @Column(name="land", nullable = false)
     private Landkoder land = Landkoder.UDEFINERT;
 
+    @ChangeTracked
     @Embedded
     @AttributeOverride(name = "fomDato", column = @Column(name = "periode_fom"))
     @AttributeOverride(name = "tomDato", column = @Column(name = "periode_tom"))
     private DatoIntervallEntitet periode;
 
+    @ChangeTracked
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "tidligere_opphold", nullable = false)
     private boolean tidligereOpphold;

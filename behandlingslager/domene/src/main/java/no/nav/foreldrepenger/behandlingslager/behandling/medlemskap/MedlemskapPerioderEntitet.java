@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.medlemskap;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.Objects;
 
 import jakarta.persistence.Column;
@@ -31,7 +32,10 @@ import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Entity(name = "MedlemskapPerioder")
 @Table(name = "MEDLEMSKAP_PERIODER")
-public class MedlemskapPerioderEntitet extends BaseEntitet implements Comparable<MedlemskapPerioderEntitet>, IndexKey {
+public class MedlemskapPerioderEntitet extends BaseEntitet implements IndexKey {
+
+    public static final Comparator<MedlemskapPerioderEntitet> COMP_MEDLEMSKAP_PERIODER = Comparator
+        .comparing(MedlemskapPerioderEntitet::getMedlId, Comparator.nullsFirst(Comparator.naturalOrder()));
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_MEDLEMSKAP_PERIODER")
@@ -219,8 +223,4 @@ public class MedlemskapPerioderEntitet extends BaseEntitet implements Comparable
     }
 
 
-    @Override
-    public int compareTo(MedlemskapPerioderEntitet other) {
-        return other.getMedlId().compareTo(this.getMedlId());
-    }
 }

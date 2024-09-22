@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.personopplysning;
 
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -32,13 +33,16 @@ public class PersonAdresseEntitet extends BaseEntitet implements HarAktørId, In
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_PO_ADRESSE")
     private Long id;
 
+    @ChangeTracked
     @Embedded
     @AttributeOverride(name = "aktørId", column = @Column(name = "aktoer_id", updatable = false))
     private AktørId aktørId;
 
+    @ChangeTracked
     @Embedded
     private DatoIntervallEntitet periode;
 
+    @ChangeTracked
     @Convert(converter = AdresseType.KodeverdiConverter.class)
     @Column(name = "adresse_type", nullable = false)
     private AdresseType adresseType;
@@ -193,6 +197,10 @@ public class PersonAdresseEntitet extends BaseEntitet implements HarAktørId, In
 
     public DatoIntervallEntitet getPeriode() {
         return periode;
+    }
+
+    public LocalDate getFom() {
+        return Optional.ofNullable(periode).map(DatoIntervallEntitet::getFomDato).orElse(null);
     }
 
     void setPeriode(DatoIntervallEntitet periode) {
