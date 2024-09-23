@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.medlem.impl;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +25,7 @@ class MedlemEndringssjekkerEngangsstønadTest {
         var periode2 = new MedlemskapPerioderBuilder().medMedlId(2L).build();
 
         // Act
-        var endringsresultat = endringssjekker.erEndret(Optional.empty(), List.of(periode1), List.of(periode1, periode2));
+        var endringsresultat = endringssjekker.erEndret(List.of(periode1), List.of(periode1, periode2));
 
         // Assert
         assertThat(endringsresultat).isTrue();
@@ -39,7 +38,7 @@ class MedlemEndringssjekkerEngangsstønadTest {
         var periode2 = new MedlemskapPerioderBuilder().medMedlId(2L).build();
 
         // Act
-        var endringsresultat = endringssjekker.erEndret(Optional.empty(), List.of(periode1, periode2), List.of(periode1));
+        var endringsresultat = endringssjekker.erEndret(List.of(periode1, periode2), List.of(periode1));
 
         // Assert
         assertThat(endringsresultat).isTrue();
@@ -52,7 +51,7 @@ class MedlemEndringssjekkerEngangsstønadTest {
         var periode2 = new MedlemskapPerioderBuilder().medMedlId(1L).medErMedlem(false).build();
 
         // Act
-        var endringsresultat = endringssjekker.erEndret(Optional.empty(), List.of(periode1), List.of(periode2));
+        var endringsresultat = endringssjekker.erEndret(List.of(periode1), List.of(periode2));
 
         // Assert
         assertThat(endringsresultat).isTrue();

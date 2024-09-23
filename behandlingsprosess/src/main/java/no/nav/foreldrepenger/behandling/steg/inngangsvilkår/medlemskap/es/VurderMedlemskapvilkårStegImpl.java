@@ -41,6 +41,11 @@ public class VurderMedlemskapvilkårStegImpl extends InngangsvilkårStegImpl {
     }
 
     @Override
+    protected boolean manuellVurderingNårRegelVilkårIkkeOppfylt() {
+        return !ENV.isProd();
+    }
+
+    @Override
     protected BehandleStegResultat stegResultatVilkårIkkeOppfylt(RegelResultat regelResultat, Behandling behandling) {
         if (ENV.isProd()) {
             return super.stegResultatVilkårIkkeOppfylt(regelResultat, behandling);
