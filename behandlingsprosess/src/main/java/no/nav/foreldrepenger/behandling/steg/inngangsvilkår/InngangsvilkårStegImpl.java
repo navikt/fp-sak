@@ -30,6 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.inngangsvilkaar.RegelResultat;
 
 public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
+
     private BehandlingRepository behandlingRepository;
     private InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste;
     private BehandlingRepositoryProvider repositoryProvider;
@@ -117,7 +118,7 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
 
     private boolean harÅpentOverstyringspunktForInneværendeSteg(Behandling behandling) {
         return behandling.getÅpneAksjonspunkter().stream()
-                .filter(aksjonspunkt -> aksjonspunkt.getAksjonspunktDefinisjon().getAksjonspunktType().equals(AksjonspunktType.OVERSTYRING))
+                .filter(aksjonspunkt -> AksjonspunktType.OVERSTYRING.equals(aksjonspunkt.getAksjonspunktDefinisjon().getAksjonspunktType()))
                 .anyMatch(aksjonspunkt -> aksjonspunkt.getAksjonspunktDefinisjon().getBehandlingSteg().equals(behandlingStegType));
     }
 
@@ -147,9 +148,14 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
 
     // Vennligst ikke override - det er forbeholdt vurdersamlet ....
     protected boolean erNoenVilkårIkkeOppfylt(RegelResultat regelResultat) {
+        // Sjekk om gjeldende ikke oppfylt (kan være manuell satt fra før), eller om siste regelkjøring gir merknad (ikke oppfylt)
         return regelResultat.vilkårResultat().getVilkårene().stream()
                 .filter(vilkår -> vilkårHåndtertAvSteg().contains(vilkår.getVilkårType()))
-                .anyMatch(v -> v.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT));
+                .anyMatch(v -> v.erIkkeOppfylt() || (!v.erOverstyrt() && manuellVurderingNårRegelVilkårIkkeOppfylt() && v.getVilkårUtfallMerknad() != null));
+    }
+
+    protected boolean manuellVurderingNårRegelVilkårIkkeOppfylt() {
+        return false;
     }
 
     @Override
