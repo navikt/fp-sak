@@ -32,7 +32,6 @@ import no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.familiehendelse.dødsfall.BarnBorteEndringIdentifiserer;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
@@ -41,8 +40,6 @@ import no.nav.fpsak.tidsserie.StandardCombinators;
 @ApplicationScoped
 @GrunnlagRef(PersonInformasjonEntitet.ENTITY_NAME)
 class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
-
-    private static final Environment ENV = Environment.current(); // TODO medlemskap2 sanere etter omlegging
 
     private PersonopplysningRepository personopplysningRepository;
     private BehandlingRepository behandlingRepository;
@@ -95,13 +92,9 @@ class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
         var aktørId = ref.aktørId();
 
         var poDiff = new PersonopplysningGrunnlagDiff(aktørId, grunnlag1, grunnlag2);
-        var påSkjæringstidpunkt = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt, skjæringstidspunkt);
-        var fraSkjæringstidpunkt = DatoIntervallEntitet.fraOgMed(skjæringstidspunkt);
         var uttaksIntervall = stp.getUttaksintervall().map(i -> DatoIntervallEntitet.fraOgMedTilOgMed(i.getFomDato(), i.getTomDato()))
             .orElseGet(() -> DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt, skjæringstidspunkt));
         var forelderDødEndret = poDiff.erForeldreDødsdatoEndret();
-        var personstatusEndret = poDiff.erPersonstatusEndretForSøkerPeriode(fraSkjæringstidpunkt);
-        var personstatusUnntattDødEndret = personstatusEndret && !forelderDødEndret;
 
         List<StartpunktType> startpunkter = new ArrayList<>();
         if (forelderDødEndret) {
@@ -126,34 +119,18 @@ class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
                 startpunkter.add(StartpunktType.BEREGNING);
             }
         }
-        if (ENV.isProd()) {
-            if (personstatusUnntattDødEndret) {
-                leggTilBasertPåSTP(grunnlag1.getId(), grunnlag2.getId(), startpunkter,
-                    poDiff.erPersonstatusEndretForSøkerPeriode(påSkjæringstidpunkt), "personstatus");
-            }
-            if (poDiff.erAdresserEndretIPeriode(fraSkjæringstidpunkt)) {
-                leggTilBasertPåSTP(grunnlag1.getId(), grunnlag2.getId(), startpunkter, poDiff.erAdresseLandEndretForSøkerPeriode(påSkjæringstidpunkt),
-                    "adresse");
-            }
-            if (poDiff.erRegionEndretForSøkerPeriode(fraSkjæringstidpunkt, skjæringstidspunkt)) {
-                var aktivtGrunnlag = personopplysningRepository.hentPersonopplysninger(ref.behandlingId());
-                var endretPåSTP =
-                    poDiff.erRegionEndretForSøkerPeriode(påSkjæringstidpunkt, skjæringstidspunkt) && !poDiff.harRegionNorden(påSkjæringstidpunkt,
-                        aktivtGrunnlag, skjæringstidspunkt);
-                leggTilBasertPåSTP(grunnlag1.getId(), grunnlag2.getId(), startpunkter, endretPåSTP, "region");
-            }
-        } else {
-            if (poDiff.erPersonstatusIkkeBosattEndretForSøkerPeriode(uttaksIntervall)) {
-                FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(),
-                    StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP, "personstatus ikke bosatt", grunnlag1.getId(), grunnlag2.getId());
-                startpunkter.add(StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP);
-            }
-            if (poDiff.erSøkersUtlandsAdresserEndretIPeriode(uttaksIntervall)) {
-                FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(),
-                    StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP, "utlandsadresse", grunnlag1.getId(), grunnlag2.getId());
-                startpunkter.add(StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP);
-            }
+
+        if (poDiff.erPersonstatusIkkeBosattEndretForSøkerPeriode(uttaksIntervall)) {
+            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(),
+                StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP, "personstatus ikke bosatt", grunnlag1.getId(), grunnlag2.getId());
+            startpunkter.add(StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP);
         }
+        if (poDiff.erSøkersUtlandsAdresserEndretIPeriode(uttaksIntervall)) {
+            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(),
+                StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP, "utlandsadresse", grunnlag1.getId(), grunnlag2.getId());
+            startpunkter.add(StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP);
+        }
+
         if (barnBorteEndringIdentifiserer.erEndret(ref)) {
             FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.SØKERS_RELASJON_TIL_BARNET, "barn fjernet fra PDL", grunnlag1.getId(), grunnlag2.getId());
             startpunkter.add(StartpunktType.SØKERS_RELASJON_TIL_BARNET);
@@ -177,16 +154,6 @@ class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
             .isPresent();
     }
 
-    private void leggTilBasertPåSTP(Long g1Id, Long g2Id, List<StartpunktType> startpunkter, boolean endretFørStp, String loggMelding) {
-        if (endretFørStp) {
-            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP, loggMelding, g1Id, g2Id);
-            startpunkter.add(StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP);
-        } else {
-            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR, loggMelding, g1Id, g2Id);
-            startpunkter.add(StartpunktType.UTTAKSVILKÅR);
-        }
-    }
-
     private void leggTilForRelasjoner(Long g1Id, Long g2Id, PersonopplysningGrunnlagDiff poDiff, List<StartpunktType> startpunkter) {
         if (poDiff.erRelasjonerEndretSøkerAntallBarn()) {
             FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UDEFINERT, "personopplysning - relasjon på grunn av fødsel", g1Id, g2Id);
@@ -208,7 +175,7 @@ class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
     }
 
     private boolean endringssøknadManglerOppholdstillatelser(BehandlingReferanse ref, Skjæringstidspunkt stp) {
-        if (!ENV.isProd() && ref.erRevurdering() && behandlingRepository.hentBehandling(ref.behandlingId()).harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
+        if (ref.erRevurdering() && behandlingRepository.hentBehandling(ref.behandlingId()).harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
             var aktivtgrunnlag = personopplysningRepository.hentPersonopplysninger(ref.behandlingId());
             var skjæringstidspunkt = stp.getUtledetSkjæringstidspunkt();
             var periode = stp.getUttaksintervall().map(i -> DatoIntervallEntitet.fraOgMedTilOgMed(i.getFomDato(), i.getTomDato()))

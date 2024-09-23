@@ -11,13 +11,10 @@ import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.medlem.identifiserer.MedlemEndringIdentifiserer;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktUtleder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import no.nav.foreldrepenger.konfig.Environment;
 
 @ApplicationScoped
 @GrunnlagRef(GrunnlagRef.MEDLEM_GRUNNLAG)
 class StartpunktUtlederMedlemskap implements StartpunktUtleder {
-
-    private static final Environment ENV = Environment.current(); // TODO medlemskap2 sanere etter omlegging
 
     private final MedlemskapRepository medlemskapRepository;
 
@@ -38,13 +35,9 @@ class StartpunktUtlederMedlemskap implements StartpunktUtleder {
             FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP,
                 "medlemskap medlemskapsvilkår", grunnlagId1, grunnlagId2);
             return StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP;
-        } else if (ENV.isProd() && MedlemEndringIdentifiserer.erEndretForPeriode(grunnlag1, grunnlag2, periode)) {
-            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR,
-                "medlemskap uttak", grunnlagId1, grunnlagId2);
-            return StartpunktType.UTTAKSVILKÅR;
-        } else if (!ENV.isProd() && MedlemEndringIdentifiserer.harBeslutningsdatoInnenforPeriode(grunnlag1, grunnlag2, periode)) {
+        } else if (MedlemEndringIdentifiserer.harBeslutningsdatoInnenforPeriode(grunnlag1, grunnlag2, periode)) {
             FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP,
-                "medlemskap medlemsvikår (ny)", grunnlagId1, grunnlagId2);
+                "medlemskap medlemskapsvilkår (ny)", grunnlagId1, grunnlagId2);
             return StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP;
         }
         return StartpunktType.UDEFINERT;
