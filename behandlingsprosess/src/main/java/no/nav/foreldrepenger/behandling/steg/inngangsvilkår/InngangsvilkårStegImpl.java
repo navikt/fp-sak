@@ -6,7 +6,6 @@ import static no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTrans
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -26,15 +25,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.inngangsvilkaar.RegelResultat;
-import no.nav.foreldrepenger.konfig.Environment;
 
 public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
 
-    private static final Set<VilkårType> ALLTID_MANUELL_NÅR_REGEL_IKKE_OPPFYLT = Environment.current().isProd() ? Set.of() : Set.of(VilkårType.MEDLEMSKAPSVILKÅRET);
     private BehandlingRepository behandlingRepository;
     private InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste;
     private BehandlingRepositoryProvider repositoryProvider;
