@@ -30,6 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
+import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
@@ -75,6 +76,7 @@ public class BehandlingFormidlingDtoTjeneste {
     private BehandlingDokumentRepository behandlingDokumentRepository;
     private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
     private DekningsgradTjeneste dekningsgradTjeneste;
+    private MedlemTjeneste medlemTjeneste;
 
     @Inject
     public BehandlingFormidlingDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
@@ -84,7 +86,7 @@ public class BehandlingFormidlingDtoTjeneste {
                                            RelatertBehandlingTjeneste relatertBehandlingTjeneste,
                                            ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
                                            DekningsgradTjeneste dekningsgradTjeneste,
-                                           UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste) {
+                                           UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste, MedlemTjeneste medlemTjeneste) {
         this.beregningTjeneste = beregningTjeneste;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
         this.utregnetStønadskontoTjeneste = utregnetStønadskontoTjeneste;
@@ -97,6 +99,7 @@ public class BehandlingFormidlingDtoTjeneste {
         this.behandlingDokumentRepository = behandlingDokumentRepository;
         this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
         this.dekningsgradTjeneste = dekningsgradTjeneste;
+        this.medlemTjeneste = medlemTjeneste;
     }
 
     BehandlingFormidlingDtoTjeneste() {
@@ -207,6 +210,7 @@ public class BehandlingFormidlingDtoTjeneste {
                 dto.setHarAvklartAnnenForelderRett(harAvklartAnnenForelderRett);
 
                 var uttakResultat = foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
+
                 var stønadskontoberegning = utregnetStønadskontoTjeneste.gjeldendeKontoutregning(BehandlingReferanse.fra(behandling));
                 if (!stønadskontoberegning.isEmpty() && uttakResultat.isPresent()) {
                     dto.leggTil(get(UttakRestTjeneste.STONADSKONTOER_PATH, "uttak-stonadskontoer", uuidDto));
@@ -220,6 +224,10 @@ public class BehandlingFormidlingDtoTjeneste {
                 if (uttakResultat.isPresent()) {
                     dto.leggTil(get(BeregningsresultatRestTjeneste.DAGYTELSE_PATH, "beregningsresultat-dagytelse", uuidDto));
                     dto.leggTilFormidlingRessurs(get(TilkjentYtelseFormidlingRestTjeneste.TILKJENT_YTELSE_DAGYTELSE_PATH, "tilkjentytelse-dagytelse", uuidDto));
+                    uttakResultat.filter(ForeldrepengerUttak::harAvslagPgaMedlemskap).ifPresent(u -> {
+                        var avslagsårsak = medlemTjeneste.hentAvslagsårsak(behandling.getId());
+                        dto.setMedlemskapOpphørsårsak(avslagsårsak.orElse(null));
+                    });
                 }
 
                 dto.leggTil(get(FormidlingRestTjeneste.UTSATT_START_PATH, "utsatt-oppstart", uuidDto));

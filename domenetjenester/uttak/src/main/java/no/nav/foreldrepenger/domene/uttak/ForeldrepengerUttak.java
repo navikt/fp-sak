@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak;
 
+import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.OPPHØR_MEDLEMSKAP;
+
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
@@ -72,5 +74,9 @@ public class ForeldrepengerUttak {
 
     public boolean harUtbetaling() {
         return getGjeldendePerioder().stream().anyMatch(ForeldrepengerUttakPeriode::harUtbetaling);
+    }
+
+    public boolean harAvslagPgaMedlemskap() {
+        return getGjeldendePerioder().stream().anyMatch(p -> OPPHØR_MEDLEMSKAP.equals(p.getResultatÅrsak()));
     }
 }
