@@ -61,6 +61,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -167,10 +168,11 @@ public class StønadsstatistikkTjeneste {
         var familiehendelse = familieHendelseTjeneste.finnAggregat(behandlingId)
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).orElse(null);
         var vedtakstidspunkt = vedtak.getVedtakstidspunkt().isBefore(VEDTAK_MED_TIDSPUNKT) ? vedtak.getOpprettetTidspunkt() : vedtak.getVedtakstidspunkt();
+        var vilkårene = vedtak.getBehandlingsresultat().getVilkårResultat().getVilkårTyper();
 
         var fagsak = behandling.getFagsak();
         var ytelseType = mapYtelseType(fagsak.getYtelseType());
-        var lovVersjon = utledLovVersjon(stp, ytelseType, vedtakstidspunkt);
+        var lovVersjon = utledLovVersjon(stp, ytelseType, vedtakstidspunkt, vilkårene);
         var saksnummer = mapSaksnummer(fagsak.getSaksnummer());
         var søker = mapAktørId(fagsak.getAktørId());
         var søkersRolle = mapBrukerRolle(fagsak.getRelasjonsRolleType());
@@ -387,12 +389,16 @@ public class StønadsstatistikkTjeneste {
         };
     }
 
-    private static LovVersjon utledLovVersjon(Skjæringstidspunkt stp, YtelseType ytelseType, LocalDateTime vedtakstidspunkt) {
+    private static LovVersjon utledLovVersjon(Skjæringstidspunkt stp, YtelseType ytelseType, LocalDateTime vedtakstidspunkt, Set<VilkårType> vilkårene) {
         return switch (ytelseType) {
             case FORELDREPENGER -> utledLovVersjonFp(stp, vedtakstidspunkt);
             case SVANGERSKAPSPENGER -> LovVersjon.SVANGERSKAPSPENGER_2019_01_01;
-            case ENGANGSSTØNAD -> LovVersjon.ENGANGSSTØNAD_2019_01_01;
+            case ENGANGSSTØNAD -> utledLovVersjonEs(vilkårene);
         };
+    }
+
+    private static LovVersjon utledLovVersjonEs(Set<VilkårType> vilkårene) {
+        return vilkårene.contains(VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE) ? LovVersjon.ENGANGSSTØNAD_MEDLEM_2024_10_01 : LovVersjon.ENGANGSSTØNAD_2019_01_01;
     }
 
     private static LovVersjon utledLovVersjonFp(Skjæringstidspunkt stp, LocalDateTime vedtakstidspunkt) {

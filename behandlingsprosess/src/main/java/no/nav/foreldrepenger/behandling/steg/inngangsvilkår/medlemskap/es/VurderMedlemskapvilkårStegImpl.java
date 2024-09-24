@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.InngangsvilkårSteg
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -25,17 +26,26 @@ import no.nav.foreldrepenger.inngangsvilkaar.RegelResultat;
 @ApplicationScoped
 public class VurderMedlemskapvilkårStegImpl extends InngangsvilkårStegImpl {
 
-    private static final List<VilkårType> STØTTEDE_VILKÅR = List.of(VilkårType.MEDLEMSKAPSVILKÅRET);
+    private static final List<VilkårType> STØTTEDE_VILKÅR = List.of(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE);
+
+    private Medlemsvilkårutleder medlemsvilkårutleder;
 
     @Inject
     public VurderMedlemskapvilkårStegImpl(BehandlingRepositoryProvider repositoryProvider,
-                                          InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
+                                          InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste,
+                                          Medlemsvilkårutleder medlemsvilkårutleder) {
         super(repositoryProvider, inngangsvilkårFellesTjeneste, BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR);
+        this.medlemsvilkårutleder = medlemsvilkårutleder;
     }
 
     @Override
     public List<VilkårType> vilkårHåndtertAvSteg() {
         return STØTTEDE_VILKÅR;
+    }
+
+    @Override
+    protected void opprettDynamiskeVilkårForBehandling(BehandlingskontrollKontekst kontekst, Behandling behandling) {
+        medlemsvilkårutleder.opprettVilkårForBehandling(kontekst, behandling);
     }
 
     @Override
@@ -45,6 +55,8 @@ public class VurderMedlemskapvilkårStegImpl extends InngangsvilkårStegImpl {
 
     @Override
     protected BehandleStegResultat stegResultatVilkårIkkeOppfylt(RegelResultat regelResultat, Behandling behandling) {
-        return BehandleStegResultat.utførtMedAksjonspunkt(AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET);
+        var aksjonspunkt = regelResultat.vilkårResultat().getVilkårTyper().contains(VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE) ?
+            AksjonspunktDefinisjon.VURDER_FORUTGÅENDE_MEDLEMSKAPSVILKÅR : AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET;
+        return BehandleStegResultat.utførtMedAksjonspunkt(aksjonspunkt);
     }
 }

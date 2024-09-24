@@ -28,7 +28,6 @@ public class EngangsstønadModellProducer {
                 BehandlingStegType.VURDER_KOMPLETTHET,
                 BehandlingStegType.INNHENT_REGISTEROPP,
                 BehandlingStegType.INREG_AVSL,
-                BehandlingStegType.VURDER_FORUTGÅENDE_MEDLEMSKAPVILKÅR, // TODO medlemskap2 fjerne
                 BehandlingStegType.KONTROLLER_FAKTA,
                 BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT,
                 BehandlingStegType.SØKERS_RELASJON_TIL_BARN,

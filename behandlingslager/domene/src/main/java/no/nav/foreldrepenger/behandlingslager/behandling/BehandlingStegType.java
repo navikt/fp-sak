@@ -49,7 +49,6 @@ public enum BehandlingStegType implements Kodeverdi {
 
     // Kun for Engangsstønad
     VURDER_SØKNADSFRISTVILKÅR("VURDERSFV", "Vurder felles inngangsvilkår", UTREDES),
-    VURDER_FORUTGÅENDE_MEDLEMSKAPVILKÅR("VURDER_FORUTGÅENDE_MEDLEMSKAPVILKÅR", "Vurder vilkår om forutgående medlemskap", UTREDES),
 
     // Kun for Foreldrepenger
     DEKNINGSGRAD("DEKNINGSGRAD", "Fastsetter dekningsgrad for behandling", UTREDES),
@@ -93,9 +92,11 @@ public enum BehandlingStegType implements Kodeverdi {
     VURDER_TILBAKETREKK("VURDER_TILBAKETREKK", "Vurder tilbaketrekk", UTREDES),
     HINDRE_TILBAKETREKK("BERYT_OPPDRAG", "Hindre tilbaketrekk", UTREDES),
 
-    @Deprecated(forRemoval=true)
-    // Gammelt steg som håndterte aksjonspunkt 5080 (erstattet av 5085 og steg KO_ARB_IM)
-    KONTROLLER_FAKTA_ARBEIDSFORHOLD("KOARB", "Kontroller arbeidsforhold", UTREDES);
+    @Deprecated(forRemoval=true) // Gammelt steg som håndterte aksjonspunkt 5080 (erstattet av 5085 og steg KO_ARB_IM)
+    KONTROLLER_FAKTA_ARBEIDSFORHOLD("KOARB", "Kontroller arbeidsforhold", UTREDES),
+    @Deprecated(forRemoval=true) // Gammelt steg som kun logget oppførsel
+    UTLED_FORUTGÅENDE_MEDLEMSKAPVILKÅR("VURDER_FORUTGÅENDE_MEDLEMSKAPVILKÅR", "Utled hvilket medlemskapsvilkår", UTREDES)
+    ;
 
     static final String KODEVERK = "BEHANDLING_STEG_TYPE";
 

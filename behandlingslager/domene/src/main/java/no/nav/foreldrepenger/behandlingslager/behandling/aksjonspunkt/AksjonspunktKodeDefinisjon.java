@@ -75,8 +75,6 @@ public class AksjonspunktKodeDefinisjon {
 
     public static final String SJEKK_MANGLENDE_FØDSEL_KODE = "5027";
 
-    public static final String DENNE_ER_LEDIG_OG_KAN_BRUKES = "5018";
-
     public static final String VENT_PÅ_SCANNING_KODE = "7007";
     public static final String VENT_PGA_FOR_TIDLIG_SØKNAD_KODE = "7008";
     public static final String VENT_PÅ_SØKNAD_KODE = "7013";
@@ -143,6 +141,7 @@ public class AksjonspunktKodeDefinisjon {
     public static final String REGISTRER_PAPIRSØKNAD_SVANGERSKAPSPENGER_KODE = "5096";
 
     public static final String VURDER_MEDLEMSKAPSVILKÅRET = "5101";
+    public static final String VURDER_FORUTGÅENDE_MEDLEMSKAPSVILKÅR = "5102";
 
     // Andre koder
     public static final SkjermlenkeType UTEN_SKJERMLENKE = null;
@@ -154,6 +153,9 @@ public class AksjonspunktKodeDefinisjon {
     public static final boolean ENTRINN = false;
     public static final boolean TILBAKE = true;
     public static final boolean FORBLI = false;
+
+    // Ledige aksjonspunktkoder 5001-5100
+    // 5018, 5100
 
     // Utgåtte aksjonspunktkode. Helst ikke gjenbruk 5nnn til andre formål enn det opprinnelige før det har gått noe tid
     //  "5009",

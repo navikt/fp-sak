@@ -6,6 +6,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
@@ -17,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
+import no.nav.foreldrepenger.domene.medlem.MedlemskapVurderingPeriodeTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -27,16 +29,19 @@ public class MedlemskapAksjonspunktFellesTjeneste {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository;
     private BehandlingRepository behandlingRepository;
+    private MedlemskapVurderingPeriodeTjeneste vurderingPeriodeTjeneste;
 
     @Inject
     public MedlemskapAksjonspunktFellesTjeneste(HistorikkTjenesteAdapter historikkAdapter,
                                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                                 MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository,
-                                                BehandlingRepository behandlingRepository) {
+                                                BehandlingRepository behandlingRepository,
+                                                MedlemskapVurderingPeriodeTjeneste vurderingPeriodeTjeneste) {
         this.historikkAdapter = historikkAdapter;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.medlemskapVilkårPeriodeRepository = medlemskapVilkårPeriodeRepository;
         this.behandlingRepository = behandlingRepository;
+        this.vurderingPeriodeTjeneste = vurderingPeriodeTjeneste;
     }
 
     MedlemskapAksjonspunktFellesTjeneste() {
@@ -71,6 +76,28 @@ public class MedlemskapAksjonspunktFellesTjeneste {
             .build();
     }
 
+    public VilkårUtfallType oppdaterForutgående(BehandlingReferanse ref,
+                                                Avslagsårsak avslagsårsak,
+                                                LocalDate medlemFom,
+                                                String begrunnelse,
+                                                SkjermlenkeType skjermlenkeType) {
+        if (avslagsårsak != null && !VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE.getAvslagsårsaker().contains(avslagsårsak)) {
+            throw new IllegalArgumentException("Ugyldig avslagsårsak for medlemskapsvilkåret");
+        }
+        // TODO holder det med avslagsårsak == null ? Begge tilfelle der den angis er avslag (ene med en fom til bruk i brev)
+        var utfall = avslagsårsak == null || !blittMedlemILøpetAvVurderingsperioden(ref, medlemFom) ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
+        lagHistorikkInnslagForutgående(utfall, begrunnelse, medlemFom, skjermlenkeType);
+
+        var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
+        var grBuilder = medlemskapVilkårPeriodeRepository.hentBuilderFor(behandling);
+        var periodeBuilder = MedlemskapsvilkårPeriodeEntitet.Builder.oppdatere(Optional.empty());
+        periodeBuilder.opprettOverstyring(medlemFom, avslagsårsak, avslagsårsak == null ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT);
+        grBuilder.medMedlemskapsvilkårPeriode(periodeBuilder);
+        medlemskapVilkårPeriodeRepository.lagreMedlemskapsvilkår(behandling, grBuilder);
+
+        return utfall;
+    }
+
     private void lagHistorikkInnslag(VilkårUtfallType nyVerdi, String begrunnelse, LocalDate opphørFom, SkjermlenkeType skjermlenkeType) {
         var historikkInnslagTekstBuilder = historikkAdapter.tekstBuilder()
             .medEndretFelt(HistorikkEndretFeltType.MEDLEMSKAPSVILKÅRET, null, nyVerdi)
@@ -81,6 +108,16 @@ public class MedlemskapAksjonspunktFellesTjeneste {
         }
     }
 
+    private void lagHistorikkInnslagForutgående(VilkårUtfallType nyVerdi, String begrunnelse, LocalDate medlemFom, SkjermlenkeType skjermlenkeType) {
+        var historikkInnslagTekstBuilder = historikkAdapter.tekstBuilder()
+            .medEndretFelt(HistorikkEndretFeltType.MEDLEMSKAPSVILKÅRET, null, nyVerdi)
+            .medBegrunnelse(begrunnelse).medSkjermlenke(skjermlenkeType);
+
+        if (VilkårUtfallType.IKKE_OPPFYLT.equals(nyVerdi) && medlemFom != null) {
+            historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.MEDLEMSKAPSVILKÅRET_MEDLEMFRADATO, null, medlemFom);
+        }
+    }
+
     private static OppdateringResultat oppfyltResultat() {
         return new OppdateringResultat.Builder().leggTilManueltOppfyltVilkår(VilkårType.MEDLEMSKAPSVILKÅRET).build();
     }
@@ -88,6 +125,15 @@ public class MedlemskapAksjonspunktFellesTjeneste {
     private boolean erOpphørEtterStp(Long behandlingId, LocalDate opphørFom) {
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId).getUtledetSkjæringstidspunkt();
         return opphørFom != null && opphørFom.isAfter(stp);
+    }
+
+    private boolean blittMedlemILøpetAvVurderingsperioden(BehandlingReferanse ref, LocalDate medlemFom) {
+        if (medlemFom == null) {
+            return false;
+        }
+        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId());
+        var vurderingsperiode = vurderingPeriodeTjeneste.lovligOppholdVurderingsintervall(ref, stp);
+        return !medlemFom.isBefore(vurderingsperiode.getFomDato());
     }
 
 }
