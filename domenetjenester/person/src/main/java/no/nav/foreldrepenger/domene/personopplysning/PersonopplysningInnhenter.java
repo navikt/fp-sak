@@ -85,10 +85,11 @@ public class PersonopplysningInnhenter {
         }
 
         // Fase 2 - mapping til
-
         mapInfoTilEntitet(søkerPersonInfo, informasjonBuilder, false);
         // Ektefelle
-        leggTilEktefelle(søkerPersonInfo, informasjonBuilder, innhentet);
+        if (!FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelseType)) {
+            leggTilEktefelle(søkerPersonInfo, informasjonBuilder, innhentet);
+        }
 
         // Medsøker (annen part). kan være samme person som Ektefelle
         annenPartInfo.ifPresent(ap -> mapInfoTilEntitet(ap, informasjonBuilder, true));
