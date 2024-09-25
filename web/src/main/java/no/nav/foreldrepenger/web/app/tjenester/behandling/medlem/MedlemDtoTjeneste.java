@@ -40,6 +40,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
@@ -63,6 +64,7 @@ public class MedlemDtoTjeneste {
 
     private static final List<AksjonspunktDefinisjon> MEDL_AKSJONSPUNKTER = List.of(AVKLAR_OM_ER_BOSATT, AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE,
         AVKLAR_LOVLIG_OPPHOLD, AVKLAR_OPPHOLDSRETT);
+    private static final Set<AksjonspunktDefinisjon> VURDER_MEDLEMSKAPSVILKÅRET_AKSJONSPUNKT = Set.of(VURDER_MEDLEMSKAPSVILKÅRET); //TODO forutgående
 
     private MedlemskapRepository medlemskapRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -208,21 +210,26 @@ public class MedlemDtoTjeneste {
     }
 
     private Optional<MedlemskapV3Dto.ManuellBehandlingResultat> manuellBehandling(Behandling behandling) {
-        var medlemskapsvilkår = vilkårResultatRepository.hentHvisEksisterer(behandling.getId())
+        if (VURDER_MEDLEMSKAPSVILKÅRET_AKSJONSPUNKT.stream().anyMatch(behandling::harÅpentAksjonspunktMedType)) {
+            return Optional.empty();
+        }
+
+        return vilkårResultatRepository.hentHvisEksisterer(behandling.getId())
             .stream()
             .flatMap(vr -> vr.getVilkårene().stream())
             .filter(v -> v.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET)) //TODO forutgående
-            .findFirst();
-        return medlemskapsvilkår.filter(m -> VilkårUtfallType.erFastsatt(m.getVilkårUtfallManuelt())).map((v -> {
-            Optional<LocalDate> opphørsdato = v.getGjeldendeVilkårUtfall()
-                .equals(VilkårUtfallType.OPPFYLT) ? medlemTjeneste.hentOpphørsdatoHvisEksisterer(behandling.getId()) : Optional.empty();
-            var avslagskode = medlemTjeneste.hentAvslagsårsak(behandling.getId()).filter(å -> !å.equals(Avslagsårsak.UDEFINERT));
-            return new MedlemskapV3Dto.ManuellBehandlingResultat(avslagskode.orElse(null), null, opphørsdato.orElse(null));
+            .filter(Vilkår::erManueltVurdert)
+            .findFirst()
+            .map((v -> {
+                Optional<LocalDate> opphørsdato = v.getGjeldendeVilkårUtfall()
+                    .equals(VilkårUtfallType.OPPFYLT) ? medlemTjeneste.hentOpphørsdatoHvisEksisterer(behandling.getId()) : Optional.empty();
+                var avslagskode = medlemTjeneste.hentAvslagsårsak(behandling.getId()).filter(å -> !å.equals(Avslagsårsak.UDEFINERT));
+                return new MedlemskapV3Dto.ManuellBehandlingResultat(avslagskode.orElse(null), null, opphørsdato.orElse(null));
             }));
     }
 
     private static boolean aksjonspunktErOpprettetEllerLøst(Behandling behandling) {
-        return Set.of(VURDER_MEDLEMSKAPSVILKÅRET) //TODO forutgående
+        return VURDER_MEDLEMSKAPSVILKÅRET_AKSJONSPUNKT
             .stream()
             .anyMatch(a -> behandling.harUtførtAksjonspunktMedType(a) || behandling.harÅpentAksjonspunktMedType(a));
     }

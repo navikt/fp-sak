@@ -135,7 +135,7 @@ class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
             FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.SØKERS_RELASJON_TIL_BARNET, "barn fjernet fra PDL", grunnlag1.getId(), grunnlag2.getId());
             startpunkter.add(StartpunktType.SØKERS_RELASJON_TIL_BARNET);
         }
-        if(poDiff.erRelasjonerEndret()) {
+        if (poDiff.erRelasjonerEndret() && !FagsakYtelseType.SVANGERSKAPSPENGER.equals(ref.fagsakYtelseType())) {
             leggTilForRelasjoner(grunnlag1.getId(), grunnlag2.getId(), poDiff, startpunkter);
         }
         if (startpunkter.isEmpty()) {
