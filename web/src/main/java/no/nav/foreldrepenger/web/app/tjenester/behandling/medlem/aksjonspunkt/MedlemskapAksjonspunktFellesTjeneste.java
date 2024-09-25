@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
-import no.nav.foreldrepenger.domene.medlem.MedlemskapVurderingPeriodeTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -29,19 +28,16 @@ public class MedlemskapAksjonspunktFellesTjeneste {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository;
     private BehandlingRepository behandlingRepository;
-    private MedlemskapVurderingPeriodeTjeneste vurderingPeriodeTjeneste;
 
     @Inject
     public MedlemskapAksjonspunktFellesTjeneste(HistorikkTjenesteAdapter historikkAdapter,
                                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                                 MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository,
-                                                BehandlingRepository behandlingRepository,
-                                                MedlemskapVurderingPeriodeTjeneste vurderingPeriodeTjeneste) {
+                                                BehandlingRepository behandlingRepository) {
         this.historikkAdapter = historikkAdapter;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.medlemskapVilkårPeriodeRepository = medlemskapVilkårPeriodeRepository;
         this.behandlingRepository = behandlingRepository;
-        this.vurderingPeriodeTjeneste = vurderingPeriodeTjeneste;
     }
 
     MedlemskapAksjonspunktFellesTjeneste() {
@@ -84,14 +80,13 @@ public class MedlemskapAksjonspunktFellesTjeneste {
         if (avslagsårsak != null && !VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE.getAvslagsårsaker().contains(avslagsårsak)) {
             throw new IllegalArgumentException("Ugyldig avslagsårsak for medlemskapsvilkåret");
         }
-        // TODO holder det med avslagsårsak == null ? Begge tilfelle der den angis er avslag (ene med en fom til bruk i brev)
-        var utfall = avslagsårsak == null || !blittMedlemILøpetAvVurderingsperioden(ref, medlemFom) ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
+        var utfall = avslagsårsak == null ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
         lagHistorikkInnslagForutgående(utfall, begrunnelse, medlemFom, skjermlenkeType);
 
         var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
         var grBuilder = medlemskapVilkårPeriodeRepository.hentBuilderFor(behandling);
         var periodeBuilder = MedlemskapsvilkårPeriodeEntitet.Builder.oppdatere(Optional.empty());
-        periodeBuilder.opprettOverstyring(medlemFom, avslagsårsak, avslagsårsak == null ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT);
+        periodeBuilder.opprettOverstyring(medlemFom, avslagsårsak, utfall);
         grBuilder.medMedlemskapsvilkårPeriode(periodeBuilder);
         medlemskapVilkårPeriodeRepository.lagreMedlemskapsvilkår(behandling, grBuilder);
 
@@ -125,15 +120,6 @@ public class MedlemskapAksjonspunktFellesTjeneste {
     private boolean erOpphørEtterStp(Long behandlingId, LocalDate opphørFom) {
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId).getUtledetSkjæringstidspunkt();
         return opphørFom != null && opphørFom.isAfter(stp);
-    }
-
-    private boolean blittMedlemILøpetAvVurderingsperioden(BehandlingReferanse ref, LocalDate medlemFom) {
-        if (medlemFom == null) {
-            return false;
-        }
-        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId());
-        var vurderingsperiode = vurderingPeriodeTjeneste.lovligOppholdVurderingsintervall(ref, stp);
-        return !medlemFom.isBefore(vurderingsperiode.getFomDato());
     }
 
 }
