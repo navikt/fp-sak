@@ -27,6 +27,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
  */
 
 public final class EngangsstønadVilkårUtleder  {
+
+    // Medlemskap er standard, men vilkår velges. TODO erstatt med medlemskap-forutgående tidlig 2025
     private static final Set<VilkårType> STANDARDVILKÅR = Set.of(MEDLEMSKAPSVILKÅRET,
         SØKNADSFRISTVILKÅRET,
         SØKERSOPPLYSNINGSPLIKT);

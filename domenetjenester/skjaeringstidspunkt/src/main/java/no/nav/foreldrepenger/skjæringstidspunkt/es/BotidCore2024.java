@@ -28,6 +28,8 @@ import no.nav.foreldrepenger.skjæringstidspunkt.FamilieHendelseMapper;
 @ApplicationScoped
 public class BotidCore2024 {
 
+    public static final Period FORUTGÅENDE_MEDLEMSKAP_TIDSPERIODE = Period.ofMonths(12);
+
 
     private static final Logger LOG = LoggerFactory.getLogger(BotidCore2024.class);
     private static final Environment ENV = Environment.current();

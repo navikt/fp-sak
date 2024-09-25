@@ -101,6 +101,12 @@ public class VilkårResultat extends BaseEntitet {
             .findFirst();
     }
 
+    public Set<VilkårType> getVilkårTyper() {
+        return vilkårne.stream()
+            .map(Vilkår::getVilkårType)
+            .collect(toSet());
+    }
+
     public boolean erOverstyrt() {
         return erOverstyrt;
     }

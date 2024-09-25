@@ -11,22 +11,23 @@ import no.nav.foreldrepenger.inngangsvilkaar.VilkårTypeRef;
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.AvklarMedlemskapUtleder;
 
 @ApplicationScoped
-@VilkårTypeRef(VilkårType.MEDLEMSKAPSVILKÅRET)
-public class InngangsvilkårMedlemskap implements Inngangsvilkår {
+@VilkårTypeRef(VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE)
+public class InngangsvilkårMedlemskapForutgående implements Inngangsvilkår {
 
     private AvklarMedlemskapUtleder avklarMedlemskapUtleder;
 
-    InngangsvilkårMedlemskap() {
+    InngangsvilkårMedlemskapForutgående() {
         // for CDI proxy
     }
 
     @Inject
-    public InngangsvilkårMedlemskap(AvklarMedlemskapUtleder avklarMedlemskapUtleder) {
+    public InngangsvilkårMedlemskapForutgående(AvklarMedlemskapUtleder avklarMedlemskapUtleder) {
         this.avklarMedlemskapUtleder = avklarMedlemskapUtleder;
     }
 
     @Override
     public VilkårData vurderVilkår(BehandlingReferanse ref) {
-        return avklarMedlemskapUtleder.utledFor(ref, VilkårType.MEDLEMSKAPSVILKÅRET);
+        return avklarMedlemskapUtleder.utledFor(ref, VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE);
     }
+
 }

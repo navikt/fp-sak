@@ -6,6 +6,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
@@ -71,6 +72,27 @@ public class MedlemskapAksjonspunktFellesTjeneste {
             .build();
     }
 
+    public VilkårUtfallType oppdaterForutgående(BehandlingReferanse ref,
+                                                Avslagsårsak avslagsårsak,
+                                                LocalDate medlemFom,
+                                                String begrunnelse,
+                                                SkjermlenkeType skjermlenkeType) {
+        if (avslagsårsak != null && !VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE.getAvslagsårsaker().contains(avslagsårsak)) {
+            throw new IllegalArgumentException("Ugyldig avslagsårsak for medlemskapsvilkåret");
+        }
+        var utfall = avslagsårsak == null ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
+        lagHistorikkInnslagForutgående(utfall, begrunnelse, medlemFom, skjermlenkeType);
+
+        var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
+        var grBuilder = medlemskapVilkårPeriodeRepository.hentBuilderFor(behandling);
+        var periodeBuilder = MedlemskapsvilkårPeriodeEntitet.Builder.oppdatere(Optional.empty());
+        periodeBuilder.opprettOverstyring(medlemFom, avslagsårsak, utfall);
+        grBuilder.medMedlemskapsvilkårPeriode(periodeBuilder);
+        medlemskapVilkårPeriodeRepository.lagreMedlemskapsvilkår(behandling, grBuilder);
+
+        return utfall;
+    }
+
     private void lagHistorikkInnslag(VilkårUtfallType nyVerdi, String begrunnelse, LocalDate opphørFom, SkjermlenkeType skjermlenkeType) {
         var historikkInnslagTekstBuilder = historikkAdapter.tekstBuilder()
             .medEndretFelt(HistorikkEndretFeltType.MEDLEMSKAPSVILKÅRET, null, nyVerdi)
@@ -78,6 +100,16 @@ public class MedlemskapAksjonspunktFellesTjeneste {
 
         if (nyVerdi.equals(VilkårUtfallType.OPPFYLT) && opphørFom != null) {
             historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.MEDLEMSKAPSVILKÅRET_OPPHØRSDATO, null, opphørFom);
+        }
+    }
+
+    private void lagHistorikkInnslagForutgående(VilkårUtfallType nyVerdi, String begrunnelse, LocalDate medlemFom, SkjermlenkeType skjermlenkeType) {
+        var historikkInnslagTekstBuilder = historikkAdapter.tekstBuilder()
+            .medEndretFelt(HistorikkEndretFeltType.MEDLEMSKAPSVILKÅRET, null, nyVerdi)
+            .medBegrunnelse(begrunnelse).medSkjermlenke(skjermlenkeType);
+
+        if (VilkårUtfallType.IKKE_OPPFYLT.equals(nyVerdi) && medlemFom != null) {
+            historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.MEDLEMSKAPSVILKÅRET_MEDLEMFRADATO, null, medlemFom);
         }
     }
 

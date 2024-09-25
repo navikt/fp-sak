@@ -78,7 +78,7 @@ public enum StartpunktType implements Kodeverdi {
 
         VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.put(StartpunktType.OPPTJENING,
             VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.values().stream().flatMap(Collection::stream).collect(toSet()));
-        VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.get(StartpunktType.OPPTJENING).add(VilkårType.MEDLEMSKAPSVILKÅRET);
+        VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.get(StartpunktType.OPPTJENING).addAll(Set.of(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE));
 
         // Dekningsgrad
         VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.put(StartpunktType.DEKNINGSGRAD,

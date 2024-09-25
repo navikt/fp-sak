@@ -53,6 +53,10 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         // Hent behandlingsgrunnlag og vilkårtyper
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+
+        // Ett tilfelle må velge vilkår etter at tidligere vilkår er vurdert (termindato)
+        opprettDynamiskeVilkårForBehandling(kontekst, behandling);
+
         var vilkårHåndtertAvSteg = vilkårHåndtertAvSteg();
         var vilkårTyper = getBehandlingsresultat(behandling).getVilkårResultat().getVilkårene().stream()
                 .map(Vilkår::getVilkårType)
@@ -141,9 +145,10 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
         return BehandleStegResultat.fremoverførtMedAksjonspunkter(FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT, aksjonspunktDefinisjoner);
     }
 
-    @SuppressWarnings("unused")
+    protected void opprettDynamiskeVilkårForBehandling(BehandlingskontrollKontekst kontekst, Behandling behandling) {
+    }
+
     protected void utførtRegler(BehandlingskontrollKontekst kontekst, Behandling behandling, RegelResultat regelResultat) {
-        // template method
     }
 
     // Vennligst ikke override - det er forbeholdt vurdersamlet ....

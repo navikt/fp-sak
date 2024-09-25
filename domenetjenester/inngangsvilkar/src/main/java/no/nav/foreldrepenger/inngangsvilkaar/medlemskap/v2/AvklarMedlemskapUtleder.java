@@ -28,14 +28,14 @@ public class AvklarMedlemskapUtleder {
         //CDI
     }
 
-    public VilkårData utledFor(BehandlingReferanse behandlingRef) {
+    public VilkårData utledFor(BehandlingReferanse behandlingRef, VilkårType vilkårType) {
         var grunnlag = grunnlagBygger.lagRegelGrunnlag(behandlingRef);
         var resultat = InngangsvilkårRegler.medlemskapV2(grunnlag);
-        return RegelResultatOversetter.oversett(VilkårType.MEDLEMSKAPSVILKÅRET, resultat);
+        return RegelResultatOversetter.oversett(vilkårType, resultat);
     }
 
     public Set<no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAvvik> utledAvvik(BehandlingReferanse behandlingRef) {
-        var vilkårData = utledFor(behandlingRef);
+        var vilkårData = utledFor(behandlingRef, VilkårType.MEDLEMSKAPSVILKÅRET);
         var reglerAvvik = (HashSet<MedlemskapAvvik>) vilkårData.ekstraVilkårresultat();
         return reglerAvvik.stream().map(this::map).collect(Collectors.toSet());
     }

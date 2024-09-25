@@ -307,6 +307,7 @@ public class StønadsstatistikkVedtak {
         FORELDREPENGER_MINSTERETT_2024_08_02(YtelseType.FORELDREPENGER, LocalDate.of(2024,Month.AUGUST,2)), // LOV-TBA - 2/8-2024 - minsterett
 
         ENGANGSSTØNAD_2019_01_01(YtelseType.ENGANGSSTØNAD, LocalDate.of(2019,Month.JANUARY,1)),
+        ENGANGSSTØNAD_MEDLEM_2024_10_01(YtelseType.ENGANGSSTØNAD, LocalDate.of(2024,Month.OCTOBER,1)),
         SVANGERSKAPSPENGER_2019_01_01(YtelseType.SVANGERSKAPSPENGER, LocalDate.of(2019,Month.JANUARY,1))
         ;
 

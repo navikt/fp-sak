@@ -17,7 +17,7 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 public class MedlemskapVurderingPeriodeTjeneste {
 
     private static final Period BOSATT_TILBAKE_TID = Period.ofMonths(12);
-    private static final Period MEDLEMSKAP_ES = Period.ofMonths(12);
+    private static final Period MEDLEMSKAP_ES = BotidCore2024.FORUTGÅENDE_MEDLEMSKAP_TIDSPERIODE;
 
     private BotidCore2024 botidCore2024;
     MedlemskapVurderingPeriodeTjeneste() {
@@ -39,15 +39,6 @@ public class MedlemskapVurderingPeriodeTjeneste {
         };
         var startdato = minDato(referansedato, LocalDate.now());
         return new LocalDateInterval(startdato.minus(BOSATT_TILBAKE_TID), maxdato);
-    }
-
-    public LocalDateInterval fortsattBosattVurderingsintervall(BehandlingReferanse ref, Skjæringstidspunkt stp) {
-        var referansedato = getReferansedato(ref, stp);
-        var maxdato = switch (ref.fagsakYtelseType()) {
-            case FORELDREPENGER, SVANGERSKAPSPENGER -> stp.getUttaksintervall().map(LocalDateInterval::getTomDato).orElse(referansedato);
-            case null, default -> throw new IllegalArgumentException("Mangler ytelse");
-        };
-        return new LocalDateInterval(referansedato, maxdato);
     }
 
     public LocalDateInterval lovligOppholdVurderingsintervall(BehandlingReferanse ref, Skjæringstidspunkt stp) {

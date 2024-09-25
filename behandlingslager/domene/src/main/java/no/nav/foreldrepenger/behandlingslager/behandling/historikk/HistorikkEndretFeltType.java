@@ -18,6 +18,7 @@ public enum HistorikkEndretFeltType implements Kodeverdi {
     OPPTJENINGSVILKARET("OPPTJENINGSVILKARET", "Opptjeningsvilkåret"),
     MEDLEMSKAPSVILKÅRET("MEDLEMSKAPSVILKÅRET", "Medlemskapsvilkåret"),
     MEDLEMSKAPSVILKÅRET_OPPHØRSDATO("MEDLEMSKAPSVILKÅRET_OPPHØRSDATO", "Medlemskap opphørsdato"),
+    MEDLEMSKAPSVILKÅRET_MEDLEMFRADATO("MEDLEMSKAPSVILKÅRET_MEDLEMFRADATO", "Medlems fra dato"),
     ADOPTERER_ALENE("ADOPTERER_ALENE", "Adopterer alene"),
     AKTIVITET("AKTIVITET", "Aktivitet"),
     AKTIVITET_PERIODE("AKTIVITET_PERIODE", "Perioden med aktivitet"),

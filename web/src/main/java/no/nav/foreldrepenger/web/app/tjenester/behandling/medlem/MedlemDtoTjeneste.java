@@ -4,6 +4,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.VURDER_FORUTGÅENDE_MEDLEMSKAPSVILKÅR;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET;
 
 import java.time.LocalDate;
@@ -64,7 +65,7 @@ public class MedlemDtoTjeneste {
 
     private static final List<AksjonspunktDefinisjon> MEDL_AKSJONSPUNKTER = List.of(AVKLAR_OM_ER_BOSATT, AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE,
         AVKLAR_LOVLIG_OPPHOLD, AVKLAR_OPPHOLDSRETT);
-    private static final Set<AksjonspunktDefinisjon> VURDER_MEDLEMSKAPSVILKÅRET_AKSJONSPUNKT = Set.of(VURDER_MEDLEMSKAPSVILKÅRET); //TODO forutgående
+    private static final Set<AksjonspunktDefinisjon> VURDER_MEDLEMSKAPSVILKÅRET_AKSJONSPUNKT = Set.of(VURDER_MEDLEMSKAPSVILKÅRET, VURDER_FORUTGÅENDE_MEDLEMSKAPSVILKÅR);
 
     private MedlemskapRepository medlemskapRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -217,7 +218,7 @@ public class MedlemDtoTjeneste {
         return vilkårResultatRepository.hentHvisEksisterer(behandling.getId())
             .stream()
             .flatMap(vr -> vr.getVilkårene().stream())
-            .filter(v -> v.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET)) //TODO forutgående
+            .filter(v -> v.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET) || VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE.equals(v.getVilkårType()))
             .filter(Vilkår::erManueltVurdert)
             .findFirst()
             .map((v -> {
