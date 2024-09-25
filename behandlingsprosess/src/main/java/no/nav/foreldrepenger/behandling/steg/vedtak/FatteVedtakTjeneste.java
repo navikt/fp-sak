@@ -31,8 +31,6 @@ import no.nav.vedtak.exception.TekniskException;
 @ApplicationScoped
 public class FatteVedtakTjeneste {
 
-    private static final Environment ENV = Environment.current(); // TODO medlemskap2 standardisere etter omlegging
-
     private static final Set<AksjonspunktDefinisjon> LEGACY_MEDLEM = Set.of(AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD,
         AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT, AksjonspunktDefinisjon.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE, AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT,
         AksjonspunktDefinisjon.AVKLAR_FORTSATT_MEDLEMSKAP);
@@ -107,7 +105,7 @@ public class FatteVedtakTjeneste {
                 var aksjonspunktDefinisjoner = totrinnaksjonspunktvurderinger.stream()
                         .filter(a -> !TRUE.equals(a.isGodkjent()))
                         .map(Totrinnsvurdering::getAksjonspunktDefinisjon).toList();
-                if (ENV.isProd() || aksjonspunktDefinisjoner.stream().noneMatch(LEGACY_MEDLEM::contains)) {
+                if (aksjonspunktDefinisjoner.stream().noneMatch(LEGACY_MEDLEM::contains)) {
                     return BehandleStegResultat.tilbakeførtMedAksjonspunkter(aksjonspunktDefinisjoner);
                 } else if (aksjonspunktDefinisjoner.stream()
                     .anyMatch(ad -> behandlingskontrollTjeneste.sammenlignRekkefølge(behandling.getFagsakYtelseType(), behandling.getType(), ad.getBehandlingSteg(), BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR) < 0)) {

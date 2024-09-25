@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
-import no.nav.foreldrepenger.domene.medlem.kontrollerfakta.AksjonspunktutlederForMedlemskapSkjæringstidspunkt;
 import no.nav.foreldrepenger.familiehendelse.kontrollerfakta.adopsjon.AksjonspunktUtlederForEngangsstønadAdopsjon;
 import no.nav.foreldrepenger.familiehendelse.kontrollerfakta.fødsel.AksjonspunktUtlederForEngangsstønadFødsel;
 import no.nav.foreldrepenger.familiehendelse.kontrollerfakta.omsorgsovertakelse.AksjonspunktUtlederForOmsorgsovertakelse;
@@ -68,7 +67,6 @@ class KontrollerFaktaUtledereTjenesteImpl implements KontrollerFaktaUtledere {
 
     private void leggTilStandardUtledere(AksjonspunktUtlederHolder utlederHolder) {
         utlederHolder
-            .leggTil(AksjonspunktUtlederForTidligereMottattYtelse.class)
-            .leggTil(AksjonspunktutlederForMedlemskapSkjæringstidspunkt.class);
+            .leggTil(AksjonspunktUtlederForTidligereMottattYtelse.class);
     }
 }

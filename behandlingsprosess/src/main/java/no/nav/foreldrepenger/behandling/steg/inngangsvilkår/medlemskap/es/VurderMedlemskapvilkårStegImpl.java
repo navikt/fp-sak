@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.inngangsvilkaar.RegelResultat;
-import no.nav.foreldrepenger.konfig.Environment;
 
 @BehandlingStegRef(BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR)
 @BehandlingTypeRef
@@ -26,7 +25,6 @@ import no.nav.foreldrepenger.konfig.Environment;
 @ApplicationScoped
 public class VurderMedlemskapvilkårStegImpl extends InngangsvilkårStegImpl {
 
-    private static final Environment ENV = Environment.current();
     private static final List<VilkårType> STØTTEDE_VILKÅR = List.of(VilkårType.MEDLEMSKAPSVILKÅRET);
 
     @Inject
@@ -42,15 +40,11 @@ public class VurderMedlemskapvilkårStegImpl extends InngangsvilkårStegImpl {
 
     @Override
     protected boolean manuellVurderingNårRegelVilkårIkkeOppfylt() {
-        return !ENV.isProd();
+        return true;
     }
 
     @Override
     protected BehandleStegResultat stegResultatVilkårIkkeOppfylt(RegelResultat regelResultat, Behandling behandling) {
-        if (ENV.isProd()) {
-            return super.stegResultatVilkårIkkeOppfylt(regelResultat, behandling);
-        } else {
-            return BehandleStegResultat.utførtMedAksjonspunkt(AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET);
-        }
+        return BehandleStegResultat.utførtMedAksjonspunkt(AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET);
     }
 }
