@@ -34,6 +34,7 @@ record SvpSak(String saksnummer,
         }
 
         public enum OppholdKilde {
+            SOKNAD,
             SAKSBEHANDLER,
             INNTEKTSMELDING
         }

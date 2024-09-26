@@ -29,6 +29,9 @@ public class SvpAvklartOpphold extends BaseCreateableEntitet {
     @Column(name = "svp_opphold_arsak", nullable = false)
     private SvpOppholdÅrsak svpOppholdÅrsak;
 
+    @Column(name = "svp_opphold_arsak_kilde")
+    private SvpOppholdKilde svpOppholdKilde;
+
     public SvpAvklartOpphold() {
         //for hibernate
     }
@@ -47,6 +50,10 @@ public class SvpAvklartOpphold extends BaseCreateableEntitet {
 
     public SvpOppholdÅrsak getOppholdÅrsak() {
         return svpOppholdÅrsak;
+    }
+
+    public SvpOppholdKilde getKilde() {
+        return svpOppholdKilde == null ? SvpOppholdKilde.REGISTRERT_AV_SAKSBEHANDLER : svpOppholdKilde;
     }
 
     @Override
@@ -105,9 +112,18 @@ public class SvpAvklartOpphold extends BaseCreateableEntitet {
             return this;
         }
 
+        public SvpAvklartOpphold.Builder medKilde(SvpOppholdKilde kilde) {
+            kladd.svpOppholdKilde = Objects.requireNonNull(kilde);
+            return this;
+        }
+
         public SvpAvklartOpphold build() {
             Objects.requireNonNull(this.kladd.svpOppholdÅrsak, "Utviklerfeil:oppholdsårsak  skal være satt");
+            if (kladd.svpOppholdKilde == null) {
+                kladd.svpOppholdKilde = SvpOppholdKilde.REGISTRERT_AV_SAKSBEHANDLER;
+            }
             return kladd;
         }
     }
+
 }
