@@ -153,15 +153,6 @@ public class MedlemTjeneste {
         return new VurderMedlemskap(aksjonspunkter, vurderingsÅrsaks);
     }
 
-    /**
-     * TODO: Sjekk denne mot det som hentes til MedlemV2Dto .... Denne brukes som UttakInput
-     * <p>
-     * Sjekker både medlemskapsvilkåret og løpende medlemskapsvilkår
-     * Tar hensyn til overstyring
-     *
-     * @param behandlingId behandling
-     * @return opphørsdato
-     */
     public Optional<LocalDate> hentOpphørsdatoHvisEksisterer(Long behandlingId) {
         var behandlingsresultatOpt = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
         if (behandlingsresultatOpt.isEmpty() || behandlingsresultatOpt.get().getVilkårResultat() == null) {
@@ -192,7 +183,7 @@ public class MedlemTjeneste {
         var medlemskapsvilkåret = behandlingsresultat.getVilkårResultat()
             .getVilkårene()
             .stream()
-            .filter(vilkårType -> vilkårType.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET))
+            .filter(v -> v.getVilkårType().gjelderMedlemskap())
             .findFirst();
         if (medlemskapsvilkåret.isEmpty()) {
             return Optional.empty();
@@ -208,6 +199,26 @@ public class MedlemTjeneste {
         var medlemskapVilkårPeriodeGrunnlagEntitet = medlemskapVilkårPeriodeRepository.hentAggregatHvisEksisterer(behandling);
         return medlemskapVilkårPeriodeGrunnlagEntitet.map(
             vilkårPeriodeGrunnlagEntitet -> vilkårPeriodeGrunnlagEntitet.getMedlemskapsvilkårPeriode().getOverstyring().getAvslagsårsak());
+    }
+
+    public Optional<LocalDate> hentMedlemFomDato(Long behandlingId) {
+        var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
+        var medlemskapsvilkåret = behandlingsresultat.getVilkårResultat()
+            .getVilkårene()
+            .stream()
+            .filter(vilkårType -> vilkårType.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE))
+            .findFirst();
+        if (medlemskapsvilkåret.isEmpty()) {
+            return Optional.empty();
+        }
+        var gjeldendeVilkårUtfall = medlemskapsvilkåret.get().getGjeldendeVilkårUtfall();
+        if (!VilkårUtfallType.erFastsatt(gjeldendeVilkårUtfall) || gjeldendeVilkårUtfall.equals(VilkårUtfallType.OPPFYLT)) {
+            return Optional.empty();
+        }
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var medlemskapVilkårPeriodeGrunnlagEntitet = medlemskapVilkårPeriodeRepository.hentAggregatHvisEksisterer(behandling);
+        return medlemskapVilkårPeriodeGrunnlagEntitet.flatMap(
+            vilkårPeriodeGrunnlagEntitet -> vilkårPeriodeGrunnlagEntitet.getMedlemskapsvilkårPeriode().getOverstyring().getOverstyringsdato());
     }
 
     private <T extends Kodeverdi> void sjekkEndringer(Stream<ElementMedGyldighetsintervallWrapper<T>> elementer,
