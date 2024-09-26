@@ -59,6 +59,7 @@ public class AksjonspunktKodeDefinisjon {
     public static final String OVERSTYRING_AV_FØDSELSVILKÅRET_FAR_MEDMOR_KODE = "6009";
     public static final String OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET_KODE = "6005";
     public static final String OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET_LØPENDE_KODE = "6012";
+    public static final String OVERSTYRING_AV_FORUTGÅENDE_MEDLEMSKAPSVILKÅR_KODE = "6017";
     public static final String OVERSTYRING_AV_SØKNADSFRISTVILKÅRET_KODE = "6006";
     public static final String OVERSTYRING_AV_OPPTJENINGSVILKÅRET_KODE = "6011";
     public static final String OVERSTYRING_AV_BEREGNINGSAKTIVITETER_KODE = "6014";

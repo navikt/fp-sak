@@ -34,7 +34,7 @@ public class VurderForutgåendeMedlemskapsvilkårOppdaterer implements Aksjonspu
         var avslagskode = dto.getAvslagskode();
         var medlemFom = dto.getMedlemFom();
         var begrunnelse = dto.getBegrunnelse();
-        var utfall = medlemskapAksjonspunktFellesTjeneste.oppdaterForutgående(param.getRef(), avslagskode, medlemFom, begrunnelse, SkjermlenkeType.FAKTA_OM_MEDLEMSKAP);
+        var utfall = medlemskapAksjonspunktFellesTjeneste.oppdaterForutgående(param.getRef().behandlingId(), avslagskode, medlemFom, begrunnelse, SkjermlenkeType.FAKTA_OM_MEDLEMSKAP);
         if (VilkårUtfallType.OPPFYLT.equals(utfall)) {
             return OppdateringResultat.utenTransisjon().leggTilManueltOppfyltVilkår(VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE).build();
         } else {
