@@ -220,6 +220,10 @@ public enum VilkårType implements Kodeverdi {
         }
     }
 
+    public boolean gjelderMedlemskap() {
+        return this.equals(VilkårType.MEDLEMSKAPSVILKÅRET) || VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE.equals(this);
+    }
+
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<VilkårType, String> {
         @Override
