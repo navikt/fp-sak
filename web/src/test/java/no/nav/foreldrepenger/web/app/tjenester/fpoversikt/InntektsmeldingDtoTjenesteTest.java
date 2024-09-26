@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
+import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
@@ -29,7 +30,7 @@ class InntektsmeldingDtoTjenesteTest {
     void henter_im(EntityManager entityManager) {
         var iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         var repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        var tjeneste = new InntektsmeldingDtoTjeneste(new InntektsmeldingTjeneste(iayTjeneste), repositoryProvider.getMottatteDokumentRepository());
+        var tjeneste = new InntektsmeldingDtoTjeneste(new InntektsmeldingTjeneste(iayTjeneste, new FpInntektsmeldingTjeneste()), repositoryProvider.getMottatteDokumentRepository());
 
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagre(repositoryProvider);

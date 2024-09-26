@@ -48,6 +48,7 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYRepositoryProvider;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
+import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
@@ -85,7 +86,7 @@ class InntektsmeldingTjenesteTest {
     private BehandlingRepository behandlingRepository;
     private FagsakRepository fagsakRepository;
     private final InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-    private final InntektsmeldingTjeneste inntektsmeldingTjeneste = new InntektsmeldingTjeneste(iayTjeneste);
+    private final InntektsmeldingTjeneste inntektsmeldingTjeneste = new InntektsmeldingTjeneste(iayTjeneste, new FpInntektsmeldingTjeneste());
     private InntektsmeldingRegisterTjeneste inntektsmeldingArkivTjeneste;
     private Arbeidsgiver arbeidsgiver;
     private Arbeidsgiver arbeidsgiver2;
@@ -338,7 +339,7 @@ class InntektsmeldingTjenesteTest {
                 .medInnsendingstidspunkt(LocalDateTime.of(mottattDato, LocalTime.MIN))
                 .medJournalpostId(journalPostId);
 
-        inntektsmeldingTjeneste.lagreInntektsmelding(behandling.getFagsak().getSaksnummer(), behandling.getId(), inntektsmelding);
+        inntektsmeldingTjeneste.lagreInntektsmelding(inntektsmelding,behandling );
 
     }
 
