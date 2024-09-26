@@ -387,7 +387,12 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
             ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
         } else if (skjemaWrapper.getOmYtelse() instanceof Svangerskapspenger svangerskapspenger) {
             oversettOgLagreTilretteleggingOgVurderEksisterende(svangerskapspenger, behandling, søknadMottattDato);
+            oversettAvtaltFerie(svangerskapspenger, behandling);
         }
+    }
+
+    private void oversettAvtaltFerie(Svangerskapspenger svangerskapspenger, Behandling behandling) {
+        // left blank for now
     }
 
     private void oversettOgLagreTilretteleggingOgVurderEksisterende(Svangerskapspenger svangerskapspenger,
