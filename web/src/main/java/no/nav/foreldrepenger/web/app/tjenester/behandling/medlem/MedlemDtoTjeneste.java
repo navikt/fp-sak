@@ -218,14 +218,15 @@ public class MedlemDtoTjeneste {
         return vilkårResultatRepository.hentHvisEksisterer(behandling.getId())
             .stream()
             .flatMap(vr -> vr.getVilkårene().stream())
-            .filter(v -> v.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET) || VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE.equals(v.getVilkårType()))
+            .filter(v -> v.getVilkårType().gjelderMedlemskap())
             .filter(Vilkår::erManueltVurdert)
             .findFirst()
             .map((v -> {
-                Optional<LocalDate> opphørsdato = v.getGjeldendeVilkårUtfall()
-                    .equals(VilkårUtfallType.OPPFYLT) ? medlemTjeneste.hentOpphørsdatoHvisEksisterer(behandling.getId()) : Optional.empty();
-                var avslagskode = medlemTjeneste.hentAvslagsårsak(behandling.getId()).filter(å -> !å.equals(Avslagsårsak.UDEFINERT));
-                return new MedlemskapV3Dto.ManuellBehandlingResultat(avslagskode.orElse(null), null, opphørsdato.orElse(null));
+                var opphørsdato = v.getGjeldendeVilkårUtfall()
+                    .equals(VilkårUtfallType.OPPFYLT) ? medlemTjeneste.hentOpphørsdatoHvisEksisterer(behandling.getId()).orElse(null) : null;
+                var avslagskode = medlemTjeneste.hentAvslagsårsak(behandling.getId()).filter(å -> !å.equals(Avslagsårsak.UDEFINERT)).orElse(null);
+                var medlemFom = medlemTjeneste.hentMedlemFomDato(behandling.getId()).orElse(null);
+                return new MedlemskapV3Dto.ManuellBehandlingResultat(avslagskode, medlemFom, opphørsdato);
             }));
     }
 
