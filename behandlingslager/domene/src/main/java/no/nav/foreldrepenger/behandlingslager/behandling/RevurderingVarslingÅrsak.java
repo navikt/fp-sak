@@ -13,7 +13,7 @@ public enum RevurderingVarslingÅrsak implements Kodeverdi {
     BARN_IKKE_REGISTRERT_FOLKEREGISTER("BARNIKKEREG", "Barn er ikke registrert i folkeregisteret"),
     ARBEIDS_I_STØNADSPERIODEN("JOBBFULLTID", "Arbeid i stønadsperioden"),
     BEREGNINGSGRUNNLAG_UNDER_HALV_G("IKKEOPPTJENT", "Beregningsgrunnlaget er under 1/2 G"),
-    BRUKER_REGISTRERT_UTVANDRET("UTVANDRET", "Bruker er registrert utvandret"),
+    BRUKER_REGISTRERT_UTVANDRET("UTVANDRET", "Bruker er registrert utflyttet"),
     ARBEID_I_UTLANDET("JOBBUTLAND", "Arbeid i utlandet"),
     IKKE_LOVLIG_OPPHOLD("IKKEOPPHOLD", "Ikke lovlig opphold"),
     OPPTJENING_IKKE_OPPFYLT("JOBB6MND", "Opptjeningsvilkår ikke oppfylt"),
