@@ -6,5 +6,7 @@ import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpOppholdÅrsak;
 
-public record SvpAvklartOppholdPeriodeDto(@NotNull LocalDate fom, @NotNull LocalDate tom, @NotNull SvpOppholdÅrsak oppholdÅrsak, boolean forVisning) {
+public record SvpAvklartOppholdPeriodeDto(@NotNull LocalDate fom, @NotNull LocalDate tom, @NotNull SvpOppholdÅrsak oppholdÅrsak, SvpOppholdKilde oppholdKilde, boolean forVisning) {
+
+    public enum SvpOppholdKilde { SOKNAD, INNTEKTSMELDING, REGISTRERT_AV_SAKSBEHANDLER }
 }
