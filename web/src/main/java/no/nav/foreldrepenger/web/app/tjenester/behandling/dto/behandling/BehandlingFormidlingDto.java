@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 
 /**
@@ -28,6 +29,9 @@ public class BehandlingFormidlingDto extends BehandlingDto {
 
     @JsonProperty("originalBehandlingUuid")
     private UUID originalBehandlingUuid;
+
+    @JsonProperty("medlemskapOpphørsårsak")
+    private Avslagsårsak medlemskapOpphørsårsak;
 
     public List<ResourceLink> getFormidlingRessurser() {
         return formidlingRessurser;
@@ -55,5 +59,13 @@ public class BehandlingFormidlingDto extends BehandlingDto {
 
     public void setOriginalBehandlingUuid(UUID originalBehandlingUuid) {
         this.originalBehandlingUuid = originalBehandlingUuid;
+    }
+
+    public void setMedlemskapOpphørsårsak(Avslagsårsak medlemskapOpphørsårsak) {
+        this.medlemskapOpphørsårsak = medlemskapOpphørsårsak;
+    }
+
+    public Avslagsårsak getMedlemskapOpphørsårsak() {
+        return medlemskapOpphørsårsak;
     }
 }
