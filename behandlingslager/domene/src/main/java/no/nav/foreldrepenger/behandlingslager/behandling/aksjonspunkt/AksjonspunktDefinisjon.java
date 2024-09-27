@@ -331,6 +331,10 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         BehandlingStegType.DEKNINGSGRAD, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER,
         TOTRINN, EnumSet.of(FP)),
 
+    OVERSTYRING_AV_FORUTGÅENDE_MEDLEMSKAPSVILKÅR(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_FORUTGÅENDE_MEDLEMSKAPSVILKÅR_KODE, AksjonspunktType.OVERSTYRING,
+        "Overstyring av vilkår forutgående medlemskap", BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.UT, VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE,
+        SkjermlenkeType.PUNKT_FOR_MEDLEMSKAP, TOTRINN, EnumSet.of(ES)),
+
     // Gruppe : 700
 
     AUTO_MANUELT_SATT_PÅ_VENT(AksjonspunktKodeDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT_KODE, AksjonspunktType.AUTOPUNKT,

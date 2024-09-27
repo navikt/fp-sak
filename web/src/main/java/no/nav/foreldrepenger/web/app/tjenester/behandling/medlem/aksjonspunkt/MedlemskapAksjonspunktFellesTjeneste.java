@@ -72,7 +72,7 @@ public class MedlemskapAksjonspunktFellesTjeneste {
             .build();
     }
 
-    public VilkårUtfallType oppdaterForutgående(BehandlingReferanse ref,
+    public VilkårUtfallType oppdaterForutgående(long behandlingId,
                                                 Avslagsårsak avslagsårsak,
                                                 LocalDate medlemFom,
                                                 String begrunnelse,
@@ -83,7 +83,7 @@ public class MedlemskapAksjonspunktFellesTjeneste {
         var utfall = avslagsårsak == null ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
         lagHistorikkInnslagForutgående(utfall, begrunnelse, medlemFom, skjermlenkeType);
 
-        var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         var grBuilder = medlemskapVilkårPeriodeRepository.hentBuilderFor(behandling);
         var periodeBuilder = MedlemskapsvilkårPeriodeEntitet.Builder.oppdatere(Optional.empty());
         periodeBuilder.opprettOverstyring(medlemFom, avslagsårsak, utfall);
