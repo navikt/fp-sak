@@ -222,8 +222,8 @@ class BekreftSvangerskapspengerOppdatererTest {
             List.of(new SvpTilretteleggingDatoDto(TLR_FRA_2, TilretteleggingType.INGEN_TILRETTELEGGING, null),
                 new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO, TilretteleggingType.DELVIS_TILRETTELEGGING, BigDecimal.valueOf(50), null, SvpTilretteleggingFomKilde.SØKNAD,
                     null)),
-            List.of(new SvpAvklartOppholdPeriodeDto(BEHOV_FRA_DATO,BEHOV_FRA_DATO.plusWeeks(1), SvpOppholdÅrsak.SYKEPENGER, false ),
-                new SvpAvklartOppholdPeriodeDto(TLR_FRA_2, TLR_FRA_2.plusWeeks(3), SvpOppholdÅrsak.FERIE, false)));
+            List.of(new SvpAvklartOppholdPeriodeDto(BEHOV_FRA_DATO,BEHOV_FRA_DATO.plusWeeks(1), SvpOppholdÅrsak.SYKEPENGER, SvpAvklartOppholdPeriodeDto.SvpOppholdKilde.REGISTRERT_AV_SAKSBEHANDLER,false ),
+                new SvpAvklartOppholdPeriodeDto(TLR_FRA_2, TLR_FRA_2.plusWeeks(3), SvpOppholdÅrsak.FERIE, SvpAvklartOppholdPeriodeDto.SvpOppholdKilde.REGISTRERT_AV_SAKSBEHANDLER, false)));
 
         var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto);
 
@@ -245,8 +245,8 @@ class BekreftSvangerskapspengerOppdatererTest {
             true, null, null,
             List.of(new SvpTilretteleggingDatoDto(TLR_FRA_2, TilretteleggingType.INGEN_TILRETTELEGGING, null),
             new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO, TilretteleggingType.DELVIS_TILRETTELEGGING, BigDecimal.valueOf(50))),
-            List.of(new SvpAvklartOppholdPeriodeDto(BEHOV_FRA_DATO, BEHOV_FRA_DATO.plusWeeks(1), SvpOppholdÅrsak.SYKEPENGER, false),
-            new SvpAvklartOppholdPeriodeDto(TLR_FRA_2, TLR_FRA_2.plusWeeks(4), SvpOppholdÅrsak.FERIE, false)));
+            List.of(new SvpAvklartOppholdPeriodeDto(BEHOV_FRA_DATO, BEHOV_FRA_DATO.plusWeeks(1), SvpOppholdÅrsak.SYKEPENGER, SvpAvklartOppholdPeriodeDto.SvpOppholdKilde.REGISTRERT_AV_SAKSBEHANDLER,false),
+            new SvpAvklartOppholdPeriodeDto(TLR_FRA_2, TLR_FRA_2.plusWeeks(4), SvpOppholdÅrsak.FERIE, SvpAvklartOppholdPeriodeDto.SvpOppholdKilde.REGISTRERT_AV_SAKSBEHANDLER,false)));
         var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto);
 
         var resultat = oppdaterer.oppdater(dto, param);
