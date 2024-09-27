@@ -407,6 +407,10 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
 
         var tilretteleggingListe = svangerskapspenger.getTilretteleggingListe().getTilrettelegging();
 
+        // TODO TFP-5853: ferieperioder
+        // var ferieMap = svangerskapspenger.getAvtaltFerieListe().getAvtaltFerie().stream()
+        //    .collect(Collectors.groupingBy(AvtaltFerie::getArbeidsgiver));
+
         for (var tilrettelegging : tilretteleggingListe) {
 
             var builder = new SvpTilretteleggingEntitet.Builder();
