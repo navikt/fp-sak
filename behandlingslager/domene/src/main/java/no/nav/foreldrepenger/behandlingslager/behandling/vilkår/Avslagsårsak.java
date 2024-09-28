@@ -51,7 +51,7 @@ public enum Avslagsårsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
     IKKE_TILSTREKKELIG_OPPTJENING("1035", "Ikke tilstrekkelig opptjening", "{\"fagsakYtelseType\": [{\"FP\": [{\"kategori\": \"FP_VK_23\", \"lovreferanse\": \"14-6\"}]}]}"),
     FOR_LAVT_BEREGNINGSGRUNNLAG("1041", "For lavt brutto beregningsgrunnlag", "{\"fagsakYtelseType\": [{\"FP\": [{\"kategori\": \"FP_VK_41\", \"lovreferanse\": \"14-7\"}]}]}"),
     STEBARNSADOPSJON_IKKE_FLERE_DAGER_IGJEN("1051", "Stebarnsadopsjon ikke flere dager igjen", "{\"fagsakYtelseType\": [{\"FP\": [{\"kategori\": \"FP_VK_16\", \"lovreferanse\": \"14-5\"}]}]}"),
-    SØKER_INNFLYTTET_FOR_SENT("1052", "Søker er innflyttet for mindre enn ett år siden", "{\"fagsakYtelseType\": [{\"ES\": [{\"kategori\": \"FP_VK_2_F\", \"lovreferanse\": \"14-17 5. ledd\"}]}]}"),
+    SØKER_INNFLYTTET_FOR_SENT("1052", "Innflyttet mindre enn 12 måneder før termin/omsorgsovertakelse", "{\"fagsakYtelseType\": [{\"ES\": [{\"kategori\": \"FP_VK_2_F\", \"lovreferanse\": \"14-17 5. ledd\"}]}]}"),
     SØKER_IKKE_GRAVID_KVINNE("1060", "§14-4 første ledd: Søker er ikke gravid kvinne", "{\"fagsakYtelseType\": [{\"SVP\": [{\"kategori\": \"SVP_VK_1\", \"lovreferanse\": \"14-4 1. ledd\"}]}]}"),
     SØKER_ER_IKKE_I_ARBEID("1061", "§14-4 tredje ledd: Søker er ikke i arbeid/har ikke tap av pensjonsgivende inntekt", "{\"fagsakYtelseType\": [{\"SVP\": [{\"kategori\": \"SVP_VK_1\", \"lovreferanse\": \"14-4 3. ledd\"}]}]}"),
     SØKER_HAR_MOTTATT_SYKEPENGER("1062", "§14-4 første ledd: Søker har mottatt sykepenger", "{\"fagsakYtelseType\": [{\"SVP\": [{\"kategori\": \"SVP_VK_1\", \"lovreferanse\": \"14-4 1. ledd\"}]}]}"),
