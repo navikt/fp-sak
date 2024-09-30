@@ -187,6 +187,7 @@ public class BehandlingFormidlingDtoTjeneste {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
             dto.leggTilFormidlingRessurs(get(TilkjentYtelseFormidlingRestTjeneste.TILKJENT_YTELSE_ENGAGSSTØNAD_PATH, "tilkjentytelse-engangsstonad", uuidDto));
             dto.leggTil(get(BeregningsresultatRestTjeneste.ENGANGSTONAD_PATH, "beregningsresultat-engangsstonad", uuidDto));
+            dto.setMedlemskapFom(medlemTjeneste.hentMedlemFomDato(behandling.getId()).orElse(null));
         } else {
             var beregningsgrunnlag = beregningTjeneste.hent(BehandlingReferanse.fra(behandling))
                     .flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);

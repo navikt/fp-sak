@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -32,6 +33,9 @@ public class BehandlingFormidlingDto extends BehandlingDto {
 
     @JsonProperty("medlemskapOpphørsårsak")
     private Avslagsårsak medlemskapOpphørsårsak;
+
+    @JsonProperty("medlemskapFom")
+    private LocalDate medlemskapFom;
 
     public List<ResourceLink> getFormidlingRessurser() {
         return formidlingRessurser;
@@ -67,5 +71,13 @@ public class BehandlingFormidlingDto extends BehandlingDto {
 
     public Avslagsårsak getMedlemskapOpphørsårsak() {
         return medlemskapOpphørsårsak;
+    }
+
+    public LocalDate getMedlemskapFom() {
+        return medlemskapFom;
+    }
+
+    public void setMedlemskapFom(LocalDate medlemskapFom) {
+        this.medlemskapFom = medlemskapFom;
     }
 }
