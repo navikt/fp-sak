@@ -153,20 +153,9 @@ public class InntektsmeldingTjeneste {
         var saksnummer = behandling.getFagsak().getSaksnummer();
         iayTjeneste.lagreInntektsmeldinger(saksnummer, behandling.getId(), List.of(im));
         var inntektsmelding = im.build();
-        if (skalbeOmÅLukkeForespørsel(inntektsmelding.getKildesystem()) && inntektsmelding.getArbeidsgiver().getErVirksomhet()) {
+        if (!inntektsmelding.kommerFraArbeidsgiverPortal() && inntektsmelding.getArbeidsgiver().getErVirksomhet()) {
             fpInntektsmeldingTjeneste.lagLukkForespørselTask(inntektsmelding, behandling);
         }
-    }
-
-    private boolean skalbeOmÅLukkeForespørsel(String kildesystem) {
-        if (kildesystem == null)
-            return true;
-        return !(kildesystem.equals(KildeNavn.NAV_NO.toString()) || kildesystem.equals(KildeNavn.OVERSTYRING_FPSAK.toString()));
-    }
-
-    public enum KildeNavn {
-        NAV_NO,
-        OVERSTYRING_FPSAK
     }
 
     /**

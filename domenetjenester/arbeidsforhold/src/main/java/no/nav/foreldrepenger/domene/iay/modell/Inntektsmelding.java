@@ -328,6 +328,10 @@ public class Inntektsmelding implements IndexKey {
         this.endringerRefusjon.add(refusjon);
     }
 
+    public boolean kommerFraArbeidsgiverPortal() {
+        return this.kildesystem.equals("NAV_NO") || this.kildesystem.equals("OVERSTYRING_FPSAK");
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
