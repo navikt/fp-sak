@@ -4,6 +4,8 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.OVERSTYRING_AV_FORUTGÅENDE_MEDLEMSKAPSVILKÅR;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.VURDER_FORUTGÅENDE_MEDLEMSKAPSVILKÅR;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET;
 
@@ -41,7 +43,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
@@ -65,7 +66,8 @@ public class MedlemDtoTjeneste {
 
     private static final List<AksjonspunktDefinisjon> MEDL_AKSJONSPUNKTER = List.of(AVKLAR_OM_ER_BOSATT, AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE,
         AVKLAR_LOVLIG_OPPHOLD, AVKLAR_OPPHOLDSRETT);
-    private static final Set<AksjonspunktDefinisjon> VURDER_MEDLEMSKAPSVILKÅRET_AKSJONSPUNKT = Set.of(VURDER_MEDLEMSKAPSVILKÅRET, VURDER_FORUTGÅENDE_MEDLEMSKAPSVILKÅR);
+    private static final Set<AksjonspunktDefinisjon> VURDER_MEDLEMSKAPSVILKÅRET_AKSJONSPUNKT = Set.of(VURDER_MEDLEMSKAPSVILKÅRET,
+        VURDER_FORUTGÅENDE_MEDLEMSKAPSVILKÅR, OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET, OVERSTYRING_AV_FORUTGÅENDE_MEDLEMSKAPSVILKÅR);
 
     private MedlemskapRepository medlemskapRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -219,7 +221,7 @@ public class MedlemDtoTjeneste {
             .stream()
             .flatMap(vr -> vr.getVilkårene().stream())
             .filter(v -> v.getVilkårType().gjelderMedlemskap())
-            .filter(Vilkår::erManueltVurdert)
+            .filter(v -> v.erManueltVurdert() || v.erOverstyrt())
             .findFirst()
             .map((v -> {
                 var opphørsdato = v.getGjeldendeVilkårUtfall()
