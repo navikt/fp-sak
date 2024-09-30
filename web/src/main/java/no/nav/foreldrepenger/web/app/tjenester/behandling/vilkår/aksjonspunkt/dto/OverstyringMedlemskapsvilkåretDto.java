@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.vedtak.util.InputValideringRegex;
 
 @JsonAutoDetect(getterVisibility=Visibility.NONE, setterVisibility=Visibility.NONE, fieldVisibility=Visibility.ANY)
@@ -48,5 +49,10 @@ public class OverstyringMedlemskapsvilkåretDto extends OverstyringAksjonspunktD
 
     public LocalDate getOpphørFom() {
         return opphørFom;
+    }
+
+    @Override
+    public HistorikkinnslagType historikkmalForOverstyring() {
+        return HistorikkinnslagType.FAKTA_ENDRET;
     }
 }
