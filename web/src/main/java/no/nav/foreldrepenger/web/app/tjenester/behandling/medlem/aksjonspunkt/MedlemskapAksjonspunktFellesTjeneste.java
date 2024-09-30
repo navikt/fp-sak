@@ -6,16 +6,12 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapsvilkårPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
@@ -44,11 +40,11 @@ public class MedlemskapAksjonspunktFellesTjeneste {
         //CDI
     }
 
-    public OppdateringResultat oppdater(long behandlingId,
-                                        Avslagsårsak avslagsårsak,
-                                        LocalDate opphørFom,
-                                        String begrunnelse,
-                                        SkjermlenkeType skjermlenkeType) {
+    public VilkårUtfallType oppdater(long behandlingId,
+                                     Avslagsårsak avslagsårsak,
+                                     LocalDate opphørFom,
+                                     String begrunnelse,
+                                     SkjermlenkeType skjermlenkeType) {
         if (avslagsårsak != null && !VilkårType.MEDLEMSKAPSVILKÅRET.getAvslagsårsaker().contains(avslagsårsak)) {
             throw new IllegalArgumentException("Ugyldig avslagsårsak for medlemskapsvilkåret");
         }
@@ -62,14 +58,7 @@ public class MedlemskapAksjonspunktFellesTjeneste {
         grBuilder.medMedlemskapsvilkårPeriode(periodeBuilder);
         medlemskapVilkårPeriodeRepository.lagreMedlemskapsvilkår(behandling, grBuilder);
 
-        if (VilkårUtfallType.OPPFYLT.equals(utfall)) {
-            return oppfyltResultat();
-        }
-        return OppdateringResultat.utenTransisjon()
-            .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
-            .leggTilManueltAvslåttVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, avslagsårsak)
-            .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
-            .build();
+        return utfall;
     }
 
     public VilkårUtfallType oppdaterForutgående(long behandlingId,
@@ -111,10 +100,6 @@ public class MedlemskapAksjonspunktFellesTjeneste {
         if (VilkårUtfallType.IKKE_OPPFYLT.equals(nyVerdi) && medlemFom != null) {
             historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.MEDLEMSKAPSVILKÅRET_MEDLEMFRADATO, null, medlemFom);
         }
-    }
-
-    private static OppdateringResultat oppfyltResultat() {
-        return new OppdateringResultat.Builder().leggTilManueltOppfyltVilkår(VilkårType.MEDLEMSKAPSVILKÅRET).build();
     }
 
     private boolean erOpphørEtterStp(Long behandlingId, LocalDate opphørFom) {
