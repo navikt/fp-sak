@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType.KONTROLLER_FAKTA;
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING;
 
-import java.util.List;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -15,7 +14,6 @@ import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -25,8 +23,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
@@ -125,55 +121,6 @@ public class ForvaltningStegRestTjeneste {
         hoppTilbake(dto.getBehandlingUuid(), KONTROLLER_FAKTA);
         return Response.noContent().build();
     }
-
-
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Setter medlemsrelaterte aksjonspunkt til avbrutt", tags = "FORVALTNING-steg-hopp")
-    @Path("/avbrytMedlemsAksjonspunkt")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response avbrytMedlemsAksjonspunkt() {
-        var medlemsaksjonspunkt = List.of(AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD, AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT,
-            AksjonspunktDefinisjon.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE, AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT);
-        entityManager.createQuery("select behandling from Aksjonspunkt ap where ap.aksjonspunktDefinisjon in (:apdef) and ap.status = :opprettet", Behandling.class)
-            .setParameter("apdef",medlemsaksjonspunkt)
-            .setParameter("opprettet", AksjonspunktStatus.OPPRETTET)
-            .getResultList()
-            .forEach(behandling -> {
-                var lås = behandlingRepository.taSkriveLås(behandling.getId());
-                var aksjonspunkt = behandling.getÅpneAksjonspunkter(medlemsaksjonspunkt);
-                var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-                behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), aksjonspunkt);
-                behandlingRepository.lagre(behandling, lås);
-                if (!behandling.isBehandlingPåVent()) {
-                    behandlingsprosessTjeneste.asynkKjørProsess(behandling);
-                }
-            });
-
-        return Response.ok().build();
-    }
-
-
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Setter fortsatt medlemsrelaterte aksjonspunkt til avbrutt", tags = "FORVALTNING-steg-hopp")
-    @Path("/avbrytFortsattMedlemAksjonspunkt")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response avbrytLøpendeMedlemsAksjonspunkt() {
-        entityManager.createQuery("select behandling from Aksjonspunkt ap where ap.aksjonspunktDefinisjon = :apdef and ap.status = :opprettet", Behandling.class)
-            .setParameter("apdef", AksjonspunktDefinisjon.AVKLAR_FORTSATT_MEDLEMSKAP)
-            .setParameter("opprettet", AksjonspunktStatus.OPPRETTET)
-            .getResultList()
-            .forEach(behandling -> {
-                var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-                hoppTilbake(kontekst, behandling, KONTROLLER_FAKTA);
-            });
-
-        return Response.ok().build();
-    }
-
 
     private void resetStartpunkt(Behandling behandling) {
         if (behandling.erRevurdering() && behandling.harSattStartpunkt()) {

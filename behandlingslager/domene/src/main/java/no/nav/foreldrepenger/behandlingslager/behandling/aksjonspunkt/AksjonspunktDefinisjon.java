@@ -88,23 +88,9 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             AksjonspunktKodeDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU_KODE, AksjonspunktType.MANUELL,
             "Vurder søkers opplysningsplikt ved ufullstendig/ikke-komplett søknad", BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT,
             VurderingspunktType.UT, VilkårType.SØKERSOPPLYSNINGSPLIKT, SkjermlenkeType.OPPLYSNINGSPLIKT, ENTRINN, EnumSet.of(ES, FP, SVP)),
-    // TODO? Ta i bruk 5018 for manuell vurdering av medlemskapsvilkåret - evt gruppere den sammen med en klynge medlemsvilkår-varianter
-    AVKLAR_LOVLIG_OPPHOLD(AksjonspunktKodeDefinisjon.AVKLAR_LOVLIG_OPPHOLD_KODE,
-            AksjonspunktType.MANUELL, "Avklar lovlig opphold.", BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.INN,
-            VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.FAKTA_OM_MEDLEMSKAP, ENTRINN, EnumSet.of(ES, FP, SVP)),
     AVKLAR_DEKNINGSGRAD(AksjonspunktKodeDefinisjon.AVKLAR_DEKNINGSGRAD_KODE,
-            AksjonspunktType.MANUELL, "Avklar dekningsgrad", BehandlingStegType.DEKNINGSGRAD, VurderingspunktType.UT,
-            UTEN_VILKÅR, SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER, TOTRINN, EnumSet.of(FP)),
-    AVKLAR_OM_ER_BOSATT(AksjonspunktKodeDefinisjon.AVKLAR_OM_ER_BOSATT_KODE,
-            AksjonspunktType.MANUELL, "Avklar om bruker er bosatt.", BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.INN,
-            VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.FAKTA_OM_MEDLEMSKAP, ENTRINN, EnumSet.of(ES, FP, SVP)),
-    AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE(
-            AksjonspunktKodeDefinisjon.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE_KODE, AksjonspunktType.MANUELL, "Avklar om bruker har gyldig periode.",
-            BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.INN, VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.FAKTA_OM_MEDLEMSKAP,
-            ENTRINN, EnumSet.of(ES, FP, SVP)),
-    AVKLAR_OPPHOLDSRETT(AksjonspunktKodeDefinisjon.AVKLAR_OPPHOLDSRETT_KODE,
-            AksjonspunktType.MANUELL, "Avklar oppholdsrett.", BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.INN,
-            VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.FAKTA_OM_MEDLEMSKAP, ENTRINN, EnumSet.of(ES, FP, SVP)),
+        AksjonspunktType.MANUELL, "Avklar dekningsgrad", BehandlingStegType.DEKNINGSGRAD, VurderingspunktType.UT,
+        UTEN_VILKÅR, SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER, TOTRINN, EnumSet.of(FP)),
     VARSEL_REVURDERING_MANUELL( // Kun ES
             AksjonspunktKodeDefinisjon.VARSEL_REVURDERING_MANUELL_KODE, AksjonspunktType.MANUELL, "Varsel om revurdering opprettet manuelt",
             BehandlingStegType.VARSEL_REVURDERING, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES)),
@@ -171,10 +157,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     AVKLAR_AKTIVITETER(AksjonspunktKodeDefinisjon.AVKLAR_AKTIVITETER_KODE,
             AksjonspunktType.MANUELL, "Avklar aktivitet for beregning", BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, VurderingspunktType.UT,
         UTEN_VILKÅR, SkjermlenkeType.FAKTA_OM_BEREGNING, TOTRINN, EnumSet.of(FP, SVP)),
-    AVKLAR_FORTSATT_MEDLEMSKAP(
-            AksjonspunktKodeDefinisjon.AVKLAR_FORTSATT_MEDLEMSKAP_KODE, AksjonspunktType.MANUELL, "Avklar fortsatt medlemskap.",
-            BehandlingStegType.KONTROLLER_LØPENDE_MEDLEMSKAP, VurderingspunktType.UT, VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE,
-            SkjermlenkeType.FAKTA_OM_MEDLEMSKAP, TOTRINN, EnumSet.of(FP, SVP)),
     AVKLAR_VILKÅR_FOR_FORELDREANSVAR(
             AksjonspunktKodeDefinisjon.AVKLAR_VILKÅR_FOR_FORELDREANSVAR_KODE, AksjonspunktType.MANUELL, "Avklar fakta for foreldreansvarsvilkåret for FP",
             BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.INN, VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD,
@@ -313,9 +295,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     OVERSTYRING_AV_OPPTJENINGSVILKÅRET(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_OPPTJENINGSVILKÅRET_KODE, AksjonspunktType.OVERSTYRING, "Overstyring av opptjeningsvilkåret",
             BehandlingStegType.VURDER_OPPTJENINGSVILKÅR, VurderingspunktType.UT, VilkårType.OPPTJENINGSVILKÅRET, SkjermlenkeType.PUNKT_FOR_OPPTJENING,
             TOTRINN, EnumSet.of(FP, SVP)),
-    OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET_LØPENDE(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET_LØPENDE_KODE, AksjonspunktType.OVERSTYRING,
-            "Overstyring av løpende medlemskapsvilkåret", BehandlingStegType.VULOMED, VurderingspunktType.UT,
-            VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE, SkjermlenkeType.PUNKT_FOR_MEDLEMSKAP_LØPENDE, TOTRINN, EnumSet.of(FP)),
     OVERSTYRING_FAKTA_UTTAK(AksjonspunktKodeDefinisjon.OVERSTYRING_FAKTA_UTTAK_KODE, AksjonspunktType.OVERSTYRING,
         "Overstyr fakta om uttak", BehandlingStegType.FAKTA_UTTAK, VurderingspunktType.UT,
         UTEN_VILKÅR, SkjermlenkeType.FAKTA_UTTAK, TOTRINN, EnumSet.of(FP)),
@@ -386,7 +365,18 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     @Deprecated
     UTGÅTT_5009("5009", AksjonspunktType.MANUELL, "Avklar tilleggsopplysninger"),
     @Deprecated
+    UTGÅTT_5019("5019", AksjonspunktType.MANUELL, "Avklar lovlig opphold.", BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.INN,
+        VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.FAKTA_OM_MEDLEMSKAP, ENTRINN, EnumSet.of(ES, FP, SVP)),
+    @Deprecated
+    UTGÅTT_5020("5020", AksjonspunktType.MANUELL, "Avklar om bruker er bosatt.", BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.INN,
+        VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.FAKTA_OM_MEDLEMSKAP, ENTRINN, EnumSet.of(ES, FP, SVP)),
+    @Deprecated
+    UTGÅTT_5021("5021", AksjonspunktType.MANUELL, "Avklar om bruker har gyldig periode."),
+    @Deprecated
     UTGÅTT_5022("5022", AksjonspunktType.MANUELL, "Avklar fakta for status på person."),
+    @Deprecated
+    UTGÅTT_5023("5023", AksjonspunktType.MANUELL, "Avklar oppholdsrett.", BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.INN,
+        VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.FAKTA_OM_MEDLEMSKAP, ENTRINN, EnumSet.of(ES, FP, SVP)),
     @Deprecated
     UTGÅTT_5024("5024", AksjonspunktType.MANUELL, "Saksbehandler må avklare hvilke verdier som er gjeldene, det er mismatch mellom register- og lokaldata (UTGÅTT)"),
     @Deprecated
@@ -403,6 +393,10 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     UTGÅTT_5048("5048", AksjonspunktType.MANUELL, "Kontroller den automatiske besteberegningen."),
     @Deprecated
     UTGÅTT_5050("5050", AksjonspunktType.MANUELL, "Vurder gradering på andel uten beregningsgrunnlag"),
+    @Deprecated
+    UTGÅTT_5053("5053", AksjonspunktType.MANUELL, "Avklar fortsatt medlemskap.",
+        BehandlingStegType.KONTROLLER_LØPENDE_MEDLEMSKAP, VurderingspunktType.UT, VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE,
+        SkjermlenkeType.FAKTA_OM_MEDLEMSKAP, TOTRINN, EnumSet.of(FP, SVP)),
     @Deprecated
     UTGÅTT_5056("5056", AksjonspunktType.MANUELL, "Kontroll av manuelt opprettet revurderingsbehandling"),
     @Deprecated
@@ -437,6 +431,8 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     UTGÅTT_5098("5098", AksjonspunktType.MANUELL, "Gradering i søknadsperiode er lagt på aktivitet uten beregningsgrunnlag"),
     @Deprecated
     UTGÅTT_5099("5099", AksjonspunktType.MANUELL, "Kontroller aktivitetskrav"),
+    @Deprecated
+    UTGÅTT_6012("6012", AksjonspunktType.OVERSTYRING, "Overstyring av løpende medlemskapsvilkåret"),
     @Deprecated
     UTGÅTT_6013("6013", AksjonspunktType.OVERSTYRING, "Overstyr søknadsperioder"),
     @Deprecated

@@ -20,15 +20,14 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.VedtakAksjonspunktData;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 @ApplicationScoped
 public class FatterVedtakAksjonspunkt {
 
-    private static final Set<AksjonspunktDefinisjon> LEGACY_MEDLEM = Set.of(AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD,
-        AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT, AksjonspunktDefinisjon.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE, AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT,
-        AksjonspunktDefinisjon.AVKLAR_FORTSATT_MEDLEMSKAP);
+    private static final Set<AksjonspunktDefinisjon> LEGACY_MEDLEM = Set.of(AksjonspunktDefinisjon.UTGÅTT_5019,
+        AksjonspunktDefinisjon.UTGÅTT_5020, AksjonspunktDefinisjon.UTGÅTT_5021, AksjonspunktDefinisjon.UTGÅTT_5023,
+        AksjonspunktDefinisjon.UTGÅTT_5053);
 
     private VedtakTjeneste vedtakTjeneste;
     private TotrinnTjeneste totrinnTjeneste;

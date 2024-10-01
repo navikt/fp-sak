@@ -32,24 +32,25 @@ public class MedlemskapVurderingPeriodeTjeneste {
 
     public LocalDateInterval bosattVurderingsintervall(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var referansedato = getReferansedato(ref, stp);
-        var maxdato = switch (ref.fagsakYtelseType()) {
+        var intervallSluttdato = switch (ref.fagsakYtelseType()) {
             case ENGANGSTØNAD -> referansedato;
             case FORELDREPENGER, SVANGERSKAPSPENGER -> stp.getUttaksintervall().map(LocalDateInterval::getTomDato).orElse(referansedato);
             case null, default -> throw new IllegalArgumentException("Mangler ytelse");
         };
-        var startdato = minDato(referansedato, LocalDate.now());
-        return new LocalDateInterval(startdato.minus(BOSATT_TILBAKE_TID), maxdato);
+        var baseForStartdato = minDato(referansedato, LocalDate.now());
+        var intervallStartdato = startBosatt(ref.fagsakYtelseType(), stp, baseForStartdato);
+        return new LocalDateInterval(intervallStartdato, intervallSluttdato);
     }
 
     public LocalDateInterval lovligOppholdVurderingsintervall(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var referansedato = getReferansedato(ref, stp);
-        var maxdato = switch (ref.fagsakYtelseType()) {
+        var intervallSluttdato = switch (ref.fagsakYtelseType()) {
             case ENGANGSTØNAD -> referansedato;
             case FORELDREPENGER, SVANGERSKAPSPENGER -> stp.getUttaksintervall().map(LocalDateInterval::getTomDato).orElse(referansedato);
             case null, default -> throw new IllegalArgumentException("Mangler ytelse");
         };
-        var startdato = FagsakYtelseType.ENGANGSTØNAD.equals(ref.fagsakYtelseType()) ? startLovligOppholdES(stp, referansedato) : referansedato;
-        return new LocalDateInterval(startdato, maxdato);
+        var intervallStartdato = startLovligOpphold(ref.fagsakYtelseType(), stp, referansedato);
+        return new LocalDateInterval(intervallStartdato, intervallSluttdato);
     }
 
     private LocalDate getReferansedato(BehandlingReferanse ref, Skjæringstidspunkt stp) {
@@ -69,8 +70,20 @@ public class MedlemskapVurderingPeriodeTjeneste {
         }
     }
 
-    private LocalDate startLovligOppholdES(Skjæringstidspunkt stp, LocalDate referansedato) {
-        if (botidCore2024.ikkeBotidskrav(stp.getFamilieHendelseDato().orElse(null))) {
+    private LocalDate startBosatt(FagsakYtelseType ytelseType, Skjæringstidspunkt stp, LocalDate referansedato) {
+        if (!FagsakYtelseType.ENGANGSTØNAD.equals(ytelseType)) {
+            return referansedato.minus(BOSATT_TILBAKE_TID);
+        } else if (botidCore2024.ikkeBotidskrav(stp.getFamilieHendelseDato().orElse(null))) {
+            return referansedato.minus(BOSATT_TILBAKE_TID);
+        } else { // Default etter overgansperiode (8/2-25)
+            return datoMinusLengstePeriode(referansedato, BOSATT_TILBAKE_TID, MEDLEMSKAP_ES);
+        }
+    }
+
+    private LocalDate startLovligOpphold(FagsakYtelseType ytelseType, Skjæringstidspunkt stp, LocalDate referansedato) {
+        if (!FagsakYtelseType.ENGANGSTØNAD.equals(ytelseType)) {
+            return referansedato;
+        } else if (botidCore2024.ikkeBotidskrav(stp.getFamilieHendelseDato().orElse(null))) {
             return referansedato;
         } else { // Default etter overgansperiode (8/2-25)
             return minDato(referansedato, LocalDate.now()).minus(MEDLEMSKAP_ES);
@@ -83,6 +96,12 @@ public class MedlemskapVurderingPeriodeTjeneste {
         } else {
             return dato1 != null ? dato1 : dato2;
         }
+    }
+
+    private LocalDate datoMinusLengstePeriode(LocalDate dato, Period p1, Period p2) {
+        var d1 = dato.minus(p1);
+        var d2 = dato.minus(p2);
+        return d1.isBefore(d2) ? d1 : d2;
     }
 
 }

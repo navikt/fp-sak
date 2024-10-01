@@ -63,11 +63,11 @@ class BehandlingModellTest {
     @Test
     void skal_finne_aksjonspunkter_som_ligger_etter_et_gitt_steg() {
         // Arrange - noen utvalge, tilfeldige aksjonspunkter
-        var a0_0 = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
+        var a0_0 = AksjonspunktDefinisjon.FORDEL_BEREGNINGSGRUNNLAG;
         var a0_1 = AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL;
         var a1_0 = AksjonspunktDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON;
-        var a1_1 = AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD;
-        var a2_0 = AksjonspunktDefinisjon.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE;
+        var a1_1 = AksjonspunktDefinisjon.VURDER_FORUTGÅENDE_MEDLEMSKAPSVILKÅR;
+        var a2_0 = AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER;
         var a2_1 = AksjonspunktDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO;
 
         var steg = new DummySteg();
@@ -112,10 +112,10 @@ class BehandlingModellTest {
     @Test
     void skal_finne_aksjonspunkter_ved_inngang_eller_utgang_av_steg() {
         // Arrange - noen utvalge, tilfeldige aksjonspunkter
-        var a0_0 = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
+        var a0_0 = AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING;
         var a0_1 = AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL;
         var a1_0 = AksjonspunktDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON;
-        var a1_1 = AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD;
+        var a1_1 = AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET;
 
         var steg = new DummySteg();
         var steg0 = new DummySteg();

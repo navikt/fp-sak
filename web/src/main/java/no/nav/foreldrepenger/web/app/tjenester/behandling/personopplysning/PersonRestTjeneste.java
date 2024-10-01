@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -30,8 +29,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.Behandlin
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.medlem.MedlemDtoTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.medlem.MedlemV2Dto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.medlem.MedlemskapV3Dto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.medlem.MedlemskapDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
@@ -48,8 +46,6 @@ public class PersonRestTjeneste {
     public static final String VERGE_PATH = BASE_PATH + VERGE_PART_PATH;
     private static final String VERGE_BACKEND_PART_PATH = "/person/verge-backend";
     public static final String VERGE_BACKEND_PATH = BASE_PATH + VERGE_BACKEND_PART_PATH;
-    private static final String MEDLEMSKAP_V2_PART_PATH = "/person/medlemskap-v2";
-    public static final String MEDLEMSKAP_V2_PATH = BASE_PATH + MEDLEMSKAP_V2_PART_PATH;
     private static final String MEDLEMSKAP_V3_PART_PATH = "/person/medlemskap-v3";
     public static final String MEDLEMSKAP_V3_PATH = BASE_PATH + MEDLEMSKAP_V3_PART_PATH;
     private static final String PERSONOVERSIKT_PART_PATH = "/person/personoversikt";
@@ -138,34 +134,15 @@ public class PersonRestTjeneste {
         return personoversiktDto.orElse(null);
     }
 
-    @GET
-    @Path(MEDLEMSKAP_V2_PART_PATH)
-    @Operation(description = "Hent informasjon om medlemskap i Folketrygden for søker i behandling", tags = "behandling - person", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer Medlemskap, null hvis ikke finnes (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = MedlemV2Dto.class)))
-    })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public MedlemV2Dto hentMedlemskap(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        var behandlingId = getBehandlingsId(uuidDto.getBehandlingUuid());
-        var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
-        var medlemDto = medlemDtoTjeneste.lagMedlemV2Dto(behandlingId);
-        medlemDto.map(MedlemV2Dto::getPerioder).orElse(Set.of())
-            .forEach(p -> {
-                if (p.getPersonopplysningBruker() != null) personopplysningFnrFinder.oppdaterMedPersonIdent(behandling.getFagsakYtelseType(), p.getPersonopplysningBruker());
-                if (p.getPersonopplysningAnnenPart() != null) personopplysningFnrFinder.oppdaterMedPersonIdent(behandling.getFagsakYtelseType(), p.getPersonopplysningAnnenPart());
-            });
-        return medlemDto.orElse(null);
-    }
-
     private Long getBehandlingsId(UUID behandlingUuid) {
         return behandlingsprosessTjeneste.hentBehandling(behandlingUuid).getId();
     }
 
     @GET
     @Path(MEDLEMSKAP_V3_PART_PATH)
-    @Operation(description = "Hent informasjon relatert til medlemskap for søker i behandling", tags = "behandling - person", responses = {@ApiResponse(responseCode = "200", description = "Returnerer Medlemskap, null hvis ikke finnes (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = MedlemskapV3Dto.class)))})
+    @Operation(description = "Hent informasjon relatert til medlemskap for søker i behandling", tags = "behandling - person", responses = {@ApiResponse(responseCode = "200", description = "Returnerer Medlemskap, null hvis ikke finnes (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = MedlemskapDto.class)))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public MedlemskapV3Dto hentMedlemskapV3(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public MedlemskapDto hentMedlemskapV3(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return medlemDtoTjeneste.lagMedlemskap(uuidDto.getBehandlingUuid());
     }
 

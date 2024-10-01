@@ -295,7 +295,7 @@ class BehandlingskontrollTjenesteImplTest {
         when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
         when(kontekst.getFagsakId()).thenReturn(behandling.getFagsakId());
         assertThat(kontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(behandling.getFagsakYtelseType(),
-                behandling.getType(), steg3, AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT)).isTrue();
+                behandling.getType(), steg3, AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET)).isTrue();
     }
 
     @Test

@@ -345,7 +345,6 @@ public class BehandlingDtoTjeneste {
 
         dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V2_PATH, "familiehendelse-v2", uuidDto));
         dto.leggTil(get(PersonRestTjeneste.PERSONOVERSIKT_PATH, "behandling-personoversikt", uuidDto));
-        dto.leggTil(get(PersonRestTjeneste.MEDLEMSKAP_V2_PATH, "soeker-medlemskap-v2", uuidDto));
         dto.leggTil(get(PersonRestTjeneste.MEDLEMSKAP_V3_PATH, "soeker-medlemskap-v3", uuidDto));
 
         if (behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE)) {

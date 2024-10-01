@@ -11,7 +11,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -89,9 +88,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
@@ -339,11 +335,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             }
 
             @Override
-            public SøknadEntitet hentFørstegangsSøknad(Behandling behandling) {
-                return søknad;
-            }
-
-            @Override
             public SøknadEntitet hentSøknad(Long behandlingId) {
                 return søknad;
             }
@@ -353,22 +344,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
                 this.søknad = søknad1;
             }
 
-        };
-    }
-
-    public OppgittFordelingEntitet mockOppgittFordeling() {
-        return new OppgittFordelingEntitet() {
-            @Override
-            public List<OppgittPeriodeEntitet> getPerioder() {
-                return Collections.singletonList(OppgittPeriodeBuilder.ny()
-                        .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(6))
-                        .medPeriodeType(UttakPeriodeType.MØDREKVOTE).build());
-            }
-
-            @Override
-            public boolean getErAnnenForelderInformert() {
-                return false;
-            }
         };
     }
 

@@ -48,7 +48,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.abakus.AbakusTjeneste;
 import no.nav.foreldrepenger.domene.abakus.mapping.KodeverkMapper;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
-import no.nav.foreldrepenger.domene.medlem.api.Medlemskapsperiode;
+import no.nav.foreldrepenger.domene.medlem.medl2.Medlemskapsperiode;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningInnhenter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -56,7 +56,6 @@ import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
-import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
 
 @ApplicationScoped
 public class RegisterdataInnhenter {

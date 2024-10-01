@@ -81,7 +81,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
     void skal_hente_tom_skjermlenkecontext_for_behandling_med_ikke_status_FATTER_VEDTAK_og_med_totrinnsvurdering_og_ingen_aksjonspunkter(){
 
         // Arrange
-        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
+        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET;
         var ttvGodkjent = false;
 
         opprettBehandlingForFP(Optional.empty());
@@ -102,7 +102,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
     @Test
     void skal_hente_tom_skjermlenkecontext_for_behandling_med_status_FATTER_VEDTAK_og_med_totrinnsvurdering_og_ingen_aksjonspunkter(){
         // Arrange
-        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
+        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET;
         var ttvGodkjent = false;
 
         opprettBehandlingForFP(Optional.empty());
@@ -123,7 +123,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
     void skal_hente_en_skjermlenketype_og_ett_totrinnskontrollaksjonspunkt_for_behandling_med_en_totrinnsvurdering_og_ett_aksjonspunkt_som_ikke_omhandler_mottat_stotte_eller_omsorgsovertakelse(){
 
         // Arrange
-        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
+        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET;
         var ttvGodkjent = false;
         var apAvbrutt = false;
 
@@ -293,7 +293,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
     void skal_hente_en_skjermlenketype_og_ett_totrinnskontrollaksjonspunkt_for_behandling_med_status_FATTE_VEDTAK_og_ingen_totrinnsvurdering_og_ett_aksjonspunkt(){
 
         // Arrange
-        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
+        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET;
         var apAvbrutt = false;
 
         opprettBehandlingForFP(Optional.empty());
@@ -312,14 +312,14 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
         assertThat(context.get(0).getSkjermlenkeType()).isEqualTo(SkjermlenkeType.FAKTA_OM_MEDLEMSKAP.getKode());
         var totrinnskontrollAksjonspunkter = context.get(0).getTotrinnskontrollAksjonspunkter();
         assertThat(totrinnskontrollAksjonspunkter).hasSize(1);
-        assertThat(totrinnskontrollAksjonspunkter.get(0).getAksjonspunktKode()).isEqualTo(AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT.getKode());
+        assertThat(totrinnskontrollAksjonspunkter.get(0).getAksjonspunktKode()).isEqualTo(AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET.getKode());
 
     }
 
     @Test
     void skal_hente_en_skjermlenketype_og_ett_ikke_godkjent_totrinnskontrollaksjonspunkt_for_behandling_med_en_godkjent_totrinnsvurdering_og_ett_aksjonspunkt_som_ikke_har_samme_aksjonspunktdefinisjon(){
 
-        var adFraAksjonspunkt = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
+        var adFraAksjonspunkt = AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET;
         var adFraTotrinnvurdering = AksjonspunktDefinisjon.AUTO_VENT_PÅ_FØDSELREGISTRERING;
         var ttvGodkjent = true;
         var apAvbrutt = false;
@@ -353,7 +353,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
     void skal_hente_en_tom_skjermlenkecontext_for_behandling_med_en_totrinnsvurdering_og_ett_avbrutt_aksjonspunkt(){
 
         // Arrange
-        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
+        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET;
         var ttvGodkjent = false;
         var apAvbrutt = true;
 
