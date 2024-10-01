@@ -19,6 +19,9 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
 public class Inntektsmelding implements IndexKey {
 
+    public static final String NAV_NO = "NAV_NO";
+    private static final String OVERSTYRING_FPSAK = "OVERSTYRING_FPSAK";
+
     @ChangeTracked
     private List<Gradering> graderinger = new ArrayList<>();
 
@@ -329,7 +332,7 @@ public class Inntektsmelding implements IndexKey {
     }
 
     public boolean kommerFraArbeidsgiverPortal() {
-        return this.kildesystem.equals("NAV_NO") || this.kildesystem.equals("OVERSTYRING_FPSAK");
+        return NAV_NO.equals(this.kildesystem) || OVERSTYRING_FPSAK.equals(this.kildesystem);
     }
 
     @Override
