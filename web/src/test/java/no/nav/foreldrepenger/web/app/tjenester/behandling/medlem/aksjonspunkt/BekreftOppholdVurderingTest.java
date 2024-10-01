@@ -9,7 +9,6 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -23,10 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioF
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemskapAksjonspunktTjeneste;
-import no.nav.foreldrepenger.domene.medlem.UtledVurderingsdatoerForMedlemskapTjeneste;
-import no.nav.foreldrepenger.domene.medlem.VurderMedlemskapTjeneste;
 import no.nav.foreldrepenger.domene.medlem.impl.HentMedlemskapFraRegister;
-import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -37,8 +33,6 @@ class BekreftOppholdVurderingTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private final HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
-    @Mock
-    private PersonopplysningTjeneste personopplysningTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     private LocalDate now = LocalDate.now();
@@ -70,8 +64,7 @@ class BekreftOppholdVurderingTest extends EntityManagerAwareTest {
 
         // Act
         var medlemskapTjeneste = new MedlemTjeneste(repositoryProvider, mock(HentMedlemskapFraRegister.class),
-            repositoryProvider.getMedlemskapVilkårPeriodeRepository(), skjæringstidspunktTjeneste, personopplysningTjeneste,
-            mock(UtledVurderingsdatoerForMedlemskapTjeneste.class), mock(VurderMedlemskapTjeneste.class));
+            repositoryProvider.getMedlemskapVilkårPeriodeRepository(), skjæringstidspunktTjeneste);
         var medlemskapAksjonspunktTjeneste = new MedlemskapAksjonspunktTjeneste(repositoryProvider, mock(HistorikkTjenesteAdapter.class),
             skjæringstidspunktTjeneste);
 
@@ -112,8 +105,7 @@ class BekreftOppholdVurderingTest extends EntityManagerAwareTest {
 
         // Act
         var medlemskapTjeneste = new MedlemTjeneste(repositoryProvider, mock(HentMedlemskapFraRegister.class),
-            repositoryProvider.getMedlemskapVilkårPeriodeRepository(), skjæringstidspunktTjeneste, personopplysningTjeneste,
-            mock(UtledVurderingsdatoerForMedlemskapTjeneste.class), mock(VurderMedlemskapTjeneste.class));
+            repositoryProvider.getMedlemskapVilkårPeriodeRepository(), skjæringstidspunktTjeneste);
         var medlemskapAksjonspunktTjeneste = new MedlemskapAksjonspunktTjeneste(repositoryProvider, mock(HistorikkTjenesteAdapter.class),
             skjæringstidspunktTjeneste);
 
