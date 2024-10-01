@@ -26,19 +26,14 @@ public class AksjonspunktKodeDefinisjon {
     public static final String AVKLAR_DEKNINGSGRAD_KODE = "5002";
 
     public static final String AVKLAR_ADOPSJONSDOKUMENTAJON_KODE = "5004";
-    public static final String AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE_KODE = "5021";
-    public static final String AVKLAR_LOVLIG_OPPHOLD_KODE = "5019";
     public static final String AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN_KODE = "5005";
-    public static final String AVKLAR_OM_ER_BOSATT_KODE = "5020";
     public static final String AVKLAR_OM_SØKER_ER_MANN_SOM_ADOPTERER_ALENE_KODE = "5006";
-    public static final String AVKLAR_OPPHOLDSRETT_KODE = "5023";
     public static final String AVKLAR_TERMINBEKREFTELSE_KODE = "5001";
     public static final String AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE_KODE = "5008";
     public static final String AVKLAR_VILKÅR_FOR_FORELDREANSVAR_KODE = "5054";
     public static final String AVKLAR_VERGE_KODE = "5030";
     public static final String AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE_KODE = "5031";
     public static final String AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE_KODE = "5032";
-    public static final String AVKLAR_FORTSATT_MEDLEMSKAP_KODE = "5053";
 
     public static final String FATTER_VEDTAK_KODE = "5016";
 
@@ -58,7 +53,6 @@ public class AksjonspunktKodeDefinisjon {
     public static final String OVERSTYRING_AV_FØDSELSVILKÅRET_KODE = "6003";
     public static final String OVERSTYRING_AV_FØDSELSVILKÅRET_FAR_MEDMOR_KODE = "6009";
     public static final String OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET_KODE = "6005";
-    public static final String OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET_LØPENDE_KODE = "6012";
     public static final String OVERSTYRING_AV_FORUTGÅENDE_MEDLEMSKAPSVILKÅR_KODE = "6017";
     public static final String OVERSTYRING_AV_SØKNADSFRISTVILKÅRET_KODE = "6006";
     public static final String OVERSTYRING_AV_OPPTJENINGSVILKÅRET_KODE = "6011";

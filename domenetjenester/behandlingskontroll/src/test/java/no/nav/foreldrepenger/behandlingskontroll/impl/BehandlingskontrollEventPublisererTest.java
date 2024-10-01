@@ -94,7 +94,7 @@ class BehandlingskontrollEventPublisererTest {
         // Assert
 
         BehandlingskontrollEvent startEvent = new BehandlingskontrollEvent.StartetEvent(null, null, STEG_1, null);
-        BehandlingskontrollEvent stoppEvent = new BehandlingskontrollEvent.StoppetEvent(null, null, STEG_4, BehandlingStegStatus.INNGANG);
+        BehandlingskontrollEvent stoppEvent = new BehandlingskontrollEvent.StoppetEvent(null, null, STEG_4, BehandlingStegStatus.UTGANG);
         assertThat(startEvent).isNotNull();
         assertThat(stoppEvent).isNotNull();
         TestEventObserver.containsExactly(startEvent, stoppEvent);
@@ -127,19 +127,14 @@ class BehandlingskontrollEventPublisererTest {
                 BehandlingStegStatus.STARTET);
         var steg3StatusEvent = new BehandlingStegStatusEvent(kontekst, STEG_3, BehandlingStegStatus.STARTET,
                 BehandlingStegStatus.UTFØRT);
-        var steg4StatusEvent = new BehandlingStegStatusEvent(kontekst, STEG_4, null,
-                BehandlingStegStatus.INNGANG);
-        assertThat(steg1StatusEvent0).isNotNull();
-        assertThat(steg1StatusEvent1).isNotNull();
-        assertThat(steg2StatusEvent0).isNotNull();
-        assertThat(steg2StatusEvent).isNotNull();
-        assertThat(steg3StatusEvent0).isNotNull();
-        assertThat(steg3StatusEvent).isNotNull();
-        assertThat(steg4StatusEvent).isNotNull();
+        var steg4StatusEvent0 = new BehandlingStegStatusEvent(kontekst, STEG_4, null,
+            BehandlingStegStatus.STARTET);
+        var steg4StatusEvent = new BehandlingStegStatusEvent(kontekst, STEG_4, BehandlingStegStatus.STARTET,
+            BehandlingStegStatus.UTGANG);
         TestEventObserver.containsExactly(steg1StatusEvent0, steg1StatusEvent1 //
                 , steg2StatusEvent0, steg2StatusEvent//
                 , steg3StatusEvent0, steg3StatusEvent//
-                , steg4StatusEvent//
+                , steg4StatusEvent0, steg4StatusEvent//
         );
     }
 
@@ -165,7 +160,7 @@ class BehandlingskontrollEventPublisererTest {
     void skal_fyre_event_for_behandlingskontroll_tilbakeføring_ved_prosessering() {
         // Arrange
         var scenario = nyttScenario(STEG_3);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE, STEG_4);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET, STEG_4);
 
         var behandling = scenario.lagre(serviceProvider);
 
@@ -225,12 +220,12 @@ class BehandlingskontrollEventPublisererTest {
 
     private BehandlingModellImpl byggModell() {
         // Arrange - noen utvalge, tilfeldige aksjonspunkter
-        var a0_0 = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
+        var a0_0 = AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE;
         var a0_1 = AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL;
         var a1_0 = AksjonspunktDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON;
-        var a1_1 = AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD;
-        var a2_0 = AksjonspunktDefinisjon.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE;
-        var a2_1 = AksjonspunktDefinisjon.AVKLAR_VERGE;
+        var a1_1 = AksjonspunktDefinisjon.AVKLAR_VERGE;
+        var a2_0 = AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET;
+        var a2_1 = AksjonspunktDefinisjon.VURDER_FORUTGÅENDE_MEDLEMSKAPSVILKÅR;
 
         var steg = new DummySteg();
         var steg0 = new DummySteg(opprettForAksjonspunkt(a2_0));

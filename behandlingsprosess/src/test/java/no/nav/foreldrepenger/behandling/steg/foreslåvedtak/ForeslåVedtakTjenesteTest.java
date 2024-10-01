@@ -94,7 +94,7 @@ class ForeslåVedtakTjenesteTest {
     @Test
     void oppretterAksjonspunktVedTotrinnskontrollOgSetterStegPåVent() {
         // Arrange
-        leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT, true, false);
+        leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET, true, false);
 
         // Act
         var stegResultat = tjeneste.foreslåVedtak(behandling);
@@ -211,7 +211,7 @@ class ForeslåVedtakTjenesteTest {
     @Test
     void nullstillerFritekstfeltetDersomIkkeLengerRelevant() {
         behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagre(repositoryProvider);
-        leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT, true, false);
+        leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET, true, false);
         leggTilAksjonspunkt(AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS, true, true);
         // Act
         var stegResultat = tjeneste.foreslåVedtak(behandling);
@@ -224,7 +224,7 @@ class ForeslåVedtakTjenesteTest {
     @Test
     void nullstillerIkkeFritekstfeltetDersomTotrinnskontroll() {
         // Arrange
-        leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT, true, false);
+        leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET, true, false);
 
         // Act
         var stegResultat = tjeneste.foreslåVedtak(behandling);

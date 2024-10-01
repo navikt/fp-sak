@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonAdresse;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAvvik;
+import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.MedlemskapAvvik;
 import no.nav.vedtak.konfig.Tid;
 
 @CdiDbAwareTest

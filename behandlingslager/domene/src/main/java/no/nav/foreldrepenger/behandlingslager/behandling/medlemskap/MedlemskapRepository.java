@@ -47,13 +47,6 @@ public class MedlemskapRepository {
         return getAktivtBehandlingsgrunnlag(behandlingId).map(this::hentMedlemskap);
     }
 
-    /**
-     * Hent kun {@link VurdertMedlemskap} fra Behandling.
-     */
-    public Optional<VurdertMedlemskap> hentVurdertMedlemskap(Long behandlingId) {
-        return hentMedlemskap(behandlingId).flatMap(MedlemskapAggregat::getVurdertMedlemskap);
-    }
-
     public Optional<VurdertMedlemskapPeriodeEntitet> hentVurdertLøpendeMedlemskap(Long behandlingId) {
         return hentMedlemskap(behandlingId).flatMap(MedlemskapAggregat::getVurderingLøpendeMedlemskap);
     }

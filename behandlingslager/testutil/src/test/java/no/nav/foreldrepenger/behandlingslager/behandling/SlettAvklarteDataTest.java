@@ -140,9 +140,6 @@ class SlettAvklarteDataTest extends EntityManagerAwareTest {
         var medlemskap = medlemskapRepository.hentMedlemskap(behandlingId);
         assertThat(medlemskap).isPresent();
 
-        var vurdertMedlemskap = medlemskapRepository.hentVurdertMedlemskap(behandlingId);
-        assertThat(vurdertMedlemskap).isNotPresent();
-
         assertThat(medlemskap.get().getVurdertMedlemskap()).isNotPresent();
     }
 }

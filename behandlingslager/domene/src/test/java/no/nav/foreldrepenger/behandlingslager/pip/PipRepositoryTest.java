@@ -115,10 +115,10 @@ class PipRepositoryTest extends EntityManagerAwareTest {
         var resultat1 = PipRepository.harAksjonspunktTypeOverstyring(Collections.singletonList(AksjonspunktDefinisjon.OVERSTYRING_AV_BEREGNING));
         assertThat(resultat1).isTrue();
 
-        var resultat2 = PipRepository.harAksjonspunktTypeOverstyring(List.of(AksjonspunktDefinisjon.OVERSTYRING_AV_BEREGNING, AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD));
+        var resultat2 = PipRepository.harAksjonspunktTypeOverstyring(List.of(AksjonspunktDefinisjon.OVERSTYRING_AV_BEREGNING, AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET));
         assertThat(resultat2).isTrue();
 
-        var resultat3 = PipRepository.harAksjonspunktTypeOverstyring(List.of(AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD));
+        var resultat3 = PipRepository.harAksjonspunktTypeOverstyring(List.of(AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET));
         assertThat(resultat3).isFalse();
     }
 
