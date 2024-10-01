@@ -67,6 +67,9 @@ public class InngangUttakStegRevurdering implements InngangUttakSteg {
             .map(VilkårResultat::getVilkårene).orElse(List.of()).stream()
             .anyMatch(Vilkår::erIkkeOppfylt);
         if (avslag) {
+            if (flytkontroll.finnesÅpenBerørtForFagsak(kontekst.getFagsakId(), kontekst.getBehandlingId())) {
+                LOG.warn("Si fra i driftskanal når du ser denne meldingen. Avslag og det finnes åpen berørt behandling. Fagsak {}", kontekst.getFagsakId());
+            }
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
         List<AksjonspunktResultat> aksjonspunkter = new ArrayList<>();

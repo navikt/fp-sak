@@ -101,6 +101,11 @@ public class BehandlingFlytkontroll {
                 Venteårsak.VENT_ÅPEN_BEHANDLING);
     }
 
+    public boolean finnesÅpenBerørtForFagsak(Long fagsakId, Long behandlingId) {
+        return behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakId).stream()
+            .anyMatch(b -> !b.getId().equals(behandlingId) && SpesialBehandling.skalIkkeKøes(b));
+    }
+
     private boolean passertUttakSynk(Behandling behandling) {
         return behandlingskontrollTjeneste.erStegPassert(behandling, SYNK_STEG) || venterVedUttakSynk(behandling);
     }
