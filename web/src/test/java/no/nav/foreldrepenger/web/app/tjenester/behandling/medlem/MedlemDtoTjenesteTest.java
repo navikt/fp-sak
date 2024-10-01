@@ -1,9 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.medlem;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -18,29 +15,18 @@ import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapManuellVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittLandOppholdEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonAdresse;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Personopplysning;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
-import no.nav.foreldrepenger.domene.medlem.api.EndringsresultatPersonopplysningerForMedlemskap;
-import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAvvik;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonopplysningDtoTjeneste;
 import no.nav.vedtak.konfig.Tid;
 
 @CdiDbAwareTest
@@ -52,168 +38,9 @@ class MedlemDtoTjenesteTest {
     private BehandlingRepositoryProvider repositoryProvider;
 
     @Test
-    void skal_lage_medlem_dto() {
-        var navn = "Lisa gikk til skolen";
-        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        var stp = LocalDate.now();
-        scenario.medSøknadHendelse().medFødselsDato(stp);
-        var søkerAktørId = AktørId.dummy();
-        scenario.medBruker(søkerAktørId);
-
-        var søker = scenario.opprettBuilderForRegisteropplysninger()
-            .leggTilPersonopplysninger(Personopplysning.builder().aktørId(søkerAktørId).navn(navn))
-            .build();
-
-        scenario.medRegisterOpplysninger(søker);
-        scenario.leggTilMedlemskapPeriode(new MedlemskapPerioderBuilder().medMedlemskapType(MedlemskapType.ENDELIG).build());
-
-        scenario.medMedlemskap()
-            .medErEosBorger(true)
-            .medBosattVurdering(true)
-            .medOppholdsrettVurdering(true)
-            .medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.MEDLEM)
-            .medLovligOppholdVurdering(true);
-
-        var behandling = scenario.lagMocked();
-        var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-
-        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider);
-
-        var personopplysningTjenesteMock = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
-        var medlemTjenesteMock = mock(MedlemTjeneste.class);
-        var personDtoTjeneste = new PersonopplysningDtoTjeneste(personopplysningTjenesteMock, repositoryProvider);
-
-        when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any(), any())).thenReturn(
-            EndringsresultatPersonopplysningerForMedlemskap.builder().build());
-
-        var dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste, medlemTjenesteMock, personopplysningTjenesteMock,
-            personDtoTjeneste, null, null, null);
-
-        var medlemDtoOpt = dtoTjeneste.lagMedlemV2Dto(behandling.getId());
-        assertThat(medlemDtoOpt).hasValueSatisfying(medlemDto -> {
-            assertThat(medlemDto.getFom()).isEqualTo(stp);
-            assertThat(medlemDto.getMedlemskapPerioder()).hasSize(1);
-        });
-    }
-
-    @Test
-    void skal_sette_fom_til_endring_i_personopplysningers_gjeldende_fra() {
-        var navn = "Lisa gikk til skolen";
-        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
-        var søkerAktørId = AktørId.dummy();
-        scenario.medBruker(søkerAktørId);
-
-        var søker = scenario.opprettBuilderForRegisteropplysninger()
-            .leggTilPersonopplysninger(Personopplysning.builder().aktørId(søkerAktørId).navn(navn))
-            .build();
-
-        scenario.medRegisterOpplysninger(søker);
-        scenario.leggTilMedlemskapPeriode(new MedlemskapPerioderBuilder().medMedlemskapType(MedlemskapType.ENDELIG).build());
-
-        scenario.medMedlemskap()
-            .medErEosBorger(true)
-            .medBosattVurdering(true)
-            .medOppholdsrettVurdering(true)
-            .medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.MEDLEM)
-            .medLovligOppholdVurdering(true);
-
-        var behandling = scenario.lagMocked();
-        var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-
-        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider);
-
-        var personopplysningTjenesteMock = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
-        var medlemTjenesteMock = mock(MedlemTjeneste.class);
-        var personDtoTjeneste = new PersonopplysningDtoTjeneste(personopplysningTjenesteMock, repositoryProvider);
-        var endringFraDato = LocalDate.now().minusDays(5);
-        var endringsresultatPersonopplysningerForMedlemskap = EndringsresultatPersonopplysningerForMedlemskap.builder()
-            .leggTilEndring(DatoIntervallEntitet.fraOgMed(endringFraDato), "", "2")
-            .build();
-        when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any(), any())).thenReturn(endringsresultatPersonopplysningerForMedlemskap);
-
-        var dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste, medlemTjenesteMock, personopplysningTjenesteMock,
-            personDtoTjeneste, null, null, null);
-
-        var medlemDtoOpt = dtoTjeneste.lagMedlemV2Dto(behandling.getId());
-        assertThat(medlemDtoOpt.get().getFom()).isEqualTo(endringFraDato);
-    }
-
-    @Test
-    void skal_lage_inntekt_for_ektefelle() {
-        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
-        var navn = "Lisa gikk til skolen";
-        var annenPart = "Tripp, tripp, tripp, det sa";
-        var aktørIdSøker = AktørId.dummy();
-        var aktørIdAnnenPart = AktørId.dummy();
-        scenario.medBruker(aktørIdSøker);
-
-        scenario.leggTilMedlemskapPeriode(new MedlemskapPerioderBuilder().medMedlemskapType(MedlemskapType.ENDELIG).build());
-
-        var personInformasjon = scenario.opprettBuilderForRegisteropplysninger()
-            .leggTilPersonopplysninger(Personopplysning.builder().aktørId(aktørIdSøker).navn(navn))
-            .leggTilPersonopplysninger(Personopplysning.builder().aktørId(aktørIdAnnenPart).navn(annenPart))
-            .build();
-
-        scenario.medRegisterOpplysninger(personInformasjon);
-
-        scenario.medMedlemskap()
-            .medErEosBorger(true)
-            .medBosattVurdering(true)
-            .medOppholdsrettVurdering(true)
-            .medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.MEDLEM)
-            .medLovligOppholdVurdering(true);
-
-        var behandling = scenario.lagMocked();
-        var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-
-        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider);
-
-        var personopplysningTjenesteMock = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
-
-        var medlemTjenesteMock = mock(MedlemTjeneste.class);
-        var personDtoTjeneste = new PersonopplysningDtoTjeneste(personopplysningTjenesteMock, repositoryProvider);
-
-        when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any(), any())).thenReturn(
-            EndringsresultatPersonopplysningerForMedlemskap.builder().build());
-        var dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste, medlemTjenesteMock, personopplysningTjenesteMock,
-            personDtoTjeneste, null, null, null);
-
-        var medlemDtoOpt = dtoTjeneste.lagMedlemV2Dto(behandling.getId());
-        assertThat(medlemDtoOpt).hasValueSatisfying(medlemDto -> assertThat(medlemDto.getMedlemskapPerioder()).hasSize(1));
-    }
-
-    @Test
-    void dto_før_registerinnhenting() {
-        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
-
-        var personInformasjon = scenario.opprettBuilderForRegisteropplysninger().build();
-
-        scenario.medRegisterOpplysninger(personInformasjon);
-
-        var behandling = scenario.lagMocked();
-        var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-
-        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider);
-
-        var personopplysningTjenesteMock = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
-
-        var medlemTjenesteMock = mock(MedlemTjeneste.class);
-        var personDtoTjeneste = new PersonopplysningDtoTjeneste(personopplysningTjenesteMock, repositoryProvider);
-        var dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste, medlemTjenesteMock, personopplysningTjenesteMock,
-            personDtoTjeneste, null, null, null);
-
-        var medlemDtoOpt = dtoTjeneste.lagMedlemV2Dto(behandling.getId());
-        assertThat(medlemDtoOpt).hasValueSatisfying(medlemDto -> assertThat(medlemDto.getMedlemskapPerioder()).isEmpty());
-    }
-
-    @Test
-    void skal_lage_medlemskap_v3() {
+    void skal_lage_medlemskap_dto() {
         var fødselsdato = LocalDate.of(2024, 10, 15);
         var stp = fødselsdato.minusWeeks(3);
-        var aktørIdSøker = AktørId.dummy();
         var aktørIdAnnenPart = AktørId.dummy();
         var registerMedlemskapsperiode = new MedlemskapPerioderBuilder().medPeriode(fødselsdato.minusYears(2), null).build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()

@@ -22,16 +22,16 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAvvik;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonadresseDto;
 
-public record MedlemskapV3Dto(ManuellBehandlingResultat manuellBehandlingResultat,
-                              LegacyManuellBehandling legacyManuellBehandling,
-                              Set<Region> regioner,
-                              Set<Personstatus> personstatuser,
-                              Set<Utenlandsopphold> utenlandsopphold,
-                              Set<Adresse> adresser,
-                              Set<Oppholdstillatelse> oppholdstillatelser,
-                              Set<MedlemskapPeriode> medlemskapsperioder,
-                              Set<MedlemskapAvvik> avvik,
-                              Annenpart annenpart) {
+public record MedlemskapDto(ManuellBehandlingResultat manuellBehandlingResultat,
+                            LegacyManuellBehandling legacyManuellBehandling,
+                            Set<Region> regioner,
+                            Set<Personstatus> personstatuser,
+                            Set<Utenlandsopphold> utenlandsopphold,
+                            Set<Adresse> adresser,
+                            Set<Oppholdstillatelse> oppholdstillatelser,
+                            Set<MedlemskapPeriode> medlemskapsperioder,
+                            Set<MedlemskapAvvik> avvik,
+                            Annenpart annenpart) {
 
     private static final LocalDate OPPHOLD_CUTOFF = LocalDate.of(2018, 7, 1);
 
