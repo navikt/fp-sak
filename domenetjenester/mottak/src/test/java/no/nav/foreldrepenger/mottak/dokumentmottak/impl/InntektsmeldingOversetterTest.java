@@ -31,7 +31,6 @@ import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjen
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
-import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
@@ -59,7 +58,7 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
             .medRegistrert(LocalDate.now().minusDays(1))
             .build()));
         iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-        var inntektsmeldingTjeneste = new InntektsmeldingTjeneste(iayTjeneste, new FpInntektsmeldingTjeneste());
+        var inntektsmeldingTjeneste = new InntektsmeldingTjeneste(iayTjeneste);
         oversetter = new InntektsmeldingOversetter(inntektsmeldingTjeneste, virksomhetTjeneste);
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         mottatteDokumentRepository = new MottatteDokumentRepository(getEntityManager());
