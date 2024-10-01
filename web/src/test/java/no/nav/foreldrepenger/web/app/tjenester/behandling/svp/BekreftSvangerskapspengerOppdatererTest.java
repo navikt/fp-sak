@@ -14,6 +14,8 @@ import java.util.Optional;
 
 import jakarta.persistence.EntityManager;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpOppholdKilde;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -364,7 +366,11 @@ class BekreftSvangerskapspengerOppdatererTest {
     }
 
     private SvpAvklartOpphold opprettOpphold(LocalDate fom, LocalDate tom, SvpOppholdÅrsak årsak) {
-        return SvpAvklartOpphold.Builder.nytt().medOppholdPeriode(fom, tom).medOppholdÅrsak( årsak).build();
+        return SvpAvklartOpphold.Builder.nytt()
+                .medOppholdÅrsak(årsak)
+                .medOppholdPeriode(fom, tom)
+                .medKilde(SvpOppholdKilde.REGISTRERT_AV_SAKSBEHANDLER)
+                .build();
     }
 
     private TilretteleggingFOM opprettTilrFom(LocalDate fraDato, long stilingsprosent, TilretteleggingType type, LocalDate tidligsMottattDato) {
