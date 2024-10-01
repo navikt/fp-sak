@@ -212,8 +212,9 @@ public class SvpDtoTjeneste {
                     case FERIE -> SvpSak.OppholdPeriode.Årsak.FERIE;
                 };
                 SvpSak.OppholdPeriode.OppholdKilde oppholdKilde = switch(o.getKilde()) {
-                    case SOKNAD -> SvpSak.OppholdPeriode.OppholdKilde.SOKNAD;
-                    case REGISTRERT_AV_SAKSBEHANDLER -> SvpSak.OppholdPeriode.OppholdKilde.SAKSBEHANDLER;
+                    case SØKNAD -> SvpSak.OppholdPeriode.OppholdKilde.SØKNAD;
+                    case REGISTRERT_AV_SAKSBEHANDLER-> SvpSak.OppholdPeriode.OppholdKilde.SAKSBEHANDLER;
+                    case null -> SvpSak.OppholdPeriode.OppholdKilde.SAKSBEHANDLER;
                 };
                 return new SvpSak.OppholdPeriode(o.getFom(), o.getTom(), oppholdÅrsak, oppholdKilde);
             })

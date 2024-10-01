@@ -354,8 +354,9 @@ public class SvangerskapspengerTjeneste {
             .stream()
             .map(avklartOpphold -> {
                 var kilde = switch (avklartOpphold.getKilde()) {
+                    case SØKNAD -> SvpAvklartOppholdPeriodeDto.SvpOppholdKilde.SØKNAD;
                     case REGISTRERT_AV_SAKSBEHANDLER -> SvpAvklartOppholdPeriodeDto.SvpOppholdKilde.REGISTRERT_AV_SAKSBEHANDLER;
-                    case SOKNAD -> SvpAvklartOppholdPeriodeDto.SvpOppholdKilde.SOKNAD;
+                    case null -> SvpAvklartOppholdPeriodeDto.SvpOppholdKilde.REGISTRERT_AV_SAKSBEHANDLER;
                 };
                 return new SvpAvklartOppholdPeriodeDto(avklartOpphold.getFom(), avklartOpphold.getTom(), avklartOpphold.getOppholdÅrsak(),
                     kilde, false);
