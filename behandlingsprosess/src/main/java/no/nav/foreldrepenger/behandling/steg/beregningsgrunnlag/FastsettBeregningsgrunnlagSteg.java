@@ -48,7 +48,7 @@ public class FastsettBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
                                     BehandlingStegType fraSteg,
                                     BehandlingStegType tilSteg) {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        if (tilSteg.equals(BehandlingStegType.SØKNADSFRIST_FORELDREPENGER) && behandling.erRevurdering()) {
+        if (tilSteg.equals(BehandlingStegType.INNGANG_UTTAK) && behandling.erRevurdering()) {
             // Kopier beregningsgrunnlag fra original, da uttaksresultat avhenger av denne
             behandling.getOriginalBehandlingId()
                 .ifPresent(originalId -> {

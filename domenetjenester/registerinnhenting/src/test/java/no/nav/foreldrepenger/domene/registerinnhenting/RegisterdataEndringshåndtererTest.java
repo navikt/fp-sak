@@ -141,7 +141,7 @@ class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
 
         scenarioFødsel.medSøker(søker)
             .medOpplysningerOppdatertTidspunkt(LocalDateTime.now().minusDays(1))
-            .medBehandlingStegStart(BehandlingStegType.KONTROLLER_LØPENDE_MEDLEMSKAP);
+            .medBehandlingStegStart(BehandlingStegType.INNGANG_UTTAK);
         scenarioFødsel.medSøknadHendelse().medFødselsDato(LocalDate.now().minusDays(2));
         var behandling = scenarioFødsel.lagre(repositoryProvider);
         behandling.getBehandlingÅrsaker().addAll(BehandlingÅrsak.builder(BehandlingÅrsakType.BERØRT_BEHANDLING).buildFor(behandling));

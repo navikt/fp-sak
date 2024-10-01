@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling.steg.medlemskap;
+package no.nav.foreldrepenger.behandling.steg.startuttak;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
-@BehandlingStegRef(BehandlingStegType.VULOMED)
+@BehandlingStegRef(BehandlingStegType.VULOMED) // TODO medlem slett denne i steg 2
 @BehandlingTypeRef(BehandlingType.REVURDERING)
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @ApplicationScoped

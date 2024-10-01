@@ -336,7 +336,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             UTEN_FRIST, UTVID_BEHFRIST, EnumSet.of(ES, FP, SVP)),
 
     AUTO_KØET_BEHANDLING(AksjonspunktKodeDefinisjon.AUTO_KØET_BEHANDLING_KODE,
-            AksjonspunktType.AUTOPUNKT, "Autokøet behandling", BehandlingStegType.KONTROLLER_LØPENDE_MEDLEMSKAP, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN,
+            AksjonspunktType.AUTOPUNKT, "Autokøet behandling", BehandlingStegType.INNGANG_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN,
         FORBLI, UTEN_FRIST, SAMME_BEHFRIST, EnumSet.of(FP)),
     VENT_PÅ_SØKNAD(AksjonspunktKodeDefinisjon.VENT_PÅ_SØKNAD_KODE,
             AksjonspunktType.AUTOPUNKT, "Venter på søknad", BehandlingStegType.REGISTRER_SØKNAD, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE,
@@ -395,7 +395,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     UTGÅTT_5050("5050", AksjonspunktType.MANUELL, "Vurder gradering på andel uten beregningsgrunnlag"),
     @Deprecated
     UTGÅTT_5053("5053", AksjonspunktType.MANUELL, "Avklar fortsatt medlemskap.",
-        BehandlingStegType.KONTROLLER_LØPENDE_MEDLEMSKAP, VurderingspunktType.UT, VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE,
+        BehandlingStegType.INNGANG_UTTAK, VurderingspunktType.UT, VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE,
         SkjermlenkeType.FAKTA_OM_MEDLEMSKAP, TOTRINN, EnumSet.of(FP, SVP)),
     @Deprecated
     UTGÅTT_5056("5056", AksjonspunktType.MANUELL, "Kontroll av manuelt opprettet revurderingsbehandling"),
