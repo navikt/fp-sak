@@ -59,6 +59,10 @@ public class SvpAvklartOpphold extends BaseCreateableEntitet {
         return svpOppholdKilde;
     }
 
+    public void setKilde(SvpOppholdKilde svpOppholdKilde) {
+        this.svpOppholdKilde = svpOppholdKilde;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -125,9 +129,7 @@ public class SvpAvklartOpphold extends BaseCreateableEntitet {
 
         public SvpAvklartOpphold build() {
             Objects.requireNonNull(this.kladd.svpOppholdÅrsak, "Utviklerfeil:oppholdsårsak  skal være satt");
-            if (kladd.svpOppholdKilde == null) {
-                kladd.svpOppholdKilde = SvpOppholdKilde.REGISTRERT_AV_SAKSBEHANDLER;
-            }
+            Objects.requireNonNull(this.kladd.svpOppholdKilde, "Utviklerfeil:oppholdKilde skal være satt");
             return kladd;
         }
     }
