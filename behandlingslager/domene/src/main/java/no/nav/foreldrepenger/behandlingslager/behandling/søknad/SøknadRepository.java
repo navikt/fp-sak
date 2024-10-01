@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.søknad;
 
-import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -10,7 +9,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 
@@ -57,30 +55,6 @@ public class SøknadRepository {
 
     public Optional<SøknadEntitet> hentSøknadFraGrunnlag(Long behandlingId) {
         return hentEksisterendeGrunnlag(behandlingId).map(SøknadGrunnlagEntitet::getSøknad);
-    }
-
-    public SøknadEntitet hentFørstegangsSøknad(Behandling behandling) {
-        var førstegangsSøknad = utledSisteFørstegangsbehandlingSomIkkeErHenlagt(behandling);
-        if (førstegangsSøknad.isPresent()) {
-            var søknad = hentSøknadHvisEksisterer(førstegangsSøknad.get().getId());
-            if (søknad.isPresent()) {
-                return søknad.get();
-            }
-        }
-        return hentSøknad(behandling.getId());
-    }
-
-    private Optional<Behandling> utledSisteFørstegangsbehandlingSomIkkeErHenlagt(Behandling behandling) {
-        return behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(behandling.getFagsak().getSaksnummer())
-                .stream()
-                .filter(b -> b.getType().equals(BehandlingType.FØRSTEGANGSSØKNAD))
-                .filter(b -> b.getBehandlingsresultat() != null && !b.getBehandlingsresultat().isBehandlingHenlagt())
-                .filter(this::harSøknad)
-                .max(Comparator.comparing(Behandling::getOpprettetTidspunkt));
-    }
-
-    private boolean harSøknad(Behandling b) {
-        return hentEksisterendeGrunnlag(b.getId()).map(SøknadGrunnlagEntitet::getSøknad).isPresent();
     }
 
     public void lagreOgFlush(Behandling behandling, SøknadEntitet søknad) {

@@ -20,8 +20,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.AvslagsårsakMapper;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
-import no.nav.foreldrepenger.domene.medlem.api.Medlemskapsperiode;
-import no.nav.foreldrepenger.domene.medlem.impl.HentMedlemskapFraRegister;
+import no.nav.foreldrepenger.domene.medlem.medl2.Medlemskapsperiode;
+import no.nav.foreldrepenger.domene.medlem.medl2.HentMedlemskapFraRegister;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 

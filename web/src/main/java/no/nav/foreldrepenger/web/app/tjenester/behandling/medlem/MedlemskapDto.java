@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemskapAvvik;
+import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.MedlemskapAvvik;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonadresseDto;
 
 public record MedlemskapDto(ManuellBehandlingResultat manuellBehandlingResultat,
