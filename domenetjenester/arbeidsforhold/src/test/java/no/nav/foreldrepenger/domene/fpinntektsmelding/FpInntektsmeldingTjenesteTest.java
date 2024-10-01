@@ -10,10 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,9 +20,11 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -83,9 +81,5 @@ class FpInntektsmeldingTjenesteTest {
         var forventetRequest = new OverstyrInntektsmeldingRequest(new OverstyrInntektsmeldingRequest.AktørIdDto("9999999999999"), new OverstyrInntektsmeldingRequest.ArbeidsgiverDto("999999999"), stp, OverstyrInntektsmeldingRequest.YtelseType.FORELDREPENGER, BigDecimal.valueOf(5000), BigDecimal.valueOf(5000),
             foventedeRefusjonsendringer, Collections.emptyList(), "Truls Test");
         verify(klient, times(1)).overstyrInntektsmelding(forventetRequest);
-
-
-
     }
-
 }

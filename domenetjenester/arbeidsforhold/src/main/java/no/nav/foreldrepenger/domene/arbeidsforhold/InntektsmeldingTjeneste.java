@@ -20,9 +20,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.Ambasade;
+import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
@@ -44,14 +46,17 @@ public class InntektsmeldingTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(InntektsmeldingTjeneste.class);
 
     private InntektArbeidYtelseTjeneste iayTjeneste;
+    private FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste;
 
     InntektsmeldingTjeneste() {
         // CDI-runner
     }
 
     @Inject
-    public InntektsmeldingTjeneste(InntektArbeidYtelseTjeneste iayTjeneste) {
+    public InntektsmeldingTjeneste(InntektArbeidYtelseTjeneste iayTjeneste,
+                                   FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste) {
         this.iayTjeneste = iayTjeneste;
+        this.fpInntektsmeldingTjeneste = fpInntektsmeldingTjeneste;
     }
 
     /**
@@ -144,8 +149,13 @@ public class InntektsmeldingTjeneste {
                 .collect(Collectors.groupingBy(Inntektsmelding::getArbeidsgiver));
     }
 
-    public void lagreInntektsmelding(Saksnummer saksnummer, Long behandlingId, InntektsmeldingBuilder im) {
-        iayTjeneste.lagreInntektsmeldinger(saksnummer, behandlingId, List.of(im));
+    public void lagreInntektsmelding(InntektsmeldingBuilder im, Behandling behandling) {
+        var saksnummer = behandling.getFagsak().getSaksnummer();
+        iayTjeneste.lagreInntektsmeldinger(saksnummer, behandling.getId(), List.of(im));
+        var inntektsmelding = im.build();
+        if (!inntektsmelding.kommerFraArbeidsgiverPortal() && inntektsmelding.getArbeidsgiver().getErVirksomhet()) {
+            fpInntektsmeldingTjeneste.lagLukkForespørselTask(inntektsmelding, behandling);
+        }
     }
 
     /**
