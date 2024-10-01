@@ -16,6 +16,12 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpAvklartOpphold;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpOppholdKilde;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpOppholdÅrsak;
+
+import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Tilrettelegging;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -387,17 +393,11 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
             ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
         } else if (skjemaWrapper.getOmYtelse() instanceof Svangerskapspenger svangerskapspenger) {
             oversettOgLagreTilretteleggingOgVurderEksisterende(svangerskapspenger, behandling, søknadMottattDato);
-            oversettAvtaltFerie(svangerskapspenger, behandling);
         }
-    }
-
-    private void oversettAvtaltFerie(Svangerskapspenger svangerskapspenger, Behandling behandling) {
-        // left blank for now
     }
 
     private void oversettOgLagreTilretteleggingOgVurderEksisterende(Svangerskapspenger svangerskapspenger,
                                                                     Behandling behandling, LocalDate søknadMottattDato) {
-
         var brukMottattTidspunkt = Optional.ofNullable(søknadMottattDato)
             .filter(d -> !d.equals(behandling.getOpprettetTidspunkt().toLocalDate()))
             .map(LocalDate::atStartOfDay)
@@ -407,16 +407,13 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
 
         var tilretteleggingListe = svangerskapspenger.getTilretteleggingListe().getTilrettelegging();
 
-        // TODO TFP-5853: ferieperioder
-        // var ferieMap = svangerskapspenger.getAvtaltFerieListe().getAvtaltFerie().stream()
-        //    .collect(Collectors.groupingBy(AvtaltFerie::getArbeidsgiver));
-
         for (var tilrettelegging : tilretteleggingListe) {
 
             var builder = new SvpTilretteleggingEntitet.Builder();
             builder.medBehovForTilretteleggingFom(tilrettelegging.getBehovForTilretteleggingFom())
                 .medKopiertFraTidligereBehandling(false)
-                .medMottattTidspunkt(brukMottattTidspunkt);
+                .medMottattTidspunkt(brukMottattTidspunkt)
+                .medAvklarteOpphold(mapAvtaltFerie(tilrettelegging, svangerskapspenger));
 
             if (tilrettelegging.getHelTilrettelegging() != null) {
                 tilrettelegging.getHelTilrettelegging()
@@ -546,6 +543,24 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         }
     }
 
+    private static List<SvpAvklartOpphold> mapAvtaltFerie(Tilrettelegging tilrettelegging,
+                                                          Svangerskapspenger svp) {
+        if (tilrettelegging.getArbeidsforhold() instanceof no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Arbeidsgiver arbeidsgiver) {
+            var identifikator = arbeidsgiver.getIdentifikator();
+            var avtalteFerier = svp.getAvtaltFerieListe().getAvtaltFerie();
+            return avtalteFerier.stream()
+                .filter(af -> Objects.equals(identifikator, af.getArbeidsgiver().getIdentifikator()))
+                .map(ao -> SvpAvklartOpphold.Builder.nytt()
+                    .medKilde(SvpOppholdKilde.SØKNAD)
+                    .medOppholdÅrsak(SvpOppholdÅrsak.FERIE)
+                    .medOppholdPeriode(ao.getAvtaltFerieFom(), ao.getAvtaltFerieTom())
+                    .build())
+                .toList();
+        } else {
+            return List.of();
+        }
+    }
+
     private void byggOpptjeningsspesifikkeFelter(SøknadWrapper skjemaWrapper, Behandling behandling) {
         var behandlingId = behandling.getId();
         Opptjening opptjeningFraSøknad = null;
@@ -580,7 +595,6 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
 
         }
     }
-
 
     private Optional<OppgittRettighetEntitet> oversettRettighet(Foreldrepenger omYtelse) {
         return Optional.ofNullable(omYtelse.getRettigheter())
