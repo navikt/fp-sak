@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.fp;
 
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
+import static no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding.NAV_NO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -48,6 +49,7 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYRepositoryProvider;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
+import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
@@ -85,7 +87,7 @@ class InntektsmeldingTjenesteTest {
     private BehandlingRepository behandlingRepository;
     private FagsakRepository fagsakRepository;
     private final InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-    private final InntektsmeldingTjeneste inntektsmeldingTjeneste = new InntektsmeldingTjeneste(iayTjeneste);
+    private final InntektsmeldingTjeneste inntektsmeldingTjeneste = new InntektsmeldingTjeneste(iayTjeneste, new FpInntektsmeldingTjeneste());
     private InntektsmeldingRegisterTjeneste inntektsmeldingArkivTjeneste;
     private Arbeidsgiver arbeidsgiver;
     private Arbeidsgiver arbeidsgiver2;
@@ -277,10 +279,12 @@ class InntektsmeldingTjenesteTest {
             DatoIntervallEntitet.fraOgMedTilOgMed(ARBEIDSFORHOLD_FRA, ARBEIDSFORHOLD_TIL),
             ARBEIDSFORHOLD_ID, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN);
 
-        lagreInntektsmelding(skjæringstidspunktet.minusMonths(1).minusWeeks(5), behandling, ARBEIDSFORHOLD_ID, ARBEIDSFORHOLD_ID_EKSTERN, BigDecimal.TEN, arbeidsgiver, skjæringstidspunktet.minusMonths(1));
+        lagreInntektsmelding(skjæringstidspunktet.minusMonths(1).minusWeeks(5), behandling, ARBEIDSFORHOLD_ID, ARBEIDSFORHOLD_ID_EKSTERN, BigDecimal.TEN, arbeidsgiver, skjæringstidspunktet.minusMonths(1),
+            NAV_NO);
         assertThat(inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunktet)).isEmpty();
 
-        lagreInntektsmelding(skjæringstidspunktet.minusWeeks(3), behandling, ARBEIDSFORHOLD_ID, ARBEIDSFORHOLD_ID_EKSTERN, BigDecimal.TEN, arbeidsgiver, skjæringstidspunktet);
+        lagreInntektsmelding(skjæringstidspunktet.minusWeeks(3), behandling, ARBEIDSFORHOLD_ID, ARBEIDSFORHOLD_ID_EKSTERN, BigDecimal.TEN, arbeidsgiver, skjæringstidspunktet,
+            null);
 
         // Assert
         assertThat(inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunktet)).hasSize(1);
@@ -299,9 +303,11 @@ class InntektsmeldingTjenesteTest {
             DatoIntervallEntitet.fraOgMedTilOgMed(ARBEIDSFORHOLD_FRA, ARBEIDSFORHOLD_TIL),
             ARBEIDSFORHOLD_ID, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN);
 
-        lagreInntektsmelding(skjæringstidspunktet.minusMonths(2), behandling, ARBEIDSFORHOLD_ID, ARBEIDSFORHOLD_ID_EKSTERN, BigDecimal.TEN, arbeidsgiver2, skjæringstidspunktet.minusMonths(2));
+        lagreInntektsmelding(skjæringstidspunktet.minusMonths(2), behandling, ARBEIDSFORHOLD_ID, ARBEIDSFORHOLD_ID_EKSTERN, BigDecimal.TEN, arbeidsgiver2, skjæringstidspunktet.minusMonths(2),
+            NAV_NO);
         var skalAksepteres = YearMonth.from(skjæringstidspunktet.minusMonths(2)).atEndOfMonth().plusDays(1);
-        lagreInntektsmelding(skalAksepteres, behandling, ARBEIDSFORHOLD_ID, ARBEIDSFORHOLD_ID_EKSTERN, BigDecimal.TEN, arbeidsgiver, skjæringstidspunktet);
+        lagreInntektsmelding(skalAksepteres, behandling, ARBEIDSFORHOLD_ID, ARBEIDSFORHOLD_ID_EKSTERN, BigDecimal.TEN, arbeidsgiver, skjæringstidspunktet,
+            NAV_NO);
 
         // Assert
         assertThat(inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunktet)).hasSize(1);
@@ -321,24 +327,28 @@ class InntektsmeldingTjenesteTest {
 
     private void lagreInntektsmelding(LocalDate mottattDato, Behandling behandling, InternArbeidsforholdRef arbeidsforholdIdIntern,
                                       EksternArbeidsforholdRef arbeidsforholdId, BigDecimal beløp, Arbeidsgiver arbeidsgiver) {
-        lagreInntektsmelding(mottattDato, behandling, arbeidsforholdIdIntern, arbeidsforholdId, beløp, arbeidsgiver, I_DAG);
+        lagreInntektsmelding(mottattDato, behandling, arbeidsforholdIdIntern, arbeidsforholdId, beløp, arbeidsgiver, I_DAG, NAV_NO);
     }
 
     private void lagreInntektsmelding(LocalDate mottattDato, Behandling behandling, InternArbeidsforholdRef arbeidsforholdIdIntern,
-            EksternArbeidsforholdRef arbeidsforholdId, BigDecimal beløp, Arbeidsgiver arbeidsgiver, LocalDate startdato) {
+                                      EksternArbeidsforholdRef arbeidsforholdId, BigDecimal beløp, Arbeidsgiver arbeidsgiver, LocalDate startdato,
+                                      String kildeSystem) {
         var journalPostId = new JournalpostId(journalpostIdInc.getAndIncrement());
 
         var inntektsmelding = InntektsmeldingBuilder.builder()
-                .medStartDatoPermisjon(startdato)
-                .medArbeidsgiver(arbeidsgiver)
-                .medBeløp(beløp)
-                .medNærRelasjon(false)
-                .medArbeidsforholdId(arbeidsforholdId)
-                .medArbeidsforholdId(arbeidsforholdIdIntern)
-                .medInnsendingstidspunkt(LocalDateTime.of(mottattDato, LocalTime.MIN))
-                .medJournalpostId(journalPostId);
+            .medStartDatoPermisjon(startdato)
+            .medArbeidsgiver(arbeidsgiver)
+            .medBeløp(beløp)
+            .medNærRelasjon(false)
+            .medArbeidsforholdId(arbeidsforholdId)
+            .medArbeidsforholdId(arbeidsforholdIdIntern)
+            .medInnsendingstidspunkt(LocalDateTime.of(mottattDato, LocalTime.MIN))
+            .medJournalpostId(journalPostId);
+        if (kildeSystem != null) {
+            inntektsmelding.medKildesystem(kildeSystem);
+        }
 
-        inntektsmeldingTjeneste.lagreInntektsmelding(behandling.getFagsak().getSaksnummer(), behandling.getId(), inntektsmelding);
+        inntektsmeldingTjeneste.lagreInntektsmelding(inntektsmelding,behandling );
 
     }
 

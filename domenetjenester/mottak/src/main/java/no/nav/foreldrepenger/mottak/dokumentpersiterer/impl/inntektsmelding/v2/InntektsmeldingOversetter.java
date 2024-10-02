@@ -101,8 +101,7 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
         mapUtsettelse(wrapper, builder);
         mapRefusjon(wrapper, builder);
 
-        inntektsmeldingTjeneste.lagreInntektsmelding(behandling.getFagsak().getSaksnummer(), behandling.getId(),
-            builder);
+        inntektsmeldingTjeneste.lagreInntektsmelding(builder, behandling);
     }
 
     private void mapArbeidsforholdOgBeløp(InntektsmeldingWrapper wrapper,
