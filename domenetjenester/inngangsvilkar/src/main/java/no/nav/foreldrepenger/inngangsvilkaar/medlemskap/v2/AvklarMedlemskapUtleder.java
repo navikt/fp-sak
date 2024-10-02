@@ -30,7 +30,7 @@ public class AvklarMedlemskapUtleder {
 
     public VilkårData utledFor(BehandlingReferanse behandlingRef, VilkårType vilkårType) {
         var grunnlag = grunnlagBygger.lagRegelGrunnlag(behandlingRef);
-        var resultat = InngangsvilkårRegler.medlemskapV2(grunnlag);
+        var resultat = InngangsvilkårRegler.medlemskap(grunnlag);
         return RegelResultatOversetter.oversett(vilkårType, resultat);
     }
 
