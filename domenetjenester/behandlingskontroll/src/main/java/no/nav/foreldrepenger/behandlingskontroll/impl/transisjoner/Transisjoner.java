@@ -17,13 +17,12 @@ public class Transisjoner {
             new SettPåVent(),
             new TilbakeføringTransisjon(FellesTransisjoner.TILBAKEFØRT_TIL_AKSJONSPUNKT.getId()),
             new TilbakeføringTransisjon(FellesTransisjoner.TILBAKEFØRT_TIL_MEDLEMSKAP.getId(), BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR),
-            new FremoverhoppTransisjon(FellesTransisjoner.FREMHOPP_TIL_FATTE_VEDTAK.getId(), BehandlingStegType.FATTE_VEDTAK),
             new FremoverhoppTransisjon(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_VEDTAK.getId(), BehandlingStegType.FORESLÅ_VEDTAK),
             new FremoverhoppTransisjon(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT.getId(),
                     BehandlingStegType.FORESLÅ_BEHANDLINGSRESULTAT),
             new FremoverhoppTransisjon(FellesTransisjoner.FREMHOPP_TIL_KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT.getId(),
                     BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT),
-            new FremoverhoppTransisjon(FellesTransisjoner.FREMHOPP_TIL_UTTAKSPLAN.getId(), BehandlingStegType.SØKNADSFRIST_FORELDREPENGER),
+            new FremoverhoppTransisjon(FellesTransisjoner.FREMHOPP_TIL_UTTAKSPLAN.getId(), BehandlingStegType.INNGANG_UTTAK),
             new FremoverhoppTransisjon(FellesTransisjoner.FREMHOPP_TIL_BEREGN_YTELSE.getId(), BehandlingStegType.BEREGN_YTELSE),
             new FremoverhoppTransisjon(FellesTransisjoner.FREMHOPP_TIL_IVERKSETT_VEDTAK.getId(), BehandlingStegType.IVERKSETT_VEDTAK),
             new SpolFremoverTransisjon(BehandlingStegType.KONTROLLER_FAKTA),
@@ -33,7 +32,7 @@ public class Transisjoner {
             new SpolFremoverTransisjon(BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT),
             new SpolFremoverTransisjon(BehandlingStegType.SØKERS_RELASJON_TIL_BARN),
             new SpolFremoverTransisjon(BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR),
-            new SpolFremoverTransisjon(BehandlingStegType.KONTROLLER_LØPENDE_MEDLEMSKAP),
+            new SpolFremoverTransisjon(BehandlingStegType.INNGANG_UTTAK),
             new SpolFremoverTransisjon(BehandlingStegType.BEREGN_YTELSE),
             new SpolFremoverTransisjon(BehandlingStegType.FASTSETT_OPPTJENINGSPERIODE));
 
