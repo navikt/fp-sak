@@ -151,13 +151,14 @@ public class InntektsmeldingTjeneste {
 
     public void lagreInntektsmelding(InntektsmeldingBuilder im, Behandling behandling) {
         var saksnummer = behandling.getFagsak().getSaksnummer();
-        var inntektsmeldinger = iayTjeneste.lagreInntektsmeldinger(saksnummer, behandling.getId(), List.of(im));
-        inntektsmeldinger.forEach(inntektsmelding -> opprettLukkForespørselTask(inntektsmelding, behandling));
+        iayTjeneste.lagreInntektsmeldinger(saksnummer, behandling.getId(), List.of(im));
+
+        opprettLukkForespørselTask(im, behandling);
     }
 
-    private void opprettLukkForespørselTask(Inntektsmelding inntektsmelding, Behandling behandling) {
-        if (inntektsmelding.getArbeidsgiver().getErVirksomhet() && (inntektsmelding.getKildesystem() == null || !inntektsmelding.kommerFraArbeidsgiverPortal())) {
-            fpInntektsmeldingTjeneste.lagLukkForespørselTask(inntektsmelding, behandling);
+    private void opprettLukkForespørselTask(InntektsmeldingBuilder imBuilder, Behandling behandling) {
+        if (imBuilder.getArbeidsgiver().getErVirksomhet() && (imBuilder.getKildesystem() == null || !imBuilder.kommerFraArbeidsgiverPortal())) {
+            fpInntektsmeldingTjeneste.lagLukkForespørselTask(imBuilder.getArbeidsgiver().getOrgnr(), behandling);
         }
     }
 

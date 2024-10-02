@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.fp;
 
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
-import static no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding.NAV_NO;
+import static no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder.NAV_NO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;

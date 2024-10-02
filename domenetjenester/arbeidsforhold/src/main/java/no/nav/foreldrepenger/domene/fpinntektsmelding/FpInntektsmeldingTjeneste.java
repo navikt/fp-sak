@@ -138,7 +138,7 @@ public class FpInntektsmeldingTjeneste {
         };
     }
 
-    public void lagLukkForespørselTask(Inntektsmelding inntektsmelding, Behandling behandling) {
+    public void lagLukkForespørselTask(String orgnummer, Behandling behandling) {
         // Toggler av for prod og lokalt, ikke støtte lokalt
         if (!Environment.current().isDev()) {
             return;
@@ -147,7 +147,7 @@ public class FpInntektsmeldingTjeneste {
         var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(LukkForespørslerImTask.class));
         taskdata.setBehandling(behandling.getFagsakId(), behandlingId);
         taskdata.setCallIdFraEksisterende();
-        taskdata.setProperty(LukkForespørslerImTask.ORG_NUMMER, inntektsmelding.getArbeidsgiver().getOrgnr());
+        taskdata.setProperty(LukkForespørslerImTask.ORG_NUMMER, orgnummer);
         taskdata.setProperty(LukkForespørslerImTask.SAK_NUMMER, behandling.getFagsak().getSaksnummer().getVerdi());
         prosessTaskTjeneste.lagre(taskdata);
     }
