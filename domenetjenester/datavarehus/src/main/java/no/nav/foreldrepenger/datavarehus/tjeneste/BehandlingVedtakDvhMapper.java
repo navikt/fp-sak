@@ -18,7 +18,8 @@ public class BehandlingVedtakDvhMapper {
         if (vedtakResultatType == null || !VEDTAK_IKKE_OPPFYLT.contains(vedtakResultatType)) {
             return null;
         }
-        if (vilkårIkkeOppfylt.contains(VilkårType.MEDLEMSKAPSVILKÅRET) || vilkårIkkeOppfylt.contains(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE)) {
+        if (vilkårIkkeOppfylt.contains(VilkårType.MEDLEMSKAPSVILKÅRET) || vilkårIkkeOppfylt.contains(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE)
+            || vilkårIkkeOppfylt.contains(VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE)) {
             return VilkårIkkeOppfylt.MEDLEMSKAP;
         }
         if (vilkårIkkeOppfylt.contains(VilkårType.SØKNADSFRISTVILKÅRET) && vilkårIkkeOppfylt.size() == 1) {
