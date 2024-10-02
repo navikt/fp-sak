@@ -127,8 +127,7 @@ public class PersonRestTjeneste {
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandlingId = getBehandlingsId(uuidDto.getBehandlingUuid());
         var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
-        var brukDato = Optional.ofNullable(behandling.getAvsluttetDato()).map(LocalDateTime::toLocalDate).orElseGet(LocalDate::now);
-        var personoversiktDto = personopplysningDtoTjeneste.lagPersonversiktDto(behandlingId, brukDato);
+        var personoversiktDto = personopplysningDtoTjeneste.lagPersonversiktDto(behandlingId);
         personoversiktDto.ifPresent(p -> personopplysningFnrFinder.oppdaterMedPersonIdent(behandling.getFagsakYtelseType(), p));
 
         return personoversiktDto.orElse(null);
