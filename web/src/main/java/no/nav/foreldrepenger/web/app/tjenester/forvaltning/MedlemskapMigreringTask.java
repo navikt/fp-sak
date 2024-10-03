@@ -12,7 +12,10 @@ import org.hibernate.jpa.HibernateHints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapsvilkårVurderingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapsvilkårVurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -35,18 +38,24 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
     private final BehandlingRepository behandlingRepository;
     private final MedlemTjeneste medlemTjeneste;
     private final SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private final MedlemskapsvilkårVurderingRepository medlemskapsvilkårVurderingRepository;
+    private final VilkårResultatRepository vilkårResultatRepository;
 
     @Inject
     public MedlemskapMigreringTask(EntityManager entityManager,
                                    ProsessTaskTjeneste prosessTaskTjeneste,
                                    BehandlingRepository behandlingRepository,
                                    MedlemTjeneste medlemTjeneste,
-                                   SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                   SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                   MedlemskapsvilkårVurderingRepository medlemskapsvilkårVurderingRepository,
+                                   VilkårResultatRepository vilkårResultatRepository) {
         this.entityManager = entityManager;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.medlemTjeneste = medlemTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.medlemskapsvilkårVurderingRepository = medlemskapsvilkårVurderingRepository;
+        this.vilkårResultatRepository = vilkårResultatRepository;
     }
 
     @Override
@@ -65,18 +74,26 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
         LOG.info("Migrerer behandling for {}", behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
-        //TODO lagre nytt repo
+        var vilkårResultat = vilkårResultatRepository.hent(behandlingId);
         switch (behandling.getFagsakYtelseType()) {
             case ENGANGSTØNAD -> {
                 var medlemFom = medlemTjeneste.hentMedlemFomDato(behandlingId);
                 LOG.info("Medlemfom for {} {}", behandlingId, medlemFom.orElse(null));
+                if (medlemFom.isPresent()) {
+                    var medlemskapsvilkårVurderingEntitet = MedlemskapsvilkårVurderingEntitet.forMedlemFom(vilkårResultat, medlemFom.get());
+                    medlemskapsvilkårVurderingRepository.lagre(medlemskapsvilkårVurderingEntitet);
+                }
             }
             case FORELDREPENGER, SVANGERSKAPSPENGER -> {
                 var opphørsdato = finnOpphørsdato(behandlingId);
                 LOG.info("Opphørsdato for {} {} {}", behandling.getFagsakYtelseType(), behandlingId, opphørsdato.orElse(null));
+                MedlemskapsvilkårVurderingEntitet medlemskapsvilkårVurderingEntitet;
                 if (opphørsdato.isPresent()) {
                     var opphørsårsak = medlemTjeneste.hentAvslagsårsak(behandlingId);
                     LOG.info("Opphørsårsak for {} {} {}", behandling.getFagsakYtelseType(), behandlingId, opphørsårsak.orElse(null));
+                    medlemskapsvilkårVurderingEntitet = MedlemskapsvilkårVurderingEntitet.forOpphør(vilkårResultat, opphørsdato.get(),
+                        opphørsårsak.orElse(null));
+                    medlemskapsvilkårVurderingRepository.lagre(medlemskapsvilkårVurderingEntitet);
                 }
             }
             default -> throw new IllegalStateException("Unexpected value: " + behandling.getFagsakYtelseType());
