@@ -128,21 +128,6 @@ public class MedlemskapRepository {
         oppdaterLås(lås);
     }
 
-    /**
-     * Slette avklart medlemskapsdata på en Behandling. Sørger for at samtidige oppdateringer på samme Behandling,
-     * eller andre Behandlinger
-     * på samme Fagsak ikke kan gjøres samtidig.
-     *
-     * @see BehandlingLås
-     */
-    public void slettAvklarteMedlemskapsdata(Long behandlingId, BehandlingLås lås) {
-        oppdaterLås(lås);
-        var gr = getAktivtBehandlingsgrunnlag(behandlingId);
-        var nyttGrunnlag = MedlemskapBehandlingsgrunnlagEntitet.fra(gr, behandlingId, (VurdertMedlemskapEntitet) null);
-        lagreOgFlush(gr, nyttGrunnlag);
-        entityManager.flush();
-    }
-
     protected void oppdaterLås(BehandlingLås lås) {
         behandlingLåsRepository.oppdaterLåsVersjon(lås);
     }

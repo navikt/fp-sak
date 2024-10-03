@@ -7,7 +7,6 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.steg.avklarfakta.KontrollerFaktaSteg;
-import no.nav.foreldrepenger.behandling.steg.avklarfakta.RyddRegisterData;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
@@ -38,7 +37,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
 
     private KontrollerFaktaTjeneste tjeneste;
-    private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -56,7 +54,6 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
-        this.repositoryProvider = repositoryProvider;
         this.tjeneste = tjeneste;
     }
 
@@ -85,8 +82,8 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
             BehandlingStegType fraSteg) {
         if (!BehandlingStegType.KONTROLLER_FAKTA.equals(fraSteg)) {
-            var rydder = new RyddRegisterData(repositoryProvider, kontekst);
-            rydder.ryddRegisterdata();
+            var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+            behandling.nullstillToTrinnsBehandling();
         }
     }
 

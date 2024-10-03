@@ -600,11 +600,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             }
 
             @Override
-            public void slettAvklarteMedlemskapsdata(Long behandlingId, BehandlingLås lås) {
-                // NO-OP i mock
-            }
-
-            @Override
             protected Optional<MedlemskapBehandlingsgrunnlagEntitet> getAktivtBehandlingsgrunnlag(Long behandlingId) {
                 assert behandlingId != null : "behandlingId er null!";
                 return Optional.ofNullable(grunnlag);

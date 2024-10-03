@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.steg.avklarfakta.KontrollerFaktaSteg;
-import no.nav.foreldrepenger.behandling.steg.avklarfakta.RyddRegisterData;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
@@ -36,7 +35,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
@@ -46,8 +44,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
@@ -88,20 +84,17 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     private static final Set<AktivitetStatus> SN_REGULERING = Set.of(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE, AktivitetStatus.KOMBINERT_AT_SN,
             AktivitetStatus.KOMBINERT_FL_SN, AktivitetStatus.KOMBINERT_AT_FL_SN);
 
-    private BehandlingRepository behandlingRepository;
     private KontrollerFaktaTjeneste tjeneste;
     private BehandlingRepositoryProvider repositoryProvider;
     private StartpunktTjeneste startpunktTjeneste;
     private BehandlingÅrsakTjeneste behandlingÅrsakTjeneste;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private BehandlingsresultatRepository behandlingsresultatRepository;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private BeregningTjeneste beregningTjeneste;
     private ForeldrepengerUttakTjeneste uttakTjeneste;
     private KopierForeldrepengerUttaktjeneste kopierForeldrepengerUttaktjeneste;
-    private OpptjeningRepository opptjeningRepository;
     private DekningsgradTjeneste dekningsgradTjeneste;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private SatsRepository satsRepository;
@@ -126,9 +119,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         this.repositoryProvider = repositoryProvider;
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
-        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.tjeneste = tjeneste;
-        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.startpunktTjeneste = startpunktTjeneste;
         this.behandlingÅrsakTjeneste = behandlingÅrsakTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
@@ -136,7 +127,6 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         this.beregningTjeneste = beregningTjeneste;
         this.uttakTjeneste = uttakTjeneste;
         this.kopierForeldrepengerUttaktjeneste = kopierForeldrepengerUttaktjeneste;
-        this.opptjeningRepository = repositoryProvider.getOpptjeningRepository();
         this.dekningsgradTjeneste = dekningsgradTjeneste;
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.satsRepository = satsRepository;
@@ -145,7 +135,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandlingId = kontekst.getBehandlingId();
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = repositoryProvider.getBehandlingRepository().hentBehandling(behandlingId);
 
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
         var ref = BehandlingReferanse.fra(behandling);
@@ -193,7 +183,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
         // Undersøk behov for GRegulering. Med mindre vi allerede skal til BEREGNING eller tidligere steg
         if (startpunkt.getRangering() > StartpunktType.BEREGNING.getRangering()) {
-            var greguleringStartpunkt = utledBehovForGRegulering(ref, stp, revurdering);
+            var greguleringStartpunkt = utledBehovForGRegulering(stp, revurdering);
             startpunkt = startpunkt.getRangering() < greguleringStartpunkt.getRangering() ? startpunkt : greguleringStartpunkt;
         }
 
@@ -268,10 +258,10 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         return revurdering.getBehandlingÅrsaker().stream().map(BehandlingÅrsak::getBehandlingÅrsakType).anyMatch(etterkontrollTyper::contains);
     }
 
-    private StartpunktType utledBehovForGRegulering(BehandlingReferanse ref, Skjæringstidspunkt stp, Behandling revurdering) {
+    private StartpunktType utledBehovForGRegulering(Skjæringstidspunkt stp, Behandling revurdering) {
         var opprinneligBehandlingId = revurdering.getOriginalBehandlingId()
                 .orElseThrow(() -> new IllegalStateException("Revurdering skal ha en basisbehandling - skal ikke skje"));
-        var opprinneligRef = BehandlingReferanse.fra(behandlingRepository.hentBehandling(opprinneligBehandlingId));
+        var opprinneligRef = BehandlingReferanse.fra(repositoryProvider.getBehandlingRepository().hentBehandling(opprinneligBehandlingId));
         var forrigeBeregning = beregningTjeneste.hent(opprinneligRef).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
 
         if (forrigeBeregning.isEmpty()) {
@@ -319,8 +309,8 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     @Override
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
             BehandlingStegType fraSteg) {
-        var rydder = new RyddRegisterData(repositoryProvider, kontekst);
-        rydder.ryddRegisterdataStartpunktRevurdering();
+        var behandling = repositoryProvider.getBehandlingRepository().hentBehandling(kontekst.getBehandlingId());
+        behandling.nullstillToTrinnsBehandling();
     }
 
     /**
@@ -364,6 +354,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     private void kopierResultaterAvhengigAvStartpunkt(Behandling revurdering,
                                                       BehandlingskontrollKontekst kontekst,
                                                       Skjæringstidspunkt stp) {
+        var behandlingRepository = repositoryProvider.getBehandlingRepository();
         var origBehandling = revurdering.getOriginalBehandlingId().map(behandlingRepository::hentBehandling)
                 .orElseThrow(() -> new IllegalStateException("Original behandling mangler på revurdering - skal ikke skje"));
 
@@ -396,6 +387,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         if (!behandling.erRevurdering() || beregningTjeneste.hent(BehandlingReferanse.fra(behandling)).isPresent()) {
             return behandling;
         }
+        var behandlingRepository = repositoryProvider.getBehandlingRepository();
         return finnBehandlingSomHarKjørtBeregning(behandling.getOriginalBehandlingId().map(behandlingRepository::hentBehandling)
                 .orElseThrow(() -> new IllegalStateException("Forventer å finne original behandling")));
     }
@@ -447,19 +439,21 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         vilkårBuilder.buildFor(revurdering);
 
         var revurderingBehandlingsresultat = Optional.ofNullable(getBehandlingsresultat(revurdering.getId())).orElseThrow();
+        var behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingRepository.lagre(revurderingBehandlingsresultat.getVilkårResultat(), kontekst.getSkriveLås());
         behandlingRepository.lagre(revurdering, kontekst.getSkriveLås());
         return behandlingRepository.hentBehandling(revurdering.getId());
     }
 
     private void kopierOpptjeningVedBehov(Behandling origBehandling, Behandling revurdering) {
-        if (opptjeningRepository.finnOpptjening(origBehandling.getId()).isPresent() && opptjeningRepository.finnOpptjening(revurdering.getId()).isEmpty()) {
+        var opptjeningRepository = repositoryProvider.getOpptjeningRepository();
+        if (repositoryProvider.getOpptjeningRepository().finnOpptjening(origBehandling.getId()).isPresent() && opptjeningRepository.finnOpptjening(revurdering.getId()).isEmpty()) {
             opptjeningRepository.kopierGrunnlagFraEksisterendeBehandling(origBehandling, revurdering);
         }
     }
 
     private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {
-        return behandlingsresultatRepository.hentHvisEksisterer(behandlingId).orElse(null);
+        return repositoryProvider.getBehandlingsresultatRepository().hentHvisEksisterer(behandlingId).orElse(null);
     }
 
     private void kopierVilkårFørStartpunkt(VilkårResultat.Builder vilkårBuilder, Set<Vilkår> vilkårne) {
