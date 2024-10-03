@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapKi
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskapBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonRelasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
@@ -763,28 +762,6 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         var medlemskapPerioders = medlemskapRepository.hentMedlemskap(behandlingId).get().getRegistrertMedlemskapPerioder();
         assertThat(medlemskapPerioders).hasSize(2);
         assertThat(medlemskapPerioders).containsExactlyInAnyOrder(medlemskapPerioder1, medlemskapPerioder2);
-    }
-
-    @Test
-    void skal_kunne_lagre_medlemskap() {
-        var behandling = lagBehandling();
-
-        var vurdertMedlemskap = new VurdertMedlemskapBuilder()
-            .medOppholdsrettVurdering(true)
-            .medLovligOppholdVurdering(true)
-            .medBosattVurdering(true)
-            .build();
-
-        var medlemskapRepository = new MedlemskapRepository(getEntityManager());
-
-        // Act
-        var behandlingId = behandling.getId();
-        medlemskapRepository.lagreMedlemskapVurdering(behandlingId, vurdertMedlemskap);
-
-        // Assert
-        var medlemskap = medlemskapRepository.hentMedlemskap(behandlingId);
-        assertThat(medlemskap).isNotNull().isPresent();
-        assertThat(medlemskap.get().getVurdertMedlemskap()).contains(vurdertMedlemskap);
     }
 
     private Behandling lagBehandling() {

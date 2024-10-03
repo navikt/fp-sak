@@ -23,11 +23,6 @@ public class MedlemskapAggregat {
         this.vurderingLøpendeMedlemskap = vurderingLøpendeMedlemskap;
     }
 
-    /** Hent Medlemskap slik det er vurdert (hvis eksisterer). */
-    public Optional<VurdertMedlemskap> getVurdertMedlemskap() {
-        return Optional.ofNullable(vurdertMedlemskap);
-    }
-
     /** Hent Registrert medlemskapinformasjon (MEDL) slik det er innhentet. */
     public Set<MedlemskapPerioderEntitet> getRegistrertMedlemskapPerioder() {
         return registrertMedlemskapPeridoer;
@@ -42,7 +37,14 @@ public class MedlemskapAggregat {
         return Optional.ofNullable(oppgittTilknytning);
     }
 
+    /** Hent Medlemskap slik det er vurdert (hvis eksisterer). */
+    @Deprecated
+    public Optional<VurdertMedlemskap> getVurdertMedlemskap() {
+        return Optional.ofNullable(vurdertMedlemskap);
+    }
+
     /** Hent Løpende medlemskap (hvis eksisterer)*/
+    @Deprecated
     public Optional<VurdertMedlemskapPeriodeEntitet> getVurderingLøpendeMedlemskap() {
         return Optional.ofNullable(vurderingLøpendeMedlemskap);
     }

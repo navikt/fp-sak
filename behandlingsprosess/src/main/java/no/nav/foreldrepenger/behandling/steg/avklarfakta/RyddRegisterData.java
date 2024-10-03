@@ -10,7 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 public class RyddRegisterData {
     private final BehandlingRepository behandlingRepository;
     private final BehandlingskontrollKontekst kontekst;
-    private MedlemskapRepository medlemskapRepository;
+    private final MedlemskapRepository medlemskapRepository;
 
     public RyddRegisterData(BehandlingRepositoryProvider repositoryProvider, BehandlingskontrollKontekst kontekst) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();

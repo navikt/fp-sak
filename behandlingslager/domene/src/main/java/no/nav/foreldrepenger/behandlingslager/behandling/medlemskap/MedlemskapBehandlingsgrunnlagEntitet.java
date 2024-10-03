@@ -137,7 +137,7 @@ public class MedlemskapBehandlingsgrunnlagEntitet extends BaseEntitet {
             this.getVurderingMedlemskapSkjæringstidspunktet(),
             this.getRegistertMedlemskapPerioder(),
             this.getOppgittTilknytning(),
-            this.getVurderingLøpendeMedlemskap());
+            vurderingLøpendeMedlemskap);
     }
 
     private static MedlemskapBehandlingsgrunnlagEntitet kopierTidligerGrunnlag(
@@ -193,9 +193,5 @@ public class MedlemskapBehandlingsgrunnlagEntitet extends BaseEntitet {
             nyttGrunnlag.oppgittTilknytning = tidligereGrunnlag.oppgittTilknytning;
         }
         return nyttGrunnlag;
-    }
-
-    public VurdertMedlemskapPeriodeEntitet getVurderingLøpendeMedlemskap() {
-        return vurderingLøpendeMedlemskap;
     }
 }

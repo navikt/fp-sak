@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling.medlemskap;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,46 +31,18 @@ class MedlemskapRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    void skal_hente_eldste_versjon_av_aggregat() {
+    void skal_lagre_og_hente() {
         var behandling = lagBehandling();
-        var perioder = new MedlemskapPerioderBuilder().medMedlemskapType(MedlemskapType.FORELOPIG).build();
-        var behandlingId = behandling.getId();
-        repository.lagreMedlemskapRegisterOpplysninger(behandlingId, List.of(perioder));
+        var oppgittDato = LocalDate.now();
 
-        perioder = new MedlemskapPerioderBuilder().medMedlemskapType(MedlemskapType.ENDELIG).build();
-        repository.lagreMedlemskapRegisterOpplysninger(behandlingId, List.of(perioder));
-
-        var medlemskapAggregat = repository.hentMedlemskap(behandlingId);
-        var førsteVersjonMedlemskapAggregat = repository.hentFørsteVersjonAvMedlemskap(behandlingId);
-
-        var perioderEntitet = medlemskapAggregat.get().getRegistrertMedlemskapPerioder()
-                .stream().findFirst().get();
-        var førstePerioderEntitet = førsteVersjonMedlemskapAggregat.get()
-                .getRegistrertMedlemskapPerioder().stream().findFirst().get();
-
-        assertThat(medlemskapAggregat.get()).isNotEqualTo(førsteVersjonMedlemskapAggregat.get());
-        assertThat(perioderEntitet.getMedlemskapType()).isEqualTo(MedlemskapType.ENDELIG);
-        assertThat(førstePerioderEntitet.getMedlemskapType()).isEqualTo(MedlemskapType.FORELOPIG);
-    }
-
-    @Test
-    void skal_lagre_vurdering_av_løpende_medlemskap() {
-        var behandling = lagBehandling();
-        var vurderingsdato = LocalDate.now();
-        var builder = new VurdertMedlemskapPeriodeEntitet.Builder();
-        var løpendeMedlemskapBuilder = builder.getBuilderFor(vurderingsdato);
-
-        løpendeMedlemskapBuilder.medBosattVurdering(true);
-        løpendeMedlemskapBuilder.medVurderingsdato(LocalDate.now());
-
-        builder.leggTil(løpendeMedlemskapBuilder);
-
-        var hvaSkalLagres = builder.build();
-        repository.lagreLøpendeMedlemskapVurdering(behandling.getId(), hvaSkalLagres);
+        repository.lagreOppgittTilkytning(behandling.getId(),
+            new MedlemskapOppgittTilknytningEntitet.Builder().medOppgittDato(oppgittDato).medOppholdNå(true).build());
 
         var medlemskapAggregat = repository.hentMedlemskap(behandling.getId());
         assertThat(medlemskapAggregat).isPresent();
-        assertThat(medlemskapAggregat.get().getVurderingLøpendeMedlemskap()).contains(hvaSkalLagres);
+        assertThat(medlemskapAggregat.get().getOppgittTilknytning()).isPresent();
+        assertThat(medlemskapAggregat.get().getOppgittTilknytning().get().getOppgittDato()).isEqualTo(oppgittDato);
+        assertThat(medlemskapAggregat.get().getOppgittTilknytning().get().isOppholdNå()).isTrue();
     }
 
     private Behandling lagBehandling() {

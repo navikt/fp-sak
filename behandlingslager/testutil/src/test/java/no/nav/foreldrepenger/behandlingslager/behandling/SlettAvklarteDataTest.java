@@ -118,28 +118,4 @@ class SlettAvklarteDataTest extends EntityManagerAwareTest {
         assertThat(adopsjon).isNotPresent();
     }
 
-    @Test
-    void skal_slette_avklarte_medlemskapdata() {
-        // Arrange
-        var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
-        var familieHendelseBuilder = scenario.medSøknadHendelse();
-        familieHendelseBuilder.medAntallBarn(1)
-            .medFødselsDato(LocalDate.now())
-            .medAdopsjon(familieHendelseBuilder.getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()));
-        scenario.medMedlemskap().build();
-        var behandling = lagre(scenario);
-
-        var lås = behandlingRepository.taSkriveLås(behandling);
-        behandlingRepository.lagre(behandling, lås);
-
-        // Act
-        var behandlingId = behandling.getId();
-        medlemskapRepository.slettAvklarteMedlemskapsdata(behandlingId, lås);
-
-        // Assert
-        var medlemskap = medlemskapRepository.hentMedlemskap(behandlingId);
-        assertThat(medlemskap).isPresent();
-
-        assertThat(medlemskap.get().getVurdertMedlemskap()).isNotPresent();
-    }
 }

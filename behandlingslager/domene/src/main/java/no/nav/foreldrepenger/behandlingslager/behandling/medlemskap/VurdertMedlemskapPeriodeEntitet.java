@@ -1,12 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.medlemskap;
 
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,18 +37,6 @@ public class VurdertMedlemskapPeriodeEntitet extends BaseEntitet {
         // hibernate
     }
 
-    VurdertMedlemskapPeriodeEntitet(VurdertMedlemskapPeriodeEntitet løpendeMedlemskap) {
-        perioder = løpendeMedlemskap.getPerioder().stream().map(VurdertLøpendeMedlemskapEntitet::new).peek(lm -> lm.setPeriodeHolder(this)).collect(Collectors.toSet());
-    }
-
-    public VurdertLøpendeMedlemskapBuilder getBuilderFor(LocalDate vurderingsdato) {
-        var first = perioder.stream().filter(p -> p.getVurderingsdato().equals(vurderingsdato)).findFirst();
-        var builder = new VurdertLøpendeMedlemskapBuilder(first);
-        builder.medVurderingsdato(vurderingsdato);
-        return builder;
-    }
-
-
     public Set<VurdertLøpendeMedlemskapEntitet> getPerioder() {
         return Collections.unmodifiableSet(perioder);
     }
@@ -74,35 +59,5 @@ public class VurdertMedlemskapPeriodeEntitet extends BaseEntitet {
     @Override
     public int hashCode() {
         return Objects.hash(perioder);
-    }
-
-    public static class Builder {
-        private VurdertMedlemskapPeriodeEntitet medlemskapMal;
-
-
-        public Builder() {
-            medlemskapMal = new VurdertMedlemskapPeriodeEntitet();
-        }
-
-        public Builder(Optional<VurdertMedlemskapPeriodeEntitet> medlemskap) {
-            medlemskapMal = medlemskap.map(VurdertMedlemskapPeriodeEntitet::new)
-                    .orElseGet(VurdertMedlemskapPeriodeEntitet::new);
-        }
-
-        public Builder leggTil(VurdertLøpendeMedlemskapBuilder builder) {
-            if (!builder.erOppdatering()) {
-                var entitet = builder.build();
-                medlemskapMal.perioder.add(entitet);
-            }
-            return this;
-        }
-
-        public VurdertMedlemskapPeriodeEntitet build() {
-            return medlemskapMal;
-        }
-
-        public VurdertLøpendeMedlemskapBuilder getBuilderFor(LocalDate vurderingsdato) {
-            return medlemskapMal.getBuilderFor(vurderingsdato);
-        }
     }
 }
