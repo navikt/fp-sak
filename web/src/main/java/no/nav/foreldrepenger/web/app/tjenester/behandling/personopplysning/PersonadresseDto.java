@@ -6,8 +6,12 @@ import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonAdresseEntitet;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 
+import java.time.LocalDate;
+
 public class PersonadresseDto {
 
+    private LocalDate fom;
+    private LocalDate tom;
     private AdresseType adresseType;
     private String adresselinje1;
     private String adresselinje2;
@@ -18,6 +22,8 @@ public class PersonadresseDto {
 
     public static PersonadresseDto tilDto(PersonAdresseEntitet adresse) {
         var dto = new PersonadresseDto();
+        dto.setFom(adresse.getPeriode().getFomDato());
+        dto.setTom(adresse.getPeriode().getTomDato());
         dto.setAdresselinje1(formaterMedStoreOgSmåBokstaver(adresse.getAdresselinje1()));
         dto.setAdresselinje2(formaterMedStoreOgSmåBokstaver(adresse.getAdresselinje2()));
         dto.setAdresselinje3(formaterMedStoreOgSmåBokstaver(adresse.getAdresselinje3()));
@@ -27,6 +33,10 @@ public class PersonadresseDto {
         dto.setAdresseType(adresse.getAdresseType());
         return dto;
     }
+
+    public LocalDate getTom() { return tom; }
+
+    public LocalDate getFom() { return fom; }
 
     public AdresseType getAdresseType() {
         return adresseType;
@@ -55,6 +65,11 @@ public class PersonadresseDto {
     public String getLand() {
         return land;
     }
+
+
+    public void setTom(LocalDate tom) { this.tom = tom; }
+
+    public void setFom(LocalDate fom) { this.fom = fom; }
 
     public void setAdresseType(AdresseType adresseType) {
         this.adresseType = adresseType;
