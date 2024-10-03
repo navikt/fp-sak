@@ -134,10 +134,20 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
                 behandlingsresultatRevurdering.orElse(null));
         }
 
+        //TODO rydd bort når behandlinger med løpende medlem vilkår er avsluttet
         var utfall = medlemTjeneste.utledVilkårUtfall(revurdering);
         if (!utfall.vilkårUtfallType().equals(VilkårUtfallType.OPPFYLT)) {
             var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
             behandlingsresultat.setAvslagsårsak(utfall.avslagsårsak());
+            return buildBehandlingsresultat(revurdering, behandlingsresultat,
+                BehandlingResultatType.OPPHØR, RettenTil.HAR_IKKE_RETT_TIL_FP,
+                Vedtaksbrev.AUTOMATISK, List.of(KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER));
+        }
+
+        var opphørsdato = medlemTjeneste.hentOpphørsdatoHvisEksisterer(behandlingId);
+        if (opphørsdato.isPresent()) {
+            var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
+            behandlingsresultat.setAvslagsårsak(medlemTjeneste.hentAvslagsårsak(behandlingId).orElse(null));
             return buildBehandlingsresultat(revurdering, behandlingsresultat,
                 BehandlingResultatType.OPPHØR, RettenTil.HAR_IKKE_RETT_TIL_FP,
                 Vedtaksbrev.AUTOMATISK, List.of(KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER));
