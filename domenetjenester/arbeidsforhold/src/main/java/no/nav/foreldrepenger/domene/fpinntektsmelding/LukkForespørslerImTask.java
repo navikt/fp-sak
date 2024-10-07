@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.fpinntektsmelding;
 
+import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.tilMaskertNummer;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -35,7 +37,7 @@ public class LukkForespørslerImTask extends GenerellProsessTask {
         var saksnummer = prosessTaskData.getPropertyValue(SAK_NUMMER);
         var orgnummer = prosessTaskData.getPropertyValue(ORG_NUMMER);
 
-        LOG.info("Starter task for å lukke eventuelle forespørsler i fpinntektsmelding for saksnummer {} og orgnummer {}",  saksnummer, orgnummer);
+        LOG.info("Starter task for å lukke eventuelle forespørsler i fpinntektsmelding for saksnummer {} og orgnummer {}",  saksnummer, tilMaskertNummer(orgnummer));
         fpInntektsmeldingTjeneste.lukkForespørsel(saksnummer, orgnummer);
     }
 

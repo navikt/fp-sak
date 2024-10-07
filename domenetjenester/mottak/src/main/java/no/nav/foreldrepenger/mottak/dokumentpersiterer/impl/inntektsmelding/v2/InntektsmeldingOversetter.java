@@ -14,12 +14,15 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.xml.bind.JAXBElement;
 
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
+import no.nav.foreldrepenger.domene.fpinntektsmelding.LukkForespørselForMottattImEvent;
 import no.nav.foreldrepenger.domene.iay.modell.Gradering;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
@@ -57,6 +60,7 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
     private VirksomhetTjeneste virksomhetTjeneste;
     private PersoninfoAdapter personinfoAdapter;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
+    private BehandlingEventPubliserer behandlingEventPubliserer;
 
     InntektsmeldingOversetter() {
         // for CDI proxy
@@ -65,10 +69,12 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
     @Inject
     public InntektsmeldingOversetter(InntektsmeldingTjeneste inntektsmeldingTjeneste,
                                      VirksomhetTjeneste virksomhetTjeneste,
-                                     PersoninfoAdapter personinfoAdapter) {
+                                     PersoninfoAdapter personinfoAdapter,
+                                     BehandlingEventPubliserer behandlingEventPubliserer) {
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.virksomhetTjeneste = virksomhetTjeneste;
         this.personinfoAdapter = personinfoAdapter;
+        this.behandlingEventPubliserer = behandlingEventPubliserer;
     }
 
     @Override
@@ -80,28 +86,32 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
         var innsendingsårsak = aarsakTilInnsending.isEmpty() ? InntektsmeldingInnsendingsårsak.UDEFINERT : INNSENDINGSÅRSAK_MAP
             .get(ÅrsakInnsendingKodeliste.fromValue(aarsakTilInnsending));
 
-        var builder = InntektsmeldingBuilder.builder();
+        var imBuilder = InntektsmeldingBuilder.builder();
 
-        mapInnsendingstidspunkt(wrapper, mottattDokument, builder);
+        mapInnsendingstidspunkt(wrapper, mottattDokument, imBuilder);
 
-        builder.medMottattDato(mottattDokument.getMottattDato());
-        builder.medKildesystem(wrapper.getAvsendersystem());
-        builder.medKanalreferanse(mottattDokument.getKanalreferanse());
-        builder.medJournalpostId(mottattDokument.getJournalpostId());
+        imBuilder.medMottattDato(mottattDokument.getMottattDato());
+        imBuilder.medKildesystem(wrapper.getAvsendersystem());
+        imBuilder.medKanalreferanse(mottattDokument.getKanalreferanse());
+        imBuilder.medJournalpostId(mottattDokument.getJournalpostId());
 
-        mapArbeidsgiver(wrapper, builder);
+        mapArbeidsgiver(wrapper, imBuilder);
 
-        builder.medNærRelasjon(wrapper.getErNærRelasjon());
-        builder.medInntektsmeldingaarsak(innsendingsårsak);
+        imBuilder.medNærRelasjon(wrapper.getErNærRelasjon());
+        imBuilder.medInntektsmeldingaarsak(innsendingsårsak);
 
-        mapArbeidsforholdOgBeløp(wrapper, builder);
-        mapNaturalYtelser(wrapper, builder);
-        mapGradering(wrapper, builder);
-        mapFerie(wrapper, builder);
-        mapUtsettelse(wrapper, builder);
-        mapRefusjon(wrapper, builder);
+        mapArbeidsforholdOgBeløp(wrapper, imBuilder);
+        mapNaturalYtelser(wrapper, imBuilder);
+        mapGradering(wrapper, imBuilder);
+        mapFerie(wrapper, imBuilder);
+        mapUtsettelse(wrapper, imBuilder);
+        mapRefusjon(wrapper, imBuilder);
 
-        inntektsmeldingTjeneste.lagreInntektsmelding(builder, behandling);
+        if (imBuilder.getArbeidsgiver().getErVirksomhet() && (imBuilder.getKildesystem() == null || imBuilder.imFraLPSEllerAltinn())) {
+            behandlingEventPubliserer.publiserBehandlingEvent(new LukkForespørselForMottattImEvent(behandling, new OrgNummer(imBuilder.getArbeidsgiver().getOrgnr())));
+        }
+
+        inntektsmeldingTjeneste.lagreInntektsmelding(imBuilder, behandling);
     }
 
     private void mapArbeidsforholdOgBeløp(InntektsmeldingWrapper wrapper,
