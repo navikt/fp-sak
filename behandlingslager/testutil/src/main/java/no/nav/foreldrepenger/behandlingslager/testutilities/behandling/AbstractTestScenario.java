@@ -58,8 +58,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOp
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRegistrertEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskapBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskapEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
@@ -129,10 +127,9 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private final FagsakBuilder fagsakBuilder;
     private final Map<Long, PersonopplysningGrunnlagEntitet> personopplysningMap = new IdentityHashMap<>();
     private final Map<Long, FamilieHendelseGrunnlagEntitet> familieHendelseAggregatMap = new IdentityHashMap<>();
-    private final Map<Long, MedlemskapBehandlingsgrunnlagEntitet> medlemskapgrunnlag = new HashMap<>();
     private final Map<Long, Behandling> behandlingMap = new HashMap<>();
-    private ArgumentCaptor<Behandling> behandlingCaptor = ArgumentCaptor.forClass(Behandling.class);
-    private ArgumentCaptor<Fagsak> fagsakCaptor = ArgumentCaptor.forClass(Fagsak.class);
+    private final ArgumentCaptor<Behandling> behandlingCaptor = ArgumentCaptor.forClass(Behandling.class);
+    private final ArgumentCaptor<Fagsak> fagsakCaptor = ArgumentCaptor.forClass(Fagsak.class);
     private Behandling behandling;
 
     private Behandlingsresultat.Builder behandlingresultatBuilder;
@@ -141,15 +138,14 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private SøknadEntitet.Builder søknadBuilder;
 
     private OppgittAnnenPartBuilder oppgittAnnenPartBuilder;
-    private VurdertMedlemskapBuilder vurdertMedlemskapBuilder;
     private BehandlingVedtak.Builder behandlingVedtakBuilder;
     private MedlemskapOppgittTilknytningEntitet.Builder oppgittTilknytningBuilder;
     private BehandlingStegType startSteg;
 
-    private Map<AksjonspunktDefinisjon, BehandlingStegType> aksjonspunktDefinisjoner = new EnumMap<>(AksjonspunktDefinisjon.class);
+    private final Map<AksjonspunktDefinisjon, BehandlingStegType> aksjonspunktDefinisjoner = new EnumMap<>(AksjonspunktDefinisjon.class);
     private VilkårResultatType vilkårResultatType = VilkårResultatType.IKKE_FASTSATT;
-    private Map<VilkårType, VilkårUtfallType> vilkårTyper = new EnumMap<>(VilkårType.class);
-    private List<MedlemskapPerioderEntitet> medlemskapPerioder = new ArrayList<>();
+    private final Map<VilkårType, VilkårUtfallType> vilkårTyper = new EnumMap<>(VilkårType.class);
+    private final List<MedlemskapPerioderEntitet> medlemskapPerioder = new ArrayList<>();
     private Long fagsakId = nyId();
     private LocalDate behandlingstidFrist;
     private LocalDateTime opplysningerOppdatertTidspunkt;
@@ -574,11 +570,13 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     private MedlemskapRepository lagMockMedlemskapRepository() {
         var dummy = new MedlemskapRepository(null) {
+
+            private MedlemskapBehandlingsgrunnlagEntitet grunnlag;
+
             @Override
-            public void lagreOgFlush(Long behandlingId, Optional<MedlemskapBehandlingsgrunnlagEntitet> eksisterendeGrunnlag,
-                    MedlemskapBehandlingsgrunnlagEntitet nyttGrunnlag) {
-                Objects.requireNonNull(behandlingId, "behandlingId er null!");
-                medlemskapgrunnlag.put(behandlingId, nyttGrunnlag);
+            public void lagreOgFlush(Optional<MedlemskapBehandlingsgrunnlagEntitet> eksisterendeGrunnlag,
+                                     MedlemskapBehandlingsgrunnlagEntitet nyttGrunnlag) {
+                grunnlag = nyttGrunnlag;
             }
 
             @Override
@@ -588,11 +586,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
             @Override
             public void lagreOppgittTilknytning(MedlemskapOppgittTilknytningEntitet ny) {
-                // ignore, tracker kun grunnlag for mock
-            }
-
-            @Override
-            public void lagreVurdertMedlemskap(VurdertMedlemskapEntitet ny) {
                 // ignore, tracker kun grunnlag for mock
             }
 
@@ -614,7 +607,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             @Override
             protected Optional<MedlemskapBehandlingsgrunnlagEntitet> getAktivtBehandlingsgrunnlag(Long behandlingId) {
                 assert behandlingId != null : "behandlingId er null!";
-                return Optional.ofNullable(medlemskapgrunnlag.get(behandlingId));
+                return Optional.ofNullable(grunnlag);
             }
         };
         return Mockito.spy(dummy);
@@ -879,8 +872,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private void lagreMedlemskapOpplysninger(BehandlingRepositoryProvider repositoryProvider, Long behandlingId) {
         repositoryProvider.getMedlemskapRepository().lagreMedlemskapRegisterOpplysninger(behandlingId, medlemskapPerioder);
 
-        var vurdertMedlemskap = medMedlemskap().build();
-        repositoryProvider.getMedlemskapRepository().lagreMedlemskapVurdering(behandlingId, vurdertMedlemskap);
         if (oppgittTilknytningBuilder != null) {
             var oppgittTilknytning = medOppgittTilknytning().build();
             repositoryProvider.getMedlemskapRepository().lagreOppgittTilkytning(behandlingId, oppgittTilknytning);
@@ -1164,13 +1155,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     protected void utenSøknad() {
         this.søknadBuilder = null;
-    }
-
-    public VurdertMedlemskapBuilder medMedlemskap() {
-        if (vurdertMedlemskapBuilder == null) {
-            vurdertMedlemskapBuilder = new VurdertMedlemskapBuilder();
-        }
-        return vurdertMedlemskapBuilder;
     }
 
     @SuppressWarnings("unchecked")
