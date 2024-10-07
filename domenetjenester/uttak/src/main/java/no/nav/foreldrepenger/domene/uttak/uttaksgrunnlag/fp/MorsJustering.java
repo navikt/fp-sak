@@ -328,27 +328,12 @@ class MorsJustering implements ForelderFødselJustering {
             // 5) Perioder som er etter termin justeres antall virkedager som er mellom termin og fødsel
             else {
                 var justert = flyttPeriodeVenstre(oppgittPeriode, virkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
-                virkedagerSomSkalSkyves -= differansenMellomAntallDagerSomBleForskøvetMotAntallDagerSomSkulleJusteres(oppgittPeriode, justert, ikkeFlyttbarePerioder, virkedagerSomSkalSkyves);
                 justertePerioder.addAll(justert);
             }
         }
 
         var resultat = leggTilFFFkonto(justertePerioder, oppgittePerioder); // FORELDREPENGER_FØR_FØDSEL legger vi på til slutt
         return sorterEtterFom(resultat);
-    }
-
-    private static int differansenMellomAntallDagerSomBleForskøvetMotAntallDagerSomSkulleJusteres(OppgittPeriodeEntitet oppgittPeriode,
-                                                                                           List<OppgittPeriodeEntitet> justert,
-                                                                                           List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder,
-                                                                                           int virkedagerSomSkalSkyves) {
-        var fomDatoOppgitt = oppgittPeriode.getFom();
-        var justertTimeline = tilLocalDateTimeLine(justert);
-        var ikkeFlyttbareTimeline = tilLocalDateTimeLine(ikkeFlyttbarePerioder);
-        var periodeForskjøvet = new LocalDateTimeline<>(justertTimeline.getMinLocalDate(), fomDatoOppgitt, true);
-        var antallVirkedagerSomBleForskøvet = periodeForskjøvet.disjoint(ikkeFlyttbareTimeline).stream()
-            .mapToInt(p -> beregnAntallVirkedager(p.getFom(), p.getTom()))
-            .sum() - 1; // Teller ikke med tom på siste periode
-        return virkedagerSomSkalSkyves - antallVirkedagerSomBleForskøvet;
     }
 
     private List<OppgittPeriodeEntitet> leggTilFFFkonto(List<OppgittPeriodeEntitet> justertePerioder, List<OppgittPeriodeEntitet> oppgittePerioder) {
@@ -428,22 +413,44 @@ class MorsJustering implements ForelderFødselJustering {
     private List<OppgittPeriodeEntitet> flyttPeriodeVenstre(OppgittPeriodeEntitet oppgittPeriode, int antallVirkedagerSomSkalSkyves, List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder) {
         List<OppgittPeriodeEntitet> resultat = new ArrayList<>();
         var gjeldendePeriode = oppgittPeriode;
-        var antallVirkedager = beregnAntallVirkedager(oppgittPeriode.getFom(), oppgittPeriode.getTom());
+        var antallGjenståendeVirkedager = beregnAntallVirkedager(oppgittPeriode.getFom(), oppgittPeriode.getTom());
 
-        while (antallVirkedager > 0) {
+        while (antallGjenståendeVirkedager > 0) {
             var nyFom = finnNyFomVedFlyttingVenstre(gjeldendePeriode, antallVirkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
-            var nyTom = flyttTomDatoAntallVirkedagerEllerFremTilIkkeFlyttbarPeriode(nyFom, antallVirkedager, ikkeFlyttbarePerioder, false);
+            var nyTom = flyttTomDatoAntallVirkedagerEllerFremTilIkkeFlyttbarPeriode(nyFom, antallGjenståendeVirkedager, ikkeFlyttbarePerioder, false);
             var nyPeriode = kopier(gjeldendePeriode, nyFom, nyTom);
             resultat.add(nyPeriode);
 
-            antallVirkedager -= beregnAntallVirkedager(nyPeriode.getFom(), nyPeriode.getTom());
-            if (antallVirkedager > 0) {
-                var fomRest = Virkedager.plusVirkedager(gjeldendePeriode.getFom(), beregnAntallVirkedager(nyPeriode.getFom(), nyPeriode.getTom()));
+            var antallVirkedagerNyPeriode = beregnAntallVirkedager(nyPeriode.getFom(), nyPeriode.getTom());
+            antallGjenståendeVirkedager -= antallVirkedagerNyPeriode;
+            if (antallGjenståendeVirkedager > 0) {
+                var fomRest = Virkedager.plusVirkedager(gjeldendePeriode.getFom(), antallVirkedagerNyPeriode);
                 var tomRest = gjeldendePeriode.getTom();
                 gjeldendePeriode = kopier(oppgittPeriode, fomRest, tomRest);
             }
+
+            // Her kan vi får en differanse (!= 0) hvis vi forsøker:
+            //  1) Å skyve perioden inn i peridoen forbehold mødrekvote/foreldrepenger
+            //  2) Å skyve perioden forbi ny familiehendelse.
+            //
+            // I begge tilfellene stopper vi datoen før dette og vil da resultere i en redusert forskyvning
+            antallVirkedagerSomSkalSkyves -= differansenMellomAntallDagerSomBleForskøvetMotAntallDagerSomSkulleForskyves(oppgittPeriode, resultat, ikkeFlyttbarePerioder, antallVirkedagerSomSkalSkyves);
         }
         return resultat;
+    }
+
+    private static int differansenMellomAntallDagerSomBleForskøvetMotAntallDagerSomSkulleForskyves(OppgittPeriodeEntitet oppgittPeriode,
+                                                                                                   List<OppgittPeriodeEntitet> justert,
+                                                                                                   List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder,
+                                                                                                   int virkedagerSomSkalSkyves) {
+        var fomDatoOppgitt = oppgittPeriode.getFom();
+        var justertTimeline = tilLocalDateTimeLine(justert);
+        var ikkeFlyttbareTimeline = tilLocalDateTimeLine(ikkeFlyttbarePerioder);
+        var periodeForskjøvet = new LocalDateTimeline<>(justertTimeline.getMinLocalDate(), fomDatoOppgitt, true);
+        var antallVirkedagerSomBleForskøvet = periodeForskjøvet.disjoint(ikkeFlyttbareTimeline).stream()
+            .mapToInt(p -> beregnAntallVirkedager(p.getFom(), p.getTom()))
+            .sum() - 1; // Teller ikke med tom på siste periode
+        return virkedagerSomSkalSkyves - antallVirkedagerSomBleForskøvet;
     }
 
     private LocalDate finnNyFomVedFlyttingVenstre(OppgittPeriodeEntitet oppgittPeriode, int antallVirkedagerSomSkalSkyves, List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder) {

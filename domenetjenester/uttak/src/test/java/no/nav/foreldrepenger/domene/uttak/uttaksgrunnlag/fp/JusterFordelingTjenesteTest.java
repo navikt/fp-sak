@@ -2117,6 +2117,33 @@ class JusterFordelingTjenesteTest {
         assertThat(justertePerioder.get(2).getPeriodeType()).isEqualTo(MØDREKVOTE);
     }
 
+
+    //    |mmmm          fffffffff
+    // |mmmm  f          ffffffff   (forskyver ikke fellesperiode inn)
+    // |mmmmmmf          fffffffff  (fyller mødrekvote og fellesperiode)
+    @Test
+    void fellesperiode_flyttes_ikke_inn_i_de_første_6_ukene_forbeholdt_mor_og_oppslitting_tar_høyde_for_redusert_forskyvning() {
+        var termindato = LocalDate.of(2024, 7, 4);
+        var fødseldato = termindato.minusWeeks(3);
+        var mødrekvote = lagPeriode(MØDREKVOTE, termindato, termindato.plusWeeks(4).minusDays(1));
+        // utsettelse/opphold av en eller annen grunn
+        var fellesperiode = lagPeriode(FELLESPERIODE, termindato.plusWeeks(12), termindato.plusWeeks(20).minusDays(1));
+
+        var oppgittePerioder = List.of(mødrekvote, fellesperiode);
+
+        var justertePerioder = juster(oppgittePerioder, termindato, fødseldato);
+        assertThat(justertePerioder).hasSize(3);
+        assertThat(justertePerioder.get(0).getPeriodeType()).isEqualTo(MØDREKVOTE);
+        assertThat(justertePerioder.get(0).getFom()).isEqualTo(fødseldato);
+        assertThat(justertePerioder.get(0).getTom()).isEqualTo(fødseldato.plusWeeks(6).minusDays(1)); // Forsyves og fyller hull.
+
+        assertThat(justertePerioder.get(1).getPeriodeType()).isEqualTo(FELLESPERIODE);
+        assertThat(justertePerioder.get(1).getFom()).isEqualTo(fødseldato.plusWeeks(6));
+        assertThat(justertePerioder.get(1).getTom()).isEqualTo(mødrekvote.getTom());
+
+        assertThat(justertePerioder.get(2)).isEqualTo(fellesperiode);
+    }
+
     private static List<OppgittPeriodeEntitet> juster(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate familehendelse1, LocalDate familehendelse2) {
         var justert = JusterFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, familehendelse1, familehendelse2, RelasjonsRolleType.MORA, false);
         return slåSammenLikePerioder(justert);
