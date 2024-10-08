@@ -166,7 +166,7 @@ public class FpInntektsmeldingTjeneste {
         }
 
         if (!OrganisasjonsNummerValidator.erGyldig(orgnummer)) {
-            LOG.info("FpInntektsmeldingTjeneste: Lukker ikke forespørsel for saksnummer: {} fordi orgnummer: {} ikke er gyldig", saksnummer, orgnummer);
+            LOG.error("FpInntektsmeldingTjeneste: Lukker ikke forespørsel for saksnummer: {} fordi orgnummer: {} ikke er gyldig", saksnummer, orgnummer);
             return;
         }
         var request = new LukkForespørselRequest(new OpprettForespørselRequest.OrganisasjonsnummerDto(orgnummer), new OpprettForespørselRequest.SaksnummerDto(saksnummer));
