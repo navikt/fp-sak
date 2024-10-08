@@ -111,7 +111,6 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
 
     private boolean imFraLPSEllerAltinn(String avsendersystem) {
         return !(NAV_NO.equals(avsendersystem) || OVERSTYRING_FPSAK.equals(avsendersystem));
-
     }
 
     private void mapArbeidsforholdOgBeløp(InntektsmeldingWrapper wrapper,

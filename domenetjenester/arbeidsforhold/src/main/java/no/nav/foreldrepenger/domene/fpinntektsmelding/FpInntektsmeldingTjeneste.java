@@ -111,7 +111,7 @@ public class FpInntektsmeldingTjeneste {
     void lagForespørsel(String ag, BehandlingReferanse ref, Skjæringstidspunkt stp) {
         // Toggler av for prod og lokalt, ikke støtte lokalt
         if (!OrganisasjonsNummerValidator.erGyldig(ag)) {
-            LOG.info("FpInntektsmeldingTjeneste: Oppretter ikke forespørsel for saksnummer: {} fordi orgnummer: {} ikke er gyldig", ref.saksnummer(), ag);
+            LOG.error("FpInntektsmeldingTjeneste: Oppretter ikke forespørsel for saksnummer: {} fordi orgnummer: {} ikke er gyldig", ref.saksnummer(), ag);
             return;
         }
         var request = new OpprettForespørselRequest(new OpprettForespørselRequest.AktørIdDto(ref.aktørId().getId()),

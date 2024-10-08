@@ -50,6 +50,8 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
 
     private static final LocalDate TIDENES_BEGYNNELSE = LocalDate.of(1, Month.JANUARY, 1);
     private static final Map<ÅrsakInnsendingKodeliste, InntektsmeldingInnsendingsårsak> INNSENDINGSÅRSAK_MAP;
+    public static final String NAV_NO = "NAV_NO";
+    private static final String OVERSTYRING_FPSAK = "OVERSTYRING_FPSAK";
 
     static {
         INNSENDINGSÅRSAK_MAP = new EnumMap<>(ÅrsakInnsendingKodeliste.class);
@@ -90,12 +92,13 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
 
         mapInnsendingstidspunkt(wrapper, mottattDokument, imBuilder);
 
+        var avsendersystem = wrapper.getAvsendersystem();
         imBuilder.medMottattDato(mottattDokument.getMottattDato());
-        imBuilder.medKildesystem(wrapper.getAvsendersystem());
+        imBuilder.medKildesystem(avsendersystem);
         imBuilder.medKanalreferanse(mottattDokument.getKanalreferanse());
         imBuilder.medJournalpostId(mottattDokument.getJournalpostId());
 
-        mapArbeidsgiver(wrapper, imBuilder);
+        var arbeidsgiver = mapArbeidsgiver(wrapper, imBuilder);
 
         imBuilder.medNærRelasjon(wrapper.getErNærRelasjon());
         imBuilder.medInntektsmeldingaarsak(innsendingsårsak);
@@ -107,11 +110,15 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
         mapUtsettelse(wrapper, imBuilder);
         mapRefusjon(wrapper, imBuilder);
 
-        if (imBuilder.getArbeidsgiver().getErVirksomhet() && (imBuilder.getKildesystem() == null || imBuilder.imFraLPSEllerAltinn())) {
-            behandlingEventPubliserer.publiserBehandlingEvent(new LukkForespørselForMottattImEvent(behandling, new OrgNummer(imBuilder.getArbeidsgiver().getOrgnr())));
+        if ((arbeidsgiver != null && arbeidsgiver.getErVirksomhet() && (avsendersystem == null || imFraLPSEllerAltinn(avsendersystem)))) {
+            behandlingEventPubliserer.publiserBehandlingEvent(
+                new LukkForespørselForMottattImEvent(behandling, new OrgNummer(imBuilder.getArbeidsgiver().getOrgnr())));
         }
-
         inntektsmeldingTjeneste.lagreInntektsmelding(imBuilder, behandling);
+    }
+
+    private boolean imFraLPSEllerAltinn(String avsendersystem) {
+        return !(NAV_NO.equals(avsendersystem) || OVERSTYRING_FPSAK.equals(avsendersystem));
     }
 
     private void mapArbeidsforholdOgBeløp(InntektsmeldingWrapper wrapper,
@@ -131,19 +138,22 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
         }
     }
 
-    private void mapArbeidsgiver(InntektsmeldingWrapper wrapper, InntektsmeldingBuilder builder) {
-        var arbeidsgiver = wrapper.getArbeidsgiver();
+    private Arbeidsgiver mapArbeidsgiver(InntektsmeldingWrapper wrapper, InntektsmeldingBuilder builder) {
+        var arbeidsgiverWrapper = wrapper.getArbeidsgiver();
         var arbeidsgiverPrivat = wrapper.getArbeidsgiverPrivat();
-        if (arbeidsgiver.isPresent()) {
-            var orgNummer = arbeidsgiver.get().getVirksomhetsnummer();
+        if (arbeidsgiverWrapper.isPresent()) {
+            var orgNummer = arbeidsgiverWrapper.get().getVirksomhetsnummer();
             @SuppressWarnings("unused") var virksomhet = virksomhetTjeneste.hentOrganisasjon(orgNummer);
-            builder.medArbeidsgiver(Arbeidsgiver.virksomhet(orgNummer));
+            var arbeidsgiver = Arbeidsgiver.virksomhet(orgNummer);
+            builder.medArbeidsgiver(arbeidsgiver);
+            return arbeidsgiver;
         } else if (arbeidsgiverPrivat.isPresent()) {
             var aktørIdArbeidsgiver = personinfoAdapter.hentAktørForFnr(
                 new PersonIdent(arbeidsgiverPrivat.get().getArbeidsgiverFnr()))
                 .orElseThrow(() -> new TekniskException("FP-159641",
                     "Fant ikke personident for arbeidsgiver som er privatperson i PDL"));
             builder.medArbeidsgiver(Arbeidsgiver.person(aktørIdArbeidsgiver));
+            return null;
         } else {
             throw new TekniskException("FP-183452", "Fant ikke informasjon om arbeidsgiver på inntektsmelding");
         }

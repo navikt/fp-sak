@@ -50,10 +50,6 @@ public class InntektsmeldingBuilder {
         return kladd.getArbeidsgiver();
     }
 
-    public String getKildesystem() {
-        return kladd.getKildesystem();
-    }
-
     public Optional<EksternArbeidsforholdRef> getEksternArbeidsforholdRef() {
         return Optional.ofNullable(eksternArbeidsforholdId);
     }
