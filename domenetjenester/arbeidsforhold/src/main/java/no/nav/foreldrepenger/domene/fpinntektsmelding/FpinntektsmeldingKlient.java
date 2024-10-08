@@ -37,7 +37,7 @@ public class FpinntektsmeldingKlient {
     public void opprettForespørsel(OpprettForespørselRequest request) {
         Objects.requireNonNull(request, "request");
         try {
-            LOG.info("Sender request til fpinntektsmelding for saksnummer" + request.saksnummer().saksnr());
+            LOG.info("Sender request til fpinntektsmelding for saksnummer" + request.fagsakSaksnummer().saksnr());
             var rrequest = RestRequest.newPOSTJson(request, uriOpprettForesporsel, restConfig);
             restClient.send(rrequest, String.class);
         } catch (Exception e) {
