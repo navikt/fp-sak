@@ -46,6 +46,8 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
 
     private static final LocalDate TIDENES_BEGYNNELSE = LocalDate.of(1, Month.JANUARY, 1);
     private static final Map<ÅrsakInnsendingKodeliste, InntektsmeldingInnsendingsårsak> INNSENDINGSÅRSAK_MAP;
+    public static final String NAV_NO = "NAV_NO";
+    private static final String OVERSTYRING_FPSAK = "OVERSTYRING_FPSAK";
 
     static {
         INNSENDINGSÅRSAK_MAP = new EnumMap<>(ÅrsakInnsendingKodeliste.class);
@@ -82,12 +84,14 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
 
         mapInnsendingstidspunkt(wrapper, mottattDokument, builder);
 
+        var avsendersystem = wrapper.getAvsendersystem();
+
         builder.medMottattDato(mottattDokument.getMottattDato());
-        builder.medKildesystem(wrapper.getAvsendersystem());
+        builder.medKildesystem(avsendersystem);
         builder.medKanalreferanse(mottattDokument.getKanalreferanse());
         builder.medJournalpostId(mottattDokument.getJournalpostId());
 
-        mapArbeidsgiver(wrapper, builder);
+        var arbeidsgiver = mapArbeidsgiver(wrapper, builder);
 
         builder.medNærRelasjon(wrapper.getErNærRelasjon());
         builder.medInntektsmeldingaarsak(innsendingsårsak);
@@ -99,10 +103,15 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
         mapUtsettelse(wrapper, builder);
         mapRefusjon(wrapper, builder);
 
-        if (builder.getArbeidsgiver().getErVirksomhet() && (builder.getKildesystem() == null || builder.imFraLPSEllerAltinn())) {
+        if (arbeidsgiver.getErVirksomhet() && (avsendersystem == null || imFraLPSEllerAltinn(avsendersystem))) {
             behandlingEventPubliserer.publiserBehandlingEvent(new LukkForespørselForMottattImEvent(behandling, new OrgNummer(builder.getArbeidsgiver().getOrgnr())));
         }
         inntektsmeldingTjeneste.lagreInntektsmelding(builder, behandling);
+    }
+
+    private boolean imFraLPSEllerAltinn(String avsendersystem) {
+        return !(NAV_NO.equals(avsendersystem) || OVERSTYRING_FPSAK.equals(avsendersystem));
+
     }
 
     private void mapArbeidsforholdOgBeløp(InntektsmeldingWrapper wrapper,
@@ -122,10 +131,12 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
         }
     }
 
-    private void mapArbeidsgiver(InntektsmeldingWrapper wrapper, InntektsmeldingBuilder builder) {
+    private Arbeidsgiver mapArbeidsgiver(InntektsmeldingWrapper wrapper, InntektsmeldingBuilder builder) {
         var orgNummer = wrapper.getArbeidsgiver().getVirksomhetsnummer();
         @SuppressWarnings("unused") var virksomhet = virksomhetTjeneste.hentOrganisasjon(orgNummer);
-        builder.medArbeidsgiver(Arbeidsgiver.virksomhet(orgNummer));
+        var arbeidsgiver = Arbeidsgiver.virksomhet(orgNummer);
+        builder.medArbeidsgiver(arbeidsgiver);
+        return arbeidsgiver;
     }
 
     private void mapInnsendingstidspunkt(InntektsmeldingWrapper wrapper,

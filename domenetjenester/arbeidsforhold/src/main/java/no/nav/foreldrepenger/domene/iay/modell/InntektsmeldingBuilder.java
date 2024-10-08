@@ -21,9 +21,6 @@ public class InntektsmeldingBuilder {
     private EksternArbeidsforholdRef eksternArbeidsforholdId;
     private boolean erBygget;
 
-    public static final String NAV_NO = "NAV_NO";
-    private static final String OVERSTYRING_FPSAK = "OVERSTYRING_FPSAK";
-
     InntektsmeldingBuilder(Inntektsmelding kladd) {
         this.kladd = kladd;
     }
@@ -55,10 +52,6 @@ public class InntektsmeldingBuilder {
 
     public String getKildesystem() {
         return kladd.getKildesystem();
-    }
-
-    public boolean imFraLPSEllerAltinn() {
-        return !(NAV_NO.equals(kladd.getKildesystem()) || OVERSTYRING_FPSAK.equals(kladd.getKildesystem()));
     }
 
     public Optional<EksternArbeidsforholdRef> getEksternArbeidsforholdRef() {

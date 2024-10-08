@@ -20,7 +20,8 @@ public class LukkForespørselForMottattIMObserver {
     }
 
     public void observerLukkForespørselForMotattImEvent(@Observes LukkForespørselForMottattImEvent event) {
-        LOG.info("Mottatt LukkForespørselForMottattImEvent for behandlingId {} med saksnummer {} og orgnummer {}", event.getBehandlingId(), event.getSaksnummer(), tilMaskertNummer(event.getOrgNummer().getId()));
+        var maskertOrgnr = tilMaskertNummer(event.getOrgNummer().getId());
+        LOG.info("Mottatt LukkForespørselForMottattImEvent for behandlingId {} med saksnummer {} og orgnummer {}", event.getBehandlingId(), event.getSaksnummer(), maskertOrgnr);
         fpInntektsmeldingTjeneste.lagLukkForespørselTask(event.behandling(), event.getOrgNummer());
     }
 }
