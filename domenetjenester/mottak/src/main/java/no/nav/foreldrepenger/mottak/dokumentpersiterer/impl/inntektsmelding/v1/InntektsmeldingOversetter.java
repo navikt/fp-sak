@@ -103,6 +103,7 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
         mapUtsettelse(wrapper, builder);
         mapRefusjon(wrapper, builder);
 
+        //Vi trenger ikke å lukke forespørsler som kommer fra arbeidsgiverportalen - de er allerede lukket
         if (arbeidsgiver.getErVirksomhet() && (avsendersystem == null || imFraLPSEllerAltinn(avsendersystem))) {
             behandlingEventPubliserer.publiserBehandlingEvent(new LukkForespørselForMottattImEvent(behandling, new OrgNummer(builder.getArbeidsgiver().getOrgnr())));
         }
