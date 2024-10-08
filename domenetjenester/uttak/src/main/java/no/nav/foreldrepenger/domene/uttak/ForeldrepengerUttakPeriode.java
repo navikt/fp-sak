@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak;
 
+import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.OPPHØR_MEDLEMSKAP;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -231,6 +233,9 @@ public class ForeldrepengerUttakPeriode {
         return Optional.ofNullable(dokumentasjonVurdering);
     }
 
+    public boolean harAvslagPgaMedlemskap() {
+        return OPPHØR_MEDLEMSKAP.equals(getResultatÅrsak());
+    }
 
     @Override
     public String toString() {
