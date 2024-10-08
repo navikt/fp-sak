@@ -1,10 +1,17 @@
 package no.nav.foreldrepenger.domene.fpinntektsmelding;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
@@ -23,12 +30,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 @ApplicationScoped
 public class FpInntektsmeldingTjeneste {
     private FpinntektsmeldingKlient klient;
@@ -37,7 +38,7 @@ public class FpInntektsmeldingTjeneste {
     private HistorikkRepository historikkRepo;
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
 
-    FpInntektsmeldingTjeneste() {
+    public FpInntektsmeldingTjeneste() {
         // CDI
     }
 
@@ -137,4 +138,30 @@ public class FpInntektsmeldingTjeneste {
         };
     }
 
+    public void lagLukkForespørselTask(Inntektsmelding inntektsmelding, Behandling behandling) {
+        // Toggler av for prod og lokalt, ikke støtte lokalt
+        if (!Environment.current().isDev()) {
+            return;
+        }
+        var behandlingId = behandling.getId();
+        var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(LukkForespørslerImTask.class));
+        taskdata.setBehandling(behandling.getFagsakId(), behandlingId);
+        taskdata.setCallIdFraEksisterende();
+        taskdata.setProperty(LukkForespørslerImTask.ORG_NUMMER, inntektsmelding.getArbeidsgiver().getOrgnr());
+        taskdata.setProperty(LukkForespørslerImTask.SAK_NUMMER, behandling.getFagsak().getSaksnummer().getVerdi());
+        prosessTaskTjeneste.lagre(taskdata);
+    }
+
+    public void lukkForespørsel(String saksnummer, String orgnummer) {
+        // Toggler av for prod og lokalt, ikke støtte lokalt
+        if (!Environment.current().isDev()) {
+            return;
+        }
+
+        if (!OrganisasjonsNummerValidator.erGyldig(orgnummer)) {
+            return;
+        }
+        var request = new LukkForespørselRequest(new OpprettForespørselRequest.OrganisasjonsnummerDto(orgnummer), new OpprettForespørselRequest.SaksnummerDto(saksnummer));
+        klient.lukkForespørsel(request);
+    }
 }

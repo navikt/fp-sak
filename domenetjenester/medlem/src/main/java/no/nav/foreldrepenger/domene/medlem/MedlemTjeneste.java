@@ -120,8 +120,11 @@ public class MedlemTjeneste {
     }
 
     public Optional<LocalDate> hentMedlemFomDato(Long behandlingId) {
-        var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
-        var medlemskapsvilkåret = behandlingsresultat.getVilkårResultat()
+        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
+        if (behandlingsresultat.isEmpty()) {
+            return Optional.empty();
+        }
+        var medlemskapsvilkåret = behandlingsresultat.get().getVilkårResultat()
             .getVilkårene()
             .stream()
             .filter(vilkårType -> vilkårType.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE))

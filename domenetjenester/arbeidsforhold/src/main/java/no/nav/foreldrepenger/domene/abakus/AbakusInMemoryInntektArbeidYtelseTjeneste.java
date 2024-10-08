@@ -247,10 +247,11 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
     }
 
     @Override
-    public void lagreInntektsmeldinger(Saksnummer saksnummer, Long behandlingId, Collection<InntektsmeldingBuilder> builders) {
+    public List<Inntektsmelding> lagreInntektsmeldinger(Saksnummer saksnummer, Long behandlingId, Collection<InntektsmeldingBuilder> builders) {
         Objects.requireNonNull(builders, "builders");
         var builder = opprettGrunnlagBuilderFor(behandlingId);
         var inntektsmeldinger = builder.getInntektsmeldinger();
+        List<Inntektsmelding> lagretInntektsmeldinger = new ArrayList<>();
 
         for (var inntektsmeldingBuilder : builders) {
             var informasjon = builder.getInformasjon();
@@ -273,9 +274,11 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
 
             builder.medInformasjon(informasjonBuilder.build());
             inntektsmeldinger.leggTil(inntektsmelding);
+            lagretInntektsmeldinger.add(inntektsmelding);
         }
         builder.setInntektsmeldinger(inntektsmeldinger);
         lagreOgFlush(behandlingId, builder.build());
+        return lagretInntektsmeldinger;
     }
 
     private static Optional<Arbeidsgiver> utledeArbeidsgiverSomMåTilbakestilles(Inntektsmelding inntektsmelding,

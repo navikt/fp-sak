@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -13,11 +14,6 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import no.nav.abakus.iaygrunnlag.AktørIdPersonident;
 import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.InntektsmeldingerDto;
@@ -30,6 +26,7 @@ import no.nav.abakus.iaygrunnlag.request.OppgittOpptjeningMottattRequest;
 import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagDto;
 import no.nav.abakus.iaygrunnlag.v1.OverstyrtInntektArbeidYtelseDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -236,8 +233,8 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
     }
 
     @Override
-    public void lagreInntektsmeldinger(Saksnummer saksnummer, Long behandlingId,
-            Collection<InntektsmeldingBuilder> inntektsmeldingBuilderCollection) {
+    public List<Inntektsmelding> lagreInntektsmeldinger(Saksnummer saksnummer, Long behandlingId,
+                                                        Collection<InntektsmeldingBuilder> inntektsmeldingBuilderCollection) {
         Objects.requireNonNull(inntektsmeldingBuilderCollection, "inntektsmeldingBuilderCollection");
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var inntektsmeldingerDto = new IAYTilDtoMapper(behandling.getAktørId(),
@@ -245,7 +242,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
                 null, behandling.getUuid()).mapTilDto(inntektsmeldingBuilderCollection);
 
         if (inntektsmeldingerDto == null) {
-            return;
+            return Collections.emptyList();
         }
         var aktør = new AktørIdPersonident(behandling.getAktørId().getId());
         var inntektsmeldingerMottattRequest = new InntektsmeldingerMottattRequest(saksnummer.getVerdi(),
@@ -256,6 +253,8 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         } catch (IOException e) {
             throw feilVedKallTilAbakus("Lagre mottatte inntektsmeldinger i abakus: " + e.getMessage(), e);
         }
+        //Brukes ikke til noe
+        return Collections.emptyList();
     }
 
     @Override

@@ -40,7 +40,7 @@ import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.MedlemInngangsvilkårRegelGrunnlag;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.MedlemskapsvilkårGrunnlag;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.konfig.Tid;
 
@@ -164,7 +164,7 @@ class MedlemRegelGrunnlagByggerTest {
         var inntekt1 = resultat.arbeid().inntekter().stream().findFirst().orElseThrow();
         assertThat(inntekt1.interval().getFomDato()).isEqualTo(inntektFom);
         assertThat(inntekt1.interval().getTomDato()).isEqualTo(inntektTom);
-        assertThat(inntekt1.beløp()).isEqualTo(new MedlemInngangsvilkårRegelGrunnlag.Beløp(inntekt));
+        assertThat(inntekt1.beløp()).isEqualTo(new MedlemskapsvilkårGrunnlag.Beløp(inntekt));
     }
 
 }

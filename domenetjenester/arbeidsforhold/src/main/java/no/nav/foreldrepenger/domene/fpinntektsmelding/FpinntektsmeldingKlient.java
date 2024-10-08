@@ -6,15 +6,15 @@ import java.util.Objects;
 import jakarta.enterprise.context.Dependent;
 import jakarta.ws.rs.core.UriBuilder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Dependent
 @RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, application = FpApplication.FPINNTEKTSMELDING)
@@ -24,14 +24,16 @@ public class FpinntektsmeldingKlient {
     private final RestClient restClient;
     private final RestConfig restConfig;
     private final URI uriOpprettForesporsel;
+    private final URI uriLukkForesporsel;
     private final URI uriOverstyrInntektsmelding;
+
 
     public FpinntektsmeldingKlient() {
         this.restClient = RestClient.client();
         this.restConfig = RestConfig.forClient(FpinntektsmeldingKlient.class);
         this.uriOpprettForesporsel = toUri(restConfig.fpContextPath(), "/api/foresporsel/opprett");
+        this.uriLukkForesporsel = toUri(restConfig.fpContextPath(), "/api/foresporsel/lukk");
         this.uriOverstyrInntektsmelding = toUri(restConfig.fpContextPath(), "/api/overstyring/inntektsmelding");
-
     }
 
     public void opprettForespørsel(OpprettForespørselRequest request) {
@@ -64,5 +66,15 @@ public class FpinntektsmeldingKlient {
         }
     }
 
+    public void lukkForespørsel(LukkForespørselRequest request) {
+        Objects.requireNonNull(request, "request");
+        try {
+            LOG.info("Sender lukk forespørsel request til fpinntektsmelding for saksnummer {} med organisasjonsnummer {}", request.saksnummer().saksnr(), request.orgnummer());
+            var restRequest = RestRequest.newPOSTJson(request, uriLukkForesporsel, restConfig);
+            restClient.send(restRequest, String.class);
+        } catch (Exception e) {
+            LOG.warn("Feil ved oversending til fpinntektsmelding med lukk forespørsel request: {} Fikk feil: {} ", request, e);
+        }
+    }
 }
 

@@ -23,8 +23,7 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelKjønn;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adopsjon.AdopsjonsvilkårGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel.FødselsvilkårGrunnlag;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.MedlemskapsvilkårGrunnlag;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.RegelPersonStatusType;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v1.MedlemskapsvilkårGrunnlagV1;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Opptjeningsgrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsvilkårParametre;
 import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerProvider;
@@ -130,7 +129,7 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
         }
         var grunnlagForVilkår = StandardJsonConfig.fromJson(
             vilkårFraBehandling.getRegelInput(),
-            MedlemskapsvilkårGrunnlag.class
+            MedlemskapsvilkårGrunnlagV1.class
         );
         vilkårgrunnlag.setErBrukerBorgerAvEUEOS(VedtakXmlUtil.lagBooleanOpplysning(grunnlagForVilkår.brukerBorgerAvEUEOS()));
         vilkårgrunnlag.setHarBrukerLovligOppholdINorge(VedtakXmlUtil.lagBooleanOpplysning(grunnlagForVilkår.brukerAvklartLovligOppholdINorge()));
@@ -140,7 +139,7 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
         vilkårgrunnlag.setErBrukerPliktigEllerFrivilligMedlem(VedtakXmlUtil.lagBooleanOpplysning(grunnlagForVilkår.brukerAvklartPliktigEllerFrivillig()));
         vilkårgrunnlag.setErBrukerMedlem(VedtakXmlUtil.lagBooleanOpplysning(grunnlagForVilkår.brukerErMedlem()));
         vilkårgrunnlag.setPersonstatus(VedtakXmlUtil.lagStringOpplysning(
-            Optional.ofNullable(grunnlagForVilkår.personStatusType()).map(RegelPersonStatusType::getNavn).orElse("-")
+            Optional.ofNullable(grunnlagForVilkår.personStatusType()).map(MedlemskapsvilkårGrunnlagV1.RegelPersonStatusType::getNavn).orElse("-")
         ));
         return vilkårgrunnlag;
     }

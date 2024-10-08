@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak;
 
+import java.util.Set;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -12,6 +14,8 @@ import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 
 @ApplicationScoped
 public class SkalKopiereUttakTjeneste {
+
+    private static final Set<BehandlingÅrsakType> KAN_HOPPE_OVER_UTTAK = Set.of(BehandlingÅrsakType.RE_SATS_REGULERING, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
 
     private RelevanteArbeidsforholdTjeneste relevanteArbeidsforholdTjeneste;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
@@ -36,6 +40,10 @@ public class SkalKopiereUttakTjeneste {
         if (!erRevurdering) {
             return false;
         }
+        var årsaker = uttakInput.getBehandlingÅrsaker();
+        if (årsaker.stream().anyMatch(årsak -> !KAN_HOPPE_OVER_UTTAK.contains(årsak))) {
+            return false;
+        }
         var arbeidEndret = relevanteArbeidsforholdTjeneste.arbeidsforholdRelevantForUttakErEndretSidenForrigeBehandling(
             uttakInput);
         if (arbeidEndret) {
@@ -51,10 +59,7 @@ public class SkalKopiereUttakTjeneste {
         if (familiehendelseEndret(fpGrunnlag)) {
             return false;
         }
-        var årsaker = uttakInput.getBehandlingÅrsaker();
-        return årsaker.stream()
-            .allMatch(å -> å.equals(BehandlingÅrsakType.RE_SATS_REGULERING) || å.equals(
-                BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING));
+        return !årsaker.isEmpty() && KAN_HOPPE_OVER_UTTAK.containsAll(årsaker);
     }
 
     private boolean familiehendelseEndret(ForeldrepengerGrunnlag fpGrunnlag) {

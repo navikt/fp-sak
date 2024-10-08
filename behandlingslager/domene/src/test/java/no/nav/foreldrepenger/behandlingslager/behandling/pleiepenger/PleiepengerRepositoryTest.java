@@ -19,8 +19,6 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 class PleiepengerRepositoryTest extends EntityManagerAwareTest {
 
     private static final LocalDate I_GÅR = LocalDate.now().minusDays(1);
-    private static final LocalDate OM_TO_DAGER = LocalDate.now().plusDays(2);
-    private static final LocalDate OM_TRE_DAGER = LocalDate.now().plusDays(3);
     private static final AktørId PLEIETRENGENDE = AktørId.dummy();
     private static final Saksnummer PSB_SAK = new Saksnummer("Dummy");
 

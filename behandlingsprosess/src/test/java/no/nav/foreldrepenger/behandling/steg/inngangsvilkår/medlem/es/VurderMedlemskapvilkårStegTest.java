@@ -121,7 +121,8 @@ class VurderMedlemskapvilkårStegTest {
     void klassisk_medlem_oppfylt() {
 
         // Arrange
-        var scenario = lagTestScenarioMedlem(LocalDate.now(), false);
+        var ikraftredelse = LocalDate.of(2024, 9, 30);
+        var scenario = lagTestScenarioMedlem(ikraftredelse, false);
 
         scenario.leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.IKKE_VURDERT);
 
@@ -132,7 +133,7 @@ class VurderMedlemskapvilkårStegTest {
 
         // Act - vurder vilkåret
         var vilkårutleder = new Medlemsvilkårutleder(repositoryProvider,
-            new BotidCore2024(LocalDate.now(), Period.parse("P18W3D")));
+            new BotidCore2024(ikraftredelse, Period.parse("P18W3D")));
         new VurderMedlemskapvilkårStegImpl(repositoryProvider, inngangsvilkårFellesTjeneste, vilkårutleder).utførSteg(kontekst);
 
         var vilkårResultat = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId()).getVilkårResultat();

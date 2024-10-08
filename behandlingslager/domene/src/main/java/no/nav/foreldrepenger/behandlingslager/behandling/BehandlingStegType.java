@@ -54,7 +54,6 @@ public enum BehandlingStegType implements Kodeverdi {
     DEKNINGSGRAD("DEKNINGSGRAD", "Fastsetter dekningsgrad for behandling", UTREDES),
     FORESLÅ_BESTEBEREGNING("FORS_BESTEBEREGNING", "Foreslå besteberegning", UTREDES),
     KONTROLLER_OMSORG_RETT("KONTROLLER_OMSORG_RETT", "Kontroller aleneomsorg og rett", UTREDES),
-    VULOMED("VULOMED", "Vurder løpende medlemskap", UTREDES), // Hvorfor kun FP ?
     FAKTA_LØPENDE_OMSORG("FAKTA_LØPENDE_OMSORG", "Fakta om omsorg", UTREDES),
     GRUNNLAG_UTTAK("GRUNNLAG_UTTAK", "Etabler grunnlag for uttak", UTREDES),
     KONTROLLER_FAKTA_UTTAK("KOFAKUT", "Kontroller fakta for uttak", UTREDES),
@@ -86,7 +85,7 @@ public enum BehandlingStegType implements Kodeverdi {
     VURDER_REF_BERGRUNN("VURDER_REF_BERGRUNN", "Vurder refusjon for beregningsgrunnlaget", UTREDES),
     FORDEL_BEREGNINGSGRUNNLAG("FORDEL_BERGRUNN", "Fordel beregningsgrunnlag", UTREDES),
     FASTSETT_BEREGNINGSGRUNNLAG("FAST_BERGRUNN", "Fastsett beregningsgrunnlag", UTREDES),
-    KONTROLLER_LØPENDE_MEDLEMSKAP("KOFAK_LOP_MEDL", "Kontroller løpende medlemskap", UTREDES),
+    INNGANG_UTTAK("KOFAK_LOP_MEDL", "Inngangssteg for uttak", UTREDES), // Historisk kode-streng
     SØKNADSFRIST_FORELDREPENGER("SØKNADSFRIST_FP", "Vurder søknadsfrist foreldrepenger", UTREDES),
     VURDER_UTTAK("VURDER_UTTAK", "Vurder uttaksvilkår", UTREDES),
     VURDER_TILBAKETREKK("VURDER_TILBAKETREKK", "Vurder tilbaketrekk", UTREDES),
@@ -95,7 +94,9 @@ public enum BehandlingStegType implements Kodeverdi {
     @Deprecated(forRemoval=true) // Gammelt steg som håndterte aksjonspunkt 5080 (erstattet av 5085 og steg KO_ARB_IM)
     KONTROLLER_FAKTA_ARBEIDSFORHOLD("KOARB", "Kontroller arbeidsforhold", UTREDES),
     @Deprecated(forRemoval=true) // Gammelt steg som kun logget oppførsel
-    UTLED_FORUTGÅENDE_MEDLEMSKAPVILKÅR("VURDER_FORUTGÅENDE_MEDLEMSKAPVILKÅR", "Utled hvilket medlemskapsvilkår", UTREDES)
+    UTLED_FORUTGÅENDE_MEDLEMSKAPVILKÅR("VURDER_FORUTGÅENDE_MEDLEMSKAPVILKÅR", "Utled hvilket medlemskapsvilkår", UTREDES),
+    @Deprecated(forRemoval = true)
+    VULOMED("VULOMED", "Vurder løpende medlemskap", UTREDES), // Gammelt steg fortsatt medlemskap. Håndteres nå som inngangsvilkår
     ;
 
     static final String KODEVERK = "BEHANDLING_STEG_TYPE";

@@ -176,7 +176,7 @@ class AksjonspunktTjenesteTest {
         // Assert
         var oppdatertBehandling = behandlingRepository.hentBehandling(revurdering.getId());
         assertThat(oppdatertBehandling.getBehandlingStegTilstand().get().getBehandlingSteg())
-                .isEqualTo(BehandlingStegType.SØKNADSFRIST_FORELDREPENGER);
+                .isEqualTo(BehandlingStegType.INNGANG_UTTAK);
         assertThat(oppdatertBehandling.getBehandlingsresultat().getVilkårResultat()).isNotNull();
         assertThat(oppdatertBehandling.getBehandlingsresultat().getVilkårResultat().getVilkårene()).hasSize(1);
         assertThat(oppdatertBehandling.getBehandlingsresultat().getVilkårResultat().getVilkårene().iterator().next().getAvslagsårsak())
