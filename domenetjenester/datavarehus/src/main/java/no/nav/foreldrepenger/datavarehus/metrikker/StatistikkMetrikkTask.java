@@ -14,7 +14,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
-@ProsessTask(value = "statistikk.metrikker", cronExpression = "* */15 * * * *", maxFailedRuns = 20, firstDelay = 20)
+@ProsessTask(value = "statistikk.metrikker", cronExpression = "* */15 * * * *", maxFailedRuns = 1)
 public class StatistikkMetrikkTask implements ProsessTaskHandler {
 
     private static final String BEHANDLING_METRIKK_NAVN = "behandlinger.antall";
