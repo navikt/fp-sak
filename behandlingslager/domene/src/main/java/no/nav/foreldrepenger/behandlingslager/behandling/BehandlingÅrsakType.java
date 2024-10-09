@@ -20,6 +20,7 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     RE_FEIL_ELLER_ENDRET_FAKTA("RE-FEFAKTA", "Endrede opplysninger"),
     RE_FEIL_PROSESSUELL("RE-PRSSL", "Prosessuell feil"),
     RE_ANNET("RE-ANNET", "Annet"),
+
     RE_OPPLYSNINGER_OM_MEDLEMSKAP("RE-MDL", "Opplysninger medlemskap"),
     RE_OPPLYSNINGER_OM_OPPTJENING("RE-OPTJ", "Opplysninger opptjening"),
     RE_OPPLYSNINGER_OM_FORDELING("RE-FRDLING", "Opplysninger uttak"),
