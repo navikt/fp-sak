@@ -14,12 +14,15 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.xml.bind.JAXBElement;
 
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
+import no.nav.foreldrepenger.domene.fpinntektsmelding.LukkForespørselForMottattImEvent;
 import no.nav.foreldrepenger.domene.iay.modell.Gradering;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
@@ -47,6 +50,8 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
 
     private static final LocalDate TIDENES_BEGYNNELSE = LocalDate.of(1, Month.JANUARY, 1);
     private static final Map<ÅrsakInnsendingKodeliste, InntektsmeldingInnsendingsårsak> INNSENDINGSÅRSAK_MAP;
+    public static final String NAV_NO = "NAV_NO";
+    private static final String OVERSTYRING_FPSAK = "OVERSTYRING_FPSAK";
 
     static {
         INNSENDINGSÅRSAK_MAP = new EnumMap<>(ÅrsakInnsendingKodeliste.class);
@@ -57,6 +62,7 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
     private VirksomhetTjeneste virksomhetTjeneste;
     private PersoninfoAdapter personinfoAdapter;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
+    private BehandlingEventPubliserer behandlingEventPubliserer;
 
     InntektsmeldingOversetter() {
         // for CDI proxy
@@ -65,10 +71,12 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
     @Inject
     public InntektsmeldingOversetter(InntektsmeldingTjeneste inntektsmeldingTjeneste,
                                      VirksomhetTjeneste virksomhetTjeneste,
-                                     PersoninfoAdapter personinfoAdapter) {
+                                     PersoninfoAdapter personinfoAdapter,
+                                     BehandlingEventPubliserer behandlingEventPubliserer) {
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.virksomhetTjeneste = virksomhetTjeneste;
         this.personinfoAdapter = personinfoAdapter;
+        this.behandlingEventPubliserer = behandlingEventPubliserer;
     }
 
     @Override
@@ -80,28 +88,38 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
         var innsendingsårsak = aarsakTilInnsending.isEmpty() ? InntektsmeldingInnsendingsårsak.UDEFINERT : INNSENDINGSÅRSAK_MAP
             .get(ÅrsakInnsendingKodeliste.fromValue(aarsakTilInnsending));
 
-        var builder = InntektsmeldingBuilder.builder();
+        var imBuilder = InntektsmeldingBuilder.builder();
 
-        mapInnsendingstidspunkt(wrapper, mottattDokument, builder);
+        mapInnsendingstidspunkt(wrapper, mottattDokument, imBuilder);
 
-        builder.medMottattDato(mottattDokument.getMottattDato());
-        builder.medKildesystem(wrapper.getAvsendersystem());
-        builder.medKanalreferanse(mottattDokument.getKanalreferanse());
-        builder.medJournalpostId(mottattDokument.getJournalpostId());
+        var avsendersystem = wrapper.getAvsendersystem();
+        imBuilder.medMottattDato(mottattDokument.getMottattDato());
+        imBuilder.medKildesystem(avsendersystem);
+        imBuilder.medKanalreferanse(mottattDokument.getKanalreferanse());
+        imBuilder.medJournalpostId(mottattDokument.getJournalpostId());
 
-        mapArbeidsgiver(wrapper, builder);
+        var arbeidsgiver = mapArbeidsgiver(wrapper, imBuilder);
 
-        builder.medNærRelasjon(wrapper.getErNærRelasjon());
-        builder.medInntektsmeldingaarsak(innsendingsårsak);
+        imBuilder.medNærRelasjon(wrapper.getErNærRelasjon());
+        imBuilder.medInntektsmeldingaarsak(innsendingsårsak);
 
-        mapArbeidsforholdOgBeløp(wrapper, builder);
-        mapNaturalYtelser(wrapper, builder);
-        mapGradering(wrapper, builder);
-        mapFerie(wrapper, builder);
-        mapUtsettelse(wrapper, builder);
-        mapRefusjon(wrapper, builder);
+        mapArbeidsforholdOgBeløp(wrapper, imBuilder);
+        mapNaturalYtelser(wrapper, imBuilder);
+        mapGradering(wrapper, imBuilder);
+        mapFerie(wrapper, imBuilder);
+        mapUtsettelse(wrapper, imBuilder);
+        mapRefusjon(wrapper, imBuilder);
 
-        inntektsmeldingTjeneste.lagreInntektsmelding(builder, behandling);
+        //Vi trenger ikke å lukke forespørsler som kommer fra arbeidsgiverportalen - de er allerede lukket
+        if ((arbeidsgiver != null && arbeidsgiver.getErVirksomhet() && (avsendersystem == null || imFraLPSEllerAltinn(avsendersystem)))) {
+            behandlingEventPubliserer.publiserBehandlingEvent(
+                new LukkForespørselForMottattImEvent(behandling, new OrgNummer(imBuilder.getArbeidsgiver().getOrgnr())));
+        }
+        inntektsmeldingTjeneste.lagreInntektsmelding(imBuilder, behandling);
+    }
+
+    private boolean imFraLPSEllerAltinn(String avsendersystem) {
+        return !(NAV_NO.equals(avsendersystem) || OVERSTYRING_FPSAK.equals(avsendersystem));
     }
 
     private void mapArbeidsforholdOgBeløp(InntektsmeldingWrapper wrapper,
@@ -121,19 +139,22 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
         }
     }
 
-    private void mapArbeidsgiver(InntektsmeldingWrapper wrapper, InntektsmeldingBuilder builder) {
-        var arbeidsgiver = wrapper.getArbeidsgiver();
+    private Arbeidsgiver mapArbeidsgiver(InntektsmeldingWrapper wrapper, InntektsmeldingBuilder builder) {
+        var arbeidsgiverWrapper = wrapper.getArbeidsgiver();
         var arbeidsgiverPrivat = wrapper.getArbeidsgiverPrivat();
-        if (arbeidsgiver.isPresent()) {
-            var orgNummer = arbeidsgiver.get().getVirksomhetsnummer();
+        if (arbeidsgiverWrapper.isPresent()) {
+            var orgNummer = arbeidsgiverWrapper.get().getVirksomhetsnummer();
             @SuppressWarnings("unused") var virksomhet = virksomhetTjeneste.hentOrganisasjon(orgNummer);
-            builder.medArbeidsgiver(Arbeidsgiver.virksomhet(orgNummer));
+            var arbeidsgiver = Arbeidsgiver.virksomhet(orgNummer);
+            builder.medArbeidsgiver(arbeidsgiver);
+            return arbeidsgiver;
         } else if (arbeidsgiverPrivat.isPresent()) {
             var aktørIdArbeidsgiver = personinfoAdapter.hentAktørForFnr(
                 new PersonIdent(arbeidsgiverPrivat.get().getArbeidsgiverFnr()))
                 .orElseThrow(() -> new TekniskException("FP-159641",
                     "Fant ikke personident for arbeidsgiver som er privatperson i PDL"));
             builder.medArbeidsgiver(Arbeidsgiver.person(aktørIdArbeidsgiver));
+            return null;
         } else {
             throw new TekniskException("FP-183452", "Fant ikke informasjon om arbeidsgiver på inntektsmelding");
         }
