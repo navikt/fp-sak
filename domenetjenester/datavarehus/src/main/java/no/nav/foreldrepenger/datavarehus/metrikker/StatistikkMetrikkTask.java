@@ -34,21 +34,23 @@ public class StatistikkMetrikkTask implements ProsessTaskHandler {
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         var behandlingerPerTypeYtelseÅrsak = statistikkRepository.hentAntallBehandlinger();
+
+
         for (var behandling: behandlingerPerTypeYtelseÅrsak) {
             REGISTRY.gauge(BEHANDLING_METRIKK_NAVN, tilTags(behandling), behandling.antall());
         }
     }
 
-    private List<Tag> tilTags(BehandlingStatistikkRepository.BehandlingPerYtelseTypeOgÅrsakStatistikk behandlingPerYtelseTypeOgÅrsakStatistikk) {
+    private List<Tag> tilTags(BehandlingStatistikkRepository.BehandlingStatistikk behandlingStatistikkEntitet) {
         var tags = new ArrayList<Tag>();
-        if (behandlingPerYtelseTypeOgÅrsakStatistikk.ytelseType() != null) {
-            tags.add(Tag.of("ytelse_type", behandlingPerYtelseTypeOgÅrsakStatistikk.ytelseType().getKode()));
+        if (behandlingStatistikkEntitet.ytelseType() != null) {
+            tags.add(Tag.of("ytelse_type", behandlingStatistikkEntitet.ytelseType().getNavn()));
         }
-        if (behandlingPerYtelseTypeOgÅrsakStatistikk.behandlingType() != null) {
-            tags.add(Tag.of("behandling_type", behandlingPerYtelseTypeOgÅrsakStatistikk.behandlingType().getKode()));
+        if (behandlingStatistikkEntitet.behandlingType() != null) {
+            tags.add(Tag.of("behandling_type", behandlingStatistikkEntitet.behandlingType().getNavn()));
         }
-        if (behandlingPerYtelseTypeOgÅrsakStatistikk.behandlingArsakType() != null) {
-            tags.add(Tag.of("behandling_aarsak_type", behandlingPerYtelseTypeOgÅrsakStatistikk.behandlingArsakType().getKode()));
+        if (behandlingStatistikkEntitet.behandlingsårsak() != null) {
+            tags.add(Tag.of("behandling_aarsak_type", behandlingStatistikkEntitet.behandlingsårsak().name()));
         }
         return tags;
     }
