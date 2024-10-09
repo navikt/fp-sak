@@ -6,6 +6,8 @@ import java.util.Objects;
 import jakarta.enterprise.context.Dependent;
 import jakarta.ws.rs.core.UriBuilder;
 
+import no.nav.vedtak.exception.TekniskException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +45,8 @@ public class FpinntektsmeldingKlient {
             var rrequest = RestRequest.newPOSTJson(request, uriOpprettForesporsel, restConfig);
             restClient.send(rrequest, String.class);
         } catch (Exception e) {
-            LOG.warn("Feil ved oversending til fpinntektsmelding med forespørsel: " + request + " Fikk feil: " + e);
+            LOG.warn("Feil ved overstyring av inntektsmelding med request: {}", request);
+            throw feilVedKallTilFpinntektsmelding(e.getMessage());
         }
     }
 
@@ -54,7 +57,8 @@ public class FpinntektsmeldingKlient {
             var rrequest = RestRequest.newPOSTJson(request, uriOverstyrInntektsmelding, restConfig);
             restClient.send(rrequest, String.class);
         } catch (Exception e) {
-            LOG.warn("Feil ved overstyring av inntektsmelding med forespørsel: " + request + " Fikk feil: " + e);
+            LOG.warn("Feil ved overstyring av inntektsmelding med request: {}", request);
+            throw feilVedKallTilFpinntektsmelding(e.getMessage());
         }
     }
 
@@ -73,8 +77,14 @@ public class FpinntektsmeldingKlient {
             var restRequest = RestRequest.newPOSTJson(request, uriLukkForesporsel, restConfig);
             restClient.send(restRequest, String.class);
         } catch (Exception e) {
-            LOG.warn("Feil ved oversending til fpinntektsmelding med lukk forespørsel request: {} Fikk feil: {} ", request, e);
+            LOG.warn("Feil ved oversending til fpinntektsmelding med lukk forespørsel request: {}", request);
+            throw feilVedKallTilFpinntektsmelding(e.getMessage());
         }
     }
+
+    private static TekniskException feilVedKallTilFpinntektsmelding(String feilmelding) {
+        return new TekniskException("FP-97215", "Feil ved kall til Fpinntektsmelding: " + feilmelding);
+    }
+
 }
 
