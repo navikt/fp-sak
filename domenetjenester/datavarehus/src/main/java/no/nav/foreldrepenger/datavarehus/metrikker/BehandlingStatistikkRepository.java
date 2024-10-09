@@ -80,7 +80,7 @@ public class BehandlingStatistikkRepository {
                  RE_OPPLYSNINGER_OM_SØKNAD_FRIST,
                  RE_OPPLYSNINGER_OM_BEREGNINGSGRUNNLAG -> Behandlingsårsak.MANUELL;
             case RE_KLAGE_UTEN_END_INNTEKT, RE_KLAGE_MED_END_INNTEKT, ETTER_KLAGE -> Behandlingsårsak.KLAGE_OMGJØRING;
-            case KLAGE_TILBAKEBETALING -> Behandlingsårsak.KLAGE_TILBAKEBETALING;
+            case KLAGE_TILBAKEBETALING -> Behandlingsårsak.KLAGE_ANKE;
             case RE_MANGLER_FØDSEL, RE_MANGLER_FØDSEL_I_PERIODE, RE_AVVIK_ANTALL_BARN -> Behandlingsårsak.ETTERKONTROLL;
             case RE_ENDRING_FRA_BRUKER -> Behandlingsårsak.SØKNAD;
             case RE_ENDRET_INNTEKTSMELDING -> Behandlingsårsak.INNTEKTSMELDING;
@@ -96,12 +96,12 @@ public class BehandlingStatistikkRepository {
             case RE_VEDTAK_PLEIEPENGER -> Behandlingsårsak.PLEIEPENGER;
             case UDEFINERT -> switch (behandlingType) {
                 case FØRSTEGANGSSØKNAD -> Behandlingsårsak.SØKNAD;
-                case KLAGE, ANKE -> Behandlingsårsak.KLAGE_OMGJØRING;
+                case KLAGE, ANKE -> Behandlingsårsak.KLAGE_ANKE;
                 default -> Behandlingsårsak.ANNET;
             };
             case null -> switch (behandlingType) {
                 case FØRSTEGANGSSØKNAD -> Behandlingsårsak.SØKNAD;
-                case KLAGE, ANKE -> Behandlingsårsak.KLAGE_OMGJØRING;
+                case KLAGE, ANKE -> Behandlingsårsak.KLAGE_ANKE;
                 default -> Behandlingsårsak.ANNET;
             };
             default -> Behandlingsårsak.ANNET;
@@ -123,6 +123,7 @@ public class BehandlingStatistikkRepository {
 
     enum Behandlingsårsak {
         SØKNAD,
+        KLAGE_ANKE,
         INNTEKTSMELDING,
         FOLKEREGISTER,
         PLEIEPENGER,
@@ -132,7 +133,6 @@ public class BehandlingStatistikkRepository {
         UTSATT_START,
         REGULERING,
         KLAGE_OMGJØRING,
-        KLAGE_TILBAKEBETALING,
         INFOBREV,
         ANNET
     }
