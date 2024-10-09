@@ -4,12 +4,15 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.summarizingLong;
 
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
 import org.hibernate.jpa.HibernateHints;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -17,7 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
 @ApplicationScoped
 public class BehandlingStatistikkRepository {
-
+    private static final Logger LOG = LoggerFactory.getLogger(BehandlingStatistikkRepository.class);
     private EntityManager entityManager;
 
     BehandlingStatistikkRepository() {
@@ -38,7 +41,10 @@ public class BehandlingStatistikkRepository {
             """, BehandlingStatistikkEntitet.class)
             .setHint(HibernateHints.HINT_READ_ONLY, "true");
         var behandlingStatistikkEntitet = query.getResultList();
-        return mapTilBehandlingStatistikk(behandlingStatistikkEntitet);
+        LOG.info("Behandling data fra DB: {}", behandlingStatistikkEntitet);
+        var behandlingStatistikkEtterMapping = mapTilBehandlingStatistikk(behandlingStatistikkEntitet);
+        LOG.info("Behandling data etter mapping: {}", behandlingStatistikkEtterMapping);
+        return behandlingStatistikkEtterMapping;
     }
 
     static List<BehandlingStatistikk> mapTilBehandlingStatistikk(List<BehandlingStatistikkEntitet> behandlingStatistikkEntitet) {
@@ -46,9 +52,9 @@ public class BehandlingStatistikkRepository {
             .map(BehandlingStatistikkRepository::tilBehandlingStatistikk)
             .collect(
                 groupingBy(BehandlingStatistikk::ytelseType,
-                groupingBy(BehandlingStatistikk::behandlingType,
-                groupingBy(BehandlingStatistikk::behandlingsårsak,
-                summarizingLong(BehandlingStatistikk::antall))))
+                groupingBy(bs -> Optional.ofNullable(bs.behandlingType()).orElse(BehandlingType.UDEFINERT),
+                groupingBy(bs -> Optional.ofNullable(bs.behandlingsårsak()).orElse(Behandlingsårsak.ANNET),
+                summarizingLong(bs -> Optional.ofNullable(bs.antall()).orElse(0L)))))
             )
             .entrySet()
             .stream()
@@ -97,12 +103,12 @@ public class BehandlingStatistikkRepository {
             case UDEFINERT -> switch (behandlingType) {
                 case FØRSTEGANGSSØKNAD -> Behandlingsårsak.SØKNAD;
                 case KLAGE, ANKE -> Behandlingsårsak.KLAGE_ANKE;
-                default -> Behandlingsårsak.ANNET;
+                case null, default -> Behandlingsårsak.ANNET;
             };
             case null -> switch (behandlingType) {
                 case FØRSTEGANGSSØKNAD -> Behandlingsårsak.SØKNAD;
                 case KLAGE, ANKE -> Behandlingsårsak.KLAGE_ANKE;
-                default -> Behandlingsårsak.ANNET;
+                case null, default -> Behandlingsårsak.ANNET;
             };
             default -> Behandlingsårsak.ANNET;
         };

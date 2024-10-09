@@ -35,7 +35,6 @@ public class StatistikkMetrikkTask implements ProsessTaskHandler {
     public void doTask(ProsessTaskData prosessTaskData) {
         var behandlingerPerTypeYtelseÅrsak = statistikkRepository.hentAntallBehandlinger();
 
-
         for (var behandling: behandlingerPerTypeYtelseÅrsak) {
             REGISTRY.gauge(BEHANDLING_METRIKK_NAVN, tilTags(behandling), behandling.antall());
         }
