@@ -41,7 +41,7 @@ public class BehandlingStatistikkRepository {
         return mapTilBehandlingStatistikk(behandlingStatistikkEntitet);
     }
 
-    public static List<BehandlingStatistikk> mapTilBehandlingStatistikk(List<BehandlingStatistikkEntitet> behandlingStatistikkEntitet) {
+    static List<BehandlingStatistikk> mapTilBehandlingStatistikk(List<BehandlingStatistikkEntitet> behandlingStatistikkEntitet) {
         return behandlingStatistikkEntitet.stream()
             .map(BehandlingStatistikkRepository::tilBehandlingStatistikk)
             .collect(groupingBy(BehandlingStatistikk::ytelseType, groupingBy(BehandlingStatistikk::behandlingType,
@@ -108,20 +108,20 @@ public class BehandlingStatistikkRepository {
         };
     }
 
-    public record BehandlingStatistikkEntitet(FagsakYtelseType ytelseType,
-                                              BehandlingType behandlingType,
-                                              BehandlingÅrsakType behandlingArsakType,
-                                              Long antall) {
-    }
-
-
-    public record BehandlingStatistikk(FagsakYtelseType ytelseType,
+    record BehandlingStatistikkEntitet(FagsakYtelseType ytelseType,
                                        BehandlingType behandlingType,
-                                       Behandlingsårsak behandlingsårsak,
+                                       BehandlingÅrsakType behandlingArsakType,
                                        Long antall) {
     }
 
-    public enum Behandlingsårsak {
+
+    record BehandlingStatistikk(FagsakYtelseType ytelseType,
+                                BehandlingType behandlingType,
+                                Behandlingsårsak behandlingsårsak,
+                                Long antall) {
+    }
+
+    enum Behandlingsårsak {
         SØKNAD,
         INNTEKTSMELDING,
         FOLKEREGISTER,

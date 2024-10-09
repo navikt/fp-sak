@@ -14,7 +14,7 @@ class BehandlingStatistikkRepositoryTest {
 
 
     @Test
-    void name() {
+    void sjekkMappingFraFlereBehandlingTyperTilEtSubsett() {
         var test = List.of(
             new BehandlingStatistikkRepository.BehandlingStatistikkEntitet(FagsakYtelseType.FORELDREPENGER, BehandlingType.FØRSTEGANGSSØKNAD, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER, 10L),
             new BehandlingStatistikkRepository.BehandlingStatistikkEntitet(FagsakYtelseType.FORELDREPENGER, BehandlingType.FØRSTEGANGSSØKNAD, BehandlingÅrsakType.RE_FEIL_I_LOVANDVENDELSE, 10L),
