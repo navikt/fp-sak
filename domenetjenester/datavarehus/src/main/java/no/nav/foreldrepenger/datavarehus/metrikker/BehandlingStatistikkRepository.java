@@ -44,18 +44,18 @@ public class BehandlingStatistikkRepository {
     static List<BehandlingStatistikk> mapTilBehandlingStatistikk(List<BehandlingStatistikkEntitet> behandlingStatistikkEntitet) {
         return behandlingStatistikkEntitet.stream()
             .map(BehandlingStatistikkRepository::tilBehandlingStatistikk)
-            .collect(groupingBy(BehandlingStatistikk::ytelseType, groupingBy(BehandlingStatistikk::behandlingType,
-                groupingBy(BehandlingStatistikk::behandlingsårsak, summarizingLong(BehandlingStatistikk::antall)))))
+            .collect(
+                groupingBy(BehandlingStatistikk::ytelseType,
+                groupingBy(BehandlingStatistikk::behandlingType,
+                groupingBy(BehandlingStatistikk::behandlingsårsak,
+                summarizingLong(BehandlingStatistikk::antall))))
+            )
             .entrySet()
             .stream()
-            .flatMap(ytelseTypeEntry -> ytelseTypeEntry.getValue()
-                .entrySet()
-                .stream()
-                .flatMap(behandlingTypeEntry -> behandlingTypeEntry.getValue()
-                    .entrySet()
-                    .stream()
-                    .map(behandlingårsakEntry -> new BehandlingStatistikk(ytelseTypeEntry.getKey(), behandlingTypeEntry.getKey(),
-                        behandlingårsakEntry.getKey(), behandlingårsakEntry.getValue().getSum()))))
+            .flatMap(ytelseTypeEntry -> ytelseTypeEntry.getValue().entrySet().stream()
+                .flatMap(behandlingTypeEntry -> behandlingTypeEntry.getValue().entrySet().stream()
+                    .map(behandlingårsakEntry ->
+                        new BehandlingStatistikk(ytelseTypeEntry.getKey(), behandlingTypeEntry.getKey(), behandlingårsakEntry.getKey(), behandlingårsakEntry.getValue().getSum()))))
             .toList();
     }
 
