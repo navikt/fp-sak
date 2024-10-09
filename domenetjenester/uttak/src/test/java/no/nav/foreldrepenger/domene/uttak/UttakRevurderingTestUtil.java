@@ -32,7 +32,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
-import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -239,7 +238,7 @@ public class UttakRevurderingTestUtil {
             .medInnsendingstidspunkt(FØDSELSDATO.atStartOfDay())
             .medJournalpostId(journalpostId);
 
-        new InntektsmeldingTjeneste(iayTjeneste, new FpInntektsmeldingTjeneste() ).lagreInntektsmelding(inntektsmeldingBuilder, revurdering);
+        new InntektsmeldingTjeneste(iayTjeneste).lagreInntektsmelding(inntektsmeldingBuilder, revurdering);
     }
 
     public Behandling byggFørstegangsbehandlingForRevurderingBerørtSak(AktørId aktørId,

@@ -9,6 +9,9 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -17,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
@@ -37,6 +41,8 @@ public class FpInntektsmeldingTjeneste {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private HistorikkRepository historikkRepo;
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
+
+    private static final Logger LOG = LoggerFactory.getLogger(FpInntektsmeldingTjeneste.class);
 
     public FpInntektsmeldingTjeneste() {
         // CDI
@@ -105,6 +111,7 @@ public class FpInntektsmeldingTjeneste {
     void lagForespørsel(String ag, BehandlingReferanse ref, Skjæringstidspunkt stp) {
         // Toggler av for prod og lokalt, ikke støtte lokalt
         if (!OrganisasjonsNummerValidator.erGyldig(ag)) {
+            LOG.error("FpInntektsmeldingTjeneste: Oppretter ikke forespørsel for saksnummer: {} fordi orgnummer: {} ikke er gyldig", ref.saksnummer(), ag);
             return;
         }
         var request = new OpprettForespørselRequest(new OpprettForespørselRequest.AktørIdDto(ref.aktørId().getId()),
@@ -138,7 +145,7 @@ public class FpInntektsmeldingTjeneste {
         };
     }
 
-    public void lagLukkForespørselTask(Inntektsmelding inntektsmelding, Behandling behandling) {
+    public void lagLukkForespørselTask(Behandling behandling, OrgNummer orgNummer) {
         // Toggler av for prod og lokalt, ikke støtte lokalt
         if (!Environment.current().isDev()) {
             return;
@@ -147,7 +154,7 @@ public class FpInntektsmeldingTjeneste {
         var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(LukkForespørslerImTask.class));
         taskdata.setBehandling(behandling.getFagsakId(), behandlingId);
         taskdata.setCallIdFraEksisterende();
-        taskdata.setProperty(LukkForespørslerImTask.ORG_NUMMER, inntektsmelding.getArbeidsgiver().getOrgnr());
+        taskdata.setProperty(LukkForespørslerImTask.ORG_NUMMER, orgNummer.getId());
         taskdata.setProperty(LukkForespørslerImTask.SAK_NUMMER, behandling.getFagsak().getSaksnummer().getVerdi());
         prosessTaskTjeneste.lagre(taskdata);
     }
@@ -159,6 +166,7 @@ public class FpInntektsmeldingTjeneste {
         }
 
         if (!OrganisasjonsNummerValidator.erGyldig(orgnummer)) {
+            LOG.error("FpInntektsmeldingTjeneste: Lukker ikke forespørsel for saksnummer: {} fordi orgnummer: {} ikke er gyldig", saksnummer, orgnummer);
             return;
         }
         var request = new LukkForespørselRequest(new OpprettForespørselRequest.OrganisasjonsnummerDto(orgnummer), new OpprettForespørselRequest.SaksnummerDto(saksnummer));

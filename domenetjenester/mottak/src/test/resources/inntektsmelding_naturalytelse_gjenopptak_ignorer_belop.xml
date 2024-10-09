@@ -4,7 +4,7 @@
         <ytelse>Foreldrepenger</ytelse>
         <aarsakTilInnsending>Ny</aarsakTilInnsending>
         <arbeidsgiver>
-            <virksomhetsnummer>119999996</virksomhetsnummer>
+            <virksomhetsnummer>342352362</virksomhetsnummer>
             <kontaktinformasjon>
                 <kontaktinformasjonNavn>Fru Corporate</kontaktinformasjonNavn>
                 <telefonnummer>99009900</telefonnummer>
@@ -74,7 +74,7 @@
             </naturalytelseDetaljer>
         </gjenopptakelseNaturalytelseListe>
         <avsendersystem>
-            <systemnavn>FS32</systemnavn>
+            <systemnavn>NAV_NO</systemnavn>
             <systemversjon>1.0</systemversjon>
             <innsendingstidspunkt>2018-10-13T15:45:43Z</innsendingstidspunkt>
         </avsendersystem>
