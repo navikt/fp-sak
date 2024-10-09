@@ -34,7 +34,7 @@ class BehandlingStatistikkRepositoryTest {
 
         );
 
-        var mapped = BehandlingStatistikkRepository.mapTilBehandlingStatistikk(test);
+        var mapped = BehandlingStatistikkRepository.    mapTilBehandlingStatistikk(test);
         assertThat(mapped)
             .containsExactlyInAnyOrder(
                 new BehandlingStatistikkRepository.BehandlingStatistikk(FagsakYtelseType.FORELDREPENGER, BehandlingType.FØRSTEGANGSSØKNAD, BehandlingStatistikkRepository.Behandlingsårsak.SØKNAD, 30L),
