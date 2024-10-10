@@ -6,11 +6,10 @@ import java.util.Objects;
 import jakarta.enterprise.context.Dependent;
 import jakarta.ws.rs.core.UriBuilder;
 
-import no.nav.vedtak.exception.TekniskException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
@@ -73,7 +72,7 @@ public class FpinntektsmeldingKlient {
     public void lukkForespørsel(LukkForespørselRequest request) {
         Objects.requireNonNull(request, "request");
         try {
-            LOG.info("Sender lukk forespørsel request til fpinntektsmelding for saksnummer {} med organisasjonsnummer {}", request.saksnummer().saksnr(), request.orgnummer());
+            LOG.info("Sender lukk forespørsel request til fpinntektsmelding for saksnummer {} med organisasjonsnummer {}", request.fagsakSaksnummer().saksnr(), request.orgnummer());
             var restRequest = RestRequest.newPOSTJson(request, uriLukkForesporsel, restConfig);
             restClient.send(restRequest, String.class);
         } catch (Exception e) {
