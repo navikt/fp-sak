@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.datavarehus.metrikker.BehandlingStatistikkRepositor
 @ApplicationScoped
 public class BehandlingMetrikker {
 
-    private static final String BEHANDLING_METRIKK_NAVN = "behandlinger.antall";
+    private static final String BEHANDLING_METRIKK_NAVN = "fp.behandlinger.antall";
     private static final Map<Type, AtomicLong> BEHANDLING_GAUGES = new HashMap<>();
 
     BehandlingMetrikker() {
