@@ -12,13 +12,10 @@ import org.hibernate.jpa.HibernateHints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -37,22 +34,19 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
     private final ProsessTaskTjeneste prosessTaskTjeneste;
     private final BehandlingRepository behandlingRepository;
     private final MedlemTjeneste medlemTjeneste;
-    private final BehandlingsresultatRepository behandlingsresultatRepository;
-    private final MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository;
+    private final SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     @Inject
     public MedlemskapMigreringTask(EntityManager entityManager,
                                    ProsessTaskTjeneste prosessTaskTjeneste,
                                    BehandlingRepository behandlingRepository,
                                    MedlemTjeneste medlemTjeneste,
-                                   BehandlingsresultatRepository behandlingsresultatRepository,
-                                   MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository) {
+                                   SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.entityManager = entityManager;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.medlemTjeneste = medlemTjeneste;
-        this.behandlingsresultatRepository = behandlingsresultatRepository;
-        this.medlemskapVilkårPeriodeRepository = medlemskapVilkårPeriodeRepository;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
     @Override
@@ -62,7 +56,6 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
 
         var behandlinger = finnKandidater(fraId).toList();
         behandlinger.forEach(this::migrerBehandling);
-
 
         behandlinger.stream().max(Long::compareTo).ifPresent(nesteId -> prosessTaskTjeneste.lagre(opprettNesteTask(nesteId)));
 
@@ -90,26 +83,12 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
         }
     }
 
-    public Optional<LocalDate> finnOpphørsdato(Long behandlingId) {
-        var behandlingsresultatOpt = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
-        if (behandlingsresultatOpt.isEmpty() || behandlingsresultatOpt.get().getVilkårResultat() == null) {
-            return Optional.empty();
-        }
-        var behandlingsresultat = behandlingsresultatOpt.get();
-        var medlemskapsvilkåret = behandlingsresultat.getVilkårResultat()
-            .getVilkårene()
-            .stream()
-            .filter(vilkårType -> vilkårType.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET))
-            .findFirst();
-
-        if (medlemskapsvilkåret.isPresent()) {
-            var medlem = medlemskapsvilkåret.get();
-            if (medlem.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.OPPFYLT)) {
-                var behandling = behandlingRepository.hentBehandling(behandlingId);
-                return medlemskapVilkårPeriodeRepository.hentOpphørsdatoHvisEksisterer(behandling);
-            }
-            if (medlem.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT)) {
-                return Optional.empty();
+    private Optional<LocalDate> finnOpphørsdato(Long behandlingId) {
+        var opphørsdato = medlemTjeneste.hentOpphørsdatoHvisEksisterer(behandlingId);
+        if (opphørsdato.isPresent()) {
+            var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
+            if (opphørsdato.get().isAfter(skjæringstidspunkter.getUtledetSkjæringstidspunkt())) {
+                return opphørsdato;
             }
         }
         return Optional.empty();
