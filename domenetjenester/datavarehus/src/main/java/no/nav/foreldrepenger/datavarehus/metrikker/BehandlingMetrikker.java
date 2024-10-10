@@ -23,16 +23,16 @@ public class BehandlingMetrikker {
         // CDI
     }
 
-    static List<Tag> tilTags(Type behandlingStatistikkEntitet) {
+    static List<Tag> tilTags(Type type) {
         var tags = new ArrayList<Tag>();
-        if (behandlingStatistikkEntitet.ytelseType() != null) {
-            tags.add(Tag.of("ytelse_type", behandlingStatistikkEntitet.ytelseType().getNavn()));
+        if (type.ytelseType() != null) {
+            tags.add(Tag.of("ytelse_type", type.ytelseType().getNavn()));
         }
-        if (behandlingStatistikkEntitet.behandlingType() != null) {
-            tags.add(Tag.of("behandling_type", behandlingStatistikkEntitet.behandlingType().getNavn()));
+        if (type.behandlingType() != null) {
+            tags.add(Tag.of("behandling_type", type.behandlingType().getNavn()));
         }
-        if (behandlingStatistikkEntitet.behandlingsårsak() != null) {
-            tags.add(Tag.of("behandling_aarsak_type", behandlingStatistikkEntitet.behandlingsårsak().name()));
+        if (type.behandlingsårsak() != null) {
+            tags.add(Tag.of("behandling_aarsak_type", type.behandlingsårsak().name()));
         }
         return tags;
     }
