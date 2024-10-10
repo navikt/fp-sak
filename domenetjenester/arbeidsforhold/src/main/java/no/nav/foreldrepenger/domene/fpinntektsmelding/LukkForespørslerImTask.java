@@ -8,12 +8,14 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
 @ProsessTask(value = "fpinntektsmelding.lukkForesporsler")
+@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class LukkForespørslerImTask extends GenerellProsessTask {
     public static final String SAK_NUMMER = "saksnummer";
     public static final String ORG_NUMMER = "organisasjonnummer";
@@ -36,8 +38,8 @@ public class LukkForespørslerImTask extends GenerellProsessTask {
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         var saksnummer = prosessTaskData.getPropertyValue(SAK_NUMMER);
         var orgnummer = prosessTaskData.getPropertyValue(ORG_NUMMER);
-
-        LOG.info("Starter task for å lukke eventuelle forespørsler i fpinntektsmelding for saksnummer {} og orgnummer {}",  saksnummer, tilMaskertNummer(orgnummer));
+        var maskerOrgnummer = tilMaskertNummer(orgnummer);
+        LOG.info("Starter task for å lukke eventuelle forespørsler i fpinntektsmelding for saksnummer {} og orgnummer {}",  saksnummer, maskerOrgnummer);
         fpInntektsmeldingTjeneste.lukkForespørsel(saksnummer, orgnummer);
     }
 
