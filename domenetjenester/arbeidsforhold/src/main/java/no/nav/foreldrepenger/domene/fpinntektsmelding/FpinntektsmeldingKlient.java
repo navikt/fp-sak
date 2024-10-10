@@ -37,12 +37,12 @@ public class FpinntektsmeldingKlient {
         this.uriOverstyrInntektsmelding = toUri(restConfig.fpContextPath(), "/api/overstyring/inntektsmelding");
     }
 
-    public void opprettForespørsel(OpprettForespørselRequest request) {
+    public OpprettForespørselResponse opprettForespørsel(OpprettForespørselRequest request) {
         Objects.requireNonNull(request, "request");
         try {
             LOG.info("Sender request til fpinntektsmelding for saksnummer" + request.fagsakSaksnummer().saksnr());
             var rrequest = RestRequest.newPOSTJson(request, uriOpprettForesporsel, restConfig);
-            restClient.send(rrequest, String.class);
+           return restClient.send(rrequest, OpprettForespørselResponse.class);
         } catch (Exception e) {
             LOG.warn("Feil ved overstyring av inntektsmelding med request: {}", request);
             throw feilVedKallTilFpinntektsmelding(e.getMessage());

@@ -108,7 +108,7 @@ public class FpInntektsmeldingTjeneste {
         return endringer;
     }
 
-    void lagForespørsel(String ag, BehandlingReferanse ref, Skjæringstidspunkt stp) {
+    public void lagForespørsel(String ag, BehandlingReferanse ref, Skjæringstidspunkt stp) {
         // Toggler av for prod og lokalt, ikke støtte lokalt
         if (!OrganisasjonsNummerValidator.erGyldig(ag)) {
             LOG.error("FpInntektsmeldingTjeneste: Oppretter ikke forespørsel for saksnummer: {} fordi orgnummer: {} ikke er gyldig", ref.saksnummer(), ag);
@@ -117,8 +117,12 @@ public class FpInntektsmeldingTjeneste {
         var request = new OpprettForespørselRequest(new OpprettForespørselRequest.AktørIdDto(ref.aktørId().getId()),
             new OpprettForespørselRequest.OrganisasjonsnummerDto(ag), stp.getUtledetSkjæringstidspunkt(), mapYtelsetype(ref.fagsakYtelseType()),
             new OpprettForespørselRequest.SaksnummerDto(ref.saksnummer().getVerdi()));
-        klient.opprettForespørsel(request);
-        lagHistorikkForForespørsel(ag, ref);
+        var opprettForespørselResponse = klient.opprettForespørsel(request);
+        if (opprettForespørselResponse.forespørselResultat().equals(OpprettForespørselResponse.ForespørselResultat.FORESPØRSEL_OPPRETTET)) {
+            lagHistorikkForForespørsel(ag, ref);
+        } else {
+            LOG.info("Fpinntektsmelding har allerede en åpen oppgave på saksnummer: {} og orgnummer: {}", ref.saksnummer(), ag);
+        }
     }
 
     private void lagHistorikkForForespørsel(String ag, BehandlingReferanse ref) {
