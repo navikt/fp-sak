@@ -51,9 +51,9 @@ public class BehandlingStatistikkRepository {
         return behandlingStatistikkEntitet.stream()
             .map(BehandlingStatistikkRepository::tilBehandlingStatistikk)
             .collect(
-                groupingBy(BehandlingStatistikk::ytelseType,
-                groupingBy(bs -> Optional.ofNullable(bs.behandlingType()).orElse(BehandlingType.UDEFINERT),
-                groupingBy(bs -> Optional.ofNullable(bs.behandlingsårsak()).orElse(Behandlingsårsak.ANNET),
+                groupingBy(bs -> bs.type().ytelseType,
+                groupingBy(bs -> Optional.ofNullable(bs.type().behandlingType()).orElse(BehandlingType.UDEFINERT),
+                groupingBy(bs -> Optional.ofNullable(bs.type().behandlingsårsak()).orElse(Behandlingsårsak.ANNET),
                 summarizingLong(bs -> Optional.ofNullable(bs.antall()).orElse(0L)))))
             )
             .entrySet()
@@ -61,12 +61,12 @@ public class BehandlingStatistikkRepository {
             .flatMap(ytelseTypeEntry -> ytelseTypeEntry.getValue().entrySet().stream()
                 .flatMap(behandlingTypeEntry -> behandlingTypeEntry.getValue().entrySet().stream()
                     .map(behandlingårsakEntry ->
-                        new BehandlingStatistikk(ytelseTypeEntry.getKey(), behandlingTypeEntry.getKey(), behandlingårsakEntry.getKey(), behandlingårsakEntry.getValue().getSum()))))
+                        new BehandlingStatistikk(new BehandlingStatistikk.Type(ytelseTypeEntry.getKey(), behandlingTypeEntry.getKey(), behandlingårsakEntry.getKey()), behandlingårsakEntry.getValue().getSum()))))
             .toList();
     }
 
     private static BehandlingStatistikk tilBehandlingStatistikk(BehandlingStatistikkEntitet entitet) {
-        return new BehandlingStatistikk(entitet.ytelseType(), entitet.behandlingType(), tilBehandlingÅrsak(entitet.behandlingType(), entitet.behandlingArsakType()), entitet.antall());
+        return new BehandlingStatistikk(new BehandlingStatistikk.Type(entitet.ytelseType(), entitet.behandlingType(), tilBehandlingÅrsak(entitet.behandlingType(), entitet.behandlingArsakType())), entitet.antall());
     }
 
     private static Behandlingsårsak tilBehandlingÅrsak(BehandlingType behandlingType, BehandlingÅrsakType behandlingÅrsakType) {
@@ -121,10 +121,11 @@ public class BehandlingStatistikkRepository {
     }
 
 
-    record BehandlingStatistikk(FagsakYtelseType ytelseType,
-                                BehandlingType behandlingType,
-                                Behandlingsårsak behandlingsårsak,
-                                Long antall) {
+    record BehandlingStatistikk(Type type, Long antall) {
+        record Type(FagsakYtelseType ytelseType,
+                    BehandlingType behandlingType,
+                    Behandlingsårsak behandlingsårsak) {
+        }
     }
 
     enum Behandlingsårsak {
