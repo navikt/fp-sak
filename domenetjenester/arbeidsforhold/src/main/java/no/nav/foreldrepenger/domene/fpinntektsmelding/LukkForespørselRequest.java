@@ -4,5 +4,5 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
 public record LukkForespørselRequest(@NotNull @Valid OpprettForespørselRequest.OrganisasjonsnummerDto orgnummer,
-                                     @NotNull @Valid OpprettForespørselRequest.SaksnummerDto saksnummer) {
+                                     @NotNull @Valid OpprettForespørselRequest.SaksnummerDto fagsakSaksnummer) {
 }
