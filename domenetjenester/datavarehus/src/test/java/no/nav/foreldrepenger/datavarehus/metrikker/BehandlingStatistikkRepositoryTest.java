@@ -37,12 +37,12 @@ class BehandlingStatistikkRepositoryTest {
         var mapped = BehandlingStatistikkRepository.    mapTilBehandlingStatistikk(test);
         assertThat(mapped)
             .containsExactlyInAnyOrder(
-                new BehandlingStatistikkRepository.BehandlingStatistikk(FagsakYtelseType.FORELDREPENGER, BehandlingType.FØRSTEGANGSSØKNAD, BehandlingStatistikkRepository.Behandlingsårsak.SØKNAD, 30L),
-                new BehandlingStatistikkRepository.BehandlingStatistikk(FagsakYtelseType.FORELDREPENGER, BehandlingType.FØRSTEGANGSSØKNAD, BehandlingStatistikkRepository.Behandlingsårsak.MANUELL, 50L),
-                new BehandlingStatistikkRepository.BehandlingStatistikk(FagsakYtelseType.SVANGERSKAPSPENGER, BehandlingType.FØRSTEGANGSSØKNAD, BehandlingStatistikkRepository.Behandlingsårsak.MANUELL, 10L),
-                new BehandlingStatistikkRepository.BehandlingStatistikk(FagsakYtelseType.SVANGERSKAPSPENGER, BehandlingType.REVURDERING, BehandlingStatistikkRepository.Behandlingsårsak.SØKNAD, 10000000L),
-                new BehandlingStatistikkRepository.BehandlingStatistikk(FagsakYtelseType.ENGANGSTØNAD, BehandlingType.FØRSTEGANGSSØKNAD, BehandlingStatistikkRepository.Behandlingsårsak.MANUELL, 10L),
-                new BehandlingStatistikkRepository.BehandlingStatistikk(FagsakYtelseType.ENGANGSTØNAD, BehandlingType.REVURDERING, BehandlingStatistikkRepository.Behandlingsårsak.ANNET, 20L)
+                new BehandlingStatistikkRepository.BehandlingStatistikk(new BehandlingStatistikkRepository.BehandlingStatistikk.Type(FagsakYtelseType.FORELDREPENGER, BehandlingType.FØRSTEGANGSSØKNAD, BehandlingStatistikkRepository.Behandlingsårsak.SØKNAD), 30L),
+                new BehandlingStatistikkRepository.BehandlingStatistikk(new BehandlingStatistikkRepository.BehandlingStatistikk.Type(FagsakYtelseType.FORELDREPENGER, BehandlingType.FØRSTEGANGSSØKNAD, BehandlingStatistikkRepository.Behandlingsårsak.MANUELL), 50L),
+                new BehandlingStatistikkRepository.BehandlingStatistikk(new BehandlingStatistikkRepository.BehandlingStatistikk.Type(FagsakYtelseType.SVANGERSKAPSPENGER, BehandlingType.FØRSTEGANGSSØKNAD, BehandlingStatistikkRepository.Behandlingsårsak.MANUELL), 10L),
+                new BehandlingStatistikkRepository.BehandlingStatistikk(new BehandlingStatistikkRepository.BehandlingStatistikk.Type(FagsakYtelseType.SVANGERSKAPSPENGER, BehandlingType.REVURDERING, BehandlingStatistikkRepository.Behandlingsårsak.SØKNAD), 10000000L),
+                new BehandlingStatistikkRepository.BehandlingStatistikk(new BehandlingStatistikkRepository.BehandlingStatistikk.Type(FagsakYtelseType.ENGANGSTØNAD, BehandlingType.FØRSTEGANGSSØKNAD, BehandlingStatistikkRepository.Behandlingsårsak.MANUELL), 10L),
+                new BehandlingStatistikkRepository.BehandlingStatistikk(new BehandlingStatistikkRepository.BehandlingStatistikk.Type(FagsakYtelseType.ENGANGSTØNAD, BehandlingType.REVURDERING, BehandlingStatistikkRepository.Behandlingsårsak.ANNET), 20L)
             );
 
     }
