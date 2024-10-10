@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.fpinntektsmelding;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -9,6 +10,8 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -82,4 +85,41 @@ class FpInntektsmeldingTjenesteTest {
             foventedeRefusjonsendringer, Collections.emptyList(), "Truls Test");
         verify(klient, times(1)).overstyrInntektsmelding(forventetRequest);
     }
+
+    @Test
+    void skal_opprette_opppgave_og_historikkinnslag() {
+        // Arrange
+        var stp = LocalDate.of(2024,9,1);
+        var virksomhet = Arbeidsgiver.virksomhet("999999999");
+
+        var behandlingRef = new BehandlingReferanse(new Saksnummer("1234"), 1234L, FagsakYtelseType.FORELDREPENGER, 4321L, UUID.randomUUID(),
+            BehandlingStatus.UTREDES, BehandlingType.FØRSTEGANGSSØKNAD, 5432L, new AktørId("9999999999999"), RelasjonsRolleType.MORA);
+        var stpp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build();
+        when(klient.opprettForespørsel(any())).thenReturn(new OpprettForespørselResponse(OpprettForespørselResponse.ForespørselResultat.FORESPØRSEL_OPPRETTET));
+        when(arbeidsgiverTjeneste.hentVirksomhet(virksomhet.getIdentifikator())).thenReturn(Virksomhet.getBuilder().medOrgnr(virksomhet.getIdentifikator()).medNavn("Testbedrift").build());
+        // Act
+        fpInntektsmeldingTjeneste.lagForespørsel(virksomhet.getIdentifikator(), behandlingRef, stpp);
+
+        // Assert
+        verify(historikkRepository, times(1)).lagre(any());
+    }
+
+    @Test
+    void skal_ikke_opprettet_historikk_når_ny_oppgave_ikke_ble_opprettet() {
+        // Arrange
+        var stp = LocalDate.of(2024,9,1);
+        var virksomhet = Arbeidsgiver.virksomhet("999999999");
+
+        var behandlingRef = new BehandlingReferanse(new Saksnummer("1234"), 1234L, FagsakYtelseType.FORELDREPENGER, 4321L, UUID.randomUUID(),
+            BehandlingStatus.UTREDES, BehandlingType.FØRSTEGANGSSØKNAD, 5432L, new AktørId("9999999999999"), RelasjonsRolleType.MORA);
+        var stpp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build();
+        when(klient.opprettForespørsel(any())).thenReturn(new OpprettForespørselResponse(OpprettForespørselResponse.ForespørselResultat.IKKE_OPPRETTET_FINNES_ALLEREDE_ÅPEN));
+
+        // Act
+        fpInntektsmeldingTjeneste.lagForespørsel(virksomhet.getIdentifikator(), behandlingRef, stpp);
+
+        // Assert
+        verify(historikkRepository, times(0)).lagre(any());
+    }
+
 }
