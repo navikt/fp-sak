@@ -22,14 +22,17 @@ public class StatistikkMetrikkTask implements ProsessTaskHandler {
     public StatistikkMetrikkTask(BehandlingStatistikkRepository statistikkRepository, BehandlingMetrikker behandlingMetrikker) {
         this.statistikkRepository = statistikkRepository;
         this.behandlingMetrikker = behandlingMetrikker;
+        hentBehandlingStatistikkOgOppdaterMetrikker();
     }
 
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        var behandlingerPerTypeYtelseÅrsak = statistikkRepository.hentAntallBehandlinger();
-        for (var behandling: behandlingerPerTypeYtelseÅrsak) {
-            behandlingMetrikker.setAntall(behandling.type(), behandling.antall());
-        }
+        hentBehandlingStatistikkOgOppdaterMetrikker();
+    }
+
+    private void hentBehandlingStatistikkOgOppdaterMetrikker() {
+        statistikkRepository.hentAntallBehandlinger()
+            .forEach(behandlingStatistikk -> behandlingMetrikker.setAntall(behandlingStatistikk.type(), behandlingStatistikk.antall()));
     }
 }

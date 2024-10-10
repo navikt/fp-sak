@@ -11,8 +11,6 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
 import org.hibernate.jpa.HibernateHints;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -20,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
 @ApplicationScoped
 public class BehandlingStatistikkRepository {
-    private static final Logger LOG = LoggerFactory.getLogger(BehandlingStatistikkRepository.class);
     private EntityManager entityManager;
 
     BehandlingStatistikkRepository() {
@@ -41,10 +38,7 @@ public class BehandlingStatistikkRepository {
             """, BehandlingStatistikkEntitet.class)
             .setHint(HibernateHints.HINT_READ_ONLY, "true");
         var behandlingStatistikkEntitet = query.getResultList();
-        LOG.info("Behandling data fra DB: {}", behandlingStatistikkEntitet);
-        var behandlingStatistikkEtterMapping = mapTilBehandlingStatistikk(behandlingStatistikkEntitet);
-        LOG.info("Behandling data etter mapping: {}", behandlingStatistikkEtterMapping);
-        return behandlingStatistikkEtterMapping;
+        return mapTilBehandlingStatistikk(behandlingStatistikkEntitet);
     }
 
     static List<BehandlingStatistikk> mapTilBehandlingStatistikk(List<BehandlingStatistikkEntitet> behandlingStatistikkEntitet) {
