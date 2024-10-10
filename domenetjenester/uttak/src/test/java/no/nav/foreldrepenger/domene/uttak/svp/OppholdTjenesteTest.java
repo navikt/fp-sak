@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpOppholdKilde;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -202,7 +204,11 @@ class OppholdTjenesteTest {
     }
 
     private SvpAvklartOpphold lagOppholdSaksbehandler(LocalDate fom, LocalDate tom, SvpOppholdÅrsak årsak) {
-        return SvpAvklartOpphold.Builder.nytt().medOppholdPeriode(fom, tom).medOppholdÅrsak( årsak).build();
+        return SvpAvklartOpphold.Builder.nytt()
+            .medOppholdÅrsak(årsak)
+            .medOppholdPeriode(fom, tom)
+            .medKilde(SvpOppholdKilde.REGISTRERT_AV_SAKSBEHANDLER)
+            .build();
     }
 
     private Inntektsmelding lagInntektsmelding(UtsettelsePeriode utsettelsePeriode, UtsettelsePeriode utsettelsePeriode2) {

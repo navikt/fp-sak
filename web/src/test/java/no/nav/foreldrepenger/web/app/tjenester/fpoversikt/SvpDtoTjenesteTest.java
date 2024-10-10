@@ -12,6 +12,8 @@ import java.util.Optional;
 
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpOppholdKilde;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -249,12 +251,14 @@ class SvpDtoTjenesteTest extends EntityManagerAwareTest {
 
         if (skalHaOpphold) {
             tilrBuilder.medAvklarteOpphold(List.of(SvpAvklartOpphold.Builder.nytt()
-                .medOppholdPeriode(LocalDate.now(), LocalDate.now().plusDays(4))
-                .medOppholdÅrsak(SvpOppholdÅrsak.FERIE)
-                .build(), SvpAvklartOpphold.Builder.nytt()
-                .medOppholdPeriode(LocalDate.now().plusDays(10), LocalDate.now().plusDays(15))
-                .medOppholdÅrsak(SvpOppholdÅrsak.SYKEPENGER)
-                .build()));
+                    .medOppholdPeriode(LocalDate.now(), LocalDate.now().plusDays(4))
+                    .medOppholdÅrsak(SvpOppholdÅrsak.FERIE)
+                    .medKilde(SvpOppholdKilde.REGISTRERT_AV_SAKSBEHANDLER)
+                    .build(), SvpAvklartOpphold.Builder.nytt()
+                    .medOppholdPeriode(LocalDate.now().plusDays(10), LocalDate.now().plusDays(15))
+                    .medOppholdÅrsak(SvpOppholdÅrsak.SYKEPENGER)
+                    .medKilde(SvpOppholdKilde.REGISTRERT_AV_SAKSBEHANDLER)
+                    .build()));
         }
         return tilrBuilder.build();
     }
