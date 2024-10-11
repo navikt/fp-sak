@@ -11,7 +11,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval;
@@ -33,6 +32,7 @@ public class PersonopplysningerAggregat {
     private final Map<AktørId, List<StatsborgerskapEntitet>> statsborgerskap;
 
     private final OppgittAnnenPartEntitet oppgittAnnenPart;
+    private final boolean innhentetPersonopplysningerFraRegister;
 
     public PersonopplysningerAggregat(PersonopplysningGrunnlagEntitet grunnlag, AktørId aktørId) {
         this.søkerAktørId = aktørId;
@@ -51,6 +51,7 @@ public class PersonopplysningerAggregat {
             .toList();
         this.aktuellePersonstatus = Stream.concat(registerPersonstatus.stream(), overstyrtPersonstatus.stream())
             .toList();
+        this.innhentetPersonopplysningerFraRegister = grunnlag.getRegisterVersjon().isPresent();
     }
 
     private boolean finnesIkkeIOverstyrt(PersonstatusEntitet status, List<PersonstatusEntitet> overstyrt) {
@@ -131,23 +132,6 @@ public class PersonopplysningerAggregat {
             .map(StatsborgerskapEntitet::getStatsborgerskap)
             .map(s -> MapRegionLandkoder.mapLandkodeForDatoMedSkjæringsdato(s, skjæringstidspunkt, skjæringstidspunkt))
             .min(Region.COMPARATOR).orElse(Region.TREDJELANDS_BORGER);
-    }
-
-    public boolean harStatsborgerskap(AktørId aktørId, Landkoder land, AbstractLocalDateInterval forPeriode) {
-        return getStatsborgerskapFor(aktørId, forPeriode).stream()
-            .anyMatch(sb -> land.equals(sb.getStatsborgerskap()));
-    }
-
-    public boolean harStatsborgerskapRegionVedSkjæringstidspunkt(AktørId aktørId, Region region, LocalDate skjæringstidspunkt) {
-        return statsborgerskap.getOrDefault(aktørId, List.of()).stream()
-            .filter(s -> s.getPeriode().inkluderer(skjæringstidspunkt))
-            .anyMatch(sb -> region.equals(MapRegionLandkoder.mapLandkodeForDatoMedSkjæringsdato(sb.getStatsborgerskap(), skjæringstidspunkt, skjæringstidspunkt)));
-    }
-
-    public boolean harStatsborgerskapRegionVedTidspunkt(AktørId aktørId, Region region, LocalDate vurderingsdato, LocalDate skjæringstidspunkt) {
-        return statsborgerskap.getOrDefault(aktørId, List.of()).stream()
-            .filter(s -> s.getPeriode().inkluderer(vurderingsdato))
-            .anyMatch(sb -> region.equals(MapRegionLandkoder.mapLandkodeForDatoMedSkjæringsdato(sb.getStatsborgerskap(), vurderingsdato, skjæringstidspunkt)));
     }
 
     public Optional<OppholdstillatelseEntitet> getSisteOppholdstillatelseFor(AktørId aktørId, AbstractLocalDateInterval forPeriode) {
@@ -253,6 +237,10 @@ public class PersonopplysningerAggregat {
             }
         }
         return false;
+    }
+
+    public boolean harInnhentetPersonopplysningerFraRegister() {
+        return innhentetPersonopplysningerFraRegister;
     }
 
     @Override

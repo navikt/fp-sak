@@ -1,8 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -142,7 +139,7 @@ public class PersonRestTjeneste {
     @Operation(description = "Hent informasjon relatert til medlemskap for søker i behandling", tags = "behandling - person", responses = {@ApiResponse(responseCode = "200", description = "Returnerer Medlemskap, null hvis ikke finnes (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = MedlemskapDto.class)))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public MedlemskapDto hentMedlemskapV3(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        return medlemDtoTjeneste.lagMedlemskap(uuidDto.getBehandlingUuid());
+        return medlemDtoTjeneste.lagMedlemskap(uuidDto.getBehandlingUuid()).orElse(null);
     }
 
 }
