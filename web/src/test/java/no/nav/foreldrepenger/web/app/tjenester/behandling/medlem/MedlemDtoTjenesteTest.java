@@ -91,7 +91,7 @@ class MedlemDtoTjenesteTest {
             .leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET, BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR)
             .lagre(repositoryProvider);
 
-        var dto = medlemDtoTjeneste.lagMedlemskap(behandling.getUuid());
+        var dto = medlemDtoTjeneste.lagMedlemskap(behandling.getUuid()).orElseThrow();
 
         assertThat(dto.avvik()).containsExactlyInAnyOrder(MedlemskapAvvik.MEDL_PERIODER,
             MedlemskapAvvik.BOSATT_UTENLANDSOPPHOLD);
