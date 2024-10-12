@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.registerinnhenting;
 
-import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -19,10 +18,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.FamilierelasjonVL;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -34,14 +30,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.Endringskontroller;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.event.FamiliehendelseEventPubliserer;
 
@@ -49,12 +44,8 @@ import no.nav.foreldrepenger.familiehendelse.event.FamiliehendelseEventPublisere
 class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
 
     private static final AktørId SØKER_AKTØR_ID = AktørId.dummy();
-    private static final PersonstatusType PERSONSTATUS = PersonstatusType.BOSA;
-    private static final Landkoder LANDKODE = Landkoder.NOR;
+    private static final AktørId BARN_AKTØR_ID = AktørId.dummy();
     private static final NavBrukerKjønn KJØNN = NavBrukerKjønn.KVINNE;
-    private static final String FNR_FORELDER = "01234567890";
-    private static final String FNR_BARN = "12345678910";
-    private static final LocalDate FORELDER_FØDSELSDATO = LocalDate.now().minusYears(30);
 
     @Mock
     private Endringskontroller endringskontroller;
@@ -113,10 +104,9 @@ class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
     @Test
     void skal_skru_behandlingen_tilbake_når_det_er_diff_i_personinformasjon() {
         // Arrange
-        var søker = opprettSøkerinfo();
+        opprettSøkerinfo(scenarioFødsel);
 
-        scenarioFødsel.medSøker(søker)
-            .medOpplysningerOppdatertTidspunkt(LocalDateTime.now().minusDays(1))
+        scenarioFødsel.medOpplysningerOppdatertTidspunkt(LocalDateTime.now().minusDays(1))
             .medBehandlingStegStart(BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR);
         scenarioFødsel.medSøknadHendelse().medFødselsDato(LocalDate.now().minusDays(2));
         var behandling = scenarioFødsel.lagre(repositoryProvider);
@@ -137,10 +127,9 @@ class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
     @Test
     void skal_ikke_oppdatere_registeropplysninger_hvis_det_er_berørt_behandling() {
         // Arrange
-        var søker = opprettSøkerinfo();
+        opprettSøkerinfo(scenarioFødsel);
 
-        scenarioFødsel.medSøker(søker)
-            .medOpplysningerOppdatertTidspunkt(LocalDateTime.now().minusDays(1))
+        scenarioFødsel.medOpplysningerOppdatertTidspunkt(LocalDateTime.now().minusDays(1))
             .medBehandlingStegStart(BehandlingStegType.INNGANG_UTTAK);
         scenarioFødsel.medSøknadHendelse().medFødselsDato(LocalDate.now().minusDays(2));
         var behandling = scenarioFødsel.lagre(repositoryProvider);
@@ -156,11 +145,9 @@ class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
     @Test
     void skal_starte_behandlingen_på_nytt_25_dager_etter_termin_og_ingen_fødselsdato() {
         // Arrange
-        var søker = opprettSøkerinfo();
+        opprettSøkerinfo(scenarioFødsel);
 
-        scenarioFødsel
-            .medOpplysningerOppdatertTidspunkt(LocalDateTime.now().minusDays(1))
-            .medSøker(søker)
+        scenarioFødsel.medOpplysningerOppdatertTidspunkt(LocalDateTime.now().minusDays(1))
             .medBehandlingStegStart(BehandlingStegType.KONTROLLER_FAKTA);
         scenarioFødsel.medSøknadHendelse().medTerminbekreftelse(scenarioFødsel.medSøknadHendelse().getTerminbekreftelseBuilder()
             .medTermindato(LocalDate.now().minusDays(30))
@@ -182,12 +169,12 @@ class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
         // Arrange
         var fDato = LocalDate.now().minusWeeks(3);
 
-        var søker = opprettSøkerinfo();
         when(endringskontroller.erRegisterinnhentingPassert(any())).thenReturn(true);
 
         var scenarioFP = ScenarioMorSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(List.of(fDato)).medBehandlingType(BehandlingType.REVURDERING)
             .medSøknadDato(fDato).medOpplysningerOppdatertTidspunkt(LocalDateTime.now().minusDays(1))
-            .medSøker(søker).medBehandlingStegStart(BehandlingStegType.VURDER_OPPTJENINGSVILKÅR);
+            .medBehandlingStegStart(BehandlingStegType.VURDER_OPPTJENINGSVILKÅR);
+        opprettSøkerinfo(scenarioFP);
         var behandling = scenarioFP.lagre(repositoryProvider);
         behandling.setStartpunkt(StartpunktType.OPPTJENING);
 
@@ -203,11 +190,10 @@ class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
     void skal_ikke_starte_behandlingen_på_nytt_for_adopsjonssak_der_ingenting_er_endret() {
         // Arrange
         var opplysningerOppdatertTidspunkt = LocalDateTime.now().minusDays(1);
-        var søker = opprettSøkerinfo();
+        opprettSøkerinfo(scenarioAdopsjon);
 
         scenarioAdopsjon
             .medOpplysningerOppdatertTidspunkt(opplysningerOppdatertTidspunkt)
-            .medSøker(søker)
             .medBehandlingStegStart(BehandlingStegType.KONTROLLER_FAKTA);
         scenarioAdopsjon.medSøknadHendelse().leggTilBarn(LocalDate.now())
             .medAdopsjon(scenarioAdopsjon.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()));
@@ -237,20 +223,14 @@ class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
             behandlingÅrsakTjeneste);
     }
 
-    private Personinfo opprettSøkerinfo() {
-        var familierelasjon = new FamilierelasjonVL(new PersonIdent(FNR_BARN), RelasjonsRolleType.BARN
-        );
-
-        return new Personinfo.Builder()
-            .medAktørId(SØKER_AKTØR_ID)
-            .medPersonIdent(new PersonIdent(FNR_FORELDER))
-            .medNavn("Navn Navnesen")
-            .medFødselsdato(FORELDER_FØDSELSDATO)
-            .medNavBrukerKjønn(KJØNN)
-            .medLandkoder(List.of(LANDKODE))
-            .medPersonstatusType(PERSONSTATUS)
-            .medSivilstandType(SivilstandType.UGIFT)
-            .medFamilierelasjon(singleton(familierelasjon))
+    private void opprettSøkerinfo(AbstractTestScenario<?> scenario) {
+        var personinfo = scenario.opprettBuilderForRegisteropplysninger()
+            .medPersonas()
+            .voksenPerson(SØKER_AKTØR_ID, SivilstandType.UGIFT, KJØNN)
+            .relasjonTil(BARN_AKTØR_ID, RelasjonsRolleType.BARN, true)
             .build();
+        scenario.medRegisterOpplysninger(personinfo);
+
     }
+
 }

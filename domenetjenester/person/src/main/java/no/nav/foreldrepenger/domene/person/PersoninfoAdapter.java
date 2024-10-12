@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.person;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -67,11 +68,11 @@ public class PersoninfoAdapter {
     }
 
     public Optional<Personinfo> innhentPersonopplysningerFor(FagsakYtelseType ytelseType, AktørId aktørId) {
-        return aktørConsumer.hentPersonIdentForAktørId(aktørId).map(i -> hentKjerneinformasjon(ytelseType, aktørId, i));
+        return aktørConsumer.hentPersonIdentForAktørId(aktørId).map(i -> hentKjerneinformasjon(ytelseType, aktørId, i, false));
     }
 
-    public Optional<Personinfo> innhentPersonopplysningerFor(FagsakYtelseType ytelseType, PersonIdent personIdent) {
-        return aktørConsumer.hentAktørIdForPersonIdent(personIdent).map(a -> hentKjerneinformasjon(ytelseType, a, personIdent));
+    public Optional<Personinfo> innhentPersonopplysningerFor(FagsakYtelseType ytelseType, PersonIdent personIdent, boolean erBarn) {
+        return aktørConsumer.hentAktørIdForPersonIdent(personIdent).map(a -> hentKjerneinformasjon(ytelseType, a, personIdent, erBarn));
     }
 
     public boolean sjekkOmBrukerManglerAdresse(FagsakYtelseType ytelseType, AktørId aktørId) {
@@ -82,12 +83,13 @@ public class PersoninfoAdapter {
         return manglerAdresse;
     }
 
-    private Personinfo hentKjerneinformasjon(FagsakYtelseType ytelseType, AktørId aktørId, PersonIdent personIdent) {
-        return personinfoTjeneste.hentPersoninfo(ytelseType, aktørId, personIdent);
+    private Personinfo hentKjerneinformasjon(FagsakYtelseType ytelseType, AktørId aktørId, PersonIdent personIdent, boolean erBarn) {
+        return personinfoTjeneste.hentPersoninfo(ytelseType, aktørId, personIdent, erBarn);
     }
 
-    public Personhistorikkinfo innhentPersonopplysningerHistorikk(FagsakYtelseType ytelseType, AktørId aktørId, SimpleLocalDateInterval interval) {
-        return personinfoTjeneste.hentPersoninfoHistorikk(ytelseType, aktørId, interval.getFomDato(), interval.getTomDato());
+    public Personhistorikkinfo innhentPersonopplysningerHistorikk(FagsakYtelseType ytelseType, AktørId aktørId,
+                                                                  SimpleLocalDateInterval interval, LocalDate fødselsdato) {
+        return personinfoTjeneste.hentPersoninfoHistorikk(ytelseType, aktørId, fødselsdato, interval);
     }
 
     public List<AktørId> finnAktørIdForForeldreTil(FagsakYtelseType ytelseType, PersonIdent personIdent) {

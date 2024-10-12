@@ -5,13 +5,13 @@ import java.util.Optional;
 
 public class Adresseinfo {
 
-    private AdresseType gjeldendePostadresseType;
+    private AdresseType adresseType;
     private String matrikkelId;
     private String adresselinje1;
     private String adresselinje2;
     private String adresselinje3;
     private String adresselinje4;
-    private String postNr;
+    private String postnummer;
     private String poststed;
     private String land;
 
@@ -38,8 +38,8 @@ public class Adresseinfo {
         return adresselinje4;
     }
 
-    public String getPostNr() {
-        return postNr;
+    public String getPostnummer() {
+        return postnummer;
     }
 
     public String getPoststed() {
@@ -50,8 +50,8 @@ public class Adresseinfo {
         return land;
     }
 
-    public AdresseType getGjeldendePostadresseType() {
-        return gjeldendePostadresseType;
+    public AdresseType getAdresseType() {
+        return adresseType;
     }
 
     @Override
@@ -63,15 +63,15 @@ public class Adresseinfo {
             return false;
         }
         var that = (Adresseinfo) o;
-        return gjeldendePostadresseType == that.gjeldendePostadresseType && Objects.equals(matrikkelId, that.matrikkelId) && Objects.equals(
+        return adresseType == that.adresseType && Objects.equals(matrikkelId, that.matrikkelId) && Objects.equals(
             adresselinje1, that.adresselinje1) && Objects.equals(adresselinje2, that.adresselinje2) && Objects.equals(adresselinje3,
-            that.adresselinje3) && Objects.equals(adresselinje4, that.adresselinje4) && Objects.equals(postNr, that.postNr) && Objects.equals(
+            that.adresselinje3) && Objects.equals(adresselinje4, that.adresselinje4) && Objects.equals(postnummer, that.postnummer) && Objects.equals(
             poststed, that.poststed) && Objects.equals(land, that.land);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(gjeldendePostadresseType, matrikkelId, adresselinje1, adresselinje2, adresselinje3, adresselinje4, postNr, poststed,
+        return Objects.hash(adresseType, matrikkelId, adresselinje1, adresselinje2, adresselinje3, adresselinje4, postnummer, poststed,
             land);
     }
 
@@ -85,7 +85,7 @@ public class Adresseinfo {
         if (a1.matrikkelId != null || a2.matrikkelId != null) {
             return Objects.equals(a1.matrikkelId, a2.matrikkelId);
         }
-        return likeAdresselinjer(a1, a2) && Objects.equals(a1.postNr, a2.postNr) && Objects.equals(a1.land, a2.land);
+        return likeAdresselinjer(a1, a2) && Objects.equals(a1.postnummer, a2.postnummer) && Objects.equals(a1.land, a2.land);
     }
 
     private static boolean likeAdresselinjer(Adresseinfo a1, Adresseinfo a2) {
@@ -104,11 +104,11 @@ public class Adresseinfo {
     }
 
     public static class Builder {
-        private Adresseinfo kladd;
+        private final Adresseinfo kladd;
 
         public Builder(AdresseType gjeldende) {
             this.kladd = new Adresseinfo();
-            this.kladd.gjeldendePostadresseType = gjeldende;
+            this.kladd.adresseType = gjeldende;
         }
 
         public Builder medMatrikkelId(String matrikkelId) {
@@ -136,8 +136,8 @@ public class Adresseinfo {
             return this;
         }
 
-        public Builder medPostNr(String postNr) {
-            this.kladd.postNr = postNr;
+        public Builder medPostnummer(String postnummer) {
+            this.kladd.postnummer = postnummer;
             return this;
         }
 
@@ -157,7 +157,7 @@ public class Adresseinfo {
         }
 
         private void verifyStateForBuild() {
-            Objects.requireNonNull(kladd.gjeldendePostadresseType, "gjeldendePostadresseType");
+            Objects.requireNonNull(kladd.adresseType, "adresseType");
         }
     }
 }
