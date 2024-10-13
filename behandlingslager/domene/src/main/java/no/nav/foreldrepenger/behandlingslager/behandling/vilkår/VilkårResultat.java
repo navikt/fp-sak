@@ -201,7 +201,6 @@ public class VilkårResultat extends BaseEntitet {
     public static class Builder {
 
         private static final Logger LOG = LoggerFactory.getLogger(VilkårResultat.Builder.class);
-        private static final boolean IS_PROD = Environment.current().isProd();
         private static final String MISSING_VILKÅR_ARGS = "Mangler vilkårtype, utfall eller årsak";
 
         private final Map<VilkårType, Vilkår> vilkårene = new EnumMap<>(VilkårType.class);
@@ -324,14 +323,14 @@ public class VilkårResultat extends BaseEntitet {
                 .medVilkårType(vilkår.getVilkårType())
                 .medUtfallOverstyrt(vilkår.getVilkårUtfallOverstyrt(), vilkår.getAvslagsårsak())
                 .medUtfallManuell(skalKopiereManuellVurdering ? vilkår.getVilkårUtfallManuelt() : VilkårUtfallType.UDEFINERT,
-                    skalKopiereManuellVurdering ? vilkår.getAvslagsårsak() : Avslagsårsak.UDEFINERT)
-                .medRegelEvaluering(vilkår.getRegelEvaluering())
-                .medRegelInput(vilkår.getRegelInput())
-                .medRegelVersjon(vilkår.getRegelVersjon());
+                    skalKopiereManuellVurdering ? vilkår.getAvslagsårsak() : Avslagsårsak.UDEFINERT);
             if (settTilIkkeVurdert) {
                 builder.medVilkårUtfall(VilkårUtfallType.IKKE_VURDERT, VilkårUtfallMerknad.UDEFINERT);
             } else {
-                builder.medVilkårUtfall(vilkår.getVilkårUtfall(), vilkår.getVilkårUtfallMerknad());
+                builder.medVilkårUtfall(vilkår.getVilkårUtfall(), vilkår.getVilkårUtfallMerknad())
+                    .medRegelEvaluering(vilkår.getRegelEvaluering())
+                    .medRegelInput(vilkår.getRegelInput())
+                    .medRegelVersjon(vilkår.getRegelVersjon());
             }
             vilkårene.put(vilkår.getVilkårType(), builder.build());
             modifisert = true;

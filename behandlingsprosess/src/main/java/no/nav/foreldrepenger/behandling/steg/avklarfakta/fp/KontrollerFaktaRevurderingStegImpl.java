@@ -51,6 +51,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
@@ -445,6 +446,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
             .filter(v -> v.getVilkårType().erInngangsvilkår())
             .collect(Collectors.toSet());
         kopierVilkårFørStartpunkt(vilkårBuilder, vilkårFørStartpunkt);
+        vilkårBuilder.fjernVilkår(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE);
         vilkårBuilder.buildFor(revurdering);
 
         var revurderingBehandlingsresultat = Optional.ofNullable(getBehandlingsresultat(revurdering.getId())).orElseThrow();
