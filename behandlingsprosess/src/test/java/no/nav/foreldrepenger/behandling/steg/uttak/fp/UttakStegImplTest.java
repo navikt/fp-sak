@@ -41,7 +41,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
@@ -431,7 +430,7 @@ class UttakStegImplTest {
         revurdering.setBehandlingresultat(behandlingsresultat);
         lagre(revurdering);
 
-        var vilkårResultat = VilkårResultat.builder().medVilkårResultatType(VilkårResultatType.INNVILGET).buildFor(revurdering);
+        var vilkårResultat = VilkårResultat.builder().buildFor(revurdering);
         behandlingRepository.lagre(vilkårResultat, lås(revurdering));
 
         opprettUttaksperiodegrense(LocalDate.now(), revurdering);
@@ -582,7 +581,7 @@ class UttakStegImplTest {
                 .buildFor(behandling);
         behandlingRepository.lagre(behandling, lås);
 
-        var vilkårResultat = VilkårResultat.builder().medVilkårResultatType(VilkårResultatType.INNVILGET).buildFor(behandling);
+        var vilkårResultat = VilkårResultat.builder().buildFor(behandling);
         behandlingRepository.lagre(vilkårResultat, lås);
 
         var søknadHendelse = familieHendelseRepository.opprettBuilderFor(behandling.getId()).medAntallBarn(1).medFødselsDato(fødselsdato);

@@ -35,7 +35,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
@@ -247,11 +246,9 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
         if (vilkårUtfallType.equals(VilkårUtfallType.OPPFYLT)) {
             vilkårsresultatBuilder.leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET);
             vilkårsresultatBuilder.leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET);
-            vilkårsresultatBuilder.medVilkårResultatType(VilkårResultatType.INNVILGET);
         } else {
             vilkårsresultatBuilder.manueltVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT,
                     Avslagsårsak.IKKE_TILSTREKKELIG_OPPTJENING);
-            vilkårsresultatBuilder.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
         }
         behandlingRepository.lagre(vilkårsresultatBuilder.buildFor(behandling), lås);
         behandlingRepository.lagre(behandling, lås);
@@ -270,7 +267,7 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         behandlingVedtakRepository.lagre(behandlingVedtak, behandlingRepository.taSkriveLås(behandling));
 
-        VilkårResultat.builder().medVilkårResultatType(VilkårResultatType.AVSLÅTT).buildFor(behandling);
+        VilkårResultat.builder().buildFor(behandling);
         behandlingRepository.lagre(getBehandlingsresultat(behandling).getVilkårResultat(), behandlingRepository.taSkriveLås(behandling));
     }
 

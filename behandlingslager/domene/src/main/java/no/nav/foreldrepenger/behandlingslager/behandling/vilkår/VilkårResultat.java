@@ -50,6 +50,7 @@ public class VilkårResultat extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
+    // TODO unmap og set unused
     @Convert(converter = VilkårResultatType.KodeverdiConverter.class)
     @Column(name="vilkar_resultat", nullable = false)
     private VilkårResultatType vilkårResultatType = VilkårResultatType.IKKE_FASTSATT;
@@ -64,27 +65,19 @@ public class VilkårResultat extends BaseEntitet {
     )
     private Behandling originalBehandling;
 
+    // TODO unmap og set unused
     /**
      * Hvorvidt hele vilkårresultatet er overstyrt av Saksbehandler. (fra SF3).
      */
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "overstyrt", nullable = false)
     private boolean erOverstyrt = false;
-
     VilkårResultat() {
         // for hibernate
     }
 
     public Long getId() {
         return id;
-    }
-
-    public VilkårResultatType getVilkårResultatType() {
-        return Objects.equals(VilkårResultatType.UDEFINERT, vilkårResultatType) ? null : vilkårResultatType;
-    }
-
-    void setVilkårResultatType(VilkårResultatType vilkårResultatType) {
-        this.vilkårResultatType = vilkårResultatType == null ? VilkårResultatType.UDEFINERT : vilkårResultatType;
     }
 
     /**
@@ -105,10 +98,6 @@ public class VilkårResultat extends BaseEntitet {
         return vilkårne.stream()
             .map(Vilkår::getVilkårType)
             .collect(toSet());
-    }
-
-    public boolean erOverstyrt() {
-        return erOverstyrt;
     }
 
     void setVilkårene(Set<Vilkår> nyeVilkår) {
@@ -146,7 +135,6 @@ public class VilkårResultat extends BaseEntitet {
         return getClass().getSimpleName() + "{" +
             "id=" + id +
             ", versjon=" + versjon +
-            ", vilkårResultatType=" + getVilkårResultatType() +
             ", vilkårne=" + vilkårne +
             ", originalBehandling=" + originalBehandling +
             ", vilkår={" + vilkårne.stream().map(Vilkår::toString).collect(joining("},{")) + "}" +
@@ -161,13 +149,18 @@ public class VilkårResultat extends BaseEntitet {
         if (!(obj instanceof VilkårResultat other)) {
             return false;
         }
-        return Objects.equals(getVilkårResultatType(), other.getVilkårResultatType()) &&
-            Objects.equals(vilkårne, other.vilkårne);
+        if (vilkårne == null && other.vilkårne == null) {
+            return true;
+        }
+        if (vilkårne == null || other.vilkårne == null) {
+            return false;
+        }
+        return vilkårne.size() == other.vilkårne.size() && vilkårne.containsAll(other.vilkårne);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getVilkårResultatType(), getVilkårene());
+        return Objects.hash(getVilkårene());
     }
 
     public static Builder builder() {
@@ -215,7 +208,6 @@ public class VilkårResultat extends BaseEntitet {
 
         private final VilkårResultat resultatKladd = new VilkårResultat();
         private VilkårResultat eksisterendeResultat;
-        private VilkårResultatType vilkårResultatType;
         private boolean modifisert;
         private boolean built;
 
@@ -326,14 +318,6 @@ public class VilkårResultat extends BaseEntitet {
             return this;
         }
 
-        public Builder medVilkårResultatType(VilkårResultatType vilkårResultatType) {
-            validerKanModifisere();
-            Objects.requireNonNull(vilkårResultatType, "vilkårResultatType");
-            this.vilkårResultatType = vilkårResultatType;
-            modifisert = true;
-            return this;
-        }
-
         public Builder kopierVilkårFraAnnenBehandling(Vilkår vilkår, boolean settTilIkkeVurdert, boolean nullstillManuellVurdering) {
             var skalKopiereManuellVurdering = !nullstillManuellVurdering && !vilkår.erOverstyrt() && vilkår.erManueltVurdert();
             var builder = VilkårBuilder.ny()
@@ -399,18 +383,6 @@ public class VilkårResultat extends BaseEntitet {
             var vilkårSet = new HashSet<>(vilkårene.values());
 
             resultat.setVilkårene(vilkårSet);
-
-            if (vilkårSet.stream().anyMatch(Vilkår::erOverstyrt)) {
-                resultat.erOverstyrt = true;
-            }
-            if (vilkårResultatType != null) {
-                resultat.setVilkårResultatType(vilkårResultatType);
-                var utledetVilkårResultat = VilkårResultatType.utledInngangsvilkårUtfall(resultat.hentAlleGjeldendeVilkårsutfall(), false);
-                if (IS_PROD && !resultat.getVilkårResultatType().equals(utledetVilkårResultat)) {
-                    // TODO: Vurder exception i prod
-                    LOG.info("Vilkårbuilder: Mismatch mellom satt {} og utledet vilkårsresultattype {}", resultat.getVilkårResultatType(), utledetVilkårResultat);
-                }
-            }
         }
 
     }

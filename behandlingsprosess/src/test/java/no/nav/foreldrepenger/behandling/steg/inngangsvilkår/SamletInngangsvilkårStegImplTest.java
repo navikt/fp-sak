@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifi
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -53,7 +53,6 @@ class SamletInngangsvilkårStegImplTest {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.REVURDERING)
-                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.IKKE_OPPFYLT)
                 .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.IKKE_VURDERT)
                 .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.IKKE_VURDERT)
@@ -77,7 +76,7 @@ class SamletInngangsvilkårStegImplTest {
         assertThat(stegResultat.getTransisjon()).isEqualTo(TransisjonIdentifikator.forId(FREMHOPP_TIL_UTTAKSPLAN.getId()));
 
         var vilkårResultat = behandling.getBehandlingsresultat().getVilkårResultat();
-        assertThat(vilkårResultat.getVilkårResultatType()).isEqualTo(VilkårResultatType.AVSLÅTT);
+        assertThat(vilkårResultat.getVilkårene().stream().map(Vilkår::getGjeldendeVilkårUtfall).anyMatch(VilkårUtfallType.IKKE_OPPFYLT::equals)).isTrue();
     }
 
     @Test
@@ -85,7 +84,6 @@ class SamletInngangsvilkårStegImplTest {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.REVURDERING)
-                .medVilkårResultatType(VilkårResultatType.INNVILGET)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)

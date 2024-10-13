@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsa
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.domene.vedtak.innsyn.InnsynTjeneste;
 import no.nav.foreldrepenger.validering.FeltFeilDto;
 import no.nav.foreldrepenger.validering.Valideringsfeil;
@@ -46,8 +45,6 @@ public class VurderInnsynOppdaterer implements AksjonspunktOppdaterer<VurderInns
 
     @Override
     public OppdateringResultat oppdater(VurderInnsynDto dto, AksjonspunktOppdaterParameter param) {
-        var resultatBuilder = new OppdateringResultat.Builder();
-        resultatBuilder.medVilkårResultatType(VilkårResultatType.UDEFINERT); // Kvifor settes denne her?
         var behandling = behandlingRepository.hentBehandling(param.getBehandlingId());
         var builder = InnsynEntitet.InnsynBuilder.builder();
         builder

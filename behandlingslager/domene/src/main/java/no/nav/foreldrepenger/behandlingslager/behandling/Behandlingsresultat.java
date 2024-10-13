@@ -23,8 +23,9 @@ import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Entity(name = "Behandlingsresultat")
@@ -347,6 +348,13 @@ public class Behandlingsresultat extends BaseEntitet {
     }
 
     public boolean isVilkårAvslått() {
-        return VilkårResultatType.AVSLÅTT.equals(vilkårResultat.getVilkårResultatType());
+        return vilkårResultat.getVilkårene().stream().map(Vilkår::getGjeldendeVilkårUtfall).anyMatch(VilkårUtfallType.IKKE_OPPFYLT::equals);
+    }
+
+    public boolean isInngangsVilkårAvslått() {
+        return vilkårResultat.getVilkårene().stream()
+            .filter(v -> v.getVilkårType().erInngangsvilkår())
+            .map(Vilkår::getGjeldendeVilkårUtfall)
+            .anyMatch(VilkårUtfallType.IKKE_OPPFYLT::equals);
     }
 }

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.inngangsvilkår;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType.IKKE_FASTSATT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.ADOPSJONSVILKARET_FORELDREPENGER;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD;
@@ -74,7 +73,6 @@ class RyddVilkårTyper {
     }
 
     void ryddVedTilbakeføring(List<VilkårType> vilkårTyper, boolean nullstillManueltAvklartVilkår) {
-        nullstillInngangsvilkår();
         nullstillVilkår(vilkårTyper, nullstillManueltAvklartVilkår);
         nullstillVedtaksresultat();
     }
@@ -102,15 +100,6 @@ class RyddVilkårTyper {
                 ryddVilkårConsumer.accept(this);
             }
         });
-    }
-
-    private void nullstillInngangsvilkår() {
-        getBehandlingsresultat(behandling)
-            .map(Behandlingsresultat::getVilkårResultat)
-            .filter(inng -> !inng.erOverstyrt() && !IKKE_FASTSATT.equals(inng.getVilkårResultatType()))
-            .ifPresent(iv -> VilkårResultat.builderFraEksisterende(iv)
-                .medVilkårResultatType(IKKE_FASTSATT)
-                .buildFor(behandling));
     }
 
     private void nullstillVilkår(List<VilkårType> vilkårTyper, boolean nullstillManueltAvklartVilkår) {

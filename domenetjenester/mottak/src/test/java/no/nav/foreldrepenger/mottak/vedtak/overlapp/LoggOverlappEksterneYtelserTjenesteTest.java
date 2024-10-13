@@ -44,7 +44,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusTjeneste;
@@ -111,7 +110,6 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         scenarioAvsluttetBehMor.medSøknadHendelse().medFødselsDato(førsteUttaksdatoFp);
         scenarioAvsluttetBehMor.medBehandlingsresultat(
             Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
-        scenarioAvsluttetBehMor.medVilkårResultatType(VilkårResultatType.INNVILGET);
         scenarioAvsluttetBehMor.medBehandlingVedtak()
             .medVedtakstidspunkt(LocalDateTime.now())
             .medVedtakResultatType(VedtakResultatType.INNVILGET);

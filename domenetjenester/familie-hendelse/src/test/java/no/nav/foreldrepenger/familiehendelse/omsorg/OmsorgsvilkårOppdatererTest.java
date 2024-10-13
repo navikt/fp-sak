@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
@@ -135,7 +134,6 @@ class OmsorgsvilkårOppdatererTest {
 
         // Assert
         assertThat(resultat.kreverTotrinnsKontroll()).isFalse();
-        assertThat(resultat.getVilkårResultatType()).isEqualTo(VilkårResultatType.AVSLÅTT);
         assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR);
         assertThat(resultat.getVilkårUtfallSomSkalLeggesTil()).hasSize(1);
         assertThat(resultat.getVilkårUtfallSomSkalLeggesTil().get(0).getVilkårType()).isEqualTo(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);

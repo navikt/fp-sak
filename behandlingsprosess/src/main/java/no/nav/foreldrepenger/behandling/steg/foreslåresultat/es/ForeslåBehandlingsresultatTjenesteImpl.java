@@ -62,7 +62,7 @@ public class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandli
 
     private BehandlingResultatType utledBehandlingsresultatType(Behandlingsresultat behandlingsresultat) {
         Objects.requireNonNull(behandlingsresultat, "behandlingsresultat");
-        return behandlingsresultat.isVilkårAvslått() ? BehandlingResultatType.AVSLÅTT : BehandlingResultatType.INNVILGET;
+        return behandlingsresultat.isInngangsVilkårAvslått() ? BehandlingResultatType.AVSLÅTT : BehandlingResultatType.INNVILGET;
     }
 
 }

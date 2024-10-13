@@ -37,7 +37,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
@@ -63,7 +62,6 @@ class InngangsvilkårStegImplTest {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.REVURDERING)
-                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .leggTilVilkår(medlVilkårType, VilkårUtfallType.IKKE_OPPFYLT);
         var behandling = scenario.lagMocked();
 
@@ -83,7 +81,6 @@ class InngangsvilkårStegImplTest {
         assertThat(stegResultat.getTransisjon()).isEqualTo(TransisjonIdentifikator.forId(FREMHOPP_TIL_UTTAKSPLAN.getId()));
 
         var vilkårResultat = behandling.getBehandlingsresultat().getVilkårResultat();
-        assertThat(vilkårResultat.getVilkårResultatType()).isEqualTo(VilkårResultatType.AVSLÅTT);
         assertThat(vilkårResultat.getVilkårene().stream().map(Vilkår::getGjeldendeVilkårUtfall).collect(toList()))
                 .containsExactly(VilkårUtfallType.IKKE_OPPFYLT);
     }
@@ -93,7 +90,6 @@ class InngangsvilkårStegImplTest {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .leggTilVilkår(oppVilkårType, VilkårUtfallType.IKKE_OPPFYLT);
         var behandling = scenario.lagMocked();
 
@@ -114,7 +110,6 @@ class InngangsvilkårStegImplTest {
         assertThat(stegResultat.getAksjonspunktListe()).contains(AksjonspunktDefinisjon.VURDER_OPPTJENINGSVILKÅRET);
 
         var vilkårResultat = behandling.getBehandlingsresultat().getVilkårResultat();
-        assertThat(vilkårResultat.getVilkårResultatType()).isEqualTo(VilkårResultatType.AVSLÅTT);
         assertThat(vilkårResultat.getVilkårene().stream().map(Vilkår::getGjeldendeVilkårUtfall).collect(toList()))
                 .containsExactly(VilkårUtfallType.IKKE_OPPFYLT);
     }
@@ -124,7 +119,6 @@ class InngangsvilkårStegImplTest {
         // Arrange
         var førstegangsscenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-                .medVilkårResultatType(VilkårResultatType.INNVILGET)
                 .leggTilVilkår(oppVilkårType, VilkårUtfallType.OPPFYLT)
                 .medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         var førstegangsbehandling = førstegangsscenario.lagMocked();
@@ -132,7 +126,6 @@ class InngangsvilkårStegImplTest {
 
         var revurderingsscenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.REVURDERING)
-                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .leggTilVilkår(oppVilkårType, VilkårUtfallType.IKKE_OPPFYLT)
                 .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
         var revurdering = revurderingsscenario.lagMocked();
@@ -169,7 +162,6 @@ class InngangsvilkårStegImplTest {
         // Arrange
         var førstegangsscenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-                .medVilkårResultatType(VilkårResultatType.INNVILGET)
                 .leggTilVilkår(oppVilkårType, VilkårUtfallType.OPPFYLT)
                 .medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         var førstegangsbehandling = førstegangsscenario.lagMocked();
@@ -177,7 +169,6 @@ class InngangsvilkårStegImplTest {
 
         var revurderingsscenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.REVURDERING)
-                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .leggTilVilkår(medlVilkårType, VilkårUtfallType.IKKE_OPPFYLT)
                 .leggTilVilkår(oppVilkårType, VilkårUtfallType.OPPFYLT)
                 .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
@@ -204,7 +195,6 @@ class InngangsvilkårStegImplTest {
         // Arrange
         var førstegangsscenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .leggTilVilkår(oppVilkårType, VilkårUtfallType.IKKE_OPPFYLT)
                 .medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT));
         var førstegangsbehandling = førstegangsscenario.lagMocked();
@@ -212,7 +202,6 @@ class InngangsvilkårStegImplTest {
 
         var revurderingsscenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.REVURDERING)
-                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .leggTilVilkår(medlVilkårType, VilkårUtfallType.IKKE_OPPFYLT)
                 .leggTilVilkår(oppVilkårType, VilkårUtfallType.OPPFYLT)
                 .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
@@ -241,7 +230,6 @@ class InngangsvilkårStegImplTest {
         // Arrange
         var førstegangsscenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .leggTilVilkår(oppVilkårType, VilkårUtfallType.IKKE_OPPFYLT)
                 .medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT));
         var førstegangsbehandling = førstegangsscenario.lagMocked();
@@ -249,7 +237,6 @@ class InngangsvilkårStegImplTest {
 
         var førsteRevurderingsscenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.REVURDERING)
-                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .leggTilVilkår(oppVilkårType, VilkårUtfallType.IKKE_OPPFYLT)
                 .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_HENDELSE_FØDSEL)
                 .medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INGEN_ENDRING));
@@ -257,7 +244,6 @@ class InngangsvilkårStegImplTest {
 
         var andreRevurderingsscenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.REVURDERING)
-                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .leggTilVilkår(medlVilkårType, VilkårUtfallType.IKKE_OPPFYLT)
                 .leggTilVilkår(oppVilkårType, VilkårUtfallType.OPPFYLT)
                 .medOriginalBehandling(revurdering1, BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
@@ -287,7 +273,6 @@ class InngangsvilkårStegImplTest {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad
                 .forFødsel()
-                .medVilkårResultatType(VilkårResultatType.INNVILGET)
                 .leggTilVilkår(medlVilkårType, VilkårUtfallType.OPPFYLT);
         var behandling = scenario.lagMocked();
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
@@ -302,7 +287,6 @@ class InngangsvilkårStegImplTest {
 
         // Assert
         var vilkårResultat = behandling.getBehandlingsresultat().getVilkårResultat();
-        assertThat(vilkårResultat.getVilkårResultatType()).isEqualTo(VilkårResultatType.IKKE_FASTSATT);
         assertThat(vilkårResultat.getVilkårene().stream().map(Vilkår::getGjeldendeVilkårUtfall).collect(toList()))
                 .containsExactly(VilkårUtfallType.IKKE_VURDERT);
         assertThat(behandling.getBehandlingsresultat().getBehandlingResultatType())
@@ -313,7 +297,6 @@ class InngangsvilkårStegImplTest {
     public void skal_ved_fremoverhopp_rydde_avklarte_fakta_og_vilkår() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
-                .medVilkårResultatType(VilkårResultatType.INNVILGET)
                 .leggTilVilkår(medlVilkårType, VilkårUtfallType.OPPFYLT);
         scenario.medBekreftetHendelse(scenario.medBekreftetHendelse().medFødselsDato(LocalDate.now()));
 
@@ -331,7 +314,6 @@ class InngangsvilkårStegImplTest {
         verify(mockMedlemskapRepository).slettAvklarteMedlemskapsdata(eq(behandling.getId()), any());
 
         var vilkårResultat = behandling.getBehandlingsresultat().getVilkårResultat();
-        assertThat(vilkårResultat.getVilkårResultatType()).isEqualTo(VilkårResultatType.INNVILGET);
         assertThat(vilkårResultat.getVilkårene().stream().map(Vilkår::getGjeldendeVilkårUtfall).collect(toList()))
                 .containsExactly(VilkårUtfallType.IKKE_VURDERT);
     }

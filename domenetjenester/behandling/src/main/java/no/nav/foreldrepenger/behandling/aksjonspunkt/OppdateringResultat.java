@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 
@@ -23,7 +22,6 @@ public class OppdateringResultat {
     private final List<VilkårType> vilkårTyperNyeIkkeVurdert = new ArrayList<>();
     private final List<VilkårOppdateringResultat> vilkårUtfallSomSkalLeggesTil = new ArrayList<>();
     private final List<VilkårType> vilkårTyperSomSkalFjernes = new ArrayList<>(); // Eksisterer for å håndtere vilkåropprydding for Omsorg
-    private VilkårResultatType vilkårResultatType;
     private OverhoppKontroll overhoppKontroll;
     private BehandlingResultatType henleggelseResultat;
     private String henleggingsbegrunnelse;
@@ -133,10 +131,6 @@ public class OppdateringResultat {
         return vilkårTyperSomSkalFjernes;
     }
 
-    public VilkårResultatType getVilkårResultatType() {
-        return vilkårResultatType;
-    }
-
     public static class Builder {
         private OppdateringResultat resultat;
 
@@ -154,12 +148,6 @@ public class OppdateringResultat {
 
         public Builder medBeholdAksjonspunktÅpent() {
             return medBeholdAksjonspunktÅpent(true);
-        }
-
-        public Builder medVilkårResultatType(VilkårResultatType vilkårResultatType) {
-            Objects.requireNonNull(vilkårResultatType);
-            resultat.vilkårResultatType = vilkårResultatType;
-            return this;
         }
 
         public Builder leggTilIkkeVurdertVilkår(VilkårType vilkårType) {
@@ -249,9 +237,6 @@ public class OppdateringResultat {
         }
 
         public OppdateringResultat build() {
-            if (resultat.vilkårUtfallSomSkalLeggesTil.stream().map(VilkårOppdateringResultat::getVilkårUtfallType).anyMatch(VilkårUtfallType.IKKE_OPPFYLT::equals)) {
-                resultat.vilkårResultatType = VilkårResultatType.AVSLÅTT;
-            }
             return resultat;
         }
     }

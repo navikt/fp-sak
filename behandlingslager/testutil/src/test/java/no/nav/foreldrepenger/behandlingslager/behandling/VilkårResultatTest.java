@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -32,7 +31,7 @@ class VilkårResultatTest extends EntityManagerAwareTest {
         lagreBehandling(behandling);
 
         Behandlingsresultat.builderForInngangsvilkår().buildFor(behandling);
-        var behandlingsresultat1 = lagreOgGjenopphenteBehandlingsresultat(behandling, VilkårResultatType.IKKE_FASTSATT);
+        var behandlingsresultat1 = lagreOgGjenopphenteBehandlingsresultat(behandling);
 
         var id01 = behandlingsresultat1.getBehandlingId();
 
@@ -41,7 +40,7 @@ class VilkårResultatTest extends EntityManagerAwareTest {
             .medKopiAvForrigeBehandlingsresultat()
             .build();
         lagreBehandling(behandling2);
-        var behandlingsresultat2 = lagreOgGjenopphenteBehandlingsresultat(behandling2, VilkårResultatType.IKKE_FASTSATT);
+        var behandlingsresultat2 = lagreOgGjenopphenteBehandlingsresultat(behandling2);
 
         // Assert
         assertThat(getBehandlingsresultat(behandling2)).isNotSameAs(getBehandlingsresultat(behandling));
@@ -67,7 +66,7 @@ class VilkårResultatTest extends EntityManagerAwareTest {
         lagreBehandling(behandling);
 
         Behandlingsresultat.builderForInngangsvilkår().buildFor(behandling);
-        var behandlingsresultat1 = lagreOgGjenopphenteBehandlingsresultat(behandling, VilkårResultatType.IKKE_FASTSATT);
+        var behandlingsresultat1 = lagreOgGjenopphenteBehandlingsresultat(behandling);
 
         var id01 = behandlingsresultat1.getBehandlingId();
 
@@ -80,10 +79,9 @@ class VilkårResultatTest extends EntityManagerAwareTest {
         // legg til et nytt vilkårsresultat
         VilkårResultat.builderFraEksisterende(getBehandlingsresultat(behandling2).getVilkårResultat())
                 .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
-                .medVilkårResultatType(VilkårResultatType.INNVILGET)
                 .buildFor(behandling2);
 
-        var behandlingsresultat2 = lagreOgGjenopphenteBehandlingsresultat(behandling2, VilkårResultatType.INNVILGET);
+        var behandlingsresultat2 = lagreOgGjenopphenteBehandlingsresultat(behandling2);
         // Assert
         assertThat(getBehandlingsresultat(behandling2)).isNotSameAs(getBehandlingsresultat(behandling));
         assertThat(getBehandlingsresultat(behandling2).getVilkårResultat())
@@ -99,7 +97,6 @@ class VilkårResultatTest extends EntityManagerAwareTest {
         var behandling = lagBehandling();
         lagreBehandling(behandling);
         var vilkårResultatBuilder = VilkårResultat.builder()
-                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .manueltVilkår(VilkårType.OMSORGSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O);
         var behandlingsresultatBuilder = new Behandlingsresultat.Builder(vilkårResultatBuilder);
         var behandlingsresultat1 = behandlingsresultatBuilder.buildFor(behandling);
@@ -127,13 +124,11 @@ class VilkårResultatTest extends EntityManagerAwareTest {
         // Arrange
         var behandling = lagBehandling();
         var opprinneligVilkårResultat = VilkårResultat.builder()
-            .medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT)
             .leggTilVilkårIkkeVurdert(VilkårType.SØKNADSFRISTVILKÅRET)
             .buildFor(behandling);
 
         // Act
         var oppdatertVilkårResultat = VilkårResultat.builderFraEksisterende(opprinneligVilkårResultat)
-            .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
             .manueltVilkår(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_F)
             .buildFor(behandling);
 
@@ -154,13 +149,11 @@ class VilkårResultatTest extends EntityManagerAwareTest {
         // Arrange
         var behandling = lagBehandling();
         var opprinneligVilkårResultat = VilkårResultat.builder()
-            .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
             .manueltVilkår(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_HAR_IKKE_FORELDREANSVAR)
             .buildFor(behandling);
 
         // Act
         var oppdatertVilkårResultat = VilkårResultat.builderFraEksisterende(opprinneligVilkårResultat)
-            .medVilkårResultatType(VilkårResultatType.INNVILGET)
             .manueltVilkår(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT)
             .buildFor(behandling);
 
@@ -177,18 +170,15 @@ class VilkårResultatTest extends EntityManagerAwareTest {
         // Arrange
         var behandling = lagBehandling();
         var opprinneligVilkårResultat = VilkårResultat.builder()
-            .medVilkårResultatType(VilkårResultatType.INNVILGET)
             .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
             .buildFor(behandling);
 
         // Act 1: Ikke oppfylt (overstyrt)
         var oppdatertVilkårResultat = VilkårResultat.builderFraEksisterende(opprinneligVilkårResultat)
-            .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
             .manueltVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_ER_UTVANDRET)
             .buildFor(behandling);
 
         // Assert
-        assertThat(oppdatertVilkårResultat.erOverstyrt()).isFalse();
         assertThat(oppdatertVilkårResultat.getVilkårene()).hasSize(1);
         var vilkår = oppdatertVilkårResultat.getVilkårene().get(0);
         assertThat(vilkår.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
@@ -198,12 +188,10 @@ class VilkårResultatTest extends EntityManagerAwareTest {
 
         // Act 2: Oppfylt
         oppdatertVilkårResultat = VilkårResultat.builderFraEksisterende(oppdatertVilkårResultat)
-            .medVilkårResultatType(VilkårResultatType.INNVILGET)
             .overstyrVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT)
             .buildFor(behandling);
 
         // Assert
-        assertThat(oppdatertVilkårResultat.erOverstyrt()).isTrue();
         assertThat(oppdatertVilkårResultat.getVilkårene()).hasSize(1);
         vilkår = oppdatertVilkårResultat.getVilkårene().get(0);
         assertThat(vilkår.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
@@ -218,17 +206,14 @@ class VilkårResultatTest extends EntityManagerAwareTest {
         // Arrange
         var behandling = lagBehandling();
         var opprinneligVilkårResultat = VilkårResultat.builder()
-            .medVilkårResultatType(VilkårResultatType.INNVILGET)
             .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
             .buildFor(behandling);
         var overstyrtVilkårResultat = VilkårResultat.builderFraEksisterende(opprinneligVilkårResultat)
-            .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
             .overstyrVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_ER_UTVANDRET)
             .buildFor(behandling);
 
         // Act
         var oppdatertVilkårResultat = VilkårResultat.builderFraEksisterende(overstyrtVilkårResultat)
-            .medVilkårResultatType(VilkårResultatType.AVSLÅTT) // Overstyring teller
             .manueltVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT)
             .buildFor(behandling);
 
@@ -247,7 +232,6 @@ class VilkårResultatTest extends EntityManagerAwareTest {
         // Arrange
         var behandling = lagBehandling();
         var opprinneligVilkårResultat = VilkårResultat.builder()
-            .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
             .leggTilVilkårIkkeVurdert(VilkårType.SØKNADSFRISTVILKÅRET)
             .manueltVilkår(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_F)
             .buildFor(behandling);
@@ -255,7 +239,6 @@ class VilkårResultatTest extends EntityManagerAwareTest {
         // Act
         var oppdatertVilkårResultat = VilkårResultat.builderFraEksisterende(opprinneligVilkårResultat)
             .fjernVilkår(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD)
-            .medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT)
             .buildFor(behandling);
 
         // Assert
@@ -265,12 +248,11 @@ class VilkårResultatTest extends EntityManagerAwareTest {
         assertThat(vilkår.getGjeldendeVilkårUtfall()).isEqualTo(VilkårUtfallType.IKKE_VURDERT);
     }
 
-    private Behandlingsresultat lagreOgGjenopphenteBehandlingsresultat(Behandling behandling, VilkårResultatType forventet) {
+    private Behandlingsresultat lagreOgGjenopphenteBehandlingsresultat(Behandling behandling) {
         var behandlingsresultat = getBehandlingsresultat(behandling);
 
         assertThat(behandlingsresultat.getBehandlingId()).isNotNull();
         assertThat(behandlingsresultat.getVilkårResultat().getOriginalBehandlingId()).isNotNull();
-        assertThat(behandlingsresultat.getVilkårResultat().getVilkårResultatType()).isEqualTo(forventet);
 
         var lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandlingsresultat.getVilkårResultat(), lås);

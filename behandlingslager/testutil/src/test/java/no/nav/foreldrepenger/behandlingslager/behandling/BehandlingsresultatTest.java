@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
@@ -40,7 +39,6 @@ class BehandlingsresultatTest extends EntityManagerAwareTest {
 
         assertThat(behandling.getBehandlingsresultat()).isEqualTo(behandlingsresultat);
         assertThat(behandlingsresultat.getBehandlingId()).isNotNull();
-        assertThat(behandlingsresultat.getVilkårResultat().getVilkårResultatType()).isEqualTo(VilkårResultatType.IKKE_FASTSATT);
 
         var lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandlingsresultat.getVilkårResultat(), lås);

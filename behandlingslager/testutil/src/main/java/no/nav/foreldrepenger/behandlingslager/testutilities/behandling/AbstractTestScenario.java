@@ -79,7 +79,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
@@ -143,7 +142,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private BehandlingStegType startSteg;
 
     private final Map<AksjonspunktDefinisjon, BehandlingStegType> aksjonspunktDefinisjoner = new EnumMap<>(AksjonspunktDefinisjon.class);
-    private VilkårResultatType vilkårResultatType = VilkårResultatType.IKKE_FASTSATT;
     private final Map<VilkårType, VilkårUtfallType> vilkårTyper = new EnumMap<>(VilkårType.class);
     private final List<MedlemskapPerioderEntitet> medlemskapPerioder = new ArrayList<>();
     private Long fagsakId = nyId();
@@ -971,8 +969,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         behandlingresultatBuilder = null; // resett
 
         var inngangsvilkårBuilder = VilkårResultat
-                .builderFraEksisterende(behandlingsresultat.getVilkårResultat())
-                .medVilkårResultatType(vilkårResultatType);
+                .builderFraEksisterende(behandlingsresultat.getVilkårResultat());
 
         vilkårTyper.forEach((vilkårType, vilkårUtfallType) -> inngangsvilkårBuilder.leggTilVilkår(vilkårType, vilkårUtfallType, VilkårUtfallType.IKKE_OPPFYLT.equals(vilkårUtfallType) ? VilkårUtfallMerknad.VM_1019 : VilkårUtfallMerknad.UDEFINERT));
 
@@ -1166,12 +1163,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     @SuppressWarnings("unchecked")
     public S leggTilVilkår(VilkårType vilkårType, VilkårUtfallType vilkårUtfallType) {
         vilkårTyper.put(vilkårType, vilkårUtfallType);
-        return (S) this;
-    }
-
-    @SuppressWarnings("unchecked")
-    public S medVilkårResultatType(VilkårResultatType vilkårResultatType) {
-        this.vilkårResultatType = vilkårResultatType;
         return (S) this;
     }
 

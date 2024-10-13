@@ -49,7 +49,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelsemottakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -333,7 +332,6 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         scenarioFP = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenarioFP.medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         scenarioFP.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
-        scenarioFP.medVilkårResultatType(VilkårResultatType.INNVILGET);
         scenarioFP.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now())
                 .medVedtakResultatType(VedtakResultatType.INNVILGET);
 
@@ -347,7 +345,6 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         scenarioSVP = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
         scenarioSVP.medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         scenarioSVP.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
-        scenarioSVP.medVilkårResultatType(VilkårResultatType.INNVILGET);
         scenarioSVP.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now())
                 .medVedtakResultatType(VedtakResultatType.INNVILGET);
 

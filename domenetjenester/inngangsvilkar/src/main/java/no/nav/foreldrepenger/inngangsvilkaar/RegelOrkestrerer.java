@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 
@@ -49,11 +48,6 @@ public class RegelOrkestrerer {
 
         var vilkår = matchendeVilkårPåBehandling.isEmpty() ? null : matchendeVilkårPåBehandling.get(0);
         if (vilkår == null) {
-            // Intet vilkår skal eksekveres i regelmotor, men sikrer at det samlede inngangsvilkår-utfallet blir korrekt
-            // ved å utlede det fra alle vilkårsutfallene
-            var alleUtfall = vilkårResultat.hentAlleGjeldendeVilkårsutfall();
-            var inngangsvilkårUtfall = VilkårResultatType.utledInngangsvilkårUtfall(alleUtfall);
-            oppdaterBehandlingMedVilkårresultat(behandling, inngangsvilkårUtfall);
             return new RegelResultat(vilkårResultat, emptyList(), emptyMap());
         }
 
@@ -64,9 +58,7 @@ public class RegelOrkestrerer {
             Map.of(vilkårDataResultat.vilkårType(), vilkårDataResultat.ekstraVilkårresultat());
 
         // Inngangsvilkårutfall utledet fra alle vilkårsutfallene
-        var alleUtfall = sammenslåVilkårUtfall(vilkårResultat, vilkårDataResultat);
-        var inngangsvilkårUtfall = VilkårResultatType.utledInngangsvilkårUtfall(alleUtfall);
-        oppdaterBehandlingMedVilkårresultat(behandling, vilkårDataResultat, inngangsvilkårUtfall);
+        oppdaterBehandlingMedVilkårresultat(behandling, vilkårDataResultat);
 
         // Aksjonspunkter
         List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner = new ArrayList<>();
@@ -111,19 +103,10 @@ public class RegelOrkestrerer {
         return vurderVilkår(vilkår.getVilkårType(), ref);
     }
 
-    private void oppdaterBehandlingMedVilkårresultat(Behandling behandling, VilkårResultatType inngangsvilkårUtfall) {
-        var builder = VilkårResultat
-            .builderFraEksisterende(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId()).getVilkårResultat())
-            .medVilkårResultatType(inngangsvilkårUtfall);
-        builder.buildFor(behandling);
-    }
-
     private void oppdaterBehandlingMedVilkårresultat(Behandling behandling,
-                                                     VilkårData vilkårData,
-                                                     VilkårResultatType inngangsvilkårUtfall) {
+                                                     VilkårData vilkårData) {
         var builder = VilkårResultat
-            .builderFraEksisterende(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId()).getVilkårResultat())
-            .medVilkårResultatType(inngangsvilkårUtfall);
+            .builderFraEksisterende(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId()).getVilkårResultat());
         var vilkårBuilder = builder.getVilkårBuilderFor(vilkårData.vilkårType())
             .medVilkårUtfall(vilkårData.utfallType(), vilkårData.vilkårUtfallMerknad())
             .medRegelEvaluering(vilkårData.regelEvaluering())

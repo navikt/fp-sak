@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -95,12 +94,8 @@ public class InngangsvilkårTjeneste {
 
         if (Objects.equals(VilkårUtfallType.OPPFYLT, utfall)) {
             builder.overstyrVilkår(vilkårType, VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT);
-            if (!finnesOverstyrteAvviste(vilkårResultat, vilkårType)) {
-                builder.medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT);
-            }
         } else {
             builder.overstyrVilkår(vilkårType, VilkårUtfallType.IKKE_OPPFYLT,  Avslagsårsak.MANGLENDE_DOKUMENTASJON);
-            builder.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
         }
         builder.buildFor(behandling);
         behandlingRepository.lagre(getBehandlingsresultat(behandlingId).getVilkårResultat(), kontekst.getSkriveLås());
@@ -121,9 +116,6 @@ public class InngangsvilkårTjeneste {
         if (utfall.equals(VilkårUtfallType.IKKE_OPPFYLT)) {
             if (avslagsårsak == null || Avslagsårsak.UDEFINERT.equals(avslagsårsak))
                 LOG.warn("Overstyrer til IKKE OPPFYLT uten gyldig avslagskode, behandling {} vilkårtype {} kode {}", behandlingId, vilkårType, avslagsårsak);
-            builder.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
-        } else if (utfall.equals(VilkårUtfallType.OPPFYLT) && !finnesOverstyrteAvviste(vilkårResultat, vilkårType)) {
-            builder.medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT);
         }
         var resultat = builder.buildFor(behandling);
         behandlingRepository.lagre(resultat, kontekst.getSkriveLås());
@@ -134,9 +126,4 @@ public class InngangsvilkårTjeneste {
         return behandlingsresultatRepository.hent(behandlingId);
     }
 
-    private boolean finnesOverstyrteAvviste(VilkårResultat vilkårResultat, VilkårType vilkårType) {
-        return vilkårResultat.getVilkårene().stream()
-            .filter(vilkår -> !vilkår.getVilkårType().equals(vilkårType))
-            .anyMatch(vilkår -> vilkår.erOverstyrt() && vilkår.erIkkeOppfylt());
-    }
 }
