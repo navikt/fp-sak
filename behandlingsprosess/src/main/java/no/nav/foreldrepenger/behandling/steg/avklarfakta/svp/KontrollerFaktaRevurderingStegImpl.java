@@ -287,8 +287,9 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
         var originaltBehandlingsresultat = Optional.ofNullable(getBehandlingsresultat(origBehandling.getId())).orElseThrow();
         var vilkårFørStartpunkt = originaltBehandlingsresultat.getVilkårResultat().getVilkårene().stream()
-                .filter(vilkår -> vilkårtyperFørStartpunkt.contains(vilkår.getVilkårType()))
-                .collect(Collectors.toSet());
+            .filter(vilkår -> vilkårtyperFørStartpunkt.contains(vilkår.getVilkårType()))
+            .filter(vilkår -> vilkår.getVilkårType().erInngangsvilkår())
+            .collect(Collectors.toSet());
         kopierVilkårFørStartpunkt(vilkårBuilder, vilkårFørStartpunkt);
         vilkårBuilder.buildFor(revurdering);
 

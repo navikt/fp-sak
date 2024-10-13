@@ -107,8 +107,9 @@ public class RevurderingTjenesteFelles {
         Objects.requireNonNull(origVilkårResultat, "Vilkårsresultat må være satt på revurderingens originale behandling");
 
         var vilkårBuilder = VilkårResultat.builder();
-        origVilkårResultat.getVilkårene()
-                .forEach(vilkår -> vilkårBuilder.kopierVilkårFraAnnenBehandling(vilkår, true, nullstilles.contains(vilkår.getVilkårType())));
+        origVilkårResultat.getVilkårene().stream()
+            .filter(v -> v.getVilkårType().erInngangsvilkår())
+            .forEach(vilkår -> vilkårBuilder.kopierVilkårFraAnnenBehandling(vilkår, true, nullstilles.contains(vilkår.getVilkårType())));
         var vilkårResultat = vilkårBuilder.buildFor(revurdering);
         behandlingRepository.lagre(vilkårResultat, kontekst.getSkriveLås());
         behandlingRepository.lagre(revurdering, kontekst.getSkriveLås());
