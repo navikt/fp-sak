@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling.Builder;
@@ -1338,22 +1337,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         this.behandlingÅrsakTyper = behandlingÅrsakType;
         this.manueltOpprettet = manueltOpprettet;
         this.behandlingType = BehandlingType.REVURDERING;
-        return (S) this;
-    }
-
-    /**
-     * temporær metode til vi får fjernet gammel entitet helt. Gjør en begrenset
-     * mapping av Søker data (uten adresse, relasjoner)
-     *
-     * @deprecated bruk {@link #medRegisterOpplysninger(PersonInformasjon)}
-     */
-    @SuppressWarnings("unchecked")
-    @Deprecated
-    public S medSøker(Personinfo søker) {
-        var builder = opprettBuilderForRegisteropplysninger();
-        PersonopplysningPersoninfoAdapter.mapPersonopplysningTilPerson(builder, søker);
-        medRegisterOpplysninger(builder.build());
-        medBruker(søker.getAktørId(), søker.getKjønn());
         return (S) this;
     }
 

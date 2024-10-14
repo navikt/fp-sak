@@ -13,7 +13,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
-import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.FamilierelasjonVL;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
@@ -24,8 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.historikk.StatsborgerskapPe
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
@@ -72,16 +69,19 @@ public class PersonopplysningInnhenter {
         var barnSomSkalInnhentes = finnBarnRelatertTil(filtrertFødselFREG);
         var ektefelleSomSkalInnhentes = finnEktefelle(søkerPersonInfo);
 
-        barnSomSkalInnhentes.forEach(barn -> innhentPersonIdent(ytelseType, barn, innhentet));
-        ektefelleSomSkalInnhentes.forEach(ekte -> innhentPersonIdent(ytelseType, ekte, innhentet));
+        barnSomSkalInnhentes.forEach(barn -> innhentPersonIdent(ytelseType, barn, true, innhentet));
+        ektefelleSomSkalInnhentes.forEach(ekte -> innhentPersonIdent(ytelseType, ekte, false, innhentet));
+
+        var søkerFødt = søkerPersonInfo.getFødselsdato();
+        var ferskSøkerAktørId = søkerPersonInfo.getAktørId();
 
         // Historikk for søker
-        var personhistorikkinfo = personinfoAdapter.innhentPersonopplysningerHistorikk(ytelseType, søkerPersonInfo.getAktørId(), opplysningsperiode);
+        var personhistorikkinfo = personinfoAdapter.innhentPersonopplysningerHistorikk(ytelseType, ferskSøkerAktørId, opplysningsperiode, søkerFødt);
         if (personhistorikkinfo != null) {
-            mapAdresser(personhistorikkinfo.getAdressehistorikk(), informasjonBuilder, søkerPersonInfo);
-            mapStatsborgerskap(personhistorikkinfo.getStatsborgerskaphistorikk(), informasjonBuilder, søkerPersonInfo);
-            mapPersonstatus(personhistorikkinfo.getPersonstatushistorikk(), informasjonBuilder, søkerPersonInfo);
-            mapOppholdstillatelse(personhistorikkinfo.getOppholdstillatelsehistorikk(), informasjonBuilder, søkerPersonInfo);
+            mapAdresser(personhistorikkinfo.adressehistorikk(), informasjonBuilder, ferskSøkerAktørId);
+            mapStatsborgerskap(personhistorikkinfo.statsborgerskaphistorikk(), informasjonBuilder, ferskSøkerAktørId);
+            mapPersonstatus(personhistorikkinfo.personstatushistorikk(), informasjonBuilder, ferskSøkerAktørId);
+            mapOppholdstillatelse(personhistorikkinfo.oppholdstillatelsehistorikk(), informasjonBuilder, ferskSøkerAktørId);
         }
 
         // Fase 2 - mapping til
@@ -108,59 +108,45 @@ public class PersonopplysningInnhenter {
         });
     }
 
-    private void mapPersonstatus(List<PersonstatusPeriode> personstatushistorikk, PersonInformasjonBuilder informasjonBuilder, Personinfo personinfo) {
+    private void mapPersonstatus(List<PersonstatusPeriode> personstatushistorikk, PersonInformasjonBuilder informasjonBuilder, AktørId aktørId) {
         for (var personstatus : personstatushistorikk) {
-            var status = personstatus.getPersonstatus();
-            var periode = fødselsJustertPeriode(personstatus.getGyldighetsperiode().getFom(), personinfo.getFødselsdato(),
-                personstatus.getGyldighetsperiode().getTom());
-
-            informasjonBuilder.leggTil(informasjonBuilder.getPersonstatusBuilder(personinfo.getAktørId(), periode).medPersonstatus(status));
+            var status = personstatus.personstatus();
+            var periode = DatoIntervallEntitet.fraOgMedTilOgMed(personstatus.gyldighetsperiode().fom(), personstatus.gyldighetsperiode().tom());
+            informasjonBuilder.leggTil(informasjonBuilder.getPersonstatusBuilder(aktørId, periode).medPersonstatus(status));
         }
     }
 
-    private void mapOppholdstillatelse(List<OppholdstillatelsePeriode> oppholdshistorikk, PersonInformasjonBuilder informasjonBuilder, Personinfo personinfo) {
+    private void mapOppholdstillatelse(List<OppholdstillatelsePeriode> oppholdshistorikk, PersonInformasjonBuilder informasjonBuilder, AktørId aktørId) {
         for (var tillatelse : oppholdshistorikk) {
-            var type = tillatelse.getTillatelse();
-            var periode = fødselsJustertPeriode(tillatelse.getGyldighetsperiode().getFom(), FIKTIV_FOM, tillatelse.getGyldighetsperiode().getTom());
+            var type = tillatelse.tillatelse();
+            var periode = DatoIntervallEntitet.fraOgMedTilOgMed(tillatelse.gyldighetsperiode().fom(), tillatelse.gyldighetsperiode().tom());
 
-            informasjonBuilder.leggTil(informasjonBuilder.getOppholdstillatelseBuilder(personinfo.getAktørId(), periode).medOppholdstillatelse(type));
+            informasjonBuilder.leggTil(informasjonBuilder.getOppholdstillatelseBuilder(aktørId, periode).medOppholdstillatelse(type));
         }
     }
 
-    private void mapStatsborgerskap(List<StatsborgerskapPeriode> statsborgerskaphistorikk, PersonInformasjonBuilder informasjonBuilder, Personinfo personinfo) {
+    private void mapStatsborgerskap(List<StatsborgerskapPeriode> statsborgerskaphistorikk, PersonInformasjonBuilder informasjonBuilder, AktørId aktørId) {
         for (var statsborgerskap : statsborgerskaphistorikk) {
-            var landkode = Landkoder.fraKode(statsborgerskap.getStatsborgerskap().getLandkode());
-
-            var periode = fødselsJustertPeriode(statsborgerskap.getGyldighetsperiode().getFom(), personinfo.getFødselsdato(),
-                statsborgerskap.getGyldighetsperiode().getTom());
-
-            informasjonBuilder
-                .leggTil(informasjonBuilder.getStatsborgerskapBuilder(personinfo.getAktørId(), periode, landkode));
+            var landkode = statsborgerskap.statsborgerskap();
+            var periode = DatoIntervallEntitet.fraOgMedTilOgMed(statsborgerskap.gyldighetsperiode().fom(), statsborgerskap.gyldighetsperiode().tom());
+            informasjonBuilder.leggTil(informasjonBuilder.getStatsborgerskapBuilder(aktørId, periode, landkode));
         }
     }
 
-    private void mapAdresser(List<AdressePeriode> adressehistorikk, PersonInformasjonBuilder informasjonBuilder, Personinfo personinfo) {
-        var aktørId = personinfo.getAktørId();
+    private void mapAdresser(List<AdressePeriode> adressehistorikk, PersonInformasjonBuilder informasjonBuilder, AktørId aktørId) {
         for (var adresse : adressehistorikk) {
-            var periode = fødselsJustertPeriode(adresse.getGyldighetsperiode().getFom(), personinfo.getFødselsdato(),
-                adresse.getGyldighetsperiode().getTom());
-            var adresseBuilder = informasjonBuilder.getAdresseBuilder(aktørId, periode, adresse.getAdresse().getAdresseType())
-                .medMatrikkelId(adresse.getAdresse().getMatrikkelId())
-                .medAdresselinje1(adresse.getAdresse().getAdresselinje1())
-                .medAdresselinje2(adresse.getAdresse().getAdresselinje2())
-                .medAdresselinje3(adresse.getAdresse().getAdresselinje3())
-                .medAdresselinje4(adresse.getAdresse().getAdresselinje4())
-                .medLand(adresse.getAdresse().getLand())
-                .medPostnummer(adresse.getAdresse().getPostnummer())
-                .medPoststed(adresse.getAdresse().getPoststed());
+            var periode = DatoIntervallEntitet.fraOgMedTilOgMed(adresse.gyldighetsperiode().fom(), adresse.gyldighetsperiode().tom());
+            var adresseBuilder = informasjonBuilder.getAdresseBuilder(aktørId, periode, adresse.adresse().getAdresseType())
+                .medMatrikkelId(adresse.adresse().getMatrikkelId())
+                .medAdresselinje1(adresse.adresse().getAdresselinje1())
+                .medAdresselinje2(adresse.adresse().getAdresselinje2())
+                .medAdresselinje3(adresse.adresse().getAdresselinje3())
+                .medAdresselinje4(adresse.adresse().getAdresselinje4())
+                .medLand(adresse.adresse().getLand())
+                .medPostnummer(adresse.adresse().getPostnummer())
+                .medPoststed(adresse.adresse().getPoststed());
             informasjonBuilder.leggTil(adresseBuilder);
         }
-    }
-
-    private DatoIntervallEntitet fødselsJustertPeriode(LocalDate fom, LocalDate fødselsdato, LocalDate tom) {
-        var brukFom = fom.isBefore(fødselsdato) ? fødselsdato : fom;
-        var safeFom = tom != null && brukFom.isAfter(tom) ? tom : brukFom;
-        return tom != null ? DatoIntervallEntitet.fraOgMedTilOgMed(safeFom, tom) : DatoIntervallEntitet.fraOgMed(safeFom);
     }
 
     private RelasjonsRolleType utledRelasjonsrolleTilBarn(Personinfo personinfo, Personinfo barn) {
@@ -183,12 +169,12 @@ public class PersonopplysningInnhenter {
     }
 
     private boolean utledSammeBosted(Personinfo fra, Personinfo til) {
-        var tilAdresser = til.getAdresseInfoList().stream()
-            .filter(ad -> AdresseType.BOSTEDSADRESSE.equals(ad.getGjeldendePostadresseType()))
+        var tilAdresser = til.getAdresseperioder().stream()
+            .filter(ad -> AdresseType.BOSTEDSADRESSE.equals(ad.adresse().getAdresseType()))
             .toList();
-        return fra.getAdresseInfoList().stream()
-            .filter(a -> AdresseType.BOSTEDSADRESSE.equals(a.getGjeldendePostadresseType()))
-            .anyMatch(adr1 -> tilAdresser.stream().anyMatch(adr2 -> Adresseinfo.likeAdresser(adr1, adr2)));
+        return fra.getAdresseperioder().stream()
+            .filter(a -> AdresseType.BOSTEDSADRESSE.equals(a.adresse().getAdresseType()))
+            .anyMatch(adr1 -> tilAdresser.stream().anyMatch(adr1::overlappMedLikAdresse));
     }
 
     private void mapInfoTilEntitet(Personinfo personinfo, PersonInformasjonBuilder informasjonBuilder, boolean lagreIHistoriskeTabeller) {
@@ -202,29 +188,13 @@ public class PersonopplysningInnhenter {
         informasjonBuilder.leggTil(builder);
 
         if (lagreIHistoriskeTabeller || informasjonBuilder.harIkkeFåttStatsborgerskapHistorikk(personinfo.getAktørId())) {
-            var prioritertStatsborgerskap = MapRegionLandkoder.finnRangertLandkode(personinfo.getLandkoder());
-            informasjonBuilder
-                .leggTil(informasjonBuilder.getStatsborgerskapBuilder(personinfo.getAktørId(), periode, prioritertStatsborgerskap));
+            mapStatsborgerskap(personinfo.getLandkoder(), informasjonBuilder, personinfo.getAktørId());
         }
-
         if (lagreIHistoriskeTabeller || informasjonBuilder.harIkkeFåttAdresseHistorikk(personinfo.getAktørId())) {
-            for (var adresse : personinfo.getAdresseInfoList()) {
-                var adresseBuilder = informasjonBuilder.getAdresseBuilder(personinfo.getAktørId(), periode, adresse.getGjeldendePostadresseType())
-                    .medMatrikkelId(adresse.getMatrikkelId())
-                    .medAdresselinje1(adresse.getAdresselinje1())
-                    .medAdresselinje2(adresse.getAdresselinje2())
-                    .medAdresselinje3(adresse.getAdresselinje3())
-                    .medAdresselinje4(adresse.getAdresselinje4())
-                    .medPostnummer(adresse.getPostNr())
-                    .medPoststed(adresse.getPoststed())
-                    .medLand(adresse.getLand());
-                informasjonBuilder.leggTil(adresseBuilder);
-            }
+            mapAdresser(personinfo.getAdresseperioder(), informasjonBuilder, personinfo.getAktørId());
         }
-
         if (lagreIHistoriskeTabeller || informasjonBuilder.harIkkeFåttPersonstatusHistorikk(personinfo.getAktørId())) {
-            informasjonBuilder
-                .leggTil(informasjonBuilder.getPersonstatusBuilder(personinfo.getAktørId(), periode).medPersonstatus(personinfo.getPersonstatus()));
+            mapPersonstatus(personinfo.getPersonstatus(), informasjonBuilder, personinfo.getAktørId());
         }
     }
 
@@ -273,10 +243,10 @@ public class PersonopplysningInnhenter {
         return personinfo;
     }
 
-    private Optional<Personinfo> innhentPersonIdent(FagsakYtelseType ytelseType, PersonIdent ident, Map<PersonIdent, Personinfo> innhentet) {
+    private Optional<Personinfo> innhentPersonIdent(FagsakYtelseType ytelseType, PersonIdent ident, boolean erBarn, Map<PersonIdent, Personinfo> innhentet) {
         if (innhentet.get(ident) != null)
             return Optional.of(innhentet.get(ident));
-        var personinfo = personinfoAdapter.innhentPersonopplysningerFor(ytelseType, ident);
+        var personinfo = personinfoAdapter.innhentPersonopplysningerFor(ytelseType, ident, erBarn);
         personinfo.ifPresent(pi -> innhentet.put(pi.getPersonIdent(), pi));
         return personinfo;
     }
