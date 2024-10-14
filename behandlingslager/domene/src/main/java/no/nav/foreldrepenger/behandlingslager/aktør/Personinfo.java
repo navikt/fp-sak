@@ -25,7 +25,7 @@ public class Personinfo {
     private List<PersonstatusPeriode> personstatus = new ArrayList<>();
     private NavBrukerKjønn kjønn;
     private Set<FamilierelasjonVL> familierelasjoner = Collections.emptySet();
-    List<StatsborgerskapPeriode> statsborgerskap = new ArrayList<>();
+    private List<StatsborgerskapPeriode> statsborgerskap = new ArrayList<>();
     private List<AdressePeriode> adresseperioder = new ArrayList<>();
     private SivilstandType sivilstand;
 
