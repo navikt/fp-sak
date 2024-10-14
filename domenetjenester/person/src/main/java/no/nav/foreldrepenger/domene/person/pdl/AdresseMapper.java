@@ -120,7 +120,7 @@ public class AdresseMapper {
             .collect(Collectors.collectingAndThen(Collectors.toList(), AdresseMapper::periodiserAdresse));
         adresser.addAll(op);
 
-        var dbp = person.getDeltBosted().stream()
+        var dbp = Optional.ofNullable(person.getDeltBosted()).orElseGet(List::of).stream()
             .flatMap(d -> {
                 var fom = Optional.ofNullable(d.getStartdatoForKontrakt())
                     .map(s -> LocalDate.parse(s, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
