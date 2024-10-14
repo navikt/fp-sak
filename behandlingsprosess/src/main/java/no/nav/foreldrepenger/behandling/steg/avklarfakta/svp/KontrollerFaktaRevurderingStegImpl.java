@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -287,9 +289,11 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
         var originaltBehandlingsresultat = Optional.ofNullable(getBehandlingsresultat(origBehandling.getId())).orElseThrow();
         var vilkårFørStartpunkt = originaltBehandlingsresultat.getVilkårResultat().getVilkårene().stream()
-                .filter(vilkår -> vilkårtyperFørStartpunkt.contains(vilkår.getVilkårType()))
-                .collect(Collectors.toSet());
+            .filter(vilkår -> vilkårtyperFørStartpunkt.contains(vilkår.getVilkårType()))
+            .filter(vilkår -> vilkår.getVilkårType().erInngangsvilkår())
+            .collect(Collectors.toSet());
         kopierVilkårFørStartpunkt(vilkårBuilder, vilkårFørStartpunkt);
+        vilkårBuilder.fjernVilkår(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE);
         vilkårBuilder.buildFor(revurdering);
 
         var revurderingBehandlingsresultat = Optional.ofNullable(getBehandlingsresultat(revurdering.getId())).orElseThrow();

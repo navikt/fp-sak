@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadAnnenPartType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
@@ -535,7 +534,6 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         }
         scenarioAvsluttetBehMor.medBehandlingsresultat(
             Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
-        scenarioAvsluttetBehMor.medVilkårResultatType(VilkårResultatType.INNVILGET);
         scenarioAvsluttetBehMor.medBehandlingVedtak()
             .medVedtakstidspunkt(DATO.atStartOfDay().minusMonths(2))
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
@@ -556,7 +554,6 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         }
         scenarioAvsluttetBehFar.medBehandlingsresultat(
             Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
-        scenarioAvsluttetBehFar.medVilkårResultatType(VilkårResultatType.INNVILGET);
         scenarioAvsluttetBehFar.medBehandlingVedtak()
             .medVedtakstidspunkt(DATO.atStartOfDay().minusMonths(2))
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
@@ -579,7 +576,6 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         }
         scenario.medBehandlingsresultat(
             Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
-        scenario.medVilkårResultatType(VilkårResultatType.INNVILGET);
         scenario.medBehandlingVedtak()
             .medVedtakstidspunkt(DATO.atStartOfDay().minusMonths(2))
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
@@ -603,7 +599,6 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         }
         scenario.medBehandlingsresultat(
             Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
-        scenario.medVilkårResultatType(VilkårResultatType.INNVILGET);
         scenario.medBehandlingVedtak()
             .medVedtakstidspunkt(DATO.atStartOfDay().minusMonths(2))
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
@@ -629,7 +624,6 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
             .medDefaultOppgittTilknytning();
         scenarioAvslBeh.medBehandlingsresultat(
             Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
-        scenarioAvslBeh.medVilkårResultatType(VilkårResultatType.INNVILGET);
         scenarioAvslBeh.medBehandlingVedtak()
             .medVedtakstidspunkt(DATO.atStartOfDay().minusMonths(1))
             .medVedtakResultatType(VedtakResultatType.INNVILGET);

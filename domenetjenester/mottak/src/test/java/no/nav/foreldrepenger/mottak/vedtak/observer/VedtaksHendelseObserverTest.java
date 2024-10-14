@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
@@ -98,7 +97,6 @@ class VedtaksHendelseObserverTest extends EntityManagerAwareTest {
         scenarioFP = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenarioFP.medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         scenarioFP.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
-        scenarioFP.medVilkårResultatType(VilkårResultatType.INNVILGET);
         scenarioFP.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now()).medIverksettingStatus(IverksettingStatus.IVERKSATT)
                 .medVedtakResultatType(VedtakResultatType.INNVILGET);
 
@@ -112,7 +110,6 @@ class VedtaksHendelseObserverTest extends EntityManagerAwareTest {
         scenarioSVP = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
         scenarioSVP.medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         scenarioSVP.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
-        scenarioSVP.medVilkårResultatType(VilkårResultatType.INNVILGET);
         scenarioSVP.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now()).medIverksettingStatus(IverksettingStatus.IVERKSATT)
                 .medVedtakResultatType(VedtakResultatType.INNVILGET);
 
@@ -126,7 +123,6 @@ class VedtaksHendelseObserverTest extends EntityManagerAwareTest {
         scenarioES = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenarioES.medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         scenarioES.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
-        scenarioES.medVilkårResultatType(VilkårResultatType.INNVILGET);
         scenarioES.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now()).medIverksettingStatus(IverksettingStatus.IVERKSATT)
                 .medVedtakResultatType(VedtakResultatType.INNVILGET);
 

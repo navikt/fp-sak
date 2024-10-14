@@ -32,7 +32,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
@@ -185,8 +184,7 @@ class BeregnFeriepengerTjenesteTest {
     }
 
     private Behandling lagBehandlingFar() {
-        var scenarioAnnenPart = ScenarioFarSøkerForeldrepenger.forFødsel()
-                .medVilkårResultatType(VilkårResultatType.INNVILGET);
+        var scenarioAnnenPart = ScenarioFarSøkerForeldrepenger.forFødsel();
         scenarioAnnenPart.medBehandlingVedtak()
                 .medVedtakstidspunkt(LocalDateTime.now())
                 .medVedtakResultatType(VedtakResultatType.INNVILGET);

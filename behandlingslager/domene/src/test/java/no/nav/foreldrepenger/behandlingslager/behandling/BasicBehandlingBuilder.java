@@ -85,13 +85,6 @@ public class BasicBehandlingBuilder {
         return fagsak;
     }
 
-    public VilkårResultat leggTilTomtVilkårResultat(Behandling behandling) {
-        var vilkårResultat = VilkårResultat.builder().buildFor(behandling);
-        behandlingRepository.lagre(vilkårResultat, taSkriveLås(behandling));
-        lagreBehandling(behandling);
-        return vilkårResultat;
-    }
-
     public void lagreVilkårResultat(Long behandlingId, VilkårResultat vilkårResultat) {
         vilkårResultatRepository.lagre(behandlingId, vilkårResultat);
     }

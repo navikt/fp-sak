@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
@@ -67,9 +66,7 @@ class BeregningsgrunnlagVilkårTjeneste {
         } else {
             vilkårBuilder.medVilkårUtfall(VilkårUtfallType.IKKE_OPPFYLT, VilkårUtfallMerknad.VM_1041);
         }
-        return builder
-            .medVilkårResultatType(oppfylt ? VilkårResultatType.INNVILGET : VilkårResultatType.AVSLÅTT)
-            .leggTilVilkår(vilkårBuilder);
+        return builder.leggTilVilkår(vilkårBuilder);
     }
 
     void ryddVedtaksresultatOgVilkår(BehandlingskontrollKontekst kontekst) {

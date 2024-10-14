@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -143,7 +142,6 @@ class BehandlingRevurderingTjenesteTest extends EntityManagerAwareTest {
     private void oppdaterMedBehandlingsresultatAvslagOgLagre(Behandling behandling) {
         VilkårResultat.builder()
             .leggTilVilkårAvslått(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallMerknad.VM_1026)
-            .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
             .buildFor(behandling);
 
         Behandlingsresultat.builderEndreEksisterende(getBehandlingsresultat(behandling))

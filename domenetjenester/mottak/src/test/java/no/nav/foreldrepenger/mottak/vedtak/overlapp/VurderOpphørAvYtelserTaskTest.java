@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -49,9 +48,7 @@ class VurderOpphørAvYtelserTaskTest {
         ScenarioMorSøkerForeldrepenger scenarioFP;
         scenarioFP = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenarioFP.medBehandlingType(behandlingType);
-        scenarioFP.medBehandlingsresultat(
-            Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
-        scenarioFP.medVilkårResultatType(VilkårResultatType.INNVILGET);
+        scenarioFP.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
 
         return scenarioFP;
     }

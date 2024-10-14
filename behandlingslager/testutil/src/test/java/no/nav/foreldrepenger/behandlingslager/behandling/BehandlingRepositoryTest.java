@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStat
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -725,9 +724,9 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
         var builder = VilkårResultat.builder();
         if (innvilget) {
-            builder.leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR).medVilkårResultatType(VilkårResultatType.INNVILGET);
+            builder.leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR);
         } else {
-            builder.leggTilVilkårAvslått(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallMerknad.VM_1026).medVilkårResultatType(VilkårResultatType.AVSLÅTT);
+            builder.leggTilVilkårAvslått(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallMerknad.VM_1026);
         }
         builder.buildFor(behandling);
         behandlingRepository.lagre(behandlingsresultat.getVilkårResultat(), lås);

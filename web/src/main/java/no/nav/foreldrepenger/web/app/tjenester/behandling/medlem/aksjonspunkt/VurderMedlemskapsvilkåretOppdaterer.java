@@ -9,7 +9,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 
@@ -43,7 +42,6 @@ public class VurderMedlemskapsvilkåretOppdaterer implements AksjonspunktOppdate
             return OppdateringResultat.utenTransisjon()
                 .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
                 .leggTilManueltAvslåttVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, avslagskode)
-                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .build();
         }
     }
