@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
@@ -66,14 +65,6 @@ public class UttakYrkesaktiviteter {
         return Objects.equals(arbeidsgiver, arbeidsgiver2) && arbeidsforhold.gjelderFor(arbeidsforhold2);
     }
 
-    public BigDecimal finnStillingsprosentOrdinærtArbeid(Arbeidsgiver arbeidsgiver,
-                                                         InternArbeidsforholdRef arbeidsforholdRef,
-                                                         LocalDate dato) {
-        var yrkesAktiviteter = hentYrkesAktiviteterOrdinærtArbeidsforhold(input);
-        return finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbeidsforholdRef, yrkesAktiviteter, dato,
-            input.getSkjæringstidspunkt().orElseThrow());
-    }
-
     public Set<AktivitetIdentifikator> tilAktivitetIdentifikatorer() {
         return input.getBeregningsgrunnlagStatuser()
             .stream()
@@ -81,11 +72,11 @@ public class UttakYrkesaktiviteter {
             .collect(Collectors.toSet());
     }
 
-    private BigDecimal finnStillingsprosentOrdinærtArbeid(Arbeidsgiver arbeidsgiver,
-                                                          InternArbeidsforholdRef ref,
-                                                          List<Yrkesaktivitet> yrkesaktivitetList,
-                                                          LocalDate dato,
-                                                          Skjæringstidspunkt skjæringstidspunkt) {
+    public BigDecimal finnStillingsprosentOrdinærtArbeid(Arbeidsgiver arbeidsgiver,
+                                                         InternArbeidsforholdRef ref,
+                                                         LocalDate dato) {
+        var yrkesaktivitetList = hentYrkesAktiviteterOrdinærtArbeidsforhold(input);
+        var skjæringstidspunkt = input.getSkjæringstidspunkt().orElseThrow();
 
         var filter0 = new YrkesaktivitetFilter(null, yrkesaktivitetList);
         var yaMedAnsettelsesperiodePåDato = yaMedAnsettelsesperiodePåDato(filter0, arbeidsgiver, ref,
@@ -95,27 +86,10 @@ public class UttakYrkesaktiviteter {
             skjæringstidspunkt.getUtledetSkjæringstidspunkt());
 
         return filter.getAlleYrkesaktiviteter().stream()
-            .filter(ya -> !ya.getAlleAktivitetsAvtaler().isEmpty())
-            .filter(ya -> skalYrkesaktivitetTellesMhpProsent(filter, ya, dato))
+            .filter(ya -> !filter.getAktivitetsAvtalerForArbeid(ya).isEmpty())
             .map(ya -> finnStillingsprosent(filter.getAktivitetsAvtalerForArbeid(ya), dato))
             .reduce(BigDecimal::add)
             .orElse(BigDecimal.ZERO);
-    }
-
-    private boolean skalYrkesaktivitetTellesMhpProsent(YrkesaktivitetFilter filter, Yrkesaktivitet yrkesaktivitet, LocalDate dato) {
-        var aktivitetsAvtaler = filter.getAktivitetsAvtalerForArbeid(yrkesaktivitet);
-        if (aktivitetsAvtaler.isEmpty()) {
-            if (ArbeidType.FORENKLET_OPPGJØRSORDNING.equals(yrkesaktivitet.getArbeidType())) {
-                // Forekommer i halvparten av tilfellene pga rapportertingsmåte. Antar 0% i disse tilfellene.
-                return false;
-            } else {
-                var melding = "Forventer minst en aktivitetsavtale ved dato " + dato.toString() + " i yrkesaktivitet"
-                    + yrkesaktivitet + " med ansettelsesperioder " + filter.getAnsettelsesPerioder(yrkesaktivitet).toString()
-                    + " og alle aktivitetsavtaler " + aktivitetsAvtaler;
-                throw new IllegalStateException(melding);
-            }
-        }
-        return true;
     }
 
     public BigDecimal summerStillingsprosentAlleYrkesaktiviteter(LocalDate dato) {
