@@ -101,14 +101,6 @@ public class PersonopplysningerAggregat {
             .min(Comparator.comparing(s -> MapRegionLandkoder.mapLandkodeForDatoMedSkjæringsdato(s.getStatsborgerskap(), skjæringstidspunkt, skjæringstidspunkt).getRank()));
     }
 
-    public Region getStatsborgerskapRegionVedTidspunkt(AktørId aktørId, LocalDate vurderingsdato, LocalDate skjæringstidspunkt) {
-        return statsborgerskap.getOrDefault(aktørId, List.of()).stream()
-            .filter(s -> s.getPeriode().inkluderer(vurderingsdato))
-            .map(StatsborgerskapEntitet::getStatsborgerskap)
-            .map(s -> MapRegionLandkoder.mapLandkodeForDatoMedSkjæringsdato(s, vurderingsdato, skjæringstidspunkt))
-            .min(Region.COMPARATOR).orElse(Region.TREDJELANDS_BORGER);
-    }
-
     public LocalDateTimeline<Region> getStatsborgerskapRegionIInterval(AktørId aktørId, AbstractLocalDateInterval interval, LocalDate skjæringstidspunkt) {
         var segments = statsborgerskap.getOrDefault(aktørId, List.of())
             .stream()

@@ -1,65 +1,48 @@
 package no.nav.foreldrepenger.behandlingslager.aktør.historikk;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import no.nav.vedtak.konfig.Tid;
 
-public class Gyldighetsperiode {
+public record Gyldighetsperiode(LocalDate fom, LocalDate tom) {
 
-    private LocalDate fom;
-    private LocalDate tom;
-
-    private Gyldighetsperiode(LocalDate fom, LocalDate tom) {
-        // Fom er null om perioden for en opplysning gjelder fra personen ble født
-        // Setter da fom til tidenes begynnelse for å slippe et ekstra kall for å hente fødselsdato
-        if (fom == null) {
-            fom = Tid.TIDENES_BEGYNNELSE;
-        }
-        if (tom == null) {
-            tom = Tid.TIDENES_ENDE;
-        }
-
-        this.fom = fom;
-        this.tom = tom;
+    public Gyldighetsperiode {
+        Objects.requireNonNull(fom, "fom");
+        Objects.requireNonNull(tom, "tom");
     }
 
     public static Gyldighetsperiode innenfor(LocalDate fom, LocalDate tom) {
-        return new Gyldighetsperiode(fom, tom);
+        return new Gyldighetsperiode(Optional.ofNullable(fom).orElse(Tid.TIDENES_BEGYNNELSE), Optional.ofNullable(tom).orElse(Tid.TIDENES_ENDE));
     }
 
-    public static Gyldighetsperiode fraTilTidenesEnde(LocalDate fom) {
-        return new Gyldighetsperiode(fom, Tid.TIDENES_ENDE);
+    public static Gyldighetsperiode fraDates(Date dateFom, Date dateTom) {
+        var gyldigFra = dateFom == null ? null : LocalDateTime.ofInstant(dateFom.toInstant(), ZoneId.systemDefault()).toLocalDate();
+        var gyldigTil = dateTom == null ? null : LocalDateTime.ofInstant(dateTom.toInstant(), ZoneId.systemDefault()).toLocalDate();
+        return Gyldighetsperiode.innenfor(gyldigFra, gyldigTil);
     }
 
-    public LocalDate getFom() {
-        return this.fom;
+    public boolean overlapper(Gyldighetsperiode other) {
+        var fomBeforeOrEqual = this.fom().isBefore(other.tom()) || this.fom().isEqual(other.tom());
+        var tomAfterOrEqual = this.tom().isAfter(other.fom()) || this.tom().isEqual(other.fom());
+        return fomBeforeOrEqual && tomAfterOrEqual;
     }
 
-    public LocalDate getTom() {
-        return this.tom;
+    // Returnerer periode med tom-dato satt til dagen før neste periode hvis finnes, ellers uendret
+    public static Gyldighetsperiode justerForSenere(List<Gyldighetsperiode> tidsserie, Gyldighetsperiode periode) {
+        if (tidsserie.stream().noneMatch(p -> p.fom().isAfter(periode.fom()) && p.fom().isBefore(periode.tom())))
+            return periode;
+        return tidsserie.stream()
+            .map(Gyldighetsperiode::fom)
+            .filter(d -> d.isAfter(periode.fom()))
+            .min(Comparator.naturalOrder())
+            .map(d -> Gyldighetsperiode.innenfor(periode.fom(), d.minusDays(1))).orElse(periode);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        var that = (Gyldighetsperiode) o;
-        return Objects.equals(fom, that.fom) &&
-            Objects.equals(tom, that.tom);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(fom, tom);
-    }
-
-    @Override
-    public String toString() {
-        var sb = new StringBuilder("Gyldig{");
-        sb.append("fom=").append(fom);
-        sb.append(", tom=").append(tom);
-        sb.append('}');
-        return sb.toString();
-    }
 }
