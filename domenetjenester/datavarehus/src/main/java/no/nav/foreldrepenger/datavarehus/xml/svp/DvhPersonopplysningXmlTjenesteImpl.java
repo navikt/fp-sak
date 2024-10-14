@@ -363,7 +363,7 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
     private Addresse lagAdresse(PersonAdresseEntitet adresseFraBehandling) {
         var adresse = personopplysningDvhObjectFactory.createAddresse();
         adresse.setAdressetype(VedtakXmlUtil.lagKodeverksOpplysning(adresseFraBehandling.getAdresseType()));
-        adresse.setLand(VedtakXmlUtil.lagStringOpplysning(adresseFraBehandling.getLand()));
+        adresse.setLand(VedtakXmlUtil.lagStringOpplysning(adresseFraBehandling.getLand().getNavn()));
         adresse.setPostnummer(VedtakXmlUtil.lagStringOpplysning(adresseFraBehandling.getPostnummer()));
         return adresse;
     }

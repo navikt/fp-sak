@@ -54,18 +54,18 @@ public final class PersonInformasjon {
             kladd.type = type;
         }
 
-        public Builder leggTilPersonstatus(Personstatus.Builder builder) {
-            kladd.personstatuser.add(builder.build());
+        public Builder leggTilPersonstatus(Personstatus builder) {
+            kladd.personstatuser.add(builder);
             return this;
         }
 
-        public Builder leggTilStatsborgerskap(Statsborgerskap.Builder builder) {
-            kladd.statsborgerskap.add(builder.build());
+        public Builder leggTilStatsborgerskap(Statsborgerskap builder) {
+            kladd.statsborgerskap.add(builder);
             return this;
         }
 
-        public Builder leggTilAdresser(PersonAdresse.Builder builder) {
-            kladd.adresser.add(builder.build());
+        public Builder leggTilAdresser(PersonAdresse builder) {
+            kladd.adresser.add(builder);
             return this;
         }
 
@@ -79,8 +79,8 @@ public final class PersonInformasjon {
             return this;
         }
 
-        public Builder leggTilOpphold(Oppholdstillatelse.OppholdstillatelseBuilder builder) {
-            kladd.opphold.add(builder.build());
+        public Builder leggTilOpphold(Oppholdstillatelse builder) {
+            kladd.opphold.add(builder);
             return this;
         }
 

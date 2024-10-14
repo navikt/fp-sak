@@ -14,6 +14,9 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
+import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.AdressePeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
@@ -27,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonAdresse;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.fakta.OmsorgRettUttakTjeneste;
@@ -106,12 +108,14 @@ class KontrollerOmsorgRettStegTest {
 
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
 
-        var bostedsadresse = PersonAdresse.builder().adresselinje1("Portveien 2").postnummer("7000").land(Landkoder.NOR);
+        var bostedsadresse = Adresseinfo.builder(AdresseType.BOSTEDSADRESSE)
+            .medAdresselinje1("Portveien 2").medPostnummer("7000").medLand(Landkoder.NOR)
+            .build();
 
         var annenPrt = builderForRegisteropplysninger
                 .medPersonas()
                 .mann(AKTØR_ID_FAR, SivilstandType.GIFT)
-                .bostedsadresse(bostedsadresse)
+                .bostedsadresse(new AdressePeriode(null, bostedsadresse))
                 .relasjonTil(AKTØR_ID_MOR, RelasjonsRolleType.EKTE, true)
                 .build();
         scenario.medRegisterOpplysninger(annenPrt);
@@ -119,7 +123,7 @@ class KontrollerOmsorgRettStegTest {
         var søker = builderForRegisteropplysninger
                 .medPersonas()
                 .kvinne(AKTØR_ID_MOR, SivilstandType.GIFT)
-                .bostedsadresse(bostedsadresse)
+                .bostedsadresse(new AdressePeriode(null, bostedsadresse))
                 .statsborgerskap(Landkoder.NOR)
                 .relasjonTil(AKTØR_ID_FAR, RelasjonsRolleType.EKTE, true)
                 .build();

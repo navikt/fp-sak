@@ -294,7 +294,7 @@ public class PersonInformasjonBuilder {
             return this;
         }
 
-        public AdresseBuilder medLand(String land) {
+        public AdresseBuilder medLand(Landkoder land) {
             kladd.setLand(land);
             return this;
         }
