@@ -95,6 +95,7 @@ public class UttakYrkesaktiviteter {
             skjæringstidspunkt.getUtledetSkjæringstidspunkt());
 
         return filter.getAlleYrkesaktiviteter().stream()
+            .filter(ya -> !ya.getAlleAktivitetsAvtaler().isEmpty())
             .filter(ya -> skalYrkesaktivitetTellesMhpProsent(filter, ya, dato))
             .map(ya -> finnStillingsprosent(filter.getAktivitetsAvtalerForArbeid(ya), dato))
             .reduce(BigDecimal::add)
