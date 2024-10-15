@@ -10,6 +10,7 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.KontaktinformasjonIM;
@@ -20,11 +21,13 @@ class InntektsmeldingDtoTjeneste {
 
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private MottatteDokumentRepository mottatteDokumentRepository;
+    private VirksomhetTjeneste virksomhetTjeneste;
 
     @Inject
-    InntektsmeldingDtoTjeneste(InntektsmeldingTjeneste inntektsmeldingTjeneste, MottatteDokumentRepository mottatteDokumentRepository) {
+    InntektsmeldingDtoTjeneste(InntektsmeldingTjeneste inntektsmeldingTjeneste, MottatteDokumentRepository mottatteDokumentRepository, VirksomhetTjeneste virksomhetTjeneste) {
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.mottatteDokumentRepository = mottatteDokumentRepository;
+        this.virksomhetTjeneste = virksomhetTjeneste;
     }
 
     InntektsmeldingDtoTjeneste() {
@@ -53,11 +56,14 @@ class InntektsmeldingDtoTjeneste {
         var naturalytelser = inntektsmelding.getNaturalYtelser().stream().map(n -> new InntektsmeldingDto.NaturalYtelse(n.getPeriode().getFomDato(), n.getPeriode().getTomDato(),n.getBeloepPerMnd().getVerdi(), n.getType())).toList();
         var refusjon = inntektsmelding.getEndringerRefusjon().stream().map(r -> new InntektsmeldingDto.Refusjon(r.getRefusjonsbeløp().getVerdi(), r.getFom())).toList();
 
+        // TODO: whatdo hvis feiler?
+        var virksomhet = virksomhetTjeneste.hentOrganisasjon(inntektsmelding.getArbeidsgiver().getOrgnr());
+
         return new InntektsmeldingDto(
             false,
             inntektsmelding.getInntektBeløp().getVerdi(),
             inntektsmelding.getRefusjonBeløpPerMnd() == null ? null : inntektsmelding.getRefusjonBeløpPerMnd().getVerdi(),
-            arbeidsgiver,
+            virksomhet.getNavn(),
             kontaktinfo.map(KontaktinformasjonIM::kontaktPerson).orElse(null),
             kontaktinfo.map(KontaktinformasjonIM::kontaktTelefonNummer).orElse(null),
             inntektsmelding.getJournalpostId(),

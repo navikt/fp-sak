@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 record InntektsmeldingDto(Boolean erAktiv, BigDecimal inntektPrMnd,
                                  BigDecimal refusjonPrMnd,
-                                 Arbeidsgiver arbeidsgiver,
+                                 String arbeidsgiverNavn,
                           String kontaktpersonNavn,
                           String kontaktpersonNummer,
                                  JournalpostId journalpostId,

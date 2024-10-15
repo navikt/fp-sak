@@ -7,6 +7,8 @@ import java.util.List;
 
 import jakarta.persistence.EntityManager;
 
+import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -30,7 +32,7 @@ class InntektsmeldingDtoTjenesteTest {
     void henter_im(EntityManager entityManager) {
         var iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         var repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        var tjeneste = new InntektsmeldingDtoTjeneste(new InntektsmeldingTjeneste(iayTjeneste, new FpInntektsmeldingTjeneste()), repositoryProvider.getMottatteDokumentRepository());
+        var tjeneste = new InntektsmeldingDtoTjeneste(new InntektsmeldingTjeneste(iayTjeneste, new FpInntektsmeldingTjeneste()), repositoryProvider.getMottatteDokumentRepository(), new VirksomhetTjeneste());
 
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagre(repositoryProvider);
@@ -54,7 +56,7 @@ class InntektsmeldingDtoTjenesteTest {
 
         assertThat(inntektsmeldingerForSak).hasSize(1);
         var im = inntektsmeldingerForSak.stream().findFirst().get();
-        assertThat(im.arbeidsgiver().identifikator()).isEqualTo(arbeidsgiver.getIdentifikator());
+        assertThat(im.arbeidsgiverNavn()).isEqualTo(arbeidsgiver.getIdentifikator());
         assertThat(im.innsendingstidspunkt()).isEqualTo(innsendingstidspunkt);
         assertThat(im.mottattTidspunkt()).isEqualTo(mottattTidspunkt);
         assertThat(im.inntektPrMnd()).isEqualTo(inntekt.getVerdi());
