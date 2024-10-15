@@ -94,6 +94,7 @@ public class BehandlingStatistikkRepository {
                  RE_HENDELSE_DØDFØDSEL,
                  RE_HENDELSE_UTFLYTTING -> Behandlingsårsak.FOLKEREGISTER;
             case RE_VEDTAK_PLEIEPENGER -> Behandlingsårsak.PLEIEPENGER;
+            case OPPHØR_YTELSE_NYTT_BARN -> Behandlingsårsak.NESTESAK;
             case UDEFINERT -> switch (behandlingType) {
                 case FØRSTEGANGSSØKNAD -> Behandlingsårsak.SØKNAD;
                 case KLAGE, ANKE -> Behandlingsårsak.KLAGE_ANKE;
@@ -135,6 +136,7 @@ public class BehandlingStatistikkRepository {
         REGULERING,
         KLAGE_OMGJØRING,
         INFOBREV,
+        NESTESAK,
         ANNET
     }
 }
