@@ -55,7 +55,7 @@ class FpOversiktDtoTjeneste {
         };
     }
 
-    Set<InntektsmeldingDto> hentInntektsmeldingerForSak(String saksnummer) {
+    List<InntektsmeldingDto> hentInntektsmeldingerForSak(String saksnummer) {
         return inntektsmeldingTjeneste.hentInntektsmeldingerForSak(new Saksnummer(saksnummer));
     }
 

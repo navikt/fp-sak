@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -11,6 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ApplicationScoped
@@ -30,11 +31,11 @@ class InntektsmeldingDtoTjeneste {
     }
 
 
-    public Set<InntektsmeldingDto> hentInntektsmeldingerForSak(Saksnummer saksnummer) {
+    public List<InntektsmeldingDto> hentInntektsmeldingerForSak(Saksnummer saksnummer) {
         return inntektsmeldingTjeneste.hentAlleInntektsmeldingerForFagsak(saksnummer)
             .stream()
             .map(this::map)
-            .collect(Collectors.toSet());
+            .collect(Collectors.toList());
     }
 
     private InntektsmeldingDto map(Inntektsmelding inntektsmelding) {
@@ -43,8 +44,21 @@ class InntektsmeldingDtoTjeneste {
             .stream()
             .map(MottattDokument::getMottattTidspunkt)
             .min(LocalDateTime::compareTo)
-            .orElseThrow();
-        return new InntektsmeldingDto(inntektsmelding.getJournalpostId(),
-            arbeidsgiver, inntektsmelding.getInnsendingstidspunkt(), inntektsmelding.getInntektBeløp().getVerdi(), mottattTidspunkt);
+            .orElseThrow(); //TODO
+
+        var naturalytelser = inntektsmelding.getNaturalYtelser().stream().map(n -> new InntektsmeldingDto.NaturalYtelse(n.getPeriode().getFomDato(), n.getPeriode().getTomDato(),n.getBeloepPerMnd().getVerdi(), n.getType())).toList();
+        var refusjon = inntektsmelding.getEndringerRefusjon().stream().map(r -> new InntektsmeldingDto.Refusjon(r.getRefusjonsbeløp().getVerdi(), r.getFom())).toList();
+
+        return new InntektsmeldingDto(
+            inntektsmelding.getInntektBeløp().getVerdi(),
+            inntektsmelding.getRefusjonBeløpPerMnd() == null ? null : inntektsmelding.getRefusjonBeløpPerMnd().getVerdi(),
+            arbeidsgiver,
+            inntektsmelding.getJournalpostId(),
+            inntektsmelding.getInnsendingstidspunkt(),
+            mottattTidspunkt,
+            inntektsmelding.getStartDatoPermisjon().orElse(null),
+            naturalytelser,
+            refusjon
+        );
     }
 }

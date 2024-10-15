@@ -42,6 +42,7 @@ class InntektsmeldingDtoTjenesteTest {
         var imBuilder = InntektsmeldingBuilder.builder()
             .medArbeidsgiver(arbeidsgiver)
             .medBeløp(inntekt.getVerdi())
+            .medRefusjon(new Beløp(40000).getVerdi())
             .medJournalpostId(journalpostId)
             .medInnsendingstidspunkt(innsendingstidspunkt);
         var fagsak = behandling.getFagsak();
@@ -56,7 +57,7 @@ class InntektsmeldingDtoTjenesteTest {
         assertThat(im.arbeidsgiver().identifikator()).isEqualTo(arbeidsgiver.getIdentifikator());
         assertThat(im.innsendingstidspunkt()).isEqualTo(innsendingstidspunkt);
         assertThat(im.mottattTidspunkt()).isEqualTo(mottattTidspunkt);
-        assertThat(im.inntekt()).isEqualTo(inntekt.getVerdi());
+        assertThat(im.inntektPrMnd()).isEqualTo(inntekt.getVerdi());
         assertThat(im.journalpostId()).isEqualTo(journalpostId);
     }
 
