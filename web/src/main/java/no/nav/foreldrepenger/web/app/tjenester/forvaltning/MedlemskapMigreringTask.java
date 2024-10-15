@@ -16,6 +16,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.Medlemskapsv
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapsvilkårVurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -81,7 +83,7 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
                 if (medlemFom.isPresent()) {
                     LOG.info("Medlemfom for {} {}", behandlingId, medlemFom.orElse(null));
                     var medlemskapsvilkårVurderingEntitet = MedlemskapsvilkårVurderingEntitet.forMedlemFom(vilkårResultat, medlemFom.get());
-                    medlemskapsvilkårVurderingRepository.lagre(medlemskapsvilkårVurderingEntitet);
+                    //medlemskapsvilkårVurderingRepository.lagre(medlemskapsvilkårVurderingEntitet);
                 }
             }
             case FORELDREPENGER, SVANGERSKAPSPENGER -> {
@@ -91,7 +93,7 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
                     LOG.info("Opphør for {} {} {} {}", behandling.getFagsakYtelseType(), behandlingId, opphørsdato.get(), opphørsårsak.orElse(null));
                     var medlemskapsvilkårVurderingEntitet = MedlemskapsvilkårVurderingEntitet.forOpphør(vilkårResultat, opphørsdato.get(),
                         opphørsårsak.orElse(null));
-                    medlemskapsvilkårVurderingRepository.lagre(medlemskapsvilkårVurderingEntitet);
+                    //medlemskapsvilkårVurderingRepository.lagre(medlemskapsvilkårVurderingEntitet);
                 }
             }
             default -> throw new IllegalStateException("Unexpected value: " + behandling.getFagsakYtelseType());
@@ -104,6 +106,11 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
             var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
             if (opphørsdato.get().isAfter(skjæringstidspunkter.getUtledetSkjæringstidspunkt())) {
                 return opphørsdato;
+            } else {
+                var vilkårResultat = vilkårResultatRepository.hent(behandlingId);
+                if (vilkårResultat.getVilkårene().stream().anyMatch(v -> v.getVilkårType() == VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE && v.getGjeldendeVilkårUtfall() == VilkårUtfallType.IKKE_OPPFYLT)) {
+                    LOG.info("Opphørsdato ikke etter stp og løpende vilkår er avslått {} {}", opphørsdato.get(), behandlingId);
+                }
             }
         }
         return Optional.empty();
