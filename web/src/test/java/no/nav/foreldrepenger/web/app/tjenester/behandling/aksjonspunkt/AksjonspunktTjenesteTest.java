@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Set;
+import java.util.UUID;
 
 import jakarta.inject.Inject;
 
@@ -113,7 +114,7 @@ class AksjonspunktTjenesteTest {
 
         var dto = new BekreftTerminbekreftelseAksjonspunktDto(BEGRUNNELSE, TERMINDATO, UTSTEDTDATO, 1);
 
-        KontekstHolder.setKontekst(RequestKontekst.forRequest("IDENT", "IDENT", IdentType.InternBruker, null, Set.of()));
+        KontekstHolder.setKontekst(RequestKontekst.forRequest("IDENT", "IDENT", IdentType.InternBruker, null, UUID.randomUUID(), Set.of()));
 
         // Act
         aksjonspunktTjenesteImpl.setAnsvarligSaksbehandler(singletonList(dto), behandlingSpy);
