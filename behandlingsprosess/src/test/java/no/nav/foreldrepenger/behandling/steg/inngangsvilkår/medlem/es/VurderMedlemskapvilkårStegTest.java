@@ -15,7 +15,10 @@ import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.medlemskap.es.Medle
 import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.medlemskap.es.VurderMedlemskapvilkårStegImpl;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
+import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.AdressePeriode;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Gyldighetsperiode;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDekningType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
@@ -27,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonAdresse;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.BotidCore2024;
 
@@ -170,10 +172,8 @@ class VurderMedlemskapvilkårStegTest {
             .kvinne(søkerAktørId, SivilstandType.GIFT)
             .personstatus(PersonstatusType.BOSA)
             .statsborgerskap(Landkoder.NOR)
-            .adresse(AdresseType.BOSTEDSADRESSE, PersonAdresse.builder()
-                .land(Landkoder.NOR)
-                .adresseType(AdresseType.BOSTEDSADRESSE)
-                .periode(termindato.minusYears(2), termindato.plusYears(2)))
+            .adresse(AdresseType.BOSTEDSADRESSE, new AdressePeriode(Gyldighetsperiode.innenfor(termindato.minusYears(2), termindato.plusYears(2)),
+                Adresseinfo.builder(AdresseType.BOSTEDSADRESSE).medLand(Landkoder.NOR).build()))
             .build();
         scenario.medRegisterOpplysninger(søker);
         return scenario;

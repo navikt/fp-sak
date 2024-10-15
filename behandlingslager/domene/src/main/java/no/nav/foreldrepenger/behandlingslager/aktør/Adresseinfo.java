@@ -3,6 +3,8 @@ package no.nav.foreldrepenger.behandlingslager.aktør;
 import java.util.Objects;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
+
 public class Adresseinfo {
 
     private AdresseType adresseType;
@@ -13,7 +15,7 @@ public class Adresseinfo {
     private String adresselinje4;
     private String postnummer;
     private String poststed;
-    private String land;
+    private Landkoder land;
 
     private Adresseinfo() {
     }
@@ -46,7 +48,7 @@ public class Adresseinfo {
         return poststed;
     }
 
-    public String getLand() {
+    public Landkoder getLand() {
         return land;
     }
 
@@ -146,7 +148,7 @@ public class Adresseinfo {
             return this;
         }
 
-        public Builder medLand(String land) {
+        public Builder medLand(Landkoder land) {
             this.kladd.land = land;
             return this;
         }

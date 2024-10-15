@@ -197,7 +197,7 @@ public class AdresseMapper {
             .medAdresselinje1(gateadresse)
             .medPostnummer(postnummer)
             .medPoststed(tilPoststed(postnummer))
-            .medLand(Landkoder.NOR.getKode())
+            .medLand(Landkoder.NOR)
             .build();
     }
 
@@ -212,7 +212,7 @@ public class AdresseMapper {
             .medAdresselinje2(matrikkeladresse.getTilleggsnavn() != null ? matrikkeladresse.getBruksenhetsnummer() : null)
             .medPostnummer(postnummer)
             .medPoststed(tilPoststed(postnummer))
-            .medLand(Landkoder.NOR.getKode())
+            .medLand(Landkoder.NOR)
             .build();
     }
 
@@ -226,7 +226,7 @@ public class AdresseMapper {
             .medAdresselinje2(postboksadresse.getPostbokseier() != null ? postboks : null)
             .medPostnummer(postnummer)
             .medPoststed(tilPoststed(postnummer))
-            .medLand(Landkoder.NOR.getKode())
+            .medLand(Landkoder.NOR)
             .build();
     }
 
@@ -240,12 +240,12 @@ public class AdresseMapper {
             .medAdresselinje3(postadresse.getAdresselinje3() != null ? postadresse.getAdresselinje3().toUpperCase() : null)
             .medPostnummer(postnummer)
             .medPoststed(tilPoststed(postnummer))
-            .medLand(Landkoder.NOR.getKode())
+            .medLand(Landkoder.NOR)
             .build();
     }
 
     private static Adresseinfo mapUkjentadresse(UkjentBosted ukjentBosted) {
-        return Adresseinfo.builder(AdresseType.UKJENT_ADRESSE).medLand(Landkoder.XUK.getKode()).build();
+        return Adresseinfo.builder(AdresseType.UKJENT_ADRESSE).medLand(Landkoder.XUK).build();
     }
 
     private static Adresseinfo mapUtenlandskadresse(AdresseType type, UtenlandskAdresse utenlandskAdresse) {
@@ -258,7 +258,7 @@ public class AdresseMapper {
         return Adresseinfo.builder(type)
             .medAdresselinje1(linje1)
             .medAdresselinje2(linje2)
-            .medLand(utenlandskAdresse.getLandkode())
+            .medLand(Landkoder.fraKode(utenlandskAdresse.getLandkode()))
             .build();
     }
 
@@ -272,7 +272,7 @@ public class AdresseMapper {
             .medAdresselinje2(utenlandskAdresse.getAdresselinje2() != null ? utenlandskAdresse.getAdresselinje2() : postlinje)
             .medAdresselinje3(utenlandskAdresse.getAdresselinje3() != null ? utenlandskAdresse.getAdresselinje3() : utenlandskAdresse.getAdresselinje2() != null ? postlinje : null)
             .medAdresselinje4(sisteline)
-            .medLand(utenlandskAdresse.getLandkode())
+            .medLand(Landkoder.fraKode(utenlandskAdresse.getLandkode()))
             .build();
     }
 

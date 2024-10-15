@@ -2,11 +2,11 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning;
 
 import static no.nav.foreldrepenger.web.app.util.StringUtils.formaterMedStoreOgSmåBokstaver;
 
+import java.time.LocalDate;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonAdresseEntitet;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-
-import java.time.LocalDate;
 
 public class PersonadresseDto {
 
@@ -29,7 +29,7 @@ public class PersonadresseDto {
         dto.setAdresselinje3(formaterMedStoreOgSmåBokstaver(adresse.getAdresselinje3()));
         dto.setPoststed(formaterMedStoreOgSmåBokstaver(adresse.getPoststed()));
         dto.setPostNummer(adresse.getPostnummer());
-        dto.setLand(Landkoder.navnLesbart(Landkoder.fraKode(adresse.getLand())));
+        dto.setLand(Landkoder.navnLesbart(adresse.getLand()));
         dto.setAdresseType(adresse.getAdresseType());
         return dto;
     }

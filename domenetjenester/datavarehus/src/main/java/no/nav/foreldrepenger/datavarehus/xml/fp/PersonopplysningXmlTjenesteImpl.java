@@ -352,7 +352,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
         if (adresseFraBehandling.getAdresselinje4() != null) {
             adresse.setAddresselinje4(VedtakXmlUtil.lagStringOpplysning(adresseFraBehandling.getAdresselinje4()));
         }
-        adresse.setLand(VedtakXmlUtil.lagStringOpplysning(adresseFraBehandling.getLand()));
+        adresse.setLand(VedtakXmlUtil.lagStringOpplysning(adresseFraBehandling.getLand().getNavn()));
         adresse.setMottakersNavn(VedtakXmlUtil.lagStringOpplysning(personopplysning.getNavn()));
         adresse.setPostnummer(VedtakXmlUtil.lagStringOpplysning(adresseFraBehandling.getPostnummer()));
         return adresse;

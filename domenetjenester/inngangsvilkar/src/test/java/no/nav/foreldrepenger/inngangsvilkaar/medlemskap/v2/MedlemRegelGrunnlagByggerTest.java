@@ -18,9 +18,12 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
+import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.AdressePeriode;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Gyldighetsperiode;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittLandOppholdEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
@@ -29,7 +32,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonAdresse;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -70,10 +72,8 @@ class MedlemRegelGrunnlagByggerTest {
             .medDefaultFordeling(stp)
             .leggTilMedlemskapPeriode(registerMedlemskapsperiode);
         var personInformasjonBuilder = scenario.opprettBuilderForRegisteropplysninger();
-        var adresse = PersonAdresse.builder()
-            .adresseType(AdresseType.BOSTEDSADRESSE)
-            .periode(fødselsdato.minusYears(5), Tid.TIDENES_ENDE)
-            .land(Landkoder.NOR);
+        var adressinfo = Adresseinfo.builder(AdresseType.BOSTEDSADRESSE).medLand(Landkoder.NOR);
+        var adresse = new AdressePeriode(Gyldighetsperiode.innenfor(fødselsdato.minusYears(5), Tid.TIDENES_ENDE), adressinfo.build());
         var personstatusFom = fødselsdato.minusYears(10);
         var personstatusTom = Tid.TIDENES_ENDE;
         var statsborgerFom = fødselsdato.minusYears(10);
@@ -119,8 +119,8 @@ class MedlemRegelGrunnlagByggerTest {
 
         assertThat(resultat.personopplysninger().adresser()).hasSize(1);
         var adresse1 = resultat.personopplysninger().adresser().stream().findFirst().orElseThrow();
-        assertThat(adresse1.periode().getFomDato()).isEqualTo(adresse.getPeriode().getFomDato());
-        assertThat(adresse1.periode().getTomDato()).isEqualTo(adresse.getPeriode().getTomDato());
+        assertThat(adresse1.periode().getFomDato()).isEqualTo(adresse.gyldighetsperiode().fom());
+        assertThat(adresse1.periode().getTomDato()).isEqualTo(adresse.gyldighetsperiode().tom());
         assertThat(adresse1.erUtenlandsk()).isFalse();
         assertThat(adresse1.type()).isEqualTo(Adresse.Type.BOSTEDSADRESSE);
 
