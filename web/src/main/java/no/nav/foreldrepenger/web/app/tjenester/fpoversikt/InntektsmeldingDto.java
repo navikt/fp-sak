@@ -11,9 +11,11 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.NaturalYtelseType;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-record InntektsmeldingDto(BigDecimal inntektPrMnd,
+record InntektsmeldingDto(Boolean erAktiv, BigDecimal inntektPrMnd,
                                  BigDecimal refusjonPrMnd,
                                  Arbeidsgiver arbeidsgiver,
+                          String kontaktpersonNavn,
+                          String kontaktpersonNummer,
                                  JournalpostId journalpostId,
                                  LocalDateTime innsendingstidspunkt,
                                  LocalDateTime mottattTidspunkt,

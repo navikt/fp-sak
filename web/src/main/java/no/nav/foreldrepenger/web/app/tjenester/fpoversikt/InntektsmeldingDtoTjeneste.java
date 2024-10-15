@@ -11,8 +11,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.KontaktinformasjonIM;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidInntektsmelding.ArbeidOgInntektsmeldingDtoTjeneste;
 
 @ApplicationScoped
 class InntektsmeldingDtoTjeneste {
@@ -46,13 +47,19 @@ class InntektsmeldingDtoTjeneste {
             .min(LocalDateTime::compareTo)
             .orElseThrow(); //TODO
 
+        var motatteDokument = mottatteDokumentRepository.hentMottattDokument(inntektsmelding.getJournalpostId()).stream().findFirst();
+        var kontaktinfo = motatteDokument.flatMap(ArbeidOgInntektsmeldingDtoTjeneste::trekkUtKontaktInfo);
+
         var naturalytelser = inntektsmelding.getNaturalYtelser().stream().map(n -> new InntektsmeldingDto.NaturalYtelse(n.getPeriode().getFomDato(), n.getPeriode().getTomDato(),n.getBeloepPerMnd().getVerdi(), n.getType())).toList();
         var refusjon = inntektsmelding.getEndringerRefusjon().stream().map(r -> new InntektsmeldingDto.Refusjon(r.getRefusjonsbeløp().getVerdi(), r.getFom())).toList();
 
         return new InntektsmeldingDto(
+            false,
             inntektsmelding.getInntektBeløp().getVerdi(),
             inntektsmelding.getRefusjonBeløpPerMnd() == null ? null : inntektsmelding.getRefusjonBeløpPerMnd().getVerdi(),
             arbeidsgiver,
+            kontaktinfo.map(KontaktinformasjonIM::kontaktPerson).orElse(null),
+            kontaktinfo.map(KontaktinformasjonIM::kontaktTelefonNummer).orElse(null),
             inntektsmelding.getJournalpostId(),
             inntektsmelding.getInnsendingstidspunkt(),
             mottattTidspunkt,
