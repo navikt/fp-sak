@@ -78,20 +78,18 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
         switch (behandling.getFagsakYtelseType()) {
             case ENGANGSTØNAD -> {
                 var medlemFom = medlemTjeneste.hentMedlemFomDato(behandlingId);
-                LOG.info("Medlemfom for {} {}", behandlingId, medlemFom.orElse(null));
                 if (medlemFom.isPresent()) {
+                    LOG.info("Medlemfom for {} {}", behandlingId, medlemFom.orElse(null));
                     var medlemskapsvilkårVurderingEntitet = MedlemskapsvilkårVurderingEntitet.forMedlemFom(vilkårResultat, medlemFom.get());
                     medlemskapsvilkårVurderingRepository.lagre(medlemskapsvilkårVurderingEntitet);
                 }
             }
             case FORELDREPENGER, SVANGERSKAPSPENGER -> {
                 var opphørsdato = finnOpphørsdato(behandlingId);
-                LOG.info("Opphørsdato for {} {} {}", behandling.getFagsakYtelseType(), behandlingId, opphørsdato.orElse(null));
-                MedlemskapsvilkårVurderingEntitet medlemskapsvilkårVurderingEntitet;
                 if (opphørsdato.isPresent()) {
                     var opphørsårsak = medlemTjeneste.hentAvslagsårsak(behandlingId);
-                    LOG.info("Opphørsårsak for {} {} {}", behandling.getFagsakYtelseType(), behandlingId, opphørsårsak.orElse(null));
-                    medlemskapsvilkårVurderingEntitet = MedlemskapsvilkårVurderingEntitet.forOpphør(vilkårResultat, opphørsdato.get(),
+                    LOG.info("Opphør for {} {} {} {}", behandling.getFagsakYtelseType(), behandlingId, opphørsdato.get(), opphørsårsak.orElse(null));
+                    var medlemskapsvilkårVurderingEntitet = MedlemskapsvilkårVurderingEntitet.forOpphør(vilkårResultat, opphørsdato.get(),
                         opphørsårsak.orElse(null));
                     medlemskapsvilkårVurderingRepository.lagre(medlemskapsvilkårVurderingEntitet);
                 }

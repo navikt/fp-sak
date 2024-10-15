@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
@@ -46,6 +47,19 @@ public class MedlemskapsvilkårVurderingRepository {
 
     public Optional<MedlemskapsvilkårVurderingEntitet> hentHvisEksisterer(long behandlingId) {
         return behandlingsresultatRepository.hentHvisEksisterer(behandlingId).flatMap(br -> hentHvisEksisterer(br.getVilkårResultat()));
+    }
+
+    public void kopierGrunnlagFraEksisterendeBehandling(Behandling origBehandling, Behandling nyBehandling) {
+        var eksisterendeGrunnlag = hentHvisEksisterer(origBehandling.getId());
+        if (eksisterendeGrunnlag.isEmpty()) {
+            return;
+        }
+        var nyttVilkårResultat = behandlingsresultatRepository.hent(nyBehandling.getId()).getVilkårResultat();
+        var nyttGrunnlag = new MedlemskapsvilkårVurderingEntitet(nyttVilkårResultat,
+            eksisterendeGrunnlag.get().getOpphør().orElse(null),
+            eksisterendeGrunnlag.get().getMedlemFom().orElse(null));
+        entityManager.persist(nyttGrunnlag);
+        entityManager.flush();
     }
 
     private Optional<MedlemskapsvilkårVurderingEntitet> hentHvisEksisterer(VilkårResultat vilkårResultat) {

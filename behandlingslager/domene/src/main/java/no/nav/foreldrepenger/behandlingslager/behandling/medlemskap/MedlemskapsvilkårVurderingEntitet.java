@@ -54,7 +54,7 @@ public class MedlemskapsvilkårVurderingEntitet extends BaseEntitet {
     MedlemskapsvilkårVurderingEntitet() {
     }
 
-    private MedlemskapsvilkårVurderingEntitet(VilkårResultat vilkårResultat,
+    public MedlemskapsvilkårVurderingEntitet(VilkårResultat vilkårResultat,
                                              MedlemskapOpphør medlemskapOpphør,
                                              LocalDate medlemFom) {
         Objects.requireNonNull(vilkårResultat);
