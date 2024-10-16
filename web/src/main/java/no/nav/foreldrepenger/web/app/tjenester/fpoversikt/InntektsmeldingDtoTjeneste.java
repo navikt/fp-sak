@@ -143,8 +143,7 @@ class InntektsmeldingDtoTjeneste {
         gruppertPåType.forEach((key, value) -> {
             var sortert = value.stream()
                 .sorted(Comparator.comparing(a -> a.getPeriode().getFomDato()))
-                .collect(Collectors.toList());
-            Collections.reverse(sortert);
+                .toList();
 
             for (int i = 0; i < sortert.size(); i++) {
                 var current = sortert.get(i);

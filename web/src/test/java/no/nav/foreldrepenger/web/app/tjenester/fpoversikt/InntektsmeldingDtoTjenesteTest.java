@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -12,6 +14,10 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.person.PersonIdentTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
+
+import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.NaturalYtelseType;
+import no.nav.vedtak.konfig.Tid;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,7 +57,6 @@ class InntektsmeldingDtoTjenesteTest {
 
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagre(repositoryProvider);
-        var innsendingstidspunkt = LocalDateTime.now();
         var mottattTidspunkt = LocalDateTime.now().minusWeeks(1);
         var inntekt = new Beløp(400000);
         var arbeidsgiver = Arbeidsgiver.virksomhet("123");
@@ -60,8 +65,7 @@ class InntektsmeldingDtoTjenesteTest {
             .medArbeidsgiver(arbeidsgiver)
             .medBeløp(inntekt.getVerdi())
             .medRefusjon(new Beløp(40000).getVerdi())
-            .medJournalpostId(journalpostId)
-            .medInnsendingstidspunkt(innsendingstidspunkt);
+            .medJournalpostId(journalpostId);
         var fagsak = behandling.getFagsak();
         iayTjeneste.lagreInntektsmeldinger(fagsak.getSaksnummer(), behandling.getId(), List.of(imBuilder));
 
@@ -75,6 +79,19 @@ class InntektsmeldingDtoTjenesteTest {
         assertThat(im.mottattTidspunkt()).isEqualTo(mottattTidspunkt);
         assertThat(im.inntektPrMnd()).isEqualTo(inntekt.getVerdi());
         assertThat(im.journalpostId()).isEqualTo(journalpostId);
+    }
+
+    @Test
+    void konverterAktiveNaturalytelserTilBortfalte() {
+        var aktiveNaturalytelser = List.of(
+            new NaturalYtelse(Tid.TIDENES_BEGYNNELSE, LocalDate.of(2024, 10, 16), new BigDecimal(1000), NaturalYtelseType.ELEKTRISK_KOMMUNIKASJON),
+            new NaturalYtelse(LocalDate.of(2024, 11, 16), LocalDate.of(2024, 11, 20), new BigDecimal(1000), NaturalYtelseType.ELEKTRISK_KOMMUNIKASJON),
+            new NaturalYtelse(LocalDate.of(2024, 12, 16), Tid.TIDENES_ENDE, new BigDecimal(1000), NaturalYtelseType.ELEKTRISK_KOMMUNIKASJON)
+        );
+        var bortfaltePerioder = InntektsmeldingDtoTjeneste.konverterAktivePerioderTilBortfaltePerioder(aktiveNaturalytelser);
+        assertThat(bortfaltePerioder).hasSize(2);
+        assertThat(bortfaltePerioder.get(0)).isEqualTo(new FpOversiktInntektsmeldingDto.NaturalYtelse(LocalDate.of(2024, 10, 17), LocalDate.of(2024, 11, 15), new BigDecimal(1000), NaturalYtelseType.ELEKTRISK_KOMMUNIKASJON));
+        assertThat(bortfaltePerioder.get(1)).isEqualTo(new FpOversiktInntektsmeldingDto.NaturalYtelse(LocalDate.of(2024, 11, 21), LocalDate.of(2024, 12, 15), new BigDecimal(1000), NaturalYtelseType.ELEKTRISK_KOMMUNIKASJON));
     }
 
     private static MottattDokument mottattDokument(Behandling behandling, JournalpostId journalPostId, LocalDateTime mottattTidspunkt) {
