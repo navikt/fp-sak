@@ -20,7 +20,7 @@ record InntektsmeldingDto(Boolean erAktiv, BigDecimal inntektPrMnd,
                                  LocalDateTime innsendingstidspunkt,
                                  LocalDateTime mottattTidspunkt,
                                  LocalDate startDatoPermisjon,
-                                 List<NaturalYtelse> aktiveNaturalytelser,
+                                 List<NaturalYtelse> bortfalteNaturalytelser,
                                  List<Refusjon> refusjonsperioder
 ){
     record NaturalYtelse(

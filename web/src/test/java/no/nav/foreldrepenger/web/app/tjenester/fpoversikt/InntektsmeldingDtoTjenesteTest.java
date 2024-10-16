@@ -7,6 +7,10 @@ import java.util.List;
 
 import jakarta.persistence.EntityManager;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.domene.arbeidsforhold.person.PersonIdentTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 
 import org.junit.jupiter.api.Test;
@@ -32,7 +36,18 @@ class InntektsmeldingDtoTjenesteTest {
     void henter_im(EntityManager entityManager) {
         var iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         var repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        var tjeneste = new InntektsmeldingDtoTjeneste(new InntektsmeldingTjeneste(iayTjeneste, new FpInntektsmeldingTjeneste()), repositoryProvider.getMottatteDokumentRepository(), new VirksomhetTjeneste());
+        var behandlingRepository = new BehandlingRepository(entityManager);
+        var fagsakRepository = new FagsakRepository(entityManager);
+
+        var tjeneste = new InntektsmeldingDtoTjeneste(
+            new InntektsmeldingTjeneste(iayTjeneste, new FpInntektsmeldingTjeneste()),
+            repositoryProvider.getMottatteDokumentRepository(),
+            new VirksomhetTjeneste(),
+            new ArbeidsgiverTjeneste(new PersonIdentTjeneste(), new VirksomhetTjeneste()),
+            behandlingRepository,
+            fagsakRepository,
+            new AbakusInMemoryInntektArbeidYtelseTjeneste()
+        );
 
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagre(repositoryProvider);
