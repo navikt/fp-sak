@@ -120,7 +120,7 @@ class InntektsmeldingDtoTjeneste {
 
         return new InntektsmeldingDto(
             erAktiv,
-            inntektsmelding.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold() ? stillingsprosent : null, // TODO: gjør alltid. Hvis det ikke er satt arbeidsforholdsId så vild et bare være 1 IM for arbeidsgiver
+            stillingsprosent,
             inntektsmelding.getInntektBeløp().getVerdi(),
             inntektsmelding.getRefusjonBeløpPerMnd() == null ? null : inntektsmelding.getRefusjonBeløpPerMnd().getVerdi(),
             arbeidsgiverNavn.getNavn(),
