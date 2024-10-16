@@ -101,6 +101,15 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
     }
 
     private Optional<LocalDate> finnOpphørsdato(Long behandlingId) {
+        if (behandlingId.equals(2207076)) {
+            return Optional.of(LocalDate.of(20222, 1, 13));
+        }
+        if (behandlingId.equals(2936458)) {
+            return Optional.of(LocalDate.of(2024, 1, 15));
+        }
+        if (behandlingId.equals(3121111)) {
+            return Optional.of(LocalDate.of(2024, 5, 20));
+        }
         var opphørsdato = medlemTjeneste.hentOpphørsdatoHvisEksisterer(behandlingId);
         if (opphørsdato.isPresent()) {
             var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
