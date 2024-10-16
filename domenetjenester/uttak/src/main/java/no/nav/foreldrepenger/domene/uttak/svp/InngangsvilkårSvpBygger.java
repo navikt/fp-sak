@@ -12,26 +12,32 @@ import no.nav.svangerskapspenger.regler.fastsettperiode.grunnlag.Inngangsvilkår
 public class InngangsvilkårSvpBygger {
 
     InngangsvilkårSvpBygger() {
-            //CDI
-        }
+        //CDI
+    }
 
-        public Inngangsvilkår byggInngangsvilårSvp(VilkårResultat vilkårResultat) {
-            return new Inngangsvilkår(opptjeningsvilkåretOppfylt(vilkårResultat),svangerskapsVilkåretOppfylt(vilkårResultat) );
-        }
+    public Inngangsvilkår byggInngangsvilårSvp(VilkårResultat vilkårResultat) {
+        return new Inngangsvilkår(opptjeningsvilkåretOppfylt(vilkårResultat),
+            svangerskapsVilkåretOppfylt(vilkårResultat),
+            medlemskapsvilkåretVilkåretOppfylt(vilkårResultat) );
+    }
 
-        public static boolean opptjeningsvilkåretOppfylt(VilkårResultat vilkårResultat) {
-            return vilkårAvTypeErOppfylt(vilkårResultat, VilkårType.OPPTJENINGSVILKÅRET);
-        }
+    public static boolean opptjeningsvilkåretOppfylt(VilkårResultat vilkårResultat) {
+        return vilkårAvTypeErOppfylt(vilkårResultat, VilkårType.OPPTJENINGSVILKÅRET);
+    }
 
-        public static boolean svangerskapsVilkåretOppfylt(VilkårResultat vilkårResultat) {
+    public static boolean svangerskapsVilkåretOppfylt(VilkårResultat vilkårResultat) {
         return vilkårAvTypeErOppfylt(vilkårResultat, VilkårType.SVANGERSKAPSPENGERVILKÅR);
-        }
+    }
 
-        private static boolean vilkårAvTypeErOppfylt(VilkårResultat vilkårResultat, VilkårType type) {
-            var vilkår = vilkårResultat.getVilkårene()
-                .stream()
-                .filter(v -> Objects.equals(v.getVilkårType(), type))
-                .findFirst();
-            return vilkår.map(v -> !v.erIkkeOppfylt()).orElse(true);
-        }
+    public static boolean medlemskapsvilkåretVilkåretOppfylt(VilkårResultat vilkårResultat) {
+        return vilkårAvTypeErOppfylt(vilkårResultat, VilkårType.MEDLEMSKAPSVILKÅRET);
+    }
+
+    private static boolean vilkårAvTypeErOppfylt(VilkårResultat vilkårResultat, VilkårType type) {
+        var vilkår = vilkårResultat.getVilkårene()
+            .stream()
+            .filter(v -> Objects.equals(v.getVilkårType(), type))
+            .findFirst();
+        return vilkår.map(v -> !v.erIkkeOppfylt()).orElse(true);
+    }
 }
