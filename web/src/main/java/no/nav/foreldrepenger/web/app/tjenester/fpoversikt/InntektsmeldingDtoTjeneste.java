@@ -66,7 +66,7 @@ class InntektsmeldingDtoTjeneste {
     }
 
 
-    public List<InntektsmeldingDto> hentInntektsmeldingerForSak(Saksnummer saksnummer) {
+    public List<FpOversiktInntektsmeldingDto> hentInntektsmeldingerForSak(Saksnummer saksnummer) {
         var sak = fagsakRepository.hentSakGittSaksnummer(saksnummer);
         var inntektArbeidYtelseGrunnlag = sak.flatMap(
                 s -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(s.getId()))
@@ -89,7 +89,7 @@ class InntektsmeldingDtoTjeneste {
             .collect(Collectors.toList());
     }
 
-    private InntektsmeldingDto map(Inntektsmelding inntektsmelding, boolean erAktiv, Collection<Yrkesaktivitet> yrkesaktivitet) {
+    private FpOversiktInntektsmeldingDto map(Inntektsmelding inntektsmelding, boolean erAktiv, Collection<Yrkesaktivitet> yrkesaktivitet) {
         var mottattTidspunkt = mottatteDokumentRepository.hentMottattDokument(inntektsmelding.getJournalpostId())
             .stream()
             .map(MottattDokument::getMottattTidspunkt)
@@ -100,12 +100,12 @@ class InntektsmeldingDtoTjeneste {
         var kontaktinfo = motatteDokument.flatMap(ArbeidOgInntektsmeldingDtoTjeneste::trekkUtKontaktInfo);
 
         var naturalytelser = konverterAktivePerioderTilBortfaltePerioder(inntektsmelding.getNaturalYtelser());
-        var refusjon = inntektsmelding.getEndringerRefusjon().stream().map(r -> new InntektsmeldingDto.Refusjon(r.getRefusjonsbeløp().getVerdi(), r.getFom())).toList();
+        var refusjon = inntektsmelding.getEndringerRefusjon().stream().map(r -> new FpOversiktInntektsmeldingDto.Refusjon(r.getRefusjonsbeløp().getVerdi(), r.getFom())).toList();
 
         // Representer opphøring av refusjon som en periode med 0 som refusjon
         if (inntektsmelding.getRefusjonOpphører() != null && !Tid.TIDENES_ENDE.equals(inntektsmelding.getRefusjonOpphører() )) {
             refusjon = new ArrayList<>(refusjon);
-            refusjon.add(new InntektsmeldingDto.Refusjon(new BigDecimal(0), inntektsmelding.getRefusjonOpphører().plusDays(1)));
+            refusjon.add(new FpOversiktInntektsmeldingDto.Refusjon(new BigDecimal(0), inntektsmelding.getRefusjonOpphører().plusDays(1)));
         }
 
         var arbeidsgiverNavn = arbeidsgiverTjeneste.hent(inntektsmelding.getArbeidsgiver());
@@ -118,7 +118,7 @@ class InntektsmeldingDtoTjeneste {
             .max(Comparator.comparing(a-> a.getPeriode().getFomDato())).map(AktivitetsAvtale::getProsentsats).map(Stillingsprosent::getVerdi)
             .orElse(null);
 
-        return new InntektsmeldingDto(
+        return new FpOversiktInntektsmeldingDto(
             erAktiv,
             stillingsprosent,
             inntektsmelding.getInntektBeløp().getVerdi(),
@@ -134,11 +134,11 @@ class InntektsmeldingDtoTjeneste {
         );
     }
 
-    public static List<InntektsmeldingDto.NaturalYtelse> konverterAktivePerioderTilBortfaltePerioder(List<NaturalYtelse> aktiveNaturalytelser) {
+    public static List<FpOversiktInntektsmeldingDto.NaturalYtelse> konverterAktivePerioderTilBortfaltePerioder(List<NaturalYtelse> aktiveNaturalytelser) {
         var gruppertPåType = aktiveNaturalytelser.stream()
             .collect(Collectors.groupingBy(NaturalYtelse::getType));
 
-        List<InntektsmeldingDto.NaturalYtelse> bortfalteNaturalytelser = new ArrayList<>();
+        List<FpOversiktInntektsmeldingDto.NaturalYtelse> bortfalteNaturalytelser = new ArrayList<>();
 
         gruppertPåType.forEach((key, value) -> {
             var sortert = value.stream()
@@ -157,7 +157,7 @@ class InntektsmeldingDtoTjeneste {
                     continue;
                 }
 
-                var newYtelse = new InntektsmeldingDto.NaturalYtelse(
+                var newYtelse = new FpOversiktInntektsmeldingDto.NaturalYtelse(
                         nyFom.plusDays(1),
                         (nyTom != null) ? nyTom.minusDays(1) : TIDENES_ENDE,
                     current.getBeloepPerMnd().getVerdi(),

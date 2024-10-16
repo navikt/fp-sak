@@ -55,8 +55,7 @@ class FpOversiktDtoTjeneste {
         };
     }
 
-    List<InntektsmeldingDto> hentInntektsmeldingerForSak(String saksnummer) {
-        // TODO: legg til felt om aktiv.
+    List<FpOversiktInntektsmeldingDto> hentInntektsmeldingerForSak(String saksnummer) {
         return inntektsmeldingTjeneste.hentInntektsmeldingerForSak(new Saksnummer(saksnummer));
     }
 
