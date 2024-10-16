@@ -127,7 +127,6 @@ class InntektsmeldingDtoTjeneste {
             kontaktinfo.map(KontaktinformasjonIM::kontaktPerson).orElse(null),
             kontaktinfo.map(KontaktinformasjonIM::kontaktTelefonNummer).orElse(null),
             inntektsmelding.getJournalpostId(),
-            inntektsmelding.getInnsendingstidspunkt(),
             mottattTidspunkt,
             inntektsmelding.getStartDatoPermisjon().orElse(null),
             naturalytelser,

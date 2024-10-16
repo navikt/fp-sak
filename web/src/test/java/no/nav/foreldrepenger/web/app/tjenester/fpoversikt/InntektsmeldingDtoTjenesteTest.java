@@ -72,7 +72,6 @@ class InntektsmeldingDtoTjenesteTest {
         assertThat(inntektsmeldingerForSak).hasSize(1);
         var im = inntektsmeldingerForSak.stream().findFirst().get();
         assertThat(im.arbeidsgiverNavn()).isEqualTo(arbeidsgiver.getIdentifikator());
-        assertThat(im.innsendingstidspunkt()).isEqualTo(innsendingstidspunkt);
         assertThat(im.mottattTidspunkt()).isEqualTo(mottattTidspunkt);
         assertThat(im.inntektPrMnd()).isEqualTo(inntekt.getVerdi());
         assertThat(im.journalpostId()).isEqualTo(journalpostId);
