@@ -11,7 +11,9 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.NaturalYtelseType;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-record InntektsmeldingDto(Boolean erAktiv, BigDecimal inntektPrMnd,
+record InntektsmeldingDto(Boolean erAktiv, BigDecimal stillingsprosent,
+                          BigDecimal inntektPrMnd,
+
                                  BigDecimal refusjonPrMnd,
                                  String arbeidsgiverNavn,
                           String kontaktpersonNavn,

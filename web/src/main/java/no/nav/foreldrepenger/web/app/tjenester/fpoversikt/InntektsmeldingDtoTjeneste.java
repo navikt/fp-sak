@@ -4,11 +4,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -22,11 +21,16 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
+import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
+import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.KontaktinformasjonIM;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidInntektsmelding.ArbeidOgInntektsmeldingDtoTjeneste;
 import no.nav.vedtak.konfig.Tid;
@@ -64,20 +68,28 @@ class InntektsmeldingDtoTjeneste {
 
     public List<InntektsmeldingDto> hentInntektsmeldingerForSak(Saksnummer saksnummer) {
         var sak = fagsakRepository.hentSakGittSaksnummer(saksnummer);
-        var inntektsmeldinger = sak
-            .flatMap(s -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(s.getId()))
-            .flatMap(b -> inntektArbeidYtelseTjeneste.finnGrunnlag(b.getId()))
+        var inntektArbeidYtelseGrunnlag = sak.flatMap(
+                s -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(s.getId()))
+            .flatMap(b -> inntektArbeidYtelseTjeneste.finnGrunnlag(b.getId()));
+
+        var yrkesaktivitet = inntektArbeidYtelseGrunnlag
+            .flatMap(InntektArbeidYtelseGrunnlag::getRegisterVersjon)
+            .map(InntektArbeidYtelseAggregat::getAktørArbeid).orElse(List.of())
+            .stream().filter(i -> i.getAktørId().equals(sak.get().getAktørId())).findFirst()
+            .map(AktørArbeid::hentAlleYrkesaktiviteter).orElse(List.of());
+
+        var inntektsmeldinger = inntektArbeidYtelseGrunnlag
             .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger)
             .map(InntektsmeldingAggregat::getAlleInntektsmeldinger).orElse(List.of())
             .stream().map(Inntektsmelding::getJournalpostId).toList();
 
         return inntektsmeldingTjeneste.hentAlleInntektsmeldingerForFagsak(saksnummer)
             .stream()
-            .map(i -> map(i, inntektsmeldinger.contains(i.getJournalpostId())))
+            .map(i -> map(i, inntektsmeldinger.contains(i.getJournalpostId()), yrkesaktivitet))
             .collect(Collectors.toList());
     }
 
-    private InntektsmeldingDto map(Inntektsmelding inntektsmelding, boolean erAktiv) {
+    private InntektsmeldingDto map(Inntektsmelding inntektsmelding, boolean erAktiv, Collection<Yrkesaktivitet> yrkesaktivitet) {
         var mottattTidspunkt = mottatteDokumentRepository.hentMottattDokument(inntektsmelding.getJournalpostId())
             .stream()
             .map(MottattDokument::getMottattTidspunkt)
@@ -98,8 +110,17 @@ class InntektsmeldingDtoTjeneste {
 
         var arbeidsgiverNavn = arbeidsgiverTjeneste.hent(inntektsmelding.getArbeidsgiver());
 
+        var stillingsprosent = yrkesaktivitet.stream()
+            .filter(i->i.gjelderFor(inntektsmelding.getArbeidsgiver(), inntektsmelding.getArbeidsforholdRef()))
+            .findFirst()
+            .map(Yrkesaktivitet::getAlleAktivitetsAvtaler).orElse(List.of())
+            .stream().filter(a -> a.getProsentsats() != null)
+            .max(Comparator.comparing(a-> a.getPeriode().getFomDato())).map(AktivitetsAvtale::getProsentsats).map(Stillingsprosent::getVerdi)
+            .orElse(null);
+
         return new InntektsmeldingDto(
             erAktiv,
+            inntektsmelding.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold() ? stillingsprosent : null, // TODO: gjør alltid. Hvis det ikke er satt arbeidsforholdsId så vild et bare være 1 IM for arbeidsgiver
             inntektsmelding.getInntektBeløp().getVerdi(),
             inntektsmelding.getRefusjonBeløpPerMnd() == null ? null : inntektsmelding.getRefusjonBeløpPerMnd().getVerdi(),
             arbeidsgiverNavn.getNavn(),
