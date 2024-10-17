@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -97,7 +98,8 @@ class InntektsmeldingDtoTjeneste {
             .orElseThrow();
 
         var motatteDokument = mottatteDokumentRepository.hentMottattDokument(inntektsmelding.getJournalpostId()).stream().findFirst();
-        var kontaktinfo = motatteDokument.flatMap(ArbeidOgInntektsmeldingDtoTjeneste::trekkUtKontaktInfo);
+//        var kontaktinfo = motatteDokument.flatMap(ArbeidOgInntektsmeldingDtoTjeneste::trekkUtKontaktInfo);
+        Optional<KontaktinformasjonIM> kontaktinfo = Optional.empty();
 
         var naturalytelser = konverterAktivePerioderTilBortfaltePerioder(inntektsmelding.getNaturalYtelser());
         var refusjon = inntektsmelding.getEndringerRefusjon().stream().map(r -> new FpOversiktInntektsmeldingDto.Refusjon(r.getRefusjonsbeløp().getVerdi(), r.getFom())).toList();
@@ -108,7 +110,7 @@ class InntektsmeldingDtoTjeneste {
             refusjon.add(new FpOversiktInntektsmeldingDto.Refusjon(new BigDecimal(0), inntektsmelding.getRefusjonOpphører().plusDays(1)));
         }
 
-        var arbeidsgiverNavn = arbeidsgiverTjeneste.hent(inntektsmelding.getArbeidsgiver());
+        var arbeidsgiverOpplysninger = arbeidsgiverTjeneste.hent(inntektsmelding.getArbeidsgiver());
 
         var stillingsprosent = yrkesaktivitet.stream()
             .filter(i->i.gjelderFor(inntektsmelding.getArbeidsgiver(), inntektsmelding.getArbeidsforholdRef()))
@@ -123,7 +125,7 @@ class InntektsmeldingDtoTjeneste {
             stillingsprosent,
             inntektsmelding.getInntektBeløp().getVerdi(),
             inntektsmelding.getRefusjonBeløpPerMnd() == null ? null : inntektsmelding.getRefusjonBeløpPerMnd().getVerdi(),
-            arbeidsgiverNavn.getNavn(),
+            arbeidsgiverOpplysninger.getNavn(),
             kontaktinfo.map(KontaktinformasjonIM::kontaktPerson).orElse(null),
             kontaktinfo.map(KontaktinformasjonIM::kontaktTelefonNummer).orElse(null),
             inntektsmelding.getJournalpostId(),
