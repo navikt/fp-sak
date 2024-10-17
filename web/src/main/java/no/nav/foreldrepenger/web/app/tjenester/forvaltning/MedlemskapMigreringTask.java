@@ -12,7 +12,12 @@ import org.hibernate.jpa.HibernateHints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskap;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -35,18 +40,24 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
     private final BehandlingRepository behandlingRepository;
     private final MedlemTjeneste medlemTjeneste;
     private final SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private final VilkårMedlemskapRepository vilkårMedlemskapRepository;
+    private final VilkårResultatRepository vilkårResultatRepository;
 
     @Inject
     public MedlemskapMigreringTask(EntityManager entityManager,
                                    ProsessTaskTjeneste prosessTaskTjeneste,
                                    BehandlingRepository behandlingRepository,
                                    MedlemTjeneste medlemTjeneste,
-                                   SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                   SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                   VilkårMedlemskapRepository vilkårMedlemskapRepository,
+                                   VilkårResultatRepository vilkårResultatRepository) {
         this.entityManager = entityManager;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.medlemTjeneste = medlemTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.vilkårMedlemskapRepository = vilkårMedlemskapRepository;
+        this.vilkårResultatRepository = vilkårResultatRepository;
     }
 
     @Override
@@ -65,18 +76,24 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
         LOG.info("Migrerer behandling for {}", behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
-        //TODO lagre nytt repo
+        var vilkårResultat = vilkårResultatRepository.hent(behandlingId);
         switch (behandling.getFagsakYtelseType()) {
             case ENGANGSTØNAD -> {
                 var medlemFom = medlemTjeneste.hentMedlemFomDato(behandlingId);
-                LOG.info("Medlemfom for {} {}", behandlingId, medlemFom.orElse(null));
+                if (medlemFom.isPresent()) {
+                    LOG.info("Medlemfom for {} {}", behandlingId, medlemFom.orElse(null));
+                    var vilkårMedlemskap = VilkårMedlemskap.forMedlemFom(vilkårResultat, medlemFom.get());
+                    //vilkårMedlemskapRepository.lagre(vilkårMedlemskap);
+                }
             }
             case FORELDREPENGER, SVANGERSKAPSPENGER -> {
                 var opphørsdato = finnOpphørsdato(behandlingId);
-                LOG.info("Opphørsdato for {} {} {}", behandling.getFagsakYtelseType(), behandlingId, opphørsdato.orElse(null));
                 if (opphørsdato.isPresent()) {
                     var opphørsårsak = medlemTjeneste.hentAvslagsårsak(behandlingId);
-                    LOG.info("Opphørsårsak for {} {} {}", behandling.getFagsakYtelseType(), behandlingId, opphørsårsak.orElse(null));
+                    LOG.info("Opphør for {} {} {} {}", behandling.getFagsakYtelseType(), behandlingId, opphørsdato.get(), opphørsårsak.orElse(null));
+                    var vilkårMedlemskap = VilkårMedlemskap.forOpphør(vilkårResultat, opphørsdato.get(),
+                        opphørsårsak.orElse(null));
+                    //vilkårMedlemskapRepository.lagre(vilkårMedlemskap);
                 }
             }
             default -> throw new IllegalStateException("Unexpected value: " + behandling.getFagsakYtelseType());
@@ -84,11 +101,25 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
     }
 
     private Optional<LocalDate> finnOpphørsdato(Long behandlingId) {
+        if (behandlingId.equals(2207076)) {
+            return Optional.of(LocalDate.of(20222, 1, 13));
+        }
+        if (behandlingId.equals(2936458)) {
+            return Optional.of(LocalDate.of(2024, 1, 15));
+        }
+        if (behandlingId.equals(3121111)) {
+            return Optional.of(LocalDate.of(2024, 5, 20));
+        }
         var opphørsdato = medlemTjeneste.hentOpphørsdatoHvisEksisterer(behandlingId);
         if (opphørsdato.isPresent()) {
             var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
             if (opphørsdato.get().isAfter(skjæringstidspunkter.getUtledetSkjæringstidspunkt())) {
                 return opphørsdato;
+            } else {
+                var vilkårResultat = vilkårResultatRepository.hent(behandlingId);
+                if (vilkårResultat.getVilkårene().stream().anyMatch(v -> v.getVilkårType() == VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE && v.getGjeldendeVilkårUtfall() == VilkårUtfallType.IKKE_OPPFYLT)) {
+                    LOG.info("Opphørsdato ikke etter stp og løpende vilkår er avslått {} {}", opphørsdato.get(), behandlingId);
+                }
             }
         }
         return Optional.empty();

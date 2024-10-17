@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
@@ -39,6 +40,7 @@ public class BehandlingRepositoryProvider {
     private PersonopplysningRepository personopplysningRepository;
     private MedlemskapRepository medlemskapRepository;
     private MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository;
+    private VilkårMedlemskapRepository vilkårMedlemskapRepository;
     private FamilieHendelseRepository familieHendelseRepository;
     private HistorikkRepository historikkRepository;
     private SøknadRepository søknadRepository;
@@ -84,6 +86,7 @@ public class BehandlingRepositoryProvider {
         this.fpUttakRepository = new FpUttakRepository(entityManager);
         this.uttaksperiodegrenseRepository = new UttaksperiodegrenseRepository(entityManager);
         this.behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
+        this.vilkårMedlemskapRepository = new VilkårMedlemskapRepository(entityManager, behandlingsresultatRepository);
 
         // behandling resultat aggregater
         this.beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
@@ -122,6 +125,10 @@ public class BehandlingRepositoryProvider {
 
     public MedlemskapVilkårPeriodeRepository getMedlemskapVilkårPeriodeRepository() {
         return medlemskapVilkårPeriodeRepository;
+    }
+
+    public VilkårMedlemskapRepository getVilkårMedlemskapRepository() {
+        return vilkårMedlemskapRepository;
     }
 
     public BehandlingLåsRepository getBehandlingLåsRepository() {
