@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
 import java.math.BigDecimal;
+import java.sql.Array;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -100,13 +101,7 @@ class InntektsmeldingDtoTjeneste {
         var kontaktinfo = hentKontaktInfo(inntektsmelding);
 
         var naturalytelser = konverterAktivePerioderTilBortfaltePerioder(inntektsmelding.getNaturalYtelser());
-        var refusjon = inntektsmelding.getEndringerRefusjon().stream().map(r -> new FpOversiktInntektsmeldingDto.Refusjon(r.getRefusjonsbeløp().getVerdi(), r.getFom())).toList();
-
-        // Representer opphøring av refusjon som en periode med 0 som refusjon
-        if (inntektsmelding.getRefusjonOpphører() != null && !Tid.TIDENES_ENDE.equals(inntektsmelding.getRefusjonOpphører() )) {
-            refusjon = new ArrayList<>(refusjon);
-            refusjon.add(new FpOversiktInntektsmeldingDto.Refusjon(new BigDecimal(0), inntektsmelding.getRefusjonOpphører().plusDays(1)));
-        }
+        var refusjonsperioder = lagRefusjonsperioder(inntektsmelding);
 
         var arbeidsgiverOpplysninger = arbeidsgiverTjeneste.hent(inntektsmelding.getArbeidsgiver());
 
@@ -130,8 +125,22 @@ class InntektsmeldingDtoTjeneste {
             mottattTidspunkt,
             inntektsmelding.getStartDatoPermisjon().orElse(null),
             naturalytelser,
-            refusjon
+            refusjonsperioder
         );
+    }
+
+    public static List<FpOversiktInntektsmeldingDto.Refusjon> lagRefusjonsperioder(Inntektsmelding inntektsmelding) {
+        var refusjon = inntektsmelding.getEndringerRefusjon().stream().map(r -> new FpOversiktInntektsmeldingDto.Refusjon(r.getRefusjonsbeløp().getVerdi(), r.getFom())).toList();
+        var mutableRefusjon = new ArrayList<>(refusjon);
+
+        // Representer opphøring av refusjon som en periode med 0 som refusjon
+        if (inntektsmelding.getRefusjonOpphører() != null && !Tid.TIDENES_ENDE.equals(inntektsmelding.getRefusjonOpphører() )) {
+            mutableRefusjon.add(new FpOversiktInntektsmeldingDto.Refusjon(new BigDecimal(0), inntektsmelding.getRefusjonOpphører().plusDays(1)));
+        }
+
+        mutableRefusjon.sort(Comparator.comparing(FpOversiktInntektsmeldingDto.Refusjon::fomDato));
+
+        return mutableRefusjon;
     }
 
     public Optional<KontaktinformasjonIM> hentKontaktInfo(Inntektsmelding inntektsmelding) {

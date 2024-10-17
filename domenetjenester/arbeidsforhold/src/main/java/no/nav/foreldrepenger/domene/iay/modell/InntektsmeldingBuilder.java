@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.iay.modell;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -173,6 +174,12 @@ public class InntektsmeldingBuilder {
         precondition();
         kladd.setRefusjonBeløpPerMnd(verdi == null ? null : new Beløp(verdi));
         kladd.setRefusjonOpphører(opphører);
+        return this;
+    }
+
+    public InntektsmeldingBuilder medRefusjonsperioder(List<Refusjon> endringerRefusjon) {
+        precondition();
+        kladd.setEndringerRefusjon(endringerRefusjon);
         return this;
     }
 

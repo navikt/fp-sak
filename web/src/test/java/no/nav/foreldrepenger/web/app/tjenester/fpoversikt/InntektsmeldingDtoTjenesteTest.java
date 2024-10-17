@@ -30,6 +30,7 @@ import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdReferanse;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
+import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.NaturalYtelseType;
@@ -146,6 +147,53 @@ class InntektsmeldingDtoTjenesteTest {
         assertThat(im.journalpostId()).isEqualTo(journalpostId);
         assertThat(im.mottattTidspunkt()).isEqualTo(mottattTidspunkt);
         assertThat(im.startDatoPermisjon()).isNull();
+    }
+
+    @Test
+    void lagRefusjonsperioderNårOpphørerErSatt() {
+        var refusjonsperioder = List.of(
+            new Refusjon(BigDecimal.valueOf(300), LocalDate.of(2024, 11, 1)),
+            new Refusjon(BigDecimal.valueOf(100), LocalDate.of(2024, 8, 1)),
+            new Refusjon(BigDecimal.valueOf(200), LocalDate.of(2024, 9, 1))
+        );
+        var imBuilder = InntektsmeldingBuilder.builder()
+            .medRefusjon(BigDecimal.valueOf(1000), LocalDate.of(2024, 10, 17))
+            .medRefusjonsperioder(refusjonsperioder)
+            .build();
+
+        var fullstendigeRefusjonsperioder = InntektsmeldingDtoTjeneste.lagRefusjonsperioder(imBuilder);
+
+        assertThat(fullstendigeRefusjonsperioder).hasSize(4);
+        assertThat(fullstendigeRefusjonsperioder.get(0).fomDato()).isEqualTo(LocalDate.of(2024, 8, 1));
+        assertThat(fullstendigeRefusjonsperioder.get(0).refusjonsbeløpMnd()).isEqualTo(BigDecimal.valueOf(100));
+        assertThat(fullstendigeRefusjonsperioder.get(1).fomDato()).isEqualTo(LocalDate.of(2024, 9, 1));
+        assertThat(fullstendigeRefusjonsperioder.get(1).refusjonsbeløpMnd()).isEqualTo(BigDecimal.valueOf(200));
+        assertThat(fullstendigeRefusjonsperioder.get(2).fomDato()).isEqualTo(LocalDate.of(2024, 10, 18));
+        assertThat(fullstendigeRefusjonsperioder.get(2).refusjonsbeløpMnd()).isEqualTo(BigDecimal.valueOf(0));
+        assertThat(fullstendigeRefusjonsperioder.get(3).fomDato()).isEqualTo(LocalDate.of(2024, 11, 1));
+        assertThat(fullstendigeRefusjonsperioder.get(3).refusjonsbeløpMnd()).isEqualTo(BigDecimal.valueOf(300));
+    }
+
+    @Test
+    void lagRefusjonsperioderUtenOpphører() {
+        var refusjonsperioder = List.of(
+            new Refusjon(BigDecimal.valueOf(300), LocalDate.of(2024, 11, 1)),
+            new Refusjon(BigDecimal.valueOf(100), LocalDate.of(2024, 8, 1)),
+            new Refusjon(BigDecimal.valueOf(200), LocalDate.of(2024, 9, 1))
+        );
+        var imBuilder = InntektsmeldingBuilder.builder()
+            .medRefusjonsperioder(refusjonsperioder)
+            .build();
+
+        var fullstendigeRefusjonsperioder = InntektsmeldingDtoTjeneste.lagRefusjonsperioder(imBuilder);
+
+        assertThat(fullstendigeRefusjonsperioder).hasSize(3);
+        assertThat(fullstendigeRefusjonsperioder.get(0).fomDato()).isEqualTo(LocalDate.of(2024, 8, 1));
+        assertThat(fullstendigeRefusjonsperioder.get(0).refusjonsbeløpMnd()).isEqualTo(BigDecimal.valueOf(100));
+        assertThat(fullstendigeRefusjonsperioder.get(1).fomDato()).isEqualTo(LocalDate.of(2024, 9, 1));
+        assertThat(fullstendigeRefusjonsperioder.get(1).refusjonsbeløpMnd()).isEqualTo(BigDecimal.valueOf(200));
+        assertThat(fullstendigeRefusjonsperioder.get(2).fomDato()).isEqualTo(LocalDate.of(2024, 11, 1));
+        assertThat(fullstendigeRefusjonsperioder.get(2).refusjonsbeløpMnd()).isEqualTo(BigDecimal.valueOf(300));
     }
 
     @Test
