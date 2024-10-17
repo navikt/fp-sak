@@ -148,11 +148,11 @@ class InntektsmeldingDtoTjenesteTest {
             new Refusjon(BigDecimal.valueOf(200), LocalDate.of(2024, 9, 1))
         );
         var imBuilder = InntektsmeldingBuilder.builder()
-            .medRefusjon(BigDecimal.valueOf(1000), LocalDate.of(2024, 10, 17))
-            .medRefusjonsperioder(refusjonsperioder)
-            .build();
+            .medRefusjon(BigDecimal.valueOf(1000), LocalDate.of(2024, 10, 17));
 
-        var fullstendigeRefusjonsperioder = InntektsmeldingDtoTjeneste.lagRefusjonsperioder(imBuilder);
+        refusjonsperioder.forEach(imBuilder::leggTil);
+
+        var fullstendigeRefusjonsperioder = InntektsmeldingDtoTjeneste.lagRefusjonsperioder(imBuilder.build());
 
         assertThat(fullstendigeRefusjonsperioder).hasSize(4);
         assertThat(fullstendigeRefusjonsperioder.get(0).fomDato()).isEqualTo(LocalDate.of(2024, 8, 1));
@@ -172,11 +172,10 @@ class InntektsmeldingDtoTjenesteTest {
             new Refusjon(BigDecimal.valueOf(100), LocalDate.of(2024, 8, 1)),
             new Refusjon(BigDecimal.valueOf(200), LocalDate.of(2024, 9, 1))
         );
-        var imBuilder = InntektsmeldingBuilder.builder()
-            .medRefusjonsperioder(refusjonsperioder)
-            .build();
+        var imBuilder = InntektsmeldingBuilder.builder();
+        refusjonsperioder.forEach(imBuilder::leggTil);
 
-        var fullstendigeRefusjonsperioder = InntektsmeldingDtoTjeneste.lagRefusjonsperioder(imBuilder);
+        var fullstendigeRefusjonsperioder = InntektsmeldingDtoTjeneste.lagRefusjonsperioder(imBuilder.build());
 
         assertThat(fullstendigeRefusjonsperioder).hasSize(3);
         assertThat(fullstendigeRefusjonsperioder.get(0).fomDato()).isEqualTo(LocalDate.of(2024, 8, 1));

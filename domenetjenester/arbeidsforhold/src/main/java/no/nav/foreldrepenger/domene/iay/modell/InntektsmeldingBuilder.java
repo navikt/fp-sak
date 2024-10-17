@@ -177,12 +177,6 @@ public class InntektsmeldingBuilder {
         return this;
     }
 
-    public InntektsmeldingBuilder medRefusjonsperioder(List<Refusjon> endringerRefusjon) {
-        precondition();
-        kladd.setEndringerRefusjon(endringerRefusjon);
-        return this;
-    }
-
     public InntektsmeldingBuilder medStartDatoPermisjon(LocalDate startPermisjon) {
         precondition();
         kladd.setStartDatoPermisjon(startPermisjon);

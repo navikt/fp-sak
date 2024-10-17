@@ -315,8 +315,6 @@ public class Inntektsmelding implements IndexKey {
         return Collections.unmodifiableList(endringerRefusjon);
     }
 
-    void setEndringerRefusjon(List<Refusjon> endringerRefusjon) { this.endringerRefusjon = endringerRefusjon; }
-
     void leggTil(Gradering gradering) {
         this.graderinger.add(gradering);
     }
