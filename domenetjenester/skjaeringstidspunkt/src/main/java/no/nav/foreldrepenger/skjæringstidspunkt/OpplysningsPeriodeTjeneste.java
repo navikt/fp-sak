@@ -57,6 +57,10 @@ public class OpplysningsPeriodeTjeneste {
         FagsakYtelseType.FORELDREPENGER, Period.ofYears(4),
         FagsakYtelseType.SVANGERSKAPSPENGER, Period.ofMonths(15));
 
+    private static final Period NÆRING_FØR = Period.ofYears(4);
+    private static final Period NÆRING_ETTER_FP = Period.ofYears(3); // Stønadsperioden
+    private static final Period NÆRING_ETTER_SVP = Period.ofYears(1); // Så lenge vi bruker tilretteleggingsdato. Endres til 0 ved bruk av termindato
+
     /**
      * Maks avvik før/etter STP for registerinnhenting før justering av perioden.
      * Basert på behov for innhenting siste 12mnd før min(behandlingsdato, stp), padding i FØR, samt fødsel fom uke 22.
@@ -96,6 +100,15 @@ public class OpplysningsPeriodeTjeneste {
 
     public SimpleLocalDateInterval beregnTilOgMedIdag(Long behandlingId, FagsakYtelseType ytelseType) {
         return beregning(behandlingId, ytelseType, true);
+    }
+
+    public SimpleLocalDateInterval beregnForNæringPGI(Long behandlingId, FagsakYtelseType ytelseType) {
+        var fikspunkt = utledFikspunktForRegisterInnhenting(behandlingId, ytelseType);
+        return switch (ytelseType) {
+            case FORELDREPENGER -> SimpleLocalDateInterval.fraOgMedTomNotNull(fikspunkt.minus(NÆRING_FØR), fikspunkt.plus(NÆRING_ETTER_FP));
+            case SVANGERSKAPSPENGER -> SimpleLocalDateInterval.fraOgMedTomNotNull(fikspunkt.minus(NÆRING_FØR), fikspunkt.plus(NÆRING_ETTER_SVP));
+            default -> throw new IllegalArgumentException("Skal ikke innhente næring for ytelse " + ytelseType);
+        };
     }
 
     private SimpleLocalDateInterval beregning(Long behandlingId, FagsakYtelseType ytelseType, boolean tilOgMedIdag) {

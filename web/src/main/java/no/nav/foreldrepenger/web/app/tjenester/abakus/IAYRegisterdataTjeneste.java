@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.abakus;
 
-import java.util.Objects;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -10,7 +9,6 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.RegisterdataCallback;
 import no.nav.foreldrepenger.domene.registerinnhenting.task.InnhentIAYIAbakusTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -26,7 +24,6 @@ public class IAYRegisterdataTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(IAYRegisterdataTjeneste.class);
 
-    private InntektArbeidYtelseTjeneste iayTjeneste;
     private ProsessTaskTjeneste taskTjeneste;
 
     public IAYRegisterdataTjeneste() {
@@ -37,8 +34,7 @@ public class IAYRegisterdataTjeneste {
      * Standard ctor som injectes av CDI.
      */
     @Inject
-    public IAYRegisterdataTjeneste(InntektArbeidYtelseTjeneste iayTjeneste, ProsessTaskTjeneste taskTjeneste) {
-        this.iayTjeneste = Objects.requireNonNull(iayTjeneste, "iayTjeneste");
+    public IAYRegisterdataTjeneste(ProsessTaskTjeneste taskTjeneste) {
         this.taskTjeneste = taskTjeneste;
     }
 
@@ -56,16 +52,6 @@ public class IAYRegisterdataTjeneste {
             LOG.info("Mottatt callback hvor ingen task venter på svar... {}", callback);
         }
         tasksSomVenterPåSvar.forEach(t -> mottaHendelse(t, callback.getOppdatertGrunnlagRef()));
-        /*
-        if (tasksSomVenterPåSvar.size() == 1) {
-            mottaHendelse(tasksSomVenterPåSvar.get(0), callback.getOppdatertGrunnlagRef());
-        } else if (tasksSomVenterPåSvar.isEmpty()) {
-            LOG.info("Mottatt callback hvor ingen task venter på svar... {}", callback);
-        } else {
-            LOG.info("Mottatt callback som svarer til flere tasks som venter. callback={}, tasks={}", callback, tasksSomVenterPåSvar);
-        }
-        */
-
     }
 
     private void mottaHendelse(ProsessTaskData task, UUID oppdatertGrunnlagRef) {
