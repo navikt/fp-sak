@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskap;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
@@ -91,7 +92,7 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
                 if (opphørsdato.isPresent()) {
                     var opphørsårsak = medlemTjeneste.hentAvslagsårsak(behandlingId);
                     LOG.info("Opphør for {} {} {} {}", behandling.getFagsakYtelseType(), behandlingId, opphørsdato.get(), opphørsårsak.map(Enum::name).orElse("mangler årsak"));
-                    if (opphørsårsak.isPresent()) {
+                    if (opphørsårsak.isPresent() && !Avslagsårsak.UDEFINERT.equals(opphørsårsak.get())) {
                         var vilkårMedlemskap = VilkårMedlemskap.forOpphør(vilkårResultat, opphørsdato.get(), opphørsårsak.get());
                         //vilkårMedlemskapRepository.lagre(vilkårMedlemskap);
                     }
