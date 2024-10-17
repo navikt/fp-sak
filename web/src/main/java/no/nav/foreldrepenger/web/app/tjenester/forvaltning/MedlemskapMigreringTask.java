@@ -90,10 +90,11 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
                 var opphørsdato = finnOpphørsdato(behandlingId);
                 if (opphørsdato.isPresent()) {
                     var opphørsårsak = medlemTjeneste.hentAvslagsårsak(behandlingId);
-                    LOG.info("Opphør for {} {} {} {}", behandling.getFagsakYtelseType(), behandlingId, opphørsdato.get(), opphørsårsak.orElse(null));
-                    var vilkårMedlemskap = VilkårMedlemskap.forOpphør(vilkårResultat, opphørsdato.get(),
-                        opphørsårsak.orElse(null));
-                    //vilkårMedlemskapRepository.lagre(vilkårMedlemskap);
+                    LOG.info("Opphør for {} {} {} {}", behandling.getFagsakYtelseType(), behandlingId, opphørsdato.get(), opphørsårsak.map(Enum::name).orElse("mangler årsak"));
+                    if (opphørsårsak.isPresent()) {
+                        var vilkårMedlemskap = VilkårMedlemskap.forOpphør(vilkårResultat, opphørsdato.get(), opphørsårsak.get());
+                        //vilkårMedlemskapRepository.lagre(vilkårMedlemskap);
+                    }
                 }
             }
             default -> throw new IllegalStateException("Unexpected value: " + behandling.getFagsakYtelseType());
@@ -101,13 +102,13 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
     }
 
     private Optional<LocalDate> finnOpphørsdato(Long behandlingId) {
-        if (behandlingId.equals(2207076)) {
-            return Optional.of(LocalDate.of(20222, 1, 13));
+        if (behandlingId.equals(2207076L)) {
+            return Optional.of(LocalDate.of(2022, 1, 13));
         }
-        if (behandlingId.equals(2936458)) {
+        if (behandlingId.equals(2936458L)) {
             return Optional.of(LocalDate.of(2024, 1, 15));
         }
-        if (behandlingId.equals(3121111)) {
+        if (behandlingId.equals(3121111L)) {
             return Optional.of(LocalDate.of(2024, 5, 20));
         }
         var opphørsdato = medlemTjeneste.hentOpphørsdatoHvisEksisterer(behandlingId);
