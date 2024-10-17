@@ -97,9 +97,7 @@ class InntektsmeldingDtoTjeneste {
             .min(LocalDateTime::compareTo)
             .orElseThrow();
 
-        var motatteDokument = mottatteDokumentRepository.hentMottattDokument(inntektsmelding.getJournalpostId()).stream().findFirst();
-//        var kontaktinfo = motatteDokument.flatMap(ArbeidOgInntektsmeldingDtoTjeneste::trekkUtKontaktInfo);
-        Optional<KontaktinformasjonIM> kontaktinfo = Optional.empty();
+        var kontaktinfo = hentKontaktInfo(inntektsmelding);
 
         var naturalytelser = konverterAktivePerioderTilBortfaltePerioder(inntektsmelding.getNaturalYtelser());
         var refusjon = inntektsmelding.getEndringerRefusjon().stream().map(r -> new FpOversiktInntektsmeldingDto.Refusjon(r.getRefusjonsbeløp().getVerdi(), r.getFom())).toList();
@@ -134,6 +132,11 @@ class InntektsmeldingDtoTjeneste {
             naturalytelser,
             refusjon
         );
+    }
+
+    public Optional<KontaktinformasjonIM> hentKontaktInfo(Inntektsmelding inntektsmelding) {
+        var motatteDokument = mottatteDokumentRepository.hentMottattDokument(inntektsmelding.getJournalpostId()).stream().findFirst();
+        return motatteDokument.flatMap(ArbeidOgInntektsmeldingDtoTjeneste::trekkUtKontaktInfo);
     }
 
     public static List<FpOversiktInntektsmeldingDto.NaturalYtelse> konverterAktivePerioderTilBortfaltePerioder(List<NaturalYtelse> aktiveNaturalytelser) {

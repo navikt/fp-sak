@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -56,6 +57,8 @@ import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(JpaExtension.class)
@@ -127,8 +130,10 @@ class InntektsmeldingDtoTjenesteTest {
         when(fagsakRepository.hentSakGittSaksnummer(any())).thenReturn(Optional.of(fagsak));
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.of(behandling));
         when(arbeidsgiverTjeneste.hent(arbeidsgiver)).thenReturn(arbeidsgiverOpplysninger);
+        var imTjenesteSpy = spy(imTjeneste);
+        Mockito.doReturn(Optional.of(kontaktInformasjon)).when(imTjenesteSpy).hentKontaktInfo(any());
 
-        var inntektsmeldingerForSak = imTjeneste.hentInntektsmeldingerForSak(fagsak.getSaksnummer());
+        var inntektsmeldingerForSak = imTjenesteSpy.hentInntektsmeldingerForSak(fagsak.getSaksnummer());
         assertThat(inntektsmeldingerForSak).hasSize(1);
         var im = inntektsmeldingerForSak.stream().findFirst().get();
         assertThat(im.erAktiv()).isTrue();
@@ -136,8 +141,8 @@ class InntektsmeldingDtoTjenesteTest {
         assertThat(im.inntektPrMnd()).isEqualTo(inntekt.getVerdi());
         assertThat(im.refusjonPrMnd()).isEqualTo(refusjon.getVerdi());
         assertThat(im.arbeidsgiverNavn()).isEqualTo(arbeidsgiverOpplysninger.getNavn());
-        assertThat(im.kontaktpersonNavn()).isNull();
-        assertThat(im.kontaktpersonNummer()).isNull();
+        assertThat(im.kontaktpersonNavn()).isEqualTo(kontaktInformasjon.kontaktPerson());
+        assertThat(im.kontaktpersonNummer()).isEqualTo(kontaktInformasjon.kontaktTelefonNummer());
         assertThat(im.journalpostId()).isEqualTo(journalpostId);
         assertThat(im.mottattTidspunkt()).isEqualTo(mottattTidspunkt);
         assertThat(im.startDatoPermisjon()).isNull();
