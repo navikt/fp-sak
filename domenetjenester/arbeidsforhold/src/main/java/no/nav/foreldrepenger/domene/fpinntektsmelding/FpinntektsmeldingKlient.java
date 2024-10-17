@@ -27,6 +27,7 @@ public class FpinntektsmeldingKlient {
     private final URI uriOpprettForesporsel;
     private final URI uriLukkForesporsel;
     private final URI uriOverstyrInntektsmelding;
+    private final URI uriSettForesporselTilUtgaatt;
 
 
     public FpinntektsmeldingKlient() {
@@ -35,12 +36,13 @@ public class FpinntektsmeldingKlient {
         this.uriOpprettForesporsel = toUri(restConfig.fpContextPath(), "/api/foresporsel/opprett");
         this.uriLukkForesporsel = toUri(restConfig.fpContextPath(), "/api/foresporsel/lukk");
         this.uriOverstyrInntektsmelding = toUri(restConfig.fpContextPath(), "/api/overstyring/inntektsmelding");
+        this.uriSettForesporselTilUtgaatt = toUri(restConfig.fpContextPath(), "/api/sett-til-utgatt");
     }
 
     public OpprettForespørselResponse opprettForespørsel(OpprettForespørselRequest request) {
         Objects.requireNonNull(request, "request");
         try {
-            LOG.info("Sender request til fpinntektsmelding for saksnummer" + request.fagsakSaksnummer().saksnr());
+            LOG.info("Sender request til fpinntektsmelding for saksnummer {} ", request.fagsakSaksnummer().saksnr());
             var rrequest = RestRequest.newPOSTJson(request, uriOpprettForesporsel, restConfig);
            return restClient.send(rrequest, OpprettForespørselResponse.class);
         } catch (Exception e) {
@@ -52,7 +54,7 @@ public class FpinntektsmeldingKlient {
     public void overstyrInntektsmelding(OverstyrInntektsmeldingRequest request) {
         Objects.requireNonNull(request, "request");
         try {
-            LOG.info("Overstyrer inntektsmelding for arbeidsgiver" + request.arbeidsgiverIdent().ident());
+            LOG.info("Overstyrer inntektsmelding for arbeidsgiver {}", request.arbeidsgiverIdent().ident());
             var rrequest = RestRequest.newPOSTJson(request, uriOverstyrInntektsmelding, restConfig);
             restClient.send(rrequest, String.class);
         } catch (Exception e) {
@@ -85,5 +87,16 @@ public class FpinntektsmeldingKlient {
         return new TekniskException("FP-97215", "Feil ved kall til Fpinntektsmelding: " + feilmelding);
     }
 
+    public void settForespørselTilUtgått(LukkForespørselRequest request) {
+        Objects.requireNonNull(request, "request");
+        try {
+            LOG.info("Sender LukkForespørselRequest til fpinntektsmelding for å ferdigstille forespørsel for saksnummer {} med organisasjonsnummer {}", request.fagsakSaksnummer().saksnr(), request.orgnummer());
+            var restRequest = RestRequest.newPOSTJson(request, uriSettForesporselTilUtgaatt, restConfig);
+            restClient.send(restRequest, String.class);
+        } catch (Exception e) {
+            LOG.warn("Feil ved oversending til fpinntektsmelding med lukk forespørsel request: {}", request);
+            throw feilVedKallTilFpinntektsmelding(e.getMessage());
+        }
+    }
 }
 
