@@ -886,6 +886,10 @@ public class Behandling extends BaseEntitet {
         this.status = status;
     }
 
+    public void setBehandlingType(BehandlingType type) {
+        this.behandlingType = type;
+    }
+
     public void setBehandlingStegTilstander(List<BehandlingStegTilstand> tilstander) {
         this.behandlingStegTilstander = tilstander;
 
