@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.RegisterdataDiffsjekker;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 
@@ -66,27 +65,6 @@ public class MedlemskapVilkårPeriodeRepository {
 
     public void lagreMedlemskapsvilkår(Behandling behandling, MedlemskapVilkårPeriodeGrunnlagEntitet.Builder builder) {
         lagreOgFlush(behandling, builder.build());
-    }
-
-    public record VilkårUtfallMedMerknad(VilkårUtfallType vilkårUtfallType, VilkårUtfallMerknad vilkårUtfallMerknad) {}
-
-    public VilkårUtfallMedMerknad utledeVilkårStatus(Behandling behandling) {
-        var medlemOpt = hentAktivtGrunnlag(behandling);
-        if (medlemOpt.isPresent()) {
-            var medlemskapsvilkårPeriode = medlemOpt.get().getMedlemskapsvilkårPeriode();
-            var perioder = medlemskapsvilkårPeriode.getPerioder();
-            var periodeOpt = perioder
-                    .stream()
-                    .filter(m -> VilkårUtfallType.IKKE_OPPFYLT.equals(m.getVilkårUtfall()))
-                    .findFirst();
-            if (periodeOpt.isPresent()) {
-                return new VilkårUtfallMedMerknad(VilkårUtfallType.IKKE_OPPFYLT, periodeOpt.get().getVilkårUtfallMerknad());
-            }
-            if (!perioder.isEmpty()) {
-                return new VilkårUtfallMedMerknad(VilkårUtfallType.OPPFYLT, VilkårUtfallMerknad.UDEFINERT);
-            }
-        }
-        return new VilkårUtfallMedMerknad(VilkårUtfallType.IKKE_VURDERT, VilkårUtfallMerknad.UDEFINERT);
     }
 
     public Optional<LocalDate> hentOpphørsdatoHvisEksisterer(Behandling behandling) {
