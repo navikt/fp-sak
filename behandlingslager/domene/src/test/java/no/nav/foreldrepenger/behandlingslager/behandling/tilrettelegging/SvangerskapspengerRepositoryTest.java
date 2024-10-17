@@ -72,6 +72,7 @@ class SvangerskapspengerRepositoryTest extends EntityManagerAwareTest {
             .medAvklartOpphold(SvpAvklartOpphold.Builder.nytt()
                 .medOppholdPeriode(fom, fom.plusWeeks(1))
                 .medOppholdÅrsak(SvpOppholdÅrsak.SYKEPENGER)
+                .medKilde(SvpOppholdKilde.REGISTRERT_AV_SAKSBEHANDLER)
                 .build())
             .build();
     }
