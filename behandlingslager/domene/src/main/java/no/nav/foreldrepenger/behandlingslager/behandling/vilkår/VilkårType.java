@@ -224,6 +224,10 @@ public enum VilkårType implements Kodeverdi {
         return this.equals(VilkårType.MEDLEMSKAPSVILKÅRET) || VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE.equals(this);
     }
 
+    public boolean erInngangsvilkår() {
+        return !Set.of(VilkårType.UDEFINERT, MEDLEMSKAPSVILKÅRET_LØPENDE).contains(this);
+    }
+
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<VilkårType, String> {
         @Override

@@ -6,6 +6,11 @@ import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.AdressePeriode;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Gyldighetsperiode;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.OppholdstillatelsePeriode;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.PersonstatusPeriode;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.StatsborgerskapPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
@@ -67,8 +72,7 @@ public class Personas {
     }
 
     public Personas statsborgerskap(Landkoder landkode, LocalDate fom, LocalDate tom) {
-        builder.leggTilStatsborgerskap(
-            Statsborgerskap.builder().aktørId(aktørId).statsborgerskap(landkode).periode(fom, tom == null ? Tid.TIDENES_ENDE : tom));
+        builder.leggTilStatsborgerskap(new Statsborgerskap(aktørId, new StatsborgerskapPeriode(Gyldighetsperiode.innenfor(fom, tom), landkode)));
         return this;
     }
 
@@ -77,13 +81,12 @@ public class Personas {
     }
 
     public Personas personstatus(PersonstatusType personstatus, LocalDate fom, LocalDate tom) {
-        builder.leggTilPersonstatus(Personstatus.builder().aktørId(aktørId).personstatus(personstatus).periode(fom, tom == null ? Tid.TIDENES_ENDE : tom));
+        builder.leggTilPersonstatus(new Personstatus(aktørId, new PersonstatusPeriode(Gyldighetsperiode.innenfor(fom, tom), personstatus)));
         return this;
     }
 
     public Personas opphold(OppholdstillatelseType oppholdstillatelseType, LocalDate fom, LocalDate tom) {
-        builder.leggTilOpphold(Oppholdstillatelse.builder().medAktørId(aktørId).medOppholdstillatelse(oppholdstillatelseType)
-            .medPeriode(fom, tom == null ? Tid.TIDENES_ENDE : tom));
+        builder.leggTilOpphold(new Oppholdstillatelse(aktørId, new OppholdstillatelsePeriode(Gyldighetsperiode.innenfor(fom, tom), oppholdstillatelseType)));
         return this;
     }
 
@@ -108,19 +111,15 @@ public class Personas {
     }
 
 
-    public Personas bostedsadresse(PersonAdresse.Builder adresseBuilder) {
+    public Personas bostedsadresse(AdressePeriode adresseBuilder) {
         return adresse(AdresseType.BOSTEDSADRESSE, adresseBuilder);
     }
 
-    public Personas adresse(AdresseType adresseType, PersonAdresse.Builder adresseBuilder) {
-        adresseBuilder.aktørId(aktørId);
+    public Personas adresse(AdresseType adresseType, AdressePeriode adresseBuilder) {
+        var ap = adresseBuilder.gyldighetsperiode() != null ? adresseBuilder :
+            new AdressePeriode(Gyldighetsperiode.innenfor(LocalDate.of(2000, 1, 1), Tid.TIDENES_ENDE), adresseBuilder.adresse());
 
-        if (adresseBuilder.getPeriode() == null) {
-            // for test formål
-            adresseBuilder.periode(LocalDate.of(2000, 1, 1), Tid.TIDENES_ENDE);
-        }
-        adresseBuilder.adresseType(adresseType);
-        builder.leggTilAdresser(adresseBuilder);
+        builder.leggTilAdresser(new PersonAdresse(aktørId, ap));
         return this;
     }
 

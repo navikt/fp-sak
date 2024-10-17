@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
@@ -52,7 +51,7 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
     @Test
     void setter_behandlingsresultat_avslag_med_avslagsårsak() {
         // Arrange
-        var behandling = vilkårOppsett(VilkårUtfallType.IKKE_OPPFYLT, VilkårResultatType.AVSLÅTT);
+        var behandling = vilkårOppsett(VilkårUtfallType.IKKE_OPPFYLT);
 
         // Act
         foreslåBehandlingsresultat(behandling);
@@ -75,7 +74,7 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
     @Test
     void setter_behandlingsresultat_innvilget() {
         // Arrange
-        var behandling = vilkårOppsett(VilkårUtfallType.OPPFYLT, VilkårResultatType.INNVILGET);
+        var behandling = vilkårOppsett(VilkårUtfallType.OPPFYLT);
 
         // Act
         foreslåBehandlingsresultat(behandling);
@@ -89,7 +88,7 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
     @Test
     void setter_konsekvens_for_ytelse_ingen_endring() {
         doReturn(true).when(revurderingEndring).erRevurderingMedUendretUtfall(any(), any());
-        var behandling = vilkårOppsett(VilkårUtfallType.OPPFYLT, VilkårResultatType.INNVILGET);
+        var behandling = vilkårOppsett(VilkårUtfallType.OPPFYLT);
         foreslåBehandlingsresultat(behandling);
         var konsekvenserForYtelsen = getBehandlingsresultat(behandling).getKonsekvenserForYtelsen();
         assertThat(konsekvenserForYtelsen.size()).isOne();
@@ -98,13 +97,13 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     void setter_ikke_konsekvens_for_ytelse() {
-        var behandling = vilkårOppsett(VilkårUtfallType.OPPFYLT, VilkårResultatType.INNVILGET);
+        var behandling = vilkårOppsett(VilkårUtfallType.OPPFYLT);
         foreslåBehandlingsresultat(behandling);
         var konsekvenserForYtelsen = getBehandlingsresultat(behandling).getKonsekvenserForYtelsen();
         assertThat(konsekvenserForYtelsen).isEmpty();
     }
 
-    private Behandling vilkårOppsett(VilkårUtfallType vilkårUtfallType, VilkårResultatType resultatType) {
+    private Behandling vilkårOppsett(VilkårUtfallType vilkårUtfallType) {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var behandling = scenario.lagre(repositoryProvider);
 
@@ -116,7 +115,6 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
         }
         var vilkårResultat = builder
                 .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
-                .medVilkårResultatType(resultatType)
                 .buildFor(behandling);
         behandlingRepository.lagre(vilkårResultat, behandlingRepository.taSkriveLås(behandling));
         return behandling;

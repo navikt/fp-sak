@@ -9,6 +9,7 @@ import jakarta.ws.rs.core.UriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
@@ -36,14 +37,15 @@ public class FpinntektsmeldingKlient {
         this.uriOverstyrInntektsmelding = toUri(restConfig.fpContextPath(), "/api/overstyring/inntektsmelding");
     }
 
-    public void opprettForespørsel(OpprettForespørselRequest request) {
+    public OpprettForespørselResponse opprettForespørsel(OpprettForespørselRequest request) {
         Objects.requireNonNull(request, "request");
         try {
-            LOG.info("Sender request til fpinntektsmelding for saksnummer" + request.saksnummer().saksnr());
+            LOG.info("Sender request til fpinntektsmelding for saksnummer" + request.fagsakSaksnummer().saksnr());
             var rrequest = RestRequest.newPOSTJson(request, uriOpprettForesporsel, restConfig);
-            restClient.send(rrequest, String.class);
+           return restClient.send(rrequest, OpprettForespørselResponse.class);
         } catch (Exception e) {
-            LOG.warn("Feil ved oversending til fpinntektsmelding med forespørsel: " + request + " Fikk feil: " + e);
+            LOG.warn("Feil ved overstyring av inntektsmelding med request: {}", request);
+            throw feilVedKallTilFpinntektsmelding(e.getMessage());
         }
     }
 
@@ -54,7 +56,8 @@ public class FpinntektsmeldingKlient {
             var rrequest = RestRequest.newPOSTJson(request, uriOverstyrInntektsmelding, restConfig);
             restClient.send(rrequest, String.class);
         } catch (Exception e) {
-            LOG.warn("Feil ved overstyring av inntektsmelding med forespørsel: " + request + " Fikk feil: " + e);
+            LOG.warn("Feil ved overstyring av inntektsmelding med request: {}", request);
+            throw feilVedKallTilFpinntektsmelding(e.getMessage());
         }
     }
 
@@ -69,12 +72,18 @@ public class FpinntektsmeldingKlient {
     public void lukkForespørsel(LukkForespørselRequest request) {
         Objects.requireNonNull(request, "request");
         try {
-            LOG.info("Sender lukk forespørsel request til fpinntektsmelding for saksnummer {} med organisasjonsnummer {}", request.saksnummer().saksnr(), request.orgnummer());
+            LOG.info("Sender lukk forespørsel request til fpinntektsmelding for saksnummer {} med organisasjonsnummer {}", request.fagsakSaksnummer().saksnr(), request.orgnummer());
             var restRequest = RestRequest.newPOSTJson(request, uriLukkForesporsel, restConfig);
             restClient.send(restRequest, String.class);
         } catch (Exception e) {
-            LOG.warn("Feil ved oversending til fpinntektsmelding med lukk forespørsel request: {} Fikk feil: {} ", request, e);
+            LOG.warn("Feil ved oversending til fpinntektsmelding med lukk forespørsel request: {}", request);
+            throw feilVedKallTilFpinntektsmelding(e.getMessage());
         }
     }
+
+    private static TekniskException feilVedKallTilFpinntektsmelding(String feilmelding) {
+        return new TekniskException("FP-97215", "Feil ved kall til Fpinntektsmelding: " + feilmelding);
+    }
+
 }
 

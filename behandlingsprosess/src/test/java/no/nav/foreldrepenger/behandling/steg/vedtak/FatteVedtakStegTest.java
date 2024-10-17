@@ -58,7 +58,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.lagretvedtak.LagretVedtakRepository;
@@ -535,7 +534,6 @@ class FatteVedtakStegTest {
         if (innvilget) {
             var vilkårResultat = VilkårResultat.builder()
                 .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
-                .medVilkårResultatType(VilkårResultatType.INNVILGET)
                 .buildFor(behandling);
 
             var lås = kontekst.getSkriveLås();
@@ -553,7 +551,6 @@ class FatteVedtakStegTest {
         } else {
             var vilkårResultat = VilkårResultat.builder()
                 .leggTilVilkårAvslått(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallMerknad.VM_1026)
-                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .buildFor(behandling);
 
             var lås = kontekst.getSkriveLås();

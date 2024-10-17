@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndr
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
@@ -45,7 +44,6 @@ public class SøknadsfristOppdaterer implements AksjonspunktOppdaterer<Soknadsfr
             return OppdateringResultat.utenTransisjon()
                 .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
                 .leggTilManueltAvslåttVilkår(SØKNADSFRISTVILKÅRET, Avslagsårsak.SØKT_FOR_SENT)
-                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .build();
         }
     }

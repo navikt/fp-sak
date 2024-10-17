@@ -88,7 +88,7 @@ class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandlingsresu
     }
 
     private boolean sjekkVilkårAvslått(Behandlingsresultat behandlingsresultat) {
-        return behandlingsresultat.isVilkårAvslått() || !minstEnGyldigUttaksPeriode(behandlingsresultat);
+        return behandlingsresultat.isInngangsVilkårAvslått() || !minstEnGyldigUttaksPeriode(behandlingsresultat);
     }
 
     private void vilkårAvslått(BehandlingReferanse ref, Behandlingsresultat behandlingsresultat) {

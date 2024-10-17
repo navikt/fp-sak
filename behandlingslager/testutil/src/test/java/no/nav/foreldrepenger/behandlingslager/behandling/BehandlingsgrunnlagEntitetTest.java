@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapKi
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskapBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonRelasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
@@ -463,7 +462,7 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
             .leggTil(informasjonBuilder
                 .getAdresseBuilder(barnNummer1, DatoIntervallEntitet.fraOgMed(fødselsdatoBarn1), AdresseType.BOSTEDSADRESSE)
                 .medAdresselinje1("Testadresse")
-                .medLand("Sverige").medPostnummer("1234"))
+                .medLand(Landkoder.SWE).medPostnummer("1234"))
             .leggTil(informasjonBuilder
                 .getRelasjonBuilder(forelderAktørId, barnNummer1, RelasjonsRolleType.BARN))
             .leggTil(informasjonBuilder
@@ -506,7 +505,7 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
             .leggTil(informasjonBuilder
                 .getAdresseBuilder(barnNummer2, DatoIntervallEntitet.fraOgMed(fødselsdatoBarn2), AdresseType.BOSTEDSADRESSE)
                 .medAdresselinje1("Testadresse")
-                .medLand("Sverige").medPostnummer("1234"))
+                .medLand(Landkoder.SWE).medPostnummer("1234"))
             .leggTil(informasjonBuilder
                 .getRelasjonBuilder(forelderAktørId, barnNummer2, RelasjonsRolleType.BARN))
             .leggTil(informasjonBuilder
@@ -567,7 +566,7 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
             .leggTil(informasjonBuilder
                 .getAdresseBuilder(forelder, DatoIntervallEntitet.fraOgMed(fødselsdato), AdresseType.BOSTEDSADRESSE)
                 .medAdresselinje1("Testadresse")
-                .medLand("NOR").medPostnummer(OSLO));
+                .medLand(Landkoder.NOR).medPostnummer(OSLO));
 
         personopplysningRepository.lagre(behandlingId, informasjonBuilder);
 
@@ -647,11 +646,11 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
             .leggTil(informasjonBuilder
                 .getAdresseBuilder(forelder, DatoIntervallEntitet.fraOgMed(fødselsdato), AdresseType.MIDLERTIDIG_POSTADRESSE_UTLAND)
                 .medAdresselinje1("Utlandsadresse")
-                .medLand("Sverige"))
+                .medLand(Landkoder.SWE))
             .leggTil(informasjonBuilder
                 .getAdresseBuilder(forelder, DatoIntervallEntitet.fraOgMed(fødselsdato), AdresseType.BOSTEDSADRESSE)
                 .medAdresselinje1("Testadresse")
-                .medLand("NOR").medPostnummer(OSLO));
+                .medLand(Landkoder.NOR).medPostnummer(OSLO));
 
         personopplysningRepository.lagre(behandlingId, informasjonBuilder);
 
@@ -696,11 +695,11 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         ).leggTil(informasjonBuilder
             .getAdresseBuilder(aktørId, DatoIntervallEntitet.fraOgMedTilOgMed(fødselsdato, dødsdatoForelder1), AdresseType.BOSTEDSADRESSE)
             .medAdresselinje1("Testadresse")
-            .medLand("NOR").medPostnummer("1234").medPoststed(OSLO)
+            .medLand(Landkoder.NOR).medPostnummer("1234").medPoststed(OSLO)
         ).leggTil(informasjonBuilder
             .getAdresseBuilder(aktørId, DatoIntervallEntitet.fraOgMedTilOgMed(fødselsdato, dødsdatoForelder1), AdresseType.MIDLERTIDIG_POSTADRESSE_UTLAND)
             .medAdresselinje1("Testadresse")
-            .medLand("Sverige").medPostnummer("1234")
+            .medLand(Landkoder.SWE).medPostnummer("1234")
         ).leggTil(informasjonBuilder
             .getStatsborgerskapBuilder(aktørId, DatoIntervallEntitet.fraOgMedTilOgMed(fødselsdato, dødsdatoForelder1), Landkoder.NOR)
         );
@@ -763,28 +762,6 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         var medlemskapPerioders = medlemskapRepository.hentMedlemskap(behandlingId).get().getRegistrertMedlemskapPerioder();
         assertThat(medlemskapPerioders).hasSize(2);
         assertThat(medlemskapPerioders).containsExactlyInAnyOrder(medlemskapPerioder1, medlemskapPerioder2);
-    }
-
-    @Test
-    void skal_kunne_lagre_medlemskap() {
-        var behandling = lagBehandling();
-
-        var vurdertMedlemskap = new VurdertMedlemskapBuilder()
-            .medOppholdsrettVurdering(true)
-            .medLovligOppholdVurdering(true)
-            .medBosattVurdering(true)
-            .build();
-
-        var medlemskapRepository = new MedlemskapRepository(getEntityManager());
-
-        // Act
-        var behandlingId = behandling.getId();
-        medlemskapRepository.lagreMedlemskapVurdering(behandlingId, vurdertMedlemskap);
-
-        // Assert
-        var medlemskap = medlemskapRepository.hentMedlemskap(behandlingId);
-        assertThat(medlemskap).isNotNull().isPresent();
-        assertThat(medlemskap.get().getVurdertMedlemskap()).contains(vurdertMedlemskap);
     }
 
     private Behandling lagBehandling() {

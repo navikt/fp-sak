@@ -79,20 +79,20 @@ public class MedlemDtoTjeneste {
         // CDI
     }
 
-    public MedlemskapDto lagMedlemskap(UUID behandlingId) {
+    public Optional<MedlemskapDto> lagMedlemskap(UUID behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         var ref = BehandlingReferanse.fra(behandling);
 
         var po = personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref);
 
-        if (po.isEmpty()) {
-            return null;
+        if (po.isEmpty() || !po.get().harInnhentetPersonopplysningerFraRegister()) {
+            return Optional.empty();
         }
         var personopplysningerAggregat = po.get();
         var forPeriode = SimpleLocalDateInterval.fraOgMedTomNotNull(Tid.TIDENES_BEGYNNELSE, Tid.TIDENES_ENDE);
 
         var manuellBehandling = manuellBehandling(behandling);
+        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         var legacyManuellBehandling = manuellBehandling.isEmpty() ? legacyManuellBehandling(ref, stp).orElse(null) : null;
 
         var aktørId = ref.aktørId();
@@ -133,8 +133,8 @@ public class MedlemDtoTjeneste {
         var annenpart = annenpart(personopplysningerAggregat, forPeriode, stp).orElse(null);
         var avvik = utledAvvik(behandling);
 
-        return new MedlemskapDto(manuellBehandling.orElse(null), legacyManuellBehandling, regioner, personstatuser, utenlandsopphold, adresser,
-            oppholdstillatelser, medlemskapsperioder, avvik, annenpart);
+        return Optional.of(new MedlemskapDto(manuellBehandling.orElse(null), legacyManuellBehandling, regioner, personstatuser, utenlandsopphold, adresser,
+            oppholdstillatelser, medlemskapsperioder, avvik, annenpart));
     }
 
     private Set<MedlemskapAvvik> utledAvvik(Behandling behandling) {

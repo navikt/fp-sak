@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Gyldighetsperiode;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.StatsborgerskapPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -82,7 +84,7 @@ class PersonopplysningRepositoryTest extends EntityManagerAwareTest {
             .medAktørId(AktørId.dummy())
             .medSivilstandType(SivilstandType.SAMBOER)
             .medFødselsdato(LocalDate.now().minusYears(20))
-            .medLandkoder(List.of(Landkoder.NOR))
+            .medLandkoder(List.of(new StatsborgerskapPeriode(Gyldighetsperiode.innenfor(null, null), Landkoder.NOR)))
             .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
             .medPersonIdent(new PersonIdent("12345678901"))
             .build();

@@ -8,8 +8,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.AdressePeriode;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.PersonstatusPeriode;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.StatsborgerskapPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
@@ -20,12 +22,11 @@ public class Personinfo {
     private PersonIdent personIdent;
     private LocalDate fødselsdato;
     private LocalDate dødsdato;
-    private PersonstatusType personstatus;
+    private List<PersonstatusPeriode> personstatus = new ArrayList<>();
     private NavBrukerKjønn kjønn;
     private Set<FamilierelasjonVL> familierelasjoner = Collections.emptySet();
-    private List<Landkoder> landkoder = List.of();
-
-    private List<Adresseinfo> adresseInfoList = new ArrayList<>();
+    private List<StatsborgerskapPeriode> statsborgerskap = new ArrayList<>();
+    private List<AdressePeriode> adresseperioder = new ArrayList<>();
     private SivilstandType sivilstand;
 
     private Personinfo() {
@@ -47,7 +48,7 @@ public class Personinfo {
         return kjønn;
     }
 
-    public PersonstatusType getPersonstatus() {
+    public List<PersonstatusPeriode> getPersonstatus() {
         return personstatus;
     }
 
@@ -63,16 +64,16 @@ public class Personinfo {
         return dødsdato;
     }
 
-    public List<Adresseinfo> getAdresseInfoList() {
-        return adresseInfoList;
+    public List<AdressePeriode> getAdresseperioder() {
+        return adresseperioder;
     }
 
     public SivilstandType getSivilstandType() {
         return sivilstand;
     }
 
-    public List<Landkoder> getLandkoder() {
-        return landkoder;
+    public List<StatsborgerskapPeriode> getLandkoder() {
+        return statsborgerskap;
     }
 
     @Override
@@ -112,7 +113,7 @@ public class Personinfo {
             return this;
         }
 
-        public Builder medPersonstatusType(PersonstatusType personstatus) {
+        public Builder medPersonstatusPerioder(List<PersonstatusPeriode> personstatus) {
             personinfoMal.personstatus = personstatus;
             return this;
         }
@@ -127,8 +128,8 @@ public class Personinfo {
             return this;
         }
 
-        public Builder medAdresseInfoList(List<Adresseinfo> adresseinfoArrayList) {
-            personinfoMal.adresseInfoList = adresseinfoArrayList;
+        public Builder medAdressePerioder(List<AdressePeriode> adresser) {
+            personinfoMal.adresseperioder = adresser;
             return this;
         }
 
@@ -137,8 +138,8 @@ public class Personinfo {
             return this;
         }
 
-        public Builder medLandkoder(List<Landkoder> landkoder) {
-            personinfoMal.landkoder = landkoder;
+        public Builder medLandkoder(List<StatsborgerskapPeriode> statsborgerskap) {
+            personinfoMal.statsborgerskap = statsborgerskap;
             return this;
         }
 

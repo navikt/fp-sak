@@ -19,8 +19,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 
@@ -45,9 +47,9 @@ class FastsettBehandlingsresultatVedAvslagPåAvslagTest {
         // Act
         var erAvslagPåAvslag = FastsettBehandlingsresultatVedAvslagPåAvslag.vurder(
                 lagBehandlingsresultat(revurdering, BehandlingResultatType.INGEN_ENDRING,
-                        KonsekvensForYtelsen.INGEN_ENDRING),
+                        KonsekvensForYtelsen.INGEN_ENDRING, VilkårUtfallType.OPPFYLT),
                 lagBehandlingsresultat(originalBehandling, BehandlingResultatType.INNVILGET,
-                        KonsekvensForYtelsen.UDEFINERT),
+                        KonsekvensForYtelsen.UDEFINERT, VilkårUtfallType.OPPFYLT),
                 originalBehandling.getType());
 
         // Assert
@@ -63,8 +65,8 @@ class FastsettBehandlingsresultatVedAvslagPåAvslagTest {
         // Act
         var erAvslagPåAvslag = FastsettBehandlingsresultatVedAvslagPåAvslag.vurder(
                 lagBehandlingsresultat(revurdering, BehandlingResultatType.INGEN_ENDRING,
-                        KonsekvensForYtelsen.INGEN_ENDRING),
-                lagBehandlingsresultat(originalBehandling, BehandlingResultatType.AVSLÅTT, KonsekvensForYtelsen.UDEFINERT),
+                        KonsekvensForYtelsen.INGEN_ENDRING, VilkårUtfallType.IKKE_OPPFYLT),
+                lagBehandlingsresultat(originalBehandling, BehandlingResultatType.AVSLÅTT, KonsekvensForYtelsen.UDEFINERT, VilkårUtfallType.IKKE_OPPFYLT),
                 originalBehandling.getType());
 
         // Assert
@@ -89,13 +91,15 @@ class FastsettBehandlingsresultatVedAvslagPåAvslagTest {
         return originalBehandling;
     }
 
-    private Optional<Behandlingsresultat> lagBehandlingsresultat(Behandling behandling,
-            BehandlingResultatType resultatType,
-            KonsekvensForYtelsen konsekvensForYtelsen) {
+    private Optional<Behandlingsresultat> lagBehandlingsresultat(Behandling behandling, BehandlingResultatType resultatType,
+                                                                 KonsekvensForYtelsen konsekvensForYtelsen, VilkårUtfallType utfallType) {
         var behandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(resultatType)
                 .leggTilKonsekvensForYtelsen(konsekvensForYtelsen).buildFor(behandling);
 
-        VilkårResultat.builder().medVilkårResultatType(VilkårResultatType.AVSLÅTT).buildFor(behandling);
+        VilkårResultat.builder()
+            .overstyrVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, utfallType,
+                VilkårUtfallType.IKKE_OPPFYLT.equals(utfallType) ? Avslagsårsak.MANGLENDE_DOKUMENTASJON : Avslagsårsak.UDEFINERT)
+            .buildFor(behandling);
         behandlingRepository.lagre(behandling.getBehandlingsresultat().getVilkårResultat(),
                 behandlingRepository.taSkriveLås(behandling));
 

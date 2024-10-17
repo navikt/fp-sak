@@ -2,11 +2,8 @@ package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adapter;
 
 import static java.util.Collections.emptyList;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET;
-import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType.IKKE_OPPFYLT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType.IKKE_VURDERT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType.OPPFYLT;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -22,7 +19,6 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -30,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.inngangsvilkaar.InngangsvilkårTjeneste;
 import no.nav.foreldrepenger.inngangsvilkaar.RegelOrkestrerer;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
-import no.nav.vedtak.exception.TekniskException;
 
 class RegelOrkestrererTest {
 
@@ -51,7 +46,7 @@ class RegelOrkestrererTest {
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, emptyList());
         when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn(b -> vilkårData);
 
-        var behandling = byggBehandlingMedVilkårresultat(VilkårResultatType.IKKE_FASTSATT, vilkårType);
+        var behandling = byggBehandlingMedVilkårresultat(vilkårType);
         when(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId())).thenReturn(behandling.getBehandlingsresultat());
 
         // Act
@@ -69,7 +64,7 @@ class RegelOrkestrererTest {
         var vilkårType = VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD;
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, emptyList());
         when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn(b -> vilkårData);
-        var behandling = byggBehandlingMedVilkårresultat(VilkårResultatType.IKKE_FASTSATT, vilkårType);
+        var behandling = byggBehandlingMedVilkårresultat(vilkårType);
         when(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId())).thenReturn(behandling.getBehandlingsresultat());
 
         // Act
@@ -87,7 +82,7 @@ class RegelOrkestrererTest {
         var vilkårType = VilkårType.MEDLEMSKAPSVILKÅRET;
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, emptyList());
         when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn(b -> vilkårData);
-        var behandling = byggBehandlingMedVilkårresultat(VilkårResultatType.IKKE_FASTSATT, vilkårType);
+        var behandling = byggBehandlingMedVilkårresultat(vilkårType);
         when(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId())).thenReturn(behandling.getBehandlingsresultat());
 
         // Act
@@ -105,7 +100,7 @@ class RegelOrkestrererTest {
         var vilkårType = VilkårType.SØKNADSFRISTVILKÅRET;
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, emptyList());
         when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn(b -> vilkårData);
-        var behandling = byggBehandlingMedVilkårresultat(VilkårResultatType.IKKE_FASTSATT, vilkårType);
+        var behandling = byggBehandlingMedVilkårresultat(vilkårType);
         when(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId())).thenReturn(behandling.getBehandlingsresultat());
 
         // Act
@@ -123,7 +118,7 @@ class RegelOrkestrererTest {
         var vilkårType = VilkårType.OMSORGSVILKÅRET;
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, emptyList());
         when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn(b -> vilkårData);
-        var behandling = byggBehandlingMedVilkårresultat(VilkårResultatType.IKKE_FASTSATT, vilkårType);
+        var behandling = byggBehandlingMedVilkårresultat(vilkårType);
         when(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId())).thenReturn(behandling.getBehandlingsresultat());
 
         // Act
@@ -141,7 +136,7 @@ class RegelOrkestrererTest {
         var vilkårType = VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD;
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, emptyList());
         when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn(b -> vilkårData);
-        var behandling = byggBehandlingMedVilkårresultat(VilkårResultatType.IKKE_FASTSATT, vilkårType);
+        var behandling = byggBehandlingMedVilkårresultat(vilkårType);
         when(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId())).thenReturn(behandling.getBehandlingsresultat());
 
         // Act
@@ -159,7 +154,7 @@ class RegelOrkestrererTest {
         var vilkårType = VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD;
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, emptyList());
         when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn(b -> vilkårData);
-        var behandling = byggBehandlingMedVilkårresultat(VilkårResultatType.IKKE_FASTSATT, vilkårType);
+        var behandling = byggBehandlingMedVilkårresultat(vilkårType);
         when(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId())).thenReturn(behandling.getBehandlingsresultat());
 
         // Act
@@ -251,32 +246,11 @@ class RegelOrkestrererTest {
                 .orElseThrow(() -> new IllegalStateException("Skal ikke kunne komme her"));
         assertThat(søknadsfristvilkår.getGjeldendeVilkårUtfall()).isEqualTo(VilkårUtfallType.IKKE_VURDERT);
         assertThat(adopsjonsvilkår.getGjeldendeVilkårUtfall()).isEqualTo(VilkårUtfallType.OPPFYLT);
-        assertThat(regelResultat.vilkårResultat().getVilkårResultatType()).isEqualTo(VilkårResultatType.IKKE_FASTSATT);
     }
 
-    @Test
-    void skal_sammenstille_individuelle_vilkårsutfall_til_ett_samlet_vilkårresultat() {
-        // Enkelt vilkårutfall
-        assertThat(VilkårResultatType.utledInngangsvilkårUtfall(Set.of(IKKE_OPPFYLT))).isEqualTo(VilkårResultatType.AVSLÅTT);
-        assertThat(VilkårResultatType.utledInngangsvilkårUtfall(Set.of(IKKE_VURDERT))).isEqualTo(VilkårResultatType.IKKE_FASTSATT);
-        assertThat(VilkårResultatType.utledInngangsvilkårUtfall(Set.of(OPPFYLT))).isEqualTo(VilkårResultatType.INNVILGET);
-
-        // Sammensatt vilkårutfall
-        assertThat(VilkårResultatType.utledInngangsvilkårUtfall(Set.of(IKKE_OPPFYLT, IKKE_VURDERT))).isEqualTo(VilkårResultatType.AVSLÅTT);
-        assertThat(VilkårResultatType.utledInngangsvilkårUtfall(Set.of(IKKE_OPPFYLT, OPPFYLT))).isEqualTo(VilkårResultatType.AVSLÅTT);
-
-        assertThat(VilkårResultatType.utledInngangsvilkårUtfall(Set.of(IKKE_VURDERT, OPPFYLT))).isEqualTo(VilkårResultatType.IKKE_FASTSATT);
-    }
-
-    @Test
-    void skal_kaste_feil_dersom_vilkårsresultat_ikke_kan_utledes() {
-        Set<VilkårUtfallType> utfall = Set.of();
-        assertThrows(TekniskException.class, () -> VilkårResultatType.utledInngangsvilkårUtfall(utfall));
-    }
-
-    private Behandling byggBehandlingMedVilkårresultat(VilkårResultatType vilkårResultatType, VilkårType vilkårType) {
+private Behandling byggBehandlingMedVilkårresultat(VilkårType vilkårType) {
         var behandling = lagBehandling();
-        VilkårResultat.builder().medVilkårResultatType(vilkårResultatType)
+        VilkårResultat.builder()
             .leggTilVilkårIkkeVurdert(vilkårType).buildFor(behandling);
         return behandling;
     }

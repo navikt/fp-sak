@@ -10,6 +10,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -18,12 +19,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
@@ -40,6 +40,7 @@ public class RevurderingTjenesteFelles {
     private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
     private FagsakRevurdering fagsakRevurdering;
     private MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository;
+    private VilkårMedlemskapRepository vilkårMedlemskapRepository;
     private OpptjeningRepository opptjeningRepository;
     private RevurderingHistorikk revurderingHistorikk;
 
@@ -48,7 +49,8 @@ public class RevurderingTjenesteFelles {
     }
 
     @Inject
-    public RevurderingTjenesteFelles(BehandlingRepositoryProvider repositoryProvider, BehandlingRevurderingTjeneste behandlingRevurderingTjeneste) {
+    public RevurderingTjenesteFelles(BehandlingRepositoryProvider repositoryProvider,
+                                     BehandlingRevurderingTjeneste behandlingRevurderingTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.behandlingRevurderingTjeneste = behandlingRevurderingTjeneste;
@@ -56,6 +58,7 @@ public class RevurderingTjenesteFelles {
         this.medlemskapVilkårPeriodeRepository = repositoryProvider.getMedlemskapVilkårPeriodeRepository();
         this.opptjeningRepository = repositoryProvider.getOpptjeningRepository();
         this.revurderingHistorikk = new RevurderingHistorikk(repositoryProvider.getHistorikkRepository());
+        this.vilkårMedlemskapRepository = repositoryProvider.getVilkårMedlemskapRepository();
     }
 
     public Behandling opprettRevurderingsbehandling(BehandlingÅrsakType revurderingsÅrsak, Behandling opprinneligBehandling,
@@ -108,15 +111,17 @@ public class RevurderingTjenesteFelles {
         Objects.requireNonNull(origVilkårResultat, "Vilkårsresultat må være satt på revurderingens originale behandling");
 
         var vilkårBuilder = VilkårResultat.builder();
-        origVilkårResultat.getVilkårene()
-                .forEach(vilkår -> vilkårBuilder.kopierVilkårFraAnnenBehandling(vilkår, true, nullstilles.contains(vilkår.getVilkårType())));
-        vilkårBuilder.medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT);
+        origVilkårResultat.getVilkårene().stream()
+            .filter(v -> v.getVilkårType().erInngangsvilkår())
+            .forEach(vilkår -> vilkårBuilder.kopierVilkårFraAnnenBehandling(vilkår, true, nullstilles.contains(vilkår.getVilkårType())));
         var vilkårResultat = vilkårBuilder.buildFor(revurdering);
         behandlingRepository.lagre(vilkårResultat, kontekst.getSkriveLås());
         behandlingRepository.lagre(revurdering, kontekst.getSkriveLås());
 
         // MedlemskapsvilkårPerioder er tilknyttet vilkårresultat, ikke behandling
         medlemskapVilkårPeriodeRepository.kopierGrunnlagFraEksisterendeBehandling(origBehandling, revurdering);
+
+        vilkårMedlemskapRepository.kopierGrunnlagFraEksisterendeBehandling(origBehandling, revurdering);
 
         // Kan være at førstegangsbehandling ble avslått før den har kommet til
         // opptjening.

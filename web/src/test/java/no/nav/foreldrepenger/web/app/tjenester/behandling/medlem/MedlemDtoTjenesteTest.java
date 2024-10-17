@@ -10,9 +10,12 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
+import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.AdressePeriode;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Gyldighetsperiode;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittLandOppholdEntitet;
@@ -23,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonAdresse;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.MedlemskapAvvik;
@@ -51,10 +53,8 @@ class MedlemDtoTjenesteTest {
         scenario.medSøknadAnnenPart().medAktørId(aktørIdAnnenPart).medNavn("Ola Dunk").build();
 
         var personInformasjonBuilder = scenario.opprettBuilderForRegisteropplysninger();
-        var adresse = PersonAdresse.builder()
-            .adresseType(AdresseType.BOSTEDSADRESSE)
-            .periode(fødselsdato.minusYears(5), Tid.TIDENES_ENDE)
-            .land(Landkoder.NOR);
+        var adresse = new AdressePeriode(Gyldighetsperiode.innenfor(fødselsdato.minusYears(5), null),
+            Adresseinfo.builder(AdresseType.BOSTEDSADRESSE).medLand(Landkoder.NOR).build());
         var personstatusFom = fødselsdato.minusYears(10);
         var personstatusTom = Tid.TIDENES_ENDE;
         var statsborgerFom = fødselsdato.minusYears(10);
@@ -91,7 +91,7 @@ class MedlemDtoTjenesteTest {
             .leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET, BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR)
             .lagre(repositoryProvider);
 
-        var dto = medlemDtoTjeneste.lagMedlemskap(behandling.getUuid());
+        var dto = medlemDtoTjeneste.lagMedlemskap(behandling.getUuid()).orElseThrow();
 
         assertThat(dto.avvik()).containsExactlyInAnyOrder(MedlemskapAvvik.MEDL_PERIODER,
             MedlemskapAvvik.BOSATT_UTENLANDSOPPHOLD);
@@ -104,8 +104,8 @@ class MedlemDtoTjenesteTest {
 
         assertThat(dto.adresser()).hasSize(1);
         var adresse1 = dto.adresser().stream().findFirst().orElseThrow();
-        assertThat(adresse1.fom()).isEqualTo(adresse.getPeriode().getFomDato());
-        assertThat(adresse1.tom()).isEqualTo(adresse.getPeriode().getTomDato());
+        assertThat(adresse1.fom()).isEqualTo(adresse.gyldighetsperiode().fom());
+        assertThat(adresse1.tom()).isEqualTo(adresse.gyldighetsperiode().tom());
         assertThat(adresse1.adresse().getAdresseType()).isEqualTo(AdresseType.BOSTEDSADRESSE);
 
         assertThat(dto.regioner()).hasSize(1);
@@ -135,8 +135,8 @@ class MedlemDtoTjenesteTest {
 
         assertThat(dto.annenpart().adresser()).hasSize(1);
         var adresseAP1 = dto.adresser().stream().findFirst().orElseThrow();
-        assertThat(adresseAP1.fom()).isEqualTo(adresse.getPeriode().getFomDato());
-        assertThat(adresseAP1.tom()).isEqualTo(adresse.getPeriode().getTomDato());
+        assertThat(adresseAP1.fom()).isEqualTo(adresse.gyldighetsperiode().fom());
+        assertThat(adresseAP1.tom()).isEqualTo(adresse.gyldighetsperiode().tom());
         assertThat(adresseAP1.adresse().getAdresseType()).isEqualTo(AdresseType.BOSTEDSADRESSE);
 
         assertThat(dto.annenpart().regioner()).hasSize(1);

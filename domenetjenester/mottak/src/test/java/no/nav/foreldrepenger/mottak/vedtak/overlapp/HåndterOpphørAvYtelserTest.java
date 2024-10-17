@@ -36,7 +36,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskateg
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadAnnenPartType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -175,7 +174,6 @@ class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
         }
         scenarioAvsluttetBehMor.medBehandlingsresultat(
             Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
-        scenarioAvsluttetBehMor.medVilkårResultatType(VilkårResultatType.INNVILGET);
         scenarioAvsluttetBehMor.medBehandlingVedtak()
             .medVedtakstidspunkt(LocalDateTime.now().minusMonths(2))
             .medVedtakResultatType(VedtakResultatType.INNVILGET);

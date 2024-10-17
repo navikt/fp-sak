@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGr
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadAnnenPartType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
@@ -297,7 +296,6 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         }
         scenarioMor.medBehandlingsresultat(
             Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
-        scenarioMor.medVilkårResultatType(VilkårResultatType.INNVILGET);
         scenarioMor.medBehandlingVedtak()
             .medVedtakstidspunkt(LocalDateTime.now().minusMonths(2))
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
@@ -316,7 +314,6 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         }
         scenarioFar.medBehandlingsresultat(
             Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
-        scenarioFar.medVilkårResultatType(VilkårResultatType.INNVILGET);
         scenarioFar.medBehandlingVedtak()
             .medVedtakstidspunkt(LocalDateTime.now().minusMonths(2))
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
@@ -336,7 +333,6 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         }
         scenario.medBehandlingsresultat(
             Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
-        scenario.medVilkårResultatType(VilkårResultatType.INNVILGET);
         scenario.medBehandlingVedtak()
             .medVedtakstidspunkt(LocalDateTime.now().minusMonths(2))
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
@@ -359,7 +355,6 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         }
         scenario.medBehandlingsresultat(
             Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
-        scenario.medVilkårResultatType(VilkårResultatType.INNVILGET);
         scenario.medBehandlingVedtak()
             .medVedtakstidspunkt(LocalDateTime.now().minusMonths(2))
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
@@ -380,7 +375,6 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
             .medAntallBarn(1);
         scenarioSVP.medBehandlingsresultat(
             Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
-        scenarioSVP.medVilkårResultatType(VilkårResultatType.INNVILGET);
         scenarioSVP.medBehandlingVedtak()
             .medVedtakstidspunkt(LocalDateTime.now().minusMonths(1))
             .medVedtakResultatType(VedtakResultatType.INNVILGET);

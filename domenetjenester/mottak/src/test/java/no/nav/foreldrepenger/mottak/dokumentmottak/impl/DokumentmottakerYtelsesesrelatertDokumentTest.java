@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -87,7 +86,6 @@ class DokumentmottakerYtelsesesrelatertDokumentTest {
     void skal_opprette_vurder_dokument_oppgave_dersom_avslått_behandling() {
         // Arrange - opprette avsluttet førstegangsbehandling
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
         var behandling = scenario.lagre(repositoryProvider);
         avsluttBehandling(behandling, VedtakResultatType.AVSLAG);
         behandling = repositoryProvider.getBehandlingRepository().hentBehandling(behandling.getId());
@@ -110,8 +108,7 @@ class DokumentmottakerYtelsesesrelatertDokumentTest {
     void skal_opprette_førstegangsbehandling_dersom_avslått_behandling_har_entydig_avslag() {
         // Arrange - opprette avsluttet førstegangsbehandling
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.medVilkårResultatType(VilkårResultatType.AVSLÅTT)
-                .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.IKKE_OPPFYLT);
+        scenario.leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.IKKE_OPPFYLT);
         var behandling = scenario.lagre(repositoryProvider);
         behandling.avsluttBehandling();
         avsluttBehandling(behandling, VedtakResultatType.AVSLAG);
@@ -138,7 +135,6 @@ class DokumentmottakerYtelsesesrelatertDokumentTest {
     void skal_opprette_vurder_dokument_oppgave_dersom_opphørt_behandling() {
         // Arrange - opprette avsluttet førstegangsbehandling
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
         var behandling = scenario.lagre(repositoryProvider);
         behandling.avsluttBehandling();
         avsluttBehandling(behandling, VedtakResultatType.OPPHØR);
@@ -163,8 +159,7 @@ class DokumentmottakerYtelsesesrelatertDokumentTest {
     void skal_ikke_opprette_førstegangsbehandling_dersom_opphørt_behandling() {
         // Arrange - opprette avsluttet førstegangsbehandling
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.medVilkårResultatType(VilkårResultatType.INNVILGET)
-                .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.IKKE_OPPFYLT);
+        scenario.leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.IKKE_OPPFYLT);
         var behandling = scenario.lagre(repositoryProvider);
         behandling.avsluttBehandling();
         avsluttBehandling(behandling, VedtakResultatType.OPPHØR);

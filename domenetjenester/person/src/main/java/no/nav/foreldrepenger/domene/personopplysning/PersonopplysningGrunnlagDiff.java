@@ -138,10 +138,6 @@ public class PersonopplysningGrunnlagDiff {
             hentUtlandAdresserForPeriode(grunnlag2, Set.of(søkerAktørId), periode));
     }
 
-    public boolean erAdresseLandEndretForSøkerPeriode(DatoIntervallEntitet periode) {
-        return !Objects.equals(hentAdresserLandForPeriode(grunnlag1, Set.of(søkerAktørId), periode), hentAdresserLandForPeriode(grunnlag2, Set.of(søkerAktørId), periode));
-    }
-
     public boolean erSivilstandEndretForBruker() {
         return !Objects.equals(hentSivilstand(grunnlag1, søkerAktørId), hentSivilstand(grunnlag2, søkerAktørId));
     }
@@ -186,17 +182,9 @@ public class PersonopplysningGrunnlagDiff {
         return registerVersjon(grunnlag).map(PersonInformasjonEntitet::getAdresser).orElse(Collections.emptyList()).stream()
             .filter(adr -> personer.contains(adr.getAktørId()))
             .filter(adr -> adr.getPeriode().overlapper(periode))
-            .filter(adr -> !Landkoder.erNorge(adr.getLand()))
+            .filter(adr -> !Landkoder.NOR.equals(adr.getLand()))
             .sorted(COMP_ADRESSE)
             .toList();
-    }
-
-    private Set<String> hentAdresserLandForPeriode(PersonopplysningGrunnlagEntitet grunnlag, Set<AktørId> personer, DatoIntervallEntitet periode) {
-        return registerVersjon(grunnlag).map(PersonInformasjonEntitet::getAdresser).orElse(Collections.emptyList()).stream()
-            .filter(adr -> personer.contains(adr.getAktørId()))
-            .filter(adr -> adr.getPeriode().overlapper(periode))
-            .map(PersonAdresseEntitet::getLand)
-            .collect(Collectors.toSet());
     }
 
     private Set<SivilstandType> hentSivilstand(PersonopplysningGrunnlagEntitet grunnlag, AktørId person) {

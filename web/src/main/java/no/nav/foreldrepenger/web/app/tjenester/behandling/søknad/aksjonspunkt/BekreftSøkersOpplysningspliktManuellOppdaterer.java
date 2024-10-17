@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndr
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
@@ -50,8 +49,6 @@ public class BekreftSøkersOpplysningspliktManuellOppdaterer implements Aksjonsp
         var resultatBuilder = OppdateringResultat.utenTransisjon();
         if (erVilkårOk) {
             resultatBuilder.leggTilManueltOppfyltVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT);
-            resultatBuilder.medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT);
-
             return resultatBuilder.build();
         } else {
             // Hoppe rett til foreslå vedtak uten totrinnskontroll
@@ -62,7 +59,6 @@ public class BekreftSøkersOpplysningspliktManuellOppdaterer implements Aksjonsp
             return resultatBuilder
                 .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
                 .leggTilManueltAvslåttVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, Avslagsårsak.MANGLENDE_DOKUMENTASJON)
-                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .build();
         }
     }

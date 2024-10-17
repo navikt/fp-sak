@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -233,8 +232,8 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
     }
 
     @Override
-    public List<Inntektsmelding> lagreInntektsmeldinger(Saksnummer saksnummer, Long behandlingId,
-                                                        Collection<InntektsmeldingBuilder> inntektsmeldingBuilderCollection) {
+    public void lagreInntektsmeldinger(Saksnummer saksnummer, Long behandlingId,
+                                       Collection<InntektsmeldingBuilder> inntektsmeldingBuilderCollection) {
         Objects.requireNonNull(inntektsmeldingBuilderCollection, "inntektsmeldingBuilderCollection");
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var inntektsmeldingerDto = new IAYTilDtoMapper(behandling.getAktørId(),
@@ -242,7 +241,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
                 null, behandling.getUuid()).mapTilDto(inntektsmeldingBuilderCollection);
 
         if (inntektsmeldingerDto == null) {
-            return Collections.emptyList();
+            return;
         }
         var aktør = new AktørIdPersonident(behandling.getAktørId().getId());
         var inntektsmeldingerMottattRequest = new InntektsmeldingerMottattRequest(saksnummer.getVerdi(),
@@ -253,8 +252,6 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         } catch (IOException e) {
             throw feilVedKallTilAbakus("Lagre mottatte inntektsmeldinger i abakus: " + e.getMessage(), e);
         }
-        //Brukes ikke til noe
-        return Collections.emptyList();
     }
 
     @Override

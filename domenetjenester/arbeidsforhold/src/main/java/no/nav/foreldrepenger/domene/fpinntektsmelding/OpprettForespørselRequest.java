@@ -11,7 +11,7 @@ public record OpprettForespørselRequest(@NotNull @Valid AktørIdDto aktørId,
                                         @NotNull @Valid OrganisasjonsnummerDto orgnummer,
                                         @NotNull LocalDate skjæringstidspunkt,
                                         @NotNull YtelseType ytelsetype,
-                                        @NotNull @Valid SaksnummerDto saksnummer) {
+                                        @NotNull @Valid SaksnummerDto fagsakSaksnummer) {
     protected record AktørIdDto(@NotNull @JsonValue String id){}
     protected record SaksnummerDto(@NotNull @JsonValue String saksnr){}
     protected record OrganisasjonsnummerDto(@NotNull @JsonValue String orgnr){}

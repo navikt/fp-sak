@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.medlem;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.Period;
 
 import org.junit.jupiter.api.Test;
@@ -19,12 +20,12 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 class MedlemskapVurderingPeriodeTjenesteTest {
 
-    private static final LocalDate IKRAFT = LocalDate.now().minusWeeks(2);
+    private static final LocalDate IKRAFT = LocalDate.of(2024, Month.OCTOBER, 1);
     private static final Period OVERGANG = Period.parse("P18W3D");
     private static final Period BOSATT_TILBAKE = Period.ofMonths(12);
 
     private static final Period ES_MEDLEMSKAP = Period.ofMonths(12);
-    private static final BotidCore2024 BOTID_CORE = new BotidCore2024(IKRAFT, OVERGANG);
+    private static final BotidCore2024 BOTID_CORE = new BotidCore2024(null, null);
 
     @Test
     void engangsstønad_termin_uten_botid() {

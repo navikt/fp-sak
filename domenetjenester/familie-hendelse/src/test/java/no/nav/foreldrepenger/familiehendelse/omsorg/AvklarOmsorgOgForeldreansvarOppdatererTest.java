@@ -102,9 +102,6 @@ class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwareTest 
         delresultat.getVilkårUtfallSomSkalLeggesTil()
             .forEach(v -> vilkårBuilder.manueltVilkår(v.getVilkårType(), v.getVilkårUtfallType(), v.getAvslagsårsak()));
         delresultat.getVilkårTyperSomSkalFjernes().forEach(vilkårBuilder::fjernVilkår); // TODO: Vilkår burde ryddes på ein annen måte enn dette
-        if (delresultat.getVilkårResultatType() != null) {
-            vilkårBuilder.medVilkårResultatType(delresultat.getVilkårResultatType());
-        }
     }
 
     @Test

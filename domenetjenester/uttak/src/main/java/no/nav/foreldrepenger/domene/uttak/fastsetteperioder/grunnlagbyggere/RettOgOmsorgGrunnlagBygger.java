@@ -97,6 +97,6 @@ public class RettOgOmsorgGrunnlagBygger {
     }
 
     private boolean harSøkerRett(BehandlingReferanse ref) {
-        return !behandlingsresultatRepository.hent(ref.behandlingId()).isVilkårAvslått();
+        return !behandlingsresultatRepository.hent(ref.behandlingId()).isInngangsVilkårAvslått();
     }
 }

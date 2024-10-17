@@ -45,7 +45,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -265,7 +264,6 @@ class VedtakXmlTest {
         if (innvilget) {
             VilkårResultat.builder()
                 .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
-                .medVilkårResultatType(VilkårResultatType.INNVILGET)
                 .buildFor(behandling);
             var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
             LegacyESBeregningsresultat.builder()
@@ -274,7 +272,6 @@ class VedtakXmlTest {
         } else {
             VilkårResultat.builder()
                 .leggTilVilkårAvslått(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallMerknad.VM_1026)
-                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .buildFor(behandling);
         }
     }

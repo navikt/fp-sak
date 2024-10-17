@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -62,7 +61,7 @@ class ForeslåBeregningsgrunnlagStegTest {
     @Test
     void stegUtførtUtenAksjonspunkter() {
         // Arrange
-        opprettVilkårResultatForBehandling(VilkårResultatType.INNVILGET);
+        opprettVilkårResultatForBehandling();
 
         // Act
         var resultat = steg.utførSteg(kontekst);
@@ -75,7 +74,7 @@ class ForeslåBeregningsgrunnlagStegTest {
     @Test
     void stegUtførtNårRegelResultatInneholderAutopunkt() {
         // Arrange
-        opprettVilkårResultatForBehandling(VilkårResultatType.INNVILGET);
+        opprettVilkårResultatForBehandling();
         when(beregningsgrunnlagRegelResultat.getAksjonspunkter()).thenReturn(List.of(AksjonspunktResultat.opprettForAksjonspunkt(
             AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS)));
 
@@ -88,9 +87,8 @@ class ForeslåBeregningsgrunnlagStegTest {
         assertThat(resultat.getAksjonspunktListe().get(0)).isEqualTo(no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS);
     }
 
-    private void opprettVilkårResultatForBehandling(VilkårResultatType resultatType) {
-        var vilkårResultat = VilkårResultat.builder().medVilkårResultatType(resultatType)
-                .buildFor(behandling);
+    private void opprettVilkårResultatForBehandling() {
+        var vilkårResultat = VilkårResultat.builder().buildFor(behandling);
         var behandlingsresultat = Behandlingsresultat.opprettFor(behandling);
         behandlingsresultat.medOppdatertVilkårResultat(vilkårResultat);
     }

@@ -30,8 +30,10 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Gyldighetsperiode;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.PersonstatusPeriode;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.StatsborgerskapPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling.Builder;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -58,8 +60,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOp
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRegistrertEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskapBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskapEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
@@ -81,7 +81,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
@@ -107,6 +106,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
@@ -129,10 +129,9 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private final FagsakBuilder fagsakBuilder;
     private final Map<Long, PersonopplysningGrunnlagEntitet> personopplysningMap = new IdentityHashMap<>();
     private final Map<Long, FamilieHendelseGrunnlagEntitet> familieHendelseAggregatMap = new IdentityHashMap<>();
-    private final Map<Long, MedlemskapBehandlingsgrunnlagEntitet> medlemskapgrunnlag = new HashMap<>();
     private final Map<Long, Behandling> behandlingMap = new HashMap<>();
-    private ArgumentCaptor<Behandling> behandlingCaptor = ArgumentCaptor.forClass(Behandling.class);
-    private ArgumentCaptor<Fagsak> fagsakCaptor = ArgumentCaptor.forClass(Fagsak.class);
+    private final ArgumentCaptor<Behandling> behandlingCaptor = ArgumentCaptor.forClass(Behandling.class);
+    private final ArgumentCaptor<Fagsak> fagsakCaptor = ArgumentCaptor.forClass(Fagsak.class);
     private Behandling behandling;
 
     private Behandlingsresultat.Builder behandlingresultatBuilder;
@@ -141,15 +140,13 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private SøknadEntitet.Builder søknadBuilder;
 
     private OppgittAnnenPartBuilder oppgittAnnenPartBuilder;
-    private VurdertMedlemskapBuilder vurdertMedlemskapBuilder;
     private BehandlingVedtak.Builder behandlingVedtakBuilder;
     private MedlemskapOppgittTilknytningEntitet.Builder oppgittTilknytningBuilder;
     private BehandlingStegType startSteg;
 
-    private Map<AksjonspunktDefinisjon, BehandlingStegType> aksjonspunktDefinisjoner = new EnumMap<>(AksjonspunktDefinisjon.class);
-    private VilkårResultatType vilkårResultatType = VilkårResultatType.IKKE_FASTSATT;
-    private Map<VilkårType, VilkårUtfallType> vilkårTyper = new EnumMap<>(VilkårType.class);
-    private List<MedlemskapPerioderEntitet> medlemskapPerioder = new ArrayList<>();
+    private final Map<AksjonspunktDefinisjon, BehandlingStegType> aksjonspunktDefinisjoner = new EnumMap<>(AksjonspunktDefinisjon.class);
+    private final Map<VilkårType, VilkårUtfallType> vilkårTyper = new EnumMap<>(VilkårType.class);
+    private final List<MedlemskapPerioderEntitet> medlemskapPerioder = new ArrayList<>();
     private Long fagsakId = nyId();
     private LocalDate behandlingstidFrist;
     private LocalDateTime opplysningerOppdatertTidspunkt;
@@ -574,11 +571,13 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     private MedlemskapRepository lagMockMedlemskapRepository() {
         var dummy = new MedlemskapRepository(null) {
+
+            private MedlemskapBehandlingsgrunnlagEntitet grunnlag;
+
             @Override
-            public void lagreOgFlush(Long behandlingId, Optional<MedlemskapBehandlingsgrunnlagEntitet> eksisterendeGrunnlag,
-                    MedlemskapBehandlingsgrunnlagEntitet nyttGrunnlag) {
-                Objects.requireNonNull(behandlingId, "behandlingId er null!");
-                medlemskapgrunnlag.put(behandlingId, nyttGrunnlag);
+            public void lagreOgFlush(Optional<MedlemskapBehandlingsgrunnlagEntitet> eksisterendeGrunnlag,
+                                     MedlemskapBehandlingsgrunnlagEntitet nyttGrunnlag) {
+                grunnlag = nyttGrunnlag;
             }
 
             @Override
@@ -588,11 +587,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
             @Override
             public void lagreOppgittTilknytning(MedlemskapOppgittTilknytningEntitet ny) {
-                // ignore, tracker kun grunnlag for mock
-            }
-
-            @Override
-            public void lagreVurdertMedlemskap(VurdertMedlemskapEntitet ny) {
                 // ignore, tracker kun grunnlag for mock
             }
 
@@ -614,7 +608,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             @Override
             protected Optional<MedlemskapBehandlingsgrunnlagEntitet> getAktivtBehandlingsgrunnlag(Long behandlingId) {
                 assert behandlingId != null : "behandlingId er null!";
-                return Optional.ofNullable(medlemskapgrunnlag.get(behandlingId));
+                return Optional.ofNullable(grunnlag);
             }
         };
         return Mockito.spy(dummy);
@@ -726,14 +720,11 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
                                     .brukerKjønn(getKjønnFraFagsak())
                                     .fødselsdato(LocalDate.now().minusYears(25))
                                     .sivilstand(SivilstandType.UOPPGITT))
-                    .leggTilPersonstatus(Personstatus.builder()
-                            .personstatus(PersonstatusType.BOSA)
-                            .periode(LocalDate.now().minusYears(1), LocalDate.now().plusYears(1))
-                            .aktørId(behandling.getAktørId()))
-                    .leggTilStatsborgerskap(Statsborgerskap.builder()
-                        .aktørId(behandling.getAktørId())
-                        .statsborgerskap(Landkoder.NOR)
-                        .periode(LocalDate.now().minusYears(20), LocalDate.now().plusYears(10)))
+                    .leggTilPersonstatus(new Personstatus(behandling.getAktørId(),
+                        new PersonstatusPeriode(Gyldighetsperiode.innenfor(LocalDate.now().minusYears(1), LocalDate.now().plusYears(1)),
+                            PersonstatusType.BOSA)))
+                    .leggTilStatsborgerskap(new Statsborgerskap(behandling.getAktørId(),
+                        new StatsborgerskapPeriode(Gyldighetsperiode.innenfor(LocalDate.now().minusYears(20), LocalDate.now().plusYears(10)), Landkoder.NOR)))
                     .build();
             lagrePersoninfo(behandling, registerInformasjon, personopplysningRepository);
         }
@@ -768,29 +759,31 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         });
 
         personInformasjon.getAdresser().forEach(e -> {
-            var builder = personInformasjonBuilder.getAdresseBuilder(e.getAktørId(), e.getPeriode(),
-                    e.getAdresseType());
-            builder.medAdresselinje1(e.getAdresselinje1())
-                    .medAdresselinje2(e.getAdresselinje2())
-                    .medAdresselinje3(e.getAdresselinje3())
-                    .medAdresselinje4(e.getAdresselinje4())
-                    .medLand(e.getLand())
-                    .medPostnummer(e.getPostnummer())
-                    .medPoststed(e.getPoststed());
+            var builder = personInformasjonBuilder.getAdresseBuilder(e.aktørId(),
+                DatoIntervallEntitet.fraOgMedTilOgMed(e.adressePeriode().gyldighetsperiode().fom(), e.adressePeriode().gyldighetsperiode().tom()),
+                    e.adressePeriode().adresse().getAdresseType());
+            builder.medAdresselinje1(e.adressePeriode().adresse().getAdresselinje1())
+                    .medAdresselinje2(e.adressePeriode().adresse().getAdresselinje2())
+                    .medAdresselinje3(e.adressePeriode().adresse().getAdresselinje3())
+                    .medAdresselinje4(e.adressePeriode().adresse().getAdresselinje4())
+                    .medLand(e.adressePeriode().adresse().getLand())
+                    .medPostnummer(e.adressePeriode().adresse().getPostnummer())
+                    .medPoststed(e.adressePeriode().adresse().getPoststed());
 
             personInformasjonBuilder.leggTil(builder);
         });
 
         personInformasjon.getPersonstatuser().forEach(e -> {
-            var builder = personInformasjonBuilder.getPersonstatusBuilder(e.getAktørId(), e.getPeriode());
-            builder.medPersonstatus(e.getPersonstatus());
+            var builder = personInformasjonBuilder.getPersonstatusBuilder(e.aktørId(),
+                DatoIntervallEntitet.fraOgMedTilOgMed(e.personstatusPeriode().gyldighetsperiode().fom(), e.personstatusPeriode().gyldighetsperiode().tom()));
+            builder.medPersonstatus(e.personstatusPeriode().personstatus());
             personInformasjonBuilder.leggTil(builder);
         });
 
         personInformasjon.getStatsborgerskap().forEach(e -> {
-            var builder = personInformasjonBuilder.getStatsborgerskapBuilder(e.getAktørId(),
-                    e.getPeriode(),
-                    e.getStatsborgerskap());
+            var builder = personInformasjonBuilder.getStatsborgerskapBuilder(e.aktørId(),
+                DatoIntervallEntitet.fraOgMedTilOgMed(e.statsborgerskapPeriode().gyldighetsperiode().fom(), e.statsborgerskapPeriode().gyldighetsperiode().tom()),
+                    e.statsborgerskapPeriode().statsborgerskap());
             personInformasjonBuilder.leggTil(builder);
         });
 
@@ -802,7 +795,9 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         });
 
         personInformasjon.getOpphold().forEach(e -> {
-            var builder = personInformasjonBuilder.getOppholdstillatelseBuilder(e.getAktørId(), e.getPeriode()).medOppholdstillatelse(e.getTillatelse());
+            var builder = personInformasjonBuilder.getOppholdstillatelseBuilder(e.aktørId(),
+                DatoIntervallEntitet.fraOgMedTilOgMed(e.oppholdstillatelsePeriode().gyldighetsperiode().fom(), e.oppholdstillatelsePeriode().gyldighetsperiode().tom()))
+                .medOppholdstillatelse(e.oppholdstillatelsePeriode().tillatelse());
             personInformasjonBuilder.leggTil(builder);
         });
 
@@ -879,8 +874,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private void lagreMedlemskapOpplysninger(BehandlingRepositoryProvider repositoryProvider, Long behandlingId) {
         repositoryProvider.getMedlemskapRepository().lagreMedlemskapRegisterOpplysninger(behandlingId, medlemskapPerioder);
 
-        var vurdertMedlemskap = medMedlemskap().build();
-        repositoryProvider.getMedlemskapRepository().lagreMedlemskapVurdering(behandlingId, vurdertMedlemskap);
         if (oppgittTilknytningBuilder != null) {
             var oppgittTilknytning = medOppgittTilknytning().build();
             repositoryProvider.getMedlemskapRepository().lagreOppgittTilkytning(behandlingId, oppgittTilknytning);
@@ -980,8 +973,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         behandlingresultatBuilder = null; // resett
 
         var inngangsvilkårBuilder = VilkårResultat
-                .builderFraEksisterende(behandlingsresultat.getVilkårResultat())
-                .medVilkårResultatType(vilkårResultatType);
+                .builderFraEksisterende(behandlingsresultat.getVilkårResultat());
 
         vilkårTyper.forEach((vilkårType, vilkårUtfallType) -> inngangsvilkårBuilder.leggTilVilkår(vilkårType, vilkårUtfallType, VilkårUtfallType.IKKE_OPPFYLT.equals(vilkårUtfallType) ? VilkårUtfallMerknad.VM_1019 : VilkårUtfallMerknad.UDEFINERT));
 
@@ -1166,13 +1158,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         this.søknadBuilder = null;
     }
 
-    public VurdertMedlemskapBuilder medMedlemskap() {
-        if (vurdertMedlemskapBuilder == null) {
-            vurdertMedlemskapBuilder = new VurdertMedlemskapBuilder();
-        }
-        return vurdertMedlemskapBuilder;
-    }
-
     @SuppressWarnings("unchecked")
     public S medBehandlingType(BehandlingType behandlingType) {
         this.behandlingType = behandlingType;
@@ -1182,12 +1167,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     @SuppressWarnings("unchecked")
     public S leggTilVilkår(VilkårType vilkårType, VilkårUtfallType vilkårUtfallType) {
         vilkårTyper.put(vilkårType, vilkårUtfallType);
-        return (S) this;
-    }
-
-    @SuppressWarnings("unchecked")
-    public S medVilkårResultatType(VilkårResultatType vilkårResultatType) {
-        this.vilkårResultatType = vilkårResultatType;
         return (S) this;
     }
 
@@ -1363,22 +1342,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         this.behandlingÅrsakTyper = behandlingÅrsakType;
         this.manueltOpprettet = manueltOpprettet;
         this.behandlingType = BehandlingType.REVURDERING;
-        return (S) this;
-    }
-
-    /**
-     * temporær metode til vi får fjernet gammel entitet helt. Gjør en begrenset
-     * mapping av Søker data (uten adresse, relasjoner)
-     *
-     * @deprecated bruk {@link #medRegisterOpplysninger(PersonInformasjon)}
-     */
-    @SuppressWarnings("unchecked")
-    @Deprecated
-    public S medSøker(Personinfo søker) {
-        var builder = opprettBuilderForRegisteropplysninger();
-        PersonopplysningPersoninfoAdapter.mapPersonopplysningTilPerson(builder, søker);
-        medRegisterOpplysninger(builder.build());
-        medBruker(søker.getAktørId(), søker.getKjønn());
         return (S) this;
     }
 

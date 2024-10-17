@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandling.steg.inngangsvilkår.medlem.es;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.time.Month;
 import java.time.Period;
 
 import jakarta.inject.Inject;
@@ -15,7 +14,10 @@ import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.medlemskap.es.Medle
 import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.medlemskap.es.VurderMedlemskapvilkårStegImpl;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
+import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.AdressePeriode;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Gyldighetsperiode;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDekningType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
@@ -27,7 +29,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonAdresse;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.BotidCore2024;
 
@@ -46,7 +47,7 @@ class VurderMedlemskapvilkårStegTest {
     void forutgående_medlem_oppfylt() {
 
         // Arrange
-        var scenario = lagTestScenarioMedlem(LocalDate.now(), false);
+        var scenario = lagTestScenarioMedlem(LocalDate.now().plus(Period.parse("P18W3D")), false);
 
         scenario.leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE, VilkårUtfallType.IKKE_VURDERT);
 
@@ -57,7 +58,7 @@ class VurderMedlemskapvilkårStegTest {
 
         // Act - vurder vilkåret
         var vilkårutleder = new Medlemsvilkårutleder(repositoryProvider,
-            new BotidCore2024(LocalDate.of(2024, Month.JANUARY, 1), Period.parse("P18W3D")));
+            new BotidCore2024(null, null));
         new VurderMedlemskapvilkårStegImpl(repositoryProvider, inngangsvilkårFellesTjeneste, vilkårutleder).utførSteg(kontekst);
 
         var vilkårResultat = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId()).getVilkårResultat();
@@ -71,7 +72,7 @@ class VurderMedlemskapvilkårStegTest {
     void forutgående_medlem_ikke_oppfylt() {
 
         // Arrange
-        var scenario = lagTestScenarioMedlem(LocalDate.now(), true);
+        var scenario = lagTestScenarioMedlem(LocalDate.now().plus(Period.parse("P18W3D")), true);
 
         scenario.leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE, VilkårUtfallType.IKKE_VURDERT);
 
@@ -82,7 +83,7 @@ class VurderMedlemskapvilkårStegTest {
 
         // Act - vurder vilkåret
         var vilkårutleder = new Medlemsvilkårutleder(repositoryProvider,
-            new BotidCore2024(LocalDate.of(2024, Month.JANUARY, 1), Period.parse("P18W3D")));
+            new BotidCore2024(null, null));
         new VurderMedlemskapvilkårStegImpl(repositoryProvider, inngangsvilkårFellesTjeneste, vilkårutleder).utførSteg(kontekst);
 
         var vilkårResultat = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId()).getVilkårResultat();
@@ -96,7 +97,7 @@ class VurderMedlemskapvilkårStegTest {
     void skal_endre_til_forutgående_medlem_oppfylt() {
 
         // Arrange
-        var scenario = lagTestScenarioMedlem(LocalDate.now(), false);
+        var scenario = lagTestScenarioMedlem(LocalDate.now().plus(Period.parse("P18W3D")), false);
 
         scenario.leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.IKKE_VURDERT);
 
@@ -107,7 +108,7 @@ class VurderMedlemskapvilkårStegTest {
 
         // Act - vurder vilkåret
         var vilkårutleder = new Medlemsvilkårutleder(repositoryProvider,
-            new BotidCore2024(LocalDate.of(2024, Month.JANUARY, 1), Period.parse("P18W3D")));
+            new BotidCore2024(null, null));
         new VurderMedlemskapvilkårStegImpl(repositoryProvider, inngangsvilkårFellesTjeneste, vilkårutleder).utførSteg(kontekst);
 
         var vilkårResultat = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId()).getVilkårResultat();
@@ -133,7 +134,7 @@ class VurderMedlemskapvilkårStegTest {
 
         // Act - vurder vilkåret
         var vilkårutleder = new Medlemsvilkårutleder(repositoryProvider,
-            new BotidCore2024(ikraftredelse, Period.parse("P18W3D")));
+            new BotidCore2024(null, null));
         new VurderMedlemskapvilkårStegImpl(repositoryProvider, inngangsvilkårFellesTjeneste, vilkårutleder).utførSteg(kontekst);
 
         var vilkårResultat = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId()).getVilkårResultat();
@@ -170,10 +171,8 @@ class VurderMedlemskapvilkårStegTest {
             .kvinne(søkerAktørId, SivilstandType.GIFT)
             .personstatus(PersonstatusType.BOSA)
             .statsborgerskap(Landkoder.NOR)
-            .adresse(AdresseType.BOSTEDSADRESSE, PersonAdresse.builder()
-                .land(Landkoder.NOR)
-                .adresseType(AdresseType.BOSTEDSADRESSE)
-                .periode(termindato.minusYears(2), termindato.plusYears(2)))
+            .adresse(AdresseType.BOSTEDSADRESSE, new AdressePeriode(Gyldighetsperiode.innenfor(termindato.minusYears(2), termindato.plusYears(2)),
+                Adresseinfo.builder(AdresseType.BOSTEDSADRESSE).medLand(Landkoder.NOR).build()))
             .build();
         scenario.medRegisterOpplysninger(søker);
         return scenario;

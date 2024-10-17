@@ -76,8 +76,9 @@ public class PersonAdresseEntitet extends BaseEntitet implements HarAktørId, In
     private String poststed;
 
     @ChangeTracked
-    @Column(name = "land")
-    private String land;
+    @Convert(converter = Landkoder.KodeverdiConverter.class)
+    @Column(name="land")
+    private Landkoder land;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "po_informasjon_id", nullable = false, updatable = false)
@@ -174,11 +175,11 @@ public class PersonAdresseEntitet extends BaseEntitet implements HarAktørId, In
         this.poststed = poststed;
     }
 
-    public String getLand() {
+    public Landkoder getLand() {
         return land;
     }
 
-    void setLand(String land) {
+    void setLand(Landkoder land) {
         this.land = land;
     }
 
@@ -208,7 +209,7 @@ public class PersonAdresseEntitet extends BaseEntitet implements HarAktørId, In
     }
 
     public boolean erUtlandskAdresse() {
-        return !Landkoder.erNorge(land) || adresseType.erUtlandsAdresseType();
+        return !Landkoder.NOR.equals(land) || adresseType.erUtlandsAdresseType();
     }
 
     public static boolean likeAdresser(PersonAdresseEntitet a1, PersonAdresseEntitet a2) {
