@@ -213,10 +213,6 @@ public class RegisterdataInnhenter {
     }
 
     private void doInnhentIAYIAbakus(Behandling behandling, BehandlingType behandlingType, FagsakYtelseType fagsakYtelseType) {
-        abakusTjeneste.innhentRegisterdata(lagInnhentIAYRequest(behandling, behandlingType, fagsakYtelseType));
-    }
-
-    private InnhentRegisterdataRequest lagInnhentIAYRequest(Behandling behandling, BehandlingType behandlingType, FagsakYtelseType fagsakYtelseType) {
         LOG.info("Trigger innhenting i abakus for behandling med id={} og uuid={}", behandling.getId(), behandling.getUuid());
         var behandlingUuid = behandling.getUuid();
         var saksnummer = behandling.getFagsak().getSaksnummer().getVerdi();
@@ -226,7 +222,13 @@ public class RegisterdataInnhenter {
         var aktør = new AktørIdPersonident(behandling.getAktørId().getId());
         var informasjonsElementer = utledBasertPå(behandlingType);
 
-        return new InnhentRegisterdataRequest(saksnummer, behandlingUuid, ytelseType, periode, aktør, informasjonsElementer);
+        var request = new InnhentRegisterdataRequest(saksnummer, behandlingUuid, ytelseType, periode, aktør, informasjonsElementer);
+
+        var næringsperiode = opplysningsPeriodeTjeneste.beregnForNæringPGI(behandling.getId(), fagsakYtelseType);
+        LOG.info("ABAKUS NÆRINGSPERIODE {} OPPLYSNINGSPERIODE {} behandling id={}", næringsperiode, opplysningsperiode, behandling.getId());
+        request.setOpplysningsperiodeSkattegrunnlag(new Periode(næringsperiode.getFomDato(), næringsperiode.getTomDato()));
+
+        abakusTjeneste.innhentRegisterdata(request);
     }
 
     private Set<RegisterdataType> utledBasertPå(BehandlingType behandlingType) {
