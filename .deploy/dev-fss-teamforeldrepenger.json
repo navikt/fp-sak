@@ -17,7 +17,6 @@
   },
   "ingresses": [
     "https://fpsak-api.dev-fss-pub.nais.io",
-    "https://fpsak-api.dev.intern.nav.no",
     "https://fpsak-api.intern.dev.nav.no"
   ],
   "groups": [
