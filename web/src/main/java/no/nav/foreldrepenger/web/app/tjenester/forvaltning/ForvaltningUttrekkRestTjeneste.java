@@ -266,4 +266,14 @@ public class ForvaltningUttrekkRestTjeneste {
         return Response.ok(resultat).build();
     }
 
+    @POST
+    @Path("/migrerDataForUnused")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Kopiering før unmapping", tags = "FORVALTNING-uttrekk")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    public Response migrereDataFørUnused() {
+        entityManager.createNativeQuery("UPDATE SO_ANNEN_PART set UTL_PERSON_IDENT = BEGRUNNELSE where BEGRUNNELSE is NOT NULL").executeUpdate();
+        return Response.ok().build();
+    }
 }

@@ -48,11 +48,6 @@ public class FagsakRelasjon extends BaseEntitet {
     @Embedded
     private Dekningsgrad dekningsgrad;
 
-    // TODO: fjerne mapping og set unused
-    @AttributeOverride(name = "verdi", column = @Column(name = "overstyrt_dekningsgrad"))
-    @Embedded
-    private Dekningsgrad overstyrtDekningsgrad;
-
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "aktiv", nullable = false)
     private boolean aktiv = true;
