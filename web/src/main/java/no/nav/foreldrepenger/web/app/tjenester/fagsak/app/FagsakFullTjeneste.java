@@ -29,11 +29,13 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOpprettingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.AnnenPartBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.FagsakBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.FagsakBehandlingDtoTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkRequestPath;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakFullDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakNotatDto;
@@ -43,6 +45,8 @@ import no.nav.foreldrepenger.web.app.util.StringUtils;
 
 @ApplicationScoped
 public class FagsakFullTjeneste {
+
+    private static final Environment ENV = Environment.current();
 
     private FagsakRepository fagsakRepository;
 
@@ -59,6 +63,7 @@ public class FagsakFullTjeneste {
     private FagsakBehandlingDtoTjeneste behandlingDtoTjeneste;
 
     private HistorikkTjenesteAdapter historikkTjenesteAdapter;
+    private HistorikkDtoTjeneste historikkDtoTjeneste;
 
     protected FagsakFullTjeneste() {
         // CDI runner
@@ -75,7 +80,8 @@ public class FagsakFullTjeneste {
                               PersonopplysningTjeneste personopplysningTjeneste,
                               BehandlingsoppretterTjeneste behandlingsoppretterTjeneste,
                               FagsakBehandlingDtoTjeneste behandlingDtoTjeneste,
-                              HistorikkTjenesteAdapter historikkTjenesteAdapter) {
+                              HistorikkTjenesteAdapter historikkTjenesteAdapter,
+                              HistorikkDtoTjeneste historikkDtoTjeneste) {
         this.fagsakRepository = fagsakRepository;
         this.personinfoAdapter = personinfoAdapter;
         this.behandlingRepository = behandlingRepository;
@@ -87,6 +93,7 @@ public class FagsakFullTjeneste {
         this.behandlingsoppretterTjeneste = behandlingsoppretterTjeneste;
         this.behandlingDtoTjeneste = behandlingDtoTjeneste;
         this.historikkTjenesteAdapter = historikkTjenesteAdapter;
+        this.historikkDtoTjeneste = historikkDtoTjeneste;
     }
 
     public Optional<FagsakFullDto> hentFullFagsakDtoForSaksnummer(HttpServletRequest request, Saksnummer saksnummer) {
@@ -107,13 +114,14 @@ public class FagsakFullTjeneste {
         var behandlinger = behandlingDtoTjeneste.lagBehandlingDtoer(behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId()));
         var dokumentPath = HistorikkRequestPath.getRequestPath(request);
         var historikk = historikkTjenesteAdapter.hentAlleHistorikkInnslagForSak(saksnummer, dokumentPath);
+        var historikkV2 = ENV.isLocal() ? historikkDtoTjeneste.hentForSak(saksnummer) : null;
         var notater = fagsakRepository.hentFagsakNotater(fagsak.getId()).stream().map(FagsakNotatDto::fraNotat).toList();
         var ferskesteKontrollresultatBehandling = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsak.getId(),
                 BehandlingType.FØRSTEGANGSSØKNAD)
             .flatMap(førsteBeh -> behandlinger.stream().filter(beh -> beh.getUuid().equals(førsteBeh.getUuid())).findFirst())
             .map(FagsakBehandlingDto::getKontrollResultat);
         var dto = new FagsakFullDto(fagsak, dekningsgrad, bruker, manglerAdresse, annenpart, annenpartSak, familiehendelse, fagsakMarkeringer,
-            oppretting, behandlinger, historikk, notater, ferskesteKontrollresultatBehandling.orElse(null));
+            oppretting, behandlinger, historikk, notater, ferskesteKontrollresultatBehandling.orElse(null), historikkV2);
         return Optional.of(dto);
     }
 

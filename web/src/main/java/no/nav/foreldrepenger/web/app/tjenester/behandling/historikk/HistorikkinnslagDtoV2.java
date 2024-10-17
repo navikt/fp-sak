@@ -15,7 +15,7 @@ public record HistorikkinnslagDtoV2(UUID behandlingUuid,
                                     LocalDateTime opprettetTidspunkt,
                                     List<HistorikkInnslagDokumentLinkDto> dokumenter,
                                     String tittel,
-                                    String body) {
+                                    List<String> body) {
 
     public record HistorikkAktørDto(HistorikkAktør type, String ident) {
         public static HistorikkAktørDto fra(HistorikkAktør aktør, String opprettetAv) {
