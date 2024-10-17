@@ -134,7 +134,7 @@ class InntektsmeldingDtoTjenesteTest {
         assertThat(im.refusjonPrMnd()).isEqualTo(refusjon.getVerdi());
         assertThat(im.arbeidsgiverNavn()).isEqualTo(arbeidsgiverOpplysninger.getNavn());
         assertThat(im.kontaktpersonNavn()).isEqualTo(kontaktInformasjon.kontaktPerson());
-        assertThat(im.kontaktpersonNummer()).isEqualTo(kontaktInformasjon.kontaktTelefonNummer());
+        assertThat(im.kontaktpersonTelefonNummer()).isEqualTo(kontaktInformasjon.kontaktTelefonNummer());
         assertThat(im.journalpostId()).isEqualTo(journalpostId);
         assertThat(im.mottattTidspunkt()).isEqualTo(mottattTidspunkt);
         assertThat(im.startDatoPermisjon()).isNull();

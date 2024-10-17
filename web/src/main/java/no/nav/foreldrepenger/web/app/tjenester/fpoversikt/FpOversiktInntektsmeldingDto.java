@@ -17,7 +17,7 @@ record FpOversiktInntektsmeldingDto(Boolean erAktiv, BigDecimal stillingsprosent
                                     BigDecimal refusjonPrMnd,
                                     String arbeidsgiverNavn,
                                     String kontaktpersonNavn,
-                                    String kontaktpersonNummer,
+                                    String kontaktpersonTelefonNummer,
                                     JournalpostId journalpostId,
                                     LocalDateTime mottattTidspunkt,
                                     LocalDate startDatoPermisjon,
@@ -27,7 +27,7 @@ record FpOversiktInntektsmeldingDto(Boolean erAktiv, BigDecimal stillingsprosent
     record NaturalYtelse(
         LocalDate fomDato,
         LocalDate tomDato,
-    BigDecimal beloepPerMnd,
+    BigDecimal beløpPerMnd,
     NaturalYtelseType type
     ) {}
 
