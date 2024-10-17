@@ -32,6 +32,7 @@ class InngangsvilkårGrunnlagByggerTest {
         var vilkårBuilder = VilkårResultat.builder();
         vilkårBuilder.leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR);
         vilkårBuilder.leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET);
+        vilkårBuilder.leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET);
         vilkårBuilder.leggTilVilkårOppfylt(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD);
         vilkårBuilder.leggTilVilkårOppfylt(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER);
         lagreVilkår(behandling, vilkårBuilder);
@@ -41,6 +42,7 @@ class InngangsvilkårGrunnlagByggerTest {
         assertThat(grunnlag.erFødselsvilkåretOppfylt()).isTrue();
         assertThat(grunnlag.erAdopsjonOppfylt()).isTrue();
         assertThat(grunnlag.erForeldreansvarOppfylt()).isTrue();
+        assertThat(grunnlag.erMedlemskapOppfylt()).isTrue();
         assertThat(grunnlag.erOpptjeningOppfylt()).isTrue();
     }
 
@@ -64,6 +66,7 @@ class InngangsvilkårGrunnlagByggerTest {
         var vilkårBuilder = VilkårResultat.builder();
         vilkårBuilder.leggTilVilkårAvslått(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallMerknad.VM_1026);
         vilkårBuilder.leggTilVilkårAvslått(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallMerknad.VM_1035);
+        vilkårBuilder.leggTilVilkårAvslått(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallMerknad.VM_1025);
         vilkårBuilder.manueltVilkår(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_HAR_IKKE_FORELDREANSVAR);
         vilkårBuilder.leggTilVilkårAvslått(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER, VilkårUtfallMerknad.VM_1004);
         lagreVilkår(behandling, vilkårBuilder);
@@ -73,6 +76,7 @@ class InngangsvilkårGrunnlagByggerTest {
         assertThat(grunnlag.erFødselsvilkåretOppfylt()).isFalse();
         assertThat(grunnlag.erAdopsjonOppfylt()).isFalse();
         assertThat(grunnlag.erForeldreansvarOppfylt()).isFalse();
+        assertThat(grunnlag.erMedlemskapOppfylt()).isFalse();
         assertThat(grunnlag.erOpptjeningOppfylt()).isFalse();
     }
 }

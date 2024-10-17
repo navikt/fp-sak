@@ -34,6 +34,7 @@ public class InngangsvilkårGrunnlagBygger {
 
         return new Inngangsvilkår.Builder()
                 .opptjeningOppfylt(opptjeningsvilkåretOppfylt(vilkårResultat))
+                .medlemskapOppfylt(medlemskapsvilkåretOppfylt(vilkårResultat))
                 .foreldreansvarnOppfylt(foreldreansvarsvilkåretOppfylt(vilkårResultat))
                 .adopsjonOppfylt(adopsjonsvilkåretOppfylt(vilkårResultat))
                 .fødselOppfylt(fødselsvilkårOppfylt(vilkårResultat, ref));
@@ -43,23 +44,27 @@ public class InngangsvilkårGrunnlagBygger {
         return behandlingsresultatRepository.hent(behandlingReferanse.behandlingId()).getVilkårResultat();
     }
 
-    public static boolean foreldreansvarsvilkåretOppfylt(VilkårResultat vilkårResultat) {
+    private static boolean foreldreansvarsvilkåretOppfylt(VilkårResultat vilkårResultat) {
         //Bare 2. ledd for foreldrepenger
         return vilkårAvTypeErOppfylt(vilkårResultat, VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD);
     }
 
-    public static boolean adopsjonsvilkåretOppfylt(VilkårResultat vilkårResultat) {
+    private static boolean adopsjonsvilkåretOppfylt(VilkårResultat vilkårResultat) {
         return vilkårAvTypeErOppfylt(vilkårResultat, VilkårType.ADOPSJONSVILKARET_FORELDREPENGER);
     }
 
-    public static boolean fødselsvilkårOppfylt(VilkårResultat vilkårResultat, BehandlingReferanse ref) {
+    private static boolean fødselsvilkårOppfylt(VilkårResultat vilkårResultat, BehandlingReferanse ref) {
         if (søkerErMor(ref)) {
             return vilkårAvTypeErOppfylt(vilkårResultat, VilkårType.FØDSELSVILKÅRET_MOR);
         }
         return vilkårAvTypeErOppfylt(vilkårResultat, VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR);
     }
 
-    public static boolean opptjeningsvilkåretOppfylt(VilkårResultat vilkårResultat) {
+    private static boolean medlemskapsvilkåretOppfylt(VilkårResultat vilkårResultat) {
+        return vilkårAvTypeErOppfylt(vilkårResultat, VilkårType.MEDLEMSKAPSVILKÅRET);
+    }
+
+    private static boolean opptjeningsvilkåretOppfylt(VilkårResultat vilkårResultat) {
         return vilkårAvTypeErOppfylt(vilkårResultat, VilkårType.OPPTJENINGSVILKÅRET);
     }
 

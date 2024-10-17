@@ -36,6 +36,7 @@ public class BotidCore2024 {
 
     private static final String PROP_NAME_DATO = "dato.for.botid";
     private static final LocalDate DATO_FOR_PROD = LocalDate.of(2024, Month.OCTOBER,1); // LA STÅ
+    private static final Period OVERGANGSPERIODE = Period.parse("P18W3D");
 
     private LocalDate ikrafttredelseDato = DATO_FOR_PROD;
 
@@ -49,7 +50,7 @@ public class BotidCore2024 {
     public BotidCore2024(@KonfigVerdi(value = PROP_NAME_DATO, required = false) LocalDate ikrafttredelse,
                          @KonfigVerdi(value = "terminbekreftelse.tidligst.utstedelse.før.termin", defaultVerdi = "P18W3D") Period tidligsteUtstedelseAvTerminBekreftelse) {
         this.ikrafttredelseDato = bestemDato(ikrafttredelse);
-        this.ikrafttredelseDatoMedOvergangsordning = ikrafttredelseDato.plus(tidligsteUtstedelseAvTerminBekreftelse);
+        this.ikrafttredelseDatoMedOvergangsordning = ikrafttredelseDato.plus(Optional.ofNullable(tidligsteUtstedelseAvTerminBekreftelse).orElse(OVERGANGSPERIODE));
     }
 
     public boolean ikkeBotidskrav(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
@@ -76,7 +77,6 @@ public class BotidCore2024 {
         } else if (ikrafttredelseFraKonfig != null && ikrafttredelseFraKonfig.isAfter(BotidCore2024.DATO_FOR_PROD)) {
             throw new IllegalArgumentException("Støtter ikke forsinket iverksettelse i test");
         } else {
-            LOG.info("BOTID CORE 2024 ikrafttredelse {}", ikrafttredelseFraKonfig);
             return ikrafttredelseFraKonfig == null ? BotidCore2024.DATO_FOR_PROD : ikrafttredelseFraKonfig;
         }
     }

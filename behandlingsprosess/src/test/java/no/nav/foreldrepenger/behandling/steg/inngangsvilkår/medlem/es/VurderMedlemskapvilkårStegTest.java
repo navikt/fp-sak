@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandling.steg.inngangsvilkår.medlem.es;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.time.Month;
 import java.time.Period;
 
 import jakarta.inject.Inject;
@@ -48,7 +47,7 @@ class VurderMedlemskapvilkårStegTest {
     void forutgående_medlem_oppfylt() {
 
         // Arrange
-        var scenario = lagTestScenarioMedlem(LocalDate.now(), false);
+        var scenario = lagTestScenarioMedlem(LocalDate.now().plus(Period.parse("P18W3D")), false);
 
         scenario.leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE, VilkårUtfallType.IKKE_VURDERT);
 
@@ -59,7 +58,7 @@ class VurderMedlemskapvilkårStegTest {
 
         // Act - vurder vilkåret
         var vilkårutleder = new Medlemsvilkårutleder(repositoryProvider,
-            new BotidCore2024(LocalDate.of(2024, Month.JANUARY, 1), Period.parse("P18W3D")));
+            new BotidCore2024(null, null));
         new VurderMedlemskapvilkårStegImpl(repositoryProvider, inngangsvilkårFellesTjeneste, vilkårutleder).utførSteg(kontekst);
 
         var vilkårResultat = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId()).getVilkårResultat();
@@ -73,7 +72,7 @@ class VurderMedlemskapvilkårStegTest {
     void forutgående_medlem_ikke_oppfylt() {
 
         // Arrange
-        var scenario = lagTestScenarioMedlem(LocalDate.now(), true);
+        var scenario = lagTestScenarioMedlem(LocalDate.now().plus(Period.parse("P18W3D")), true);
 
         scenario.leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE, VilkårUtfallType.IKKE_VURDERT);
 
@@ -84,7 +83,7 @@ class VurderMedlemskapvilkårStegTest {
 
         // Act - vurder vilkåret
         var vilkårutleder = new Medlemsvilkårutleder(repositoryProvider,
-            new BotidCore2024(LocalDate.of(2024, Month.JANUARY, 1), Period.parse("P18W3D")));
+            new BotidCore2024(null, null));
         new VurderMedlemskapvilkårStegImpl(repositoryProvider, inngangsvilkårFellesTjeneste, vilkårutleder).utførSteg(kontekst);
 
         var vilkårResultat = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId()).getVilkårResultat();
@@ -98,7 +97,7 @@ class VurderMedlemskapvilkårStegTest {
     void skal_endre_til_forutgående_medlem_oppfylt() {
 
         // Arrange
-        var scenario = lagTestScenarioMedlem(LocalDate.now(), false);
+        var scenario = lagTestScenarioMedlem(LocalDate.now().plus(Period.parse("P18W3D")), false);
 
         scenario.leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.IKKE_VURDERT);
 
@@ -109,7 +108,7 @@ class VurderMedlemskapvilkårStegTest {
 
         // Act - vurder vilkåret
         var vilkårutleder = new Medlemsvilkårutleder(repositoryProvider,
-            new BotidCore2024(LocalDate.of(2024, Month.JANUARY, 1), Period.parse("P18W3D")));
+            new BotidCore2024(null, null));
         new VurderMedlemskapvilkårStegImpl(repositoryProvider, inngangsvilkårFellesTjeneste, vilkårutleder).utførSteg(kontekst);
 
         var vilkårResultat = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId()).getVilkårResultat();
@@ -135,7 +134,7 @@ class VurderMedlemskapvilkårStegTest {
 
         // Act - vurder vilkåret
         var vilkårutleder = new Medlemsvilkårutleder(repositoryProvider,
-            new BotidCore2024(ikraftredelse, Period.parse("P18W3D")));
+            new BotidCore2024(null, null));
         new VurderMedlemskapvilkårStegImpl(repositoryProvider, inngangsvilkårFellesTjeneste, vilkårutleder).utførSteg(kontekst);
 
         var vilkårResultat = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId()).getVilkårResultat();
