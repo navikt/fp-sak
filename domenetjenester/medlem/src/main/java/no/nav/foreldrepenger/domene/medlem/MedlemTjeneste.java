@@ -15,8 +15,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAg
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapBehandlingsgrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapsvilkårVurderingEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapsvilkårVurderingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskap;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
@@ -38,7 +38,7 @@ public class MedlemTjeneste {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BehandlingRepository behandlingRepository;
-    private MedlemskapsvilkårVurderingRepository medlemskapsvilkårVurderingRepository;
+    private VilkårMedlemskapRepository vilkårMedlemskapRepository;
 
     MedlemTjeneste() {
         // CDI
@@ -49,14 +49,14 @@ public class MedlemTjeneste {
                           HentMedlemskapFraRegister hentMedlemskapFraRegister,
                           MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository,
                           SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                          MedlemskapsvilkårVurderingRepository medlemskapsvilkårVurderingRepository) {
+                          VilkårMedlemskapRepository vilkårMedlemskapRepository) {
         this.hentMedlemskapFraRegister = hentMedlemskapFraRegister;
         this.medlemskapRepository = repositoryProvider.getMedlemskapRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.medlemskapVilkårPeriodeRepository = medlemskapVilkårPeriodeRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.medlemskapsvilkårVurderingRepository = medlemskapsvilkårVurderingRepository;
+        this.vilkårMedlemskapRepository = vilkårMedlemskapRepository;
     }
 
     /**
@@ -95,8 +95,8 @@ public class MedlemTjeneste {
         }
         var medlem = medlemskapsvilkåret.get();
         if (medlem.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.OPPFYLT)) {
-            var fraVurdering = medlemskapsvilkårVurderingRepository.hentHvisEksisterer(behandlingId)
-                .flatMap(MedlemskapsvilkårVurderingEntitet::getOpphør);
+            var fraVurdering = vilkårMedlemskapRepository.hentHvisEksisterer(behandlingId)
+                .flatMap(VilkårMedlemskap::getOpphør);
             if (fraVurdering.isPresent()) {
                 return Optional.of(fraVurdering.get().fom());
             }
@@ -133,8 +133,8 @@ public class MedlemTjeneste {
         if (medlemskapsvilkåret.get().getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT)) {
             return Optional.of(medlemskapsvilkåret.get().getAvslagsårsak());
         }
-        var opphørsVurdering = medlemskapsvilkårVurderingRepository.hentHvisEksisterer(behandlingId)
-            .flatMap(MedlemskapsvilkårVurderingEntitet::getOpphør);
+        var opphørsVurdering = vilkårMedlemskapRepository.hentHvisEksisterer(behandlingId)
+            .flatMap(VilkårMedlemskap::getOpphør);
         if (opphørsVurdering.isPresent()) {
             return Optional.of(opphørsVurdering.get().årsak());
         }
@@ -161,8 +161,8 @@ public class MedlemTjeneste {
         if (ikkeOppfyltVilkår.isEmpty()) {
             return Optional.empty();
         }
-        var fraVurdering = medlemskapsvilkårVurderingRepository.hentHvisEksisterer(behandlingId)
-            .flatMap(MedlemskapsvilkårVurderingEntitet::getMedlemFom);
+        var fraVurdering = vilkårMedlemskapRepository.hentHvisEksisterer(behandlingId)
+            .flatMap(VilkårMedlemskap::getMedlemFom);
         if (fraVurdering.isPresent()) {
             return fraVurdering;
         }

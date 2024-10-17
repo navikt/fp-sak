@@ -20,12 +20,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
-@Entity(name = "MedlemskapsvilkårVurdering")
-@Table(name = "MEDLEMSKAPSVILKÅR_VURDERING")
-public class MedlemskapsvilkårVurderingEntitet extends BaseEntitet {
+@Entity(name = "VilkårMedlemskap")
+@Table(name = "VILKAR_MEDLEMSKAP")
+public class VilkårMedlemskap extends BaseEntitet {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_MEDLEMSKAPSVILKÅR_VURDERING")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_VILKAR_MEDLEMSKAP")
     private Long id;
 
     @OneToOne(optional = false)
@@ -51,12 +51,12 @@ public class MedlemskapsvilkårVurderingEntitet extends BaseEntitet {
     private LocalDate medlemFom;
 
 
-    MedlemskapsvilkårVurderingEntitet() {
+    VilkårMedlemskap() {
     }
 
-    public MedlemskapsvilkårVurderingEntitet(VilkårResultat vilkårResultat,
-                                             MedlemskapOpphør medlemskapOpphør,
-                                             LocalDate medlemFom) {
+    public VilkårMedlemskap(VilkårResultat vilkårResultat,
+                            MedlemskapOpphør medlemskapOpphør,
+                            LocalDate medlemFom) {
         Objects.requireNonNull(vilkårResultat);
         if (medlemskapOpphør == null && medlemFom == null) {
             throw new IllegalArgumentException("Forventer enten opphør eller medlemFom");
@@ -67,12 +67,12 @@ public class MedlemskapsvilkårVurderingEntitet extends BaseEntitet {
         this.medlemFom = medlemFom;
     }
 
-    public static MedlemskapsvilkårVurderingEntitet forOpphør(VilkårResultat vilkårResultat, LocalDate opphørFom, Avslagsårsak avslagsårsak) {
-        return new MedlemskapsvilkårVurderingEntitet(vilkårResultat, new MedlemskapOpphør(opphørFom, avslagsårsak), null);
+    public static VilkårMedlemskap forOpphør(VilkårResultat vilkårResultat, LocalDate opphørFom, Avslagsårsak avslagsårsak) {
+        return new VilkårMedlemskap(vilkårResultat, new MedlemskapOpphør(opphørFom, avslagsårsak), null);
     }
 
-    public static MedlemskapsvilkårVurderingEntitet forMedlemFom(VilkårResultat vilkårResultat, LocalDate medlemFom) {
-        return new MedlemskapsvilkårVurderingEntitet(vilkårResultat, null, medlemFom);
+    public static VilkårMedlemskap forMedlemFom(VilkårResultat vilkårResultat, LocalDate medlemFom) {
+        return new VilkårMedlemskap(vilkårResultat, null, medlemFom);
     }
 
     public VilkårResultat getVilkårResultat() {
@@ -100,7 +100,7 @@ public class MedlemskapsvilkårVurderingEntitet extends BaseEntitet {
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        var that = (MedlemskapsvilkårVurderingEntitet) o;
+        var that = (VilkårMedlemskap) o;
         return Objects.equals(vilkårResultat, that.vilkårResultat);
     }
 

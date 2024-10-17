@@ -9,8 +9,8 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapsvilkårPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapsvilkårVurderingEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapsvilkårVurderingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskap;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
@@ -27,7 +27,7 @@ public class MedlemskapAksjonspunktFellesTjeneste {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository;
     private BehandlingRepository behandlingRepository;
-    private MedlemskapsvilkårVurderingRepository medlemskapsvilkårVurderingRepository;
+    private VilkårMedlemskapRepository vilkårMedlemskapRepository;
     private VilkårResultatRepository vilkårResultatRepository;
 
     @Inject
@@ -35,13 +35,13 @@ public class MedlemskapAksjonspunktFellesTjeneste {
                                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                                 MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository,
                                                 BehandlingRepository behandlingRepository,
-                                                MedlemskapsvilkårVurderingRepository medlemskapsvilkårVurderingRepository,
+                                                VilkårMedlemskapRepository vilkårMedlemskapRepository,
                                                 VilkårResultatRepository vilkårResultatRepository) {
         this.historikkAdapter = historikkAdapter;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.medlemskapVilkårPeriodeRepository = medlemskapVilkårPeriodeRepository;
         this.behandlingRepository = behandlingRepository;
-        this.medlemskapsvilkårVurderingRepository = medlemskapsvilkårVurderingRepository;
+        this.vilkårMedlemskapRepository = vilkårMedlemskapRepository;
         this.vilkårResultatRepository = vilkårResultatRepository;
     }
 
@@ -70,9 +70,9 @@ public class MedlemskapAksjonspunktFellesTjeneste {
 
     private void lagre(long behandlingId, LocalDate opphørFom, boolean opphørEtterStp, Avslagsårsak avslagsårsak) {
         var vilkårResultat = vilkårResultatRepository.hent(behandlingId);
-        medlemskapsvilkårVurderingRepository.slettFor(vilkårResultat);
+        vilkårMedlemskapRepository.slettFor(vilkårResultat);
         if (opphørEtterStp) {
-            medlemskapsvilkårVurderingRepository.lagre(MedlemskapsvilkårVurderingEntitet.forOpphør(vilkårResultat, opphørFom, avslagsårsak));
+            vilkårMedlemskapRepository.lagre(VilkårMedlemskap.forOpphør(vilkårResultat, opphørFom, avslagsårsak));
         }
     }
 
@@ -105,9 +105,9 @@ public class MedlemskapAksjonspunktFellesTjeneste {
 
     private void lagre(long behandlingId, LocalDate medlemFom, VilkårUtfallType utfall) {
         var vilkårResultat = vilkårResultatRepository.hent(behandlingId);
-        medlemskapsvilkårVurderingRepository.slettFor(vilkårResultat);
+        vilkårMedlemskapRepository.slettFor(vilkårResultat);
         if (utfall == VilkårUtfallType.IKKE_OPPFYLT && medlemFom != null) {
-            medlemskapsvilkårVurderingRepository.lagre(MedlemskapsvilkårVurderingEntitet.forMedlemFom(vilkårResultat, medlemFom));
+            vilkårMedlemskapRepository.lagre(VilkårMedlemskap.forMedlemFom(vilkårResultat, medlemFom));
         }
     }
 

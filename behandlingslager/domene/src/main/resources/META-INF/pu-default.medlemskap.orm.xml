@@ -16,7 +16,7 @@
 	<sequence-generator name="SEQ_GR_MEDLEMSKAP_VILKAR_PER" allocation-size="50" sequence-name="SEQ_GR_MEDLEMSKAP_VILKAR_PER" />
 	<sequence-generator name="SEQ_MEDLEMSKAP_VILKAR_PERIODE" allocation-size="50" sequence-name="SEQ_MEDLEMSKAP_VILKAR_PERIODE" />
 	<sequence-generator name="SEQ_MEDLEMSKAP_VILKAR_PERIODER" allocation-size="50" sequence-name="SEQ_MEDLEMSKAP_VILKAR_PERIODER" />
-	<sequence-generator name="SEQ_MEDLEMSKAPSVILKÅR_VURDERING" allocation-size="50" sequence-name="SEQ_MEDLEMSKAPSVILKÅR_VURDERING" />
+	<sequence-generator name="SEQ_VILKAR_MEDLEMSKAP" allocation-size="50" sequence-name="SEQ_VILKAR_MEDLEMSKAP" />
 
 	<sequence-generator name="SEQ_GR_MEDLEMSKAP" allocation-size="50" sequence-name="SEQ_GR_MEDLEMSKAP" />
 
@@ -32,6 +32,6 @@
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeGrunnlagEntitet" />
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapsvilkårPeriodeEntitet" />
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapsvilkårPerioderEntitet" />
-	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapsvilkårVurderingEntitet" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskap" />
 
 </entity-mappings>
