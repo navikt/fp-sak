@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -31,7 +30,6 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.NaturalYtelseType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
-import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.KontaktinformasjonIM;
 import no.nav.vedtak.konfig.Tid;
 
 import org.junit.jupiter.api.Test;
@@ -90,7 +88,6 @@ class InntektsmeldingDtoTjenesteTest {
         var arbeidsforholdRef = InternArbeidsforholdRef.nyRef();
         var arbeidsgiverOpplysninger = new ArbeidsgiverOpplysninger(arbeidsgiver.getIdentifikator(), "Bedriften");
         var journalpostId = new JournalpostId("456");
-        var kontaktInformasjon = new KontaktinformasjonIM("Kontaktersen", "11223344");
         var imBuilder = InntektsmeldingBuilder.builder()
             .medArbeidsgiver(arbeidsgiver)
             .medArbeidsforholdId(arbeidsforholdRef)
@@ -122,10 +119,8 @@ class InntektsmeldingDtoTjenesteTest {
         when(fagsakRepository.hentSakGittSaksnummer(any())).thenReturn(Optional.of(fagsak));
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.of(behandling));
         when(arbeidsgiverTjeneste.hent(arbeidsgiver)).thenReturn(arbeidsgiverOpplysninger);
-        var imTjenesteSpy = spy(imTjeneste);
-        Mockito.doReturn(Optional.of(kontaktInformasjon)).when(imTjenesteSpy).hentKontaktInfo(any());
 
-        var inntektsmeldingerForSak = imTjenesteSpy.hentInntektsmeldingerForSak(fagsak.getSaksnummer());
+        var inntektsmeldingerForSak = imTjeneste.hentInntektsmeldingerForSak(fagsak.getSaksnummer());
         assertThat(inntektsmeldingerForSak).hasSize(1);
         var im = inntektsmeldingerForSak.stream().findFirst().get();
         assertThat(im.erAktiv()).isTrue();
@@ -133,8 +128,6 @@ class InntektsmeldingDtoTjenesteTest {
         assertThat(im.inntektPrMnd()).isEqualTo(inntekt.getVerdi());
         assertThat(im.refusjonPrMnd()).isEqualTo(refusjon.getVerdi());
         assertThat(im.arbeidsgiverNavn()).isEqualTo(arbeidsgiverOpplysninger.getNavn());
-        assertThat(im.kontaktpersonNavn()).isEqualTo(kontaktInformasjon.kontaktPerson());
-        assertThat(im.kontaktpersonTelefonNummer()).isEqualTo(kontaktInformasjon.kontaktTelefonNummer());
         assertThat(im.journalpostId()).isEqualTo(journalpostId);
         assertThat(im.mottattTidspunkt()).isEqualTo(mottattTidspunkt);
         assertThat(im.startDatoPermisjon()).isNull();

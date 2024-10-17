@@ -16,8 +16,6 @@ record FpOversiktInntektsmeldingDto(Boolean erAktiv, BigDecimal stillingsprosent
 
                                     BigDecimal refusjonPrMnd,
                                     String arbeidsgiverNavn,
-                                    String kontaktpersonNavn,
-                                    String kontaktpersonTelefonNummer,
                                     JournalpostId journalpostId,
                                     LocalDateTime mottattTidspunkt,
                                     LocalDate startDatoPermisjon,

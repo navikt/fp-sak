@@ -167,7 +167,7 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
 
         return inntektsmeldinger.stream().map(im -> {
             var dokumentId = finnDokumentId(im.getJournalpostId(), alleInntektsmeldingerFraArkiv);
-            var kontaktinfo = finnMotattXML(motatteDokumenter, im).flatMap(ArbeidOgInntektsmeldingDtoTjeneste::trekkUtKontaktInfo);
+            var kontaktinfo = finnMotattXML(motatteDokumenter, im).flatMap(this::trekkUtKontaktInfo);
             var tilknyttedeBehandlingIder = mapAvIMTilBehandlingIder.get(im.getJournalpostId());
             return ArbeidOgInntektsmeldingMapper.mapInntektsmelding(im, arbeidsforholdReferanser, kontaktinfo, dokumentId, mangler,
                 saksbehandlersVurderinger, tilknyttedeBehandlingIder);
@@ -187,7 +187,7 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
             .map(d -> d.getHovedDokument().getDokumentId());
     }
 
-    public static Optional<KontaktinformasjonIM> trekkUtKontaktInfo(MottattDokument mottattIM) {
+    private Optional<KontaktinformasjonIM> trekkUtKontaktInfo(MottattDokument mottattIM) {
         var imWrapper = MottattDokumentXmlParser.unmarshallXml(mottattIM.getPayloadXml());
         if (imWrapper instanceof InntektsmeldingKontaktinformasjon i) {
             return Optional.of(i.finnKontaktinformasjon());
