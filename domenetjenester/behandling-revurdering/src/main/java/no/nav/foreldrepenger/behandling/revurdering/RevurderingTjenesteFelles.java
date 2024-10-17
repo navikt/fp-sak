@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -39,6 +40,7 @@ public class RevurderingTjenesteFelles {
     private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
     private FagsakRevurdering fagsakRevurdering;
     private MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository;
+    private VilkårMedlemskapRepository vilkårMedlemskapRepository;
     private OpptjeningRepository opptjeningRepository;
     private RevurderingHistorikk revurderingHistorikk;
 
@@ -47,7 +49,8 @@ public class RevurderingTjenesteFelles {
     }
 
     @Inject
-    public RevurderingTjenesteFelles(BehandlingRepositoryProvider repositoryProvider, BehandlingRevurderingTjeneste behandlingRevurderingTjeneste) {
+    public RevurderingTjenesteFelles(BehandlingRepositoryProvider repositoryProvider,
+                                     BehandlingRevurderingTjeneste behandlingRevurderingTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.behandlingRevurderingTjeneste = behandlingRevurderingTjeneste;
@@ -55,6 +58,7 @@ public class RevurderingTjenesteFelles {
         this.medlemskapVilkårPeriodeRepository = repositoryProvider.getMedlemskapVilkårPeriodeRepository();
         this.opptjeningRepository = repositoryProvider.getOpptjeningRepository();
         this.revurderingHistorikk = new RevurderingHistorikk(repositoryProvider.getHistorikkRepository());
+        this.vilkårMedlemskapRepository = repositoryProvider.getVilkårMedlemskapRepository();
     }
 
     public Behandling opprettRevurderingsbehandling(BehandlingÅrsakType revurderingsÅrsak, Behandling opprinneligBehandling,
@@ -116,6 +120,8 @@ public class RevurderingTjenesteFelles {
 
         // MedlemskapsvilkårPerioder er tilknyttet vilkårresultat, ikke behandling
         medlemskapVilkårPeriodeRepository.kopierGrunnlagFraEksisterendeBehandling(origBehandling, revurdering);
+
+        vilkårMedlemskapRepository.kopierGrunnlagFraEksisterendeBehandling(origBehandling, revurdering);
 
         // Kan være at førstegangsbehandling ble avslått før den har kommet til
         // opptjening.
