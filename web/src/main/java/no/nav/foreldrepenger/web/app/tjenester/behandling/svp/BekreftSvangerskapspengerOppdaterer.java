@@ -4,12 +4,14 @@ import static no.nav.foreldrepenger.web.app.tjenester.behandling.svp.Svangerskap
 import static no.nav.foreldrepenger.web.app.tjenester.behandling.svp.SvangerskapsTjenesteFeil.kanIkkeFinneTerminbekreftelsePåSvangerskapspengerSøknad;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -30,6 +32,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpAvklartOpphold;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpOppholdKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
@@ -57,6 +60,7 @@ import no.nav.vedtak.konfig.Tid;
 @DtoTilServiceAdapter(dto = BekreftSvangerskapspengerDto.class, adapter = AksjonspunktOppdaterer.class)
 public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdaterer<BekreftSvangerskapspengerDto> {
 
+    private static final DateTimeFormatter DATO_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     private SvangerskapspengerRepository svangerskapspengerRepository;
     private HistorikkTjenesteAdapter historikkAdapter;
     private FamilieHendelseRepository familieHendelseRepository;
@@ -290,7 +294,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         var eksisterendeTilrettelegging = hentEksisterendeTilrettelegging(eksisterendeTilrettelegingerListe, arbeidsforholdDto.getTilretteleggingId());
         var nyTilrettelegging = mapNyTilrettelegging(arbeidsforholdDto, eksisterendeTilrettelegging);
 
-        if(erTilretteleggingEndret(eksisterendeTilrettelegging, nyTilrettelegging)) {
+        if (erTilretteleggingEndret(eksisterendeTilrettelegging, nyTilrettelegging)) {
             opprettHistorikkInnslagForEndringer(eksisterendeTilrettelegging, nyTilrettelegging);
             return nyTilrettelegging;
         }
@@ -342,10 +346,17 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         if (arbeidsforholdDto.getAvklarteOppholdPerioder() != null) {
             arbeidsforholdDto.getAvklarteOppholdPerioder().stream()
                 .filter(oppholdDto -> !oppholdDto.forVisning()) //Vi viser opphold fra IM - disse skal ikke lagres i grunnlaget
-                .forEach( oppholdDto -> {
+                .forEach(oppholdDto -> {
+                    var kilde = switch (oppholdDto.oppholdKilde()) {
+                        case SØKNAD -> SvpOppholdKilde.SØKNAD;
+                        case REGISTRERT_AV_SAKSBEHANDLER -> SvpOppholdKilde.REGISTRERT_AV_SAKSBEHANDLER;
+                        case INNTEKTSMELDING -> throw new IllegalStateException("Kan ikke lagre som saksbehandlet oppholdsperioder fra inntektsmelding");
+                        case null -> SvpOppholdKilde.REGISTRERT_AV_SAKSBEHANDLER;
+                    };
                     var nyttAvklartOpphold = SvpAvklartOpphold.Builder.nytt()
                         .medOppholdPeriode(oppholdDto.fom(), oppholdDto.tom())
                         .medOppholdÅrsak(oppholdDto.oppholdÅrsak())
+                        .medKilde(kilde)
                         .build();
                     nyTilretteleggingEntitetBuilder.medAvklartOpphold(nyttAvklartOpphold);
             });
@@ -374,7 +385,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
 
     private void opprettHistorikkInnslagForEndringer(SvpTilretteleggingEntitet eksisterendeTilrettelegging,
                                                      SvpTilretteleggingEntitet nyTilrettelegging) {
-        String fjernet = "fjernet";
+        var fjernet = "fjernet";
 
         historikkAdapter.tekstBuilder().medSkjermlenke(SkjermlenkeType.PUNKT_FOR_SVP_INNGANG);
 
@@ -391,11 +402,28 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         var eksisterendeOpphold = eksisterendeTilrettelegging.getAvklarteOpphold();
         var nyeOpphold = nyTilrettelegging.getAvklarteOpphold();
 
-        var fjernetOppholdListe = eksisterendeOpphold.stream().filter(eksOpphold-> !nyeOpphold.contains(eksOpphold)).toList();
-        var lagtTilOppholdListe = nyeOpphold.stream().filter(nyttOpphold -> !eksisterendeOpphold.contains(nyttOpphold)).toList();
+        // frontend sender ikke oppdateringer på kilde per nå
+        BiPredicate<SvpAvklartOpphold, SvpAvklartOpphold> equalssjekkUtenKilde = (a, b) ->
+            Objects.equals(a.getOppholdÅrsak(), b.getOppholdÅrsak())
+                && Objects.equals(a.getFom(), b.getFom())
+                && Objects.equals(a.getTom(), b.getTom());
 
-        lagtTilOppholdListe.forEach(lagtTilOpphold -> historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.SVP_OPPHOLD_PERIODE, null, String.format("Lagt til opphold med fra dato:%s, tildato:%s, årsak: %s", lagtTilOpphold.getFom(),lagtTilOpphold.getTom(), lagtTilOpphold.getOppholdÅrsak())));
-        fjernetOppholdListe.forEach(fjernetOpphold -> historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.SVP_OPPHOLD_PERIODE, String.format("fra dato:%s, tildato:%s, årsak: %s", fjernetOpphold.getFom(),fjernetOpphold.getTom(), fjernetOpphold.getOppholdÅrsak()), fjernet));
+        var fjernetOppholdListe = eksisterendeOpphold.stream()
+            .filter(eksisterende -> nyeOpphold.stream()
+                .noneMatch(nyttOpphold -> equalssjekkUtenKilde.test(nyttOpphold, eksisterende)))
+            .toList();
+        var lagtTilOppholdListe = nyeOpphold.stream()
+            .filter(nyttOpphold -> eksisterendeOpphold.stream()
+                .noneMatch(eksisterende -> equalssjekkUtenKilde.test(eksisterende, nyttOpphold)))
+            .toList();
+        // TODO: vurder ren equalssjekk og sette kilde i frontend ved oppdateringer
+        lagtTilOppholdListe.forEach(nyttOpphold -> nyttOpphold.setKilde(SvpOppholdKilde.REGISTRERT_AV_SAKSBEHANDLER));
+
+        lagtTilOppholdListe.forEach(lagtTilOpphold -> historikkAdapter.tekstBuilder()
+            .medEndretFelt(HistorikkEndretFeltType.SVP_OPPHOLD_PERIODE, null,
+                "nytt opphold " + formatterOppholdDetaljerForHistorikk(lagtTilOpphold)));
+        fjernetOppholdListe.forEach(fjernetOpphold -> historikkAdapter.tekstBuilder()
+            .medEndretFelt(HistorikkEndretFeltType.SVP_OPPHOLD_PERIODE, formatterOppholdDetaljerForHistorikk(fjernetOpphold), fjernet));
 
         var erEndretBehovFom =  !Objects.equals(eksisterendeTilrettelegging.getBehovForTilretteleggingFom(), nyTilrettelegging.getBehovForTilretteleggingFom());
         if (erEndretBehovFom) {
@@ -407,6 +435,15 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         if (erEndretSkalBrukes) {
             historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.TILRETTELEGGING_SKAL_BRUKES, eksisterendeTilrettelegging.getSkalBrukes() ? "JA" : "NEI", nyTilrettelegging.getSkalBrukes() ? "JA" : "NEI");
         }
+    }
+
+    private String formatterOppholdDetaljerForHistorikk(SvpAvklartOpphold opphold) {
+        var formattert = String.format("%s – %s, årsak: %s", DATO_FORMATTER.format(opphold.getFom()), DATO_FORMATTER.format(opphold.getTom()),
+            opphold.getOppholdÅrsak());
+        if (opphold.getKilde() == SvpOppholdKilde.SØKNAD) {
+            formattert = formattert + ", kilde: " + SvpOppholdKilde.SØKNAD;
+        }
+        return formattert;
     }
 
     private String formaterForHistorikk(TilretteleggingFOM fom) {
