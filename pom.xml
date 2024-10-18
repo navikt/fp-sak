@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-bom</artifactId>
-        <version>3.4.2</version>
+        <version>3.4.3</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger</groupId>
@@ -36,7 +36,7 @@
         <fp-ytelse-beregn.version>1.0.4</fp-ytelse-beregn.version>
 
         <felles.version>7.2.12</felles.version>
-        <prosesstask.version>5.0.15</prosesstask.version>
+        <prosesstask.version>5.0.16</prosesstask.version>
 
         <fp-kontrakter.version>9.1.20</fp-kontrakter.version>
         <abakus-kontrakt.version>2.1.2</abakus-kontrakt.version>
@@ -55,7 +55,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>fp-bom</artifactId>
-                <version>3.4.2</version>
+                <version>3.4.3</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
