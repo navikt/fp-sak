@@ -9,7 +9,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpOpph
 public record SvpAvklartOppholdPeriodeDto(@NotNull LocalDate fom,
                                           @NotNull LocalDate tom,
                                           @NotNull SvpOppholdÅrsak oppholdÅrsak,
-                                          @NotNull SvpOppholdKilde oppholdKilde,
+                                          SvpOppholdKilde oppholdKilde,
                                           boolean forVisning) {
 
     public enum SvpOppholdKilde {

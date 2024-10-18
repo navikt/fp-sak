@@ -351,6 +351,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
                         case SØKNAD -> SvpOppholdKilde.SØKNAD;
                         case REGISTRERT_AV_SAKSBEHANDLER -> SvpOppholdKilde.REGISTRERT_AV_SAKSBEHANDLER;
                         case INNTEKTSMELDING -> throw new IllegalStateException("Kan ikke lagre som saksbehandlet oppholdsperioder fra inntektsmelding");
+                        case null -> SvpOppholdKilde.REGISTRERT_AV_SAKSBEHANDLER;
                     };
                     var nyttAvklartOpphold = SvpAvklartOpphold.Builder.nytt()
                         .medOppholdPeriode(oppholdDto.fom(), oppholdDto.tom())
