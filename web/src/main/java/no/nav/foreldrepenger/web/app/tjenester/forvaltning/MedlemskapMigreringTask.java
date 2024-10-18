@@ -206,7 +206,7 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
         }
         var løpendeVilkår = finnVilkår(behandlingsresultat, VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE);
         if (løpendeVilkår.isPresent() && løpendeVilkår.get().erIkkeOppfylt()) {
-            if (!Avslagsårsak.UDEFINERT.equals(løpendeVilkår.get().getAvslagsårsak())) {
+            if (løpendeVilkår.get().getAvslagsårsak() != null) {
                 LOG.info("Opphørsårsak finner avslagsårsak fra løpende avslagsårsak {}", behandlingId);
                 return Optional.ofNullable(løpendeVilkår.get().getAvslagsårsak());
             }
