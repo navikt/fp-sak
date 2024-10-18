@@ -180,20 +180,19 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
 
     private Optional<Avslagsårsak> hentOpphørsårsak(Long behandlingId) {
         var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
-        var medlemskapsvilkåret = behandlingsresultat.getVilkårResultat()
-            .getVilkårene()
-            .stream()
-            .filter(vilkår -> vilkår.getVilkårType().gjelderMedlemskap())
-            .findFirst();
+        var medlemskapsvilkåret = finnVilkår(behandlingsresultat, VilkårType.MEDLEMSKAPSVILKÅRET);
         if (medlemskapsvilkåret.isEmpty()) {
+            LOG.info("Opphørsårsak finner ikke medlemskapsvilkår {}", behandlingId);
             return Optional.empty();
         }
         if (medlemskapsvilkåret.get().getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT)) {
+            LOG.info("Opphørsårsak finner avslagsårsak fra medlemskapsvilkår {}", behandlingId);
             return Optional.of(medlemskapsvilkåret.get().getAvslagsårsak());
         }
         var opphørsVurdering = vilkårMedlemskapRepository.hentHvisEksisterer(behandlingId)
             .flatMap(VilkårMedlemskap::getOpphør);
         if (opphørsVurdering.isPresent()) {
+            LOG.info("Opphørsårsak finner avslagsårsak fra ny vurdering {}", behandlingId);
             return Optional.of(opphørsVurdering.get().årsak());
         }
 
@@ -202,11 +201,13 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
         var overstyrtAvslagsårsak = medlemskapVilkårPeriodeGrunnlagEntitet.map(
             vilkårPeriodeGrunnlagEntitet -> vilkårPeriodeGrunnlagEntitet.getMedlemskapsvilkårPeriode().getOverstyring().getAvslagsårsak());
         if (overstyrtAvslagsårsak.isPresent() && !overstyrtAvslagsårsak.get().equals(Avslagsårsak.UDEFINERT)) {
+            LOG.info("Opphørsårsak finner avslagsårsak fra overstyrt {}", behandlingId);
             return overstyrtAvslagsårsak;
         }
         var løpendeVilkår = finnVilkår(behandlingsresultat, VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE);
         if (løpendeVilkår.isPresent() && løpendeVilkår.get().erIkkeOppfylt()) {
             if (!Avslagsårsak.UDEFINERT.equals(løpendeVilkår.get().getAvslagsårsak())) {
+                LOG.info("Opphørsårsak finner avslagsårsak fra løpende avslagsårsak {}", behandlingId);
                 return Optional.ofNullable(løpendeVilkår.get().getAvslagsårsak());
             }
             var årsakFraMerknad = switch (løpendeVilkår.get().getVilkårUtfallMerknad()) {
@@ -216,8 +217,10 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
                 case VM_1024 -> Avslagsårsak.SØKER_HAR_IKKE_OPPHOLDSRETT;
                 default -> null;
             };
+            LOG.info("Opphørsårsak finner avslagsårsak fra merknad {}", behandlingId);
             return Optional.ofNullable(årsakFraMerknad);
         }
+        LOG.info("Opphørsårsak finner avslagsårsak ingen {}", behandlingId);
         return Optional.empty();
     }
 
