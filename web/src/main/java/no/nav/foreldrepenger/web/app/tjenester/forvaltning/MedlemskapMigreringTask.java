@@ -210,13 +210,13 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
                 LOG.info("Opphørsårsak finner avslagsårsak fra løpende avslagsårsak {}", behandlingId);
                 return Optional.ofNullable(løpendeVilkår.get().getAvslagsårsak());
             }
-            var årsakFraMerknad = switch (løpendeVilkår.get().getVilkårUtfallMerknad()) {
+            var årsakFraMerknad = løpendeVilkår.get().getVilkårUtfallMerknad() != null ? switch (løpendeVilkår.get().getVilkårUtfallMerknad()) {
                 case VM_1020 -> Avslagsårsak.SØKER_ER_IKKE_MEDLEM;
                 case VM_1021, VM_1025 -> Avslagsårsak.SØKER_ER_IKKE_BOSATT;
                 case VM_1023 -> Avslagsårsak.SØKER_HAR_IKKE_LOVLIG_OPPHOLD;
                 case VM_1024 -> Avslagsårsak.SØKER_HAR_IKKE_OPPHOLDSRETT;
                 default -> null;
-            };
+            } : null;
             LOG.info("Opphørsårsak finner avslagsårsak fra merknad {}", behandlingId);
             return Optional.ofNullable(årsakFraMerknad);
         }
