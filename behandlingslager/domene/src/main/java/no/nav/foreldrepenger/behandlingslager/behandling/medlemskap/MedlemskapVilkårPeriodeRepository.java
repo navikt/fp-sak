@@ -97,7 +97,7 @@ public class MedlemskapVilkårPeriodeRepository {
         return MedlemskapVilkårPeriodeGrunnlagEntitet.Builder.oppdatere(Optional.empty());
     }
 
-    private Optional<MedlemskapVilkårPeriodeGrunnlagEntitet> hentAktivtGrunnlag(Behandling behandling) {
+    public Optional<MedlemskapVilkårPeriodeGrunnlagEntitet> hentAktivtGrunnlag(Behandling behandling) {
         var vilkårResultat = Optional.ofNullable(getBehandlingsresultat(behandling))
                 .map(Behandlingsresultat::getVilkårResultat)
                 .orElse(null);
