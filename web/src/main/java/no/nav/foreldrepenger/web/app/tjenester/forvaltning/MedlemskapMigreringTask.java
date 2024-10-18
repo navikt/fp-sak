@@ -184,7 +184,6 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
             .getVilkårene()
             .stream()
             .filter(vilkår -> vilkår.getVilkårType().gjelderMedlemskap())
-            .filter(vilkår -> VilkårUtfallType.erFastsatt(vilkår.getGjeldendeVilkårUtfall()))
             .findFirst();
         if (medlemskapsvilkåret.isEmpty()) {
             return Optional.empty();
