@@ -78,7 +78,7 @@ public class FpinntektsmeldingKlient {
             var restRequest = RestRequest.newPOSTJson(request, uriLukkForesporsel, restConfig);
             restClient.send(restRequest, String.class);
         } catch (Exception e) {
-            LOG.warn("Feil ved oversending til fpinntektsmelding med lukk forespørsel request: {}", request);
+            skrivTilLogg(request);
             throw feilVedKallTilFpinntektsmelding(e.getMessage());
         }
     }
@@ -90,13 +90,17 @@ public class FpinntektsmeldingKlient {
     public void settForespørselTilUtgått(LukkForespørselRequest request) {
         Objects.requireNonNull(request, "request");
         try {
-            LOG.info("Sender LukkForespørselRequest til fpinntektsmelding for å ferdigstille forespørsel for saksnummer {} med organisasjonsnummer {}", request.fagsakSaksnummer().saksnr(), request.orgnummer());
+            LOG.info("Sender Lukk forespørsel request til fpinntektsmelding for å sette forespørsel til utgått for saksnummer {} ", request.fagsakSaksnummer().saksnr());
             var restRequest = RestRequest.newPOSTJson(request, uriSettForesporselTilUtgaatt, restConfig);
             restClient.send(restRequest, String.class);
         } catch (Exception e) {
-            LOG.warn("Feil ved oversending til fpinntektsmelding med lukk forespørsel request: {}", request);
+            skrivTilLogg(request);
             throw feilVedKallTilFpinntektsmelding(e.getMessage());
         }
+    }
+
+    private static void skrivTilLogg(LukkForespørselRequest request) {
+        LOG.warn("Feil ved oversending til fpinntektsmelding med lukk forespørsel request: {}", request);
     }
 }
 
