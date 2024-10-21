@@ -15,10 +15,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAg
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapBehandlingsgrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOpphør;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskap;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskapRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.AvslagsårsakMapper;
@@ -35,10 +33,8 @@ public class MedlemTjeneste {
 
     private MedlemskapRepository medlemskapRepository;
     private HentMedlemskapFraRegister hentMedlemskapFraRegister;
-    private MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
-    private BehandlingRepository behandlingRepository;
     private VilkårMedlemskapRepository vilkårMedlemskapRepository;
 
     MedlemTjeneste() {
@@ -48,15 +44,12 @@ public class MedlemTjeneste {
     @Inject
     public MedlemTjeneste(BehandlingRepositoryProvider repositoryProvider,
                           HentMedlemskapFraRegister hentMedlemskapFraRegister,
-                          MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository,
                           SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                           VilkårMedlemskapRepository vilkårMedlemskapRepository) {
         this.hentMedlemskapFraRegister = hentMedlemskapFraRegister;
         this.medlemskapRepository = repositoryProvider.getMedlemskapRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
-        this.medlemskapVilkårPeriodeRepository = medlemskapVilkårPeriodeRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
-        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.vilkårMedlemskapRepository = vilkårMedlemskapRepository;
     }
 

@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
@@ -39,7 +38,6 @@ public class BehandlingRepositoryProvider {
     private FagsakRepository fagsakRepository;
     private PersonopplysningRepository personopplysningRepository;
     private MedlemskapRepository medlemskapRepository;
-    private MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository;
     private VilkårMedlemskapRepository vilkårMedlemskapRepository;
     private FamilieHendelseRepository familieHendelseRepository;
     private HistorikkRepository historikkRepository;
@@ -81,7 +79,6 @@ public class BehandlingRepositoryProvider {
         this.ytelsesFordelingRepository = new YtelsesFordelingRepository(entityManager);
 
         // behandling mellomresultat
-        this.medlemskapVilkårPeriodeRepository = new MedlemskapVilkårPeriodeRepository(entityManager);
         this.opptjeningRepository = new OpptjeningRepository(entityManager, this.behandlingRepository);
         this.fpUttakRepository = new FpUttakRepository(entityManager);
         this.uttaksperiodegrenseRepository = new UttaksperiodegrenseRepository(entityManager);
@@ -121,10 +118,6 @@ public class BehandlingRepositoryProvider {
 
     public MedlemskapRepository getMedlemskapRepository() {
         return medlemskapRepository;
-    }
-
-    public MedlemskapVilkårPeriodeRepository getMedlemskapVilkårPeriodeRepository() {
-        return medlemskapVilkårPeriodeRepository;
     }
 
     public VilkårMedlemskapRepository getVilkårMedlemskapRepository() {
