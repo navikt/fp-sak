@@ -12,9 +12,7 @@ import jakarta.persistence.EntityManager;
 
 import org.hibernate.jpa.HibernateHints;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
 @ApplicationScoped
 public class BehandlingStatistikkRepository {
@@ -29,41 +27,33 @@ public class BehandlingStatistikkRepository {
         this.entityManager = entityManager;
     }
 
-    public List<BehandlingStatistikk> hentAntallBehandlinger() {
+    public List<BehandlingStatistikk> hentAntallBehandlingsårsaker() {
         var query = entityManager.createQuery("""
-            select f.ytelseType, b.behandlingType, ba.behandlingÅrsakType, count(1) as antall from Fagsak f
-            join Behandling b on b.fagsak.id = f.id
-            left outer join BehandlingÅrsak ba on ba.behandling.id = b.id
-            group by f.ytelseType, b.behandlingType, ba.behandlingÅrsakType
-            """, BehandlingStatistikkEntitet.class)
+            select ba.behandlingÅrsakType, count(1) as antall
+            from BehandlingÅrsak ba
+            group by ba.behandlingÅrsakType
+            """, BehandlingÅrsakQR.class)
             .setHint(HibernateHints.HINT_READ_ONLY, "true");
         var behandlingStatistikkEntitet = query.getResultList();
         return mapTilBehandlingStatistikk(behandlingStatistikkEntitet);
     }
 
-    static List<BehandlingStatistikk> mapTilBehandlingStatistikk(List<BehandlingStatistikkEntitet> behandlingStatistikkEntitet) {
+    static List<BehandlingStatistikk> mapTilBehandlingStatistikk(List<BehandlingÅrsakQR> behandlingStatistikkEntitet) {
         return behandlingStatistikkEntitet.stream()
             .map(BehandlingStatistikkRepository::tilBehandlingStatistikk)
-            .collect(
-                groupingBy(bs -> bs.type().ytelseType,
-                groupingBy(bs -> Optional.ofNullable(bs.type().behandlingType()).orElse(BehandlingType.UDEFINERT),
-                groupingBy(bs -> Optional.ofNullable(bs.type().behandlingsårsak()).orElse(Behandlingsårsak.ANNET),
-                summarizingLong(bs -> Optional.ofNullable(bs.antall()).orElse(0L)))))
-            )
+            .collect(groupingBy(bs -> Optional.ofNullable(bs.behandlingsårsak()).orElse(Behandlingsårsak.ANNET),
+                summarizingLong(bs -> Optional.ofNullable(bs.antall()).orElse(0L))))
             .entrySet()
             .stream()
-            .flatMap(ytelseTypeEntry -> ytelseTypeEntry.getValue().entrySet().stream()
-                .flatMap(behandlingTypeEntry -> behandlingTypeEntry.getValue().entrySet().stream()
-                    .map(behandlingårsakEntry ->
-                        new BehandlingStatistikk(new BehandlingStatistikk.Type(ytelseTypeEntry.getKey(), behandlingTypeEntry.getKey(), behandlingårsakEntry.getKey()), behandlingårsakEntry.getValue().getSum()))))
+            .map(behandlingårsakEntry -> new BehandlingStatistikk(behandlingårsakEntry.getKey(), behandlingårsakEntry.getValue().getSum()))
             .toList();
     }
 
-    private static BehandlingStatistikk tilBehandlingStatistikk(BehandlingStatistikkEntitet entitet) {
-        return new BehandlingStatistikk(new BehandlingStatistikk.Type(entitet.ytelseType(), entitet.behandlingType(), tilBehandlingÅrsak(entitet.behandlingType(), entitet.behandlingArsakType())), entitet.antall());
+    private static BehandlingStatistikk tilBehandlingStatistikk(BehandlingÅrsakQR entitet) {
+        return new BehandlingStatistikk(tilBehandlingÅrsak(entitet.behandlingArsakType()), entitet.antall());
     }
 
-    private static Behandlingsårsak tilBehandlingÅrsak(BehandlingType behandlingType, BehandlingÅrsakType behandlingÅrsakType) {
+    private static Behandlingsårsak tilBehandlingÅrsak(BehandlingÅrsakType behandlingÅrsakType) {
         return switch (behandlingÅrsakType) {
             case RE_FEIL_I_LOVANDVENDELSE,
                  RE_FEIL_REGELVERKSFORSTÅELSE,
@@ -95,35 +85,17 @@ public class BehandlingStatistikkRepository {
                  RE_HENDELSE_UTFLYTTING -> Behandlingsårsak.FOLKEREGISTER;
             case RE_VEDTAK_PLEIEPENGER -> Behandlingsårsak.PLEIEPENGER;
             case OPPHØR_YTELSE_NYTT_BARN -> Behandlingsårsak.NESTESAK;
-            case UDEFINERT -> switch (behandlingType) {
-                case FØRSTEGANGSSØKNAD -> Behandlingsårsak.SØKNAD;
-                case KLAGE, ANKE -> Behandlingsårsak.KLAGE_ANKE;
-                case null, default -> Behandlingsårsak.ANNET;
-            };
-            case null -> switch (behandlingType) {
-                case FØRSTEGANGSSØKNAD -> Behandlingsårsak.SØKNAD;
-                case KLAGE, ANKE -> Behandlingsårsak.KLAGE_ANKE;
-                case null, default -> Behandlingsårsak.ANNET;
-            };
+            case null -> Behandlingsårsak.ANNET;
             default -> Behandlingsårsak.ANNET;
         };
     }
 
-    record BehandlingStatistikkEntitet(FagsakYtelseType ytelseType,
-                                       BehandlingType behandlingType,
-                                       BehandlingÅrsakType behandlingArsakType,
-                                       Long antall) {
-    }
+    record BehandlingÅrsakQR(BehandlingÅrsakType behandlingArsakType, Long antall) { }
 
 
-    record BehandlingStatistikk(Type type, Long antall) {
-        record Type(FagsakYtelseType ytelseType,
-                    BehandlingType behandlingType,
-                    Behandlingsårsak behandlingsårsak) {
-        }
-    }
+    public record BehandlingStatistikk(Behandlingsårsak behandlingsårsak, Long antall) { }
 
-    enum Behandlingsårsak {
+    public enum Behandlingsårsak {
         SØKNAD,
         KLAGE_ANKE,
         INNTEKTSMELDING,

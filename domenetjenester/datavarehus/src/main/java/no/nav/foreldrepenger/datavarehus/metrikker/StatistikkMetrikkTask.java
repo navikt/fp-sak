@@ -12,24 +12,29 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 public class StatistikkMetrikkTask implements ProsessTaskHandler {
 
     private BehandlingStatistikkRepository statistikkRepository;
-    private BehandlingMetrikker behandlingMetrikker;
+    private DokumentStatistikkRepository dokumentStatistikkRepository;
 
     public StatistikkMetrikkTask() {
         // CDI
     }
 
     @Inject
-    public StatistikkMetrikkTask(BehandlingStatistikkRepository statistikkRepository, BehandlingMetrikker behandlingMetrikker) {
+    public StatistikkMetrikkTask(BehandlingStatistikkRepository statistikkRepository,
+                                 DokumentStatistikkRepository dokumentStatistikkRepository) {
         this.statistikkRepository = statistikkRepository;
-        this.behandlingMetrikker = behandlingMetrikker;
+        this.dokumentStatistikkRepository = dokumentStatistikkRepository;
     }
 
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        var behandlingerPerTypeYtelseÅrsak = statistikkRepository.hentAntallBehandlinger();
-        for (var behandling: behandlingerPerTypeYtelseÅrsak) {
-            behandlingMetrikker.setAntall(behandling.type(), behandling.antall());
+        var behandlingerPerÅrsak = statistikkRepository.hentAntallBehandlingsårsaker();
+        for (var behandling: behandlingerPerÅrsak) {
+            BehandlingMetrikker.setAntall(behandling.behandlingsårsak(), behandling.antall());
+        }
+        var dokumentPerType = dokumentStatistikkRepository.hentAntallDokumenttyper();
+        for (var dokumenttype: dokumentPerType) {
+            DokumentMetrikker.setAntall(dokumenttype.dokumenttype(), dokumenttype.antall());
         }
     }
 }
