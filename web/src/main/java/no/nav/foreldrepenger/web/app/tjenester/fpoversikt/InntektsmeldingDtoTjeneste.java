@@ -1,15 +1,12 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
 import java.math.BigDecimal;
-import java.sql.Array;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -19,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.common.innsyn.inntektsmelding.FpSakInntektsmeldingDto;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
@@ -33,8 +31,6 @@ import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
-import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.KontaktinformasjonIM;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidInntektsmelding.ArbeidOgInntektsmeldingDtoTjeneste;
 import no.nav.vedtak.konfig.Tid;
 
 import static no.nav.vedtak.konfig.Tid.TIDENES_ENDE;
@@ -68,7 +64,7 @@ class InntektsmeldingDtoTjeneste {
     }
 
 
-    public List<FpOversiktInntektsmeldingDto> hentInntektsmeldingerForSak(Saksnummer saksnummer) {
+    public List<FpSakInntektsmeldingDto> hentInntektsmeldingerForSak(Saksnummer saksnummer) {
         var sak = fagsakRepository.hentSakGittSaksnummer(saksnummer);
         var inntektArbeidYtelseGrunnlag = sak.flatMap(
                 s -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(s.getId()))
@@ -91,7 +87,7 @@ class InntektsmeldingDtoTjeneste {
             .collect(Collectors.toList());
     }
 
-    private FpOversiktInntektsmeldingDto map(Inntektsmelding inntektsmelding, boolean erAktiv, Collection<Yrkesaktivitet> yrkesaktivitet) {
+    private FpSakInntektsmeldingDto map(Inntektsmelding inntektsmelding, boolean erAktiv, Collection<Yrkesaktivitet> yrkesaktivitet) {
         var mottattTidspunkt = mottatteDokumentRepository.hentMottattDokument(inntektsmelding.getJournalpostId())
             .stream()
             .map(MottattDokument::getMottattTidspunkt)
@@ -111,13 +107,14 @@ class InntektsmeldingDtoTjeneste {
             .max(Comparator.comparing(a-> a.getPeriode().getFomDato())).map(AktivitetsAvtale::getProsentsats).map(Stillingsprosent::getVerdi)
             .orElse(null);
 
-        return new FpOversiktInntektsmeldingDto(
+        return new FpSakInntektsmeldingDto(
             erAktiv,
             stillingsprosent,
             inntektsmelding.getInntektBeløp().getVerdi(),
             inntektsmelding.getRefusjonBeløpPerMnd() == null ? null : inntektsmelding.getRefusjonBeløpPerMnd().getVerdi(),
             arbeidsgiverOpplysninger.getNavn(),
-            inntektsmelding.getJournalpostId(),
+            inntektsmelding.getArbeidsgiver().getIdentifikator(),
+            inntektsmelding.getJournalpostId().toString(),
             mottattTidspunkt,
             inntektsmelding.getStartDatoPermisjon().orElse(null),
             naturalytelser,
@@ -125,25 +122,25 @@ class InntektsmeldingDtoTjeneste {
         );
     }
 
-    public static List<FpOversiktInntektsmeldingDto.Refusjon> lagRefusjonsperioder(Inntektsmelding inntektsmelding) {
-        var refusjon = inntektsmelding.getEndringerRefusjon().stream().map(r -> new FpOversiktInntektsmeldingDto.Refusjon(r.getRefusjonsbeløp().getVerdi(), r.getFom())).toList();
+    public static List<no.nav.foreldrepenger.common.innsyn.inntektsmelding.Refusjon> lagRefusjonsperioder(Inntektsmelding inntektsmelding) {
+        var refusjon = inntektsmelding.getEndringerRefusjon().stream().map(r -> new no.nav.foreldrepenger.common.innsyn.inntektsmelding.Refusjon(r.getRefusjonsbeløp().getVerdi(), r.getFom())).toList();
         var mutableRefusjon = new ArrayList<>(refusjon);
 
         // Representer opphøring av refusjon som en periode med 0 som refusjon
         if (inntektsmelding.getRefusjonOpphører() != null && !Tid.TIDENES_ENDE.equals(inntektsmelding.getRefusjonOpphører() )) {
-            mutableRefusjon.add(new FpOversiktInntektsmeldingDto.Refusjon(new BigDecimal(0), inntektsmelding.getRefusjonOpphører().plusDays(1)));
+            mutableRefusjon.add(new no.nav.foreldrepenger.common.innsyn.inntektsmelding.Refusjon(new BigDecimal(0), inntektsmelding.getRefusjonOpphører().plusDays(1)));
         }
 
-        mutableRefusjon.sort(Comparator.comparing(FpOversiktInntektsmeldingDto.Refusjon::fomDato));
+        mutableRefusjon.sort(Comparator.comparing(no.nav.foreldrepenger.common.innsyn.inntektsmelding.Refusjon::fomDato));
 
         return mutableRefusjon;
     }
 
-    public static List<FpOversiktInntektsmeldingDto.NaturalYtelse> konverterAktivePerioderTilBortfaltePerioder(List<NaturalYtelse> aktiveNaturalytelser) {
+    public static List<no.nav.foreldrepenger.common.innsyn.inntektsmelding.BortfaltNaturalytelse> konverterAktivePerioderTilBortfaltePerioder(List<NaturalYtelse> aktiveNaturalytelser) {
         var gruppertPåType = aktiveNaturalytelser.stream()
             .collect(Collectors.groupingBy(NaturalYtelse::getType));
 
-        List<FpOversiktInntektsmeldingDto.NaturalYtelse> bortfalteNaturalytelser = new ArrayList<>();
+        List<no.nav.foreldrepenger.common.innsyn.inntektsmelding.BortfaltNaturalytelse> bortfalteNaturalytelser = new ArrayList<>();
 
         gruppertPåType.forEach((key, value) -> {
             var sortert = value.stream()
@@ -161,11 +158,11 @@ class InntektsmeldingDtoTjeneste {
                     continue;
                 }
 
-                var newYtelse = new FpOversiktInntektsmeldingDto.NaturalYtelse(
+                var newYtelse = new no.nav.foreldrepenger.common.innsyn.inntektsmelding.BortfaltNaturalytelse(
                         nyFom.plusDays(1),
                         (nyTom != null) ? nyTom.minusDays(1) : TIDENES_ENDE,
                     current.getBeloepPerMnd().getVerdi(),
-                    current.getType()
+                    no.nav.foreldrepenger.common.innsyn.inntektsmelding.NaturalytelseType.valueOf(current.toString())
                 );
 
                 bortfalteNaturalytelser.add(newYtelse);

@@ -6,6 +6,8 @@ import java.util.Set;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.common.innsyn.inntektsmelding.FpSakInntektsmeldingDto;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +57,7 @@ class FpOversiktDtoTjeneste {
         };
     }
 
-    List<FpOversiktInntektsmeldingDto> hentInntektsmeldingerForSak(String saksnummer) {
+    List<FpSakInntektsmeldingDto> hentInntektsmeldingerForSak(String saksnummer) {
         return inntektsmeldingTjeneste.hentInntektsmeldingerForSak(new Saksnummer(saksnummer));
     }
 

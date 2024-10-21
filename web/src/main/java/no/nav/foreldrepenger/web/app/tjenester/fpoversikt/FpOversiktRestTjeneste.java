@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
 import java.util.List;
-import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -13,6 +12,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+
+import no.nav.foreldrepenger.common.innsyn.inntektsmelding.FpSakInntektsmeldingDto;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +80,7 @@ public class FpOversiktRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Henter inntektsmeldinger på sak", tags = "fpoversikt")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public List<FpOversiktInntektsmeldingDto> hentInntektsmeldinger(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @Parameter(description = "Saksnummer for fagsak") @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
+    public List<FpSakInntektsmeldingDto> hentInntektsmeldinger(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @Parameter(description = "Saksnummer for fagsak") @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var saksnummer = saksnummerDto.getVerdi();
         return dtoTjeneste.hentInntektsmeldingerForSak(saksnummer);
     }
