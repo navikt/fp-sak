@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
@@ -28,8 +27,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 @CdiDbAwareTest
 class MedlemTjenesteTest {
 
-    @Inject
-    private BehandlingRepositoryProvider provider;
     @Inject
     private MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository;
     @Inject
