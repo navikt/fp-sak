@@ -149,7 +149,7 @@ public class FpInntektsmeldingTjeneste {
         };
     }
 
-    public void lagLukkForespørselTask(Behandling behandling, OrgNummer orgNummer) {
+    public void lagLukkForespørselTask(Behandling behandling, OrgNummer orgNummer, ForespørselStatus status) {
         // Toggler av for prod og lokalt, ikke støtte lokalt
         if (!Environment.current().isDev()) {
             return;
@@ -158,7 +158,10 @@ public class FpInntektsmeldingTjeneste {
         var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(LukkForespørslerImTask.class));
         taskdata.setBehandling(behandling.getFagsakId(), behandlingId);
         taskdata.setCallIdFraEksisterende();
-        taskdata.setProperty(LukkForespørslerImTask.ORG_NUMMER, orgNummer.getId());
+        if (orgNummer != null) {
+            taskdata.setProperty(LukkForespørslerImTask.ORG_NUMMER, orgNummer.getId());
+        }
+        taskdata.setProperty(LukkForespørslerImTask.STATUS, status.name());
         taskdata.setProperty(LukkForespørslerImTask.SAK_NUMMER, behandling.getFagsak().getSaksnummer().getVerdi());
         prosessTaskTjeneste.lagre(taskdata);
     }
@@ -175,5 +178,15 @@ public class FpInntektsmeldingTjeneste {
         }
         var request = new LukkForespørselRequest(new OpprettForespørselRequest.OrganisasjonsnummerDto(orgnummer), new OpprettForespørselRequest.SaksnummerDto(saksnummer));
         klient.lukkForespørsel(request);
+    }
+
+    public void settForespørselTilUtgått(String saksnummer) {
+        // Toggler av for prod og lokalt, ikke støtte lokalt
+        if (!Environment.current().isDev()) {
+            return;
+        }
+
+        var request = new LukkForespørselRequest(null, new OpprettForespørselRequest.SaksnummerDto(saksnummer));
+        klient.settForespørselTilUtgått(request);
     }
 }

@@ -161,13 +161,13 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
         if (medlemskapVilkårPeriodeGrunnlagEntitet.isEmpty()) {
             return Optional.empty();
         }
+        var periode = medlemskapVilkårPeriodeGrunnlagEntitet.get().getMedlemskapsvilkårPeriode();
+        var overstyringOpt = periode.getOverstyring();
+        if (overstyringOpt.getOverstyringsdato().isPresent() && overstyringOpt.getVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT)) {
+            return overstyringOpt.getOverstyringsdato();
+        }
         var løpende = finnVilkår(behandlingsresultat, VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE);
         if (løpende.isPresent()) {
-            var periode = medlemskapVilkårPeriodeGrunnlagEntitet.get().getMedlemskapsvilkårPeriode();
-            var overstyringOpt = periode.getOverstyring();
-            if (overstyringOpt.getOverstyringsdato().isPresent() && overstyringOpt.getVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT)) {
-                return overstyringOpt.getOverstyringsdato();
-            }
             if (løpende.get().erIkkeOppfylt()) {
                 return periode.getPerioder().stream()
                     .filter(p -> VilkårUtfallType.IKKE_OPPFYLT.equals(p.getVilkårUtfall()))
