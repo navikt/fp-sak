@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapBehandlingsgrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOpphør;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskap;
@@ -88,29 +89,16 @@ public class MedlemTjeneste {
             .getVilkårene()
             .stream()
             .filter(vilkår -> vilkår.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET))
-            .filter(vilkår -> VilkårUtfallType.erFastsatt(vilkår.getGjeldendeVilkårUtfall()))
             .findFirst();
         if (medlemskapsvilkåret.isEmpty()) {
             return Optional.empty();
         }
-        var medlem = medlemskapsvilkåret.get();
-        if (medlem.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.OPPFYLT)) {
-            var fraVurdering = vilkårMedlemskapRepository.hentHvisEksisterer(behandlingId)
-                .flatMap(VilkårMedlemskap::getOpphør);
-            if (fraVurdering.isPresent()) {
-                return Optional.of(fraVurdering.get().fom());
-            }
-            //TODO medlem slett
-            var løpendeOppfylt = finnVilkår(behandlingsresultat, VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE)
-                .filter(v -> v.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.OPPFYLT));
-            if (løpendeOppfylt.isEmpty()) {
-                var behandling = behandlingRepository.hentBehandling(behandlingId);
-                return medlemskapVilkårPeriodeRepository.hentOpphørsdatoHvisEksisterer(behandling);
-            } else {
-                return Optional.empty();
-            }
+        if (medlemskapsvilkåret.get().erIkkeOppfylt()) {
+            skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId).getSkjæringstidspunktHvisUtledet();
         }
-        return skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId).getSkjæringstidspunktHvisUtledet();
+        return vilkårMedlemskapRepository.hentHvisEksisterer(behandlingId)
+            .flatMap(VilkårMedlemskap::getOpphør)
+            .map(MedlemskapOpphør::fom);
     }
 
     private Optional<Vilkår> finnVilkår(Behandlingsresultat behandlingsresultat, VilkårType vilkårType) {
@@ -125,7 +113,6 @@ public class MedlemTjeneste {
             .getVilkårene()
             .stream()
             .filter(vilkår -> vilkår.getVilkårType().gjelderMedlemskap())
-            .filter(vilkår -> VilkårUtfallType.erFastsatt(vilkår.getGjeldendeVilkårUtfall()))
             .findFirst();
         if (medlemskapsvilkåret.isEmpty()) {
             return Optional.empty();
@@ -133,17 +120,9 @@ public class MedlemTjeneste {
         if (medlemskapsvilkåret.get().getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT)) {
             return Optional.of(medlemskapsvilkåret.get().getAvslagsårsak());
         }
-        var opphørsVurdering = vilkårMedlemskapRepository.hentHvisEksisterer(behandlingId)
-            .flatMap(VilkårMedlemskap::getOpphør);
-        if (opphørsVurdering.isPresent()) {
-            return Optional.of(opphørsVurdering.get().årsak());
-        }
-
-        //TODO medlem slett
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var medlemskapVilkårPeriodeGrunnlagEntitet = medlemskapVilkårPeriodeRepository.hentAggregatHvisEksisterer(behandling);
-        return medlemskapVilkårPeriodeGrunnlagEntitet.map(
-            vilkårPeriodeGrunnlagEntitet -> vilkårPeriodeGrunnlagEntitet.getMedlemskapsvilkårPeriode().getOverstyring().getAvslagsårsak());
+        return vilkårMedlemskapRepository.hentHvisEksisterer(behandlingId)
+            .flatMap(VilkårMedlemskap::getOpphør)
+            .map(MedlemskapOpphør::årsak);
     }
 
     public Optional<LocalDate> hentMedlemFomDato(Long behandlingId) {
@@ -161,17 +140,8 @@ public class MedlemTjeneste {
         if (ikkeOppfyltVilkår.isEmpty()) {
             return Optional.empty();
         }
-        var fraVurdering = vilkårMedlemskapRepository.hentHvisEksisterer(behandlingId)
+        return vilkårMedlemskapRepository.hentHvisEksisterer(behandlingId)
             .flatMap(VilkårMedlemskap::getMedlemFom);
-        if (fraVurdering.isPresent()) {
-            return fraVurdering;
-        }
-
-        //TODO medlem slett
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var medlemskapVilkårPeriodeGrunnlagEntitet = medlemskapVilkårPeriodeRepository.hentAggregatHvisEksisterer(behandling);
-        return medlemskapVilkårPeriodeGrunnlagEntitet.flatMap(
-            vilkårPeriodeGrunnlagEntitet -> vilkårPeriodeGrunnlagEntitet.getMedlemskapsvilkårPeriode().getOverstyring().getOverstyringsdato());
     }
 
     public record VilkårUtfallMedÅrsak(VilkårUtfallType vilkårUtfallType, Avslagsårsak avslagsårsak) {
