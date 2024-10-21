@@ -94,7 +94,7 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
                 if (medlemFom.isPresent()) {
                     LOG.info("Medlemfom for {} {}", behandlingId, medlemFom.orElse(null));
                     var vilkårMedlemskap = VilkårMedlemskap.forMedlemFom(vilkårResultat, medlemFom.get());
-                    //vilkårMedlemskapRepository.lagre(vilkårMedlemskap);
+                    vilkårMedlemskapRepository.lagre(vilkårMedlemskap);
                 }
             }
             case FORELDREPENGER, SVANGERSKAPSPENGER -> {
@@ -104,7 +104,7 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
                     LOG.info("Opphør for {} {} {} {}", behandling.getFagsakYtelseType(), behandlingId, opphørsdato.get(), opphørsårsak.map(Enum::name).orElse("mangler årsak"));
                     if (opphørsårsak.isPresent() && !Avslagsårsak.UDEFINERT.equals(opphørsårsak.get())) {
                         var vilkårMedlemskap = VilkårMedlemskap.forOpphør(vilkårResultat, opphørsdato.get(), opphørsårsak.get());
-                        //vilkårMedlemskapRepository.lagre(vilkårMedlemskap);
+                        vilkårMedlemskapRepository.lagre(vilkårMedlemskap);
                     }
                 }
             }
