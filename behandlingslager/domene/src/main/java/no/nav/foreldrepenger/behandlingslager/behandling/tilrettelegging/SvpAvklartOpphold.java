@@ -6,6 +6,8 @@ import java.util.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -29,6 +31,10 @@ public class SvpAvklartOpphold extends BaseCreateableEntitet {
     @Column(name = "svp_opphold_arsak", nullable = false)
     private SvpOppholdÅrsak svpOppholdÅrsak;
 
+    @Column(name = "svp_opphold_kilde")
+    @Enumerated(EnumType.STRING)
+    private SvpOppholdKilde svpOppholdKilde;
+
     public SvpAvklartOpphold() {
         //for hibernate
     }
@@ -49,6 +55,14 @@ public class SvpAvklartOpphold extends BaseCreateableEntitet {
         return svpOppholdÅrsak;
     }
 
+    public SvpOppholdKilde getKilde() {
+        return svpOppholdKilde;
+    }
+
+    public void setKilde(SvpOppholdKilde svpOppholdKilde) {
+        this.svpOppholdKilde = svpOppholdKilde;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -56,12 +70,13 @@ public class SvpAvklartOpphold extends BaseCreateableEntitet {
         var that = (SvpAvklartOpphold) o;
         return Objects.equals(oppholdPeriode.getFomDato(), that.oppholdPeriode.getFomDato()) &&
             Objects.equals(oppholdPeriode.getTomDato(), that.oppholdPeriode.getTomDato()) &&
-            Objects.equals(svpOppholdÅrsak, that.svpOppholdÅrsak);
+            Objects.equals(svpOppholdÅrsak, that.svpOppholdÅrsak) &&
+            Objects.equals(svpOppholdKilde, that.svpOppholdKilde);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(oppholdPeriode.getFomDato(), oppholdPeriode.getTomDato(), svpOppholdÅrsak);
+        return Objects.hash(oppholdPeriode.getFomDato(), oppholdPeriode.getTomDato(), svpOppholdÅrsak, svpOppholdKilde);
     }
 
     @Override
@@ -71,6 +86,7 @@ public class SvpAvklartOpphold extends BaseCreateableEntitet {
             + "fom=" + oppholdPeriode.getFomDato() + ", "
             + "tom=" + oppholdPeriode.getTomDato() + ", "
             + "svpOppholdÅrsak=" + svpOppholdÅrsak + ", "
+            + "svpOppholdKilde=" + svpOppholdKilde
             + ">";
     }
 
@@ -92,7 +108,8 @@ public class SvpAvklartOpphold extends BaseCreateableEntitet {
     public static Builder fraEksisterende(SvpAvklartOpphold eksisterende) {
         return new Builder()
             .medOppholdPeriode(eksisterende.oppholdPeriode.getFomDato(), eksisterende.oppholdPeriode.getTomDato())
-            .medOppholdÅrsak(eksisterende.svpOppholdÅrsak);
+            .medOppholdÅrsak(eksisterende.svpOppholdÅrsak)
+            .medKilde(eksisterende.svpOppholdKilde);
     }
 
     public SvpAvklartOpphold.Builder medOppholdPeriode(LocalDate fom, LocalDate tom) {
@@ -105,9 +122,16 @@ public class SvpAvklartOpphold extends BaseCreateableEntitet {
             return this;
         }
 
+        public SvpAvklartOpphold.Builder medKilde(SvpOppholdKilde kilde) {
+            kladd.svpOppholdKilde = Objects.requireNonNull(kilde);
+            return this;
+        }
+
         public SvpAvklartOpphold build() {
             Objects.requireNonNull(this.kladd.svpOppholdÅrsak, "Utviklerfeil:oppholdsårsak  skal være satt");
+            Objects.requireNonNull(this.kladd.svpOppholdKilde, "Utviklerfeil:oppholdKilde skal være satt");
             return kladd;
         }
     }
+
 }

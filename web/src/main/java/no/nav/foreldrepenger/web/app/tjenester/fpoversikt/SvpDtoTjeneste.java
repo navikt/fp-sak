@@ -192,7 +192,7 @@ public class SvpDtoTjeneste {
     }
 
     private Set<SvpSak.OppholdPeriode> finnAlleOppholdsperioderFraTlr(SvpTilretteleggingEntitet tilrettelegging, Behandling behandling) {
-        var oppholdspFraSaksbehandler = oppholdsperioderRegAvSaksbehandler(tilrettelegging);
+        var oppholdspFraSaksbehandler = oppholdsperioderFraSøknadOgSaksbehandler(tilrettelegging);
         Set<SvpSak.OppholdPeriode> alleOppholdForArbforhold = new HashSet<>(oppholdspFraSaksbehandler);
         //opphold fra inntektsmelding
         tilrettelegging.getArbeidsgiver().ifPresent( arbeidsgiver -> {
@@ -203,13 +203,21 @@ public class SvpDtoTjeneste {
         return alleOppholdForArbforhold;
     }
 
-    private static Set<SvpSak.OppholdPeriode> oppholdsperioderRegAvSaksbehandler(SvpTilretteleggingEntitet matchendeTilrettelegging) {
+    private static Set<SvpSak.OppholdPeriode> oppholdsperioderFraSøknadOgSaksbehandler(SvpTilretteleggingEntitet matchendeTilrettelegging) {
         return matchendeTilrettelegging.getAvklarteOpphold()
             .stream()
-            .map(o -> new SvpSak.OppholdPeriode(o.getFom(), o.getTom(), switch (o.getOppholdÅrsak()) {
-                case SYKEPENGER -> SvpSak.OppholdPeriode.Årsak.SYKEPENGER;
-                case FERIE -> SvpSak.OppholdPeriode.Årsak.FERIE;
-            }, SvpSak.OppholdPeriode.OppholdKilde.SAKSBEHANDLER))
+            .map(o -> {
+                var oppholdÅrsak = switch (o.getOppholdÅrsak()) {
+                    case SYKEPENGER -> SvpSak.OppholdPeriode.Årsak.SYKEPENGER;
+                    case FERIE -> SvpSak.OppholdPeriode.Årsak.FERIE;
+                };
+                SvpSak.OppholdPeriode.OppholdKilde oppholdKilde = switch(o.getKilde()) {
+                    case SØKNAD -> SvpSak.OppholdPeriode.OppholdKilde.SØKNAD;
+                    case REGISTRERT_AV_SAKSBEHANDLER-> SvpSak.OppholdPeriode.OppholdKilde.SAKSBEHANDLER;
+                    case null -> SvpSak.OppholdPeriode.OppholdKilde.SAKSBEHANDLER;
+                };
+                return new SvpSak.OppholdPeriode(o.getFom(), o.getTom(), oppholdÅrsak, oppholdKilde);
+            })
             .collect(Collectors.toSet());
     }
 
@@ -281,7 +289,7 @@ public class SvpDtoTjeneste {
             SvpSak.TilretteleggingType tilretteleggingType = mapTilretteleggingType(tFom.getType());
             return new SvpSak.Søknad.Tilrettelegging.Periode(tFom.getFomDato(), tilretteleggingType, tFom.getStillingsprosent());
         }).collect(Collectors.toSet());
-        Set<SvpSak.OppholdPeriode> oppholdsperioder = oppholdsperioderRegAvSaksbehandler(tl);
+        Set<SvpSak.OppholdPeriode> oppholdsperioder = oppholdsperioderFraSøknadOgSaksbehandler(tl);
         return new SvpSak.Søknad.Tilrettelegging(aktivitet, tl.getBehovForTilretteleggingFom(), tl.getOpplysningerOmRisikofaktorer().orElse(null),
             tl.getOpplysningerOmTilretteleggingstiltak().orElse(null), perioder, oppholdsperioder);
     }

@@ -214,8 +214,8 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
                 .medOpplysningerOmTilretteleggingstiltak(tilrettelegging.getOpplysningerOmTilretteleggingstiltak().orElse(null))
                 .medSkalBrukes(tilrettelegging.getSkalBrukes())
                 .medMottattTidspunkt(tilrettelegging.getMottattTidspunkt())
-                .medTilretteleggingFraDatoer(tilrettelegging.getTilretteleggingFOMListe())
-                .medAvklarteOpphold(tilrettelegging.getAvklarteOpphold());
+                .medAvklarteOpphold(tilrettelegging.getAvklarteOpphold())
+                .medTilretteleggingFraDatoer(tilrettelegging.getTilretteleggingFOMListe());
         }
         public Builder(SvpTilretteleggingEntitet tilretteleggingEntitet) {
             mal = new SvpTilretteleggingEntitet(tilretteleggingEntitet, null);

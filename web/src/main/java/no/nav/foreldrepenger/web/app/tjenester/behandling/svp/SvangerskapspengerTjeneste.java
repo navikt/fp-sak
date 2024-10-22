@@ -352,8 +352,15 @@ public class SvangerskapspengerTjeneste {
     private List<SvpAvklartOppholdPeriodeDto> mapAvklartOppholdPeriode(SvpTilretteleggingEntitet svpTilrettelegging) {
         var liste = svpTilrettelegging.getAvklarteOpphold()
             .stream()
-            .map(avklartOpphold -> new SvpAvklartOppholdPeriodeDto(avklartOpphold.getFom(), avklartOpphold.getTom(), avklartOpphold.getOppholdÅrsak(),
-                false))
+            .map(avklartOpphold -> {
+                var kilde = switch (avklartOpphold.getKilde()) {
+                    case SØKNAD -> SvpAvklartOppholdPeriodeDto.SvpOppholdKilde.SØKNAD;
+                    case REGISTRERT_AV_SAKSBEHANDLER -> SvpAvklartOppholdPeriodeDto.SvpOppholdKilde.REGISTRERT_AV_SAKSBEHANDLER;
+                    case null -> SvpAvklartOppholdPeriodeDto.SvpOppholdKilde.REGISTRERT_AV_SAKSBEHANDLER;
+                };
+                return new SvpAvklartOppholdPeriodeDto(avklartOpphold.getFom(), avklartOpphold.getTom(), avklartOpphold.getOppholdÅrsak(),
+                    kilde, false);
+            })
             .toList();
         return new ArrayList<>(liste);
     }
@@ -365,7 +372,7 @@ public class SvangerskapspengerTjeneste {
             .filter(utsettelse -> UtsettelseÅrsak.FERIE.equals(utsettelse.getÅrsak()))
             .forEach(utsettelse -> ferieListe.add(
                 new SvpAvklartOppholdPeriodeDto(utsettelse.getPeriode().getFomDato(), utsettelse.getPeriode().getTomDato(), SvpOppholdÅrsak.FERIE,
-                    true)));
+                    SvpAvklartOppholdPeriodeDto.SvpOppholdKilde.INNTEKTSMELDING, true)));
         return ferieListe;
     }
 }
