@@ -465,7 +465,8 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
 
             for (var eksTilrettelegging : fletteGamleMap.entrySet()) {
                 var nyTilrettelegging = fletteNyeMap.get(eksTilrettelegging.getKey());
-                eksTilrettelegging.getValue().forEach( eksTlr -> nyeOgEksisterendeTilrettelegginger.add(oppdaterEksisterendeTlrMedNyeFOMs(nyTilrettelegging, eksTlr)));
+                eksTilrettelegging.getValue().forEach(eksTlr -> nyeOgEksisterendeTilrettelegginger.add(
+                    oppdaterEksisterendeTlrMedNyeFomsOgOpphold(nyTilrettelegging, eksTlr)));
             }
         } else {
             //ingen eksisterende
@@ -480,8 +481,8 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         return tilrettelegging.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElseGet(() -> tilrettelegging.getArbeidType().getKode());
     }
 
-    private SvpTilretteleggingEntitet oppdaterEksisterendeTlrMedNyeFOMs(SvpTilretteleggingEntitet nyTlR,
-                                                                        SvpTilretteleggingEntitet eksisterendeTlr) {
+    private SvpTilretteleggingEntitet oppdaterEksisterendeTlrMedNyeFomsOgOpphold(SvpTilretteleggingEntitet nyTlR,
+                                                                                 SvpTilretteleggingEntitet eksisterendeTlr) {
         var nyFomListe = new ArrayList<>(nyTlR.getTilretteleggingFOMListe());
         var tidligsteNyFom = nyFomListe.stream().map(TilretteleggingFOM::getFomDato).min(LocalDate::compareTo).orElse(LocalDate.EPOCH);
         var eksisterendeFOMSomSkalKopieres =  eksisterendeTlr.getTilretteleggingFOMListe().stream().filter(f -> f.getFomDato().isBefore(tidligsteNyFom)).toList();
