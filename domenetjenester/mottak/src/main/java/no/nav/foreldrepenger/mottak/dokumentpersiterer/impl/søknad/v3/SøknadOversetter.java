@@ -497,9 +497,6 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
 
         nyFomListe.sort(Comparator.comparing(TilretteleggingFOM::getFomDato));
 
-        var justertTilrettelegging = SvpTilretteleggingEntitet.Builder.fraEksisterende(eksisterendeTlr)
-            .medBehovForTilretteleggingFom(nyFomListe.stream().map(TilretteleggingFOM::getFomDato).min(LocalDate::compareTo).orElse(null))
-            .medTilretteleggingFraDatoer(nyFomListe);
         var justerteOppholdsperioder = eksisterendeTlr.getAvklarteOpphold().stream()
             .filter(opphold -> opphold.getFom().isBefore(tidligsteNyFom))
             .map(opphold -> {
@@ -511,10 +508,12 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
                         .build();
                 }
                 return opphold;
-            });
-        justerteOppholdsperioder.forEach(justertTilrettelegging::medAvklartOpphold);
+            }).collect(Collectors.toList());
+        var justertTilrettelegging = SvpTilretteleggingEntitet.Builder.fraEksisterende(eksisterendeTlr)
+            .medBehovForTilretteleggingFom(nyFomListe.stream().map(TilretteleggingFOM::getFomDato).min(LocalDate::compareTo).orElse(null))
+            .medTilretteleggingFraDatoer(nyFomListe)
+            .medAvklarteOpphold(justerteOppholdsperioder);
         nyTlR.getAvklarteOpphold().forEach(justertTilrettelegging::medAvklartOpphold);
-
         return justertTilrettelegging.build();
     }
 
