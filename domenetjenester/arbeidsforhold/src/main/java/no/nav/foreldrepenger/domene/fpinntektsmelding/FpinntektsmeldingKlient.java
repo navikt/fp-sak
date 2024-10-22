@@ -36,7 +36,7 @@ public class FpinntektsmeldingKlient {
         this.uriOpprettForesporsel = toUri(restConfig.fpContextPath(), "/api/foresporsel/opprett");
         this.uriLukkForesporsel = toUri(restConfig.fpContextPath(), "/api/foresporsel/lukk");
         this.uriOverstyrInntektsmelding = toUri(restConfig.fpContextPath(), "/api/overstyring/inntektsmelding");
-        this.uriSettForesporselTilUtgaatt = toUri(restConfig.fpContextPath(), "/api/sett-til-utgatt");
+        this.uriSettForesporselTilUtgaatt = toUri(restConfig.fpContextPath(), "/api/foresporsel/sett-til-utgatt");
     }
 
     public OpprettForespørselResponse opprettForespørsel(OpprettForespørselRequest request) {
