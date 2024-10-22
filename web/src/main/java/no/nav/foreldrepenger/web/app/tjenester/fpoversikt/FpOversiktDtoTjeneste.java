@@ -6,8 +6,6 @@ import java.util.Set;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.common.innsyn.inntektsmelding.FpSakInntektsmeldingDto;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

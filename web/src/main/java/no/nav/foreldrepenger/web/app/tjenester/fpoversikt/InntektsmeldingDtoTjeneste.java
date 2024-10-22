@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.common.innsyn.inntektsmelding.FpSakInntektsmeldingDto;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
@@ -29,6 +28,7 @@ import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.NaturalYtelseType;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.vedtak.konfig.Tid;
@@ -122,25 +122,25 @@ class InntektsmeldingDtoTjeneste {
         );
     }
 
-    public static List<no.nav.foreldrepenger.common.innsyn.inntektsmelding.Refusjon> lagRefusjonsperioder(Inntektsmelding inntektsmelding) {
-        var refusjon = inntektsmelding.getEndringerRefusjon().stream().map(r -> new no.nav.foreldrepenger.common.innsyn.inntektsmelding.Refusjon(r.getRefusjonsbeløp().getVerdi(), r.getFom())).toList();
+    public static List<FpSakInntektsmeldingDto.Refusjon> lagRefusjonsperioder(Inntektsmelding inntektsmelding) {
+        var refusjon = inntektsmelding.getEndringerRefusjon().stream().map(r -> new FpSakInntektsmeldingDto.Refusjon(r.getRefusjonsbeløp().getVerdi(), r.getFom())).toList();
         var mutableRefusjon = new ArrayList<>(refusjon);
 
         // Representer opphøring av refusjon som en periode med 0 som refusjon
         if (inntektsmelding.getRefusjonOpphører() != null && !Tid.TIDENES_ENDE.equals(inntektsmelding.getRefusjonOpphører() )) {
-            mutableRefusjon.add(new no.nav.foreldrepenger.common.innsyn.inntektsmelding.Refusjon(new BigDecimal(0), inntektsmelding.getRefusjonOpphører().plusDays(1)));
+            mutableRefusjon.add(new FpSakInntektsmeldingDto.Refusjon(new BigDecimal(0), inntektsmelding.getRefusjonOpphører().plusDays(1)));
         }
 
-        mutableRefusjon.sort(Comparator.comparing(no.nav.foreldrepenger.common.innsyn.inntektsmelding.Refusjon::fomDato));
+        mutableRefusjon.sort(Comparator.comparing(FpSakInntektsmeldingDto.Refusjon::fomDato));
 
         return mutableRefusjon;
     }
 
-    public static List<no.nav.foreldrepenger.common.innsyn.inntektsmelding.BortfaltNaturalytelse> konverterAktivePerioderTilBortfaltePerioder(List<NaturalYtelse> aktiveNaturalytelser) {
+    public static List<FpSakInntektsmeldingDto.NaturalYtelse> konverterAktivePerioderTilBortfaltePerioder(List<NaturalYtelse> aktiveNaturalytelser) {
         var gruppertPåType = aktiveNaturalytelser.stream()
             .collect(Collectors.groupingBy(NaturalYtelse::getType));
 
-        List<no.nav.foreldrepenger.common.innsyn.inntektsmelding.BortfaltNaturalytelse> bortfalteNaturalytelser = new ArrayList<>();
+        List<FpSakInntektsmeldingDto.NaturalYtelse> bortfalteNaturalytelser = new ArrayList<>();
 
         gruppertPåType.forEach((key, value) -> {
             var sortert = value.stream()
@@ -158,11 +158,11 @@ class InntektsmeldingDtoTjeneste {
                     continue;
                 }
 
-                var newYtelse = new no.nav.foreldrepenger.common.innsyn.inntektsmelding.BortfaltNaturalytelse(
+                var newYtelse = new FpSakInntektsmeldingDto.NaturalYtelse(
                         nyFom.plusDays(1),
                         (nyTom != null) ? nyTom.minusDays(1) : TIDENES_ENDE,
                     current.getBeloepPerMnd().getVerdi(),
-                    no.nav.foreldrepenger.common.innsyn.inntektsmelding.NaturalytelseType.valueOf(current.toString())
+                    NaturalYtelseType.valueOf(current.toString())
                 );
 
                 bortfalteNaturalytelser.add(newYtelse);
