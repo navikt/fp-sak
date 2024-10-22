@@ -44,6 +44,7 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AksjonspunktKodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriodeDto;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskDataBuilder;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
@@ -267,13 +268,20 @@ public class ForvaltningUttrekkRestTjeneste {
     }
 
     @POST
-    @Path("/migrerDataForUnused")
+    @Path("/fikseAnkeBehandlinger")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Kopiering før unmapping", tags = "FORVALTNING-uttrekk")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response migrereDataFørUnused() {
-        entityManager.createNativeQuery("UPDATE SO_ANNEN_PART set UTL_PERSON_IDENT = BEGRUNNELSE where BEGRUNNELSE is NOT NULL").executeUpdate();
+    public Response migrereDataFørUnused(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
+        var behandling = behandlingRepository.hentBehandlingReadOnly(dto.getBehandlingUuid());
+        var behandlingId = behandling.getId();
+        entityManager.createNativeQuery("UPDATE behandling set behandling_status = 'UTRED' where id = :id").setParameter("id", behandlingId).executeUpdate();
+        entityManager.createNativeQuery("DELETE from behandling_steg_tilstand where behandling_id = :id and behandling_steg = 'IVEDSTEG'").setParameter("id", behandlingId).executeUpdate();
+        entityManager.createNativeQuery("UPDATE behandling_steg_tilstand set behandling_steg_status = 'INNGANG' where behandling_id = :id and behandling_steg = 'ANKE_MERKNADER'").setParameter("id", behandlingId).executeUpdate();
+        entityManager.createNativeQuery("UPDATE anke_vurdering_resultat set ankevurdering = tr_vurdering, anke_vurdering_omgjoer = tr_vurdering_omgjoer where anke_resultat_id in (select id from anke_resultat where anke_behandling_id = :id)").setParameter("id", behandlingId).executeUpdate();
+        entityManager.createNativeQuery("UPDATE anke_vurdering_resultat set tr_vurdering = '-', tr_vurdering_omgjoer = '-' where anke_resultat_id in (select id from anke_resultat where anke_behandling_id = :id)").setParameter("id", behandlingId).executeUpdate();
+        entityManager.createNativeQuery("DELETE from FPSAK_HIST.BEHANDLING_DVH where behandling_id = :id and behandling_status = 'AVSLU'").setParameter("id", behandlingId).executeUpdate();
         return Response.ok().build();
     }
 }
