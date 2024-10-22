@@ -19,6 +19,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 public class LukkForespørslerImTask extends GenerellProsessTask {
     public static final String SAK_NUMMER = "saksnummer";
     public static final String ORG_NUMMER = "organisasjonnummer";
+    public static final String STATUS = "status";
 
     private static final Logger LOG = LoggerFactory.getLogger(LukkForespørslerImTask.class);
 
@@ -38,9 +39,18 @@ public class LukkForespørslerImTask extends GenerellProsessTask {
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         var saksnummer = prosessTaskData.getPropertyValue(SAK_NUMMER);
         var orgnummer = prosessTaskData.getPropertyValue(ORG_NUMMER);
-        var maskerOrgnummer = tilMaskertNummer(orgnummer);
-        LOG.info("Starter task for å lukke eventuelle forespørsler i fpinntektsmelding for saksnummer {} og orgnummer {}",  saksnummer, maskerOrgnummer);
-        fpInntektsmeldingTjeneste.lukkForespørsel(saksnummer, orgnummer);
+        var status = prosessTaskData.getPropertyValue(STATUS);
+        var maskertOrgnummer = tilMaskertNummer(orgnummer);
+
+        if (ForespørselStatus.UTFØRT.name().equals(status)) {
+            LOG.info("Starter task for å sette eventuelle forespørsler i fpinntektsmelding for saksnummer {} og orgnummer {} til utført",  saksnummer, maskertOrgnummer);
+            fpInntektsmeldingTjeneste.lukkForespørsel(saksnummer, orgnummer);
+        } else if (ForespørselStatus.UTGÅTT.name().equals(status)) {
+            LOG.info("Starter task for å sette eventuelle forespørsler i fpinntektsmelding for saksnummer {} til utgått",  saksnummer);
+            fpInntektsmeldingTjeneste.settForespørselTilUtgått(saksnummer);
+        } else {
+            throw new IllegalStateException("Ugyldig status: " + status);
+        }
     }
 
 }

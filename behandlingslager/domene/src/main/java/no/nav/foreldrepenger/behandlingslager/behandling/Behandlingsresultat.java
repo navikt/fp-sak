@@ -78,17 +78,6 @@ public class Behandlingsresultat extends BaseEntitet {
     @Column(name = "vedtaksbrev", nullable = false)
     private Vedtaksbrev vedtaksbrev = Vedtaksbrev.UDEFINERT;
 
-    //TODO TFP-5702 fjern
-    @Convert(converter = BooleanToStringConverter.class)
-    @Column(name = "endret_dekningsgrad", nullable = false)
-    private boolean endretDekningsgrad;
-
-
-    // TODO post konto og dekningsgrad: Unmap herfra og setUnused
-    @Convert(converter = BooleanToStringConverter.class)
-    @Column(name = "endret_stoenadskonto", nullable = false)
-    private boolean endretStønadskonto;
-
     protected Behandlingsresultat() {
         // for hibernate
     }

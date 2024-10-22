@@ -12,10 +12,15 @@ import org.hibernate.jpa.HibernateHints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapsvilkårPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskap;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
@@ -43,6 +48,8 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
     private final SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private final VilkårMedlemskapRepository vilkårMedlemskapRepository;
     private final VilkårResultatRepository vilkårResultatRepository;
+    private final BehandlingsresultatRepository behandlingsresultatRepository;
+    private final MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository;
 
     @Inject
     public MedlemskapMigreringTask(EntityManager entityManager,
@@ -51,7 +58,8 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
                                    MedlemTjeneste medlemTjeneste,
                                    SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                    VilkårMedlemskapRepository vilkårMedlemskapRepository,
-                                   VilkårResultatRepository vilkårResultatRepository) {
+                                   VilkårResultatRepository vilkårResultatRepository, BehandlingsresultatRepository behandlingsresultatRepository,
+                                   MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository) {
         this.entityManager = entityManager;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.behandlingRepository = behandlingRepository;
@@ -59,6 +67,8 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.vilkårMedlemskapRepository = vilkårMedlemskapRepository;
         this.vilkårResultatRepository = vilkårResultatRepository;
+        this.behandlingsresultatRepository = behandlingsresultatRepository;
+        this.medlemskapVilkårPeriodeRepository = medlemskapVilkårPeriodeRepository;
     }
 
     @Override
@@ -84,17 +94,17 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
                 if (medlemFom.isPresent()) {
                     LOG.info("Medlemfom for {} {}", behandlingId, medlemFom.orElse(null));
                     var vilkårMedlemskap = VilkårMedlemskap.forMedlemFom(vilkårResultat, medlemFom.get());
-                    //vilkårMedlemskapRepository.lagre(vilkårMedlemskap);
+                    vilkårMedlemskapRepository.lagre(vilkårMedlemskap);
                 }
             }
             case FORELDREPENGER, SVANGERSKAPSPENGER -> {
                 var opphørsdato = finnOpphørsdato(behandlingId);
                 if (opphørsdato.isPresent()) {
-                    var opphørsårsak = medlemTjeneste.hentAvslagsårsak(behandlingId);
+                    var opphørsårsak = hentOpphørsårsak(behandlingId);
                     LOG.info("Opphør for {} {} {} {}", behandling.getFagsakYtelseType(), behandlingId, opphørsdato.get(), opphørsårsak.map(Enum::name).orElse("mangler årsak"));
                     if (opphørsårsak.isPresent() && !Avslagsårsak.UDEFINERT.equals(opphørsårsak.get())) {
                         var vilkårMedlemskap = VilkårMedlemskap.forOpphør(vilkårResultat, opphørsdato.get(), opphørsårsak.get());
-                        //vilkårMedlemskapRepository.lagre(vilkårMedlemskap);
+                        vilkårMedlemskapRepository.lagre(vilkårMedlemskap);
                     }
                 }
             }
@@ -112,7 +122,7 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
         if (behandlingId.equals(3121111L)) {
             return Optional.of(LocalDate.of(2024, 5, 20));
         }
-        var opphørsdato = medlemTjeneste.hentOpphørsdatoHvisEksisterer(behandlingId);
+        var opphørsdato = hentOpphørsdatoHvisEksisterer(behandlingId);
         if (opphørsdato.isPresent()) {
             var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
             if (opphørsdato.get().isAfter(skjæringstidspunkter.getUtledetSkjæringstidspunkt())) {
@@ -125,6 +135,99 @@ class MedlemskapMigreringTask implements ProsessTaskHandler {
             }
         }
         return Optional.empty();
+    }
+
+    private Optional<LocalDate> hentOpphørsdatoHvisEksisterer(Long behandlingId) {
+        var behandlingsresultatOpt = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
+        if (behandlingsresultatOpt.isEmpty() || behandlingsresultatOpt.get().getVilkårResultat() == null) {
+            return Optional.empty();
+        }
+        var behandlingsresultat = behandlingsresultatOpt.get();
+        var medlemskapsvilkåret = behandlingsresultat.getVilkårResultat()
+            .getVilkårene()
+            .stream()
+            .filter(vilkår -> vilkår.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET))
+            .findFirst();
+        if (medlemskapsvilkåret.isEmpty() || medlemskapsvilkåret.get().erIkkeOppfylt()) {
+            return Optional.empty();
+        }
+        var fraVurdering = vilkårMedlemskapRepository.hentHvisEksisterer(behandlingId)
+            .flatMap(VilkårMedlemskap::getOpphør);
+        if (fraVurdering.isPresent()) {
+            return Optional.of(fraVurdering.get().fom());
+        }
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var medlemskapVilkårPeriodeGrunnlagEntitet = medlemskapVilkårPeriodeRepository.hentAktivtGrunnlag(behandling);
+        if (medlemskapVilkårPeriodeGrunnlagEntitet.isEmpty()) {
+            return Optional.empty();
+        }
+        var periode = medlemskapVilkårPeriodeGrunnlagEntitet.get().getMedlemskapsvilkårPeriode();
+        var overstyringOpt = periode.getOverstyring();
+        if (overstyringOpt.getOverstyringsdato().isPresent() && overstyringOpt.getVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT)) {
+            return overstyringOpt.getOverstyringsdato();
+        }
+        var løpende = finnVilkår(behandlingsresultat, VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE);
+        if (løpende.isPresent()) {
+            if (løpende.get().erIkkeOppfylt()) {
+                return periode.getPerioder().stream()
+                    .filter(p -> VilkårUtfallType.IKKE_OPPFYLT.equals(p.getVilkårUtfall()))
+                    .map(MedlemskapsvilkårPerioderEntitet::getVurderingsdato)
+                    .findFirst();
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Optional<Avslagsårsak> hentOpphørsårsak(Long behandlingId) {
+        var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
+        var medlemskapsvilkåret = finnVilkår(behandlingsresultat, VilkårType.MEDLEMSKAPSVILKÅRET);
+        if (medlemskapsvilkåret.isEmpty()) {
+            LOG.info("Opphørsårsak finner ikke medlemskapsvilkår {}", behandlingId);
+            return Optional.empty();
+        }
+        if (medlemskapsvilkåret.get().getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT)) {
+            LOG.info("Opphørsårsak finner avslagsårsak fra medlemskapsvilkår {}", behandlingId);
+            return Optional.of(medlemskapsvilkåret.get().getAvslagsårsak());
+        }
+        var opphørsVurdering = vilkårMedlemskapRepository.hentHvisEksisterer(behandlingId)
+            .flatMap(VilkårMedlemskap::getOpphør);
+        if (opphørsVurdering.isPresent()) {
+            LOG.info("Opphørsårsak finner avslagsårsak fra ny vurdering {}", behandlingId);
+            return Optional.of(opphørsVurdering.get().årsak());
+        }
+
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var medlemskapVilkårPeriodeGrunnlagEntitet = medlemskapVilkårPeriodeRepository.hentAggregatHvisEksisterer(behandling);
+        var overstyrtAvslagsårsak = medlemskapVilkårPeriodeGrunnlagEntitet.map(
+            vilkårPeriodeGrunnlagEntitet -> vilkårPeriodeGrunnlagEntitet.getMedlemskapsvilkårPeriode().getOverstyring().getAvslagsårsak());
+        if (overstyrtAvslagsårsak.isPresent() && !overstyrtAvslagsårsak.get().equals(Avslagsårsak.UDEFINERT)) {
+            LOG.info("Opphørsårsak finner avslagsårsak fra overstyrt {}", behandlingId);
+            return overstyrtAvslagsårsak;
+        }
+        var løpendeVilkår = finnVilkår(behandlingsresultat, VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE);
+        if (løpendeVilkår.isPresent() && løpendeVilkår.get().erIkkeOppfylt()) {
+            if (løpendeVilkår.get().getAvslagsårsak() != null) {
+                LOG.info("Opphørsårsak finner avslagsårsak fra løpende avslagsårsak {}", behandlingId);
+                return Optional.ofNullable(løpendeVilkår.get().getAvslagsårsak());
+            }
+            var årsakFraMerknad = løpendeVilkår.get().getVilkårUtfallMerknad() != null ? switch (løpendeVilkår.get().getVilkårUtfallMerknad()) {
+                case VM_1020 -> Avslagsårsak.SØKER_ER_IKKE_MEDLEM;
+                case VM_1021, VM_1025 -> Avslagsårsak.SØKER_ER_IKKE_BOSATT;
+                case VM_1023 -> Avslagsårsak.SØKER_HAR_IKKE_LOVLIG_OPPHOLD;
+                case VM_1024 -> Avslagsårsak.SØKER_HAR_IKKE_OPPHOLDSRETT;
+                default -> null;
+            } : null;
+            LOG.info("Opphørsårsak finner avslagsårsak fra merknad {}", behandlingId);
+            return Optional.ofNullable(årsakFraMerknad);
+        }
+        LOG.info("Opphørsårsak finner avslagsårsak ingen {}", behandlingId);
+        return Optional.empty();
+    }
+
+    private Optional<Vilkår> finnVilkår(Behandlingsresultat behandlingsresultat, VilkårType vilkårType) {
+        return behandlingsresultat.getVilkårResultat().getVilkårene().stream()
+            .filter(vt -> vt.getVilkårType().equals(vilkårType))
+            .findFirst();
     }
 
     private Stream<Long> finnKandidater(Long fraId) {

@@ -50,11 +50,6 @@ public class VilkårResultat extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
-    // TODO unmap og set unused
-    @Convert(converter = VilkårResultatType.KodeverdiConverter.class)
-    @Column(name="vilkar_resultat", nullable = false)
-    private VilkårResultatType vilkårResultatType = VilkårResultatType.IKKE_FASTSATT;
-
     // CascadeType.ALL + orphanRemoval=true må til for at Vilkår skal bli slettet fra databasen ved fjerning fra HashSet
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "vilkårResultat")
     private Set<Vilkår> vilkårne = new LinkedHashSet<>();
@@ -65,13 +60,6 @@ public class VilkårResultat extends BaseEntitet {
     )
     private Behandling originalBehandling;
 
-    // TODO unmap og set unused
-    /**
-     * Hvorvidt hele vilkårresultatet er overstyrt av Saksbehandler. (fra SF3).
-     */
-    @Convert(converter = BooleanToStringConverter.class)
-    @Column(name = "overstyrt", nullable = false)
-    private boolean erOverstyrt = false;
     VilkårResultat() {
         // for hibernate
     }
