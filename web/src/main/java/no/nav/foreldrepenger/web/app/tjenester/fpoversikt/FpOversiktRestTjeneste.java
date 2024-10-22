@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
 import java.util.List;
-import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -79,7 +78,7 @@ public class FpOversiktRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Henter inntektsmeldinger på sak", tags = "fpoversikt")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public Set<InntektsmeldingDto> hentInntektsmeldinger(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @Parameter(description = "Saksnummer for fagsak") @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
+    public List<FpSakInntektsmeldingDto> hentInntektsmeldinger(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @Parameter(description = "Saksnummer for fagsak") @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var saksnummer = saksnummerDto.getVerdi();
         return dtoTjeneste.hentInntektsmeldingerForSak(saksnummer);
     }
