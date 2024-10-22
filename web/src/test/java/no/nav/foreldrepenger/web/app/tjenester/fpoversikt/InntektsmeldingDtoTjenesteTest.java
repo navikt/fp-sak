@@ -48,7 +48,6 @@ import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(JpaExtension.class)
@@ -128,7 +127,7 @@ class InntektsmeldingDtoTjenesteTest {
         assertThat(im.inntektPrMnd()).isEqualTo(inntekt.getVerdi());
         assertThat(im.refusjonPrMnd()).isEqualTo(refusjon.getVerdi());
         assertThat(im.arbeidsgiverNavn()).isEqualTo(arbeidsgiverOpplysninger.getNavn());
-        assertThat(im.journalpostId()).isEqualTo(journalpostId);
+        assertThat(im.journalpostId()).isEqualTo(journalpostId.getVerdi());
         assertThat(im.mottattTidspunkt()).isEqualTo(mottattTidspunkt);
         assertThat(im.startDatoPermisjon()).isNull();
     }
@@ -188,8 +187,8 @@ class InntektsmeldingDtoTjenesteTest {
         );
         var bortfaltePerioder = InntektsmeldingDtoTjeneste.konverterAktivePerioderTilBortfaltePerioder(aktiveNaturalytelser);
         assertThat(bortfaltePerioder).hasSize(2);
-        assertThat(bortfaltePerioder.get(0)).isEqualTo(new NaturalYtelse(LocalDate.of(2024, 10, 17), LocalDate.of(2024, 11, 15), new BigDecimal(1000), NaturalYtelseType.ELEKTRISK_KOMMUNIKASJON));
-        assertThat(bortfaltePerioder.get(1)).isEqualTo(new NaturalYtelse(LocalDate.of(2024, 11, 21), LocalDate.of(2024, 12, 15), new BigDecimal(1000), NaturalYtelseType.ELEKTRISK_KOMMUNIKASJON));
+        assertThat(bortfaltePerioder.get(0)).isEqualTo(new FpSakInntektsmeldingDto.NaturalYtelse(LocalDate.of(2024, 10, 17), LocalDate.of(2024, 11, 15), new BigDecimal(1000), NaturalYtelseType.ELEKTRISK_KOMMUNIKASJON));
+        assertThat(bortfaltePerioder.get(1)).isEqualTo(new FpSakInntektsmeldingDto.NaturalYtelse(LocalDate.of(2024, 11, 21), LocalDate.of(2024, 12, 15), new BigDecimal(1000), NaturalYtelseType.ELEKTRISK_KOMMUNIKASJON));
     }
 
     private static MottattDokument mottattDokument(Behandling behandling, JournalpostId journalPostId, LocalDateTime mottattTidspunkt) {

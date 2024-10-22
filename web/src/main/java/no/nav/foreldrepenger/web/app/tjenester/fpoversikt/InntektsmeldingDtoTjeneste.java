@@ -162,7 +162,7 @@ class InntektsmeldingDtoTjeneste {
                         nyFom.plusDays(1),
                         (nyTom != null) ? nyTom.minusDays(1) : TIDENES_ENDE,
                     current.getBeloepPerMnd().getVerdi(),
-                    NaturalYtelseType.valueOf(current.toString())
+                    current.getType()
                 );
 
                 bortfalteNaturalytelser.add(newYtelse);
