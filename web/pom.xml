@@ -80,6 +80,7 @@
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>fpsoknad-felles</artifactId>
+            <version>${fpsoknad-felles.version}</version>
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
