@@ -114,7 +114,7 @@ class InntektsmeldingDtoTjeneste {
             inntektsmelding.getRefusjonBeløpPerMnd() == null ? null : inntektsmelding.getRefusjonBeløpPerMnd().getVerdi(),
             arbeidsgiverOpplysninger.getNavn(),
             inntektsmelding.getArbeidsgiver().getIdentifikator(),
-            inntektsmelding.getJournalpostId().toString(),
+            inntektsmelding.getJournalpostId().getVerdi(),
             mottattTidspunkt,
             inntektsmelding.getStartDatoPermisjon().orElse(null),
             naturalytelser,

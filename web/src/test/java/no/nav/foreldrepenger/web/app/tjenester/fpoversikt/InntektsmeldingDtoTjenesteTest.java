@@ -16,6 +16,8 @@ import jakarta.persistence.EntityManager;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
+import no.nav.foreldrepenger.common.innsyn.inntektsmelding.BortfaltNaturalytelse;
+import no.nav.foreldrepenger.common.innsyn.inntektsmelding.NaturalytelseType;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
@@ -188,8 +190,8 @@ class InntektsmeldingDtoTjenesteTest {
         );
         var bortfaltePerioder = InntektsmeldingDtoTjeneste.konverterAktivePerioderTilBortfaltePerioder(aktiveNaturalytelser);
         assertThat(bortfaltePerioder).hasSize(2);
-        assertThat(bortfaltePerioder.get(0)).isEqualTo(new FpSakInntektsmeldingDto.NaturalYtelse(LocalDate.of(2024, 10, 17), LocalDate.of(2024, 11, 15), new BigDecimal(1000), NaturalYtelseType.ELEKTRISK_KOMMUNIKASJON));
-        assertThat(bortfaltePerioder.get(1)).isEqualTo(new FpSakInntektsmeldingDto.NaturalYtelse(LocalDate.of(2024, 11, 21), LocalDate.of(2024, 12, 15), new BigDecimal(1000), NaturalYtelseType.ELEKTRISK_KOMMUNIKASJON));
+        assertThat(bortfaltePerioder.get(0)).isEqualTo(new BortfaltNaturalytelse(LocalDate.of(2024, 10, 17), LocalDate.of(2024, 11, 15), new BigDecimal(1000), NaturalytelseType.ELEKTRISK_KOMMUNIKASJON));
+        assertThat(bortfaltePerioder.get(1)).isEqualTo(new BortfaltNaturalytelse(LocalDate.of(2024, 11, 21), LocalDate.of(2024, 12, 15), new BigDecimal(1000), NaturalytelseType.ELEKTRISK_KOMMUNIKASJON));
     }
 
     private static MottattDokument mottattDokument(Behandling behandling, JournalpostId journalPostId, LocalDateTime mottattTidspunkt) {
