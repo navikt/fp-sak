@@ -201,9 +201,9 @@ class MedlemskapVurderingPeriodeTjenesteTest {
 
         // Act/Assert
         assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).bosattVurderingsintervall(ref, stp))
-            .isEqualTo(new LocalDateInterval(LocalDate.now().minus(ES_MEDLEMSKAP), omsorgsdato));
+            .isEqualTo(new LocalDateInterval(omsorgsdato.minus(ES_MEDLEMSKAP), omsorgsdato));
         assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref, stp))
-            .isEqualTo(new LocalDateInterval(LocalDate.now().minus(ES_MEDLEMSKAP), omsorgsdato));
+            .isEqualTo(new LocalDateInterval(omsorgsdato.minus(ES_MEDLEMSKAP), omsorgsdato));
     }
 
     @Test
