@@ -297,9 +297,8 @@ public class ForvaltningUttrekkRestTjeneste {
     @Operation(description = "Kopiering før unmapping", tags = "FORVALTNING-uttrekk")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public Response fikseAnkeBehandlinger2(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        var behandling = behandlingRepository.hentBehandling(dto.getBehandlingUuid());
+        var behandling = behandlingRepository.hentBehandlingReadOnly(dto.getBehandlingUuid());
         var behandlingId = behandling.getId();
-        datavarehusTjeneste.lagreNedBehandling(behandlingId);
         entityManager.createNativeQuery("UPDATE FPSAK_HIST.BEHANDLING_DVH set funksjonell_tid = (select max(funksjonell_tid) from FPSAK_hist.behandling_dvh a where behandling_id = :id and behandling_status = 'IVED') where behandling_id = :id and behandling_status = 'AVSLU'").setParameter("id", behandlingId).executeUpdate();
         return Response.ok().build();
     }
