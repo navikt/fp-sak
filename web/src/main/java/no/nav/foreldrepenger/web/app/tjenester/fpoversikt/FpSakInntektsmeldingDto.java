@@ -26,7 +26,7 @@ record FpSakInntektsmeldingDto(Boolean erAktiv, BigDecimal stillingsprosent,
         LocalDate fomDato,
         LocalDate tomDato,
     BigDecimal beløpPerMnd,
-    NaturalYtelseType type
+    String type
     ) {}
 
     record Refusjon(

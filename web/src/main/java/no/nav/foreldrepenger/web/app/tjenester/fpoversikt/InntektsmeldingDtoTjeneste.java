@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.NaturalYtelseType;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.vedtak.konfig.Tid;
@@ -162,7 +161,7 @@ class InntektsmeldingDtoTjeneste {
                         nyFom.plusDays(1),
                         (nyTom != null) ? nyTom.minusDays(1) : TIDENES_ENDE,
                     current.getBeloepPerMnd().getVerdi(),
-                    current.getType()
+                    current.getType().name()
                 );
 
                 bortfalteNaturalytelser.add(newYtelse);
