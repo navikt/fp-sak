@@ -145,19 +145,18 @@ public class MedlemDtoTjeneste {
     }
 
     private Optional<MedlemskapDto.LegacyManuellBehandling> legacyManuellBehandling(BehandlingReferanse ref, Skjæringstidspunkt stp) {
-        var medlemskapOpt = medlemskapRepository.hentMedlemskap(ref.behandlingId());
-        if (medlemskapOpt.isEmpty() || medlemskapOpt.get().getVurdertMedlemskap().isEmpty()) {
+        var vurdertMedlemskapEntitet = medlemskapRepository.hentLegacyVurderingMedlemskapSkjæringstidspunktet(ref.behandlingId());
+        if (vurdertMedlemskapEntitet.isEmpty()) {
             return Optional.empty();
         }
 
-        var medlemskapAggregat = medlemskapOpt.get();
-        var vurdertMedlemskap = medlemskapAggregat.getVurdertMedlemskap().get();
+        var medlemskapVurdering = vurdertMedlemskapEntitet.get();
         var perioder = new HashSet<MedlemskapDto.LegacyManuellBehandling.MedlemPeriode>();
-        perioder.add(tilLegacyManuellBehandligPeriode(vurdertMedlemskap, stp.getUtledetSkjæringstidspunkt()));
+        perioder.add(tilLegacyManuellBehandligPeriode(medlemskapVurdering, stp.getUtledetSkjæringstidspunkt()));
 
-        if (medlemskapAggregat.getVurderingLøpendeMedlemskap().isPresent()) {
-            perioder.addAll(medlemskapAggregat.getVurderingLøpendeMedlemskap()
-                .get()
+        var løpendeVurdering = medlemskapRepository.hentLegacyVurderingLøpendeMedlemskap(ref.behandlingId());
+        if (løpendeVurdering.isPresent()) {
+            perioder.addAll(løpendeVurdering.get()
                 .getPerioder()
                 .stream()
                 .map(v -> tilLegacyManuellBehandligPeriode(v, v.getVurderingsdato()))

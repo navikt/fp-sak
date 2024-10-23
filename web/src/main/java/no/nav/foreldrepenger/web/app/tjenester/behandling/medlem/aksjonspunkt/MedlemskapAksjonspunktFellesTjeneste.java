@@ -1,14 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.medlem.aksjonspunkt;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapsvilkårPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskap;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -25,22 +22,16 @@ public class MedlemskapAksjonspunktFellesTjeneste {
 
     private HistorikkTjenesteAdapter historikkAdapter;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository;
-    private BehandlingRepository behandlingRepository;
     private VilkårMedlemskapRepository vilkårMedlemskapRepository;
     private VilkårResultatRepository vilkårResultatRepository;
 
     @Inject
     public MedlemskapAksjonspunktFellesTjeneste(HistorikkTjenesteAdapter historikkAdapter,
                                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                                MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository,
-                                                BehandlingRepository behandlingRepository,
                                                 VilkårMedlemskapRepository vilkårMedlemskapRepository,
                                                 VilkårResultatRepository vilkårResultatRepository) {
         this.historikkAdapter = historikkAdapter;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
-        this.medlemskapVilkårPeriodeRepository = medlemskapVilkårPeriodeRepository;
-        this.behandlingRepository = behandlingRepository;
         this.vilkårMedlemskapRepository = vilkårMedlemskapRepository;
         this.vilkårResultatRepository = vilkårResultatRepository;
     }
@@ -61,28 +52,13 @@ public class MedlemskapAksjonspunktFellesTjeneste {
         var utfall = avslagsårsak == null || opphørEtterStp ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
         lagHistorikkInnslag(utfall, begrunnelse, opphørFom, skjermlenkeType);
 
-        lagreOld(behandlingId, avslagsårsak, opphørFom); //TODO medlem slett
-
-        lagre(behandlingId, opphørFom, opphørEtterStp, avslagsårsak);
-
-        return utfall;
-    }
-
-    private void lagre(long behandlingId, LocalDate opphørFom, boolean opphørEtterStp, Avslagsårsak avslagsårsak) {
         var vilkårResultat = vilkårResultatRepository.hent(behandlingId);
         vilkårMedlemskapRepository.slettFor(vilkårResultat);
         if (opphørEtterStp) {
             vilkårMedlemskapRepository.lagre(VilkårMedlemskap.forOpphør(vilkårResultat, opphørFom, avslagsårsak));
         }
-    }
 
-    private void lagreOld(long behandlingId, Avslagsårsak avslagsårsak, LocalDate opphørFom) {
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var grBuilder = medlemskapVilkårPeriodeRepository.hentBuilderFor(behandling);
-        var periodeBuilder = MedlemskapsvilkårPeriodeEntitet.Builder.oppdatere(Optional.empty());
-        periodeBuilder.opprettOverstyring(opphørFom, avslagsårsak, avslagsårsak == null ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT);
-        grBuilder.medMedlemskapsvilkårPeriode(periodeBuilder);
-        medlemskapVilkårPeriodeRepository.lagreMedlemskapsvilkår(behandling, grBuilder);
+        return utfall;
     }
 
     public VilkårUtfallType oppdaterForutgående(long behandlingId,
@@ -96,28 +72,13 @@ public class MedlemskapAksjonspunktFellesTjeneste {
         var utfall = avslagsårsak == null ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
         lagHistorikkInnslagForutgående(utfall, begrunnelse, medlemFom, skjermlenkeType);
 
-        lagreOld(behandlingId, avslagsårsak, medlemFom, utfall); //TODO medlem slett
-
-        lagre(behandlingId, medlemFom, utfall);
-
-        return utfall;
-    }
-
-    private void lagre(long behandlingId, LocalDate medlemFom, VilkårUtfallType utfall) {
         var vilkårResultat = vilkårResultatRepository.hent(behandlingId);
         vilkårMedlemskapRepository.slettFor(vilkårResultat);
         if (utfall == VilkårUtfallType.IKKE_OPPFYLT && medlemFom != null) {
             vilkårMedlemskapRepository.lagre(VilkårMedlemskap.forMedlemFom(vilkårResultat, medlemFom));
         }
-    }
 
-    private void lagreOld(long behandlingId, Avslagsårsak avslagsårsak, LocalDate medlemFom, VilkårUtfallType utfall) {
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var grBuilder = medlemskapVilkårPeriodeRepository.hentBuilderFor(behandling);
-        var periodeBuilder = MedlemskapsvilkårPeriodeEntitet.Builder.oppdatere(Optional.empty());
-        periodeBuilder.opprettOverstyring(medlemFom, avslagsårsak, utfall);
-        grBuilder.medMedlemskapsvilkårPeriode(periodeBuilder);
-        medlemskapVilkårPeriodeRepository.lagreMedlemskapsvilkår(behandling, grBuilder);
+        return utfall;
     }
 
     private void lagHistorikkInnslag(VilkårUtfallType nyVerdi, String begrunnelse, LocalDate opphørFom, SkjermlenkeType skjermlenkeType) {

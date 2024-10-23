@@ -5,22 +5,17 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Immutable aggregat som samler informasjon fra ulike kilder for Medlemskap informasjon fra registere, søknad, og slik
- * det er vurdert av Saksbehandler (evt. automatisk vurdert).
+ * Immutable aggregat som samler informasjon fra ulike kilder for Medlemskap informasjon fra registere og søknad
  */
 public class MedlemskapAggregat {
 
-    private final VurdertMedlemskap vurdertMedlemskap;
     private final Set<MedlemskapPerioderEntitet> registrertMedlemskapPeridoer;
     private final MedlemskapOppgittTilknytningEntitet oppgittTilknytning;
-    private final VurdertMedlemskapPeriodeEntitet vurderingLøpendeMedlemskap;
 
-    public MedlemskapAggregat(VurdertMedlemskap medlemskap, Set<MedlemskapPerioderEntitet> medlemskapPerioder,
-                              MedlemskapOppgittTilknytningEntitet oppgittTilknytning, VurdertMedlemskapPeriodeEntitet vurderingLøpendeMedlemskap) {
-        this.vurdertMedlemskap = medlemskap;
+    public MedlemskapAggregat(Set<MedlemskapPerioderEntitet> medlemskapPerioder,
+                              MedlemskapOppgittTilknytningEntitet oppgittTilknytning) {
         this.registrertMedlemskapPeridoer = medlemskapPerioder;
         this.oppgittTilknytning = oppgittTilknytning;
-        this.vurderingLøpendeMedlemskap = vurderingLøpendeMedlemskap;
     }
 
     /** Hent Registrert medlemskapinformasjon (MEDL) slik det er innhentet. */
@@ -35,17 +30,5 @@ public class MedlemskapAggregat {
     /** Hent Oppgitt tilknytning slik det er oppgitt av Søker. */
     public Optional<MedlemskapOppgittTilknytningEntitet> getOppgittTilknytning() {
         return Optional.ofNullable(oppgittTilknytning);
-    }
-
-    /** Hent Medlemskap slik det er vurdert (hvis eksisterer). */
-    @Deprecated
-    public Optional<VurdertMedlemskap> getVurdertMedlemskap() {
-        return Optional.ofNullable(vurdertMedlemskap);
-    }
-
-    /** Hent Løpende medlemskap (hvis eksisterer)*/
-    @Deprecated
-    public Optional<VurdertMedlemskapPeriodeEntitet> getVurderingLøpendeMedlemskap() {
-        return Optional.ofNullable(vurderingLøpendeMedlemskap);
     }
 }

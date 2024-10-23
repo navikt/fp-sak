@@ -124,20 +124,22 @@ public class MedlemskapBehandlingsgrunnlagEntitet extends BaseEntitet {
         return Collections.unmodifiableSet(registerMedlemskap.getMedlemskapPerioder());
     }
 
+    @Deprecated
     VurdertMedlemskapEntitet getVurderingMedlemskapSkjæringstidspunktet() {
         return vurderingMedlemskapSkjæringstidspunktet;
     }
 
-    void setAktiv(final boolean aktiv) {
+    @Deprecated
+    VurdertMedlemskapPeriodeEntitet getVurderingLøpendeMedlemskap() {
+        return vurderingLøpendeMedlemskap;
+    }
+
+    void setAktiv(boolean aktiv) {
         this.aktiv = aktiv;
     }
 
     MedlemskapAggregat tilAggregat() {
-        return new MedlemskapAggregat(
-            this.getVurderingMedlemskapSkjæringstidspunktet(),
-            this.getRegistertMedlemskapPerioder(),
-            this.getOppgittTilknytning(),
-            vurderingLøpendeMedlemskap);
+        return new MedlemskapAggregat(this.getRegistertMedlemskapPerioder(), this.getOppgittTilknytning());
     }
 
     private static MedlemskapBehandlingsgrunnlagEntitet kopierTidligerGrunnlag(
@@ -164,20 +166,6 @@ public class MedlemskapBehandlingsgrunnlagEntitet extends BaseEntitet {
                                                     MedlemskapOppgittTilknytningEntitet nyeData) {
         var nyttGrunnlag = kopierTidligerGrunnlag(tidligereGrunnlagOpt, nyBehandlingId);
         nyttGrunnlag.oppgittTilknytning = nyeData;
-        return nyttGrunnlag;
-    }
-
-    static MedlemskapBehandlingsgrunnlagEntitet fra(Optional<MedlemskapBehandlingsgrunnlagEntitet> tidligereGrunnlagOpt, Long nyBehandlingId,
-                                                    VurdertMedlemskapEntitet nyeData) {
-        var nyttGrunnlag = kopierTidligerGrunnlag(tidligereGrunnlagOpt, nyBehandlingId);
-        nyttGrunnlag.vurderingMedlemskapSkjæringstidspunktet = nyeData;
-        return nyttGrunnlag;
-    }
-
-    static MedlemskapBehandlingsgrunnlagEntitet fra(Optional<MedlemskapBehandlingsgrunnlagEntitet> tidligereGrunnlagOpt,
-                                                    Long nyBehandlingId, VurdertMedlemskapPeriodeEntitet nyeData) {
-        var nyttGrunnlag = kopierTidligerGrunnlag(tidligereGrunnlagOpt, nyBehandlingId);
-        nyttGrunnlag.vurderingLøpendeMedlemskap = nyeData;
         return nyttGrunnlag;
     }
 
