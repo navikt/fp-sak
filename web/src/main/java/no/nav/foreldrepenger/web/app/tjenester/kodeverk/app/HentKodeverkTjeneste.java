@@ -75,6 +75,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.Arbeidskategori;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.NaturalYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagAndeltype;
@@ -161,6 +162,7 @@ public class HentKodeverkTjeneste {
         map.put(FaresignalVurdering.class.getSimpleName(), FaresignalVurdering.kodeMap().values());
         map.put(FordelingPeriodeKilde.class.getSimpleName(), FordelingPeriodeKilde.kodeMap().values());
         map.put(AdresseType.class.getSimpleName(), AdresseType.kodeMap().values());
+        map.put(NaturalYtelseType.class.getSimpleName(), NaturalYtelseType.kodeMap().values());
 
         Map<String, Collection<? extends Kodeverdi>> mapFiltered = new LinkedHashMap<>();
 

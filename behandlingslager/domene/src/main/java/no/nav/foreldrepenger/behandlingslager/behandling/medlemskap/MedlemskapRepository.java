@@ -128,21 +128,6 @@ public class MedlemskapRepository {
         oppdaterLås(lås);
     }
 
-    /**
-     * Slette avklart medlemskapsdata på en Behandling. Sørger for at samtidige oppdateringer på samme Behandling,
-     * eller andre Behandlinger
-     * på samme Fagsak ikke kan gjøres samtidig.
-     *
-     * @see BehandlingLås
-     */
-    public void slettAvklarteMedlemskapsdata(Long behandlingId, BehandlingLås lås) {
-        oppdaterLås(lås);
-        var gr = getAktivtBehandlingsgrunnlag(behandlingId);
-        var nyttGrunnlag = MedlemskapBehandlingsgrunnlagEntitet.fra(gr, behandlingId, (VurdertMedlemskapEntitet) null);
-        lagreOgFlush(gr, nyttGrunnlag);
-        entityManager.flush();
-    }
-
     protected void oppdaterLås(BehandlingLås lås) {
         behandlingLåsRepository.oppdaterLåsVersjon(lås);
     }
@@ -212,5 +197,17 @@ public class MedlemskapRepository {
         var query = entityManager.createQuery("SELECT mbg FROM MedlemskapBehandlingsgrunnlag mbg WHERE mbg.id = :grunnlagId",
             MedlemskapBehandlingsgrunnlagEntitet.class).setParameter("grunnlagId", grunnlagId);
         return query.getResultStream().findFirst();
+    }
+
+    @Deprecated
+    public Optional<VurdertMedlemskapEntitet> hentLegacyVurderingMedlemskapSkjæringstidspunktet(Long behandlingId) {
+        var grunnlag = getAktivtBehandlingsgrunnlag(behandlingId);
+        return grunnlag.map(MedlemskapBehandlingsgrunnlagEntitet::getVurderingMedlemskapSkjæringstidspunktet);
+    }
+
+    @Deprecated
+    public Optional<VurdertMedlemskapPeriodeEntitet> hentLegacyVurderingLøpendeMedlemskap(Long behandlingId) {
+        var grunnlag = getAktivtBehandlingsgrunnlag(behandlingId);
+        return grunnlag.map(MedlemskapBehandlingsgrunnlagEntitet::getVurderingLøpendeMedlemskap);
     }
 }
