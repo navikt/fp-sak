@@ -193,7 +193,7 @@ class InntektsmeldingDtoTjeneste {
             case YRKEBIL_TJENESTLIGBEHOV_KILOMETER -> FpSakInntektsmeldingDto.NaturalytelseType.YRKEBIL_TJENESTLIGBEHOV_KILOMETER;
             case YRKEBIL_TJENESTLIGBEHOV_LISTEPRIS -> FpSakInntektsmeldingDto.NaturalytelseType.YRKEBIL_TJENESTLIGBEHOV_LISTEPRIS;
             case INNBETALING_TIL_UTENLANDSK_PENSJONSORDNING -> FpSakInntektsmeldingDto.NaturalytelseType.INNBETALING_TIL_UTENLANDSK_PENSJONSORDNING;
-            default -> throw new IllegalStateException("Kunne ikke mappe NaturalytelseType til FpSakInntektsmeldingDto.NaturalytelseType: " + naturalytelseType);
+            case UDEFINERT -> throw new IllegalStateException("Kunne ikke mappe NaturalytelseType til FpSakInntektsmeldingDto.NaturalytelseType: " + naturalytelseType);
         };
     }
 }
