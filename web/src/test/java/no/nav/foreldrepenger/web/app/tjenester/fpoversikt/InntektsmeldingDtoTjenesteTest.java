@@ -66,14 +66,8 @@ class InntektsmeldingDtoTjenesteTest {
         var iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         var repositoryProvider = new BehandlingRepositoryProvider(entityManager);
 
-        var imTjeneste = new InntektsmeldingDtoTjeneste(
-            new InntektsmeldingTjeneste(iayTjeneste),
-            repositoryProvider.getMottatteDokumentRepository(),
-            new VirksomhetTjeneste(), arbeidsgiverTjeneste,
-            behandlingRepository,
-            fagsakRepository,
-            iayTjeneste
-        );
+        var imTjeneste = new InntektsmeldingDtoTjeneste(new InntektsmeldingTjeneste(iayTjeneste), repositoryProvider.getMottatteDokumentRepository(),
+            new VirksomhetTjeneste(), arbeidsgiverTjeneste, behandlingRepository, fagsakRepository, iayTjeneste);
 
         // Sak og behandling
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
@@ -102,9 +96,7 @@ class InntektsmeldingDtoTjenesteTest {
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .medArbeidsgiver(arbeidsgiver)
             .medArbeidsforholdId(arbeidsforholdRef)
-            .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
-                .medPeriode(periode)
-                .medSisteLønnsendringsdato(periode.getFomDato()))
+            .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny().medPeriode(periode).medSisteLønnsendringsdato(periode.getFomDato()))
             .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
                 .medProsentsats(new Stillingsprosent(80))
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now().minusMonths(10), LocalDate.now())));
@@ -134,13 +126,9 @@ class InntektsmeldingDtoTjenesteTest {
 
     @Test
     void lagRefusjonsperioderNårOpphørerErSatt() {
-        var refusjonsperioder = List.of(
-            new Refusjon(BigDecimal.valueOf(300), LocalDate.of(2024, 11, 1)),
-            new Refusjon(BigDecimal.valueOf(100), LocalDate.of(2024, 8, 1)),
-            new Refusjon(BigDecimal.valueOf(200), LocalDate.of(2024, 9, 1))
-        );
-        var imBuilder = InntektsmeldingBuilder.builder()
-            .medRefusjon(BigDecimal.valueOf(1000), LocalDate.of(2024, 10, 17));
+        var refusjonsperioder = List.of(new Refusjon(BigDecimal.valueOf(300), LocalDate.of(2024, 11, 1)),
+            new Refusjon(BigDecimal.valueOf(100), LocalDate.of(2024, 8, 1)), new Refusjon(BigDecimal.valueOf(200), LocalDate.of(2024, 9, 1)));
+        var imBuilder = InntektsmeldingBuilder.builder().medRefusjon(BigDecimal.valueOf(1000), LocalDate.of(2024, 10, 17));
 
         refusjonsperioder.forEach(imBuilder::leggTil);
 
@@ -159,11 +147,8 @@ class InntektsmeldingDtoTjenesteTest {
 
     @Test
     void lagRefusjonsperioderUtenOpphører() {
-        var refusjonsperioder = List.of(
-            new Refusjon(BigDecimal.valueOf(300), LocalDate.of(2024, 11, 1)),
-            new Refusjon(BigDecimal.valueOf(100), LocalDate.of(2024, 8, 1)),
-            new Refusjon(BigDecimal.valueOf(200), LocalDate.of(2024, 9, 1))
-        );
+        var refusjonsperioder = List.of(new Refusjon(BigDecimal.valueOf(300), LocalDate.of(2024, 11, 1)),
+            new Refusjon(BigDecimal.valueOf(100), LocalDate.of(2024, 8, 1)), new Refusjon(BigDecimal.valueOf(200), LocalDate.of(2024, 9, 1)));
         var imBuilder = InntektsmeldingBuilder.builder();
         refusjonsperioder.forEach(imBuilder::leggTil);
 
@@ -182,18 +167,21 @@ class InntektsmeldingDtoTjenesteTest {
     void konverterAktiveNaturalytelserTilBortfalte() {
         var aktiveNaturalytelser = List.of(
             new NaturalYtelse(Tid.TIDENES_BEGYNNELSE, LocalDate.of(2024, 10, 16), new BigDecimal(1000), NaturalYtelseType.ELEKTRISK_KOMMUNIKASJON),
-            new NaturalYtelse(LocalDate.of(2024, 11, 16), LocalDate.of(2024, 11, 20), new BigDecimal(1000), NaturalYtelseType.ELEKTRISK_KOMMUNIKASJON),
-            new NaturalYtelse(LocalDate.of(2024, 12, 16), Tid.TIDENES_ENDE, new BigDecimal(1000), NaturalYtelseType.ELEKTRISK_KOMMUNIKASJON)
-        );
+            new NaturalYtelse(LocalDate.of(2024, 11, 16), LocalDate.of(2024, 11, 20), new BigDecimal(1000),
+                NaturalYtelseType.ELEKTRISK_KOMMUNIKASJON),
+            new NaturalYtelse(LocalDate.of(2024, 12, 16), Tid.TIDENES_ENDE, new BigDecimal(1000), NaturalYtelseType.ELEKTRISK_KOMMUNIKASJON));
         var bortfaltePerioder = InntektsmeldingDtoTjeneste.konverterAktivePerioderTilBortfaltePerioder(aktiveNaturalytelser);
         assertThat(bortfaltePerioder).hasSize(2);
-        assertThat(bortfaltePerioder.get(0)).isEqualTo(new FpSakInntektsmeldingDto.NaturalYtelse(LocalDate.of(2024, 10, 17), LocalDate.of(2024, 11, 15), new BigDecimal(1000), NaturalYtelseType.ELEKTRISK_KOMMUNIKASJON.name()));
-        assertThat(bortfaltePerioder.get(1)).isEqualTo(new FpSakInntektsmeldingDto.NaturalYtelse(LocalDate.of(2024, 11, 21), LocalDate.of(2024, 12, 15), new BigDecimal(1000), NaturalYtelseType.ELEKTRISK_KOMMUNIKASJON.name()));
+        assertThat(bortfaltePerioder.get(0)).isEqualTo(
+            new FpSakInntektsmeldingDto.Naturalytelse(LocalDate.of(2024, 10, 17), LocalDate.of(2024, 11, 15), new BigDecimal(1000),
+                FpSakInntektsmeldingDto.NaturalytelseType.ELEKTRISK_KOMMUNIKASJON));
+        assertThat(bortfaltePerioder.get(1)).isEqualTo(
+            new FpSakInntektsmeldingDto.Naturalytelse(LocalDate.of(2024, 11, 21), LocalDate.of(2024, 12, 15), new BigDecimal(1000),
+                FpSakInntektsmeldingDto.NaturalytelseType.ELEKTRISK_KOMMUNIKASJON));
     }
 
     private static MottattDokument mottattDokument(Behandling behandling, JournalpostId journalPostId, LocalDateTime mottattTidspunkt) {
-        return new MottattDokument.Builder()
-            .medJournalPostId(journalPostId)
+        return new MottattDokument.Builder().medJournalPostId(journalPostId)
             .medMottattTidspunkt(mottattTidspunkt)
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
