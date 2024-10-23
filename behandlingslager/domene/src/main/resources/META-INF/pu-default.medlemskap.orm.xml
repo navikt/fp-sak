@@ -13,9 +13,6 @@
 	<sequence-generator name="SEQ_MEDLEMSKAP_OPPG_TILKNYT" allocation-size="50" sequence-name="SEQ_MEDLEMSKAP_OPPG_TILKNYT" />
 	<sequence-generator name="SEQ_MEDLEMSKAP_OPPG_LAND" allocation-size="50" sequence-name="SEQ_MEDLEMSKAP_OPPG_LAND" />
 
-	<sequence-generator name="SEQ_GR_MEDLEMSKAP_VILKAR_PER" allocation-size="50" sequence-name="SEQ_GR_MEDLEMSKAP_VILKAR_PER" />
-	<sequence-generator name="SEQ_MEDLEMSKAP_VILKAR_PERIODE" allocation-size="50" sequence-name="SEQ_MEDLEMSKAP_VILKAR_PERIODE" />
-	<sequence-generator name="SEQ_MEDLEMSKAP_VILKAR_PERIODER" allocation-size="50" sequence-name="SEQ_MEDLEMSKAP_VILKAR_PERIODER" />
 	<sequence-generator name="SEQ_VILKAR_MEDLEMSKAP" allocation-size="50" sequence-name="SEQ_VILKAR_MEDLEMSKAP" />
 
 	<sequence-generator name="SEQ_GR_MEDLEMSKAP" allocation-size="50" sequence-name="SEQ_GR_MEDLEMSKAP" />
@@ -29,9 +26,6 @@
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet" />
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittLandOppholdEntitet" />
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapBehandlingsgrunnlagEntitet" />
-	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeGrunnlagEntitet" />
-	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapsvilkårPeriodeEntitet" />
-	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapsvilkårPerioderEntitet" />
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskap" />
 
 </entity-mappings>

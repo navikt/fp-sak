@@ -10,10 +10,8 @@ import static no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTrans
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -291,31 +289,6 @@ class InngangsvilkårStegImplTest {
                 .containsExactly(VilkårUtfallType.IKKE_VURDERT);
         assertThat(behandling.getBehandlingsresultat().getBehandlingResultatType())
                 .isEqualTo(BehandlingResultatType.IKKE_FASTSATT);
-    }
-
-    // @Test //TODO
-    public void skal_ved_fremoverhopp_rydde_avklarte_fakta_og_vilkår() {
-        // Arrange
-        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
-                .leggTilVilkår(medlVilkårType, VilkårUtfallType.OPPFYLT);
-        scenario.medBekreftetHendelse(scenario.medBekreftetHendelse().medFødselsDato(LocalDate.now()));
-
-        var behandling = scenario.lagMocked();
-        var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-        var mockMedlemskapRepository = scenario.mockBehandlingRepositoryProvider().getMedlemskapRepository();
-        var kontekst = new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(),
-                repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
-        var inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(regelOrkestrerer);
-        // Act
-        new SutMedlemskapsvilkårSteg(repositoryProvider, inngangsvilkårFellesTjeneste)
-                .vedTransisjon(kontekst, modell, BehandlingSteg.TransisjonType.HOPP_OVER_FRAMOVER, null, null);
-
-        // Assert
-        verify(mockMedlemskapRepository).slettAvklarteMedlemskapsdata(eq(behandling.getId()), any());
-
-        var vilkårResultat = behandling.getBehandlingsresultat().getVilkårResultat();
-        assertThat(vilkårResultat.getVilkårene().stream().map(Vilkår::getGjeldendeVilkårUtfall).collect(toList()))
-                .containsExactly(VilkårUtfallType.IKKE_VURDERT);
     }
 
     // ***** Testklasser *****

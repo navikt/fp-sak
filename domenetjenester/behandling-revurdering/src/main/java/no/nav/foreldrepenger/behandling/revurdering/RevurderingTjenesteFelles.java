@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -39,7 +38,6 @@ public class RevurderingTjenesteFelles {
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
     private FagsakRevurdering fagsakRevurdering;
-    private MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository;
     private VilkårMedlemskapRepository vilkårMedlemskapRepository;
     private OpptjeningRepository opptjeningRepository;
     private RevurderingHistorikk revurderingHistorikk;
@@ -55,7 +53,6 @@ public class RevurderingTjenesteFelles {
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.behandlingRevurderingTjeneste = behandlingRevurderingTjeneste;
         this.fagsakRevurdering = new FagsakRevurdering(repositoryProvider.getBehandlingRepository());
-        this.medlemskapVilkårPeriodeRepository = repositoryProvider.getMedlemskapVilkårPeriodeRepository();
         this.opptjeningRepository = repositoryProvider.getOpptjeningRepository();
         this.revurderingHistorikk = new RevurderingHistorikk(repositoryProvider.getHistorikkRepository());
         this.vilkårMedlemskapRepository = repositoryProvider.getVilkårMedlemskapRepository();
@@ -117,9 +114,6 @@ public class RevurderingTjenesteFelles {
         var vilkårResultat = vilkårBuilder.buildFor(revurdering);
         behandlingRepository.lagre(vilkårResultat, kontekst.getSkriveLås());
         behandlingRepository.lagre(revurdering, kontekst.getSkriveLås());
-
-        // MedlemskapsvilkårPerioder er tilknyttet vilkårresultat, ikke behandling
-        medlemskapVilkårPeriodeRepository.kopierGrunnlagFraEksisterendeBehandling(origBehandling, revurdering);
 
         vilkårMedlemskapRepository.kopierGrunnlagFraEksisterendeBehandling(origBehandling, revurdering);
 
