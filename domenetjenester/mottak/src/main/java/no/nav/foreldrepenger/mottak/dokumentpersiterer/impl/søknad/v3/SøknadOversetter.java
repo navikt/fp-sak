@@ -547,8 +547,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         }
     }
 
-    private static List<SvpAvklartOpphold> mapAvtaltFerie(Tilrettelegging tilrettelegging,
-                                                          Svangerskapspenger svp) {
+    private static List<SvpAvklartOpphold> mapAvtaltFerie(Tilrettelegging tilrettelegging, Svangerskapspenger svp) {
         if (svp.getAvtaltFerieListe() == null || !(tilrettelegging.getArbeidsforhold() instanceof no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Arbeidsgiver arbeidsgiver)) {
             return List.of();
         }
