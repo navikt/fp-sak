@@ -499,8 +499,9 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
             .filter(opphold -> opphold.getFom().isBefore(tidligsteNyFom))
             .map(opphold -> {
                 if (!opphold.getTom().isBefore(tidligsteNyFom)) {
+                    var eksisterendeKilde = opphold.getKilde() != null ? opphold.getKilde() : SvpOppholdKilde.REGISTRERT_AV_SAKSBEHANDLER;
                     return SvpAvklartOpphold.Builder.nytt()
-                        .medKilde(opphold.getKilde())
+                        .medKilde(eksisterendeKilde)
                         .medOppholdÅrsak(opphold.getOppholdÅrsak())
                         .medOppholdPeriode(opphold.getFom(), tidligsteNyFom.minusDays(1))
                         .build();
