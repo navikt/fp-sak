@@ -16,12 +16,6 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpAvklartOpphold;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpOppholdKilde;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpOppholdÅrsak;
-
-import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Tilrettelegging;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +46,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadVedleggEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpAvklartOpphold;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpOppholdKilde;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpOppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingFomKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingerEntitet;
@@ -126,6 +123,7 @@ import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Arbeidsforhold;
 import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Frilanser;
 import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.SelvstendigNæringsdrivende;
 import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Svangerskapspenger;
+import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Tilrettelegging;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Gradering;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.LukketPeriodeMedVedlegg;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Oppholdsperiode;
@@ -551,20 +549,20 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
 
     private static List<SvpAvklartOpphold> mapAvtaltFerie(Tilrettelegging tilrettelegging,
                                                           Svangerskapspenger svp) {
-        if (tilrettelegging.getArbeidsforhold() instanceof no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Arbeidsgiver arbeidsgiver) {
-            var identifikator = arbeidsgiver.getIdentifikator();
-            var avtalteFerier = svp.getAvtaltFerieListe().getAvtaltFerie();
-            return avtalteFerier.stream()
-                .filter(af -> Objects.equals(identifikator, af.getArbeidsgiver().getIdentifikator()))
-                .map(ao -> SvpAvklartOpphold.Builder.nytt()
-                    .medKilde(SvpOppholdKilde.SØKNAD)
-                    .medOppholdÅrsak(SvpOppholdÅrsak.FERIE)
-                    .medOppholdPeriode(ao.getAvtaltFerieFom(), ao.getAvtaltFerieTom())
-                    .build())
-                .toList();
-        } else {
+        if (svp.getAvtaltFerieListe() == null || !(tilrettelegging.getArbeidsforhold() instanceof no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Arbeidsgiver arbeidsgiver)) {
             return List.of();
         }
+
+        var identifikator = arbeidsgiver.getIdentifikator();
+        var avtalteFerier = svp.getAvtaltFerieListe().getAvtaltFerie();
+        return avtalteFerier.stream()
+            .filter(af -> Objects.equals(identifikator, af.getArbeidsgiver().getIdentifikator()))
+            .map(ao -> SvpAvklartOpphold.Builder.nytt()
+                .medKilde(SvpOppholdKilde.SØKNAD)
+                .medOppholdÅrsak(SvpOppholdÅrsak.FERIE)
+                .medOppholdPeriode(ao.getAvtaltFerieFom(), ao.getAvtaltFerieTom())
+                .build())
+            .toList();
     }
 
     private void byggOpptjeningsspesifikkeFelter(SøknadWrapper skjemaWrapper, Behandling behandling) {
