@@ -7,7 +7,6 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
@@ -97,11 +96,6 @@ public class AnkeVurderingTjeneste {
                     .medBehandlingResultatType(behandlingResultatType)
                     .buildFor(behandling);
         }
-    }
-
-    public BehandlingResultatType oppdatertBehandlingsResultat(Behandling b) {
-        var avr = ankeRepository.hentAnkeVurderingResultat(b.getId()).orElseThrow();
-        return AnkeVurderingBehandlingResultat.tolkBehandlingResultatType(avr.getTrygderettVurdering(), avr.getTrygderettVurderingOmgjør());
     }
 
     public static HistorikkResultatType konverterAnkeVurderingTilResultatType(AnkeVurdering vurdering, AnkeVurderingOmgjør ankeVurderingOmgjør) {

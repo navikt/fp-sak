@@ -23,16 +23,12 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import org.hibernate.jpa.HibernateHints;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import no.nav.foreldrepenger.behandling.anke.AnkeVurderingTjeneste;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
@@ -48,7 +44,6 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AksjonspunktKodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriodeDto;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskDataBuilder;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
@@ -69,7 +64,6 @@ public class ForvaltningUttrekkRestTjeneste {
     private FagsakRepository fagsakRepository;
     private ProsessTaskTjeneste taskTjeneste;
     private OverlappVedtakRepository overlappRepository;
-    private AnkeVurderingTjeneste ankeVurderingTjeneste;
 
     public ForvaltningUttrekkRestTjeneste() {
         // For CDI
@@ -80,14 +74,12 @@ public class ForvaltningUttrekkRestTjeneste {
                                           FagsakRepository fagsakRepository,
                                           BehandlingRepository behandlingRepository,
                                           ProsessTaskTjeneste taskTjeneste,
-                                          OverlappVedtakRepository overlappRepository,
-                                          AnkeVurderingTjeneste ankeVurderingTjeneste) {
+                                          OverlappVedtakRepository overlappRepository) {
         this.entityManager = entityManager;
         this.fagsakRepository = fagsakRepository;
         this.behandlingRepository = behandlingRepository;
         this.taskTjeneste = taskTjeneste;
         this.overlappRepository = overlappRepository;
-        this.ankeVurderingTjeneste = ankeVurderingTjeneste;
     }
 
     @POST
@@ -275,43 +267,12 @@ public class ForvaltningUttrekkRestTjeneste {
     }
 
     @POST
-    @Path("/fikseAnkeBehandlinger1")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Kopiering før unmapping", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response fikseAnkeBehandlinger1(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        var query = entityManager.createNativeQuery("""
-            select ba.*
-            from fpsak.behandling ba
-            join fpsak.ANKE_RESULTAT ar on ba.id = ar.anke_behandling_id
-            join fpsak.anke_vurdering_resultat on anke_resultat_id = ar.id
-            where behandling_type = 'BT-008' and behandling_status = 'AVSLU' and tr_vurdering <> '-'
-            and (tr_vurdering <> ankevurdering or tr_vurdering_omgjoer <> anke_vurdering_omgjoer)
-        """, Behandling.class)
-            .setHint(HibernateHints.HINT_READ_ONLY, "true");
-        List<Behandling> behandlinger = query.getResultList();
-        behandlinger.forEach(behandling -> oppdaterBehandlingsresultat(behandling));
-        return Response.ok().build();
-    }
-
-    private void oppdaterBehandlingsresultat(Behandling behandling) {
-        var nyttresultat = ankeVurderingTjeneste.oppdatertBehandlingsResultat(behandling);
-        entityManager.createNativeQuery("UPDATE fpsak.behandling_resultat set behandling_resultat_type = :res where behandling_id = :id and behandling_resultat_type <> :res")
-            .setParameter("id", behandling.getId())
-            .setParameter("res", nyttresultat.getKode())
-            .executeUpdate();
-    }
-
-    @POST
     @Path("/fikseAnkeBehandlinger2")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Kopiering før unmapping", tags = "FORVALTNING-uttrekk")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response fikseAnkeBehandlinger2(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        var behandling = behandlingRepository.hentBehandlingReadOnly(dto.getBehandlingUuid());
-        var behandlingId = behandling.getId();
+    public Response fikseAnkeBehandlinger2() {
         entityManager.createNativeQuery("""
             merge into fpsak_hist.behandling_dvh bdvh
             using (select bid, brt from(
@@ -319,7 +280,7 @@ public class ForvaltningUttrekkRestTjeneste {
               from fpsak.behandling ba join fpsak.behandling_RESULTAT br on ba.id = br.behandling_id
               where ba.behandling_type = 'BT-008' and ba.behandling_status = 'AVSLU'
             )) utvalg
-            on (bdvh.behandling_id = utvalg.bid and bdvh.behandling_resultat_type = 'AVSLU')
+            on (bdvh.behandling_id = utvalg.bid and bdvh.behandling_status = 'AVSLU')
             when matched then
             update set bdvh.behandling_resultat_type = utvalg.brt
             """).executeUpdate();
