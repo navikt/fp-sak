@@ -115,8 +115,16 @@ public class HistorikkinnslagFelt extends BaseEntitet implements IndexKey {
         return fraVerdi == null ? fraVerdiKode : fraVerdi;
     }
 
+    public String getFraVerdiKode() {
+        return fraVerdiKode;
+    }
+
     public String getTilVerdi() {
         return tilVerdi == null ? tilVerdiKode : tilVerdi;
+    }
+
+    public String getTilVerdiKode() {
+        return tilVerdiKode;
     }
 
     public String getKlFraVerdi() {
