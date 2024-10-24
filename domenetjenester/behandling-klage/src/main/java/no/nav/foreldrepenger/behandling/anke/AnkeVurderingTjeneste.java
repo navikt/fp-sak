@@ -7,6 +7,7 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
@@ -77,7 +78,11 @@ public class AnkeVurderingTjeneste {
         var ankeResultat = hentAnkeResultat(behandling);
         var nyttresultat = builder.medAnkeResultat(ankeResultat).build();
         ankeRepository.lagreVurderingsResultat(behandling.getId(), nyttresultat);
-        settBehandlingResultatTypeBasertPaaUtfall(behandling, nyttresultat.getAnkeVurdering(), nyttresultat.getAnkeVurderingOmgjør());
+        var nyVurdering = nyttresultat.getTrygderettVurdering() == null || AnkeVurdering.UDEFINERT.equals(nyttresultat.getTrygderettVurdering()) ?
+            nyttresultat.getAnkeVurdering() : nyttresultat.getTrygderettVurdering();
+        var nyOmgjør = nyttresultat.getTrygderettVurdering() == null || AnkeVurdering.UDEFINERT.equals(nyttresultat.getTrygderettVurdering()) ?
+            nyttresultat.getAnkeVurderingOmgjør() : nyttresultat.getTrygderettVurderingOmgjør();
+        settBehandlingResultatTypeBasertPaaUtfall(behandling, nyVurdering, nyOmgjør);
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
     }
 
@@ -92,6 +97,11 @@ public class AnkeVurderingTjeneste {
                     .medBehandlingResultatType(behandlingResultatType)
                     .buildFor(behandling);
         }
+    }
+
+    public BehandlingResultatType oppdatertBehandlingsResultat(Behandling b) {
+        var avr = ankeRepository.hentAnkeVurderingResultat(b.getId()).orElseThrow();
+        return AnkeVurderingBehandlingResultat.tolkBehandlingResultatType(avr.getTrygderettVurdering(), avr.getTrygderettVurderingOmgjør());
     }
 
     public static HistorikkResultatType konverterAnkeVurderingTilResultatType(AnkeVurdering vurdering, AnkeVurderingOmgjør ankeVurderingOmgjør) {
