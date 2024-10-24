@@ -92,7 +92,8 @@ public class ArbeidOgInntektsmeldingMapper {
                 im.getNaturalYtelser(),
                 refusjonsEndringer,
                 im.getInntektsmeldingInnsendingsårsak(),
-            tilknyttedeBehandlingIder != null ? tilknyttedeBehandlingIder : List.of()
+                tilknyttedeBehandlingIder != null ? tilknyttedeBehandlingIder : List.of(),
+                InntektsmeldingDto.mapToBortfalteNaturalytelser(im.getNaturalYtelser())
             );
     }
 
