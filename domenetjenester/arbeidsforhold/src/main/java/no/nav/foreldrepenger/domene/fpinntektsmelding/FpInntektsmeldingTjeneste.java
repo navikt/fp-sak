@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.fpinntektsmelding;
 
+import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.tilMaskertNummer;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -118,7 +120,9 @@ public class FpInntektsmeldingTjeneste {
         }
 
         if (!OrganisasjonsNummerValidator.erGyldig(ag)) {
-            LOG.error("FpInntektsmeldingTjeneste: Oppretter ikke forespørsel for saksnummer: {} fordi orgnummer: {} ikke er gyldig", ref.saksnummer(), tilMaskertNummer(ag));
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("FpInntektsmeldingTjeneste: Oppretter ikke forespørsel for saksnummer: {} fordi orgnummer: {} ikke er gyldig", ref.saksnummer(), tilMaskertNummer(ag));
+            }
             return;
         }
         var request = new OpprettForespørselRequest(new OpprettForespørselRequest.AktørIdDto(ref.aktørId().getId()),
@@ -128,7 +132,9 @@ public class FpInntektsmeldingTjeneste {
         if (opprettForespørselResponse.forespørselResultat().equals(OpprettForespørselResponse.ForespørselResultat.FORESPØRSEL_OPPRETTET)) {
             lagHistorikkForForespørsel(ag, ref);
         } else {
-            LOG.info("Fpinntektsmelding har allerede en åpen oppgave på saksnummer: {} og orgnummer: {}", ref.saksnummer(), tilMaskertNummer(ag));
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Fpinntektsmelding har allerede en åpen oppgave på saksnummer: {} og orgnummer: {}", ref.saksnummer(), tilMaskertNummer(ag));
+            }
         }
     }
 
@@ -200,14 +206,4 @@ public class FpInntektsmeldingTjeneste {
         klient.settForespørselTilUtgått(request);
     }
 
-    private static String tilMaskertNummer(String orgNummer) {
-        if (orgNummer == null) {
-            return null;
-        }
-        var length = orgNummer.length();
-        if (length <= 4) {
-            return "*".repeat(length);
-        }
-        return "*".repeat(length - 4) + orgNummer.substring(length - 4);
-    }
 }
