@@ -32,7 +32,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.Histor
 
 public class HistorikkV2Adapter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(HistorikkV2Adapter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkV2Adapter.class);
 
     public static HistorikkinnslagDtoV2 map(Historikkinnslag h, UUID behandlingUUID) {
         return switch (h.getType()) {
@@ -162,7 +162,7 @@ public class HistorikkV2Adapter {
         var resultatTekst = h.getHistorikkinnslagDeler()
             .stream()
             .flatMap(del -> del.getResultat().stream())
-            .map(HistorikkV2Adapter::fraHistorikkResultat)
+            .map(no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkV2Adapter::fraHistorikkResultat)
             .toList();
 
         var gjeldendeFraInnslag = h.getHistorikkinnslagDeler()
@@ -173,21 +173,21 @@ public class HistorikkV2Adapter {
         var søknadsperiode = h.getHistorikkinnslagDeler()
             .stream()
             .flatMap(del -> del.getAvklartSoeknadsperiode().stream())
-            .map(HistorikkV2Adapter::fraSøknadsperiode)
+            .map(no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkV2Adapter::fraSøknadsperiode)
             .toList();
 
-        var tema = h.getHistorikkinnslagDeler().stream().flatMap(del -> del.getTema().stream()).map(HistorikkV2Adapter::fraTema).toList();
+        var tema = h.getHistorikkinnslagDeler().stream().flatMap(del -> del.getTema().stream()).map(no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkV2Adapter::fraTema).toList();
 
         var endretFelter = h.getHistorikkinnslagDeler()
             .stream()
             .flatMap(del -> del.getEndredeFelt().stream())
-            .map(HistorikkV2Adapter::fraEndretFelt)
+            .map(no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkV2Adapter::fraEndretFelt)
             .toList();
 
         var opplysninger = h.getHistorikkinnslagDeler()
             .stream()
             .flatMap(del -> del.getOpplysninger().stream())
-            .map(HistorikkV2Adapter::fraOpplysning)
+            .map(no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkV2Adapter::fraOpplysning)
             .toList();
 
         var årsaktekst = h.getHistorikkinnslagDeler()
@@ -244,229 +244,229 @@ public class HistorikkV2Adapter {
             return verdi;
         }
 
-        return switch (verdiKode) { // TODO: Hent disse fra historikkEndretFeltVerdiTypeCodes.tsx som henter en tekst fra nb_NO.json
-            case "INNVILGET" -> "";
-            case "AVSLÅTT" -> "";
-            case "2003" -> "";
-            case "VILKAR_OPPFYLT" -> "";
-            case "2011" -> "";
-            case "ARBEIDSTAKER" -> "";
-            case "I_AKTIVITET" -> "";
-            case "2002" -> "";
-            case "2031" -> "";
-            case "FEDREKVOTE" -> "";
-            case "FELLESPERIODE" -> "";
-            case "2038" -> "";
-            case "LOVLIG_OPPHOLD" -> "";
-            case "MØDREKVOTE" -> "";
-            case "4002" -> "";
-            case "GRADERING_OPPFYLT" -> "";
-            case "2004" -> "";
-            case "2030" -> "";
-            case "ANNEN_FORELDER_HAR_IKKE_RETT" -> "";
-            case "TILBAKEKR_OPPRETT" -> "";
-            case "FASTSETT_RESULTAT_PERIODEN_AVKLARES_IKKE" -> "";
-            case "FASTSETT_RESULTAT_PERIODEN_SYKDOM_DOKUMENTERT" -> "";
-            case "HAR_GYLDIG_GRUNN" -> "";
-            case "BRUK_MED_OVERSTYRTE_PERIODER" -> "";
-            case "GRADERING_IKKE_OPPFYLT" -> "";
-            case "2010" -> "";
-            case "IKKE_BENYTT" -> "";
-            case "VARIG_ENDRET_NAERING" -> "";
-            case "FORELDREPENGER" -> "";
-            case "INGEN_INNVIRKNING" -> "";
-            case "2037" -> "";
-            case "VILKAR_IKKE_OPPFYLT" -> "";
-            case "FORTSETT_UTEN_INNTEKTSMELDING" -> "";
-            case "MANGLENDE_OPPLYSNINGER" -> "";
-            case "IKKE_OPPFYLT" -> "";
-            case "BENYTT" -> "";
-            case "KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING" -> "";
-            case "FASTSETT_RESULTAT_PERIODEN_INNLEGGELSEN_DOKUMENTERT" -> "";
-            case "TILBAKEKR_IGNORER" -> "";
-            case "SELVSTENDIG_NÆRINGSDRIVENDE" -> "";
-            case "2016" -> "";
-            case "2033" -> "";
-            case "4084" -> "";
-            case "INNTEKT_IKKE_MED_I_BG" -> "";
-            case "2021" -> "";
+        return switch (verdiKode) {
+            case "INNVILGET" -> "Oppfylt";
+            case "AVSLÅTT" -> "Ikke oppfylt";
+            case "2003" -> "Innvilget uttak av kvote";
+            case "VILKAR_OPPFYLT" -> "Vilkåret er oppfylt";
+            case "2011" -> "HistorikkEndretFeltVerdiType.GyldigUtsettelsePgaArbeid";
+            case "ARBEIDSTAKER" -> "Arbeidstaker";
+            case "I_AKTIVITET" -> ""; // FIXME Thao: Finner ikke denne
+            case "2002" -> "Innvilget fellesperiode/foreldrepenger";
+            case "2031" -> "Gradering av kvote/overført kvote";
+            case "FEDREKVOTE" -> "Fedrekvote";
+            case "FELLESPERIODE" -> "Fellesperiode";
+            case "2038" -> "Redusert uttaksgrad pga. den andre forelderens uttak";
+            case "LOVLIG_OPPHOLD" -> "Søker har lovlig opphold";
+            case "MØDREKVOTE" -> "Mødrekvote";
+            case "4002" -> "Ikke stønadsdager igjen";
+            case "GRADERING_OPPFYLT" -> "Oppfylt";
+            case "2004" -> "Innvilget foreldrepenger, kun far har rett";
+            case "2030" -> "Gradering av fellesperiode/foreldrepenger";
+            case "ANNEN_FORELDER_HAR_IKKE_RETT" -> "Annen forelder har ikke rett";
+            case "TILBAKEKR_OPPRETT" -> "Opprett tilbakekreving";
+            case "FASTSETT_RESULTAT_PERIODEN_AVKLARES_IKKE" -> "Perioden kan ikke avklares";
+            case "FASTSETT_RESULTAT_PERIODEN_SYKDOM_DOKUMENTERT" -> "Sykdommen/skaden er dokumentert";
+            case "HAR_GYLDIG_GRUNN" -> "Gyldig grunn for sen fremsetting av søknaden";
+            case "BRUK_MED_OVERSTYRTE_PERIODER" -> "Bruk arbeidsforholdet med overstyrt periode";
+            case "GRADERING_IKKE_OPPFYLT" -> "Ikke oppfylt";
+            case "2010" -> "Gyldig utsettelse pga ferie";
+            case "IKKE_BENYTT" -> "Ikke benytt";
+            case "VARIG_ENDRET_NAERING" -> "Varig endret eller nystartet næring";
+            case "FORELDREPENGER" -> "Foreldrepenger";
+            case "INGEN_INNVIRKNING" -> "Faresignalene hadde ingen innvirkning på behandlingen";
+            case "2037" -> "Innvilget fellesperiode til far";
+            case "VILKAR_IKKE_OPPFYLT" -> "Vilkåret er ikke oppfylt";
+            case "FORTSETT_UTEN_INNTEKTSMELDING" -> "Gå videre uten inntektsmelding";
+            case "MANGLENDE_OPPLYSNINGER" -> "Benytt i behandlingen, men har manglende opplysninger";
+            case "IKKE_OPPFYLT" -> "ikke oppfylt";
+            case "BENYTT" -> "Benytt";
+            case "KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING" -> "Arbeidsgiver kontaktes";
+            case "FASTSETT_RESULTAT_PERIODEN_INNLEGGELSEN_DOKUMENTERT" -> "Innleggelsen er dokumentert";
+            case "TILBAKEKR_IGNORER" -> "Avvent samordning, ingen tilbakekreving";
+            case "SELVSTENDIG_NÆRINGSDRIVENDE" -> "Selvstendig næringsdrivende";
+            case "2016" -> "Utsettelse pga. 100% arbeid, kun far har rett";
+            case "2033" -> "Gradering foreldrepenger, kun far har rett";
+            case "4084" -> "Annen part har overlappende uttak, det er ikke søkt/innvilget samtidig uttak";
+            case "INNTEKT_IKKE_MED_I_BG" -> "Benytt i behandligen. Inntekten er ikke med i beregningsgrunnlaget";
+            case "2021" -> "Overføring oppfylt, annen part er helt avhengig av hjelp til å ta seg av barnet";
             case "OPPFYLT" -> "oppfylt";
-            case "SØKER_ER_IKKE_I_PERMISJON" -> "";
-            case "BOSATT_I_NORGE" -> "";
-            case "INNVIRKNING" -> "";
-            case "OPPHOLDSRETT" -> "";
-            case "2036" -> "";
-            case "BOSATT_UTLAND" -> "";
-            case "SØKER_ER_I_PERMISJON" -> "";
-            case "IKKE_BOSATT_I_NORGE" -> "";
-            case "FRILANSER" -> "";
-            case "2006" -> "";
-            case "ANNEN_FORELDER_HAR_RETT" -> "";
-            case "4060" -> "";
-            case "DAGPENGER" -> "";
-            case "INGEN_VARIG_ENDRING_NAERING" -> "";
-            case "IKKE_BRUK" -> "";
-            case "IKKE_TIDSBEGRENSET_ARBEIDSFORHOLD" -> "";
-            case "4076" -> "";
-            case "HINDRE_TILBAKETREKK" -> "";
-            case "4034" -> "";
-            case "FORELDREPENGER_FØR_FØDSEL" -> "";
-            case "IKKE_I_AKTIVITET_DOKUMENTERT" -> "";
-            case "IKKE_I_AKTIVITET_IKKE_DOKUMENTERT" -> "";
-            case "BENYTT_A_INNTEKT_I_BG" -> "";
-            case "4005" -> "";
-            case "IKKE_NY_I_ARBEIDSLIVET" -> "";
-            case "4050" -> "";
-            case "4082" -> "";
-            case "TIDSBEGRENSET_ARBEIDSFORHOLD" -> "";
-            case "4035" -> "";
-            case "4051" -> "";
-            case "HAR_IKKE_GYLDIG_GRUNN" -> "";
-            case "EØS_BOSATT_NORGE" -> "";
-            case "4066" -> "";
-            case "4067" -> "";
-            case "FASTSETT_RESULTAT_GRADERING_AVKLARES" -> "";
-            case "2020" -> "";
-            case "2024" -> "";
-            case "4040" -> "";
-            case "NY_I_ARBEIDSLIVET" -> "";
-            case "2013" -> "";
-            case "2023" -> "";
-            case "2007" -> "";
-            case "4020" -> "";
-            case "2014" -> "";
-            case "4023" -> "";
-            case "4086" -> "";
-            case "FASTSETT_RESULTAT_ENDRE_SOEKNADSPERIODEN" -> "";
-            case "UTFØR_TILBAKETREKK" -> "";
-            case "FASTSETT_RESULTAT_PERIODEN_SYKDOM_DOKUMENTERT_IKKE" -> "";
-            case "NASJONAL" -> "";
-            case "4053" -> "";
-            case "2028" -> "";
-            case "4012" -> "";
-            case "4501" -> "";
-            case "2015" -> "";
-            case "IKKE_LOVLIG_OPPHOLD" -> "";
-            case "2034" -> "";
-            case "ARBEIDSAVKLARINGSPENGER" -> "";
-            case "2005" -> "";
-            case "4503" -> "";
-            case "4037" -> "";
-            case "4102" -> "";
-            case "FASTSETT_RESULTAT_PERIODEN_INNLEGGELSEN_DOKUMENTERT_IKKE" -> "";
-            case "4030" -> "";
-            case "4061" -> "";
-            case "IKKE_OPPRETT_BASERT_PÅ_INNTEKTSMELDING" -> "";
-            case "4069" -> "";
-            case "4007" -> "";
-            case "2035" -> "";
-            case "IKKE_ALENEOMSORG" -> "";
-            case "4077" -> "";
-            case "4022" -> "";
-            case "FORTSETT_BEHANDLING" -> "";
-            case "4074" -> "";
-            case "4062" -> "";
-            case "JORDBRUKER" -> "";
-            case "ALENEOMSORG" -> "";
-            case "4025" -> "";
-            case "IKKE_NYOPPSTARTET" -> "";
-            case "4092" -> "";
-            case "4063" -> "";
-            case "4055" -> "";
-            case "4072" -> "";
-            case "4073" -> "";
-            case "4038" -> "";
-            case "BOSA" -> "";
-            case "4085" -> "";
-            case "4033" -> "";
-            case "2032" -> "";
-            case "4095" -> "";
-            case "NYOPPSTARTET" -> "";
-            case "4087" -> "";
-            case "MEDLEM" -> "";
-            case "2017" -> "";
-            case "4104" -> "";
-            case "LAGT_TIL_AV_SAKSBEHANDLER" -> "";
-            case "ARBEIDSTAKER_UTEN_FERIEPENGER" -> "";
-            case "4081" -> "";
-            case "OPPRETT_BASERT_PÅ_INNTEKTSMELDING" -> "";
-            case "2026" -> "";
-            case "4031" -> "";
-            case "4052" -> "";
-            case "2019" -> "";
-            case "4056" -> "";
-            case "4112" -> "";
-            case "SJØMANN" -> "";
-            case "2039" -> "";
-            case "4041" -> "";
-            case "IKKE_OPPHOLDSRETT" -> "";
-            case "2022" -> "";
-            case "FASTSETT_RESULTAT_PERIODEN_HV_DOKUMENTERT" -> "";
-            case "4098" -> "";
-            case "4065" -> "";
-            case "2027" -> "";
-            case "UTVA" -> "";
-            case "4093" -> "";
-            case "4068" -> "";
-            case "MANUELT_OPPRETTET_AV_SAKSBEHANDLER" -> "";
-            case "4502" -> "";
-            case "2012" -> "";
-            case "4003" -> "";
-            case "4057" -> "";
-            case "FASTSETT_RESULTAT_PERIODEN_NAV_TILTAK_DOKUMENTERT" -> "";
-            case "4088" -> "";
-            case "FISKER" -> "";
-            case "4523" -> "";
-            case "PRAKSIS_UTSETTELSE" -> "";
-            case "4107" -> "";
-            case "4504" -> "";
-            case "GRADERING_PÅ_ANDEL_UTEN_BG_IKKE_SATT_PÅ_VENT" -> "";
-            case "FASTSETT_RESULTAT_PERIODEN_NAV_TILTAK_DOKUMENTERT_IKKE" -> "";
-            case "KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_ARBEIDSFORHOLD" -> "";
-            case "4100" -> "";
-            case "4075" -> "";
-            case "IKKE_RELEVANT" -> "";
-            case "4115" -> "";
-            case "4103" -> "";
-            case "4099" -> "";
-            case "4089" -> "";
-            case "4106" -> "";
-            case "4117" -> "";
-            case "4070" -> "";
-            case "4032" -> "";
-            case "4110" -> "";
-            case "4096" -> "";
-            case "FORELDREANSVAR_4_TITTEL" -> "";
-            case "2018" -> "";
-            case "4008" -> "";
-            case "FJERN_FRA_BEHANDLINGEN" -> "";
-            case "4054" -> "";
-            case "4097" -> "";
-            case "4064" -> "";
-            case "DAGMAMMA" -> "";
-            case "DOKUMENTERT" -> "";
-            case "2025" -> "";
-            case "4059" -> "";
-            case "IKKE_EKTEFELLES_BARN" -> "";
-            case "4105" -> "";
-            case "HENLEGG_BEHANDLING" -> "";
-            case "SAMMENSATT_KONTROLL" -> "";
-            case "NYTT_ARBEIDSFORHOLD" -> "";
-            case "4013" -> "";
-            case "4071" -> "";
-            case "ADOPTERER_IKKE_ALENE" -> "";
-            case "IKKE_DOKUMENTERT" -> "";
-            case "EKTEFELLES_BARN" -> "";
-            case "4039" -> "";
-            case "4111" -> "";
-            case "FORELDREANSVAR_2_TITTEL" -> "";
-            case "UNNTAK" -> "";
-            case "4058" -> "";
-            case "4116" -> "";
-            case "OMSORGSVILKARET_TITTEL" -> "";
-            case "ADOPTERER_ALENE" -> "";
-            case "FASTSETT_RESULTAT_PERIODEN_HV_DOKUMENTERT_IKKE" -> "";
-            case "VERGE" -> "";
+            case "SØKER_ER_IKKE_I_PERMISJON" -> "Søker er ikke i permisjon";
+            case "BOSATT_I_NORGE" -> "Søker er bosatt i Norge";
+            case "INNVIRKNING" -> "Faresignalene hadde innvirkning på behandlingen";
+            case "OPPHOLDSRETT" -> "Søker har ikke oppholdsrett (EØS)";
+            case "2036" -> "Innvilget foreldrepenger, kun far har rett og mor er ufør";
+            case "BOSATT_UTLAND" -> "Bosatt utland";
+            case "SØKER_ER_I_PERMISJON" -> "Søker er i permisjon";
+            case "IKKE_BOSATT_I_NORGE" -> "Søker er ikke bosatt i Norge";
+            case "FRILANSER" -> "Frilanser";
+            case "2006" -> "Innvilget foreldrepenger før fødsel";
+            case "ANNEN_FORELDER_HAR_RETT" -> "Annen forelder har rett";
+            case "4060" -> "Samtidig uttak - ikke gyldig kombinasjon";
+            case "DAGPENGER" -> "Dagpenger";
+            case "INGEN_VARIG_ENDRING_NAERING" -> "Ingen varig endret eller nyoppstartet næring";
+            case "IKKE_BRUK" -> "Ikke bruk";
+            case "IKKE_TIDSBEGRENSET_ARBEIDSFORHOLD" -> "ikke tidsbegrenset";
+            case "4076" -> "Avslag overføring av kvote pga. annen forelder har rett til foreldrepenger";
+            case "HINDRE_TILBAKETREKK" -> "Ikke tilbakekrev fra søker";
+            case "4034" -> "Avslag utsettelse - ingen stønadsdager igjen";
+            case "FORELDREPENGER_FØR_FØDSEL" -> "Foreldrepenger før fødsel";
+            case "IKKE_I_AKTIVITET_DOKUMENTERT" -> ""; //FIXME Thao: Finner ikke denne
+            case "IKKE_I_AKTIVITET_IKKE_DOKUMENTERT" -> ""; //FIXME Thao: Finner ikke denne
+            case "BENYTT_A_INNTEKT_I_BG" -> "Benytt i behandlingen. Inntekt fra A-inntekt benyttes i beregningsgrunnlaget";
+            case "4005" -> "Hull mellom stønadsperioder";
+            case "IKKE_NY_I_ARBEIDSLIVET" -> "ikke ny i arbeidslivet";
+            case "4050" -> "Aktivitetskravet arbeid ikke oppfylt";
+            case "4082" -> "Avslag utsettelse pga arbeid tilbake i tid";
+            case "TIDSBEGRENSET_ARBEIDSFORHOLD" -> "tidsbegrenset";
+            case "4035" -> "Far aleneomsorg, mor fyller ikke aktivitetskravet";
+            case "4051" -> "Aktivitetskravet offentlig godkjent utdanning ikke oppfylt";
+            case "HAR_IKKE_GYLDIG_GRUNN" -> "Ingen gyldig grunn for sen fremsetting av søknaden";
+            case "EØS_BOSATT_NORGE" -> "EØS bosatt Norge";
+            case "4066" -> "Aktivitetskrav- arbeid ikke dokumentert";
+            case "4067" -> "Aktivitetskrav – utdanning ikke dokumentert";
+            case "FASTSETT_RESULTAT_GRADERING_AVKLARES" -> "Perioden er ok";
+            case "2020" -> "Overføring oppfylt, annen part har ikke rett til foreldrepengene";
+            case "2024" -> "Gyldig utsettelse";
+            case "4040" -> "Barnets innleggelse ikke oppfylt";
+            case "NY_I_ARBEIDSLIVET" -> "ny i arbeidslivet";
+            case "2013" -> "Gyldig utsettelse pga barn innlagt";
+            case "2023" -> "Overføring oppfylt, søker har aleneomsorg for barnet";
+            case "2007" -> "Innvilget foreldrepenger, kun mor har rett";
+            case "4020" -> "Brudd på søknadsfrist";
+            case "2014" -> "Gyldig utsettelse pga sykdom";
+            case "4023" -> "Arbeider i uttaksperioden mer enn 0%";
+            case "4086" -> "Annen part har overlappende uttaksperioder som er innvilget utsettelse";
+            case "FASTSETT_RESULTAT_ENDRE_SOEKNADSPERIODEN" -> "Endre søknadsperioden";
+            case "UTFØR_TILBAKETREKK" -> "Tilbakekrev fra søker";
+            case "FASTSETT_RESULTAT_PERIODEN_SYKDOM_DOKUMENTERT_IKKE" -> "Sykdommen/skaden er ikke dokumentert";
+            case "NASJONAL" -> "Nasjonal";
+            case "4053" -> "Aktivitetskravet mors sykdom/skade ikke oppfylt";
+            case "2028" -> "Bare far rett, aktivitetskravet oppfylt";
+            case "4012" -> "Far har ikke omsorg";
+            case "4501" -> "Ikke gradering pga. for sen søknad"; // TODO Thao: Fant bare dette i kodeverk. Holder det?
+            case "2015" -> "Utsettelse pga. ferie, kun far har rett";
+            case "IKKE_LOVLIG_OPPHOLD" -> "Søker har ikke lovlig opphold";
+            case "2034" -> "Gradering foreldrepenger, kun mor har rett";
+            case "ARBEIDSAVKLARINGSPENGER" -> "Arbeidsavklaringspenger";
+            case "2005" -> "Innvilget foreldrepenger ved aleneomsorg";
+            case "4503" -> "Avslag gradering - ikke rett til gradert uttak pga. redusert oppfylt aktivitetskrav på mor";
+            case "4037" -> "Ikke heltidsarbeid";
+            case "4102" -> "Bare far har rett, mangler søknad uttak/aktivitetskrav";
+            case "FASTSETT_RESULTAT_PERIODEN_INNLEGGELSEN_DOKUMENTERT_IKKE" -> "Innleggelsen er ikke dokumentert";
+            case "4030" -> "Avslag utsettelse før termin/fødsel";
+            case "4061" -> "Utsettelse ferie ikke dokumentert";
+            case "IKKE_OPPRETT_BASERT_PÅ_INNTEKTSMELDING" -> "Ikke opprett arbeidsforhold";
+            case "4069" -> "Aktivitetskrav – sykdom/skade ikke dokumentert";
+            case "4007" -> "Den andre part syk/skadet ikke oppfylt";
+            case "2035" -> "Gradering foreldrepenger, kun far har rett - dager uten aktivitetskrav";
+            case "IKKE_ALENEOMSORG" -> "Søker har ikke aleneomsorg for barnet";
+            case "4077" -> "Innvilget prematuruker, med fratrekk pleiepenger";
+            case "4022" -> "Barnet er over 3 år";
+            case "FORTSETT_BEHANDLING" -> "Fortsett behandling";
+            case "4074" -> "Avslag overføring av kvote pga. sykdom/skade/innleggelse er ikke dokumentert";
+            case "4062" -> "Utsettelse arbeid ikke dokumentert";
+            case "JORDBRUKER" -> "Selvstendig næringsdrivende - Jordbruker";
+            case "ALENEOMSORG" -> "Søker har aleneomsorg for barnet";
+            case "4025" -> "Avslag gradering - arbeid 100% eller mer";
+            case "IKKE_NYOPPSTARTET" -> "ikke nyoppstartet";
+            case "4092" -> "Avslag overføring - har ikke aleneomsorg for barnet";
+            case "4063" -> "Utsettelse søkers sykdom/skade ikke dokumentert";
+            case "4055" -> "Aktivitetskravet mors deltakelse på introduksjonsprogram ikke oppfylt";
+            case "4072" -> "Barnet er dødt";
+            case "4073" -> "Ikke rett til kvote fordi mor ikke har rett til foreldrepenger";
+            case "4038" -> "Søkers sykdom/skade ikke oppfylt";
+            case "BOSA" -> "Bosatt";
+            case "4085" -> "Det er ikke samtykke mellom partene";
+            case "4033" -> "Ikke lovbestemt ferie";
+            case "2032" -> "Gradering foreldrepenger ved aleneomsorg";
+            case "4095" -> "Mor tar ikke alle 3 ukene før termin";
+            case "NYOPPSTARTET" -> "nyoppstartet";
+            case "4087" -> "Opphør av medlemskap";
+            case "MEDLEM" -> "Periode med medlemskap";
+            case "2017" -> "Utsettelse pga. sykdom, skade, kun far har rett";
+            case "4104" -> "Stønadsperiode for nytt barn";
+            case "LAGT_TIL_AV_SAKSBEHANDLER" -> "Arbeidsforholdet er lagt til av saksbehandler";
+            case "ARBEIDSTAKER_UTEN_FERIEPENGER" -> "Arbeidstaker uten feriepenger";
+            case "4081" -> "Avslag utsettelse pga ferie tilbake i tid";
+            case "OPPRETT_BASERT_PÅ_INNTEKTSMELDING" -> "Opprettet basert på inntektsmeldingen";
+            case "2026" -> "Gyldig utsettelse første 6 uker pga. barn innlagt";
+            case "4031" -> "Ferie innenfor de første 6 ukene";
+            case "4052" -> "Aktivitetskravet offentlig godkjent utdanning i kombinasjon med arbeid ikke oppfylt";
+            case "2019" -> "Utsettelse pga. barnets innleggelse på helseinstitusjon, kun far har rett";
+            case "4056" -> "Aktivitetskravet mors deltakelse på kvalifiseringsprogram ikke oppfylt";
+            case "4112" -> "Barnets innleggelse første 6 uker ikke oppfylt";
+            case "SJØMANN" -> "Arbeidstaker - Sjømann";
+            case "2039" -> "Innvilget første 6 uker etter fødsel";
+            case "4041" -> "Avslag utsettelse ferie på bevegelig helligdag";
+            case "IKKE_OPPHOLDSRETT" -> "Søker har ikke oppholdsrett (EØS)";
+            case "2022" -> "Overføring oppfylt, annen part er innlagt i helseinstitusjon";
+            case "FASTSETT_RESULTAT_PERIODEN_HV_DOKUMENTERT" -> "Øvelse eller tjeneste i heimevernet er dokumentert";
+            case "4098" -> "Opphør av foreldreansvarvilkåret";
+            case "4065" -> "Utsettelse barnets innleggelse - barnets innleggelse ikke dokumentert";
+            case "2027" -> "Gyldig utsettelse første 6 uker pga. sykdom";
+            case "UTVA" -> "Utvandret";
+            case "4093" -> "Avslag gradering - søker er ikke i arbeid";
+            case "4068" -> "Aktivitetskrav – arbeid i kombinasjon med utdanning ikke dokumentert";
+            case "MANUELT_OPPRETTET_AV_SAKSBEHANDLER" -> "Opprettet av saksbehandler";
+            case "4502" -> "Avslag graderingsavtale mangler - ikke dokumentert"; // TODO Thao: Fant bare dette i kodeverk. Holder det?
+            case "2012" -> "Gyldig utsettelse pga innleggelse";
+            case "4003" -> "Mor har ikke omsorg";
+            case "4057" -> "Unntak for aktivitetskravet, mors mottak av uføretrygd ikke oppfylt";
+            case "FASTSETT_RESULTAT_PERIODEN_NAV_TILTAK_DOKUMENTERT" -> "Tiltak i regi av NAV er dokumentert";
+            case "4088" -> "Aktivitetskrav – introduksjonsprogram ikke dokumentert";
+            case "FISKER" -> "Selvstendig næringsdrivende - Fisker";
+            case "4523" -> "Avslag gradering - arbeid 100% eller mer";
+            case "PRAKSIS_UTSETTELSE" -> "Feil praksis utsettelse";
+            case "4107" -> "Ikke nok dager uten aktivitetskrav";
+            case "4504" -> "Avslag gradering - gradering før uke 7";
+            case "GRADERING_PÅ_ANDEL_UTEN_BG_IKKE_SATT_PÅ_VENT" -> "Riktig";
+            case "FASTSETT_RESULTAT_PERIODEN_NAV_TILTAK_DOKUMENTERT_IKKE" -> "Tiltak i regi av NAV er ikke dokumentert";
+            case "KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_ARBEIDSFORHOLD" -> "Arbeidsgiver kontaktes";
+            case "4100" -> "Uttak før omsorgsovertakelse";
+            case "4075" -> "Ikke rett til fellesperiode fordi mor ikke har rett til foreldrepenger";
+            case "IKKE_RELEVANT" -> "Ikke relevant periode";
+            case "4115" -> "Søkers sykdom/skade første 6 uker ikke dokumentert";
+            case "4103" -> "Mangler søknad for første 6 uker etter fødsel";
+            case "4099" -> "Opphør av opptjeningsvilkåret";
+            case "4089" -> "Aktivitetskrav – kvalifiseringsprogrammet ikke dokumentert";
+            case "4106" -> "Far/medmor søker mer enn 10 dager ifm fødsel";
+            case "4117" -> "Barnets innleggelse første 6 uker ikke dokumentert";
+            case "4070" -> "Aktivitetskrav – innleggelse ikke dokumentert";
+            case "4032" -> "Ferie - selvstendig næringsdrivende/frilanser";
+            case "4110" -> "Søkers sykdom/skade første 6 uker ikke oppfylt";
+            case "4096" -> "Opphør av fødselsvilkåret";
+            case "FORELDREANSVAR_4_TITTEL" -> "Foreldreansvarsvilkåret § 14-17 fjerde ledd";
+            case "2018" -> "Utsettelse pga. egen innleggelse på helseinstitusjon, kun far har rett";
+            case "4008" -> "Den andre part innleggelse ikke oppfylt";
+            case "FJERN_FRA_BEHANDLINGEN" -> "Fjernet fra behandlingen";
+            case "4054" -> "Aktivitetskravet mors innleggelse ikke oppfylt";
+            case "4097" -> "Opphør av adopsjonsvilkåret";
+            case "4064" -> "Utsettelse søkers innleggelse ikke dokumentert";
+            case "DAGMAMMA" -> "Selvstendig næringsdrivende - Dagmamma";
+            case "DOKUMENTERT" -> "dokumentert";
+            case "2025" -> "Gyldig utsettelse første 6 uker pga. innleggelse";
+            case "4059" -> "Unntak for aktivitetskravet, flerbarnsdager - ikke nok dager";
+            case "IKKE_EKTEFELLES_BARN" -> "ikke ektefelles barn";
+            case "4105" -> "Far/medmor søker uttak før fødsel/omsorg";
+            case "HENLEGG_BEHANDLING" -> "Henlegg behandling";
+            case "SAMMENSATT_KONTROLL" -> "Sammensatt kontroll";
+            case "NYTT_ARBEIDSFORHOLD" -> "Arbeidsforholdet er ansett som nytt";
+            case "4013" -> "Mor søker fellesperiode før 12 uker før termin/fødsel";
+            case "4071" -> "Aktivitetskrav – introduksjonsprogram ikke dokumentert";
+            case "ADOPTERER_IKKE_ALENE" -> "adopterer ikke alene";
+            case "IKKE_DOKUMENTERT" -> "ikke dokumentert";
+            case "EKTEFELLES_BARN" -> "ektefelles barn";
+            case "4039" -> "Søkers innleggelse ikke oppfylt";
+            case "4111" -> "Søkers innleggelse første 6 uker ikke oppfylt";
+            case "FORELDREANSVAR_2_TITTEL" -> "Foreldreansvarsvilkåret § 14-17 andre ledd";
+            case "UNNTAK" -> "Perioder uten medlemskap";
+            case "4058" -> "Unntak for aktivitetskravet, stebarnsadopsjon - ikke nok dager";
+            case "4116" -> "Søkers innleggelse første 6 uker ikke dokumentert";
+            case "OMSORGSVILKARET_TITTEL" -> "Omsorgsvilkår § 14-17 tredje ledd";
+            case "ADOPTERER_ALENE" -> "adopterer alene";
+            case "FASTSETT_RESULTAT_PERIODEN_HV_DOKUMENTERT_IKKE" -> "Øvelse eller tjeneste i heimevernet er ikke dokumentert";
+            case "VERGE" -> "Verge/fullmektig";
             default -> throw new IllegalStateException("Unexpected value: " + felt);
         };
     }
@@ -714,7 +714,7 @@ public class HistorikkV2Adapter {
 
     private static Optional<String> begrunnelseFraDel(HistorikkinnslagDel historikkinnslagDel) {
         return historikkinnslagDel.getBegrunnelseFelt()
-            .flatMap(HistorikkV2Adapter::finnÅrsakKodeListe)
+            .flatMap(no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkV2Adapter::finnÅrsakKodeListe)
             .map(Kodeverdi::getNavn)
             .or(historikkinnslagDel::getBegrunnelse);
     }
