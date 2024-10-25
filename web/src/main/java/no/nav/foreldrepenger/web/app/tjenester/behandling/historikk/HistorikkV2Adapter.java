@@ -27,6 +27,9 @@ import no.nav.foreldrepenger.historikk.HistorikkAvklartSoeknadsperiodeType;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagDokumentLinkDto;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOpplysningType.UTTAK_PERIODE_FOM;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOpplysningType.UTTAK_PERIODE_TOM;
+
 public class HistorikkV2Adapter {
 
     private static final Logger LOG = LoggerFactory.getLogger(HistorikkV2Adapter.class);
@@ -45,8 +48,78 @@ public class HistorikkV2Adapter {
                  UENDRET_UTFALL, REGISTRER_OM_VERGE -> fraMaltype2(h, behandlingUUID);
             case SAK_GODKJENT, FAKTA_ENDRET, KLAGE_BEH_NK, KLAGE_BEH_NFP, BYTT_ENHET, UTTAK, TERMINBEKREFTELSE_UGYLDIG, ANKE_BEH ->
                 fraMalType5(h, behandlingUUID);
+            case OVST_UTTAK, FASTSATT_UTTAK -> fraMaltype10(h, behandlingUUID);
             default -> null; //TODO fjerne default
         };
+    }
+
+    private static HistorikkinnslagDtoV2 fraMaltype10(Historikkinnslag h, UUID behandlingUUID) {
+        var skjermlenke = h.getHistorikkinnslagDeler()
+            .stream()
+            .flatMap(del -> del.getSkjermlenke().stream())
+            .map(SkjermlenkeType::fraKode)
+            .findFirst();
+        var tittel = "TODO";
+        var tekster = new ArrayList<String>();
+        for(var del : h.getHistorikkinnslagDeler()) {
+            String opplysningTekst;
+            if (h.getType().equals(HistorikkinnslagType.OVST_UTTAK)) {
+                var tekst = "<b>Overstyrt vurdering</b> av perioden {periodeFom} - {periodeTom}.";
+
+                var periodeFom = del.getOpplysninger().stream()
+                    .filter(o -> UTTAK_PERIODE_FOM.getKode().equals(o.getNavn()))
+                    .map(HistorikkinnslagFelt::getTilVerdi)
+                    .findFirst()
+                    .orElse("");
+
+                var periodeTom = del.getOpplysninger().stream()
+                    .filter(o -> UTTAK_PERIODE_TOM.getKode().equals(o.getNavn()))
+                    .map(HistorikkinnslagFelt::getTilVerdi)
+                    .findFirst()
+                    .orElse("");
+
+                tekst.replace("{periodeFom}", periodeFom);
+                tekst.replace("{periodeTom}", periodeTom);
+                opplysningTekst = tekst;
+            }
+            if (h.getType().equals(HistorikkinnslagType.FASTSATT_UTTAK)) {
+                // opplysing
+                var tekst = "<b>Manuell vurdering</b> av perioden {periodeFom} - {periodeTom}.";
+                var periodeFom = del.getOpplysninger().stream()
+                    .filter(o -> UTTAK_PERIODE_FOM.getKode().equals(o.getNavn()))
+                    .map(HistorikkinnslagFelt::getTilVerdi)
+                    .findFirst()
+                    .orElse("");
+
+                var periodeTom = del.getOpplysninger().stream()
+                    .filter(o -> UTTAK_PERIODE_TOM.getKode().equals(o.getNavn()))
+                    .map(HistorikkinnslagFelt::getTilVerdi)
+                    .findFirst()
+                    .orElse("");
+                tekst.replace("{periodeFom}", periodeFom);
+                tekst.replace("{periodeTom}", periodeTom);
+                opplysningTekst = tekst;
+            }
+
+            // Endret felt
+            var tekst = "<b>{fieldName}</b> er endret fra {fromValueWeeks} uker og {fromValueDays} dager til <b>{toValueWeeks} uker og {toValueDays} dager</b>";
+            var fieldName = kodeverdiTilStreng(HistorikkEndretFeltType.fraKode(felt.getNavn()), felt.getNavnVerdi());
+            var fromValueWeeks = ;
+            var fromValueDays = ;
+            var toValueWeeks = ;
+            var toValueDays = ;
+
+            tekster.add();
+        }
+
+        return new HistorikkinnslagDtoV2(
+            behandlingUUID,
+            HistorikkinnslagDtoV2.HistorikkAktørDto.fra(h.getAktør(), h.getOpprettetAv()),
+            skjermlenke.orElse(null),
+            h.getOpprettetTidspunkt(),
+            null, // TODO
+            tittel,
+            tekster);
     }
 
     private static HistorikkinnslagDtoV2 fraMalType5(Historikkinnslag h, UUID behandlingUUID) {
@@ -64,6 +137,19 @@ public class HistorikkV2Adapter {
             skjermlenke.orElse(null), h.getOpprettetTidspunkt(), lenker, tittel, lagTekstForMal5(h));
     }
 
+    /**
+     * Slik er det nå (dette er feil):
+     * Hendelse 1
+     * Hendelse 2
+     * Resultat 1
+     * Resultat 2
+     *
+     * Dette er riktig:
+     * Hendelse 1
+     * Resultat 1
+     * Hendelse 2
+     * Resultat 2
+     */
     private static List<String> lagTekstForMal5(Historikkinnslag h) {
         var hendelseTekst = h.getHistorikkinnslagDeler()
             .stream()
