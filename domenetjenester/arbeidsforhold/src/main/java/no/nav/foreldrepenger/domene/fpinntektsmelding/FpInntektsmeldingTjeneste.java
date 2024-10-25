@@ -36,6 +36,9 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ApplicationScoped
 public class FpInntektsmeldingTjeneste {
+
+    private static final Boolean IS_PROD = Environment.current().isProd();
+
     private FpinntektsmeldingKlient klient;
     private ProsessTaskTjeneste prosessTaskTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -62,8 +65,8 @@ public class FpInntektsmeldingTjeneste {
     }
 
     public void lagForespørselTask(String ag, BehandlingReferanse ref) {
-        // Toggler av for prod og lokalt, ikke støtte lokalt
-        if (!Environment.current().isDev()) {
+        // Toggler av for prod
+        if (Boolean.TRUE.equals(IS_PROD)) {
             return;
         }
         var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(FpinntektsmeldingTask.class));
@@ -109,7 +112,11 @@ public class FpInntektsmeldingTjeneste {
     }
 
     public void lagForespørsel(String ag, BehandlingReferanse ref, Skjæringstidspunkt stp) {
-        // Toggler av for prod og lokalt, ikke støtte lokalt
+        // Toggler av for prod
+        if (Boolean.TRUE.equals(IS_PROD)) {
+            return;
+        }
+
         if (!OrganisasjonsNummerValidator.erGyldig(ag)) {
             LOG.error("FpInntektsmeldingTjeneste: Oppretter ikke forespørsel for saksnummer: {} fordi orgnummer: {} ikke er gyldig", ref.saksnummer(), ag);
             return;
@@ -145,15 +152,16 @@ public class FpInntektsmeldingTjeneste {
         return switch (fagsakYtelseType) {
             case FORELDREPENGER -> OpprettForespørselRequest.YtelseType.FORELDREPENGER;
             case SVANGERSKAPSPENGER -> OpprettForespørselRequest.YtelseType.SVANGERSKAPSPENGER;
-            case UDEFINERT,ENGANGSTØNAD -> throw new IllegalArgumentException("Kan ikke opprette forespørsel for ytelsetype " + fagsakYtelseType);
+            case UDEFINERT, ENGANGSTØNAD -> throw new IllegalArgumentException("Kan ikke opprette forespørsel for ytelsetype " + fagsakYtelseType);
         };
     }
 
     public void lagLukkForespørselTask(Behandling behandling, OrgNummer orgNummer, ForespørselStatus status) {
-        // Toggler av for prod og lokalt, ikke støtte lokalt
-        if (!Environment.current().isDev()) {
+        // Toggler av for prod
+        if (Boolean.TRUE.equals(IS_PROD)) {
             return;
         }
+
         var behandlingId = behandling.getId();
         var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(LukkForespørslerImTask.class));
         taskdata.setBehandling(behandling.getFagsakId(), behandlingId);
@@ -167,8 +175,8 @@ public class FpInntektsmeldingTjeneste {
     }
 
     public void lukkForespørsel(String saksnummer, String orgnummer) {
-        // Toggler av for prod og lokalt, ikke støtte lokalt
-        if (!Environment.current().isDev()) {
+        // Toggler av for prod
+        if (Boolean.TRUE.equals(IS_PROD)) {
             return;
         }
 
@@ -181,8 +189,8 @@ public class FpInntektsmeldingTjeneste {
     }
 
     public void settForespørselTilUtgått(String saksnummer) {
-        // Toggler av for prod og lokalt, ikke støtte lokalt
-        if (!Environment.current().isDev()) {
+        // Toggler av for prod
+        if (Boolean.TRUE.equals(IS_PROD)) {
             return;
         }
 
