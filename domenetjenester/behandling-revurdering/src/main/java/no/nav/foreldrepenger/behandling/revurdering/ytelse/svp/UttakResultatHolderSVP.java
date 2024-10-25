@@ -50,7 +50,7 @@ class UttakResultatHolderSVP implements UttakResultatHolder {
     }
 
     @Override
-    public boolean kontrollerErSisteUttakAvslåttMedÅrsak() {
+    public boolean erOpphør() {
         if (uttakresultat.isEmpty()) {
             return false;
         }
