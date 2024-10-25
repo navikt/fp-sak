@@ -2,12 +2,10 @@ package no.nav.foreldrepenger.domene.fpinntektsmelding;
 
 import java.time.LocalDate;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
-import no.nav.foreldrepenger.domene.typer.AktørId;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 public record OpprettForespørselRequest(@NotNull @Valid AktørIdDto aktørId,
                                         @NotNull @Valid OrganisasjonsnummerDto orgnummer,
