@@ -118,7 +118,7 @@ public class FpInntektsmeldingTjeneste {
         }
 
         if (!OrganisasjonsNummerValidator.erGyldig(ag)) {
-            LOG.error("FpInntektsmeldingTjeneste: Oppretter ikke forespørsel for saksnummer: {} fordi orgnummer: {} ikke er gyldig", ref.saksnummer(), ag);
+            LOG.error("FpInntektsmeldingTjeneste: Oppretter ikke forespørsel for saksnummer: {} fordi orgnummer: {} ikke er gyldig", ref.saksnummer(), tilMaskertNummer(ag));
             return;
         }
         var request = new OpprettForespørselRequest(new OpprettForespørselRequest.AktørIdDto(ref.aktørId().getId()),
@@ -128,7 +128,7 @@ public class FpInntektsmeldingTjeneste {
         if (opprettForespørselResponse.forespørselResultat().equals(OpprettForespørselResponse.ForespørselResultat.FORESPØRSEL_OPPRETTET)) {
             lagHistorikkForForespørsel(ag, ref);
         } else {
-            LOG.info("Fpinntektsmelding har allerede en åpen oppgave på saksnummer: {} og orgnummer: {}", ref.saksnummer(), ag);
+            LOG.info("Fpinntektsmelding har allerede en åpen oppgave på saksnummer: {} og orgnummer: {}", ref.saksnummer(), tilMaskertNummer(ag));
         }
     }
 
@@ -181,7 +181,9 @@ public class FpInntektsmeldingTjeneste {
         }
 
         if (!OrganisasjonsNummerValidator.erGyldig(orgnummer)) {
-            LOG.error("FpInntektsmeldingTjeneste: Lukker ikke forespørsel for saksnummer: {} fordi orgnummer: {} ikke er gyldig", saksnummer, orgnummer);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("FpInntektsmeldingTjeneste: Lukker ikke forespørsel for saksnummer: {} fordi orgnummer: {} ikke er gyldig", saksnummer, tilMaskertNummer(orgnummer));
+            }
             return;
         }
         var request = new LukkForespørselRequest(new OpprettForespørselRequest.OrganisasjonsnummerDto(orgnummer), new OpprettForespørselRequest.SaksnummerDto(saksnummer));
@@ -196,5 +198,16 @@ public class FpInntektsmeldingTjeneste {
 
         var request = new LukkForespørselRequest(null, new OpprettForespørselRequest.SaksnummerDto(saksnummer));
         klient.settForespørselTilUtgått(request);
+    }
+
+    private static String tilMaskertNummer(String orgNummer) {
+        if (orgNummer == null) {
+            return null;
+        }
+        var length = orgNummer.length();
+        if (length <= 4) {
+            return "*".repeat(length);
+        }
+        return "*".repeat(length - 4) + orgNummer.substring(length - 4);
     }
 }
