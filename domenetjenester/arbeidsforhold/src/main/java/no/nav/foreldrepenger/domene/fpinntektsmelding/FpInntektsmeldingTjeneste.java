@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.fpinntektsmelding;
 
+import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.tilMaskertNummer;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -36,6 +38,9 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ApplicationScoped
 public class FpInntektsmeldingTjeneste {
+
+    private static final Boolean IS_PROD = Environment.current().isProd();
+
     private FpinntektsmeldingKlient klient;
     private ProsessTaskTjeneste prosessTaskTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -62,8 +67,8 @@ public class FpInntektsmeldingTjeneste {
     }
 
     public void lagForespørselTask(String ag, BehandlingReferanse ref) {
-        // Toggler av for prod og lokalt, ikke støtte lokalt
-        if (!Environment.current().isDev()) {
+        // Toggler av for prod
+        if (Boolean.TRUE.equals(IS_PROD)) {
             return;
         }
         var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(FpinntektsmeldingTask.class));
@@ -109,9 +114,15 @@ public class FpInntektsmeldingTjeneste {
     }
 
     public void lagForespørsel(String ag, BehandlingReferanse ref, Skjæringstidspunkt stp) {
-        // Toggler av for prod og lokalt, ikke støtte lokalt
+        // Toggler av for prod
+        if (Boolean.TRUE.equals(IS_PROD)) {
+            return;
+        }
+
         if (!OrganisasjonsNummerValidator.erGyldig(ag)) {
-            LOG.error("FpInntektsmeldingTjeneste: Oppretter ikke forespørsel for saksnummer: {} fordi orgnummer: {} ikke er gyldig", ref.saksnummer(), ag);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("FpInntektsmeldingTjeneste: Oppretter ikke forespørsel for saksnummer: {} fordi orgnummer: {} ikke er gyldig", ref.saksnummer(), tilMaskertNummer(ag));
+            }
             return;
         }
         var request = new OpprettForespørselRequest(new OpprettForespørselRequest.AktørIdDto(ref.aktørId().getId()),
@@ -121,7 +132,9 @@ public class FpInntektsmeldingTjeneste {
         if (opprettForespørselResponse.forespørselResultat().equals(OpprettForespørselResponse.ForespørselResultat.FORESPØRSEL_OPPRETTET)) {
             lagHistorikkForForespørsel(ag, ref);
         } else {
-            LOG.info("Fpinntektsmelding har allerede en åpen oppgave på saksnummer: {} og orgnummer: {}", ref.saksnummer(), ag);
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Fpinntektsmelding har allerede en åpen oppgave på saksnummer: {} og orgnummer: {}", ref.saksnummer(), tilMaskertNummer(ag));
+            }
         }
     }
 
@@ -145,15 +158,16 @@ public class FpInntektsmeldingTjeneste {
         return switch (fagsakYtelseType) {
             case FORELDREPENGER -> OpprettForespørselRequest.YtelseType.FORELDREPENGER;
             case SVANGERSKAPSPENGER -> OpprettForespørselRequest.YtelseType.SVANGERSKAPSPENGER;
-            case UDEFINERT,ENGANGSTØNAD -> throw new IllegalArgumentException("Kan ikke opprette forespørsel for ytelsetype " + fagsakYtelseType);
+            case UDEFINERT, ENGANGSTØNAD -> throw new IllegalArgumentException("Kan ikke opprette forespørsel for ytelsetype " + fagsakYtelseType);
         };
     }
 
     public void lagLukkForespørselTask(Behandling behandling, OrgNummer orgNummer, ForespørselStatus status) {
-        // Toggler av for prod og lokalt, ikke støtte lokalt
-        if (!Environment.current().isDev()) {
+        // Toggler av for prod
+        if (Boolean.TRUE.equals(IS_PROD)) {
             return;
         }
+
         var behandlingId = behandling.getId();
         var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(LukkForespørslerImTask.class));
         taskdata.setBehandling(behandling.getFagsakId(), behandlingId);
@@ -167,13 +181,15 @@ public class FpInntektsmeldingTjeneste {
     }
 
     public void lukkForespørsel(String saksnummer, String orgnummer) {
-        // Toggler av for prod og lokalt, ikke støtte lokalt
-        if (!Environment.current().isDev()) {
+        // Toggler av for prod
+        if (Boolean.TRUE.equals(IS_PROD)) {
             return;
         }
 
         if (!OrganisasjonsNummerValidator.erGyldig(orgnummer)) {
-            LOG.error("FpInntektsmeldingTjeneste: Lukker ikke forespørsel for saksnummer: {} fordi orgnummer: {} ikke er gyldig", saksnummer, orgnummer);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("FpInntektsmeldingTjeneste: Lukker ikke forespørsel for saksnummer: {} fordi orgnummer: {} ikke er gyldig", saksnummer, tilMaskertNummer(orgnummer));
+            }
             return;
         }
         var request = new LukkForespørselRequest(new OpprettForespørselRequest.OrganisasjonsnummerDto(orgnummer), new OpprettForespørselRequest.SaksnummerDto(saksnummer));
@@ -181,12 +197,13 @@ public class FpInntektsmeldingTjeneste {
     }
 
     public void settForespørselTilUtgått(String saksnummer) {
-        // Toggler av for prod og lokalt, ikke støtte lokalt
-        if (!Environment.current().isDev()) {
+        // Toggler av for prod
+        if (Boolean.TRUE.equals(IS_PROD)) {
             return;
         }
 
         var request = new LukkForespørselRequest(null, new OpprettForespørselRequest.SaksnummerDto(saksnummer));
         klient.settForespørselTilUtgått(request);
     }
+
 }
