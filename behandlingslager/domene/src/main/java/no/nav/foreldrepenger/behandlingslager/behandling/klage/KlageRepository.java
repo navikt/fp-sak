@@ -115,12 +115,10 @@ public class KlageRepository {
     public Optional<KlageVurderingResultat> hentGjeldendeKlageVurderingResultat(Behandling behandling) {
         var klageVurderingResultat = hentVurderingsResultaterForKlageBehandling(behandling.getId());
 
-        var resultat = klageVurderingResultat.stream()
+        return klageVurderingResultat.stream()
             .filter(kvr -> KlageVurdertAv.NK.equals(kvr.getKlageVurdertAv()))
             .findFirst()
-            .orElseGet(() -> klageVurderingResultat.stream().findFirst().orElse(null));
-
-        return Optional.ofNullable(resultat);
+            .or(() -> klageVurderingResultat.stream().findFirst());
     }
 
     public void lagreFormkrav(Behandling klageBehandling, KlageFormkravEntitet.Builder klageFormkravBuilder) {
