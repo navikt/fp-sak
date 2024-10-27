@@ -340,9 +340,9 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
                 .map(KlageMedholdÅrsak::getKode)
                 .orElse(null);
         } else if (BehandlingType.ANKE.equals(behandling.getType())) {
-            return ankeRepository.hentAnkeVurderingResultat(behandling.getId())
-                .map(AnkeVurderingResultatEntitet::getAnkeOmgjørÅrsak)
-                .filter(årsak -> !AnkeOmgjørÅrsak.UDEFINERT.equals(årsak))
+            var vurdering = ankeRepository.hentAnkeVurderingResultat(behandling.getId());
+            return vurdering.map(AnkeVurderingResultatEntitet::getTrygderettOmgjørÅrsak).filter(årsak -> !AnkeOmgjørÅrsak.UDEFINERT.equals(årsak))
+                .or(() -> vurdering.map(AnkeVurderingResultatEntitet::getAnkeOmgjørÅrsak).filter(årsak -> !AnkeOmgjørÅrsak.UDEFINERT.equals(årsak)))
                 .map(AnkeOmgjørÅrsak::getKode)
                 .orElse(null);
         } else {
@@ -357,9 +357,8 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
             var aksjonspunktTR = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN);
             if (vurdertAvTR) {
                 return ENHET_TRYGDERETT;
-            } else if (BehandlingStatus.AVSLUTTET.equals(behandling.getStatus())) {
-                return behandlingsresultat.filter(Behandlingsresultat::isBehandlingHenlagt).isPresent() && aksjonspunktTR.isPresent() ?
-                    ENHET_TRYGDERETT : Optional.empty();
+            } else if (behandlingsresultat.filter(Behandlingsresultat::isBehandlingHenlagt).isPresent() && aksjonspunktTR.isPresent()) {
+                return ENHET_TRYGDERETT;
             } else if (aksjonspunktTR.filter(Aksjonspunkt::erOpprettet).isPresent()) {
                 return ENHET_TRYGDERETT;
             } else {
