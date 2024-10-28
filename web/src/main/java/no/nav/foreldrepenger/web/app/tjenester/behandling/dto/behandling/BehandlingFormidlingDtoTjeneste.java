@@ -200,7 +200,6 @@ public class BehandlingFormidlingDtoTjeneste {
 
                 if (svangerskapspengerUttakResultatEntitet.isPresent()) {
                     dto.leggTil(get(UttakRestTjeneste.RESULTAT_SVANGERSKAPSPENGER_PATH, "uttaksresultat-svangerskapspenger", uuidDto));
-                    dto.leggTil(get(BeregningsresultatRestTjeneste.DAGYTELSE_PATH, "beregningsresultat-dagytelse", uuidDto));
                     dto.leggTilFormidlingRessurs(get(TilkjentYtelseFormidlingRestTjeneste.TILKJENT_YTELSE_DAGYTELSE_PATH, "tilkjentytelse-dagytelse", uuidDto));
                     dto.leggTil(get(FormidlingRestTjeneste.MOTTATT_DATO_SØKNADSFRIST_PATH, "motattdato-søknad", uuidDto));
                 }
@@ -223,7 +222,6 @@ public class BehandlingFormidlingDtoTjeneste {
                     dto.leggTil(get(UttakRestTjeneste.RESULTAT_PERIODER_PATH, "uttaksresultat-perioder-formidling", uuidDto));
                 }
                 if (uttakResultat.isPresent()) {
-                    dto.leggTil(get(BeregningsresultatRestTjeneste.DAGYTELSE_PATH, "beregningsresultat-dagytelse", uuidDto));
                     dto.leggTilFormidlingRessurs(get(TilkjentYtelseFormidlingRestTjeneste.TILKJENT_YTELSE_DAGYTELSE_PATH, "tilkjentytelse-dagytelse", uuidDto));
                     uttakResultat.filter(ForeldrepengerUttak::harAvslagPgaMedlemskap).ifPresent(u -> {
                         var avslagsårsak = medlemTjeneste.hentAvslagsårsak(behandling.getId());
