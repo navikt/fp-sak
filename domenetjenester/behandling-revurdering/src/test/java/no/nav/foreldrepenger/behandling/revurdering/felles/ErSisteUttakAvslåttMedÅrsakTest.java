@@ -118,7 +118,7 @@ class ErSisteUttakAvslåttMedÅrsakTest {
             // Act
 
             var holder = new UttakResultatHolderFP(Optional.of(ForeldrepengerUttakTjeneste.map(uttakresultatRevurdering)), null);
-            var harOpphørsårsak = holder.kontrollerErSisteUttakAvslåttMedÅrsak();
+            var harOpphørsårsak = holder.erOpphør();
 
             // Assert
             assertThat(harOpphørsårsak).isTrue();
@@ -132,7 +132,7 @@ class ErSisteUttakAvslåttMedÅrsakTest {
 
         // Act
         var holder = new UttakResultatHolderFP(Optional.of(ForeldrepengerUttakTjeneste.map(uttakresultatRevurdering)), null);
-        var harOpphørsårsak = holder.kontrollerErSisteUttakAvslåttMedÅrsak();
+        var harOpphørsårsak = holder.erOpphør();
 
         // Assert
         assertThat(harOpphørsårsak).isFalse();

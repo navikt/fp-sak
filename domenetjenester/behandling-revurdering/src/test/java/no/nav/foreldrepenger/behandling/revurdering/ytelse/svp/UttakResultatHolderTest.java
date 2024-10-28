@@ -25,7 +25,7 @@ class UttakResultatHolderTest {
         var uttakResultatHolder = new UttakResultatHolderSVP(Optional.empty(), null);
 
         // Act
-        var resultat = uttakResultatHolder.kontrollerErSisteUttakAvslåttMedÅrsak();
+        var resultat = uttakResultatHolder.erOpphør();
 
         // Assert
         assertThat(resultat).isFalse();
@@ -49,7 +49,7 @@ class UttakResultatHolderTest {
         var uttakResultatHolder = new UttakResultatHolderSVP(Optional.of(uttakResultat), null);
 
         // Act
-        var resultat = uttakResultatHolder.kontrollerErSisteUttakAvslåttMedÅrsak();
+        var resultat = uttakResultatHolder.erOpphør();
 
         // Assert
         assertThat(resultat).isTrue();
@@ -81,7 +81,7 @@ class UttakResultatHolderTest {
         var uttakResultatHolder = new UttakResultatHolderSVP(Optional.of(uttakResultat), null);
 
         // Act
-        var resultat = uttakResultatHolder.kontrollerErSisteUttakAvslåttMedÅrsak();
+        var resultat = uttakResultatHolder.erOpphør();
 
         // Assert
         assertThat(resultat).isTrue();
@@ -113,7 +113,7 @@ class UttakResultatHolderTest {
         var uttakResultatHolder = new UttakResultatHolderSVP(Optional.of(uttakResultat), null);
 
         // Act
-        var resultat = uttakResultatHolder.kontrollerErSisteUttakAvslåttMedÅrsak();
+        var resultat = uttakResultatHolder.erOpphør();
 
         // Assert
         assertThat(resultat).isFalse();

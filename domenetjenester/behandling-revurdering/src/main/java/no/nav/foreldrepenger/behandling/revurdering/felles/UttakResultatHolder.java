@@ -18,10 +18,7 @@ public interface UttakResultatHolder {
     interface VurderOpphørFørDagensDato extends Predicate<Behandlingsresultat> {
     }
 
-    /**
-     * Bare FP
-     */
-    boolean kontrollerErSisteUttakAvslåttMedÅrsak();
+    boolean erOpphør();
 
     default boolean harOpphørsUttakNyeInnvilgetePerioder(UttakResultatHolder other) {
         return false;
