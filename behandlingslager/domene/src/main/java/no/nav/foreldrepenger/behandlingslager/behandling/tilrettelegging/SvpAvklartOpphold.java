@@ -106,10 +106,11 @@ public class SvpAvklartOpphold extends BaseCreateableEntitet {
     }
 
     public static Builder fraEksisterende(SvpAvklartOpphold eksisterende) {
+        var eksisterendeKilde = eksisterende.getKilde() != null ? eksisterende.getKilde() : SvpOppholdKilde.REGISTRERT_AV_SAKSBEHANDLER;
         return new Builder()
             .medOppholdPeriode(eksisterende.oppholdPeriode.getFomDato(), eksisterende.oppholdPeriode.getTomDato())
             .medOppholdÅrsak(eksisterende.svpOppholdÅrsak)
-            .medKilde(eksisterende.svpOppholdKilde);
+            .medKilde(eksisterendeKilde);
     }
 
     public SvpAvklartOpphold.Builder medOppholdPeriode(LocalDate fom, LocalDate tom) {

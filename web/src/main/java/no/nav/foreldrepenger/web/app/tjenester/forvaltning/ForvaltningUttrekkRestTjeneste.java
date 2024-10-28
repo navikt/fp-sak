@@ -37,7 +37,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
-import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakAvstemPeriodeTask;
 import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakOverlappAvstemSakTask;
@@ -45,7 +44,6 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AksjonspunktKodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriodeDto;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskDataBuilder;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
@@ -66,7 +64,6 @@ public class ForvaltningUttrekkRestTjeneste {
     private FagsakRepository fagsakRepository;
     private ProsessTaskTjeneste taskTjeneste;
     private OverlappVedtakRepository overlappRepository;
-    private DatavarehusTjeneste datavarehusTjeneste;
 
     public ForvaltningUttrekkRestTjeneste() {
         // For CDI
@@ -77,14 +74,12 @@ public class ForvaltningUttrekkRestTjeneste {
                                           FagsakRepository fagsakRepository,
                                           BehandlingRepository behandlingRepository,
                                           ProsessTaskTjeneste taskTjeneste,
-                                          OverlappVedtakRepository overlappRepository,
-                                          DatavarehusTjeneste datavarehusTjeneste) {
+                                          OverlappVedtakRepository overlappRepository) {
         this.entityManager = entityManager;
         this.fagsakRepository = fagsakRepository;
         this.behandlingRepository = behandlingRepository;
         this.taskTjeneste = taskTjeneste;
         this.overlappRepository = overlappRepository;
-        this.datavarehusTjeneste = datavarehusTjeneste;
     }
 
     @POST
@@ -272,34 +267,23 @@ public class ForvaltningUttrekkRestTjeneste {
     }
 
     @POST
-    @Path("/fikseAnkeBehandlinger1")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Kopiering før unmapping", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response fikseAnkeBehandlinger1(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        var behandling = behandlingRepository.hentBehandlingReadOnly(dto.getBehandlingUuid());
-        var behandlingId = behandling.getId();
-        entityManager.createNativeQuery("UPDATE behandling_resultat set behandling_resultat_type = 'ANKE_MEDHOLD' where behandling_id = :id").setParameter("id", behandlingId).executeUpdate();
-        entityManager.createNativeQuery("UPDATE aksjonspunkt set aksjonspunkt_status = 'AVBR' where behandling_id = :id and aksjonspunkt_def = '7033'").setParameter("id", behandlingId).executeUpdate();
-        entityManager.createNativeQuery("UPDATE behandling_steg_tilstand set behandling_steg_status = 'UTFØRT' where behandling_id = :id and behandling_steg = 'ANKE_MERKNADER'").setParameter("id", behandlingId).executeUpdate();
-        entityManager.createNativeQuery("INSERT INTO behandling_steg_tilstand (ID, BEHANDLING_ID, BEHANDLING_STEG, BEHANDLING_STEG_STATUS) VALUES (SEQ_BEHANDLING_STEG_TILSTAND.nextval, :id, 'IVEDSTEG', 'UTFØRT')").setParameter("id", behandlingId).executeUpdate();
-        entityManager.createNativeQuery("UPDATE behandling set behandling_status = 'AVSLU' where id = :id").setParameter("id", behandlingId).executeUpdate();
-        entityManager.createNativeQuery("UPDATE anke_vurdering_resultat set sendt_trygderett_dato = null, anke_vurdering_omgjoer = 'ANKE_TIL_GUNST' where anke_resultat_id in (select id from anke_resultat where anke_behandling_id = :id)").setParameter("id", behandlingId).executeUpdate();
-        entityManager.createNativeQuery("UPDATE FPSAK_hist.ANKE_VURDERING_RESULTAT_dvh set TR_OVERSENDT_DATO = null, anke_vurdering_omgjoer = 'ANKE_TIL_GUNST' where anke_behandling_id = :id").setParameter("id", behandlingId).executeUpdate();
-        return Response.ok().build();
-    }
-
-    @POST
     @Path("/fikseAnkeBehandlinger2")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Kopiering før unmapping", tags = "FORVALTNING-uttrekk")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response fikseAnkeBehandlinger2(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        var behandling = behandlingRepository.hentBehandlingReadOnly(dto.getBehandlingUuid());
-        var behandlingId = behandling.getId();
-        entityManager.createNativeQuery("UPDATE FPSAK_HIST.BEHANDLING_DVH set funksjonell_tid = (select max(funksjonell_tid) from FPSAK_hist.behandling_dvh a where behandling_id = :id and behandling_status = 'IVED') where behandling_id = :id and behandling_status = 'AVSLU'").setParameter("id", behandlingId).executeUpdate();
+    public Response fikseAnkeBehandlinger2() {
+        entityManager.createNativeQuery("""
+            merge into fpsak_hist.behandling_dvh bdvh
+            using (select bid, brt from(
+              select ba.id bid, br.behandling_resultat_type brt
+              from fpsak.behandling ba join fpsak.behandling_RESULTAT br on ba.id = br.behandling_id
+              where ba.behandling_type = 'BT-008' and ba.behandling_status = 'AVSLU'
+            )) utvalg
+            on (bdvh.behandling_id = utvalg.bid and bdvh.behandling_status = 'AVSLU')
+            when matched then
+            update set bdvh.behandling_resultat_type = utvalg.brt
+            """).executeUpdate();
         return Response.ok().build();
     }
 }

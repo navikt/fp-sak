@@ -53,10 +53,8 @@ import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
-    private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
 
     private BehandlingRepositoryProvider repositoryProvider;
-    private BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider;
 
     private final DokumentBehandlingTjeneste dokumentBehandlingTjeneste = mock(DokumentBehandlingTjeneste.class);
     private final OpphørUttakTjeneste opphørUttakTjeneste = mock(OpphørUttakTjeneste.class);
@@ -71,15 +69,13 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
 
     @BeforeEach
     public void setup() {
-        when(medlemTjeneste.utledVilkårUtfall(any())).thenReturn(new MedlemTjeneste.VilkårUtfallMedÅrsak(VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT));
         when(beregningTjeneste.hent(any())).thenReturn(Optional.empty());
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
+        var grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
         fpUttakRepository = this.repositoryProvider.getFpUttakRepository();
         var uttakTjeneste = new ForeldrepengerUttakTjeneste(fpUttakRepository);
-        revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(repositoryProvider,
-                grunnlagRepositoryProvider,
+        revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(repositoryProvider, grunnlagRepositoryProvider,
                 beregningTjeneste,
                 opphørUttakTjeneste,
                 skjæringstidspunktTjeneste,

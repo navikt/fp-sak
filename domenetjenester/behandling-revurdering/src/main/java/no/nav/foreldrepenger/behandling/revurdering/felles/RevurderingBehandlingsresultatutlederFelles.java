@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandling.revurdering.felles;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -33,7 +32,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
@@ -83,8 +81,7 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
         this.dekningsgradTjeneste = dekningsgradTjeneste;
     }
 
-    public Behandlingsresultat bestemBehandlingsresultatForRevurdering(BehandlingReferanse revurderingRef,
-                                                                       boolean erVarselOmRevurderingSendt) {
+    public Behandlingsresultat bestemBehandlingsresultatForRevurdering(BehandlingReferanse revurderingRef, boolean erVarselOmRevurderingSendt) {
         var revurdering = behandlingRepository.hentBehandling(revurderingRef.behandlingId());
 
         var originalBehandlingId = revurdering.getOriginalBehandlingId()
@@ -93,90 +90,77 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
         var revurderingUttak = getUttakResultat(revurderingRef.behandlingId());
         var originalBehandlingUttak = getUttakResultat(originalBehandlingId);
 
-        return bestemBehandlingsresultatForRevurderingCore(revurderingRef, revurdering,
-            behandlingRepository.hentBehandling(originalBehandlingId), revurderingUttak, originalBehandlingUttak,
-            erVarselOmRevurderingSendt);
+        return bestemBehandlingsresultatForRevurderingCore(revurdering, behandlingRepository.hentBehandling(originalBehandlingId),
+            revurderingUttak, originalBehandlingUttak, erVarselOmRevurderingSendt);
     }
 
     protected abstract UttakResultatHolder getUttakResultat(Long behandlingId);
 
-    private Behandlingsresultat bestemBehandlingsresultatForRevurderingCore(BehandlingReferanse revurderingRef,
-                                                                            Behandling revurdering,
+    private Behandlingsresultat bestemBehandlingsresultatForRevurderingCore(Behandling revurdering,
                                                                             Behandling originalBehandling,
-                                                                            UttakResultatHolder uttakresultatRevurderingOpt,
-                                                                            UttakResultatHolder uttakresultatOriginalOpt,
+                                                                            UttakResultatHolder uttakresultatRevurdering,
+                                                                            UttakResultatHolder uttakresultatOriginal,
                                                                             boolean erVarselOmRevurderingSendt) {
         if (!revurdering.getType().equals(BehandlingType.REVURDERING)) {
             throw new IllegalStateException("Utviklerfeil: Skal ikke kunne havne her uten en revurderingssak");
         }
-        validerReferanser(revurderingRef, revurdering.getId());
-        var behandlingId = revurderingRef.behandlingId();
+        var behandlingId = revurdering.getId();
 
-        var behandlingsresultatRevurdering = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
-        var behandlingsresultatOriginal = finnBehandlingsresultatPåOriginalBehandling(originalBehandling.getId());
+        var behandlingsresultatRevurdering = behandlingsresultatRepository.hentHvisEksisterer(behandlingId).orElseThrow();
+        var behandlingsresultatOriginal = finnBehandlingsresultatPåOriginalBehandling(originalBehandling.getId()).orElseThrow();
 
         if (SpesialBehandling.erOppsagtUttak(revurdering)) {
-            return buildBehandlingsresultat(revurdering, behandlingsresultatRevurdering.orElse(null),
-                BehandlingResultatType.FORELDREPENGER_SENERE, RettenTil.HAR_RETT_TIL_FP,
-                Vedtaksbrev.AUTOMATISK, List.of(KonsekvensForYtelsen.ENDRING_I_UTTAK));
+            return buildBehandlingsresultat(revurdering, behandlingsresultatRevurdering, BehandlingResultatType.FORELDREPENGER_SENERE,
+                RettenTil.HAR_RETT_TIL_FP, Vedtaksbrev.AUTOMATISK, List.of(KonsekvensForYtelsen.ENDRING_I_UTTAK));
         }
 
-        if (FastsettBehandlingsresultatVedAvslagPåAvslag.vurder(behandlingsresultatRevurdering,
-            behandlingsresultatOriginal, originalBehandling.getType())) {
-            /* 2b */
-            return FastsettBehandlingsresultatVedAvslagPåAvslag.fastsett(revurdering,
-                behandlingsresultatRevurdering.orElse(null));
+        if (erAvslagPåAvslag(behandlingsresultatRevurdering, behandlingsresultatOriginal)) {
+            return buildBehandlingsresultat(revurdering, behandlingsresultatRevurdering, BehandlingResultatType.INGEN_ENDRING,
+                RettenTil.HAR_IKKE_RETT_TIL_FP, Vedtaksbrev.INGEN, List.of(KonsekvensForYtelsen.INGEN_ENDRING));
         }
 
-        if (OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.vurder(behandlingsresultatRevurdering.orElse(null))) {
-            /* 2c */
-            return OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.fastsett(revurdering,
-                behandlingsresultatRevurdering.orElse(null));
-        }
-
-        //TODO rydd bort når behandlinger med løpende medlem vilkår er avsluttet
-        var utfall = medlemTjeneste.utledVilkårUtfall(revurdering);
-        if (!utfall.vilkårUtfallType().equals(VilkårUtfallType.OPPFYLT)) {
-            var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
-            behandlingsresultat.setAvslagsårsak(utfall.avslagsårsak());
-            return buildBehandlingsresultat(revurdering, behandlingsresultat,
-                BehandlingResultatType.OPPHØR, RettenTil.HAR_IKKE_RETT_TIL_FP,
-                Vedtaksbrev.AUTOMATISK, List.of(KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER));
+        if (behandlingsresultatRevurdering.isInngangsVilkårAvslått()) {
+            return opphør(revurdering, behandlingsresultatRevurdering);
         }
 
         var opphørsdato = medlemTjeneste.hentOpphørsdatoHvisEksisterer(behandlingId);
         if (opphørsdato.isPresent()) {
-            var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
-            behandlingsresultat.setAvslagsårsak(medlemTjeneste.hentAvslagsårsak(behandlingId).orElse(null));
-            return buildBehandlingsresultat(revurdering, behandlingsresultat,
-                BehandlingResultatType.OPPHØR, RettenTil.HAR_IKKE_RETT_TIL_FP,
-                Vedtaksbrev.AUTOMATISK, List.of(KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER));
+            behandlingsresultatRevurdering.setAvslagsårsak(medlemTjeneste.hentAvslagsårsak(behandlingId).orElse(null));
+            return opphør(revurdering, behandlingsresultatRevurdering);
         }
 
-        var erEndringIUttakFraEndringstidspunkt = uttakresultatOriginalOpt.harUlikUttaksplan(uttakresultatRevurderingOpt) ||
-            uttakresultatOriginalOpt.harUlikKontoEllerMinsterett(uttakresultatRevurderingOpt) ||
-            dekningsgradTjeneste.behandlingHarEndretDekningsgrad(revurderingRef);
-        if (erEndringIUttakFraEndringstidspunkt
-            && uttakresultatRevurderingOpt.kontrollerErSisteUttakAvslåttMedÅrsak()) {
+        var revurderingRef = BehandlingReferanse.fra(revurdering);
+        var erEndringIUttak = uttakresultatOriginal.harUlikUttaksplan(uttakresultatRevurdering) || uttakresultatOriginal.harUlikKontoEllerMinsterett(
+            uttakresultatRevurdering) || dekningsgradTjeneste.behandlingHarEndretDekningsgrad(revurderingRef);
+        if (erEndringIUttak && uttakresultatRevurdering.erOpphør()) {
             // Endret ifm TFP-5356 la bruker søke på restdager av minsterett også etter ny stønadsperiode
             // Aktuell kode for TFP-5360 - håndtering av søknad som gir både innvilget og avslått/opphør-perioder
-            var opphør = !uttakresultatOriginalOpt.harOpphørsUttakNyeInnvilgetePerioder(uttakresultatRevurderingOpt) || !totette(revurdering);
+            var opphør = !uttakresultatOriginal.harOpphørsUttakNyeInnvilgetePerioder(uttakresultatRevurdering) || !totette(revurdering);
             if (opphør) {
-                return SettOpphørOgIkkeRett.fastsett(revurdering, behandlingsresultatRevurdering.orElse(null), Vedtaksbrev.AUTOMATISK);
+                return opphør(revurdering, behandlingsresultatRevurdering);
             }
         }
-        var revurderingsGrunnlagOpt = beregningTjeneste.hent(BehandlingReferanse.fra(revurdering)).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
-        var originalGrunnlagOpt = beregningTjeneste.hent(BehandlingReferanse.fra(originalBehandling)).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
+        var revurderingsGrunnlagOpt = beregningTjeneste.hent(BehandlingReferanse.fra(revurdering))
+            .flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
+        var originalGrunnlagOpt = beregningTjeneste.hent(BehandlingReferanse.fra(originalBehandling))
+            .flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
 
         var erEndringISkalHindreTilbaketrekk = erEndringISkalHindreTilbaketrekk(revurdering, originalBehandling);
         var erEndringIBeregning = ErEndringIBeregning.vurder(revurderingsGrunnlagOpt, originalGrunnlagOpt);
-        var erKunEndringIFordelingAvYtelsen = ErKunEndringIFordelingAvYtelsen.vurder(erEndringIBeregning,
-            erEndringIUttakFraEndringstidspunkt, revurderingsGrunnlagOpt, originalGrunnlagOpt,
-            erEndringISkalHindreTilbaketrekk);
+        var erKunEndringIFordelingAvYtelsen = ErKunEndringIFordelingAvYtelsen.vurder(erEndringIBeregning, erEndringIUttak, revurderingsGrunnlagOpt,
+            originalGrunnlagOpt, erEndringISkalHindreTilbaketrekk);
 
-        return fastsettResultatVedEndringer(revurdering, uttakresultatOriginalOpt, erOpphørtFørDagensDato(),
-            erEndringIBeregning, erEndringIUttakFraEndringstidspunkt, erVarselOmRevurderingSendt,
-            erKunEndringIFordelingAvYtelsen, harInnvilgetIkkeOpphørtVedtak(revurdering.getFagsak()));
+        return fastsettResultatVedEndringer(revurdering, uttakresultatOriginal, erOpphørtFørDagensDato(), erEndringIBeregning, erEndringIUttak,
+            erVarselOmRevurderingSendt, erKunEndringIFordelingAvYtelsen, harInnvilgetIkkeOpphørtVedtak(revurdering.getFagsak()));
+    }
+
+    private static Behandlingsresultat opphør(Behandling revurdering, Behandlingsresultat behandlingsresultatRevurdering) {
+        return buildBehandlingsresultat(revurdering, behandlingsresultatRevurdering, BehandlingResultatType.OPPHØR, RettenTil.HAR_IKKE_RETT_TIL_FP,
+            Vedtaksbrev.AUTOMATISK, List.of(KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER));
+    }
+
+    static boolean erAvslagPåAvslag(Behandlingsresultat resRevurdering, Behandlingsresultat resOriginal) {
+        return resRevurdering.isVilkårAvslått() && resOriginal.isBehandlingsresultatAvslått();
     }
 
     private Optional<Behandlingsresultat> finnBehandlingsresultatPåOriginalBehandling(Long originalBehandlingId) {
@@ -184,8 +168,7 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
         if (behandlingsresultatOriginal.isPresent()) {
             // Dersom originalBehandling er et beslutningsvedtak må vi lete videre etter det
             // faktiske resultatet for å kunne vurdere avslag på avslag
-            if (BehandlingResultatType.INGEN_ENDRING.equals(
-                behandlingsresultatOriginal.get().getBehandlingResultatType())) {
+            if (BehandlingResultatType.INGEN_ENDRING.equals(behandlingsresultatOriginal.get().getBehandlingResultatType())) {
                 var forrigeBehandlingId = behandlingRepository.hentBehandling(originalBehandlingId)
                     .getOriginalBehandlingId()
                     .orElseThrow(() -> new IllegalStateException(
@@ -199,8 +182,7 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
     }
 
     private boolean harInnvilgetIkkeOpphørtVedtak(Fagsak fagsak) {
-        var sisteInnvilgede = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
-            .orElse(null);
+        var sisteInnvilgede = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).orElse(null);
         if (sisteInnvilgede == null) {
             return false;
         }
@@ -227,8 +209,7 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
     }
 
     private Predicate<BehandlingVedtak> opphørvedtak() {
-        return vedtak -> BehandlingResultatType.OPPHØR.equals(
-            vedtak.getBehandlingsresultat().getBehandlingResultatType());
+        return vedtak -> BehandlingResultatType.OPPHØR.equals(vedtak.getBehandlingsresultat().getBehandlingResultatType());
     }
 
     private VurderOpphørFørDagensDato erOpphørtFørDagensDato() {
@@ -239,18 +220,9 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
         };
     }
 
-    private void validerReferanser(BehandlingReferanse ref, Long behandlingId) {
-        if (!Objects.equals(ref.behandlingId(), behandlingId)) {
-            throw new IllegalStateException(
-                "BehandlingReferanse [" + ref.behandlingId() + "] matcher ikke forventet [" + behandlingId + "]");
-        }
-    }
-
     private boolean erEndringISkalHindreTilbaketrekk(Behandling revurdering, Behandling originalBehandling) {
-        var beregningsresultatFPAggregatEntitet = beregningsresultatRepository.hentBeregningsresultatAggregat(
-            revurdering.getId());
-        var orginalBeregningsresultatFPAggregatEntitet = beregningsresultatRepository.hentBeregningsresultatAggregat(
-            originalBehandling.getId());
+        var beregningsresultatFPAggregatEntitet = beregningsresultatRepository.hentBeregningsresultatAggregat(revurdering.getId());
+        var orginalBeregningsresultatFPAggregatEntitet = beregningsresultatRepository.hentBeregningsresultatAggregat(originalBehandling.getId());
 
         if (beregningsresultatFPAggregatEntitet.isPresent() && orginalBeregningsresultatFPAggregatEntitet.isPresent()) {
             return !beregningsresultatFPAggregatEntitet.get()
@@ -268,8 +240,7 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
                                                             boolean erVarselOmRevurderingSendt,
                                                             boolean erKunEndringIFordelingAvYtelsen,
                                                             boolean erMinstEnInnvilgetBehandlingUtenPåfølgendeOpphør) {
-        var konsekvenserForYtelsen = utledKonsekvensForYtelsen(erEndringIBeregning,
-            erEndringIUttakFraEndringstidspunkt);
+        var konsekvenserForYtelsen = utledKonsekvensForYtelsen(erEndringIBeregning, erEndringIUttakFraEndringstidspunkt);
 
         if (!harUttakIkkeOpphørt(uttakresultatFraOriginalBehandling, opphørFørDagensDato)) {
             return fastsettForIkkeEtablertYtelse(revurdering, konsekvenserForYtelsen);
@@ -280,17 +251,16 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
         }
 
         if (erKunEndringIFordelingAvYtelsen) {
-            return ErKunEndringIFordelingAvYtelsen.fastsett(revurdering,
-                behandlingsresultatRepository.hent(revurdering.getId()), erVarselOmRevurderingSendt);
+            return ErKunEndringIFordelingAvYtelsen.fastsett(revurdering, behandlingsresultatRepository.hent(revurdering.getId()),
+                erVarselOmRevurderingSendt);
         }
         var vedtaksbrev = utledVedtaksbrev(konsekvenserForYtelsen, erVarselOmRevurderingSendt);
         var behandlingResultatType = utledBehandlingResultatType(konsekvenserForYtelsen);
-        return buildBehandlingsresultat(revurdering, behandlingsresultatRepository.hent(revurdering.getId()),
-            behandlingResultatType, RettenTil.HAR_RETT_TIL_FP, vedtaksbrev, konsekvenserForYtelsen);
+        return buildBehandlingsresultat(revurdering, behandlingsresultatRepository.hent(revurdering.getId()), behandlingResultatType,
+            RettenTil.HAR_RETT_TIL_FP, vedtaksbrev, konsekvenserForYtelsen);
     }
 
-    private boolean harUttakIkkeOpphørt(UttakResultatHolder uttakResultatHolder,
-                                        VurderOpphørFørDagensDato opphørFørDagensDato) {
+    private boolean harUttakIkkeOpphørt(UttakResultatHolder uttakResultatHolder, VurderOpphørFørDagensDato opphørFørDagensDato) {
         if (!uttakResultatHolder.eksistererUttakResultat()) {
             return false;
         }
@@ -304,16 +274,13 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
         return !opphørtFørDagensDato;
     }
 
-    private Behandlingsresultat fastsettForIkkeEtablertYtelse(Behandling revurdering,
-                                                              List<KonsekvensForYtelsen> konsekvenserForYtelsen) {
+    private Behandlingsresultat fastsettForIkkeEtablertYtelse(Behandling revurdering, List<KonsekvensForYtelsen> konsekvenserForYtelsen) {
         var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(revurdering.getId()).orElse(null);
-        return buildBehandlingsresultat(revurdering, behandlingsresultat,
-            BehandlingResultatType.INNVILGET, RettenTil.HAR_RETT_TIL_FP,
+        return buildBehandlingsresultat(revurdering, behandlingsresultat, BehandlingResultatType.INNVILGET, RettenTil.HAR_RETT_TIL_FP,
             Vedtaksbrev.AUTOMATISK, konsekvenserForYtelsen);
     }
 
-    private Vedtaksbrev utledVedtaksbrev(List<KonsekvensForYtelsen> konsekvenserForYtelsen,
-                                         boolean erVarselOmRevurderingSendt) {
+    private Vedtaksbrev utledVedtaksbrev(List<KonsekvensForYtelsen> konsekvenserForYtelsen, boolean erVarselOmRevurderingSendt) {
         if (!erVarselOmRevurderingSendt && konsekvenserForYtelsen.contains(KonsekvensForYtelsen.INGEN_ENDRING)) {
             return Vedtaksbrev.INGEN;
         }
@@ -327,8 +294,7 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
         return BehandlingResultatType.FORELDREPENGER_ENDRET;
     }
 
-    private List<KonsekvensForYtelsen> utledKonsekvensForYtelsen(boolean erEndringIBeregning,
-                                                                 boolean erEndringIUttakFraEndringstidspunkt) {
+    private List<KonsekvensForYtelsen> utledKonsekvensForYtelsen(boolean erEndringIBeregning, boolean erEndringIUttakFraEndringstidspunkt) {
         List<KonsekvensForYtelsen> konsekvensForYtelsen = new ArrayList<>();
 
         if (erEndringIBeregning) {
@@ -360,13 +326,14 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
     private boolean totette(Behandling behandling) {
         var gjeldendeFamilieHendelsedato = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-            .map(FamilieHendelseEntitet::getSkjæringstidspunkt).orElse(null);
-        return FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) && gjeldendeFamilieHendelsedato != null &&
-            behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER) &&
-            nesteSakRepository.hentGrunnlag(behandling.getId()).map(NesteSakGrunnlagEntitet::getHendelsedato)
-                .filter(h -> h.isBefore(gjeldendeFamilieHendelsedato.plusDays(1)
-                    .plusWeeks(UttakParametre.ukerMellomTetteFødsler(gjeldendeFamilieHendelsedato))))
-                .isPresent();
+            .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
+            .orElse(null);
+        return FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) && gjeldendeFamilieHendelsedato != null
+            && behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER) && nesteSakRepository.hentGrunnlag(behandling.getId())
+            .map(NesteSakGrunnlagEntitet::getHendelsedato)
+            .filter(h -> h.isBefore(
+                gjeldendeFamilieHendelsedato.plusDays(1).plusWeeks(UttakParametre.ukerMellomTetteFødsler(gjeldendeFamilieHendelsedato))))
+            .isPresent();
     }
 
 
