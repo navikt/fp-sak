@@ -73,7 +73,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
     private static final Set<AnkeVurdering> IKKE_FERDIGVURDERT_TRYGDERETT = Set.of(AnkeVurdering.UDEFINERT,
         AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE, AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV);
 
-    private static final Optional<String> ENHET_TRYGDERETT = Optional.of("TR");
+    private static final Optional<String> ENHET_TRYGDERETT = Optional.of("TR0000");
 
     private DatavarehusRepository datavarehusRepository;
     private FagsakEgenskapRepository fagsakEgenskapRepository;

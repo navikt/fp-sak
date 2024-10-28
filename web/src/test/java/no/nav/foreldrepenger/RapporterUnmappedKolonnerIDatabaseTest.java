@@ -7,6 +7,7 @@ import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import jakarta.persistence.EntityManagerFactory;
@@ -35,6 +36,13 @@ import no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering;
  */
 class RapporterUnmappedKolonnerIDatabaseTest {
     private static final Logger LOG = LoggerFactory.getLogger(RapporterUnmappedKolonnerIDatabaseTest.class);
+
+    private static final String HTE_PREFIX = "HTE_";
+    private static final Set<String> UNNTA_TABELLER = Set.of("SCHEMA_VERSION", "STARTUPDATA");
+    private static final Map<String, Set<String>> UNNTA_KOLONNER = Map.of(
+        "BEHANDLING", Set.of("SIST_OPPDATERT_TIDSPUNKT"),
+        "PROSESS_TASK", Set.of("SISTE_KJOERING_PLUKK_TS", "SISTE_KJOERING_SLUTT_TS")
+    );
 
     private static EntityManagerFactory entityManagerFactory;
 
@@ -68,6 +76,8 @@ class RapporterUnmappedKolonnerIDatabaseTest {
 
     @SuppressWarnings("unchecked")
     private NavigableMap<String, Set<String>> getColumns(String namespace) {
+        Predicate<Object[]> filterHte = (Object[] cols) -> !((String) cols[0]).toUpperCase().startsWith(HTE_PREFIX);
+        Predicate<Object[]> filterSchemaVer = (Object[] cols) -> !UNNTA_TABELLER.contains(((String) cols[0]).toUpperCase());
         var groupingBy = Collectors.groupingBy((Object[] cols) -> ((String) cols[0]).toUpperCase(), TreeMap::new,
                 Collectors.mapping((Object[] cols) -> ((String) cols[1]).toUpperCase(), Collectors.toCollection(TreeSet::new)));
 
@@ -78,6 +88,8 @@ class RapporterUnmappedKolonnerIDatabaseTest {
                         .createNativeQuery(
                                 "select table_name, column_name from all_tab_cols where owner=SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') AND virtual_column='NO' AND hidden_column='NO'")
                         .getResultStream()
+                        .filter(filterHte)
+                        .filter(filterSchemaVer)
                         .collect(groupingBy);
             }
             return (NavigableMap<String, Set<String>>) em
@@ -85,6 +97,8 @@ class RapporterUnmappedKolonnerIDatabaseTest {
                             "select table_name, column_name from all_tab_cols where owner=:ns AND virtual_column='NO' AND hidden_column='NO'")
                     .setParameter("ns", namespace)
                     .getResultStream()
+                    .filter(filterHte)
+                    .filter(filterSchemaVer)
                     .collect(groupingBy);
         } finally {
             em.close();
@@ -110,6 +124,7 @@ class RapporterUnmappedKolonnerIDatabaseTest {
                 if (dbColumns.containsKey(tableName)) {
                     var unmapped = new TreeSet<>(dbColumns.get(tableName));
                     unmapped.removeAll(columnNames);
+                    unmapped.removeAll(UNNTA_KOLONNER.getOrDefault(tableName, Set.of()));
                     if (!unmapped.isEmpty()) {
                         LOG.error("Table {} has unmapped columns: {}", table.getName(), unmapped);
                     }
