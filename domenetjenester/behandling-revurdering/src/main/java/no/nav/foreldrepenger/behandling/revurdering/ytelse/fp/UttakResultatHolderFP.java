@@ -64,7 +64,7 @@ public class UttakResultatHolderFP implements UttakResultatHolder {
     }
 
     @Override
-    public boolean kontrollerErSisteUttakAvslåttMedÅrsak() {
+    public boolean erOpphør() {
         var opphørsAvslagÅrsaker = PeriodeResultatÅrsak.opphørsAvslagÅrsaker();
         return finnSisteUttaksperiode().map(ForeldrepengerUttakPeriode::getResultatÅrsak).map(opphørsAvslagÅrsaker::contains).orElse(false);
     }

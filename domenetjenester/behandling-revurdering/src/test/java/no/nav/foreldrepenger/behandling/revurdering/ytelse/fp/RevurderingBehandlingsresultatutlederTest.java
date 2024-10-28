@@ -223,8 +223,7 @@ class RevurderingBehandlingsresultatutlederTest {
             .leggTilVilkårOppfylt(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)
             .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
             .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
-            .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
-            .leggTilVilkårAvslått(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE, VilkårUtfallMerknad.VM_1020)
+            .leggTilVilkårAvslått(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallMerknad.VM_1020)
             .buildFor(revurdering);
 
         var lås = behandlingRepository.taSkriveLås(revurdering);

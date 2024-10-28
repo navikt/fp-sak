@@ -7,8 +7,6 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
@@ -19,8 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedle
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.AvslagsårsakMapper;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.domene.medlem.medl2.HentMedlemskapFraRegister;
@@ -89,15 +85,7 @@ public class MedlemTjeneste {
         if (medlemskapsvilkåret.get().erIkkeOppfylt()) {
             skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId).getSkjæringstidspunktHvisUtledet();
         }
-        return vilkårMedlemskapRepository.hentHvisEksisterer(behandlingId)
-            .flatMap(VilkårMedlemskap::getOpphør)
-            .map(MedlemskapOpphør::fom);
-    }
-
-    private Optional<Vilkår> finnVilkår(Behandlingsresultat behandlingsresultat, VilkårType vilkårType) {
-        return behandlingsresultat.getVilkårResultat().getVilkårene().stream()
-            .filter(vt -> vt.getVilkårType().equals(vilkårType))
-            .findFirst();
+        return vilkårMedlemskapRepository.hentHvisEksisterer(behandlingId).flatMap(VilkårMedlemskap::getOpphør).map(MedlemskapOpphør::fom);
     }
 
     public Optional<Avslagsårsak> hentAvslagsårsak(Long behandlingId) {
@@ -135,35 +123,6 @@ public class MedlemTjeneste {
         }
         return vilkårMedlemskapRepository.hentHvisEksisterer(behandlingId)
             .flatMap(VilkårMedlemskap::getMedlemFom);
-    }
-
-    public record VilkårUtfallMedÅrsak(VilkårUtfallType vilkårUtfallType, Avslagsårsak avslagsårsak) {
-    }
-
-    public VilkårUtfallMedÅrsak utledVilkårUtfall(Behandling revurdering) {
-        var behandlingsresultat = behandlingsresultatRepository.hent(revurdering.getId());
-        var medlemOpt = finnVilkår(behandlingsresultat, VilkårType.MEDLEMSKAPSVILKÅRET);
-
-        if (medlemOpt.isPresent()) {
-            var medlem = medlemOpt.get();
-            if (medlem.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT)) {
-                return new VilkårUtfallMedÅrsak(medlem.getGjeldendeVilkårUtfall(),
-                    AvslagsårsakMapper.fraVilkårUtfallMerknad(medlem.getVilkårUtfallMerknad()));
-            }
-            var løpendeOpt = finnVilkår(behandlingsresultat, VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE);
-            if (løpendeOpt.isPresent()) {
-                var løpende = løpendeOpt.get();
-                if (løpende.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT) && !løpende.erOverstyrt()) {
-                    return new VilkårUtfallMedÅrsak(VilkårUtfallType.IKKE_OPPFYLT,
-                        AvslagsårsakMapper.fraVilkårUtfallMerknad(løpende.getVilkårUtfallMerknad()));
-                }
-                if (løpende.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT) && løpende.erOverstyrt()) {
-                    return new VilkårUtfallMedÅrsak(VilkårUtfallType.IKKE_OPPFYLT, løpende.getAvslagsårsak());
-                }
-            }
-            return new VilkårUtfallMedÅrsak(VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT);
-        }
-        throw new IllegalStateException("Kan ikke utlede vilkår utfall type når medlemskapsvilkåret ikke finnes");
     }
 
     public Optional<MedlemskapBehandlingsgrunnlagEntitet> hentGrunnlagPåId(Long grunnlagId) {

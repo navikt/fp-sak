@@ -1,12 +1,10 @@
 package no.nav.foreldrepenger.behandling.steg.foreslåresultat.svp;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -57,10 +55,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
 
-    private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
-
     private BehandlingRepositoryProvider repositoryProvider;
-    private BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider;
 
     private final BeregningTjeneste beregningTjeneste = mock(BeregningTjeneste.class);
     private final DokumentBehandlingTjeneste dokumentBehandlingTjeneste = mock(DokumentBehandlingTjeneste.class);
@@ -75,15 +70,13 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
 
     @BeforeEach
     public void setup() {
-        when(medlemTjeneste.utledVilkårUtfall(any())).thenReturn(new MedlemTjeneste.VilkårUtfallMedÅrsak(VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT));
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
+        var grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         var svpUttakRepository = new SvangerskapspengerUttakResultatRepository(entityManager);
-        revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(repositoryProvider,
-                grunnlagRepositoryProvider,
+        revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(repositoryProvider, grunnlagRepositoryProvider,
                 svpUttakRepository,
             beregningTjeneste,
                 opphørUttakTjeneste,
