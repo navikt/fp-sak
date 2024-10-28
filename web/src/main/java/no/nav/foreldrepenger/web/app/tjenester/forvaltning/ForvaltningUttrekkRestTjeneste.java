@@ -408,4 +408,19 @@ public class ForvaltningUttrekkRestTjeneste {
         return Response.ok(rader).build();
     }
 
+    @POST
+    @Path("/fikseAnkeBehandlingerEnhet0000")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Kopiering før unmapping", tags = "FORVALTNING-uttrekk")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    public Response fikseAnkeBehandlingerEnhet0000() {
+        var rader = entityManager.createNativeQuery("""
+            update fpsak_hist.behandling_dvh bdvh
+            set BEHANDLENDE_ENHET = 'TR0000'
+            where BEHANDLENDE_ENHET = 'TR'
+            """).executeUpdate();
+        return Response.ok(rader).build();
+    }
+
 }
