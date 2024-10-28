@@ -320,6 +320,19 @@ public class ForvaltningUttrekkRestTjeneste {
     }
 
     @POST
+    @Path("/fikseKlageOverskuddResultat")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Kopiering før unmapping", tags = "FORVALTNING-uttrekk")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    public Response fikseKlageOverskuddResultat() {
+        var rader = entityManager.createNativeQuery("""
+            delete from fpsak.klage_vurdering_resultat where id = 84752
+            """).executeUpdate();
+        return Response.ok(rader).build();
+    }
+
+    @POST
     @Path("/fikseAnkeBehandlingerOmgjør2")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
