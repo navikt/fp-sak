@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.datavarehus.domene;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -45,21 +44,6 @@ public class DatavarehusRepository {
                 oppdater(eksisterende.get(), nyVedtakXml);
         }
         throw new IllegalStateException(String.format("Finner ikke eksiterende dvh vedtak utbetaling for behandling %s og vedtak %s", eksisterendeBehandlingId, eksisterendeVedtakId));
-    }
-
-    public List<Long> hentVedtakBehandlinger(LocalDateTime fom, LocalDateTime tom) {
-        var query = entityManager.createQuery("from VedtakUtbetalingDvh where funksjonellTid >= :fom " +
-            "AND funksjonellTid <= :tom", VedtakUtbetalingDvh.class);
-        query.setParameter("fom", fom);
-        query.setParameter("tom", tom);
-
-        return query.getResultList().stream().map(VedtakUtbetalingDvh::getBehandlingId).toList();
-    }
-
-    public List<Long> hentVedtakBehandlinger(Long behandlingid) {
-        var query = entityManager.createQuery("from VedtakUtbetalingDvh where behandlingId = :bid ", VedtakUtbetalingDvh.class);
-        query.setParameter("bid", behandlingid);
-        return query.getResultList().stream().map(VedtakUtbetalingDvh::getBehandlingId).toList();
     }
 
     public long oppdater(VedtakUtbetalingDvh vedtakUtbetalingDvh, String nyVedtakXml) {

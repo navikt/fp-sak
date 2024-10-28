@@ -65,6 +65,9 @@ public class BehandlingDvh extends DvhBaseEntitet {
     @Column(name = "RELATERT_TIL")
     private Long relatertBehandling;
 
+    @Column(name = "RELATERT_TIL_UUID")
+    private UUID relatertBehandlingUuid;
+
     @Column(name = "FAMILIE_HENDELSE_TYPE")
     private String familieHendelseType;
 
@@ -83,6 +86,9 @@ public class BehandlingDvh extends DvhBaseEntitet {
 
     @Column(name = "REVURDERING_AARSAK")
     private String revurderingÅrsak;
+
+    @Column(name = "OMGJOERING_AARSAK")
+    private String omgjøringÅrsak;
 
     @Column(name = "MOTTATT_TID")
     private LocalDateTime mottattTid;
@@ -174,6 +180,10 @@ public class BehandlingDvh extends DvhBaseEntitet {
         return relatertBehandling;
     }
 
+    public UUID getRelatertBehandlingUuid() {
+        return relatertBehandlingUuid;
+    }
+
     public String getFamilieHendelseType() {
         return familieHendelseType;
     }
@@ -196,6 +206,10 @@ public class BehandlingDvh extends DvhBaseEntitet {
 
     public String getRevurderingÅrsak() {
         return revurderingÅrsak;
+    }
+
+    public String getOmgjøringÅrsak() {
+        return omgjøringÅrsak;
     }
 
     public LocalDateTime getMottattTid() {
@@ -258,12 +272,14 @@ public class BehandlingDvh extends DvhBaseEntitet {
                 && Objects.equals(ansvarligSaksbehandler, other.ansvarligSaksbehandler)
                 && Objects.equals(ansvarligBeslutter, other.ansvarligBeslutter)
                 && Objects.equals(relatertBehandling, other.relatertBehandling)
+                && Objects.equals(relatertBehandlingUuid, other.relatertBehandlingUuid)
                 && Objects.equals(familieHendelseType, other.familieHendelseType)
                 && Objects.equals(foersteStoenadsdag, other.foersteStoenadsdag)
                 && Objects.equals(uuid, other.uuid)
                 && Objects.equals(papirSøknad, other.papirSøknad)
                 && Objects.equals(behandlingMetode, other.behandlingMetode)
                 && Objects.equals(revurderingÅrsak, other.revurderingÅrsak)
+                && Objects.equals(omgjøringÅrsak, other.omgjøringÅrsak)
                 && Objects.equals(mottattTid, other.mottattTid)
                 && Objects.equals(registrertTid, other.registrertTid)
                 && Objects.equals(kanBehandlesTid, other.kanBehandlesTid)
@@ -280,7 +296,7 @@ public class BehandlingDvh extends DvhBaseEntitet {
         return Objects.hash(super.hashCode(), behandlingId, fagsakId, behandlingResultatType, behandlingType,
             behandlingStatus, behandlendeEnhet, utlandstilsnitt, ansvarligSaksbehandler, ansvarligBeslutter,
             familieHendelseType, foersteStoenadsdag,papirSøknad,
-            behandlingMetode, revurderingÅrsak, mottattTid, registrertTid, kanBehandlesTid, ferdigBehandletTid, forventetOppstartTid,
+            behandlingMetode, revurderingÅrsak, omgjøringÅrsak, mottattTid, registrertTid, kanBehandlesTid, ferdigBehandletTid, forventetOppstartTid,
             vedtakTid, utbetaltTid, vedtakResultatType, vilkårIkkeOppfylt, saksnummer, aktørId, ytelseType);
     }
 
@@ -304,12 +320,14 @@ public class BehandlingDvh extends DvhBaseEntitet {
         private LocalDateTime funksjonellTid;
         private String endretAv;
         private Long relatertBehandling;
+        private UUID relatertBehandlingUuid;
         private String familieHendelseType;
         private LocalDate foersteStoenadsdag;
         private UUID uuid;
         private String papirSøknad;
         private String behandlingMetode;
         private String revurderingÅrsak;
+        private String omgjøringÅrsak;
         private LocalDateTime mottattTid;
         private LocalDateTime registrertTid;
         private LocalDateTime kanBehandlesTid;
@@ -401,6 +419,11 @@ public class BehandlingDvh extends DvhBaseEntitet {
             return this;
         }
 
+        public Builder relatertBehandlingUuid(UUID relatertBehandlingUuid) {
+            this.relatertBehandlingUuid = relatertBehandlingUuid;
+            return this;
+        }
+
         public Builder familieHendelseType(String familieHendelseType) {
             this.familieHendelseType = familieHendelseType;
             return this;
@@ -423,6 +446,11 @@ public class BehandlingDvh extends DvhBaseEntitet {
 
         public Builder medRevurderingÅrsak(RevurderingÅrsak revurderingÅrsak) {
             this.revurderingÅrsak = revurderingÅrsak != null ? revurderingÅrsak.name() : null;
+            return this;
+        }
+
+        public Builder medOmgjøringÅrsak(String omgjøringÅrsak) {
+            this.omgjøringÅrsak = omgjøringÅrsak;
             return this;
         }
 
@@ -486,6 +514,7 @@ public class BehandlingDvh extends DvhBaseEntitet {
             behandlingDvh.ansvarligSaksbehandler = ansvarligSaksbehandler;
             behandlingDvh.ansvarligBeslutter = ansvarligBeslutter;
             behandlingDvh.relatertBehandling = relatertBehandling;
+            behandlingDvh.relatertBehandlingUuid = relatertBehandlingUuid;
             behandlingDvh.setFunksjonellTid(funksjonellTid);
             behandlingDvh.setEndretAv(endretAv);
             behandlingDvh.familieHendelseType = familieHendelseType;
@@ -494,6 +523,7 @@ public class BehandlingDvh extends DvhBaseEntitet {
             behandlingDvh.papirSøknad = papirSøknad;
             behandlingDvh.behandlingMetode = behandlingMetode;
             behandlingDvh.revurderingÅrsak = revurderingÅrsak;
+            behandlingDvh.omgjøringÅrsak = omgjøringÅrsak;
             behandlingDvh.mottattTid = mottattTid;
             behandlingDvh.registrertTid = registrertTid;
             behandlingDvh.kanBehandlesTid = kanBehandlesTid;

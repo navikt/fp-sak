@@ -13,7 +13,6 @@ import jakarta.persistence.EntityManager;
 import org.hibernate.jpa.HibernateHints;
 
 import no.nav.foreldrepenger.behandlingslager.BehandlingslagerRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
 @ApplicationScoped
 public class LagretVedtakRepository implements BehandlingslagerRepository {
@@ -91,22 +90,4 @@ public class LagretVedtakRepository implements BehandlingslagerRepository {
         return resultater.stream().map(Number::longValue).toList();
 
     }
-
-    public List<Long> hentLagretVedtakBehandlingId(LocalDateTime fom, LocalDateTime tom, FagsakYtelseType fagsakYtelseType) {
-        Objects.requireNonNull(fom, "fom");
-        Objects.requireNonNull(tom, "tom");
-        Objects.requireNonNull(fagsakYtelseType, "fagsakYtelseType");
-
-        var sql = "select lv.behandling_id from LAGRET_VEDTAK lv, FAGSAK fs where lv.OPPRETTET_TID >= :fom and lv.OPPRETTET_TID <= :tom and lv.FAGSAK_ID = fs.ID and fs.YTELSE_TYPE = :fagsakYtelseType";
-
-        var query = entityManager.createNativeQuery(sql);
-        query.setParameter("fom", fom);
-        query.setParameter("tom", tom);
-        query.setParameter("fagsakYtelseType", fagsakYtelseType.getKode());
-
-        @SuppressWarnings("unchecked")
-        List<Number> resultater = query.getResultList();
-        return resultater.stream().map(Number::longValue).toList();
-    }
-
 }

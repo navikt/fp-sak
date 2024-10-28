@@ -267,23 +267,132 @@ public class ForvaltningUttrekkRestTjeneste {
     }
 
     @POST
-    @Path("/fikseAnkeBehandlinger2")
+    @Path("/fikseAnkeBehandlingerRelatert1")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Kopiering før unmapping", tags = "FORVALTNING-uttrekk")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response fikseAnkeBehandlinger2() {
-        entityManager.createNativeQuery("""
+    public Response fikseAnkeBehandlingerRelatert1() {
+        var rader = entityManager.createNativeQuery("""
             merge into fpsak_hist.behandling_dvh bdvh
-            using (select bid, brt from(
-              select ba.id bid, br.behandling_resultat_type brt
-              from fpsak.behandling ba join fpsak.behandling_RESULTAT br on ba.id = br.behandling_id
-              where ba.behandling_type = 'BT-008' and ba.behandling_status = 'AVSLU'
-            )) utvalg
-            on (bdvh.behandling_id = utvalg.bid and bdvh.behandling_status = 'AVSLU')
-            when matched then
-            update set bdvh.behandling_resultat_type = utvalg.brt
+            using (select id bid, uuid buid from fpsak.behandling) utvalg
+            on (bdvh.RELATERT_TIL = utvalg.bid)
+            when matched then update set bdvh.relatert_til_uuid = utvalg.buid
             """).executeUpdate();
-        return Response.ok().build();
+        return Response.ok(rader).build();
     }
+
+    @POST
+    @Path("/fikseAnkeBehandlingerRelatert2")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Kopiering før unmapping", tags = "FORVALTNING-uttrekk")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    public Response fikseAnkeBehandlingerRelatert2() {
+        var rader = entityManager.createNativeQuery("""
+            merge into fpsak_hist.behandling_dvh bdvh
+            using (select klage_behandling_id bid, paaklagd_ekstern_uuid buid from fpsak.klage_resultat where paaklagd_ekstern_uuid is not null) utvalg
+            on (bdvh.behandling_id = utvalg.bid)
+            when matched then update set bdvh.relatert_til_uuid = utvalg.buid
+            """).executeUpdate();
+        return Response.ok(rader).build();
+    }
+
+    @POST
+    @Path("/fikseAnkeBehandlingerOmgjør1")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Kopiering før unmapping", tags = "FORVALTNING-uttrekk")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    public Response fikseAnkeBehandlingerOmgjør1() {
+        var rader = entityManager.createNativeQuery("""
+            merge into fpsak_hist.behandling_dvh bdvh
+            using (select anke_behandling_id bid,
+                   case when tr_omgjoer_aarsak <> '-' then tr_omgjoer_aarsak
+                        when anke_omgjoer_aarsak <> '-' then anke_omgjoer_aarsak
+                        else null end boa
+                   from fpsak.anke_vurdering_resultat avr join fpsak.anke_resultat ar on avr.anke_resultat_id = ar.id
+                   where anke_omgjoer_aarsak <> '-' or tr_omgjoer_aarsak <> '-') utvalg
+            on (bdvh.behandling_id = utvalg.bid and behandling_resultat_type is not null and behandling_resultat_type <> '-')
+            when matched then update set bdvh.omgjoering_aarsak = utvalg.boa
+            """).executeUpdate();
+        return Response.ok(rader).build();
+    }
+
+    @POST
+    @Path("/fikseAnkeBehandlingerOmgjør2")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Kopiering før unmapping", tags = "FORVALTNING-uttrekk")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    public Response fikseAnkeBehandlingerOmgjør2() {
+        var rader = entityManager.createNativeQuery("""
+            merge into fpsak_hist.behandling_dvh bdvh
+            using (select klage_behandling_id bid,
+                   case when kvrka.klage_medhold_aarsak is not null and kvrka.klage_medhold_aarsak <> '-' then kvrka.klage_medhold_aarsak
+                        when kvrnfp.klage_medhold_aarsak <> '-' and (kvrka.klage_medhold_aarsak is null or kvrka.klage_medhold_aarsak = '-') then kvrnfp.klage_medhold_aarsak
+                        else null end boa
+                   from fpsak.klage_resultat kr
+                   join fpsak.klage_vurdering_resultat kvrnfp on (kvrnfp.klage_resultat_id = kr.id and kvrnfp.klage_vurdert_av = 'NFP')
+                   left outer join fpsak.klage_vurdering_resultat kvrka on (kvrka.klage_resultat_id = kr.id and kvrka.klage_vurdert_av = 'NK')
+                   where kvrnfp.klage_medhold_aarsak <> '-' or (kvrka.klage_medhold_aarsak is not null and kvrka.klage_medhold_aarsak <> '-')) utvalg
+            on (bdvh.behandling_id = utvalg.bid and behandling_resultat_type is not null and behandling_resultat_type <> '-')
+            when matched then update set bdvh.omgjoering_aarsak = utvalg.boa
+            """).executeUpdate();
+        return Response.ok(rader).build();
+    }
+
+    @POST
+    @Path("/fikseAnkeBehandlingerEnhet1")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Kopiering før unmapping", tags = "FORVALTNING-uttrekk")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    public Response fikseAnkeBehandlingerEnhet1() {
+        var rader = entityManager.createNativeQuery("""
+            update fpsak_hist.behandling_dvh bdvh
+            set BEHANDLENDE_ENHET = 'TR'
+            where BEHANDLING_STATUS = 'AVSLU'
+            and BEHANDLING_ID in (select anke_behandling_id
+                                  from fpsak.anke_vurdering_resultat avr join fpsak.anke_resultat ar on avr.anke_resultat_id = ar.id
+                                  join fpsak.behandling_resultat on behandling_id = anke_behandling_id
+                                  where behandling_resultat_type like '%ENLAG%'
+                                  and (ankevurdering in ('ANKE_STADFESTE_YTELSESVEDTAK', 'ANKE_AVVIS') or anke_vurdering_omgjoer = 'ANKE_DELVIS_OMGJOERING_TIL_GUNST'))
+            """).executeUpdate();
+        return Response.ok(rader).build();
+    }
+
+    @POST
+    @Path("/fikseAnkeBehandlingerEnhet2")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Kopiering før unmapping", tags = "FORVALTNING-uttrekk")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    public Response fikseAnkeBehandlingerEnhet2() {
+        var rader = entityManager.createNativeQuery("""
+            update fpsak_hist.behandling_dvh bdvh
+            set BEHANDLENDE_ENHET = 'TR'
+            where BEHANDLING_STATUS = 'AVSLU'
+            and BEHANDLING_ID in (select anke_behandling_id
+                                  from fpsak.anke_vurdering_resultat avr join fpsak.anke_resultat ar on avr.anke_resultat_id = ar.id
+                                  where tr_vurdering not in ('-' , 'ANKE_OPPHEVE_OG_HJEMSENDE', 'ANKE_HJEMSENDE_UTEN_OPPHEV'))
+            """).executeUpdate();
+        return Response.ok(rader).build();
+    }
+
+    @POST
+    @Path("/fikseAnkeBehandlingerEnhet3")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Kopiering før unmapping", tags = "FORVALTNING-uttrekk")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    public Response fikseAnkeBehandlingerEnhet3() {
+        var rader = entityManager.createNativeQuery("""
+            update fpsak_hist.behandling_dvh bdvh
+            set BEHANDLENDE_ENHET = 'TR'
+            where BEHANDLING_STATUS = 'VENT_TRYGDERETT'
+            """).executeUpdate();
+        return Response.ok(rader).build();
+    }
+
 }
