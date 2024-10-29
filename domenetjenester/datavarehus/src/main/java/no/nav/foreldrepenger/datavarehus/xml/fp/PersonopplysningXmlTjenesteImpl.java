@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.datavarehus.xml.fp;
 
-import static no.nav.foreldrepenger.datavarehus.xml.fp.DvhPersonopplysningXmlTjenesteImpl.mapTilDokType;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.datavarehus.xml.PersonopplysningXmlFelles;
 import no.nav.foreldrepenger.datavarehus.xml.PersonopplysningXmlTjeneste;
@@ -271,6 +270,24 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
             }
             personopplysninger.setDokumentasjonsperioder(dokumentasjonsperioder);
         });
+    }
+
+    private static UttakDokumentasjonType mapTilDokType(DokumentasjonVurdering dokumentasjonVurdering) {
+        return switch (dokumentasjonVurdering.type()) {
+            case SYKDOM_SØKER_GODKJENT -> UttakDokumentasjonType.SYK_SØKER;
+            case INNLEGGELSE_SØKER_GODKJENT -> UttakDokumentasjonType.INNLAGT_SØKER;
+            case INNLEGGELSE_BARN_GODKJENT -> UttakDokumentasjonType.INNLAGT_BARN;
+            case HV_OVELSE_GODKJENT -> UttakDokumentasjonType.HV_OVELSE;
+            case NAV_TILTAK_GODKJENT -> UttakDokumentasjonType.NAV_TILTAK;
+            case INNLEGGELSE_ANNEN_FORELDER_GODKJENT -> UttakDokumentasjonType.INSTITUSJONSOPPHOLD_ANNEN_FORELDRE;
+            case SYKDOM_ANNEN_FORELDER_GODKJENT -> UttakDokumentasjonType.SYKDOM_ANNEN_FORELDER;
+            case ALENEOMSORG_GODKJENT -> UttakDokumentasjonType.ALENEOMSORG_OVERFØRING;
+            case BARE_SØKER_RETT_GODKJENT -> UttakDokumentasjonType.IKKE_RETT_ANNEN_FORELDER;
+            case SYKDOM_SØKER_IKKE_GODKJENT, INNLEGGELSE_SØKER_IKKE_GODKJENT, BARE_SØKER_RETT_IKKE_GODKJENT, ALENEOMSORG_IKKE_GODKJENT,
+                SYKDOM_ANNEN_FORELDER_IKKE_GODKJENT, INNLEGGELSE_ANNEN_FORELDER_IKKE_GODKJENT, TIDLIG_OPPSTART_FEDREKVOTE_IKKE_GODKJENT,
+                TIDLIG_OPPSTART_FEDREKVOTE_GODKJENT, MORS_AKTIVITET_IKKE_DOKUMENTERT, MORS_AKTIVITET_IKKE_GODKJENT, MORS_AKTIVITET_GODKJENT,
+                NAV_TILTAK_IKKE_GODKJENT, HV_OVELSE_IKKE_GODKJENT, INNLEGGELSE_BARN_IKKE_GODKJENT -> null;
+        };
     }
 
     private void leggTilPerioderMedAleneomsorg(YtelseFordelingAggregat aggregat,

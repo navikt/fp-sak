@@ -12,7 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.datavarehus.task.VedtakTilDatavarehusTask;
 import no.nav.foreldrepenger.domene.vedtak.OpprettProsessTaskIverksett;
 import no.nav.foreldrepenger.domene.vedtak.intern.AvsluttBehandlingTask;
 import no.nav.foreldrepenger.domene.vedtak.intern.SendVedtaksbrevTask;
@@ -48,7 +47,7 @@ class OpprettProsessTaskIverksettTest {
         var prosessTaskDataList = captor.getValue().getTasks().stream().map(ProsessTaskGruppe.Entry::task).toList();
         var tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::taskType).toList();
         assertThat(tasktyper).contains(TaskType.forProsessTask(AvsluttBehandlingTask.class), TaskType.forProsessTask(SendVedtaksbrevTask.class),
-            TaskType.forProsessTask(VurderOgSendØkonomiOppdragTask.class), TaskType.forProsessTask(VedtakTilDatavarehusTask.class));
+            TaskType.forProsessTask(VurderOgSendØkonomiOppdragTask.class));
     }
 
     @Test
@@ -65,7 +64,7 @@ class OpprettProsessTaskIverksettTest {
         var prosessTaskDataList = captor.getValue().getTasks().stream().map(ProsessTaskGruppe.Entry::task).toList();
         var tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::taskType).toList();
         assertThat(tasktyper).contains(TaskType.forProsessTask(AvsluttBehandlingTask.class), TaskType.forProsessTask(SendVedtaksbrevTask.class),
-            TaskType.forProsessTask(VurderOgSendØkonomiOppdragTask.class), TaskType.forProsessTask(VedtakTilDatavarehusTask.class));
+            TaskType.forProsessTask(VurderOgSendØkonomiOppdragTask.class));
     }
 
     private Behandling opprettBehandling() {

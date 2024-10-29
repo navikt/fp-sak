@@ -8,7 +8,6 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.datavarehus.task.VedtakTilDatavarehusTask;
 import no.nav.foreldrepenger.datavarehus.v2.SendStønadsstatistikkForVedtakTask;
 import no.nav.foreldrepenger.domene.vedtak.ekstern.SettUtbetalingPåVentPrivatArbeidsgiverTask;
 import no.nav.foreldrepenger.domene.vedtak.ekstern.VurderOppgaveArenaTask;
@@ -67,7 +66,6 @@ public class OpprettProsessTaskIverksett {
             taskGruppe.addNesteSekvensiell(ProsessTaskData.forProsessTask(SettUtbetalingPåVentPrivatArbeidsgiverTask.class));
             taskGruppe.addNesteSekvensiell(ProsessTaskData.forProsessTask(SettFagsakRelasjonAvslutningsdatoTask.class));
         }
-        taskGruppe.addNesteSekvensiell(ProsessTaskData.forProsessTask(VedtakTilDatavarehusTask.class));
         taskGruppe.addNesteSekvensiell(ProsessTaskData.forProsessTask(SendStønadsstatistikkForVedtakTask.class));
     }
 

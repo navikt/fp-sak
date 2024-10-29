@@ -30,11 +30,6 @@ public class DummyDatavarehustjeneste implements DatavarehusTjeneste {
     }
 
     @Override
-    public void opprettOgLagreVedtakXml(Long behandlingId) {
-
-    }
-
-    @Override
     public void oppdaterHvisKlageEllerAnke(Long behandlingId, Collection<Aksjonspunkt> aksjonspunkter) {
 
     }
