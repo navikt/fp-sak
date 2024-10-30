@@ -64,15 +64,4 @@ public class HistorikkRestTjeneste {
         return Response.ok().entity(historikkInnslagDtoList).build();
     }
 
-    @GET
-    @Path("/v2")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @Operation(description = "Henter alle historikkinnslag for en gitt sak.", tags = "historikk")
-   // @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public List<HistorikkinnslagDtoV2> hentAlleInnslag(@NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer")
-                                    @TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
-                                    @Valid SaksnummerDto saksnummerDto) {
-        return historikkDtoTjeneste.hentForSak(new Saksnummer(saksnummerDto.getVerdi()));
-    }
-
 }

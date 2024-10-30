@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.historikk;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -33,7 +34,7 @@ class HistorikkV2AdapterTest {
             .medOpplysning(HistorikkOpplysningType.UTTAK_PERIODE_TOM, LocalDate.now().plusDays(1))
             .build(historikkinnslag);
 
-        var historikkinnslagDtoV2 = HistorikkV2Adapter.map(historikkinnslag, BEHANDLING_UUID);
+        var historikkinnslagDtoV2 = HistorikkV2Adapter.map(historikkinnslag, BEHANDLING_UUID, List.of(), null);
 
         assertThat(historikkinnslagDtoV2).isNotNull();
     }

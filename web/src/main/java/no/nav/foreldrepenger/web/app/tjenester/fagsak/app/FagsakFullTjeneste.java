@@ -114,7 +114,7 @@ public class FagsakFullTjeneste {
         var behandlinger = behandlingDtoTjeneste.lagBehandlingDtoer(behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId()));
         var dokumentPath = HistorikkRequestPath.getRequestPath(request);
         var historikk = historikkTjenesteAdapter.hentAlleHistorikkInnslagForSak(saksnummer, dokumentPath);
-        var historikkV2 = ENV.isLocal() ? historikkDtoTjeneste.hentForSak(saksnummer) : null;
+        var historikkV2 = ENV.isLocal() ? historikkDtoTjeneste.hentForSak(saksnummer, dokumentPath) : null;
         var notater = fagsakRepository.hentFagsakNotater(fagsak.getId()).stream().map(FagsakNotatDto::fraNotat).toList();
         var ferskesteKontrollresultatBehandling = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsak.getId(),
                 BehandlingType.FØRSTEGANGSSØKNAD)
