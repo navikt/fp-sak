@@ -71,7 +71,7 @@ public class BehandlingDvhMapper {
             .utlandstilsnitt(getUtlandstilsnitt(fagsakMarkering))
             .relatertBehandling(getRelatertBehandling(behandling, klageResultat, ankeResultat))
             .relatertBehandlingUuid(getRelatertBehandlingUuid(behandling, klageResultat, ankeResultat, behandlingUuidHenter))
-            .relatertBehandlingFagsystem(getRelatertBehandlingFagsystem(behandling, klageResultat, ankeResultat, behandlingUuidHenter))
+            .relatertBehandlingFagsystem(getRelatertBehandlingFagsystem(behandling, klageResultat))
             .familieHendelseType(mapFamilieHendelse(fh))
             .medFoersteStoenadsdag(skjæringstidspunkt.orElse(null))
             .medPapirSøknad(finnPapirSøknad(behandling, mottatteDokument))

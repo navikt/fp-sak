@@ -428,8 +428,8 @@ public class BehandlingDvh extends DvhBaseEntitet {
             return this;
         }
 
-        public Builder relatertBehandlingFagsystem(UUID relatertBehandlingUuid) {
-            this.relatertBehandlingUuid = relatertBehandlingUuid;
+        public Builder relatertBehandlingFagsystem(String relatertBehandlingFagsystem) {
+            this.relatertBehandlingFagsystem = relatertBehandlingFagsystem;
             return this;
         }
 
