@@ -64,8 +64,6 @@ import no.nav.foreldrepenger.datavarehus.domene.BehandlingDvh;
 import no.nav.foreldrepenger.datavarehus.domene.DatavarehusRepository;
 import no.nav.foreldrepenger.datavarehus.domene.KlageFormkravDvh;
 import no.nav.foreldrepenger.datavarehus.domene.KlageVurderingResultatDvh;
-import no.nav.foreldrepenger.datavarehus.domene.VedtakUtbetalingDvh;
-import no.nav.foreldrepenger.datavarehus.xml.DvhVedtakXmlTjeneste;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -77,8 +75,6 @@ class DatavarehusTjenesteImplTest {
 
     @Mock
     private DatavarehusRepository datavarehusRepository;
-    @Mock
-    private DvhVedtakXmlTjeneste dvhVedtakTjenesteEngangsstønad;
     @Mock
     private AnkeRepository ankeRepository;
     @Mock
@@ -102,7 +98,7 @@ class DatavarehusTjenesteImplTest {
     private DatavarehusTjenesteImpl nyDatavarehusTjeneste(BehandlingRepositoryProvider repositoryProvider) {
         return new DatavarehusTjenesteImpl(repositoryProvider, datavarehusRepository, repositoryProvider.getBehandlingsresultatRepository(),
             mock(FagsakEgenskapRepository.class), ankeRepository, klageRepository, mottatteDokumentRepository,
-            dvhVedtakTjenesteEngangsstønad, skjæringstidspunktTjeneste, mock(SvangerskapspengerRepository.class));
+            skjæringstidspunktTjeneste, mock(SvangerskapspengerRepository.class));
     }
 
     @Test
@@ -175,21 +171,6 @@ class DatavarehusTjenesteImplTest {
 
         verify(datavarehusRepository).lagre(captor.capture());
         assertThat(captor.getValue().getBehandlingId()).isEqualTo(behandling.getId());
-    }
-
-    @Test
-    void skal_lagre_Ned_Vedtak_Xml() {
-        var vedtak = byggBehandlingVedtak();
-        var behandlingId = vedtak.getBehandlingsresultat().getBehandlingId();
-        var captor = ArgumentCaptor.forClass(VedtakUtbetalingDvh.class);
-        var xml = "<bob>bob</bob";
-        when(dvhVedtakTjenesteEngangsstønad.opprettDvhVedtakXml(any())).thenReturn(xml);
-
-        DatavarehusTjeneste datavarehusTjeneste = nyDatavarehusTjeneste(repositoryProvider);
-        // Act
-        datavarehusTjeneste.opprettOgLagreVedtakXml(behandlingId);
-        verify(datavarehusRepository).lagre(captor.capture());
-        assertThat(captor.getValue().getXmlClob()).isEqualTo(xml);
     }
 
     @Test

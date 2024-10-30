@@ -78,21 +78,6 @@ public class PersonopplysningXmlFelles {
         return person;
     }
 
-    public PersonUidentifiserbar lagUidentifiserbarBruker(Skjæringstidspunkt stp, PersonopplysningerAggregat aggregat, PersonopplysningEntitet personopplysning) {
-        var person = personopplysningObjectFactory.createPersonUidentifiserbar();
-
-        populerPerson(stp, aggregat, personopplysning, person);
-
-        if (personopplysning.getAktørId() != null) {
-            person.setAktoerId(VedtakXmlUtil.lagStringOpplysning(personopplysning.getAktørId().getId()));
-        }
-
-        var sivilstand = VedtakXmlUtil.lagKodeverksOpplysning(personopplysning.getSivilstand());
-        person.setSivilstand(sivilstand);
-
-        return person;
-    }
-
     private void populerPerson(Skjæringstidspunkt stp, PersonopplysningerAggregat aggregat, PersonopplysningEntitet personopplysning, PersonUidentifiserbar person) {
         var dødsdato = VedtakXmlUtil.lagDateOpplysning(personopplysning.getDødsdato());
         dødsdato.ifPresent(person::setDoedsdato);

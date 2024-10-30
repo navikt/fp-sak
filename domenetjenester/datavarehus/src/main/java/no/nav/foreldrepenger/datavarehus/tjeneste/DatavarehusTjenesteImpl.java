@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
@@ -32,7 +31,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResul
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
@@ -62,7 +60,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.datavarehus.domene.DatavarehusRepository;
-import no.nav.foreldrepenger.datavarehus.xml.DvhVedtakXmlTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
@@ -84,7 +81,6 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
     private KlageRepository klageRepository;
     private MottatteDokumentRepository mottatteDokumentRepository;
     private AnkeRepository ankeRepository;
-    private DvhVedtakXmlTjeneste dvhVedtakXmlTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private BeregningsresultatRepository beregningsresultatRepository;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
@@ -98,7 +94,6 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
                                    AnkeRepository ankeRepository,
                                    KlageRepository klageRepository,
                                    MottatteDokumentRepository mottatteDokumentRepository,
-                                   DvhVedtakXmlTjeneste dvhVedtakXmlTjeneste,
                                    SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                    SvangerskapspengerRepository svangerskapspengerRepository) {
         this.datavarehusRepository = datavarehusRepository;
@@ -110,7 +105,6 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
         this.klageRepository = klageRepository;
         this.mottatteDokumentRepository = mottatteDokumentRepository;
         this.ankeRepository = ankeRepository;
-        this.dvhVedtakXmlTjeneste = dvhVedtakXmlTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
         this.svangerskapspengerRepository = svangerskapspengerRepository;
@@ -250,22 +244,6 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
                 .orElse(null);
         }
     }
-
-    @Override
-    public void opprettOgLagreVedtakXml(Long behandlingId) {
-        var behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId);
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        if (behandlingVedtakOpt.isPresent()) {
-            var vedtakXml = dvhVedtakXmlTjeneste.opprettDvhVedtakXml(behandlingId);
-            var hendelseType = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId())
-                .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-                .map(FamilieHendelseEntitet::getType)
-                .orElse(FamilieHendelseType.UDEFINERT);
-            var vedtakUtbetalingDvh = VedtakUtbetalingDvhMapper.map(vedtakXml, behandling, behandlingVedtakOpt.get(), hendelseType);
-            datavarehusRepository.lagre(vedtakUtbetalingDvh);
-        }
-    }
-
 
     private void lagreKlageFormkrav(KlageFormkravEntitet klageFormkrav) {
         var klageFormkravDvh = KlageFormkravDvhMapper.map(klageFormkrav);
