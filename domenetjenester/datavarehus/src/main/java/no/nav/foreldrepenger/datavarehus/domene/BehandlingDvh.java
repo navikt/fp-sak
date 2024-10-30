@@ -69,7 +69,7 @@ public class BehandlingDvh extends DvhBaseEntitet {
     private UUID relatertBehandlingUuid;
 
     @Column(name = "RELATERT_TIL_FAGSYSTEM")
-    private UUID relatertBehandlingFagsystem;
+    private String relatertBehandlingFagsystem;
 
     @Column(name = "FAMILIE_HENDELSE_TYPE")
     private String familieHendelseType;
@@ -185,6 +185,10 @@ public class BehandlingDvh extends DvhBaseEntitet {
 
     public UUID getRelatertBehandlingUuid() {
         return relatertBehandlingUuid;
+    }
+
+    public String getRelatertBehandlingFagsystem() {
+        return relatertBehandlingFagsystem;
     }
 
     public String getFamilieHendelseType() {
