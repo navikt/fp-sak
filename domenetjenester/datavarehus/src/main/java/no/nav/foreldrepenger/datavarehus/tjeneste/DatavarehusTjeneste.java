@@ -12,7 +12,5 @@ public interface DatavarehusTjeneste {
 
     void lagreNedBehandling(Behandling behandling, BehandlingVedtak vedtak);
 
-    void opprettOgLagreVedtakXml(Long behandlingId);
-
     void oppdaterHvisKlageEllerAnke(Long behandlingId, Collection<Aksjonspunkt> aksjonspunkter);
 }

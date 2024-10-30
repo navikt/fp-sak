@@ -12,7 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.datavarehus.task.VedtakTilDatavarehusTask;
 import no.nav.foreldrepenger.domene.vedtak.OpprettProsessTaskIverksett;
 import no.nav.foreldrepenger.domene.vedtak.ekstern.SettUtbetalingPåVentPrivatArbeidsgiverTask;
 import no.nav.foreldrepenger.domene.vedtak.ekstern.VurderOppgaveArenaTask;
@@ -55,7 +54,7 @@ class OpprettProsessTaskIverksettTest {
         var tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::taskType).toList();
         assertThat(tasktyper).contains(TaskType.forProsessTask(AvsluttBehandlingTask.class), TaskType.forProsessTask(SendVedtaksbrevTask.class),
             TaskType.forProsessTask(VurderOgSendØkonomiOppdragTask.class), TaskType.forProsessTask(SettUtbetalingPåVentPrivatArbeidsgiverTask.class),
-            TaskType.forProsessTask(VurderOppgaveArenaTask.class), TaskType.forProsessTask(VedtakTilDatavarehusTask.class), TaskType.forProsessTask(SettFagsakRelasjonAvslutningsdatoTask.class));
+            TaskType.forProsessTask(VurderOppgaveArenaTask.class), TaskType.forProsessTask(SettFagsakRelasjonAvslutningsdatoTask.class));
     }
 
     @Test
@@ -72,7 +71,7 @@ class OpprettProsessTaskIverksettTest {
         var tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::taskType).toList();
         assertThat(tasktyper).contains(TaskType.forProsessTask(AvsluttBehandlingTask.class), TaskType.forProsessTask(SendVedtaksbrevTask.class),
             TaskType.forProsessTask(VurderOgSendØkonomiOppdragTask.class), TaskType.forProsessTask(SettUtbetalingPåVentPrivatArbeidsgiverTask.class),
-            TaskType.forProsessTask(VurderOppgaveArenaTask.class), TaskType.forProsessTask(VedtakTilDatavarehusTask.class), TaskType.forProsessTask(SettFagsakRelasjonAvslutningsdatoTask.class));
+            TaskType.forProsessTask(VurderOppgaveArenaTask.class), TaskType.forProsessTask(SettFagsakRelasjonAvslutningsdatoTask.class));
     }
 
 }

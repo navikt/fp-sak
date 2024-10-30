@@ -70,18 +70,4 @@ public class DatavarehusTestUtils {
                 .build();
     }
 
-    public static VedtakUtbetalingDvh byggVedtakUtbetalingDvh() {
-        return VedtakUtbetalingDvh.builder()
-            .behandlingId(BEHANDLING_ID)
-            .behandlingType(BEHANDLING_TYPE)
-            .endretAv(ENDRET_AV)
-            .fagsakId(FAGSAK_ID)
-            .fagsakType(FAGSAK_TYPE)
-            .søknadType(SOEKNAD_TYPE)
-            .vedtakDato(VEDTAK_DATO)
-            .vedtakId(VEDTAK_ID)
-            .xmlClob(VEDTAK_XML)
-            .build();
-    }
-
 }
