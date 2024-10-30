@@ -1,9 +1,6 @@
 package no.nav.foreldrepenger.mottak.hendelser;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Alternative;
@@ -30,26 +27,6 @@ public class DummyDatavarehustjeneste implements DatavarehusTjeneste {
     @Override
     public void lagreNedBehandling(Behandling behandling, BehandlingVedtak vedtak) {
 
-    }
-
-    @Override
-    public void opprettOgLagreVedtakXml(Long behandlingId) {
-
-    }
-
-    @Override
-    public void oppdaterVedtakXml(Long behandlingId) {
-
-    }
-
-    @Override
-    public List<Long> hentVedtakBehandlinger(LocalDateTime fom, LocalDateTime tom) {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<Long> hentVedtakBehandlinger(Long behandlingid)  {
-        return new ArrayList<>();
     }
 
     @Override

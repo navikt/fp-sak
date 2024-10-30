@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.function.Function;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -46,12 +48,15 @@ public class BehandlingDvhMapper {
                                     Optional<AnkeResultatEntitet> ankeResultat,
                                     Optional<LocalDate> skjæringstidspunkt,
                                     Collection<FagsakMarkering> fagsakMarkering,
-                                    Optional<LocalDate> forventetOppstartDato) {
+                                    Optional<LocalDate> forventetOppstartDato,
+                                    Optional<String> brukEnhet,
+                                    String omgjøringÅrsak,
+                                    Function<Long, UUID> behandlingUuidHenter) {
 
         var builder = BehandlingDvh.builder()
             .ansvarligBeslutter(behandling.getAnsvarligBeslutter())
             .ansvarligSaksbehandler(utledAnsvarligSaksbehandler(behandling))
-            .behandlendeEnhet(behandling.getBehandlendeEnhet())
+            .behandlendeEnhet(brukEnhet.orElseGet(behandling::getBehandlendeEnhet))
             .behandlingId(behandling.getId())
             .behandlingUuid(behandling.getUuid())
             .behandlingResultatType(behandlingsresultat == null ? null : behandlingsresultat.getBehandlingResultatType().getKode())
@@ -65,11 +70,13 @@ public class BehandlingDvhMapper {
             .funksjonellTid(LocalDateTime.now())
             .utlandstilsnitt(getUtlandstilsnitt(fagsakMarkering))
             .relatertBehandling(getRelatertBehandling(behandling, klageResultat, ankeResultat))
+            .relatertBehandlingUuid(getRelatertBehandlingUuid(behandling, klageResultat, ankeResultat, behandlingUuidHenter))
             .familieHendelseType(mapFamilieHendelse(fh))
             .medFoersteStoenadsdag(skjæringstidspunkt.orElse(null))
             .medPapirSøknad(finnPapirSøknad(behandling, mottatteDokument))
             .medBehandlingMetode(utledBehandlingMetode(behandling, behandlingsresultat))
             .medRevurderingÅrsak(utledRevurderingÅrsak(behandling, fagsakMarkering))
+            .medOmgjøringÅrsak(omgjøringÅrsak)
             .medMottattTid(finnMottattTidspunkt(mottatteDokument))
             .medRegistrertTid(behandling.getOpprettetTidspunkt())
             .medKanBehandlesTid(kanBehandlesTid(behandling))
@@ -128,6 +135,21 @@ public class BehandlingDvhMapper {
             return klageResultat.flatMap(KlageResultatEntitet::getPåKlagdBehandlingId).orElse(null);
         }
         return behandling.getOriginalBehandlingId().orElse(null);
+    }
+
+    private static UUID getRelatertBehandlingUuid(Behandling behandling,
+                                                  Optional<KlageResultatEntitet> klageResultat,
+                                                  Optional<AnkeResultatEntitet> ankeResultat,
+                                                  Function<Long, UUID> behandlingUuidHenter) {
+        if (BehandlingType.ANKE.equals(behandling.getType()) && ankeResultat.isPresent()) {
+            return ankeResultat.flatMap(AnkeResultatEntitet::getPåAnketKlageBehandlingId).map(behandlingUuidHenter).orElse(null);
+        }
+        if (BehandlingType.KLAGE.equals(behandling.getType()) && klageResultat.isPresent()) {
+            return klageResultat.flatMap(KlageResultatEntitet::getPåKlagdEksternBehandlingUuid)
+                .or(() -> klageResultat.flatMap(KlageResultatEntitet::getPåKlagdBehandlingId).map(behandlingUuidHenter))
+                .orElse(null);
+        }
+        return behandling.getOriginalBehandlingId().map(behandlingUuidHenter).orElse(null);
     }
 
     private static String mapFamilieHendelse(Optional<FamilieHendelseGrunnlagEntitet> fh) {
