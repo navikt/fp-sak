@@ -71,6 +71,7 @@ public class BehandlingDvhMapper {
             .utlandstilsnitt(getUtlandstilsnitt(fagsakMarkering))
             .relatertBehandling(getRelatertBehandling(behandling, klageResultat, ankeResultat))
             .relatertBehandlingUuid(getRelatertBehandlingUuid(behandling, klageResultat, ankeResultat, behandlingUuidHenter))
+            .relatertBehandlingFagsystem(getRelatertBehandlingFagsystem(behandling, klageResultat, ankeResultat, behandlingUuidHenter))
             .familieHendelseType(mapFamilieHendelse(fh))
             .medFoersteStoenadsdag(skjæringstidspunkt.orElse(null))
             .medPapirSøknad(finnPapirSøknad(behandling, mottatteDokument))
@@ -150,6 +151,15 @@ public class BehandlingDvhMapper {
                 .orElse(null);
         }
         return behandling.getOriginalBehandlingId().map(behandlingUuidHenter).orElse(null);
+    }
+
+    private static String getRelatertBehandlingFagsystem(Behandling behandling,
+                                                         Optional<KlageResultatEntitet> klageResultat) {
+        if (BehandlingType.KLAGE.equals(behandling.getType()) &&
+            klageResultat.flatMap(KlageResultatEntitet::getPåKlagdEksternBehandlingUuid).isPresent()) {
+            return "FPTILBAKE";
+        }
+        return "FPSAK";
     }
 
     private static String mapFamilieHendelse(Optional<FamilieHendelseGrunnlagEntitet> fh) {

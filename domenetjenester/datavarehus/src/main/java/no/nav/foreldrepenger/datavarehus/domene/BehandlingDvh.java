@@ -68,6 +68,9 @@ public class BehandlingDvh extends DvhBaseEntitet {
     @Column(name = "RELATERT_TIL_UUID")
     private UUID relatertBehandlingUuid;
 
+    @Column(name = "RELATERT_TIL_FAGSYSTEM")
+    private UUID relatertBehandlingFagsystem;
+
     @Column(name = "FAMILIE_HENDELSE_TYPE")
     private String familieHendelseType;
 
@@ -321,6 +324,7 @@ public class BehandlingDvh extends DvhBaseEntitet {
         private String endretAv;
         private Long relatertBehandling;
         private UUID relatertBehandlingUuid;
+        private String relatertBehandlingFagsystem;
         private String familieHendelseType;
         private LocalDate foersteStoenadsdag;
         private UUID uuid;
@@ -424,6 +428,11 @@ public class BehandlingDvh extends DvhBaseEntitet {
             return this;
         }
 
+        public Builder relatertBehandlingFagsystem(UUID relatertBehandlingUuid) {
+            this.relatertBehandlingUuid = relatertBehandlingUuid;
+            return this;
+        }
+
         public Builder familieHendelseType(String familieHendelseType) {
             this.familieHendelseType = familieHendelseType;
             return this;
@@ -515,6 +524,7 @@ public class BehandlingDvh extends DvhBaseEntitet {
             behandlingDvh.ansvarligBeslutter = ansvarligBeslutter;
             behandlingDvh.relatertBehandling = relatertBehandling;
             behandlingDvh.relatertBehandlingUuid = relatertBehandlingUuid;
+            behandlingDvh.relatertBehandlingFagsystem = relatertBehandlingFagsystem;
             behandlingDvh.setFunksjonellTid(funksjonellTid);
             behandlingDvh.setEndretAv(endretAv);
             behandlingDvh.familieHendelseType = familieHendelseType;
