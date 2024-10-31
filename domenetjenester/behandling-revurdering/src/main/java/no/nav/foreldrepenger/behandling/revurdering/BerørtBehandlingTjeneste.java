@@ -118,7 +118,7 @@ public class BerørtBehandlingTjeneste {
     }
 
     private Optional<ForeldrepengerUttak> hentUttak(Long behandling) {
-        return uttakTjeneste.hentUttakHvisEksisterer(behandling);
+        return uttakTjeneste.hentHvisEksisterer(behandling);
     }
 
     public static boolean harKonsekvens(Behandlingsresultat behandlingsresultat, KonsekvensForYtelsen konsekvens) {

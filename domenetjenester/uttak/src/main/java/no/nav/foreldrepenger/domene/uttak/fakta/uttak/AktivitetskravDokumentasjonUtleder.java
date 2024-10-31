@@ -99,7 +99,7 @@ public class AktivitetskravDokumentasjonUtleder {
 
     private boolean annenpartHarForeldrepengerUtbetaling(ForeldrepengerGrunnlag ytelsespesifiktGrunnlag) {
         return ytelsespesifiktGrunnlag.getAnnenpart()
-            .flatMap(a -> foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(a.gjeldendeVedtakBehandlingId()))
+            .flatMap(a -> foreldrepengerUttakTjeneste.hentHvisEksisterer(a.gjeldendeVedtakBehandlingId()))
             .stream().anyMatch(ForeldrepengerUttak::harUtbetaling);
     }
 }

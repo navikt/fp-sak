@@ -134,7 +134,7 @@ public class SaldoerDtoTjeneste {
 
     private boolean harTrekkdagerEtterNesteSak(BehandlingReferanse ref, NesteSakGrunnlagEntitet nesteSakGrunnlag) {
         var nesteSakFom = nesteSakGrunnlag.getStartdato();
-        return uttakTjeneste.hentUttakHvisEksisterer(ref.behandlingId()).map(u -> {
+        return uttakTjeneste.hentHvisEksisterer(ref.behandlingId()).map(u -> {
             //Bruker opprinnelige uttak fra reglene for at minsterett saldo ikke skal forsvinne hvis saksbehandler fjerner alle trekkdager etter ny sak i AP
             return u.getOpprinneligPerioder().stream().anyMatch(p -> p.harTrekkdager() && !p.getTom().isBefore(nesteSakFom));
         }).orElse(false);
@@ -211,7 +211,7 @@ public class SaldoerDtoTjeneste {
     private Optional<ForeldrepengerUttak> annenPartUttak(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
         return foreldrepengerGrunnlag.getAnnenpart()
             .map(Annenpart::gjeldendeVedtakBehandlingId)
-            .flatMap(uttakTjeneste::hentUttakHvisEksisterer);
+            .flatMap(uttakTjeneste::hentHvisEksisterer);
     }
 
     private Optional<KontoUtvidelser> finnKontoUtvidelser(Stønadskontotype stønadskonto, Map<StønadskontoType, Integer> kontoUtregning) {

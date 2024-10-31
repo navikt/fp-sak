@@ -18,7 +18,8 @@ import org.mockito.ArgumentMatchers;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.RevurderingBehandlingsresultatutleder;
+import no.nav.foreldrepenger.behandling.revurdering.felles.RevurderingBehandlingsresultatutlederFelles;
+import no.nav.foreldrepenger.behandling.steg.foreslåresultat.ForeslåBehandlingsresultatTjenesteImpl;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -49,17 +50,15 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
-import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.foreldrepenger.domene.uttak.SvangerskapspengerUttakTjeneste;
+import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
 
 class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
 
     private final DokumentBehandlingTjeneste dokumentBehandlingTjeneste = mock(DokumentBehandlingTjeneste.class);
-    private final OpphørUttakTjeneste opphørUttakTjeneste = mock(OpphørUttakTjeneste.class);
-    private final SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
-    private RevurderingBehandlingsresultatutleder revurderingBehandlingsresultatutleder;
+    private RevurderingBehandlingsresultatutlederFelles revurderingBehandlingsresultatutleder;
     private ForeslåBehandlingsresultatTjenesteImpl tjeneste;
     private BehandlingRepository behandlingRepository;
     private FpUttakRepository fpUttakRepository;
@@ -74,19 +73,16 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         var grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
         fpUttakRepository = this.repositoryProvider.getFpUttakRepository();
-        var uttakTjeneste = new ForeldrepengerUttakTjeneste(fpUttakRepository);
-        revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(repositoryProvider, grunnlagRepositoryProvider,
-                beregningTjeneste,
-                opphørUttakTjeneste,
-                skjæringstidspunktTjeneste,
-                medlemTjeneste,
-                uttakTjeneste, new DekningsgradTjeneste(repositoryProvider.getYtelsesFordelingRepository())));
-        tjeneste = new ForeslåBehandlingsresultatTjenesteImpl(this.repositoryProvider,
-                new ForeldrepengerUttakTjeneste(this.repositoryProvider.getFpUttakRepository()),
-                dokumentBehandlingTjeneste,
-                revurderingBehandlingsresultatutleder);
-        behandlingRepository = this.repositoryProvider.getBehandlingRepository();
-        behandlingVedtakRepository = this.repositoryProvider.getBehandlingVedtakRepository();
+        var dekningsgradTjeneste = new DekningsgradTjeneste(repositoryProvider.getYtelsesFordelingRepository());
+        var uttakTjeneste = new UttakTjeneste(repositoryProvider.getBehandlingRepository(), new ForeldrepengerUttakTjeneste(fpUttakRepository),
+            new SvangerskapspengerUttakTjeneste(this.repositoryProvider.getSvangerskapspengerUttakResultatRepository()));
+        revurderingBehandlingsresultatutleder = spy(
+            new RevurderingBehandlingsresultatutlederFelles(repositoryProvider, grunnlagRepositoryProvider, beregningTjeneste, medlemTjeneste,
+                dekningsgradTjeneste, uttakTjeneste));
+        tjeneste = new ForeslåBehandlingsresultatTjenesteImpl(repositoryProvider, uttakTjeneste, dokumentBehandlingTjeneste,
+            revurderingBehandlingsresultatutleder);
+        behandlingRepository = repositoryProvider.getBehandlingRepository();
+        behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
     }
 
     @Test
