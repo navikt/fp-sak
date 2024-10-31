@@ -11,6 +11,7 @@
 		<properties>
 			<property name="hibernate.connection.autocommit" value="false" />
 			<property name="hibernate.jdbc.use_get_generated_keys" value="true" />
+            <property name="hibernate.query.mutation_strategy.global_temporary.create_tables" value="false"/>
 			<property name="org.hibernate.flushMode" value="COMMIT" />
 		</properties>
 	</persistence-unit>
