@@ -150,7 +150,7 @@ public class HistorikkV2Adapter {
 
     private static String fraAksjonspunktFelt(HistorikkinnslagTotrinnsvurdering aksjonspunktFelt) {
 
-        var aksjonspunktTekst = switch (aksjonspunktFelt.getAksjonspunktDefinisjon()) {
+        /*var aksjonspunktTekst = switch (aksjonspunktFelt.getAksjonspunktDefinisjon()) { // TODO
             case AVKLAR_TERMINBEKREFTELSE -> Historikk.TermindatoFaktaForm.ApplicationInformation';
             case AVKLAR_ADOPSJONSDOKUMENTAJON -> 'Historikk.DokumentasjonFaktaForm.ApplicationInformation';
             case AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN -> 'Historikk.EktefelleFaktaForm.ApplicationInformation';
@@ -204,7 +204,7 @@ public class HistorikkV2Adapter {
         };
             // sjekk denne case
             case KONTROLLER_TILSTØTENDE_YTELSER_INNVILGET -> 'Historikk.OpplysningerOmTilstotendeYtelser.Innvilget';
-            case KONTROLLER_TILSTØTENDE_YTELSER_OPPHØRT -> 'Historikk.OpplysningerOmTilstotendeYtelser.Opphort';
+            case KONTROLLER_TILSTØTENDE_YTELSER_OPPHØRT -> 'Historikk.OpplysningerOmTilstotendeYtelser.Opphort';*/
             // FASTSETT_BRUTTO_BEREGNINGSGRUNNLAG_SELVSTENDIG_NAERINGSDRIVENDE -> 'Historikk.BeregningsgrunnlagManueltSN';
         if (aksjonspunktFelt.erGodkjent()) {
         } else {
