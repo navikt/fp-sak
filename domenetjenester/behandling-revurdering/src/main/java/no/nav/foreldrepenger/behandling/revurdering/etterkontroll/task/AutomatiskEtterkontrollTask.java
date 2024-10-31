@@ -24,10 +24,8 @@ import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 @ProsessTask(value = "behandlingsprosess.etterkontroll", prioritet = 3)
@@ -38,7 +36,6 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
 
     private PersoninfoAdapter personinfoAdapter;
     private BehandlingRepository behandlingRepository;
-    private ProsessTaskTjeneste taskTjeneste;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private EtterkontrollRepository etterkontrollRepository;
@@ -50,17 +47,15 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
 
     @Inject
     public AutomatiskEtterkontrollTask(BehandlingRepositoryProvider repositoryProvider,
-            EtterkontrollRepository etterkontrollRepository,
-            HistorikkRepository historikkRepository,
-            FamilieHendelseTjeneste familieHendelseTjeneste,
-            PersoninfoAdapter personinfoAdapter,
-            ProsessTaskTjeneste taskTjeneste,
-            BehandlendeEnhetTjeneste behandlendeEnhetTjeneste) {
+                                       EtterkontrollRepository etterkontrollRepository,
+                                       HistorikkRepository historikkRepository,
+                                       FamilieHendelseTjeneste familieHendelseTjeneste,
+                                       PersoninfoAdapter personinfoAdapter,
+                                       BehandlendeEnhetTjeneste behandlendeEnhetTjeneste) {
         super(repositoryProvider.getFagsakLåsRepository(), repositoryProvider.getBehandlingLåsRepository());
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.personinfoAdapter = personinfoAdapter;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.taskTjeneste = taskTjeneste;
         this.revurderingHistorikk = new RevurderingHistorikk(historikkRepository);
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.etterkontrollRepository = etterkontrollRepository;
@@ -75,7 +70,6 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
         etterkontrollRepository.avflaggDersomEksisterer(fagsakId, KontrollType.MANGLENDE_FØDSEL);
 
         if (behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(fagsakId)) {
-            opprettTaskForÅVurdereKonsekvens(fagsakId, behandling.getBehandlendeEnhet());
             return;
         }
 
@@ -99,15 +93,5 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
 
             automatiskEtterkontrollTjeneste.opprettRevurdering(behandling, årsak, enhet);
         });
-    }
-
-    private void opprettTaskForÅVurdereKonsekvens(Long fagsakId, String behandlendeEnhetsId) {
-        var prosessTaskData = ProsessTaskData.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class);
-        prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BEHANDLENDE_ENHET, behandlendeEnhetsId);
-        prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE, "Kontroller manglende fødselsregistrering");
-        prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_PRIORITET, OpprettOppgaveVurderKonsekvensTask.PRIORITET_NORM);
-        prosessTaskData.setFagsakId(fagsakId);
-        prosessTaskData.setCallIdFraEksisterende();
-        taskTjeneste.lagre(prosessTaskData);
     }
 }

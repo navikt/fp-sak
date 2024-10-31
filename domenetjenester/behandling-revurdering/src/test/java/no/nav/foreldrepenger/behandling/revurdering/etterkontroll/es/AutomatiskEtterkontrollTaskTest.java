@@ -12,8 +12,6 @@ import java.util.Collections;
 
 import jakarta.persistence.EntityManager;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -47,7 +46,6 @@ import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(JpaExtension.class)
@@ -57,9 +55,6 @@ class AutomatiskEtterkontrollTaskTest {
     private PersoninfoAdapter personinfoAdapter;
 
     private BehandlingRepository behandlingRepository;
-
-    @Mock
-    private ProsessTaskTjeneste taskTjenesteMock;
 
     private AutomatiskEtterkontrollTask task;
     @Mock
@@ -90,8 +85,7 @@ class AutomatiskEtterkontrollTaskTest {
         etterkontrollRepository = new EtterkontrollRepository(entityManager);
         familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
         task = new AutomatiskEtterkontrollTask(repositoryProvider, etterkontrollRepository, historikkRepository,
-                familieHendelseTjeneste, personinfoAdapter,
-                taskTjenesteMock, behandlendeEnhetTjeneste);
+                familieHendelseTjeneste, personinfoAdapter, behandlendeEnhetTjeneste);
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class)))
                 .thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
     }
@@ -137,7 +131,7 @@ class AutomatiskEtterkontrollTaskTest {
         Period.parse("P11W");
         task = new AutomatiskEtterkontrollTask(repositoryProvider, etterkontrollRepository, historikkRepository,
                 familieHendelseTjeneste, personinfoAdapter,
-                taskTjenesteMock, behandlendeEnhetTjeneste);
+                behandlendeEnhetTjeneste);
     }
 
     @Test
