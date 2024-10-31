@@ -40,6 +40,9 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakAvstemPeriodeTask;
 import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakOverlappAvstemSakTask;
+import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdFPRestanse;
+import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdRestanseDto;
+import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdSvpRestanse;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AksjonspunktKodeDto;
@@ -64,6 +67,8 @@ public class ForvaltningUttrekkRestTjeneste {
     private FagsakRepository fagsakRepository;
     private ProsessTaskTjeneste taskTjeneste;
     private OverlappVedtakRepository overlappRepository;
+    private InfotrygdFPRestanse foreldrepengerSak;
+    private InfotrygdSvpRestanse svangerskapspengerSak;
 
     public ForvaltningUttrekkRestTjeneste() {
         // For CDI
@@ -74,12 +79,16 @@ public class ForvaltningUttrekkRestTjeneste {
                                           FagsakRepository fagsakRepository,
                                           BehandlingRepository behandlingRepository,
                                           ProsessTaskTjeneste taskTjeneste,
-                                          OverlappVedtakRepository overlappRepository) {
+                                          OverlappVedtakRepository overlappRepository,
+                                          InfotrygdFPRestanse foreldrepengerSak,
+                                          InfotrygdSvpRestanse svangerskapspengerSak) {
         this.entityManager = entityManager;
         this.fagsakRepository = fagsakRepository;
         this.behandlingRepository = behandlingRepository;
         this.taskTjeneste = taskTjeneste;
         this.overlappRepository = overlappRepository;
+        this.foreldrepengerSak = foreldrepengerSak;
+        this.svangerskapspengerSak = svangerskapspengerSak;
     }
 
     @POST
@@ -266,19 +275,32 @@ public class ForvaltningUttrekkRestTjeneste {
         return Response.ok(resultat).build();
     }
 
-    @POST
-    @Path("/fikseRelatertTilbake")
+    @GET
+    @Path("/infotrygdRestanseFP")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Kopiering før unmapping", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response fikseAnkeBehandlingerEnhet0000() {
-        var rader = entityManager.createNativeQuery("""
-            update fpsak_hist.behandling_dvh bdvh
-            set RELATERT_TIL_FAGSYSTEM = 'FPTILBAKE'
-            where RELATERT_TIL_UUID in (select PAAKLAGD_EKSTERN_UUID from FPSAK.KLAGE_RESULTAT)
-            """).executeUpdate();
-        return Response.ok(rader).build();
+    @Operation(description = "Restanse FP", tags = "FORVALTNING-uttrekk",
+        responses = {@ApiResponse(responseCode = "200", description = "Restanse", content = @Content(
+            array = @ArraySchema(arraySchema = @Schema(implementation = List.class),
+                schema = @Schema(implementation = InfotrygdRestanseDto.class)), mediaType = MediaType.APPLICATION_JSON))})
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
+    public Response infotrygdRestanseFP() {
+        var restanse = foreldrepengerSak.getRestanse();
+        return Response.ok(restanse).build();
+    }
+
+    @GET
+    @Path("/infotrygdRestanseSVP")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Restanse SVP", tags = "FORVALTNING-uttrekk",
+        responses = {@ApiResponse(responseCode = "200", description = "Restanse", content = @Content(
+            array = @ArraySchema(arraySchema = @Schema(implementation = List.class),
+                schema = @Schema(implementation = InfotrygdRestanseDto.class)), mediaType = MediaType.APPLICATION_JSON))})
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
+    public Response infotrygdRestanseSVP() {
+        var restanse = svangerskapspengerSak.getRestanse();
+        return Response.ok(restanse).build();
     }
 
 }
