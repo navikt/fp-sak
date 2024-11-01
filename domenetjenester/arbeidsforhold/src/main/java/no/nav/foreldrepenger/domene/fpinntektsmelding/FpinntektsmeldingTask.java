@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.fpinntektsmelding;
 
+import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.tilMaskertNummer;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -40,10 +42,10 @@ public class FpinntektsmeldingTask extends GenerellProsessTask {
 
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
-        LOG.info("Starter task for oversending til fpinntektsmelding for behandling " + behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var arbeidsgiverIdent = prosessTaskData.getPropertyValue(ARBEIDSGIVER_KEY);
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
+        LOG.info("Starter task for å opprette forespørsel i fpinntektsmelding for behandlingId {} med orgnummer {} og skjæringstidspunkt {}",  behandlingId, tilMaskertNummer(arbeidsgiverIdent), stp);
         var ref = BehandlingReferanse.fra(behandling);
         fpInntektsmeldingTjeneste.lagForespørsel(arbeidsgiverIdent, ref, stp);
     }

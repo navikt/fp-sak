@@ -23,6 +23,9 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -31,12 +34,15 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
+import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakAvstemPeriodeTask;
 import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakOverlappAvstemSakTask;
@@ -47,6 +53,7 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AksjonspunktKodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriodeDto;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskDataBuilder;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
@@ -61,12 +68,13 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @ApplicationScoped
 @Transactional
 public class ForvaltningUttrekkRestTjeneste {
-
+    private static final Logger LOG = LoggerFactory.getLogger(ForvaltningUttrekkRestTjeneste.class);
     private EntityManager entityManager;
     private BehandlingRepository behandlingRepository;
     private FagsakRepository fagsakRepository;
     private ProsessTaskTjeneste taskTjeneste;
     private OverlappVedtakRepository overlappRepository;
+    private FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste;
     private InfotrygdFPRestanse foreldrepengerSak;
     private InfotrygdSvpRestanse svangerskapspengerSak;
 
@@ -80,6 +88,7 @@ public class ForvaltningUttrekkRestTjeneste {
                                           BehandlingRepository behandlingRepository,
                                           ProsessTaskTjeneste taskTjeneste,
                                           OverlappVedtakRepository overlappRepository,
+                                          FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste,
                                           InfotrygdFPRestanse foreldrepengerSak,
                                           InfotrygdSvpRestanse svangerskapspengerSak) {
         this.entityManager = entityManager;
@@ -87,6 +96,7 @@ public class ForvaltningUttrekkRestTjeneste {
         this.behandlingRepository = behandlingRepository;
         this.taskTjeneste = taskTjeneste;
         this.overlappRepository = overlappRepository;
+        this.fpInntektsmeldingTjeneste = fpInntektsmeldingTjeneste;
         this.foreldrepengerSak = foreldrepengerSak;
         this.svangerskapspengerSak = svangerskapspengerSak;
     }
@@ -227,6 +237,64 @@ public class ForvaltningUttrekkRestTjeneste {
         taskTjeneste.lagre(gruppe);
 
         return Response.ok().build();
+    }
+
+    @POST
+    @Path("/opprettIMForesporselForBehandling")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Oppretter im forespørsel task for behandlinger som mangler IM og har aksjonspunkt 7003, 7030 eller 5085. Velg enten en behandlingUuid eller aksjonspunkt", tags = "FORVALTNING-uttrekk")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
+    public Response opprettImTaskForBehMedAksjonspunkt(@Valid AksjonspunktKodeDto dto, @Valid ForvaltningBehandlingIdDto behandlingIdDto) {
+        if(dto.getAksjonspunktDefinisjon() == null && behandlingIdDto == null) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        if (behandlingIdDto != null) {
+            var behandlingUuid = behandlingIdDto.getBehandlingUuid();
+            LOG.info("Sjekker om det skal opprettes im forespørsel for behandling med uuid {}",  behandlingUuid);
+            var behandling = behandlingRepository.hentBehandling(behandlingUuid);
+            if (behandling == null) {
+                return Response.noContent().build();
+            }
+            fpInntektsmeldingTjeneste.sjekkOmIMManglerOgOpprettForesporselTask(behandling);
+        } else  {
+            var aksjonspunktkode = dto.getAksjonspunktKode();
+            var aksjonspunktdefinisjon = dto.getAksjonspunktDefinisjon();
+            if (!(AksjonspunktDefinisjon.AUTO_VENT_ETTERLYST_INNTEKTSMELDING.equals(aksjonspunktdefinisjon) || AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD.equals(
+                aksjonspunktdefinisjon) || AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING.equals(aksjonspunktdefinisjon))) {
+                return Response.status(Response.Status.FORBIDDEN).build();
+            }
+
+            var behandlingIder = finnBehandlingerMedAksjonspunkt(aksjonspunktkode);
+            LOG.info("OppretteIMForespørsler: Antall behandlinger med aksjonspunkt {}: {}", aksjonspunktkode, behandlingIder);
+
+            if (behandlingIder.isEmpty()) {
+                return Response.noContent().build();
+            }
+
+            behandlingIder.forEach(id -> {
+                var behandling = behandlingRepository.hentBehandling(id);
+                fpInntektsmeldingTjeneste.sjekkOmIMManglerOgOpprettForesporselTask(behandling);
+            });
+        }
+        return Response.ok().build();
+    }
+
+    private List<Long> finnBehandlingerMedAksjonspunkt(String aksjonspunktkode) {
+        var query = entityManager.createQuery("""
+                select b.id
+                from behandling bh
+                join aksjonspunkt ap on ap.behandling_id = bh.id
+                where ap.aksjonspunkt_def = :appKode
+                and bh.behandling_status  = :behStatus
+                 and ap.aksjonspunkt_status = :status
+                 and ap.vent_aarsak = :ventAarsak""", Long.class);
+        query.setParameter("appKode", aksjonspunktkode);
+        query.setParameter("behStatus", BehandlingStatus.UTREDES);
+        query.setParameter("ventAarsak", Venteårsak.VENT_OPDT_INNTEKTSMELDING);
+        query.setParameter("status", AksjonspunktStatus.OPPRETTET.getKode());
+        return query.getResultList();
     }
 
     @POST
