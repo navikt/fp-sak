@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.historikk;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -96,25 +97,32 @@ public class HistorikkV2Adapter {
     }
 
     private static HistorikkinnslagDtoV2 fraMaltype2(Historikkinnslag h, UUID behandlingUUID) {
-        var del = h.getHistorikkinnslagDeler().get(0);
-        var skjermlenke = del.getSkjermlenke();
+        var del = h.getHistorikkinnslagDeler().getFirst();
+        var skjermlenke = del.getSkjermlenke().orElse(null); // TODO Thao: Sjekk om det alltid finnes en skjermlenke for type2?
+        var skjermlenkeType = SkjermlenkeType.fraKode(skjermlenke);
+        var tittel = skjermlenke != null ? skjermlenkeType.getNavn() : "";
         var hendelse = del.getHendelse();
         var resultat = del.getResultat();
+        var tekst = "";
 
-        if(!resultat.isPresent() && !hendelse.isPresent()){
-            var hendelseTekst = del.getHendelse().stream()
-                .map(HistorikkV2Adapter::fraHendelseFelt)
-                .toList();
+        if(resultat.isPresent() && hendelse.isPresent()){
+            // TODO Thao: Er det greit å returnere tom string? Eller skal det kastes en exception her?
+            var hendelseTekst = del.getHendelse().isPresent() ? HistorikkinnslagType.fraKode(del.getHendelse().get().getNavn()).getNavn() : "";
 
-            var resultatTekst = del.getResultat().stream()
-                .map(HistorikkV2Adapter::fraHistorikkResultat)
-                .toList();
+            // TODO Thao: Er det greit å returnere tom string? Eller skal det kastes en exception her?
+            var resultatTekst = del.getResultat().isPresent() ? fraHistorikkResultat(del.getResultat().get()): "";
 
-            var tekst = String.format("%s : %s", hendelseTekst, resultatTekst);
+            tekst = String.format("%s : %s", hendelseTekst, resultatTekst);
         }
 
-
-        return null; // TODO:
+        return new HistorikkinnslagDtoV2(
+            behandlingUUID,
+            HistorikkinnslagDtoV2.HistorikkAktørDto.fra(h.getAktør(), h.getOpprettetAv()),
+            skjermlenkeType,
+            h.getOpprettetTidspunkt(),
+            null, // TODO
+            tittel,
+            Collections.singletonList(tekst));
     }
 
     private static HistorikkinnslagDtoV2 fraMaltype3(Historikkinnslag h, UUID behandlingUUID) {
@@ -171,7 +179,7 @@ public class HistorikkV2Adapter {
             case SJEKK_MANGLENDE_FODSEL -> 'Historikk.Fodsel.ApplicationInformation';
             case BEHANDLE_KLAGE_NFP -> 'Historikk.KlageNFP.Fastsett';
             case VURDERING_AV_FORMKRAV_KLAGE_NFP -> 'Historikk.KlageNFP.Formkrav';
-            case AVKLAR_ARBEIDSFORHOLD -> 'Historikk.AvklarArbeidsforhold';
+            case UTGÅTT_5080 -> 'Avklar arbeidsforhold';
             case AVKLAR_LOVLIG_OPPHOLD -> 'Historikk.Lovlig';
             case AVKLAR_OM_BRUKER_ER_BOSATT -> 'Historikk.Bosatt';
             case AVKLAR_OPPHOLDSRETT -> 'Historikk.Rett';
@@ -550,7 +558,6 @@ public class HistorikkV2Adapter {
     private static String fraHistorikkResultat(String type) {
         var historikkResultatType = HistorikkResultatType.valueOf(type);
         return switch (historikkResultatType) {
-            case AVVIS_KLAGE -> "Klagen er avvist";
             case MEDHOLD_I_KLAGE -> "Vedtaket er omgjort";
             case OPPHEVE_VEDTAK -> "Vedtaket er opphevet";
             case OPPRETTHOLDT_VEDTAK -> "Vedtaket er opprettholdt";
