@@ -241,11 +241,11 @@ public class ForvaltningUttrekkRestTjeneste {
 
     @POST
     @Path("/opprettIMForesporselForBehandling")
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Oppretter im forespørsel task for behandlinger som mangler IM og har aksjonspunkt 7003, 7030 eller 5085. Velg enten en behandlingUuid eller aksjonspunkt", tags = "FORVALTNING-uttrekk")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
-    public Response opprettImTaskForBehMedAksjonspunkt(@Valid AksjonspunktKodeDto dto, @Valid ForvaltningBehandlingIdDto behandlingIdDto) {
+    public Response opprettImTaskForBehMedAksjonspunkt(@BeanParam @Valid AksjonspunktKodeDto dto, @Valid ForvaltningBehandlingIdDto behandlingIdDto) {
         if(dto.getAksjonspunktDefinisjon() == null && behandlingIdDto == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
