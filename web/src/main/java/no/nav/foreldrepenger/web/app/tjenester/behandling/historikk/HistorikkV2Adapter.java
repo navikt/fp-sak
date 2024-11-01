@@ -30,6 +30,8 @@ import no.nav.foreldrepenger.historikk.HistorikkAvklartSoeknadsperiodeType;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagDokumentLinkDto;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.UTGÅTT_5078;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.UTGÅTT_5079;
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOpplysningType.UTTAK_PERIODE_FOM;
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOpplysningType.UTTAK_PERIODE_TOM;
 
@@ -157,62 +159,62 @@ public class HistorikkV2Adapter {
     }
 
     private static String fraAksjonspunktFelt(HistorikkinnslagTotrinnsvurdering aksjonspunktFelt) {
-
-        /*var aksjonspunktTekst = switch (aksjonspunktFelt.getAksjonspunktDefinisjon()) { // TODO
-            case AVKLAR_TERMINBEKREFTELSE -> Historikk.TermindatoFaktaForm.ApplicationInformation';
-            case AVKLAR_ADOPSJONSDOKUMENTAJON -> 'Historikk.DokumentasjonFaktaForm.ApplicationInformation';
-            case AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN -> 'Historikk.EktefelleFaktaForm.ApplicationInformation';
-            case AVKLAR_OM_SØKER_ER_MANN_SOM_ADOPTERER_ALENE -> 'HistorikkEndretFelt.MannAdoptererAleneFaktaForm.ApplicationInformation';
-            case MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET -> 'HistorikkEndretFelt.ErSoknadsfristVilkaretOppfyltForm.ApplicationInformation';
-            case MANUELL_VURDERING_AV_SØKNADSFRIST -> 'HistorikkEndretFelt.ErSoknadsfristVilkaretOppfyltForm.ApplicationInformation';
-            case AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE -> 'Historikk.OmsorgOgForeldreansvarInfoPanel.Omsorg';
-            case VURDER_PERIODER_MED_OPPTJENING -> 'Historikk.Behandlingspunkt.Opptjeningsvilkaret';
-            case MANUELL_VURDERING_AV_OMSORGSVILKÅRET -> 'HistorikkEndretFeltVerdiType.ApplicationInformation';
-            case REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD -> 'Historikk.RegistrerePapirSoknadAksPkt';
-            case MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_2_LEDD -> 'Historikk.Foreldreansvar';
-            case MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_4_LEDD -> 'Historikk.Foreldreansvar';
-            case UTGÅTT_5025 -> 'VarselOmRevurderingInfoPanel.Etterkontroll';
-            case VARSEL_REVURDERING_MANUELL -> 'VarselOmRevurderingInfoPanel.Manuell';
-            case AVKLAR_OM_STONAD_GJELDER_SAMME_BARN -> 'HistorikkAksjonpunktMapping.SokersStonadGjelderSammeBarn';
-            case AVKLAR_OM_STONAD_TIL_ANNEN_FORELDER_GJELDER_SAMME_BARN ->'HistorikkAksjonpunktMapping.AnnenForeldersStonadGjelderSammeBarn';
-            case AVKLAR_VERGE -> 'Historikk.AvklarVerge';
-            case SJEKK_MANGLENDE_FODSEL -> 'Historikk.Fodsel.ApplicationInformation';
-            case BEHANDLE_KLAGE_NFP -> 'Historikk.KlageNFP.Fastsett';
-            case VURDERING_AV_FORMKRAV_KLAGE_NFP -> 'Historikk.KlageNFP.Formkrav';
-            case UTGÅTT_5080 -> 'Avklar arbeidsforhold';
-            case AVKLAR_LOVLIG_OPPHOLD -> 'Historikk.Lovlig';
-            case AVKLAR_OM_BRUKER_ER_BOSATT -> 'Historikk.Bosatt';
-            case AVKLAR_OPPHOLDSRETT -> 'Historikk.Rett';
-            case OVERSTYR_FODSELSVILKAR -> 'Historikk.fodselsvilkar';
-            case OVERSTYR_FODSELSVILKAR_FAR_MEDMOR -> 'Historikk.fodselsvilkar';
-            case OVERSTYR_ADOPSJONSVILKAR -> 'Historikk.adopsjonsvilkar';
-            case OVERSTYRING_AV_ADOPSJONSVILKÅRET_FP -> 'Overstyr.adopsjonsvilkar';
-            case OVERSTYRING_AV_OPPTJENINGSVILKARET -> 'Historikk.opptjeningsvilkår';
-            case OVERSTYR_MEDLEMSKAPSVILKAR -> 'Historikk.medlemskapsvilkar';
-            case OVERSTYR_SOKNADSFRISTVILKAR -> 'Historikk.soknadsfristvilkar';
-            case OVERSTYR_BEREGNING -> 'Historikk.beregning';
-            case OVERSTYRING_AV_UTTAKPERIODER -> 'Historikk.uttak';
-            case MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG -> 'Historikk.Aleneomsorg.ApplicationInformation';
-            case MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG -> 'Historikk.Omsorg.ApplicationInformation';
-            case FASTSETT_UTTAKPERIODER -> 'Historikk.Fastsett.Manuelt';
-            case KONTROLLER_OPPLYSNINGER_OM_DØD -> 'Historikk.OpplysningerOmDod';
-            case KONTROLLER_OPPLYSNINGER_OM_SØKNADSFRIST -> 'Historikk.OpplysningerOmSoknadsfrist';
-            case KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE -> 'Historikk.OpplysningerOmKlage';
-            case ANNENPART_EØS -> 'Historikk.AnnenpartEØS';
-            case TETTE_SAKER -> 'Historikk.TetteStønadsperioder';
-            case KONTROLLER_OPPLYSNINGER_OM_FORDELING_AV_STØNADSPERIODEN -> 'Historikk.OpplysningerOmFordelingStonadsperiode';
-            case FASTSETT_UTTAK_STORTINGSREPRESENTANT -> 'Historikk.TilknyttetStortinget';
-            case FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS -> 'Historikk.BeregningsgrunnlagManueltATFL';
-            case FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD -> 'Historikk.BeregningsgrunnlagManueltTidsbegrenset';
-            case VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE -> 'Historikk.VurderVarigEndring';
-            case FASTSETT_BEREGNINGSGRUNNLAG_FOR_SN_NY_I_ARBEIDSLIVET -> 'Historikk.BeregningsgrunnlagManueltSNNYIArbeidslivet';
-            case VURDER_FAKTA_FOR_ATFL_SN -> 'Historikk.VurderFaktaATFLSN';
-            case FORESLÅ_VEDTAK -> 'Historikk.Vedtak.Fritekstbrev';
-            case AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT -> 'Historikk.FaktaUttak.VurderAnnenForelder';
+        var aksjonspunktTekst = switch (aksjonspunktFelt.getAksjonspunktDefinisjon()) {
+            case AVKLAR_TERMINBEKREFTELSE -> "Opplysninger om termin oppgitt i søknaden";
+            case AVKLAR_ADOPSJONSDOKUMENTAJON -> "Adopsjonsopplysninger fra søknad";
+            case AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN -> "Ektefelles/samboers barn";
+            case AVKLAR_OM_SØKER_ER_MANN_SOM_ADOPTERER_ALENE -> "Mann adopterer";
+            case MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET -> "Søknadsfrist";
+            case MANUELL_VURDERING_AV_SØKNADSFRIST -> "Søknadsfrist";
+            case AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE -> "Fakta om omsorg og foreldreansvar";
+            case VURDER_PERIODER_MED_OPPTJENING -> "Opptjening";
+            //case MANUELL_VURDERING_AV_OMSORGSVILKÅRET -> 'HistorikkEndretFeltVerdiType.ApplicationInformation'; TODO: Finner ikke tekststreng i frontend
+            case REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD -> "Registrering av papirsøknad";
+            case MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_2_LEDD -> "Foreldreansvaret";
+            case MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_4_LEDD -> "Foreldreansvaret";
+            // case UTGÅTT_5025 -> 'VarselOmRevurderingInfoPanel.Etterkontroll'; TODO: Finner ikke tekststreng i frontend
+            //case VARSEL_REVURDERING_MANUELL -> 'VarselOmRevurderingInfoPanel.Manuell';  TODO: Finner ikke tekststreng i frontend
+            case AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE -> "Vurder om engangsstønad eller foreldrepenger utbetalt til søker gjelder samme barn";
+            case AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE -> "Vurder om engangsstønad eller foreldrepenger utbetalt til søker gjelder samme barn";
+            case AVKLAR_VERGE -> "Avklar verge";
+            case SJEKK_MANGLENDE_FØDSEL -> "Kontroller manglende opplysninger om fødsel";
+            case MANUELL_VURDERING_AV_KLAGE_NFP -> "Fastsett resultatet av klagebehandlingen";
+            case VURDERING_AV_FORMKRAV_KLAGE_NFP -> "Vurder om klagen oppfyller formkravene";
+            case UTGÅTT_5080 -> "Avklar arbeidsforhold";
+            case UTGÅTT_5019 -> "Avklar lovlig opphold";
+            case UTGÅTT_5020 -> "Fastsett om søker er bosatt";
+            case UTGÅTT_5023 -> "Avklar oppholdsrett";
+            case OVERSTYRING_AV_FØDSELSVILKÅRET -> "Overstyring av fødselsvilkåret";
+            case OVERSTYRING_AV_FØDSELSVILKÅRET_FAR_MEDMOR -> "Overstyring av fødselsvilkåret";
+            case OVERSTYRING_AV_ADOPSJONSVILKÅRET -> "Overstyring av adopsjonsvilkåret";
+            //case OVERSTYRING_AV_ADOPSJONSVILKÅRET_FP -> 'Overstyr.adopsjonsvilkar'; TODO: Finner ikke tekststreng i frontend
+            case OVERSTYRING_AV_OPPTJENINGSVILKÅRET -> "Overstyring av opptjeningsvilkåret";
+            case OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET -> "Overstyring av medlemskapsvilkåret";
+            case OVERSTYRING_AV_SØKNADSFRISTVILKÅRET -> "Overstyring av søknadsfristvilkåret";
+            case OVERSTYRING_AV_BEREGNING -> "Overstyring av beregning";
+            case OVERSTYRING_AV_UTTAKPERIODER -> "Overstyrte uttaksperioder";
+            case MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG -> "Manuell kontroll av om søker har aleneomsorg";
+            case AVKLAR_LØPENDE_OMSORG -> "Manuell kontroll av om søker har omsorg";
+            case FASTSETT_UTTAKPERIODER -> "Manuelt fastsatte uttaksperioder";
+            case KONTROLLER_OPPLYSNINGER_OM_DØD -> "Kontroller opplysninger om død";
+            case KONTROLLER_OPPLYSNINGER_OM_SØKNADSFRIST -> "Kontroller opplysninger om søknadsfrist";
+            case KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE -> "Kontroller opplysninger om realitetsbehandling/klage";
+            case KONTROLLER_ANNENPART_EØS -> "Kontroller opplysninger om annen forelders uttak i EØS";
+            case UTGÅTT_5067 -> "Kontroller evt overlappende uttak mot brukers senere saker";
+            case UTGÅTT_5075 -> "Kontroller opplysninger om fordeling av stønadsperioden";
+            case FASTSETT_UTTAK_STORTINGSREPRESENTANT -> "Søker er stortingsrepresentant. Uttak";
+            case FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS -> "Fastsatt beregningsgrunnlag for arbeidstaker/frilanser";
+            case FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD -> "Fastsatt beregningsgrunnlag for kortvarig arbeidsforhold";
+            case VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE -> "Vurdering av varig endret eller nyoppstartet næring";
+            case FASTSETT_BEREGNINGSGRUNNLAG_FOR_SN_NY_I_ARBEIDSLIVET -> "Fastsatt beregningsgrunnlag for selvstendig næring ny i arbeidslivet";
+            case VURDER_FAKTA_FOR_ATFL_SN -> "Vurder fakta for beregning";
+            case FORESLÅ_VEDTAK -> "Fritekstbrev";
+            case AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT -> "Vurdering om den andre forelderen har rett til foreldrepenger";
+            default -> throw new IllegalStateException("Unexpected value: " + aksjonspunktFelt.getAksjonspunktDefinisjon());
         };
-            // sjekk denne case
-            case KONTROLLER_TILSTØTENDE_YTELSER_INNVILGET -> 'Historikk.OpplysningerOmTilstotendeYtelser.Innvilget';
-            case KONTROLLER_TILSTØTENDE_YTELSER_OPPHØRT -> 'Historikk.OpplysningerOmTilstotendeYtelser.Opphort';*/
+            // TODO sjekk denne case
+            /*case UTGÅTT_5078 -> "Kontroller opplysninger om tilstøtende ytelser innvilget";
+            case UTGÅTT_5079 -> "Kontroller opplysninger om tilstøtende ytelser opphørt";*/
             // FASTSETT_BRUTTO_BEREGNINGSGRUNNLAG_SELVSTENDIG_NAERINGSDRIVENDE -> 'Historikk.BeregningsgrunnlagManueltSN';
         if (aksjonspunktFelt.erGodkjent()) {
         } else {
