@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.mottak.vedtak.rest;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,15 +15,15 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 // Brukes ikke av mottak, men av egen innsynsløsning / ui.
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "fpsak.it.sv.sak.url",
-    endpointDefault = "http://fp-infotrygd-svangerskapspenger/sak",
+@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "fpsak.it.sv.restanse.url",
+    endpointDefault = "http://fp-infotrygd-svangerskapspenger/restanse",
     scopesProperty = "fpsak.it.sv.scopes", scopesDefault = "api://prod-fss.teamforeldrepenger.fp-infotrygd-svangerskapspenger/.default")
 public class InfotrygdSvpRestanse {
 
     private final RestClient restClient;
     private final RestConfig restConfig;
 
-    private InfotrygdSvpRestanse() {
+    public InfotrygdSvpRestanse() {
         this(RestClient.client());
     }
 
