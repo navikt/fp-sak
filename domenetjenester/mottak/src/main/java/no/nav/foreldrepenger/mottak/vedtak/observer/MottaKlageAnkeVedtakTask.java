@@ -97,13 +97,13 @@ public class MottaKlageAnkeVedtakTask extends GenerellProsessTask {
         }
     }
 
-    private void lagOpprettVurderKonsekvensTask(Behandling behandling, String beskrivelse) {
+    private void lagOpprettVurderKonsekvensTask(Behandling sisteYtelseBehandling, String beskrivelse) {
         var opprettOppgave = ProsessTaskData.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class);
-        opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BEHANDLENDE_ENHET, behandling.getBehandlendeEnhet());
+        opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BEHANDLENDE_ENHET, sisteYtelseBehandling.getBehandlendeEnhet());
         opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE, beskrivelse);
         opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_PRIORITET, OpprettOppgaveVurderKonsekvensTask.PRIORITET_HØY);
         opprettOppgave.setCallIdFraEksisterende();
-        opprettOppgave.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+        opprettOppgave.setBehandling(sisteYtelseBehandling.getFagsakId(), sisteYtelseBehandling.getId(), sisteYtelseBehandling.getAktørId().getId());
         taskTjeneste.lagre(opprettOppgave);
     }
 
