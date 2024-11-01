@@ -11,8 +11,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +25,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
@@ -49,12 +50,16 @@ class FpInntektsmeldingTjenesteTest {
     private HistorikkRepository historikkRepository;
     @Mock
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
+    @Mock
+    private InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste;
+    @Mock
+    private ArbeidsforholdInntektsmeldingMangelTjeneste inntektsmeldingMangelTjeneste;
 
     private FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste;
 
     @BeforeEach
     void setup() {
-        fpInntektsmeldingTjeneste = new FpInntektsmeldingTjeneste(klient, taskTjeneste, skjæringstidspunktTjeneste,  historikkRepository, arbeidsgiverTjeneste);
+        fpInntektsmeldingTjeneste = new FpInntektsmeldingTjeneste(klient, taskTjeneste, skjæringstidspunktTjeneste,  historikkRepository, arbeidsgiverTjeneste, inntektsmeldingRegisterTjeneste, inntektsmeldingMangelTjeneste);
     }
 
     @Test
