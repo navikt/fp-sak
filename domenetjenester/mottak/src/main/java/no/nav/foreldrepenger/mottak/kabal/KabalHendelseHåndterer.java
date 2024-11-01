@@ -43,7 +43,8 @@ public class KabalHendelseHåndterer implements KafkaMessageHandler.KafkaStringM
     private static final Logger LOG = LoggerFactory.getLogger(KabalHendelseHåndterer.class);
     private static final String GROUP_ID = "fpsak"; // Hold konstant pga offset commit !!
     private static final String KABAL = "KABAL";
-    private static final String VKY_TEKST = "Vedtaket er delvis omgjort i ankebehandling. Opprett en ny behandling.";
+    private static final String VKY_DELVIS_TEKST = "Vedtaket er delvis omgjort i ankebehandling. Opprett en ny behandling.";
+    private static final String VKY_OMGJØRINGSKRAV_TEKST = "Vedtaket er omgjort av KA. Opprett en ny behandling.";
 
     private String topicName;
     private ProsessTaskTjeneste taskTjeneste;
@@ -81,9 +82,10 @@ public class KabalHendelseHåndterer implements KafkaMessageHandler.KafkaStringM
             return;
         }
         setCallIdForHendelse(mottattHendelse);
-        LOG.info("KABAL mottatt hendelse key={} hendelse={}", key, mottattHendelse);
 
         if (!Objects.equals(Fagsystem.FPSAK.getOffisiellKode(), mottattHendelse.kilde())) return;
+
+        LOG.info("KABAL mottatt hendelse key={} hendelse={}", key, mottattHendelse);
         if (!mottakRepository.hendelseErNy(KABAL+mottattHendelse.eventId().toString())) {
             LOG.warn("KABAL mottatt hendelse på nytt key={} hendelse={}", key, mottattHendelse);
             return;
@@ -108,6 +110,12 @@ public class KabalHendelseHåndterer implements KafkaMessageHandler.KafkaStringM
             return;
         }
         mottakRepository.registrerMottattHendelse(KABAL+ mottattHendelse.eventId());
+
+        if (KabalHendelse.BehandlingEventType.OMGJOERINGSKRAV_AVSLUTTET.equals(mottattHendelse.type())) {
+            opprettVurderKonsekvens(behandling, VKY_OMGJØRINGSKRAV_TEKST);
+            return;
+        }
+
         var task = ProsessTaskData.forProsessTask(MottaFraKabalTask.class);
         task.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         task.setCallIdFraEksisterende();
@@ -137,16 +145,20 @@ public class KabalHendelseHåndterer implements KafkaMessageHandler.KafkaStringM
 
         if (KabalHendelse.BehandlingEventType.ANKE_I_TRYGDERETTENBEHANDLING_OPPRETTET.equals(mottattHendelse.type()) &&
             KabalUtfall.DELVIS_MEDHOLD.equals(mottattHendelse.detaljer().ankeITrygderettenbehandlingOpprettet().utfall())) {
-            var sisteYtelseEnhet = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(behandling.getFagsakId())
-                .map(Behandling::getBehandlendeEnhet).orElse(null);
-            var opprettOppgave = ProsessTaskData.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class);
-            opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BEHANDLENDE_ENHET, sisteYtelseEnhet);
-            opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE, VKY_TEKST);
-            opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_PRIORITET, OpprettOppgaveVurderKonsekvensTask.PRIORITET_HØY);
-            opprettOppgave.setCallIdFraEksisterende();
-            opprettOppgave.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-            taskTjeneste.lagre(opprettOppgave);
+            opprettVurderKonsekvens(behandling, VKY_DELVIS_TEKST);
         }
+    }
+
+    private void opprettVurderKonsekvens(Behandling behandling, String beskrivelse) {
+        var sisteYtelseEnhet = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(behandling.getFagsakId())
+            .map(Behandling::getBehandlendeEnhet).orElse(null);
+        var opprettOppgave = ProsessTaskData.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class);
+        opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BEHANDLENDE_ENHET, sisteYtelseEnhet);
+        opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE, beskrivelse);
+        opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_PRIORITET, OpprettOppgaveVurderKonsekvensTask.PRIORITET_HØY);
+        opprettOppgave.setCallIdFraEksisterende();
+        opprettOppgave.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+        taskTjeneste.lagre(opprettOppgave);
     }
 
     private static void setCallIdForHendelse(KabalHendelse hendelse) {
