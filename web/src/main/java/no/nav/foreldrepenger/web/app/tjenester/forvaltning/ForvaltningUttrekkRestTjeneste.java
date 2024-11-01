@@ -267,7 +267,8 @@ public class ForvaltningUttrekkRestTjeneste {
             }
 
             var behandlingIder = finnBehandlingerMedAksjonspunkt(aksjonspunktkode);
-            LOG.info("OppretteIMForespørsler: Antall behandlinger med aksjonspunkt {}: {}", aksjonspunktkode, behandlingIder);
+            var sanitizedAksjonspunktkode = aksjonspunktkode.replace("\n", "").replace("\r", "");
+            LOG.info("OppretteIMForespørsler: Antall behandlinger med aksjonspunkt {}: {}", sanitizedAksjonspunktkode, behandlingIder);
 
             if (behandlingIder.isEmpty()) {
                 return Response.noContent().build();
