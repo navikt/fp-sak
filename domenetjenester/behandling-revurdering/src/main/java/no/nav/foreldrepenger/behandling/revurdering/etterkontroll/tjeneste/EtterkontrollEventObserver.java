@@ -112,8 +112,7 @@ public class EtterkontrollEventObserver {
         if (!Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.ENGANGSTØNAD).contains(behandling.getFagsak().getYtelseType())) {
             return Optional.empty();
         }
-        if (familieHendelseGrunnlag.getBekreftetVersjon().map(FamilieHendelseEntitet::getType).map(FamilieHendelseType.FØDSEL::equals)
-                .orElse(false)) {
+        if (familieHendelseGrunnlag.getGjeldendeBekreftetVersjon().map(FamilieHendelseEntitet::getType).filter(FamilieHendelseType.FØDSEL::equals).isPresent()) {
             return Optional.empty();
         }
         return Optional.of(familieHendelseGrunnlag.finnGjeldendeFødselsdato());
