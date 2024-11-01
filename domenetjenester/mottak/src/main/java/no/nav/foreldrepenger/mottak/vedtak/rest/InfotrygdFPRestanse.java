@@ -22,7 +22,7 @@ public class InfotrygdFPRestanse  {
     private final RestClient restClient;
     private final RestConfig restConfig;
 
-    private InfotrygdFPRestanse() {
+    public InfotrygdFPRestanse() {
         this(RestClient.client());
     }
 
