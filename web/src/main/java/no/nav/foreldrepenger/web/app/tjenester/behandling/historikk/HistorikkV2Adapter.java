@@ -431,9 +431,9 @@ public class HistorikkV2Adapter {
         if (isBoolean(String.valueOf(verdi))) {
             return konverterBoolean(String.valueOf(verdi));
         }
-        if (felt.getKlTilVerdi() != null) { //TODO Thao: Test på denne. Ser ikke helt logisk ut. Koden kommer kanskje aldri hit.
+        if (felt.getKlTilVerdi() != null) {
             try {
-                return kodeverdiTilStrengEndretFeltTilverdi(felt.getTilVerdiKode(), String.valueOf(verdi)); // TODO Thao: Skal det kun sjekkes for getTilVerdiKode?
+                return kodeverdiTilStrengEndretFeltTilverdi(String.valueOf(verdi), String.valueOf(verdi));
             } catch (IllegalStateException e) {
                 return String.format("EndretFeltTypeTilVerdiKode %s finnes ikke-LEGG DET INN", felt.getTilVerdiKode());
             }
