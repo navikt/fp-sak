@@ -82,7 +82,7 @@ public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
     // Catchall
     DOK_MORS_UTDANNING_ARBEID_SYKDOM("DOK_MORS_UTDANNING_ARBEID_SYKDOM", "I000038", "Dokumentasjon av mors utdanning, arbeid eller sykdom"),
 
-    // Vedlegg fra brukerdialog aktivitetskrav + utsettelse (sammenhengende uttak HV og NAV)
+    // Vedlegg fra brukerdialog aktivitetskrav + utsettelse (sammenhengende uttak HV og Nav)
     DOK_FERIE("DOK_FERIE", "I000036", "Dokumentasjon av ferie"),
     DOK_ARBEIDSFORHOLD("DOK_ARBEIDSFORHOLD", "I000043", "Dokumentasjon av arbeidsforhold"),
     BEKREFTELSE_DELTAR_KVALIFISERINGSPROGRAM("BEKREFTELSE_DELTAR_KVALIFISERINGSPROGRAM", "I000051", "Bekreftelse på deltakelse i kvalifiseringsprogrammet"),

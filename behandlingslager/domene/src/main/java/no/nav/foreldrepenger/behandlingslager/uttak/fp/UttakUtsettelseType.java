@@ -20,7 +20,7 @@ public enum UttakUtsettelseType implements Kodeverdi {
     SØKER_INNLAGT("SØKER_INNLAGT", "Søker er innlagt i helseinstitusjon"),
     BARN_INNLAGT("BARN_INNLAGT", "Barn er innlagt i helseinstitusjon"),
     HV_OVELSE("HV_OVELSE", "Heimevernet"),
-    NAV_TILTAK("NAV_TILTAK", "Tiltak i regi av NAV"),
+    NAV_TILTAK("NAV_TILTAK", "Tiltak i regi av Nav"),
     FRI("FRI", "Fri utsettelse fom høst 2021"),
     UDEFINERT("-", "Ikke satt eller valgt kode"),
     ;

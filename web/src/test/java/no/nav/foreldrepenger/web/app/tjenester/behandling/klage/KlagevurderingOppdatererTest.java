@@ -109,7 +109,7 @@ class KlagevurderingOppdatererTest {
                 .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.KLAGE_BEH_NFP.getKode()));
         assertThat(del.getEndretFelt(HistorikkEndretFeltType.KLAGE_RESULTAT_NFP)).isNotNull();
 
-        // Verifiserer at behandlende enhet er byttet til NAV Klageinstans
+        // Verifiserer at behandlende enhet er byttet til Nav klageinstans
         var enhetCapture = ArgumentCaptor.forClass(OrganisasjonsEnhet.class);
         verify(behandlingsutredningTjeneste).byttBehandlendeEnhet(anyLong(), enhetCapture.capture(), eq(""),
                 eq(HistorikkAktør.VEDTAKSLØSNINGEN));

@@ -151,7 +151,7 @@ public enum DokumentMalType implements Kodeverdi {
             case KLAGE_HJEMSENDT_FRITEKST ->  "Klage hjemsendt/opphevet";
             case KLAGE_OMGJORT_DOK -> "Vedtak om medhold";
             case KLAGE_OMGJORT_FRITEKST -> "Vedtak om omgjøring av klage";
-            case KLAGE_OVERSENDT_DOK -> "Overføring til NAV Klageinstans";
+            case KLAGE_OVERSENDT_DOK -> "Overføring til Nav klageinstans";
             case KLAGE_OVERSENDT_FRITEKST -> "Klage oversendt til klageinstans";
             case KLAGE_STADFESTET, KLAGE_STADFESTET_DOK, KLAGE_STADFESTET_FRITEKST -> "Vedtak om stadfestelse";
             case ANKE_OMGJORT_FRITEKST ->  "Vedtak om omgjøring i ankesak";

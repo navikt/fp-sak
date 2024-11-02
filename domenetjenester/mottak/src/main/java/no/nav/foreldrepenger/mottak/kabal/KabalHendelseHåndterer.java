@@ -43,8 +43,8 @@ public class KabalHendelseHåndterer implements KafkaMessageHandler.KafkaStringM
     private static final Logger LOG = LoggerFactory.getLogger(KabalHendelseHåndterer.class);
     private static final String GROUP_ID = "fpsak"; // Hold konstant pga offset commit !!
     private static final String KABAL = "KABAL";
-    private static final String VKY_DELVIS_TEKST = "Vedtaket er delvis omgjort i ankebehandling. Opprett en ny behandling.";
-    private static final String VKY_OMGJØRINGSKRAV_TEKST = "Vedtaket er omgjort av KA. Opprett en ny behandling.";
+    private static final String VKY_DELVIS_TEKST = "Vedtaket er delvis omgjort i ankebehandling og sendt Trygderetten. Opprett en ny behandling for det som allerede er omgjort.";
+    private static final String VKY_OMGJØRINGSKRAV_TEKST = "Vedtaket er omgjort av Nav klageinstans etter Fvl 35. Opprett en ny behandling.";
 
     private String topicName;
     private ProsessTaskTjeneste taskTjeneste;

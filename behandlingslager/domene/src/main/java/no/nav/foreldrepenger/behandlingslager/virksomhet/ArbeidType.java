@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.virksomhet;
 /**
  * Typer av arbeidsforhold.
  * <p>
- * <h3>Kilde: NAV kodeverk</h3>
+ * <h3>Kilde: Nav kodeverk</h3>
  * https://modapp.adeo.no/kodeverksklient/viskodeverk/Arbeidsforholdstyper/2
  * <p>
  * <h3>Tjeneste(r) som returnerer dette:</h3>
