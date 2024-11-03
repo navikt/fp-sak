@@ -33,8 +33,8 @@ class BehandlendeEnhetTjenesteTest {
 
     private static final AktørId FAR_AKTØR_ID = AktørId.dummy();
 
-    private static final OrganisasjonsEnhet ENHET_NORMAL = new OrganisasjonsEnhet("4867", "NAV Foreldrepenger");
-    private static final OrganisasjonsEnhet ENHET_KODE_6 = new OrganisasjonsEnhet("2103", "NAV Viken");
+    private static final OrganisasjonsEnhet ENHET_NORMAL = new OrganisasjonsEnhet("4867", "Nav foreldrepenger");
+    private static final OrganisasjonsEnhet ENHET_KODE_6 = new OrganisasjonsEnhet("2103", "Nav Vikafossen");
 
     @Mock
     private EnhetsTjeneste enhetsTjeneste;

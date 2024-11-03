@@ -355,9 +355,9 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     AUTO_VENT_PÅ_SYKEMELDING(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_SYKEMELDING_KODE, AksjonspunktType.AUTOPUNKT,
         "Vent på siste sykemelding fra søker som mottar sykepenger basert på dagpenger", BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, VurderingspunktType.UT, UTEN_VILKÅR,
         UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, SAMME_BEHFRIST, EnumSet.of(FP)),
-    AUTO_VENT_PÅ_KABAL_KLAGE(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE_KODE, AksjonspunktType.AUTOPUNKT, "Vent på klagebehandling hos NAV Klageinstans",
+    AUTO_VENT_PÅ_KABAL_KLAGE(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE_KODE, AksjonspunktType.AUTOPUNKT, "Vent på klagebehandling hos Nav klageinstans",
         BehandlingStegType.KLAGE_NK, VurderingspunktType.INN, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, SAMME_BEHFRIST, EnumSet.of(ES, FP, SVP)),
-    AUTO_VENT_PÅ_KABAL_ANKE(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_KABAL_ANKE_KODE, AksjonspunktType.AUTOPUNKT, "Vent på ankebehandling hos NAV Klageinstans",
+    AUTO_VENT_PÅ_KABAL_ANKE(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_KABAL_ANKE_KODE, AksjonspunktType.AUTOPUNKT, "Vent på ankebehandling hos Nav klageinstans",
         BehandlingStegType.ANKE, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, SAMME_BEHFRIST, EnumSet.of(ES, FP, SVP)),
     UNDEFINED,
 

@@ -17,7 +17,7 @@ public enum HistorikkAvklartSoeknadsperiodeType implements Kodeverdi {
     UTSETTELSE_INSTITUSJON_SØKER("UTSETTELSE_INSTITUSJON_SØKER", "Utsettelse på grunn av innleggelse av forelder"),
     UTSETTELSE_INSTITUSJON_BARN("UTSETTELSE_INSTITUSJON_BARN", "Utsettelse på grunn av innleggelse av barn"),
     UTSETTELSE_HV("UTSETTELSE_HV", "Utsettelse på grunn av heimevernet"),
-    UTSETTELSE_TILTAK_I_REGI_AV_NAV("UTSETTELSE_TILTAK_I_REGI_AV_NAV", "Utsettelse på grunn av tiltak i regi av NAV"),
+    UTSETTELSE_TILTAK_I_REGI_AV_NAV("UTSETTELSE_TILTAK_I_REGI_AV_NAV", "Utsettelse på grunn av tiltak i regi av Nav"),
     NY_SOEKNADSPERIODE("NY_SOEKNADSPERIODE", "Ny periode er lagt til"),
     SLETTET_SOEKNASPERIODE("SLETTET_SOEKNASPERIODE", "Periode slettet"),
     OVERFOERING_ALENEOMSORG("OVERFOERING_ALENEOMSORG", "Overføring: aleneomsorg"),

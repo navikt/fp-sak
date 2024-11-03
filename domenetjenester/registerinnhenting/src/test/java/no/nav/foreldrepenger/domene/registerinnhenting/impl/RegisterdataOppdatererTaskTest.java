@@ -45,7 +45,7 @@ class RegisterdataOppdatererTaskTest {
     private RegisterdataEndringshåndterer mockRegisterdataEndringshåndterer;
     @Mock
     private BehandlendeEnhetTjeneste mockEnhetsTjeneste;
-    private OrganisasjonsEnhet organisasjonsEnhet = new OrganisasjonsEnhet("4802", "NAV Bærum");
+    private OrganisasjonsEnhet organisasjonsEnhet = new OrganisasjonsEnhet("4802", "Nav Bærum");
 
     @BeforeEach
     public void setup() {
@@ -58,7 +58,7 @@ class RegisterdataOppdatererTaskTest {
     void skal_gjenoppta_behandling_bytteenhet() {
         final Long behandlingId = 10L;
 
-        var enhet = new OrganisasjonsEnhet("2103", "NAV Viken");
+        var enhet = new OrganisasjonsEnhet("2103", "Nav Vikafossen");
         var lås = mock(BehandlingLås.class);
         var kontekst = mock(BehandlingskontrollKontekst.class);
         var scenario = ScenarioMorSøkerEngangsstønad
@@ -86,7 +86,7 @@ class RegisterdataOppdatererTaskTest {
     void skal_gjenoppta_behandling_medPayload() {
         final Long behandlingId = 10L;
 
-        var enhet = new OrganisasjonsEnhet("2103", "NAV Viken");
+        var enhet = new OrganisasjonsEnhet("2103", "Nav Vikafossen");
         var lås = mock(BehandlingLås.class);
         var kontekst = mock(BehandlingskontrollKontekst.class);
         var scenario = ScenarioMorSøkerEngangsstønad

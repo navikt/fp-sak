@@ -41,11 +41,11 @@ class EnhetsTjenesteTest {
     private static PersonIdent MOR_PID = new PersonIdent(new FiktiveFnr().nesteKvinneFnr());
     private static PersonIdent FAR_PID = new PersonIdent(new FiktiveFnr().nesteMannFnr());
 
-    private static OrganisasjonsEnhet enhetNormal = new OrganisasjonsEnhet("4867", "NAV Foreldrepenger");
-    private static OrganisasjonsEnhet enhetKode6 = new OrganisasjonsEnhet("2103", "NAV Viken");
-    private static OrganisasjonsEnhet enhetSkjermet = new OrganisasjonsEnhet("4883", "NAV Skjermet");
-    private static ArbeidsfordelingResponse respNormal = new ArbeidsfordelingResponse("4867", "NAV Foreldrepenger", "Aktiv", "FPY");
-    private static ArbeidsfordelingResponse respKode6 = new ArbeidsfordelingResponse("2103", "NAV Viken", "Aktiv", "KO");
+    private static OrganisasjonsEnhet enhetNormal = new OrganisasjonsEnhet("4867", "Nav foreldrepenger");
+    private static OrganisasjonsEnhet enhetKode6 = new OrganisasjonsEnhet("2103", "Nav Vikafossen");
+    private static OrganisasjonsEnhet enhetSkjermet = new OrganisasjonsEnhet("4883", "Nav skjermet");
+    private static ArbeidsfordelingResponse respNormal = new ArbeidsfordelingResponse("4867", "Nav foreldrepenger", "Aktiv", "FPY");
+    private static ArbeidsfordelingResponse respKode6 = new ArbeidsfordelingResponse("2103", "Nav Vikafossen", "Aktiv", "KO");
 
     @Mock
     private PersoninfoAdapter personinfoAdapter;

@@ -22,9 +22,9 @@ Dette er saksbehandlingsløsning på foreldrepengeområdet (Folketrygdloven kapi
 ### Preconditions:
 - Du er logget inn i docker (kommando: `docker login`) mot:
   - DockerHub: login med egen Docker-ID
-  - GitHub package registry: login med eget personal access token fra GitHub. Token skal ha tilgang til read:packages og ha enablet SSO mot NAV.
-- Du har generert keystore og truststore i mappe '.modig' i brukermappe med egen CSR. Se [oppsett på Confluence - NAV intern](https://confluence.adeo.no/display/TVF/Sett+opp+keystore+og+truststore+for+lokal+test)
-- Du har installert kubectl konfigurert kubectl for NAV cluster. Se [Prosjekt med Config](https://github.com/navikt/kubeconfigs).
+  - GitHub package registry: login med eget personal access token fra GitHub. Token skal ha tilgang til read:packages og ha enablet SSO mot Nav.
+- Du har generert keystore og truststore i mappe '.modig' i brukermappe med egen CSR. Se [oppsett på Confluence - Nav intern](https://confluence.adeo.no/display/TVF/Sett+opp+keystore+og+truststore+for+lokal+test)
+- Du har installert kubectl konfigurert kubectl for Nav cluster. Se [Prosjekt med Config](https://github.com/navikt/kubeconfigs).
 
 ### Kjør opp avhengigheter for lokal utvikling:
 Dette gjøres nå i _fpsak-autotest_-prosjektet. Her finnes det en felles docker-compose som skal brukes for lokalt utvikling.
@@ -32,7 +32,7 @@ Vennligst se dokumentasjonen her: [Link til lokal utvikling i fpsak-autotest](ht
 
 ### Spørsmål
 - Slack for oppsett og utvikling på laptop: \#teamforeldrepenger-utvikling-på-laptop
-- Hjelpeside med oppskrifter for utvikling på laptop på [Confluence - NAV intern](https://confluence.adeo.no/pages/viewpage.action?pageId=329047065)
+- Hjelpeside med oppskrifter for utvikling på laptop på [Confluence - Nav intern](https://confluence.adeo.no/pages/viewpage.action?pageId=329047065)
 
 
 ### Utviklingshåndbok

@@ -47,21 +47,21 @@ public class EnhetsTjeneste {
     private static final String NY_ENHET_ID = "4867"; // Nasjonal enhet
     private static final Set<String> SPESIALENHETER = Set.of(NK_ENHET_ID, EA_ENHET_ID, SF_ENHET_ID);
 
-    private static final OrganisasjonsEnhet KLAGE_ENHET =  new OrganisasjonsEnhet(NK_ENHET_ID, "NAV Klageinstans Midt-Norge");
-    private static final OrganisasjonsEnhet SKJERMET_ENHET =  new OrganisasjonsEnhet(EA_ENHET_ID, "NAV Familie- og pensjonsytelser Egne ansatte");
-    private static final OrganisasjonsEnhet UTLAND_ENHET =  new OrganisasjonsEnhet(UT_ENHET_ID, "NAV Familie- og pensjonsytelser Drammen");
-    private static final OrganisasjonsEnhet KONTROLL_ENHET =  new OrganisasjonsEnhet(SK_ENHET_ID, "NAV Familie- og pensjonsytelser Steinkjer");
-    public static final OrganisasjonsEnhet MIDLERTIDIG_ENHET =  new OrganisasjonsEnhet(MI_ENHET_ID, "NAV Familie- og pensjonsytelser midlertidig enhet");
+    private static final OrganisasjonsEnhet KLAGE_ENHET =  new OrganisasjonsEnhet(NK_ENHET_ID, "Nav klageinstans Midt-Norge");
+    private static final OrganisasjonsEnhet SKJERMET_ENHET =  new OrganisasjonsEnhet(EA_ENHET_ID, "Nav familie- og pensjonsytelser Egne ansatte");
+    private static final OrganisasjonsEnhet UTLAND_ENHET =  new OrganisasjonsEnhet(UT_ENHET_ID, "Nav familie- og pensjonsytelser Drammen");
+    private static final OrganisasjonsEnhet KONTROLL_ENHET =  new OrganisasjonsEnhet(SK_ENHET_ID, "Nav familie- og pensjonsytelser Steinkjer");
+    public static final OrganisasjonsEnhet MIDLERTIDIG_ENHET =  new OrganisasjonsEnhet(MI_ENHET_ID, "Nav familie- og pensjonsytelser midlertidig enhet");
 
-    private static final OrganisasjonsEnhet KODE6_ENHET = new OrganisasjonsEnhet(SF_ENHET_ID, "NAV Vikafossen");
-    private static final OrganisasjonsEnhet NASJONAL_ENHET = new OrganisasjonsEnhet(NY_ENHET_ID, "NAV Familie- og pensjonsytelser Foreldrepenger");
+    private static final OrganisasjonsEnhet KODE6_ENHET = new OrganisasjonsEnhet(SF_ENHET_ID, "Nav Vikafossen");
+    private static final OrganisasjonsEnhet NASJONAL_ENHET = new OrganisasjonsEnhet(NY_ENHET_ID, "Nav familie- og pensjonsytelser foreldrepenger");
 
-    private static final OrganisasjonsEnhet DRAMMEN =  new OrganisasjonsEnhet("4806", "NAV Familie- og pensjonsytelser Drammen");
-    private static final OrganisasjonsEnhet BERGEN =  new OrganisasjonsEnhet("4812", "NAV Familie- og pensjonsytelser Bergen");
-    private static final OrganisasjonsEnhet STEINKJER =  new OrganisasjonsEnhet("4817", "NAV Familie- og pensjonsytelser Steinkjer");
-    private static final OrganisasjonsEnhet OSLO =  new OrganisasjonsEnhet("4833", "NAV Familie- og pensjonsytelser Oslo 1");
-    private static final OrganisasjonsEnhet STORD =  new OrganisasjonsEnhet("4842", "NAV Familie- og pensjonsytelser Stord");
-    private static final OrganisasjonsEnhet TROMSØ =  new OrganisasjonsEnhet("4849", "NAV Familie- og pensjonsytelser Tromsø");
+    private static final OrganisasjonsEnhet DRAMMEN =  new OrganisasjonsEnhet("4806", "Nav familie- og pensjonsytelser Drammen");
+    private static final OrganisasjonsEnhet BERGEN =  new OrganisasjonsEnhet("4812", "Nav familie- og pensjonsytelser Bergen");
+    private static final OrganisasjonsEnhet STEINKJER =  new OrganisasjonsEnhet("4817", "Nav familie- og pensjonsytelser Steinkjer");
+    private static final OrganisasjonsEnhet OSLO =  new OrganisasjonsEnhet("4833", "Nav familie- og pensjonsytelser Oslo 1");
+    private static final OrganisasjonsEnhet STORD =  new OrganisasjonsEnhet("4842", "Nav familie- og pensjonsytelser Stord");
+    private static final OrganisasjonsEnhet TROMSØ =  new OrganisasjonsEnhet("4849", "Nav familie- og pensjonsytelser Tromsø");
 
     // Oppdateres etterhvert som flytteprosessen foregår. Behold så lenge evaluering av nasjonal enhet foregår
     private static final Map<String, OrganisasjonsEnhet> FLYTTE_MAP = Map.ofEntries(

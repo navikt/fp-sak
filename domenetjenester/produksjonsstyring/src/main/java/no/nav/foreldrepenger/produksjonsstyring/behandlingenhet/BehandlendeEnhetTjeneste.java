@@ -192,7 +192,7 @@ public class BehandlendeEnhetTjeneste {
             .filter(e -> !Objects.equals(e.enhetId(), behandling.getBehandlendeEnhet()));
     }
 
-    // Returnerer enhetsnummer for NAV Klageinstans
+    // Returnerer enhetsnummer for Nav klageinstans
     public static OrganisasjonsEnhet getKlageInstans() {
         return EnhetsTjeneste.getEnhetKlage();
     }
