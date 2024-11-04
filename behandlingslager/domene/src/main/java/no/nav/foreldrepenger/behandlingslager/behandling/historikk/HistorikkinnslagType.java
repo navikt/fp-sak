@@ -82,6 +82,7 @@ public enum HistorikkinnslagType implements Kodeverdi {
     // Mal Type 9
     OVST_UTTAK_SPLITT("OVST_UTTAK_SPLITT", "Manuelt overstyring av uttak - splitting av periode", HistorikkinnslagMal.MAL_TYPE_9),
     FASTSATT_UTTAK_SPLITT("FASTSATT_UTTAK_SPLITT", "Manuelt fastsetting av uttak - splitting av periode", HistorikkinnslagMal.MAL_TYPE_9),
+    TILBAKEKR_VIDEREBEHANDLING("TILBAKEKR_VIDEREBEHANDLING", "TODO", HistorikkinnslagMal.MAL_TYPE_9), // TODO
 
     // Mal Type 10
     FASTSATT_UTTAK("FASTSATT_UTTAK", "Manuelt fastsetting av uttak", HistorikkinnslagMal.MAL_TYPE_10),

@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.historikk;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOpplysningType.UTTAK_PERIODE_FOM;
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOpplysningType.UTTAK_PERIODE_TOM;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType.TILBAKEKR_VIDEREBEHANDLING;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -12,7 +13,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.ws.rs.core.UriBuilder;
-import no.nav.foreldrepenger.historikk.dto.HistorikkinnslagDelDto;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,11 +27,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTotrinnsvurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingVidereBehandling;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.historikk.HistorikkAvklartSoeknadsperiodeType;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagDokumentLinkDto;
+import no.nav.foreldrepenger.historikk.dto.HistorikkinnslagDelDto;
 
 public class HistorikkV2Adapter {
 
@@ -61,11 +63,8 @@ public class HistorikkV2Adapter {
                  //NY_GRUNNLAG_MOTTATT fptilbake? ja
                 -> fraMalType6(h, behandlingUUID);
             case OVERSTYRT-> fraMalType7(h, behandlingUUID, journalPosterForSak, dokumentPath);
-            case OPPTJENING -> throw new IllegalStateException(String.format("Kode: %s har ingen maltype", h.getType()));
-            case OVST_UTTAK_SPLITT,
-                FASTSATT_UTTAK_SPLITT
-               // TILBAKEKR_VIDEREBEHANDLING fptilbake?
-                -> fraMalType9(h, behandlingUUID);
+            case OPPTJENING -> throw new IllegalStateException(String.format("Kode: %s har ingen maltype", h.getType())); // Ingen historikkinnslag for denne typen i DB!
+            case OVST_UTTAK_SPLITT, FASTSATT_UTTAK_SPLITT, TILBAKEKR_VIDEREBEHANDLING -> fraMalType9(h, behandlingUUID);
             case OVST_UTTAK, FASTSATT_UTTAK -> fraMaltype10(h, behandlingUUID);
             case AVKLART_AKTIVITETSKRAV ->
                 fraMalTypeAktivitetskrav(h, behandlingUUID);
@@ -82,6 +81,7 @@ public class HistorikkV2Adapter {
             default -> null; //TODO fjerne default
         };
     }
+
     private static HistorikkinnslagDtoV2 fraMaltype1(Historikkinnslag innslag,
                                                      UUID behandlingUUID,
                                                      List<JournalpostId> journalPosterForSak,
@@ -355,7 +355,75 @@ public class HistorikkV2Adapter {
     }
 
     private static HistorikkinnslagDtoV2 fraMalType9(Historikkinnslag h, UUID behandlingUUID) {
-        return null;
+        var skjermlenke = h.getHistorikkinnslagDeler()
+            .stream()
+            .flatMap(del -> del.getSkjermlenke().stream())
+            .map(SkjermlenkeType::fraKode)
+            .findFirst();
+        var tekster = new ArrayList<String>();
+        for (var del : h.getHistorikkinnslagDeler()) {
+            var endretFeltTekst = h.getType().equals(TILBAKEKR_VIDEREBEHANDLING)
+                ? fraEndretFeltMalType9Tilbakekr(del)
+                : List.of(fraEndretFeltMalType9(h, del));
+            var begrunnelsetekst = begrunnelseFraDel(del).stream().toList();
+
+            tekster.addAll(endretFeltTekst);
+            tekster.addAll(begrunnelsetekst);
+        }
+        return new HistorikkinnslagDtoV2(
+            behandlingUUID,
+            HistorikkinnslagDtoV2.HistorikkAktørDto.fra(h.getAktør(), h.getOpprettetAv()),
+            skjermlenke.orElse(null),
+            h.getOpprettetTidspunkt(),
+            null,
+            null, // TODO
+            tekster);
+    }
+
+    private static List<String> fraEndretFeltMalType9Tilbakekr(HistorikkinnslagDel del) {
+        return del.getEndredeFelt().stream()
+            .filter(felt -> !TilbakekrevingVidereBehandling.INNTREKK.getKode().equals(felt.getTilVerdi()))
+            .map(HistorikkV2Adapter::fraEndretFeltMalType9Tilbakekr)
+            .toList();
+    }
+
+    private static String fraEndretFeltMalType9Tilbakekr(HistorikkinnslagFelt felt) {
+        var fieldName = kodeverdiTilStreng(HistorikkEndretFeltType.fraKode(felt.getNavn()), felt.getNavnVerdi());
+        var verdi = finnEndretFeltVerdi(felt, felt.getTilVerdi());
+        return "<b>{felt}</b> er satt til <b>{verdi}</b>"
+            .replace("{felt}", fieldName)
+            .replace("{verdi}", verdi);
+    }
+
+    private static String fraEndretFeltMalType9(Historikkinnslag h, HistorikkinnslagDel del) {
+        var opprinneligPeriode = del.getEndredeFelt().getFirst().getFraVerdi();
+        var numberOfPeriods = String.valueOf(del.getEndredeFelt().size());
+        var splitPeriods = tekstRepresentasjonAvListe(del.getEndredeFelt());
+        var tekst =  switch (h.getType()) {
+            case OVST_UTTAK_SPLITT -> "<b>Overstyrt vurdering</b> av perioden {opprinneligPeriode}. {br}<b>Perioden</b> er delt i {numberOfPeriods} og satt til <b>{splitPeriods}</b>";
+            case FASTSATT_UTTAK_SPLITT -> "<b>Manuell vurdering</b> av perioden {opprinneligPeriode}. {br}<b>Perioden</b> er delt i {numberOfPeriods} og satt til <b>{splitPeriods}</b>";
+            default -> throw new IllegalStateException("Ikke støttet type" + h);
+        };
+        return tekst
+            .replace("{opprinneligPeriode}", opprinneligPeriode)
+            .replace("{numberOfPeriods}", numberOfPeriods)
+            .replace("{splitPeriods}", splitPeriods);
+    }
+
+    private static String tekstRepresentasjonAvListe(List<HistorikkinnslagFelt> endretFelt) {
+        StringBuilder tekst = new StringBuilder();
+        var size = endretFelt.size();
+        for (int i = 0; i < size; i++) {
+            if (i == size - 1) {
+                tekst.append("og ").append(endretFelt.get(i).getTilVerdi());
+            } else if (i == size - 2) {
+                tekst.append(endretFelt.get(i).getTilVerdi()).append(" ");
+            } else {
+                tekst.append(endretFelt.get(i).getTilVerdi()).append(", ");
+            }
+        }
+        return tekst.toString();
+
     }
 
     private static HistorikkinnslagDtoV2 fraMaltype10(Historikkinnslag h, UUID behandlingUUID) {
