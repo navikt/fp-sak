@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.ws.rs.core.UriBuilder;
+import no.nav.foreldrepenger.historikk.dto.HistorikkinnslagDelDto;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -216,7 +217,7 @@ public class HistorikkV2Adapter {
 
         String tekst;
         if (aksjonspunktFelt.erGodkjent()) {
-            tekst = aksjonspunktTekst  != null ? aksjonspunktTekst + " er godkjent" : "Er godkjent";
+            tekst = aksjonspunktTekst != null ? aksjonspunktTekst + " er godkjent" : "Er godkjent";
         } else {
             var ikkeGodkjentTekst = aksjonspunktTekst != null ? aksjonspunktTekst + " må vurderes på nytt" : "Må vurderes på nytt";
             var begrunnelse = aksjonspunktFelt.getBegrunnelse();
@@ -227,7 +228,37 @@ public class HistorikkV2Adapter {
     }
 
     private static HistorikkinnslagDtoV2 fraMalType4(Historikkinnslag h, UUID behandlingUUID) {
-        return null;
+        var tittel = "TODO";
+        var tekster = new ArrayList<String>();
+        for(var del : h.getHistorikkinnslagDeler()) {
+            var hendelseTekst = del.getHendelse().stream()
+                .map(HistorikkV2Adapter::fraHendelseFelt)
+                .toList();
+            var årsakTekst = del.getAarsakFelt()
+                .flatMap(HistorikkinnslagDelDto::finnÅrsakKodeListe)
+                .map(Kodeverdi::getNavn)
+                .stream()
+                .findFirst()
+                .orElse(null);
+
+            var begrunnelseKodeverdi = del.getBegrunnelseFelt().flatMap(HistorikkinnslagDelDto::finnÅrsakKodeListe);
+            var begrunnelse = begrunnelseKodeverdi.isEmpty() ? del.getBegrunnelse().orElse(null) : begrunnelseKodeverdi.get().getNavn();
+            if (begrunnelse != null) {
+                tekster.add(begrunnelse);
+            }
+
+            tekster.addAll(hendelseTekst);
+            tekster.add(årsakTekst);
+        }
+
+        return new HistorikkinnslagDtoV2(
+            behandlingUUID,
+            HistorikkinnslagDtoV2.HistorikkAktørDto.fra(h.getAktør(), h.getOpprettetAv()),
+            null,
+            h.getOpprettetTidspunkt(),
+            null,
+            tittel,
+            tekster);
     }
 
     private static HistorikkinnslagDtoV2 fraMalType5(Historikkinnslag h, UUID behandlingUUID,
@@ -384,11 +415,7 @@ public class HistorikkV2Adapter {
 
     private static String fraHendelseFelt(HistorikkinnslagFelt felt) {
         var hendelsetekst = HistorikkinnslagType.fraKode(felt.getNavn()).getNavn();
-        if (felt.getTilVerdi() == null) {
-            return hendelsetekst;
-        } else {
-            return hendelsetekst + " " + felt.getTilVerdi();
-        }
+        return felt.getTilVerdi() == null ? hendelsetekst : hendelsetekst + " " + felt.getTilVerdi() ;
     }
 
     private static String fraEndretFeltMalType10(HistorikkinnslagFelt felt) {

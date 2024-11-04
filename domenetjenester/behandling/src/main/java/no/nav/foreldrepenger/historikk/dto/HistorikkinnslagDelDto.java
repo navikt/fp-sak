@@ -79,7 +79,7 @@ public class HistorikkinnslagDelDto {
         return dto;
     }
 
-    private static Optional<Kodeverdi> finnÅrsakKodeListe(HistorikkinnslagFelt aarsak) {
+    public static Optional<Kodeverdi> finnÅrsakKodeListe(HistorikkinnslagFelt aarsak) {
 
         var aarsakVerdi = aarsak.getTilVerdi();
         if (Objects.equals("-", aarsakVerdi)) {
