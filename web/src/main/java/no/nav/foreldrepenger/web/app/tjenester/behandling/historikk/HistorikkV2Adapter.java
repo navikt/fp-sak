@@ -143,9 +143,8 @@ public class HistorikkV2Adapter {
                 .map(HistorikkV2Adapter::fraAksjonspunktFelt)
                 .toList();
 
-
-
             tekster.addAll(hendelseTekst);
+            tekster.addAll(aksjonspunkt);
         }
 
         return new HistorikkinnslagDtoV2(
@@ -210,22 +209,24 @@ public class HistorikkV2Adapter {
             case VURDER_FAKTA_FOR_ATFL_SN -> "Vurder fakta for beregning";
             case FORESLÅ_VEDTAK -> "Fritekstbrev";
             case AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT -> "Vurdering om den andre forelderen har rett til foreldrepenger";
-            default -> throw new IllegalStateException("Unexpected value: " + aksjonspunktFelt.getAksjonspunktDefinisjon());
+            //default -> throw new IllegalStateException("Unexpected value: " + aksjonspunktFelt.getAksjonspunktDefinisjon()); // TODO
+            default -> null;
         };
             // TODO sjekk denne case
             /*case UTGÅTT_5078 -> "Kontroller opplysninger om tilstøtende ytelser innvilget";
             case UTGÅTT_5079 -> "Kontroller opplysninger om tilstøtende ytelser opphørt";*/
             // FASTSETT_BRUTTO_BEREGNINGSGRUNNLAG_SELVSTENDIG_NAERINGSDRIVENDE -> 'Historikk.BeregningsgrunnlagManueltSN';
-        if (aksjonspunktFelt.erGodkjent()) {
-        } else {
 
+        String tekst;
+        if (aksjonspunktFelt.erGodkjent()) {
+            tekst = aksjonspunktTekst  != null ? aksjonspunktTekst + " er godkjent" : "Er godkjent";
+        } else {
+            var ikkeGodkjentTekst = aksjonspunktTekst != null ? aksjonspunktTekst + " må vurderes på nytt" : "Må vurderes på nytt";
+            var begrunnelse = aksjonspunktFelt.getBegrunnelse();
+            tekst = (begrunnelse != null && !begrunnelse.isEmpty()) ? ikkeGodkjentTekst + "\n" + begrunnelse : ikkeGodkjentTekst;
         }
 
-
-        //        dto.setAksjonspunktKode(totrinnsvurdering.getAksjonspunktDefinisjon().getKode());
-        //        dto.setBegrunnelse(totrinnsvurdering.getBegrunnelse());
-        //        dto.setGodkjent(totrinnsvurdering.erGodkjent());
-        return null;
+        return tekst;
     }
 
     private static HistorikkinnslagDtoV2 fraMalType4(Historikkinnslag h, UUID behandlingUUID) {
