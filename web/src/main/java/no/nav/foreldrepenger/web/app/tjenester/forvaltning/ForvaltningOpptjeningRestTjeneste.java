@@ -120,6 +120,39 @@ public class ForvaltningOpptjeningRestTjeneste {
     }
 
     @POST
+    @Path("/leggTilOppgittNæringFjerneAndreOppgitteOrgnummer")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Operation(description = "Legg til innslag for oppgitt næring som fisker", tags = "FORVALTNING-opptjening")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response leggTilOppgittNæringFjerneAndreOppgitteOrgnummer(@BeanParam @Valid LeggTilOppgittNæringDto dto) {
+        var behandling = behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUuid());
+        var oppgittOpptjening = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId()).getGjeldendeOppgittOpptjening();
+        Optional<Virksomhet> virksomhet = dto.getOrgnummer() != null ? virksomhetTjeneste.finnOrganisasjon(dto.getOrgnummer()) : Optional.empty();
+        var brutto = new BigDecimal(dto.getBruttoBeløp());
+        var periode = dto.getTom() != null ? DatoIntervallEntitet.fraOgMedTilOgMed(dto.getFom(), dto.getTom())
+            : DatoIntervallEntitet.fraOgMed(dto.getFom());
+        var enBuilder = OppgittOpptjeningBuilder.EgenNæringBuilder.ny()
+            .medVirksomhetType(VirksomhetType.fraKode(dto.getTypeKode()))
+            .medPeriode(periode)
+            .medBruttoInntekt(brutto)
+            .medNærRelasjon(tilBoolsk(dto.getErRelasjon()))
+            .medNyIArbeidslivet(tilBoolsk(dto.getNyIArbeidslivet()))
+            .medNyoppstartet(tilBoolsk(dto.getNyoppstartet()))
+            .medVarigEndring(tilBoolsk(dto.getVarigEndring()))
+            .medRegnskapsførerNavn(dto.getRegnskapNavn())
+            .medBegrunnelse(dto.getBegrunnelse())
+            .medEndringDato(dto.getEndringsDato())
+            .medRegnskapsførerTlf(dto.getRegnskapTlf());
+        virksomhet.ifPresent(v -> enBuilder.medVirksomhet(v.getOrgnr()));
+        // Ønsker å erstatte eksisterende egen næring om orgnr er likt
+        var ooBuilder = OppgittOpptjeningBuilder.oppdater(oppgittOpptjening)
+            .leggTilEllerErstattEgenNæringFjernAndreOrgnummer(enBuilder.build());
+        inntektArbeidYtelseTjeneste.lagreOverstyrtOppgittOpptjening(behandling.getId(), ooBuilder);
+
+        return Response.noContent().build();
+    }
+
+    @POST
     @Path("/reInnhentAlleIAYRegisterData")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Tvinger full registeroppdatering av IAY på åpen behandling", tags = "FORVALTNING-opptjening")
