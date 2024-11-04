@@ -139,7 +139,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
         assertThat(overlappIT).hasSize(1);
         assertThat(overlappIT.getFirst().getPeriode().getTomDato()).isEqualTo(førsteUttaksdatoFp);
-        verify(oppgaveTjenesteMock, times(1)).opprettVurderKonsekvensHosPleiepenger(any(), any(), any());
+        verify(oppgaveTjenesteMock, times(1)).opprettVurderKonsekvensHosPleiepenger(any(), any());
         verifyNoMoreInteractions(oppgaveTjenesteMock);
     }
 
@@ -181,7 +181,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         var overlappIT2 = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
         assertThat(overlappIT2).hasSize(1);
         assertThat(overlappIT2.getFirst().getPeriode().getTomDato()).isEqualTo(førsteUttaksdatoFp.plusWeeks(4));
-        verify(oppgaveTjenesteMock, times(1)).opprettVurderKonsekvensHosPleiepenger(any(), any(), any());
+        verify(oppgaveTjenesteMock, times(1)).opprettVurderKonsekvensHosPleiepenger(any(), any());
         verifyNoMoreInteractions(oppgaveTjenesteMock);
     }
 
@@ -219,8 +219,8 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         // Assert
         var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
         assertThat(overlappIT).hasSize(2);
-        verify(oppgaveTjenesteMock, times(1)).opprettVurderKonsekvensHosPleiepenger(any(), any(), any());
-        verify(oppgaveTjenesteMock, times(1)).opprettVurderKonsekvensHosSykepenger(any(), any(), any());
+        verify(oppgaveTjenesteMock, times(1)).opprettVurderKonsekvensHosPleiepenger(any(), any());
+        verify(oppgaveTjenesteMock, times(1)).opprettVurderKonsekvensHosSykepenger(any(), any());
         verifyNoMoreInteractions(oppgaveTjenesteMock);
     }
 
@@ -259,7 +259,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         // Assert
         var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
         assertThat(overlappIT).hasSize(3);
-        verify(oppgaveTjenesteMock, times(2)).opprettVurderKonsekvensHosSykepenger(any(), any(), any());
+        verify(oppgaveTjenesteMock, times(2)).opprettVurderKonsekvensHosSykepenger(any(), any());
         verifyNoMoreInteractions(oppgaveTjenesteMock);
     }
 
@@ -299,7 +299,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
         assertThat(overlappIT).hasSize(1);
         assertThat(overlappIT.getFirst().getPeriode().getTomDato()).isEqualTo(førsteUttaksdatoFp.plusWeeks(3));
-        verify(oppgaveTjenesteMock, times(1)).opprettVurderKonsekvensHosPleiepenger(any(), any(), any());
+        verify(oppgaveTjenesteMock, times(1)).opprettVurderKonsekvensHosPleiepenger(any(), any());
         verifyNoMoreInteractions(oppgaveTjenesteMock);
     }
 
@@ -370,7 +370,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         // Assert
         var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
         assertThat(overlappIT).hasSize(2);
-        verify(oppgaveTjenesteMock, times(2)).opprettVurderKonsekvensHosPleiepenger(any(), any(), any());
+        verify(oppgaveTjenesteMock, times(2)).opprettVurderKonsekvensHosPleiepenger(any(), any());
         verifyNoMoreInteractions(oppgaveTjenesteMock);
     }
 

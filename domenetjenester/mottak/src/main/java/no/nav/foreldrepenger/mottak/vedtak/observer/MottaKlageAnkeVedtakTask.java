@@ -25,9 +25,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class MottaKlageAnkeVedtakTask extends GenerellProsessTask {
 
-    private static final String VKY_KLAGE_BESKRIVELSE = "Vedtaket er opphevet eller omgjort. Opprett en ny behandling.";
-    private static final String VKY_KLAGE_UENDRET_BESKRIVELSE = "Vedtaket er stadfestet eller klagen avvist av NAV Klageinstans, dette til informasjon.";
-    private static final String VKY_ANKE_BESKRIVELSE = "Vedtaket er omgjort, opphevet eller hjemsendt. Opprett en ny behandling.";
+    private static final String VKY_KLAGE_BESKRIVELSE = "Vedtaket er opphevet eller omgjort i klagebehandling. Opprett en ny behandling.";
+    private static final String VKY_KLAGE_UENDRET_BESKRIVELSE = "Vedtaket er stadfestet eller klagen avvist av Nav klageinstans, dette til informasjon.";
+    private static final String VKY_ANKE_BESKRIVELSE = "Vedtaket er omgjort, opphevet eller hjemsendt i ankebehandling. Opprett en ny behandling.";
     private static final String VKY_TRR_UENDRET_BESKRIVELSE = "Vedtaket er stadfestet eller anken avvist av Trygderetten, dette til informasjon.";
 
     private static final Set<AnkeVurdering> ANKE_ENDRES = Set.of(AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE, AnkeVurdering.ANKE_OMGJOER, AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV);
@@ -97,13 +97,13 @@ public class MottaKlageAnkeVedtakTask extends GenerellProsessTask {
         }
     }
 
-    private void lagOpprettVurderKonsekvensTask(Behandling behandling, String beskrivelse) {
+    private void lagOpprettVurderKonsekvensTask(Behandling sisteYtelseBehandling, String beskrivelse) {
         var opprettOppgave = ProsessTaskData.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class);
-        opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BEHANDLENDE_ENHET, behandling.getBehandlendeEnhet());
+        opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BEHANDLENDE_ENHET, sisteYtelseBehandling.getBehandlendeEnhet());
         opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE, beskrivelse);
         opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_PRIORITET, OpprettOppgaveVurderKonsekvensTask.PRIORITET_HØY);
         opprettOppgave.setCallIdFraEksisterende();
-        opprettOppgave.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+        opprettOppgave.setBehandling(sisteYtelseBehandling.getFagsakId(), sisteYtelseBehandling.getId(), sisteYtelseBehandling.getAktørId().getId());
         taskTjeneste.lagre(opprettOppgave);
     }
 

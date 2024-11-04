@@ -91,7 +91,7 @@ class DokumentmottakerKlageTest {
         var behandlendeEnhetTjeneste = mock(BehandlendeEnhetTjeneste.class);
         historikkinnslagTjeneste = mock(HistorikkinnslagTjeneste.class);
         klageVurderingTjeneste = mock(KlageVurderingTjeneste.class);
-        var enhet = new OrganisasjonsEnhet("4806", "NAV Drammen");
+        var enhet = new OrganisasjonsEnhet("4806", "Nav Drammen");
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
 
         var behandlingskontrollTjeneste = DokumentmottakTestUtil.lagBehandlingskontrollTjenesteMock(serviceProvider);

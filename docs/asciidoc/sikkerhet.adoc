@@ -241,7 +241,7 @@ Saksbehandlere som skal håndtere kode 6 har egne anonyme identer for dette.
 |Tillegsroller for brukertilgang|Beskrivelse
 |Behandle trusselutsatte brukere - strengt fortrolig (Kode 6)|Tilleggsrolle som gir brukere anledning til å behandle/få se opplysninger om trusselutsatte brukere som er merket med kode 6. Lese eller skrivetilgang styres av applikasjons-rollene i listen over.
 |Behandle trusselutsatte brukere - fortrolig (Kode 7)|Tilleggsrolle som gir brukere anledning til å behandle/få se opplysninger om trusselutsatte brukere som er merket med kode 7. Lese eller skrivetilgang styres av applikasjons-rollene i listen over.
-|Behandle egne ansatte|Tilleggsrettigheten gir de aktuelle rollene anledning til å behandle saker for brukere som er markert som ansatt i egen enhet/NAV.
+|Behandle egne ansatte|Tilleggsrettigheten gir de aktuelle rollene anledning til å behandle saker for brukere som er markert som ansatt i egen enhet/Nav.
 |===
 
 === Gruppenavn i AD

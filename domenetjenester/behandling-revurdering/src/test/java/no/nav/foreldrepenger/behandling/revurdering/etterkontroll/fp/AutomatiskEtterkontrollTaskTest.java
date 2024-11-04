@@ -65,7 +65,6 @@ import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhet
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.TrekkdagerUtregningUtil;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Periode;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(JpaExtension.class)
@@ -73,9 +72,6 @@ class AutomatiskEtterkontrollTaskTest {
 
     @Mock
     private PersoninfoAdapter personinfoAdapter;
-
-    @Mock
-    private ProsessTaskTjeneste taskTjenesteMock;
 
     private BehandlingRepositoryProvider repositoryProvider;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
@@ -404,7 +400,7 @@ class AutomatiskEtterkontrollTaskTest {
 
     private void createTask() {
         task = new AutomatiskEtterkontrollTask(repositoryProvider, etterkontrollRepository, historikkRepository, familieHendelseTjeneste,
-            personinfoAdapter, taskTjenesteMock, behandlendeEnhetTjeneste);
+            personinfoAdapter, behandlendeEnhetTjeneste);
     }
 
     @Test

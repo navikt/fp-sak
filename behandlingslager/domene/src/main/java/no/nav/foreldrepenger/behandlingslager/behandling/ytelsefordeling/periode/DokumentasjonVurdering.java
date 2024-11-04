@@ -41,8 +41,8 @@ public record DokumentasjonVurdering(Type type, MorsStillingsprosent morsStillin
         INNLEGGELSE_BARN_IKKE_GODKJENT("INNLEGGELSE_BARN_IKKE_GODKJENT", "Barn er ikke innlagt", false),
         HV_OVELSE_GODKJENT("HV_OVELSE_GODKJENT", "Søker er på hv øvelse", true),
         HV_OVELSE_IKKE_GODKJENT("HV_OVELSE_IKKE_GODKJENT", "Søker er ikke på hv øvelse", false),
-        NAV_TILTAK_GODKJENT("NAV_TILTAK_GODKJENT", "Søker er i tiltak i regi nav NAV", true),
-        NAV_TILTAK_IKKE_GODKJENT("NAV_TILTAK_IKKE_GODKJENT", "Søker er ikke i tiltak i regi nav NAV", false),
+        NAV_TILTAK_GODKJENT("NAV_TILTAK_GODKJENT", "Søker er i tiltak i regi Nav", true),
+        NAV_TILTAK_IKKE_GODKJENT("NAV_TILTAK_IKKE_GODKJENT", "Søker er ikke i tiltak i regi Nav", false),
 
         //Aktivitetskrav
         MORS_AKTIVITET_GODKJENT("MORS_AKTIVITET_GODKJENT", "Mors aktivitet er godkjent", true),

@@ -71,7 +71,7 @@ public class OverlappOppgaveTjeneste {
         // Beskrivelse må tilpasses dersom / når det skal opprettes oppgaver ved overlapp mot Infotrygd
         var beskrivelse = String.format("Det er innvilget %s (%s%%) som overlapper med sykepenger i periode %s - %s i %s. Vurder konsekvens for ytelse.",
             foreldrepengerYtelse, maxUtbetalingsprosent, minFom, maxTom, system );
-        oppgaveTjeneste.opprettVurderKonsekvensHosSykepenger(behandling.getBehandlendeEnhet(), beskrivelse, behandling.getAktørId());
+        oppgaveTjeneste.opprettVurderKonsekvensHosSykepenger(beskrivelse, behandling.getAktørId());
 
     }
 
@@ -94,11 +94,11 @@ public class OverlappOppgaveTjeneste {
         if (Fagsystem.K9SAK.equals(gruppering.fagsystem())) {
             var beskrivelse = String.format("Det er innvilget %s (%s%%) som overlapper med %s sak %s i periode %s - %s i K9-sak. Vurder konsekvens for ytelse.",
                     foreldrepengerYtelse, maxUtbetalingsprosent, omsorgspengerYtelse, gruppering.saksnummer(), minFom, maxTom );
-            oppgaveTjeneste.opprettVurderKonsekvensHosPleiepenger(behandling.getBehandlendeEnhet(), beskrivelse, behandling.getAktørId());
+            oppgaveTjeneste.opprettVurderKonsekvensHosPleiepenger(beskrivelse, behandling.getAktørId());
         } else {
             var beskrivelse = String.format("Det er innvilget %s (%s%%) som overlapper med pleiepenger i periode %s - %s i Infotrygd. Vurder konsekvens for ytelse.",
                     foreldrepengerYtelse, maxUtbetalingsprosent, minFom, maxTom );
-            oppgaveTjeneste.opprettVurderKonsekvensHosPleiepenger(behandling.getBehandlendeEnhet(), beskrivelse, behandling.getAktørId());
+            oppgaveTjeneste.opprettVurderKonsekvensHosPleiepenger(beskrivelse, behandling.getAktørId());
         }
     }
 

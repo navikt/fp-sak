@@ -8,7 +8,7 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 /**
- * Henter ned offisielle kodeverk fra NAV som brukes i løsningen og synker den til egen kodeverk-tabell.
+ * Henter ned offisielle kodeverk fra Nav som brukes i løsningen og synker den til egen kodeverk-tabell.
  */
 @ApplicationScoped
 public class PoststedBatchTjeneste implements BatchTjeneste {

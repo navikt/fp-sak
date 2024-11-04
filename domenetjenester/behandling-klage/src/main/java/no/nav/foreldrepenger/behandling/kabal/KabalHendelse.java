@@ -14,25 +14,23 @@ public record KabalHendelse(UUID eventId,
     public enum BehandlingEventType {
         BEHANDLING_FEILREGISTRERT, KLAGEBEHANDLING_AVSLUTTET,
         ANKEBEHANDLING_OPPRETTET, ANKE_I_TRYGDERETTENBEHANDLING_OPPRETTET, ANKEBEHANDLING_AVSLUTTET,
-        BEHANDLING_ETTER_TRYGDERETTEN_OPPHEVET_AVSLUTTET
+        BEHANDLING_ETTER_TRYGDERETTEN_OPPHEVET_AVSLUTTET,
+        OMGJOERINGSKRAV_AVSLUTTET
     }
 
-    public record BehandlingDetaljer(KlagebehandlingAvsluttetDetaljer klagebehandlingAvsluttet,
+    public record BehandlingDetaljer(AvsluttetDetaljer klagebehandlingAvsluttet,
                                      AnkebehandlingOpprettetDetaljer ankebehandlingOpprettet,
                                      AnkeITrygderettenbehandlingOpprettetDetaljer ankeITrygderettenbehandlingOpprettet,
-                                     AnkebehandlingAvsluttetDetaljer ankebehandlingAvsluttet,
-                                     BehandlingEtterTrygderettenOpphevetAvsluttet behandlingEtterTrygderettenOpphevetAvsluttet,
+                                     AvsluttetDetaljer ankebehandlingAvsluttet,
+                                     AvsluttetDetaljer behandlingEtterTrygderettenOpphevetAvsluttet,
+                                     AvsluttetDetaljer omgjoeringskravAvsluttet,
                                      BehandlingFeilregistrertDetaljer behandlingFeilregistrert) {}
-
-    public record KlagebehandlingAvsluttetDetaljer(LocalDateTime avsluttet, KabalUtfall utfall, List<String> journalpostReferanser) {}
 
     public record AnkebehandlingOpprettetDetaljer(LocalDateTime mottattKlageinstans) {}
 
     public record AnkeITrygderettenbehandlingOpprettetDetaljer(LocalDateTime sendtTilTrygderetten, KabalUtfall utfall) {}
 
-    public record AnkebehandlingAvsluttetDetaljer(LocalDateTime avsluttet, KabalUtfall utfall, List<String> journalpostReferanser) {}
-
-    public record BehandlingEtterTrygderettenOpphevetAvsluttet(LocalDateTime avsluttet, KabalUtfall utfall, List<String> journalpostReferanser) {}
+    public record AvsluttetDetaljer(LocalDateTime avsluttet, KabalUtfall utfall, List<String> journalpostReferanser) {}
 
     public record BehandlingFeilregistrertDetaljer(LocalDateTime feilregistrert, BehandlingType type, String navIdent, String reason) {}
 

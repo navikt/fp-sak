@@ -23,6 +23,9 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -31,19 +34,26 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
+import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakAvstemPeriodeTask;
 import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakOverlappAvstemSakTask;
+import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdFPRestanse;
+import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdRestanseDto;
+import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdSvpRestanse;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AksjonspunktKodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriodeDto;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskDataBuilder;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
@@ -58,12 +68,15 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @ApplicationScoped
 @Transactional
 public class ForvaltningUttrekkRestTjeneste {
-
+    private static final Logger LOG = LoggerFactory.getLogger(ForvaltningUttrekkRestTjeneste.class);
     private EntityManager entityManager;
     private BehandlingRepository behandlingRepository;
     private FagsakRepository fagsakRepository;
     private ProsessTaskTjeneste taskTjeneste;
     private OverlappVedtakRepository overlappRepository;
+    private FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste;
+    private InfotrygdFPRestanse foreldrepengerSak;
+    private InfotrygdSvpRestanse svangerskapspengerSak;
 
     public ForvaltningUttrekkRestTjeneste() {
         // For CDI
@@ -74,12 +87,18 @@ public class ForvaltningUttrekkRestTjeneste {
                                           FagsakRepository fagsakRepository,
                                           BehandlingRepository behandlingRepository,
                                           ProsessTaskTjeneste taskTjeneste,
-                                          OverlappVedtakRepository overlappRepository) {
+                                          OverlappVedtakRepository overlappRepository,
+                                          FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste,
+                                          InfotrygdFPRestanse foreldrepengerSak,
+                                          InfotrygdSvpRestanse svangerskapspengerSak) {
         this.entityManager = entityManager;
         this.fagsakRepository = fagsakRepository;
         this.behandlingRepository = behandlingRepository;
         this.taskTjeneste = taskTjeneste;
         this.overlappRepository = overlappRepository;
+        this.fpInntektsmeldingTjeneste = fpInntektsmeldingTjeneste;
+        this.foreldrepengerSak = foreldrepengerSak;
+        this.svangerskapspengerSak = svangerskapspengerSak;
     }
 
     @POST
@@ -221,6 +240,65 @@ public class ForvaltningUttrekkRestTjeneste {
     }
 
     @POST
+    @Path("/opprettIMForesporselForBehandling")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Oppretter im forespørsel task for behandlinger som mangler IM og har aksjonspunkt 7003, 7030 eller 5085. Velg enten en behandlingUuid eller aksjonspunkt", tags = "FORVALTNING-uttrekk")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
+    public Response opprettImTaskForBehMedAksjonspunkt(@BeanParam @Valid AksjonspunktKodeDto dto, @Valid ForvaltningBehandlingIdDto behandlingIdDto) {
+        if(dto.getAksjonspunktDefinisjon() == null && behandlingIdDto == null) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        if (behandlingIdDto != null) {
+            var behandlingUuid = behandlingIdDto.getBehandlingUuid();
+            LOG.info("Sjekker om det skal opprettes im forespørsel for behandling med uuid {}",  behandlingUuid);
+            var behandling = behandlingRepository.hentBehandling(behandlingUuid);
+            if (behandling == null) {
+                return Response.noContent().build();
+            }
+            fpInntektsmeldingTjeneste.sjekkOmIMManglerOgOpprettForesporselTask(behandling);
+        } else  {
+            var aksjonspunktkode = dto.getAksjonspunktKode();
+            var aksjonspunktdefinisjon = dto.getAksjonspunktDefinisjon();
+            if (!(AksjonspunktDefinisjon.AUTO_VENT_ETTERLYST_INNTEKTSMELDING.equals(aksjonspunktdefinisjon) || AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD.equals(
+                aksjonspunktdefinisjon) || AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING.equals(aksjonspunktdefinisjon))) {
+                return Response.status(Response.Status.FORBIDDEN).build();
+            }
+
+            var behandlingIder = finnBehandlingerMedAksjonspunkt(aksjonspunktkode);
+            var sanitizedAksjonspunktkode = aksjonspunktkode.replace("\n", "").replace("\r", "");
+            LOG.info("OppretteIMForespørsler: Antall behandlinger med aksjonspunkt {}: {}", sanitizedAksjonspunktkode, behandlingIder);
+
+            if (behandlingIder.isEmpty()) {
+                return Response.noContent().build();
+            }
+
+            behandlingIder.forEach(id -> {
+                var behandling = behandlingRepository.hentBehandling(id);
+                fpInntektsmeldingTjeneste.sjekkOmIMManglerOgOpprettForesporselTask(behandling);
+            });
+        }
+        return Response.ok().build();
+    }
+
+    private List<Long> finnBehandlingerMedAksjonspunkt(String aksjonspunktkode) {
+        var query = entityManager.createQuery("""
+                select b.id
+                from behandling bh
+                join aksjonspunkt ap on ap.behandling_id = bh.id
+                where ap.aksjonspunkt_def = :appKode
+                and bh.behandling_status  = :behStatus
+                 and ap.aksjonspunkt_status = :status
+                 and ap.vent_aarsak = :ventAarsak""", Long.class);
+        query.setParameter("appKode", aksjonspunktkode);
+        query.setParameter("behStatus", BehandlingStatus.UTREDES);
+        query.setParameter("ventAarsak", Venteårsak.VENT_OPDT_INNTEKTSMELDING);
+        query.setParameter("status", AksjonspunktStatus.OPPRETTET.getKode());
+        return query.getResultList();
+    }
+
+    @POST
     @Path("/slettTidligereAvstemmingOverlapp")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
@@ -266,161 +344,32 @@ public class ForvaltningUttrekkRestTjeneste {
         return Response.ok(resultat).build();
     }
 
-    @POST
-    @Path("/fikseAnkeBehandlingerRelatert1")
+    @GET
+    @Path("/infotrygdRestanseFP")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Kopiering før unmapping", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response fikseAnkeBehandlingerRelatert1() {
-        var rader = entityManager.createNativeQuery("""
-            merge into fpsak_hist.behandling_dvh bdvh
-            using (select id bid, uuid buid from fpsak.behandling) utvalg
-            on (bdvh.RELATERT_TIL = utvalg.bid)
-            when matched then update set bdvh.relatert_til_uuid = utvalg.buid
-            """).executeUpdate();
-        return Response.ok(rader).build();
+    @Operation(description = "Restanse FP", tags = "FORVALTNING-uttrekk",
+        responses = {@ApiResponse(responseCode = "200", description = "Restanse", content = @Content(
+            array = @ArraySchema(arraySchema = @Schema(implementation = List.class),
+                schema = @Schema(implementation = InfotrygdRestanseDto.class)), mediaType = MediaType.APPLICATION_JSON))})
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
+    public Response infotrygdRestanseFP() {
+        var restanse = foreldrepengerSak.getRestanse();
+        return Response.ok(restanse).build();
     }
 
-    @POST
-    @Path("/fikseAnkeBehandlingerRelatert2")
+    @GET
+    @Path("/infotrygdRestanseSVP")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Kopiering før unmapping", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response fikseAnkeBehandlingerRelatert2() {
-        var rader = entityManager.createNativeQuery("""
-            merge into fpsak_hist.behandling_dvh bdvh
-            using (select klage_behandling_id bid, paaklagd_ekstern_uuid buid from fpsak.klage_resultat where paaklagd_ekstern_uuid is not null) utvalg
-            on (bdvh.behandling_id = utvalg.bid)
-            when matched then update set bdvh.relatert_til_uuid = utvalg.buid
-            """).executeUpdate();
-        return Response.ok(rader).build();
-    }
-
-    @POST
-    @Path("/fikseAnkeBehandlingerOmgjør1")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Kopiering før unmapping", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response fikseAnkeBehandlingerOmgjør1() {
-        var rader = entityManager.createNativeQuery("""
-            merge into fpsak_hist.behandling_dvh bdvh
-            using (select anke_behandling_id bid,
-                   case when tr_omgjoer_aarsak <> '-' then tr_omgjoer_aarsak
-                        when anke_omgjoer_aarsak <> '-' then anke_omgjoer_aarsak
-                        else null end boa
-                   from fpsak.anke_vurdering_resultat avr join fpsak.anke_resultat ar on avr.anke_resultat_id = ar.id
-                   where anke_omgjoer_aarsak <> '-' or tr_omgjoer_aarsak <> '-') utvalg
-            on (bdvh.behandling_id = utvalg.bid and behandling_resultat_type is not null and behandling_resultat_type <> '-')
-            when matched then update set bdvh.omgjoering_aarsak = utvalg.boa
-            """).executeUpdate();
-        return Response.ok(rader).build();
-    }
-
-    @POST
-    @Path("/fikseKlageOverskuddResultat")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Kopiering før unmapping", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response fikseKlageOverskuddResultat() {
-        var rader = entityManager.createNativeQuery("""
-            delete from fpsak.klage_vurdering_resultat where id = 84752
-            """).executeUpdate();
-        return Response.ok(rader).build();
-    }
-
-    @POST
-    @Path("/fikseAnkeBehandlingerOmgjør2")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Kopiering før unmapping", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response fikseAnkeBehandlingerOmgjør2() {
-        var rader = entityManager.createNativeQuery("""
-            merge into fpsak_hist.behandling_dvh bdvh
-            using (select klage_behandling_id bid,
-                   case when kvrka.klage_medhold_aarsak is not null and kvrka.klage_medhold_aarsak <> '-' then kvrka.klage_medhold_aarsak
-                        when kvrnfp.klage_medhold_aarsak <> '-' and (kvrka.klage_medhold_aarsak is null or kvrka.klage_medhold_aarsak = '-') then kvrnfp.klage_medhold_aarsak
-                        else null end boa
-                   from fpsak.klage_resultat kr
-                   join fpsak.klage_vurdering_resultat kvrnfp on (kvrnfp.klage_resultat_id = kr.id and kvrnfp.klage_vurdert_av = 'NFP')
-                   left outer join fpsak.klage_vurdering_resultat kvrka on (kvrka.klage_resultat_id = kr.id and kvrka.klage_vurdert_av = 'NK')
-                   where kvrnfp.klage_medhold_aarsak <> '-' or (kvrka.klage_medhold_aarsak is not null and kvrka.klage_medhold_aarsak <> '-')) utvalg
-            on (bdvh.behandling_id = utvalg.bid and behandling_resultat_type is not null and behandling_resultat_type <> '-')
-            when matched then update set bdvh.omgjoering_aarsak = utvalg.boa
-            """).executeUpdate();
-        return Response.ok(rader).build();
-    }
-
-    @POST
-    @Path("/fikseAnkeBehandlingerEnhet1")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Kopiering før unmapping", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response fikseAnkeBehandlingerEnhet1() {
-        var rader = entityManager.createNativeQuery("""
-            update fpsak_hist.behandling_dvh bdvh
-            set BEHANDLENDE_ENHET = 'TR'
-            where BEHANDLING_STATUS = 'AVSLU'
-            and BEHANDLING_ID in (select anke_behandling_id
-                                  from fpsak.anke_vurdering_resultat avr join fpsak.anke_resultat ar on avr.anke_resultat_id = ar.id
-                                  join fpsak.behandling_resultat on behandling_id = anke_behandling_id
-                                  where behandling_resultat_type like '%ENLAG%'
-                                  and (ankevurdering in ('ANKE_STADFESTE_YTELSESVEDTAK', 'ANKE_AVVIS') or anke_vurdering_omgjoer = 'ANKE_DELVIS_OMGJOERING_TIL_GUNST'))
-            """).executeUpdate();
-        return Response.ok(rader).build();
-    }
-
-    @POST
-    @Path("/fikseAnkeBehandlingerEnhet2")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Kopiering før unmapping", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response fikseAnkeBehandlingerEnhet2() {
-        var rader = entityManager.createNativeQuery("""
-            update fpsak_hist.behandling_dvh bdvh
-            set BEHANDLENDE_ENHET = 'TR'
-            where BEHANDLING_STATUS = 'AVSLU'
-            and BEHANDLING_ID in (select anke_behandling_id
-                                  from fpsak.anke_vurdering_resultat avr join fpsak.anke_resultat ar on avr.anke_resultat_id = ar.id
-                                  where tr_vurdering not in ('-' , 'ANKE_OPPHEVE_OG_HJEMSENDE', 'ANKE_HJEMSENDE_UTEN_OPPHEV'))
-            """).executeUpdate();
-        return Response.ok(rader).build();
-    }
-
-    @POST
-    @Path("/fikseAnkeBehandlingerEnhet3")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Kopiering før unmapping", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response fikseAnkeBehandlingerEnhet3() {
-        var rader = entityManager.createNativeQuery("""
-            update fpsak_hist.behandling_dvh bdvh
-            set BEHANDLENDE_ENHET = 'TR'
-            where BEHANDLING_STATUS = 'VENT_TRYGDERETT'
-            """).executeUpdate();
-        return Response.ok(rader).build();
-    }
-
-    @POST
-    @Path("/fikseAnkeBehandlingerEnhet0000")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Kopiering før unmapping", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    public Response fikseAnkeBehandlingerEnhet0000() {
-        var rader = entityManager.createNativeQuery("""
-            update fpsak_hist.behandling_dvh bdvh
-            set BEHANDLENDE_ENHET = 'TR0000'
-            where BEHANDLENDE_ENHET = 'TR'
-            """).executeUpdate();
-        return Response.ok(rader).build();
+    @Operation(description = "Restanse SVP", tags = "FORVALTNING-uttrekk",
+        responses = {@ApiResponse(responseCode = "200", description = "Restanse", content = @Content(
+            array = @ArraySchema(arraySchema = @Schema(implementation = List.class),
+                schema = @Schema(implementation = InfotrygdRestanseDto.class)), mediaType = MediaType.APPLICATION_JSON))})
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
+    public Response infotrygdRestanseSVP() {
+        var restanse = svangerskapspengerSak.getRestanse();
+        return Response.ok(restanse).build();
     }
 
 }

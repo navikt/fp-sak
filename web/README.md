@@ -1,6 +1,6 @@
 # web-webapp
 
-web-webapp inneholder blant annet tjenester for hendelser, lese- eller aktivitetstjenester systemet leverer som kan aksesseres av andre systemer i NAV.
+web-webapp inneholder blant annet tjenester for hendelser, lese- eller aktivitetstjenester systemet leverer som kan aksesseres av andre systemer i Nav.
 
 Disse leveres som  en av følgende:
 * REST tjenester med JSON (evt. XML) output.  Sikret vha. OpenID Connect (OIDC) tokens.

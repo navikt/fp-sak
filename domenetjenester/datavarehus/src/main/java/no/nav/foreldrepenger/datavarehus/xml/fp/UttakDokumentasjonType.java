@@ -18,7 +18,7 @@ enum UttakDokumentasjonType {
     IKKE_RETT_ANNEN_FORELDER("IKKE_RETT_ANNEN_FORELDER", "Annen forelder har ikke rett for barnet"),
     ALENEOMSORG_OVERFØRING("ALENEOMSORG_OVERFØRING", "Annen forelder har ikke omsorg for barnet"),
     HV_OVELSE("HV_OVELSE", "Søker er i tjeneste eller øvelse i heimevernet"),
-    NAV_TILTAK("NAV_TILTAK", "Søker er i tiltak i regi av NAV"),
+    NAV_TILTAK("NAV_TILTAK", "Søker er i tiltak i regi av Nav"),
     MOR_AKTIVITET("MOR_AKTIVITET", "Mor er i aktivitet"),
     ;
 
