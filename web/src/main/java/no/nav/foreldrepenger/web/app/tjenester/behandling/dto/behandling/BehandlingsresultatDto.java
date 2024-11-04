@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -38,6 +39,8 @@ public class BehandlingsresultatDto {
     private SkjæringstidspunktDto skjæringstidspunkt;
     @JsonProperty("endretDekningsgrad")
     private boolean endretDekningsgrad;
+    @JsonProperty("opphørsdato")
+    private LocalDate opphørsdato;
 
     public BehandlingsresultatDto() {
         // trengs for deserialisering av JSON
@@ -138,5 +141,13 @@ public class BehandlingsresultatDto {
 
     public Boolean isEndretDekningsgrad() {
         return endretDekningsgrad;
+    }
+
+    public LocalDate getOpphørsdato() {
+        return opphørsdato;
+    }
+
+    public void setOpphørsdato(LocalDate opphørsdato) {
+        this.opphørsdato = opphørsdato;
     }
 }

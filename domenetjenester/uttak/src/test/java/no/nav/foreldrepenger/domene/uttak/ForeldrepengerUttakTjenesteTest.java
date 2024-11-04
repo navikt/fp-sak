@@ -52,7 +52,7 @@ class ForeldrepengerUttakTjenesteTest {
 
         var tjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
 
-        var uttak = tjeneste.hentUttak(behandling.getId());
+        var uttak = tjeneste.hent(behandling.getId());
 
         assertThat(uttak.getGjeldendePerioder()).hasSize(1);
         var periode = uttak.getGjeldendePerioder().get(0);

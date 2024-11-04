@@ -83,7 +83,7 @@ public class YtelseFordelingDtoTjeneste {
     private LocalDate finnFørsteUttaksdatoRevurdering(Behandling behandling) {
         var originalBehandling = behandling.getOriginalBehandlingId()
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Original behandling mangler på revurdering - skal ikke skje"));
-        var uttakOriginal = uttakTjeneste.hentUttakHvisEksisterer(originalBehandling);
+        var uttakOriginal = uttakTjeneste.hentHvisEksisterer(originalBehandling);
         var førsteUttakOriginal = uttakOriginal.flatMap(ForeldrepengerUttak::finnFørsteUttaksdatoHvisFinnes);
         var førsteUttaksdatoTidligereBehandling = førsteUttakOriginal.orElse(Tid.TIDENES_ENDE);
 

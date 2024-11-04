@@ -70,6 +70,10 @@ public class SvangerskapspengerUttakResultatArbeidsforholdEntitet extends BaseEn
         return uttakArbeidType;
     }
 
+    public boolean isAvslått() {
+        return !ArbeidsforholdIkkeOppfyltÅrsak.INGEN.equals(getArbeidsforholdIkkeOppfyltÅrsak());
+    }
+
     public static class Builder {
         private SvangerskapspengerUttakResultatArbeidsforholdEntitet kladd;
 

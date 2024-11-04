@@ -502,7 +502,7 @@ class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         var uttakPeriode = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(LocalDate.now(), LocalDate.now()).medResultatType(PeriodeResultatType.INNVILGET).build();
         doReturn(true).when(behandlingsoppretter).erOpphørtBehandling(behandling);
-        doReturn(Optional.of(new ForeldrepengerUttak(List.of(uttakPeriode)))).when(fpUttakTjeneste).hentUttakHvisEksisterer(behandling.getId());
+        doReturn(Optional.of(new ForeldrepengerUttak(List.of(uttakPeriode)))).when(fpUttakTjeneste).hentHvisEksisterer(behandling.getId());
         doReturn(behandling).when(behandlingsoppretter).opprettRevurdering(eq(behandling.getFagsak()), any());
 
         // Act

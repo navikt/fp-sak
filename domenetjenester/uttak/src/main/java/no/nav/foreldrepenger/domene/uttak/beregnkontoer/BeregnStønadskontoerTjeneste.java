@@ -66,7 +66,7 @@ public class BeregnStønadskontoerTjeneste {
     private Optional<ForeldrepengerUttak> hentAnnenpartsUttak(ForeldrepengerGrunnlag fpGrunnlag) {
         var annenpart = fpGrunnlag.getAnnenpart();
         if (annenpart.isPresent()) {
-            return uttakTjeneste.hentUttakHvisEksisterer(annenpart.get().gjeldendeVedtakBehandlingId());
+            return uttakTjeneste.hentHvisEksisterer(annenpart.get().gjeldendeVedtakBehandlingId());
         }
         return Optional.empty();
     }
