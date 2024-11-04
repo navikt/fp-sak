@@ -29,16 +29,16 @@ public class ForeldrepengerUttakTjeneste {
         //CDI
     }
 
-    public Optional<ForeldrepengerUttak> hentHvisEksisterer(long behandlingId) {
-        return hentHvisEksisterer(behandlingId, false);
+    public Optional<ForeldrepengerUttak> hentUttakHvisEksisterer(long behandlingId) {
+        return hentUttakHvisEksisterer(behandlingId, false);
     }
 
-    public Optional<ForeldrepengerUttak> hentHvisEksisterer(long behandlingId, boolean ignoreDok) {
+    public Optional<ForeldrepengerUttak> hentUttakHvisEksisterer(long behandlingId, boolean ignoreDok) {
         return fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId).map(entitet -> map(entitet, ignoreDok));
     }
 
-    public ForeldrepengerUttak hent(long behandlingId) {
-        return hentHvisEksisterer(behandlingId).orElseThrow();
+    public ForeldrepengerUttak hentUttak(long behandlingId) {
+        return hentUttakHvisEksisterer(behandlingId).orElseThrow();
     }
 
     public static ForeldrepengerUttak map(UttakResultatEntitet entitet) {

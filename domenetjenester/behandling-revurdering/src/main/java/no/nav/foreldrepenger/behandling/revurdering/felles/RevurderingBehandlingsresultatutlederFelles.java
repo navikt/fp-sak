@@ -3,17 +3,14 @@ package no.nav.foreldrepenger.behandling.revurdering.felles;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
-
-import jakarta.enterprise.context.ApplicationScoped;
-
-import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingFeil;
+import no.nav.foreldrepenger.behandling.revurdering.felles.UttakResultatHolder.VurderOpphørFørDagensDato;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -40,47 +37,48 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
-import no.nav.foreldrepenger.domene.uttak.Uttak;
-import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
+import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
 import no.nav.foreldrepenger.regler.uttak.UttakParametre;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
-@ApplicationScoped
-public class RevurderingBehandlingsresultatutlederFelles {
+public abstract class RevurderingBehandlingsresultatutlederFelles {
 
     private BeregningTjeneste beregningTjeneste;
     private MedlemTjeneste medlemTjeneste;
 
     private BehandlingRepository behandlingRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
+    private OpphørUttakTjeneste opphørUttakTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private FamilieHendelseRepository familieHendelseRepository;
     private NesteSakRepository nesteSakRepository;
     private DekningsgradTjeneste dekningsgradTjeneste;
-    private UttakTjeneste uttakTjeneste;
 
-    RevurderingBehandlingsresultatutlederFelles() {
+    protected RevurderingBehandlingsresultatutlederFelles() {
         // for CDI proxy
     }
 
-    @Inject
     public RevurderingBehandlingsresultatutlederFelles(BehandlingRepositoryProvider repositoryProvider,
                                                        BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider,
                                                        BeregningTjeneste beregningTjeneste,
                                                        MedlemTjeneste medlemTjeneste,
-                                                       DekningsgradTjeneste dekningsgradTjeneste,
-                                                       UttakTjeneste uttakTjeneste) {
+                                                       OpphørUttakTjeneste opphørUttakTjeneste,
+                                                       SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                                       DekningsgradTjeneste dekningsgradTjeneste) {
 
         this.beregningTjeneste = beregningTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         this.medlemTjeneste = medlemTjeneste;
+        this.opphørUttakTjeneste = opphørUttakTjeneste;
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.nesteSakRepository = grunnlagRepositoryProvider.getNesteSakRepository();
         this.dekningsgradTjeneste = dekningsgradTjeneste;
-        this.uttakTjeneste = uttakTjeneste;
     }
 
     public Behandlingsresultat bestemBehandlingsresultatForRevurdering(BehandlingReferanse revurderingRef, boolean erVarselOmRevurderingSendt) {
@@ -89,17 +87,19 @@ public class RevurderingBehandlingsresultatutlederFelles {
         var originalBehandlingId = revurdering.getOriginalBehandlingId()
             .orElseThrow(() -> RevurderingFeil.revurderingManglerOriginalBehandling(revurdering.getId()));
 
-        var revurderingUttak = uttakTjeneste.hentHvisEksisterer(revurderingRef.behandlingId());
-        var originalBehandlingUttak = uttakTjeneste.hentHvisEksisterer(originalBehandlingId);
+        var revurderingUttak = getUttakResultat(revurderingRef.behandlingId());
+        var originalBehandlingUttak = getUttakResultat(originalBehandlingId);
 
-        return bestemBehandlingsresultatForRevurderingCore(revurdering, behandlingRepository.hentBehandling(originalBehandlingId), revurderingUttak,
-            originalBehandlingUttak, erVarselOmRevurderingSendt);
+        return bestemBehandlingsresultatForRevurderingCore(revurdering, behandlingRepository.hentBehandling(originalBehandlingId),
+            revurderingUttak, originalBehandlingUttak, erVarselOmRevurderingSendt);
     }
+
+    protected abstract UttakResultatHolder getUttakResultat(Long behandlingId);
 
     private Behandlingsresultat bestemBehandlingsresultatForRevurderingCore(Behandling revurdering,
                                                                             Behandling originalBehandling,
-                                                                            Optional<Uttak> uttakRevurdering,
-                                                                            Optional<Uttak> uttakOriginal,
+                                                                            UttakResultatHolder uttakresultatRevurdering,
+                                                                            UttakResultatHolder uttakresultatOriginal,
                                                                             boolean erVarselOmRevurderingSendt) {
         if (!revurdering.getType().equals(BehandlingType.REVURDERING)) {
             throw new IllegalStateException("Utviklerfeil: Skal ikke kunne havne her uten en revurderingssak");
@@ -123,20 +123,19 @@ public class RevurderingBehandlingsresultatutlederFelles {
             return opphør(revurdering, behandlingsresultatRevurdering);
         }
 
-        //Opphør i løpet av uttaket, vilkår er fortsatt oppfylt
         var opphørsdato = medlemTjeneste.hentOpphørsdatoHvisEksisterer(behandlingId);
         if (opphørsdato.isPresent()) {
-            var avslagsårsak = medlemTjeneste.hentAvslagsårsak(behandlingId);
-            behandlingsresultatRevurdering.setAvslagsårsak(avslagsårsak.orElse(null));
+            behandlingsresultatRevurdering.setAvslagsårsak(medlemTjeneste.hentAvslagsårsak(behandlingId).orElse(null));
             return opphør(revurdering, behandlingsresultatRevurdering);
         }
 
         var revurderingRef = BehandlingReferanse.fra(revurdering);
-        var erEndringIUttak = erEndringIUttak(uttakRevurdering, uttakOriginal, revurderingRef);
-        if (erEndringIUttak && uttakRevurdering.map(Uttak::erOpphør).orElse(false)) {
+        var erEndringIUttak = uttakresultatOriginal.harUlikUttaksplan(uttakresultatRevurdering) || uttakresultatOriginal.harUlikKontoEllerMinsterett(
+            uttakresultatRevurdering) || dekningsgradTjeneste.behandlingHarEndretDekningsgrad(revurderingRef);
+        if (erEndringIUttak && uttakresultatRevurdering.erOpphør()) {
             // Endret ifm TFP-5356 la bruker søke på restdager av minsterett også etter ny stønadsperiode
             // Aktuell kode for TFP-5360 - håndtering av søknad som gir både innvilget og avslått/opphør-perioder
-            var opphør = !uttakOriginal.orElseThrow().harOpphørsUttakNyeInnvilgetePerioder(uttakRevurdering.orElseThrow()) || !totette(revurdering);
+            var opphør = !uttakresultatOriginal.harOpphørsUttakNyeInnvilgetePerioder(uttakresultatRevurdering) || !totette(revurdering);
             if (opphør) {
                 return opphør(revurdering, behandlingsresultatRevurdering);
             }
@@ -151,16 +150,8 @@ public class RevurderingBehandlingsresultatutlederFelles {
         var erKunEndringIFordelingAvYtelsen = ErKunEndringIFordelingAvYtelsen.vurder(erEndringIBeregning, erEndringIUttak, revurderingsGrunnlagOpt,
             originalGrunnlagOpt, erEndringISkalHindreTilbaketrekk);
 
-        return fastsettResultatVedEndringer(revurdering, uttakOriginal, erEndringIBeregning, erEndringIUttak, erVarselOmRevurderingSendt,
-            erKunEndringIFordelingAvYtelsen, harInnvilgetIkkeOpphørtVedtak(revurdering.getFagsak()));
-    }
-
-    private boolean erEndringIUttak(Optional<Uttak> uttakRevurdering, Optional<Uttak> uttakOriginal, BehandlingReferanse revurderingRef) {
-        if (uttakRevurdering.isPresent() && uttakOriginal.isPresent()) {
-            return uttakOriginal.get().harUlikUttaksplan(uttakRevurdering.get()) || uttakOriginal.get()
-                .harUlikKontoEllerMinsterett(uttakRevurdering.get()) || dekningsgradTjeneste.behandlingHarEndretDekningsgrad(revurderingRef);
-        }
-        return !Objects.equals(uttakOriginal, uttakRevurdering);
+        return fastsettResultatVedEndringer(revurdering, uttakresultatOriginal, erOpphørtFørDagensDato(), erEndringIBeregning, erEndringIUttak,
+            erVarselOmRevurderingSendt, erKunEndringIFordelingAvYtelsen, harInnvilgetIkkeOpphørtVedtak(revurdering.getFagsak()));
     }
 
     private static Behandlingsresultat opphør(Behandling revurdering, Behandlingsresultat behandlingsresultatRevurdering) {
@@ -221,6 +212,14 @@ public class RevurderingBehandlingsresultatutlederFelles {
         return vedtak -> BehandlingResultatType.OPPHØR.equals(vedtak.getBehandlingsresultat().getBehandlingResultatType());
     }
 
+    private VurderOpphørFørDagensDato erOpphørtFørDagensDato() {
+        return resultat -> {
+            var ref = BehandlingReferanse.fra(behandlingRepository.hentBehandling(resultat.getBehandlingId()));
+            var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(resultat.getBehandlingId());
+            return opphørUttakTjeneste.getOpphørsdato(ref, stp, resultat).orElse(LocalDate.MAX).isBefore(LocalDate.now());
+        };
+    }
+
     private boolean erEndringISkalHindreTilbaketrekk(Behandling revurdering, Behandling originalBehandling) {
         var beregningsresultatFPAggregatEntitet = beregningsresultatRepository.hentBeregningsresultatAggregat(revurdering.getId());
         var orginalBeregningsresultatFPAggregatEntitet = beregningsresultatRepository.hentBeregningsresultatAggregat(originalBehandling.getId());
@@ -234,15 +233,16 @@ public class RevurderingBehandlingsresultatutlederFelles {
     }
 
     public Behandlingsresultat fastsettResultatVedEndringer(Behandling revurdering,
-                                                            Optional<Uttak> uttakFraOriginalBehandling,
+                                                            UttakResultatHolder uttakresultatFraOriginalBehandling,
+                                                            VurderOpphørFørDagensDato opphørFørDagensDato,
                                                             boolean erEndringIBeregning,
-                                                            boolean erEndringIUttak,
+                                                            boolean erEndringIUttakFraEndringstidspunkt,
                                                             boolean erVarselOmRevurderingSendt,
                                                             boolean erKunEndringIFordelingAvYtelsen,
                                                             boolean erMinstEnInnvilgetBehandlingUtenPåfølgendeOpphør) {
-        var konsekvenserForYtelsen = utledKonsekvensForYtelsen(erEndringIBeregning, erEndringIUttak);
+        var konsekvenserForYtelsen = utledKonsekvensForYtelsen(erEndringIBeregning, erEndringIUttakFraEndringstidspunkt);
 
-        if (uttakFraOriginalBehandling.isEmpty() || erUttakOpphørtFørDagensDato(uttakFraOriginalBehandling.get())) {
+        if (!harUttakIkkeOpphørt(uttakresultatFraOriginalBehandling, opphørFørDagensDato)) {
             return fastsettForIkkeEtablertYtelse(revurdering, konsekvenserForYtelsen);
         }
 
@@ -260,8 +260,18 @@ public class RevurderingBehandlingsresultatutlederFelles {
             RettenTil.HAR_RETT_TIL_FP, vedtaksbrev, konsekvenserForYtelsen);
     }
 
-    private boolean erUttakOpphørtFørDagensDato(Uttak uttak) {
-        return uttak.opphørsdato().stream().anyMatch(od -> od.isBefore(LocalDate.now()));
+    private boolean harUttakIkkeOpphørt(UttakResultatHolder uttakResultatHolder, VurderOpphørFørDagensDato opphørFørDagensDato) {
+        if (!uttakResultatHolder.eksistererUttakResultat()) {
+            return false;
+        }
+        // Ikke avslått eller opphørt
+        var ikkeLøpende = Set.of(BehandlingResultatType.AVSLÅTT, BehandlingResultatType.OPPHØR);
+        var opphørtFørDagensDato = uttakResultatHolder.getBehandlingVedtak()
+            .map(BehandlingVedtak::getBehandlingsresultat)
+            .filter(bres -> ikkeLøpende.contains(bres.getBehandlingResultatType()))
+            .map(opphørFørDagensDato::test)
+            .orElse(false);
+        return !opphørtFørDagensDato;
     }
 
     private Behandlingsresultat fastsettForIkkeEtablertYtelse(Behandling revurdering, List<KonsekvensForYtelsen> konsekvenserForYtelsen) {
@@ -284,13 +294,13 @@ public class RevurderingBehandlingsresultatutlederFelles {
         return BehandlingResultatType.FORELDREPENGER_ENDRET;
     }
 
-    private List<KonsekvensForYtelsen> utledKonsekvensForYtelsen(boolean erEndringIBeregning, boolean erEndringIUttak) {
+    private List<KonsekvensForYtelsen> utledKonsekvensForYtelsen(boolean erEndringIBeregning, boolean erEndringIUttakFraEndringstidspunkt) {
         List<KonsekvensForYtelsen> konsekvensForYtelsen = new ArrayList<>();
 
         if (erEndringIBeregning) {
             konsekvensForYtelsen.add(KonsekvensForYtelsen.ENDRING_I_BEREGNING);
         }
-        if (erEndringIUttak) {
+        if (erEndringIUttakFraEndringstidspunkt) {
             konsekvensForYtelsen.add(KonsekvensForYtelsen.ENDRING_I_UTTAK);
         }
         if (konsekvensForYtelsen.isEmpty()) {

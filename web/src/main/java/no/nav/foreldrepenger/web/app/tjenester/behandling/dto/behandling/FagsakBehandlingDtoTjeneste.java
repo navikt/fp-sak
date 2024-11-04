@@ -32,8 +32,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dokumentbestiller.brevmal.BrevmalTjeneste;
-import no.nav.foreldrepenger.domene.uttak.Uttak;
-import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktDtoMapper;
@@ -67,7 +65,6 @@ public class FagsakBehandlingDtoTjeneste {
     private TotrinnskontrollAksjonspunkterTjeneste totrinnskontrollTjeneste;
     private KontrollDtoTjeneste kontrollDtoTjeneste;
     private DekningsgradTjeneste dekningsgradTjeneste;
-    private UttakTjeneste uttakTjeneste;
 
     @Inject
     public FagsakBehandlingDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
@@ -78,8 +75,7 @@ public class FagsakBehandlingDtoTjeneste {
                                        TotrinnskontrollAksjonspunkterTjeneste totrinnskontrollTjeneste,
                                        VergeTjeneste vergeTjeneste,
                                        KontrollDtoTjeneste kontrollDtoTjeneste,
-                                       DekningsgradTjeneste dekningsgradTjeneste,
-                                       UttakTjeneste uttakTjeneste) {
+                                       DekningsgradTjeneste dekningsgradTjeneste) {
 
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -93,7 +89,6 @@ public class FagsakBehandlingDtoTjeneste {
         this.vergeTjeneste = vergeTjeneste;
         this.kontrollDtoTjeneste = kontrollDtoTjeneste;
         this.dekningsgradTjeneste = dekningsgradTjeneste;
-        this.uttakTjeneste = uttakTjeneste;
     }
 
     FagsakBehandlingDtoTjeneste() {
@@ -192,10 +187,6 @@ public class FagsakBehandlingDtoTjeneste {
         dto.setRettenTil(behandlingsresultat.getRettenTil());
         dto.setSkjæringstidspunkt(finnSkjæringstidspunktForBehandling(behandling, behandlingsresultat).orElse(null));
         dto.setEndretDekningsgrad(dekningsgradTjeneste.behandlingHarEndretDekningsgrad(BehandlingReferanse.fra(behandling)));
-        if (!FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
-            var opphørsdato = uttakTjeneste.hentHvisEksisterer(behandling.getId()).flatMap(Uttak::opphørsdato).orElse(null);
-            dto.setOpphørsdato(opphørsdato);
-        }
         dto.setErRevurderingMedUendretUtfall(erRevurderingMedUendretUtfall(behandling));
 
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());

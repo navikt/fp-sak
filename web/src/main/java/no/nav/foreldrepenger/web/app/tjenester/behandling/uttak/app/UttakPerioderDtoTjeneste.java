@@ -71,7 +71,7 @@ public class UttakPerioderDtoTjeneste {
         final Optional<ForeldrepengerUttak> annenpartUttak;
         var annenpartBehandling = annenpartBehandling(behandling);
         if (annenpartBehandling.isPresent()) {
-            annenpartUttak = uttakTjeneste.hentHvisEksisterer(annenpartBehandling.get().getId());
+            annenpartUttak = uttakTjeneste.hentUttakHvisEksisterer(annenpartBehandling.get().getId());
             if (annenpartUttak.isPresent()) {
                 annenpartUttaksperioder = annenpartUttak.map(u -> {
                     var annenpartBehandlingId = annenpartBehandling.orElseThrow().getId();
@@ -110,7 +110,7 @@ public class UttakPerioderDtoTjeneste {
     }
 
     private List<UttakResultatPeriodeDto> finnUttakResultatPerioderSøker(Long behandling) {
-        return uttakTjeneste.hentHvisEksisterer(behandling).map(uttak -> finnUttakResultatPerioder(uttak, behandling)).orElse(List.of());
+        return uttakTjeneste.hentUttakHvisEksisterer(behandling).map(uttak -> finnUttakResultatPerioder(uttak, behandling)).orElse(List.of());
     }
 
     private List<UttakResultatPeriodeDto> finnUttakResultatPerioder(ForeldrepengerUttak uttakResultat, Long behandling) {

@@ -34,7 +34,7 @@ public class UttakResultatMapper implements UttakResultatRepoMapper {
     @Override
     public UttakResultat hentOgMapUttakResultat(UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        var uttakResultat = uttakTjeneste.hentHvisEksisterer(ref.behandlingId());
+        var uttakResultat = uttakTjeneste.hentUttakHvisEksisterer(ref.behandlingId());
         if (uttakResultat.isEmpty() && !input.harBehandlingÅrsak(BehandlingÅrsakType.RE_UTSATT_START)) {
             throw new IllegalStateException("Utviklerfeil mangler uttakresultat");
         }

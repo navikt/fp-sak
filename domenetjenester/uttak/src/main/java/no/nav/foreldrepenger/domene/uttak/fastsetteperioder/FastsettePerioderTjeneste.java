@@ -64,7 +64,7 @@ public class FastsettePerioderTjeneste {
     }
 
     private List<ForeldrepengerUttakPeriode> hentOpprinnelig(Long behandlingId) {
-        return uttakTjeneste.hent(behandlingId).getOpprinneligPerioder();
+        return uttakTjeneste.hentUttak(behandlingId).getOpprinneligPerioder();
     }
 
     private void lagreManueltFastsatt(UttakInput uttakInput, List<ForeldrepengerUttakPeriode> perioder) {

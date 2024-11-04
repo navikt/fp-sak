@@ -56,7 +56,7 @@ public class ToForeldreBarnDødTjeneste {
     }
 
     private List<ForeldrepengerUttakPeriode> finnPerioderMedUtbetaling(Behandling behandling) {
-        return uttakTjeneste.hentHvisEksisterer(behandling.getId())
+        return uttakTjeneste.hentUttakHvisEksisterer(behandling.getId())
             .map(uttakResultat -> uttakResultat
                 .getGjeldendePerioder().stream().filter(ForeldrepengerUttakPeriode::harUtbetaling)
                 .toList())

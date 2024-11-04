@@ -29,11 +29,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
+import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
-import no.nav.foreldrepenger.domene.uttak.Uttak;
-import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktRestTjeneste;
@@ -64,10 +65,11 @@ import no.nav.foreldrepenger.web.app.tjenester.formidling.tilkjentytelse.Tilkjen
 public class BehandlingFormidlingDtoTjeneste {
 
     private BeregningTjeneste beregningTjeneste;
-    private UttakTjeneste uttakTjeneste;
+    private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
     private UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private SøknadRepository søknadRepository;
+    private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
@@ -82,15 +84,15 @@ public class BehandlingFormidlingDtoTjeneste {
                                            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                            BehandlingDokumentRepository behandlingDokumentRepository,
                                            RelatertBehandlingTjeneste relatertBehandlingTjeneste,
-                                           UttakTjeneste uttakTjeneste,
+                                           ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
                                            DekningsgradTjeneste dekningsgradTjeneste,
-                                           UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste,
-                                           MedlemTjeneste medlemTjeneste) {
+                                           UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste, MedlemTjeneste medlemTjeneste) {
         this.beregningTjeneste = beregningTjeneste;
-        this.uttakTjeneste = uttakTjeneste;
+        this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
         this.utregnetStønadskontoTjeneste = utregnetStønadskontoTjeneste;
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.svangerskapspengerUttakResultatRepository = repositoryProvider.getSvangerskapspengerUttakResultatRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
@@ -194,9 +196,9 @@ public class BehandlingFormidlingDtoTjeneste {
             }
             dto.leggTilFormidlingRessurs(get(ArbeidsforholdInntektsmeldingFormidlingRestTjeneste.INNTEKTSMELDING_STATUS_PATH, "inntektsmelding-status", uuidDto));
             if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
-                var uttak = uttakTjeneste.hentHvisEksisterer(behandling.getId());
+                var svangerskapspengerUttakResultatEntitet = svangerskapspengerUttakResultatRepository.hentHvisEksisterer(behandling.getId());
 
-                if (uttak.isPresent()) {
+                if (svangerskapspengerUttakResultatEntitet.isPresent()) {
                     dto.leggTil(get(UttakRestTjeneste.RESULTAT_SVANGERSKAPSPENGER_PATH, "uttaksresultat-svangerskapspenger", uuidDto));
                     dto.leggTilFormidlingRessurs(get(TilkjentYtelseFormidlingRestTjeneste.TILKJENT_YTELSE_DAGYTELSE_PATH, "tilkjentytelse-dagytelse", uuidDto));
                     dto.leggTil(get(FormidlingRestTjeneste.MOTTATT_DATO_SØKNADSFRIST_PATH, "motattdato-søknad", uuidDto));
@@ -207,21 +209,21 @@ public class BehandlingFormidlingDtoTjeneste {
                     .isPresent();
                 dto.setHarAvklartAnnenForelderRett(harAvklartAnnenForelderRett);
 
-                var uttak = uttakTjeneste.hentHvisEksisterer(behandling.getId());
+                var uttakResultat = foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
 
                 var stønadskontoberegning = utregnetStønadskontoTjeneste.gjeldendeKontoutregning(BehandlingReferanse.fra(behandling));
-                if (!stønadskontoberegning.isEmpty() && uttak.isPresent()) {
+                if (!stønadskontoberegning.isEmpty() && uttakResultat.isPresent()) {
                     dto.leggTil(get(UttakRestTjeneste.STONADSKONTOER_PATH, "uttak-stonadskontoer", uuidDto));
                 }
 
-                var uttakResultatAnnenPart = hentUttakAnnenpartForeldrepengerHvisEksisterer(behandling);
-                if (uttak.isPresent() || uttakResultatAnnenPart.isPresent()) {
+                var uttakResultatAnnenPart = hentUttakAnnenpartHvisEksisterer(behandling);
+                if (uttakResultat.isPresent() || uttakResultatAnnenPart.isPresent()) {
                     // Fpformidling trenger også å få fatt på uttaksresultatet når bare annen part har det
                     dto.leggTil(get(UttakRestTjeneste.RESULTAT_PERIODER_PATH, "uttaksresultat-perioder-formidling", uuidDto));
                 }
-                if (uttak.isPresent()) {
+                if (uttakResultat.isPresent()) {
                     dto.leggTilFormidlingRessurs(get(TilkjentYtelseFormidlingRestTjeneste.TILKJENT_YTELSE_DAGYTELSE_PATH, "tilkjentytelse-dagytelse", uuidDto));
-                    uttak.filter(Uttak::harAvslagPgaMedlemskap).ifPresent(u -> {
+                    uttakResultat.filter(ForeldrepengerUttak::harAvslagPgaMedlemskap).ifPresent(u -> {
                         var avslagsårsak = medlemTjeneste.hentAvslagsårsak(behandling.getId());
                         dto.setMedlemskapOpphørsårsak(avslagsårsak.orElse(null));
                     });
@@ -238,9 +240,9 @@ public class BehandlingFormidlingDtoTjeneste {
         return dto;
     }
 
-    private Optional<Uttak> hentUttakAnnenpartForeldrepengerHvisEksisterer(Behandling søkersBehandling) {
+    private Optional<ForeldrepengerUttak> hentUttakAnnenpartHvisEksisterer(Behandling søkersBehandling) {
         var annenpartBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(søkersBehandling.getFagsak().getSaksnummer());
-        return annenpartBehandling.flatMap(ab -> uttakTjeneste.hentHvisEksisterer(ab.getId()));
+        return annenpartBehandling.flatMap(ab -> foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(ab.getId()));
     }
 
     private Optional<BehandlingsresultatDto> lagBehandlingsresultatDto(Behandling behandling) {
@@ -257,10 +259,6 @@ public class BehandlingFormidlingDtoTjeneste {
         dto.setSkjæringstidspunkt(finnSkjæringstidspunktForBehandling(behandling, behandlingsresultat).orElse(null));
         dto.setErRevurderingMedUendretUtfall(erRevurderingMedUendretUtfall(behandling));
         dto.setEndretDekningsgrad(dekningsgradTjeneste.behandlingHarEndretDekningsgrad(BehandlingReferanse.fra(behandling)));
-        if (!FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
-            var opphørsdato = uttakTjeneste.hentHvisEksisterer(behandling.getId()).flatMap(Uttak::opphørsdato).orElse(null);
-            dto.setOpphørsdato(opphørsdato);
-        }
 
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
         if (behandlingDokument.isPresent()) {

@@ -296,7 +296,7 @@ public class FpDtoTjeneste {
     }
 
     private List<FpSak.Uttaksperiode> finnUttaksperioder(Long behandlingId) {
-        return foreldrepengerUttakTjeneste.hentHvisEksisterer(behandlingId, true).map(uttak -> tilDto(uttak.getGjeldendePerioder())).orElse(List.of());
+        return foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandlingId, true).map(uttak -> tilDto(uttak.getGjeldendePerioder())).orElse(List.of());
     }
 
     private List<FpSak.Uttaksperiode> tilDto(List<ForeldrepengerUttakPeriode> gjeldendePerioder) {

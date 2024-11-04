@@ -68,7 +68,7 @@ public class BeregningGraderingTjeneste {
     }
 
     private List<PeriodeMedGradering> fraVedtak(Optional<LocalDate> førsteDatoSøknad, Long originalBehandling) {
-        var uttak = uttakTjeneste.hentHvisEksisterer(originalBehandling);
+        var uttak = uttakTjeneste.hentUttakHvisEksisterer(originalBehandling);
         return uttak.map(foreldrepengerUttak -> foreldrepengerUttak.getGjeldendePerioder()
             .stream()
             .filter(periode -> førsteDatoSøknad.isEmpty() || periode.getFom().isBefore(førsteDatoSøknad.get()))

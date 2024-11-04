@@ -237,10 +237,6 @@ public class ForeldrepengerUttakPeriode {
         return OPPHØR_MEDLEMSKAP.equals(getResultatÅrsak());
     }
 
-    public boolean isOpphør() {
-        return PeriodeResultatÅrsak.opphørsAvslagÅrsaker().contains(getResultatÅrsak());
-    }
-
     @Override
     public String toString() {
         return "ForeldrepengerUttakPeriode{" +

@@ -420,7 +420,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     }
 
     private boolean harUttak(Long behandlingId) {
-        return uttakTjeneste.hentHvisEksisterer(behandlingId).isPresent();
+        return uttakTjeneste.hentUttakHvisEksisterer(behandlingId).isPresent();
     }
 
     private boolean erEndringssøknad(Behandling revurdering) {

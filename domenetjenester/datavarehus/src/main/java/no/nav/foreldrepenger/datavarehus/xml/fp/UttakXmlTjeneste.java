@@ -77,7 +77,7 @@ public class UttakXmlTjeneste {
     }
 
     private void setUttaksresultatPerioder(UttakForeldrepenger uttakForeldrepenger, Behandling behandling) {
-        var uttakResultat = uttakTjeneste.hentHvisEksisterer(behandling.getId());
+        var uttakResultat = uttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
         uttakResultat.ifPresent(uttakResultatEntitet ->
             setUttakResultatPerioder(uttakForeldrepenger, uttakResultatEntitet.getGjeldendePerioder())
         );
