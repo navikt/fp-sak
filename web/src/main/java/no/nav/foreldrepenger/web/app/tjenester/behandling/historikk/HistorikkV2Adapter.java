@@ -59,7 +59,7 @@ public class HistorikkV2Adapter {
             case NY_INFO_FRA_TPS
                  //NY_GRUNNLAG_MOTTATT fptilbake? ja
                 -> fraMalType6(h, behandlingUUID);
-            case OVERSTYRT-> fraMalType7(h, behandlingUUID);
+            case OVERSTYRT-> fraMalType7(h, behandlingUUID, journalPosterForSak, dokumentPath);
             case OPPTJENING -> throw new IllegalStateException(String.format("Kode: %s har ingen maltype", h.getType()));
             case OVST_UTTAK_SPLITT,
                 FASTSATT_UTTAK_SPLITT
@@ -271,8 +271,56 @@ public class HistorikkV2Adapter {
 
     }
 
-    private static HistorikkinnslagDtoV2 fraMalType7(Historikkinnslag h, UUID behandlingUUID) {
-        return null;
+    private static HistorikkinnslagDtoV2 fraMalType7(Historikkinnslag h, UUID behandlingUUID,
+                                                     List<JournalpostId> journalPosterForSak,
+                                                     URI dokumentPath) {
+        var skjermlenke = h.getHistorikkinnslagDeler()
+            .stream()
+            .flatMap(del -> del.getSkjermlenke().stream())
+            .map(SkjermlenkeType::fraKode)
+            .findFirst();
+        var tekster = new ArrayList<String>();
+        for (var del : h.getHistorikkinnslagDeler()) {
+            // HENDELSE finnes ikke i DB for denne maltypen
+            var resultatTekst = del.getResultat().stream()
+                .map(HistorikkV2Adapter::fraHistorikkResultat)
+                .toList();
+            var endretFelter = del.getEndredeFelt().stream()
+                .map(HistorikkV2Adapter::fraEndretFeltMalType7)
+                .toList();
+            // OPPLYSNINGER finnes ikke i DB for denne maltypen
+            var tema = del.getTema().stream() // Vises bare getNavnVerdi... gjør forbedring her
+                .map(HistorikkV2Adapter::fraTema)
+                .toList();
+            // AARSAK finnes ikke i DB for denne maltypen
+            var begrunnelsetekst = begrunnelseFraDel(del).stream().toList();
+
+            tekster.addAll(resultatTekst);
+            tekster.addAll(endretFelter);
+            tekster.addAll(tema);
+            tekster.addAll(begrunnelsetekst);
+        }
+        return new HistorikkinnslagDtoV2(
+            behandlingUUID,
+            HistorikkinnslagDtoV2.HistorikkAktørDto.fra(h.getAktør(), h.getOpprettetAv()),
+            skjermlenke.orElse(null),
+            h.getOpprettetTidspunkt(),
+            tilDto(h.getDokumentLinker(), journalPosterForSak, dokumentPath),
+            null, // TODO
+            tekster);
+    }
+
+    private static String fraEndretFeltMalType7(HistorikkinnslagFelt felt) {
+        var fieldName = kodeverdiTilStreng(HistorikkEndretFeltType.fraKode(felt.getNavn()), felt.getNavnVerdi());
+        var sub1 = fieldName.substring(0, fieldName.lastIndexOf(';'));
+        var sub2 = fieldName.substring(fieldName.lastIndexOf(';') + 1);
+        var fraVerdi = finnEndretFeltVerdi(felt, felt.getFraVerdi());
+        var tilVerdi = finnEndretFeltVerdi(felt, felt.getTilVerdi());
+        return "<b>{sub1}</b> {sub2} <b>{fromValue}</b> til <b>{toValue}</b>"
+            .replace("{sub1}", sub1)
+            .replace("{sub2}", sub2)
+            .replace("{fromValue}", fraVerdi)
+            .replace("{toValue}", tilVerdi);
     }
 
     private static HistorikkinnslagDtoV2 fraMalType9(Historikkinnslag h, UUID behandlingUUID) {
@@ -335,7 +383,12 @@ public class HistorikkV2Adapter {
     }
 
     private static String fraHendelseFelt(HistorikkinnslagFelt felt) {
-        return HistorikkinnslagType.fraKode(felt.getNavn()).getNavn();
+        var hendelsetekst = HistorikkinnslagType.fraKode(felt.getNavn()).getNavn();
+        if (felt.getTilVerdi() == null) {
+            return hendelsetekst;
+        } else {
+            return hendelsetekst + " " + felt.getTilVerdi();
+        }
     }
 
     private static String fraEndretFeltMalType10(HistorikkinnslagFelt felt) {
@@ -444,21 +497,21 @@ public class HistorikkV2Adapter {
         };
     }
 
-    private static String finnEndretFeltVerdi(HistorikkinnslagFelt felt, Object verdi) {
+    private static String finnEndretFeltVerdi(HistorikkinnslagFelt felt, String verdi) {
         if (verdi == null) {
             return null;
         }
-        if (isBoolean(String.valueOf(verdi))) {
-            return konverterBoolean(String.valueOf(verdi));
+        if (isBoolean(verdi)) {
+            return konverterBoolean(verdi);
         }
-        if (felt.getKlTilVerdi() != null) {
+        if (felt.getKlTilVerdi() != null) { // TODO: Henter tilVerdi uavhengig av fra og til... sikkert vært feil i frontend alltid.. og kanskje ikke relavnt heller
             try {
-                return kodeverdiTilStrengEndretFeltTilverdi(String.valueOf(verdi), String.valueOf(verdi));
+                return kodeverdiTilStrengEndretFeltTilverdi(verdi, verdi);
             } catch (IllegalStateException e) {
                 return String.format("EndretFeltTypeTilVerdiKode %s finnes ikke-LEGG DET INN", felt.getTilVerdiKode());
             }
         }
-        return String.valueOf(verdi);
+        return verdi;
     }
 
     private static boolean isBoolean(String str) {
