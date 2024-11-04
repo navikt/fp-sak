@@ -122,7 +122,7 @@ public class ForvaltningOpptjeningRestTjeneste {
     @POST
     @Path("/leggTilOppgittNæringFjerneAndreOppgitteOrgnummer")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Operation(description = "Legg til innslag for oppgitt næring som fisker", tags = "FORVALTNING-opptjening")
+    @Operation(description = "Legg til innslag for oppgitt næring og fjern andre orgnummer", tags = "FORVALTNING-opptjening")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response leggTilOppgittNæringFjerneAndreOppgitteOrgnummer(@BeanParam @Valid LeggTilOppgittNæringDto dto) {
         var behandling = behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUuid());
