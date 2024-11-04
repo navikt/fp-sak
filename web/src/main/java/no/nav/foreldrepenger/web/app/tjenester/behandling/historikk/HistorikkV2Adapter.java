@@ -1,5 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.historikk;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOpplysningType.UTTAK_PERIODE_FOM;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOpplysningType.UTTAK_PERIODE_TOM;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,8 +12,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.ws.rs.core.UriBuilder;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTotrinnsvurdering;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDokumentLink;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTotrinnsvurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
@@ -29,11 +31,6 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.historikk.HistorikkAvklartSoeknadsperiodeType;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagDokumentLinkDto;
-
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.UTGÅTT_5078;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.UTGÅTT_5079;
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOpplysningType.UTTAK_PERIODE_FOM;
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOpplysningType.UTTAK_PERIODE_TOM;
 
 public class HistorikkV2Adapter {
 
@@ -60,7 +57,7 @@ public class HistorikkV2Adapter {
             case SAK_GODKJENT, FAKTA_ENDRET, KLAGE_BEH_NK, KLAGE_BEH_NFP, BYTT_ENHET, UTTAK, TERMINBEKREFTELSE_UGYLDIG, ANKE_BEH ->
                 fraMalType5(h, behandlingUUID, journalPosterForSak, dokumentPath);
             case NY_INFO_FRA_TPS
-                 //NY_GRUNNLAG_MOTTATT fptilbake?
+                 //NY_GRUNNLAG_MOTTATT fptilbake? ja
                 -> fraMalType6(h, behandlingUUID);
             case OVERSTYRT-> fraMalType7(h, behandlingUUID);
             case OPPTJENING -> throw new IllegalStateException(String.format("Kode: %s har ingen maltype", h.getType()));
@@ -251,7 +248,27 @@ public class HistorikkV2Adapter {
     }
 
     private static HistorikkinnslagDtoV2 fraMalType6(Historikkinnslag h, UUID behandlingUUID) {
-        return null;
+        var tekster = new ArrayList<String>();
+        for (var del : h.getHistorikkinnslagDeler()) {
+            var hendelseTekst = del.getHendelse().stream()
+                .map(HistorikkV2Adapter::fraHendelseFelt)
+                .toList();
+            var opplysninger = del.getOpplysninger().stream()
+                .map(HistorikkV2Adapter::fraOpplysning)
+                .toList();
+
+            tekster.addAll(hendelseTekst);
+            tekster.addAll(opplysninger);
+        }
+        return new HistorikkinnslagDtoV2(
+            behandlingUUID,
+            HistorikkinnslagDtoV2.HistorikkAktørDto.fra(h.getAktør(), h.getOpprettetAv()),
+            null,
+            h.getOpprettetTidspunkt(),
+            null,
+            null,
+            tekster);
+
     }
 
     private static HistorikkinnslagDtoV2 fraMalType7(Historikkinnslag h, UUID behandlingUUID) {
@@ -416,15 +433,15 @@ public class HistorikkV2Adapter {
 
     private static String fraOpplysning(HistorikkinnslagFelt opplysning) {
         var historikkOpplysningType = HistorikkOpplysningType.fraKode(opplysning.getNavn());
-        var tekst = switch (historikkOpplysningType) {
-            case ANTALL_BARN -> "<b>Antall barn</b> som brukes i behandlingen: <b>{antallBarn}</b>";
-            case TPS_ANTALL_BARN -> "Antall barn";
-            case FODSELSDATO -> "Når ble barnet født?";
-            case UTTAK_PERIODE_FOM -> historikkOpplysningType.getNavn(); // TODO: ingen feltid frontend?
-            case UTTAK_PERIODE_TOM -> historikkOpplysningType.getNavn(); // TODO: ingen feltid frontend?
+
+        return switch (historikkOpplysningType) {
+            case ANTALL_BARN -> "<b>Antall barn</b> som brukes i behandlingen: <b>{antallBarn}</b>".replace("{antallBarn}", opplysning.getTilVerdi()); // Brukes bare av maltype 5
+            case TPS_ANTALL_BARN -> "Antall barn {verdi}".replace("{verdi}", opplysning.getTilVerdi());  // Brukes av maltype 6
+            case FODSELSDATO -> "Når ble barnet født? {verdi}".replace("{verdi}", opplysning.getTilVerdi()); // Brukes av maltype 6
+            //case UTTAK_PERIODE_FOM -> historikkOpplysningType.getNavn(); // Brukes av maltype 10 + aktivitetskrav
+            //case UTTAK_PERIODE_TOM -> historikkOpplysningType.getNavn(); // Brukes av maltype 10 + aktivitetskrav
             default -> throw new IllegalStateException("Unexpected value: " + historikkOpplysningType);
         };
-        return tekst.replace("{antallBarn}", opplysning.getTilVerdi());
     }
 
     private static String finnEndretFeltVerdi(HistorikkinnslagFelt felt, Object verdi) {
