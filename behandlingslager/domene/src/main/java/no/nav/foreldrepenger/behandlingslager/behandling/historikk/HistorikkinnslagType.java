@@ -57,7 +57,7 @@ public enum HistorikkinnslagType implements Kodeverdi {
 
     // Mal Type 4
     FJERNET_VERGE("FJERNET_VERGE", "Opplysninger om verge/fullmektig fjernet", HistorikkinnslagMal.MAL_TYPE_4),
-    IVERKSETTELSE_VENT("IVERKSETTELSE_VENT", "Behandlingen venter på iverksettelse", HistorikkinnslagMal.MAL_TYPE_4),
+    IVERKSETTELSE_VENT("IVERKSETTELSE_VENT,", "Behandlingen venter på iverksettelse", HistorikkinnslagMal.MAL_TYPE_4),
     BEH_VENT("BEH_VENT", "Behandling på vent", HistorikkinnslagMal.MAL_TYPE_4),
     BEH_KØET("BEH_KØET", "Behandlingen er satt på vent", HistorikkinnslagMal.MAL_TYPE_4),
     AVBRUTT_BEH("AVBRUTT_BEH", "Behandling er henlagt", HistorikkinnslagMal.MAL_TYPE_4),
