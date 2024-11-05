@@ -77,6 +77,7 @@ public class PersonopplysningerAggregat {
     public List<PersonstatusIntervall> getPersonstatuserFor(AktørId aktørId, AbstractLocalDateInterval forPeriode) {
         var register = registerPersonstatus.stream()
             .filter(st -> erIkkeSøker(aktørId, st.getAktørId()) || erGyldigIPeriode(forPeriode, st.getPeriode()))
+            .filter(st -> st.getAktørId().equals(aktørId))
             .map(ps -> new PersonstatusIntervall(ps.getPeriode().getFomDato(), ps.getPeriode().getTomDato(), ps.getPersonstatus()))
             .toList();
         if (overstyrtPersonstatus.isEmpty()) {
@@ -84,6 +85,7 @@ public class PersonopplysningerAggregat {
         } else {
             var overstyrt = overstyrtPersonstatus.stream()
                 .filter(st -> erIkkeSøker(aktørId, st.getAktørId()) || erGyldigIPeriode(forPeriode, st.getPeriode()))
+                .filter(st -> st.getAktørId().equals(aktørId))
                 .map(ps -> new PersonstatusIntervall(ps.getPeriode().getFomDato(), ps.getPeriode().getTomDato(), ps.getPersonstatus()))
                 .toList();
             var regTL = tilPersonstatusTidslinje(register);
