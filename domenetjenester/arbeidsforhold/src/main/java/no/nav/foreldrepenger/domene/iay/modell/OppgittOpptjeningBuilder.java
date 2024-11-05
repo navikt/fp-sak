@@ -70,6 +70,11 @@ public class OppgittOpptjeningBuilder {
         return this;
     }
 
+    public OppgittOpptjeningBuilder leggTilEllerErstattEgenNæringFjernAndreOrgnummer(OppgittEgenNæring nyEgenNæring) {
+        this.kladd.leggTilEllerErstattEgenNæringFjernAndreOrgnummer(nyEgenNæring);
+        return this;
+    }
+
     public OppgittOpptjeningBuilder leggTilOppgittArbeidsforhold(OppgittArbeidsforhold oppgittArbeidsforhold) {
         this.kladd.leggTilOppgittArbeidsforhold(oppgittArbeidsforhold);
         return this;

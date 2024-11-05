@@ -53,7 +53,7 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AksjonspunktKodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriodeDto;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.OpprettImDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskDataBuilder;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
@@ -243,15 +243,15 @@ public class ForvaltningUttrekkRestTjeneste {
     @Path("/opprettIMForesporselForBehandling")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Oppretter im forespørsel task for behandlinger som mangler IM og har aksjonspunkt 7003, 7030 eller 5085. Velg enten en behandlingUuid eller aksjonspunkt", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
-    public Response opprettImTaskForBehMedAksjonspunkt(@BeanParam @Valid AksjonspunktKodeDto dto, @Valid ForvaltningBehandlingIdDto behandlingIdDto) {
-        if(dto.getAksjonspunktDefinisjon() == null && behandlingIdDto == null) {
+    @Operation(description = "Oppretter im forespørsel task for behandlinger som mangler IM og har aksjonspunkt 7003, 7030 eller 5085. Velg enten en behandlingUuid eller en gyldig aksjonspunktkode", tags = "FORVALTNING-uttrekk")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response opprettImTaskForBehMedAksjonspunkt(@BeanParam @Valid OpprettImDto dto) {
+        if(dto.getAksjonspunktDefinisjon() == null && dto.getBehandlingUuid() == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
-        if (behandlingIdDto != null) {
-            var behandlingUuid = behandlingIdDto.getBehandlingUuid();
+        if (dto.getBehandlingUuid() != null) {
+            var behandlingUuid = dto.getBehandlingUuid();
             LOG.info("Sjekker om det skal opprettes im forespørsel for behandling med uuid {}",  behandlingUuid);
             var behandling = behandlingRepository.hentBehandling(behandlingUuid);
             if (behandling == null) {

@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPe
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppholdstillatelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusIntervall;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.StatsborgerskapEntitet;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
@@ -91,7 +91,7 @@ public class PersonopplysningXmlFelles {
         var forPeriode = SimpleLocalDateInterval.enDag(stp.getUtledetSkjæringstidspunkt());
 
         var personstatus = Optional.ofNullable(aggregat.getPersonstatusFor(personopplysning.getAktørId(), forPeriode))
-            .map(PersonstatusEntitet::getPersonstatus).orElse(PersonstatusType.UDEFINERT);
+            .map(PersonstatusIntervall::personstatus).orElse(PersonstatusType.UDEFINERT);
         person.setPersonstatus(VedtakXmlUtil.lagKodeverksOpplysning(personstatus));
 
         var statsborgerskap = aggregat.getRangertStatsborgerskapVedSkjæringstidspunktFor(personopplysning.getAktørId(), stp.getUtledetSkjæringstidspunkt())

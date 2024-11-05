@@ -9,8 +9,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval;
@@ -19,12 +19,14 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
+import no.nav.fpsak.tidsserie.StandardCombinators;
 
 public class PersonopplysningerAggregat {
 
     private final AktørId søkerAktørId;
     private final List<PersonRelasjonEntitet> alleRelasjoner;
-    private final List<PersonstatusEntitet> aktuellePersonstatus;
+    private final List<PersonstatusEntitet> registerPersonstatus;
+    private final List<PersonstatusEntitet> overstyrtPersonstatus; // Kunne bli satt fram til utgangen av 2019.
     private final List<OppholdstillatelseEntitet> oppholdstillatelser;
 
     private final Map<AktørId, PersonopplysningEntitet> personopplysninger;
@@ -45,11 +47,9 @@ public class PersonopplysningerAggregat {
             .collect(Collectors.groupingBy(PersonAdresseEntitet::getAktørId));
         this.statsborgerskap = grunnlag.getRegisterVersjon().map(PersonInformasjonEntitet::getStatsborgerskap).orElse(List.of()).stream()
             .collect(Collectors.groupingBy(StatsborgerskapEntitet::getAktørId));
-        var overstyrtPersonstatus = grunnlag.getOverstyrtVersjon().map(PersonInformasjonEntitet::getPersonstatus).orElse(List.of());
-        var registerPersonstatus = grunnlag.getRegisterVersjon().map(PersonInformasjonEntitet::getPersonstatus).orElse(List.of()).stream()
+        this.overstyrtPersonstatus = grunnlag.getOverstyrtVersjon().map(PersonInformasjonEntitet::getPersonstatus).orElseGet(List::of);
+        this.registerPersonstatus = grunnlag.getRegisterVersjon().map(PersonInformasjonEntitet::getPersonstatus).orElseGet(List::of).stream()
             .filter(it -> finnesIkkeIOverstyrt(it, overstyrtPersonstatus))
-            .toList();
-        this.aktuellePersonstatus = Stream.concat(registerPersonstatus.stream(), overstyrtPersonstatus.stream())
             .toList();
         this.innhentetPersonopplysningerFraRegister = grunnlag.getRegisterVersjon().isPresent();
     }
@@ -74,16 +74,38 @@ public class PersonopplysningerAggregat {
         return Collections.unmodifiableList(alleRelasjoner);
     }
 
-    public List<PersonstatusEntitet> getPersonstatuserFor(AktørId aktørId, AbstractLocalDateInterval forPeriode) {
-        return aktuellePersonstatus.stream()
+    public List<PersonstatusIntervall> getPersonstatuserFor(AktørId aktørId, AbstractLocalDateInterval forPeriode) {
+        var register = registerPersonstatus.stream()
             .filter(st -> erIkkeSøker(aktørId, st.getAktørId()) || erGyldigIPeriode(forPeriode, st.getPeriode()))
-            .filter(ss -> ss.getAktørId().equals(aktørId))
+            .filter(st -> st.getAktørId().equals(aktørId))
+            .map(ps -> new PersonstatusIntervall(ps.getPeriode().getFomDato(), ps.getPeriode().getTomDato(), ps.getPersonstatus()))
             .toList();
+        if (overstyrtPersonstatus.isEmpty()) {
+            return register;
+        } else {
+            var overstyrt = overstyrtPersonstatus.stream()
+                .filter(st -> erIkkeSøker(aktørId, st.getAktørId()) || erGyldigIPeriode(forPeriode, st.getPeriode()))
+                .filter(st -> st.getAktørId().equals(aktørId))
+                .map(ps -> new PersonstatusIntervall(ps.getPeriode().getFomDato(), ps.getPeriode().getTomDato(), ps.getPersonstatus()))
+                .toList();
+            var regTL = tilPersonstatusTidslinje(register);
+            var ovsTL = tilPersonstatusTidslinje(overstyrt);
+            return ovsTL.combine(regTL, StandardCombinators::coalesceLeftHandSide, LocalDateTimeline.JoinStyle.CROSS_JOIN).compress()
+                .toSegments().stream()
+                .map(s -> new PersonstatusIntervall(s.getFom(), s.getTom(), s.getValue()))
+                .toList();
+        }
     }
 
-    public PersonstatusEntitet getPersonstatusFor(AktørId aktørId, AbstractLocalDateInterval forPeriode) {
+    private static LocalDateTimeline<PersonstatusType> tilPersonstatusTidslinje(List<PersonstatusIntervall> intervaller) {
+        return intervaller.stream()
+            .map(psi -> new LocalDateSegment<>(psi.intervall(), psi.personstatus()))
+            .collect(Collectors.collectingAndThen(Collectors.toList(), LocalDateTimeline::new));
+    }
+
+    public PersonstatusIntervall getPersonstatusFor(AktørId aktørId, AbstractLocalDateInterval forPeriode) {
         return getPersonstatuserFor(aktørId, forPeriode).stream()
-            .max(Comparator.comparing(PersonstatusEntitet::getPeriode)).orElse(null);
+            .max(Comparator.comparing(PersonstatusIntervall::intervall)).orElse(null);
     }
 
     public PersonopplysningEntitet getSøker() {
@@ -248,7 +270,7 @@ public class PersonopplysningerAggregat {
                 Objects.equals(personopplysninger, that.personopplysninger) &&
                 Objects.equals(alleRelasjoner, that.alleRelasjoner) &&
                 Objects.equals(adresser, that.adresser) &&
-                Objects.equals(aktuellePersonstatus, that.aktuellePersonstatus) &&
+                Objects.equals(registerPersonstatus, that.registerPersonstatus) &&
                 Objects.equals(statsborgerskap, that.statsborgerskap) &&
                 Objects.equals(oppgittAnnenPart, that.oppgittAnnenPart);
     }
@@ -256,7 +278,7 @@ public class PersonopplysningerAggregat {
 
     @Override
     public int hashCode() {
-        return Objects.hash(søkerAktørId, personopplysninger, alleRelasjoner, adresser, aktuellePersonstatus, statsborgerskap,
+        return Objects.hash(søkerAktørId, personopplysninger, alleRelasjoner, adresser, registerPersonstatus, statsborgerskap,
             oppgittAnnenPart);
     }
 

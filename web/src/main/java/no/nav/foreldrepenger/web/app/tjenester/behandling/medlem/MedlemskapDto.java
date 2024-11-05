@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPe
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppholdstillatelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonAdresseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusIntervall;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.MedlemskapAvvik;
@@ -62,8 +62,8 @@ public record MedlemskapDto(ManuellBehandlingResultat manuellBehandlingResultat,
     }
 
     record Personstatus(LocalDate fom, LocalDate tom, PersonstatusType type) {
-        public static Personstatus map(PersonstatusEntitet pse) {
-            return new Personstatus(pse.getPeriode().getFomDato(), pse.getPeriode().getTomDato(), pse.getPersonstatus());
+        public static Personstatus map(PersonstatusIntervall pse) {
+            return new Personstatus(pse.intervall().getFomDato(), pse.intervall().getTomDato(), pse.personstatus());
         }
     }
 

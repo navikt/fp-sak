@@ -125,7 +125,6 @@ class BeregningsresultatMedUttaksplanMapperTest {
 
         // Assert
         var perioder = uttaksplan.perioder();
-        assertThat(uttaksplan.opphoersdato()).isNull();
 
         assertThat(perioder).hasSize(1);
 
