@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusIntervall;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -168,8 +168,8 @@ class MedlemRegelGrunnlagBygger {
         };
     }
 
-    private Personopplysninger.PersonstatusPeriode mapV2(PersonstatusEntitet personstatus) {
-        return new Personopplysninger.PersonstatusPeriode(map(personstatus.getPeriode()), switch (personstatus.getPersonstatus()) {
+    private Personopplysninger.PersonstatusPeriode mapV2(PersonstatusIntervall personstatus) {
+        return new Personopplysninger.PersonstatusPeriode(personstatus.intervall(), switch (personstatus.personstatus()) {
             case ADNR -> Personopplysninger.PersonstatusPeriode.Type.D_NUMMER;
             case BOSA -> Personopplysninger.PersonstatusPeriode.Type.BOSATT_ETTER_FOLKEREGISTERLOVEN;
             case DØD -> Personopplysninger.PersonstatusPeriode.Type.DØD;
