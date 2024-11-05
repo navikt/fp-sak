@@ -48,7 +48,7 @@ public class UttakOverstyringshåndterer extends AbstractOverstyringshåndterer<
 
     @Override
     public OppdateringResultat håndterOverstyring(OverstyringUttakDto dto, Behandling behandling, BehandlingskontrollKontekst kontekst) {
-        this.forrigeUttak = uttakTjeneste.hentUttak(kontekst.getBehandlingId());
+        this.forrigeUttak = uttakTjeneste.hent(kontekst.getBehandlingId());
         var perioder = UttakPerioderMapper.map(dto.getPerioder(), forrigeUttak.getGjeldendePerioder());
         var uttakInput = uttakInputTjeneste.lagInput(kontekst.getBehandlingId());
         tjeneste.manueltFastsettePerioder(uttakInput, perioder);

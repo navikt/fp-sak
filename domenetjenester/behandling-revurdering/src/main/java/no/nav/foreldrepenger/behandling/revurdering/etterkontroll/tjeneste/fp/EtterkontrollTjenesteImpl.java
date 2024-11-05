@@ -144,7 +144,7 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     }
 
     private Optional<LocalDate> finnFørsteUttaksdato(Long behandling) {
-        return foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling).map(ForeldrepengerUttak::finnFørsteUttaksdato);
+        return foreldrepengerUttakTjeneste.hentHvisEksisterer(behandling).map(ForeldrepengerUttak::finnFørsteUttaksdato);
     }
 
     public void enkøBehandling(Behandling behandling) {

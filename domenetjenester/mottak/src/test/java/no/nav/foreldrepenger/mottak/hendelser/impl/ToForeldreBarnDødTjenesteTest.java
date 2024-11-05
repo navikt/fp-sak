@@ -57,7 +57,7 @@ class ToForeldreBarnDødTjenesteTest {
         var uttakF1 = new ForeldrepengerUttak(lagPerioderMedFullUtbetaling(LocalDate.now().minusDays(15)));
         var uttakF2 = new ForeldrepengerUttak(lagPerioderMedFullUtbetaling(LocalDate.now()));
 
-        when(uttakTjeneste.hentUttakHvisEksisterer(Mockito.eq(behandlingF1.getId()))).thenReturn(Optional.of(uttakF1));
+        when(uttakTjeneste.hentHvisEksisterer(Mockito.eq(behandlingF1.getId()))).thenReturn(Optional.of(uttakF1));
 
         toForeldreBarnDødTjeneste = new ToForeldreBarnDødTjeneste(uttakTjeneste);
 
@@ -78,8 +78,8 @@ class ToForeldreBarnDødTjenesteTest {
         var uttakF1 = new ForeldrepengerUttak(lagPerioderMedFullUtbetaling(LocalDate.now().minusDays(3)));
         var uttakF2 = new ForeldrepengerUttak(lagPerioderMedFullUtbetaling(LocalDate.now()));
 
-        when(uttakTjeneste.hentUttakHvisEksisterer(Mockito.eq(behandlingF1.getId()))).thenReturn(Optional.of(uttakF1));
-        when(uttakTjeneste.hentUttakHvisEksisterer(Mockito.eq(behandlingF2.getId()))).thenReturn(Optional.of(uttakF2));
+        when(uttakTjeneste.hentHvisEksisterer(Mockito.eq(behandlingF1.getId()))).thenReturn(Optional.of(uttakF1));
+        when(uttakTjeneste.hentHvisEksisterer(Mockito.eq(behandlingF2.getId()))).thenReturn(Optional.of(uttakF2));
 
         toForeldreBarnDødTjeneste = new ToForeldreBarnDødTjeneste(uttakTjeneste);
 
@@ -102,8 +102,8 @@ class ToForeldreBarnDødTjenesteTest {
         var uttakF1 = new ForeldrepengerUttak(lagPerioderDerAndrePeriodeHarUtbetalingLik0(LocalDate.now().minusDays(3)));
         var uttakF2 = new ForeldrepengerUttak(lagPerioderMedFullUtbetaling(LocalDate.now()));
 
-        when(uttakTjeneste.hentUttakHvisEksisterer(Mockito.eq(behandlingF1.getId()))).thenReturn(Optional.of(uttakF1));
-        when(uttakTjeneste.hentUttakHvisEksisterer(Mockito.eq(behandlingF2.getId()))).thenReturn(Optional.of(uttakF2));
+        when(uttakTjeneste.hentHvisEksisterer(Mockito.eq(behandlingF1.getId()))).thenReturn(Optional.of(uttakF1));
+        when(uttakTjeneste.hentHvisEksisterer(Mockito.eq(behandlingF2.getId()))).thenReturn(Optional.of(uttakF2));
 
         toForeldreBarnDødTjeneste = new ToForeldreBarnDødTjeneste(uttakTjeneste);
 
@@ -118,8 +118,8 @@ class ToForeldreBarnDødTjenesteTest {
     void skal_velge_behandling_f1_når_f2_ikke_har_uttaksresultat() {
         // Arrange
         var uttakF1 = new ForeldrepengerUttak(lagPerioderMedFullUtbetaling(LocalDate.now()));
-        when(uttakTjeneste.hentUttakHvisEksisterer(Mockito.eq(behandlingF1.getId()))).thenReturn(Optional.of(uttakF1));
-        when(uttakTjeneste.hentUttakHvisEksisterer(Mockito.eq(behandlingF2.getId()))).thenReturn(Optional.empty());
+        when(uttakTjeneste.hentHvisEksisterer(Mockito.eq(behandlingF1.getId()))).thenReturn(Optional.of(uttakF1));
+        when(uttakTjeneste.hentHvisEksisterer(Mockito.eq(behandlingF2.getId()))).thenReturn(Optional.empty());
         toForeldreBarnDødTjeneste = new ToForeldreBarnDødTjeneste(uttakTjeneste);
 
         // Act
@@ -133,8 +133,8 @@ class ToForeldreBarnDødTjenesteTest {
     void skal_velge_behandling_f2_når_f1_ikke_har_uttaksresultat() {
         // Arrange
         var uttakF2 = new ForeldrepengerUttak(lagPerioderMedFullUtbetaling(LocalDate.now()));
-        when(uttakTjeneste.hentUttakHvisEksisterer(Mockito.eq(behandlingF1.getId()))).thenReturn(Optional.empty());
-        when(uttakTjeneste.hentUttakHvisEksisterer(Mockito.eq(behandlingF2.getId()))).thenReturn(Optional.of(uttakF2));
+        when(uttakTjeneste.hentHvisEksisterer(Mockito.eq(behandlingF1.getId()))).thenReturn(Optional.empty());
+        when(uttakTjeneste.hentHvisEksisterer(Mockito.eq(behandlingF2.getId()))).thenReturn(Optional.of(uttakF2));
         toForeldreBarnDødTjeneste = new ToForeldreBarnDødTjeneste(uttakTjeneste);
 
         // Act
@@ -147,8 +147,8 @@ class ToForeldreBarnDødTjenesteTest {
     @Test
     void skal_velge_behandling_f1_når_ingen_av_behandlingene_har_uttaksresultat() {
         // Arrange
-        when(uttakTjeneste.hentUttakHvisEksisterer(Mockito.eq(behandlingF1.getId()))).thenReturn(Optional.empty());
-        when(uttakTjeneste.hentUttakHvisEksisterer(Mockito.eq(behandlingF2.getId()))).thenReturn(Optional.empty());
+        when(uttakTjeneste.hentHvisEksisterer(Mockito.eq(behandlingF1.getId()))).thenReturn(Optional.empty());
+        when(uttakTjeneste.hentHvisEksisterer(Mockito.eq(behandlingF2.getId()))).thenReturn(Optional.empty());
         toForeldreBarnDødTjeneste = new ToForeldreBarnDødTjeneste(uttakTjeneste);
 
         // Act

@@ -103,7 +103,7 @@ class UttakOverstyringshåndtererTest {
 
         var result = oppdaterer.håndterOverstyring(dto, behandling, kontekst(behandling));
 
-        var lagretUttak = uttakTjeneste.hentUttak(behandling.getId());
+        var lagretUttak = uttakTjeneste.hent(behandling.getId());
 
         assertThat(lagretUttak.getGjeldendePerioder()).hasSize(1);
         assertThat(lagretUttak.getGjeldendePerioder().get(0).getTidsperiode().getFomDato()).isEqualTo(fom);

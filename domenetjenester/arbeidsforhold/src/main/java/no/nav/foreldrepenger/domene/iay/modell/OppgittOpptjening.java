@@ -121,6 +121,16 @@ public class OppgittOpptjening {
         }
     }
 
+    void leggTilEllerErstattEgenNæringFjernAndreOrgnummer(OppgittEgenNæring nyEgenNæring) {
+        if (this.egenNæring == null) {
+            this.egenNæring = new ArrayList<>();
+        }
+        if (nyEgenNæring != null) {
+            egenNæring.clear();
+            this.egenNæring.add(nyEgenNæring);
+        }
+    }
+
     void leggTilOppgittArbeidsforhold(OppgittArbeidsforhold oppgittArbeidsforhold) {
         if (this.oppgittArbeidsforhold == null) {
             this.oppgittArbeidsforhold = new ArrayList<>();

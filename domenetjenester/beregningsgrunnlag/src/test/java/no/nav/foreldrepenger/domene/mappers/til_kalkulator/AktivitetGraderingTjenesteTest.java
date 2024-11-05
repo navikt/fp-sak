@@ -186,7 +186,7 @@ class AktivitetGraderingTjenesteTest {
 
     private void medUttak(Behandling behandling, List<ForeldrepengerUttakPeriode> perioder) {
         var uttak = new ForeldrepengerUttak(perioder);
-        when(uttakTjeneste.hentUttakHvisEksisterer(behandling.getId())).thenReturn(Optional.of(uttak));
+        when(uttakTjeneste.hentHvisEksisterer(behandling.getId())).thenReturn(Optional.of(uttak));
     }
 
     @Test

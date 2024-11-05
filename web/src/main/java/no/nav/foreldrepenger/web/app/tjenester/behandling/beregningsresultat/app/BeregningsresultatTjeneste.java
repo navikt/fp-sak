@@ -36,7 +36,7 @@ public class BeregningsresultatTjeneste {
     }
 
     public Optional<BeregningsresultatMedUttaksplanDto> lagBeregningsresultatMedUttaksplan(BehandlingReferanse behandlingReferanse) {
-        var uttakResultat = foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandlingReferanse.behandlingId());
+        var uttakResultat = foreldrepengerUttakTjeneste.hentHvisEksisterer(behandlingReferanse.behandlingId());
         var beregningsresultatFPAggregatEntitet = beregningsresultatRepository
             .hentBeregningsresultatAggregat(behandlingReferanse.behandlingId());
         return beregningsresultatFPAggregatEntitet
