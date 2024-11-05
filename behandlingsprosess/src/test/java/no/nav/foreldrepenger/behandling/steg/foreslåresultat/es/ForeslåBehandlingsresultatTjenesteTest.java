@@ -34,7 +34,7 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
     private final RevurderingEndringImpl revurderingEndring = mock(RevurderingEndringImpl.class);
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
-    private ForeslåBehandlingsresultatTjenesteImpl foreslåVedtaTjenesteES;
+    private ForeslåBehandlingsresultatTjenesteES foreslåVedtaTjenesteES;
 
     @BeforeEach
     public void setup() {
@@ -42,7 +42,7 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
         doReturn(false).when(revurderingEndring).erRevurderingMedUendretUtfall(any(), any());
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
-        foreslåVedtaTjenesteES = new ForeslåBehandlingsresultatTjenesteImpl(
+        foreslåVedtaTjenesteES = new ForeslåBehandlingsresultatTjenesteES(
                 repositoryProvider.getBehandlingsresultatRepository(),
                 repositoryProvider.getBehandlingRepository(),
                 revurderingEndring);

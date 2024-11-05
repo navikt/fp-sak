@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.uttak.svp;
 
+import static no.nav.foreldrepenger.behandlingslager.uttak.svp.PeriodeIkkeOppfyltÅrsak._8306;
+
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -125,6 +127,10 @@ public class SvangerskapspengerUttakResultatPeriodeEntitet extends BaseEntitet {
     @Override
     public int hashCode() {
         return Objects.hash(tidsperiode, utbetalingsgrad, periodeResultatType, periodeIkkeOppfyltÅrsak);
+    }
+
+    public boolean harAvslagPgaMedlemskap() {
+        return _8306.equals(getPeriodeIkkeOppfyltÅrsak());
     }
 
     public static class Builder {

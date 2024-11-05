@@ -235,7 +235,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
         var dokumentasjonsperioder = personopplysningObjectFactory
             .createPersonopplysningerForeldrepengerDokumentasjonsperioder();
 
-        foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandlingId).ifPresent(uttak -> {
+        foreldrepengerUttakTjeneste.hentHvisEksisterer(behandlingId).ifPresent(uttak -> {
             var perioder = uttak.getGjeldendePerioder()
                 .stream()
                 .filter(p -> p.getDokumentasjonVurdering().isPresent())

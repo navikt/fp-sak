@@ -434,7 +434,7 @@ public class EndringsdatoRevurderingUtleder {
     }
 
     private Optional<ForeldrepengerUttak> hentUttak(Long behandling) {
-        return uttakTjeneste.hentUttakHvisEksisterer(behandling);
+        return uttakTjeneste.hentHvisEksisterer(behandling);
     }
 
     private Long finnForrigeBehandling(BehandlingReferanse behandling) {

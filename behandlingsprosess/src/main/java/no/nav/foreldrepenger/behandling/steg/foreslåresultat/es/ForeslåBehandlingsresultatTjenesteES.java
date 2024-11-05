@@ -21,19 +21,19 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD)
-public class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandlingsresultatTjeneste {
+public class ForeslåBehandlingsresultatTjenesteES implements ForeslåBehandlingsresultatTjeneste {
     private RevurderingEndring revurderingEndring;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BehandlingRepository behandlingRepository;
 
-    ForeslåBehandlingsresultatTjenesteImpl() {
+    ForeslåBehandlingsresultatTjenesteES() {
         // for CDI proxy
     }
 
     @Inject
-    public ForeslåBehandlingsresultatTjenesteImpl(BehandlingsresultatRepository behandlingsresultatRepository,
-            BehandlingRepository behandlingRepository,
-            @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD) RevurderingEndring revurderingEndring) {
+    public ForeslåBehandlingsresultatTjenesteES(BehandlingsresultatRepository behandlingsresultatRepository,
+                                                BehandlingRepository behandlingRepository,
+                                                @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD) RevurderingEndring revurderingEndring) {
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.behandlingRepository = behandlingRepository;
         this.revurderingEndring = revurderingEndring;
@@ -53,7 +53,8 @@ public class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandli
                 .map(AvslagsårsakMapper::finnAvslagsårsak)
                 .ifPresent(behandlingsresultat::setAvslagsårsak);
         } else {
-            // Må nullstille avslagårsak (for symmetri med setting avslagsårsak ovenfor, hvor avslagårsak kopieres fra et vilkår)
+            // Må nullstille avslagårsak (for symmetri med setting avslagsårsak ovenfor,
+            // hvor avslagårsak kopieres fra et vilkår)
             Optional.ofNullable(behandlingsresultat.getAvslagsårsak())
                 .ifPresent(ufjernetÅrsak -> behandlingsresultat.setAvslagsårsak(Avslagsårsak.UDEFINERT));
         }

@@ -57,7 +57,7 @@ public class RettOgOmsorgGrunnlagBygger {
         if (annenpart.isEmpty()) {
             return Optional.empty();
         }
-        return uttakTjeneste.hentUttakHvisEksisterer(annenpart.get().gjeldendeVedtakBehandlingId());
+        return uttakTjeneste.hentHvisEksisterer(annenpart.get().gjeldendeVedtakBehandlingId());
     }
 
     private boolean farHarRett(BehandlingReferanse ref, YtelseFordelingAggregat ytelseFordelingAggregat, Optional<ForeldrepengerUttak> annenpartsUttaksplan) {
