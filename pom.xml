@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-bom</artifactId>
-        <version>3.4.3</version>
+        <version>3.5.1</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger</groupId>
@@ -28,7 +28,7 @@
         <!-- generelle verktøy og regel-repositories -->
         <fp-tidsserie.version>2.7.1</fp-tidsserie.version>
         <fp-nare.version>2.6.3</fp-nare.version>
-        <fp-inngangsvilkar.version>1.1.1</fp-inngangsvilkar.version>
+        <fp-inngangsvilkar.version>1.1.2</fp-inngangsvilkar.version>
         <beregning.version>5.4.17</beregning.version>
         <fp-uttak.version>15.3.1</fp-uttak.version>
         <fp-stonadskonto.version>2.1.1</fp-stonadskonto.version>
@@ -40,7 +40,7 @@
 
         <fp-kontrakter.version>9.1.21</fp-kontrakter.version>
         <abakus-kontrakt.version>2.1.2</abakus-kontrakt.version>
-        <kalkulus.version>0.0.6</kalkulus.version>
+        <kalkulus.version>0.0.7</kalkulus.version>
 
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
         <sonar.projectName>fp-sak</sonar.projectName>
@@ -55,7 +55,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>fp-bom</artifactId>
-                <version>3.4.3</version>
+                <version>3.5.1</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -150,7 +150,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>jms-integrasjon</artifactId>
-                <version>3.2.8</version>
+                <version>3.2.9</version>
             </dependency>
 
             <dependency>
