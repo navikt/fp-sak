@@ -86,7 +86,7 @@ public class Stønadskontoberegning extends BaseEntitet {
     }
 
     public static class Builder {
-        private Stønadskontoberegning kladd;
+        private final Stønadskontoberegning kladd;
 
         public Builder() {
             kladd = new Stønadskontoberegning();

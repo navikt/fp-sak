@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandling.revurdering.ytelse.svp;
 
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -31,6 +30,7 @@ import no.nav.foreldrepenger.behandling.revurdering.felles.LagEnAndelTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.felles.LagToAndelerMotsattRekkefølgeTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.felles.LagToAndelerTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.felles.LagUttakResultatPlanTjeneste;
+import no.nav.foreldrepenger.behandling.revurdering.felles.RevurderingBehandlingsresultatutlederFelles;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.RevurderingTjenesteImpl;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollTjenesteImpl;
@@ -69,8 +69,7 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
-import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @CdiDbAwareTest
@@ -100,7 +99,7 @@ class RevurderingBehandlingsresultatutlederTest {
     @Inject
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     @Inject
-    private SvangerskapspengerUttakResultatRepository uttakResultatRepository;
+    private UttakTjeneste uttakTjeneste;
     @Inject
     private BehandlingRepository behandlingRepository;
     private RevurderingTjeneste revurderingTjeneste;
@@ -114,16 +113,12 @@ class RevurderingBehandlingsresultatutlederTest {
     private DekningsgradTjeneste dekningsgradTjeneste;
     @Mock
     private BeregningTjeneste beregningTjeneste;
-    private RevurderingBehandlingsresultatutleder revurderingBehandlingsresultatutleder;
+    private RevurderingBehandlingsresultatutlederFelles revurderingBehandlingsresultatutleder;
     private final boolean erVarselOmRevurderingSendt = true;
 
     private Behandling behandlingSomSkalRevurderes;
     private Behandling revurdering;
     private final LocalDate endringsdato = LocalDate.now().minusMonths(3);
-
-    @Mock
-    private OpphørUttakTjeneste opphørUttakTjeneste;
-    private final SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
 
     @BeforeEach
     public void setUp() {
@@ -139,13 +134,10 @@ class RevurderingBehandlingsresultatutlederTest {
                         false);
         revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
 
-        revurderingBehandlingsresultatutleder = new RevurderingBehandlingsresultatutleder(repositoryProvider,
+        revurderingBehandlingsresultatutleder = new RevurderingBehandlingsresultatutlederFelles(repositoryProvider,
                 grunnlagRepositoryProvider,
-                uttakResultatRepository,
                 beregningTjeneste,
-                opphørUttakTjeneste,
-                skjæringstidspunktTjeneste,
-                medlemTjeneste, dekningsgradTjeneste);
+                medlemTjeneste, dekningsgradTjeneste, uttakTjeneste);
 
         var behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(
                 serviceProvider);

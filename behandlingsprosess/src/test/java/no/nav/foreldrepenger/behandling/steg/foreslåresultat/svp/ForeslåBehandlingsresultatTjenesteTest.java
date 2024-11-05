@@ -16,7 +16,8 @@ import org.mockito.ArgumentMatchers;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.svp.RevurderingBehandlingsresultatutleder;
+import no.nav.foreldrepenger.behandling.revurdering.felles.RevurderingBehandlingsresultatutlederFelles;
+import no.nav.foreldrepenger.behandling.steg.foreslåresultat.ForeslåBehandlingsresultatTjenesteImpl;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -43,15 +44,14 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.PeriodeIkkeOppfyltÅrsak
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatArbeidsforholdEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.foreldrepenger.domene.uttak.SvangerskapspengerUttakTjeneste;
+import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
 
 class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
 
@@ -59,9 +59,7 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
 
     private final BeregningTjeneste beregningTjeneste = mock(BeregningTjeneste.class);
     private final DokumentBehandlingTjeneste dokumentBehandlingTjeneste = mock(DokumentBehandlingTjeneste.class);
-    private final OpphørUttakTjeneste opphørUttakTjeneste = mock(OpphørUttakTjeneste.class);
-    private final SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
-    private RevurderingBehandlingsresultatutleder revurderingBehandlingsresultatutleder;
+    private RevurderingBehandlingsresultatutlederFelles revurderingBehandlingsresultatutleder;
     private ForeslåBehandlingsresultatTjenesteImpl tjeneste;
     private BehandlingRepository behandlingRepository;
     private final MedlemTjeneste medlemTjeneste = mock(MedlemTjeneste.class);
@@ -75,18 +73,14 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
         var grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
-        var svpUttakRepository = new SvangerskapspengerUttakResultatRepository(entityManager);
-        revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(repositoryProvider, grunnlagRepositoryProvider,
-                svpUttakRepository,
-            beregningTjeneste,
-                opphørUttakTjeneste,
-                skjæringstidspunktTjeneste,
-                medlemTjeneste, mock(DekningsgradTjeneste.class)));
+        var uttakTjeneste = new UttakTjeneste(behandlingRepository, null,
+            new SvangerskapspengerUttakTjeneste(repositoryProvider.getSvangerskapspengerUttakResultatRepository()));
+        revurderingBehandlingsresultatutleder = spy(
+            new RevurderingBehandlingsresultatutlederFelles(repositoryProvider, grunnlagRepositoryProvider, beregningTjeneste, medlemTjeneste,
+                mock(DekningsgradTjeneste.class), uttakTjeneste));
 
-        tjeneste = new ForeslåBehandlingsresultatTjenesteImpl(repositoryProvider,
-                svpUttakRepository,
-                dokumentBehandlingTjeneste,
-                revurderingBehandlingsresultatutleder);
+        tjeneste = new ForeslåBehandlingsresultatTjenesteImpl(repositoryProvider, uttakTjeneste,
+            dokumentBehandlingTjeneste, revurderingBehandlingsresultatutleder);
     }
 
     @Test
