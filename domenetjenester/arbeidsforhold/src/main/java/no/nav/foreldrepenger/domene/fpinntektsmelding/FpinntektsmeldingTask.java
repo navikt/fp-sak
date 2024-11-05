@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -25,7 +24,6 @@ public class FpinntektsmeldingTask extends GenerellProsessTask {
 
     private BehandlingRepository behandlingRepository;
     private FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste;
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     FpinntektsmeldingTask() {
         // for CDI proxy
@@ -33,20 +31,17 @@ public class FpinntektsmeldingTask extends GenerellProsessTask {
 
     @Inject
     public FpinntektsmeldingTask(BehandlingRepository behandlingRepository,
-                                 FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste,
-                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                 FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.fpInntektsmeldingTjeneste = fpInntektsmeldingTjeneste;
-        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var arbeidsgiverIdent = prosessTaskData.getPropertyValue(ARBEIDSGIVER_KEY);
-        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
-        LOG.info("Starter task for å opprette forespørsel i fpinntektsmelding for behandlingId {} med orgnummer {} og skjæringstidspunkt {}",  behandlingId, tilMaskertNummer(arbeidsgiverIdent), stp);
+        LOG.info("Starter task for å opprette forespørsel i fpinntektsmelding for behandlingId {} med orgnummer {}",  behandlingId, tilMaskertNummer(arbeidsgiverIdent));
         var ref = BehandlingReferanse.fra(behandling);
-        fpInntektsmeldingTjeneste.lagForespørsel(arbeidsgiverIdent, ref, stp);
+        fpInntektsmeldingTjeneste.lagForespørsel(arbeidsgiverIdent, ref);
     }
 }

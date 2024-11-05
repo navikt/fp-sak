@@ -54,12 +54,14 @@ class FpInntektsmeldingTjenesteTest {
     private InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste;
     @Mock
     private ArbeidsforholdInntektsmeldingMangelTjeneste inntektsmeldingMangelTjeneste;
+    @Mock
+    private FpInntektsmeldingForespørselTjeneste fpInntektsmeldingForespørselTjeneste;
 
     private FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste;
 
     @BeforeEach
     void setup() {
-        fpInntektsmeldingTjeneste = new FpInntektsmeldingTjeneste(klient, taskTjeneste, skjæringstidspunktTjeneste,  historikkRepository, arbeidsgiverTjeneste, inntektsmeldingRegisterTjeneste, inntektsmeldingMangelTjeneste);
+        fpInntektsmeldingTjeneste = new FpInntektsmeldingTjeneste(klient, taskTjeneste, skjæringstidspunktTjeneste,  historikkRepository, arbeidsgiverTjeneste, inntektsmeldingRegisterTjeneste, inntektsmeldingMangelTjeneste, fpInntektsmeldingForespørselTjeneste);
     }
 
     @Test
@@ -94,16 +96,15 @@ class FpInntektsmeldingTjenesteTest {
     @Test
     void skal_opprette_opppgave_og_historikkinnslag() {
         // Arrange
-        var stp = LocalDate.of(2024,9,1);
         var virksomhet = Arbeidsgiver.virksomhet("999999999");
 
         var behandlingRef = new BehandlingReferanse(new Saksnummer("1234"), 1234L, FagsakYtelseType.FORELDREPENGER, 4321L, UUID.randomUUID(),
             BehandlingStatus.UTREDES, BehandlingType.FØRSTEGANGSSØKNAD, 5432L, new AktørId("9999999999999"), RelasjonsRolleType.MORA);
-        var stpp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build();
         when(klient.opprettForespørsel(any())).thenReturn(new OpprettForespørselResponse(OpprettForespørselResponse.ForespørselResultat.FORESPØRSEL_OPPRETTET));
         when(arbeidsgiverTjeneste.hentVirksomhet(virksomhet.getIdentifikator())).thenReturn(Virksomhet.getBuilder().medOrgnr(virksomhet.getIdentifikator()).medNavn("Testbedrift").build());
+        when(fpInntektsmeldingForespørselTjeneste.lagForespørsel(any(), any())).thenReturn(new OpprettForespørselRequest(null, null, null, null, null, null));
         // Act
-        fpInntektsmeldingTjeneste.lagForespørsel(virksomhet.getIdentifikator(), behandlingRef, stpp);
+        fpInntektsmeldingTjeneste.lagForespørsel(virksomhet.getIdentifikator(), behandlingRef);
 
         // Assert
         verify(historikkRepository, times(1)).lagre(any());
@@ -112,16 +113,15 @@ class FpInntektsmeldingTjenesteTest {
     @Test
     void skal_ikke_opprettet_historikk_når_ny_oppgave_ikke_ble_opprettet() {
         // Arrange
-        var stp = LocalDate.of(2024,9,1);
         var virksomhet = Arbeidsgiver.virksomhet("999999999");
 
         var behandlingRef = new BehandlingReferanse(new Saksnummer("1234"), 1234L, FagsakYtelseType.FORELDREPENGER, 4321L, UUID.randomUUID(),
             BehandlingStatus.UTREDES, BehandlingType.FØRSTEGANGSSØKNAD, 5432L, new AktørId("9999999999999"), RelasjonsRolleType.MORA);
-        var stpp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build();
+        when(fpInntektsmeldingForespørselTjeneste.lagForespørsel(any(), any())).thenReturn(new OpprettForespørselRequest(null, null, null, null, null, null));
         when(klient.opprettForespørsel(any())).thenReturn(new OpprettForespørselResponse(OpprettForespørselResponse.ForespørselResultat.IKKE_OPPRETTET_FINNES_ALLEREDE_ÅPEN));
 
         // Act
-        fpInntektsmeldingTjeneste.lagForespørsel(virksomhet.getIdentifikator(), behandlingRef, stpp);
+        fpInntektsmeldingTjeneste.lagForespørsel(virksomhet.getIdentifikator(), behandlingRef);
 
         // Assert
         verify(historikkRepository, times(0)).lagre(any());

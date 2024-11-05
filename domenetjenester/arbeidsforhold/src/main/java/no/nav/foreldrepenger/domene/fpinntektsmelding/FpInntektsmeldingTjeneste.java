@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
@@ -53,6 +52,7 @@ public class FpInntektsmeldingTjeneste {
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
     private InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste;
     private ArbeidsforholdInntektsmeldingMangelTjeneste inntektsmeldingMangelTjeneste;
+    private FpInntektsmeldingForespørselTjeneste fpInntektsmeldingForespørselTjeneste;
 
     private static final Logger LOG = LoggerFactory.getLogger(FpInntektsmeldingTjeneste.class);
 
@@ -67,7 +67,8 @@ public class FpInntektsmeldingTjeneste {
                                      HistorikkRepository historikkRepo,
                                      ArbeidsgiverTjeneste arbeidsgiverTjeneste,
                                      InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste,
-                                     ArbeidsforholdInntektsmeldingMangelTjeneste inntektsmeldingMangelTjeneste) {
+                                     ArbeidsforholdInntektsmeldingMangelTjeneste inntektsmeldingMangelTjeneste,
+                                     FpInntektsmeldingForespørselTjeneste fpInntektsmeldingForespørselTjeneste) {
         this.klient = klient;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -75,6 +76,7 @@ public class FpInntektsmeldingTjeneste {
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
         this.inntektsmeldingRegisterTjeneste = inntektsmeldingRegisterTjeneste;
         this.inntektsmeldingMangelTjeneste = inntektsmeldingMangelTjeneste;
+        this.fpInntektsmeldingForespørselTjeneste = fpInntektsmeldingForespørselTjeneste;
     }
 
     public void lagForespørselTask(String ag, BehandlingReferanse ref) {
@@ -124,7 +126,7 @@ public class FpInntektsmeldingTjeneste {
         return endringer;
     }
 
-    public void lagForespørsel(String ag, BehandlingReferanse ref, Skjæringstidspunkt stp) {
+    public void lagForespørsel(String ag, BehandlingReferanse ref) {
         // Toggler av for prod
         if (Boolean.TRUE.equals(IS_PROD)) {
             return;
@@ -136,9 +138,7 @@ public class FpInntektsmeldingTjeneste {
             }
             return;
         }
-        var request = new OpprettForespørselRequest(new OpprettForespørselRequest.AktørIdDto(ref.aktørId().getId()),
-            new OpprettForespørselRequest.OrganisasjonsnummerDto(ag), stp.getUtledetSkjæringstidspunkt(), mapYtelsetype(ref.fagsakYtelseType()),
-            new OpprettForespørselRequest.SaksnummerDto(ref.saksnummer().getVerdi()));
+        var request = fpInntektsmeldingForespørselTjeneste.lagForespørsel(ref, ag);
         var opprettForespørselResponse = klient.opprettForespørsel(request);
         if (opprettForespørselResponse.forespørselResultat().equals(OpprettForespørselResponse.ForespørselResultat.FORESPØRSEL_OPPRETTET)) {
             lagHistorikkForForespørsel(ag, ref);
@@ -163,14 +163,6 @@ public class FpInntektsmeldingTjeneste {
             .medBegrunnelse(beg)
             .build(historikkinnslag);
         historikkRepo.lagre(historikkinnslag);
-    }
-
-    private OpprettForespørselRequest.YtelseType mapYtelsetype(FagsakYtelseType fagsakYtelseType) {
-        return switch (fagsakYtelseType) {
-            case FORELDREPENGER -> OpprettForespørselRequest.YtelseType.FORELDREPENGER;
-            case SVANGERSKAPSPENGER -> OpprettForespørselRequest.YtelseType.SVANGERSKAPSPENGER;
-            case UDEFINERT, ENGANGSTØNAD -> throw new IllegalArgumentException("Kan ikke opprette forespørsel for ytelsetype " + fagsakYtelseType);
-        };
     }
 
     public void lagLukkForespørselTask(Behandling behandling, OrgNummer orgNummer, ForespørselStatus status) {
