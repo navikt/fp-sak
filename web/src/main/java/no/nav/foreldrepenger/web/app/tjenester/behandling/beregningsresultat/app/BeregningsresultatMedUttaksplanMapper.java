@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -51,33 +50,7 @@ public class BeregningsresultatMedUttaksplanMapper {
     BeregningsresultatMedUttaksplanDto lagBeregningsresultatMedUttaksplan(BehandlingReferanse behandlingReferanse,
                                                                           BehandlingBeregningsresultatEntitet beregningsresultatAggregat,
                                                                           Optional<ForeldrepengerUttak> uttak) {
-        return new BeregningsresultatMedUttaksplanDto(getOpphørsdato(uttak).orElse(null),
-            lagPerioder(behandlingReferanse.behandlingId(), beregningsresultatAggregat.getBgBeregningsresultatFP(), uttak));
-    }
-
-    private Optional<LocalDate> getOpphørsdato(Optional<ForeldrepengerUttak> uttak) {
-        if (uttak.isEmpty() || uttak.get().getGjeldendePerioder().isEmpty()) {
-            return Optional.empty();
-        }
-        var opphørsAvslagÅrsaker = PeriodeResultatÅrsak.opphørsAvslagÅrsaker();
-        var perioder = uttak.get().getGjeldendePerioder()
-            .stream()
-            .sorted(Comparator.comparing(ForeldrepengerUttakPeriode::getFom).reversed())
-            .collect(Collectors.toList());
-        // Sjekker om siste periode er avslått med en opphørsårsak
-        var sistePeriode = perioder.remove(0);
-        if (!opphørsAvslagÅrsaker.contains(sistePeriode.getResultatÅrsak())) {
-            return Optional.empty();
-        }
-        var opphørsdato = sistePeriode.getFom();
-        for (var periode : perioder) {
-            if (opphørsAvslagÅrsaker.contains(periode.getResultatÅrsak()) && periode.getFom().isBefore(opphørsdato)) {
-                opphørsdato = periode.getFom();
-            } else {
-                return Optional.ofNullable(opphørsdato);
-            }
-        }
-        return Optional.of(opphørsdato);
+        return new BeregningsresultatMedUttaksplanDto(lagPerioder(behandlingReferanse.behandlingId(), beregningsresultatAggregat.getBgBeregningsresultatFP(), uttak));
     }
 
     List<BeregningsresultatPeriodeDto> lagPerioder(long behandlingId, BeregningsresultatEntitet beregningsresultat, Optional<ForeldrepengerUttak> uttak) {
