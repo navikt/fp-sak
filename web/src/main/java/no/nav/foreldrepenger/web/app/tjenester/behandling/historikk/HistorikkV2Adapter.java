@@ -478,7 +478,64 @@ public class HistorikkV2Adapter {
     }
 
     private static HistorikkinnslagDtoV2 fraMalTypeAktivitetskrav(Historikkinnslag h, UUID behandlingUUID) {
-        return null;
+        var skjermlenke = h.getHistorikkinnslagDeler().getFirst()
+            .getSkjermlenke()
+            .stream()
+            .map(SkjermlenkeType::fraKode)
+            .findFirst();
+
+        var tittel = "TODO";
+
+        var tekster = new ArrayList<String>();
+
+        for(var del : h.getHistorikkinnslagDeler()) {
+            var endretFelter = byggEndretFeltTekst(del);
+            tekster.add(endretFelter);
+
+            var begrunnelsetekst = begrunnelseFraDel(del).stream().toList();
+            tekster.addAll(begrunnelsetekst);
+        }
+
+        return new HistorikkinnslagDtoV2(
+            behandlingUUID,
+            HistorikkinnslagDtoV2.HistorikkAktørDto.fra(h.getAktør(), h.getOpprettetAv()),
+            skjermlenke.orElse(null),
+            h.getOpprettetTidspunkt(),
+            null, // TODO
+            tittel,
+            tekster);
+    }
+
+    private static String byggEndretFeltTekst(HistorikkinnslagDel del) {
+        var feltOPT = del.getEndredeFelt().stream()
+            .filter(e -> FeltNavnType.AKTIVITETSKRAV_AVKLARING.equals(e.getKlTilVerdi()))
+            .findFirst();
+
+        var tilVerdiNavn = (feltOPT.isPresent() && feltOPT.get().getKlTilVerdi() != null)
+            ? FeltType.valueOf(feltOPT.get().getTilVerdiKode()).name()
+            : "";
+
+        var periodeFom = del.getOpplysninger().stream()
+            .filter(o -> UTTAK_PERIODE_FOM.getKode().equals(o.getNavn()))
+            .map(HistorikkinnslagFelt::getTilVerdi)
+            .findFirst()
+            .orElse("");
+
+        var periodeTom = del.getOpplysninger().stream()
+            .filter(o -> UTTAK_PERIODE_TOM.getKode().equals(o.getNavn()))
+            .map(HistorikkinnslagFelt::getTilVerdi)
+            .findFirst()
+            .orElse("");
+
+
+        if (feltOPT.isEmpty() || feltOPT.get().getFraVerdi() == null) {
+            return String.format("Perioden <b>%s- %s</b> er avklart til <b>%s</b>", periodeFom, periodeTom, tilVerdiNavn);
+        } else {
+            var fraVerdi = (feltOPT.isPresent() && feltOPT.get().getKlFraVerdi() != null)
+                ? FeltType.valueOf(feltOPT.get().getFraVerdiKode()).name()
+                : "";
+            return String.format("Perioden <b>%s - %s</b> er endret fra %s til <b>%s</b>", periodeFom, periodeTom, fraVerdi, tilVerdiNavn);
+        }
     }
 
     private static String fraHendelseFelt(HistorikkinnslagFelt felt) {
@@ -635,7 +692,6 @@ public class HistorikkV2Adapter {
         }
 
         return String.format("<b>%s</b> endret fra %s til <b>%s</b>", feltNavn, fraVerdi, tilVerdi);
-
     }
 
     private static String konverterBoolean(String verdi) {
@@ -741,9 +797,6 @@ public class HistorikkV2Adapter {
             default -> historikkResultatType.getNavn();
         };
     }
-
-
-
 
     private static Optional<String> begrunnelseFraDel(HistorikkinnslagDel historikkinnslagDel) {
         return historikkinnslagDel.getBegrunnelseFelt()
