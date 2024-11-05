@@ -1157,7 +1157,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     private void lagreUttak(Behandling behandling, ForeldrepengerUttak uttak) {
-        when(foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling.getId())).thenReturn(
+        when(foreldrepengerUttakTjeneste.hentHvisEksisterer(behandling.getId())).thenReturn(
             Optional.ofNullable(uttak));
     }
 

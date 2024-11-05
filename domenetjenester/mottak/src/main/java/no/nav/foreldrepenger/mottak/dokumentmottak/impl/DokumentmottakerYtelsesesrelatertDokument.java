@@ -146,7 +146,7 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
     }
 
     boolean harInnvilgetPeriode(Behandling avsluttetBehandling) {
-        return fpUttakTjeneste.hentUttakHvisEksisterer(avsluttetBehandling.getId())
+        return fpUttakTjeneste.hentHvisEksisterer(avsluttetBehandling.getId())
             .map(uttak -> uttak.getGjeldendePerioder().stream()
                 .anyMatch(periode -> PeriodeResultatType.INNVILGET.equals(periode.getResultatType())))
             .orElse(false);

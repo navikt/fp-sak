@@ -114,7 +114,7 @@ public class UføreInnhenter {
 
     private Optional<LocalDate> finnFørsteDatoIUttakResultat(Behandling behandling) {
         if (!BehandlingType.REVURDERING.equals(behandling.getType())) return Optional.empty();
-        return uttakTjeneste.hentUttakHvisEksisterer(originalBehandling(behandling))
+        return uttakTjeneste.hentHvisEksisterer(originalBehandling(behandling))
             .map(ForeldrepengerUttak::getGjeldendePerioder).orElse(List.of()).stream()
             .map(ForeldrepengerUttakPeriode::getFom)
             .min(Comparator.naturalOrder());
@@ -122,7 +122,7 @@ public class UføreInnhenter {
 
     private boolean uttakResultatMedInnvilgetUføre(Behandling behandling) {
         return BehandlingType.REVURDERING.equals(behandling.getType()) &&
-            uttakTjeneste.hentUttakHvisEksisterer(originalBehandling(behandling))
+            uttakTjeneste.hentHvisEksisterer(originalBehandling(behandling))
             .map(ForeldrepengerUttak::getGjeldendePerioder).orElse(List.of()).stream()
             .filter(ForeldrepengerUttakPeriode::isInnvilget)
             .anyMatch(p -> MorsAktivitet.UFØRE.equals(p.getMorsAktivitet()));

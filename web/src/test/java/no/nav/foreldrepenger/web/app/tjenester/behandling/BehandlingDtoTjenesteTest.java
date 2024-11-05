@@ -41,6 +41,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
 import no.nav.foreldrepenger.konfig.Environment;
@@ -90,14 +91,18 @@ class BehandlingDtoTjenesteTest {
     @Inject
     private DekningsgradTjeneste dekningsgradTjeneste;
 
+    @Inject
+    private UttakTjeneste uttakTjeneste;
+
     private BehandlingDtoTjeneste tjeneste;
 
     private final LocalDate now = LocalDate.now();
 
     @BeforeEach
     public void setUp() {
-        tjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste, tilbakekrevingRepository, skjæringstidspunktTjeneste,
-                behandlingDokumentRepository, foreldrepengerUttakTjeneste, mock(TotrinnTjeneste.class),
+        tjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste, uttakTjeneste,
+            tilbakekrevingRepository,
+                skjæringstidspunktTjeneste, behandlingDokumentRepository, mock(TotrinnTjeneste.class),
             dokumentasjonVurderingBehovDtoTjeneste, faktaUttakPeriodeDtoTjeneste, fagsakRelasjonTjeneste,
             new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, foreldrepengerUttakTjeneste), dekningsgradTjeneste);
     }

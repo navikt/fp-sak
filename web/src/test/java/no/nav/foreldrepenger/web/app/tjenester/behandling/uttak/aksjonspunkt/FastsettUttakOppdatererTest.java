@@ -108,7 +108,7 @@ class FastsettUttakOppdatererTest {
 
         var result = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
 
-        var lagretUttak = uttakTjeneste.hentUttak(behandling.getId());
+        var lagretUttak = uttakTjeneste.hent(behandling.getId());
 
         assertThat(lagretUttak.getGjeldendePerioder()).hasSize(1);
         assertThat(lagretUttak.getGjeldendePerioder().get(0).getTidsperiode().getFomDato()).isEqualTo(fom);
