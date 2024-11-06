@@ -54,7 +54,8 @@ public class VurderOppgaveArenaTask extends GenerellProsessTask {
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (behandling.erRevurdering()) {
-            var forrigeBehandlingStartdato = getTidligsteFomDatoMedUtbetaling(behandling.getOriginalBehandlingId().orElseThrow());
+            var forrigeBehandlingStartdato = behandling.getOriginalBehandlingId()
+                .map(this::getTidligsteFomDatoMedUtbetaling).orElse(Tid.TIDENES_ENDE);
             var aktuellBehandlingStartdato = getTidligsteFomDatoMedUtbetaling(behandlingId);
             // Skal bare vurdere oppgave dersom revurdering begynner utbetaling tidligere enn forrige behandling
             if (!aktuellBehandlingStartdato.isBefore(forrigeBehandlingStartdato)) {
