@@ -136,15 +136,15 @@ public enum FeltNavnType {
     VURDERT_ETTERBETALING_TIL_SØKER("VURDERT_ETTERBETALING_TIL_SØKER", "Vurdering av etterbetaling til søker");
 
 
-    private final Object key;
+    private final String key;
     private final String text;
 
-    FeltNavnType(Object key, String text) {
+    FeltNavnType(String key, String text) {
         this.key = key;
         this.text = text;
     }
 
-    public Object getKey() {
+    public String getKey() {
         return key;
     }
 
@@ -152,7 +152,7 @@ public enum FeltNavnType {
         return text;
     }
 
-    public static FeltNavnType getByKey(Object key) {
+    public static FeltNavnType getByKey(String key) {
         for (FeltNavnType feltNavnType : values()) {
             if (feltNavnType.getKey().equals(key)) {
                 return feltNavnType;

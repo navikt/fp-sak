@@ -42,10 +42,7 @@ public class HistorikkinnslagDelDto {
         } else {
             dto.setBegrunnelsetekst(begrunnelseKodeverdi.get().getNavn());
         }
-        historikkinnslagDel.getAarsakFelt()
-                .flatMap(HistorikkinnslagDelDto::finnÅrsakKodeListe)
-                .map(Kodeverdi::getNavn)
-                .ifPresent(dto::setÅrsaktekst);
+        historikkinnslagDel.getAarsakFelt().flatMap(HistorikkinnslagDelDto::finnÅrsakKodeListe).map(Kodeverdi::getNavn).ifPresent(dto::setÅrsaktekst);
         historikkinnslagDel.getTema().ifPresent(felt -> dto.setTema(HistorikkInnslagTemaDto.mapFra(felt)));
         historikkinnslagDel.getGjeldendeFraFelt().ifPresent(felt -> {
             if (felt.getNavn() != null && felt.getNavnVerdi() != null && felt.getTilVerdi() != null) {

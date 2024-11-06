@@ -3,8 +3,8 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.historikk;
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOpplysningType.UTTAK_PERIODE_FOM;
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOpplysningType.UTTAK_PERIODE_TOM;
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType.TILBAKEKREVING_VIDEREBEHANDLING;
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkDtoFellesMapper.tilHistorikkInnslagDto;
 import static no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkDtoFellesMapper.leggTilAlleTeksterIHovedliste;
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkDtoFellesMapper.tilHistorikkInnslagDto;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -82,7 +82,7 @@ public class HistorikkV2Adapter {
                 fraMaltypeTilbakekreving(h, behandlingUUID);
              */
 
-            default -> null; //TODO fjerne default
+            default -> null;
         };
     }
 
@@ -333,20 +333,17 @@ public class HistorikkV2Adapter {
     }
 
     private static String byggEndretFeltTekstForAktivitetskravMal(HistorikkinnslagDel del) {
-        var feltOPT = del.getEndredeFelt().stream()
-            .filter(e -> FeltNavnType.AKTIVITETSKRAV_AVKLARING.equals(e.getKlTilVerdi()))
-            .findFirst();
+        var felt = del.getEndredeFelt().stream()
+            .filter(e -> FeltNavnType.AKTIVITETSKRAV_AVKLARING.getKey().equals(e.getKlTilVerdi()))
+            .findFirst()
+            .orElseThrow();
 
-        var tilVerdiNavn = (feltOPT.isPresent() && feltOPT.get().getKlTilVerdi() != null)
-            ? FeltType.valueOf(feltOPT.get().getTilVerdiKode()).name()
-            : "";
-
+        var tilVerdiNavn = FeltType.valueOf(felt.getTilVerdiKode()).name();
         var periodeFom = del.getOpplysninger().stream()
             .filter(o -> UTTAK_PERIODE_FOM.getKode().equals(o.getNavn()))
             .map(HistorikkinnslagFelt::getTilVerdi)
             .findFirst()
             .orElse("");
-
         var periodeTom = del.getOpplysninger().stream()
             .filter(o -> UTTAK_PERIODE_TOM.getKode().equals(o.getNavn()))
             .map(HistorikkinnslagFelt::getTilVerdi)
@@ -354,12 +351,10 @@ public class HistorikkV2Adapter {
             .orElse("");
 
 
-        if (feltOPT.isEmpty() || feltOPT.get().getFraVerdi() == null) {
+        if (felt.getFraVerdi() == null) {
             return String.format("Perioden <b>%s- %s</b> er avklart til <b>%s</b>", periodeFom, periodeTom, tilVerdiNavn);
         } else {
-            var fraVerdi = (feltOPT.isPresent() && feltOPT.get().getKlFraVerdi() != null)
-                ? FeltType.valueOf(feltOPT.get().getFraVerdiKode()).name()
-                : "";
+            var fraVerdi = FeltType.valueOf(felt.getFraVerdiKode()).getText();
             return String.format("Perioden <b>%s - %s</b> er endret fra %s til <b>%s</b>", periodeFom, periodeTom, fraVerdi, tilVerdiNavn);
         }
     }
