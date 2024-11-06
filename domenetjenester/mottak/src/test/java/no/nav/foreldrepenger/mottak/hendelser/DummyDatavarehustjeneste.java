@@ -29,9 +29,4 @@ public class DummyDatavarehustjeneste implements DatavarehusTjeneste {
 
     }
 
-    @Override
-    public void oppdaterHvisKlageEllerAnke(Long behandlingId, Collection<Aksjonspunkt> aksjonspunkter) {
-
-    }
-
 }

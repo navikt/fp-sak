@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingEnhetEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingRelasjonEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingSaksbehandlerEvent;
@@ -35,11 +36,14 @@ public class DatavarehusEventObserver {
     public void observerAksjonspunktStatusEvent(@Observes AksjonspunktStatusEvent event) {
         var aksjonspunkter = event.getAksjonspunkter();
         // Utvider behandlingStatus i DVH med VenteKategori
-        if (aksjonspunkter.stream().anyMatch(Aksjonspunkt::erAutopunkt)) {
+        if (aksjonspunkter.stream().anyMatch(a -> a.erAutopunkt() || (a.erUtført() && gjelderKlage(a)))) {
             tjeneste.lagreNedBehandling(event.getBehandlingId());
         }
-        // Sjekker om aksjonspunkt er relatert til klage/anke og er UTFØRT. TODO: TFP-5788
-        tjeneste.oppdaterHvisKlageEllerAnke(event.getBehandlingId(), aksjonspunkter);
+    }
+
+    private static boolean gjelderKlage(Aksjonspunkt a) {
+        return AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP.equals(a.getAksjonspunktDefinisjon()) ||
+            AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP.equals(a.getAksjonspunktDefinisjon());
     }
 
     public void observerBehandlingEnhetEvent(@Observes BehandlingEnhetEvent event) {
