@@ -2,11 +2,13 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.historikk;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOpplysningType.UTTAK_PERIODE_FOM;
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOpplysningType.UTTAK_PERIODE_TOM;
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType.TILBAKEKR_VIDEREBEHANDLING;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType.TILBAKEKREVING_VIDEREBEHANDLING;
 import static no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkDtoFellesMapper.tilHistorikkInnslagDto;
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkDtoFellesMapper.leggTilAlleTeksterIHovedliste;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -66,7 +68,7 @@ public class HistorikkV2Adapter {
                 -> fraMalType6(h, behandlingUUID);
             case OVERSTYRT-> fraMalType7(h, behandlingUUID, journalPosterForSak, dokumentPath);
             case OPPTJENING -> throw new IllegalStateException(String.format("Kode: %s har ingen maltype", h.getType())); // Ingen historikkinnslag for denne typen i DB!
-            case OVST_UTTAK_SPLITT, FASTSATT_UTTAK_SPLITT, TILBAKEKR_VIDEREBEHANDLING -> fraMalType9(h, behandlingUUID);
+            case OVST_UTTAK_SPLITT, FASTSATT_UTTAK_SPLITT, TILBAKEKREVING_VIDEREBEHANDLING -> fraMalType9(h, behandlingUUID);
             case OVST_UTTAK, FASTSATT_UTTAK -> fraMaltype10(h, behandlingUUID, journalPosterForSak, dokumentPath);
             case AVKLART_AKTIVITETSKRAV ->
                 fraMalTypeAktivitetskrav(h, behandlingUUID);
@@ -109,8 +111,8 @@ public class HistorikkV2Adapter {
             var aksjonspunkt = del.getTotrinnsvurderinger().stream()
                 .map(HistorikkV2Adapter::fraAksjonspunktFelt)
                 .toList();
-            tekster.addAll(hendelseTekst);
-            tekster.addAll(aksjonspunkt);
+
+            leggTilAlleTeksterIHovedliste(tekster, hendelseTekst, aksjonspunkt);
         }
         return tilHistorikkInnslagDto(h, behandlingUUID, tekster);
     }
@@ -127,9 +129,7 @@ public class HistorikkV2Adapter {
                 .toList();
             var begrunnelsetekst = begrunnelseFraDel(del).stream().toList();
 
-            tekster.addAll(hendelseTekst);
-            tekster.addAll(årsakTekst);
-            tekster.addAll(begrunnelsetekst);
+            leggTilAlleTeksterIHovedliste(tekster, hendelseTekst, årsakTekst, begrunnelsetekst);
         }
         return tilHistorikkInnslagDto(h, behandlingUUID, tekster);
     }
@@ -166,15 +166,8 @@ public class HistorikkV2Adapter {
                 .toList();
             var begrunnelsetekst = begrunnelseFraDel(del).stream().toList();
 
-            tekster.addAll(hendelseTekst);
-            tekster.addAll(resultatTekst);
-            tekster.addAll(gjeldendeFraInnslag);
-            tekster.addAll(søknadsperiode);
-            tekster.addAll(tema);
-            tekster.addAll(endretFelter);
-            tekster.addAll(opplysninger);
-            tekster.addAll(årsaktekst);
-            tekster.addAll(begrunnelsetekst);
+            leggTilAlleTeksterIHovedliste(tekster, hendelseTekst, resultatTekst, gjeldendeFraInnslag, søknadsperiode, tema, endretFelter,
+                opplysninger, årsaktekst, begrunnelsetekst);
         }
         return tilHistorikkInnslagDto(h, behandlingUUID, tilDokumentlenker(h.getDokumentLinker(), journalPosterForSak, dokumentPath), tekster);
     }
@@ -189,8 +182,7 @@ public class HistorikkV2Adapter {
                 .map(HistorikkV2Adapter::fraOpplysning)
                 .toList();
 
-            tekster.addAll(hendelseTekst);
-            tekster.addAll(opplysninger);
+            leggTilAlleTeksterIHovedliste(tekster, hendelseTekst, opplysninger);
         }
         return tilHistorikkInnslagDto(h, behandlingUUID, tekster);
 
@@ -215,10 +207,7 @@ public class HistorikkV2Adapter {
             // AARSAK finnes ikke i DB for denne maltypen
             var begrunnelsetekst = begrunnelseFraDel(del).stream().toList();
 
-            tekster.addAll(resultatTekst);
-            tekster.addAll(endretFelter);
-            tekster.addAll(tema);
-            tekster.addAll(begrunnelsetekst);
+            leggTilAlleTeksterIHovedliste(tekster, resultatTekst, endretFelter, tema, begrunnelsetekst);
         }
         return tilHistorikkInnslagDto(h, behandlingUUID, tilDokumentlenker(h.getDokumentLinker(), journalPosterForSak, dokumentPath), tekster);
     }
@@ -239,13 +228,12 @@ public class HistorikkV2Adapter {
     private static HistorikkinnslagDtoV2 fraMalType9(Historikkinnslag h, UUID behandlingUUID) {
         var tekster = new ArrayList<String>();
         for (var del : h.getHistorikkinnslagDeler()) {
-            var endretFeltTekst = h.getType().equals(TILBAKEKR_VIDEREBEHANDLING)
+            var endretFeltTekst = h.getType().equals(TILBAKEKREVING_VIDEREBEHANDLING)
                 ? fraEndretFeltMalType9Tilbakekr(del)
                 : List.of(fraEndretFeltMalType9(h, del));
             var begrunnelsetekst = begrunnelseFraDel(del).stream().toList();
 
-            tekster.addAll(endretFeltTekst);
-            tekster.addAll(begrunnelsetekst);
+            leggTilAlleTeksterIHovedliste(tekster, endretFeltTekst, begrunnelsetekst);
         }
         return tilHistorikkInnslagDto(h, behandlingUUID, tekster);
     }
@@ -282,9 +270,7 @@ public class HistorikkV2Adapter {
 
             var begrunnelsetekst = begrunnelseFraDel(del).stream().toList();
 
-            tekster.add(opplysningTekst);
-            tekster.addAll(endretFelter);
-            tekster.addAll(begrunnelsetekst);
+            leggTilAlleTeksterIHovedliste(tekster, Collections.singletonList(opplysningTekst), endretFelter, begrunnelsetekst);
         }
         return tilHistorikkInnslagDto(h, behandlingUUID, tilDokumentlenker(h.getDokumentLinker(), journalPosterForSak, dokumentPath), tekster);
     }
@@ -295,8 +281,7 @@ public class HistorikkV2Adapter {
             var endretFelter = byggEndretFeltTekstForAktivitetskravMal(del);
             var begrunnelsetekst = begrunnelseFraDel(del).stream().toList();
 
-            tekster.add(endretFelter);
-            tekster.addAll(begrunnelsetekst);
+            leggTilAlleTeksterIHovedliste(tekster, Collections.singletonList(endretFelter), begrunnelsetekst);
         }
         return tilHistorikkInnslagDto(h, behandlingUUID, tekster);
     }

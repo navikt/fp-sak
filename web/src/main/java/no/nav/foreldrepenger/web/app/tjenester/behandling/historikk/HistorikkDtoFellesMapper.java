@@ -26,6 +26,13 @@ public class HistorikkDtoFellesMapper {
             tekster);
     }
 
+    @SafeVarargs
+    public static void leggTilAlleTeksterIHovedliste(List<String> hovedListe, List<String>... lister) {
+        for (List<String> liste : lister) {
+            hovedListe.addAll(liste);
+        }
+    }
+
     private static Optional<SkjermlenkeType> skjermlenkeFra(Historikkinnslag h) {
         return h.getHistorikkinnslagDeler().stream()
             .flatMap(del -> del.getSkjermlenke().stream())
