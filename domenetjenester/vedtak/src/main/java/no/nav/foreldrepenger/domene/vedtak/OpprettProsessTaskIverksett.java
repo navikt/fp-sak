@@ -59,7 +59,7 @@ public class OpprettProsessTaskIverksett {
     }
 
     private void leggTilTasksYtelsesBehandling(Behandling behandling, ProsessTaskGruppe taskGruppe) {
-        if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) && !behandling.erRevurdering()) {
+        if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
             taskGruppe.addNesteSekvensiell(ProsessTaskData.forProsessTask(VurderOppgaveArenaTask.class));
         }
         if (!FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
