@@ -131,10 +131,11 @@ class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
     void skal_fastsette_periode_ved_fødsel_far() {
         var fødselsdato = LocalDate.now();
         var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
-            .medPeriode(LocalDate.now().minusDays(1L), LocalDate.now().plusWeeks(4))
+            .medPeriode(fødselsdato.minusDays(1), fødselsdato.plusWeeks(4))
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE);
+        var oppgittPeriode = oppgittPeriodeBuilder.build();
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriodeBuilder.build()), true));
+            .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriode), true));
         scenario.medBekreftetHendelse().medFødselsDato(fødselsdato).medAntallBarn(1);
         scenario.medSøknadHendelse().medFødselsDato(fødselsdato).medAntallBarn(1);
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
@@ -158,7 +159,7 @@ class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
         var data = opptjeningsperiodeVilkårTjeneste.vurderVilkår(lagRef(behandling));
 
         var op = (OpptjeningsPeriode) data.ekstraVilkårresultat();
-        assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(LocalDate.now().minusDays(1L));
+        assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(oppgittPeriode.getFom().minusDays(1));
     }
 
     @Test

@@ -355,19 +355,24 @@ class FastsettePerioderRegelAdapterTest {
         var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input, kontoer);
         // Assert
         var uttakResultatPerioder = resultat.getPerioder();
-        assertThat(uttakResultatPerioder).hasSize(2);
+        assertThat(uttakResultatPerioder).hasSize(3);
 
         var periode1 = uttakResultatPerioder.get(0);
         assertThat(periode1.getFom()).isEqualTo(startDato);
-        assertThat(periode1.getTom()).isEqualTo(fødselsdato.minusDays(1));
+        assertThat(periode1.getTom()).isEqualTo(fødselsdato.minusWeeks(2).minusDays(1));
         assertThat(periode1.getResultatType()).isEqualTo(PeriodeResultatType.MANUELL_BEHANDLING);
-        assertThat(periode1.getManuellBehandlingÅrsak().getKode()).isEqualTo(
-            String.valueOf(Manuellbehandlingårsak.FAR_SØKER_FØR_FØDSEL.getId()));
+        assertThat(periode1.getManuellBehandlingÅrsak()).isEqualTo(ManuellBehandlingÅrsak.FAR_SØKER_FØR_FØDSEL); //starter for tidlig
 
         var periode2 = uttakResultatPerioder.get(1);
-        assertThat(periode2.getFom()).isEqualTo(fødselsdato);
-        assertThat(periode2.getTom()).isEqualTo(sluttDato);
+        assertThat(periode2.getFom()).isEqualTo(fødselsdato.minusWeeks(2));
+        assertThat(periode2.getTom()).isEqualTo(fødselsdato.minusDays(1));
         assertThat(periode2.getResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
+
+        var periode3 = uttakResultatPerioder.get(2);
+        assertThat(periode3.getFom()).isEqualTo(fødselsdato);
+        assertThat(periode3.getTom()).isEqualTo(sluttDato);
+        assertThat(periode3.getResultatType()).isEqualTo(PeriodeResultatType.MANUELL_BEHANDLING);
+        assertThat(periode3.getManuellBehandlingÅrsak()).isEqualTo(ManuellBehandlingÅrsak.UGYLDIG_STØNADSKONTO); //tom for dager rundt fødsel
     }
 
     @Test
