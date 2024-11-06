@@ -17,18 +17,13 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
-import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
-import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus;
-import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
@@ -51,8 +46,6 @@ public class FpInntektsmeldingTjeneste {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private HistorikkRepository historikkRepo;
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
-    private InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste;
-    private ArbeidsforholdInntektsmeldingMangelTjeneste inntektsmeldingMangelTjeneste;
 
     private static final Logger LOG = LoggerFactory.getLogger(FpInntektsmeldingTjeneste.class);
 
@@ -65,16 +58,12 @@ public class FpInntektsmeldingTjeneste {
                                      ProsessTaskTjeneste prosessTaskTjeneste,
                                      SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                      HistorikkRepository historikkRepo,
-                                     ArbeidsgiverTjeneste arbeidsgiverTjeneste,
-                                     InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste,
-                                     ArbeidsforholdInntektsmeldingMangelTjeneste inntektsmeldingMangelTjeneste) {
+                                     ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
         this.klient = klient;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.historikkRepo = historikkRepo;
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
-        this.inntektsmeldingRegisterTjeneste = inntektsmeldingRegisterTjeneste;
-        this.inntektsmeldingMangelTjeneste = inntektsmeldingMangelTjeneste;
     }
 
     public void lagForespørselTask(String ag, BehandlingReferanse ref) {
@@ -215,34 +204,5 @@ public class FpInntektsmeldingTjeneste {
 
         var request = new LukkForespørselRequest(null, new OpprettForespørselRequest.SaksnummerDto(saksnummer));
         klient.settForespørselTilUtgått(request);
-    }
-
-    public void sjekkOmIMManglerOgOpprettForesporselTask(Behandling behandling) {
-        var ref = BehandlingReferanse.fra(behandling);
-        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-
-        if(behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD)) {
-            //har ikke innhentet registerdata enda?
-            inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraAAreg(ref, stp)
-                .keySet()
-                .stream()
-                .filter(Arbeidsgiver::getErVirksomhet)
-                .forEach(a -> lagForespørselTask(a.getIdentifikator(), ref));
-        } else if (behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_ETTERLYST_INNTEKTSMELDING)) {
-                inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(ref, stp)
-                .keySet()
-                    .stream()
-                    .filter(Arbeidsgiver::getErVirksomhet)
-                    .forEach(a -> lagForespørselTask(a.getIdentifikator(), ref));
-        } else if (behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING)) {
-            //må sjekke saksbehandler-valg for å finne ut hvilke inntektmeldinger som mangler
-           inntektsmeldingMangelTjeneste.finnStatusForInntektsmeldingArbeidsforhold(ref, stp)
-               .stream()
-               .filter(arbforholdImStatus -> arbforholdImStatus.inntektsmeldingStatus().equals(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT))
-               .filter(arbforholdImStatus -> arbforholdImStatus.arbeidsgiver().getErVirksomhet())
-               .forEach(ikkeMottattIm -> lagForespørselTask(ikkeMottattIm.arbeidsgiver().getOrgnr(), ref));
-        } else {
-            throw new IllegalArgumentException("Behandling har ikke aksjonspunkt 7003, 7030 eller 5085 og er ugyldig for denne operasjonen");
-        }
     }
 }
