@@ -73,8 +73,8 @@ public enum FeltNavnType {
     UTTAK_SPLITT_TIDSPERIODE("UTTAK_SPLITT_TIDSPERIODE", "Resulterende periode ved splitting"), // txt finnes ikke i frontend
     SYKDOM("SYKDOM", "Sykdom"),
     ARBEIDSFORHOLD("ARBEIDSFORHOLD", "Arbeidsforhold hos {value}"),
-    NY_FORDELING("NY_FORDELING", "Ny fordeling <b>{value}</b>"),
-    NY_AKTIVITET("NY_AKTIVITET", "Det er lagt til ny aktivitet for <b>{value}</b>"),
+    NY_FORDELING("NY_FORDELING", "Ny fordeling __{value}__"),
+    NY_AKTIVITET("NY_AKTIVITET", "Det er lagt til ny aktivitet for __{value}__"),
     NYTT_REFUSJONSKRAV("NYTT_REFUSJONSKRAV", "Nytt refusjonskrav"),
     INNTEKTSKATEGORI("INNTEKTSKATEGORI", "Inntektskategori"),
     FNR("FNR", "Fødselsnummer"),

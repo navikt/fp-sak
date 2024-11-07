@@ -152,9 +152,11 @@ public class HistorikkV2Adapter {
                 .toList();
             var søknadsperiode = del.getAvklartSoeknadsperiode().stream()
                 .map(HistorikkV2Adapter::fraSøknadsperiode)
+                .flatMap(List::stream)
                 .toList();
             var tema = del.getTema().stream()
                 .map(HistorikkV2Adapter::fraTema)
+                .flatMap(List::stream)
                 .toList();
             var endretFelter = del.getEndredeFelt().stream()
                 .map(HistorikkV2Adapter::fraEndretFelt)
@@ -205,6 +207,7 @@ public class HistorikkV2Adapter {
             // OPPLYSNINGER finnes ikke i DB for denne maltypen
             var tema = del.getTema().stream() // Vises bare getNavnVerdi... gjør forbedring her
                 .map(HistorikkV2Adapter::fraTema)
+                .flatMap(List::stream)
                 .toList();
             // AARSAK finnes ikke i DB for denne maltypen
             var begrunnelsetekst = begrunnelseFraDel(del).stream().toList();
@@ -220,7 +223,7 @@ public class HistorikkV2Adapter {
         var sub2 = fieldName.substring(fieldName.lastIndexOf(';') + 1);
         var fraVerdi = finnEndretFeltVerdi(felt, felt.getFraVerdi());
         var tilVerdi = finnEndretFeltVerdi(felt, felt.getTilVerdi());
-        return "<b>{sub1}</b> {sub2} <b>{fromValue}</b> til <b>{toValue}</b>"
+        return "__{sub1}__ {sub2} __{fromValue}__ til __{toValue}__"
             .replace("{sub1}", sub1)
             .replace("{sub2}", sub2)
             .replace("{fromValue}", fraVerdi)
@@ -259,11 +262,11 @@ public class HistorikkV2Adapter {
 
             var opplysningTekst = "";
             if (h.getType().equals(HistorikkinnslagType.OVST_UTTAK)) {
-                opplysningTekst = String.format("<b>Overstyrt vurdering</b> av perioden %s - %s.", periodeFom, periodeTom);
+                opplysningTekst = String.format("__Overstyrt vurdering__ av perioden %s - %s.", periodeFom, periodeTom);
 
             }
             if (h.getType().equals(HistorikkinnslagType.FASTSATT_UTTAK)) {
-                opplysningTekst = String.format("<b>Manuell vurdering</b> av perioden %s - %s.", periodeFom, periodeTom);
+                opplysningTekst = String.format("__Manuell vurdering__ av perioden %s - %s.", periodeFom, periodeTom);
             }
 
             var endretFelter = del.getEndredeFelt().stream()
@@ -298,7 +301,7 @@ public class HistorikkV2Adapter {
     private static String fraEndretFeltMalType9Tilbakekr(HistorikkinnslagFelt felt) {
         var fieldName = kodeverdiTilStreng(HistorikkEndretFeltType.fraKode(felt.getNavn()), felt.getNavnVerdi());
         var verdi = finnEndretFeltVerdi(felt, felt.getTilVerdi());
-        return "<b>{felt}</b> er satt til <b>{verdi}</b>"
+        return "__{felt}__ er satt til __{verdi}__"
             .replace("{felt}", fieldName)
             .replace("{verdi}", verdi);
     }
@@ -308,8 +311,8 @@ public class HistorikkV2Adapter {
         var numberOfPeriods = String.valueOf(del.getEndredeFelt().size());
         var splitPeriods = tekstRepresentasjonAvListe(del.getEndredeFelt());
         var tekst =  switch (h.getType()) {
-            case OVST_UTTAK_SPLITT -> "<b>Overstyrt vurdering</b> av perioden {opprinneligPeriode}. {br}<b>Perioden</b> er delt i {numberOfPeriods} og satt til <b>{splitPeriods}</b>";
-            case FASTSATT_UTTAK_SPLITT -> "<b>Manuell vurdering</b> av perioden {opprinneligPeriode}. {br}<b>Perioden</b> er delt i {numberOfPeriods} og satt til <b>{splitPeriods}</b>";
+            case OVST_UTTAK_SPLITT -> "__Overstyrt vurdering__ av perioden {opprinneligPeriode}. {br}__Perioden__ er delt i {numberOfPeriods} og satt til __{splitPeriods}__";
+            case FASTSATT_UTTAK_SPLITT -> "__Manuell vurdering__ av perioden {opprinneligPeriode}. {br}__Perioden__ er delt i {numberOfPeriods} og satt til __{splitPeriods}__";
             default -> throw new IllegalStateException("Ikke støttet type" + h);
         };
         return tekst
@@ -354,10 +357,10 @@ public class HistorikkV2Adapter {
 
 
         if (felt.getFraVerdi() == null) {
-            return String.format("Perioden <b>%s- %s</b> er avklart til <b>%s</b>", periodeFom, periodeTom, tilVerdiNavn);
+            return String.format("Perioden __%s- %s__ er avklart til __%s__", periodeFom, periodeTom, tilVerdiNavn);
         } else {
             var fraVerdi = FeltType.valueOf(felt.getFraVerdiKode()).getText();
-            return String.format("Perioden <b>%s - %s</b> er endret fra %s til <b>%s</b>", periodeFom, periodeTom, fraVerdi, tilVerdiNavn);
+            return String.format("Perioden __%s - %s__ er endret fra %s til __%s__", periodeFom, periodeTom, fraVerdi, tilVerdiNavn);
         }
     }
 
@@ -378,7 +381,7 @@ public class HistorikkV2Adapter {
             var tilVerdiUker = (int) Math.floor(tilVerdi / 5);
             var tilVerdiDager = tilVerdi % 1 == 0 ? tilVerdi % 5 : (Math.round(tilVerdi % 5 * 10) / 10.0); //TODO test gradering der trekkdager er feks 10,5, burde oversttes til 2 uker og 0,5 dager
 
-            tekst = String.format("<b>%s</b> er endret fra %s uker og %s dager til <b>%s uker og %s dager</b>", fieldName, fraVerdiUker,
+            tekst = String.format("__%s__ er endret fra %s uker og %s dager til __%s uker og %s dager__", fieldName, fraVerdiUker,
                 fraVerdiDager, tilVerdiUker, tilVerdiDager);
         } else {
             tekst = historikkFraTilVerdi(felt, fieldName);
@@ -390,14 +393,14 @@ public class HistorikkV2Adapter {
     private static String historikkFraTilVerdi(HistorikkinnslagFelt felt, String fieldName) {
         var fraVerdi = finnEndretFeltVerdi(felt, felt.getFraVerdi());
         var tilVerdi = finnEndretFeltVerdi(felt, felt.getTilVerdi());
-        var tekstMeldingTil = String.format("<b>%s</b> er satt til <b>%s</b>", fieldName, tilVerdi);
-        var tekstMeldingEndretFraTil = String.format("<b>%s</b> er endret fra %s til <b>%s</b>", fieldName, fraVerdi, tilVerdi);
+        var tekstMeldingTil = String.format("__%s__ er satt til __%s__", fieldName, tilVerdi);
+        var tekstMeldingEndretFraTil = String.format("__%s__ er endret fra %s til __%s__", fieldName, fraVerdi, tilVerdi);
         var tekst = fraVerdi != null ? tekstMeldingEndretFraTil : tekstMeldingTil;
 
         if (HistorikkEndretFeltType.UTTAK_PROSENT_UTBETALING.getKode().equals(felt.getNavn()) && fraVerdi != null) {
-            tekst = String.format("<b>%s</b> er endret fra %s %% til <b>%s %%</b>", fieldName, fraVerdi, tilVerdi);
+            tekst = String.format("__%s__ er endret fra %s %% til __%s %%__", fieldName, fraVerdi, tilVerdi);
         } else if (HistorikkEndretFeltType.UTTAK_PROSENT_UTBETALING.getKode().equals(felt.getNavn())) {
-            tekst = String.format("<b>%s</b> er satt til <b>%s%%</b>", fieldName, tilVerdi);
+            tekst = String.format("__%s__ er satt til __%s%%__", fieldName, tilVerdi);
         } else if (HistorikkEndretFeltType.UTTAK_PERIODE_RESULTAT_TYPE.getKode().equals(felt.getNavn()) && "MANUELL_BEHANDLING".equals(felt.getFraVerdi())) {
             tekst = tekstMeldingTil;
         } else if (HistorikkEndretFeltType.UTTAK_PERIODE_RESULTAT_ÅRSAK.getKode().equals(felt.getNavn())
@@ -420,7 +423,7 @@ public class HistorikkV2Adapter {
         var historikkOpplysningType = HistorikkOpplysningType.fraKode(opplysning.getNavn());
 
         return switch (historikkOpplysningType) {
-            case ANTALL_BARN -> "<b>Antall barn</b> som brukes i behandlingen: <b>{antallBarn}</b>".replace("{antallBarn}", opplysning.getTilVerdi()); // Brukes bare av maltype 5
+            case ANTALL_BARN -> "__Antall barn__ som brukes i behandlingen: __{antallBarn}__".replace("{antallBarn}", opplysning.getTilVerdi()); // Brukes bare av maltype 5
             case TPS_ANTALL_BARN -> "Antall barn {verdi}".replace("{verdi}", opplysning.getTilVerdi());  // Brukes av maltype 6
             case FODSELSDATO -> "Når ble barnet født? {verdi}".replace("{verdi}", opplysning.getTilVerdi()); // Brukes av maltype 6
             //case UTTAK_PERIODE_FOM -> historikkOpplysningType.getNavn(); // Brukes av maltype 10 + aktivitetskrav
@@ -461,7 +464,7 @@ public class HistorikkV2Adapter {
         }
 
         if (felt.getFraVerdi() == null || endretFeltNavn.equals(HistorikkEndretFeltType.FORDELING_FOR_NY_ANDEL)) {
-            return String.format("<b>%s</b> er satt til <b>%s</b>.", feltNavn, tilVerdi);
+            return String.format("__%s__ er satt til __%s__.", feltNavn, tilVerdi);
         }
 
         var fraVerdi = konverterBoolean(felt.getFraVerdi());
@@ -469,7 +472,7 @@ public class HistorikkV2Adapter {
             fraVerdi = kodeverdiTilStrengEndretFeltTilverdi(felt.getFraVerdiKode(), felt.getFraVerdi());
         }
 
-        return String.format("<b>%s</b> endret fra %s til <b>%s</b>", feltNavn, fraVerdi, tilVerdi);
+        return String.format("__%s__ endret fra %s til __%s__", feltNavn, fraVerdi, tilVerdi);
     }
 
     private static String konverterBoolean(String verdi) {
@@ -503,41 +506,60 @@ public class HistorikkV2Adapter {
         return tekstFrontend;
     }
 
-    private static String fraTema(HistorikkinnslagFelt tema) {
+    private static List<String> fraTema(HistorikkinnslagFelt tema) {
         var type = HistorikkEndretFeltType.fraKode(tema.getNavn());
         var tekst = switch (type) {
-            case AKTIVITET -> "<b>Det er lagt til ny aktivitet:</b> <br/><b>{value}</b>"; // Finnes ikke frontend
-            case FORDELING_FOR_NY_ANDEL -> "<b>Det er lagt til ny aktivitet:</b> <br/><b>{value}</b>: Fordeling for ";
-            case FORDELING_FOR_ANDEL -> "Fordeling for <b>{value}</b>:";
+            case AKTIVITET -> "__Det er lagt til ny aktivitet:__"; // Finnes ikke frontend
+            case FORDELING_FOR_NY_ANDEL -> "__Det er lagt til ny aktivitet:__";
+            case FORDELING_FOR_ANDEL -> "Fordeling for __{value}__:";
             default -> throw new IllegalStateException("Unexpected value: " + type);
         };
-        return String.format(tekst, tema.getNavnVerdi());
+
+        if (type.equals(HistorikkEndretFeltType.FORDELING_FOR_ANDEL)) {
+            return List.of(tekst.replace("{value}", tema.getNavnVerdi()));
+        } else {
+            return List.of(
+                tekst,
+                String.format("__%s__", tema.getNavnVerdi())
+            );
+        }
     }
 
-    private static String fraSøknadsperiode(HistorikkinnslagFelt søknadsperiode) {
+    private static List<String> fraSøknadsperiode(HistorikkinnslagFelt søknadsperiode) {
         var type = HistorikkAvklartSoeknadsperiodeType.fraKode(søknadsperiode.getNavn());
 
         var tekst = switch (type) {
-            case GRADERING -> "<b>Uttak: gradering</b> <br/>%s<br/>%s";
-            case UTSETTELSE_ARBEID -> "<b>Utsettelse: Arbeid</b> <br/>%s";
-            case UTSETTELSE_FERIE -> "<b>Utsettelse: Ferie</b> <br/>%s";
-            case UTSETTELSE_SKYDOM -> "<b>Utsettelse: Sykdom/skade</b> <br/>%s";
-            case UTSETTELSE_HV -> "<b>Utsettelse: Heimevernet</b> <br/>%s";
-            case UTSETTELSE_TILTAK_I_REGI_AV_NAV -> "<b>Utsettelse: Tiltak i regi av NAV</b> <br/>%s";
-            case UTSETTELSE_INSTITUSJON_SØKER -> "<b>Utsettelse: Innleggelse av forelder</b> <br/>%s";
-            case UTSETTELSE_INSTITUSJON_BARN -> "<b>Utsettelse: Innleggelse av barn</b> <br/>%s";
-            case NY_SOEKNADSPERIODE -> "<b>Ny periode er lagt til</b> <br/>%s";
-            case SLETTET_SOEKNASPERIODE -> "<b>Perioden er slettet</b> <br/>%s";
-            case OVERFOERING_ALENEOMSORG -> "<b>Overføring: søker har aleneomsorg</b> <br/>%s";
-            case OVERFOERING_SKYDOM -> "<b>Overføring: sykdom/skade</b> <br/>%s";
-            case OVERFOERING_INNLEGGELSE -> "<b>Overføring: innleggelse</b> <br/>%s";
-            case OVERFOERING_IKKE_RETT -> "<b>Overføring: annen forelder har ikke rett</b> <br/>%s";
-            case UTTAK -> "<b>Uttak</b> <br/>%s";
-            case OPPHOLD -> "<b>Opphold: annen foreldres uttak</b> <br/>%s";
+            case GRADERING -> "__Uttak: gradering__";
+            case UTSETTELSE_ARBEID -> "__Utsettelse: Arbeid__";
+            case UTSETTELSE_FERIE -> "__Utsettelse: Ferie__";
+            case UTSETTELSE_SKYDOM -> "__Utsettelse: Sykdom/skade__";
+            case UTSETTELSE_HV -> "__Utsettelse: Heimevernet__";
+            case UTSETTELSE_TILTAK_I_REGI_AV_NAV -> "__Utsettelse: Tiltak i regi av NAV__";
+            case UTSETTELSE_INSTITUSJON_SØKER -> "__Utsettelse: Innleggelse av forelder__";
+            case UTSETTELSE_INSTITUSJON_BARN -> "__Utsettelse: Innleggelse av barn__";
+            case NY_SOEKNADSPERIODE -> "__Ny periode er lagt til__";
+            case SLETTET_SOEKNASPERIODE -> "__Perioden er slettet__";
+            case OVERFOERING_ALENEOMSORG -> "__Overføring: søker har aleneomsorg__";
+            case OVERFOERING_SKYDOM -> "__Overføring: sykdom/skade__";
+            case OVERFOERING_INNLEGGELSE -> "__Overføring: innleggelse__";
+            case OVERFOERING_IKKE_RETT -> "__Overføring: annen forelder har ikke rett__";
+            case UTTAK -> "__Uttak__";
+            case OPPHOLD -> "__Opphold: annen foreldres uttak__";
             default -> throw new IllegalStateException("Unexpected value: " + type);
         };
-        return type.equals(HistorikkAvklartSoeknadsperiodeType.GRADERING) ? String.format(tekst, søknadsperiode.getNavnVerdi(),
-            søknadsperiode.getTilVerdi()) : String.format(tekst, søknadsperiode.getTilVerdi());
+
+        if (type.equals(HistorikkAvklartSoeknadsperiodeType.GRADERING)) {
+            return List.of(
+                tekst,
+                søknadsperiode.getNavnVerdi(),
+                søknadsperiode.getTilVerdi()
+            );
+        } else {
+            return List.of(
+                tekst,
+                søknadsperiode.getTilVerdi()
+            );
+        }
     }
 
     private static String tilGjeldendeFraInnslag(HistorikkinnslagFelt gjeldendeFra, HistorikkinnslagDel del) {
@@ -545,12 +567,12 @@ public class HistorikkV2Adapter {
         var historikkEndretFeltType = HistorikkEndretFeltType.fraKode(gjeldendeFra.getNavn());
 
         var endretFeltTekst = switch (historikkEndretFeltType) {
-            case NY_AKTIVITET -> "Det er lagt til ny aktivitet for <b>%s</b>";
-            case NY_FORDELING -> "Ny fordeling <b>%s</b>";
+            case NY_AKTIVITET -> "Det er lagt til ny aktivitet for __%s__";
+            case NY_FORDELING -> "Ny fordeling __%s__";
             default -> throw new IllegalArgumentException();
         };
         // Historikk.Template.5.VerdiGjeldendeFra
-        var verditekst = String.format(" gjeldende fra <b>%s</b>:", gjeldendeFra.getTilVerdi());
+        var verditekst = String.format(" gjeldende fra __%s__:", gjeldendeFra.getTilVerdi());
 
         return String.format(endretFeltTekst, gjeldendeFra.getNavnVerdi()) + verditekst + (del.getEndredeFelt()
             .isEmpty() ? "Ingen endring av vurdering" : "");
