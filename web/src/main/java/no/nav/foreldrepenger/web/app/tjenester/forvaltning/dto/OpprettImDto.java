@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.QueryParam;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -19,7 +18,6 @@ public class OpprettImDto implements AbacDto {
     private UUID behandlingUuid;
 
     @Valid
-    @NotNull
     @Digits(integer = 4, fraction = 0)
     @QueryParam("aksjonspunktKode")
     private String aksjonspunktKode;
