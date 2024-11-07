@@ -13,7 +13,8 @@ public record OpprettForespørselRequest(@NotNull @Valid AktørIdDto aktørId,
                                         @NotNull @Valid OrganisasjonsnummerDto orgnummer,
                                         @NotNull LocalDate skjæringstidspunkt,
                                         @NotNull YtelseType ytelsetype,
-                                        @NotNull @Valid SaksnummerDto fagsakSaksnummer) {
+                                        @NotNull @Valid SaksnummerDto fagsakSaksnummer,
+                                        @Valid LocalDate førsteUttaksdato) {
     protected record AktørIdDto(@NotNull @JsonValue String id){
         @Override
         public String toString() {

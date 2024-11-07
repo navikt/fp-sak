@@ -93,7 +93,7 @@ class FpInntektsmeldingTjenesteTest {
 
         var behandlingRef = new BehandlingReferanse(new Saksnummer("1234"), 1234L, FagsakYtelseType.FORELDREPENGER, 4321L, UUID.randomUUID(),
             BehandlingStatus.UTREDES, BehandlingType.FØRSTEGANGSSØKNAD, 5432L, new AktørId("9999999999999"), RelasjonsRolleType.MORA);
-        var stpp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build();
+        var stpp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).medFørsteUttaksdato(stp).build();
         when(klient.opprettForespørsel(any())).thenReturn(new OpprettForespørselResponse(OpprettForespørselResponse.ForespørselResultat.FORESPØRSEL_OPPRETTET));
         when(arbeidsgiverTjeneste.hentVirksomhet(virksomhet.getIdentifikator())).thenReturn(Virksomhet.getBuilder().medOrgnr(virksomhet.getIdentifikator()).medNavn("Testbedrift").build());
         // Act
@@ -111,7 +111,7 @@ class FpInntektsmeldingTjenesteTest {
 
         var behandlingRef = new BehandlingReferanse(new Saksnummer("1234"), 1234L, FagsakYtelseType.FORELDREPENGER, 4321L, UUID.randomUUID(),
             BehandlingStatus.UTREDES, BehandlingType.FØRSTEGANGSSØKNAD, 5432L, new AktørId("9999999999999"), RelasjonsRolleType.MORA);
-        var stpp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build();
+        var stpp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).medFørsteUttaksdato(stp.plusDays(1)).build();
         when(klient.opprettForespørsel(any())).thenReturn(new OpprettForespørselResponse(OpprettForespørselResponse.ForespørselResultat.IKKE_OPPRETTET_FINNES_ALLEREDE_ÅPEN));
 
         // Act
