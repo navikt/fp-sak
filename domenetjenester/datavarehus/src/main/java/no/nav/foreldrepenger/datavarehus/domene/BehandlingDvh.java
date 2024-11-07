@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.datavarehus.domene;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -10,13 +11,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 import org.hibernate.annotations.NaturalId;
 
 @Entity(name = "BehandlingDvh")
 @Table(name = "BEHANDLING_DVH")
-public class BehandlingDvh extends DvhBaseEntitet {
+public class BehandlingDvh implements Serializable {
 
     private static final String PAPIR_SØKNAD = "1";
     private static final String DIGITAL_SØKNAD = "0";
@@ -119,6 +121,23 @@ public class BehandlingDvh extends DvhBaseEntitet {
 
     @Column(name = "VILKAR_IKKE_OPPFYLT")
     private String vilkårIkkeOppfylt;
+
+    @Column(name = "TRANS_TID", nullable = false)
+    private LocalDateTime transTid;
+
+    @Column(name = "FUNKSJONELL_TID", nullable = false)
+    private LocalDateTime funksjonellTid;
+
+    @Column(name = "ENDRET_AV")
+    private String endretAv;
+
+    @PrePersist
+    protected void onCreate() {
+        this.transTid = LocalDateTime.now();
+        if (this.funksjonellTid == null) {
+            this.funksjonellTid = LocalDateTime.now();
+        }
+    }
 
 
     BehandlingDvh() {
@@ -255,6 +274,25 @@ public class BehandlingDvh extends DvhBaseEntitet {
         return vilkårIkkeOppfylt;
     }
 
+    public LocalDateTime getFunksjonellTid() {
+        return funksjonellTid;
+    }
+
+    public void setFunksjonellTid(LocalDateTime funksjonellTid) {
+        this.funksjonellTid = funksjonellTid;
+    }
+    public void setTransTid(LocalDateTime transTid) {
+        this.transTid = transTid;
+    }
+
+    public String getEndretAv() {
+        return endretAv;
+    }
+
+    public void setEndretAv(String endretAv) {
+        this.endretAv = endretAv;
+    }
+
     @Override
     public boolean equals(final Object obj) {
         if (this == obj) {
@@ -295,7 +333,10 @@ public class BehandlingDvh extends DvhBaseEntitet {
                 && Objects.equals(vedtakTid, other.vedtakTid)
                 && Objects.equals(utbetaltTid, other.utbetaltTid)
                 && Objects.equals(vedtakResultatType, other.vedtakResultatType)
-                && Objects.equals(vilkårIkkeOppfylt, other.vilkårIkkeOppfylt);
+                && Objects.equals(vilkårIkkeOppfylt, other.vilkårIkkeOppfylt)
+                && Objects.equals(transTid, other.transTid)
+                && Objects.equals(funksjonellTid, other.funksjonellTid)
+                && Objects.equals(endretAv, other.endretAv);
     }
 
     @Override
@@ -304,8 +345,9 @@ public class BehandlingDvh extends DvhBaseEntitet {
             behandlingStatus, behandlendeEnhet, utlandstilsnitt, ansvarligSaksbehandler, ansvarligBeslutter,
             familieHendelseType, foersteStoenadsdag,papirSøknad,
             behandlingMetode, revurderingÅrsak, omgjøringÅrsak, mottattTid, registrertTid, kanBehandlesTid, ferdigBehandletTid, forventetOppstartTid,
-            vedtakTid, utbetaltTid, vedtakResultatType, vilkårIkkeOppfylt, saksnummer, aktørId, ytelseType);
+            vedtakTid, utbetaltTid, vedtakResultatType, vilkårIkkeOppfylt, saksnummer, aktørId, ytelseType, transTid, funksjonellTid, endretAv);
     }
+
 
     public static Builder builder() {
         return new Builder();

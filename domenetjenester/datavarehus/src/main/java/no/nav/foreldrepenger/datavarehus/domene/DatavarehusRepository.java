@@ -26,19 +26,4 @@ public class DatavarehusRepository {
         return behandlingDvh.getId();
     }
 
-    public long lagre(KlageFormkravDvh formkrav) {
-        entityManager.persist(formkrav);
-        return formkrav.getId();
-    }
-
-    public long lagre(KlageVurderingResultatDvh klageVurderingResultat) {
-        entityManager.persist(klageVurderingResultat);
-        return klageVurderingResultat.getId();
-    }
-
-    public long lagre(AnkeVurderingResultatDvh ankeVurderingResultat) {
-        entityManager.persist(ankeVurderingResultat);
-        return ankeVurderingResultat.getId();
-
-    }
 }

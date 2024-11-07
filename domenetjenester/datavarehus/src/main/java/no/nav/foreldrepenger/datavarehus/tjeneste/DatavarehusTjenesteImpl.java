@@ -34,7 +34,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
@@ -243,71 +242,6 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
                 .min(Comparator.naturalOrder())
                 .orElse(null);
         }
-    }
-
-    private void lagreKlageFormkrav(KlageFormkravEntitet klageFormkrav) {
-        var klageFormkravDvh = KlageFormkravDvhMapper.map(klageFormkrav);
-        datavarehusRepository.lagre(klageFormkravDvh);
-
-    }
-
-    private void lagreKlageVurderingResultat(KlageVurderingResultat klageVurderingResultat) {
-        var klageVurderingResultatDvh = KlageVurderingResultatDvhMapper.map(klageVurderingResultat);
-        datavarehusRepository.lagre(klageVurderingResultatDvh);
-    }
-
-    private void lagreAnkeVurderingResultat(AnkeVurderingResultatEntitet ankeVurderingResultat) {
-        var ankeVurderingResultatDvh = AnkeVurderingResultatDvhMapper.map(ankeVurderingResultat);
-        datavarehusRepository.lagre(ankeVurderingResultatDvh);
-    }
-
-    @Override
-    public void oppdaterHvisKlageEllerAnke(Long behandlingId, Collection<Aksjonspunkt> aksjonspunkter) {
-        var gjelderKlageEllerAnke = aksjonspunkter.stream().anyMatch(DatavarehusTjenesteImpl::gjelderKlageEllerAnke);
-        if (gjelderKlageEllerAnke) {
-            var behandling = behandlingRepository.hentBehandling(behandlingId);
-            if (BehandlingType.KLAGE.equals(behandling.getType())) {
-                aksjonspunkter.stream().filter(Aksjonspunkt::erUtført)
-                    .filter(a -> gjelderKlageFormkrav(a) || gjelderKlageVurderingResultat(a))
-                    .forEach(ap -> oppdaterMedKlage(behandling, ap));
-            } else if (BehandlingType.ANKE.equals(behandling.getType())) {
-                aksjonspunkter.stream().filter(Aksjonspunkt::erUtført)
-                    .filter(DatavarehusTjenesteImpl::gjelderAnkeVurderingResultat)
-                    .forEach(ap -> oppdaterMedAnke(behandling));
-            }
-        }
-    }
-
-    private void oppdaterMedKlage(Behandling behandling, Aksjonspunkt aksjonspunkt) {
-        if (BehandlingType.KLAGE.equals(behandling.getType()) && gjelderKlageFormkrav(aksjonspunkt)) {
-            klageRepository.hentGjeldendeKlageFormkrav(behandling.getId()).ifPresent(this::lagreKlageFormkrav);
-        } else if (BehandlingType.KLAGE.equals(behandling.getType()) && gjelderKlageVurderingResultat(aksjonspunkt)) {
-            klageRepository.hentGjeldendeKlageVurderingResultat(behandling).ifPresent(this::lagreKlageVurderingResultat);
-        }
-     }
-
-     private void oppdaterMedAnke(Behandling behandling) {
-        if (BehandlingType.ANKE.equals(behandling.getType())) {
-            ankeRepository.hentAnkeVurderingResultat(behandling.getId()).ifPresent(this::lagreAnkeVurderingResultat);
-        }
-     }
-
-     private static boolean gjelderKlageEllerAnke(Aksjonspunkt a) {
-        return gjelderKlageFormkrav(a) || gjelderKlageVurderingResultat(a) || gjelderAnkeVurderingResultat(a);
-     }
-
-    private static boolean gjelderKlageFormkrav(Aksjonspunkt a) {
-        return AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP.equals(a.getAksjonspunktDefinisjon());
-    }
-
-    private static boolean gjelderKlageVurderingResultat(Aksjonspunkt a) {
-        return AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP.equals(a.getAksjonspunktDefinisjon())
-            || AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE.equals(a.getAksjonspunktDefinisjon());
-    }
-
-    private static boolean gjelderAnkeVurderingResultat(Aksjonspunkt a) {
-        return AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_ANKE.equals(a.getAksjonspunktDefinisjon()) ||
-            AksjonspunktDefinisjon.AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN.equals(a.getAksjonspunktDefinisjon());
     }
 
     private String finnOmgjøringÅrsak(Behandling behandling) {
