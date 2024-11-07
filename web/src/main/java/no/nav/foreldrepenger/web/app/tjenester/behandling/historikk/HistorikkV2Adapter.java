@@ -235,7 +235,7 @@ public class HistorikkV2Adapter {
         for (var del : h.getHistorikkinnslagDeler()) {
             var endretFeltTekst = h.getType().equals(TILBAKEKREVING_VIDEREBEHANDLING)
                 ? fraEndretFeltMalType9Tilbakekr(del)
-                : List.of(fraEndretFeltMalType9(h, del));
+                : fraEndretFeltMalType9(h, del);
             var begrunnelsetekst = begrunnelseFraDel(del).stream().toList();
 
             leggTilAlleTeksterIHovedliste(tekster, endretFeltTekst, begrunnelsetekst);
@@ -306,19 +306,22 @@ public class HistorikkV2Adapter {
             .replace("{verdi}", verdi);
     }
 
-    private static String fraEndretFeltMalType9(Historikkinnslag h, HistorikkinnslagDel del) {
+    private static List<String> fraEndretFeltMalType9(Historikkinnslag h, HistorikkinnslagDel del) {
         var opprinneligPeriode = del.getEndredeFelt().getFirst().getFraVerdi();
         var numberOfPeriods = String.valueOf(del.getEndredeFelt().size());
         var splitPeriods = tekstRepresentasjonAvListe(del.getEndredeFelt());
         var tekst =  switch (h.getType()) {
-            case OVST_UTTAK_SPLITT -> "__Overstyrt vurdering__ av perioden {opprinneligPeriode}. {br}__Perioden__ er delt i {numberOfPeriods} og satt til __{splitPeriods}__";
-            case FASTSATT_UTTAK_SPLITT -> "__Manuell vurdering__ av perioden {opprinneligPeriode}. {br}__Perioden__ er delt i {numberOfPeriods} og satt til __{splitPeriods}__";
+            case OVST_UTTAK_SPLITT -> "__Overstyrt vurdering__ av perioden {opprinneligPeriode}.";
+            case FASTSATT_UTTAK_SPLITT -> "__Manuell vurdering__ av perioden {opprinneligPeriode}.";
             default -> throw new IllegalStateException("Ikke støttet type" + h);
         };
-        return tekst
-            .replace("{opprinneligPeriode}", opprinneligPeriode)
-            .replace("{numberOfPeriods}", numberOfPeriods)
-            .replace("{splitPeriods}", splitPeriods);
+
+        return List.of(
+            tekst.replace("{opprinneligPeriode}", opprinneligPeriode),
+            "__Perioden__ er delt i {numberOfPeriods} og satt til __{splitPeriods}__"
+                .replace("{numberOfPeriods}", numberOfPeriods)
+                .replace("{splitPeriods}", splitPeriods)
+        );
     }
 
     private static String tekstRepresentasjonAvListe(List<HistorikkinnslagFelt> endretFelt) {
