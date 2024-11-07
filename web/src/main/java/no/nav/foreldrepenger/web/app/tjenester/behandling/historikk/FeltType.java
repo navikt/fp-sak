@@ -1,5 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.historikk;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public enum FeltType {
     INNVILGET("INNVILGET", "Oppfylt"),
     AVSLÅTT("AVSLÅTT", "Ikke oppfylt"),
@@ -99,7 +102,7 @@ public enum FeltType {
     AKTIVITETSKRAVET_MORS_SYKDOM_SKADE_IKKE_OPPFYLT("4053", "Aktivitetskravet mors sykdom/skade ikke oppfylt"),
     BARE_FAR_RETT_AKTIVITETSKRAVET_OPPPFYLT("2028", "Bare far rett, aktivitetskravet oppfylt"),
     FAR_HAR_IKKE_OMSORG("4012", "Far har ikke omsorg"),
-    IKKE_GRADERING_PGA_FOR_SEN_SØKNAD("4501", "Ikke gradering pga. for sen søknad"), // TODO Thao: Fant bare dette i kodeverk. Holder det?
+    IKKE_GRADERING_PGA_FOR_SEN_SØKNAD("4501", "Ikke gradering pga. for sen søknad"),
     UTSETTELSE_PGA_FERIE_KUN_FAR_HAR_RETT("2015", "Utsettelse pga. ferie, kun far har rett"),
     IKKE_LOVLIG_OPPHOLD("IKKE_LOVLIG_OPPHOLD", "Søker har ikke lovlig opphold"),
     GRADERING_FORELDREPENGER_KUN_MOR_HAR_RETT("2034", "Gradering foreldrepenger, kun mor har rett"),
@@ -164,14 +167,14 @@ public enum FeltType {
     AVSLAG_GRADERING_SØKER_ER_IKKE_I_ARBEID("4093", "Avslag gradering - søker er ikke i arbeid"),
     AKTIVITETSKRAV_ARBEID_I_KOMBINASJON_MED_UTDANNING_IKKE_DOKUMENTERT("4068", "Aktivitetskrav – arbeid i kombinasjon med utdanning ikke dokumentert"),
     MANUELT_OPPRETTET_AV_SAKSBEHANDLER("MANUELT_OPPRETTET_AV_SAKSBEHANDLER", "Opprettet av saksbehandler"),
-    AVSLAG_GRADERINGSAVTALE_MANGLER_IKKE_DOKUMENTERT("4502", "Avslag graderingsavtale mangler - ikke dokumentert"), // TODO Thao: Fant bare dette i kodeverk. Holder det?
+    AVSLAG_GRADERINGSAVTALE_MANGLER_IKKE_DOKUMENTERT("4502", "Avslag graderingsavtale mangler - ikke dokumentert"),
     GYLDIG_UTSETTELSE_PGA_INNLEGGELSE("2012", "Gyldig utsettelse pga innleggelse"),
     MOR_HAR_IKKE_OMSORG("4003", "Mor har ikke omsorg"),
     UNNTAK_FOR_AKTIVITETSKRAVET_MORS_MOTTAK_AV_UFØRETRYGD_IKKE_OPPFYLT("4057", "Unntak for aktivitetskravet, mors mottak av uføretrygd ikke oppfylt"),
     FASTSETT_RESULTAT_PERIODEN_NAV_TILTAK_DOKUMENTERT("FASTSETT_RESULTAT_PERIODEN_NAV_TILTAK_DOKUMENTERT", "Tiltak i regi av NAV er dokumentert"),
     AKTIVITETSKRAV_INTRODUKSJONSPROGRAM_IKKE_DOKUMENTERT("4088", "Aktivitetskrav – introduksjonsprogram ikke dokumentert"),
     FISKER("FISKER", "Selvstendig næringsdrivende - Fisker"),
-    AVSLAG_GRADERING_ARBEID_HUNDRE_PROSENT_ELLER_MER_4523("4523", "Avslag gradering - arbeid 100% eller mer"), //TODO Thao: denne teksbeskrivelse er lik for "4025"
+    AVSLAG_GRADERING_ARBEID_HUNDRE_PROSENT_ELLER_MER_4523("4523", "Avslag gradering - arbeid 100% eller mer"),
     PRAKSIS_UTSETTELSE("PRAKSIS_UTSETTELSE", "Feil praksis utsettelse"),
     IKKE_NOK_DAGER_UTEN_AKTIVITETSKRAV("4107", "Ikke nok dager uten aktivitetskrav"),
     AVSLAG_GRADERING_GRADERING_FØR_UKE_SJU("4504", "Avslag gradering - gradering før uke 7"),
@@ -208,7 +211,7 @@ public enum FeltType {
     SAMMENSATT_KONTROLL("SAMMENSATT_KONTROLL", "Sammensatt kontroll"),
     NYTT_ARBEIDSFORHOLD("NYTT_ARBEIDSFORHOLD", "Arbeidsforholdet er ansett som nytt"),
     MOR_SØKER_FELLESPERIODE_FØR_TOLV_UKERS_TERMIN_FØDSEL("4013", "Mor søker fellesperiode før 12 uker før termin/fødsel"),
-    AKTIVITETSKRAV_INTRODUKSJONSPROGRAM_IKKE_DOKUMENTERT_4071("4071", "Aktivitetskrav – introduksjonsprogram ikke dokumentert"), //TODO Thao: denne teksbeskrivelse er lik for "4088"
+    AKTIVITETSKRAV_INTRODUKSJONSPROGRAM_IKKE_DOKUMENTERT_4071("4071", "Aktivitetskrav – introduksjonsprogram ikke dokumentert"),
     ADOPTERER_IKKE_ALENE("ADOPTERER_IKKE_ALENE", "adopterer ikke alene"),
     IKKE_DOKUMENTERT("IKKE_DOKUMENTERT", "ikke dokumentert"),
     EKTEFELLES_BARN("EKTEFELLES_BARN", "ektefelles barn"),
@@ -221,8 +224,10 @@ public enum FeltType {
     OMSORGSVILKARET_TITTEL("OMSORGSVILKARET_TITTEL", "Omsorgsvilkår § 14-17 tredje ledd"),
     ADOPTERER_ALENE("ADOPTERER_ALENE", "adopterer alene"),
     FASTSETT_RESULTAT_PERIODEN_HV_DOKUMENTERT_IKKE("FASTSETT_RESULTAT_PERIODEN_HV_DOKUMENTERT_IKKE", "Øvelse eller tjeneste i heimevernet er ikke dokumentert"),
-    VERGE("VERGE", "Verge/fullmektig");
+    VERGE("VERGE", "Verge/fullmektig"),
+    UDEFINERT("EN_UGYLDIG_VERDI_ØNSKER_Å_LOGGE_UDEFINERTE_VERDIER_OGSÅ", "UDEFINERT VERDI");
 
+    private static final Logger LOG = LoggerFactory.getLogger(FeltType.class);
 
     private final Object key;
     private final String text;
@@ -246,6 +251,8 @@ public enum FeltType {
                 return feltType;
             }
         }
-        throw new IllegalStateException("Finner ikke FeltType konstant for nøkkel=" + key); // TODO Thao: Hvordan ønskes håndtering her dersom det ikke finnes kodeverdi?
+
+        LOG.info("Historikkv2: Fant ikke FeltType for verdi {}", key);
+        return UDEFINERT;
     }
 }

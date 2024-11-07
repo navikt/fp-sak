@@ -8,36 +8,34 @@ import java.util.Objects;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
-
-import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
+import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ApplicationScoped
-public class HistorikkDtoTjeneste {
+public class HistorikkV2Tjeneste {
 
-    private static final Logger LOG = LoggerFactory.getLogger(HistorikkDtoTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HistorikkV2Tjeneste.class);
 
     private HistorikkRepository historikkRepository;
     private BehandlingRepository behandlingRepository;
     private DokumentArkivTjeneste dokumentArkivTjeneste;
 
     @Inject
-    public HistorikkDtoTjeneste(HistorikkRepository historikkRepository,
-                                BehandlingRepository behandlingRepository,
-                                DokumentArkivTjeneste dokumentArkivTjeneste) {
+    public HistorikkV2Tjeneste(HistorikkRepository historikkRepository,
+                               BehandlingRepository behandlingRepository,
+                               DokumentArkivTjeneste dokumentArkivTjeneste) {
         this.historikkRepository = historikkRepository;
         this.behandlingRepository = behandlingRepository;
         this.dokumentArkivTjeneste = dokumentArkivTjeneste;
     }
 
-    HistorikkDtoTjeneste() {
+    HistorikkV2Tjeneste() {
         //CDI
     }
 

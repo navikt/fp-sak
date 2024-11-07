@@ -70,11 +70,11 @@ public enum FeltNavnType {
     UTTAK_PERIODE_RESULTAT_ÅRSAK("UTTAK_PERIODE_RESULTAT_ÅRSAK", "Årsak resultat"),
     UTTAK_GRADERING_ARBEIDSFORHOLD("UTTAK_GRADERING_ARBEIDSFORHOLD", "Gradering av arbeidsforhold"),
     UTTAK_GRADERING_AVSLAG_ÅRSAK("UTTAK_GRADERING_AVSLAG_ÅRSAK", "Årsak avslag gradering"),
-    UTTAK_SPLITT_TIDSPERIODE("UTTAK_SPLITT_TIDSPERIODE", "UTTAK_SPLITT_TIDSPERIODE"), //FIXME Thao: Ikke i frontend. Sjekk hva som skal være her!
+    UTTAK_SPLITT_TIDSPERIODE("UTTAK_SPLITT_TIDSPERIODE", "Resulterende periode ved splitting"), // txt finnes ikke i frontend
     SYKDOM("SYKDOM", "Sykdom"),
     ARBEIDSFORHOLD("ARBEIDSFORHOLD", "Arbeidsforhold hos {value}"),
     NY_FORDELING("NY_FORDELING", "Ny fordeling <b>{value}</b>"),
-    NY_AKTIVITET("NY_AKTIVITET", "Det er lagt til ny aktivitet for <b>{value}</b>"), //TODO Thao: Test denne og sjekk om {value} blir håndtert. Generelt sjekk de koder som har {value} i seg.
+    NY_AKTIVITET("NY_AKTIVITET", "Det er lagt til ny aktivitet for <b>{value}</b>"),
     NYTT_REFUSJONSKRAV("NYTT_REFUSJONSKRAV", "Nytt refusjonskrav"),
     INNTEKTSKATEGORI("INNTEKTSKATEGORI", "Inntektskategori"),
     FNR("FNR", "Fødselsnummer"),
@@ -103,12 +103,12 @@ public enum FeltNavnType {
     PA_ANKET_BEHANDLINGID("PA_ANKET_BEHANDLINGID", "Vedtaket som er påklagd"),
     VURDER_ETTERLØNN_SLUTTPAKKE("VURDER_ETTERLØNN_SLUTTPAKKE", "Inntekt fra etterlønn eller sluttpakke"),
     FASTSETT_ETTERLØNN_SLUTTPAKKE("FASTSETT_ETTERLØNN_SLUTTPAKKE", "Inntekten"),
-    ER_VILKÅRENE_TILBAKEKREVING_OPPFYLT("ER_VILKÅRENE_TILBAKEKREVING_OPPFYLT", "ER_VILKÅRENE_TILBAKEKREVING_OPPFYLT"), //FIXME Thao: Ikke i frontend. Sjekk hva som skal være her!
-    ER_SÆRLIGE_GRUNNER_TIL_REDUKSJON("ER_SÆRLIGE_GRUNNER_TIL_REDUKSJON", "ER_SÆRLIGE_GRUNNER_TIL_REDUKSJON"), //FIXME Thao: Ikke i frontend. Sjekk hva som skal være her!
-    FASTSETT_VIDERE_BEHANDLING("FASTSETT_VIDERE_BEHANDLING", "FASTSETT_VIDERE_BEHANDLING"), //FIXME Thao: Ikke i frontend. Sjekk hva som skal være her!
+    //ER_VILKÅRENE_TILBAKEKREVING_OPPFYLT("ER_VILKÅRENE_TILBAKEKREVING_OPPFYLT", "ER_VILKÅRENE_TILBAKEKREVING_OPPFYLT"), // Finnes ikke i DB
+    //ER_SÆRLIGE_GRUNNER_TIL_REDUKSJON("ER_SÆRLIGE_GRUNNER_TIL_REDUKSJON", "ER_SÆRLIGE_GRUNNER_TIL_REDUKSJON"), // Finnes ikke i DB
+    FASTSETT_VIDERE_BEHANDLING("FASTSETT_VIDERE_BEHANDLING", "Fastsett videre behandling"), // txt finnes ikke i frontend
     RETT_TIL_FORELDREPENGER("RETT_TIL_FORELDREPENGER", "Rett til foreldrepenger"),
     MOR_MOTTAR_UFØRETRYGD("MOR_MOTTAR_UFØRETRYGD", "Mor mottar uføretrygd"),
-    MOR_MOTTAR_STØNAD_EØS("MOR_MOTTAR_STØNAD_EØS", "MOR_MOTTAR_STØNAD_EØS"), //FIXME Thao: Ikke i frontend. Sjekk hva som skal være her!
+    //MOR_MOTTAR_STØNAD_EØS("MOR_MOTTAR_STØNAD_EØS", "MOR_MOTTAR_STØNAD_EØS"), // Finnes ikke i DB
     ANNEN_FORELDER_RETT_EØS("ANNEN_FORELDER_RETT_EØS", "Annen forelder har tilstrekkelig opptjening fra land i EØS"),
     VURDER_GRADERING_PÅ_ANDEL_UTEN_BG("VURDER_GRADERING_PÅ_ANDEL_UTEN_BG", "Inntektsgrunnlag ved gradering"),
     DEKNINGSGRAD("DEKNINGSGRAD", "Dekningsgrad"),
@@ -127,9 +127,9 @@ public enum FeltNavnType {
     NY_STARTDATO_REFUSJON("NY_STARTDATO_REFUSJON", "Startdato for refusjon til {value}"),
     DELVIS_REFUSJON_FØR_STARTDATO("DELVIS_REFUSJON_FØR_STARTDATO", "Delvis refusjon før "),
     ORGANISASJONSNUMMER("ORGANISASJONSNUMMER", "Organisasjonsnummer"),
-    ARBEIDSFORHOLD_BEKREFTET_TOM_DATO("ARBEIDSFORHOLD_BEKREFTET_TOM_DATO", "ARBEIDSFORHOLD_BEKREFTET_TOM_DATO"), //FIXME Thao: Ikke i frontend. Sjekk hva som skal være her!
+    //ARBEIDSFORHOLD_BEKREFTET_TOM_DATO("ARBEIDSFORHOLD_BEKREFTET_TOM_DATO", "ARBEIDSFORHOLD_BEKREFTET_TOM_DATO"), // Finnes ikke i DB
     ANKE_AVVIST_ÅRSAK("ANKE_AVVIST_ÅRSAK", "Avvisningsårsak"),
-    AKTIVITETSKRAV_AVKLARING("AKTIVITETSKRAV_AVKLARING", "AKTIVITETSKRAV_AVKLARING"),//FIXME Thao: Finn ut hva teksten skal være?
+    AKTIVITETSKRAV_AVKLARING("AKTIVITETSKRAV_AVKLARING", "Avklaring om mor er i aktivitet"), // txt finnes ikke i frontend
     UTTAKPERIODE_DOK_AVKLARING("UTTAKPERIODE_DOK_AVKLARING", "Perioden {value}"),
     FAKTA_UTTAK_PERIODE("FAKTA_UTTAK_PERIODE", "Perioden {value}"),
     SVP_OPPHOLD_PERIODE("SVP_OPPHOLD_PERIODE", "Periode med opphold"),

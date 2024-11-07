@@ -61,7 +61,8 @@ public class HistorikkV2Adapter {
                 BEH_VENT,
                 IVERKSETTELSE_VENT,
                 FJERNET_VERGE -> fraMalType4(h, behandlingUUID);
-            case SAK_GODKJENT, FAKTA_ENDRET, KLAGE_BEH_NK, KLAGE_BEH_NFP, BYTT_ENHET, UTTAK, TERMINBEKREFTELSE_UGYLDIG, ANKE_BEH ->
+            case SAK_GODKJENT, // Inneholder også aksjonspunkt som ikke vises i frontend
+                 FAKTA_ENDRET, KLAGE_BEH_NK, KLAGE_BEH_NFP, BYTT_ENHET, UTTAK, TERMINBEKREFTELSE_UGYLDIG, ANKE_BEH ->
                 fraMalType5(h, behandlingUUID, journalPosterForSak, dokumentPath);
             case NY_INFO_FRA_TPS
                  //NY_GRUNNLAG_MOTTATT fptilbake
@@ -110,6 +111,7 @@ public class HistorikkV2Adapter {
                 .toList();
             var aksjonspunkt = del.getTotrinnsvurderinger().stream()
                 .map(HistorikkV2Adapter::fraAksjonspunktFelt)
+                .flatMap(List::stream)
                 .toList();
 
             leggTilAlleTeksterIHovedliste(tekster, hendelseTekst, aksjonspunkt);
@@ -448,8 +450,6 @@ public class HistorikkV2Adapter {
         return "true".equalsIgnoreCase(str) || "false".equalsIgnoreCase(str);
     }
 
-    // TODO Thao: Gjør om denne til felles klasse som kan brukes av flere
-    //  type. Flytt denne til en util klasse
     private static String fraEndretFelt(HistorikkinnslagFelt felt) {
         var endretFeltNavn = HistorikkEndretFeltType.fraKode(felt.getNavn());
 
@@ -632,8 +632,7 @@ public class HistorikkV2Adapter {
     }
 
 
-    // TODO: Gjennomgang!
-    private static String fraAksjonspunktFelt(HistorikkinnslagTotrinnsvurdering aksjonspunktFelt) {
+    private static List<String> fraAksjonspunktFelt(HistorikkinnslagTotrinnsvurdering aksjonspunktFelt) {
         var aksjonspunktTekst = switch (aksjonspunktFelt.getAksjonspunktDefinisjon()) {
             case AVKLAR_TERMINBEKREFTELSE -> "Opplysninger om termin oppgitt i søknaden";
             case AVKLAR_ADOPSJONSDOKUMENTAJON -> "Adopsjonsopplysninger fra søknad";
@@ -643,12 +642,12 @@ public class HistorikkV2Adapter {
             case MANUELL_VURDERING_AV_SØKNADSFRIST -> "Søknadsfrist";
             case AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE -> "Fakta om omsorg og foreldreansvar";
             case VURDER_PERIODER_MED_OPPTJENING -> "Opptjening";
-            //case MANUELL_VURDERING_AV_OMSORGSVILKÅRET -> 'HistorikkEndretFeltVerdiType.ApplicationInformation'; TODO: Finner ikke tekststreng i frontend
+            //case MANUELL_VURDERING_AV_OMSORGSVILKÅRET -> 'HistorikkEndretFeltVerdiType.ApplicationInformation'; // Finner ikke tekststreng i frontend. Bruker tekst i fpsak
             case REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD -> "Registrering av papirsøknad";
             case MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_2_LEDD -> "Foreldreansvaret";
             case MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_4_LEDD -> "Foreldreansvaret";
-            // case UTGÅTT_5025 -> 'VarselOmRevurderingInfoPanel.Etterkontroll'; TODO: Finner ikke tekststreng i frontend
-            //case VARSEL_REVURDERING_MANUELL -> 'VarselOmRevurderingInfoPanel.Manuell';  TODO: Finner ikke tekststreng i frontend
+            // case UTGÅTT_5025 -> 'VarselOmRevurderingInfoPanel.Etterkontroll'; // Finner ikke tekststreng i frontend. Bruker tekst i fpsak
+            //case VARSEL_REVURDERING_MANUELL -> 'VarselOmRevurderingInfoPanel.Manuell';  // Finner ikke tekststreng i frontend. Bruker tekst i fpsak
             case AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE -> "Vurder om engangsstønad eller foreldrepenger utbetalt til søker gjelder samme barn";
             case AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE -> "Vurder om engangsstønad eller foreldrepenger utbetalt til søker gjelder samme barn";
             case AVKLAR_VERGE -> "Avklar verge";
@@ -662,7 +661,7 @@ public class HistorikkV2Adapter {
             case OVERSTYRING_AV_FØDSELSVILKÅRET -> "Overstyring av fødselsvilkåret";
             case OVERSTYRING_AV_FØDSELSVILKÅRET_FAR_MEDMOR -> "Overstyring av fødselsvilkåret";
             case OVERSTYRING_AV_ADOPSJONSVILKÅRET -> "Overstyring av adopsjonsvilkåret";
-            //case OVERSTYRING_AV_ADOPSJONSVILKÅRET_FP -> 'Overstyr.adopsjonsvilkar'; TODO: Finner ikke tekststreng i frontend
+            //case OVERSTYRING_AV_ADOPSJONSVILKÅRET_FP -> 'Overstyr.adopsjonsvilkar'; // Finner ikke tekststreng i frontend. Bruker tekst i fpsak
             case OVERSTYRING_AV_OPPTJENINGSVILKÅRET -> "Overstyring av opptjeningsvilkåret";
             case OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET -> "Overstyring av medlemskapsvilkåret";
             case OVERSTYRING_AV_SØKNADSFRISTVILKÅRET -> "Overstyring av søknadsfristvilkåret";
@@ -677,6 +676,9 @@ public class HistorikkV2Adapter {
             case KONTROLLER_ANNENPART_EØS -> "Kontroller opplysninger om annen forelders uttak i EØS";
             case UTGÅTT_5067 -> "Kontroller evt overlappende uttak mot brukers senere saker";
             case UTGÅTT_5075 -> "Kontroller opplysninger om fordeling av stønadsperioden";
+            case UTGÅTT_5078 -> "Kontroller opplysninger om tilstøtende ytelser innvilget";
+            case UTGÅTT_5079 -> "Kontroller opplysninger om tilstøtende ytelser opphørt";
+            case UTGÅTT_5042 -> "Fastsatt beregningsgrunnlag for selvstendig næring";
             case FASTSETT_UTTAK_STORTINGSREPRESENTANT -> "Søker er stortingsrepresentant. Uttak";
             case FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS -> "Fastsatt beregningsgrunnlag for arbeidstaker/frilanser";
             case FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD -> "Fastsatt beregningsgrunnlag for kortvarig arbeidsforhold";
@@ -685,23 +687,16 @@ public class HistorikkV2Adapter {
             case VURDER_FAKTA_FOR_ATFL_SN -> "Vurder fakta for beregning";
             case FORESLÅ_VEDTAK -> "Fritekstbrev";
             case AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT -> "Vurdering om den andre forelderen har rett til foreldrepenger";
-            //default -> throw new IllegalStateException("Unexpected value: " + aksjonspunktFelt.getAksjonspunktDefinisjon()); // TODO
             default -> aksjonspunktFelt.getAksjonspunktDefinisjon().name();
         };
-        // TODO sjekk denne case
-            /*case UTGÅTT_5078 -> "Kontroller opplysninger om tilstøtende ytelser innvilget";
-            case UTGÅTT_5079 -> "Kontroller opplysninger om tilstøtende ytelser opphørt";*/
-        // FASTSETT_BRUTTO_BEREGNINGSGRUNNLAG_SELVSTENDIG_NAERINGSDRIVENDE -> 'Historikk.BeregningsgrunnlagManueltSN';
 
-        String tekst;
         if (aksjonspunktFelt.erGodkjent()) {
-            tekst = aksjonspunktTekst != null ? aksjonspunktTekst + " er godkjent" : "Er godkjent";
+            return List.of(String.format("%s er godkjent", aksjonspunktTekst));
         } else {
-            var ikkeGodkjentTekst = aksjonspunktTekst != null ? aksjonspunktTekst + " må vurderes på nytt" : "Må vurderes på nytt";
-            var begrunnelse = aksjonspunktFelt.getBegrunnelse();
-            tekst = (begrunnelse != null && !begrunnelse.isEmpty()) ? ikkeGodkjentTekst + "\n" + begrunnelse : ikkeGodkjentTekst;
+            return List.of(
+                String.format("%s må vurderes på nytt", aksjonspunktTekst),
+                aksjonspunktFelt.getBegrunnelse()
+            );
         }
-
-        return tekst;
     }
 }
