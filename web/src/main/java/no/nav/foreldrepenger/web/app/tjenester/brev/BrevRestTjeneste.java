@@ -166,7 +166,7 @@ public class BrevRestTjeneste {
             settBehandlingPåVent(Venteårsak.VENT_OPDT_INNTEKTSMELDING, behandlingId);
         } else if (DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID.equals(brevmalkode)) {
             dokumentBehandlingTjeneste.utvidBehandlingsfristManuelt(behandlingId);
-        } else if (DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_MEDL.equals(brevmalkode)) {
+        } else if (DokumentMalType.forlengetSaksbehandlingstidMedlemskap().contains(brevmalkode)) {
             dokumentBehandlingTjeneste.utvidBehandlingsfristManueltMedlemskap(behandlingId);
         }
     }

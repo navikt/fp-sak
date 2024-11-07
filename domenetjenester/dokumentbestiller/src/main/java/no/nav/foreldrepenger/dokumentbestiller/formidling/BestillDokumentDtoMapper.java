@@ -31,6 +31,7 @@ public class BestillDokumentDtoMapper {
             case INGEN_ENDRING -> DokumentMal.INGEN_ENDRING;
             case FORLENGET_SAKSBEHANDLINGSTID -> DokumentMal.FORLENGET_SAKSBEHANDLINGSTID;
             case FORLENGET_SAKSBEHANDLINGSTID_MEDL -> DokumentMal.FORLENGET_SAKSBEHANDLINGSTID_MEDL;
+            case FORLENGET_SAKSBEHANDLINGSTID_MEDL_FORUTGÅENDE -> DokumentMal.FORLENGET_SAKSBEHANDLINGSTID_MEDL_FORUTGÅENDE;
             case FORLENGET_SAKSBEHANDLINGSTID_TIDLIG -> DokumentMal.FORLENGET_SAKSBEHANDLINGSTID_TIDLIG;
             case KLAGE_AVVIST -> DokumentMal.KLAGE_AVVIST;
             case KLAGE_OMGJORT -> DokumentMal.KLAGE_OMGJORT;
@@ -38,7 +39,23 @@ public class BestillDokumentDtoMapper {
             case ETTERLYS_INNTEKTSMELDING -> DokumentMal.ETTERLYS_INNTEKTSMELDING;
             case ENDRING_UTBETALING -> DokumentMal.ENDRING_UTBETALING;
             case FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_INFOBREV -> DokumentMal.FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_INFOBREV;
-            case null, default -> null;
+            case KLAGE_AVVIST_DOK,
+                 KLAGE_AVVIST_FRITEKST,
+                 KLAGE_HJEMSENDT_DOK,
+                 KLAGE_HJEMSENDT_FRITEKST,
+                 KLAGE_OMGJORT_DOK,
+                 KLAGE_OMGJORT_FRITEKST,
+                 KLAGE_OVERSENDT_DOK,
+                 KLAGE_OVERSENDT_FRITEKST,
+                 KLAGE_STADFESTET_DOK,
+                 KLAGE_STADFESTET_FRITEKST,
+                 ANKE_OMGJORT_FRITEKST,
+                 ANKE_OPPHEVET_FRITEKST,
+                 ANKE_OMGJORT,
+                 ANKE_OPPHEVET,
+                 KLAGE_STADFESTET,
+                 KLAGE_HJEMSENDT -> null;
+            case null -> null;
         };
     }
 

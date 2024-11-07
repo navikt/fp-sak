@@ -30,12 +30,13 @@ public enum DokumentMalType implements Kodeverdi {
     INGEN_ENDRING("INGEND"),
     FORLENGET_SAKSBEHANDLINGSTID("FORSAK"),
     FORLENGET_SAKSBEHANDLINGSTID_MEDL("FORMED"),
+    FORLENGET_SAKSBEHANDLINGSTID_MEDL_FORUTGÅENDE("FORMEF"),
     FORLENGET_SAKSBEHANDLINGSTID_TIDLIG("FORTID"),
     KLAGE_AVVIST("KGEAVV"),
     KLAGE_OMGJORT("KGEOMG"),
     KLAGE_OVERSENDT("KGEOVE"),
     ETTERLYS_INNTEKTSMELDING("ELYSIM"),
-    ENDRING_UTBETALING ("ENDUTB"), // Denne brukes kun for å utlede tittel når overstyrer vedtaksbrev pga fordeling av ytelsen
+    ENDRING_UTBETALING("ENDUTB"), // Denne brukes kun for å utlede tittel når overstyrer vedtaksbrev pga fordeling av ytelsen
     FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_INFOBREV("INFOPU"),
 
     // Må gjeninnføre for å flytte anker
@@ -54,19 +55,18 @@ public enum DokumentMalType implements Kodeverdi {
     @Deprecated ANKE_OMGJORT("ANKOMG"),
     @Deprecated ANKE_OPPHEVET("ANKOPP"),
     @Deprecated KLAGE_STADFESTET("KGESTA"),
-    @Deprecated KLAGE_HJEMSENDT("KGEHJE")
-    ;
+    @Deprecated KLAGE_HJEMSENDT("KGEHJE");
 
     public static final Set<DokumentMalType> VEDTAKSBREV = Set.of(ENGANGSSTØNAD_INNVILGELSE, ENGANGSSTØNAD_AVSLAG, FORELDREPENGER_INNVILGELSE,
-        FORELDREPENGER_AVSLAG, FORELDREPENGER_OPPHØR, FORELDREPENGER_ANNULLERT, SVANGERSKAPSPENGER_INNVILGELSE, SVANGERSKAPSPENGER_AVSLAG, SVANGERSKAPSPENGER_OPPHØR);
+        FORELDREPENGER_AVSLAG, FORELDREPENGER_OPPHØR, FORELDREPENGER_ANNULLERT, SVANGERSKAPSPENGER_INNVILGELSE, SVANGERSKAPSPENGER_AVSLAG,
+        SVANGERSKAPSPENGER_OPPHØR);
 
     public static final Set<DokumentMalType> KLAGE_VEDTAKSBREV = Set.of(KLAGE_STADFESTET, KLAGE_AVVIST, KLAGE_HJEMSENDT, KLAGE_OMGJORT,
-        KLAGE_AVVIST_DOK, KLAGE_AVVIST_FRITEKST, KLAGE_HJEMSENDT_DOK, KLAGE_HJEMSENDT_FRITEKST, KLAGE_OMGJORT_DOK,
-        KLAGE_OMGJORT_FRITEKST, KLAGE_STADFESTET_DOK, KLAGE_STADFESTET_FRITEKST);
+        KLAGE_AVVIST_DOK, KLAGE_AVVIST_FRITEKST, KLAGE_HJEMSENDT_DOK, KLAGE_HJEMSENDT_FRITEKST, KLAGE_OMGJORT_DOK, KLAGE_OMGJORT_FRITEKST,
+        KLAGE_STADFESTET_DOK, KLAGE_STADFESTET_FRITEKST);
 
-    public static final Set<DokumentMalType> MANUELLE_BREV = Set.of(INNHENTE_OPPLYSNINGER,
-        VARSEL_OM_REVURDERING, FORLENGET_SAKSBEHANDLINGSTID_MEDL,
-        FORLENGET_SAKSBEHANDLINGSTID, ETTERLYS_INNTEKTSMELDING);
+    public static final Set<DokumentMalType> MANUELLE_BREV = Set.of(INNHENTE_OPPLYSNINGER, VARSEL_OM_REVURDERING, FORLENGET_SAKSBEHANDLINGSTID_MEDL,
+        FORLENGET_SAKSBEHANDLINGSTID_MEDL_FORUTGÅENDE, FORLENGET_SAKSBEHANDLINGSTID, ETTERLYS_INNTEKTSMELDING);
 
     private static final Map<String, DokumentMalType> KODER = new LinkedHashMap<>();
 
@@ -83,6 +83,10 @@ public enum DokumentMalType implements Kodeverdi {
 
     DokumentMalType(String kode) {
         this.kode = kode;
+    }
+
+    public static Set<DokumentMalType> forlengetSaksbehandlingstidMedlemskap() {
+        return Set.of(FORLENGET_SAKSBEHANDLINGSTID_MEDL, FORLENGET_SAKSBEHANDLINGSTID_MEDL_FORUTGÅENDE);
     }
 
     @Override
@@ -141,20 +145,21 @@ public enum DokumentMalType implements Kodeverdi {
             case INGEN_ENDRING -> "Uendret utfall";
             case FORLENGET_SAKSBEHANDLINGSTID -> "Forlenget saksbehandlingstid";
             case FORLENGET_SAKSBEHANDLINGSTID_MEDL -> "Forlenget saksbehandlingstid - medlemskap";
+            case FORLENGET_SAKSBEHANDLINGSTID_MEDL_FORUTGÅENDE -> "Forlenget saksbehandlingstid - forutgående medlemskap";
             case FORLENGET_SAKSBEHANDLINGSTID_TIDLIG -> "Forlenget saksbehandlingstid - tidlig søknad";
             case KLAGE_AVVIST, KLAGE_AVVIST_DOK, KLAGE_AVVIST_FRITEKST -> "Vedtak om avvist klage";
             case KLAGE_HJEMSENDT -> "Klage hjemsendt/opphevet";
             case KLAGE_OMGJORT -> "Vedtak om omgjøring av klage";
             case KLAGE_OVERSENDT -> "Klage oversendt til klageinstans";
             case ETTERLYS_INNTEKTSMELDING -> "Etterlys inntektsmelding";
-            case KLAGE_HJEMSENDT_DOK ->  "Vedtak opphevet, sendt til ny behandling";
-            case KLAGE_HJEMSENDT_FRITEKST ->  "Klage hjemsendt/opphevet";
+            case KLAGE_HJEMSENDT_DOK -> "Vedtak opphevet, sendt til ny behandling";
+            case KLAGE_HJEMSENDT_FRITEKST -> "Klage hjemsendt/opphevet";
             case KLAGE_OMGJORT_DOK -> "Vedtak om medhold";
             case KLAGE_OMGJORT_FRITEKST -> "Vedtak om omgjøring av klage";
             case KLAGE_OVERSENDT_DOK -> "Overføring til Nav klageinstans";
             case KLAGE_OVERSENDT_FRITEKST -> "Klage oversendt til klageinstans";
             case KLAGE_STADFESTET, KLAGE_STADFESTET_DOK, KLAGE_STADFESTET_FRITEKST -> "Vedtak om stadfestelse";
-            case ANKE_OMGJORT_FRITEKST ->  "Vedtak om omgjøring i ankesak";
+            case ANKE_OMGJORT_FRITEKST -> "Vedtak om omgjøring i ankesak";
             case ANKE_OPPHEVET_FRITEKST -> "Ankebrev om beslutning om oppheving";
             case ANKE_OMGJORT -> "Vedtak om omgjøring i ankesak";
             case ANKE_OPPHEVET -> "Ankebrev om beslutning om oppheving";
