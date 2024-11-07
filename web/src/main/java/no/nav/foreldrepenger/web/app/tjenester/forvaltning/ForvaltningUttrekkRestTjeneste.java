@@ -23,6 +23,7 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import org.hibernate.jpa.HibernateHints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -261,20 +262,19 @@ public class ForvaltningUttrekkRestTjeneste {
             behandlingerÅSjekke.add(behandling);
         } else  {
             var aksjonspunktdefinisjon = dto.getAksjonspunktDefinisjon();
-            var aksjonspunktkode = dto.getAksjonspunktKode();
+            var aksjonspunktkode = aksjonspunktdefinisjon.getKode();
 
             if (!(AksjonspunktDefinisjon.AUTO_VENT_ETTERLYST_INNTEKTSMELDING.equals(aksjonspunktdefinisjon) || AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD.equals(
                 aksjonspunktdefinisjon) || AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING.equals(aksjonspunktdefinisjon))) {
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
 
-            behandlingerÅSjekke.addAll(finnBehandlingerMedAksjonspunkt(aksjonspunktkode));
+            behandlingerÅSjekke.addAll(finnBehandlingerMedAksjonspunkt(aksjonspunktdefinisjon));
 
             if (behandlingerÅSjekke.isEmpty()) {
                 return Response.noContent().build();
             }
-            var sanitizedAksjonspunktkode = aksjonspunktkode.replace("\n", "").replace("\r", "");
-            LOG.info("Antall behandlinger med aksjonspunkt {} det opprettes VurderImOgOpprettForespørselTask for: {}", sanitizedAksjonspunktkode, behandlingerÅSjekke.size());
+            LOG.info("Antall behandlinger med aksjonspunkt {} det opprettes VurderImOgOpprettForespørselTask for: {}", aksjonspunktkode, behandlingerÅSjekke.size());
         }
 
         behandlingerÅSjekke.forEach(behandling -> {
@@ -295,18 +295,23 @@ public class ForvaltningUttrekkRestTjeneste {
         || behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING);
     }
 
-    private List<Behandling> finnBehandlingerMedAksjonspunkt(String aksjonspunktkode) {
-        var query = entityManager.createQuery("""
-                select b from Behandling b
-                join Aksjonspunkt a on a.behandling.id = b.id
-                where a.aksjonspunktDefinisjon = :appKode
-                and b.status  = :behStatus
-                 and a.status = :status
-                 and a.venteårsak = :ventAarsak""", Behandling.class);
-        query.setParameter("appKode", aksjonspunktkode);
+    private List<Behandling> finnBehandlingerMedAksjonspunkt(AksjonspunktDefinisjon apDef) {
+
+        var query = entityManager.createQuery(
+            "SELECT behandling FROM Behandling behandling " +
+                "INNER JOIN Aksjonspunkt aksjonspunkt " +
+                "ON behandling=aksjonspunkt.behandling " +
+                "WHERE aksjonspunkt.aksjonspunktDefinisjon = :aksjonspunktDef " +
+                "AND behandling.status =:behStatus " +
+                "AND aksjonspunkt.status=:status " +
+                "AND aksjonspunkt.venteårsak = :ventAarsak",
+            Behandling.class);
+
+        query.setParameter("aksjonspunktDef", apDef);
         query.setParameter("behStatus", BehandlingStatus.UTREDES);
+        query.setParameter("status", AksjonspunktStatus.OPPRETTET);
         query.setParameter("ventAarsak", Venteårsak.VENT_OPDT_INNTEKTSMELDING);
-        query.setParameter("status", AksjonspunktStatus.OPPRETTET.getKode());
+        query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         return query.getResultList();
     }
 
