@@ -20,27 +20,27 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask("fpinntektsmelding.sjekkOmManglerImOgOpprettForespørsel")
+@ProsessTask("fpinntektsmelding.vurderIMOgOpprettForespørsel")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-public class SjekkOmImManglerOgOpprettForespørselTask extends GenerellProsessTask {
+public class vurderIMOgOpprettForespørsel extends GenerellProsessTask {
     private BehandlingRepository behandlingRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste;
     private FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste;
     private ArbeidsforholdInntektsmeldingMangelTjeneste inntektsmeldingMangelTjeneste;
 
-    private static final Logger LOG = LoggerFactory.getLogger(SjekkOmImManglerOgOpprettForespørselTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(vurderIMOgOpprettForespørsel.class);
 
-    public SjekkOmImManglerOgOpprettForespørselTask() {
+    public vurderIMOgOpprettForespørsel() {
         //Cdi
     }
 
     @Inject
-    public SjekkOmImManglerOgOpprettForespørselTask(BehandlingRepository behandlingRepository,
-                                                    SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                                    InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste,
-                                                    FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste,
-                                                    ArbeidsforholdInntektsmeldingMangelTjeneste inntektsmeldingMangelTjeneste) {
+    public vurderIMOgOpprettForespørsel(BehandlingRepository behandlingRepository,
+                                        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                        InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste,
+                                        FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste,
+                                        ArbeidsforholdInntektsmeldingMangelTjeneste inntektsmeldingMangelTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.inntektsmeldingRegisterTjeneste = inntektsmeldingRegisterTjeneste;

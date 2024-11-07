@@ -44,7 +44,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.fpinntektsmelding.SjekkOmImManglerOgOpprettForespørselTask;
+import no.nav.foreldrepenger.domene.fpinntektsmelding.vurderIMOgOpprettForespørsel;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakAvstemPeriodeTask;
 import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakOverlappAvstemSakTask;
@@ -274,12 +274,12 @@ public class ForvaltningUttrekkRestTjeneste {
             }
         }
         var sanitizedAksjonspunktkode = aksjonspunktkode.replace("\n", "").replace("\r", "");
-        LOG.info("OppretteIMForespørsler: Antall behandlinger med aksjonspunkt {}: {}", sanitizedAksjonspunktkode, behandlingerÅSjekke);
+        LOG.info("OppretteIMForespørsler: Antall behandlinger med aksjonspunkt {}: {}", sanitizedAksjonspunktkode, behandlingerÅSjekke.size());
 
         behandlingerÅSjekke.forEach(behandling -> {
             //oppretter task som sjekker om im mangler - kaller aa-reg i visse tilfeller så oppretter tasks for få systemkontekst
             if (!FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsak().getYtelseType()) && behandling.erYtelseBehandling() && harAksjonpunktVenterPåIm(behandling)) {
-                var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(SjekkOmImManglerOgOpprettForespørselTask.class));
+                var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(vurderIMOgOpprettForespørsel.class));
                 taskdata.setBehandling(behandling.getFagsakId(), behandling.getId());
                 taskdata.setCallIdFraEksisterende();
 
