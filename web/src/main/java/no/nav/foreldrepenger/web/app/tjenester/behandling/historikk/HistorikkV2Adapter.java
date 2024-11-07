@@ -97,7 +97,7 @@ public class HistorikkV2Adapter {
 
     private static HistorikkinnslagDtoV2 fraMaltype2(Historikkinnslag h, UUID behandlingUUID) {
         var del = h.getHistorikkinnslagDeler().getFirst();
-        var hendelse = del.getHendelse().map(HistorikkV2Adapter::fraHendelseFelt).orElseThrow();
+        var hendelse = del.getHendelse().map(HistorikkDtoFellesMapper::fraHendelseFelt).orElseThrow();
         var tekst = del.getResultatFelt()
             .map(s -> String.format("%s: %s", hendelse, fraHistorikkResultat(s)))
             .orElse(hendelse);
@@ -108,7 +108,7 @@ public class HistorikkV2Adapter {
         var tekster = new ArrayList<String>();
         for(var del : h.getHistorikkinnslagDeler()) {
             var hendelseTekst = del.getHendelse().stream()
-                .map(HistorikkV2Adapter::fraHendelseFelt)
+                .map(HistorikkDtoFellesMapper::fraHendelseFelt)
                 .toList();
             var aksjonspunkt = del.getTotrinnsvurderinger().stream()
                 .map(HistorikkV2Adapter::fraAksjonspunktFelt)
@@ -123,16 +123,13 @@ public class HistorikkV2Adapter {
     private static HistorikkinnslagDtoV2 fraMalType4(Historikkinnslag h, UUID behandlingUUID) {
         var tekster = new ArrayList<String>();
         for(var del : h.getHistorikkinnslagDeler()) {
-            var hendelseTekst = del.getHendelse().stream()
-                .map(HistorikkV2Adapter::fraHendelseFelt)
-                .toList();
             var årsakTekst = del.getAarsakFelt().stream()
                 .flatMap(felt -> finnÅrsakKodeListe(felt).stream())
                 .map(Kodeverdi::getNavn)
                 .toList();
             var begrunnelsetekst = begrunnelseFraDel(del).stream().toList();
 
-            leggTilAlleTeksterIHovedliste(tekster, hendelseTekst, årsakTekst, begrunnelsetekst);
+            leggTilAlleTeksterIHovedliste(tekster, årsakTekst, begrunnelsetekst);
         }
         return tilHistorikkInnslagDto(h, behandlingUUID, tekster);
     }
@@ -142,9 +139,6 @@ public class HistorikkV2Adapter {
                                                      URI dokumentPath) {
         var tekster = new ArrayList<String>();
         for(var del : h.getHistorikkinnslagDeler()) {
-            var hendelseTekst = del.getHendelse().stream()
-                .map(HistorikkV2Adapter::fraHendelseFelt)
-                .toList();
             var resultatTekst = del.getResultatFelt().stream()
                 .map(HistorikkV2Adapter::fraHistorikkResultat)
                 .toList();
@@ -171,7 +165,7 @@ public class HistorikkV2Adapter {
                 .toList();
             var begrunnelsetekst = begrunnelseFraDel(del).stream().toList();
 
-            leggTilAlleTeksterIHovedliste(tekster, hendelseTekst, resultatTekst, gjeldendeFraInnslag, søknadsperiode, tema, endretFelter,
+            leggTilAlleTeksterIHovedliste(tekster, resultatTekst, gjeldendeFraInnslag, søknadsperiode, tema, endretFelter,
                 opplysninger, årsaktekst, begrunnelsetekst);
         }
         return tilHistorikkInnslagDto(h, behandlingUUID, tilDokumentlenker(h.getDokumentLinker(), journalPosterForSak, dokumentPath), tekster);
@@ -180,14 +174,11 @@ public class HistorikkV2Adapter {
     private static HistorikkinnslagDtoV2 fraMalType6(Historikkinnslag h, UUID behandlingUUID) {
         var tekster = new ArrayList<String>();
         for (var del : h.getHistorikkinnslagDeler()) {
-            var hendelseTekst = del.getHendelse().stream()
-                .map(HistorikkV2Adapter::fraHendelseFelt)
-                .toList();
             var opplysninger = del.getOpplysninger().stream()
                 .map(HistorikkV2Adapter::fraOpplysning)
                 .toList();
 
-            leggTilAlleTeksterIHovedliste(tekster, hendelseTekst, opplysninger);
+            leggTilAlleTeksterIHovedliste(tekster, opplysninger);
         }
         return tilHistorikkInnslagDto(h, behandlingUUID, tekster);
 
@@ -366,11 +357,6 @@ public class HistorikkV2Adapter {
             var fraVerdi = FeltType.valueOf(felt.getFraVerdiKode()).getText();
             return String.format("Perioden __%s - %s__ er endret fra %s til __%s__", periodeFom, periodeTom, fraVerdi, tilVerdiNavn);
         }
-    }
-
-    private static String fraHendelseFelt(HistorikkinnslagFelt felt) {
-        var hendelsetekst = HistorikkinnslagType.fraKode(felt.getNavn()).getNavn();
-        return felt.getTilVerdi() == null ? hendelsetekst : hendelsetekst + " " + felt.getTilVerdi() ;
     }
 
     private static String fraEndretFeltMalType10(HistorikkinnslagFelt felt) {
@@ -638,9 +624,10 @@ public class HistorikkV2Adapter {
     private static HistorikkInnslagDokumentLinkDto tilDokumentlenker(HistorikkinnslagDokumentLink lenke,
                                                                      List<JournalpostId> journalPosterForSak,
                                                                      URI dokumentPath) {
+        var erUtgått = aktivJournalPost(lenke.getJournalpostId(), journalPosterForSak);
         var dto = new HistorikkInnslagDokumentLinkDto();
-        dto.setTag(lenke.getLinkTekst());
-        dto.setUtgått(aktivJournalPost(lenke.getJournalpostId(), journalPosterForSak));
+        dto.setTag(erUtgått ? String.format("%s (utgått)", lenke.getLinkTekst()) : lenke.getLinkTekst());
+        dto.setUtgått(erUtgått);
         dto.setDokumentId(lenke.getDokumentId());
         dto.setJournalpostId(lenke.getJournalpostId().getVerdi());
         if (lenke.getJournalpostId().getVerdi() != null && lenke.getDokumentId() != null && dokumentPath != null) {

@@ -4,11 +4,19 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagDokumentLinkDto;
 
 public class HistorikkDtoFellesMapper {
+
+    private static final Logger LOG = LoggerFactory.getLogger(HistorikkDtoFellesMapper.class);
 
     public static HistorikkinnslagDtoV2 tilHistorikkInnslagDto(Historikkinnslag h, UUID behandlingUUID, List<String> tekster) {
         return tilHistorikkInnslagDto(h, behandlingUUID, null, tekster);
@@ -22,8 +30,31 @@ public class HistorikkDtoFellesMapper {
             skjermlenkeOpt.orElse(null),
             h.getOpprettetTidspunkt(),
             lenker,
-            skjermlenkeOpt.isEmpty() ? h.getType().getNavn() : null,
+            skjermlenkeOpt.isEmpty() ? lagTittel(h) : null,
             tekster);
+    }
+
+    private static String lagTittel(Historikkinnslag h) {
+        var hendelseFelt = h.getHistorikkinnslagDeler().stream()
+            .map(HistorikkinnslagDel::getHendelse)
+            .flatMap(Optional::stream)
+            .toList();
+        if (hendelseFelt.size() > 1) {
+            LOG.warn("Flere deler med HENDELSE-felt for historikkinnslag {} på sak {}. Er alle like? Er det noe grunn til å ha undertittler? ", h.getId(), h.getFagsakId());
+        }
+
+        if (hendelseFelt.isEmpty()) {
+            return h.getType().getNavn();
+        }
+        return fraHendelseFelt(hendelseFelt.getFirst());
+    }
+
+    // BEH_VENT har satt tilverdi som brukes i tittelen (Behandling på vent 05.12.2024)
+    public static String fraHendelseFelt(HistorikkinnslagFelt felt) {
+        var hendelsetekst = HistorikkinnslagType.fraKode(felt.getNavn()).getNavn();
+        return felt.getTilVerdi() != null
+            ? String.format("%s %s", hendelsetekst, felt.getTilVerdi())
+            : hendelsetekst;
     }
 
     @SafeVarargs
