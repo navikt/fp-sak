@@ -125,9 +125,10 @@ public class FpInntektsmeldingTjeneste {
             }
             return;
         }
+
         var request = new OpprettForespørselRequest(new OpprettForespørselRequest.AktørIdDto(ref.aktørId().getId()),
             new OpprettForespørselRequest.OrganisasjonsnummerDto(ag), stp.getUtledetSkjæringstidspunkt(), mapYtelsetype(ref.fagsakYtelseType()),
-            new OpprettForespørselRequest.SaksnummerDto(ref.saksnummer().getVerdi()));
+            new OpprettForespørselRequest.SaksnummerDto(ref.saksnummer().getVerdi()), stp.getFørsteUttaksdato());
         var opprettForespørselResponse = klient.opprettForespørsel(request);
         if (opprettForespørselResponse.forespørselResultat().equals(OpprettForespørselResponse.ForespørselResultat.FORESPØRSEL_OPPRETTET)) {
             lagHistorikkForForespørsel(ag, ref);
