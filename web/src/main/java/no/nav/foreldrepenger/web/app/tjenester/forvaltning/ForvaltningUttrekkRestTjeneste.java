@@ -250,11 +250,10 @@ public class ForvaltningUttrekkRestTjeneste {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         List<Behandling> behandlingerÅSjekke = new ArrayList<>();
-        var aksjonspunktkode = dto.getAksjonspunktKode();
 
         if (dto.getBehandlingUuid() != null) {
             var behandlingUuid = dto.getBehandlingUuid();
-            LOG.info("Sjekker om det skal opprettes im forespørsel for behandling med uuid {}",  behandlingUuid);
+            LOG.info("Det opprettes VurderImOgOpprettForespørselTask for behandling med uuid {}",  behandlingUuid);
             var behandling = behandlingRepository.hentBehandling(behandlingUuid);
             if (behandling == null) {
                 return Response.noContent().build();
@@ -262,6 +261,8 @@ public class ForvaltningUttrekkRestTjeneste {
             behandlingerÅSjekke.add(behandling);
         } else  {
             var aksjonspunktdefinisjon = dto.getAksjonspunktDefinisjon();
+            var aksjonspunktkode = dto.getAksjonspunktKode();
+
             if (!(AksjonspunktDefinisjon.AUTO_VENT_ETTERLYST_INNTEKTSMELDING.equals(aksjonspunktdefinisjon) || AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD.equals(
                 aksjonspunktdefinisjon) || AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING.equals(aksjonspunktdefinisjon))) {
                 return Response.status(Response.Status.FORBIDDEN).build();
@@ -272,9 +273,9 @@ public class ForvaltningUttrekkRestTjeneste {
             if (behandlingerÅSjekke.isEmpty()) {
                 return Response.noContent().build();
             }
+            var sanitizedAksjonspunktkode = aksjonspunktkode.replace("\n", "").replace("\r", "");
+            LOG.info("Antall behandlinger med aksjonspunkt {} det opprettes VurderImOgOpprettForespørselTask for: {}", sanitizedAksjonspunktkode, behandlingerÅSjekke.size());
         }
-        var sanitizedAksjonspunktkode = aksjonspunktkode.replace("\n", "").replace("\r", "");
-        LOG.info("OppretteIMForespørsler: Antall behandlinger med aksjonspunkt {}: {}", sanitizedAksjonspunktkode, behandlingerÅSjekke.size());
 
         behandlingerÅSjekke.forEach(behandling -> {
             //oppretter task som sjekker om im mangler - kaller aa-reg i visse tilfeller så oppretter tasks for få systemkontekst
