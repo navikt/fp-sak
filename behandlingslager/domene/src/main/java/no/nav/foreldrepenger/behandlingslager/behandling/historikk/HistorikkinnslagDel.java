@@ -94,6 +94,10 @@ public class HistorikkinnslagDel extends BaseEntitet {
         return finnFeltTilVerdi(HistorikkinnslagFeltType.RESULTAT);
     }
 
+    public Optional<HistorikkinnslagFelt> getResultatFelt() {
+        return finnFelt(HistorikkinnslagFeltType.RESULTAT);
+    }
+
     public Optional<String> getGjeldendeFra() {
         return finnFeltTilVerdi(HistorikkinnslagFeltType.GJELDENDE_FRA);
     }

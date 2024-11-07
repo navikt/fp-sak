@@ -33,7 +33,6 @@ public enum HistorikkResultatType implements Kodeverdi {
     ANKE_DELVIS_OMGJOERING_TIL_GUNST("ANKE_DELVIS_OMGJOERING_TIL_GUNST", "Delvis omgjøring, til gunst i anke"),
     ANKE_TIL_UGUNST("ANKE_TIL_UGUNST", "Omgjør til ugunst"),
     ANKE_TIL_GUNST("ANKE_TIL_GUNST", "Omgjør til gunst"),
-    INNVILGET("INNVILGET", "Innvilget"), // TODO Thao
     ;
 
     private static final Map<String, HistorikkResultatType> KODER = new LinkedHashMap<>();

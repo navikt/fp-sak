@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTotrinnsvurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingVidereBehandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.historikk.HistorikkAvklartSoeknadsperiodeType;
@@ -97,7 +98,7 @@ public class HistorikkV2Adapter {
     private static HistorikkinnslagDtoV2 fraMaltype2(Historikkinnslag h, UUID behandlingUUID) {
         var del = h.getHistorikkinnslagDeler().getFirst();
         var hendelse = del.getHendelse().map(HistorikkV2Adapter::fraHendelseFelt).orElseThrow();
-        var tekst = del.getResultat()
+        var tekst = del.getResultatFelt()
             .map(s -> String.format("%s: %s", hendelse, fraHistorikkResultat(s)))
             .orElse(hendelse);
         return tilHistorikkInnslagDto(h, behandlingUUID, List.of(tekst));
@@ -144,7 +145,7 @@ public class HistorikkV2Adapter {
             var hendelseTekst = del.getHendelse().stream()
                 .map(HistorikkV2Adapter::fraHendelseFelt)
                 .toList();
-            var resultatTekst = del.getResultat().stream()
+            var resultatTekst = del.getResultatFelt().stream()
                 .map(HistorikkV2Adapter::fraHistorikkResultat)
                 .toList();
             var gjeldendeFraInnslag = del.getGjeldendeFraFelt().stream()
@@ -198,7 +199,7 @@ public class HistorikkV2Adapter {
         var tekster = new ArrayList<String>();
         for (var del : h.getHistorikkinnslagDeler()) {
             // HENDELSE finnes ikke i DB for denne maltypen
-            var resultatTekst = del.getResultat().stream()
+            var resultatTekst = del.getResultatFelt().stream()
                 .map(HistorikkV2Adapter::fraHistorikkResultat)
                 .toList();
             var endretFelter = del.getEndredeFelt().stream()
@@ -582,23 +583,22 @@ public class HistorikkV2Adapter {
     }
 
 
-    private static String fraHistorikkResultat(String type) {
-        var historikkResultatType = HistorikkResultatType.valueOf(type);
-        return switch (historikkResultatType) {
-            case MEDHOLD_I_KLAGE -> "Vedtaket er omgjort";
-            case OPPHEVE_VEDTAK -> "Vedtaket er opphevet";
-            case OPPRETTHOLDT_VEDTAK -> "Vedtaket er opprettholdt";
-            case STADFESTET_VEDTAK -> "Vedtaket er stadfestet";
-            case BEREGNET_AARSINNTEKT -> "Grunnlag for beregnet årsinntekt";
-            case UTFALL_UENDRET -> "Overstyrt vurdering: Utfall er uendret";
-            case DELVIS_MEDHOLD_I_KLAGE -> "Vedtaket er delvis omgjort";
-            case KLAGE_HJEMSENDE_UTEN_OPPHEVE -> "Behandling er hjemsendt";
-            case UGUNST_MEDHOLD_I_KLAGE -> "Vedtaket er omgjort til ugunst";
-            case OVERSTYRING_FAKTA_UTTAK -> "Overstyrt vurdering:";
-            case ANKE_AVVIS, ANKE_OMGJOER, ANKE_OPPHEVE_OG_HJEMSENDE, ANKE_HJEMSENDE, ANKE_STADFESTET_VEDTAK, ANKE_DELVIS_OMGJOERING_TIL_GUNST,
-                 ANKE_TIL_UGUNST, ANKE_TIL_GUNST -> historikkResultatType.getNavn(); // Ikke i frontend
-            default -> historikkResultatType.getNavn();
-        };
+    private static String fraHistorikkResultat(HistorikkinnslagFelt resultat) {
+        if (resultat.getKlTilVerdi().equals(HistorikkResultatType.KODEVERK)) {
+            var historikkResultatType = HistorikkResultatType.valueOf(resultat.getTilVerdiKode());
+            return switch (historikkResultatType) {
+                case MEDHOLD_I_KLAGE -> "Vedtaket er omgjort";
+                case OPPHEVE_VEDTAK -> "Vedtaket er opphevet";
+                case OPPRETTHOLDT_VEDTAK -> "Vedtaket er opprettholdt";
+                case STADFESTET_VEDTAK -> "Vedtaket er stadfestet";
+                case DELVIS_MEDHOLD_I_KLAGE -> "Vedtaket er delvis omgjort";
+                case KLAGE_HJEMSENDE_UTEN_OPPHEVE -> "Behandling er hjemsendt";
+                case UGUNST_MEDHOLD_I_KLAGE -> "Vedtaket er omgjort til ugunst";
+                default -> historikkResultatType.getNavn(); // Resten lik enum
+            };
+        } else {
+            return VedtakResultatType.valueOf(resultat.getTilVerdiKode()).getNavn(); // Alle like som enum navn
+        }
     }
 
     private static Optional<String> begrunnelseFraDel(HistorikkinnslagDel historikkinnslagDel) {
