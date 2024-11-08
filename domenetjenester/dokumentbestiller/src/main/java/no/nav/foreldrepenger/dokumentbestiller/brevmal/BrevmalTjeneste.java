@@ -50,11 +50,11 @@ public class BrevmalTjeneste {
         if (BehandlingType.REVURDERING.equals(behandlingType)) {
             if (erBehandlingManueltOpprettet) {
                 fjernes.add(DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID);
-                fjernes.add(DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_MEDL);
+                fjernes.addAll(DokumentMalType.forlengetSaksbehandlingstidMedlemskap());
             }
         } else if (BehandlingType.KLAGE.equals(behandlingType) || BehandlingType.INNSYN.equals(behandlingType)) {
             fjernes.add(DokumentMalType.ETTERLYS_INNTEKTSMELDING);
-            fjernes.add(DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_MEDL);
+            fjernes.addAll(DokumentMalType.forlengetSaksbehandlingstidMedlemskap());
             fjernes.add(DokumentMalType.VARSEL_OM_REVURDERING);
         } else {
             fjernes.add(DokumentMalType.VARSEL_OM_REVURDERING);
@@ -69,7 +69,7 @@ public class BrevmalTjeneste {
                                                                   boolean erBehandlingManueltOpprettet) {
         return switch (ytelseType) {
             case ENGANGSTØNAD -> finnIrrelevanteMalerES(behandlingType, erBehandlingManueltOpprettet);
-            case FORELDREPENGER, SVANGERSKAPSPENGER -> Set.of(DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_MEDL);
+            case FORELDREPENGER, SVANGERSKAPSPENGER -> DokumentMalType.forlengetSaksbehandlingstidMedlemskap();
             case UDEFINERT -> throw new IllegalArgumentException("Støtter ikke " + behandlingType);
         };
     }
@@ -81,7 +81,7 @@ public class BrevmalTjeneste {
         fjernes.add(DokumentMalType.ETTERLYS_INNTEKTSMELDING);
         if (BehandlingType.REVURDERING.equals(behandlingType)) {
             fjernes.add(DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID);
-            fjernes.add(DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_MEDL);
+            fjernes.addAll(DokumentMalType.forlengetSaksbehandlingstidMedlemskap());
             if (erBehandlingManueltOpprettet) {
                 fjernes.add(DokumentMalType.VARSEL_OM_REVURDERING);
             }
@@ -101,8 +101,11 @@ public class BrevmalTjeneste {
     }
 
     boolean sjekkOmDokumentSkalVæreTilgjengeligForSaksbehandler(Behandling behandling, DokumentMalType dokumentMal) {
+        if (DokumentMalType.forlengetSaksbehandlingstidMedlemskap().contains(dokumentMal)) {
+            return erÅpenBehandlingOgDokumentIkkeBestilt(behandling, dokumentMal);
+        }
         return switch (dokumentMal) {
-            case VARSEL_OM_REVURDERING, FORLENGET_SAKSBEHANDLINGSTID_MEDL -> erÅpenBehandlingOgDokumentIkkeBestilt(behandling, dokumentMal);
+            case VARSEL_OM_REVURDERING -> erÅpenBehandlingOgDokumentIkkeBestilt(behandling, dokumentMal);
             case FORLENGET_SAKSBEHANDLINGSTID -> erÅpenBehandling(behandling);
             case ETTERLYS_INNTEKTSMELDING -> erÅpenBehandling(behandling) && manglerInntektsmelding(behandling);
             default -> true;
