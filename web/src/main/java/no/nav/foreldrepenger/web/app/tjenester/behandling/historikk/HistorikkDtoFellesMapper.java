@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagDokumentLinkDto;
 public class HistorikkDtoFellesMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(HistorikkDtoFellesMapper.class);
+    private static final String TOM_LINJE = "";
 
     public static HistorikkinnslagDtoV2 tilHistorikkInnslagDto(Historikkinnslag h, UUID behandlingUUID, List<String> tekster) {
         return tilHistorikkInnslagDto(h, behandlingUUID, null, tekster);
@@ -24,6 +25,7 @@ public class HistorikkDtoFellesMapper {
 
     public static HistorikkinnslagDtoV2 tilHistorikkInnslagDto(Historikkinnslag h, UUID behandlingUUID, List<HistorikkInnslagDokumentLinkDto> lenker, List<String> tekster) {
         var skjermlenkeOpt = skjermlenkeFra(h);
+
         return new HistorikkinnslagDtoV2(
             behandlingUUID,
             HistorikkinnslagDtoV2.HistorikkAktørDto.fra(h.getAktør(), h.getOpprettetAv()),
@@ -31,7 +33,8 @@ public class HistorikkDtoFellesMapper {
             h.getOpprettetTidspunkt(),
             lenker,
             skjermlenkeOpt.isEmpty() ? lagTittel(h) : null,
-            tekster);
+            fjernTrailingAvsnittFraTekst(tekster)
+        );
     }
 
     private static String lagTittel(Historikkinnslag h) {
@@ -62,6 +65,19 @@ public class HistorikkDtoFellesMapper {
         for (List<String> liste : lister) {
             hovedListe.addAll(liste);
         }
+        hovedListe.add(TOM_LINJE);
+    }
+
+
+    private static List<String> fjernTrailingAvsnittFraTekst(List<String> tekster) {
+        if (tekster.isEmpty()) {
+            return tekster;
+        }
+
+        if (tekster.getLast().equals(TOM_LINJE)) {
+            tekster.removeLast();
+        }
+        return tekster.stream().toList();
     }
 
     private static Optional<SkjermlenkeType> skjermlenkeFra(Historikkinnslag h) {

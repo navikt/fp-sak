@@ -111,7 +111,6 @@ public class HistorikkV2Adapter {
                 .map(HistorikkV2Adapter::fraAksjonspunktFelt)
                 .flatMap(List::stream)
                 .toList();
-
             leggTilAlleTeksterIHovedliste(tekster, aksjonspunkt);
         }
         return tilHistorikkInnslagDto(h, behandlingUUID, tekster);
@@ -265,6 +264,7 @@ public class HistorikkV2Adapter {
             var begrunnelsetekst = begrunnelseFraDel(del).stream().toList();
 
             leggTilAlleTeksterIHovedliste(tekster, Collections.singletonList(opplysningTekst), endretFelter, begrunnelsetekst);
+
         }
         return tilHistorikkInnslagDto(h, behandlingUUID, tilDokumentlenker(h.getDokumentLinker(), journalPosterForSak, dokumentPath), tekster);
     }
@@ -639,7 +639,6 @@ public class HistorikkV2Adapter {
     private static boolean aktivJournalPost(JournalpostId journalpostId, List<JournalpostId> journalPosterForSak) {
         return journalPosterForSak.stream().filter(ajp -> Objects.equals(ajp, journalpostId)).findFirst().isEmpty();
     }
-
 
     private static List<String> fraAksjonspunktFelt(HistorikkinnslagTotrinnsvurdering aksjonspunktFelt) {
         var aksjonspunktTekst = aksjonspunktFelt.getAksjonspunktDefinisjon().getNavn();
