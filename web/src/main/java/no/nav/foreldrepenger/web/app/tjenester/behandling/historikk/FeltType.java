@@ -1,8 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.historikk;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public enum FeltType {
     INNVILGET("INNVILGET", "Oppfylt"),
     AVSLÅTT("AVSLÅTT", "Ikke oppfylt"),
@@ -225,19 +222,33 @@ public enum FeltType {
     ADOPTERER_ALENE("ADOPTERER_ALENE", "adopterer alene"),
     FASTSETT_RESULTAT_PERIODEN_HV_DOKUMENTERT_IKKE("FASTSETT_RESULTAT_PERIODEN_HV_DOKUMENTERT_IKKE", "Øvelse eller tjeneste i heimevernet er ikke dokumentert"),
     VERGE("VERGE", "Verge/fullmektig"),
+    MANUELL_BEHANDLING("MANUELL_BEHANDLING", "Manuell behandling"),
+    FORELDREPENGER("FORELDREPENGER", "Foreldrepenger"),
+    AKTIVITETSKRAVET_UTDANNING_IKKE_DOKUMENTERT("4067", "Aktivitetskrav – utdanning ikke dokumentert"),
+    ADNR("ADNR", "Aktivt"),
+    DØD("DØD", "Død"),
+    FOSV("FOSV", "Forsvunnet/savnet"),
+    FØDR("FØDR", "Fødselsregistrert"),
+    UREG("UREG", "Uregistrert person"),
+    UTPE("UTPE", "Utgått person"),
+    UTAN("UTAN", "Utgått person annullert tilgang Fnr"),
+    IKKE_VURDERT("IKKE_VURDERT", "Ikke vurdert"),
+    INNTREKK("TILBAKEKR_INNTREKK", "Feilutbetaling hvor inntrekk dekker hele beløpet"),
+    FAR_MER_ENN_TI_DAGER_FEDREKVOTE_IFM_FØDSEL("4106", "Far/medmor søker mer enn 10 dager ifm fødsel"),
+    SELVSTENDIG_NÆRING("SELVSTENDIG_NÆRING", "Næringsdrivende"),
+    DØD_DØDFØDSEL("DØD_DØDFØDSEL", "Død eller dødfødsel"),
+    SOEKER("SOEKER", "Søker"),
     UDEFINERT("EN_UGYLDIG_VERDI_ØNSKER_Å_LOGGE_UDEFINERTE_VERDIER_OGSÅ", "UDEFINERT VERDI");
 
-    private static final Logger LOG = LoggerFactory.getLogger(FeltType.class);
-
-    private final Object key;
+    private final String key;
     private final String text;
 
-    FeltType(Object key, String text) {
+    FeltType(String key, String text) {
         this.key = key;
         this.text = text;
     }
 
-    public Object getKey() {
+    public String getKey() {
         return key;
     }
 
@@ -245,14 +256,13 @@ public enum FeltType {
         return text;
     }
 
-    public static FeltType getByKey(Object key) {
+    public static FeltType getByKey(String key) {
         for (FeltType feltType : values()) {
             if (feltType.getKey().equals(key)) {
                 return feltType;
             }
         }
 
-        LOG.info("Historikkv2: Fant ikke FeltType for verdi {}", key);
-        return UDEFINERT;
+        throw new IllegalArgumentException("FeltType with key " + key + " not found");
     }
 }
