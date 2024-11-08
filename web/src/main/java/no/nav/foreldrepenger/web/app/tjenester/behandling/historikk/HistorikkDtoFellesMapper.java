@@ -65,11 +65,13 @@ public class HistorikkDtoFellesMapper {
     }
 
     private static Optional<SkjermlenkeType> skjermlenkeFra(Historikkinnslag h) {
-        return h.getHistorikkinnslagDeler().stream()
-            .flatMap(del -> del.getSkjermlenke().stream())
-            .map(SkjermlenkeType::fraKode)
-            .findFirst();
+        var skjermlenker = h.getHistorikkinnslagDeler().stream().flatMap(del -> del.getSkjermlenke().stream()).toList();
+        if (skjermlenker.size() > 1) {
+            return Optional.empty();
+        } else {
+            return skjermlenker.stream()
+                .map(SkjermlenkeType::fraKode)
+                .findFirst();
+        }
     }
-
-
 }

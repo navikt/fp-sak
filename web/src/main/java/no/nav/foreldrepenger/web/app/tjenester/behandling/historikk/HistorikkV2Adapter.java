@@ -107,15 +107,12 @@ public class HistorikkV2Adapter {
     private static HistorikkinnslagDtoV2 fraMaltype3(Historikkinnslag h, UUID behandlingUUID) {
         var tekster = new ArrayList<String>();
         for(var del : h.getHistorikkinnslagDeler()) {
-            var hendelseTekst = del.getHendelse().stream()
-                .map(HistorikkDtoFellesMapper::fraHendelseFelt)
-                .toList();
             var aksjonspunkt = del.getTotrinnsvurderinger().stream()
                 .map(HistorikkV2Adapter::fraAksjonspunktFelt)
                 .flatMap(List::stream)
                 .toList();
 
-            leggTilAlleTeksterIHovedliste(tekster, hendelseTekst, aksjonspunkt);
+            leggTilAlleTeksterIHovedliste(tekster, aksjonspunkt);
         }
         return tilHistorikkInnslagDto(h, behandlingUUID, tekster);
     }
@@ -645,69 +642,13 @@ public class HistorikkV2Adapter {
 
 
     private static List<String> fraAksjonspunktFelt(HistorikkinnslagTotrinnsvurdering aksjonspunktFelt) {
-        var aksjonspunktTekst = switch (aksjonspunktFelt.getAksjonspunktDefinisjon()) {
-            case AVKLAR_TERMINBEKREFTELSE -> "Opplysninger om termin oppgitt i søknaden";
-            case AVKLAR_ADOPSJONSDOKUMENTAJON -> "Adopsjonsopplysninger fra søknad";
-            case AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN -> "Ektefelles/samboers barn";
-            case AVKLAR_OM_SØKER_ER_MANN_SOM_ADOPTERER_ALENE -> "Mann adopterer";
-            case MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET -> "Søknadsfrist";
-            case MANUELL_VURDERING_AV_SØKNADSFRIST -> "Søknadsfrist";
-            case AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE -> "Fakta om omsorg og foreldreansvar";
-            case VURDER_PERIODER_MED_OPPTJENING -> "Opptjening";
-            //case MANUELL_VURDERING_AV_OMSORGSVILKÅRET -> 'HistorikkEndretFeltVerdiType.ApplicationInformation'; // Finner ikke tekststreng i frontend. Bruker tekst i fpsak
-            case REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD -> "Registrering av papirsøknad";
-            case MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_2_LEDD -> "Foreldreansvaret";
-            case MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_4_LEDD -> "Foreldreansvaret";
-            // case UTGÅTT_5025 -> 'VarselOmRevurderingInfoPanel.Etterkontroll'; // Finner ikke tekststreng i frontend. Bruker tekst i fpsak
-            //case VARSEL_REVURDERING_MANUELL -> 'VarselOmRevurderingInfoPanel.Manuell';  // Finner ikke tekststreng i frontend. Bruker tekst i fpsak
-            case AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE -> "Vurder om engangsstønad eller foreldrepenger utbetalt til søker gjelder samme barn";
-            case AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE -> "Vurder om engangsstønad eller foreldrepenger utbetalt til søker gjelder samme barn";
-            case AVKLAR_VERGE -> "Avklar verge";
-            case SJEKK_MANGLENDE_FØDSEL -> "Kontroller manglende opplysninger om fødsel";
-            case MANUELL_VURDERING_AV_KLAGE_NFP -> "Fastsett resultatet av klagebehandlingen";
-            case VURDERING_AV_FORMKRAV_KLAGE_NFP -> "Vurder om klagen oppfyller formkravene";
-            case UTGÅTT_5080 -> "Avklar arbeidsforhold";
-            case UTGÅTT_5019 -> "Avklar lovlig opphold";
-            case UTGÅTT_5020 -> "Fastsett om søker er bosatt";
-            case UTGÅTT_5023 -> "Avklar oppholdsrett";
-            case OVERSTYRING_AV_FØDSELSVILKÅRET -> "Overstyring av fødselsvilkåret";
-            case OVERSTYRING_AV_FØDSELSVILKÅRET_FAR_MEDMOR -> "Overstyring av fødselsvilkåret";
-            case OVERSTYRING_AV_ADOPSJONSVILKÅRET -> "Overstyring av adopsjonsvilkåret";
-            //case OVERSTYRING_AV_ADOPSJONSVILKÅRET_FP -> 'Overstyr.adopsjonsvilkar'; // Finner ikke tekststreng i frontend. Bruker tekst i fpsak
-            case OVERSTYRING_AV_OPPTJENINGSVILKÅRET -> "Overstyring av opptjeningsvilkåret";
-            case OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET -> "Overstyring av medlemskapsvilkåret";
-            case OVERSTYRING_AV_SØKNADSFRISTVILKÅRET -> "Overstyring av søknadsfristvilkåret";
-            case OVERSTYRING_AV_BEREGNING -> "Overstyring av beregning";
-            case OVERSTYRING_AV_UTTAKPERIODER -> "Overstyrte uttaksperioder";
-            case MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG -> "Manuell kontroll av om søker har aleneomsorg";
-            case AVKLAR_LØPENDE_OMSORG -> "Manuell kontroll av om søker har omsorg";
-            case FASTSETT_UTTAKPERIODER -> "Manuelt fastsatte uttaksperioder";
-            case KONTROLLER_OPPLYSNINGER_OM_DØD -> "Kontroller opplysninger om død";
-            case KONTROLLER_OPPLYSNINGER_OM_SØKNADSFRIST -> "Kontroller opplysninger om søknadsfrist";
-            case KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE -> "Kontroller opplysninger om realitetsbehandling/klage";
-            case KONTROLLER_ANNENPART_EØS -> "Kontroller opplysninger om annen forelders uttak i EØS";
-            case UTGÅTT_5067 -> "Kontroller evt overlappende uttak mot brukers senere saker";
-            case UTGÅTT_5075 -> "Kontroller opplysninger om fordeling av stønadsperioden";
-            case UTGÅTT_5078 -> "Kontroller opplysninger om tilstøtende ytelser innvilget";
-            case UTGÅTT_5079 -> "Kontroller opplysninger om tilstøtende ytelser opphørt";
-            case UTGÅTT_5042 -> "Fastsatt beregningsgrunnlag for selvstendig næring";
-            case FASTSETT_UTTAK_STORTINGSREPRESENTANT -> "Søker er stortingsrepresentant. Uttak";
-            case FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS -> "Fastsatt beregningsgrunnlag for arbeidstaker/frilanser";
-            case FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD -> "Fastsatt beregningsgrunnlag for kortvarig arbeidsforhold";
-            case VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE -> "Vurdering av varig endret eller nyoppstartet næring";
-            case FASTSETT_BEREGNINGSGRUNNLAG_FOR_SN_NY_I_ARBEIDSLIVET -> "Fastsatt beregningsgrunnlag for selvstendig næring ny i arbeidslivet";
-            case VURDER_FAKTA_FOR_ATFL_SN -> "Vurder fakta for beregning";
-            case FORESLÅ_VEDTAK -> "Fritekstbrev";
-            case AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT -> "Vurdering om den andre forelderen har rett til foreldrepenger";
-            default -> aksjonspunktFelt.getAksjonspunktDefinisjon().name();
-        };
-
+        var aksjonspunktTekst = aksjonspunktFelt.getAksjonspunktDefinisjon().name();
         if (aksjonspunktFelt.erGodkjent()) {
-            return List.of(String.format("%s er godkjent", aksjonspunktTekst));
+            return List.of(String.format("__%s er godkjent__", aksjonspunktTekst));
         } else {
             return List.of(
-                String.format("%s må vurderes på nytt", aksjonspunktTekst),
-                aksjonspunktFelt.getBegrunnelse()
+                String.format("__%s må vurderes på nytt__", aksjonspunktTekst),
+                String.format("Kommentar: %s", aksjonspunktFelt.getBegrunnelse())
             );
         }
     }
