@@ -642,7 +642,7 @@ public class HistorikkV2Adapter {
 
 
     private static List<String> fraAksjonspunktFelt(HistorikkinnslagTotrinnsvurdering aksjonspunktFelt) {
-        var aksjonspunktTekst = aksjonspunktFelt.getAksjonspunktDefinisjon().name();
+        var aksjonspunktTekst = aksjonspunktFelt.getAksjonspunktDefinisjon().getNavn();
         if (aksjonspunktFelt.erGodkjent()) {
             return List.of(String.format("__%s er godkjent__", aksjonspunktTekst));
         } else {
