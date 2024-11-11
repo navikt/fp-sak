@@ -60,6 +60,7 @@ class FpInntektsmeldingTjenesteTest {
     void skal_overstyre_inntektsmelding() {
         // Arrange
         var stp = LocalDate.of(2024,9,1);
+        var saksnummerDto = new SaksnummerDto("1234");
         var opphørsdato = stp.plusDays(15);
         var ref1 = new Refusjon(BigDecimal.valueOf(4000), stp.plusDays(10));
         var ref2 = new Refusjon(BigDecimal.valueOf(4000), stp.plusDays(20));
@@ -81,7 +82,7 @@ class FpInntektsmeldingTjenesteTest {
         // Assert
         var foventedeRefusjonsendringer = List.of(new OverstyrInntektsmeldingRequest.RefusjonendringRequestDto(stp.plusDays(10), BigDecimal.valueOf(4000)), new OverstyrInntektsmeldingRequest.RefusjonendringRequestDto(opphørsdato, BigDecimal.ZERO));
         var forventetRequest = new OverstyrInntektsmeldingRequest(new OverstyrInntektsmeldingRequest.AktørIdDto("9999999999999"), new OverstyrInntektsmeldingRequest.ArbeidsgiverDto("999999999"), stp, OverstyrInntektsmeldingRequest.YtelseType.FORELDREPENGER, BigDecimal.valueOf(5000), BigDecimal.valueOf(5000),
-            foventedeRefusjonsendringer, Collections.emptyList(), "Truls Test");
+            foventedeRefusjonsendringer, Collections.emptyList(), "Truls Test", saksnummerDto);
         verify(klient, times(1)).overstyrInntektsmelding(forventetRequest);
     }
 
