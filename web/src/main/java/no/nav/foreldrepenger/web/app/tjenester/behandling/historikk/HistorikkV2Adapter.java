@@ -367,24 +367,9 @@ public class HistorikkV2Adapter {
     }
 
     private static String fraEndretFeltMalType10(HistorikkinnslagFelt felt) {
-        var tekst = "";
         var fieldName = kodeverdiTilStreng(HistorikkEndretFeltType.fraKode(felt.getNavn()), felt.getNavnVerdi());
 
-        if (HistorikkEndretFeltType.UTTAK_TREKKDAGER.getKode().equals(felt.getNavn())) {
-            var fraVerdi = Double.parseDouble(felt.getFraVerdi());
-            var tilVerdi = Double.parseDouble(felt.getTilVerdi());
-            var fraVerdiUker = (int) Math.floor(fraVerdi / 5);
-            var fraVerdiDager = fraVerdi % 1 == 0 ? fraVerdi % 5 : (Math.round(fraVerdi % 5 * 10) / 10.0);
-            var tilVerdiUker = (int) Math.floor(tilVerdi / 5);
-            var tilVerdiDager = tilVerdi % 1 == 0 ? tilVerdi % 5 : (Math.round(tilVerdi % 5 * 10) / 10.0); //TODO test gradering der trekkdager er feks 10,5, burde oversttes til 2 uker og 0,5 dager
-
-            tekst = String.format("__%s__ er endret fra %s uker og %s dager til __%s uker og %s dager__", fieldName, fraVerdiUker,
-                fraVerdiDager, tilVerdiUker, tilVerdiDager);
-        } else {
-            tekst = historikkFraTilVerdi(felt, fieldName);
-        }
-
-        return tekst;
+        return historikkFraTilVerdi(felt, fieldName);
     }
 
     private static String historikkFraTilVerdi(HistorikkinnslagFelt felt, String fieldName) {

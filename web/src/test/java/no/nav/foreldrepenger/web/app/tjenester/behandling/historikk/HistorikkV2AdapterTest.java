@@ -38,4 +38,22 @@ class HistorikkV2AdapterTest {
 
         assertThat(historikkinnslagDtoV2).isNotNull();
     }
+
+    @Test
+    void malType10TrekkDagerTest() {
+        var historikkinnslag = new Historikkinnslag();
+        historikkinnslag.setType(HistorikkinnslagType.FASTSATT_UTTAK);
+        historikkinnslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
+        historikkinnslag.setOpprettetAv("ELISE");
+        new HistorikkInnslagTekstBuilder()
+            .medSkjermlenke(SkjermlenkeType.UTTAK)
+            .medHendelse(HistorikkinnslagType.FASTSATT_UTTAK)
+            .medEndretFelt(HistorikkEndretFeltType.UTTAK_TREKKDAGER, "trekk", "20.0", "41.0")
+            .build(historikkinnslag);
+
+        var historikkinnslagDtoV2 = HistorikkV2Adapter.map(historikkinnslag, BEHANDLING_UUID, List.of(), null);
+
+        assertThat(historikkinnslagDtoV2).isNotNull();
+        assertThat(historikkinnslagDtoV2.body()).contains("__Trekkdager__ er endret fra 20.0 til __41.0__");
+    }
 }
