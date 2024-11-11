@@ -9,6 +9,7 @@ import static no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.Histo
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -258,6 +259,7 @@ public class HistorikkV2Adapter {
             }
 
             var endretFelter = del.getEndredeFelt().stream()
+                .sorted(Comparator.comparing(HistorikkV2Adapter::sortering))
                 .map(HistorikkV2Adapter::fraEndretFeltMalType10)
                 .toList();
 
@@ -267,6 +269,14 @@ public class HistorikkV2Adapter {
 
         }
         return tilHistorikkInnslagDto(h, behandlingUUID, tilDokumentlenker(h.getDokumentLinker(), journalPosterForSak, dokumentPath), tekster);
+    }
+
+    // Frontend legger UTTAK_PERIODE_RESULTAT_TYPE sist, mens resten følger sekvensnummeret
+    private static Integer sortering(HistorikkinnslagFelt felt) {
+        var historikkEndretFeltType = HistorikkEndretFeltType.fraKode(felt.getNavn());
+        return historikkEndretFeltType.equals(HistorikkEndretFeltType.UTTAK_PERIODE_RESULTAT_TYPE)
+            ? Integer.MAX_VALUE
+            : felt.getSekvensNr();
     }
 
     private static HistorikkinnslagDtoV2 fraMalTypeAktivitetskrav(Historikkinnslag h, UUID behandlingUUID) {
