@@ -23,7 +23,7 @@ public record KabalHendelse(UUID eventId,
                                      AnkeITrygderettenbehandlingOpprettetDetaljer ankeITrygderettenbehandlingOpprettet,
                                      AvsluttetDetaljer ankebehandlingAvsluttet,
                                      AvsluttetDetaljer behandlingEtterTrygderettenOpphevetAvsluttet,
-                                     AvsluttetDetaljer omgjoeringskravAvsluttet,
+                                     AvsluttetDetaljer omgjoeringskravbehandlingAvsluttet,
                                      BehandlingFeilregistrertDetaljer behandlingFeilregistrert) {}
 
     public record AnkebehandlingOpprettetDetaljer(LocalDateTime mottattKlageinstans) {}
