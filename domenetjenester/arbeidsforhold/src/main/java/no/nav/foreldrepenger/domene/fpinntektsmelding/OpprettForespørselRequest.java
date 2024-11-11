@@ -7,8 +7,6 @@ import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.tilMaskertNummer;
-
 public record OpprettForespørselRequest(@NotNull @Valid AktørIdDto aktørId,
                                         @NotNull @Valid OrganisasjonsnummerDto orgnummer,
                                         @NotNull LocalDate skjæringstidspunkt,
@@ -31,14 +29,6 @@ public record OpprettForespørselRequest(@NotNull @Valid AktørIdDto aktørId,
             }
             return "*".repeat(length - 4) + id.substring(length - 4);
         }
-    }
-    protected record SaksnummerDto(@NotNull @JsonValue String saksnr){}
-    protected record OrganisasjonsnummerDto(@NotNull @JsonValue String orgnr){
-        @Override
-        public String toString() {
-            return getClass().getSimpleName() + "<" + tilMaskertNummer(orgnr) + ">";
-        }
-
     }
     protected enum YtelseType {
         FORELDREPENGER,

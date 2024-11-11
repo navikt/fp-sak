@@ -197,7 +197,7 @@ class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest {
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         assertThat(stp.getFørsteUttaksdato()).isEqualTo(førsteSøkteDato);
         assertThat(stp.getFørsteUttaksdatoGrunnbeløp()).isEqualTo(VirkedagUtil.fomVirkedag(fødselsdato));
-        assertThat(stp.getUtledetSkjæringstidspunkt()).isEqualTo(VirkedagUtil.fomVirkedag(førsteSøkteDato));
+        assertThat(stp.getUtledetSkjæringstidspunkt()).isEqualTo(førsteSøkteDato);
     }
 
     @Test
