@@ -184,7 +184,7 @@ class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest {
     @Test
     void skal_finne_fud_søkt_uttak_periode_far_før_fødsel_uten_termin() {
         var fødselsdato = LocalDate.now().plusWeeks(1L).minusDays(1L);
-        var førsteSøkteDato = fødselsdato.minusWeeks(1);
+        var førsteSøkteDato = VirkedagUtil.fomVirkedag(fødselsdato.minusWeeks(1));
         var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
             .medPeriode(førsteSøkteDato, fødselsdato.plusWeeks(1).minusDays(1))
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE);
