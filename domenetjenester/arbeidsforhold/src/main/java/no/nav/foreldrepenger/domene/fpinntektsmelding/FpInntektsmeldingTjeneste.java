@@ -92,7 +92,7 @@ public class FpInntektsmeldingTjeneste {
         var endringerIRefusjon = mapRefusjonsendringer(inntektsmeldingSomSkalOverstyres.getEndringerRefusjon(), opphørFom);
         var naturalytelser = mapNaturalytelser(inntektsmeldingSomSkalOverstyres.getNaturalYtelser());
         var request = new OverstyrInntektsmeldingRequest(aktørId, arbeidsgiver, startdato, ytelse,
-            inntektsmeldingSomSkalOverstyres.getInntektBeløp().getVerdi(), refusjon, endringerIRefusjon, naturalytelser, saksbehandlerIdent);
+            inntektsmeldingSomSkalOverstyres.getInntektBeløp().getVerdi(), refusjon, endringerIRefusjon, naturalytelser, saksbehandlerIdent, new SaksnummerDto(ref.saksnummer().getVerdi()));
         klient.overstyrInntektsmelding(request);
     }
 
@@ -127,8 +127,8 @@ public class FpInntektsmeldingTjeneste {
         }
 
         var request = new OpprettForespørselRequest(new OpprettForespørselRequest.AktørIdDto(ref.aktørId().getId()),
-            new OpprettForespørselRequest.OrganisasjonsnummerDto(ag), stp.getUtledetSkjæringstidspunkt(), mapYtelsetype(ref.fagsakYtelseType()),
-            new OpprettForespørselRequest.SaksnummerDto(ref.saksnummer().getVerdi()), stp.getFørsteUttaksdato());
+            new OrganisasjonsnummerDto(ag), stp.getUtledetSkjæringstidspunkt(), mapYtelsetype(ref.fagsakYtelseType()),
+            new SaksnummerDto(ref.saksnummer().getVerdi()), stp.getFørsteUttaksdato());
         var opprettForespørselResponse = klient.opprettForespørsel(request);
         if (opprettForespørselResponse.forespørselResultat().equals(OpprettForespørselResponse.ForespørselResultat.FORESPØRSEL_OPPRETTET)) {
             lagHistorikkForForespørsel(ag, ref);
@@ -193,7 +193,7 @@ public class FpInntektsmeldingTjeneste {
             }
             return;
         }
-        var request = new LukkForespørselRequest(new OpprettForespørselRequest.OrganisasjonsnummerDto(orgnummer), new OpprettForespørselRequest.SaksnummerDto(saksnummer));
+        var request = new LukkForespørselRequest(new OrganisasjonsnummerDto(orgnummer), new SaksnummerDto(saksnummer));
         klient.lukkForespørsel(request);
     }
 
@@ -203,7 +203,7 @@ public class FpInntektsmeldingTjeneste {
             return;
         }
 
-        var request = new LukkForespørselRequest(null, new OpprettForespørselRequest.SaksnummerDto(saksnummer));
+        var request = new LukkForespørselRequest(null, new SaksnummerDto(saksnummer));
         klient.settForespørselTilUtgått(request);
     }
 }
