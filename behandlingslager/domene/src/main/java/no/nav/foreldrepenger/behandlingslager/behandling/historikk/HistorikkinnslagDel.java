@@ -94,6 +94,10 @@ public class HistorikkinnslagDel extends BaseEntitet {
         return finnFeltTilVerdi(HistorikkinnslagFeltType.RESULTAT);
     }
 
+    public Optional<HistorikkinnslagFelt> getResultatFelt() {
+        return finnFelt(HistorikkinnslagFeltType.RESULTAT);
+    }
+
     public Optional<String> getGjeldendeFra() {
         return finnFeltTilVerdi(HistorikkinnslagFeltType.GJELDENDE_FRA);
     }
@@ -130,9 +134,11 @@ public class HistorikkinnslagDel extends BaseEntitet {
     }
 
     public List<HistorikkinnslagTotrinnsvurdering> getTotrinnsvurderinger() {
-        var aksjonspunktFeltTypeKoder = Arrays.asList(HistorikkinnslagFeltType.AKSJONSPUNKT_BEGRUNNELSE,
+        var aksjonspunktFeltTypeKoder = Arrays.asList(
+            HistorikkinnslagFeltType.AKSJONSPUNKT_BEGRUNNELSE,
             HistorikkinnslagFeltType.AKSJONSPUNKT_GODKJENT,
-            HistorikkinnslagFeltType.AKSJONSPUNKT_KODE);
+            HistorikkinnslagFeltType.AKSJONSPUNKT_KODE
+        );
 
         var alleAksjonspunktFelt = historikkinnslagFelt.stream()
             .filter(felt -> aksjonspunktFeltTypeKoder.contains(felt.getFeltType()))

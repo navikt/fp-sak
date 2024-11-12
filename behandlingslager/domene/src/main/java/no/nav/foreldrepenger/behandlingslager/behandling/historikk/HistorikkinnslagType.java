@@ -46,7 +46,6 @@ public enum HistorikkinnslagType implements Kodeverdi {
     // Mal Type 2
     VEDTAK_FATTET("VEDTAK_FATTET", "Vedtak fattet", HistorikkinnslagMal.MAL_TYPE_2),
     UENDRET_UTFALL("UENDRET_UTFALL", "Uendret utfall", HistorikkinnslagMal.MAL_TYPE_2),
-    TILBAKEKREVING_VIDEREBEHANDLING("TILBAKEKR_VIDEREBEHANDLING", "Metode for å håndtere tilbakekreving av feilutbetailng er valgt.", HistorikkinnslagMal.MAL_TYPE_2),
     REGISTRER_OM_VERGE("REGISTRER_OM_VERGE", "Registrering av opplysninger om verge/fullmektig", HistorikkinnslagMal.MAL_TYPE_2),
     FORSLAG_VEDTAK_UTEN_TOTRINN("FORSLAG_VEDTAK_UTEN_TOTRINN", "Vedtak foreslått", HistorikkinnslagMal.MAL_TYPE_2),
     FORSLAG_VEDTAK("FORSLAG_VEDTAK", "Vedtak foreslått og sendt til beslutter", HistorikkinnslagMal.MAL_TYPE_2),
@@ -82,6 +81,7 @@ public enum HistorikkinnslagType implements Kodeverdi {
     // Mal Type 9
     OVST_UTTAK_SPLITT("OVST_UTTAK_SPLITT", "Manuelt overstyring av uttak - splitting av periode", HistorikkinnslagMal.MAL_TYPE_9),
     FASTSATT_UTTAK_SPLITT("FASTSATT_UTTAK_SPLITT", "Manuelt fastsetting av uttak - splitting av periode", HistorikkinnslagMal.MAL_TYPE_9),
+    TILBAKEKREVING_VIDEREBEHANDLING("TILBAKEKR_VIDEREBEHANDLING", "Metode for å håndtere tilbakekreving av feilutbetailng er valgt.", HistorikkinnslagMal.MAL_TYPE_9),
 
     // Mal Type 10
     FASTSATT_UTTAK("FASTSATT_UTTAK", "Manuelt fastsetting av uttak", HistorikkinnslagMal.MAL_TYPE_10),

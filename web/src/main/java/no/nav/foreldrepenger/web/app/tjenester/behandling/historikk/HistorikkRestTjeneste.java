@@ -27,6 +27,7 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
 /**
  * Denne finnes utelukkende pga autotest
+ * TODO: Kan man bruke fagsak full istedenfor? Litt for mye overhead?
  */
 
 @Path("/historikk")
@@ -59,5 +60,4 @@ public class HistorikkRestTjeneste {
         var historikkInnslagDtoList = historikkTjeneste.hentAlleHistorikkInnslagForSak(new Saksnummer(saksnummerDto.getVerdi()), url);
         return Response.ok().entity(historikkInnslagDtoList).build();
     }
-
 }

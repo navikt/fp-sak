@@ -125,6 +125,17 @@ public enum HistorikkEndretFeltVerdiType implements Kodeverdi {
         return kode;
     }
 
+    public static HistorikkEndretFeltVerdiType fraKode(String kode) {
+        if (kode == null) {
+            return null;
+        }
+        var ad = KODER.get(kode);
+        if (ad == null) {
+            throw new IllegalArgumentException("Ukjent HistorikkEndretFeltVerdiType: " + kode);
+        }
+        return ad;
+    }
+
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<HistorikkEndretFeltVerdiType, String> {
         @Override
@@ -137,16 +148,6 @@ public enum HistorikkEndretFeltVerdiType implements Kodeverdi {
             return dbData == null ? null : fraKode(dbData);
         }
 
-        private static HistorikkEndretFeltVerdiType fraKode(String kode) {
-            if (kode == null) {
-                return null;
-            }
-            var ad = KODER.get(kode);
-            if (ad == null) {
-                throw new IllegalArgumentException("Ukjent HistorikkEndretFeltVerdiType: " + kode);
-            }
-            return ad;
-        }
 
     }
 }
