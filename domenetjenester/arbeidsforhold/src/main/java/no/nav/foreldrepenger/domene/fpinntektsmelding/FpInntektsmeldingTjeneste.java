@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -38,9 +37,6 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ApplicationScoped
 public class FpInntektsmeldingTjeneste {
-
-    private static final Boolean IS_PROD = Environment.current().isProd();
-
     private FpinntektsmeldingKlient klient;
     private ProsessTaskTjeneste prosessTaskTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -67,10 +63,6 @@ public class FpInntektsmeldingTjeneste {
     }
 
     public void lagForespørselTask(String ag, BehandlingReferanse ref) {
-        // Toggler av for prod
-        if (Boolean.TRUE.equals(IS_PROD)) {
-            return;
-        }
         var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(FpinntektsmeldingTask.class));
         taskdata.setBehandling(ref.fagsakId(), ref.behandlingId());
         taskdata.setCallIdFraEksisterende();
@@ -114,11 +106,6 @@ public class FpInntektsmeldingTjeneste {
     }
 
     public void lagForespørsel(String ag, BehandlingReferanse ref, Skjæringstidspunkt stp) {
-        // Toggler av for prod
-        if (Boolean.TRUE.equals(IS_PROD)) {
-            return;
-        }
-
         if (!OrganisasjonsNummerValidator.erGyldig(ag)) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("FpInntektsmeldingTjeneste: Oppretter ikke forespørsel for saksnummer: {} fordi orgnummer: {} ikke er gyldig", ref.saksnummer(), tilMaskertNummer(ag));
@@ -164,11 +151,6 @@ public class FpInntektsmeldingTjeneste {
     }
 
     public void lagLukkForespørselTask(Behandling behandling, OrgNummer orgNummer, ForespørselStatus status) {
-        // Toggler av for prod
-        if (Boolean.TRUE.equals(IS_PROD)) {
-            return;
-        }
-
         var behandlingId = behandling.getId();
         var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(LukkForespørslerImTask.class));
         taskdata.setBehandling(behandling.getFagsakId(), behandlingId);
@@ -182,11 +164,6 @@ public class FpInntektsmeldingTjeneste {
     }
 
     public void lukkForespørsel(String saksnummer, String orgnummer) {
-        // Toggler av for prod
-        if (Boolean.TRUE.equals(IS_PROD)) {
-            return;
-        }
-
         if (!OrganisasjonsNummerValidator.erGyldig(orgnummer)) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("FpInntektsmeldingTjeneste: Lukker ikke forespørsel for saksnummer: {} fordi orgnummer: {} ikke er gyldig", saksnummer, tilMaskertNummer(orgnummer));
@@ -198,11 +175,6 @@ public class FpInntektsmeldingTjeneste {
     }
 
     public void settForespørselTilUtgått(String saksnummer) {
-        // Toggler av for prod
-        if (Boolean.TRUE.equals(IS_PROD)) {
-            return;
-        }
-
         var request = new LukkForespørselRequest(null, new SaksnummerDto(saksnummer));
         klient.settForespørselTilUtgått(request);
     }
