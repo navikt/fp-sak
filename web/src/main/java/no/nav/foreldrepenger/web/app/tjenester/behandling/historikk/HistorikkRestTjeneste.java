@@ -35,7 +35,6 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @Transactional
 public class HistorikkRestTjeneste {
     private HistorikkTjenesteAdapter historikkTjeneste;
-    private HistorikkV2Tjeneste historikkV2Tjeneste;
 
     public static final String HISTORIKK_PATH = "/historikk";
 
@@ -44,9 +43,8 @@ public class HistorikkRestTjeneste {
     }
 
     @Inject
-    public HistorikkRestTjeneste(HistorikkTjenesteAdapter historikkTjeneste, HistorikkV2Tjeneste historikkV2Tjeneste) {
+    public HistorikkRestTjeneste(HistorikkTjenesteAdapter historikkTjeneste) {
         this.historikkTjeneste = historikkTjeneste;
-        this.historikkV2Tjeneste = historikkV2Tjeneste;
     }
 
     @GET
@@ -62,21 +60,4 @@ public class HistorikkRestTjeneste {
         var historikkInnslagDtoList = historikkTjeneste.hentAlleHistorikkInnslagForSak(new Saksnummer(saksnummerDto.getVerdi()), url);
         return Response.ok().entity(historikkInnslagDtoList).build();
     }
-
-
-
-    @GET
-    @Path("/v2")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @Operation(description = "Henter alle historikkinnslagV2 for en gitt sak.", tags = "historikk")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public Response hentAlleInnslagV2(@Context HttpServletRequest request,
-                                    @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer")
-                                    @TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
-                                    @Valid SaksnummerDto saksnummerDto) {
-        var url = HistorikkRequestPath.getRequestPath(request);
-        var historikkInnslagDtoList = historikkV2Tjeneste.hentForSak(new Saksnummer(saksnummerDto.getVerdi()), url);
-        return Response.ok().entity(historikkInnslagDtoList).build();
-    }
-
 }

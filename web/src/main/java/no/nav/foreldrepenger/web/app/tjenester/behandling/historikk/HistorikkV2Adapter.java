@@ -84,8 +84,7 @@ public class HistorikkV2Adapter {
             case TILBAKEKREVING ->
                 fraMaltypeTilbakekreving(h, behandlingUUID);
              */
-
-            default -> null;
+            case UDEFINERT -> throw new IllegalStateException("Unexpected value: " + h.getType());
         };
     }
 

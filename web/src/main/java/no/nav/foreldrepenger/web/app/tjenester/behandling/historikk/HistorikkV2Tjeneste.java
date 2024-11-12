@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.historikk;
 import java.net.URI;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -40,24 +39,24 @@ public class HistorikkV2Tjeneste {
     }
 
     public List<HistorikkinnslagDtoV2> hentForSak(Saksnummer saksnummer, URI dokumentPath) {
-        var historikkinnslag = historikkRepository.hentHistorikkForSaksnummer(saksnummer);
-        var journalPosterForSak = dokumentArkivTjeneste.hentAlleJournalposterForSakCached(saksnummer).stream()
-            .map(ArkivJournalPost::getJournalpostId)
-            .toList();
-        return historikkinnslag
-            .stream()
-            .map(h -> {
-                var behandlingId = h.getBehandlingId();
-                var uuid = behandlingId == null ? null : behandlingRepository.hentBehandling(behandlingId).getUuid();
-                var mapped = HistorikkV2Adapter.map(h, uuid, journalPosterForSak, dokumentPath);
-                if (mapped == null) {
-                    LOG.info("historikkv2 Mangler implementasjon for {}", h.getType());
-                }
-                return mapped;
-            })
-            .filter(Objects::nonNull) //TODO fjerne nonnull
-            .sorted(Comparator.comparing(HistorikkinnslagDtoV2::opprettetTidspunkt))
-            .toList();
+        try {
+            var historikkinnslag = historikkRepository.hentHistorikkForSaksnummer(saksnummer);
+            var journalPosterForSak = dokumentArkivTjeneste.hentAlleJournalposterForSakCached(saksnummer).stream()
+                .map(ArkivJournalPost::getJournalpostId)
+                .toList();
+            return historikkinnslag
+                .stream()
+                .map(h -> {
+                    var behandlingId = h.getBehandlingId();
+                    var uuid = behandlingId == null ? null : behandlingRepository.hentBehandling(behandlingId).getUuid();
+                    return HistorikkV2Adapter.map(h, uuid, journalPosterForSak, dokumentPath);
+                })
+                .sorted(Comparator.comparing(HistorikkinnslagDtoV2::opprettetTidspunkt))
+                .toList();
+        } catch (Exception e) {
+            LOG.warn("Ny historikktjeneste feilet", e);
+            return List.of();
+        }
     }
 
 }
