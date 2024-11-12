@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.historikk;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,8 +29,7 @@ class HistorikkV2AdapterTest {
             .medSkjermlenke(SkjermlenkeType.UTTAK)
             .medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
             .medEndretFelt(HistorikkEndretFeltType.AKTIVITET, "Sjørøver", "fraVerdi", "tilVerdi")
-            .medOpplysning(HistorikkOpplysningType.UTTAK_PERIODE_FOM, LocalDate.now().minusMonths(1))
-            .medOpplysning(HistorikkOpplysningType.UTTAK_PERIODE_TOM, LocalDate.now().plusDays(1))
+            .medOpplysning(HistorikkOpplysningType.ANTALL_BARN, 1)
             .build(historikkinnslag);
 
         var historikkinnslagDtoV2 = HistorikkV2Adapter.map(historikkinnslag, BEHANDLING_UUID, List.of(), null);
