@@ -523,7 +523,7 @@ public class HistorikkInnslagTekstBuilder {
             return checkFieldsPresent(type, historikkinnslagDel, HistorikkinnslagFeltType.OPPLYSNINGER);
         }
         if (HistorikkinnslagMal.MAL_TYPE_9.equals(type)) {
-            return checkFieldsPresent(type, historikkinnslagDel, HistorikkinnslagFeltType.HENDELSE, HistorikkinnslagFeltType.ENDRET_FELT);
+            return checkFieldsPresent(type, historikkinnslagDel, HistorikkinnslagFeltType.HENDELSE);
         }
         throw HistorikkInnsalgFeil.ukjentHistorikkinnslagType(type);
     }
