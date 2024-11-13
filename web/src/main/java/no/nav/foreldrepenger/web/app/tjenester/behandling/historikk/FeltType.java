@@ -237,8 +237,7 @@ public enum FeltType {
     FAR_MER_ENN_TI_DAGER_FEDREKVOTE_IFM_FØDSEL("4106", "Far/medmor søker mer enn 10 dager ifm fødsel"),
     SELVSTENDIG_NÆRING("SELVSTENDIG_NÆRING", "Næringsdrivende"),
     DØD_DØDFØDSEL("DØD_DØDFØDSEL", "Død eller dødfødsel"),
-    SOEKER("SOEKER", "Søker"),
-    UDEFINERT("EN_UGYLDIG_VERDI_ØNSKER_Å_LOGGE_UDEFINERTE_VERDIER_OGSÅ", "UDEFINERT VERDI");
+    SOEKER("SOEKER", "Søker");
 
     private final String key;
     private final String text;
