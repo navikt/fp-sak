@@ -207,13 +207,10 @@ public class HistorikkV2Adapter {
 
     private static String fraEndretFeltMalType7(HistorikkinnslagFelt felt) {
         var fieldName = kodeverdiTilStreng(HistorikkEndretFeltType.fraKode(felt.getNavn()), felt.getNavnVerdi());
-        var sub1 = fieldName.substring(0, fieldName.lastIndexOf(';'));
-        var sub2 = fieldName.substring(fieldName.lastIndexOf(';') + 1);
         var fraVerdi = finnEndretFeltVerdi(felt, felt.getFraVerdi());
         var tilVerdi = finnEndretFeltVerdi(felt, felt.getTilVerdi());
-        return "__{sub1}__ {sub2} __{fromValue}__ til __{toValue}__"
-            .replace("{sub1}", sub1)
-            .replace("{sub2}", sub2)
+        return "{fieldName} __{fromValue}__ til __{toValue}__"
+            .replace("{fieldName}", fieldName)
             .replace("{fromValue}", fraVerdi)
             .replace("{toValue}", tilVerdi);
     }
