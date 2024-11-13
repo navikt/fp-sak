@@ -16,7 +16,7 @@ public class HistorikkinnslagV2 {
     private Long behandlingId;
     private HistorikkAktør aktør;
     private SkjermlenkeType skjermlenke;
-    private List<Tekstlinje> linjer;
+    private List<Tekstlinje> linjer = new ArrayList<>();
 
 
     @Override
@@ -54,10 +54,21 @@ public class HistorikkinnslagV2 {
             return this;
         }
 
+        public Builder addTekstlinje(Tekstlinje tekstlinje) {
+            if (tekstlinje != null) {
+                kladd.linjer.add(tekstlinje);
+            }
+            return this;
+        }
+
         public HistorikkinnslagV2 build() {
             var t = kladd;
             kladd = null;
             return t;
+        }
+
+        public int antallLagtTilLinjer() {
+            return kladd.getLinjer().size();
         }
     }
 
@@ -132,6 +143,27 @@ public class HistorikkinnslagV2 {
         public Tekstlinje p() {
             stringBuilder.append(".");
             return this;
+        }
+
+        public static Tekstlinje fraTilEquals(String hva, Kodeverdi fra, Kodeverdi til) {
+            if (Objects.equals(fra, til)) {
+                return null;
+            }
+            return new Tekstlinje().fraTil(hva, fra, til);
+        }
+
+        public static Tekstlinje fraTilEquals(String hva, String fra, String til) {
+            if (Objects.equals(fra, til)) {
+                return null;
+            }
+            return new Tekstlinje().fraTil(hva, fra, til);
+        }
+
+        public static Tekstlinje fraTilEquals(String hva, Boolean fra, boolean til) {
+            if (Objects.equals(fra, til)) {
+                return null;
+            }
+            return new Tekstlinje().fraTil(hva, fra, til);
         }
 
         public String asString() {

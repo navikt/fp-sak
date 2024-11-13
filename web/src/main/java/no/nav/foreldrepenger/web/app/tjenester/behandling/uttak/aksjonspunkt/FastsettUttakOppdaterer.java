@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderTje
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.FastsetteUttakDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring.HistorikkinnslagV2;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring.UttakHistorikkUtil;
 
 @ApplicationScoped
@@ -75,7 +76,10 @@ public class FastsettUttakOppdaterer implements AksjonspunktOppdaterer<Fastsette
     private void lagHistorikkInnslag(BehandlingReferanse behandling, FastsetteUttakDto dto, ForeldrepengerUttak forrigeResultat) {
         var historikkinnslag = UttakHistorikkUtil.forFastsetting().lagHistorikkinnslag(
             behandling, dto.getPerioder(), forrigeResultat.getGjeldendePerioder());
-        historikkinnslag.forEach(innslag -> historikkAdapter.lagInnslag(innslag));
+        historikkinnslag.forEach(innslag -> {
+            System.out.println(innslag.getLinjer().stream().map(HistorikkinnslagV2.Tekstlinje::asString).toList());
+//            historikkAdapter.lagInnslag(innslag)
+        });
     }
 
     private Optional<Aksjonspunkt> avbrytOverflødigOverstyrAksjonpunkt(BehandlingReferanse referanse) {
