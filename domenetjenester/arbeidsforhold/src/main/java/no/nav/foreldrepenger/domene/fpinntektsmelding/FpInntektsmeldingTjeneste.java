@@ -120,8 +120,8 @@ public class FpInntektsmeldingTjeneste {
         if (opprettForespørselResponse.forespørselResultat().equals(OpprettForespørselResponse.ForespørselResultat.FORESPØRSEL_OPPRETTET)) {
             lagHistorikkForForespørsel(ag, ref);
         } else {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Fpinntektsmelding har allerede en åpen oppgave på saksnummer: {} og orgnummer: {}", ref.saksnummer(), tilMaskertNummer(ag));
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Fpinntektsmelding har allerede en åpen oppgave på saksnummer: {} og orgnummer: {}", ref.saksnummer(), tilMaskertNummer(ag));
             }
         }
     }
