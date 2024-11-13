@@ -367,11 +367,6 @@ public class HistorikkV2Adapter {
 
     private static String fraEndretFeltMalType10(HistorikkinnslagFelt felt) {
         var fieldName = kodeverdiTilStreng(HistorikkEndretFeltType.fraKode(felt.getNavn()), felt.getNavnVerdi());
-
-        return historikkFraTilVerdi(felt, fieldName);
-    }
-
-    private static String historikkFraTilVerdi(HistorikkinnslagFelt felt, String fieldName) {
         var fraVerdi = finnEndretFeltVerdi(felt, felt.getFraVerdi());
         var tilVerdi = finnEndretFeltVerdi(felt, felt.getTilVerdi());
         var tekstMeldingTil = String.format("__%s__ er satt til __%s__", fieldName, tilVerdi);
@@ -387,10 +382,10 @@ public class HistorikkV2Adapter {
         } else if (HistorikkEndretFeltType.UTTAK_PERIODE_RESULTAT_ÅRSAK.getKode().equals(felt.getNavn())
             || HistorikkEndretFeltType.UTTAK_GRADERING_AVSLAG_ÅRSAK.getKode().equals(felt.getNavn())) {
 
-            if ("_".equals(felt.getTilVerdi())) {
+            if ("-".equals(felt.getTilVerdi())) {
                 return "";
             }
-            if ("_".equals(felt.getFraVerdi())) {
+            if ("-".equals(felt.getFraVerdi())) {
                 tekst = tekstMeldingTil;
             }
         } else if (HistorikkEndretFeltType.UTTAK_STØNADSKONTOTYPE.getKode().equals(felt.getNavn()) && "_".equals(felt.getFraVerdi())) {
@@ -420,7 +415,8 @@ public class HistorikkV2Adapter {
         if (isBoolean(verdi)) {
             return konverterBoolean(verdi);
         }
-        if (felt.getKlTilVerdi() != null) { // TODO: Henter tilVerdi uavhengig av fra og til... sikkert vært feil i frontend alltid.. og kanskje ikke relavnt heller
+
+        if (felt.getKlTilVerdi() != null || felt.getKlFraVerdi() != null) {
             try {
                 return kodeverdiTilStrengEndretFeltTilverdi(verdi, verdi);
             } catch (IllegalStateException e) {
@@ -467,7 +463,7 @@ public class HistorikkV2Adapter {
     }
 
     private static String kodeverdiTilStrengEndretFeltTilverdi(String verdiKode, String verdi) {
-        if (verdiKode == null) {
+        if (verdiKode == null || verdiKode.equals("-")) {
             return verdi;
         }
 
