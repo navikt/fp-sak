@@ -59,6 +59,9 @@ public class UttakOverstyringshåndterer extends AbstractOverstyringshåndterer<
     protected void lagHistorikkInnslag(Behandling behandling, OverstyringUttakDto dto) {
         var historikkinnslag = UttakHistorikkUtil.forOverstyring()
             .lagHistorikkinnslag(BehandlingReferanse.fra(behandling), dto.getPerioder(), forrigeUttak.getGjeldendePerioder());
-        historikkinnslag.forEach(innslag -> getHistorikkAdapter().lagInnslag(innslag));
+        historikkinnslag.forEach(innslag -> {
+            System.out.println(innslag.getLinjer().stream().map(HistorikkinnslagV2.Tekstlinje::asString).toList());
+            //            historikkAdapter.lagInnslag(innslag)
+        });
     }
 }
