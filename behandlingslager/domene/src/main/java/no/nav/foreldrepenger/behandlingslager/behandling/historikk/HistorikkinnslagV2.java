@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring;
+package no.nav.foreldrepenger.behandlingslager.behandling.historikk;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstBuilderFormater;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
@@ -16,14 +14,8 @@ public class HistorikkinnslagV2 {
     private Long behandlingId;
     private HistorikkAktør aktør;
     private SkjermlenkeType skjermlenke;
+    private String tittel;
     private List<Tekstlinje> linjer = new ArrayList<>();
-
-
-    @Override
-    public String toString() {
-        return "HistorikkinnslagV2{" + "fagsakId=" + fagsakId + ", behandlingId=" + behandlingId + ", aktør=" + aktør + ", skjermlenke=" + skjermlenke
-            + ", linjer=" + linjer + '}';
-    }
 
     public static class Builder {
 
@@ -49,6 +41,11 @@ public class HistorikkinnslagV2 {
             return this;
         }
 
+        public Builder medTittel(String tittel) {
+            kladd.tittel = tittel;
+            return this;
+        }
+
         public Builder medTekstlinjer(List<Tekstlinje> linjer) {
             kladd.linjer = new ArrayList<>(linjer);
             return this;
@@ -70,6 +67,10 @@ public class HistorikkinnslagV2 {
         public int antallLagtTilLinjer() {
             return kladd.getLinjer().size();
         }
+
+    }
+    public String getTittel() {
+        return tittel;
     }
 
     public Long getFagsakId() {
@@ -90,6 +91,12 @@ public class HistorikkinnslagV2 {
 
     public List<Tekstlinje> getLinjer() {
         return linjer;
+    }
+
+    @Override
+    public String toString() {
+        return "HistorikkinnslagV2{" + "skjermlenke=" + skjermlenke + ", fagsakId=" + fagsakId + ", behandlingId=" + behandlingId + ", aktør=" + aktør
+            + ", tittel='" + tittel + '\'' + ", linjer=" + linjer + '}';
     }
 
     public static class Tekstlinje {
