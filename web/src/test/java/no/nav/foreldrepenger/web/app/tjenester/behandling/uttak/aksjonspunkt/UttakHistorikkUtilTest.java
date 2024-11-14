@@ -53,10 +53,10 @@ class UttakHistorikkUtilTest {
         var innslag = historikkinnslag.get(0);
         assertThat(innslag.getBehandlingId()).isEqualTo(BEHANDLING.behandlingId());
         assertThat(innslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
-        assertThat(innslag.getLinjer()).hasSize(3);
-        assertThat(innslag.getLinjer().get(0).asString()).contains("__Overstyrt vurdering__ av perioden");
-        assertThat(innslag.getLinjer().get(1).asString()).isEqualTo("__Resultatet__ er endret fra Til manuell behandling til __Innvilget__");
-        assertThat(innslag.getLinjer().get(2).asString()).isEqualTo(perioder.get(0).getBegrunnelse());
+        assertThat(innslag.getTekstlinjer()).hasSize(3);
+        assertThat(innslag.getTekstlinjer().get(0).getTekst()).contains("__Overstyrt vurdering__ av perioden");
+        assertThat(innslag.getTekstlinjer().get(1).getTekst()).isEqualTo("__Resultatet__ er endret fra Til manuell behandling til __Innvilget__");
+        assertThat(innslag.getTekstlinjer().get(2).getTekst()).isEqualTo(perioder.get(0).getBegrunnelse());
     }
 
     @Test

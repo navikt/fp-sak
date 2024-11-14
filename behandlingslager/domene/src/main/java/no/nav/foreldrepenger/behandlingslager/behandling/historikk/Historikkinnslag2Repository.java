@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.historikk;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -35,10 +34,6 @@ public class Historikkinnslag2Repository {
             .getResultList();
     }
 
-    public void lagre(HistorikkinnslagV2 historikkinnslag) {
-        lagre(map(historikkinnslag));
-    }
-
     public void lagre(Historikkinnslag2 historikkinnslag) {
         entityManager.persist(historikkinnslag);
         for (var tekstlinje : historikkinnslag.getTekstlinjer()) {
@@ -48,19 +43,5 @@ public class Historikkinnslag2Repository {
             entityManager.persist(dokument);
         }
         entityManager.flush();
-    }
-
-    private static Historikkinnslag2 map(HistorikkinnslagV2 historikkinnslag) {
-        var tekstlinjer = new ArrayList<Historikkinnslag2Tekstlinje>();
-        for (int i = 0; i < historikkinnslag.getLinjer().size(); i++) {
-            var linje = map(historikkinnslag.getLinjer().get(i), i);
-            tekstlinjer.add(linje);
-        }
-        return new Historikkinnslag2(historikkinnslag.getFagsakId(), historikkinnslag.getBehandlingId(), historikkinnslag.getAktør(),
-            historikkinnslag.getSkjermlenke(), historikkinnslag.getTittel(), tekstlinjer, historikkinnslag.getDokumenter());
-    }
-
-    private static Historikkinnslag2Tekstlinje map(HistorikkinnslagV2.Tekstlinje t, int indeks) {
-        return new Historikkinnslag2Tekstlinje(t.asString(), String.valueOf(indeks));
     }
 }
