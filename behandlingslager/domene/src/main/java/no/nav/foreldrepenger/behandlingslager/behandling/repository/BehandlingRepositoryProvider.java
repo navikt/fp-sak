@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
@@ -55,6 +56,7 @@ public class BehandlingRepositoryProvider {
 
     private BehandlingRepository behandlingRepository;
     private FagsakLåsRepository fagsakLåsRepository;
+    private Historikkinnslag2Repository historikkinnslag2Repository;
 
     BehandlingRepositoryProvider() {
         // for CDI proxy
@@ -91,6 +93,7 @@ public class BehandlingRepositoryProvider {
         // behandling støtte repositories
         this.mottatteDokumentRepository = new MottatteDokumentRepository(entityManager);
         this.historikkRepository = new HistorikkRepository(entityManager);
+        this.historikkinnslag2Repository = new Historikkinnslag2Repository(entityManager);
         this.behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
 
         this.svangerskapspengerUttakResultatRepository = new SvangerskapspengerUttakResultatRepository(entityManager);
@@ -139,6 +142,10 @@ public class BehandlingRepositoryProvider {
 
     public HistorikkRepository getHistorikkRepository() {
         return historikkRepository;
+    }
+
+    public Historikkinnslag2Repository getHistorikkinnslag2Repository() {
+        return historikkinnslag2Repository;
     }
 
     public SøknadRepository getSøknadRepository() {
