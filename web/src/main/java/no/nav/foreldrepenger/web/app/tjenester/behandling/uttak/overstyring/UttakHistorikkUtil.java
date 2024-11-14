@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagV2.Tekstlinje.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,7 +9,8 @@ import java.util.Objects;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagV2;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
@@ -34,32 +35,32 @@ public final class UttakHistorikkUtil {
         return new UttakHistorikkUtil(false);
     }
 
-    public List<HistorikkinnslagV2> lagHistorikkinnslag(BehandlingReferanse behandling,
-                                                        List<UttakResultatPeriodeLagreDto> uttakResultat,
-                                                        List<ForeldrepengerUttakPeriode> gjeldende) {
+    public List<Historikkinnslag2> lagHistorikkinnslag(BehandlingReferanse behandling,
+                                                       List<UttakResultatPeriodeLagreDto> uttakResultat,
+                                                       List<ForeldrepengerUttakPeriode> gjeldende) {
         return lagHistorikkinnslagFraPeriodeEndringer(behandling, uttakResultat, gjeldende);
     }
 
-    private List<HistorikkinnslagV2> lagHistorikkinnslagFraPeriodeEndringer(BehandlingReferanse behandling,
+    private List<Historikkinnslag2> lagHistorikkinnslagFraPeriodeEndringer(BehandlingReferanse behandling,
                                                                             List<UttakResultatPeriodeLagreDto> perioder,
                                                                             List<ForeldrepengerUttakPeriode> gjeldende) {
         return perioder.stream().map(periode -> lagHistorikkinnslagForPeriode(behandling, periode, gjeldende)).flatMap(Collection::stream).toList();
     }
 
-    private List<HistorikkinnslagV2> lagHistorikkinnslagForPeriode(BehandlingReferanse behandling,
+    private List<Historikkinnslag2> lagHistorikkinnslagForPeriode(BehandlingReferanse behandling,
                                                                    UttakResultatPeriodeLagreDto periode,
                                                                    List<ForeldrepengerUttakPeriode> gjeldende) {
-        List<HistorikkinnslagV2> list = new ArrayList<>();
+        List<Historikkinnslag2> list = new ArrayList<>();
         if (erOppholdsPeriode(periode)) {
             list.add(lagHistorikkinnslagForOppholdsperiode(behandling, gjeldende, periode));
         }
         for (var aktivitet : periode.getAktiviteter()) {
             list.add(lagHistorikkinnslag(behandling, gjeldende, periode, aktivitet));
         }
-        return list.stream().filter(h -> h.getLinjer().size() > 1).toList();
+        return list.stream().filter(h -> h.getTekstlinjer().size() > 1).toList();
     }
 
-    private HistorikkinnslagV2 lagHistorikkinnslag(BehandlingReferanse behandling,
+    private Historikkinnslag2 lagHistorikkinnslag(BehandlingReferanse behandling,
                                                    List<ForeldrepengerUttakPeriode> gjeldende,
                                                    UttakResultatPeriodeLagreDto nyPeriode,
                                                    UttakResultatPeriodeAktivitetLagreDto nyAktivitet) {
@@ -67,7 +68,8 @@ public final class UttakHistorikkUtil {
         var gjeldendeAktivitet = EndreUttakUtil.finnGjeldendeAktivitetFor(gjeldendePeriode, nyAktivitet.getArbeidsgiver().orElse(null),
             nyAktivitet.getArbeidsforholdId(), nyAktivitet.getUttakArbeidType());
 
-        var builder = new HistorikkinnslagV2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
+        var builder = new Historikkinnslag2.Builder()
+            .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medBehandlingId(behandling.behandlingId())
             .medFagsakId(behandling.fagsakId())
             .medTittel(SkjermlenkeType.UTTAK)
@@ -90,19 +92,19 @@ public final class UttakHistorikkUtil {
         return builder.build();
     }
 
-    private static HistorikkinnslagV2.Tekstlinje begrunnelseTekstlinje(UttakResultatPeriodeLagreDto nyPeriode) {
+    private static HistorikkinnslagTekstlinjeBuilder begrunnelseTekstlinje(UttakResultatPeriodeLagreDto nyPeriode) {
         var endretBegrunnelse =  nyPeriode.getBegrunnelse() != null && !nyPeriode.getBegrunnelse().equals(" ");
-        return endretBegrunnelse ? new HistorikkinnslagV2.Tekstlinje().t(nyPeriode.getBegrunnelse()) : null;
+        return endretBegrunnelse ? new HistorikkinnslagTekstlinjeBuilder().t(nyPeriode.getBegrunnelse()) : null;
     }
 
-    private static HistorikkinnslagV2.Tekstlinje graderingTekstlinje(UttakResultatPeriodeLagreDto nyPeriode,
-                                                                              ForeldrepengerUttakPeriode gjeldendePeriode) {
+    private static HistorikkinnslagTekstlinjeBuilder graderingTekstlinje(UttakResultatPeriodeLagreDto nyPeriode,
+                                                                         ForeldrepengerUttakPeriode gjeldendePeriode) {
         return fraTilEquals("Gradering av arbeidsforhold",
             gjeldendePeriode.isGraderingInnvilget() ? "Oppfylt" : "Ikke oppfylt", nyPeriode.isGraderingInnvilget() ? "Oppfylt" : "Ikke oppfylt");
     }
 
-    private static HistorikkinnslagV2.Tekstlinje samtidigUttaksprosentTekstlinje(UttakResultatPeriodeLagreDto nyPeriode,
-                                                                  ForeldrepengerUttakPeriode gjeldendePeriode) {
+    private static HistorikkinnslagTekstlinjeBuilder samtidigUttaksprosentTekstlinje(UttakResultatPeriodeLagreDto nyPeriode,
+                                                                                     ForeldrepengerUttakPeriode gjeldendePeriode) {
         if (!nyPeriode.isSamtidigUttak()) {
             return null;
         }
@@ -112,24 +114,24 @@ public final class UttakHistorikkUtil {
         return fraTilEquals("Samtidig uttak", fraTekst, tilTekst);
     }
 
-    private HistorikkinnslagV2.Tekstlinje utbetalingsgradTekstlinje(UttakResultatPeriodeAktivitetLagreDto nyAktivitet,
-                                                                    ForeldrepengerUttakPeriodeAktivitet gjeldendeAktivitet) {
+    private HistorikkinnslagTekstlinjeBuilder utbetalingsgradTekstlinje(UttakResultatPeriodeAktivitetLagreDto nyAktivitet,
+                                                                        ForeldrepengerUttakPeriodeAktivitet gjeldendeAktivitet) {
         var til = gjeldendeAktivitet.getUtbetalingsgrad();
         return fraTilEquals("Utbetalingsgrad", til == null ? null : til.decimalValue().toString() + "%",
             nyAktivitet.getUtbetalingsgrad().decimalValue().toString() + "%");
     }
 
-    private static HistorikkinnslagV2.Tekstlinje trekkdagerTekstlinje(UttakResultatPeriodeAktivitetLagreDto nyAktivitet,
-                                                               ForeldrepengerUttakPeriodeAktivitet gjeldendeAktivitet) {
+    private static HistorikkinnslagTekstlinjeBuilder trekkdagerTekstlinje(UttakResultatPeriodeAktivitetLagreDto nyAktivitet,
+                                                                          ForeldrepengerUttakPeriodeAktivitet gjeldendeAktivitet) {
         var gjeldendeAktivitetTrekkdager = gjeldendeAktivitet.getTrekkdager() == null ? null : gjeldendeAktivitet.getTrekkdager().toString();
         var nyAktivitetTrekkdager = nyAktivitet.getTrekkdagerDesimaler() == null ? null : nyAktivitet.getTrekkdagerDesimaler().toString();
         return fraTilEquals("Trekkdager", gjeldendeAktivitetTrekkdager, nyAktivitetTrekkdager);
     }
 
-    private HistorikkinnslagV2 lagHistorikkinnslagForOppholdsperiode(BehandlingReferanse behandling,
+    private Historikkinnslag2 lagHistorikkinnslagForOppholdsperiode(BehandlingReferanse behandling,
                                                                      List<ForeldrepengerUttakPeriode> gjeldende,
                                                                      UttakResultatPeriodeLagreDto nyPeriode) {
-        return new HistorikkinnslagV2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
+        return new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medBehandlingId(behandling.behandlingId())
             .medFagsakId(behandling.fagsakId())
             .medTittel(SkjermlenkeType.UTTAK)
@@ -137,23 +139,23 @@ public final class UttakHistorikkUtil {
             .build();
     }
 
-    private HistorikkinnslagV2.Tekstlinje periodeErManueltVurdertTekstlinje(UttakResultatPeriodeLagreDto nyPeriode) {
+    private HistorikkinnslagTekstlinjeBuilder periodeErManueltVurdertTekstlinje(UttakResultatPeriodeLagreDto nyPeriode) {
         var introTekst = erOverstyring ? "Overstyrt vurdering" : "Manuell vurdering";
-        return new HistorikkinnslagV2.Tekstlinje().b(introTekst).t("av perioden").t(nyPeriode.getFom()).t("-").t(nyPeriode.getTom()).p();
+        return new HistorikkinnslagTekstlinjeBuilder().b(introTekst).t("av perioden").t(nyPeriode.getFom()).t("-").t(nyPeriode.getTom()).p();
     }
 
-    private List<HistorikkinnslagV2.Tekstlinje> lagHistorikkinnslagTekstForOppholdsperiode(List<ForeldrepengerUttakPeriode> gjeldende,
-                                                                                           UttakResultatPeriodeLagreDto nyPeriode) {
+    private List<HistorikkinnslagTekstlinjeBuilder> lagHistorikkinnslagTekstForOppholdsperiode(List<ForeldrepengerUttakPeriode> gjeldende,
+                                                                                               UttakResultatPeriodeLagreDto nyPeriode) {
         var gjeldendePeriode = EndreUttakUtil.finnGjeldendePeriodeFor(gjeldende, new LocalDateInterval(nyPeriode.getFom(), nyPeriode.getTom()));
 
-        var list = new ArrayList<HistorikkinnslagV2.Tekstlinje>();
+        var list = new ArrayList<HistorikkinnslagTekstlinjeBuilder>();
         list.add(periodeErManueltVurdertTekstlinje(nyPeriode));
 
         var stønadskontoTypeOpt = OPPHOLD_ÅRSAK_STØNADSKONTO_TYPE_KODE_MAPPER.map(gjeldendePeriode.getOppholdÅrsak());
         var nyStønadskontoTypeOpt = OPPHOLD_ÅRSAK_STØNADSKONTO_TYPE_KODE_MAPPER.map(nyPeriode.getOppholdÅrsak());
         if (!Objects.equals(stønadskontoTypeOpt, nyStønadskontoTypeOpt)) {
-            list.add(new HistorikkinnslagV2.Tekstlinje().fraTil("Stønadskontotype", stønadskontoTypeOpt.orElse(null), nyStønadskontoTypeOpt.orElse(null)));
-            list.add(new HistorikkinnslagV2.Tekstlinje().t(nyPeriode.getBegrunnelse()));
+            list.add(new HistorikkinnslagTekstlinjeBuilder().fraTil("Stønadskontotype", stønadskontoTypeOpt.orElse(null), nyStønadskontoTypeOpt.orElse(null)));
+            list.add(new HistorikkinnslagTekstlinjeBuilder().t(nyPeriode.getBegrunnelse()));
         }
 
         return list;

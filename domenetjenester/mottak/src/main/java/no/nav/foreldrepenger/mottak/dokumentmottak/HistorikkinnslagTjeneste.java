@@ -16,10 +16,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsa
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2DokumentLink;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagV2;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
@@ -54,7 +54,7 @@ public class HistorikkinnslagTjeneste {
     public void opprettHistorikkinnslag(Behandling behandling, JournalpostId journalpostId, Boolean selvOmLoggetTidligere, boolean elektronisk, boolean erIM) {
         var dokumenter = lagDokumenterLenker(behandling.getType(), journalpostId, elektronisk, erIM);
         var tittel = BehandlingType.KLAGE.equals(behandling.getType()) ? "Klage mottatt" : "Behandling startet";
-        var h = new HistorikkinnslagV2.Builder()
+        var h = new Historikkinnslag2.Builder()
             .medTittel(tittel)
             .medAktør(HistorikkAktør.SØKER)
             .medBehandlingId(behandling.getId())
@@ -114,7 +114,7 @@ public class HistorikkinnslagTjeneste {
     public void opprettHistorikkinnslagForVedlegg(Fagsak fagsak, JournalpostId journalpostId, DokumentTypeId dokumentTypeId, boolean elektronisk) {
         var dokumenter = lagDokumenterLenker(BehandlingType.UDEFINERT, journalpostId, elektronisk,
             DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId));
-        historikkinnslag2Repository.lagre(new HistorikkinnslagV2.Builder()
+        historikkinnslag2Repository.lagre(new Historikkinnslag2.Builder()
             .medTittel("Vedlegg mottatt")
             .medFagsakId(fagsak.getId())
             .medAktør(DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId) ? HistorikkAktør.ARBEIDSGIVER : HistorikkAktør.SØKER)
