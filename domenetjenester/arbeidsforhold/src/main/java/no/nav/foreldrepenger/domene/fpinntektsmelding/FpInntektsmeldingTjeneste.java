@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.fpinntektsmelding;
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.tilMaskertNummer;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +38,7 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ApplicationScoped
 public class FpInntektsmeldingTjeneste {
+    private static final String GRUPPE_ID = "FPIM_TASK_%s";
     private FpinntektsmeldingKlient klient;
     private ProsessTaskTjeneste prosessTaskTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -66,6 +68,9 @@ public class FpInntektsmeldingTjeneste {
         var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(FpinntektsmeldingTask.class));
         taskdata.setBehandling(ref.fagsakId(), ref.behandlingId());
         taskdata.setCallIdFraEksisterende();
+        var gruppeId = String.format(GRUPPE_ID, ref.saksnummer().getVerdi());
+        taskdata.setGruppe(gruppeId);
+        taskdata.setSekvens(String.valueOf(Instant.now().toEpochMilli()));
         taskdata.setProperty(FpinntektsmeldingTask.ARBEIDSGIVER_KEY, ag);
         prosessTaskTjeneste.lagre(taskdata);
     }
@@ -158,6 +163,9 @@ public class FpInntektsmeldingTjeneste {
         if (orgNummer != null) {
             taskdata.setProperty(LukkForespørslerImTask.ORG_NUMMER, orgNummer.getId());
         }
+        var gruppeId = String.format(GRUPPE_ID, behandling.getFagsak().getSaksnummer().getVerdi());
+        taskdata.setGruppe(gruppeId);
+        taskdata.setSekvens(String.valueOf(Instant.now().toEpochMilli()));
         taskdata.setProperty(LukkForespørslerImTask.STATUS, status.name());
         taskdata.setProperty(LukkForespørslerImTask.SAK_NUMMER, behandling.getFagsak().getSaksnummer().getVerdi());
         prosessTaskTjeneste.lagre(taskdata);

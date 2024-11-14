@@ -18,7 +18,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
 @ProsessTask("fpinntektsmelding.foresporsel")
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
+@FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class FpinntektsmeldingTask extends GenerellProsessTask {
     public static final String ARBEIDSGIVER_KEY = "arbeidsgiverIdent";
     private static final Logger LOG = LoggerFactory.getLogger(FpinntektsmeldingTask.class);
