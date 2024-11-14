@@ -16,6 +16,7 @@ public class HistorikkinnslagV2 {
     private SkjermlenkeType skjermlenke;
     private String tittel;
     private List<Tekstlinje> linjer = new ArrayList<>();
+    private List<Historikkinnslag2DokumentLink> dokumenter = new ArrayList<>();
 
     public static class Builder {
 
@@ -58,6 +59,11 @@ public class HistorikkinnslagV2 {
             return this;
         }
 
+        public Builder medDokumenter(List<Historikkinnslag2DokumentLink> dokumenter) {
+            kladd.dokumenter = dokumenter;
+            return this;
+        }
+
         public HistorikkinnslagV2 build() {
             var t = kladd;
             kladd = null;
@@ -67,7 +73,6 @@ public class HistorikkinnslagV2 {
         public int antallLagtTilLinjer() {
             return kladd.getLinjer().size();
         }
-
     }
     public String getTittel() {
         return tittel;
@@ -91,6 +96,10 @@ public class HistorikkinnslagV2 {
 
     public List<Tekstlinje> getLinjer() {
         return linjer;
+    }
+
+    public List<Historikkinnslag2DokumentLink> getDokumenter() {
+        return dokumenter;
     }
 
     @Override

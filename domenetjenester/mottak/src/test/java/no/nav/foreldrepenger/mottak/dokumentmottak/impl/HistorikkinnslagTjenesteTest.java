@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
@@ -42,7 +43,7 @@ class HistorikkinnslagTjenesteTest {
     public void before() {
         historikkRepository = mock(HistorikkRepository.class);
         dokumentArkivTjeneste = mock(DokumentArkivTjeneste.class);
-        historikkinnslagTjeneste = new HistorikkinnslagTjeneste(historikkRepository, dokumentArkivTjeneste);
+        historikkinnslagTjeneste = new HistorikkinnslagTjeneste(historikkRepository, mock(Historikkinnslag2Repository.class), dokumentArkivTjeneste);
     }
 
     @Test

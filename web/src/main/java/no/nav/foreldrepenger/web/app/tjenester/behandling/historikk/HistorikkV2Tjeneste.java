@@ -3,10 +3,12 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.historikk;
 import java.net.URI;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.core.UriBuilder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2DokumentLink;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Tekstlinje;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -55,7 +58,7 @@ public class HistorikkV2Tjeneste {
                 .map(ArkivJournalPost::getJournalpostId)
                 .toList();
             var historikkV1 = historikkRepository.hentHistorikkForSaksnummer(saksnummer).stream().map(h -> map(dokumentPath, h, journalPosterForSak));
-            var historikkV2 = historikkinnslag2Repository.hent(saksnummer).stream().map(this::map);
+            var historikkV2 = historikkinnslag2Repository.hent(saksnummer).stream().map(h -> map(dokumentPath, h, journalPosterForSak));
 
             return Stream.concat(historikkV1, historikkV2).sorted(Comparator.comparing(HistorikkinnslagDtoV2::opprettetTidspunkt)).toList();
         } catch (Exception e) {
@@ -70,10 +73,10 @@ public class HistorikkV2Tjeneste {
         return HistorikkV2Adapter.map(h, uuid, journalPosterForSak, dokumentPath);
     }
 
-    private HistorikkinnslagDtoV2 map(Historikkinnslag2 h) {
+    private HistorikkinnslagDtoV2 map(URI dokumentPath, Historikkinnslag2 h, List<JournalpostId> journalPosterForSak) {
         var behandlingId = h.getBehandlingId();
         var uuid = behandlingId == null ? null : behandlingRepository.hentBehandling(behandlingId).getUuid();
-        List<HistorikkInnslagDokumentLinkDto> dokumenter = List.of(); //TODO
+        List<HistorikkInnslagDokumentLinkDto> dokumenter = tilDokumentlenker(h.getDokumentLinker(), journalPosterForSak, dokumentPath);
         var tekstlinjer = h.getTekstlinjer()
             .stream()
             .sorted(Comparator.comparing(Historikkinnslag2Tekstlinje::getRekkefølgeIndeks))
@@ -81,6 +84,38 @@ public class HistorikkV2Tjeneste {
             .toList();
         return new HistorikkinnslagDtoV2(uuid, HistorikkinnslagDtoV2.HistorikkAktørDto.fra(h.getAktør(), h.getOpprettetAv()), h.getSkjermlenke(),
             h.getOpprettetTidspunkt(), dokumenter, h.getTittel(), tekstlinjer);
+    }
+
+    private static List<HistorikkInnslagDokumentLinkDto> tilDokumentlenker(List<Historikkinnslag2DokumentLink> dokumentLinker,
+                                                                           List<JournalpostId> journalPosterForSak,
+                                                                           URI dokumentPath) {
+        if (dokumentLinker == null) {
+            return List.of();
+        }
+        return dokumentLinker.stream().map(d -> tilDokumentlenker(d, journalPosterForSak, dokumentPath)) //
+            .toList();
+    }
+
+    private static HistorikkInnslagDokumentLinkDto tilDokumentlenker(Historikkinnslag2DokumentLink lenke,
+                                                                     List<JournalpostId> journalPosterForSak,
+                                                                     URI dokumentPath) {
+        var erUtgått = aktivJournalPost(lenke.getJournalpostId(), journalPosterForSak);
+        var dto = new HistorikkInnslagDokumentLinkDto();
+        dto.setTag(erUtgått ? String.format("%s (utgått)", lenke.getLinkTekst()) : lenke.getLinkTekst());
+        dto.setUtgått(erUtgått);
+        dto.setDokumentId(lenke.getDokumentId());
+        dto.setJournalpostId(lenke.getJournalpostId().getVerdi());
+        if (lenke.getJournalpostId().getVerdi() != null && lenke.getDokumentId() != null && dokumentPath != null) {
+            var builder = UriBuilder.fromUri(dokumentPath)
+                .queryParam("journalpostId", lenke.getJournalpostId().getVerdi())
+                .queryParam("dokumentId", lenke.getDokumentId());
+            dto.setUrl(builder.build());
+        }
+        return dto;
+    }
+
+    private static boolean aktivJournalPost(JournalpostId journalpostId, List<JournalpostId> journalPosterForSak) {
+        return journalPosterForSak.stream().filter(ajp -> Objects.equals(ajp, journalpostId)).findFirst().isEmpty();
     }
 
 }

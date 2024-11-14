@@ -16,8 +16,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsa
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDokumentLink;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2DokumentLink;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagV2;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
@@ -34,6 +36,7 @@ public class HistorikkinnslagTjeneste {
     private static final String INNTEKTSMELDING = "Inntektsmelding";
     private static final String ETTERSENDELSE = "Ettersendelse";
     private HistorikkRepository historikkRepository;
+    private Historikkinnslag2Repository historikkinnslag2Repository;
     private DokumentArkivTjeneste dokumentArkivTjeneste;
 
     HistorikkinnslagTjeneste() {
@@ -41,78 +44,58 @@ public class HistorikkinnslagTjeneste {
     }
 
     @Inject
-    public HistorikkinnslagTjeneste(HistorikkRepository historikkRepository,
+    public HistorikkinnslagTjeneste(HistorikkRepository historikkRepository, Historikkinnslag2Repository historikkinnslag2Repository,
                                     DokumentArkivTjeneste dokumentArkivTjeneste) {
         this.historikkRepository = historikkRepository;
+        this.historikkinnslag2Repository = historikkinnslag2Repository;
         this.dokumentArkivTjeneste = dokumentArkivTjeneste;
     }
 
     public void opprettHistorikkinnslag(Behandling behandling, JournalpostId journalpostId, Boolean selvOmLoggetTidligere, boolean elektronisk, boolean erIM) {
-        if (!selvOmLoggetTidligere && historikkinnslagForBehandlingStartetErLoggetTidligere(behandling.getId(), HistorikkinnslagType.BEH_STARTET)) {
-            return;
+        var dokumenter = lagDokumenterLenker(behandling.getType(), journalpostId, elektronisk, erIM);
+        var tittel = BehandlingType.KLAGE.equals(behandling.getType()) ? "Klage mottatt" : "Behandling startet";
+        var h = new HistorikkinnslagV2.Builder()
+            .medTittel(tittel)
+            .medAktør(HistorikkAktør.SØKER)
+            .medBehandlingId(behandling.getId())
+            .medFagsakId(behandling.getFagsakId())
+            .medDokumenter(dokumenter)
+            .build();
+
+        if (historikkinnslag2Repository.hent(behandling.getId()).stream().noneMatch(ek -> tittel.equals(ek.getTittel())) || selvOmLoggetTidligere) {
+            historikkinnslag2Repository.lagre(h);
         }
-
-        var innslagType = BehandlingType.KLAGE.equals(behandling.getType()) ? HistorikkinnslagType.KLAGEBEH_STARTET : HistorikkinnslagType.BEH_STARTET;
-
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setAktør(HistorikkAktør.SØKER);
-        historikkinnslag.setType(innslagType);
-        historikkinnslag.setBehandlingId(behandling.getId());
-        historikkinnslag.setFagsakId(behandling.getFagsakId());
-
-        leggTilHistorikkinnslagDokumentlinker(behandling.getType(), journalpostId, historikkinnslag, elektronisk, erIM);
-
-        var builder = new HistorikkInnslagTekstBuilder().medHendelse(innslagType);
-        builder.build(historikkinnslag);
-
-        historikkRepository.lagre(historikkinnslag);
     }
 
-    private boolean historikkinnslagForBehandlingStartetErLoggetTidligere(Long behandlingId, HistorikkinnslagType historikkinnslagType) {
-        var eksisterendeHistorikkListe = historikkRepository.hentHistorikk(behandlingId);
-
-
-        if (!eksisterendeHistorikkListe.isEmpty()) {
-            for (var eksisterendeHistorikk : eksisterendeHistorikkListe) {
-                if (historikkinnslagType.equals(eksisterendeHistorikk.getType())) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    void leggTilHistorikkinnslagDokumentlinker(BehandlingType behandlingType, JournalpostId journalpostId,
-                                               Historikkinnslag historikkinnslag, boolean elektronisk, boolean erIM) {
-        List<HistorikkinnslagDokumentLink> dokumentLinker = new ArrayList<>();
+    private List<Historikkinnslag2DokumentLink> lagDokumenterLenker(BehandlingType behandlingType, JournalpostId journalpostId, boolean elektronisk, boolean erIM) {
+        List<Historikkinnslag2DokumentLink> dokumentLinker = new ArrayList<>();
         if (journalpostId != null) {
             dokumentArkivTjeneste.hentJournalpostForSak(journalpostId).ifPresent(jp -> {
-                leggTilSøknadDokumentLenke(behandlingType, journalpostId, historikkinnslag, dokumentLinker, jp.getHovedDokument(), elektronisk, erIM);
-                jp.getAndreDokument().forEach(ad -> dokumentLinker.add(lagHistorikkInnslagDokumentLink(ad, journalpostId, historikkinnslag, VEDLEGG)));
+                leggTilSøknadDokumentLenke(behandlingType, journalpostId, dokumentLinker, jp.getHovedDokument(), elektronisk, erIM);
+                jp.getAndreDokument().forEach(ad -> dokumentLinker.add(lagHistorikkInnslagDokumentLink(ad, journalpostId, VEDLEGG)));
             });
         }
 
-        historikkinnslag.setDokumentLinker(dokumentLinker);
+        return dokumentLinker;
     }
 
-    private void leggTilSøknadDokumentLenke(BehandlingType behandlingType, JournalpostId journalpostId, Historikkinnslag historikkinnslag,
-                                            List<HistorikkinnslagDokumentLink> dokumentLinker, ArkivDokument arkivDokument, boolean elektronisk, boolean erIM) {
+    private void leggTilSøknadDokumentLenke(BehandlingType behandlingType, JournalpostId journalpostId,
+                                            List<Historikkinnslag2DokumentLink> dokumentLinker, ArkivDokument arkivDokument, boolean elektronisk, boolean erIM) {
         if (elektronisk) {
             var linkTekst = BehandlingType.KLAGE.equals(behandlingType) ? KLAGE : erIM ? INNTEKTSMELDING : SØKNAD;
-            dokumentLinker.add(lagHistorikkInnslagDokumentLink(arkivDokument, journalpostId, historikkinnslag, linkTekst));
+            dokumentLinker.add(lagHistorikkInnslagDokumentLink(arkivDokument, journalpostId, linkTekst));
         } else {
             var linkTekst = BehandlingType.KLAGE.equals(behandlingType) ? KLAGE : BehandlingType.UDEFINERT.equals(behandlingType) ? ETTERSENDELSE : PAPIRSØKNAD;
             if (arkivDokument != null)
-                dokumentLinker.add(lagHistorikkInnslagDokumentLink(arkivDokument, journalpostId, historikkinnslag, linkTekst));
+                dokumentLinker.add(lagHistorikkInnslagDokumentLink(arkivDokument, journalpostId, linkTekst));
         }
     }
 
-    private HistorikkinnslagDokumentLink lagHistorikkInnslagDokumentLink(ArkivDokument arkivDokument, JournalpostId journalpostId, Historikkinnslag historikkinnslag, String linkTekst) {
-        var historikkinnslagDokumentLink = new HistorikkinnslagDokumentLink();
+    private Historikkinnslag2DokumentLink lagHistorikkInnslagDokumentLink(ArkivDokument arkivDokument, JournalpostId journalpostId, String linkTekst) {
+        var historikkinnslagDokumentLink = new Historikkinnslag2DokumentLink();
         historikkinnslagDokumentLink.setDokumentId(arkivDokument.getDokumentId());
         historikkinnslagDokumentLink.setJournalpostId(journalpostId);
         historikkinnslagDokumentLink.setLinkTekst(linkTekst);
-        historikkinnslagDokumentLink.setHistorikkinnslag(historikkinnslag);
         return historikkinnslagDokumentLink;
     }
 
@@ -129,23 +112,14 @@ public class HistorikkinnslagTjeneste {
     }
 
     public void opprettHistorikkinnslagForVedlegg(Fagsak fagsak, JournalpostId journalpostId, DokumentTypeId dokumentTypeId, boolean elektronisk) {
-        var historikkinnslag = new Historikkinnslag();
-        if (DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId)) {
-            historikkinnslag.setAktør(HistorikkAktør.ARBEIDSGIVER);
-        } else {
-            historikkinnslag.setAktør(HistorikkAktør.SØKER);
-        }
-        historikkinnslag.setType(HistorikkinnslagType.VEDLEGG_MOTTATT);
-        historikkinnslag.setFagsakId(fagsak.getId());
-
-        leggTilHistorikkinnslagDokumentlinker(BehandlingType.UDEFINERT, journalpostId, historikkinnslag,
-            elektronisk, DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId));
-
-        var builder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.VEDLEGG_MOTTATT);
-        builder.build(historikkinnslag);
-
-        historikkRepository.lagre(historikkinnslag);
+        var dokumenter = lagDokumenterLenker(BehandlingType.UDEFINERT, journalpostId, elektronisk,
+            DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId));
+        historikkinnslag2Repository.lagre(new HistorikkinnslagV2.Builder()
+            .medTittel("Vedlegg mottatt")
+            .medFagsakId(fagsak.getId())
+            .medAktør(DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId) ? HistorikkAktør.ARBEIDSGIVER : HistorikkAktør.SØKER)
+            .medDokumenter(dokumenter)
+            .build());
     }
 
     public void opprettHistorikkinnslagForVenteFristRelaterteInnslag(Behandling behandling, HistorikkinnslagType historikkinnslagType, LocalDateTime frist, Venteårsak venteårsak) {
