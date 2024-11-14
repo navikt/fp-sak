@@ -20,6 +20,7 @@ public enum FeltType {
     GRADERING_AV_FELLESPERIODE_FORELDREPENGER("2030", "Gradering av fellesperiode/foreldrepenger"),
     ANNEN_FORELDER_HAR_IKKE_RETT("ANNEN_FORELDER_HAR_IKKE_RETT", "Annen forelder har ikke rett"),
     TILBAKEKR_OPPRETT("TILBAKEKR_OPPRETT", "Opprett tilbakekreving"),
+    TILBAKEKR_INFOTRYGD("TILBAKEKR_INFOTRYGD", "Opprett tilbakekreving"), // Gammel kode som er migrert over TILBAKEKR_OPPRETT, men finnes fremdeles i dev (trengs for testing).
     FASTSETT_RESULTAT_PERIODEN_AVKLARES_IKKE("FASTSETT_RESULTAT_PERIODEN_AVKLARES_IKKE", "Perioden kan ikke avklares"),
     FASTSETT_RESULTAT_PERIODEN_SYKDOM_DOKUMENTERT("FASTSETT_RESULTAT_PERIODEN_SYKDOM_DOKUMENTERT", "Sykdommen/skaden er dokumentert"),
     HAR_GYLDIG_GRUNN("HAR_GYLDIG_GRUNN", "Gyldig grunn for sen fremsetting av søknaden"),
