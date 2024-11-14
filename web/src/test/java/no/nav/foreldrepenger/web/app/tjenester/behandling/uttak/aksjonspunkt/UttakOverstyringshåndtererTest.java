@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OverhoppKontroll;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -62,7 +63,7 @@ class UttakOverstyringshåndtererTest {
     @BeforeEach
     public void setup() {
         oppdaterer = new UttakOverstyringshåndterer(mock(HistorikkTjenesteAdapter.class), fastettePerioderTjeneste, uttakTjeneste,
-            uttakInputTjeneste);
+            uttakInputTjeneste, mock(Historikkinnslag2Repository.class));
     }
 
     @Test

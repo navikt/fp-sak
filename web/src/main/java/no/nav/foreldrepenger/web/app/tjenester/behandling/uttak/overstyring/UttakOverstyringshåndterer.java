@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderTjeneste;
@@ -30,6 +31,7 @@ public class UttakOverstyringshåndterer extends AbstractOverstyringshåndterer<
     private UttakInputTjeneste uttakInputTjeneste;
 
     private ForeldrepengerUttak forrigeUttak;
+    private Historikkinnslag2Repository historikkinnslag2Repository;
 
     UttakOverstyringshåndterer() {
         // for CDI proxy
@@ -39,11 +41,13 @@ public class UttakOverstyringshåndterer extends AbstractOverstyringshåndterer<
     public UttakOverstyringshåndterer(HistorikkTjenesteAdapter historikkTjenesteAdapter,
                                       FastsettePerioderTjeneste tjeneste,
                                       ForeldrepengerUttakTjeneste uttakTjeneste,
-                                      UttakInputTjeneste uttakInputTjeneste) {
+                                      UttakInputTjeneste uttakInputTjeneste,
+                                      Historikkinnslag2Repository historikkinnslag2Repository) {
         super(historikkTjenesteAdapter, OVERSTYRING_AV_UTTAKPERIODER);
         this.tjeneste = tjeneste;
         this.uttakTjeneste = uttakTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
+        this.historikkinnslag2Repository = historikkinnslag2Repository;
     }
 
     @Override
@@ -59,9 +63,6 @@ public class UttakOverstyringshåndterer extends AbstractOverstyringshåndterer<
     protected void lagHistorikkInnslag(Behandling behandling, OverstyringUttakDto dto) {
         var historikkinnslag = UttakHistorikkUtil.forOverstyring()
             .lagHistorikkinnslag(BehandlingReferanse.fra(behandling), dto.getPerioder(), forrigeUttak.getGjeldendePerioder());
-        historikkinnslag.forEach(innslag -> {
-            System.out.println(innslag.getLinjer().stream().map(HistorikkinnslagV2.Tekstlinje::asString).toList());
-            //            historikkAdapter.lagInnslag(innslag)
-        });
+        historikkinnslag.forEach(innslag -> historikkinnslag2Repository.lagre(innslag));
     }
 }
