@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.historikk;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -39,7 +38,10 @@ public class Historikkinnslag2 extends BaseEntitet {
     private SkjermlenkeType skjermlenke;
 
     @OneToMany(mappedBy = "historikkinnslag")
-    private List<Historikkinnslag2Tekstlinje> tekstlinjer = new ArrayList<>();
+    private List<Historikkinnslag2Tekstlinje> tekstlinjer;
+
+    @OneToMany(mappedBy = "historikkinnslag")
+    private List<Historikkinnslag2DokumentLink> dokumentLinker;
 
     @Column(name = "tittel")
     private String tittel;
@@ -49,14 +51,17 @@ public class Historikkinnslag2 extends BaseEntitet {
                              HistorikkAktør aktør,
                              SkjermlenkeType skjermlenke,
                              String tittel,
-                             List<Historikkinnslag2Tekstlinje> tekstlinjer) {
+                             List<Historikkinnslag2Tekstlinje> tekstlinjer,
+                             List<Historikkinnslag2DokumentLink> dokumentLinker) {
         this.fagsakId = fagsakId;
         this.behandlingId = behandlingId;
         this.aktør = aktør;
         this.skjermlenke = skjermlenke;
         this.tittel = tittel;
         this.tekstlinjer = tekstlinjer;
+        this.dokumentLinker = dokumentLinker;
         tekstlinjer.forEach(t -> t.setHistorikkinnslag(this));
+        dokumentLinker.forEach(d -> d.setHistorikkinnslag(this));
     }
 
     protected Historikkinnslag2() {
@@ -82,6 +87,10 @@ public class Historikkinnslag2 extends BaseEntitet {
         return tekstlinjer;
     }
 
+    public List<Historikkinnslag2DokumentLink> getDokumentLinker() {
+        return dokumentLinker;
+    }
+
     @Override
     public String toString() {
         return "Historikkinnslag2{" + "fagsakId=" + fagsakId + ", behandlingId=" + behandlingId + ", aktør=" + aktør + ", skjermlenkeType="
@@ -99,12 +108,13 @@ public class Historikkinnslag2 extends BaseEntitet {
         return Objects.equals(behandlingId, that.behandlingId) &&
             Objects.equals(fagsakId, that.fagsakId) &&
             Objects.equals(tittel, that.tittel) &&
+            Objects.equals(dokumentLinker, that.dokumentLinker) &&
             Objects.equals(tekstlinjer, that.tekstlinjer);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(behandlingId, fagsakId, tittel, tekstlinjer);
+        return Objects.hash(behandlingId, fagsakId, tittel, dokumentLinker, tekstlinjer);
     }
 
     public String getTittel() {

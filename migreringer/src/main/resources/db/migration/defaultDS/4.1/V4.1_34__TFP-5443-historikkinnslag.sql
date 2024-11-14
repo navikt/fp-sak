@@ -4,9 +4,9 @@ create table HISTORIKKINNSLAG2
         constraint PK_HISTORIKKINNSLAG2
             primary key,
     FAGSAK_ID     NUMBER(19)                             not null
-        constraint FK_HISTORIKKINNSLAG2_1 references FAGSAK,
+        constraint FK_HISTORIKKINNSLAG2_01 references FAGSAK,
     BEHANDLING_ID NUMBER(19)
-        constraint FK_HISTORIKKINNSLAG2_2 references BEHANDLING,
+        constraint FK_HISTORIKKINNSLAG2_02 references BEHANDLING,
     AKTOER        VARCHAR2(100 char)                     not null,
     SKJERMLENKE   VARCHAR2(100 char),
     TITTEL        VARCHAR2(1000 char),
@@ -62,3 +62,40 @@ create sequence SEQ_HISTORIKKINNSLAG2_TEKSTLINJE
     minvalue 1000000
     increment by 50
     nocache;
+
+create table HISTORIKKINNSLAG2_DOK_LINK
+(
+    ID NUMBER(19) not null
+        constraint PK_HISTORIKKINNSLAG2_DOK_LINK
+            primary key,
+    LINK_TEKST VARCHAR2(100 char) not null,
+    HISTORIKKINNSLAG_ID NUMBER(19) not null
+        constraint FK_HISTORIKKINNSLAG2_DOK_LINK_01
+            references HISTORIKKINNSLAG2,
+    JOURNALPOST_ID VARCHAR2(100 char),
+    DOKUMENT_ID VARCHAR2(100 char),
+    OPPRETTET_AV VARCHAR2(20 char) default 'VL' not null,
+    OPPRETTET_TID TIMESTAMP(3) default systimestamp not null,
+    ENDRET_AV VARCHAR2(20 char),
+    ENDRET_TID TIMESTAMP(3)
+);
+
+create sequence SEQ_HISTORIKKINNSLAG2_DOK_LINK
+    minvalue 1000000
+    increment by 50
+    nocache;
+
+comment on table HISTORIKKINNSLAG2_DOK_LINK is 'Kobling fra historikkinnslag til aktuell dokumentasjon';
+
+comment on column HISTORIKKINNSLAG2_DOK_LINK.ID is 'Primary Key';
+
+comment on column HISTORIKKINNSLAG2_DOK_LINK.LINK_TEKST is 'Tekst som vises for link til dokumentet';
+
+comment on column HISTORIKKINNSLAG2_DOK_LINK.HISTORIKKINNSLAG_ID is 'FK:HISTORIKKINNSLAG Fremmednøkkel til riktig innslag i historikktabellen';
+
+comment on column HISTORIKKINNSLAG2_DOK_LINK.JOURNALPOST_ID is 'FK';
+
+comment on column HISTORIKKINNSLAG2_DOK_LINK.DOKUMENT_ID is 'FK:';
+
+create index IDX_HISTINNSLAG2_DOK_LINK_01
+    on HISTORIKKINNSLAG2_DOK_LINK (HISTORIKKINNSLAG_ID)
