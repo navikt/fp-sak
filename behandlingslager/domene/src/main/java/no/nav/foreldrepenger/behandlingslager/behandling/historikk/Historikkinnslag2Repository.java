@@ -28,6 +28,13 @@ public class Historikkinnslag2Repository {
             Historikkinnslag2.class).setParameter("saksnummer", saksnummer).getResultStream().toList();
     }
 
+    public List<Historikkinnslag2> hent(Long behandlingId) {
+        return entityManager.createQuery(
+                "select h from Historikkinnslag2 h where h.behandlingId = :behandlingId OR h.behandlingId = NULL ", Historikkinnslag2.class)
+            .setParameter("behandlingId", behandlingId)
+            .getResultList();
+    }
+
     public void lagre(HistorikkinnslagV2 historikkinnslag) {
         lagre(map(historikkinnslag));
     }
@@ -36,6 +43,9 @@ public class Historikkinnslag2Repository {
         entityManager.persist(historikkinnslag);
         for (var tekstlinje : historikkinnslag.getTekstlinjer()) {
             entityManager.persist(tekstlinje);
+        }
+        for (var dokument : historikkinnslag.getDokumentLinker()) {
+            entityManager.persist(dokument);
         }
         entityManager.flush();
     }
@@ -47,7 +57,7 @@ public class Historikkinnslag2Repository {
             tekstlinjer.add(linje);
         }
         return new Historikkinnslag2(historikkinnslag.getFagsakId(), historikkinnslag.getBehandlingId(), historikkinnslag.getAktør(),
-            historikkinnslag.getSkjermlenke(), historikkinnslag.getTittel(), tekstlinjer);
+            historikkinnslag.getSkjermlenke(), historikkinnslag.getTittel(), tekstlinjer, historikkinnslag.getDokumenter());
     }
 
     private static Historikkinnslag2Tekstlinje map(HistorikkinnslagV2.Tekstlinje t, int indeks) {
