@@ -190,6 +190,7 @@ public class HistorikkV2Adapter {
                 .map(HistorikkV2Adapter::fraHistorikkResultat)
                 .toList();
             var endretFelter = del.getEndredeFelt().stream()
+                .filter(felt -> felt.getFraVerdi() != null)
                 .map(HistorikkV2Adapter::fraEndretFeltMalType7)
                 .toList();
             // OPPLYSNINGER finnes ikke i DB for denne maltypen

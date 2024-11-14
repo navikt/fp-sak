@@ -134,7 +134,8 @@ public enum FeltNavnType {
     UTTAKPERIODE_DOK_AVKLARING("UTTAKPERIODE_DOK_AVKLARING", "Perioden {value}"),
     FAKTA_UTTAK_PERIODE("FAKTA_UTTAK_PERIODE", "Perioden {value}"),
     SVP_OPPHOLD_PERIODE("SVP_OPPHOLD_PERIODE", "Periode med opphold"),
-    VURDERT_ETTERBETALING_TIL_SØKER("VURDERT_ETTERBETALING_TIL_SØKER", "Vurdering av etterbetaling til søker");
+    VURDERT_ETTERBETALING_TIL_SØKER("VURDERT_ETTERBETALING_TIL_SØKER", "Vurdering av etterbetaling til søker"),
+    NAVN("NAVN", "Navn");
 
 
     private final String key;
