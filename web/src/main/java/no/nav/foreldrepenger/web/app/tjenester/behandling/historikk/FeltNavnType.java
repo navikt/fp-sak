@@ -47,8 +47,8 @@ public enum FeltNavnType {
     INNTEKTSKATEGORI_FOR_ANDEL("INNTEKTSKATEGORI_FOR_ANDEL", "Inntektskategori for {value}"),
     OPPHOLDSRETT_EOS("OPPHOLDSRETT_EOS", "Oppholdsrett"),
     OPPHOLDSRETT_IKKE_EOS("OPPHOLDSRETT_IKKE_EOS", "Lovlig opphold"),
-    OVERSTYRT_BEREGNING("OVERSTYRT_BEREGNING", "Overstyrt beregning:; Beløpet er endret fra"),
-    OVERSTYRT_VURDERING("OVERSTYRT_VURDERING", "Overstyrt vurdering:; Utfallet er endret fra"),
+    OVERSTYRT_BEREGNING("OVERSTYRT_BEREGNING", "__Overstyrt beregning:__ Beløpet er endret fra"),
+    OVERSTYRT_VURDERING("OVERSTYRT_VURDERING", "__Overstyrt vurdering:__ Utfallet er endret fra"),
     SELVSTENDIG_NÆRINGSDRIVENDE("SELVSTENDIG_NAERINGSDRIVENDE", "Selvstendig næringsdrivende"),
     SOKERSOPPLYSNINGSPLIKT("SOKERSOPPLYSNINGSPLIKT", "Søkers opplysningsplikt"),
     SVANGERSKAPSPENGERVILKÅRET("SVANGERSKAPSPENGERVILKÅRET", "Svangerskapsvilkåret"),
@@ -134,7 +134,8 @@ public enum FeltNavnType {
     UTTAKPERIODE_DOK_AVKLARING("UTTAKPERIODE_DOK_AVKLARING", "Perioden {value}"),
     FAKTA_UTTAK_PERIODE("FAKTA_UTTAK_PERIODE", "Perioden {value}"),
     SVP_OPPHOLD_PERIODE("SVP_OPPHOLD_PERIODE", "Periode med opphold"),
-    VURDERT_ETTERBETALING_TIL_SØKER("VURDERT_ETTERBETALING_TIL_SØKER", "Vurdering av etterbetaling til søker");
+    VURDERT_ETTERBETALING_TIL_SØKER("VURDERT_ETTERBETALING_TIL_SØKER", "Vurdering av etterbetaling til søker"),
+    NAVN("NAVN", "Navn");
 
 
     private final String key;

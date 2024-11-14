@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.fagsak.app;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -38,7 +37,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.FagsakB
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.FagsakBehandlingDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkRequestPath;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkV2Tjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkinnslagDtoV2;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakFullDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakNotatDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.PersonDto;
@@ -116,7 +114,7 @@ public class FagsakFullTjeneste {
         var behandlinger = behandlingDtoTjeneste.lagBehandlingDtoer(behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId()));
         var dokumentPath = HistorikkRequestPath.getRequestPath(request);
         var historikk = historikkTjenesteAdapter.hentAlleHistorikkInnslagForSak(saksnummer, dokumentPath);
-        List<HistorikkinnslagDtoV2> historikkV2 = !ENV.isProd() ? historikkV2Tjeneste.hentForSak(saksnummer, dokumentPath) : List.of();
+        var historikkV2 = historikkV2Tjeneste.hentForSak(saksnummer, dokumentPath);
         var notater = fagsakRepository.hentFagsakNotater(fagsak.getId()).stream().map(FagsakNotatDto::fraNotat).toList();
         var ferskesteKontrollresultatBehandling = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsak.getId(),
                 BehandlingType.FØRSTEGANGSSØKNAD)
