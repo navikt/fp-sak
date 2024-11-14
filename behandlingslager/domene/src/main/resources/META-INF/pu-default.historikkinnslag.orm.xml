@@ -10,9 +10,14 @@
 	<sequence-generator name="SEQ_HISTORIKKINNSLAG_DEL" allocation-size="50" sequence-name="SEQ_HISTORIKKINNSLAG_DEL" />
 	<sequence-generator name="SEQ_HISTORIKKINNSLAG_FELT" allocation-size="50" sequence-name="SEQ_HISTORIKKINNSLAG_FELT" />
 
+    <sequence-generator name="SEQ_HISTORIKKINNSLAG2" allocation-size="50" sequence-name="SEQ_HISTORIKKINNSLAG2" />
+    <sequence-generator name="SEQ_HISTORIKKINNSLAG2_TEKSTLINJE" allocation-size="50" sequence-name="SEQ_HISTORIKKINNSLAG2_TEKSTLINJE" />
+
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag" />
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel" />
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDokumentLink" />
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt" />
 
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2" />
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Tekstlinje" />
 </entity-mappings>

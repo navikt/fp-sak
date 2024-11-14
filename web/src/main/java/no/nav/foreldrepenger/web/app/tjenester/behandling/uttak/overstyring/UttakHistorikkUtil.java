@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring;
 
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring.HistorikkinnslagV2.Tekstlinje.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagV2.Tekstlinje.fraTilEquals;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,6 +9,7 @@ import java.util.Objects;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagV2;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
