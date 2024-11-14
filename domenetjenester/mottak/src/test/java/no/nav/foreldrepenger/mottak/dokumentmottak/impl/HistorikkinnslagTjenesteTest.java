@@ -18,8 +18,7 @@ import org.mockito.ArgumentCaptor;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
@@ -35,15 +34,15 @@ class HistorikkinnslagTjenesteTest {
     private static final String HOVEDDOKUMENT_DOKUMENT_ID = "1";
     private static final String VEDLEGG_DOKUMENT_ID = "2";
 
-    private HistorikkRepository historikkRepository;
+    private Historikkinnslag2Repository historikkRepository;
     private DokumentArkivTjeneste dokumentArkivTjeneste;
     private HistorikkinnslagTjeneste historikkinnslagTjeneste;
 
     @BeforeEach
     public void before() {
-        historikkRepository = mock(HistorikkRepository.class);
+        historikkRepository = mock(Historikkinnslag2Repository.class);
         dokumentArkivTjeneste = mock(DokumentArkivTjeneste.class);
-        historikkinnslagTjeneste = new HistorikkinnslagTjeneste(historikkRepository, mock(Historikkinnslag2Repository.class), dokumentArkivTjeneste);
+        historikkinnslagTjeneste = new HistorikkinnslagTjeneste(historikkRepository, dokumentArkivTjeneste);
     }
 
     @Test
@@ -60,12 +59,11 @@ class HistorikkinnslagTjenesteTest {
         historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, JOURNALPOST_ID, false, true, false);
 
         // Assert
-        var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
+        var captor = ArgumentCaptor.forClass(Historikkinnslag2.class);
         verify(historikkRepository, times(1)).lagre(captor.capture());
         var historikkinnslag = captor.getValue();
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SØKER);
-        assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.BEH_STARTET);
-        assertThat(historikkinnslag.getHistorikkinnslagDeler()).isNotEmpty();
+        assertThat(historikkinnslag.getTittel()).isEqualTo(HistorikkinnslagType.BEH_STARTET.getNavn());
 
         var dokumentLinker = historikkinnslag.getDokumentLinker();
         assertThat(dokumentLinker).hasSize(2);
@@ -91,7 +89,7 @@ class HistorikkinnslagTjenesteTest {
         historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, JOURNALPOST_ID, false, false, false);
 
         // Assert
-        var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
+        var captor = ArgumentCaptor.forClass(Historikkinnslag2.class);
         verify(historikkRepository, times(1)).lagre(captor.capture());
         var historikkinnslag = captor.getValue();
         var dokumentLinker = historikkinnslag.getDokumentLinker();
@@ -115,7 +113,7 @@ class HistorikkinnslagTjenesteTest {
         historikkinnslagTjeneste.opprettHistorikkinnslagForVedlegg(behandling.getFagsak(), JOURNALPOST_ID, DokumentTypeId.INNTEKTSMELDING, true);
 
         // Assert
-        var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
+        var captor = ArgumentCaptor.forClass(Historikkinnslag2.class);
         verify(historikkRepository, times(1)).lagre(captor.capture());
         var historikkinnslag = captor.getValue();
         var dokumentLinker = historikkinnslag.getDokumentLinker();
@@ -139,7 +137,7 @@ class HistorikkinnslagTjenesteTest {
         historikkinnslagTjeneste.opprettHistorikkinnslagForVedlegg(behandling.getFagsak(), JOURNALPOST_ID, DokumentTypeId.ANNET, false);
 
         // Assert
-        var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
+        var captor = ArgumentCaptor.forClass(Historikkinnslag2.class);
         verify(historikkRepository, times(1)).lagre(captor.capture());
         var historikkinnslag = captor.getValue();
         var dokumentLinker = historikkinnslag.getDokumentLinker();
@@ -155,15 +153,14 @@ class HistorikkinnslagTjenesteTest {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var behandling = scenario.lagMocked();
 
-        var eksisterendeHistorikkinnslag = new Historikkinnslag();
-        eksisterendeHistorikkinnslag.setType(HistorikkinnslagType.BEH_STARTET);
-        when(historikkRepository.hentHistorikk(behandling.getId())).thenReturn(Collections.singletonList(eksisterendeHistorikkinnslag));
+        var eksisterendeHistorikkinnslag = new Historikkinnslag2.Builder().medTittel("Behandling startet").build();
+        when(historikkRepository.hent(behandling.getId())).thenReturn(Collections.singletonList(eksisterendeHistorikkinnslag));
 
         // Act
         historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, JOURNALPOST_ID, false, true, false);
 
         // Assert
-        verify(historikkRepository, times(0)).lagre(any(Historikkinnslag.class));
+        verify(historikkRepository, times(0)).lagre(any(Historikkinnslag2.class));
     }
 
     @Test
@@ -177,7 +174,7 @@ class HistorikkinnslagTjenesteTest {
 
         // Assert
         verify(dokumentArkivTjeneste, times(0)).hentJournalpostForSak(any(JournalpostId.class));
-        var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
+        var captor = ArgumentCaptor.forClass(Historikkinnslag2.class);
         verify(historikkRepository, times(1)).lagre(captor.capture());
         var historikkinnslag = captor.getValue();
         assertThat(historikkinnslag.getDokumentLinker()).isEmpty();
