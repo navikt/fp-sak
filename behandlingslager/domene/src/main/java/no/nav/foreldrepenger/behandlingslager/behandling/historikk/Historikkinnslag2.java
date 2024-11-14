@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.historikk;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -30,39 +31,21 @@ public class Historikkinnslag2 extends BaseEntitet {
     private Long behandlingId;
 
     @Convert(converter = HistorikkAktør.KodeverdiConverter.class)
-    @Column(name="aktoer", nullable = false)
+    @Column(name = "aktoer", nullable = false)
     private HistorikkAktør aktør;
 
     @Convert(converter = SkjermlenkeType.KodeverdiConverter.class)
-    @Column(name="skjermlenke")
+    @Column(name = "skjermlenke")
     private SkjermlenkeType skjermlenke;
 
     @OneToMany(mappedBy = "historikkinnslag")
-    private List<Historikkinnslag2Tekstlinje> tekstlinjer;
+    private List<Historikkinnslag2Tekstlinje> tekstlinjer = new ArrayList<>();
 
     @OneToMany(mappedBy = "historikkinnslag")
-    private List<Historikkinnslag2DokumentLink> dokumentLinker;
+    private List<Historikkinnslag2DokumentLink> dokumentLinker = new ArrayList<>();
 
     @Column(name = "tittel")
     private String tittel;
-
-    public Historikkinnslag2(Long fagsakId,
-                             Long behandlingId,
-                             HistorikkAktør aktør,
-                             SkjermlenkeType skjermlenke,
-                             String tittel,
-                             List<Historikkinnslag2Tekstlinje> tekstlinjer,
-                             List<Historikkinnslag2DokumentLink> dokumentLinker) {
-        this.fagsakId = fagsakId;
-        this.behandlingId = behandlingId;
-        this.aktør = aktør;
-        this.skjermlenke = skjermlenke;
-        this.tittel = tittel;
-        this.tekstlinjer = tekstlinjer;
-        this.dokumentLinker = dokumentLinker;
-        tekstlinjer.forEach(t -> t.setHistorikkinnslag(this));
-        dokumentLinker.forEach(d -> d.setHistorikkinnslag(this));
-    }
 
     protected Historikkinnslag2() {
     }
@@ -105,11 +88,8 @@ public class Historikkinnslag2 extends BaseEntitet {
         if (!(o instanceof Historikkinnslag2 that)) {
             return false;
         }
-        return Objects.equals(behandlingId, that.behandlingId) &&
-            Objects.equals(fagsakId, that.fagsakId) &&
-            Objects.equals(tittel, that.tittel) &&
-            Objects.equals(dokumentLinker, that.dokumentLinker) &&
-            Objects.equals(tekstlinjer, that.tekstlinjer);
+        return Objects.equals(behandlingId, that.behandlingId) && Objects.equals(fagsakId, that.fagsakId) && Objects.equals(tittel, that.tittel)
+            && Objects.equals(dokumentLinker, that.dokumentLinker) && Objects.equals(tekstlinjer, that.tekstlinjer);
     }
 
     @Override
@@ -119,5 +99,72 @@ public class Historikkinnslag2 extends BaseEntitet {
 
     public String getTittel() {
         return tittel;
+    }
+
+    public static class Builder {
+
+        private Historikkinnslag2 kladd = new Historikkinnslag2();
+        private List<String> internLinjer = new ArrayList<>();
+
+        public Builder medFagsakId(Long fagsakId) {
+            kladd.fagsakId = fagsakId;
+            return this;
+        }
+
+        public Builder medBehandlingId(Long behandlingId) {
+            kladd.behandlingId = behandlingId;
+            return this;
+        }
+
+        public Builder medAktør(HistorikkAktør aktør) {
+            kladd.aktør = aktør;
+            return this;
+        }
+
+        public Builder medTittel(SkjermlenkeType skjermlenke) {
+            kladd.skjermlenke = skjermlenke;
+            return this;
+        }
+
+        public Builder medTittel(String tittel) {
+            kladd.tittel = tittel;
+            return this;
+        }
+
+        public Builder medTekstlinjer(List<HistorikkinnslagTekstlinjeBuilder> linjer) {
+            internLinjer = linjer.stream().map(HistorikkinnslagTekstlinjeBuilder::build).toList();
+            return this;
+        }
+
+        public Builder addTekstlinje(HistorikkinnslagTekstlinjeBuilder historikkinnslagTekstlinjeBuilder) {
+            if (historikkinnslagTekstlinjeBuilder != null) {
+                internLinjer.add(historikkinnslagTekstlinjeBuilder.build());
+            }
+            return this;
+        }
+
+        public Builder medDokumenter(List<Historikkinnslag2DokumentLink> dokumenter) {
+            kladd.dokumentLinker = dokumenter;
+            for (var historikkinnslag2DokumentLink : dokumenter) {
+                historikkinnslag2DokumentLink.setHistorikkinnslag(kladd);
+            }
+            return this;
+        }
+
+        public Historikkinnslag2 build() {
+            for (int i = 0; i < internLinjer.size(); i++) {
+                var linje = new Historikkinnslag2Tekstlinje(internLinjer.get(i), String.valueOf(i));
+                kladd.tekstlinjer.add(linje);
+                linje.setHistorikkinnslag(kladd);
+            }
+
+            var t = kladd;
+            kladd = null;
+            return t;
+        }
+
+        public int antallLagtTilLinjer() {
+            return kladd.tekstlinjer.size();
+        }
     }
 }
