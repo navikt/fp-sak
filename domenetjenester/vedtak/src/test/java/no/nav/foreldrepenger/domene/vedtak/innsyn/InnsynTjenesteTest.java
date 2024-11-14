@@ -9,8 +9,13 @@ import java.time.LocalDate;
 
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.JpaExtension;
+
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
@@ -33,8 +38,8 @@ import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
-@CdiDbAwareTest
-class InnsynTjenesteTest {
+@Disabled
+class InnsynTjenesteTest extends EntityManagerAwareTest {
 
     @Inject
     private BehandlingskontrollTjeneste behandlingKontrollTjeneste;

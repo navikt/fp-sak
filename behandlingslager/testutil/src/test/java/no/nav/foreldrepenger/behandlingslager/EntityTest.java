@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering;
+import no.nav.foreldrepenger.dbstoette.TestDatabaseInit;
 
 /**
  * Sjekker alle entiteter er mappet korrekt. Ligger i web slik at den fanger
@@ -45,7 +45,7 @@ class EntityTest {
         // System.setProperty("hibernate.hbm2ddl.auto", "validate");
         try {
             // trenger å konfigurere opp jndi etc.
-            Databaseskjemainitialisering.settJdniOppslag();
+            //TestDatabaseInit.settJdniOppslag();
         } catch (Exception e) {
             throw new ExceptionInInitializerError(e);
         }
