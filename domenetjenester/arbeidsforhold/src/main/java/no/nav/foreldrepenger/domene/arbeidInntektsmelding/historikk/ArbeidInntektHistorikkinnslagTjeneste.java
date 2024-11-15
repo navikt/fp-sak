@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
@@ -10,7 +12,6 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
@@ -108,7 +109,7 @@ public class ArbeidInntektHistorikkinnslagTjeneste {
             .medTittel(SkjermlenkeType.FAKTA_OM_ARBEIDSFORHOLD_INNTEKTSMELDING)
             .medBehandlingId(behandlingReferanse.behandlingId())
             .medFagsakId(behandlingReferanse.fagsakId())
-            .addTekstlinje(HistorikkEndretFeltType.ARBEIDSFORHOLD + " hos " + arbeidsforholdNavn + " er satt til " + tilVerdi.name())
+            .addTekstlinje(fraTilEquals("Arbeidsforhold hos " + arbeidsforholdNavn, null, tilVerdi.name()))
             .addTekstlinje(begrunnelse)
             .build();
 
