@@ -9,8 +9,10 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
@@ -24,23 +26,22 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
 public class ArbeidInntektHistorikkinnslagTjeneste {
 
-    private HistorikkTjenesteAdapter historikkAdapter;
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
+    private Historikkinnslag2Repository historikkinnslagRepository;
 
     ArbeidInntektHistorikkinnslagTjeneste() {
         // CDI
     }
 
     @Inject
-    ArbeidInntektHistorikkinnslagTjeneste(HistorikkTjenesteAdapter historikkAdapter,
-                                          ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
-        this.historikkAdapter = historikkAdapter;
+    ArbeidInntektHistorikkinnslagTjeneste(ArbeidsgiverTjeneste arbeidsgiverTjeneste,
+                                          Historikkinnslag2Repository historikkinnslagRepository) {
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
+        this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     public void opprettHistorikkinnslag(BehandlingReferanse behandlingReferanse,
@@ -51,7 +52,7 @@ public class ArbeidInntektHistorikkinnslagTjeneste {
         var eksternRef = finnEksternRef(internRef, ag, iayGrunnlag);
         var opplysninger = arbeidsgiverTjeneste.hent(ag);
         var arbeidsforholdNavn = ArbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(opplysninger, eksternRef);
-        opprettHistorikkinnslagDel(behandlingReferanse, vurderingFraSaksbehandler.getVurdering(), vurderingFraSaksbehandler.getBegrunnelse(), arbeidsforholdNavn);
+        lagHistorikkinnslag(behandlingReferanse, vurderingFraSaksbehandler.getVurdering(), vurderingFraSaksbehandler.getBegrunnelse(), arbeidsforholdNavn);
     }
 
     public void opprettHistorikkinnslag(BehandlingReferanse behandlingReferanse,
@@ -68,7 +69,7 @@ public class ArbeidInntektHistorikkinnslagTjeneste {
             opplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver);
         }
         var arbeidsforholdNavn = ArbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(opplysninger, eksternRef);
-        opprettHistorikkinnslagDel(behandlingReferanse, arbeidsforholdFraSaksbehandler.getVurdering(), arbeidsforholdFraSaksbehandler.getBegrunnelse(), arbeidsforholdNavn);
+        lagHistorikkinnslag(behandlingReferanse, arbeidsforholdFraSaksbehandler.getVurdering(), arbeidsforholdFraSaksbehandler.getBegrunnelse(), arbeidsforholdNavn);
     }
 
     private InternArbeidsforholdRef lagInternRef(String internReferanse) {
@@ -98,13 +99,19 @@ public class ArbeidInntektHistorikkinnslagTjeneste {
             .findFirst();
     }
 
-    private void opprettHistorikkinnslagDel(BehandlingReferanse behandlingReferanse,
-                                            ArbeidsforholdKomplettVurderingType tilVerdi,
-                                            String begrunnelse,
-                                            String arbeidsforholdNavn) {
-        historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.ARBEIDSFORHOLD, arbeidsforholdNavn, null, tilVerdi);
-        historikkAdapter.tekstBuilder().medBegrunnelse(begrunnelse);
-        historikkAdapter.tekstBuilder().medSkjermlenke(SkjermlenkeType.FAKTA_OM_ARBEIDSFORHOLD_INNTEKTSMELDING);
-        historikkAdapter.opprettHistorikkInnslag(behandlingReferanse.behandlingId(), HistorikkinnslagType.FAKTA_ENDRET);
+    private void lagHistorikkinnslag(BehandlingReferanse behandlingReferanse,
+                                     ArbeidsforholdKomplettVurderingType tilVerdi,
+                                     String begrunnelse,
+                                     String arbeidsforholdNavn) {
+        var historikkinnslag = new Historikkinnslag2.Builder()
+            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medTittel(SkjermlenkeType.FAKTA_OM_ARBEIDSFORHOLD_INNTEKTSMELDING)
+            .medBehandlingId(behandlingReferanse.behandlingId())
+            .medFagsakId(behandlingReferanse.fagsakId())
+            .addTekstlinje(HistorikkEndretFeltType.ARBEIDSFORHOLD + " hos " + arbeidsforholdNavn + " er satt til " + tilVerdi.name())
+            .addTekstlinje(begrunnelse)
+            .build();
+
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 }
