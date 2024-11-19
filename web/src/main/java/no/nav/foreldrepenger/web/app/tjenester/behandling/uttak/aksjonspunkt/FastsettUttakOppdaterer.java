@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.FastsetteUttakDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring.UttakHistorikkUtil;
 
@@ -28,7 +27,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring.Utta
 @DtoTilServiceAdapter(dto = FastsetteUttakDto.class, adapter = AksjonspunktOppdaterer.class)
 public class FastsettUttakOppdaterer implements AksjonspunktOppdaterer<FastsetteUttakDto> {
 
-    private HistorikkTjenesteAdapter historikkAdapter;
     private FastsettePerioderTjeneste tjeneste;
     private ForeldrepengerUttakTjeneste uttakTjeneste;
     private UttakInputTjeneste uttakInputTjeneste;
@@ -36,13 +34,11 @@ public class FastsettUttakOppdaterer implements AksjonspunktOppdaterer<Fastsette
     private Historikkinnslag2Repository historikkinnslag2Repository;
 
     @Inject
-    public FastsettUttakOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
-                                   FastsettePerioderTjeneste tjeneste,
+    public FastsettUttakOppdaterer(FastsettePerioderTjeneste tjeneste,
                                    ForeldrepengerUttakTjeneste uttakTjeneste,
                                    UttakInputTjeneste uttakInputTjeneste,
                                    BehandlingRepository behandlingRepository,
                                    Historikkinnslag2Repository historikkinnslag2Repository) {
-        this.historikkAdapter = historikkAdapter;
         this.tjeneste = tjeneste;
         this.uttakTjeneste = uttakTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;

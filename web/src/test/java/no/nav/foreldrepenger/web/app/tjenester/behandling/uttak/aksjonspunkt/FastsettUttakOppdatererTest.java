@@ -41,7 +41,6 @@ import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderTjeneste;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsgiverLagreDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.FastsetteUttakDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeAktivitetLagreDto;
@@ -65,7 +64,7 @@ class FastsettUttakOppdatererTest {
 
     @BeforeEach
     public void setup() {
-        oppdaterer = new FastsettUttakOppdaterer(mock(HistorikkTjenesteAdapter.class), fastettePerioderTjeneste, uttakTjeneste, uttakInputTjeneste,
+        oppdaterer = new FastsettUttakOppdaterer(fastettePerioderTjeneste, uttakTjeneste, uttakInputTjeneste,
             repositoryProvider.getBehandlingRepository(), mock(Historikkinnslag2Repository.class));
     }
 
