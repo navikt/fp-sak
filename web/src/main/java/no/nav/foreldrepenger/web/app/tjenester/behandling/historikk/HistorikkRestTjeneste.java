@@ -17,7 +17,6 @@ import jakarta.ws.rs.core.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -26,15 +25,14 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
 /**
- * Denne finnes utelukkende pga autotest
- * TODO: Kan man bruke fagsak full istedenfor? Litt for mye overhead?
+ * Denne finnes utelukkende pga autotest. TOOD: Fjern bruka av historikkinnlag til behandlingsflyt i autotest
  */
 
-@Path("/historikk")
+@Path(HistorikkRestTjeneste.HISTORIKK_PATH)
 @ApplicationScoped
 @Transactional
 public class HistorikkRestTjeneste {
-    private HistorikkTjenesteAdapter historikkTjeneste;
+    private HistorikkV2Tjeneste historikkTjeneste;
 
     public static final String HISTORIKK_PATH = "/historikk";
 
@@ -43,7 +41,7 @@ public class HistorikkRestTjeneste {
     }
 
     @Inject
-    public HistorikkRestTjeneste(HistorikkTjenesteAdapter historikkTjeneste) {
+    public HistorikkRestTjeneste(HistorikkV2Tjeneste historikkTjeneste) {
         this.historikkTjeneste = historikkTjeneste;
     }
 
@@ -57,7 +55,7 @@ public class HistorikkRestTjeneste {
                                     @Valid SaksnummerDto saksnummerDto) {
         var url = HistorikkRequestPath.getRequestPath(request);
 
-        var historikkInnslagDtoList = historikkTjeneste.hentAlleHistorikkInnslagForSak(new Saksnummer(saksnummerDto.getVerdi()), url);
+        var historikkInnslagDtoList = historikkTjeneste.hentForSak(new Saksnummer(saksnummerDto.getVerdi()), url);
         return Response.ok().entity(historikkInnslagDtoList).build();
     }
 }

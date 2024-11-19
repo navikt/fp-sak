@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import jakarta.ws.rs.core.UriBuilder;
@@ -190,7 +191,8 @@ public class HistorikkV2Adapter {
                 .map(HistorikkV2Adapter::fraHistorikkResultat)
                 .toList();
             var endretFelter = del.getEndredeFelt().stream()
-                .map(HistorikkV2Adapter::fraEndretFeltMalType7)
+                .filter(felt -> felt.getFraVerdi() != null)
+                .map(HistorikkV2Adapter::fraEndretFelt)
                 .toList();
             // OPPLYSNINGER finnes ikke i DB for denne maltypen
             var tema = del.getTema().stream() // Vises bare getNavnVerdi... gjør forbedring her
@@ -205,18 +207,7 @@ public class HistorikkV2Adapter {
         return tilHistorikkInnslagDto(h, behandlingUUID, tilDokumentlenker(h.getDokumentLinker(), journalPosterForSak, dokumentPath), tekster);
     }
 
-    private static String fraEndretFeltMalType7(HistorikkinnslagFelt felt) {
-        var fieldName = kodeverdiTilStreng(HistorikkEndretFeltType.fraKode(felt.getNavn()), felt.getNavnVerdi());
-        var sub1 = fieldName.substring(0, fieldName.lastIndexOf(';'));
-        var sub2 = fieldName.substring(fieldName.lastIndexOf(';') + 1);
-        var fraVerdi = finnEndretFeltVerdi(felt, felt.getFraVerdi());
-        var tilVerdi = finnEndretFeltVerdi(felt, felt.getTilVerdi());
-        return "__{sub1}__ {sub2} __{fromValue}__ til __{toValue}__"
-            .replace("{sub1}", sub1)
-            .replace("{sub2}", sub2)
-            .replace("{fromValue}", fraVerdi)
-            .replace("{toValue}", tilVerdi);
-    }
+
 
     private static HistorikkinnslagDtoV2 fraMalType9(Historikkinnslag h, UUID behandlingUUID) {
         var tekster = new ArrayList<String>();
@@ -259,7 +250,7 @@ public class HistorikkV2Adapter {
 
             var endretFelter = del.getEndredeFelt().stream()
                 .sorted(Comparator.comparing(HistorikkV2Adapter::sortering))
-                .map(HistorikkV2Adapter::fraEndretFeltMalType10)
+                .map(HistorikkV2Adapter::fraEndretFelt)
                 .toList();
 
             var begrunnelsetekst = begrunnelseFraDel(del).stream().toList();
@@ -292,16 +283,8 @@ public class HistorikkV2Adapter {
     private static List<String> fraEndretFeltMalType9Tilbakekr(HistorikkinnslagDel del) {
         return del.getEndredeFelt().stream()
             .filter(felt -> !TilbakekrevingVidereBehandling.INNTREKK.getKode().equals(felt.getTilVerdi()))
-            .map(HistorikkV2Adapter::fraEndretFeltMalType9Tilbakekr)
+            .map(HistorikkV2Adapter::fraEndretFelt)
             .toList();
-    }
-
-    private static String fraEndretFeltMalType9Tilbakekr(HistorikkinnslagFelt felt) {
-        var fieldName = kodeverdiTilStreng(HistorikkEndretFeltType.fraKode(felt.getNavn()), felt.getNavnVerdi());
-        var verdi = finnEndretFeltVerdi(felt, felt.getTilVerdi());
-        return "__{felt}__ er satt til __{verdi}__"
-            .replace("{felt}", fieldName)
-            .replace("{verdi}", verdi);
     }
 
     private static List<String> fraEndretFeltMalType9(Historikkinnslag h, HistorikkinnslagDel del) {
@@ -358,47 +341,13 @@ public class HistorikkV2Adapter {
 
 
         if (felt.getFraVerdi() == null) {
-            return String.format("Perioden __%s- %s__ er avklart til __%s__", periodeFom, periodeTom, tilVerdiNavn);
+            return String.format("Perioden __%s - %s__ er avklart til __%s__", periodeFom, periodeTom, tilVerdiNavn);
         } else {
             var fraVerdi = FeltType.valueOf(felt.getFraVerdiKode()).getText();
             return String.format("Perioden __%s - %s__ er endret fra %s til __%s__", periodeFom, periodeTom, fraVerdi, tilVerdiNavn);
         }
     }
 
-    private static String fraEndretFeltMalType10(HistorikkinnslagFelt felt) {
-        var fieldName = kodeverdiTilStreng(HistorikkEndretFeltType.fraKode(felt.getNavn()), felt.getNavnVerdi());
-
-        return historikkFraTilVerdi(felt, fieldName);
-    }
-
-    private static String historikkFraTilVerdi(HistorikkinnslagFelt felt, String fieldName) {
-        var fraVerdi = finnEndretFeltVerdi(felt, felt.getFraVerdi());
-        var tilVerdi = finnEndretFeltVerdi(felt, felt.getTilVerdi());
-        var tekstMeldingTil = String.format("__%s__ er satt til __%s__", fieldName, tilVerdi);
-        var tekstMeldingEndretFraTil = String.format("__%s__ er endret fra %s til __%s__", fieldName, fraVerdi, tilVerdi);
-        var tekst = fraVerdi != null ? tekstMeldingEndretFraTil : tekstMeldingTil;
-
-        if (HistorikkEndretFeltType.UTTAK_PROSENT_UTBETALING.getKode().equals(felt.getNavn()) && fraVerdi != null) {
-            tekst = String.format("__%s__ er endret fra %s %% til __%s %%__", fieldName, fraVerdi, tilVerdi);
-        } else if (HistorikkEndretFeltType.UTTAK_PROSENT_UTBETALING.getKode().equals(felt.getNavn())) {
-            tekst = String.format("__%s__ er satt til __%s%%__", fieldName, tilVerdi);
-        } else if (HistorikkEndretFeltType.UTTAK_PERIODE_RESULTAT_TYPE.getKode().equals(felt.getNavn()) && "MANUELL_BEHANDLING".equals(felt.getFraVerdi())) {
-            tekst = tekstMeldingTil;
-        } else if (HistorikkEndretFeltType.UTTAK_PERIODE_RESULTAT_ÅRSAK.getKode().equals(felt.getNavn())
-            || HistorikkEndretFeltType.UTTAK_GRADERING_AVSLAG_ÅRSAK.getKode().equals(felt.getNavn())) {
-
-            if ("_".equals(felt.getTilVerdi())) {
-                return "";
-            }
-            if ("_".equals(felt.getFraVerdi())) {
-                tekst = tekstMeldingTil;
-            }
-        } else if (HistorikkEndretFeltType.UTTAK_STØNADSKONTOTYPE.getKode().equals(felt.getNavn()) && "_".equals(felt.getFraVerdi())) {
-            tekst = tekstMeldingTil;
-        }
-
-        return tekst;
-    }
 
     private static String fraOpplysning(HistorikkinnslagFelt opplysning) {
         var historikkOpplysningType = HistorikkOpplysningType.fraKode(opplysning.getNavn());
@@ -413,47 +362,29 @@ public class HistorikkV2Adapter {
         };
     }
 
-    private static String finnEndretFeltVerdi(HistorikkinnslagFelt felt, String verdi) {
-        if (verdi == null) {
-            return null;
+    public static String fraEndretFelt(HistorikkinnslagFelt felt) {
+        var feltNavnType = FeltNavnType.getByKey(felt.getNavn());
+        var navn = kodeverdiTilStreng(feltNavnType, felt.getNavnVerdi());
+        var tilVerdi = endretFeltVerdi(feltNavnType, felt.getTilVerdi(), felt.getTilVerdiKode());
+        var fraVerdi = endretFeltVerdi(feltNavnType, felt.getFraVerdi(), felt.getFraVerdiKode());
+
+        if (fraVerdi == null) {
+            return String.format("__%s__ er satt til __%s__.", navn, tilVerdi);
         }
-        if (isBoolean(verdi)) {
+        return String.format("__%s__ er endret fra %s til __%s__", navn, fraVerdi, tilVerdi);
+    }
+
+    private static String endretFeltVerdi(FeltNavnType feltNavnType, String verdi, String verdiKode) {
+        if (verdiKode != null && !verdiKode.equals("-")) {
+            return FeltType.getByKey(verdiKode).getText();
+        }
+        if (verdi != null) {
+            if (Set.of(FeltNavnType.UTTAK_PROSENT_UTBETALING, FeltNavnType.STILLINGSPROSENT).contains(feltNavnType)) {
+                return String.format("%s%%", verdi);
+            }
             return konverterBoolean(verdi);
         }
-        if (felt.getKlTilVerdi() != null) { // TODO: Henter tilVerdi uavhengig av fra og til... sikkert vært feil i frontend alltid.. og kanskje ikke relavnt heller
-            try {
-                return kodeverdiTilStrengEndretFeltTilverdi(verdi, verdi);
-            } catch (IllegalStateException e) {
-                return String.format("EndretFeltTypeTilVerdiKode %s finnes ikke-LEGG DET INN", felt.getTilVerdiKode());
-            }
-        }
-        return verdi;
-    }
-
-    private static boolean isBoolean(String str) {
-        return "true".equalsIgnoreCase(str) || "false".equalsIgnoreCase(str);
-    }
-
-    private static String fraEndretFelt(HistorikkinnslagFelt felt) {
-        var endretFeltNavn = HistorikkEndretFeltType.fraKode(felt.getNavn());
-
-        var feltNavn = kodeverdiTilStreng(endretFeltNavn, felt.getNavnVerdi());
-
-        var tilVerdi = konverterBoolean(felt.getTilVerdi());
-        if (felt.getTilVerdi() != null && tilVerdi == null) {
-            tilVerdi = kodeverdiTilStrengEndretFeltTilverdi(felt.getTilVerdiKode(), felt.getTilVerdi());
-        }
-
-        if (felt.getFraVerdi() == null || endretFeltNavn.equals(HistorikkEndretFeltType.FORDELING_FOR_NY_ANDEL)) {
-            return String.format("__%s__ er satt til __%s__.", feltNavn, tilVerdi);
-        }
-
-        var fraVerdi = konverterBoolean(felt.getFraVerdi());
-        if (fraVerdi == null) {
-            fraVerdi = kodeverdiTilStrengEndretFeltTilverdi(felt.getFraVerdiKode(), felt.getFraVerdi());
-        }
-
-        return String.format("__%s__ endret fra %s til __%s__", feltNavn, fraVerdi, tilVerdi);
+        return null;
     }
 
     private static String konverterBoolean(String verdi) {
@@ -463,25 +394,16 @@ public class HistorikkV2Adapter {
         if ("false".equalsIgnoreCase(verdi)) {
             return "Nei";
         }
-        return null;
+        return verdi;
     }
 
-    private static String kodeverdiTilStrengEndretFeltTilverdi(String verdiKode, String verdi) {
-        if (verdiKode == null) {
-            return verdi;
-        }
-
-        return FeltType.getByKey(verdiKode).getText();
-    }
-
-    private static String kodeverdiTilStreng(HistorikkEndretFeltType endretFeltNavn, String verdi) {
-        var tekstFrontend = FeltNavnType.getByKey(endretFeltNavn.getKode()).getText();
-
+    private static String kodeverdiTilStreng(FeltNavnType feltNavnType, String navnVerdi) {
+        var tekstFrontend = feltNavnType.getText();
         if (tekstFrontend.contains("{value}")) {
-            if (verdi == null) {
-                LOG.info("historikkv2 manglende value - {} {}", endretFeltNavn, tekstFrontend);
+            if (navnVerdi == null) {
+                LOG.info("historikkv2 manglende value - {} {}", feltNavnType.getKey(), tekstFrontend);
             } else {
-                return tekstFrontend.replace("{value}", verdi);
+                return tekstFrontend.replace("{value}", navnVerdi);
             }
         }
         return tekstFrontend;

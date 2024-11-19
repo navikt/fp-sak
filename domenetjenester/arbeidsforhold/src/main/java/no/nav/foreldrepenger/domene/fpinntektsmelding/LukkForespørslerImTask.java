@@ -15,7 +15,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
 @ProsessTask(value = "fpinntektsmelding.lukkForesporsler")
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
+@FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class LukkForespørslerImTask extends GenerellProsessTask {
     public static final String SAK_NUMMER = "saksnummer";
     public static final String ORG_NUMMER = "organisasjonnummer";

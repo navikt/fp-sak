@@ -43,7 +43,7 @@ public class HistorikkDtoFellesMapper {
             .flatMap(Optional::stream)
             .toList();
         if (hendelseFelt.size() > 1) {
-            LOG.warn("Flere deler med HENDELSE-felt for historikkinnslag {} på sak {}. Er alle like? Er det noe grunn til å ha undertittler? ", h.getId(), h.getFagsakId());
+            LOG.info("Flere deler med HENDELSE-felt for historikkinnslag {} på sak {}. Er alle like? Er det noe grunn til å ha undertittler? ", h.getId(), h.getFagsakId());
         }
 
         if (hendelseFelt.isEmpty()) {
@@ -81,7 +81,10 @@ public class HistorikkDtoFellesMapper {
     }
 
     private static Optional<SkjermlenkeType> skjermlenkeFra(Historikkinnslag h) {
-        var skjermlenker = h.getHistorikkinnslagDeler().stream().flatMap(del -> del.getSkjermlenke().stream()).toList();
+        var skjermlenker = h.getHistorikkinnslagDeler().stream()
+            .flatMap(del -> del.getSkjermlenke().stream())
+            .distinct()
+            .toList();
         if (skjermlenker.size() > 1) {
             return Optional.empty();
         } else {
