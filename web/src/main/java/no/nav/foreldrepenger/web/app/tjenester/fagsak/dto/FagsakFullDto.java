@@ -8,7 +8,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
-import no.nav.foreldrepenger.historikk.dto.HistorikkinnslagDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOpprettingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.AnnenPartBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.FagsakBehandlingDto;
@@ -30,7 +29,7 @@ public record FagsakFullDto(String saksnummer,
                             List<FagsakMarkeringDto> fagsakMarkeringer,
                             List<BehandlingOpprettingDto> behandlingTypeKanOpprettes,
                             List<FagsakBehandlingDto> behandlinger,
-                            List<HistorikkinnslagDto> historikkinnslag,
+                            List<HistorikkinnslagDtoV2> historikkinnslag,
                             List<FagsakNotatDto> notater,
                             KontrollresultatDto kontrollResultat,
                             List<HistorikkinnslagDtoV2> historikkinnslagV2) {
@@ -43,7 +42,7 @@ public record FagsakFullDto(String saksnummer,
                          Collection<FagsakMarkering> fagsakMarkeringer,
                          List<BehandlingOpprettingDto> behandlingTypeKanOpprettes,
                          List<FagsakBehandlingDto> behandlinger,
-                         List<HistorikkinnslagDto> historikkinnslag,
+                         List<HistorikkinnslagDtoV2> historikkinnslag,
                          List<FagsakNotatDto> notater,
                          KontrollresultatDto kontrollResultat,
                          List<HistorikkinnslagDtoV2> historikkinnslagV2) {
