@@ -20,6 +20,11 @@ public class HistorikkinnslagTekstlinjeBuilder {
         return this;
     }
 
+    public HistorikkinnslagTekstlinjeBuilder tomLinje() {
+        stringBuilder.append(System.lineSeparator());
+        return this;
+    }
+
     public HistorikkinnslagTekstlinjeBuilder t(LocalDate dato) {
         return t(HistorikkinnslagTekstBuilderFormater.formatDate(dato));
     }
