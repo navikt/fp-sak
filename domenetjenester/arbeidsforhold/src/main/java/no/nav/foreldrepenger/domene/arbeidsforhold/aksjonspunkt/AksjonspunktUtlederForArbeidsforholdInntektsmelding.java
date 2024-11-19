@@ -11,7 +11,6 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtleder;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
@@ -20,7 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 
 @ApplicationScoped
-public class AksjonspunktUtlederForArbeidsforholdInntektsmelding implements AksjonspunktUtleder {
+public class AksjonspunktUtlederForArbeidsforholdInntektsmelding {
     private static final List<AksjonspunktResultat> INGEN_AKSJONSPUNKTER = emptyList();
     private static final Logger LOG = LoggerFactory.getLogger(AksjonspunktUtlederForArbeidsforholdInntektsmelding.class);
 
@@ -37,7 +36,6 @@ public class AksjonspunktUtlederForArbeidsforholdInntektsmelding implements Aksj
         this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
     }
 
-    @Override
     public List<AksjonspunktResultat> utledAksjonspunkterFor(AksjonspunktUtlederInput param) {
         var behandling = behandlingRepository.hentBehandling(param.getBehandlingId());
         if (SpesialBehandling.skalGrunnlagBeholdes(behandling)) {

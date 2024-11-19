@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.registerinnhenting.es;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -31,6 +32,9 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD)
 public class StartpunktTjenesteImpl implements StartpunktTjeneste {
 
+    private static final Set<StartpunktType> STARTPUNKT_FOR_ES = Set.of(StartpunktType.SØKERS_RELASJON_TIL_BARNET,
+        StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT, StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP);
+
     private Instance<StartpunktUtleder> utledere;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private InntektArbeidYtelseTjeneste iayTjeneste;
@@ -58,7 +62,7 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
         var startpunkt = utledStartpunkterES(revurdering, stp, differanse).stream()
             .min(Comparator.comparing(StartpunktType::getRangering))
             .orElse(StartpunktType.UDEFINERT);
-        return StartpunktType.inngangsVilkårStartpunkt().contains(startpunkt) ? startpunkt : StartpunktType.UDEFINERT;
+        return STARTPUNKT_FOR_ES.contains(startpunkt) ? startpunkt : StartpunktType.UDEFINERT;
     }
 
     private List<StartpunktType> utledStartpunkterES(BehandlingReferanse revurdering, Skjæringstidspunkt stp, EndringsresultatDiff differanse) {
