@@ -36,9 +36,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
@@ -304,13 +304,13 @@ public class ForvaltningUttrekkRestTjeneste {
                 "WHERE aksjonspunkt.aksjonspunktDefinisjon = :aksjonspunktDef " +
                 "AND behandling.status =:behStatus " +
                 "AND aksjonspunkt.status=:status " +
-                "AND aksjonspunkt.venteårsak = :ventAarsak",
+                "AND behandling.behandlingType = :behType",
             Behandling.class);
 
         query.setParameter("aksjonspunktDef", apDef);
         query.setParameter("behStatus", BehandlingStatus.UTREDES);
         query.setParameter("status", AksjonspunktStatus.OPPRETTET);
-        query.setParameter("ventAarsak", Venteårsak.VENT_OPDT_INNTEKTSMELDING);
+        query.setParameter("behType", BehandlingType.FØRSTEGANGSSØKNAD);
         query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         return query.getResultList();
     }
