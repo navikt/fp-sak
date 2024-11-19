@@ -118,15 +118,20 @@ public class FpInntektsmeldingTjeneste {
             return;
         }
 
+        var skjæringstidspunkt = stp.getUtledetSkjæringstidspunkt();
+        var førsteUttaksdato = stp.getFørsteUttaksdato();
         var request = new OpprettForespørselRequest(new OpprettForespørselRequest.AktørIdDto(ref.aktørId().getId()),
-            new OrganisasjonsnummerDto(ag), stp.getUtledetSkjæringstidspunkt(), mapYtelsetype(ref.fagsakYtelseType()),
-            new SaksnummerDto(ref.saksnummer().getVerdi()), stp.getFørsteUttaksdato());
+            new OrganisasjonsnummerDto(ag), skjæringstidspunkt, mapYtelsetype(ref.fagsakYtelseType()),
+            new SaksnummerDto(ref.saksnummer().getVerdi()), førsteUttaksdato);
+
         var opprettForespørselResponse = klient.opprettForespørsel(request);
+
         if (opprettForespørselResponse.forespørselResultat().equals(OpprettForespørselResponse.ForespørselResultat.FORESPØRSEL_OPPRETTET)) {
             lagHistorikkForForespørsel(ag, ref);
         } else {
             if (LOG.isInfoEnabled()) {
-                LOG.info("Fpinntektsmelding har allerede en åpen oppgave på saksnummer: {} og orgnummer: {}", ref.saksnummer(), tilMaskertNummer(ag));
+                LOG.info("Fpinntektsmelding har allerede oppgave på saksnummer: {} og orgnummer: {} på stp: {} og første uttaksdato: {}",
+                    ref.saksnummer(), tilMaskertNummer(ag), skjæringstidspunkt, førsteUttaksdato );
             }
         }
     }
