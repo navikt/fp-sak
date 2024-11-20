@@ -83,9 +83,9 @@ public final class FordelBeregningsgrunnlagHistorikkUtil {
             var forrigeRefusjon = endring.getGammelRefusjonPrÅr();
             if (!endring.getNyTotalRefusjonPrÅr().equals(forrigeRefusjon)) {
 
-                return new HistorikkinnslagTekstlinjeBuilder().b(HistorikkEndretFeltType.NYTT_REFUSJONSKRAV.getNavn())
-                        .t("endret fra " + BigDecimal.valueOf(forrigeRefusjon) + " til ")
-                        .b(formatString(endring.getNyTotalRefusjonPrÅr()));
+                return new HistorikkinnslagTekstlinjeBuilder().bold(HistorikkEndretFeltType.NYTT_REFUSJONSKRAV.getNavn())
+                        .tekst("endret fra " + BigDecimal.valueOf(forrigeRefusjon) + " til ")
+                        .bold(formatString(endring.getNyTotalRefusjonPrÅr()));
             }
         }
         return null;
@@ -94,11 +94,11 @@ public final class FordelBeregningsgrunnlagHistorikkUtil {
     private static HistorikkinnslagTekstlinjeBuilder gjeldendeFraTekstlinje(HistorikkEndretFeltType endretFeltType,
                                                                             String arbeidsforholdInfo,
                                                                             LocalDate dato) {
-        var tekstNyFordeling = new HistorikkinnslagTekstlinjeBuilder().t("Ny fordeling").b(arbeidsforholdInfo);
-        var tekstNyAktivitet = new HistorikkinnslagTekstlinjeBuilder().t("Det er lagt til ny aktivitet for").b(arbeidsforholdInfo);
+        var tekstNyFordeling = new HistorikkinnslagTekstlinjeBuilder().tekst("Ny fordeling").bold(arbeidsforholdInfo);
+        var tekstNyAktivitet = new HistorikkinnslagTekstlinjeBuilder().tekst("Det er lagt til ny aktivitet for").bold(arbeidsforholdInfo);
         var endretFeltTekst = HistorikkEndretFeltType.NY_FORDELING.equals(endretFeltType) ? tekstNyFordeling : tekstNyAktivitet;
 
-        return endretFeltTekst.t(HistorikkinnslagFeltType.GJELDENDE_FRA.getNavn()).b(formatDate(dato));
+        return endretFeltTekst.tekst(HistorikkinnslagFeltType.GJELDENDE_FRA.getNavn()).bold(formatDate(dato));
     }
 
 
