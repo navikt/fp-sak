@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -7,21 +9,22 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = VurderSøknadsfristDto.class, adapter = AksjonspunktOppdaterer.class)
 public class VurderSøknadsfristOppdaterer implements AksjonspunktOppdaterer<VurderSøknadsfristDto> {
 
-    private HistorikkTjenesteAdapter historikkAdapter;
+    private Historikkinnslag2Repository historikkinnslag2Repository;
     private SøknadRepository søknadRepository;
     private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
 
@@ -29,9 +32,8 @@ public class VurderSøknadsfristOppdaterer implements AksjonspunktOppdaterer<Vur
     }
 
     @Inject
-    public VurderSøknadsfristOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
-                                        BehandlingRepositoryProvider repositoryProvider) {
-        this.historikkAdapter = historikkAdapter;
+    public VurderSøknadsfristOppdaterer(Historikkinnslag2Repository historikkinnslag2Repository, BehandlingRepositoryProvider repositoryProvider) {
+        this.historikkinnslag2Repository = historikkinnslag2Repository;
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.uttaksperiodegrenseRepository = repositoryProvider.getUttaksperiodegrenseRepository();
     }
@@ -41,24 +43,21 @@ public class VurderSøknadsfristOppdaterer implements AksjonspunktOppdaterer<Vur
         var behandlingId = param.getBehandlingId();
         var søknad = søknadRepository.hentSøknad(behandlingId);
 
-        opprettHistorikkinnslag(dto, param, søknad);
+        var historikkinnslag = lagHistorikkinnslag(dto, param, søknad);
+        historikkinnslag2Repository.lagre(historikkinnslag);
         lagreResultat(behandlingId, dto, søknad);
-
         return OppdateringResultat.utenOverhopp();
     }
 
-    private void lagreResultat(Long behandlingId, VurderSøknadsfristDto dto, SøknadEntitet søknad) {
-        var mottattDato = dto.harGyldigGrunn() ? dto.getAnsesMottattDato() : søknad.getMottattDato();
-        var uttaksperiodegrense = new Uttaksperiodegrense(mottattDato);
-        uttaksperiodegrenseRepository.lagre(behandlingId, uttaksperiodegrense);
-    }
-
-    private void opprettHistorikkinnslag(VurderSøknadsfristDto dto, AksjonspunktOppdaterParameter param, SøknadEntitet søknad) {
-        var tekstBuilder = historikkAdapter.tekstBuilder()
-            .medSkjermlenke(SkjermlenkeType.SOEKNADSFRIST)
-            .medEndretFelt(HistorikkEndretFeltType.SOKNADSFRIST, null,
-                dto.harGyldigGrunn() ? HistorikkEndretFeltVerdiType.HAR_GYLDIG_GRUNN : HistorikkEndretFeltVerdiType.HAR_IKKE_GYLDIG_GRUNN)
-            .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret());
+    private Historikkinnslag2 lagHistorikkinnslag(VurderSøknadsfristDto dto, AksjonspunktOppdaterParameter param, SøknadEntitet søknad) {
+        var builder = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medBehandlingId(param.getBehandlingId())
+            .medFagsakId(param.getRef().fagsakId())
+            .medTittel(SkjermlenkeType.SOEKNADSFRIST)
+            .addTekstlinje(fraTilEquals("Søknadsfrist", null,  dto.harGyldigGrunn()
+                ? HistorikkEndretFeltVerdiType.HAR_GYLDIG_GRUNN.getNavn()
+                : HistorikkEndretFeltVerdiType.HAR_IKKE_GYLDIG_GRUNN.getNavn()))
+            .addTekstlinje(dto.getBegrunnelse());
 
         if (dto.harGyldigGrunn()) {
             var uttaksperiodegrense = uttaksperiodegrenseRepository.hent(param.getBehandlingId());
@@ -67,8 +66,15 @@ public class VurderSøknadsfristOppdaterer implements AksjonspunktOppdaterer<Vur
             var dtoMottattDato = dto.getAnsesMottattDato();
 
             if (!dtoMottattDato.equals(tidligereAnseesMottattDato)) {
-                tekstBuilder.medEndretFelt(HistorikkEndretFeltType.MOTTATT_DATO, tidligereAnseesMottattDato, dtoMottattDato);
+                builder.addTekstlinje(fraTilEquals("Mottatt dato", tidligereAnseesMottattDato, dtoMottattDato));
             }
         }
+        return builder.build();
+    }
+
+    private void lagreResultat(Long behandlingId, VurderSøknadsfristDto dto, SøknadEntitet søknad) {
+        var mottattDato = dto.harGyldigGrunn() ? dto.getAnsesMottattDato() : søknad.getMottattDato();
+        var uttaksperiodegrense = new Uttaksperiodegrense(mottattDato);
+        uttaksperiodegrenseRepository.lagre(behandlingId, uttaksperiodegrense);
     }
 }
