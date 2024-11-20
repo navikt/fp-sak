@@ -106,14 +106,13 @@ public class FagsakFullTjeneste {
         var behandlinger = behandlingDtoTjeneste.lagBehandlingDtoer(behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId()));
         var dokumentPath = HistorikkRequestPath.getRequestPath(request);
         var historikk = historikkV2Tjeneste.hentForSak(saksnummer, dokumentPath);
-        var historikkV2 = historikkV2Tjeneste.hentForSak(saksnummer, dokumentPath);
         var notater = fagsakRepository.hentFagsakNotater(fagsak.getId()).stream().map(FagsakNotatDto::fraNotat).toList();
         var ferskesteKontrollresultatBehandling = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsak.getId(),
                 BehandlingType.FØRSTEGANGSSØKNAD)
             .flatMap(førsteBeh -> behandlinger.stream().filter(beh -> beh.getUuid().equals(førsteBeh.getUuid())).findFirst())
             .map(FagsakBehandlingDto::getKontrollResultat);
         var dto = new FagsakFullDto(fagsak, dekningsgrad, bruker, manglerAdresse, annenpart, annenpartSak, familiehendelse, fagsakMarkeringer,
-            oppretting, behandlinger, historikk, notater, ferskesteKontrollresultatBehandling.orElse(null), historikkV2);
+            oppretting, behandlinger, historikk, notater, ferskesteKontrollresultatBehandling.orElse(null), historikk);
         return Optional.of(dto);
     }
 
