@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.historikk;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstBuilderFormater.formatDate;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
@@ -27,7 +29,7 @@ public class HistorikkinnslagTekstlinjeBuilder {
     }
 
     public HistorikkinnslagTekstlinjeBuilder tekst(LocalDate dato) {
-        return tekst(HistorikkinnslagTekstBuilderFormater.formatDate(dato));
+        return tekst(formatDate(dato));
     }
 
     public HistorikkinnslagTekstlinjeBuilder fraTil(String hva, String fra, String til) {
@@ -84,6 +86,13 @@ public class HistorikkinnslagTekstlinjeBuilder {
             return null;
         }
         return new HistorikkinnslagTekstlinjeBuilder().fraTil(hva, fra, til);
+    }
+
+    public static HistorikkinnslagTekstlinjeBuilder fraTilEquals(String hva, LocalDate fra, LocalDate til) {
+        if (Objects.equals(fra, til)) {
+            return null;
+        }
+        return new HistorikkinnslagTekstlinjeBuilder().fraTil(hva, fra != null ? formatDate(fra) : null, formatDate(til));
     }
 
     public String build() {
