@@ -60,7 +60,7 @@ public class FordelBeregningsgrunnlagHistorikkKalkulusTjeneste {
             tekstlinjerBuilder = lagHistorikk(endretPeriode, korrektPeriodeFom, arbeidsforholdOverstyringer);
         }
 
-        tekstlinjerBuilder.add(new HistorikkinnslagTekstlinjeBuilder().t(dto.getBegrunnelse()));
+        tekstlinjerBuilder.add(new HistorikkinnslagTekstlinjeBuilder().tekst(dto.getBegrunnelse()));
         var historikkinnslagBuilder = FordelBeregningsgrunnlagHistorikkUtil.lagHistorikkInnslag(param, tekstlinjerBuilder);
         historikkinnslagBuilder.ifPresent(builder -> historikkinnslagRepository.lagre(builder.build()));
 

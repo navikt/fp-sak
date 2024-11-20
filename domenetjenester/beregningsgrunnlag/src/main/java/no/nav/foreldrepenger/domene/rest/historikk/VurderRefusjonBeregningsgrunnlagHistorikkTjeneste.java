@@ -75,7 +75,7 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkTjeneste {
             var forrigeRefusjonsstart = finnForrigeRefusjonsstartForArbeidsforhold(fastsattAndel, forrigeOverstyringer);
             Optional<BigDecimal> forrigeDelvisRefusjonPrÅr = forrigeRefusjonsstart.isEmpty() ? Optional.empty() : finnForrigeDelvisRefusjon(
                 fastsattAndel, forrigeRefusjonsstart.get(), forrigeBeregningsgrunnlag);
-            tekstlinjerBuilder.add(new HistorikkinnslagTekstlinjeBuilder().t(dto.getBegrunnelse()));
+            tekstlinjerBuilder.add(new HistorikkinnslagTekstlinjeBuilder().tekst(dto.getBegrunnelse()));
             tekstlinjerBuilder = leggTilArbeidsforholdHistorikkinnslag(fastsattAndel, forrigeRefusjonsstart, forrigeDelvisRefusjonPrÅr,
                 arbeidsforholdOverstyringer);
         }
