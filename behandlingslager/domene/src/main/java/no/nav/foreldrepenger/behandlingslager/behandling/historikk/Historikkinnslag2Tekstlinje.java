@@ -49,8 +49,8 @@ public class Historikkinnslag2Tekstlinje extends BaseEntitet implements IndexKey
         return tekst;
     }
 
-    public String getRekkefølgeIndeks() {
-        return rekkefølgeIndeks;
+    public int getRekkefølgeIndeks() {
+        return Integer.valueOf(rekkefølgeIndeks); //TODO: Sjekk om vi skal lage number i database istedenfor varchar.
     }
 
     void setHistorikkinnslag(Historikkinnslag2 historikkinnslag) {
