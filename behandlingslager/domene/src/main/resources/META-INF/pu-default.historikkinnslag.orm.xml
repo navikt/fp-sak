@@ -21,4 +21,5 @@
 
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2" />
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Tekstlinje" />
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2DokumentLink" />
 </entity-mappings>
