@@ -24,6 +24,7 @@ public class Historikkinnslag2 extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_HISTORIKKINNSLAG2")
     private Long id;
 
+    //TODO TFP-5554 trenger egentlig ikke fagsakId hvis vi har en behandlingId?
     @Column(name = "fagsak_id", nullable = false)
     private Long fagsakId;
 
@@ -160,8 +161,9 @@ public class Historikkinnslag2 extends BaseEntitet {
         }
 
         public Historikkinnslag2 build() {
-            for (int i = 0; i < internLinjer.size(); i++) {
-                var linje = new Historikkinnslag2Tekstlinje(internLinjer.get(i), String.valueOf(i));
+            for (var i = 0; i < internLinjer.size(); i++) {
+                var tekst = internLinjer.get(i);
+                var linje = new Historikkinnslag2Tekstlinje(sluttMedPunktum(tekst), String.valueOf(i));
                 kladd.tekstlinjer.add(linje);
                 linje.setHistorikkinnslag(kladd);
             }
@@ -169,6 +171,14 @@ public class Historikkinnslag2 extends BaseEntitet {
             var t = kladd;
             kladd = null;
             return t;
+        }
+
+        private String sluttMedPunktum(String tekst) {
+            if (tekst.isEmpty()) {
+                return tekst;
+            }
+            var sisteTegn = tekst.charAt(tekst.length() - 1);
+            return sisteTegn == '.' ? tekst : tekst + '.';
         }
 
         public int antallLagtTilLinjer() {

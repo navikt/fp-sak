@@ -62,11 +62,6 @@ public class HistorikkinnslagTekstlinjeBuilder {
         return fraTil(hva, fraTekst, tilTekst);
     }
 
-    public HistorikkinnslagTekstlinjeBuilder p() {
-        stringBuilder.append(".");
-        return this;
-    }
-
     public static HistorikkinnslagTekstlinjeBuilder fraTilEquals(String hva, Kodeverdi fra, Kodeverdi til) {
         if (Objects.equals(fra, til)) {
             return null;
