@@ -11,12 +11,12 @@ public class HistorikkinnslagTekstlinjeBuilder {
     private final StringBuilder stringBuilder = new StringBuilder();
     private final String LINJESKIFT = "linjeskift";
 
-    public HistorikkinnslagTekstlinjeBuilder b(String b) {
+    public HistorikkinnslagTekstlinjeBuilder bold(String b) {
         stringBuilder.append(" __").append(b).append("__");
         return this;
     }
 
-    public HistorikkinnslagTekstlinjeBuilder t(String t) {
+    public HistorikkinnslagTekstlinjeBuilder tekst(String t) {
         stringBuilder.append(" ").append(t);
         return this;
     }
@@ -26,8 +26,8 @@ public class HistorikkinnslagTekstlinjeBuilder {
         return this;
     }
 
-    public HistorikkinnslagTekstlinjeBuilder t(LocalDate dato) {
-        return t(HistorikkinnslagTekstBuilderFormater.formatDate(dato));
+    public HistorikkinnslagTekstlinjeBuilder tekst(LocalDate dato) {
+        return tekst(HistorikkinnslagTekstBuilderFormater.formatDate(dato));
     }
 
     public HistorikkinnslagTekstlinjeBuilder fraTil(String hva, String fra, String til) {
@@ -35,13 +35,13 @@ public class HistorikkinnslagTekstlinjeBuilder {
             throw new IllegalArgumentException("Like verdier " + fra);
         }
         if (fra == null) {
-            return b(hva).t("er satt til").b(til);
+            return bold(hva).tekst("er satt til").bold(til);
         }
         if (til == null) {
             //TODO tekst for at noe er fjernet. Trenger vi?
-            return b(hva).t("er fjernet");
+            return bold(hva).tekst("er fjernet");
         }
-        return b(hva).t("er endret fra").t(fra).t("til").b(til);
+        return bold(hva).tekst("er endret fra").tekst(fra).tekst("til").bold(til);
     }
 
     public HistorikkinnslagTekstlinjeBuilder fraTil(String hva, Kodeverdi fra, Kodeverdi til) {
