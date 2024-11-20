@@ -57,7 +57,7 @@ class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
 
         var behandling = scenario.getBehandling();
         // Dto
-        var dto = new AvklarAleneomsorgVurderingDto("begrunnelse");
+        var dto = new AvklarAleneomsorgVurderingDto("begrunnelse.");
         dto.setAleneomsorg(oppdatertAleneOmsorg);
         dto.setAnnenforelderHarRett(true);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
@@ -90,7 +90,7 @@ class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
 
         var behandling = scenario.getBehandling();
         // Dto
-        var dto = new AvklarAleneomsorgVurderingDto("begrunnelse");
+        var dto = new AvklarAleneomsorgVurderingDto("begrunnelse.");
         dto.setAleneomsorg(oppdatertAleneOmsorg);
         dto.setAnnenforelderHarRett(true);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
@@ -125,7 +125,7 @@ class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
 
         var behandling = scenario.getBehandling();
         // Dto
-        var dto = new AvklarAleneomsorgVurderingDto("begrunnelse");
+        var dto = new AvklarAleneomsorgVurderingDto("begrunnelse.");
         dto.setAleneomsorg(oppdatertAleneOmsorg);
         dto.setAnnenforelderHarRett(true);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
@@ -163,7 +163,7 @@ class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
 
         var behandling = scenario.getBehandling();
         // Dto
-        var dto = new AvklarAleneomsorgVurderingDto("begrunnelse");
+        var dto = new AvklarAleneomsorgVurderingDto("begrunnelse.");
         dto.setAleneomsorg(oppdatertAleneOmsorg);
         dto.setAnnenforelderHarRett(false);
         dto.setAnnenforelderMottarUføretrygd(true);
