@@ -76,7 +76,7 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         var dto = new AvklarAleneomsorgVurderingDto("begrunnelse");
         dto.setAleneomsorg(true);
         // Act
-        new BekreftAleneomsorgOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, lagMockHistory(), mock(FagsakEgenskapRepository.class))) {
+        new BekreftAleneomsorgOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, mock(FagsakEgenskapRepository.class)), repositoryProvider.getHistorikkinnslag2Repository()) {
         }.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
         var ytelseFordelingDtoOpt = tjeneste().mapFra(behandling);
         assertThat(ytelseFordelingDtoOpt).isNotNull().isNotEmpty();
@@ -89,9 +89,9 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         var behandling = opprettBehandling();
         var dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
         // Act
-        new AvklarAnnenforelderHarRettOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, lagMockHistory(),
-            mock(FagsakEgenskapRepository.class))).oppdater(dto, new AksjonspunktOppdaterParameter(
-            BehandlingReferanse.fra(behandling), dto));
+        new AvklarAnnenforelderHarRettOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, mock(FagsakEgenskapRepository.class)),
+            repositoryProvider.getHistorikkinnslag2Repository()).oppdater(dto,
+            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
         var ytelseFordelingDtoOpt = tjeneste().mapFra(behandling);
         assertThat(ytelseFordelingDtoOpt).isNotNull().isNotEmpty();
         assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder()).isNotNull();
@@ -110,12 +110,14 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         var behandling = opprettBehandling();
         var dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
         // Act
-        new AvklarAnnenforelderHarRettOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, lagMockHistory(),
-            mock(FagsakEgenskapRepository.class))).oppdater(dto, new AksjonspunktOppdaterParameter(
-            BehandlingReferanse.fra(behandling), dto));
+        new AvklarAnnenforelderHarRettOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, mock(FagsakEgenskapRepository.class)),
+            repositoryProvider.getHistorikkinnslag2Repository()).oppdater(dto,
+            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
         when(uføretrygdRepository.hentGrunnlag(anyLong())).thenReturn(Optional.of(UføretrygdGrunnlagEntitet.Builder.oppdatere(Optional.empty())
-            .medBehandlingId(behandling.getId()).medAktørIdUføretrygdet(AktørId.dummy())
-            .medRegisterUføretrygd(true, now(), now()).build()));
+            .medBehandlingId(behandling.getId())
+            .medAktørIdUføretrygdet(AktørId.dummy())
+            .medRegisterUføretrygd(true, now(), now())
+            .build()));
         var ytelseFordelingDtoOpt = tjeneste().mapFra(behandling);
         assertThat(ytelseFordelingDtoOpt).isNotNull().isNotEmpty();
         assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder()).isNotNull();
@@ -131,12 +133,14 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         var behandling = opprettBehandling();
         var dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
         // Act
-        new AvklarAnnenforelderHarRettOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, lagMockHistory(),
-            mock(FagsakEgenskapRepository.class))).oppdater(dto, new AksjonspunktOppdaterParameter(
-            BehandlingReferanse.fra(behandling), dto));
+        new AvklarAnnenforelderHarRettOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, mock(FagsakEgenskapRepository.class)),
+            repositoryProvider.getHistorikkinnslag2Repository()).oppdater(dto,
+            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
         when(uføretrygdRepository.hentGrunnlag(anyLong())).thenReturn(Optional.of(UføretrygdGrunnlagEntitet.Builder.oppdatere(Optional.empty())
-            .medBehandlingId(behandling.getId()).medAktørIdUføretrygdet(AktørId.dummy())
-            .medRegisterUføretrygd(false, null, null).build()));
+            .medBehandlingId(behandling.getId())
+            .medAktørIdUføretrygdet(AktørId.dummy())
+            .medRegisterUføretrygd(false, null, null)
+            .build()));
         var ytelseFordelingDtoOpt = tjeneste().mapFra(behandling);
         assertThat(ytelseFordelingDtoOpt).isNotNull().isNotEmpty();
         assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder()).isNotNull();
@@ -153,12 +157,14 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         var dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
         ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(behandling.getId(), false, null, true);
         // Act
-        new AvklarAnnenforelderHarRettOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, lagMockHistory(),
-            mock(FagsakEgenskapRepository.class))).oppdater(dto, new AksjonspunktOppdaterParameter(
-            BehandlingReferanse.fra(behandling), dto));
+        new AvklarAnnenforelderHarRettOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, mock(FagsakEgenskapRepository.class)),
+            repositoryProvider.getHistorikkinnslag2Repository()).oppdater(dto,
+            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
         when(uføretrygdRepository.hentGrunnlag(anyLong())).thenReturn(Optional.of(UføretrygdGrunnlagEntitet.Builder.oppdatere(Optional.empty())
-            .medBehandlingId(behandling.getId()).medAktørIdUføretrygdet(AktørId.dummy())
-            .medRegisterUføretrygd(false, null, null).build()));
+            .medBehandlingId(behandling.getId())
+            .medAktørIdUføretrygdet(AktørId.dummy())
+            .medRegisterUføretrygd(false, null, null)
+            .build()));
 
         var ytelseFordelingDtoOpt = tjeneste().mapFra(behandling);
         assertThat(ytelseFordelingDtoOpt).isNotNull().isNotEmpty();
@@ -172,10 +178,7 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     void skal_hente_ønsker_justert_fordeling_fra_yf() {
-        var oppgittPeriode = OppgittPeriodeBuilder.ny()
-            .medPeriode(now().minusDays(10), now())
-            .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
-            .build();
+        var oppgittPeriode = OppgittPeriodeBuilder.ny().medPeriode(now().minusDays(10), now()).medPeriodeType(UttakPeriodeType.FEDREKVOTE).build();
         var fordeling = new OppgittFordelingEntitet(List.of(oppgittPeriode), true, true);
 
         var behandling = opprettBehandling(fordeling);
@@ -186,12 +189,10 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     void førsteUttaksdato_skal_være_lik_første_søkte_dag_i_endringssøknad_hvis_tidligere_enn_innvilget_vedtak() {
-        var førstegangsUttak = new UttakResultatPerioderEntitet()
-            .leggTilPeriode(new UttakResultatPeriodeEntitet.Builder(of(2023, 11, 16), of(2023, 12, 16))
-                .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
-            .build());
-        var førstegangsScenario = ScenarioFarSøkerEngangsstønad.forFødsel()
-            .medUttak(førstegangsUttak);
+        var førstegangsUttak = new UttakResultatPerioderEntitet().leggTilPeriode(
+            new UttakResultatPeriodeEntitet.Builder(of(2023, 11, 16), of(2023, 12, 16)).medResultatType(PeriodeResultatType.INNVILGET,
+                PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE).build());
+        var førstegangsScenario = ScenarioFarSøkerEngangsstønad.forFødsel().medUttak(førstegangsUttak);
         var førstegangsBehandling = førstegangsScenario.lagre(repositoryProvider);
 
         var endringssøknadFom = of(2023, 10, 10);
@@ -212,15 +213,11 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
 
     private YtelseFordelingDtoTjeneste tjeneste() {
         var dekningsgradTjeneste = new DekningsgradTjeneste(repositoryProvider.getYtelsesFordelingRepository());
-        return new YtelseFordelingDtoTjeneste(ytelseFordelingTjeneste, dekningsgradTjeneste,
-            uføretrygdRepository, uttakTjeneste);
+        return new YtelseFordelingDtoTjeneste(ytelseFordelingTjeneste, dekningsgradTjeneste, uføretrygdRepository, uttakTjeneste);
     }
 
     private Behandling opprettBehandling() {
-        var periode_1 = OppgittPeriodeBuilder.ny()
-            .medPeriode(now().minusDays(10), now())
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .build();
+        var periode_1 = OppgittPeriodeBuilder.ny().medPeriode(now().minusDays(10), now()).medPeriodeType(UttakPeriodeType.FORELDREPENGER).build();
         var periode_2 = OppgittPeriodeBuilder.ny()
             .medPeriode(now().minusDays(20), now().minusDays(11))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
@@ -233,8 +230,9 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         // Arrange
         var termindato = now().plusWeeks(16);
         var rettighet = OppgittRettighetEntitet.aleneomsorg();
-        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
-            now().minusDays(20)).medOpprinneligEndringsdato(now().minusDays(20)).build();
+        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(now().minusDays(20))
+            .medOpprinneligEndringsdato(now().minusDays(20))
+            .build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medOppgittRettighet(rettighet)
             .medAvklarteUttakDatoer(avklarteUttakDatoer)

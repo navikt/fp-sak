@@ -146,11 +146,6 @@ public class FpInntektsmeldingTjeneste {
     }
 
     private void lagHistorikkForForespørsel(BehandlingReferanse ref, String tekst) {
-        var virksomhet = arbeidsgiverTjeneste.hentVirksomhet(ag);
-
-        var agNavn = String.format("%s (%s)", virksomhet.getNavn(), virksomhet.getOrgnr());
-        var beg = String.format("Oppgave til %s om å sende inntektsmelding", agNavn);
-
         var historikkinnslag = new Historikkinnslag2.Builder()
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medTittel("Min side - arbeidsgiver")
