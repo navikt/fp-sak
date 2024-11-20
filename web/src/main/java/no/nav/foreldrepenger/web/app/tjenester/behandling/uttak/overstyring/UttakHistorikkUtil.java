@@ -144,8 +144,7 @@ public final class UttakHistorikkUtil {
             .tekst("av perioden")
             .tekst(nyPeriode.getFom())
             .tekst("-")
-            .tekst(nyPeriode.getTom())
-            .p();
+            .tekst(nyPeriode.getTom());
     }
 
     private List<HistorikkinnslagTekstlinjeBuilder> lagHistorikkinnslagTekstForOppholdsperiode(List<ForeldrepengerUttakPeriode> gjeldende,

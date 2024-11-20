@@ -56,7 +56,7 @@ class UttakHistorikkUtilTest {
         assertThat(innslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         assertThat(innslag.getTekstlinjer()).hasSize(3);
         assertThat(innslag.getTekstlinjer().get(0).getTekst()).contains("__Overstyrt vurdering__ av perioden");
-        assertThat(innslag.getTekstlinjer().get(1).getTekst()).isEqualTo("__Resultatet__ er endret fra Til manuell behandling til __Innvilget__");
+        assertThat(innslag.getTekstlinjer().get(1).getTekst()).isEqualTo("__Resultatet__ er endret fra Til manuell behandling til __Innvilget__.");
         assertThat(innslag.getTekstlinjer().get(2).getTekst()).isEqualTo(perioder.get(0).getBegrunnelse());
     }
 
@@ -252,7 +252,7 @@ class UttakHistorikkUtilTest {
                 .medPeriodeResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
                 .medFlerbarnsdager(false)
                 .medSamtidigUttak(false)
-                .medBegrunnelse("abc")
+                .medBegrunnelse("abc.")
                 .build();
     }
 
