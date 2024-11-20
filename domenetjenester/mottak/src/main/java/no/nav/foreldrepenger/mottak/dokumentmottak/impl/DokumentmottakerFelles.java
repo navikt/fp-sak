@@ -1,8 +1,13 @@
 package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 
+import static java.time.temporal.TemporalAdjusters.next;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.Optional;
+import java.util.Set;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
@@ -298,13 +303,17 @@ public class DokumentmottakerFelles {
         if (søknadUtsettelseUttak == null || søknadUtsettelseUttak.utsettelseFom() == null || eksisterendeStartdatoOpt.isEmpty()) {
             return false;
         }
-        var eksisterendeStartdato = eksisterendeStartdatoOpt.orElseThrow();
+        var eksisterendeStartdato = helgTilMandag(eksisterendeStartdatoOpt.orElseThrow());
         var utsettelseFraStart = !søknadUtsettelseUttak.utsettelseFom().isAfter(eksisterendeStartdato);
         // Periodene nedenfor bør matches med InntektsmeldingTjeneste . kanInntektsmeldingBrukesForSkjæringstidspunkt()
         var utsettelsePeriodeAkseptert = søknadUtsettelseUttak.uttakFom() != null &&
             (YearMonth.from(søknadUtsettelseUttak.uttakFom()).equals(YearMonth.from(eksisterendeStartdato)) ||
                 søknadUtsettelseUttak.uttakFom().isBefore(eksisterendeStartdato.plusWeeks(2)));
         return utsettelseFraStart && !utsettelsePeriodeAkseptert;
+    }
+
+    private static LocalDate helgTilMandag(LocalDate dato) {
+        return Set.of(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY).contains(dato.getDayOfWeek()) ? dato.with(next(DayOfWeek.MONDAY)) : dato;
     }
 
     void opprettAnnulleringsBehandlinger(MottattDokument dokument, Fagsak fagsak) {
