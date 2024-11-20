@@ -164,7 +164,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         behandling.setStartpunkt(startpunkt);
 
         // Kopier aksjonspunkter
-        List<AksjonspunktResultat> aksjonspunktResultater = startpunkt.getRangering() <= StartpunktType.OPPTJENING.getRangering() ?
+        List<AksjonspunktResultat> aksjonspunktResultater = startpunkt.getRangering() <= StartpunktType.SØKERS_RELASJON_TIL_BARNET.getRangering() ?
             tjeneste.utledAksjonspunkterTilHøyreForStartpunkt(ref, skjæringstidspunkter, startpunkt) : List.of();
         kopierResultaterAvhengigAvStartpunkt(behandling, kontekst, skjæringstidspunkter);
 

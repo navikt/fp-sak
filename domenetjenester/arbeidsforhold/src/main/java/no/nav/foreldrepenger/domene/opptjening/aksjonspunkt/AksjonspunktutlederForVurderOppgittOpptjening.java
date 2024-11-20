@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtleder;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
@@ -42,7 +41,7 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @ApplicationScoped
-public class AksjonspunktutlederForVurderOppgittOpptjening implements AksjonspunktUtleder {
+public class AksjonspunktutlederForVurderOppgittOpptjening {
 
     private static final List<AksjonspunktResultat> INGEN_AKSJONSPUNKTER = emptyList();
     private static final Logger LOG = LoggerFactory.getLogger(AksjonspunktutlederForVurderOppgittOpptjening.class);
@@ -65,7 +64,6 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
         this.virksomhetTjeneste = virksomhetTjeneste;
     }
 
-    @Override
     public List<AksjonspunktResultat> utledAksjonspunkterFor(AksjonspunktUtlederInput param) {
 
         var behandlingId = param.getBehandlingId();
