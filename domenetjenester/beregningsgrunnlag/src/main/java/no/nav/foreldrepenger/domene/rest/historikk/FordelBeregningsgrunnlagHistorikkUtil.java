@@ -65,7 +65,7 @@ public final class FordelBeregningsgrunnlagHistorikkUtil {
         tekstlinjerBuilder.add(inntektskategoriTekstlinje(endring));
 
         tekstlinjerBuilder.removeIf(Objects::isNull);
-        tekstlinjerBuilder.add(new HistorikkinnslagTekstlinjeBuilder().tomLinje()); //FIXME Thao: LineSeparator blir lagret som null i database.
+        tekstlinjerBuilder.add(new HistorikkinnslagTekstlinjeBuilder().linjeskift());
 
         return tekstlinjerBuilder;
     }

@@ -9,6 +9,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 public class HistorikkinnslagTekstlinjeBuilder {
 
     private final StringBuilder stringBuilder = new StringBuilder();
+    private final String LINJESKIFT = "linjeskift";
 
     public HistorikkinnslagTekstlinjeBuilder b(String b) {
         stringBuilder.append(" __").append(b).append("__");
@@ -20,8 +21,8 @@ public class HistorikkinnslagTekstlinjeBuilder {
         return this;
     }
 
-    public HistorikkinnslagTekstlinjeBuilder tomLinje() {
-        stringBuilder.append(System.lineSeparator());
+    public HistorikkinnslagTekstlinjeBuilder linjeskift() {
+        stringBuilder.append(LINJESKIFT);
         return this;
     }
 
