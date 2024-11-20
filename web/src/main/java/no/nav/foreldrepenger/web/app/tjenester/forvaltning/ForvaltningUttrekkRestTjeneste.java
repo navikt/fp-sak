@@ -264,8 +264,7 @@ public class ForvaltningUttrekkRestTjeneste {
             var aksjonspunktdefinisjon = dto.getAksjonspunktDefinisjon();
             var aksjonspunktkode = aksjonspunktdefinisjon.getKode();
 
-            if (!(AksjonspunktDefinisjon.AUTO_VENT_ETTERLYST_INNTEKTSMELDING.equals(aksjonspunktdefinisjon) || AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD.equals(
-                aksjonspunktdefinisjon) || AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING.equals(aksjonspunktdefinisjon))) {
+            if (!AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING.equals(aksjonspunktdefinisjon)) {
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
 
@@ -291,26 +290,27 @@ public class ForvaltningUttrekkRestTjeneste {
     }
 
     private boolean harAksjonpunktVenterPåIm(Behandling behandling) {
-        return behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_ETTERLYST_INNTEKTSMELDING) || behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD)
-        || behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING);
+        return behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING);
     }
 
     private List<Behandling> finnBehandlingerMedAksjonspunkt(AksjonspunktDefinisjon apDef) {
 
         var query = entityManager.createQuery(
-            "SELECT behandling FROM Behandling behandling " +
-                "INNER JOIN Aksjonspunkt aksjonspunkt " +
-                "ON behandling=aksjonspunkt.behandling " +
-                "WHERE aksjonspunkt.aksjonspunktDefinisjon = :aksjonspunktDef " +
-                "AND behandling.status =:behStatus " +
-                "AND aksjonspunkt.status=:status " +
-                "AND behandling.behandlingType = :behType",
+            " SELECT behandling FROM Behandling behandling " +
+                " INNER JOIN Aksjonspunkt aksjonspunkt " +
+                " ON behandling=aksjonspunkt.behandling " +
+                " WHERE aksjonspunkt.aksjonspunktDefinisjon = :aksjonspunktDef " +
+                " AND behandling.status =:behStatus " +
+                " AND aksjonspunkt.status=:status " +
+                " AND behandling.behandlingType = :behType" +
+            " AND NOT EXISTS (select 1 from Aksjonspunkt ap2 where  ap2.behandling = behandling and ap2.aksjonspunktDefinisjon = :aksDef and ap2.status = :aksStatus)",
             Behandling.class);
-
         query.setParameter("aksjonspunktDef", apDef);
         query.setParameter("behStatus", BehandlingStatus.UTREDES);
         query.setParameter("status", AksjonspunktStatus.OPPRETTET);
         query.setParameter("behType", BehandlingType.FØRSTEGANGSSØKNAD);
+        query.setParameter("aksDef", AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT);
+        query.setParameter("aksStatus", AksjonspunktStatus.OPPRETTET);
         query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         return query.getResultList();
     }
