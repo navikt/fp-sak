@@ -159,10 +159,6 @@ public enum StartpunktType implements Kodeverdi {
         return VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.get(startpunkt);
     }
 
-    public static Set<StartpunktType> inngangsVilkårStartpunkt() {
-        return Set.of(SØKERS_RELASJON_TIL_BARNET, INNGANGSVILKÅR_OPPLYSNINGSPLIKT, INNGANGSVILKÅR_MEDLEMSKAP);
-    }
-
     public int getRangering() {
         return rangering;
     }

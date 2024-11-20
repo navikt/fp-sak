@@ -10,7 +10,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtleder;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
@@ -21,7 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 
 @ApplicationScoped
-public class AksjonspunktUtlederForArbForholdMedPermisjoner implements AksjonspunktUtleder {
+public class AksjonspunktUtlederForArbForholdMedPermisjoner {
     private static final List<AksjonspunktResultat> INGEN_AKSJONSPUNKTER = emptyList();
 
     private BehandlingRepository behandlingRepository;
@@ -41,7 +40,6 @@ public class AksjonspunktUtlederForArbForholdMedPermisjoner implements Aksjonspu
         this.søknadRepository = søknadRepository;
     }
 
-    @Override
     public List<AksjonspunktResultat> utledAksjonspunkterFor(AksjonspunktUtlederInput param) {
         var behandling = behandlingRepository.hentBehandling(param.getBehandlingId());
         if (SpesialBehandling.skalGrunnlagBeholdes(behandling)) {

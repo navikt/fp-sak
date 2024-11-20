@@ -40,7 +40,8 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @Dependent
 public class Endringskontroller {
     private static final Logger LOG = LoggerFactory.getLogger(Endringskontroller.class);
-    private static final Set<BehandlingStegType> STARTPUNKT_STEG_INNGANG_VILKÅR = StartpunktType.inngangsVilkårStartpunkt().stream().map(StartpunktType::getBehandlingSteg).collect(Collectors.toSet());
+    private static final Set<BehandlingStegType> STARTPUNKT_STEG_INNGANG_VILKÅR = Set.of(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT.getBehandlingSteg(),
+        StartpunktType.SØKERS_RELASJON_TIL_BARNET.getBehandlingSteg());
     private static final AksjonspunktDefinisjon SPESIALHÅNDTERT_AKSJONSPUNKT = AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private RegisterinnhentingHistorikkinnslagTjeneste historikkinnslagTjeneste;

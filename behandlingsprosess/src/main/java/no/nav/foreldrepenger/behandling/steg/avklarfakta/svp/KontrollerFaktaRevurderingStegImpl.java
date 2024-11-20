@@ -12,8 +12,6 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,6 +58,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilr
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
@@ -149,7 +148,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         var startpunkt = utledStartpunkt(ref, skjæringstidspunkter, behandling);
         behandling.setStartpunkt(startpunkt);
 
-        List<AksjonspunktResultat> aksjonspunktResultater = startpunkt.getRangering() <= StartpunktType.OPPTJENING.getRangering() ?
+        List<AksjonspunktResultat> aksjonspunktResultater = startpunkt.getRangering() <= StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT.getRangering() ?
             tjeneste.utledAksjonspunkterTilHøyreForStartpunkt(ref, skjæringstidspunkter, startpunkt) : List.of();
         kopierResultaterAvhengigAvStartpunkt(behandling, kontekst);
 
