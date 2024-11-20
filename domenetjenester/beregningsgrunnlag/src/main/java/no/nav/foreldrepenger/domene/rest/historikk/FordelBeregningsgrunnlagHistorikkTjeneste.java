@@ -50,7 +50,7 @@ public class FordelBeregningsgrunnlagHistorikkTjeneste {
         var arbeidsforholdOverstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId).getArbeidsforholdOverstyringer();
         List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder = new ArrayList<>();
 
-        tekstlinjerBuilder.add(new HistorikkinnslagTekstlinjeBuilder().t(dto.getBegrunnelse()));
+        tekstlinjerBuilder.add(new HistorikkinnslagTekstlinjeBuilder().tekst(dto.getBegrunnelse()));
         for (var endretPeriode : dto.getEndretBeregningsgrunnlagPerioder()) {
             var korrektPeriodeFom = FordelBeregningsgrunnlagHistorikkUtil.getKorrektPeriode(perioder, endretPeriode).getBeregningsgrunnlagPeriodeFom();
             tekstlinjerBuilder = lagHistorikk(endretPeriode, korrektPeriodeFom, arbeidsforholdOverstyringer);
