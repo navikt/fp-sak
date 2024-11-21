@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
@@ -47,14 +46,13 @@ public class BeregningsaktivitetOverstyringshåndterer extends AbstractOverstyri
         this.beregningsaktivitetHistorikkKalkulusTjeneste = beregningsaktivitetHistorikkKalkulusTjeneste;
     }
 
-    //TODO(OJR) endre til å benytte BehandlingReferanse?
     @Override
     public OppdateringResultat håndterOverstyring(OverstyrBeregningsaktiviteterDto dto, Behandling behandling,
                                                   BehandlingskontrollKontekst kontekst) {
         var ref = BehandlingReferanse.fra(behandling);
         var endringsaggregat = beregningTjeneste.overstyrBeregning(dto, ref);
         if (endringsaggregat.isPresent()) {
-            beregningsaktivitetHistorikkKalkulusTjeneste.lagHistorikk(ref.behandlingId(), dto.getBegrunnelse(), endringsaggregat.get());
+            beregningsaktivitetHistorikkKalkulusTjeneste.lagHistorikk(ref, dto.getBegrunnelse(), endringsaggregat.get());
 
         } else {
             var grunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId())
@@ -65,8 +63,7 @@ public class BeregningsaktivitetOverstyringshåndterer extends AbstractOverstyri
                 .map(BeregningsgrunnlagGrunnlagEntitet::getGjeldendeAktiviteter);
             var registerAktiviteter = grunnlag.getRegisterAktiviteter();
             var overstyrteAktiviteter = grunnlag.getGjeldendeAktiviteter();
-            beregningsaktivitetHistorikkTjeneste.lagHistorikk(behandling.getId(),
-                getHistorikkAdapter().tekstBuilder().medHendelse(HistorikkinnslagType.OVERSTYRT),
+            beregningsaktivitetHistorikkTjeneste.lagHistorikk(ref,
                 registerAktiviteter,
                 overstyrteAktiviteter,
                 dto.getBegrunnelse(),
