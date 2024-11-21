@@ -134,7 +134,12 @@ public class Historikkinnslag2 extends BaseEntitet {
 
 
         public Builder medTekstlinjer(List<HistorikkinnslagTekstlinjeBuilder> linjer) {
-            internLinjer = linjer.stream().map(HistorikkinnslagTekstlinjeBuilder::build).toList();
+            medTekstlinjerString(linjer.stream().map(HistorikkinnslagTekstlinjeBuilder::build).toList());
+            return this;
+        }
+
+        public Builder medTekstlinjerString(List<String> linjer) {
+            internLinjer = new ArrayList<>(linjer);
             return this;
         }
 
