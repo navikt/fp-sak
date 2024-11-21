@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.historikk;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstBuilderFormater.formatDate;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstBuilderFormater.formatString;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -50,6 +51,10 @@ public class HistorikkinnslagTekstlinjeBuilder {
         return fraTil(hva, fra == null ? null : fra.getNavn(), til.getNavn());
     }
 
+    public HistorikkinnslagTekstlinjeBuilder til(String hva, Number til) {
+        return fraTil(hva, null, formatString(til));
+    }
+
     public HistorikkinnslagTekstlinjeBuilder fraTil(String hva, Boolean fra, boolean til) {
         var fraTekst = fra == null ? null : fra ? "Ja" : "Nei";
         var tilTekst = til ? "Ja" : "Nei";
@@ -88,6 +93,13 @@ public class HistorikkinnslagTekstlinjeBuilder {
             return null;
         }
         return new HistorikkinnslagTekstlinjeBuilder().fraTil(hva, fra != null ? formatDate(fra) : null, formatDate(til));
+    }
+
+    public static HistorikkinnslagTekstlinjeBuilder fraTilEquals(String hva, Number fra, Number til) {
+        if (Objects.equals(fra, til)) {
+            return null;
+        }
+        return new HistorikkinnslagTekstlinjeBuilder().fraTil(hva, fra != null ? formatString(fra) : null, formatString(til));
     }
 
     public String build() {

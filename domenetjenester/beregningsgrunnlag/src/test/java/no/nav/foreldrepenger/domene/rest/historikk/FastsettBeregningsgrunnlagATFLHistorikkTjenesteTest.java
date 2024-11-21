@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.domene.rest.historikk;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -18,10 +18,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -40,8 +41,6 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBeregningsgrunnlagATFLDto;
 import no.nav.foreldrepenger.domene.rest.dto.InntektPrAndelDto;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ExtendWith(JpaExtension.class)
 class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
@@ -54,11 +53,10 @@ class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
 
-    private final HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
     private final VirksomhetTjeneste virksomhetTjeneste = mock(VirksomhetTjeneste.class);
 
     private final InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = mock(InntektArbeidYtelseTjeneste.class);
-
+    private final Historikkinnslag2Repository historikkRepo = mock(Historikkinnslag2Repository.class);
     private FastsettBeregningsgrunnlagATFLHistorikkTjeneste fastsettBeregningsgrunnlagATFLHistorikkTjeneste;
 
     private Behandling behandling;
@@ -71,8 +69,7 @@ class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
             new ArbeidsgiverTjeneste(null, virksomhetTjeneste));
         when(inntektArbeidYtelseTjeneste.hentGrunnlag(anyLong())).thenReturn(
             InntektArbeidYtelseGrunnlagBuilder.nytt().build());
-        fastsettBeregningsgrunnlagATFLHistorikkTjeneste = new FastsettBeregningsgrunnlagATFLHistorikkTjeneste(
-            lagMockHistory(), arbeidsgiverHistorikkinnslagTjeneste, inntektArbeidYtelseTjeneste);
+        fastsettBeregningsgrunnlagATFLHistorikkTjeneste = new FastsettBeregningsgrunnlagATFLHistorikkTjeneste(arbeidsgiverHistorikkinnslagTjeneste, inntektArbeidYtelseTjeneste, historikkRepo);
         virk = new Virksomhet.Builder().medOrgnr(NAV_ORGNR).medNavn("AF1").build();
         when(virksomhetTjeneste.hentOrganisasjon(NAV_ORGNR)).thenReturn(Virksomhet.getBuilder().medOrgnr(NAV_ORGNR).medNavn("AF1").build());
     }
@@ -87,26 +84,21 @@ class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
             Collections.singletonList(new InntektPrAndelDto(OVERSTYRT_PR_AR, 1L)), null);
 
         // Act
+        var ref = BehandlingReferanse.fra(behandling);
         fastsettBeregningsgrunnlagATFLHistorikkTjeneste.lagHistorikk(
-            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto), dto, bg);
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-        var historikkInnslag = tekstBuilder.build(historikkinnslag);
+            new AksjonspunktOppdaterParameter(ref, dto), dto, bg);
 
         // Assert
-        assertThat(historikkInnslag).hasSize(1);
-
-        var del = historikkInnslag.get(0);
-        var feltList = del.getEndredeFelt();
-        assertThat(feltList).hasSize(1);
-        assertThat(feltList.get(0)).satisfies(felt -> {
-            assertThat(felt.getNavn()).as("navn")
-                .isEqualTo(HistorikkEndretFeltType.INNTEKT_FRA_ARBEIDSFORHOLD.getKode());
-            assertThat(felt.getFraVerdi()).as("fraVerdi").isNull();
-            assertThat(felt.getTilVerdi()).as("tilVerdi").isEqualTo("200000");
-        });
-        assertThat(del.getBegrunnelse()).hasValueSatisfying(
-            begrunnelse -> assertThat(begrunnelse).isEqualTo("begrunnelse"));
+        var builder = new Historikkinnslag2.Builder();
+        var historikk = builder.medTittel(SkjermlenkeType.BEREGNING_FORELDREPENGER)
+            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medBehandlingId(ref.behandlingId())
+            .medFagsakId(ref.fagsakId())
+            .addTekstlinje("Grunnlag for beregnet årsinntekt")
+            .addTekstlinje("__Inntekt fra AF1 (889640782) ...050d__ er satt til __200000__")
+            .addTekstlinje("begrunnelse")
+            .build();
+        verify(historikkRepo).lagre(historikk);
     }
 
     @Test
@@ -118,31 +110,21 @@ class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
         var dto = new FastsettBeregningsgrunnlagATFLDto("begrunnelse", FRILANSER_INNTEKT);
 
         // Act
+        var ref = BehandlingReferanse.fra(behandling);
         fastsettBeregningsgrunnlagATFLHistorikkTjeneste.lagHistorikk(
-            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto), dto, bg);
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-        var historikkInnslag = tekstBuilder.build(historikkinnslag);
+            new AksjonspunktOppdaterParameter(ref, dto), dto, bg);
 
         // Assert
-        assertThat(historikkInnslag).hasSize(1);
+        var builder = new Historikkinnslag2.Builder();
+        var historikk = builder.medTittel(SkjermlenkeType.BEREGNING_FORELDREPENGER)
+            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medBehandlingId(ref.behandlingId())
+            .medFagsakId(ref.fagsakId())
+            .addTekstlinje("Grunnlag for beregnet årsinntekt")
+            .addTekstlinje("__Frilansinntekt__ er satt til __4000__")
+            .addTekstlinje("begrunnelse")
+            .build();
 
-        var del = historikkInnslag.get(0);
-        var feltList = del.getEndredeFelt();
-        assertThat(feltList).hasSize(1);
-        assertThat(feltList.get(0)).satisfies(felt -> {
-            assertThat(felt.getNavn()).as("navn").isEqualTo(HistorikkEndretFeltType.FRILANS_INNTEKT.getKode());
-            assertThat(felt.getFraVerdi()).as("fraVerdi").isNull();
-            assertThat(felt.getTilVerdi()).as("tilVerdi").isEqualTo("4000");
-        });
-        assertThat(del.getBegrunnelse()).hasValueSatisfying(
-            begrunnelse -> assertThat(begrunnelse).isEqualTo("begrunnelse"));
-    }
-
-    private HistorikkTjenesteAdapter lagMockHistory() {
-        var mockHistory = mock(HistorikkTjenesteAdapter.class);
-        when(mockHistory.tekstBuilder()).thenReturn(tekstBuilder);
-        return mockHistory;
     }
 
     private BeregningsgrunnlagEntitet buildOgLagreBeregningsgrunnlag(boolean erFrilans) {
