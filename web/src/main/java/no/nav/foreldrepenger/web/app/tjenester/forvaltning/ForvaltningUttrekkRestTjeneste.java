@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -303,12 +304,14 @@ public class ForvaltningUttrekkRestTjeneste {
                 " AND behandling.status =:behStatus " +
                 " AND aksjonspunkt.status=:status " +
                 " AND behandling.behandlingType = :behType" +
-            " AND NOT EXISTS (select 1 from Aksjonspunkt ap2 where  ap2.behandling = behandling and ap2.aksjonspunktDefinisjon = :aksDef and ap2.status = :aksStatus)",
+                " AND aksjonspunkt.opprettetTidspunkt > :datoMedTid" +
+            " AND EXISTS (select 1 from Aksjonspunkt ap2 where  ap2.behandling = behandling and ap2.aksjonspunktDefinisjon = :aksDef and ap2.status = :aksStatus)",
             Behandling.class);
         query.setParameter("aksjonspunktDef", apDef);
         query.setParameter("behStatus", BehandlingStatus.UTREDES);
         query.setParameter("status", AksjonspunktStatus.OPPRETTET);
         query.setParameter("behType", BehandlingType.FØRSTEGANGSSØKNAD);
+        query.setParameter("datoMedTid", LocalDateTime.of(LocalDate.of(2024, 3, 31), LocalTime.MAX));
         query.setParameter("aksDef", AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT);
         query.setParameter("aksStatus", AksjonspunktStatus.OPPRETTET);
         query.setHint(HibernateHints.HINT_READ_ONLY, "true");
