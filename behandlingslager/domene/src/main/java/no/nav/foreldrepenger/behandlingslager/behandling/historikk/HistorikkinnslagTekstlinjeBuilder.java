@@ -75,6 +75,10 @@ public class HistorikkinnslagTekstlinjeBuilder {
         return fraTil(hva, fraTekst, tilTekst);
     }
 
+    public HistorikkinnslagTekstlinjeBuilder fraTil(String hva, LocalDate fra, LocalDate til) {
+        return fraTil(hva, fra != null ? formatDate(fra) : null, formatDate(til));
+    }
+
     public static HistorikkinnslagTekstlinjeBuilder fraTilEquals(String hva, Kodeverdi fra, Kodeverdi til) {
         if (Objects.equals(fra, til)) {
             return null;
