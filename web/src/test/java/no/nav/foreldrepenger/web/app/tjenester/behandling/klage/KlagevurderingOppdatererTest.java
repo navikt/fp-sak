@@ -23,9 +23,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
@@ -99,15 +96,11 @@ class KlagevurderingOppdatererTest {
         assertThat(dokumentBestilling.fritekst()).isNull();
 
         // Verifiserer HistorikkinnslagDto
-        var historikkCapture = ArgumentCaptor.forClass(Historikkinnslag.class);
-        verify(historikkApplikasjonTjeneste).lagInnslag(historikkCapture.capture());
-        var historikkinnslag = historikkCapture.getValue();
-        assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.KLAGE_BEH_NFP);
+        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
+        assertThat(historikkinnslag.getSkjermlenke()).isEqualTo(SkjermlenkeType.KLAGE_BEH_NFP);
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
-        var del = historikkinnslag.getHistorikkinnslagDeler().get(0);
-        assertThat(del.getSkjermlenke()).as("skjermlenke")
-                .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.KLAGE_BEH_NFP.getKode()));
-        assertThat(del.getEndretFelt(HistorikkEndretFeltType.KLAGE_RESULTAT_NFP)).isNotNull();
+        var tekstlinje = historikkinnslag.getTekstlinjer().get(0).getTekst();
+        assertThat(tekstlinje).contains("Resultat");
 
         // Verifiserer at behandlende enhet er byttet til Nav klageinstans
         var enhetCapture = ArgumentCaptor.forClass(OrganisasjonsEnhet.class);
@@ -126,7 +119,8 @@ class KlagevurderingOppdatererTest {
         var klageVurderingTjeneste = new KlageVurderingTjeneste(dokumentBestillerTjeneste, Mockito.mock(DokumentBehandlingTjeneste.class),
             prosesseringAsynkTjeneste, behandlingRepository, klageRepository, behandlingskontrollTjeneste,
             repositoryProvider.getBehandlingsresultatRepository(), mock(BehandlingEventPubliserer.class));
-        var klageHistorikk = new KlageHistorikkinnslag(historikkApplikasjonTjeneste, behandlingRepository, repositoryProvider.getBehandlingVedtakRepository(), mock(FptilbakeRestKlient.class));
+        var klageHistorikk = new KlageHistorikkinnslag(historikkApplikasjonTjeneste, repositoryProvider.getHistorikkinnslag2Repository(),
+            behandlingRepository, repositoryProvider.getBehandlingVedtakRepository(), mock(FptilbakeRestKlient.class));
         return new KlagevurderingOppdaterer(klageHistorikk, behandlingsutredningTjeneste, mock(BehandlingskontrollTjeneste.class), klageVurderingTjeneste,
             behandlingRepository);
     }

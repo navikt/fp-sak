@@ -55,6 +55,14 @@ public class HistorikkinnslagTekstlinjeBuilder {
         return fraTil(hva, null, formatString(til));
     }
 
+    public HistorikkinnslagTekstlinjeBuilder til(String hva, Kodeverdi til) {
+        return fraTil(hva, null, til);
+    }
+
+    public HistorikkinnslagTekstlinjeBuilder til(String hva, String til) {
+        return fraTil(hva, null, til);
+    }
+
     public HistorikkinnslagTekstlinjeBuilder fraTil(String hva, Boolean fra, boolean til) {
         var fraTekst = fra == null ? null : fra ? "Ja" : "Nei";
         var tilTekst = til ? "Ja" : "Nei";
