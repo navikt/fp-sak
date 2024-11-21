@@ -93,6 +93,7 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
                 .oppdater(behandlingId, aktørId, bekreftOpptjeningPerioder, skjæringstidspunkt);
 
         if (!bekreftOpptjeningPerioder.isEmpty()) { // erEndret tok ikke hensyn til om disse var like de gamle
+            var fagsakId = param.getRef().fagsakId();
             for (var bekreftetAktivitet : bekreftOpptjeningPerioder) {
                 var aktivitetNavn = OpptjeningAktivitetType.ARBEID.equals(bekreftetAktivitet.getAktivitetType())
                     ? bekreftetAktivitet.getArbeidsgiverNavn()
@@ -103,7 +104,7 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
                 var tilVerdi = finnTilVerdi(bekreftetAktivitet, periode);
                 var historikkinnslag = new Historikkinnslag2.Builder()
                     .medAktør(HistorikkAktør.SAKSBEHANDLER)
-                    .medFagsakId(param.getRef().fagsakId())
+                    .medFagsakId(fagsakId)
                     .medBehandlingId(behandlingId)
                     .medTittel(SkjermlenkeType.FAKTA_OM_OPPTJENING)
                     .addTekstlinje(fraTilEquals(String.format("Aktivitet %s", aktivitetNavn), fraVerdi, tilVerdi))
