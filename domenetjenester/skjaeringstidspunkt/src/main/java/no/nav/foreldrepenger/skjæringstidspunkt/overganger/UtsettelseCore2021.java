@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 public class UtsettelseCore2021 {
 
     private static final Period SENESTE_UTTAK_FØR_TERMIN = Period.ofWeeks(3);
-    public static final boolean DEFAULT_KREVER_SAMMENHENGENDE_UTTAK = false;
 
     public static final LocalDate IKRAFT_FRA_DATO = LocalDate.of(2021, Month.OCTOBER,1); // LA STÅ.
 

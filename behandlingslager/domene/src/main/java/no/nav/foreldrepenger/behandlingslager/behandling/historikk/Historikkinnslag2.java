@@ -162,7 +162,6 @@ public class Historikkinnslag2 extends BaseEntitet {
 
         public Historikkinnslag2 build() {
             Objects.requireNonNull(kladd.fagsakId);
-            Objects.requireNonNull(kladd.behandlingId);
             Objects.requireNonNull(kladd.aktør);
             if (kladd.tittel == null && kladd.skjermlenke == null) {
                 throw new NullPointerException("Forventer å enten ha tittel eller skjermlenke");
