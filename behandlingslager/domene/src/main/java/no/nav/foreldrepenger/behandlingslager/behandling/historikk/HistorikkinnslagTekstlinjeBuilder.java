@@ -92,7 +92,9 @@ public class HistorikkinnslagTekstlinjeBuilder {
         if (Objects.equals(fra, til)) {
             return null;
         }
-        return new HistorikkinnslagTekstlinjeBuilder().fraTil(hva, fra != null ? formatDate(fra) : null, formatDate(til));
+        var fraTekst = fra != null ? formatDate(fra) : null;
+        var tilTekst = til != null ? formatDate(til) : null;
+        return new HistorikkinnslagTekstlinjeBuilder().fraTil(hva, fraTekst, tilTekst);
     }
 
     public static HistorikkinnslagTekstlinjeBuilder fraTilEquals(String hva, Number fra, Number til) {
