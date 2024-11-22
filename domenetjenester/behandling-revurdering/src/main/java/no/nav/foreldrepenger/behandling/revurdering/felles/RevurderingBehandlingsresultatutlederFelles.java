@@ -124,8 +124,9 @@ public class RevurderingBehandlingsresultatutlederFelles {
         }
 
         //Opphør i løpet av uttaket, vilkår er fortsatt oppfylt
-        var opphørsdato = medlemTjeneste.hentOpphørsdatoHvisEksisterer(behandlingId);
-        if (opphørsdato.isPresent()) {
+        var opphørsdatoRevurdering = uttakRevurdering.flatMap(Uttak::opphørsdato);
+        var opphørsdatoOriginal = uttakOriginal.flatMap(Uttak::opphørsdato);
+        if (opphørsdatoRevurdering.isPresent() && !Objects.equals(opphørsdatoRevurdering, opphørsdatoOriginal)) {
             var avslagsårsak = medlemTjeneste.hentAvslagsårsak(behandlingId);
             behandlingsresultatRevurdering.setAvslagsårsak(avslagsårsak.orElse(null));
             return opphør(revurdering, behandlingsresultatRevurdering);
