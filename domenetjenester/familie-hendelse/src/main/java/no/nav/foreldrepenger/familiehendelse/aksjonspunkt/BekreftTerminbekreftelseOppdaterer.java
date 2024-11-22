@@ -1,11 +1,14 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+
 import java.time.LocalDate;
 import java.util.Objects;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
@@ -13,20 +16,20 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = BekreftTerminbekreftelseAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
 public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdaterer<BekreftTerminbekreftelseAksjonspunktDto> {
 
-    private BekreftTerminbekreftelseValidator bekreftTerminbekreftelseValidator;
-    private HistorikkTjenesteAdapter historikkAdapter;
+
+    private Historikkinnslag2Repository historikkinnslagRepository;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
 
@@ -35,43 +38,28 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
     }
 
     @Inject
-    public BekreftTerminbekreftelseOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
+    public BekreftTerminbekreftelseOppdaterer(Historikkinnslag2Repository historikkinnslagRepository,
                                               OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
-                                              FamilieHendelseTjeneste familieHendelseTjeneste,
-                                              BekreftTerminbekreftelseValidator bekreftTerminbekreftelseValidator) {
-        this.historikkAdapter = historikkAdapter;
-        this.bekreftTerminbekreftelseValidator = bekreftTerminbekreftelseValidator;
+                                              FamilieHendelseTjeneste familieHendelseTjeneste) {
+        this.historikkinnslagRepository = historikkinnslagRepository;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
     }
 
     @Override
     public OppdateringResultat oppdater(BekreftTerminbekreftelseAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
-        var behandlingId = param.getBehandlingId();
+        var behandlingReferanse = param.getRef();
+        var behandlingId = behandlingReferanse.behandlingId();
         var grunnlag = familieHendelseTjeneste.hentAggregat(behandlingId);
-        var forrigeFikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandlingId, param.getRef().fagsakYtelseType());
+        var forrigeFikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandlingId, behandlingReferanse.fagsakYtelseType());
 
-        var orginalTermindato = getTermindato(grunnlag);
-        var erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.TERMINDATO, orginalTermindato, dto.getTermindato());
+        var erEndret = !Objects.equals(getTermindato(grunnlag), dto.getTermindato()) ||
+            !Objects.equals(getUtstedtdato(grunnlag), dto.getUtstedtdato()) ||
+            !Objects.equals(getAntallBarnVedSøknadTerminbekreftelse(grunnlag), dto.getAntallBarn());
 
-        var orginalUtstedtDato = getUtstedtdato(grunnlag);
-        erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.UTSTEDTDATO, orginalUtstedtDato, dto.getUtstedtdato()) || erEndret;
-
-        var opprinneligAntallBarn = getAntallBarnVedSøknadTerminbekreftelse(grunnlag);
-        erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.ANTALL_BARN, opprinneligAntallBarn, dto.getAntallBarn()) || erEndret;
-
-        var kreverTotrinn = false;
-        if (erEndret || grunnlag.getOverstyrtVersjon().isPresent()) {
-            kreverTotrinn = true;
-            if (erEndret) {
-                opprettHistorikkinnslag(param, dto);
-            }
-        }  else if (grunnlag.getOverstyrtVersjon().isEmpty()) {
-            historikkAdapter.tekstBuilder()
-                .medEndretFelt(HistorikkEndretFeltType.TERMINBEKREFTELSE, null, "godkjent")
-                .medBegrunnelse(dto.getBegrunnelse())
-                .medSkjermlenke(SkjermlenkeType.FAKTA_OM_FOEDSEL);
-            historikkAdapter.opprettHistorikkInnslag(param.getBehandlingId(), HistorikkinnslagType.FAKTA_ENDRET);
+        if (erEndret || grunnlag.getOverstyrtVersjon().isEmpty()) {
+            var historikkinnslag = lagHistorikkinnslag(dto, behandlingReferanse, grunnlag, erEndret);
+            historikkinnslagRepository.lagre(historikkinnslag);
         }
 
         var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandlingId);
@@ -94,8 +82,9 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
                 .medAntallBarn(dto.getAntallBarn());
             familieHendelseTjeneste.lagreOverstyrtHendelse(behandlingId, oppdatertOverstyrtHendelse);
         }
+        var kreverTotrinn = erEndret || grunnlag.getOverstyrtVersjon().isPresent();
         var builder = OppdateringResultat.utenTransisjon().medTotrinnHvis(kreverTotrinn);
-        var sistefikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandlingId, param.getRef().fagsakYtelseType());
+        var sistefikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandlingId, behandlingReferanse.fagsakYtelseType());
         if (!Objects.equals(forrigeFikspunkt, sistefikspunkt)) {
             builder.medOppdaterGrunnlag().build();
         }
@@ -107,19 +96,28 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
         return builder.build();
     }
 
-    private void opprettHistorikkinnslag(AksjonspunktOppdaterParameter param,
-                                         BekreftTerminbekreftelseAksjonspunktDto dto) {
-        historikkAdapter.tekstBuilder()
-            .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret())
-            .medSkjermlenke(SkjermlenkeType.FAKTA_OM_FOEDSEL)
-            .medBegrunnelse(dto.getBegrunnelse())
-            .medSkjermlenke(SkjermlenkeType.FAKTA_OM_FOEDSEL);
-        historikkAdapter.opprettHistorikkInnslag(param.getBehandlingId(), finnHistorikkinnslagType(dto));
-    }
-
-    private HistorikkinnslagType finnHistorikkinnslagType(BekreftTerminbekreftelseAksjonspunktDto dto) {
-        var funnetFeil = bekreftTerminbekreftelseValidator.validerOpplysninger(dto);
-        return funnetFeil ? HistorikkinnslagType.TERMINBEKREFTELSE_UGYLDIG : HistorikkinnslagType.FAKTA_ENDRET;
+    private Historikkinnslag2 lagHistorikkinnslag(BekreftTerminbekreftelseAksjonspunktDto dto,
+                                                  BehandlingReferanse behandlingReferanse,
+                                                  FamilieHendelseGrunnlagEntitet grunnlag,
+                                                  boolean erEndret) {
+        var historikkinnslagBuilder = new Historikkinnslag2.Builder()
+            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medFagsakId(behandlingReferanse.fagsakId())
+            .medBehandlingId(behandlingReferanse.behandlingId())
+            .medTittel(SkjermlenkeType.FAKTA_OM_FOEDSEL);
+        if (erEndret) {
+            return historikkinnslagBuilder
+                .addTekstlinje(fraTilEquals("Termindato", getTermindato(grunnlag), dto.getTermindato()))
+                .addTekstlinje(fraTilEquals("Utstedtdato", getUtstedtdato(grunnlag), dto.getUtstedtdato()))
+                .addTekstlinje(fraTilEquals("Antall barn", getAntallBarnVedSøknadTerminbekreftelse(grunnlag), dto.getAntallBarn()))
+                .addTekstlinje(dto.getBegrunnelse())
+                .build();
+        } else {
+            return historikkinnslagBuilder
+                .addTekstlinje(fraTilEquals("Terminbekreftelse", null, "godkjent"))
+                .addTekstlinje(dto.getBegrunnelse())
+                .build();
+        }
     }
 
     private Integer getAntallBarnVedSøknadTerminbekreftelse(FamilieHendelseGrunnlagEntitet grunnlag) {
@@ -137,21 +135,5 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
 
     private LocalDate getUtstedtdato(FamilieHendelseGrunnlagEntitet grunnlag) {
         return getGjeldendeTerminbekreftelse(grunnlag).getUtstedtdato();
-    }
-
-    private boolean oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType, Number original, Number bekreftet) {
-        if (!Objects.equals(bekreftet, original)) {
-            historikkAdapter.tekstBuilder().medEndretFelt(historikkEndretFeltType, original, bekreftet);
-            return true;
-        }
-        return false;
-    }
-
-    private boolean oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType, LocalDate original, LocalDate bekreftet) {
-        if (!Objects.equals(bekreftet, original)) {
-            historikkAdapter.tekstBuilder().medEndretFelt(historikkEndretFeltType, original, bekreftet);
-            return true;
-        }
-        return false;
     }
 }
