@@ -1,58 +1,69 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
 import static no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder.formatString;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
 public class VurderUttakDokumentasjonHistorikkinnslagTjeneste {
 
-    private HistorikkTjenesteAdapter historikkTjenesteAdapter;
+    private Historikkinnslag2Repository historikkinnslagRepository;
 
     @Inject
-    public VurderUttakDokumentasjonHistorikkinnslagTjeneste(HistorikkTjenesteAdapter historikkTjenesteAdapter) {
-        this.historikkTjenesteAdapter = historikkTjenesteAdapter;
+    public VurderUttakDokumentasjonHistorikkinnslagTjeneste(Historikkinnslag2Repository historikkinnslagRepository) {
+        this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     VurderUttakDokumentasjonHistorikkinnslagTjeneste() {
         //CDI
     }
 
-    public void opprettHistorikkinnslag(String begrunnelse, List<OppgittPeriodeEntitet> eksisterendePerioder , List<OppgittPeriodeEntitet> nyFordeling) {
-        var builder = historikkTjenesteAdapter.tekstBuilder()
-            .medBegrunnelse(begrunnelse)
-            .medSkjermlenke(SkjermlenkeType.FAKTA_OM_UTTAK_DOKUMENTASJON);
+    public void opprettHistorikkinnslag(BehandlingReferanse ref, String begrunnelse, List<OppgittPeriodeEntitet> eksisterendePerioder , List<OppgittPeriodeEntitet> nyFordeling) {
+        var tekstlinjer = new ArrayList<HistorikkinnslagTekstlinjeBuilder>();
         for (var periode : nyFordeling) {
-            var eksisterendeInnslag = finnEksisterendePerioder(eksisterendePerioder, periode.getFom(), periode.getTom())
-                .map(OppgittPeriodeEntitet::getDokumentasjonVurdering)
-                .orElse(null);
-
-            var nyttInnslag = periode.getDokumentasjonVurdering();
-            if (nyttInnslag != null && !nyttInnslag.equals(eksisterendeInnslag)) {
-                opprettAvklaring(builder, periode, eksisterendeInnslag);
-            }
+            opprettAvklaring(eksisterendePerioder, periode).ifPresent(tekstlinjer::add);
         }
+        var historikkinnslag = new Historikkinnslag2.Builder()
+            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medFagsakId(ref.fagsakId())
+            .medBehandlingId(ref.behandlingId())
+            .medTittel(SkjermlenkeType.FAKTA_OM_UTTAK_DOKUMENTASJON)
+            .medTekstlinjer(tekstlinjer)
+            .addTekstlinje(begrunnelse)
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
-    private void opprettAvklaring(HistorikkInnslagTekstBuilder builder,
-                                  OppgittPeriodeEntitet oppdatertPeriode,
-                                  DokumentasjonVurdering eksisterendeDokumentasjonVurdering) {
-        var tekstperiode = String.format("%s - %s", formatString(oppdatertPeriode.getFom()), formatString(oppdatertPeriode.getTom()));
-        var fraVerdi = Optional.ofNullable(eksisterendeDokumentasjonVurdering).map(VurderUttakDokumentasjonHistorikkinnslagTjeneste::formaterStreng).orElse(null);
-        var nyVerdi = formaterStreng(oppdatertPeriode.getDokumentasjonVurdering());
-        builder.medEndretFelt(HistorikkEndretFeltType.UTTAKPERIODE_DOK_AVKLARING, tekstperiode, fraVerdi, nyVerdi);
+    private static Optional<HistorikkinnslagTekstlinjeBuilder> opprettAvklaring(List<OppgittPeriodeEntitet> eksisterendePerioder, OppgittPeriodeEntitet periode) {
+        var eksisterendeInnslag = finnEksisterendePerioder(eksisterendePerioder, periode.getFom(), periode.getTom())
+            .map(OppgittPeriodeEntitet::getDokumentasjonVurdering)
+            .orElse(null);
+        var nyttInnslag = periode.getDokumentasjonVurdering();
+
+        if (nyttInnslag == null || nyttInnslag.equals(eksisterendeInnslag)) {
+            return Optional.empty();
+        }
+
+        var tekstperiode = String.format("%s - %s", formatString(periode.getFom()), formatString(periode.getTom()));
+        var fraVerdi = Optional.ofNullable(eksisterendeInnslag).map(VurderUttakDokumentasjonHistorikkinnslagTjeneste::formaterStreng).orElse(null);
+        var nyVerdi = formaterStreng(nyttInnslag);
+        return Optional.ofNullable(fraTilEquals(String.format("Avklart dokumentasjon for periode %s", tekstperiode), fraVerdi, nyVerdi));
     }
 
     private static String formaterStreng(DokumentasjonVurdering dokumentasjonVurdering) {
@@ -62,7 +73,7 @@ public class VurderUttakDokumentasjonHistorikkinnslagTjeneste {
         return dokumentasjonVurdering.type().getNavn();
     }
 
-    private Optional<OppgittPeriodeEntitet> finnEksisterendePerioder(List<OppgittPeriodeEntitet> eksisterendePerioder, LocalDate fom, LocalDate tom) {
+    private static Optional<OppgittPeriodeEntitet> finnEksisterendePerioder(List<OppgittPeriodeEntitet> eksisterendePerioder, LocalDate fom, LocalDate tom) {
         return eksisterendePerioder.stream().filter(ep -> !ep.getFom().isBefore(fom) && !ep.getTom().isAfter(tom)).findFirst();
     }
 }
