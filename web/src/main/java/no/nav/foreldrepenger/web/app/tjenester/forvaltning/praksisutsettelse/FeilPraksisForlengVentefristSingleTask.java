@@ -31,8 +31,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 class FeilPraksisForlengVentefristSingleTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(FeilPraksisForlengVentefristSingleTask.class);
-//    private static final LocalDateTime NY_VENTEFRIST = LocalDate.of(2024, 12, 30).atStartOfDay();
-    private static final LocalDateTime FRIST = LocalDate.of(2024, 8, 30).atStartOfDay();
+    private static final LocalDateTime FRIST = LocalDate.of(2025, 9, 26).atStartOfDay();
     private static final List<String> OPPGAVE_TYPER = List.of(Oppgavetype.VURDER_DOKUMENT.getKode(), Oppgavetype.VURDER_KONSEKVENS_YTELSE.getKode(),
         "VURD_HENV", "VUR_SVAR", "KONT_BRUK");
 
@@ -57,7 +56,7 @@ class FeilPraksisForlengVentefristSingleTask implements ProsessTaskHandler {
             LOG.info("FeilPraksisUtsettelse: Forlenger ikke ventefrist. Behandling er avsluttet");
         } else if (!behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD)) {
             LOG.info("FeilPraksisUtsettelse: Forlenger ikke ventefrist. Mangler vent aksjonspunkt");
-        } else if (FRIST.toLocalDate().isEqual(behandling.getFristDatoBehandlingPåVent())) {
+        } else if (FRIST.toLocalDate().isBefore(behandling.getFristDatoBehandlingPåVent())) {
             LOG.info("FeilPraksisUtsettelse: Forlenger ikke ventefrist. Frist allerede forlenget");
 //        } else if (harÅpenKlageAnke(behandling)) {
 //            LOG.info("FeilPraksisUtsettelse: Forlenger ventefrist. Har klage eller anke");
