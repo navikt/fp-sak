@@ -1,16 +1,16 @@
 package no.nav.foreldrepenger.domene.rest.historikk.kalkulus;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningsgrunnlagPeriodeEndring;
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningsgrunnlagPrStatusOgAndelEndring;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 /**
  * Lager historikk for endret inntekt og inntektskategori etter oppdatering fra Kalkulus.
@@ -38,19 +38,20 @@ public class BeregningsgrunnlagVerdierHistorikkTjeneste {
         this.refusjonHistorikkTjeneste = refusjonHistorikkTjeneste;
     }
 
-    public void lagHistorikkForBeregningsgrunnlagVerdier(Long behandlingId, BeregningsgrunnlagPeriodeEndring periode,
-                                                         HistorikkInnslagTekstBuilder tekstBuilder) {
-        InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId);
-        List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer = inntektArbeidYtelseGrunnlag.getArbeidsforholdOverstyringer();
-        periode.getBeregningsgrunnlagPrStatusOgAndelEndringer()
-            .forEach(andelEndring -> lagHistorikkForAndel(tekstBuilder, arbeidsforholdOverstyringer, andelEndring));
+    public List<HistorikkinnslagTekstlinjeBuilder> lagHistorikkForBeregningsgrunnlagVerdier(Long behandlingId, BeregningsgrunnlagPeriodeEndring periode) {
+        var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId);
+        var arbeidsforholdOverstyringer = inntektArbeidYtelseGrunnlag.getArbeidsforholdOverstyringer();
+        return periode.getBeregningsgrunnlagPrStatusOgAndelEndringer().stream()
+            .flatMap(andelEndring -> lagHistorikkForAndel(arbeidsforholdOverstyringer, andelEndring).stream())
+            .toList();
     }
 
-    private void lagHistorikkForAndel(HistorikkInnslagTekstBuilder tekstBuilder, List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer, BeregningsgrunnlagPrStatusOgAndelEndring andelEndring) {
-        inntektHistorikkKalkulusTjeneste.lagHistorikkOmEndret(tekstBuilder, arbeidsforholdOverstyringer, andelEndring);
-        inntektskategoriHistorikkTjeneste.lagHistorikkOmEndret(tekstBuilder, arbeidsforholdOverstyringer, andelEndring);
-        refusjonHistorikkTjeneste.lagHistorikkOmEndret(tekstBuilder, arbeidsforholdOverstyringer, andelEndring);
-
+    private List<HistorikkinnslagTekstlinjeBuilder> lagHistorikkForAndel(List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer, BeregningsgrunnlagPrStatusOgAndelEndring andelEndring) {
+        var tekstlinjer = new ArrayList<HistorikkinnslagTekstlinjeBuilder>();
+        inntektHistorikkKalkulusTjeneste.lagHistorikkOmEndret(arbeidsforholdOverstyringer, andelEndring).ifPresent(tekstlinjer::add);
+        inntektskategoriHistorikkTjeneste.lagHistorikkOmEndret(arbeidsforholdOverstyringer, andelEndring).ifPresent(tekstlinjer::add);
+        refusjonHistorikkTjeneste.lagHistorikkOmEndret(arbeidsforholdOverstyringer, andelEndring).ifPresent(tekstlinjer::add);
+        return tekstlinjer;
     }
 
 }
