@@ -55,17 +55,6 @@ public class HistorikkTjenesteAdapter {
                 .toList();
     }
 
-    /**
-     * IKKE BRUK DENNE. Kall på tekstBuilder() for å få
-     * HistorikkInnslagTekstBuilder. Deretter opprettHistorikkInslag når ferdig
-     *
-     * @param historikkinnslag
-     */
-    @Deprecated
-    public void lagInnslag(Historikkinnslag historikkinnslag) {
-        historikkRepository.lagre(historikkinnslag);
-    }
-
     public HistorikkInnslagTekstBuilder tekstBuilder() {
         return builder;
     }
@@ -88,7 +77,7 @@ public class HistorikkTjenesteAdapter {
 
             resetBuilder();
 
-            lagInnslag(innslag);
+            historikkRepository.lagre(innslag);
         }
     }
 
