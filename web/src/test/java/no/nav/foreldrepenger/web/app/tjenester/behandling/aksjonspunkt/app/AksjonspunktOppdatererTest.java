@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrs
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
@@ -31,12 +32,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.totrinn.TotrinnReposito
 import no.nav.foreldrepenger.behandlingslager.lagretvedtak.LagretVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.impl.FatterVedtakAksjonspunkt;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.FatterVedtakAksjonspunktDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.AksjonspunktGodkjenningDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.FatterVedtakAksjonspunktOppdaterer;
@@ -62,7 +61,7 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
     private TotrinnRepository totrinnRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private VedtakTjeneste vedtakTjeneste;
-    private HistorikkTjenesteAdapter historikkAdapter;
+    private Historikkinnslag2Repository historikkinnslagRepository;
 
     @BeforeEach
     public void setup() {
@@ -79,7 +78,7 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
         var totrinnTjeneste = new TotrinnTjeneste(totrinnRepository);
         vedtakTjeneste = new VedtakTjeneste(behandlingRepository, behandlingsresultatRepository, new HistorikkRepository(em), lagretVedtakRepository,
                 totrinnTjeneste);
-        historikkAdapter = new HistorikkTjenesteAdapter(new HistorikkRepository(em), mock(DokumentArkivTjeneste.class), behandlingRepository);
+        historikkinnslagRepository = repositoryProvider.getHistorikkinnslag2Repository();
         fatterVedtakAksjonspunkt = new FatterVedtakAksjonspunkt(behandlingskontrollTjeneste, vedtakTjeneste,
                 totrinnTjeneste, mock(InntektArbeidYtelseTjeneste.class), behandlingRepository);
     }
@@ -94,7 +93,7 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
 
         var dto = new ForeslåVedtakAksjonspunktDto(BEGRUNNELSE, OVERSKRIFT, FRITEKST, true);
         var foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(
-                behandlingRepository, behandlingsresultatRepository, historikkAdapter,
+                behandlingRepository, behandlingsresultatRepository, historikkinnslagRepository,
                 vedtakTjeneste,
                 behandlingDokumentRepository);
 
@@ -125,7 +124,7 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
 
         var dto = new ForeslåVedtakAksjonspunktDto(null, null, null, false);
         var foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(
-                behandlingRepository, behandlingsresultatRepository, historikkAdapter,
+                behandlingRepository, behandlingsresultatRepository, historikkinnslagRepository,
                 vedtakTjeneste,
                 behandlingDokumentRepository);
 

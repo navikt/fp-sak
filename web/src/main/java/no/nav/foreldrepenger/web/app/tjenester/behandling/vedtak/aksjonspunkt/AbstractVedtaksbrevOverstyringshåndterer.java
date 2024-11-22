@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt;
 
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -13,18 +14,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 public abstract class AbstractVedtaksbrevOverstyringshåndterer {
 
-    private HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
+    private Historikkinnslag2Repository historikkinnslagRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private VedtakTjeneste vedtakTjeneste;
     private BehandlingDokumentRepository behandlingDokumentRepository;
@@ -32,10 +31,10 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
 
     AbstractVedtaksbrevOverstyringshåndterer(BehandlingRepository behandlingRepository,
                                              BehandlingsresultatRepository behandlingsresultatRepository,
-                                             HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
+                                             Historikkinnslag2Repository historikkinnslagRepository,
                                              VedtakTjeneste vedtakTjeneste,
                                              BehandlingDokumentRepository behandlingDokumentRepository) {
-        this.historikkApplikasjonTjeneste = historikkApplikasjonTjeneste;
+        this.historikkinnslagRepository = historikkinnslagRepository;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.vedtakTjeneste = vedtakTjeneste;
         this.behandlingDokumentRepository = behandlingDokumentRepository;
@@ -58,7 +57,7 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         } else {
             fjernFritekstBrevHvisEksisterer(param.getBehandlingId());
         }
-        opprettHistorikkinnslag(behandling, toTrinn);
+        opprettHistorikkinnslag(param.getRef(), behandling, toTrinn);
         if (toTrinn) {
             opprettAksjonspunktForFatterVedtak(behandling, builder);
             behandling.setToTrinnsBehandling();
@@ -146,28 +145,19 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
             && behandlingDokument.isPresent() && behandlingDokument.get().getVedtakFritekst() != null;
     }
 
-    private void opprettHistorikkinnslag(Behandling behandling, boolean toTrinn) {
+    private void opprettHistorikkinnslag(BehandlingReferanse ref, Behandling behandling, boolean toTrinn) {
+        var hendelseTekst = BehandlingType.INNSYN.equals(behandling.getType()) || !toTrinn
+            ? "Vedtak foreslått"
+            : "Vedtak foreslått og sendt til beslutter";
         var vedtakResultatType = vedtakTjeneste.utledVedtakResultatType(behandling);
-        var historikkInnslagType = utledHistorikkInnslag(behandling, toTrinn);
-
-        var tekstBuilder = new HistorikkInnslagTekstBuilder()
-            .medResultat(vedtakResultatType)
-            .medSkjermlenke(SkjermlenkeType.VEDTAK)
-            .medHendelse(historikkInnslagType);
-
-        var innslag = new Historikkinnslag();
-        innslag.setType(historikkInnslagType);
-        innslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
-        innslag.setBehandlingId(behandling.getId());
-        tekstBuilder.build(innslag);
-        historikkApplikasjonTjeneste.lagInnslag(innslag);
-    }
-
-    private HistorikkinnslagType utledHistorikkInnslag(Behandling behandling, boolean toTrinn) {
-        if (BehandlingType.INNSYN.equals(behandling.getType()) || !toTrinn) {
-            return HistorikkinnslagType.FORSLAG_VEDTAK_UTEN_TOTRINN;
-        }
-        return HistorikkinnslagType.FORSLAG_VEDTAK;
+        var historikkinnslag = new Historikkinnslag2.Builder()
+            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medFagsakId(ref.fagsakId())
+            .medBehandlingId(ref.behandlingId())
+            .medTittel(SkjermlenkeType.VEDTAK)
+            .addTekstlinje(String.format("%s: %s", hendelseTekst, vedtakResultatType.getNavn()))
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
     private BehandlingDokumentEntitet.Builder getBehandlingDokumentBuilder(long behandlingId) {

@@ -25,14 +25,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.mottak.registrerer.DokumentRegistrererTjeneste;
 import no.nav.foreldrepenger.mottak.registrerer.ManuellRegistreringAksjonspunktDto;
 import no.nav.foreldrepenger.søknad.v3.SøknadConstants;
@@ -48,7 +46,7 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
     private static final Logger LOG = LoggerFactory.getLogger(ManuellRegistreringOppdaterer.class);
 
     private FagsakRepository fagsakRepository;
-    private HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
+    private Historikkinnslag2Repository historikkinnslagRepository;
     private DokumentRegistrererTjeneste dokumentRegistrererTjeneste;
 
     private Instance<SøknadMapper> søknadMappere;
@@ -59,12 +57,12 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
 
     @Inject
     public ManuellRegistreringOppdaterer(BehandlingRepositoryProvider repositoryProvider,
-                                         HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
+                                         Historikkinnslag2Repository historikkinnslagRepository,
                                          DokumentRegistrererTjeneste dokumentRegistrererTjeneste,
                                          @Any Instance<SøknadMapper> søknadMappere) {
         this.søknadMappere = søknadMappere;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
-        this.historikkApplikasjonTjeneste = historikkApplikasjonTjeneste;
+        this.historikkinnslagRepository = historikkinnslagRepository;
         this.dokumentRegistrererTjeneste = dokumentRegistrererTjeneste;
     }
 
@@ -85,7 +83,7 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
             var adapter = new ManuellRegistreringAksjonspunktDto(!dto.getUfullstendigSoeknad());
             dokumentRegistrererTjeneste.aksjonspunktManuellRegistrering(behandlingReferanse, adapter)
                 .ifPresent(ad -> resultatBuilder.medEkstraAksjonspunktResultat(ad, AksjonspunktStatus.OPPRETTET));
-            lagHistorikkInnslag(behandlingId, HistorikkinnslagType.MANGELFULL_SØKNAD, null);
+            lagHistorikkInnslag(behandlingReferanse, "Mangelfull søknad", null);
             return resultatBuilder
                 .leggTilIkkeVurdertVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT)
                 .medFremoverHopp(FellesTransisjoner.FREMHOPP_TIL_KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT).build();
@@ -106,7 +104,7 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
         dokumentRegistrererTjeneste.aksjonspunktManuellRegistrering(behandlingReferanse, adapter)
             .ifPresent(ad -> resultatBuilder.medEkstraAksjonspunktResultat(ad, AksjonspunktStatus.OPPRETTET));
 
-        lagHistorikkInnslag(behandlingId, HistorikkinnslagType.REGISTRER_PAPIRSØK, dto.getKommentarEndring());
+        lagHistorikkInnslag(behandlingReferanse, "Registrer papirsøknad", dto.getKommentarEndring());
         return resultatBuilder.build();
     }
 
@@ -174,19 +172,15 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
         }
     }
 
-    private void lagHistorikkInnslag(Long behandlingId, HistorikkinnslagType innslagType, String kommentarEndring) {
-        var innslag = new Historikkinnslag();
-        var builder = new HistorikkInnslagTekstBuilder();
-
-        innslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
-        innslag.setBehandlingId(behandlingId);
-        innslag.setType(innslagType);
-        builder.medHendelse(innslagType);
-        if (kommentarEndring != null) {
-            builder.medBegrunnelse(kommentarEndring);
-        }
-        builder.build(innslag);
-        historikkApplikasjonTjeneste.lagInnslag(innslag);
+    private void lagHistorikkInnslag(BehandlingReferanse ref, String tittel, String kommentarEndring) {
+        var historikkinnslag = new Historikkinnslag2.Builder()
+            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medFagsakId(ref.fagsakId())
+            .medBehandlingId(ref.behandlingId())
+            .medTittel(tittel)
+            .addTekstlinje(kommentarEndring)
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
     public SøknadMapper finnSøknadMapper(FagsakYtelseType ytelseType, BehandlingType behandlingType) {
