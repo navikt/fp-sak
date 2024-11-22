@@ -42,15 +42,16 @@ public class VurderFaktaOmBeregningOppdaterer implements AksjonspunktOppdaterer<
 
     @Override
     public OppdateringResultat oppdater(VurderFaktaOmBeregningDto dto, AksjonspunktOppdaterParameter param) {
+        var ref = param.getRef();
         var forrigeGrunnlag = beregningsgrunnlagTjeneste
             .hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(
-                param.getBehandlingId(),
-                param.getRef().getOriginalBehandlingId(),
+                ref.behandlingId(),
+                ref.getOriginalBehandlingId(),
                 BeregningsgrunnlagTilstand.KOFAKBER_UT);
 
-        var endringsaggregat = beregningTjeneste.oppdaterBeregning(dto, param.getRef());
+        var endringsaggregat = beregningTjeneste.oppdaterBeregning(dto, ref);
         if (endringsaggregat.isPresent()) {
-            faktaOmBeregningHistorikkKalkulusTjeneste.lagHistorikk(param.getBehandlingId(), endringsaggregat.get(), dto.getBegrunnelse());
+            faktaOmBeregningHistorikkKalkulusTjeneste.lagHistorikk(ref, endringsaggregat.get(), dto.getBegrunnelse());
         } else {
             var nyttBeregningsgrunnlag = beregningsgrunnlagTjeneste
                 .hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(), BeregningsgrunnlagTilstand.KOFAKBER_UT)
