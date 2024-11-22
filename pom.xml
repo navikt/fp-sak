@@ -40,7 +40,7 @@
 
         <fp-kontrakter.version>9.1.22</fp-kontrakter.version>
         <abakus-kontrakt.version>2.1.2</abakus-kontrakt.version>
-        <kalkulus.version>0.0.7</kalkulus.version>
+        <kalkulus.version>0.0.8</kalkulus.version>
 
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
         <sonar.projectName>fp-sak</sonar.projectName>

@@ -120,7 +120,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    static Hjemmel mapHjemmel(no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel hjemmel) {
+    public static Hjemmel mapHjemmel(no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel hjemmel) {
         return switch (hjemmel) {
             case F_14_7 -> Hjemmel.F_14_7;
             case F_14_7_8_30 -> Hjemmel.F_14_7_8_30;
@@ -222,7 +222,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    static InntektskildeType mapInntektskilde(InntektsKilde inntektsKilde) {
+    public static InntektskildeType mapInntektskilde(InntektsKilde inntektsKilde) {
         return switch (inntektsKilde) {
             case UDEFINERT -> InntektskildeType.UDEFINERT;
             case INNTEKT_OPPTJENING -> InntektskildeType.INNTEKT_OPPTJENING;
@@ -233,7 +233,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    static FagsakYtelseType mapFagsakytelsetype(no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType fagsakYtelseType) {
+    public static FagsakYtelseType mapFagsakytelsetype(no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType fagsakYtelseType) {
         return switch (fagsakYtelseType) {
             case FORELDREPENGER -> FagsakYtelseType.FORELDREPENGER;
             case SVANGERSKAPSPENGER -> FagsakYtelseType.SVANGERSKAPSPENGER;
@@ -241,7 +241,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    static FaktaOmBeregningTilfelle mapFaktaBeregningTilfelle(no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle tilfelle) {
+    public static FaktaOmBeregningTilfelle mapFaktaBeregningTilfelle(no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle tilfelle) {
         return switch (tilfelle) {
             case VURDER_TIDSBEGRENSET_ARBEIDSFORHOLD -> FaktaOmBeregningTilfelle.VURDER_TIDSBEGRENSET_ARBEIDSFORHOLD;
             case VURDER_SN_NY_I_ARBEIDSLIVET -> FaktaOmBeregningTilfelle.VURDER_SN_NY_I_ARBEIDSLIVET;
@@ -266,7 +266,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    static BeregningAktivitetHandlingType mapBeregningAktivitetHandling(no.nav.foreldrepenger.domene.modell.kodeverk.BeregningAktivitetHandlingType handling) {
+    public static BeregningAktivitetHandlingType mapBeregningAktivitetHandling(no.nav.foreldrepenger.domene.modell.kodeverk.BeregningAktivitetHandlingType handling) {
         return switch (handling) {
             case BENYTT -> BeregningAktivitetHandlingType.BENYTT;
             case IKKE_BENYTT -> BeregningAktivitetHandlingType.IKKE_BENYTT;
@@ -274,7 +274,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    static BeregningsgrunnlagTilstand mapBeregningsgrunnlagTilstand(no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
+    public static BeregningsgrunnlagTilstand mapBeregningsgrunnlagTilstand(no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
         return switch (beregningsgrunnlagTilstand) {
             case OPPRETTET -> BeregningsgrunnlagTilstand.OPPRETTET;
             case FASTSATT_BEREGNINGSAKTIVITETER -> BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER;
@@ -295,7 +295,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    static InntektspostType mapInntektspostType(no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType type) {
+    public static InntektspostType mapInntektspostType(no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType type) {
         return switch (type) {
             case UDEFINERT -> InntektspostType.UDEFINERT;
             case LØNN -> InntektspostType.LØNN;
@@ -306,7 +306,7 @@ public class KodeverkTilKalkulusMapper {
             case null -> null;
         };
     }
-    static SkatteOgAvgiftsregelType mapSkatteOgAvgitsregelType(no.nav.foreldrepenger.domene.iay.modell.kodeverk.SkatteOgAvgiftsregelType type) {
+    public static SkatteOgAvgiftsregelType mapSkatteOgAvgitsregelType(no.nav.foreldrepenger.domene.iay.modell.kodeverk.SkatteOgAvgiftsregelType type) {
         return switch (type) {
             case SÆRSKILT_FRADRAG_FOR_SJØFOLK -> SkatteOgAvgiftsregelType.SÆRSKILT_FRADRAG_FOR_SJØFOLK;
             case SVALBARD -> SkatteOgAvgiftsregelType.SVALBARD;
