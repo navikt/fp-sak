@@ -55,7 +55,7 @@ public class BeregningsgrunnlagOverstyringshåndterer extends AbstractOverstyrin
         var ref = BehandlingReferanse.fra(behandling);
         var endringsaggregat = beregningTjeneste.overstyrBeregning(dto, ref);
         if (endringsaggregat.isPresent()) {
-            faktaBeregningHistorikkKalkulusTjeneste.lagHistorikk(ref.behandlingId(), endringsaggregat.get(), dto.getBegrunnelse());
+            faktaBeregningHistorikkKalkulusTjeneste.lagHistorikk(ref, endringsaggregat.get(), dto.getBegrunnelse());
         } else {
             var forrigeGrunnlag = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandling.getId(), behandling.getOriginalBehandlingId(),
                 BeregningsgrunnlagTilstand.FORESLÅTT);
