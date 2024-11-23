@@ -62,8 +62,8 @@ public final class Databaseskjemainitialisering {
                 }
                 flyway.migrate();
             } catch (FlywayException ignore) {
-                //flyway.clean();
-               // flyway.migrate();
+                flyway.clean();
+                flyway.migrate();
             }
         }
         GUARD_UNIT_TEST_SKJEMAER.compareAndSet(true, false);
