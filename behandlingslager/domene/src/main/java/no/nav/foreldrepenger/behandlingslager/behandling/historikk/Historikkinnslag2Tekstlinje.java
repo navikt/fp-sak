@@ -50,7 +50,7 @@ public class Historikkinnslag2Tekstlinje extends BaseEntitet implements IndexKey
     }
 
     public int getRekkefølgeIndeks() {
-        return Integer.valueOf(rekkefølgeIndeks); //TODO: Sjekk om vi skal lage number i database istedenfor varchar.
+        return Integer.parseInt(rekkefølgeIndeks); //TODO: TFP-5554 Sjekk om vi skal lage number i database istedenfor varchar.
     }
 
     void setHistorikkinnslag(Historikkinnslag2 historikkinnslag) {
@@ -71,8 +71,15 @@ public class Historikkinnslag2Tekstlinje extends BaseEntitet implements IndexKey
         return Objects.hash(tekst, rekkefølgeIndeks);
     }
 
+//    @Override
+//    public String toString() {
+//        return "Historikkinnslag2Tekstlinje{" + "id=" + id + ", tekst='" + "***" + '\'' + ", rekkefølgeIndeks='" + rekkefølgeIndeks + '\'' + '}';
+//    }
+
+
+    //TODO: TFP-5554 masker tekst pga fritekst i begrunnelse
     @Override
     public String toString() {
-        return "Historikkinnslag2Tekstlinje{" + "id=" + id + ", tekst='" + "***" + '\'' + ", rekkefølgeIndeks='" + rekkefølgeIndeks + '\'' + '}';
+        return "Historikkinnslag2Tekstlinje{" + "tekst='" + tekst + '\'' + ", rekkefølgeIndeks='" + rekkefølgeIndeks + '\'' + '}';
     }
 }

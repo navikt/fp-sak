@@ -36,7 +36,6 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageHistorikkinnslag;
@@ -51,8 +50,6 @@ class KlagevurderingOppdatererTest {
     private BehandlingRepositoryProvider repositoryProvider;
     @Inject
     private KlageRepository klageRepository;
-    @Mock
-    private HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
     @Mock
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
     @Mock
@@ -119,7 +116,7 @@ class KlagevurderingOppdatererTest {
         var klageVurderingTjeneste = new KlageVurderingTjeneste(dokumentBestillerTjeneste, Mockito.mock(DokumentBehandlingTjeneste.class),
             prosesseringAsynkTjeneste, behandlingRepository, klageRepository, behandlingskontrollTjeneste,
             repositoryProvider.getBehandlingsresultatRepository(), mock(BehandlingEventPubliserer.class));
-        var klageHistorikk = new KlageHistorikkinnslag(historikkApplikasjonTjeneste, repositoryProvider.getHistorikkinnslag2Repository(),
+        var klageHistorikk = new KlageHistorikkinnslag(repositoryProvider.getHistorikkinnslag2Repository(),
             behandlingRepository, repositoryProvider.getBehandlingVedtakRepository(), mock(FptilbakeRestKlient.class));
         return new KlagevurderingOppdaterer(klageHistorikk, behandlingsutredningTjeneste, mock(BehandlingskontrollTjeneste.class), klageVurderingTjeneste,
             behandlingRepository);
