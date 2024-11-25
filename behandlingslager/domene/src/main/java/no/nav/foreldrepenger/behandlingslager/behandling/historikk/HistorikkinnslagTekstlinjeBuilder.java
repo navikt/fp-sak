@@ -56,6 +56,10 @@ public class HistorikkinnslagTekstlinjeBuilder {
         return fraTil(hva, null, formatString(til));
     }
 
+    public HistorikkinnslagTekstlinjeBuilder til(String hva, LocalDate til) {
+        return fraTil(hva, null, til);
+    }
+
     public HistorikkinnslagTekstlinjeBuilder til(String hva, Kodeverdi til) {
         return fraTil(hva, null, til);
     }
