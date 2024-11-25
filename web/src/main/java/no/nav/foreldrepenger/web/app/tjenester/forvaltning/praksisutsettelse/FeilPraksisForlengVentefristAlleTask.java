@@ -33,7 +33,7 @@ class FeilPraksisForlengVentefristAlleTask implements ProsessTaskHandler {
         var behandlingIdProperty = prosessTaskData.getPropertyValue(FRA_BEHANDLING_ID);
         var fraBehandlingId = behandlingIdProperty == null ? null : Long.valueOf(behandlingIdProperty);
 
-        var behandlinger = utvalgRepository.finnNesteHundreBehandlingerSomErPåVentTilAugust(fraBehandlingId);
+        var behandlinger = utvalgRepository.finnNesteHundreBehandlingerSomErPåVentTilDesember(fraBehandlingId);
 
         behandlinger.stream().map(behandling -> opprettTaskForEnkeltSak(behandling.fagsakId(), behandling.id())).forEach(prosessTaskTjeneste::lagre);
 
