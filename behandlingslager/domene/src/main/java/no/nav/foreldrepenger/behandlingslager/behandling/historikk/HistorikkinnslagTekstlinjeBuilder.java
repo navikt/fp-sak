@@ -11,8 +11,9 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public class HistorikkinnslagTekstlinjeBuilder {
 
+    private static final String LINJESKIFT = "linjeskift";
+
     private final StringBuilder stringBuilder = new StringBuilder();
-    private final String LINJESKIFT = "linjeskift";
 
     public HistorikkinnslagTekstlinjeBuilder bold(String b) {
         stringBuilder.append(" __").append(b).append("__");
@@ -60,6 +61,10 @@ public class HistorikkinnslagTekstlinjeBuilder {
     }
 
     public HistorikkinnslagTekstlinjeBuilder til(String hva, String til) {
+        return fraTil(hva, null, til);
+    }
+
+    public HistorikkinnslagTekstlinjeBuilder til(String hva, boolean til) {
         return fraTil(hva, null, til);
     }
 
