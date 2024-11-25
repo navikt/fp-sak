@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AbstractOverstyringshåndterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
@@ -48,7 +49,7 @@ public class MedlemskapsvilkåretForutgåendeOverstyringshåndterer extends Abst
             throw new IllegalArgumentException("Utviklerfeil: Prøver overstyre forutgående medlemskap for annen ytelse enn engangsstønad");
         }
         var avslagsårsak = Avslagsårsak.fraKode(dto.getAvslagskode());
-        var utfall = medlemskapAksjonspunktFellesTjeneste.oppdaterForutgående(kontekst.getBehandlingId(), avslagsårsak, dto.getMedlemFom(),
+        var utfall = medlemskapAksjonspunktFellesTjeneste.oppdaterForutgående(BehandlingReferanse.fra(behandling), avslagsårsak, dto.getMedlemFom(),
             dto.getBegrunnelse(), SkjermlenkeType.PUNKT_FOR_MEDLEMSKAP);
         inngangsvilkårTjeneste.overstyrAksjonspunkt(kontekst.getBehandlingId(), VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE, utfall,
             avslagsårsak == null ? Avslagsårsak.UDEFINERT : avslagsårsak, kontekst);

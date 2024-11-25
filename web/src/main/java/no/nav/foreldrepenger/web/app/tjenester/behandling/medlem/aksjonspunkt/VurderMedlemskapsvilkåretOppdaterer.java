@@ -19,8 +19,7 @@ public class VurderMedlemskapsvilkåretOppdaterer implements AksjonspunktOppdate
     private MedlemskapAksjonspunktFellesTjeneste medlemskapAksjonspunktFellesTjeneste;
 
     @Inject
-    public VurderMedlemskapsvilkåretOppdaterer(
-        MedlemskapAksjonspunktFellesTjeneste medlemskapAksjonspunktFellesTjeneste) {
+    public VurderMedlemskapsvilkåretOppdaterer(MedlemskapAksjonspunktFellesTjeneste medlemskapAksjonspunktFellesTjeneste) {
         this.medlemskapAksjonspunktFellesTjeneste = medlemskapAksjonspunktFellesTjeneste;
     }
 
@@ -31,10 +30,9 @@ public class VurderMedlemskapsvilkåretOppdaterer implements AksjonspunktOppdate
     @Override
     public OppdateringResultat oppdater(VurderMedlemskapDto dto, AksjonspunktOppdaterParameter param) {
         var avslagskode = dto.getAvslagskode();
-        var behandlingId = param.getBehandlingId();
         var opphørFom = dto.getOpphørFom();
         var begrunnelse = dto.getBegrunnelse();
-        var utfall = medlemskapAksjonspunktFellesTjeneste.oppdater(behandlingId, avslagskode, opphørFom, begrunnelse,
+        var utfall = medlemskapAksjonspunktFellesTjeneste.oppdater(param.getRef(), avslagskode, opphørFom, begrunnelse,
             SkjermlenkeType.FAKTA_OM_MEDLEMSKAP);
         if (VilkårUtfallType.OPPFYLT.equals(utfall)) {
             return OppdateringResultat.utenTransisjon().leggTilManueltOppfyltVilkår(VilkårType.MEDLEMSKAPSVILKÅRET).build();

@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AbstractOverstyringshåndterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
@@ -44,8 +45,9 @@ public class MedlemskapsvilkåretOverstyringshåndterer extends AbstractOverstyr
                                                   Behandling behandling,
                                                   BehandlingskontrollKontekst kontekst) {
         var avslagsårsak = Avslagsårsak.fraKode(dto.getAvslagskode());
-        var utfall = medlemskapAksjonspunktFellesTjeneste.oppdater(kontekst.getBehandlingId(), avslagsårsak, dto.getOpphørFom(),
-            dto.getBegrunnelse(), SkjermlenkeType.PUNKT_FOR_MEDLEMSKAP);
+        var behandlingReferanse = BehandlingReferanse.fra(behandling);
+        var utfall = medlemskapAksjonspunktFellesTjeneste.oppdater(behandlingReferanse,
+            avslagsårsak, dto.getOpphørFom(), dto.getBegrunnelse(), SkjermlenkeType.PUNKT_FOR_MEDLEMSKAP);
         inngangsvilkårTjeneste.overstyrAksjonspunkt(behandling.getId(), VilkårType.MEDLEMSKAPSVILKÅRET, utfall,
             avslagsårsak == null ? Avslagsårsak.UDEFINERT : avslagsårsak, kontekst);
         if (VilkårUtfallType.OPPFYLT.equals(utfall)) {
