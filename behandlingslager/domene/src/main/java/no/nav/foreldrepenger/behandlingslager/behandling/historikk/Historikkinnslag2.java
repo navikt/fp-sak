@@ -139,7 +139,7 @@ public class Historikkinnslag2 extends BaseEntitet {
         }
 
         public Builder medTekstlinjerString(List<String> linjer) {
-            internLinjer = new ArrayList<>(linjer);
+            internLinjer = new ArrayList<>(linjer.stream().filter(Objects::nonNull).toList());
             return this;
         }
 
@@ -190,10 +190,6 @@ public class Historikkinnslag2 extends BaseEntitet {
             }
             var sisteTegn = tekst.charAt(tekst.length() - 1);
             return sisteTegn == '.' ? tekst : tekst + '.';
-        }
-
-        public int antallLagtTilLinjer() {
-            return kladd.tekstlinjer.size();
         }
     }
 }
