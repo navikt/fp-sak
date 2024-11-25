@@ -168,7 +168,7 @@ public class FeilPraksisUtsettelseRepository {
     /**
      * For å utvide ventefrist for behandlinger der bruker har tatt kontakt via gosys
      */
-    private static final String QUERY_VENTEFRIST_AUGUST = """
+    private static final String QUERY_VENTEFRIST_DESEMBER = """
         select * from (
           select distinct b.FAGSAK_ID, b.ID from fpsak.BEHANDLING b
                                                join fpsak.AKSJONSPUNKT a on a.BEHANDLING_ID = b.ID
@@ -178,15 +178,15 @@ public class FeilPraksisUtsettelseRepository {
                           and ba.BEHANDLING_ARSAK_TYPE = 'FEIL_PRAKSIS_UTSETTELSE'
                           and a.AKSJONSPUNKT_DEF = '7013'
                           and a.AKSJONSPUNKT_STATUS = 'OPPR'
-                          and a.FRIST_TID = to_date('2024-08-25', 'yyyy-mm-dd')
+                          and a.FRIST_TID = to_date('2024-12-30', 'yyyy-mm-dd')
                           and b.BEHANDLING_STATUS = 'UTRED'
                           order by b.id
         ) where ROWNUM <= 100
         """;
 
 
-    public List<BehandlingMedFagsakId> finnNesteHundreBehandlingerSomErPåVentTilAugust(Long fraBehandlingId) {
-        var query = entityManager.createNativeQuery(QUERY_VENTEFRIST_AUGUST, BehandlingMedFagsakId.class)
+    public List<BehandlingMedFagsakId> finnNesteHundreBehandlingerSomErPåVentTilDesember(Long fraBehandlingId) {
+        var query = entityManager.createNativeQuery(QUERY_VENTEFRIST_DESEMBER, BehandlingMedFagsakId.class)
             .setParameter("fraBehandlingId", fraBehandlingId == null ? 0 : fraBehandlingId)
             .setHint(HibernateHints.HINT_READ_ONLY, "true");
         return query.getResultList();
