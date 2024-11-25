@@ -22,31 +22,32 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.Histor
 public final class FordelBeregningsgrunnlagHistorikkUtil {
 
     public static Optional<Historikkinnslag2.Builder> lagHistorikkInnslag(AksjonspunktOppdaterParameter param,
-                                                                         List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder) {
+                                                                          List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder) {
         Historikkinnslag2.Builder historikkinnslagBuilder = null;
         if (!tekstlinjerBuilder.isEmpty()) {
             historikkinnslagBuilder = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
-                    .medBehandlingId(param.getBehandlingId())
-                    .medFagsakId(param.getRef().fagsakId())
-                    .medTittel(SkjermlenkeType.FAKTA_OM_FORDELING)
-                    .medTekstlinjer(tekstlinjerBuilder);
+                .medBehandlingId(param.getBehandlingId())
+                .medFagsakId(param.getRef().fagsakId())
+                .medTittel(SkjermlenkeType.FAKTA_OM_FORDELING)
+                .medTekstlinjer(tekstlinjerBuilder);
         }
         return Optional.ofNullable(historikkinnslagBuilder);
     }
 
-    public static BeregningsgrunnlagPeriode getKorrektPeriode(List<BeregningsgrunnlagPeriode> perioder, FordelBeregningsgrunnlagPeriodeDto endretPeriode) {
+    public static BeregningsgrunnlagPeriode getKorrektPeriode(List<BeregningsgrunnlagPeriode> perioder,
+                                                              FordelBeregningsgrunnlagPeriodeDto endretPeriode) {
         return perioder.stream()
-                .filter(periode -> periode.getBeregningsgrunnlagPeriodeFom().equals(endretPeriode.getFom()))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Finner ikke periode"));
+            .filter(periode -> periode.getBeregningsgrunnlagPeriodeFom().equals(endretPeriode.getFom()))
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("Finner ikke periode"));
     }
 
     public static BeregningsgrunnlagPeriodeEndring getKorrektPeriodeEndring(List<BeregningsgrunnlagPeriodeEndring> perioder,
                                                                             FordelBeregningsgrunnlagPeriodeDto endretPeriode) {
         return perioder.stream()
-                .filter(periode -> periode.getPeriode().getFom().equals(endretPeriode.getFom()))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Finner ikke periode"));
+            .filter(periode -> periode.getPeriode().getFom().equals(endretPeriode.getFom()))
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("Finner ikke periode"));
     }
 
     public static List<HistorikkinnslagTekstlinjeBuilder> leggTilArbeidsforholdHistorikkinnslag(Lønnsendring endring,
@@ -60,11 +61,10 @@ public final class FordelBeregningsgrunnlagHistorikkUtil {
         List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder = new ArrayList<>();
         tekstlinjerBuilder.add(gjeldendeFraTekstlinje(endretFeltType, arbeidsforholdInfo, korrektPeriodeFom));
         tekstlinjerBuilder.add(refusjonTekstlinje(endring));
-        tekstlinjerBuilder.add(fraTilEquals(HistorikkEndretFeltType.INNTEKT.getNavn(), formatString(endring.getGammelArbeidsinntektPrÅr()),
-                formatString(endring.getNyArbeidsinntektPrÅr())));
+        tekstlinjerBuilder.add(
+            fraTilEquals(HistorikkEndretFeltType.INNTEKT.getNavn(), endring.getGammelArbeidsinntektPrÅr(), endring.getNyArbeidsinntektPrÅr()));
         tekstlinjerBuilder.add(inntektskategoriTekstlinje(endring));
 
-        tekstlinjerBuilder.removeIf(Objects::isNull);
         tekstlinjerBuilder.add(new HistorikkinnslagTekstlinjeBuilder().linjeskift());
 
         return tekstlinjerBuilder;
@@ -84,8 +84,8 @@ public final class FordelBeregningsgrunnlagHistorikkUtil {
             if (!endring.getNyTotalRefusjonPrÅr().equals(forrigeRefusjon)) {
 
                 return new HistorikkinnslagTekstlinjeBuilder().bold(HistorikkEndretFeltType.NYTT_REFUSJONSKRAV.getNavn())
-                        .tekst("endret fra " + BigDecimal.valueOf(forrigeRefusjon) + " til ")
-                        .bold(formatString(endring.getNyTotalRefusjonPrÅr()));
+                    .tekst("endret fra " + BigDecimal.valueOf(forrigeRefusjon) + " til ")
+                    .bold(formatString(endring.getNyTotalRefusjonPrÅr()));
             }
         }
         return null;
@@ -108,20 +108,20 @@ public final class FordelBeregningsgrunnlagHistorikkUtil {
 
     private static boolean harEndringSomGirHistorikk(Lønnsendring endring) {
         var harEndringIRefusjon =
-                endring.getNyTotalRefusjonPrÅr() != null && !endring.getNyTotalRefusjonPrÅr().equals(endring.getGammelRefusjonPrÅr());
+            endring.getNyTotalRefusjonPrÅr() != null && !endring.getNyTotalRefusjonPrÅr().equals(endring.getGammelRefusjonPrÅr());
         var harEndringIInntektskategori =
-                endring.getNyInntektskategori() != null && !endring.getNyInntektskategori().equals(endring.getGammelInntektskategori());
+            endring.getNyInntektskategori() != null && !endring.getNyInntektskategori().equals(endring.getGammelInntektskategori());
         var harEndringIInntekt =
-                endring.getGammelArbeidsinntekt() == null || !endring.getGammelArbeidsinntekt().equals(endring.getNyArbeidsinntektPrÅr());
+            endring.getGammelArbeidsinntekt() == null || !endring.getGammelArbeidsinntekt().equals(endring.getNyArbeidsinntektPrÅr());
         return harEndringIInntekt || harEndringIRefusjon || harEndringIInntektskategori || endring.isNyAndel();
     }
 
     public static Lønnsendring.Builder lagEndringsoppsummeringForHistorikk(FordelBeregningsgrunnlagAndelDto endretAndel) {
         var fastsatteVerdier = endretAndel.getFastsatteVerdier();
         var endring = new Lønnsendring.Builder().medAktivitetStatus(endretAndel.getAktivitetStatus())
-                .medNyInntektskategori(fastsatteVerdier.getInntektskategori())
-                .medNyArbeidsinntektPrÅr(fastsatteVerdier.getFastsattÅrsbeløpInklNaturalytelse())
-                .medNyAndel(endretAndel.getNyAndel());
+            .medNyInntektskategori(fastsatteVerdier.getInntektskategori())
+            .medNyArbeidsinntektPrÅr(fastsatteVerdier.getFastsattÅrsbeløpInklNaturalytelse())
+            .medNyAndel(endretAndel.getNyAndel());
         if (gjelderArbeidsforhold(endretAndel)) {
             settArbeidsforholdVerdier(endretAndel, endring);
         }
@@ -153,7 +153,7 @@ public final class FordelBeregningsgrunnlagHistorikkUtil {
 
     private static void settEndretFraVerdier(FordelBeregningsgrunnlagAndelDto endretAndel, Lønnsendring.Builder endring) {
         endring.medGammelArbeidsinntektPrÅr(endretAndel.getForrigeArbeidsinntektPrÅr())
-                .medGammelInntektskategori(endretAndel.getForrigeInntektskategori())
-                .medGammelRefusjonPrÅr(endretAndel.getForrigeRefusjonPrÅr());
+            .medGammelInntektskategori(endretAndel.getForrigeInntektskategori())
+            .medGammelRefusjonPrÅr(endretAndel.getForrigeRefusjonPrÅr());
     }
 }

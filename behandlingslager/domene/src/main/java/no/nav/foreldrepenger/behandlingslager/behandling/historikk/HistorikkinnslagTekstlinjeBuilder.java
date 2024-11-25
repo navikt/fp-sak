@@ -88,6 +88,12 @@ public class HistorikkinnslagTekstlinjeBuilder {
         return fraTil(hva, fra != null ? formatDate(fra) : null, formatDate(til));
     }
 
+    public HistorikkinnslagTekstlinjeBuilder fraTil(String hva, Integer fra, Integer til) {
+        var fraTekst = fra == null ? null : fra.toString();
+        var tilTekst = til == null ? null : til.toString();
+        return fraTil(hva, fraTekst, tilTekst);
+    }
+
     public static HistorikkinnslagTekstlinjeBuilder fraTilEquals(String hva, Kodeverdi fra, Kodeverdi til) {
         if (Objects.equals(fra, til)) {
             return null;
@@ -126,6 +132,9 @@ public class HistorikkinnslagTekstlinjeBuilder {
     }
 
     public String build() {
+        if (LINJESKIFT.equals(stringBuilder.toString())) {
+            return stringBuilder.toString();
+        }
         return stringBuilder.delete(0, 1).toString();
     }
 

@@ -74,9 +74,9 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkKalkulusTjeneste {
                 .findFirst();
             var forrigeRefusjonsstart = finnForrigeRefusjonsstartForArbeidsforhold(forrigeFastsattAndel);
             Optional<BigDecimal> forrigeDelvisRefusjonPrÅr = finnForrigeDelvisRefusjon(forrigeFastsattAndel);
+            tekstlinjerBuilder.addAll(leggTilArbeidsforholdHistorikkinnslag(fastsattAndel, forrigeRefusjonsstart, forrigeDelvisRefusjonPrÅr,
+                arbeidsforholdOverstyringer));
             tekstlinjerBuilder.add(new HistorikkinnslagTekstlinjeBuilder().tekst(dto.getBegrunnelse()));
-            tekstlinjerBuilder = leggTilArbeidsforholdHistorikkinnslag(fastsattAndel, forrigeRefusjonsstart, forrigeDelvisRefusjonPrÅr,
-                arbeidsforholdOverstyringer);
         }
 
         if (!tekstlinjerBuilder.isEmpty()) {
@@ -142,7 +142,6 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkKalkulusTjeneste {
             tekstlinjerBuilder.add(
                 fraTilEquals("Delvis refusjon før " + arbeidsforholdInfo, formatString(fraBeløpPrMnd), formatString(tilBeløpPrMnd)));
         }
-        tekstlinjerBuilder.removeIf(Objects::isNull);
 
         return tekstlinjerBuilder;
     }
