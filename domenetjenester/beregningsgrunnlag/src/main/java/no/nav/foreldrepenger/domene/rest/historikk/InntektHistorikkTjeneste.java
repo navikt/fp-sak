@@ -1,17 +1,15 @@
 package no.nav.foreldrepenger.domene.rest.historikk;
 
-
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 @ApplicationScoped
 public class InntektHistorikkTjeneste {
@@ -27,54 +25,42 @@ public class InntektHistorikkTjeneste {
         this.arbeidsgiverHistorikkinnslagTjeneste = arbeidsgiverHistorikkinnslagTjeneste;
     }
 
-    public void lagHistorikk(HistorikkInnslagTekstBuilder tekstBuilder,
-                             List<Lønnsendring> lønnsendringList,
-                             InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
+    public List<HistorikkinnslagTekstlinjeBuilder> lagHistorikk(List<Lønnsendring> lønnsendringList,
+                                                                InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
         var arbeidsforholdOverstyringer = inntektArbeidYtelseGrunnlag.getArbeidsforholdOverstyringer();
+        List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder = new ArrayList<>();
         lønnsendringList.forEach(lønnsendring -> {
-            lagHistorikkForInntektEndring(tekstBuilder, lønnsendring, arbeidsforholdOverstyringer);
-            lagInntektskategoriInnslagHvisEndret(tekstBuilder, lønnsendring);
+            tekstlinjerBuilder.add(lagHistorikkForInntektEndring(lønnsendring, arbeidsforholdOverstyringer));
+            tekstlinjerBuilder.add(lagInntektskategoriInnslagHvisEndret(lønnsendring));
+            tekstlinjerBuilder.add(new HistorikkinnslagTekstlinjeBuilder().linjeskift());
         });
+        return tekstlinjerBuilder;
     }
 
-    private void lagHistorikkForInntektEndring(HistorikkInnslagTekstBuilder tekstBuilder,
-                                               Lønnsendring lønnsendring,
-                                               List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
+    private HistorikkinnslagTekstlinjeBuilder lagHistorikkForInntektEndring(Lønnsendring lønnsendring,
+                                                                            List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
         var nyArbeidsinntekt = lønnsendring.getNyArbeidsinntekt();
         var gammelArbeidsinntekt = lønnsendring.getGammelArbeidsinntekt();
+        HistorikkinnslagTekstlinjeBuilder tekstlinjeBuilder = new HistorikkinnslagTekstlinjeBuilder();
         if (nyArbeidsinntekt != null && !nyArbeidsinntekt.equals(gammelArbeidsinntekt)) {
             if (AktivitetStatus.FRILANSER.equals(lønnsendring.getAktivitetStatus())) {
-                tekstBuilder.medEndretFelt(HistorikkEndretFeltType.FRILANS_INNTEKT, gammelArbeidsinntekt,
-                    nyArbeidsinntekt);
-                settSkjermlenkeOgFerdigstill(tekstBuilder);
+                tekstlinjeBuilder.fraTil("Frilansinntekt", gammelArbeidsinntekt, nyArbeidsinntekt);
             } else {
                 var arbeidsforholdInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(
-                    lønnsendring.getAktivitetStatus(), lønnsendring.getArbeidsgiver(),
-                    lønnsendring.getArbeidsforholdRef(), arbeidsforholdOverstyringer);
-                tekstBuilder.medEndretFelt(HistorikkEndretFeltType.INNTEKT_FRA_ARBEIDSFORHOLD, arbeidsforholdInfo,
-                    gammelArbeidsinntekt, nyArbeidsinntekt);
-                settSkjermlenkeOgFerdigstill(tekstBuilder);
+                    lønnsendring.getAktivitetStatus(), lønnsendring.getArbeidsgiver(), lønnsendring.getArbeidsforholdRef(),
+                    arbeidsforholdOverstyringer);
+                tekstlinjeBuilder.fraTil("Inntekt fra " + arbeidsforholdInfo, gammelArbeidsinntekt, nyArbeidsinntekt);
             }
         }
+        return tekstlinjeBuilder;
     }
 
-    private void lagInntektskategoriInnslagHvisEndret(HistorikkInnslagTekstBuilder historikkBuilder,
-                                                      Lønnsendring endring) {
+    private HistorikkinnslagTekstlinjeBuilder lagInntektskategoriInnslagHvisEndret(Lønnsendring endring) {
         var nyInntektskategori = endring.getNyInntektskategori();
         if (nyInntektskategori != null && !nyInntektskategori.equals(endring.getGammelInntektskategori())) {
-            historikkBuilder.medEndretFelt(HistorikkEndretFeltType.INNTEKTSKATEGORI, null, nyInntektskategori);
-            settSkjermlenkeOgFerdigstill(historikkBuilder);
+            return new HistorikkinnslagTekstlinjeBuilder().fraTil("Inntektskategori", null, nyInntektskategori);
         }
-    }
-
-    private void settSkjermlenkeOgFerdigstill(HistorikkInnslagTekstBuilder tekstBuilder) {
-        var erSkjermlenkeSatt = tekstBuilder.getHistorikkinnslagDeler()
-            .stream()
-            .anyMatch(historikkDel -> historikkDel.getSkjermlenke().isPresent());
-        if (!erSkjermlenkeSatt) {
-            tekstBuilder.medSkjermlenke(SkjermlenkeType.FAKTA_OM_BEREGNING);
-        }
-        tekstBuilder.ferdigstillHistorikkinnslagDel();
+        return null;
     }
 
 
