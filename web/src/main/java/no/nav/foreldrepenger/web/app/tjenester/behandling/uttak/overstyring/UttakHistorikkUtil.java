@@ -65,30 +65,39 @@ public final class UttakHistorikkUtil {
                                                   UttakResultatPeriodeLagreDto nyPeriode,
                                                   UttakResultatPeriodeAktivitetLagreDto nyAktivitet) {
         var gjeldendePeriode = EndreUttakUtil.finnGjeldendePeriodeFor(gjeldende, new LocalDateInterval(nyPeriode.getFom(), nyPeriode.getTom()));
-        var gjeldendeAktivitet = EndreUttakUtil.finnGjeldendeAktivitetFor(gjeldendePeriode, nyAktivitet.getArbeidsgiver().orElse(null),
-            nyAktivitet.getArbeidsforholdId(), nyAktivitet.getUttakArbeidType());
 
-        var builder = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
+        var tekstlinjer = tekstlinjer(gjeldendePeriode, nyPeriode, nyAktivitet);
+
+        return new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medBehandlingId(behandling.behandlingId())
             .medFagsakId(behandling.fagsakId())
             .medTittel(SkjermlenkeType.UTTAK)
-            .addTekstlinje(periodeErManueltVurdertTekstlinje(nyPeriode))
-            .addTekstlinje(fraTilEquals("Stønadskontotype", gjeldendeAktivitet.getTrekkonto(), nyAktivitet.getStønadskontoType()))
-            .addTekstlinje(fraTilEquals("Resultatet", gjeldendePeriode.getResultatType(), nyPeriode.getPeriodeResultatType()))
-            .addTekstlinje(trekkdagerTekstlinje(nyAktivitet, gjeldendeAktivitet))
-            .addTekstlinje(utbetalingsgradTekstlinje(nyAktivitet, gjeldendeAktivitet))
-            .addTekstlinje(fraTilEquals("Årsak resultat", gjeldendePeriode.getResultatÅrsak(), nyPeriode.getPeriodeResultatÅrsak()))
-            .addTekstlinje(fraTilEquals("Flerbarnsdager", gjeldendePeriode.isFlerbarnsdager(), nyPeriode.isFlerbarnsdager()))
-            .addTekstlinje(fraTilEquals("Samtidig uttak", gjeldendePeriode.isSamtidigUttak(), nyPeriode.isSamtidigUttak()))
-            .addTekstlinje(samtidigUttaksprosentTekstlinje(nyPeriode, gjeldendePeriode))
-            .addTekstlinje(graderingTekstlinje(nyPeriode, gjeldendePeriode))
-            .addTekstlinje(fraTilEquals("Årsak avslag gradering", gjeldendePeriode.getGraderingAvslagÅrsak(), nyPeriode.getGraderingAvslagÅrsak()));
+            .medTekstlinjer(tekstlinjer)
+            .build();
+    }
 
-        if (builder.antallLagtTilLinjer() > 1 || !Objects.equals(gjeldendePeriode.getBegrunnelse(), nyPeriode.getBegrunnelse())) {
-            builder.addTekstlinje(begrunnelseTekstlinje(nyPeriode));
+    private List<HistorikkinnslagTekstlinjeBuilder> tekstlinjer(ForeldrepengerUttakPeriode gjeldendePeriode,
+                                                                UttakResultatPeriodeLagreDto nyPeriode,
+                                                                UttakResultatPeriodeAktivitetLagreDto nyAktivitet) {
+        var gjeldendeAktivitet = EndreUttakUtil.finnGjeldendeAktivitetFor(gjeldendePeriode, nyAktivitet.getArbeidsgiver().orElse(null),
+            nyAktivitet.getArbeidsforholdId(), nyAktivitet.getUttakArbeidType());
+        var tekstlinjer = new ArrayList<HistorikkinnslagTekstlinjeBuilder>();
+        tekstlinjer.add(periodeErManueltVurdertTekstlinje(nyPeriode));
+        tekstlinjer.add(fraTilEquals("Stønadskontotype", gjeldendeAktivitet.getTrekkonto(), nyAktivitet.getStønadskontoType()));
+        tekstlinjer.add(fraTilEquals("Resultatet", gjeldendePeriode.getResultatType(), nyPeriode.getPeriodeResultatType()));
+        tekstlinjer.add(trekkdagerTekstlinje(nyAktivitet, gjeldendeAktivitet));
+        tekstlinjer.add(utbetalingsgradTekstlinje(nyAktivitet, gjeldendeAktivitet));
+        tekstlinjer.add(fraTilEquals("Årsak resultat", gjeldendePeriode.getResultatÅrsak(), nyPeriode.getPeriodeResultatÅrsak()));
+        tekstlinjer.add(fraTilEquals("Flerbarnsdager", gjeldendePeriode.isFlerbarnsdager(), nyPeriode.isFlerbarnsdager()));
+        tekstlinjer.add(fraTilEquals("Samtidig uttak", gjeldendePeriode.isSamtidigUttak(), nyPeriode.isSamtidigUttak()));
+        tekstlinjer.add(samtidigUttaksprosentTekstlinje(nyPeriode, gjeldendePeriode));
+        tekstlinjer.add(graderingTekstlinje(nyPeriode, gjeldendePeriode));
+        tekstlinjer.add(fraTilEquals("Årsak avslag gradering", gjeldendePeriode.getGraderingAvslagÅrsak(), nyPeriode.getGraderingAvslagÅrsak()));
+        if (tekstlinjer.stream().filter(Objects::nonNull).toList().size() > 1 || !Objects.equals(gjeldendePeriode.getBegrunnelse(),
+            nyPeriode.getBegrunnelse())) {
+            tekstlinjer.add(begrunnelseTekstlinje(nyPeriode));
         }
-
-        return builder.build();
+        return tekstlinjer;
     }
 
     private static HistorikkinnslagTekstlinjeBuilder begrunnelseTekstlinje(UttakResultatPeriodeLagreDto nyPeriode) {

@@ -51,9 +51,10 @@ class UttakHistorikkUtilTest {
         var innslag = historikkinnslag.getFirst();
         assertThat(innslag.getBehandlingId()).isEqualTo(BEHANDLING.behandlingId());
         assertThat(innslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
-        assertThat(innslag.getTekstlinjer()).hasSize(2);
+        assertThat(innslag.getTekstlinjer()).hasSize(3);
         assertThat(innslag.getTekstlinjer().get(0).getTekst()).contains("__Overstyrt vurdering__ av perioden");
         assertThat(innslag.getTekstlinjer().get(1).getTekst()).isEqualTo("__Resultatet__ er endret fra Til manuell behandling til __Innvilget__.");
+        assertThat(innslag.getTekstlinjer().get(2).getTekst()).isEqualTo(perioder.getFirst().getBegrunnelse());
     }
 
     @Test
@@ -84,13 +85,15 @@ class UttakHistorikkUtilTest {
             var historikkinnslag = historikk.getFirst();
             assertThat(historikkinnslag.getBehandlingId()).isEqualTo(BEHANDLING.behandlingId());
             assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
-            assertThat(historikkinnslag.getTekstlinjer()).hasSize(2);
+            assertThat(historikkinnslag.getTekstlinjer()).hasSize(3);
             var tekstlinje1 = historikkinnslag.getTekstlinjer().getFirst();
             assertThat(tekstlinje1.getTekst()).contains("Overstyrt vurdering");
 
             var tekstlinje2 = historikkinnslag.getTekstlinjer().get(1);
             assertThat(tekstlinje2.getTekst()).contains(gjeldende.getResultatType().getNavn());
             assertThat(tekstlinje2.getTekst()).contains(perioder.getFirst().getPeriodeResultatType().getNavn());
+
+            assertThat(historikkinnslag.getTekstlinjer().get(2).getTekst()).isEqualTo(perioder.getFirst().getBegrunnelse());
         }
 
     private ForeldrepengerUttakPeriode periode(PeriodeResultatType type,
