@@ -70,7 +70,7 @@ public class FordelBeregningsgrunnlagHistorikkTjeneste {
             var endring = lagEndringsoppsummeringForHistorikk(endretAndel).build();
             var arbeidsforholdInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(endring.getAktivitetStatus(),
                 endring.getArbeidsgiver(), endring.getArbeidsforholdRef(), arbeidsforholdOverstyringer);
-            tekstlinjerBuilder = leggTilArbeidsforholdHistorikkinnslag(endring, korrektPeriodeFom, arbeidsforholdInfo);
+            tekstlinjerBuilder.addAll(leggTilArbeidsforholdHistorikkinnslag(endring, korrektPeriodeFom, arbeidsforholdInfo));
         }
         return tekstlinjerBuilder;
     }

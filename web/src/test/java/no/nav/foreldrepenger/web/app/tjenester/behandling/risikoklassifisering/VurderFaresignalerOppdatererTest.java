@@ -16,24 +16,19 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.FpriskTjeneste;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.kontrakter.risk.kodeverk.RisikoklasseType;
 import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingResultatDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
-
-    private HistorikkTjenesteAdapter historikkAdapter;
 
     private Behandling behandling;
 
@@ -43,18 +38,19 @@ class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
     private FpriskTjeneste fpriskTjeneste;
     @Mock
     private ProsessTaskTjeneste prosessTaskTjeneste;
+    private Historikkinnslag2Repository historikkRepository;
 
     @BeforeEach
     public void setup() {
         var entityManager = getEntityManager();
         var behandlingRepositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        historikkAdapter = new HistorikkTjenesteAdapter(behandlingRepositoryProvider.getHistorikkRepository(), null,
-                behandlingRepositoryProvider.getBehandlingRepository());
-        var behandlingRepository = new BehandlingRepository(entityManager);
+        var behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         var risikovurderingTjeneste = new RisikovurderingTjeneste(fpriskTjeneste, prosessTaskTjeneste);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenario.lagre(behandlingRepositoryProvider);
-        vurderFaresignalerOppdaterer = new VurderFaresignalerOppdaterer(risikovurderingTjeneste, historikkAdapter, behandlingRepository);
+        vurderFaresignalerOppdaterer = new VurderFaresignalerOppdaterer(risikovurderingTjeneste,
+            behandlingRepositoryProvider.getHistorikkinnslag2Repository(), behandlingRepository);
+        this.historikkRepository = behandlingRepositoryProvider.getHistorikkinnslag2Repository();
     }
 
     @Test
@@ -67,74 +63,50 @@ class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
         vurderFaresignalerOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
 
         // Assert
-        var tekstBuilder = historikkAdapter.tekstBuilder().ferdigstillHistorikkinnslagDel();
-        var deler = tekstBuilder.getHistorikkinnslagDeler();
-        var historikkinnslagFelt = deler.get(0).getHistorikkinnslagFelt();
+        var tekstlinjer = historikkRepository.hent(behandling.getId()).getFirst().getTekstlinjer();
 
-        assertThat(deler).hasSize(1);
-        assertThat(historikkinnslagFelt).hasSize(3);
+        assertThat(tekstlinjer).hasSize(2);
 
-        var faresignaler = historikkinnslagFelt.stream()
-            .filter(he -> he.getNavn().equals(HistorikkEndretFeltType.FARESIGNALER.getKode()))
-            .findFirst();
-
-        assertThat(faresignaler).isPresent();
-        assertThat(faresignaler.get().getTilVerdi()).isEqualTo(HistorikkEndretFeltVerdiType.INNVIRKNING.getKode());
-        assertThat(faresignaler.get().getFraVerdi()).isNull();
+        assertThat(tekstlinjer.get(0).getTekst()).contains("__Faresignaler__ er satt til __Innvirkning__");
+        assertThat(tekstlinjer.get(1).getTekst()).contains(dto.getBegrunnelse());
     }
 
     @Test
     void skal_lage_korrekt_historikkinnslag_når_det_finnes_tidligere_vurdering_ingen_innvirkning() {
         // Arrange
-        when(fpriskTjeneste.hentFaresignalerForBehandling(any())).thenReturn(Optional.of(lagRespons(no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.INGEN_INNVIRKNING)));
+        when(fpriskTjeneste.hentFaresignalerForBehandling(any())).thenReturn(
+            Optional.of(lagRespons(no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.INGEN_INNVIRKNING)));
         var dto = new VurderFaresignalerDto("Dustemikkel", FaresignalVurdering.INNVILGET_REDUSERT);
 
         // Act
         vurderFaresignalerOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
 
         // Assert
-        var tekstBuilder = historikkAdapter.tekstBuilder().ferdigstillHistorikkinnslagDel();
-        var deler = tekstBuilder.getHistorikkinnslagDeler();
-        var historikkinnslagFelt = deler.get(0).getHistorikkinnslagFelt();
+        var tekstlinjer = historikkRepository.hent(behandling.getId()).getFirst().getTekstlinjer();
 
-        assertThat(deler).hasSize(1);
-        assertThat(historikkinnslagFelt).hasSize(3);
+        assertThat(tekstlinjer).hasSize(2);
 
-        var faresignaler = historikkinnslagFelt.stream()
-            .filter(he -> he.getNavn().equals(HistorikkEndretFeltType.FARESIGNALER.getKode()))
-            .findFirst();
-
-        assertThat(faresignaler).isPresent();
-        assertThat(faresignaler.get().getTilVerdi()).isEqualTo(HistorikkEndretFeltVerdiType.INNVIRKNING.getKode());
-        assertThat(faresignaler.get().getFraVerdi()).isEqualTo(
-            HistorikkEndretFeltVerdiType.INGEN_INNVIRKNING.getKode());
+        assertThat(tekstlinjer.get(0).getTekst()).contains("Faresignaler", "Ingen innvirkning", "Innvirkning");
+        assertThat(tekstlinjer.get(1).getTekst()).contains(dto.getBegrunnelse());
     }
 
     @Test
     void skal_lage_korrekt_historikkinnslag_når_det_finnes_tidligere_vurdering_innvirkning() {
         // Arrange
-        when(fpriskTjeneste.hentFaresignalerForBehandling(any())).thenReturn(Optional.of(lagRespons(no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.INNVIRKNING)));
+        when(fpriskTjeneste.hentFaresignalerForBehandling(any())).thenReturn(
+            Optional.of(lagRespons(no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.INNVIRKNING)));
         var dto = new VurderFaresignalerDto("Dustemikkel", FaresignalVurdering.INGEN_INNVIRKNING);
 
         // Act
         vurderFaresignalerOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
 
         // Assert
-        var tekstBuilder = historikkAdapter.tekstBuilder().ferdigstillHistorikkinnslagDel();
-        var deler = tekstBuilder.getHistorikkinnslagDeler();
-        var historikkinnslagFelt = deler.get(0).getHistorikkinnslagFelt();
+        var tekstlinjer = historikkRepository.hent(behandling.getId()).getFirst().getTekstlinjer();
 
-        assertThat(deler).hasSize(1);
-        assertThat(historikkinnslagFelt).hasSize(3);
+        assertThat(tekstlinjer).hasSize(2);
 
-        var faresignaler = historikkinnslagFelt.stream()
-            .filter(he -> he.getNavn().equals(HistorikkEndretFeltType.FARESIGNALER.getKode()))
-            .findFirst();
-
-        assertThat(faresignaler).isPresent();
-        assertThat(faresignaler.get().getTilVerdi()).isEqualTo(
-            HistorikkEndretFeltVerdiType.INGEN_INNVIRKNING.getKode());
-        assertThat(faresignaler.get().getFraVerdi()).isEqualTo(HistorikkEndretFeltVerdiType.INNVIRKNING.getKode());
+        assertThat(tekstlinjer.get(0).getTekst()).contains("Faresignaler", "Ingen innvirkning", "Innvirkning");
+        assertThat(tekstlinjer.get(1).getTekst()).contains(dto.getBegrunnelse());
     }
 
     @Test
