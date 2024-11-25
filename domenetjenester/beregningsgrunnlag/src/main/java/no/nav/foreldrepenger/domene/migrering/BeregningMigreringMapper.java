@@ -1,7 +1,14 @@
-package no.nav.foreldrepenger.domene.prosess;
+package no.nav.foreldrepenger.domene.migrering;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.migrering.BGAndelArbeidsforholdMigreringDto;
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.migrering.BaseMigreringDto;
@@ -47,10 +54,8 @@ import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagArbeidstakerAnde
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagFrilansAndel;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKoblingRepository;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.entiteter.BesteberegningInntektEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BesteberegningMånedsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BesteberegninggrunnlagEntitet;
@@ -63,81 +68,34 @@ import no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-@ApplicationScoped
-public class BeregningMigreringTjeneste {
-    private static final Logger LOG = LoggerFactory.getLogger(BeregningMigreringTjeneste.class);
-
-    private KalkulusKlient klient;
-    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
-    private BeregningsgrunnlagKoblingRepository koblingRepository;
-
-    BeregningMigreringTjeneste() {
-        // CDI
+public class BeregningMigreringMapper {
+    private BeregningMigreringMapper() {
+        // Skjuler default
     }
 
-    @Inject
-    public BeregningMigreringTjeneste(KalkulusKlient klient,
-                                      BeregningsgrunnlagRepository beregningsgrunnlagRepository,
-                                      BeregningsgrunnlagKoblingRepository koblingRepository) {
-        this.klient = klient;
-        this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
-        this.koblingRepository = koblingRepository;
+    public static BeregningsgrunnlagGrunnlagMigreringDto map(BeregningsgrunnlagGrunnlagEntitet grunnlag) {
+        return mapGrunnlag(grunnlag);
     }
 
-    public void migrerBehandling(BehandlingReferanse referanse) {
-        if (erAlleredeMigrert(referanse)) {
-            return;
-        }
-        var grunnlag = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(referanse.behandlingId());
-        if (grunnlag.isEmpty()) {
-            LOG.info(String.format("Finner ikke beregningsgrunnlag på behandling %s, ingenting å migrere", referanse.behandlingId()));
-            return;
-        }
-        try {
-            var migreringDto = mapGrunnlag(grunnlag.get());
-            var kobling = koblingRepository.opprettKobling(referanse);
-            // new MigrerBeregningsgrunnlagRequest(null, migreringDto);
-            // klient.migrerGrunnlag();
-        } catch (Exception e) {
-            var msg = String.format("Feil ved mapping av grunnlag for sak %s, behandlingId %s og grunnlag %s", referanse.saksnummer(),
-                referanse.behandlingId(), grunnlag.map(BeregningsgrunnlagGrunnlagEntitet::getId));
-            throw new IllegalStateException(msg);
-        }
-    }
-
-    private boolean erAlleredeMigrert(BehandlingReferanse referanse) {
-        return koblingRepository.hentKobling(referanse.behandlingId()).isPresent();
-    }
-
-    private BeregningsgrunnlagGrunnlagMigreringDto mapGrunnlag(BeregningsgrunnlagGrunnlagEntitet entitet) {
-        var aktivitetOverstyringer = entitet.getOverstyring().map(this::mapAktivitetOverstyringer).orElse(null);
-        var saksbehandletAktiviteter = entitet.getSaksbehandletAktiviteter().map(this::mapAktiviteter).orElse(null);
+    private static BeregningsgrunnlagGrunnlagMigreringDto mapGrunnlag(BeregningsgrunnlagGrunnlagEntitet entitet) {
+        var aktivitetOverstyringer = entitet.getOverstyring().map(BeregningMigreringMapper::mapAktivitetOverstyringer).orElse(null);
+        var saksbehandletAktiviteter = entitet.getSaksbehandletAktiviteter().map(BeregningMigreringMapper::mapAktiviteter).orElse(null);
         var registerAktiviteter = entitet.getRegisterAktiviteter() == null ? null : mapAktiviteter(entitet.getRegisterAktiviteter());
-        var refusjonOverstyringer = entitet.getRefusjonOverstyringer().map(this::mapRefusjonOverstyringer).orElse(null);
-        var faktaAggregat = entitet.getBeregningsgrunnlag().flatMap(this::mapFaktaAggregat).orElse(null);
-        var beregningsgrunnlag = entitet.getBeregningsgrunnlag().map(this::mapBeregningsgrunnlag).orElse(null);
+        var refusjonOverstyringer = entitet.getRefusjonOverstyringer().map(BeregningMigreringMapper::mapRefusjonOverstyringer).orElse(null);
+        var faktaAggregat = entitet.getBeregningsgrunnlag().flatMap(BeregningMigreringMapper::mapFaktaAggregat).orElse(null);
+        var beregningsgrunnlag = entitet.getBeregningsgrunnlag().map(BeregningMigreringMapper::mapBeregningsgrunnlag).orElse(null);
         var tilstand = KodeverkTilKalkulusMapper.mapBeregningsgrunnlagTilstand(entitet.getBeregningsgrunnlagTilstand());
         var dto = new BeregningsgrunnlagGrunnlagMigreringDto(beregningsgrunnlag, registerAktiviteter, saksbehandletAktiviteter, aktivitetOverstyringer, refusjonOverstyringer, faktaAggregat, tilstand);
         settOpprettetOgEndretFelter(entitet, dto);
         return dto;
     }
 
-    private BeregningsgrunnlagMigreringDto mapBeregningsgrunnlag(BeregningsgrunnlagEntitet entitet) {
-        var besteberegningGrunnlag = entitet.getBesteberegninggrunnlag().map(this::mapBesteberegningGrunnlag);
+    private static BeregningsgrunnlagMigreringDto mapBeregningsgrunnlag(BeregningsgrunnlagEntitet entitet) {
+        var besteberegningGrunnlag = entitet.getBesteberegninggrunnlag().map(BeregningMigreringMapper::mapBesteberegningGrunnlag);
         var faktaTilfeller = entitet.getFaktaOmBeregningTilfeller().stream().map(KodeverkTilKalkulusMapper::mapFaktaBeregningTilfelle).toList();
-        var aktivitetStatuser = entitet.getAktivitetStatuser().stream().map(this::mapTilAktivitetstatus).toList();
+        var aktivitetStatuser = entitet.getAktivitetStatuser().stream().map(BeregningMigreringMapper::mapTilAktivitetstatus).toList();
         var sammenligningsgrunnlag = mapAlleSammenligningsgrunnlag(entitet);
-        var perioder = entitet.getBeregningsgrunnlagPerioder().stream().map(this::mapBeregningsgrunnlagPeriode).toList();
+        var perioder = entitet.getBeregningsgrunnlagPerioder().stream().map(BeregningMigreringMapper::mapBeregningsgrunnlagPeriode).toList();
         var grunnbeløp = entitet.getGrunnbeløp() == null ? null : mapBeløp(entitet.getGrunnbeløp().getVerdi());
         var dto = new BeregningsgrunnlagMigreringDto(entitet.getSkjæringstidspunkt(), aktivitetStatuser, perioder,
             besteberegningGrunnlag.orElse(null), sammenligningsgrunnlag, grunnbeløp, faktaTilfeller, entitet.isOverstyrt());
@@ -145,8 +103,8 @@ public class BeregningMigreringTjeneste {
         return dto;
     }
 
-    private BeregningsgrunnlagPeriodeMigreringDto mapBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode entitet) {
-        var andeler = entitet.getBeregningsgrunnlagPrStatusOgAndelList().stream().map(this::mapAndel).toList();
+    private static BeregningsgrunnlagPeriodeMigreringDto mapBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode entitet) {
+        var andeler = entitet.getBeregningsgrunnlagPrStatusOgAndelList().stream().map(BeregningMigreringMapper::mapAndel).toList();
         var periodeårsaker = entitet.getPeriodeÅrsaker().stream().map(KodeverkTilKalkulusMapper::mapPeriodeårsak).toList();
         var periode = mapPeriode(entitet.getPeriode());
         var avkortet = mapBeløp(entitet.getAvkortetPrÅr());
@@ -158,7 +116,7 @@ public class BeregningMigreringTjeneste {
         return dto;
     }
 
-    private BeregningsgrunnlagPrStatusOgAndelMigreringDto mapAndel(BeregningsgrunnlagPrStatusOgAndel entitet) {
+    private static BeregningsgrunnlagPrStatusOgAndelMigreringDto mapAndel(BeregningsgrunnlagPrStatusOgAndel entitet) {
         var dto = new BeregningsgrunnlagPrStatusOgAndelMigreringDto();
 
         // Andelsnr og periode
@@ -209,13 +167,13 @@ public class BeregningMigreringTjeneste {
         dto.setÅrsbeløpFraTilstøtendeYtelse(entitet.getÅrsbeløpFraTilstøtendeYtelse() == null ? null : mapBeløp(entitet.getÅrsbeløpFraTilstøtendeYtelse().getVerdi()));
 
         // Arbeidsforhold
-        entitet.getBgAndelArbeidsforhold().map(this::mapBgAndelArbeidsforhold).ifPresent(dto::setBgAndelArbeidsforhold);
+        entitet.getBgAndelArbeidsforhold().map(BeregningMigreringMapper::mapBgAndelArbeidsforhold).ifPresent(dto::setBgAndelArbeidsforhold);
 
         settOpprettetOgEndretFelter(entitet, dto);
         return dto;
     }
 
-    private BGAndelArbeidsforholdMigreringDto mapBgAndelArbeidsforhold(BGAndelArbeidsforhold entitet) {
+    private static BGAndelArbeidsforholdMigreringDto mapBgAndelArbeidsforhold(BGAndelArbeidsforhold entitet) {
         var dto = new BGAndelArbeidsforholdMigreringDto();
 
         // Arbeidsinformasjon
@@ -238,16 +196,16 @@ public class BeregningMigreringTjeneste {
         return dto;
     }
 
-    private List<SammenligningsgrunnlagPrStatusMigreringDto> mapAlleSammenligningsgrunnlag(BeregningsgrunnlagEntitet entitet) {
+    private static List<SammenligningsgrunnlagPrStatusMigreringDto> mapAlleSammenligningsgrunnlag(BeregningsgrunnlagEntitet entitet) {
         // Vi har satt sammenligningsgrunnlag av ny type, migrerer kun disse
         if (!entitet.getSammenligningsgrunnlagPrStatusListe().isEmpty()) {
-            return entitet.getSammenligningsgrunnlagPrStatusListe().stream().map(this::mapSgPrStatus).toList();
+            return entitet.getSammenligningsgrunnlagPrStatusListe().stream().map(BeregningMigreringMapper::mapSgPrStatus).toList();
         }
         // Hvis vi har satt gammelt sammenligningsgrunnlag, konverterer dette til den nye typen, ellers tom liste
         return entitet.getSammenligningsgrunnlag().map(sg -> Collections.singletonList(mapGammelSgTilNyModell(sg, entitet))).orElse(List.of());
     }
 
-    private SammenligningsgrunnlagPrStatusMigreringDto mapGammelSgTilNyModell(Sammenligningsgrunnlag sg, BeregningsgrunnlagEntitet bg) {
+    private static SammenligningsgrunnlagPrStatusMigreringDto mapGammelSgTilNyModell(Sammenligningsgrunnlag sg, BeregningsgrunnlagEntitet bg) {
         var type = finnSammenligningtypeFraAktivitetstatus(bg);
         var periode = mapPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(sg.getSammenligningsperiodeFom(), sg.getSammenligningsperiodeTom()));
         var rapportertPrÅr = mapBeløp(sg.getRapportertPrÅr());
@@ -257,7 +215,7 @@ public class BeregningMigreringTjeneste {
         return dto;
     }
 
-    public static SammenligningsgrunnlagType finnSammenligningtypeFraAktivitetstatus(BeregningsgrunnlagEntitet beregningsgrunnlagEntitet) {
+    private static SammenligningsgrunnlagType finnSammenligningtypeFraAktivitetstatus(BeregningsgrunnlagEntitet beregningsgrunnlagEntitet) {
         if (beregningsgrunnlagEntitet.getAktivitetStatuser().stream().anyMatch(st -> st.getAktivitetStatus().erSelvstendigNæringsdrivende())) {
             return SammenligningsgrunnlagType.SAMMENLIGNING_SN;
         } else if (beregningsgrunnlagEntitet.getAktivitetStatuser().stream().anyMatch(st -> st.getAktivitetStatus().erFrilanser()
@@ -268,7 +226,7 @@ public class BeregningMigreringTjeneste {
     }
 
 
-    private SammenligningsgrunnlagPrStatusMigreringDto mapSgPrStatus(SammenligningsgrunnlagPrStatus entitet) {
+    private static SammenligningsgrunnlagPrStatusMigreringDto mapSgPrStatus(SammenligningsgrunnlagPrStatus entitet) {
         var periode = mapPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(entitet.getSammenligningsperiodeFom(), entitet.getSammenligningsperiodeTom()));
         var rapportertPrÅr = mapBeløp(entitet.getRapportertPrÅr());
         var type = KodeverkTilKalkulusMapper.mapSammenligningsgrunnlagtype(entitet.getSammenligningsgrunnlagType());
@@ -278,30 +236,30 @@ public class BeregningMigreringTjeneste {
         return dto;
     }
 
-    private BeregningsgrunnlagAktivitetStatusMigreringDto mapTilAktivitetstatus(BeregningsgrunnlagAktivitetStatus entitet) {
+    private static BeregningsgrunnlagAktivitetStatusMigreringDto mapTilAktivitetstatus(BeregningsgrunnlagAktivitetStatus entitet) {
         var dto = new BeregningsgrunnlagAktivitetStatusMigreringDto(
             KodeverkTilKalkulusMapper.mapAktivitetstatus(entitet.getAktivitetStatus()), KodeverkTilKalkulusMapper.mapHjemmel(entitet.getHjemmel()));
         settOpprettetOgEndretFelter(entitet, dto);
         return dto;
     }
 
-    private BesteberegninggrunnlagMigreringDto mapBesteberegningGrunnlag(BesteberegninggrunnlagEntitet entitet) {
-        var måneder = entitet.getSeksBesteMåneder().stream().map(this::mapBesteberegningMåned).collect(Collectors.toSet());
+    private static BesteberegninggrunnlagMigreringDto mapBesteberegningGrunnlag(BesteberegninggrunnlagEntitet entitet) {
+        var måneder = entitet.getSeksBesteMåneder().stream().map(BeregningMigreringMapper::mapBesteberegningMåned).collect(Collectors.toSet());
         var avvik = mapBeløp(entitet.getAvvik().orElse(null));
         var dto = new BesteberegninggrunnlagMigreringDto(måneder, avvik);
         settOpprettetOgEndretFelter(entitet, dto);
         return dto;
     }
 
-    private BesteberegningMånedsgrunnlagMigreringDto mapBesteberegningMåned(BesteberegningMånedsgrunnlagEntitet entitet) {
-        var inntekter = entitet.getInntekter().stream().map(this::mapBesteberegningInntekt).toList();
+    private static BesteberegningMånedsgrunnlagMigreringDto mapBesteberegningMåned(BesteberegningMånedsgrunnlagEntitet entitet) {
+        var inntekter = entitet.getInntekter().stream().map(BeregningMigreringMapper::mapBesteberegningInntekt).toList();
         var periode = mapPeriode(entitet.getPeriode());
         var dto = new BesteberegningMånedsgrunnlagMigreringDto(inntekter, periode);
         settOpprettetOgEndretFelter(entitet, dto);
         return dto;
     }
 
-    private BesteberegningInntektMigreringDto mapBesteberegningInntekt(BesteberegningInntektEntitet entitet) {
+    private static BesteberegningInntektMigreringDto mapBesteberegningInntekt(BesteberegningInntektEntitet entitet) {
         var ag = mapArbeidsgiver(entitet.getArbeidsgiver());
         var ref = mapArbeidsforholdRef(entitet.getArbeidsforholdRef());
         var beløp = mapBeløp(entitet.getInntekt());
@@ -310,11 +268,11 @@ public class BeregningMigreringTjeneste {
         return dto;
     }
 
-    private Beløp mapBeløp(BigDecimal inntekt) {
+    private static Beløp mapBeløp(BigDecimal inntekt) {
         return inntekt == null ? null : new Beløp(inntekt);
     }
 
-    private Optional<FaktaAggregatMigreringDto> mapFaktaAggregat(BeregningsgrunnlagEntitet bg) {
+    private static Optional<FaktaAggregatMigreringDto> mapFaktaAggregat(BeregningsgrunnlagEntitet bg) {
         if (bg.getBeregningsgrunnlagPerioder() == null || bg.getBeregningsgrunnlagPerioder().isEmpty()) {
             return Optional.empty();
         }
@@ -337,7 +295,7 @@ public class BeregningMigreringTjeneste {
         return Optional.of(dto);
     }
 
-    private List<FaktaArbeidsforholdMigreringDto> mapAlleFaktaArbeidsforhold(List<BeregningsgrunnlagPrStatusOgAndel> andeler, List<FaktaOmBeregningTilfelle> tilfeller) {
+    private static List<FaktaArbeidsforholdMigreringDto> mapAlleFaktaArbeidsforhold(List<BeregningsgrunnlagPrStatusOgAndel> andeler, List<FaktaOmBeregningTilfelle> tilfeller) {
         var faktaArbeidsforhold = andeler.stream()
             .filter(a -> a.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSTAKER) && a.getBgAndelArbeidsforhold().isPresent())
             .map(a -> mapFaktaArbeidsforhold(a, tilfeller))
@@ -346,7 +304,7 @@ public class BeregningMigreringTjeneste {
         return faktaArbeidsforhold;
     }
 
-    private Optional<FaktaArbeidsforholdMigreringDto> mapFaktaArbeidsforhold(BeregningsgrunnlagPrStatusOgAndel andel, List<FaktaOmBeregningTilfelle> tilfeller) {
+    private static Optional<FaktaArbeidsforholdMigreringDto> mapFaktaArbeidsforhold(BeregningsgrunnlagPrStatusOgAndel andel, List<FaktaOmBeregningTilfelle> tilfeller) {
         var arbfor = andel.getBgAndelArbeidsforhold()
             .orElseThrow(() -> new IllegalArgumentException("Forventet å finne arbeidsforhold her"));
         var ag = mapArbeidsgiver(arbfor.getArbeidsgiver());
@@ -365,7 +323,7 @@ public class BeregningMigreringTjeneste {
         return Optional.of(arbeidsforholdFakta);
     }
 
-    private Optional<FaktaVurderingMigreringDto> sjekkOmMottarYtelse(BeregningsgrunnlagPrStatusOgAndel andel) {
+    private static Optional<FaktaVurderingMigreringDto> sjekkOmMottarYtelse(BeregningsgrunnlagPrStatusOgAndel andel) {
         var mottarYtelseVurdering = andel.getBeregningsgrunnlagArbeidstakerAndel().map(BeregningsgrunnlagArbeidstakerAndel::getMottarYtelse).orElse(null);
         if (mottarYtelseVurdering == null) {
             return Optional.empty();
@@ -373,14 +331,14 @@ public class BeregningMigreringTjeneste {
         return Optional.of(new FaktaVurderingMigreringDto(mottarYtelseVurdering, FaktaVurderingKilde.SAKSBEHANDLER));
     }
 
-    private Optional<FaktaVurderingMigreringDto> sjekkOmHarHattLønnsendring(BGAndelArbeidsforhold arbfor) {
+    private static Optional<FaktaVurderingMigreringDto> sjekkOmHarHattLønnsendring(BGAndelArbeidsforhold arbfor) {
         if (arbfor.erLønnsendringIBeregningsperioden() == null) {
             return Optional.empty();
         }
         return Optional.of(new FaktaVurderingMigreringDto(arbfor.erLønnsendringIBeregningsperioden(), FaktaVurderingKilde.SAKSBEHANDLER));
     }
 
-    private Optional<FaktaVurderingMigreringDto> sjekkOmErTitdsbegrenset(BGAndelArbeidsforhold arbfor) {
+    private static Optional<FaktaVurderingMigreringDto> sjekkOmErTitdsbegrenset(BGAndelArbeidsforhold arbfor) {
         if (arbfor.getErTidsbegrensetArbeidsforhold() == null) {
             return Optional.empty();
         }
@@ -388,7 +346,7 @@ public class BeregningMigreringTjeneste {
 
     }
 
-    private void sanitycheckBesteberegning(BeregningsgrunnlagEntitet bg) {
+    private static void sanitycheckBesteberegning(BeregningsgrunnlagEntitet bg) {
         var erAutomatiskBesteberegnet = bg.getBesteberegninggrunnlag().isPresent();
         var harManueltTilfelle = bg.getFaktaOmBeregningTilfeller().stream()
             .anyMatch(t -> t.equals(FaktaOmBeregningTilfelle.VURDER_BESTEBEREGNING) || t.equals(FaktaOmBeregningTilfelle.FASTSETT_BESTEBEREGNING_FØDENDE_KVINNE));
@@ -397,7 +355,7 @@ public class BeregningMigreringTjeneste {
         }
     }
 
-    private Optional<FaktaAktørMigreringDto> mapFaktaAktør(List<BeregningsgrunnlagPrStatusOgAndel> andelListe, List<FaktaOmBeregningTilfelle> tilfeller) {
+    private static Optional<FaktaAktørMigreringDto> mapFaktaAktør(List<BeregningsgrunnlagPrStatusOgAndel> andelListe, List<FaktaOmBeregningTilfelle> tilfeller) {
         var dto = new FaktaAktørMigreringDto();
         var nyIArbeidslivetVurdering = finnAndel(andelListe, AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
             .map(BeregningsgrunnlagPrStatusOgAndel::getNyIArbeidslivet)
@@ -432,7 +390,7 @@ public class BeregningMigreringTjeneste {
         return Optional.of(dto);
     }
 
-    private Optional<FaktaVurderingMigreringDto> sjekkOmErVurdertMilitær(List<FaktaOmBeregningTilfelle> tilfeller, List<BeregningsgrunnlagPrStatusOgAndel> andelListe) {
+    private static Optional<FaktaVurderingMigreringDto> sjekkOmErVurdertMilitær(List<FaktaOmBeregningTilfelle> tilfeller, List<BeregningsgrunnlagPrStatusOgAndel> andelListe) {
         var harMilitærTilfelle = tilfeller.stream().anyMatch(t -> t.equals(FaktaOmBeregningTilfelle.VURDER_MILITÆR_SIVILTJENESTE));
         if (!harMilitærTilfelle) {
             return Optional.empty();
@@ -442,7 +400,7 @@ public class BeregningMigreringTjeneste {
 
     }
 
-    private Optional<FaktaVurderingMigreringDto> sjekkOmErBesteberegnetManuelt(List<FaktaOmBeregningTilfelle> tilfeller, List<BeregningsgrunnlagPrStatusOgAndel> andelListe) {
+    private static Optional<FaktaVurderingMigreringDto> sjekkOmErBesteberegnetManuelt(List<FaktaOmBeregningTilfelle> tilfeller, List<BeregningsgrunnlagPrStatusOgAndel> andelListe) {
         // Vi har flere måter å sjekke om det er besteberegnet på siden dette har endret seg litt siden første lansering. Sjekker om det er tvetydighet, og baserer og ellers på om vi har utledet fakta tilfelle
         var harVurderManuellBesteberegningTilfelle = tilfeller.stream().anyMatch(b -> b.equals(FaktaOmBeregningTilfelle.VURDER_BESTEBEREGNING));
 
@@ -459,7 +417,7 @@ public class BeregningMigreringTjeneste {
         return Optional.of(new FaktaVurderingMigreringDto(erManueltBesteberegnet, FaktaVurderingKilde.SAKSBEHANDLER));
     }
 
-    private Optional<FaktaVurderingMigreringDto> utledFaktaAvklaringEtterlønn(List<BeregningsgrunnlagPrStatusOgAndel> etterlønnSluttpakkeAndeler) {
+    private static Optional<FaktaVurderingMigreringDto> utledFaktaAvklaringEtterlønn(List<BeregningsgrunnlagPrStatusOgAndel> etterlønnSluttpakkeAndeler) {
         if (etterlønnSluttpakkeAndeler.isEmpty()) {
             return Optional.empty();
         }
@@ -471,42 +429,42 @@ public class BeregningMigreringTjeneste {
             : Optional.of(new FaktaVurderingMigreringDto(Boolean.FALSE, FaktaVurderingKilde.SAKSBEHANDLER));
     }
 
-    private Optional<BeregningsgrunnlagPrStatusOgAndel> finnAndel(List<BeregningsgrunnlagPrStatusOgAndel> beregningsgrunnlagPrStatusOgAndelList, AktivitetStatus aktivitetStatus) {
+    private static Optional<BeregningsgrunnlagPrStatusOgAndel> finnAndel(List<BeregningsgrunnlagPrStatusOgAndel> beregningsgrunnlagPrStatusOgAndelList, AktivitetStatus aktivitetStatus) {
         return beregningsgrunnlagPrStatusOgAndelList.stream().filter(a -> a.getAktivitetStatus().equals(aktivitetStatus)).findFirst();
     }
 
-    private BeregningRefusjonOverstyringerMigreringDto mapRefusjonOverstyringer(BeregningRefusjonOverstyringerEntitet entitet) {
-        var overstyringer = entitet.getRefusjonOverstyringer().stream().map(this::mapRefusjonOverstyring).toList();
+    private static BeregningRefusjonOverstyringerMigreringDto mapRefusjonOverstyringer(BeregningRefusjonOverstyringerEntitet entitet) {
+        var overstyringer = entitet.getRefusjonOverstyringer().stream().map(BeregningMigreringMapper::mapRefusjonOverstyring).toList();
         var dto = new BeregningRefusjonOverstyringerMigreringDto(overstyringer);
         settOpprettetOgEndretFelter(entitet, dto);
         return dto;
     }
 
-    private BeregningRefusjonOverstyringMigreringDto mapRefusjonOverstyring(BeregningRefusjonOverstyringEntitet entitet) {
+    private static BeregningRefusjonOverstyringMigreringDto mapRefusjonOverstyring(BeregningRefusjonOverstyringEntitet entitet) {
         var arbeidsgiver = mapArbeidsgiver(entitet.getArbeidsgiver());
-        var perioder = entitet.getRefusjonPerioder().stream().map(this::mapRefusjonsperiode).toList();
+        var perioder = entitet.getRefusjonPerioder().stream().map(BeregningMigreringMapper::mapRefusjonsperiode).toList();
         var dto = new BeregningRefusjonOverstyringMigreringDto(arbeidsgiver, entitet.getFørsteMuligeRefusjonFom().orElse(null),
             entitet.getErFristUtvidet(), perioder);
         settOpprettetOgEndretFelter(entitet, dto);
         return dto;
     }
 
-    private BeregningRefusjonPeriodeMigreringDto mapRefusjonsperiode(BeregningRefusjonPeriodeEntitet entitet) {
+    private static BeregningRefusjonPeriodeMigreringDto mapRefusjonsperiode(BeregningRefusjonPeriodeEntitet entitet) {
         var ref = mapArbeidsforholdRef(entitet.getArbeidsforholdRef());
         var dto = new BeregningRefusjonPeriodeMigreringDto(ref, entitet.getStartdatoRefusjon());
         settOpprettetOgEndretFelter(entitet, dto);
         return dto;
     }
 
-    private BeregningAktivitetAggregatMigreringDto mapAktiviteter(BeregningAktivitetAggregatEntitet entitet) {
-        var aktiviteter = entitet.getBeregningAktiviteter().stream().map(this::mapAktivitet).toList();
+    private static BeregningAktivitetAggregatMigreringDto mapAktiviteter(BeregningAktivitetAggregatEntitet entitet) {
+        var aktiviteter = entitet.getBeregningAktiviteter().stream().map(BeregningMigreringMapper::mapAktivitet).toList();
         var dto = new BeregningAktivitetAggregatMigreringDto(aktiviteter,
             entitet.getSkjæringstidspunktOpptjening());
         settOpprettetOgEndretFelter(entitet, dto);
         return dto;
     }
 
-    private BeregningAktivitetMigreringDto mapAktivitet(BeregningAktivitetEntitet entitet) {
+    private static BeregningAktivitetMigreringDto mapAktivitet(BeregningAktivitetEntitet entitet) {
         var periode = mapPeriode(entitet.getPeriode());
         var arbeidsgiver = mapArbeidsgiver(entitet.getArbeidsgiver());
         var arbeidsforholdRef = mapArbeidsforholdRef(entitet.getArbeidsforholdRef());
@@ -516,14 +474,14 @@ public class BeregningMigreringTjeneste {
         return dto;
     }
 
-    private BeregningAktivitetOverstyringerMigreringDto mapAktivitetOverstyringer(BeregningAktivitetOverstyringerEntitet entitet) {
-        var overstyringer = entitet.getOverstyringer().stream().map(this::mapAktivitetOverstyring).toList();
+    private static BeregningAktivitetOverstyringerMigreringDto mapAktivitetOverstyringer(BeregningAktivitetOverstyringerEntitet entitet) {
+        var overstyringer = entitet.getOverstyringer().stream().map(BeregningMigreringMapper::mapAktivitetOverstyring).toList();
         var dto = new BeregningAktivitetOverstyringerMigreringDto(overstyringer);
         settOpprettetOgEndretFelter(entitet, dto);
         return dto;
     }
 
-    private BeregningAktivitetOverstyringMigreringDto mapAktivitetOverstyring(BeregningAktivitetOverstyringEntitet entitet) {
+    private static BeregningAktivitetOverstyringMigreringDto mapAktivitetOverstyring(BeregningAktivitetOverstyringEntitet entitet) {
         var periode = mapPeriode(entitet.getPeriode());
         var arbeidsgiver = mapArbeidsgiver(entitet.getArbeidsgiver().orElse(null));
         var arbeidsforholdRef = mapArbeidsforholdRef(entitet.getArbeidsforholdRef());
@@ -536,14 +494,14 @@ public class BeregningMigreringTjeneste {
     }
 
 
-    private InternArbeidsforholdRefDto mapArbeidsforholdRef(InternArbeidsforholdRef arbeidsforholdRef) {
+    private static InternArbeidsforholdRefDto mapArbeidsforholdRef(InternArbeidsforholdRef arbeidsforholdRef) {
         if (arbeidsforholdRef == null || arbeidsforholdRef.getReferanse() == null) {
             return null;
         }
         return new InternArbeidsforholdRefDto(arbeidsforholdRef.getReferanse());
     }
 
-    private no.nav.folketrygdloven.kalkulus.response.v1.Arbeidsgiver mapArbeidsgiver(Arbeidsgiver entitet) {
+    private static no.nav.folketrygdloven.kalkulus.response.v1.Arbeidsgiver mapArbeidsgiver(Arbeidsgiver entitet) {
         if (entitet == null) {
             return null;
         }
@@ -551,14 +509,14 @@ public class BeregningMigreringTjeneste {
         return new no.nav.folketrygdloven.kalkulus.response.v1.Arbeidsgiver(entitet.getOrgnr(), aktørId);
     }
 
-    private Periode mapPeriode(AbstractLocalDateInterval entitet) {
+    private static Periode mapPeriode(AbstractLocalDateInterval entitet) {
         if (entitet == null) {
             return null;
         }
         return new Periode(entitet.getFomDato(), entitet.getTomDato());
     }
 
-    private void settOpprettetOgEndretFelter(BaseEntitet entitet, BaseMigreringDto dto) {
+    private static void settOpprettetOgEndretFelter(BaseEntitet entitet, BaseMigreringDto dto) {
         dto.setOpprettetTidspunkt(entitet.getOpprettetTidspunkt());
         dto.setOpprettetAv(entitet.getOpprettetAv());
         dto.setEndretAv(entitet.getEndretAv());
