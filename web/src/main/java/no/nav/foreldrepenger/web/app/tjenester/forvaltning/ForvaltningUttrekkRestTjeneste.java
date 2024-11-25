@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -24,29 +23,20 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import org.hibernate.jpa.HibernateHints;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.fpinntektsmelding.vurderIMOgOpprettForespørsel;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakAvstemPeriodeTask;
 import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakOverlappAvstemSakTask;
@@ -57,12 +47,10 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AksjonspunktKodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriodeDto;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.OpprettImDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskDataBuilder;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-import no.nav.vedtak.felles.prosesstask.api.TaskType;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -73,7 +61,6 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @ApplicationScoped
 @Transactional
 public class ForvaltningUttrekkRestTjeneste {
-    private static final Logger LOG = LoggerFactory.getLogger(ForvaltningUttrekkRestTjeneste.class);
     private EntityManager entityManager;
     private BehandlingRepository behandlingRepository;
     private FagsakRepository fagsakRepository;
@@ -239,83 +226,6 @@ public class ForvaltningUttrekkRestTjeneste {
         taskTjeneste.lagre(gruppe);
 
         return Response.ok().build();
-    }
-
-    @POST
-    @Path("/opprettIMForesporselForBehandling")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Oppretter im forespørsel task for behandlinger som mangler IM og har aksjonspunkt 7003, 7030 eller 5085. Velg enten en behandlingUuid eller en gyldig aksjonspunktkode", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response opprettImTaskForBehMedAksjonspunkt(@BeanParam @Valid OpprettImDto dto) {
-        if(dto.getAksjonspunktDefinisjon() == null && dto.getBehandlingUuid() == null) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-        List<Behandling> behandlingerÅSjekke = new ArrayList<>();
-
-        if (dto.getBehandlingUuid() != null) {
-            var behandlingUuid = dto.getBehandlingUuid();
-            LOG.info("Det opprettes VurderImOgOpprettForespørselTask for behandling med uuid {}",  behandlingUuid);
-            var behandling = behandlingRepository.hentBehandling(behandlingUuid);
-            if (behandling == null) {
-                return Response.noContent().build();
-            }
-            behandlingerÅSjekke.add(behandling);
-        } else  {
-            var aksjonspunktdefinisjon = dto.getAksjonspunktDefinisjon();
-            var aksjonspunktkode = aksjonspunktdefinisjon.getKode();
-
-            if (!AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING.equals(aksjonspunktdefinisjon)) {
-                return Response.status(Response.Status.FORBIDDEN).build();
-            }
-
-            behandlingerÅSjekke.addAll(finnBehandlingerMedAksjonspunkt(aksjonspunktdefinisjon));
-
-            if (behandlingerÅSjekke.isEmpty()) {
-                return Response.noContent().build();
-            }
-            LOG.info("Antall behandlinger med aksjonspunkt {} det opprettes VurderImOgOpprettForespørselTask for: {}", aksjonspunktkode, behandlingerÅSjekke.size());
-        }
-
-        behandlingerÅSjekke.forEach(behandling -> {
-            //oppretter task som sjekker om im mangler - kaller aa-reg i visse tilfeller så oppretter tasks for få systemkontekst
-            if (!FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsak().getYtelseType()) && behandling.erYtelseBehandling() && harAksjonpunktVenterPåIm(behandling)) {
-                var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(vurderIMOgOpprettForespørsel.class));
-                taskdata.setBehandling(behandling.getFagsakId(), behandling.getId());
-                taskdata.setCallIdFraEksisterende();
-
-                taskTjeneste.lagre(taskdata);
-            }
-        });
-        return Response.ok().build();
-    }
-
-    private boolean harAksjonpunktVenterPåIm(Behandling behandling) {
-        return behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING);
-    }
-
-    private List<Behandling> finnBehandlingerMedAksjonspunkt(AksjonspunktDefinisjon apDef) {
-
-        var query = entityManager.createQuery(
-            " SELECT behandling FROM Behandling behandling " +
-                " INNER JOIN Aksjonspunkt aksjonspunkt " +
-                " ON behandling=aksjonspunkt.behandling " +
-                " WHERE aksjonspunkt.aksjonspunktDefinisjon = :aksjonspunktDef " +
-                " AND behandling.status =:behStatus " +
-                " AND aksjonspunkt.status=:status " +
-                " AND behandling.behandlingType = :behType" +
-                " AND aksjonspunkt.opprettetTidspunkt > :datoMedTid" +
-            " AND EXISTS (select 1 from Aksjonspunkt ap2 where  ap2.behandling = behandling and ap2.aksjonspunktDefinisjon = :aksDef and ap2.status = :aksStatus)",
-            Behandling.class);
-        query.setParameter("aksjonspunktDef", apDef);
-        query.setParameter("behStatus", BehandlingStatus.UTREDES);
-        query.setParameter("status", AksjonspunktStatus.OPPRETTET);
-        query.setParameter("behType", BehandlingType.FØRSTEGANGSSØKNAD);
-        query.setParameter("datoMedTid", LocalDateTime.of(LocalDate.of(2024, 3, 31), LocalTime.MAX));
-        query.setParameter("aksDef", AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT);
-        query.setParameter("aksStatus", AksjonspunktStatus.OPPRETTET);
-        query.setHint(HibernateHints.HINT_READ_ONLY, "true");
-        return query.getResultList();
     }
 
     @POST
