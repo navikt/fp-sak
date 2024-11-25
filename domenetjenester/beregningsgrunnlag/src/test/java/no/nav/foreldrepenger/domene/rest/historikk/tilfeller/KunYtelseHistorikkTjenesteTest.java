@@ -39,7 +39,7 @@ import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ExtendWith(JpaExtension.class)
-class KunYtelseHistorikkTjenesteTest {
+class KunYtelseHistorikkTjenesteTest { //FIXME Thao
 
     private static final Long ANDELSNR = 1L;
     private final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
@@ -85,7 +85,7 @@ class KunYtelseHistorikkTjenesteTest {
 
         // Act
         var tekstBuilder = historikkAdapter.tekstBuilder();
-        kunYtelseHistorikkTjeneste.lagHistorikk(null, dto, tekstBuilder, beregningsgrunnlag, Optional.empty(),
+        kunYtelseHistorikkTjeneste.lagHistorikk(dto, beregningsgrunnlag, Optional.empty(),
             InntektArbeidYtelseGrunnlagBuilder.nytt().build());
         tekstBuilder.ferdigstillHistorikkinnslagDel();
 
@@ -117,7 +117,7 @@ class KunYtelseHistorikkTjenesteTest {
 
         // Act
         var tekstBuilder = historikkAdapter.tekstBuilder();
-        kunYtelseHistorikkTjeneste.lagHistorikk(null, dto, tekstBuilder, beregningsgrunnlag,
+        kunYtelseHistorikkTjeneste.lagHistorikk(dto, beregningsgrunnlag,
             Optional.of(forrigeGrunnlag), InntektArbeidYtelseGrunnlagBuilder.nytt().build());
         tekstBuilder.ferdigstillHistorikkinnslagDel();
 
