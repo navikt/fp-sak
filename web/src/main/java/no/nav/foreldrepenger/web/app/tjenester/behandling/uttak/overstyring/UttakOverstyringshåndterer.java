@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderTjeneste;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.aksjonspunkt.UttakPerioderMapper;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.OverstyringUttakDto;
 
@@ -38,12 +37,11 @@ public class UttakOverstyringshåndterer extends AbstractOverstyringshåndterer<
     }
 
     @Inject
-    public UttakOverstyringshåndterer(HistorikkTjenesteAdapter historikkTjenesteAdapter,
-                                      FastsettePerioderTjeneste tjeneste,
+    public UttakOverstyringshåndterer(FastsettePerioderTjeneste tjeneste,
                                       ForeldrepengerUttakTjeneste uttakTjeneste,
                                       UttakInputTjeneste uttakInputTjeneste,
                                       Historikkinnslag2Repository historikkinnslag2Repository) {
-        super(historikkTjenesteAdapter, OVERSTYRING_AV_UTTAKPERIODER);
+        super(OVERSTYRING_AV_UTTAKPERIODER);
         this.tjeneste = tjeneste;
         this.uttakTjeneste = uttakTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
