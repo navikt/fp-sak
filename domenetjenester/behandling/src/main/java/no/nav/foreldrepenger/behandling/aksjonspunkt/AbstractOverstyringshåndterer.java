@@ -56,7 +56,7 @@ public abstract class AbstractOverstyringshåndterer<T extends OverstyringAksjon
         var fraVerdi = vilkårOppfylt ? HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT
                 : HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT;
 
-        getHistorikkAdapter().tekstBuilder()
+        historikkAdapter.tekstBuilder()
                 .medHendelse(HistorikkinnslagType.OVERSTYRT)
                 .medBegrunnelse(begrunnelse)
                 .medSkjermlenke(skjermlenkeType)
