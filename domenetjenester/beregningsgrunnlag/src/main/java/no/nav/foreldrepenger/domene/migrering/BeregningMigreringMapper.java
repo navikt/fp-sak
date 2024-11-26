@@ -408,12 +408,12 @@ public class BeregningMigreringMapper {
             return Optional.empty();
         }
         var harManuellBesteberegningtilfelle = tilfeller.stream().anyMatch(b -> b.equals(FaktaOmBeregningTilfelle.FASTSETT_BESTEBEREGNING_FØDENDE_KVINNE));
-        var harSattManuellBesteberegning = andelListe.stream().anyMatch(a -> a.getBesteberegningPrÅr() != null && a.getBesteberegningPrÅr().compareTo(BigDecimal.ZERO)<0);
+        var harSattManuellBesteberegning = andelListe.stream().anyMatch(a -> a.getBesteberegningPrÅr() != null && a.getBesteberegningPrÅr().compareTo(BigDecimal.ZERO)>0);
 
         if (!Objects.equals(harManuellBesteberegningtilfelle, harSattManuellBesteberegning)) {
             throw new IllegalStateException("Tvetydig data ved mapping av manuell besteberegning, må undersøkes manuelt");
         }
-        var erManueltBesteberegnet = andelListe.stream().anyMatch(a -> a.getBesteberegningPrÅr() != null && a.getBesteberegningPrÅr().compareTo(BigDecimal.ZERO)<0);
+        var erManueltBesteberegnet = andelListe.stream().anyMatch(a -> a.getBesteberegningPrÅr() != null && a.getBesteberegningPrÅr().compareTo(BigDecimal.ZERO)>0);
         return Optional.of(new FaktaVurderingMigreringDto(erManueltBesteberegnet, FaktaVurderingKilde.SAKSBEHANDLER));
     }
 

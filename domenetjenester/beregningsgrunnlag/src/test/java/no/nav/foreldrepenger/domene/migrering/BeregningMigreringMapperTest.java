@@ -1,14 +1,29 @@
 package no.nav.foreldrepenger.domene.migrering;
 
+import static no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus.ARBEIDSTAKER;
+import static no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus.DAGPENGER;
 import static no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus.FRILANSER;
+import static no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus.KOMBINERT_AT_FL;
+import static no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus.KOMBINERT_AT_SN;
 import static no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
+import no.nav.folketrygdloven.fpkalkulus.kontrakt.migrering.BGAndelArbeidsforholdMigreringDto;
+import no.nav.folketrygdloven.fpkalkulus.kontrakt.migrering.SammenligningsgrunnlagPrStatusMigreringDto;
 import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
+
+import no.nav.folketrygdloven.kalkulus.kodeverk.SammenligningsgrunnlagType;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
+
+import no.nav.foreldrepenger.domene.entiteter.Sammenligningsgrunnlag;
+
+import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle;
 
 import org.junit.jupiter.api.Test;
 
@@ -147,5 +162,268 @@ class BeregningMigreringMapperTest {
         assertThat(andelDto.getPgi1().verdi()).isEqualByComparingTo(BigDecimal.valueOf(34_000));
         assertThat(andelDto.getPgi2().verdi()).isEqualByComparingTo(BigDecimal.valueOf(90_000));
         assertThat(andelDto.getPgi3().verdi()).isEqualByComparingTo(BigDecimal.valueOf(60_000));
+    }
+
+    @Test
+    void skal_teste_gammelt_sammenligningsgrunnlag_for_sn_mappes_til_nytt() {
+        var stp = LocalDate.now();
+        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
+            .medGrunnbeløp(BigDecimal.valueOf(100_000))
+            .medSkjæringstidspunkt(stp)
+            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(KOMBINERT_AT_SN).medHjemmel(Hjemmel.F_14_7_8_41))
+            .build();
+        var periode1 = BeregningsgrunnlagPeriode.ny()
+            .medBeregningsgrunnlagPeriode(stp, stp.plusMonths(2).minusDays(1))
+            .medBruttoPrÅr(BigDecimal.valueOf(26_000))
+            .build(beregningsgrunnlag);
+        BeregningsgrunnlagPrStatusOgAndel.builder()
+            .medAndelsnr(1L)
+            .medBeregnetPrÅr(BigDecimal.valueOf(12_000))
+            .medPgi(BigDecimal.valueOf(150_000), List.of(BigDecimal.valueOf(34_000), BigDecimal.valueOf(90_000), BigDecimal.valueOf(60_000)))
+            .medAktivitetStatus(SELVSTENDIG_NÆRINGSDRIVENDE)
+            .build(periode1);
+        var arbforRef = UUID.randomUUID().toString();
+        BeregningsgrunnlagPrStatusOgAndel.builder()
+            .medAndelsnr(2L)
+            .medBeregnetPrÅr(BigDecimal.valueOf(14_000))
+            .medAktivitetStatus(ARBEIDSTAKER)
+            .medBGAndelArbeidsforhold(BGAndelArbeidsforhold.builder().medArbeidsforholdRef(arbforRef).medArbeidsgiver(Arbeidsgiver.virksomhet("999999999")).medRefusjonskravPrÅr(BigDecimal.valueOf(14_000)))
+            .build(periode1);
+        var sg = Sammenligningsgrunnlag.builder()
+            .medRapportertPrÅr(BigDecimal.valueOf(150_000))
+            .medAvvikPromille(BigDecimal.ZERO)
+            .medSammenligningsperiode(LocalDate.now().minusYears(1), LocalDate.now())
+            .build(beregningsgrunnlag);
+        var grunnlag = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(1L, BeregningsgrunnlagTilstand.FASTSATT);
+
+        var grDto = BeregningMigreringMapper.map(grunnlag);
+
+        assertThat(grDto).isNotNull();
+        assertThat(grDto.getBeregningsgrunnlagTilstand()).isEqualTo(no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand.FASTSATT);
+
+        var faktaAggregat = grDto.getFaktaAggregat();
+        assertThat(faktaAggregat).isNull();
+
+        var bgDto = grDto.getBeregningsgrunnlag();
+        assertThat(bgDto.getBeregningsgrunnlagPerioder()).hasSize(1);
+        assertThat(bgDto.getSkjæringstidspunkt()).isEqualTo(LocalDate.now());
+        assertThat(bgDto.getGrunnbeløp().verdi()).isEqualByComparingTo(BigDecimal.valueOf(100_000));
+        assertThat(bgDto.getAktivitetStatuser()).hasSize(1);
+        assertThat(bgDto.getAktivitetStatuser().getFirst().getAktivitetStatus()).isEqualTo(AktivitetStatus.KOMBINERT_AT_SN);
+        assertThat(bgDto.getAktivitetStatuser().getFirst().getHjemmel()).isEqualTo(no.nav.folketrygdloven.kalkulus.kodeverk.Hjemmel.F_14_7_8_41);
+
+        var bgPeriodeDto = bgDto.getBeregningsgrunnlagPerioder().getFirst();
+
+        assertThat(bgPeriodeDto.getBruttoPrÅr().verdi()).isEqualByComparingTo(BigDecimal.valueOf(26_000));
+        assertThat(bgPeriodeDto.getBeregningsgrunnlagPrStatusOgAndelList()).hasSize(2);
+
+        var snAndel = bgPeriodeDto.getBeregningsgrunnlagPrStatusOgAndelList().stream().filter(a -> a.getAktivitetStatus().equals(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)).findFirst().orElseThrow();
+        assertThat(snAndel.getAktivitetStatus()).isEqualTo(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE);
+        assertThat(snAndel.getAndelsnr()).isEqualTo(1L);
+        assertThat(snAndel.getBeregnetPrÅr().verdi()).isEqualByComparingTo(BigDecimal.valueOf(12_000));
+        assertThat(snAndel.getBruttoPrÅr().verdi()).isEqualByComparingTo(BigDecimal.valueOf(12_000));
+        assertThat(snAndel.getPgiSnitt().verdi()).isEqualByComparingTo(BigDecimal.valueOf(150_000));
+        assertThat(snAndel.getPgi1().verdi()).isEqualByComparingTo(BigDecimal.valueOf(34_000));
+        assertThat(snAndel.getPgi2().verdi()).isEqualByComparingTo(BigDecimal.valueOf(90_000));
+        assertThat(snAndel.getPgi3().verdi()).isEqualByComparingTo(BigDecimal.valueOf(60_000));
+
+        var atAndel = bgPeriodeDto.getBeregningsgrunnlagPrStatusOgAndelList().stream().filter(a -> a.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSTAKER)).findFirst().orElseThrow();
+        assertThat(atAndel.getAktivitetStatus()).isEqualTo(AktivitetStatus.ARBEIDSTAKER);
+        assertThat(atAndel.getAndelsnr()).isEqualTo(2L);
+        assertThat(atAndel.getBeregnetPrÅr().verdi()).isEqualByComparingTo(BigDecimal.valueOf(14_000));
+        assertThat(atAndel.getBruttoPrÅr().verdi()).isEqualByComparingTo(BigDecimal.valueOf(14_000));
+        var arbfor = atAndel.getBgAndelArbeidsforhold();
+        assertThat(arbfor).isNotNull();
+        assertThat(arbfor.getArbeidsgiver().getArbeidsgiverOrgnr()).isEqualTo("999999999");
+        assertThat(arbfor.getArbeidsforholdRef().getAbakusReferanse()).isEqualTo(arbforRef);
+        assertThat(arbfor.getRefusjonskravPrÅr().verdi()).isEqualByComparingTo(BigDecimal.valueOf(14_000));
+
+        // Forventer at gammel sammenligningsgrunnlag mappet til nytt
+        assertThat(bgDto.getSammenligningsgrunnlagPrStatusListe()).hasSize(1);
+        var sgDto = bgDto.getSammenligningsgrunnlagPrStatusListe().getFirst();
+        assertThat(sgDto.getSammenligningsgrunnlagType()).isEqualTo(SammenligningsgrunnlagType.SAMMENLIGNING_SN);
+        assertThat(sgDto.getSammenligningsperiode().getFom()).isEqualTo(sg.getSammenligningsperiode().getFomDato());
+        assertThat(sgDto.getSammenligningsperiode().getTom()).isEqualTo(sg.getSammenligningsperiode().getTomDato());
+        assertThat(sgDto.getRapportertPrÅr().verdi()).isEqualByComparingTo(sg.getRapportertPrÅr());
+    }
+
+    @Test
+    void skal_teste_gammelt_sammenligningsgrunnlag_for_at_fl_mappes_til_nytt() {
+        var stp = LocalDate.now();
+        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
+            .medGrunnbeløp(BigDecimal.valueOf(100_000))
+            .medSkjæringstidspunkt(stp)
+            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(KOMBINERT_AT_FL).medHjemmel(Hjemmel.F_14_7_8_40))
+            .build();
+        var periode1 = BeregningsgrunnlagPeriode.ny()
+            .medBeregningsgrunnlagPeriode(stp, stp.plusMonths(2).minusDays(1))
+            .medBruttoPrÅr(BigDecimal.valueOf(26_000))
+            .build(beregningsgrunnlag);
+        var flAndel = BeregningsgrunnlagPrStatusOgAndel.builder()
+            .medAndelsnr(1L)
+            .medBeregnetPrÅr(BigDecimal.valueOf(12_000))
+            .medAktivitetStatus(FRILANSER)
+            .medAvkortetPrÅr(BigDecimal.valueOf(12_000))
+            .medRedusertPrÅr(BigDecimal.valueOf(12_000))
+            .medAvkortetBrukersAndelPrÅr(BigDecimal.valueOf(12_000))
+            .medRedusertBrukersAndelPrÅr(BigDecimal.valueOf(12_000))
+            .build(periode1);
+        var arbforRef = UUID.randomUUID().toString();
+        var atAndel = BeregningsgrunnlagPrStatusOgAndel.builder()
+            .medAndelsnr(2L)
+            .medBeregnetPrÅr(BigDecimal.valueOf(14_000))
+            .medAktivitetStatus(ARBEIDSTAKER)
+            .medBGAndelArbeidsforhold(BGAndelArbeidsforhold.builder()
+                .medArbeidsforholdRef(arbforRef)
+                .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999"))
+                .medRefusjonskravPrÅr(BigDecimal.valueOf(14_000)))
+            .build(periode1);
+        var sg = Sammenligningsgrunnlag.builder()
+            .medRapportertPrÅr(BigDecimal.valueOf(150_000))
+            .medAvvikPromille(BigDecimal.ZERO)
+            .medSammenligningsperiode(LocalDate.now().minusYears(1), LocalDate.now())
+            .build(beregningsgrunnlag);
+        var grunnlag = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(1L, BeregningsgrunnlagTilstand.FASTSATT);
+
+        var grDto = BeregningMigreringMapper.map(grunnlag);
+
+        assertThat(grDto).isNotNull();
+        assertThat(grDto.getBeregningsgrunnlagTilstand()).isEqualTo(no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand.FASTSATT);
+
+        var faktaAggregat = grDto.getFaktaAggregat();
+        assertThat(faktaAggregat).isNull();
+
+        var bgDto = grDto.getBeregningsgrunnlag();
+        assertThat(bgDto.getBeregningsgrunnlagPerioder()).hasSize(1);
+        assertThat(bgDto.getSkjæringstidspunkt()).isEqualTo(LocalDate.now());
+        assertThat(bgDto.getGrunnbeløp().verdi()).isEqualByComparingTo(BigDecimal.valueOf(100_000));
+        assertThat(bgDto.getAktivitetStatuser()).hasSize(1);
+        assertThat(bgDto.getAktivitetStatuser().getFirst().getAktivitetStatus()).isEqualTo(AktivitetStatus.KOMBINERT_AT_FL);
+        assertThat(bgDto.getAktivitetStatuser().getFirst().getHjemmel()).isEqualTo(no.nav.folketrygdloven.kalkulus.kodeverk.Hjemmel.F_14_7_8_40);
+
+        var bgPeriodeDto = bgDto.getBeregningsgrunnlagPerioder().getFirst();
+
+        assertThat(bgPeriodeDto.getBruttoPrÅr().verdi()).isEqualByComparingTo(BigDecimal.valueOf(26_000));
+        assertThat(bgPeriodeDto.getBeregningsgrunnlagPrStatusOgAndelList()).hasSize(2);
+
+        var flAndelDto = bgPeriodeDto.getBeregningsgrunnlagPrStatusOgAndelList().stream().filter(a -> a.getAktivitetStatus().equals(AktivitetStatus.FRILANSER)).findFirst().orElseThrow();
+        assertThat(flAndelDto.getAktivitetStatus()).isEqualTo(AktivitetStatus.FRILANSER);
+        assertThat(flAndelDto.getAndelsnr()).isEqualTo(1L);
+        assertThat(flAndelDto.getBeregnetPrÅr().verdi()).isEqualByComparingTo(BigDecimal.valueOf(12_000));
+        assertThat(flAndelDto.getBruttoPrÅr().verdi()).isEqualByComparingTo(BigDecimal.valueOf(12_000));
+        assertThat(flAndelDto.getAvkortetPrÅr().verdi()).isEqualByComparingTo(BigDecimal.valueOf(12_000));
+        assertThat(flAndelDto.getAvkortetBrukersAndelPrÅr().verdi()).isEqualByComparingTo(BigDecimal.valueOf(12_000));
+        assertThat(flAndelDto.getRedusertPrÅr().verdi()).isEqualByComparingTo(BigDecimal.valueOf(12_000));
+        assertThat(flAndelDto.getRedusertBrukersAndelPrÅr().verdi()).isEqualByComparingTo(BigDecimal.valueOf(12_000));
+        assertThat(flAndelDto.getDagsatsBruker()).isEqualByComparingTo(flAndel.getDagsatsBruker());
+
+
+        var atAndelDto = bgPeriodeDto.getBeregningsgrunnlagPrStatusOgAndelList().stream().filter(a -> a.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSTAKER)).findFirst().orElseThrow();
+        assertThat(atAndelDto.getAktivitetStatus()).isEqualTo(AktivitetStatus.ARBEIDSTAKER);
+        assertThat(atAndelDto.getAndelsnr()).isEqualTo(2L);
+        assertThat(atAndelDto.getBeregnetPrÅr().verdi()).isEqualByComparingTo(BigDecimal.valueOf(14_000));
+        assertThat(atAndelDto.getBruttoPrÅr().verdi()).isEqualByComparingTo(BigDecimal.valueOf(14_000));
+        var arbfor = atAndelDto.getBgAndelArbeidsforhold();
+        assertThat(arbfor).isNotNull();
+        assertThat(arbfor.getArbeidsgiver().getArbeidsgiverOrgnr()).isEqualTo("999999999");
+        assertThat(arbfor.getArbeidsforholdRef().getAbakusReferanse()).isEqualTo(arbforRef);
+        assertThat(arbfor.getRefusjonskravPrÅr().verdi()).isEqualByComparingTo(BigDecimal.valueOf(14_000));
+
+        // Forventer at gammel sammenligningsgrunnlag mappet til nytt
+        assertThat(bgDto.getSammenligningsgrunnlagPrStatusListe()).hasSize(1);
+        var sgDto = bgDto.getSammenligningsgrunnlagPrStatusListe().getFirst();
+        assertThat(sgDto.getSammenligningsgrunnlagType()).isEqualTo(SammenligningsgrunnlagType.SAMMENLIGNING_AT_FL);
+        assertThat(sgDto.getSammenligningsperiode().getFom()).isEqualTo(sg.getSammenligningsperiode().getFomDato());
+        assertThat(sgDto.getSammenligningsperiode().getTom()).isEqualTo(sg.getSammenligningsperiode().getTomDato());
+        assertThat(sgDto.getRapportertPrÅr().verdi()).isEqualByComparingTo(sg.getRapportertPrÅr());
+    }
+
+    @Test
+    void skal_mappe_manuell_besteberegning() {
+        var stp = LocalDate.now();
+        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
+            .medGrunnbeløp(BigDecimal.valueOf(100_000))
+            .medSkjæringstidspunkt(stp)
+            .leggTilFaktaOmBeregningTilfeller(List.of(FaktaOmBeregningTilfelle.VURDER_BESTEBEREGNING, FaktaOmBeregningTilfelle.FASTSETT_BESTEBEREGNING_FØDENDE_KVINNE))
+            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(ARBEIDSTAKER).medHjemmel(Hjemmel.F_14_7_8_30))
+            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(DAGPENGER).medHjemmel(Hjemmel.F_14_7_8_47))
+            .build();
+        var periode1 = BeregningsgrunnlagPeriode.ny()
+            .medBeregningsgrunnlagPeriode(stp, stp.plusMonths(2).minusDays(1))
+            .medBruttoPrÅr(BigDecimal.valueOf(26_000))
+            .build(beregningsgrunnlag);
+        var dpAndel = BeregningsgrunnlagPrStatusOgAndel.builder()
+            .medAndelsnr(1L)
+            .medBeregnetPrÅr(BigDecimal.valueOf(12_000))
+            .medAktivitetStatus(DAGPENGER)
+            .medBesteberegningPrÅr(BigDecimal.valueOf(12_000))
+            .build(periode1);
+        var arbforRef = UUID.randomUUID().toString();
+        var atAndel = BeregningsgrunnlagPrStatusOgAndel.builder()
+            .medAndelsnr(2L)
+            .medBeregnetPrÅr(BigDecimal.valueOf(14_000))
+            .medBesteberegningPrÅr(BigDecimal.valueOf(14_000))
+            .medAktivitetStatus(ARBEIDSTAKER)
+            .medBGAndelArbeidsforhold(BGAndelArbeidsforhold.builder()
+                .medArbeidsforholdRef(arbforRef)
+                .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999"))
+                .medRefusjonskravPrÅr(BigDecimal.valueOf(14_000)))
+            .build(periode1);
+        var grunnlag = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(1L, BeregningsgrunnlagTilstand.FASTSATT);
+
+        var grDto = BeregningMigreringMapper.map(grunnlag);
+
+        assertThat(grDto).isNotNull();
+        assertThat(grDto.getBeregningsgrunnlagTilstand()).isEqualTo(no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand.FASTSATT);
+
+        // Forventer at kun frilans mottar ytelse er satt, alt annet bør være tomt / null
+        var faktaAggregat = grDto.getFaktaAggregat();
+        assertThat(faktaAggregat).isNotNull();
+        assertThat(faktaAggregat.getFaktaArbeidsforholdListe()).isEmpty();
+        var faktaAktør = faktaAggregat.getFaktaAktør();
+        assertThat(faktaAktør).isNotNull();
+        assertThat(faktaAktør.getErNyIArbeidslivetSN()).isNull();
+        assertThat(faktaAktør.getErNyoppstartetFL()).isNull();
+        assertThat(faktaAktør.getMottarEtterlønnSluttpakke()).isNull();
+        assertThat(faktaAktør.getSkalBesteberegnes()).isNotNull();
+        assertThat(faktaAktør.getSkalBesteberegnes().getKilde()).isEqualTo(FaktaVurderingKilde.SAKSBEHANDLER);
+        assertThat(faktaAktør.getSkalBesteberegnes().getVurdering()).isTrue();
+        assertThat(faktaAktør.getSkalBeregnesSomMilitær()).isNull();
+        assertThat(faktaAktør.getHarFLMottattYtelse()).isNull();
+        assertThat(faktaAktør.getHarFLMottattYtelse()).isNull();
+
+        var bgDto = grDto.getBeregningsgrunnlag();
+        assertThat(bgDto.getBesteberegninggrunnlag()).isNull();
+        assertThat(bgDto.getBeregningsgrunnlagPerioder()).hasSize(1);
+        assertThat(bgDto.getSkjæringstidspunkt()).isEqualTo(LocalDate.now());
+        assertThat(bgDto.getGrunnbeløp().verdi()).isEqualByComparingTo(BigDecimal.valueOf(100_000));
+        assertThat(bgDto.getAktivitetStatuser()).hasSize(2);
+        assertThat(bgDto.getAktivitetStatuser().stream().anyMatch(a -> a.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSTAKER) && a.getHjemmel().equals(no.nav.folketrygdloven.kalkulus.kodeverk.Hjemmel.F_14_7_8_30))).isTrue();
+        assertThat(bgDto.getAktivitetStatuser().stream().anyMatch(a -> a.getAktivitetStatus().equals(AktivitetStatus.DAGPENGER) && a.getHjemmel().equals(no.nav.folketrygdloven.kalkulus.kodeverk.Hjemmel.F_14_7_8_47))).isTrue();
+
+        var bgPeriodeDto = bgDto.getBeregningsgrunnlagPerioder().getFirst();
+
+        assertThat(bgPeriodeDto.getBruttoPrÅr().verdi()).isEqualByComparingTo(BigDecimal.valueOf(26_000));
+        assertThat(bgPeriodeDto.getBeregningsgrunnlagPrStatusOgAndelList()).hasSize(2);
+
+        var dpAndelDto = bgPeriodeDto.getBeregningsgrunnlagPrStatusOgAndelList().stream().filter(a -> a.getAktivitetStatus().equals(AktivitetStatus.DAGPENGER)).findFirst().orElseThrow();
+        assertThat(dpAndelDto.getAktivitetStatus()).isEqualTo(AktivitetStatus.DAGPENGER);
+        assertThat(dpAndelDto.getAndelsnr()).isEqualTo(1L);
+        assertThat(dpAndelDto.getBeregnetPrÅr().verdi()).isEqualByComparingTo(BigDecimal.valueOf(12_000));
+        assertThat(dpAndelDto.getBesteberegningPrÅr().verdi()).isEqualByComparingTo(BigDecimal.valueOf(12_000));
+        assertThat(dpAndelDto.getBruttoPrÅr().verdi()).isEqualByComparingTo(BigDecimal.valueOf(12_000));
+
+
+        var atAndelDto = bgPeriodeDto.getBeregningsgrunnlagPrStatusOgAndelList().stream().filter(a -> a.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSTAKER)).findFirst().orElseThrow();
+        assertThat(atAndelDto.getAktivitetStatus()).isEqualTo(AktivitetStatus.ARBEIDSTAKER);
+        assertThat(atAndelDto.getAndelsnr()).isEqualTo(2L);
+        assertThat(atAndelDto.getBesteberegningPrÅr().verdi()).isEqualByComparingTo(BigDecimal.valueOf(14_000));
+        assertThat(atAndelDto.getBeregnetPrÅr().verdi()).isEqualByComparingTo(BigDecimal.valueOf(14_000));
+        assertThat(atAndelDto.getBruttoPrÅr().verdi()).isEqualByComparingTo(BigDecimal.valueOf(14_000));
+        var arbfor = atAndelDto.getBgAndelArbeidsforhold();
+        assertThat(arbfor).isNotNull();
+        assertThat(arbfor.getArbeidsgiver().getArbeidsgiverOrgnr()).isEqualTo("999999999");
+        assertThat(arbfor.getArbeidsforholdRef().getAbakusReferanse()).isEqualTo(arbforRef);
+        assertThat(arbfor.getRefusjonskravPrÅr().verdi()).isEqualByComparingTo(BigDecimal.valueOf(14_000));
     }
 }
