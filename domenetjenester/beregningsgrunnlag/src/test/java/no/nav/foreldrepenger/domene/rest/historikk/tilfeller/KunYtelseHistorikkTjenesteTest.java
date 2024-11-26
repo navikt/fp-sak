@@ -18,9 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
-import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
@@ -66,8 +64,7 @@ class KunYtelseHistorikkTjenesteTest { //FIXME Thao
             .medAndelsnr(ANDELSNR)
             .medAktivitetStatus(BRUKERS_ANDEL)
             .build(periode1);
-        historikkAdapter = new HistorikkTjenesteAdapter(new HistorikkRepository(entityManager), mock(DokumentArkivTjeneste.class),
-                new BehandlingRepository(entityManager));
+        historikkAdapter = new HistorikkTjenesteAdapter(new HistorikkRepository(entityManager));
     }
 
     @Test

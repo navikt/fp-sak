@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.ytelse.beregning.es.BeregnYtelseTjenesteES;
 public class BeregningOverstyringshåndterer extends AbstractOverstyringshåndterer<OverstyringBeregningDto> {
 
     private LegacyESBeregningRepository beregningRepository;
+    private HistorikkTjenesteAdapter historikkAdapter;
     private BeregnYtelseTjenesteES beregnTjeneste;
 
     BeregningOverstyringshåndterer() {
@@ -32,8 +33,9 @@ public class BeregningOverstyringshåndterer extends AbstractOverstyringshåndte
     public BeregningOverstyringshåndterer(LegacyESBeregningRepository beregningRepository,
             HistorikkTjenesteAdapter historikkAdapter,
             BeregnYtelseTjenesteES beregnTjeneste) {
-        super(historikkAdapter, AksjonspunktDefinisjon.OVERSTYRING_AV_BEREGNING);
+        super(AksjonspunktDefinisjon.OVERSTYRING_AV_BEREGNING);
         this.beregningRepository = beregningRepository;
+        this.historikkAdapter = historikkAdapter;
         this.beregnTjeneste = beregnTjeneste;
     }
 
@@ -53,7 +55,7 @@ public class BeregningOverstyringshåndterer extends AbstractOverstyringshåndte
         var sisteBeregning = beregningRepository.getSisteBeregning(behandlingId);
         if (sisteBeregning.isPresent()) {
             var fraBeregning = sisteBeregning.get().getOpprinneligBeregnetTilkjentYtelse();
-            getHistorikkAdapter().tekstBuilder()
+            historikkAdapter.tekstBuilder()
                 .medHendelse(HistorikkinnslagType.OVERSTYRT)
                 .medBegrunnelse(begrunnelse)
                 .medSkjermlenke(SkjermlenkeType.BEREGNING_ENGANGSSTOENAD)

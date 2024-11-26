@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt;
 
+import java.util.Objects;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AbstractOverstyringshåndterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
@@ -7,10 +9,15 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.inngangsvilkaar.InngangsvilkårTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
 
@@ -18,26 +25,27 @@ public abstract class InngangsvilkårOverstyringshåndterer<T extends Overstyrin
 
     private VilkårType vilkårType;
     private InngangsvilkårTjeneste inngangsvilkårTjeneste;
+    private Historikkinnslag2Repository historikkinnslag2Repository;
 
     protected InngangsvilkårOverstyringshåndterer() {
         // for CDI proxy
     }
 
-    public InngangsvilkårOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter,
-            AksjonspunktDefinisjon aksjonspunktDefinisjon,
-            VilkårType vilkårType,
-            InngangsvilkårTjeneste inngangsvilkårTjeneste) {
-        super(historikkAdapter, aksjonspunktDefinisjon);
+    public InngangsvilkårOverstyringshåndterer(AksjonspunktDefinisjon aksjonspunktDefinisjon,
+                                               VilkårType vilkårType,
+                                               InngangsvilkårTjeneste inngangsvilkårTjeneste,
+                                               Historikkinnslag2Repository historikkinnslag2Repository) {
+        super(aksjonspunktDefinisjon);
         this.vilkårType = vilkårType;
         this.inngangsvilkårTjeneste = inngangsvilkårTjeneste;
+        this.historikkinnslag2Repository = historikkinnslag2Repository;
     }
 
     @Override
     public OppdateringResultat håndterOverstyring(T dto, Behandling behandling, BehandlingskontrollKontekst kontekst) {
         var utfall = dto.getErVilkarOk() ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
-        var avslagsårsak = dto.getErVilkarOk() ? Avslagsårsak.UDEFINERT :
-            Avslagsårsak.fraDefinertKode(dto.getAvslagskode())
-                .orElseThrow(() -> new FunksjonellException("FP-MANGLER-ÅRSAK", "Ugyldig avslagsårsak", "Velg gyldig avslagsårsak"));
+        var avslagsårsak = dto.getErVilkarOk() ? Avslagsårsak.UDEFINERT : Avslagsårsak.fraDefinertKode(dto.getAvslagskode())
+            .orElseThrow(() -> new FunksjonellException("FP-MANGLER-ÅRSAK", "Ugyldig avslagsårsak", "Velg gyldig avslagsårsak"));
 
         inngangsvilkårTjeneste.overstyrAksjonspunkt(behandling.getId(), vilkårType, utfall, avslagsårsak, kontekst);
 
@@ -46,5 +54,24 @@ public abstract class InngangsvilkårOverstyringshåndterer<T extends Overstyrin
         }
 
         return OppdateringResultat.utenOverhopp();
+    }
+
+    protected void lagHistorikkInnslagForOverstyrtVilkår(Behandling behandling,
+                                                         String begrunnelse,
+                                                         boolean vilkårOppfylt,
+                                                         SkjermlenkeType skjermlenkeType) {
+        var tilVerdi = vilkårOppfylt ? HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT : HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT;
+        var fraVerdi = vilkårOppfylt ? HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT : HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT;
+
+        var builder = new Historikkinnslag2.Builder().medTittel(skjermlenkeType)
+            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medBehandlingId(behandling.getId())
+            .medFagsakId(behandling.getFagsakId());
+        if (!Objects.equals(fraVerdi, tilVerdi)) {
+            builder.addTekstlinje("Overstyrt vurdering: " + new HistorikkinnslagTekstlinjeBuilder().fraTil("Utfallet", fraVerdi, tilVerdi).build());
+        }
+
+        var historikkinnslag = builder.addTekstlinje(begrunnelse).build();
+        historikkinnslag2Repository.lagre(historikkinnslag);
     }
 }

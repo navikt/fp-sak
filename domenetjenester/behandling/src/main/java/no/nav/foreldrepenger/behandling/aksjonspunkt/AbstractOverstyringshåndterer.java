@@ -2,24 +2,16 @@ package no.nav.foreldrepenger.behandling.aksjonspunkt;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 public abstract class AbstractOverstyringshåndterer<T extends OverstyringAksjonspunkt> implements Overstyringshåndterer<T> {
 
-    private HistorikkTjenesteAdapter historikkAdapter;
     private AksjonspunktDefinisjon aksjonspunktDefinisjon;
 
     protected AbstractOverstyringshåndterer() {
         // for CDI proxy
     }
 
-    protected AbstractOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter,
-            AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        this.historikkAdapter = historikkAdapter;
+    protected AbstractOverstyringshåndterer(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         this.aksjonspunktDefinisjon = aksjonspunktDefinisjon;
     }
 
@@ -49,22 +41,5 @@ public abstract class AbstractOverstyringshåndterer<T extends OverstyringAksjon
     }
 
     protected abstract void lagHistorikkInnslag(Behandling behandling, T dto);
-
-    protected void lagHistorikkInnslagForOverstyrtVilkår(String begrunnelse, boolean vilkårOppfylt, SkjermlenkeType skjermlenkeType) {
-        var tilVerdi = vilkårOppfylt ? HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT
-                : HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT;
-        var fraVerdi = vilkårOppfylt ? HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT
-                : HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT;
-
-        historikkAdapter.tekstBuilder()
-                .medHendelse(HistorikkinnslagType.OVERSTYRT)
-                .medBegrunnelse(begrunnelse)
-                .medSkjermlenke(skjermlenkeType)
-                .medEndretFelt(HistorikkEndretFeltType.OVERSTYRT_VURDERING, fraVerdi, tilVerdi);
-    }
-
-    protected HistorikkTjenesteAdapter getHistorikkAdapter() {
-        return historikkAdapter;
-    }
 
 }

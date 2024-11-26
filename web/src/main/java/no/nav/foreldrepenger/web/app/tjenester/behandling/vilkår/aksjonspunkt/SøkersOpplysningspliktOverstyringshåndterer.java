@@ -24,6 +24,7 @@ import no.nav.vedtak.exception.FunksjonellException;
 @DtoTilServiceAdapter(dto = OverstyringSokersOpplysingspliktDto.class, adapter = Overstyringshåndterer.class)
 public class SøkersOpplysningspliktOverstyringshåndterer extends AbstractOverstyringshåndterer<OverstyringSokersOpplysingspliktDto> {
 
+    private HistorikkTjenesteAdapter historikkAdapter;
     private InngangsvilkårTjeneste inngangsvilkårTjeneste;
 
     SøkersOpplysningspliktOverstyringshåndterer() {
@@ -33,7 +34,8 @@ public class SøkersOpplysningspliktOverstyringshåndterer extends AbstractOvers
     @Inject
     public SøkersOpplysningspliktOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter,
                                                        InngangsvilkårTjeneste inngangsvilkårTjeneste) {
-        super(historikkAdapter, AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_OVST);
+        super(AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_OVST);
+        this.historikkAdapter = historikkAdapter;
         this.inngangsvilkårTjeneste = inngangsvilkårTjeneste;
 
     }
@@ -65,7 +67,7 @@ public class SøkersOpplysningspliktOverstyringshåndterer extends AbstractOvers
     private void leggTilEndretFeltIHistorikkInnslag(String begrunnelse, boolean vilkårOppfylt) {
         var tilVerdi = vilkårOppfylt ? HistorikkEndretFeltVerdiType.OPPFYLT : HistorikkEndretFeltVerdiType.IKKE_OPPFYLT;
 
-        var tekstBuilder = getHistorikkAdapter().tekstBuilder();
+        var tekstBuilder = historikkAdapter.tekstBuilder();
         if (begrunnelse != null) {
             tekstBuilder.medBegrunnelse(begrunnelse);
         }

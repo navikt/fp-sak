@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndr
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
@@ -24,21 +23,20 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
-import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 class FaktaUttakHistorikkinnslagTjenesteTest {
 
-    private static LocalDate FOM = LocalDate.of(2022,12,1);
-    private static LocalDate TOM = LocalDate.of(2022,12,7);
+    private static final LocalDate FOM = LocalDate.of(2022,12,1);
+    private static final LocalDate TOM = LocalDate.of(2022,12,7);
 
     private HistorikkTjenesteAdapter adapter;
     private FaktaUttakHistorikkinnslagTjeneste tjeneste;
 
     @BeforeEach
     public void setup() {
-        adapter = new HistorikkTjenesteAdapter(mock(HistorikkRepository.class), mock(DokumentArkivTjeneste.class), mock(BehandlingRepository.class));
+        adapter = new HistorikkTjenesteAdapter(mock(HistorikkRepository.class));
         tjeneste = new FaktaUttakHistorikkinnslagTjeneste(adapter);
     }
 

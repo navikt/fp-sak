@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjenest
 import no.nav.foreldrepenger.domene.rest.dto.OverstyrBeregningsgrunnlagDto;
 import no.nav.foreldrepenger.domene.rest.historikk.FaktaBeregningHistorikkHåndterer;
 import no.nav.foreldrepenger.domene.rest.historikk.kalkulus.FaktaBeregningHistorikkKalkulusTjeneste;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = OverstyrBeregningsgrunnlagDto.class, adapter = Overstyringshåndterer.class)
@@ -37,12 +36,11 @@ public class BeregningsgrunnlagOverstyringshåndterer extends AbstractOverstyrin
     }
 
     @Inject
-    public BeregningsgrunnlagOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter,
-                                                   FaktaBeregningHistorikkHåndterer faktaBeregningHistorikkHåndterer,
+    public BeregningsgrunnlagOverstyringshåndterer(FaktaBeregningHistorikkHåndterer faktaBeregningHistorikkHåndterer,
                                                    FaktaBeregningHistorikkKalkulusTjeneste faktaBeregningHistorikkKalkulusTjeneste,
                                                    HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
                                                    BeregningTjeneste beregningTjeneste) {
-        super(historikkAdapter, AksjonspunktDefinisjon.OVERSTYRING_AV_BEREGNINGSGRUNNLAG);
+        super(AksjonspunktDefinisjon.OVERSTYRING_AV_BEREGNINGSGRUNNLAG);
         this.faktaBeregningHistorikkHåndterer = faktaBeregningHistorikkHåndterer;
         this.faktaBeregningHistorikkKalkulusTjeneste = faktaBeregningHistorikkKalkulusTjeneste;
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;

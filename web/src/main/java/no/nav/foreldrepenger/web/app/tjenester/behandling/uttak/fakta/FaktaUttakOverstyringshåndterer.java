@@ -10,7 +10,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = OverstyringFaktaUttakDto.class, adapter = Overstyringshåndterer.class)
@@ -19,9 +18,8 @@ public class FaktaUttakOverstyringshåndterer extends AbstractOverstyringshåndt
     private FaktaUttakFellesTjeneste fellesTjeneste;
 
     @Inject
-    public FaktaUttakOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter,
-                                           FaktaUttakFellesTjeneste fellesTjeneste) {
-        super(historikkAdapter, AksjonspunktDefinisjon.OVERSTYRING_FAKTA_UTTAK);
+    public FaktaUttakOverstyringshåndterer(FaktaUttakFellesTjeneste fellesTjeneste) {
+        super(AksjonspunktDefinisjon.OVERSTYRING_FAKTA_UTTAK);
         this.fellesTjeneste = fellesTjeneste;
     }
 
