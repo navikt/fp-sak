@@ -25,18 +25,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOpplysningType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftEktefelleAksjonspunktDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkManglendeFodselDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.UidentifisertBarnDto;
 import no.nav.foreldrepenger.familiehendelse.event.FamiliehendelseEventPubliserer;
@@ -66,44 +63,6 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         tekstBuilder =  new HistorikkInnslagTekstBuilder();
         familieHendelseTjeneste = new FamilieHendelseTjeneste(familiehendelseEventPubliserer, repositoryProvider.getFamilieHendelseRepository());
 
-    }
-
-    @Test
-    void skal_generere_historikkinnslag_ved_avklaring_av_ektefelle() {
-        // Arrange
-        var oppdatertEktefellesBarn = true;
-
-        // Behandling
-        var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
-        scenario.medSøknadHendelse()
-            .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder()
-                .medOmsorgsovertakelseDato(LocalDate.now()));
-
-        scenario.medSøknad()
-            .medFarSøkerType(FarSøkerType.ADOPTERER_ALENE);
-        scenario.medBekreftetHendelse().medAdopsjon(scenario.medBekreftetHendelse().getAdopsjonBuilder()
-            .medOmsorgsovertakelseDato(LocalDate.now())
-            .medAdoptererAlene(true));
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN,
-            BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
-        var behandling = scenario.lagre(repositoryProvider);
-        // Dto
-        var dto = new BekreftEktefelleAksjonspunktDto("begrunnelse", oppdatertEktefellesBarn);
-        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
-        // Act
-        new BekreftEktefelleOppdaterer(lagMockHistory(), familieHendelseTjeneste)
-            .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-        var historikkInnslagDeler = this.tekstBuilder.build(historikkinnslag);
-
-        // Assert
-        var feltOpt = historikkInnslagDeler.get(0).getEndretFelt(HistorikkEndretFeltType.EKTEFELLES_BARN);
-        assertThat(feltOpt).hasValueSatisfying(felt -> {
-            assertThat(felt.getNavn()).isEqualTo(HistorikkEndretFeltType.EKTEFELLES_BARN.getKode());
-            assertThat(felt.getFraVerdi()).isNull();
-            assertThat(felt.getTilVerdi()).isEqualTo(HistorikkEndretFeltVerdiType.EKTEFELLES_BARN.getKode());
-        });
     }
 
     @Test
