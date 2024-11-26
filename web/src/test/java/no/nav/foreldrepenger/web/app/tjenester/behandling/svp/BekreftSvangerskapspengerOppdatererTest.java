@@ -14,8 +14,6 @@ import java.util.Optional;
 
 import jakarta.persistence.EntityManager;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpOppholdKilde;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGr
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpAvklartOpphold;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpOppholdKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpOppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingFomKilde;
@@ -81,8 +80,7 @@ class BekreftSvangerskapspengerOppdatererTest {
     public void beforeEach(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         grunnlagProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
-        var historikkAdapter = new HistorikkTjenesteAdapter(
-            repositoryProvider.getHistorikkRepository(), null, repositoryProvider.getBehandlingRepository());
+        var historikkAdapter = new HistorikkTjenesteAdapter(repositoryProvider.getHistorikkRepository());
         var arbeidsforholdAdministrasjonTjeneste = new ArbeidsforholdAdministrasjonTjeneste(
             inntektArbeidYtelseTjeneste);
         oppdaterer = new BekreftSvangerskapspengerOppdaterer(historikkAdapter, grunnlagProvider, inntektArbeidYtelseTjeneste, stønadsperioderInnhenterMock, arbeidsforholdAdministrasjonTjeneste,
