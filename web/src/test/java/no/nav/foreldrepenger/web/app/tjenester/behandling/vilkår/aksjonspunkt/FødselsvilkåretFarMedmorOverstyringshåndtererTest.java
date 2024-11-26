@@ -13,8 +13,6 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
@@ -62,14 +60,11 @@ class FødselsvilkåretFarMedmorOverstyringshåndtererTest {
         aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringDto), behandling.getId());
 
         // Assert
-        var historikkinnslagene = repositoryProvider.getHistorikkRepository().hentHistorikk(behandling.getId());
-        assertThat(historikkinnslagene.get(0).getHistorikkinnslagDeler()).hasSize(1);
-        var feltList = historikkinnslagene.get(0).getHistorikkinnslagDeler().get(0).getEndredeFelt();
-        assertThat(feltList).hasSize(1);
-        var felt = feltList.get(0);
-        assertThat(felt.getNavn()).as("navn").isEqualTo(HistorikkEndretFeltType.OVERSTYRT_VURDERING.getKode());
-        assertThat(felt.getFraVerdi()).as("fraVerdi").isEqualTo(HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT.getKode());
-        assertThat(felt.getTilVerdi()).as("tilVerdi").isEqualTo(HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT.getKode());
+        var historikkinnslagene = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId());
+        var tekstlinjer = historikkinnslagene.getFirst().getTekstlinjer();
+        assertThat(tekstlinjer).hasSize(2);
+        assertThat(tekstlinjer.getFirst().getTekst()).contains("Overstyrt vurdering", "ikke oppfylt");
+        assertThat(tekstlinjer.get(1).getTekst()).contains(overstyringDto.getBegrunnelse());
 
         var aksjonspunktSet = behandling.getAksjonspunkter();
 

@@ -10,7 +10,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = AvklarDekningsgradOverstyringDto.class, adapter = Overstyringshåndterer.class)
@@ -19,9 +18,8 @@ public class AvklarDekningsgradOverstyringshåndterer extends AbstractOverstyrin
     private AvklarDekningsgradFellesTjeneste fellesTjeneste;
 
     @Inject
-    public AvklarDekningsgradOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter,
-                                                   AvklarDekningsgradFellesTjeneste fellesTjeneste) {
-        super(historikkAdapter, AksjonspunktDefinisjon.OVERSTYRING_AV_DEKNINGSGRAD);
+    public AvklarDekningsgradOverstyringshåndterer(AvklarDekningsgradFellesTjeneste fellesTjeneste) {
+        super(AksjonspunktDefinisjon.OVERSTYRING_AV_DEKNINGSGRAD);
         this.fellesTjeneste = fellesTjeneste;
     }
 

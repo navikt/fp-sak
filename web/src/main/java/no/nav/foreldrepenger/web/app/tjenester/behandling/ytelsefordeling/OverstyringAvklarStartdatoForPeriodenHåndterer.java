@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = OverstyringAvklarStartdatoForPeriodenDto.class, adapter = Overstyringshåndterer.class)
@@ -31,10 +30,9 @@ public class OverstyringAvklarStartdatoForPeriodenHåndterer extends AbstractOve
     }
 
     @Inject
-    public OverstyringAvklarStartdatoForPeriodenHåndterer(HistorikkTjenesteAdapter historikkAdapter,
-                                                          YtelseFordelingTjeneste ytelseFordelingTjeneste,
+    public OverstyringAvklarStartdatoForPeriodenHåndterer(YtelseFordelingTjeneste ytelseFordelingTjeneste,
                                                           Historikkinnslag2Repository historikkinnslag2Repository) {
-        super(historikkAdapter, AksjonspunktDefinisjon.OVERSTYRING_AV_AVKLART_STARTDATO);
+        super(AksjonspunktDefinisjon.OVERSTYRING_AV_AVKLART_STARTDATO);
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.historikkinnslag2Repository = historikkinnslag2Repository;
     }

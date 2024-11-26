@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 import jakarta.persistence.EntityManager;
 
@@ -19,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
-import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ExtendWith(JpaExtension.class)
@@ -91,8 +89,7 @@ class BekreftSvangerskapspengervilkårOppdatererTest {
     }
 
     private BekreftSvangerskapspengervilkårOppdaterer oppdaterer() {
-        return new BekreftSvangerskapspengervilkårOppdaterer
-            ( new HistorikkTjenesteAdapter(repositoryProvider.getHistorikkRepository(), mock(DokumentArkivTjeneste.class), repositoryProvider.getBehandlingRepository()));
+        return new BekreftSvangerskapspengervilkårOppdaterer(new HistorikkTjenesteAdapter(repositoryProvider.getHistorikkRepository()));
     }
 
 }

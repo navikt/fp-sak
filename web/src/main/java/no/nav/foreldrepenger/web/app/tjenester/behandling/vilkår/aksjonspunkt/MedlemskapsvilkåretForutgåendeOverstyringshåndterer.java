@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.inngangsvilkaar.InngangsvilkårTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.medlem.aksjonspunkt.MedlemskapAksjonspunktFellesTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt.dto.OverstyringForutgåendeMedlemskapsvilkårDto;
@@ -31,9 +30,8 @@ public class MedlemskapsvilkåretForutgåendeOverstyringshåndterer extends Abst
 
     @Inject
     public MedlemskapsvilkåretForutgåendeOverstyringshåndterer(MedlemskapAksjonspunktFellesTjeneste medlemskapAksjonspunktFellesTjeneste,
-                                                               InngangsvilkårTjeneste inngangsvilkårTjeneste,
-                                                               HistorikkTjenesteAdapter historikkTjenesteAdapter) {
-        super(historikkTjenesteAdapter, AksjonspunktDefinisjon.OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET);
+                                                               InngangsvilkårTjeneste inngangsvilkårTjeneste) {
+        super(AksjonspunktDefinisjon.OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET);
         this.medlemskapAksjonspunktFellesTjeneste = medlemskapAksjonspunktFellesTjeneste;
         this.inngangsvilkårTjeneste = inngangsvilkårTjeneste;
     }
