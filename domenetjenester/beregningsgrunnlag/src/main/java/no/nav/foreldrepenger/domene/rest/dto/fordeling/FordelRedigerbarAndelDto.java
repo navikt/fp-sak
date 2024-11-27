@@ -57,6 +57,10 @@ public class FordelRedigerbarAndelDto {
         this.beregningsperiodeTom = beregningsperiodeTom;
     }
 
+    public boolean setNyAndel(boolean nyAndel) {
+        return this.nyAndel = nyAndel;
+    }
+
     public AktivitetStatus getAktivitetStatus() {
         return aktivitetStatus;
     }

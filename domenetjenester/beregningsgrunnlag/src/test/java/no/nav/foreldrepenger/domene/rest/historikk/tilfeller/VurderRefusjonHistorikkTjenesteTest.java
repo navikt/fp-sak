@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.rest.historikk.tilfeller;
 
 import static no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori.ARBEIDSTAKER;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -106,39 +107,17 @@ class VurderRefusjonHistorikkTjenesteTest {
         assertHistorikk(tekster, "er endret fra Nei til __Ja__");
     }
 
-   /* @Test //TODO Thao
-    void oppdater_når_gyldig_utvidelse_med_forrige_satt_til_true() {
-        // Arrange
+    @Test
+    void kast_exception_når_fra_og_til_verdier_er_like() {
+        //Arrange
         var forrige = lagBeregningsgrunnlagMedOverstyring(SKJÆRINGSTIDSPUNKT);
         var grunnlag = lagBeregningsgrunnlag();
         var dto = lagDto(true);
 
-        // Act
-        var tekstlinjerBuilder = vurderRefusjonHistorikkTjeneste.lagHistorikk(dto, grunnlag.getBeregningsgrunnlag().orElseThrow(),
-            Optional.of(forrige), InntektArbeidYtelseGrunnlagBuilder.nytt().build());
-        var tekster = tekstlinjerBuilder.stream().map(HistorikkinnslagTekstlinjeBuilder::build).toList();
-
-        // Assert
-        assertTrue(inneholderSubstring(tekster, "er endret fra Nei til __Ja__"));
-        assertTrue(inneholderSubstring(tekster, NY_REFUSJONSFRIST));
+        //Assert
+        assertThrows(IllegalArgumentException.class, () -> vurderRefusjonHistorikkTjeneste.lagHistorikk(dto, grunnlag.getBeregningsgrunnlag().orElseThrow(),
+            Optional.of(forrige), InntektArbeidYtelseGrunnlagBuilder.nytt().build()));
     }
-
-    @Test
-    void oppdater_når_ikkje_gyldig_utvidelse_og_forrige_satt_til_ikkje_gyldig() {
-        // Arrange
-        var forrige = lagBeregningsgrunnlagMedOverstyring(SKJÆRINGSTIDSPUNKT.plusMonths(1));
-        var grunnlag = lagBeregningsgrunnlag();
-        var dto = lagDto(false);
-
-        // Act
-        var tekstlinjerBuilder = vurderRefusjonHistorikkTjeneste.lagHistorikk(dto, grunnlag.getBeregningsgrunnlag().orElseThrow(),
-            Optional.of(forrige), InntektArbeidYtelseGrunnlagBuilder.nytt().build());
-        var tekster = tekstlinjerBuilder.stream().map(HistorikkinnslagTekstlinjeBuilder::build).toList();
-
-        // Assert
-        assertTrue(inneholderSubstring(tekster, "er endret fra Nei til __Ja__"));
-        assertTrue(inneholderSubstring(tekster, NY_REFUSJONSFRIST));
-    }*/
 
     @Test
     void oppdater_når_ikkje_gyldig_utvidelse_og_forrige_satt_til_gyldig() {
@@ -160,29 +139,6 @@ class VurderRefusjonHistorikkTjenesteTest {
         assertTrue(inneholderSubstring(tekstListe, forventetTekststreng));
         assertTrue(inneholderSubstring(tekstListe, NY_REFUSJONSFRIST));
     }
-
-
-    /*private void assertHistorikk(HistorikkInnslagTekstBuilder historikkInnslagTekstBuilder, Boolean tilVerdi) {
-        var deler = historikkInnslagTekstBuilder.build(historikkinnslag);
-        assertThat(deler).hasSize(1);
-        var del = deler.get(0);
-        var endredeFelt = del.getEndredeFelt();
-        assertThat(endredeFelt).hasSize(1);
-        assertThat(endredeFelt.get(0).getNavn()).isEqualTo(HistorikkEndretFeltType.NY_REFUSJONSFRIST.getKode());
-        assertThat(endredeFelt.get(0).getFraVerdi()).isNull();
-        assertThat(endredeFelt.get(0).getTilVerdi()).isEqualTo(tilVerdi.toString());
-    }
-
-    private void assertHistorikk(HistorikkInnslagTekstBuilder historikkInnslagTekstBuilder, Boolean tilVerdi, Boolean fraVerdi) {
-        var deler = historikkInnslagTekstBuilder.build(historikkinnslag);
-        assertThat(deler).hasSize(1);
-        var del = deler.get(0);
-        var endredeFelt = del.getEndredeFelt();
-        assertThat(endredeFelt).hasSize(1);
-        assertThat(endredeFelt.get(0).getNavn()).isEqualTo(HistorikkEndretFeltType.NY_REFUSJONSFRIST.getKode());
-        assertThat(endredeFelt.get(0).getFraVerdi()).isEqualTo(fraVerdi.toString());
-        assertThat(endredeFelt.get(0).getTilVerdi()).isEqualTo(tilVerdi.toString());
-    }*/
 
     private FaktaBeregningLagreDto lagDto(boolean skalUtvideGyldighet) {
         var dto = new FaktaBeregningLagreDto(List.of(FaktaOmBeregningTilfelle.VURDER_REFUSJONSKRAV_SOM_HAR_KOMMET_FOR_SENT));
