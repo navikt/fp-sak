@@ -249,10 +249,10 @@ public class AksjonspunktTjeneste {
         overstyrteAksjonspunkter.forEach(dto -> {
             @SuppressWarnings("rawtypes")
             Overstyringshåndterer overstyringshåndterer = finnOverstyringshåndterer(dto);
-            overstyringshåndterer.håndterAksjonspunktForOverstyringPrecondition(dto, behandling);
-            var aksjonspunktDefinisjon = overstyringshåndterer.aksjonspunktForInstans();
+            overstyringshåndterer.precondition(dto, behandling);
+            var aksjonspunktDefinisjon = dto.getAksjonspunktDefinisjon();
             opprettAksjonspunktForOverstyring(kontekst, behandling, dto, aksjonspunktDefinisjon);
-            overstyringshåndterer.håndterAksjonspunktForOverstyringHistorikk(dto, behandling);
+            overstyringshåndterer.lagHistorikkInnslag(dto, behandling);
         });
 
         var totrinn = overhoppResultat.finnTotrinn();

@@ -5,13 +5,11 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.Histor
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.aksjonspunkt.AbstractOverstyringshåndterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
@@ -20,7 +18,7 @@ import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = OverstyringAvklarStartdatoForPeriodenDto.class, adapter = Overstyringshåndterer.class)
-public class OverstyringAvklarStartdatoForPeriodenHåndterer extends AbstractOverstyringshåndterer<OverstyringAvklarStartdatoForPeriodenDto> {
+public class OverstyringAvklarStartdatoForPeriodenHåndterer implements Overstyringshåndterer<OverstyringAvklarStartdatoForPeriodenDto> {
 
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private Historikkinnslag2Repository historikkinnslag2Repository;
@@ -32,7 +30,6 @@ public class OverstyringAvklarStartdatoForPeriodenHåndterer extends AbstractOve
     @Inject
     public OverstyringAvklarStartdatoForPeriodenHåndterer(YtelseFordelingTjeneste ytelseFordelingTjeneste,
                                                           Historikkinnslag2Repository historikkinnslag2Repository) {
-        super(AksjonspunktDefinisjon.OVERSTYRING_AV_AVKLART_STARTDATO);
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.historikkinnslag2Repository = historikkinnslag2Repository;
     }
@@ -44,7 +41,7 @@ public class OverstyringAvklarStartdatoForPeriodenHåndterer extends AbstractOve
     }
 
     @Override
-    protected void lagHistorikkInnslag(Behandling behandling, OverstyringAvklarStartdatoForPeriodenDto dto) {
+    public void lagHistorikkInnslag(OverstyringAvklarStartdatoForPeriodenDto dto, Behandling behandling) {
         var opprinneligDato = dto.getOpprinneligDato();
         var startdatoFraSoknad = dto.getStartdatoFraSoknad();
         if (!startdatoFraSoknad.isEqual(opprinneligDato)) {
