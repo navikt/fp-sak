@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagDokumentLinkDto;
 public class HistorikkDtoFellesMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(HistorikkDtoFellesMapper.class);
+    public static final String LINJESKIFT = ""; // TODO: Hvordan ønsker vi å lagre slike? Gå gjennom
 
     public static HistorikkinnslagDtoV2 tilHistorikkInnslagDto(Historikkinnslag h, UUID behandlingUUID, List<Linje> linjer) {
         return tilHistorikkInnslagDto(h, behandlingUUID, null, linjer);
