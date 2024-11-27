@@ -3,14 +3,12 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.aksjonspunkt.AbstractOverstyringshåndterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
@@ -22,7 +20,7 @@ import no.nav.vedtak.exception.FunksjonellException;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = OverstyringSokersOpplysingspliktDto.class, adapter = Overstyringshåndterer.class)
-public class SøkersOpplysningspliktOverstyringshåndterer extends AbstractOverstyringshåndterer<OverstyringSokersOpplysingspliktDto> {
+public class SøkersOpplysningspliktOverstyringshåndterer implements Overstyringshåndterer<OverstyringSokersOpplysingspliktDto> {
 
     private HistorikkTjenesteAdapter historikkAdapter;
     private InngangsvilkårTjeneste inngangsvilkårTjeneste;
@@ -34,14 +32,13 @@ public class SøkersOpplysningspliktOverstyringshåndterer extends AbstractOvers
     @Inject
     public SøkersOpplysningspliktOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter,
                                                        InngangsvilkårTjeneste inngangsvilkårTjeneste) {
-        super(AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_OVST);
         this.historikkAdapter = historikkAdapter;
         this.inngangsvilkårTjeneste = inngangsvilkårTjeneste;
 
     }
 
     @Override
-    protected void lagHistorikkInnslag(Behandling behandling, OverstyringSokersOpplysingspliktDto dto) {
+    public void lagHistorikkInnslag(OverstyringSokersOpplysingspliktDto dto, Behandling behandling) {
         leggTilEndretFeltIHistorikkInnslag(dto.getBegrunnelse(), dto.getErVilkarOk());
     }
 
