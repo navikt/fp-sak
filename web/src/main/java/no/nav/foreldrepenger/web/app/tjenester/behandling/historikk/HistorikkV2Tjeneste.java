@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.historikk;
 
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkDtoFellesMapper.fjernTrailingAvsnittFraTekst;
+
 import java.net.URI;
 import java.util.Comparator;
 import java.util.List;
@@ -83,7 +85,7 @@ public class HistorikkV2Tjeneste {
             .map(Historikkinnslag2Tekstlinje::getTekst)
             .toList();
         return new HistorikkinnslagDtoV2(uuid, HistorikkinnslagDtoV2.HistorikkAktørDto.fra(h.getAktør(), h.getOpprettetAv()), h.getSkjermlenke(),
-            h.getOpprettetTidspunkt(), dokumenter, h.getTittel(), tekstlinjer);
+            h.getOpprettetTidspunkt(), dokumenter, h.getTittel(), fjernTrailingAvsnittFraTekst(tekstlinjer));
     }
 
     private static List<HistorikkInnslagDokumentLinkDto> tilDokumentlenker(List<Historikkinnslag2DokumentLink> dokumentLinker,
