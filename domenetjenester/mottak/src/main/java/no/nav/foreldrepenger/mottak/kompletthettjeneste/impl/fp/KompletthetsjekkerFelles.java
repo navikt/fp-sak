@@ -143,6 +143,12 @@ public class KompletthetsjekkerFelles {
         if (ventefristEtterlysning.isEmpty()) {
             return Optional.empty();
         }
+
+        //Brevet er ikke tilpasset private arbeidsgivere enn så lenge
+        var kunPrivateArbeidsgivere = manglendeInntektsmeldinger.stream().noneMatch(mv -> OrgNummer.erGyldigOrgnr(mv.getArbeidsgiver()));
+        if (!manglendeInntektsmeldinger.isEmpty() && kunPrivateArbeidsgivere) {
+            return Optional.empty();
+        }
         // Gjeldende logikk: Alltid etterlys ved mangler. Tidligere: Etterlys hvis ingen mottatte
         var erSendtBrev = erEtterlysInntektsmeldingBrevSendt(ref.behandlingId());
         if (!erSendtBrev) {
