@@ -2,13 +2,12 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt;
 
 import java.util.Objects;
 
-import no.nav.foreldrepenger.behandling.aksjonspunkt.AbstractOverstyringshåndterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
@@ -21,7 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.inngangsvilkaar.InngangsvilkårTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
 
-public abstract class InngangsvilkårOverstyringshåndterer<T extends OverstyringAksjonspunktDto> extends AbstractOverstyringshåndterer<T> {
+public abstract class InngangsvilkårOverstyringshåndterer<T extends OverstyringAksjonspunktDto> implements Overstyringshåndterer<T> {
 
     private VilkårType vilkårType;
     private InngangsvilkårTjeneste inngangsvilkårTjeneste;
@@ -31,11 +30,9 @@ public abstract class InngangsvilkårOverstyringshåndterer<T extends Overstyrin
         // for CDI proxy
     }
 
-    public InngangsvilkårOverstyringshåndterer(AksjonspunktDefinisjon aksjonspunktDefinisjon,
-                                               VilkårType vilkårType,
+    public InngangsvilkårOverstyringshåndterer(VilkårType vilkårType,
                                                InngangsvilkårTjeneste inngangsvilkårTjeneste,
                                                Historikkinnslag2Repository historikkinnslag2Repository) {
-        super(aksjonspunktDefinisjon);
         this.vilkårType = vilkårType;
         this.inngangsvilkårTjeneste = inngangsvilkårTjeneste;
         this.historikkinnslag2Repository = historikkinnslag2Repository;
@@ -68,7 +65,7 @@ public abstract class InngangsvilkårOverstyringshåndterer<T extends Overstyrin
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId());
         if (!Objects.equals(fraVerdi, tilVerdi)) {
-            builder.addTekstlinje("Overstyrt vurdering: " + new HistorikkinnslagTekstlinjeBuilder().fraTil("Utfallet", fraVerdi, tilVerdi).build());
+            builder.addTekstlinje(new HistorikkinnslagTekstlinjeBuilder().fraTil("Overstyrt vurdering: Utfallet", fraVerdi, tilVerdi).build());
         }
 
         var historikkinnslag = builder.addTekstlinje(begrunnelse).build();

@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandling.aksjonspunkt;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 
 public interface Overstyringshåndterer<T extends OverstyringAksjonspunkt> {
 
@@ -11,12 +10,14 @@ public interface Overstyringshåndterer<T extends OverstyringAksjonspunkt> {
     /**
      * Opprett Aksjonspunkt for Overstyring og håndter lagre historikk.
      */
-    void håndterAksjonspunktForOverstyringPrecondition(T dto, Behandling behandling);
+    default void lagHistorikkInnslag(T dto, Behandling behandling) {
+
+    }
 
     /**
-     * Opprett Aksjonspunkt for Overstyring og håndter lagre historikk.
+     * Valider om precondition for overstyring er møtt. Kaster exception hvis ikke.
      */
-    void håndterAksjonspunktForOverstyringHistorikk(T dto, Behandling behandling);
-
-    AksjonspunktDefinisjon aksjonspunktForInstans();
+    default void precondition(T dto, Behandling behandling) {
+        // all good, do NOTHING.
+    }
 }

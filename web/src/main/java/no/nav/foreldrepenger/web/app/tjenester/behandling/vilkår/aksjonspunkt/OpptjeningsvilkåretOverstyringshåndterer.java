@@ -8,7 +8,6 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
@@ -33,19 +32,17 @@ public class OpptjeningsvilkåretOverstyringshåndterer extends InngangsvilkårO
     public OpptjeningsvilkåretOverstyringshåndterer(OpptjeningRepository opptjeningRepository,
                                                     InngangsvilkårTjeneste inngangsvilkårTjeneste,
                                                     Historikkinnslag2Repository historikkinnslag2Repository) {
-        super(AksjonspunktDefinisjon.OVERSTYRING_AV_OPPTJENINGSVILKÅRET,
-            VilkårType.OPPTJENINGSVILKÅRET,
-            inngangsvilkårTjeneste, historikkinnslag2Repository);
+        super(VilkårType.OPPTJENINGSVILKÅRET, inngangsvilkårTjeneste, historikkinnslag2Repository);
         this.opptjeningRepository = opptjeningRepository;
     }
 
     @Override
-    protected void lagHistorikkInnslag(Behandling behandling, OverstyringOpptjeningsvilkåretDto dto) {
+    public void lagHistorikkInnslag(OverstyringOpptjeningsvilkåretDto dto, Behandling behandling) {
         lagHistorikkInnslagForOverstyrtVilkår(behandling, dto.getBegrunnelse(), dto.getErVilkarOk(), SkjermlenkeType.PUNKT_FOR_OPPTJENING);
     }
 
     @Override
-    protected void precondition(Behandling behandling, OverstyringOpptjeningsvilkåretDto dto) {
+    public void precondition(OverstyringOpptjeningsvilkåretDto dto, Behandling behandling) {
         if (dto.getErVilkarOk()) {
             var ant = opptjeningRepository.finnOpptjening(behandling.getId()).map(Opptjening::getOpptjeningAktivitet).orElse(List.of()).stream()
                 .filter(oa -> !oa.getAktivitetType().equals(OpptjeningAktivitetType.UTENLANDSK_ARBEIDSFORHOLD))
