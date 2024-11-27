@@ -42,7 +42,7 @@ public class HistorikkinnslagTekstlinjeBuilder {
             return bold(hva).tekst("er satt til").bold(til);
         }
         if (til == null) {
-            //TODO tekst for at noe er fjernet. Trenger vi?
+            //TODO TFP-5554 tekst for at noe er fjernet. Trenger vi?
             return bold(hva).tekst("er fjernet");
         }
         return bold(hva).tekst("er endret fra").tekst(fra).tekst("til").bold(til);
@@ -132,7 +132,7 @@ public class HistorikkinnslagTekstlinjeBuilder {
     }
 
     public String build() {
-        if (LINJESKIFT.equals(stringBuilder.toString())) {
+        if (LINJESKIFT.contentEquals(stringBuilder)) {
             return stringBuilder.toString();
         }
         return stringBuilder.delete(0, 1).toString();

@@ -4,14 +4,12 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.AbstractOverstyringshåndterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
@@ -22,7 +20,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt.d
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = OverstyringMedlemskapsvilkåretDto.class, adapter = Overstyringshåndterer.class)
-public class MedlemskapsvilkåretOverstyringshåndterer extends AbstractOverstyringshåndterer<OverstyringMedlemskapsvilkåretDto> {
+public class MedlemskapsvilkåretOverstyringshåndterer implements Overstyringshåndterer<OverstyringMedlemskapsvilkåretDto> {
 
     private MedlemskapAksjonspunktFellesTjeneste medlemskapAksjonspunktFellesTjeneste;
     private InngangsvilkårTjeneste inngangsvilkårTjeneste;
@@ -30,7 +28,6 @@ public class MedlemskapsvilkåretOverstyringshåndterer extends AbstractOverstyr
     @Inject
     public MedlemskapsvilkåretOverstyringshåndterer(MedlemskapAksjonspunktFellesTjeneste medlemskapAksjonspunktFellesTjeneste,
                                                     InngangsvilkårTjeneste inngangsvilkårTjeneste) {
-        super(AksjonspunktDefinisjon.OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET);
         this.medlemskapAksjonspunktFellesTjeneste = medlemskapAksjonspunktFellesTjeneste;
         this.inngangsvilkårTjeneste = inngangsvilkårTjeneste;
     }
@@ -53,10 +50,5 @@ public class MedlemskapsvilkåretOverstyringshåndterer extends AbstractOverstyr
         } else {
             return OppdateringResultat.medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR);
         }
-    }
-
-    @Override
-    protected void lagHistorikkInnslag(Behandling behandling, OverstyringMedlemskapsvilkåretDto dto) {
-
     }
 }

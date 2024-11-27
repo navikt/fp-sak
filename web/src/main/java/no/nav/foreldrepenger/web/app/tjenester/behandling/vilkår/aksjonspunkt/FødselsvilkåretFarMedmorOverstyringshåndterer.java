@@ -6,7 +6,6 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
@@ -23,14 +22,12 @@ public class FødselsvilkåretFarMedmorOverstyringshåndterer extends Inngangsvi
 
     @Inject
     public FødselsvilkåretFarMedmorOverstyringshåndterer(InngangsvilkårTjeneste inngangsvilkårTjeneste, Historikkinnslag2Repository historikkinnslag2Repository) {
-        super(AksjonspunktDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET_FAR_MEDMOR,
-            VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR,
-            inngangsvilkårTjeneste, historikkinnslag2Repository);
+        super(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR, inngangsvilkårTjeneste, historikkinnslag2Repository);
     }
 
 
     @Override
-    protected void lagHistorikkInnslag(Behandling behandling, OverstyringFødselvilkåretFarMedmorDto dto) {
+    public void lagHistorikkInnslag(OverstyringFødselvilkåretFarMedmorDto dto, Behandling behandling) {
         lagHistorikkInnslagForOverstyrtVilkår(behandling, dto.getBegrunnelse(), dto.getErVilkarOk(), SkjermlenkeType.PUNKT_FOR_FOEDSEL);
     }
 }

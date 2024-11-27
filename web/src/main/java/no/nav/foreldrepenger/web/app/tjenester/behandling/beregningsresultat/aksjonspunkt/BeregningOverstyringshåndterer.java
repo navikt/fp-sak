@@ -3,13 +3,11 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.ak
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.aksjonspunkt.AbstractOverstyringshåndterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
@@ -19,7 +17,7 @@ import no.nav.foreldrepenger.ytelse.beregning.es.BeregnYtelseTjenesteES;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = OverstyringBeregningDto.class, adapter = Overstyringshåndterer.class)
-public class BeregningOverstyringshåndterer extends AbstractOverstyringshåndterer<OverstyringBeregningDto> {
+public class BeregningOverstyringshåndterer implements Overstyringshåndterer<OverstyringBeregningDto> {
 
     private LegacyESBeregningRepository beregningRepository;
     private HistorikkTjenesteAdapter historikkAdapter;
@@ -31,24 +29,22 @@ public class BeregningOverstyringshåndterer extends AbstractOverstyringshåndte
 
     @Inject
     public BeregningOverstyringshåndterer(LegacyESBeregningRepository beregningRepository,
-            HistorikkTjenesteAdapter historikkAdapter,
-            BeregnYtelseTjenesteES beregnTjeneste) {
-        super(AksjonspunktDefinisjon.OVERSTYRING_AV_BEREGNING);
+                                          HistorikkTjenesteAdapter historikkAdapter,
+                                          BeregnYtelseTjenesteES beregnTjeneste) {
         this.beregningRepository = beregningRepository;
         this.historikkAdapter = historikkAdapter;
         this.beregnTjeneste = beregnTjeneste;
     }
 
     @Override
-    public OppdateringResultat håndterOverstyring(OverstyringBeregningDto dto, Behandling behandling,
-                                                  BehandlingskontrollKontekst kontekst) {
+    public OppdateringResultat håndterOverstyring(OverstyringBeregningDto dto, Behandling behandling, BehandlingskontrollKontekst kontekst) {
         beregnTjeneste.overstyrTilkjentYtelseForEngangsstønad(behandling, dto.getBeregnetTilkjentYtelse());
         return OppdateringResultat.utenOverhopp();
     }
 
     @Override
-    protected void lagHistorikkInnslag(Behandling behandling, OverstyringBeregningDto dto) {
-       lagHistorikkInnslagForOverstyrtBeregning(behandling.getId(), dto.getBegrunnelse(), dto.getBeregnetTilkjentYtelse());
+    public void lagHistorikkInnslag(OverstyringBeregningDto dto, Behandling behandling) {
+        lagHistorikkInnslagForOverstyrtBeregning(behandling.getId(), dto.getBegrunnelse(), dto.getBeregnetTilkjentYtelse());
     }
 
     private void lagHistorikkInnslagForOverstyrtBeregning(Long behandlingId, String begrunnelse, Long tilBeregning) {

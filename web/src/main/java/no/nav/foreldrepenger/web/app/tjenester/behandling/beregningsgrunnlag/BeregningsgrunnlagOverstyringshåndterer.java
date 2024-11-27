@@ -6,7 +6,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.AbstractOverstyringshåndterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
@@ -24,7 +23,7 @@ import no.nav.foreldrepenger.domene.rest.historikk.kalkulus.FaktaBeregningHistor
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = OverstyrBeregningsgrunnlagDto.class, adapter = Overstyringshåndterer.class)
-public class BeregningsgrunnlagOverstyringshåndterer extends AbstractOverstyringshåndterer<OverstyrBeregningsgrunnlagDto> {
+public class BeregningsgrunnlagOverstyringshåndterer implements Overstyringshåndterer<OverstyrBeregningsgrunnlagDto> {
 
     private FaktaBeregningHistorikkHåndterer faktaBeregningHistorikkHåndterer;
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
@@ -40,7 +39,6 @@ public class BeregningsgrunnlagOverstyringshåndterer extends AbstractOverstyrin
                                                    FaktaBeregningHistorikkKalkulusTjeneste faktaBeregningHistorikkKalkulusTjeneste,
                                                    HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
                                                    BeregningTjeneste beregningTjeneste) {
-        super(AksjonspunktDefinisjon.OVERSTYRING_AV_BEREGNINGSGRUNNLAG);
         this.faktaBeregningHistorikkHåndterer = faktaBeregningHistorikkHåndterer;
         this.faktaBeregningHistorikkKalkulusTjeneste = faktaBeregningHistorikkKalkulusTjeneste;
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
@@ -68,10 +66,5 @@ public class BeregningsgrunnlagOverstyringshåndterer extends AbstractOverstyrin
 
     private Optional<Aksjonspunkt> fjernOverstyrtAksjonspunkt(Behandling behandling) {
         return behandling.getÅpentAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VURDER_FAKTA_FOR_ATFL_SN);
-    }
-
-    @Override
-    protected void lagHistorikkInnslag(Behandling behandling, OverstyrBeregningsgrunnlagDto dto) {
-        // Håndteres sammen med selve overstyringen
     }
 }

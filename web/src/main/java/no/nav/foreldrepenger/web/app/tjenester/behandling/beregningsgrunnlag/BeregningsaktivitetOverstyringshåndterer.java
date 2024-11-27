@@ -4,13 +4,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.AbstractOverstyringshåndterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
@@ -21,7 +19,7 @@ import no.nav.foreldrepenger.domene.rest.historikk.kalkulus.BeregningsaktivitetH
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = OverstyrBeregningsaktiviteterDto.class, adapter = Overstyringshåndterer.class)
-public class BeregningsaktivitetOverstyringshåndterer extends AbstractOverstyringshåndterer<OverstyrBeregningsaktiviteterDto> {
+public class BeregningsaktivitetOverstyringshåndterer implements Overstyringshåndterer<OverstyrBeregningsaktiviteterDto> {
 
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
     private BeregningsaktivitetHistorikkTjeneste beregningsaktivitetHistorikkTjeneste;
@@ -37,7 +35,6 @@ public class BeregningsaktivitetOverstyringshåndterer extends AbstractOverstyri
                                                     BeregningsaktivitetHistorikkTjeneste beregningsaktivitetHistorikkTjeneste,
                                                     BeregningTjeneste beregningTjeneste,
                                                     BeregningsaktivitetHistorikkKalkulusTjeneste beregningsaktivitetHistorikkKalkulusTjeneste) {
-        super(AksjonspunktDefinisjon.OVERSTYRING_AV_BEREGNINGSAKTIVITETER);
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.beregningsaktivitetHistorikkTjeneste = beregningsaktivitetHistorikkTjeneste;
         this.beregningTjeneste = beregningTjeneste;
@@ -68,10 +65,5 @@ public class BeregningsaktivitetOverstyringshåndterer extends AbstractOverstyri
                 forrige);
         }
         return OppdateringResultat.utenOverhopp();
-    }
-
-    @Override
-    protected void lagHistorikkInnslag(Behandling behandling, OverstyrBeregningsaktiviteterDto dto) {
-        // Håndteres sammen med selve overstyringen
     }
 }
