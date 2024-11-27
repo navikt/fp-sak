@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -17,23 +16,16 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarnEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftDokumentertDatoAksjonspunktDto;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 
 class BekreftDokumentasjonOppdatererTest extends EntityManagerAwareTest {
 
-    private final HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
     private final DateTimeFormatter formatterer = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     private BehandlingRepositoryProvider repositoryProvider;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
@@ -41,8 +33,7 @@ class BekreftDokumentasjonOppdatererTest extends EntityManagerAwareTest {
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        familieHendelseTjeneste = new FamilieHendelseTjeneste(null,
-            repositoryProvider.getFamilieHendelseRepository());
+        familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
     }
 
     @Test
@@ -57,11 +48,11 @@ class BekreftDokumentasjonOppdatererTest extends EntityManagerAwareTest {
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknad().medFarSøkerType(FarSøkerType.ADOPTERER_ALENE);
         scenario.medSøknadHendelse()
-            .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder()
-                .medOmsorgsovertakelseDato(opprinneligOvertakelsesdato))
+            .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(opprinneligOvertakelsesdato))
             .leggTilBarn(new UidentifisertBarnEntitet(opprinneligFødselsdato));
-        scenario.medBekreftetHendelse().medAdopsjon(scenario.medBekreftetHendelse().getAdopsjonBuilder()
-            .medOmsorgsovertakelseDato(opprinneligOvertakelsesdato)).leggTilBarn(opprinneligFødselsdato);
+        scenario.medBekreftetHendelse()
+            .medAdopsjon(scenario.medBekreftetHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(opprinneligOvertakelsesdato))
+            .leggTilBarn(opprinneligFødselsdato);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.lagre(repositoryProvider);
 
@@ -70,40 +61,23 @@ class BekreftDokumentasjonOppdatererTest extends EntityManagerAwareTest {
         // Dto
         Map<Integer, LocalDate> bekreftedeFødselsdatoer = new HashMap<>();
         bekreftedeFødselsdatoer.put(1, bekreftetFødselsdato);
-        var dto = new BekreftDokumentertDatoAksjonspunktDto("begrunnelse", bekreftetOvertakelsesdato,
-            bekreftedeFødselsdatoer);
+        var dto = new BekreftDokumentertDatoAksjonspunktDto("begrunnelse", bekreftetOvertakelsesdato, bekreftedeFødselsdatoer);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
-        new BekreftDokumentasjonOppdaterer(lagMockHistory(), familieHendelseTjeneste, mock(OpplysningsPeriodeTjeneste.class))
-            .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-        var historikkInnslag = tekstBuilder.build(historikkinnslag);
+        new BekreftDokumentasjonOppdaterer(familieHendelseTjeneste, mock(OpplysningsPeriodeTjeneste.class),
+            repositoryProvider.getHistorikkinnslag2Repository()).oppdater(dto,
+            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
+        var historikkInnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId());
 
         // Assert
         assertThat(historikkInnslag).hasSize(1);
-        var del = historikkInnslag.get(0);
-        var feltList = del.getEndredeFelt();
-        assertThat(feltList).hasSize(2);
-        assertFelt(del, HistorikkEndretFeltType.OMSORGSOVERTAKELSESDATO, opprinneligOvertakelsesdato.format(formatterer),
-            bekreftetOvertakelsesdato.format(formatterer));
-        assertFelt(del, HistorikkEndretFeltType.FODSELSDATO, opprinneligFødselsdato.format(formatterer), bekreftetFødselsdato.format(formatterer));
-    }
+        var tekstlinjer = historikkInnslag.getFirst().getTekstlinjer();
+        assertThat(tekstlinjer).hasSize(3);
 
-    private void assertFelt(HistorikkinnslagDel historikkinnslagDel, HistorikkEndretFeltType historikkEndretFeltType, String fraVerdi, String tilVerdi) {
-        var feltOpt = historikkinnslagDel.getEndretFelt(historikkEndretFeltType);
-        var feltNavn = historikkEndretFeltType.getKode();
-        assertThat(feltOpt).as("endretFelt[" + feltNavn + "]").hasValueSatisfying(felt -> {
-            assertThat(felt.getNavn()).as(feltNavn + ".navn").isEqualTo(feltNavn);
-            assertThat(felt.getFraVerdi()).as(feltNavn + ".fraVerdi").isEqualTo(fraVerdi);
-            assertThat(felt.getTilVerdi()).as(feltNavn + ".tilVerdi").isEqualTo(tilVerdi);
-        });
+        assertThat(tekstlinjer.getFirst().getTekst()).contains("Omsorgsovertakelsesdato", formatterer.format(opprinneligOvertakelsesdato),
+            formatterer.format(bekreftetOvertakelsesdato));
+        assertThat(tekstlinjer.get(1).getTekst()).contains("Fødselsdato", formatterer.format(opprinneligFødselsdato),
+            formatterer.format(bekreftetFødselsdato));
+        assertThat(tekstlinjer.get(2).getTekst()).contains(dto.getBegrunnelse());
     }
-
-    private HistorikkTjenesteAdapter lagMockHistory() {
-        var mockHistory = mock(HistorikkTjenesteAdapter.class);
-        when(mockHistory.tekstBuilder()).thenReturn(tekstBuilder);
-        return mockHistory;
-    }
-
 }
