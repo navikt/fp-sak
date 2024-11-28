@@ -7,6 +7,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningsgrunnlagPeriodeEndring;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagAndelDto;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagPeriodeDto;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -70,10 +71,26 @@ public final class FordelBeregningsgrunnlagHistorikkUtil {
         return tekstlinjerBuilder;
     }
 
+    public static String fraInntektskategori(Inntektskategori inntektskategori) {
+        return switch (inntektskategori) {
+            case ARBEIDSTAKER -> "Arbeidstaker";
+            case FRILANSER -> "Frilanser";
+            case SELVSTENDIG_NÆRINGSDRIVENDE -> "Selvstendig næringsdrivende";
+            case DAGPENGER -> "Dagpenger";
+            case ARBEIDSAVKLARINGSPENGER -> "Arbeidsavklaringspenger";
+            case SJØMANN -> "Arbeidstaker - Sjømann";
+            case DAGMAMMA -> "Selvstendig næringsdrivende - Dagmamma";
+            case JORDBRUKER -> "Selvstendig næringsdrivende - Jordbruker";
+            case FISKER -> "Selvstendig næringsdrivende - Fisker";
+            case ARBEIDSTAKER_UTEN_FERIEPENGER -> "Arbeidstaker uten feriepenger";
+            default -> throw new IllegalStateException("Unexpected value inntektskategori: " + inntektskategori);
+        };
+    }
+
     private static HistorikkinnslagTekstlinjeBuilder inntektskategoriTekstlinje(Lønnsendring endring) {
         var nyInntektskategori = endring.getNyInntektskategori();
         if (nyInntektskategori != null) {
-            return fraTilEquals(HistorikkEndretFeltType.INNTEKTSKATEGORI.getNavn(), null, nyInntektskategori);
+            return fraTilEquals(HistorikkEndretFeltType.INNTEKTSKATEGORI.getNavn(), null, fraInntektskategori(nyInntektskategori));
         }
         return null;
     }
