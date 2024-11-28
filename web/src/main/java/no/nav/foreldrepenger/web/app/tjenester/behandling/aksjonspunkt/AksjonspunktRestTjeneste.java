@@ -137,6 +137,10 @@ public class AksjonspunktRestTjeneste {
 
         validerBetingelserForAksjonspunkt(behandling, apDto.getBekreftedeAksjonspunktDtoer());
 
+        if (bekreftedeAksjonspunktDtoer.size() > 1) {
+            LOG.info("Bekrefter flere aksjonspunkt {}", bekreftedeAksjonspunktDtoer.stream().map(a -> a.getAksjonspunktDefinisjon().getKode()).toList());
+        }
+
         applikasjonstjeneste.bekreftAksjonspunkter(bekreftedeAksjonspunktDtoer, behandling.getId());
 
         return Redirect.tilBehandlingPollStatus(request, behandling.getUuid());
@@ -162,9 +166,14 @@ public class AksjonspunktRestTjeneste {
 
         behandlingutredningTjeneste.kanEndreBehandling(behandling, apDto.getBehandlingVersjon());
 
-        validerBetingelserForAksjonspunkt(behandling, apDto.getOverstyrteAksjonspunktDtoer());
+        var overstyrteAksjonspunktDtoer = apDto.getOverstyrteAksjonspunktDtoer();
+        validerBetingelserForAksjonspunkt(behandling, overstyrteAksjonspunktDtoer);
 
-        applikasjonstjeneste.overstyrAksjonspunkter(apDto.getOverstyrteAksjonspunktDtoer(), behandling.getId());
+        if (overstyrteAksjonspunktDtoer.size() > 1) {
+            LOG.info("Overstyrer flere aksjonspunkt {}", overstyrteAksjonspunktDtoer.stream().map(a -> a.getAksjonspunktDefinisjon().getKode()).toList());
+        }
+
+        applikasjonstjeneste.overstyrAksjonspunkter(overstyrteAksjonspunktDtoer, behandling.getId());
 
         return Redirect.tilBehandlingPollStatus(request, behandling.getUuid());
     }
