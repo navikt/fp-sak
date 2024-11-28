@@ -13,25 +13,23 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
+import org.junit.jupiter.api.Test;
 
+import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
+import no.nav.folketrygdloven.kalkulus.kodeverk.FaktaVurderingKilde;
 import no.nav.folketrygdloven.kalkulus.kodeverk.SammenligningsgrunnlagType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
-
-import no.nav.foreldrepenger.domene.entiteter.Sammenligningsgrunnlag;
-
-import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle;
-
-import org.junit.jupiter.api.Test;
-
-import no.nav.folketrygdloven.kalkulus.kodeverk.FaktaVurderingKilde;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.entiteter.Sammenligningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagPeriodeRegelType;
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagRegelType;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel;
 
 class BeregningMigreringMapperTest {
@@ -424,4 +422,99 @@ class BeregningMigreringMapperTest {
         assertThat(arbfor.getArbeidsforholdRef().getAbakusReferanse()).isEqualTo(arbforRef);
         assertThat(arbfor.getRefusjonskravPrÅr().verdi()).isEqualByComparingTo(BigDecimal.valueOf(14_000));
     }
+
+    @Test
+    void skal_teste_mapping_av_regelsporing() {
+        var stp = LocalDate.now();
+        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
+            .medGrunnbeløp(BigDecimal.valueOf(100_000))
+            .medSkjæringstidspunkt(stp)
+            .medRegelSporing("Grunnlag-input", "Grunnlag-evaluering", BeregningsgrunnlagRegelType.SKJÆRINGSTIDSPUNKT, "1.0")
+            .medRegelSporing("Grunnlag-input", "Grunnlag-evaluering", BeregningsgrunnlagRegelType.BRUKERS_STATUS, "1.0")
+            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(SELVSTENDIG_NÆRINGSDRIVENDE).medHjemmel(Hjemmel.F_14_7_8_35))
+            .build();
+        var periode1 = BeregningsgrunnlagPeriode.ny()
+            .medBeregningsgrunnlagPeriode(stp, stp.plusMonths(2).minusDays(1))
+            .medRegelEvaluering("Periode1-input1", "Periode1-evaluering1", BeregningsgrunnlagPeriodeRegelType.FORESLÅ, "1.0")
+            .medRegelEvaluering("Periode1-input2", "Periode1-evaluering2", BeregningsgrunnlagPeriodeRegelType.FORESLÅ_2, "1.0")
+            .medBruttoPrÅr(BigDecimal.valueOf(12_000))
+            .build(beregningsgrunnlag);
+        BeregningsgrunnlagPeriode.ny()
+            .medBeregningsgrunnlagPeriode(stp.plusMonths(2), stp.plusMonths(3))
+            .medRegelEvaluering("Periode2-input", "Periode2-evaluering", BeregningsgrunnlagPeriodeRegelType.FORESLÅ, "1.0")
+            .medBruttoPrÅr(BigDecimal.valueOf(12_000))
+            .build(beregningsgrunnlag);
+        BeregningsgrunnlagPrStatusOgAndel.builder()
+            .medAndelsnr(1L)
+            .medBeregnetPrÅr(BigDecimal.valueOf(12_000))
+            .medPgi(BigDecimal.valueOf(150_000), List.of(BigDecimal.valueOf(34_000), BigDecimal.valueOf(90_000), BigDecimal.valueOf(60_000)))
+            .medNyIArbeidslivet(false)
+            .medAktivitetStatus(SELVSTENDIG_NÆRINGSDRIVENDE)
+            .build(periode1);
+        var grunnlag = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(1L, BeregningsgrunnlagTilstand.FASTSATT);
+
+        var grDto = BeregningMigreringMapper.map(grunnlag);
+
+        assertThat(grDto).isNotNull();
+        assertThat(grDto.getBeregningsgrunnlagTilstand()).isEqualTo(no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand.FASTSATT);
+        var grunnlagSporinger = grDto.getGrunnlagsporinger();
+        assertThat(grunnlagSporinger).hasSize(2);
+        var stpRegelSporing = grunnlagSporinger.stream()
+            .filter(s -> s.getRegelType().equals(no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagRegelType.SKJÆRINGSTIDSPUNKT))
+            .findFirst()
+            .orElse(null);
+        assertThat(stpRegelSporing).isNotNull();
+        assertThat(stpRegelSporing.getRegelEvaluering()).isEqualTo("Grunnlag-evaluering");
+        assertThat(stpRegelSporing.getRegelInput()).isEqualTo("Grunnlag-input");
+        assertThat(stpRegelSporing.getRegelVersjon()).isEqualTo("1.0");
+        var statusSporing = grunnlagSporinger.stream()
+            .filter(s -> s.getRegelType().equals(no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagRegelType.BRUKERS_STATUS))
+            .findFirst()
+            .orElse(null);
+        assertThat(statusSporing).isNotNull();
+        assertThat(statusSporing.getRegelEvaluering()).isEqualTo("Grunnlag-evaluering");
+        assertThat(statusSporing.getRegelInput()).isEqualTo("Grunnlag-input");
+        assertThat(statusSporing.getRegelVersjon()).isEqualTo("1.0");
+
+        assertThat(grDto.getPeriodesporinger()).hasSize(3);
+        var sporingP1Fors = grDto.getPeriodesporinger()
+            .stream()
+            .filter(
+                p -> p.getRegelType().equals(no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagPeriodeRegelType.FORESLÅ) && p.getPeriode()
+                    .getFom()
+                    .equals(stp))
+            .findFirst()
+            .orElse(null);
+        assertThat(sporingP1Fors).isNotNull();
+        assertThat(sporingP1Fors.getRegelEvaluering()).isEqualTo("Periode1-evaluering1");
+        assertThat(sporingP1Fors.getRegelInput()).isEqualTo("Periode1-input1");
+        assertThat(sporingP1Fors.getRegelVersjon()).isEqualTo("1.0");
+
+        var sporingP1Fors2 = grDto.getPeriodesporinger()
+            .stream()
+            .filter(
+                p -> p.getRegelType().equals(no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagPeriodeRegelType.FORESLÅ_2)
+                    && p.getPeriode().getFom().equals(stp))
+            .findFirst()
+            .orElse(null);
+        assertThat(sporingP1Fors2).isNotNull();
+        assertThat(sporingP1Fors2.getRegelEvaluering()).isEqualTo("Periode1-evaluering2");
+        assertThat(sporingP1Fors2.getRegelInput()).isEqualTo("Periode1-input2");
+        assertThat(sporingP1Fors2.getRegelVersjon()).isEqualTo("1.0");
+
+        var sporingP2Fors = grDto.getPeriodesporinger()
+            .stream()
+            .filter(
+                p -> p.getRegelType().equals(no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagPeriodeRegelType.FORESLÅ)
+                    && p.getPeriode().getFom().equals(stp.plusMonths(2)))
+            .findFirst()
+            .orElse(null);
+        assertThat(sporingP2Fors).isNotNull();
+        assertThat(sporingP2Fors.getRegelEvaluering()).isEqualTo("Periode2-evaluering");
+        assertThat(sporingP2Fors.getRegelInput()).isEqualTo("Periode2-input");
+        assertThat(sporingP2Fors.getRegelVersjon()).isEqualTo("1.0");
+
+
+    }
+
 }
