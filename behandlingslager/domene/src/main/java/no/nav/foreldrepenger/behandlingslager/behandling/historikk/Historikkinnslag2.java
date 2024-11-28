@@ -185,10 +185,11 @@ public class Historikkinnslag2 extends BaseEntitet {
         }
 
         private String sluttMedPunktum(String tekst) {
-            if (tekst.isEmpty()) {
+            var sisteTegn = tekst.charAt(tekst.length() - 1);
+            var sisteTegnBold = tekst.charAt(tekst.length() - 3);
+            if (tekst.isEmpty() || sisteTegn == ':' || sisteTegnBold == ':') {
                 return tekst;
             }
-            var sisteTegn = tekst.charAt(tekst.length() - 1);
             return sisteTegn == '.' ? tekst : tekst + '.';
         }
     }

@@ -47,9 +47,9 @@ public class KunYtelseHistorikkTjeneste extends FaktaOmBeregningHistorikkTjenest
                                                                 InntektArbeidYtelseGrunnlag iayGrunnlag) {
         List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder = new ArrayList<>();
         var kunYtelseDto = dto.getKunYtelseFordeling();
-        var periode = nyttBeregningsgrunnlag.getBeregningsgrunnlagPerioder().get(0);
+        var periode = nyttBeregningsgrunnlag.getBeregningsgrunnlagPerioder().getFirst();
         var forrigePeriode = forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag)
-            .map(bg -> bg.getBeregningsgrunnlagPerioder().get(0));
+            .map(bg -> bg.getBeregningsgrunnlagPerioder().getFirst());
         var arbeidsforholdOverstyringer = iayGrunnlag.getArbeidsforholdOverstyringer();
         var andeler = kunYtelseDto.getAndeler();
         for (var andel : andeler) {
@@ -99,8 +99,9 @@ public class KunYtelseHistorikkTjeneste extends FaktaOmBeregningHistorikkTjenest
                                                                                         Inntektskategori forrigeInntektskategori,
                                                                                         Inntektskategori inntektskategori) {
         if (inntektskategori != null && !inntektskategori.equals(forrigeInntektskategori)) {
-            return new HistorikkinnslagTekstlinjeBuilder().fraTil("Inntektskategori for " + andelsInfo,
-                forrigeInntektskategori.getNavn(), inntektskategori.getNavn());
+            var forrigeInntektskategoriNavn = forrigeInntektskategori != null ? forrigeInntektskategori.getNavn() : null;
+            return new HistorikkinnslagTekstlinjeBuilder().fraTil("Inntektskategori for " + andelsInfo, forrigeInntektskategoriNavn,
+                inntektskategori.getNavn());
         }
         return null;
     }
@@ -112,9 +113,8 @@ public class KunYtelseHistorikkTjeneste extends FaktaOmBeregningHistorikkTjenest
         var fastsattÅrsbeløp = fastsattBeløp == null ? null : fastsattBeløp * MND_I_1_ÅR;
         List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder = new ArrayList<>();
         if (fastsattÅrsbeløp != null && !fastsattÅrsbeløp.equals(forrigeBeløp)) {
-            tekstlinjerBuilder.add(new HistorikkinnslagTekstlinjeBuilder().bold("Fordeling for " + andel));
-            tekstlinjerBuilder.add(
-                new HistorikkinnslagTekstlinjeBuilder().fraTil(inntektskategori.getNavn(), forrigeBeløp, fastsattBeløp));
+            tekstlinjerBuilder.add(new HistorikkinnslagTekstlinjeBuilder().tekst("Fordeling for").bold(andel + ":"));
+            tekstlinjerBuilder.add(new HistorikkinnslagTekstlinjeBuilder().fraTil(inntektskategori.getNavn(), forrigeBeløp, fastsattBeløp));
         }
         return tekstlinjerBuilder;
     }
