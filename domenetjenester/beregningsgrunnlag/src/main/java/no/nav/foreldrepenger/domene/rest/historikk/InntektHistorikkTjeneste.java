@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.rest.historikk;
 
+import static no.nav.foreldrepenger.domene.rest.historikk.FordelBeregningsgrunnlagHistorikkUtil.fraInntektskategori;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,7 +60,7 @@ public class InntektHistorikkTjeneste {
     private HistorikkinnslagTekstlinjeBuilder lagInntektskategoriInnslagHvisEndret(Lønnsendring endring) {
         var nyInntektskategori = endring.getNyInntektskategori();
         if (nyInntektskategori != null && !nyInntektskategori.equals(endring.getGammelInntektskategori())) {
-            return new HistorikkinnslagTekstlinjeBuilder().fraTil("Inntektskategori", null, nyInntektskategori);
+            return new HistorikkinnslagTekstlinjeBuilder().fraTil("Inntektskategori", null, fraInntektskategori(nyInntektskategori));
         }
         return null;
     }
