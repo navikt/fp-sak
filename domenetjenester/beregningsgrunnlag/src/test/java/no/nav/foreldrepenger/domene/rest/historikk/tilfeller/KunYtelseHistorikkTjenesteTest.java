@@ -74,7 +74,8 @@ class KunYtelseHistorikkTjenesteTest {
         var forventetTekstlinjer = List.of(new HistorikkinnslagTekstlinjeBuilder().tekst("Fordeling for __" + ANDELSINFO + "__:").build(),
             new HistorikkinnslagTekstlinjeBuilder().tekst(" __" + inntektskategori.getNavn() + "__ er satt til __" + fastsatt + "__").build(),
             new HistorikkinnslagTekstlinjeBuilder().tekst(
-                " __Inntektskategori for " + ANDELSINFO + "__ er satt til __" + inntektskategori.getNavn() + "__").build());
+                " __Inntektskategori for " + ANDELSINFO + "__ er satt til __" + inntektskategori.getNavn() + "__").build(),
+            ""); // Linjeskift
 
         // Assert
         assertThat(historikkTekstlinjeBuilder).isNotNull();
@@ -113,7 +114,8 @@ class KunYtelseHistorikkTjenesteTest {
                 " __" + forrigeInntektskategori.getNavn() + "__ er endret fra 66667 til __" + fastsatt + "__").build(),
             new HistorikkinnslagTekstlinjeBuilder().tekst(
                 " __Inntektskategori for" + ANDELSINFO + "__ er endret fra " + forrigeInntektskategori.getNavn() + " til __"
-                    + inntektskategori.getNavn() + "__").build());
+                    + inntektskategori.getNavn() + "__").build(),
+            ""); // Linjeskift
 
         // Assert
         assertThat(historikkTekstlinjeBuilder).isNotNull();
