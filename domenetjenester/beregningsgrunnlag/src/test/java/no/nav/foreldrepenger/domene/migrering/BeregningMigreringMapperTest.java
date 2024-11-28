@@ -13,8 +13,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-import no.nav.folketrygdloven.fpkalkulus.kontrakt.migrering.BGAndelArbeidsforholdMigreringDto;
-import no.nav.folketrygdloven.fpkalkulus.kontrakt.migrering.SammenligningsgrunnlagPrStatusMigreringDto;
 import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
 
 import no.nav.folketrygdloven.kalkulus.kodeverk.SammenligningsgrunnlagType;
@@ -269,7 +267,7 @@ class BeregningMigreringMapperTest {
             .medRedusertBrukersAndelPrÅr(BigDecimal.valueOf(12_000))
             .build(periode1);
         var arbforRef = UUID.randomUUID().toString();
-        var atAndel = BeregningsgrunnlagPrStatusOgAndel.builder()
+        BeregningsgrunnlagPrStatusOgAndel.builder()
             .medAndelsnr(2L)
             .medBeregnetPrÅr(BigDecimal.valueOf(14_000))
             .medAktivitetStatus(ARBEIDSTAKER)
@@ -352,14 +350,14 @@ class BeregningMigreringMapperTest {
             .medBeregningsgrunnlagPeriode(stp, stp.plusMonths(2).minusDays(1))
             .medBruttoPrÅr(BigDecimal.valueOf(26_000))
             .build(beregningsgrunnlag);
-        var dpAndel = BeregningsgrunnlagPrStatusOgAndel.builder()
+        BeregningsgrunnlagPrStatusOgAndel.builder()
             .medAndelsnr(1L)
             .medBeregnetPrÅr(BigDecimal.valueOf(12_000))
             .medAktivitetStatus(DAGPENGER)
             .medBesteberegningPrÅr(BigDecimal.valueOf(12_000))
             .build(periode1);
         var arbforRef = UUID.randomUUID().toString();
-        var atAndel = BeregningsgrunnlagPrStatusOgAndel.builder()
+        BeregningsgrunnlagPrStatusOgAndel.builder()
             .medAndelsnr(2L)
             .medBeregnetPrÅr(BigDecimal.valueOf(14_000))
             .medBesteberegningPrÅr(BigDecimal.valueOf(14_000))

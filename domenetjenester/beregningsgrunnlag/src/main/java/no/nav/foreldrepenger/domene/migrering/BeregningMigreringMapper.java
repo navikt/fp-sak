@@ -7,9 +7,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.migrering.BGAndelArbeidsforholdMigreringDto;
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.migrering.BaseMigreringDto;
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.migrering.BeregningAktivitetAggregatMigreringDto;
@@ -37,7 +34,6 @@ import no.nav.folketrygdloven.kalkulus.felles.v1.InternArbeidsforholdRefDto;
 import no.nav.folketrygdloven.kalkulus.felles.v1.Periode;
 import no.nav.folketrygdloven.kalkulus.kodeverk.FaktaVurderingKilde;
 import no.nav.folketrygdloven.kalkulus.kodeverk.SammenligningsgrunnlagType;
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -296,12 +292,11 @@ public class BeregningMigreringMapper {
     }
 
     private static List<FaktaArbeidsforholdMigreringDto> mapAlleFaktaArbeidsforhold(List<BeregningsgrunnlagPrStatusOgAndel> andeler, List<FaktaOmBeregningTilfelle> tilfeller) {
-        var faktaArbeidsforhold = andeler.stream()
+        return andeler.stream()
             .filter(a -> a.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSTAKER) && a.getBgAndelArbeidsforhold().isPresent())
             .map(a -> mapFaktaArbeidsforhold(a, tilfeller))
             .flatMap(Optional::stream)
             .toList();
-        return faktaArbeidsforhold;
     }
 
     private static Optional<FaktaArbeidsforholdMigreringDto> mapFaktaArbeidsforhold(BeregningsgrunnlagPrStatusOgAndel andel, List<FaktaOmBeregningTilfelle> tilfeller) {
@@ -309,11 +304,22 @@ public class BeregningMigreringMapper {
             .orElseThrow(() -> new IllegalArgumentException("Forventet å finne arbeidsforhold her"));
         var ag = mapArbeidsgiver(arbfor.getArbeidsgiver());
         var ref = mapArbeidsforholdRef(arbfor.getArbeidsforholdRef());
-        var erTidsbegrensetVurdering = sjekkOmErTitdsbegrenset(arbfor);
+        var erTidsbegrensetVurdering = sjekkOmErTidsbegrenset(arbfor);
         var harLønnsendringVurdering = sjekkOmHarHattLønnsendring(arbfor);
         var mottarYtelseVurdering = sjekkOmMottarYtelse(andel);
         var arbeidsforholdFakta = new FaktaArbeidsforholdMigreringDto(ag, ref, erTidsbegrensetVurdering.orElse(null),
             mottarYtelseVurdering.orElse(null), harLønnsendringVurdering.orElse(null));
+
+        // Valider at avklaringer matcher med tilfeller
+        if (erTidsbegrensetVurdering.isPresent() != tilfeller.stream().anyMatch(t -> t.equals(FaktaOmBeregningTilfelle.VURDER_TIDSBEGRENSET_ARBEIDSFORHOLD))) {
+            throw new IllegalStateException("Ikke match mellom utledet tidsbegrenset vurdering og tilfelle");
+        }
+        if (harLønnsendringVurdering.isPresent() != tilfeller.stream().anyMatch(t -> t.equals(FaktaOmBeregningTilfelle.VURDER_LØNNSENDRING))) {
+            throw new IllegalStateException("Ikke match mellom utledet lønnsendring vurdering og tilfelle");
+        }
+        if (mottarYtelseVurdering.isPresent() != tilfeller.stream().anyMatch(t -> t.equals(FaktaOmBeregningTilfelle.VURDER_MOTTAR_YTELSE))) {
+            throw new IllegalStateException("Ikke match mellom utledet mottar ytelse vurdering og tilfelle");
+        }
 
         // Er noe fakta satt?
         if (arbeidsforholdFakta.getHarMottattYtelse() == null && arbeidsforholdFakta.getErTidsbegrenset() == null
@@ -338,7 +344,7 @@ public class BeregningMigreringMapper {
         return Optional.of(new FaktaVurderingMigreringDto(arbfor.erLønnsendringIBeregningsperioden(), FaktaVurderingKilde.SAKSBEHANDLER));
     }
 
-    private static Optional<FaktaVurderingMigreringDto> sjekkOmErTitdsbegrenset(BGAndelArbeidsforhold arbfor) {
+    private static Optional<FaktaVurderingMigreringDto> sjekkOmErTidsbegrenset(BGAndelArbeidsforhold arbfor) {
         if (arbfor.getErTidsbegrensetArbeidsforhold() == null) {
             return Optional.empty();
         }

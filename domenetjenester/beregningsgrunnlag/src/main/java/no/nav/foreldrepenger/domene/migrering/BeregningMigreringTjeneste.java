@@ -45,8 +45,6 @@ public class BeregningMigreringTjeneste {
         try {
             var migreringsDto = BeregningMigreringMapper.map(grunnlag.get());
             var kobling = koblingRepository.opprettKobling(referanse);
-            // new MigrerBeregningsgrunnlagRequest(null, migreringDto);
-            // klient.migrerGrunnlag();
         } catch (Exception e) {
             var msg = String.format("Feil ved mapping av grunnlag for sak %s, behandlingId %s og grunnlag %s", referanse.saksnummer(),
                 referanse.behandlingId(), grunnlag.map(BeregningsgrunnlagGrunnlagEntitet::getId));
