@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt;
 
-import java.util.Objects;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt�
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
@@ -59,16 +58,13 @@ public abstract class InngangsvilkårOverstyringshåndterer<T extends Overstyrin
                                                          SkjermlenkeType skjermlenkeType) {
         var tilVerdi = vilkårOppfylt ? HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT : HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT;
         var fraVerdi = vilkårOppfylt ? HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT : HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT;
-
-        var builder = new Historikkinnslag2.Builder().medTittel(skjermlenkeType)
+        var historikkinnslag = new Historikkinnslag2.Builder().medTittel(skjermlenkeType)
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medBehandlingId(behandling.getId())
-            .medFagsakId(behandling.getFagsakId());
-        if (!Objects.equals(fraVerdi, tilVerdi)) {
-            builder.addTekstlinje(new HistorikkinnslagTekstlinjeBuilder().fraTil("Overstyrt vurdering: Utfallet", fraVerdi, tilVerdi).build());
-        }
-
-        var historikkinnslag = builder.addTekstlinje(begrunnelse).build();
+            .medFagsakId(behandling.getFagsakId())
+            .addTekstlinje(fraTilEquals("Overstyrt vurdering: Utfallet", fraVerdi, tilVerdi))
+            .addTekstlinje(begrunnelse)
+            .build();
         historikkinnslag2Repository.lagre(historikkinnslag);
     }
 }
