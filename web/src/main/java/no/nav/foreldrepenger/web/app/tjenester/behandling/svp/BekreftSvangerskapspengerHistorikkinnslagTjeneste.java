@@ -122,17 +122,17 @@ public class BekreftSvangerskapspengerHistorikkinnslagTjeneste {
             case FERIE -> "Ferie";
         };
         return SvpOppholdKilde.SØKNAD.equals(opphold.getKilde())
-            ? String.format("%s–%s med __%s__ og kilde søknad", DATO_FORMATTER.format(opphold.getFom()), DATO_FORMATTER.format(opphold.getTom()), oppholdÅrsakTekst)
-            : String.format("%s–%s med __%s__", DATO_FORMATTER.format(opphold.getFom()), DATO_FORMATTER.format(opphold.getTom()), oppholdÅrsakTekst);
+            ? String.format("__%s – %s__ med __%s__ og kilde søknad", DATO_FORMATTER.format(opphold.getFom()), DATO_FORMATTER.format(opphold.getTom()), oppholdÅrsakTekst)
+            : String.format("__%s – %s__ med __%s__", DATO_FORMATTER.format(opphold.getFom()), DATO_FORMATTER.format(opphold.getTom()), oppholdÅrsakTekst);
     }
 
     private String formaterForHistorikk(TilretteleggingFOM fom) {
         var builder = new StringBuilder(String.format("__%s__ fra og med __%s__", fom.getType().getNavn(), fom.getFomDato()));
         if (TilretteleggingType.DELVIS_TILRETTELEGGING.equals(fom.getType())) {
-            builder.append(String.format(" med __stillingsprosent %s__", fom.getStillingsprosent()));
+            builder.append(String.format(" med stillingsprosent __%s__", fom.getStillingsprosent()));
         }
         if (fom.getOverstyrtUtbetalingsgrad() != null) {
-            builder.append(String.format(" og __overstyrt utbetalingsgrad %s__", fom.getOverstyrtUtbetalingsgrad()));
+            builder.append(String.format(" og overstyrt utbetalingsgrad __%s__", fom.getOverstyrtUtbetalingsgrad()));
         }
         return builder.toString();
     }
