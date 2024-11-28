@@ -1,27 +1,26 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
-import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AvslagbartAksjonspunktDto;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.VurdereYtelseSammeBarnSøkerAksjonspunktDto;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.vedtak.exception.FunksjonellException;
 
 /**
@@ -29,17 +28,13 @@ import no.nav.vedtak.exception.FunksjonellException;
  */
 public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOppdaterer<AvslagbartAksjonspunktDto> {
 
-    private HistorikkTjenesteAdapter historikkAdapter;
+    private HistorikkSammeBarnTjeneste historikkSammeBarnTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
-    private BehandlingRepository behandlingRepository;
 
     @Inject
-    VurdereYtelseSammeBarnOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
-                                     BehandlingsresultatRepository behandlingsresultatRepository,
-                                     BehandlingRepository behandlingRepository) {
-        this.historikkAdapter = historikkAdapter;
+    VurdereYtelseSammeBarnOppdaterer(HistorikkSammeBarnTjeneste historikkSammeBarnTjeneste, BehandlingsresultatRepository behandlingsresultatRepository) {
+        this.historikkSammeBarnTjeneste = historikkSammeBarnTjeneste;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
-        this.behandlingRepository = behandlingRepository;
     }
 
     protected VurdereYtelseSammeBarnOppdaterer() {
@@ -48,12 +43,15 @@ public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOp
 
     @Override
     public OppdateringResultat oppdater(AvslagbartAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
-        var behandlingReferanse = param.getRef();
-        var relevantVilkår = finnRelevantVilkår(behandlingReferanse);
+        var ref = param.getRef();
+        var behandlingsresultat = behandlingsresultatRepository.hent(ref.behandlingId());
+        var relevantVilkår = finnRelevantVilkår(behandlingsresultat);
         if (relevantVilkår.isPresent()) {
             var vilkår = relevantVilkår.get();
-            var totrinn = endringsHåndtering(behandlingReferanse, vilkår, dto, finnTekstForFelt(vilkår), param);
-            if (dto.getErVilkarOk()) {
+            historikkSammeBarnTjeneste.lagHistorikkinnslagForAksjonspunkt(ref, behandlingsresultat, dto, vilkår);
+            if (Boolean.TRUE.equals(dto.getErVilkarOk())) {
+                var nyttUtfall = Boolean.TRUE.equals(dto.getErVilkarOk()) ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
+                var totrinn = !Objects.equals(vilkår.getGjeldendeVilkårUtfall(), nyttUtfall);
                 var resultatBuilder = OppdateringResultat.utenTransisjon();
                 resultatBuilder.leggTilManueltOppfyltVilkår(vilkår.getVilkårType());
                 return resultatBuilder.medTotrinnHvis(totrinn).build();
@@ -61,7 +59,6 @@ public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOp
                 var resultatBuilder = OppdateringResultat.utenTransisjon();
                 var avslagsårsak = Avslagsårsak.fraDefinertKode(dto.getAvslagskode())
                     .orElseThrow(() -> new FunksjonellException("FP-MANGLER-ÅRSAK", "Ugyldig avslagsårsak", "Velg gyldig avslagsårsak"));
-
                 return resultatBuilder
                     .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
                     .leggTilManueltAvslåttVilkår(vilkår.getVilkårType(), avslagsårsak)
@@ -72,37 +69,15 @@ public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOp
 
     }
 
-    private boolean endringsHåndtering(BehandlingReferanse behandlingReferanse,
-                                       Vilkår vilkår,
-                                       AvslagbartAksjonspunktDto dto,
-                                       HistorikkEndretFeltType historikkEndretFeltType,
-                                       AksjonspunktOppdaterParameter param) {
-        var aksjonspunktDefinisjon = dto.getAksjonspunktDefinisjon();
-        var behandling = behandlingRepository.hentBehandling(behandlingReferanse.behandlingId());
-        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
-        return new HistorikkAksjonspunktAdapter(behandlingsresultat, historikkAdapter, param)
-            .håndterAksjonspunkt(aksjonspunktDefinisjon, vilkår, dto.getErVilkarOk(), dto.getBegrunnelse(), historikkEndretFeltType);
-    }
-
-    private HistorikkEndretFeltType finnTekstForFelt(Vilkår vilkår) {
-        var vilkårType = vilkår.getVilkårType();
-        if (VilkårType.FØDSELSVILKÅRET_MOR.equals(vilkårType) || VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR.equals(
-            vilkårType)) {
-            return HistorikkEndretFeltType.FODSELSVILKARET;
-        }
-        if (VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD.equals(vilkårType)) {
-            return HistorikkEndretFeltType.ADOPSJONSVILKARET;
-        }
-        return HistorikkEndretFeltType.UDEFINIERT;
-    }
-
-    private Optional<Vilkår> finnRelevantVilkår(BehandlingReferanse behandlingReferanse) {
-
-        var relevanteVilkårTyper = Arrays.asList(VilkårType.FØDSELSVILKÅRET_MOR,
-            VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR, VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD);
-        var vilkårene = behandlingsresultatRepository.hent(behandlingReferanse.behandlingId()).getVilkårResultat().getVilkårene();
-
-        return vilkårene.stream().filter(v -> relevanteVilkårTyper.contains(v.getVilkårType())).findFirst();
+    private Optional<Vilkår> finnRelevantVilkår(Behandlingsresultat behandlingsresultat) {
+        var relevanteVilkårTyper = Set.of(
+            VilkårType.FØDSELSVILKÅRET_MOR,
+            VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR,
+            VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD
+        );
+        return behandlingsresultat.getVilkårResultat().getVilkårene().stream()
+            .filter(v -> relevanteVilkårTyper.contains(v.getVilkårType()))
+            .findFirst();
     }
 
     @ApplicationScoped
@@ -113,10 +88,8 @@ public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOp
         }
 
         @Inject
-        public VurdereYtelseSammeBarnSøkerOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
-                                                     BehandlingsresultatRepository behandlingsresultatRepository,
-                                                     BehandlingRepository behandlingRepository) {
-            super(historikkAdapter, behandlingsresultatRepository, behandlingRepository);
+        public VurdereYtelseSammeBarnSøkerOppdaterer(HistorikkSammeBarnTjeneste historikkSammeBarnTjeneste, BehandlingsresultatRepository behandlingsresultatRepository) {
+            super(historikkSammeBarnTjeneste, behandlingsresultatRepository);
         }
     }
 
@@ -128,10 +101,8 @@ public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOp
         }
 
         @Inject
-        public VurdereYtelseSammeBarnAnnenForelderOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
-                                                             BehandlingsresultatRepository behandlingsresultatRepository,
-                                                             BehandlingRepository behandlingRepository) {
-            super(historikkAdapter, behandlingsresultatRepository, behandlingRepository);
+        public VurdereYtelseSammeBarnAnnenForelderOppdaterer(HistorikkSammeBarnTjeneste historikkSammeBarnTjeneste, BehandlingsresultatRepository behandlingsresultatRepository) {
+            super(historikkSammeBarnTjeneste, behandlingsresultatRepository);
         }
     }
 }

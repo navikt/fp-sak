@@ -54,6 +54,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapBehandlingsgrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittLandOppholdEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
@@ -237,6 +238,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         lenient().when(repositoryProvider.getFagsakRelasjonRepository()).thenReturn(fagsakRelasjonRepositoryMock);
         lenient().when(repositoryProvider.getBehandlingsresultatRepository()).thenReturn(resultatRepository);
         lenient().when(repositoryProvider.getOpptjeningRepository()).thenReturn(opptjeningRepository);
+        lenient().when(repositoryProvider.getHistorikkinnslag2Repository()).thenReturn(mock(Historikkinnslag2Repository.class));
 
         return behandlingRepository;
     }
