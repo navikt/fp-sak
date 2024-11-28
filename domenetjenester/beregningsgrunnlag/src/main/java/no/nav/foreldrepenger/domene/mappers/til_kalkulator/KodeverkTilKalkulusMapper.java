@@ -5,6 +5,8 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.AndelKilde;
 import no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningAktivitetHandlingType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagRegelType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagPeriodeRegelType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.folketrygdloven.kalkulus.kodeverk.FagsakYtelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.FaktaOmBeregningTilfelle;
@@ -368,6 +370,32 @@ public class KodeverkTilKalkulusMapper {
             case ARBEIDSAVKLARINGSPENGER -> YtelseType.ARBEIDSAVKLARINGSPENGER;
             case DAGPENGER -> YtelseType.DAGPENGER;
             case UDEFINERT -> YtelseType.UDEFINERT;
+        };
+    }
+
+    public static BeregningsgrunnlagRegelType mapGrunnlagRegeltype(no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagRegelType regeltype) {
+        return switch (regeltype) {
+            case SKJÆRINGSTIDSPUNKT -> BeregningsgrunnlagRegelType.SKJÆRINGSTIDSPUNKT;
+            case BRUKERS_STATUS -> BeregningsgrunnlagRegelType.BRUKERS_STATUS;
+            case PERIODISERING -> BeregningsgrunnlagRegelType.PERIODISERING;
+            case PERIODISERING_NATURALYTELSE -> BeregningsgrunnlagRegelType.PERIODISERING_NATURALYTELSE;
+            case PERIODISERING_REFUSJON -> BeregningsgrunnlagRegelType.PERIODISERING_REFUSJON;
+            case PERIODISERING_GRADERING -> BeregningsgrunnlagRegelType.PERIODISERING_GRADERING;
+            case UDEFINERT -> BeregningsgrunnlagRegelType.UDEFINERT;
+        };
+    }
+
+    public static BeregningsgrunnlagPeriodeRegelType mapPeriodeRegelType(no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagPeriodeRegelType regeltype) {
+        return switch (regeltype) {
+            case FORESLÅ -> BeregningsgrunnlagPeriodeRegelType.FORESLÅ;
+            case FORESLÅ_2 -> BeregningsgrunnlagPeriodeRegelType.FORESLÅ_2;
+            case VILKÅR_VURDERING -> BeregningsgrunnlagPeriodeRegelType.VILKÅR_VURDERING;
+            case FORDEL -> BeregningsgrunnlagPeriodeRegelType.FORDEL;
+            case FASTSETT -> BeregningsgrunnlagPeriodeRegelType.FASTSETT;
+            case OPPDATER_GRUNNLAG_SVP -> BeregningsgrunnlagPeriodeRegelType.OPPDATER_GRUNNLAG_SVP;
+            case FASTSETT2 -> BeregningsgrunnlagPeriodeRegelType.FASTSETT2;
+            case FINN_GRENSEVERDI -> BeregningsgrunnlagPeriodeRegelType.FINN_GRENSEVERDI    ;
+            case UDEFINERT -> BeregningsgrunnlagPeriodeRegelType.UDEFINERT;
         };
     }
 }
