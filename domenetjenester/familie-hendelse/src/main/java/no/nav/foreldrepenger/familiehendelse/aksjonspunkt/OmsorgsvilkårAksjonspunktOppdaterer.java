@@ -49,7 +49,7 @@ public abstract class OmsorgsvilkårAksjonspunktOppdaterer implements Aksjonspun
         var behandling = bRepo.hentBehandling(param.getBehandlingId());
         var resultatBuilder = OppdateringResultat.utenTransisjon();
         var aksjonspunktDefinisjon = dto.getAksjonspunktDefinisjon();
-        var skjermlenkeType = HistorikkAksjonspunktAdapter.getSkjermlenkeType(vilkårType, aksjonspunktDefinisjon);
+        var skjermlenkeType = HistorikkSammeBarnTjeneste.getSkjermlenkeType(vilkårType, aksjonspunktDefinisjon);
         historikkAdapter.tekstBuilder()
             .medEndretFelt(getTekstKode(), null, dto.getErVilkarOk() ? HistorikkEndretFeltVerdiType.OPPFYLT : HistorikkEndretFeltVerdiType.IKKE_OPPFYLT)
             .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret())
