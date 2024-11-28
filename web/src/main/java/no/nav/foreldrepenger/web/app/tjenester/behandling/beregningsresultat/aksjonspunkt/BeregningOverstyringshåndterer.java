@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.aksjonspunkt;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -9,10 +11,10 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.ytelse.beregning.es.BeregnYtelseTjenesteES;
 
 @ApplicationScoped
@@ -20,7 +22,7 @@ import no.nav.foreldrepenger.ytelse.beregning.es.BeregnYtelseTjenesteES;
 public class BeregningOverstyringshåndterer implements Overstyringshåndterer<OverstyringBeregningDto> {
 
     private LegacyESBeregningRepository beregningRepository;
-    private HistorikkTjenesteAdapter historikkAdapter;
+    private Historikkinnslag2Repository historikkinnslagRepository;
     private BeregnYtelseTjenesteES beregnTjeneste;
 
     BeregningOverstyringshåndterer() {
@@ -29,10 +31,10 @@ public class BeregningOverstyringshåndterer implements Overstyringshåndterer<O
 
     @Inject
     public BeregningOverstyringshåndterer(LegacyESBeregningRepository beregningRepository,
-                                          HistorikkTjenesteAdapter historikkAdapter,
+                                          Historikkinnslag2Repository historikkinnslagRepository,
                                           BeregnYtelseTjenesteES beregnTjeneste) {
         this.beregningRepository = beregningRepository;
-        this.historikkAdapter = historikkAdapter;
+        this.historikkinnslagRepository = historikkinnslagRepository;
         this.beregnTjeneste = beregnTjeneste;
     }
 
@@ -44,18 +46,23 @@ public class BeregningOverstyringshåndterer implements Overstyringshåndterer<O
 
     @Override
     public void lagHistorikkInnslag(OverstyringBeregningDto dto, Behandling behandling) {
-        lagHistorikkInnslagForOverstyrtBeregning(behandling.getId(), dto.getBegrunnelse(), dto.getBeregnetTilkjentYtelse());
+        lagHistorikkInnslagForOverstyrtBeregning(behandling, dto.getBegrunnelse(), dto.getBeregnetTilkjentYtelse());
     }
 
-    private void lagHistorikkInnslagForOverstyrtBeregning(Long behandlingId, String begrunnelse, Long tilBeregning) {
+    private void lagHistorikkInnslagForOverstyrtBeregning(Behandling behandling, String begrunnelse, Long tilBeregning) {
+        var behandlingId = behandling.getId();
         var sisteBeregning = beregningRepository.getSisteBeregning(behandlingId);
         if (sisteBeregning.isPresent()) {
             var fraBeregning = sisteBeregning.get().getOpprinneligBeregnetTilkjentYtelse();
-            historikkAdapter.tekstBuilder()
-                .medHendelse(HistorikkinnslagType.OVERSTYRT)
-                .medBegrunnelse(begrunnelse)
-                .medSkjermlenke(SkjermlenkeType.BEREGNING_ENGANGSSTOENAD)
-                .medEndretFelt(HistorikkEndretFeltType.OVERSTYRT_BEREGNING, fraBeregning, tilBeregning);
+            var historikkinnslag = new Historikkinnslag2.Builder()
+                .medAktør(HistorikkAktør.SAKSBEHANDLER)
+                .medFagsakId(behandling.getFagsakId())
+                .medBehandlingId(behandlingId)
+                .medTittel(SkjermlenkeType.BEREGNING_ENGANGSSTOENAD)
+                .addTekstlinje(fraTilEquals("__Overstyrt beregning:__ Beløpet", fraBeregning, tilBeregning))
+                .addTekstlinje(begrunnelse)
+                .build();
+            historikkinnslagRepository.lagre(historikkinnslag);
         }
     }
 }

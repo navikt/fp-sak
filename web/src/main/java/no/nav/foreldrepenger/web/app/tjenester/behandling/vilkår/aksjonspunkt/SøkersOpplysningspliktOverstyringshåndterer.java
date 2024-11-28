@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -9,11 +11,11 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.inngangsvilkaar.InngangsvilkårTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt.dto.OverstyringSokersOpplysingspliktDto;
 import no.nav.vedtak.exception.FunksjonellException;
@@ -22,7 +24,7 @@ import no.nav.vedtak.exception.FunksjonellException;
 @DtoTilServiceAdapter(dto = OverstyringSokersOpplysingspliktDto.class, adapter = Overstyringshåndterer.class)
 public class SøkersOpplysningspliktOverstyringshåndterer implements Overstyringshåndterer<OverstyringSokersOpplysingspliktDto> {
 
-    private HistorikkTjenesteAdapter historikkAdapter;
+    private Historikkinnslag2Repository historikkinnslagRepository;
     private InngangsvilkårTjeneste inngangsvilkårTjeneste;
 
     SøkersOpplysningspliktOverstyringshåndterer() {
@@ -30,16 +32,16 @@ public class SøkersOpplysningspliktOverstyringshåndterer implements Overstyrin
     }
 
     @Inject
-    public SøkersOpplysningspliktOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter,
+    public SøkersOpplysningspliktOverstyringshåndterer(Historikkinnslag2Repository historikkinnslagRepository,
                                                        InngangsvilkårTjeneste inngangsvilkårTjeneste) {
-        this.historikkAdapter = historikkAdapter;
+        this.historikkinnslagRepository = historikkinnslagRepository;
         this.inngangsvilkårTjeneste = inngangsvilkårTjeneste;
 
     }
 
     @Override
     public void lagHistorikkInnslag(OverstyringSokersOpplysingspliktDto dto, Behandling behandling) {
-        leggTilEndretFeltIHistorikkInnslag(dto.getBegrunnelse(), dto.getErVilkarOk());
+        leggTilEndretFeltIHistorikkInnslag(behandling.getFagsakId(), behandling.getId(), dto);
     }
 
     @Override
@@ -61,15 +63,15 @@ public class SøkersOpplysningspliktOverstyringshåndterer implements Overstyrin
         return builder.build();
     }
 
-    private void leggTilEndretFeltIHistorikkInnslag(String begrunnelse, boolean vilkårOppfylt) {
-        var tilVerdi = vilkårOppfylt ? HistorikkEndretFeltVerdiType.OPPFYLT : HistorikkEndretFeltVerdiType.IKKE_OPPFYLT;
-
-        var tekstBuilder = historikkAdapter.tekstBuilder();
-        if (begrunnelse != null) {
-            tekstBuilder.medBegrunnelse(begrunnelse);
-        }
-        tekstBuilder.medEndretFelt(HistorikkEndretFeltType.SOKERSOPPLYSNINGSPLIKT, null, tilVerdi)
-            .medSkjermlenke(SkjermlenkeType.OPPLYSNINGSPLIKT);
-
+    private void leggTilEndretFeltIHistorikkInnslag(Long fagsakId, Long behandlingId, OverstyringSokersOpplysingspliktDto dto) {
+        var historikkinnslag = new Historikkinnslag2.Builder()
+            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medFagsakId(fagsakId)
+            .medBehandlingId(behandlingId)
+            .medTittel(SkjermlenkeType.OPPLYSNINGSPLIKT)
+            .addTekstlinje(fraTilEquals("Søkers opplysningsplikt", null, dto.getErVilkarOk() ? "oppfylt" : "ikke oppfylt"))
+            .addTekstlinje(dto.getBegrunnelse())
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 }
