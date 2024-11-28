@@ -58,7 +58,7 @@ public class VurderEtterlønnSluttpakkeHistorikkTjeneste extends FaktaOmBeregnin
 
     private List<BeregningsgrunnlagPrStatusOgAndel> finnEtterlønnSluttpakkeAndel(BeregningsgrunnlagEntitet nyttBeregningsgrunnlag) {
         return nyttBeregningsgrunnlag.getBeregningsgrunnlagPerioder()
-            .get(0)
+            .getFirst()
             .getBeregningsgrunnlagPrStatusOgAndelList()
             .stream()
             .filter(bpsa -> bpsa.getArbeidsforholdType().equals(OpptjeningAktivitetType.ETTERLØNN_SLUTTPAKKE))

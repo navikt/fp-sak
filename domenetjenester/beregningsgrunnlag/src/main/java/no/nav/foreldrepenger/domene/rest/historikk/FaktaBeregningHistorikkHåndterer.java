@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.rest.historikk;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;

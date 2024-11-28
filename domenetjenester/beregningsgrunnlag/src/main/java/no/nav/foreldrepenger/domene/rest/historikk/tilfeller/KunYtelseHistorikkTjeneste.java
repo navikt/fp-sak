@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.rest.historikk.tilfeller;
 
+import static no.nav.foreldrepenger.domene.rest.historikk.FordelBeregningsgrunnlagHistorikkUtil.fraInntektskategori;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -99,9 +101,9 @@ public class KunYtelseHistorikkTjeneste extends FaktaOmBeregningHistorikkTjenest
                                                                                         Inntektskategori forrigeInntektskategori,
                                                                                         Inntektskategori inntektskategori) {
         if (inntektskategori != null && !inntektskategori.equals(forrigeInntektskategori)) {
-            var forrigeInntektskategoriNavn = forrigeInntektskategori != null ? forrigeInntektskategori.getNavn() : null;
+            var forrigeInntektskategoriNavn = forrigeInntektskategori != null ? fraInntektskategori(forrigeInntektskategori) : null;
             return new HistorikkinnslagTekstlinjeBuilder().fraTil("Inntektskategori for " + andelsInfo, forrigeInntektskategoriNavn,
-                inntektskategori.getNavn());
+                fraInntektskategori(inntektskategori));
         }
         return null;
     }
@@ -114,13 +116,14 @@ public class KunYtelseHistorikkTjeneste extends FaktaOmBeregningHistorikkTjenest
         List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder = new ArrayList<>();
         if (fastsattÅrsbeløp != null && !fastsattÅrsbeløp.equals(forrigeBeløp)) {
             tekstlinjerBuilder.add(new HistorikkinnslagTekstlinjeBuilder().tekst("Fordeling for").bold(andel + ":"));
-            tekstlinjerBuilder.add(new HistorikkinnslagTekstlinjeBuilder().fraTil(inntektskategori.getNavn(), forrigeBeløp, fastsattBeløp));
+            tekstlinjerBuilder.add(
+                new HistorikkinnslagTekstlinjeBuilder().fraTil(fraInntektskategori(inntektskategori), forrigeBeløp, fastsattBeløp));
         }
         return tekstlinjerBuilder;
     }
 
     private List<HistorikkinnslagTekstlinjeBuilder> leggTilHistorikkinnslagForNyAndel(FastsattBrukersAndel andel) {
-        var inntektskategori = andel.getInntektskategori().getNavn();
+        var inntektskategori = fraInntektskategori(andel.getInntektskategori());
         List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder = new ArrayList<>();
         tekstlinjerBuilder.add(new HistorikkinnslagTekstlinjeBuilder().bold("Det er lagt til ny aktivitet:"));
         tekstlinjerBuilder.add(new HistorikkinnslagTekstlinjeBuilder().bold(BeregningsgrunnlagAndeltype.BRUKERS_ANDEL.getNavn()));
