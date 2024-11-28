@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public class HistorikkinnslagTekstlinjeBuilder {
 
-    private static final String LINJESKIFT = ""; // TODO: Hvordan ønsker vi å lagre slike? Gå gjennom
+    private static final String LINJESKIFT = "linjeskift";
 
     private final StringBuilder stringBuilder = new StringBuilder();
 

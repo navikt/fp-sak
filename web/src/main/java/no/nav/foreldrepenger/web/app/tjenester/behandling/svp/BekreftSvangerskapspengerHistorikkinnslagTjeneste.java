@@ -127,7 +127,7 @@ public class BekreftSvangerskapspengerHistorikkinnslagTjeneste {
     }
 
     private String formaterForHistorikk(TilretteleggingFOM fom) {
-        var builder = new StringBuilder(String.format("__%s__ fra og med __%s__", fom.getType().getNavn(), fom.getFomDato()));
+        var builder = new StringBuilder(String.format("__%s__ fra og med __%s__", fom.getType().getNavn(), DATO_FORMATTER.format(fom.getFomDato())));
         if (TilretteleggingType.DELVIS_TILRETTELEGGING.equals(fom.getType())) {
             builder.append(String.format(" med stillingsprosent __%s__", fom.getStillingsprosent()));
         }
