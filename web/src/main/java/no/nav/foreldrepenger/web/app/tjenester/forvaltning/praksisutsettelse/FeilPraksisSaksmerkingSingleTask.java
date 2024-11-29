@@ -24,7 +24,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 class FeilPraksisSaksmerkingSingleTask implements ProsessTaskHandler {
     static final String FAGSAK_ID = "fagsakId";
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private final Historikkinnslag2Repository historikkinnslagRepository;
     private final FagsakRepository fagsakRepository;
     private final FagsakEgenskapRepository fagsakEgenskapRepository;
 
