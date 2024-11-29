@@ -10,25 +10,16 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt.BekreftSokersOpplysningspliktManuDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt.BekreftSøkersOpplysningspliktManuellOppdaterer;
 
@@ -44,24 +35,23 @@ class BekreftSøkersOpplysningspliktManuellOppdatererTest {
         // Behandling
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU,
-                BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU, BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT);
         scenario.lagre(repositoryProvider);
 
         var behandling = scenario.getBehandling();
 
         var historikkinnslag2Repository = repositoryProvider.getHistorikkinnslag2Repository();
-        var oppdaterer = new BekreftSøkersOpplysningspliktManuellOppdaterer(historikkinnslag2Repository, repositoryProvider.getBehandlingRepository());
+        var oppdaterer = new BekreftSøkersOpplysningspliktManuellOppdaterer(historikkinnslag2Repository,
+            repositoryProvider.getBehandlingRepository());
 
         // Dto
-        var bekreftSokersOpplysningspliktManuDto = new BekreftSokersOpplysningspliktManuDto(
-                "test av manu", true, Collections.emptyList());
+        var bekreftSokersOpplysningspliktManuDto = new BekreftSokersOpplysningspliktManuDto("test av manu", true, Collections.emptyList());
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
 
         // Act
         var aksjonspunkt = behandling.getAksjonspunktFor(bekreftSokersOpplysningspliktManuDto.getAksjonspunktDefinisjon());
         var resultat = oppdaterer.oppdater(bekreftSokersOpplysningspliktManuDto,
-                new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), bekreftSokersOpplysningspliktManuDto, aksjonspunkt));
+            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), bekreftSokersOpplysningspliktManuDto, aksjonspunkt));
         var historikkInnslagForBehandling = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId());
 
         // Assert
@@ -69,13 +59,13 @@ class BekreftSøkersOpplysningspliktManuellOppdatererTest {
         var historikkInnslag = historikkInnslagForBehandling.getFirst();
         var tekstlinjer = historikkInnslag.getTekstlinjer();
         assertThat(tekstlinjer).hasSize(2);
-       assertThat(tekstlinjer.getFirst().getTekst()).contains("Søkers opplysningsplikt");
-       assertThat(tekstlinjer.getFirst().getTekst()).contains("Vilkåret er oppfylt");
-       assertThat(tekstlinjer.getFirst().getTekst()).doesNotContain("ikke oppfylt");
-         assertThat(tekstlinjer.get(1).getTekst()).contains("test av manu");
+        assertThat(tekstlinjer.getFirst().getTekst()).isEqualTo("__Søkers opplysningsplikt__ er satt til __Vilkåret er oppfylt__.");
+        assertThat(tekstlinjer.get(1).getTekst()).isEqualTo("test av manu");
 
-        var aksjonspunktSet = resultat.getEkstraAksjonspunktResultat().stream()
-                .map(AksjonspunktResultat::getAksjonspunktDefinisjon).collect(Collectors.toSet());
+        var aksjonspunktSet = resultat.getEkstraAksjonspunktResultat()
+            .stream()
+            .map(AksjonspunktResultat::getAksjonspunktDefinisjon)
+            .collect(Collectors.toSet());
 
         assertThat(aksjonspunktSet).isEmpty();
     }
