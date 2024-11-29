@@ -20,6 +20,10 @@ public class HistorikkinnslagTekstlinjeBuilder {
         return this;
     }
 
+    public HistorikkinnslagTekstlinjeBuilder bold(Integer integer) {
+        return bold(String.valueOf(integer));
+    }
+
     public HistorikkinnslagTekstlinjeBuilder tekst(String t) {
         stringBuilder.append(" ").append(t);
         return this;
@@ -85,7 +89,9 @@ public class HistorikkinnslagTekstlinjeBuilder {
     }
 
     public HistorikkinnslagTekstlinjeBuilder fraTil(String hva, LocalDate fra, LocalDate til) {
-        return fraTil(hva, fra != null ? formatDate(fra) : null, formatDate(til));
+        var fraTekst = fra != null ? formatDate(fra) : null;
+        var tilTekst = til != null ? formatDate(til) : null;
+        return fraTil(hva, fraTekst, tilTekst);
     }
 
     public HistorikkinnslagTekstlinjeBuilder fraTil(String hva, Integer fra, Integer til) {
