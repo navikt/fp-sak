@@ -133,7 +133,8 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste {
         tekstlinjeBuilderList.addAll(oppdaterFrilansInntektVedEndretVerdi(forrigeFrilansInntekt, dto));
         tekstlinjeBuilderList.add(new HistorikkinnslagTekstlinjeBuilder().tekst(dto.getBegrunnelse()));
 
-        var historikkinnslag = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
+        var historikkinnslag = new Historikkinnslag2.Builder()
+            .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medBehandlingId(param.getBehandlingId())
             .medFagsakId(param.getRef().fagsakId())
             .medTittel(SkjermlenkeType.BEREGNING_FORELDREPENGER)
