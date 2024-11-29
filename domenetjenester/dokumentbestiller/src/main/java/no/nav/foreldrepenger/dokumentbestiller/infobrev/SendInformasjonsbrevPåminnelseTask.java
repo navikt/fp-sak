@@ -39,8 +39,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class SendInformasjonsbrevPåminnelseTask implements ProsessTaskHandler {
 
-    public static final String FAGSAK_ID_KEY = "fagsakId";
-
     private static final Logger LOG = LoggerFactory.getLogger(SendInformasjonsbrevPåminnelseTask.class);
 
     private BehandlingOpprettingTjeneste behandlingOpprettingTjeneste;
@@ -79,13 +77,13 @@ public class SendInformasjonsbrevPåminnelseTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        var aktørId = new AktørId(prosessTaskData.getAktørId());
+        var fagsakFar = fagsakRepository.finnEksaktFagsakReadOnly(prosessTaskData.getFagsakId());
+
+        var aktørId = fagsakFar.getAktørId();
         var bruker = hentPersonInfo(aktørId);
         if (bruker.dødsdato() != null) {
             return; // Unngå brev til død bruker
         }
-
-        var fagsakFar = fagsakRepository.finnEksaktFagsakReadOnly(Long.parseLong(prosessTaskData.getPropertyValue(FAGSAK_ID_KEY)));
 
         //Sjekk at det finnes fedrekvote igjen
         var behandlingMor = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(fagsakFar.getSaksnummer()).orElseThrow();

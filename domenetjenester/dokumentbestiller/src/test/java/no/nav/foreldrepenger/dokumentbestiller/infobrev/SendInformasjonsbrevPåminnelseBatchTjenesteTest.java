@@ -31,6 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
@@ -170,7 +171,7 @@ class SendInformasjonsbrevPåminnelseBatchTjenesteTest {
         repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandlingMor.getFagsak());
         repositoryProvider.getFagsakRelasjonRepository().lagre(behandlingMor.getFagsak(), kontoMor.build());
 
-        var fagsakFar = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(aktørIdFar));
+        var fagsakFar = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(aktørIdFar), new Saksnummer("9999"));
         repositoryProvider.getFagsakRepository().opprettNy(fagsakFar);
         var behandlingFar = Behandling.forFørstegangssøknad(fagsakFar).medBehandlendeEnhet(new OrganisasjonsEnhet("1000", "Enheten")).build();
         lås = behandlingRepository.taSkriveLås(behandlingFar);
