@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.behandlingsprosess.prosessering;
 
 import java.time.LocalDate;
-import java.util.Map;
+import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -13,12 +13,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.StartBehandlingTask;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -28,25 +26,19 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
  **/
 @ApplicationScoped
 public class BehandlingOpprettingTjeneste {
-
-    private static final Map<BehandlingType, HistorikkinnslagType> BEHANDLING_HISTORIKK = Map.ofEntries(
-            Map.entry(BehandlingType.ANKE, HistorikkinnslagType.ANKEBEH_STARTET),
-            Map.entry(BehandlingType.INNSYN, HistorikkinnslagType.INNSYN_OPPR),
-            Map.entry(BehandlingType.KLAGE, HistorikkinnslagType.KLAGEBEH_STARTET));
-
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlendeEnhetTjeneste enhetTjeneste;
-    private HistorikkRepository historikkRepository;
+    private Historikkinnslag2Repository historikkinnslagRepository;
     private ProsessTaskTjeneste taskTjeneste;
 
     @Inject
     public BehandlingOpprettingTjeneste(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
             BehandlendeEnhetTjeneste enhetTjeneste,
-            HistorikkRepository historikkRepository,
+            Historikkinnslag2Repository historikkinnslagRepository,
             ProsessTaskTjeneste taskTjeneste) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.enhetTjeneste = enhetTjeneste;
-        this.historikkRepository = historikkRepository;
+        this.historikkinnslagRepository = historikkinnslagRepository;
         this.taskTjeneste = taskTjeneste;
     }
 
@@ -103,28 +95,27 @@ public class BehandlingOpprettingTjeneste {
                 beh.setBehandlingstidFrist(LocalDate.now().plusWeeks(behandlingType.getBehandlingstidFristUker()));
                 beh.setBehandlendeEnhet(enhet);
             });
-        if (historikk) {
+        // TODO: historikk blir satt til true som ikke har disse behandlingtypene... Da vil man ikke lage historikkinnslag. Bør ryddes opp i.
+        if (historikk && Set.of(BehandlingType.ANKE, BehandlingType.INNSYN, BehandlingType.KLAGE).contains(behandlingType)) {
             opprettHistorikkinnslag(behandling, behandlingType);
         }
         return behandling;
     }
 
     private void opprettHistorikkinnslag(Behandling behandling, BehandlingType behandlingType) {
-        var type = BEHANDLING_HISTORIKK.get(behandlingType);
-        if (type == null) {
-            return;
-        }
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setAktør(HistorikkAktør.SØKER);
-        historikkinnslag.setType(type);
-        historikkinnslag.setBehandlingId(behandling.getId());
-        historikkinnslag.setFagsakId(behandling.getFagsakId());
-
-        new HistorikkInnslagTekstBuilder().medHendelse(type)
-                .medBegrunnelse(type.getNavn())
-                .build(historikkinnslag);
-
-        historikkRepository.lagre(historikkinnslag);
+        var tittel = switch (behandlingType) {
+            case ANKE -> "Anke mottatt";
+            case INNSYN -> "Innsynsbehandling opprettet";
+            case KLAGE -> "Klage mottatt";
+            default -> throw new IllegalStateException("Skal ikke lage historikkinnslag for type " + behandlingType);
+        };
+        var historikkinnslag = new Historikkinnslag2.Builder()
+            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medFagsakId(behandling.getFagsakId())
+            .medBehandlingId(behandling.getId())
+            .medTittel(tittel)
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
 }
