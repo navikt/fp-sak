@@ -62,7 +62,7 @@ public class BekreftOmsorgOppdaterer implements AksjonspunktOppdaterer<BekreftFa
                            Boolean harOmsorgForBarnetBekreftetVersjon) {
         var historikkinnslag = new Historikkinnslag2.Builder()
             .medBehandlingId(behandlingId)
-            .medFagsakId(param.getRef().fagsakId())
+            .medFagsakId(param.getFagsakId())
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medTittel(SkjermlenkeType.FAKTA_FOR_OMSORG)
             .addTekstlinje(HistorikkinnslagTekstlinjeBuilder.fraTilEquals("Omsorg",
