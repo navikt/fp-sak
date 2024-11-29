@@ -5,6 +5,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
+import jakarta.inject.Inject;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
+import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -24,9 +32,11 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt.BekreftSokersOpplysningspliktManuDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt.BekreftSøkersOpplysningspliktManuellOppdaterer;
 
+@CdiDbAwareTest
 class BekreftSøkersOpplysningspliktManuellOppdatererTest {
 
-    private final HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
+    @Inject
+    private BehandlingRepositoryProvider repositoryProvider;
 
     @Test
     void skal_generere_historikkinnslag_ved_avklaring_av_søkers_opplysningsplikt_manu() {
@@ -36,11 +46,12 @@ class BekreftSøkersOpplysningspliktManuellOppdatererTest {
         scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU,
                 BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT);
-        scenario.lagMocked();
+        scenario.lagre(repositoryProvider);
 
         var behandling = scenario.getBehandling();
 
-        var oppdaterer = new BekreftSøkersOpplysningspliktManuellOppdaterer(lagMockHistory(), scenario.mockBehandlingRepository());
+        var historikkinnslag2Repository = repositoryProvider.getHistorikkinnslag2Repository();
+        var oppdaterer = new BekreftSøkersOpplysningspliktManuellOppdaterer(historikkinnslag2Repository, repositoryProvider.getBehandlingRepository());
 
         // Dto
         var bekreftSokersOpplysningspliktManuDto = new BekreftSokersOpplysningspliktManuDto(
@@ -51,29 +62,21 @@ class BekreftSøkersOpplysningspliktManuellOppdatererTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(bekreftSokersOpplysningspliktManuDto.getAksjonspunktDefinisjon());
         var resultat = oppdaterer.oppdater(bekreftSokersOpplysningspliktManuDto,
                 new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), bekreftSokersOpplysningspliktManuDto, aksjonspunkt));
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-        var historikkInnslag = tekstBuilder.build(historikkinnslag);
+        var historikkInnslagForBehandling = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId());
 
         // Assert
-        assertThat(historikkInnslag).hasSize(1);
-        var del = historikkInnslag.get(0);
-        var feltList = del.getEndredeFelt();
-        assertThat(feltList).hasSize(1);
-        var felt = feltList.get(0);
-        assertThat(felt.getNavn()).as("navn").isEqualTo(HistorikkEndretFeltType.SOKERSOPPLYSNINGSPLIKT.getKode());
-        assertThat(felt.getFraVerdi()).as("fraVerdi").isNull();
-        assertThat(felt.getTilVerdi()).as("tilVerdi").isEqualTo(HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT.getKode());
+        assertThat(historikkInnslagForBehandling).hasSize(1);
+        var historikkInnslag = historikkInnslagForBehandling.getFirst();
+        var tekstlinjer = historikkInnslag.getTekstlinjer();
+        assertThat(tekstlinjer).hasSize(2);
+       assertThat(tekstlinjer.getFirst().getTekst()).contains("Søkers opplysningsplikt");
+       assertThat(tekstlinjer.getFirst().getTekst()).contains("Vilkåret er oppfylt");
+       assertThat(tekstlinjer.getFirst().getTekst()).doesNotContain("ikke oppfylt");
+         assertThat(tekstlinjer.get(1).getTekst()).contains("test av manu");
 
         var aksjonspunktSet = resultat.getEkstraAksjonspunktResultat().stream()
                 .map(AksjonspunktResultat::getAksjonspunktDefinisjon).collect(Collectors.toSet());
 
         assertThat(aksjonspunktSet).isEmpty();
-    }
-
-    private HistorikkTjenesteAdapter lagMockHistory() {
-        var mockHistory = Mockito.mock(HistorikkTjenesteAdapter.class);
-        Mockito.when(mockHistory.tekstBuilder()).thenReturn(tekstBuilder);
-        return mockHistory;
     }
 }
