@@ -8,36 +8,36 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.vedtak.exception.FunksjonellException;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = BekreftSvangerskapspengervilkårDto.class, adapter = AksjonspunktOppdaterer.class)
 public class BekreftSvangerskapspengervilkårOppdaterer implements AksjonspunktOppdaterer<BekreftSvangerskapspengervilkårDto> {
 
-    private HistorikkTjenesteAdapter historikkTjenesteAdapter;
+    private Historikkinnslag2Repository historikkinnslag2Repository;
 
     BekreftSvangerskapspengervilkårOppdaterer() {
         //cdi
     }
 
     @Inject
-    public BekreftSvangerskapspengervilkårOppdaterer(HistorikkTjenesteAdapter historikkTjenesteAdapter) {
-        this.historikkTjenesteAdapter = historikkTjenesteAdapter;
+    public BekreftSvangerskapspengervilkårOppdaterer(Historikkinnslag2Repository historikkinnslag2Repository) {
+        this.historikkinnslag2Repository = historikkinnslag2Repository;
     }
 
     @Override
     public OppdateringResultat oppdater(BekreftSvangerskapspengervilkårDto dto, AksjonspunktOppdaterParameter param) {
         var vilkårOppfylt = dto.getAvslagskode() == null;
-        lagHistorikkinnslag(dto.getBegrunnelse(), vilkårOppfylt);
+        lagHistorikkinnslag(param, dto.getBegrunnelse(), vilkårOppfylt);
         if (vilkårOppfylt) {
-            return OppdateringResultat.utenTransisjon()
-                .leggTilManueltOppfyltVilkår(VilkårType.SVANGERSKAPSPENGERVILKÅR).build();
+            return OppdateringResultat.utenTransisjon().leggTilManueltOppfyltVilkår(VilkårType.SVANGERSKAPSPENGERVILKÅR).build();
         } else {
             var avslagsårsak = Avslagsårsak.fraDefinertKode(dto.getAvslagskode())
                 .orElseThrow(() -> new FunksjonellException("FP-MANGLER-ÅRSAK", "Ugyldig avslagsårsak", "Velg gyldig avslagsårsak"));
@@ -50,13 +50,14 @@ public class BekreftSvangerskapspengervilkårOppdaterer implements AksjonspunktO
         }
     }
 
-    private void lagHistorikkinnslag(String begrunnelse,
-                                     boolean vilkårOppfylt) {
-        var tilVerdi = vilkårOppfylt ? HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT : HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT;
-
-        historikkTjenesteAdapter.tekstBuilder()
-            .medBegrunnelse(begrunnelse)
-            .medEndretFelt(HistorikkEndretFeltType.SVANGERSKAPSPENGERVILKÅRET, null, tilVerdi)
-            .medSkjermlenke(SkjermlenkeType.PUNKT_FOR_SVANGERSKAPSPENGER);
+    private void lagHistorikkinnslag(AksjonspunktOppdaterParameter param, String begrunnelse, boolean vilkårOppfylt) {
+        var tilVerdi = vilkårOppfylt ? "Vilkåret er oppfylt" : "Vilkåret er ikke oppfylt";
+        historikkinnslag2Repository.lagre(new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medBehandlingId(param.getBehandlingId())
+            .medFagsakId(param.getFagsakId())
+            .medTittel(SkjermlenkeType.PUNKT_FOR_SVANGERSKAPSPENGER)
+            .addTekstlinje(new HistorikkinnslagTekstlinjeBuilder().til("Svangerskapsvilkåret", tilVerdi))
+            .addTekstlinje(begrunnelse)
+            .build());
     }
 }

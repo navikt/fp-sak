@@ -33,6 +33,10 @@ public final class AksjonspunktOppdaterParameter {
         return ref.behandlingId();
     }
 
+    public Long getFagsakId() {
+        return ref.fagsakId();
+    }
+
     public BehandlingReferanse getRef() {
         return ref;
     }

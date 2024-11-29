@@ -56,7 +56,7 @@ public class BekreftEktefelleOppdaterer implements AksjonspunktOppdaterer<Bekref
     }
 
     private void lagreHistorikkinnslag(BekreftEktefelleAksjonspunktDto dto, AksjonspunktOppdaterParameter param, Long behandlingId) {
-        var historikkinnslag = new Historikkinnslag2.Builder().medFagsakId(param.getRef().fagsakId())
+        var historikkinnslag = new Historikkinnslag2.Builder().medFagsakId(param.getFagsakId())
             .medBehandlingId(behandlingId)
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medTittel(SkjermlenkeType.FAKTA_OM_ADOPSJON)

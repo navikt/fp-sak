@@ -52,7 +52,7 @@ public class VurderSøknadsfristOppdaterer implements AksjonspunktOppdaterer<Vur
     private Historikkinnslag2 lagHistorikkinnslag(VurderSøknadsfristDto dto, AksjonspunktOppdaterParameter param, SøknadEntitet søknad) {
         var builder = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medBehandlingId(param.getBehandlingId())
-            .medFagsakId(param.getRef().fagsakId())
+            .medFagsakId(param.getFagsakId())
             .medTittel(SkjermlenkeType.SOEKNADSFRIST)
             .addTekstlinje(fraTilEquals("Søknadsfrist", null,  dto.harGyldigGrunn()
                 ? HistorikkEndretFeltVerdiType.HAR_GYLDIG_GRUNN.getNavn()

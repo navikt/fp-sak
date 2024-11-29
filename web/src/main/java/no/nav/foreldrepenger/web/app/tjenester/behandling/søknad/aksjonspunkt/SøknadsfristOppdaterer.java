@@ -46,7 +46,7 @@ public class SøknadsfristOppdaterer implements AksjonspunktOppdaterer<Soknadsfr
 
     private void lagreHistorikk(SoknadsfristAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         var tilTekst = dto.getErVilkarOk() ? "oppfylt" : "ikke oppfylt";
-        var historikkinnslag = new Historikkinnslag2.Builder().medFagsakId(param.getRef().fagsakId())
+        var historikkinnslag = new Historikkinnslag2.Builder().medFagsakId(param.getFagsakId())
             .medBehandlingId(param.getBehandlingId())
             .medTittel(SkjermlenkeType.SOEKNADSFRIST)
             .medAktør(HistorikkAktør.SAKSBEHANDLER)

@@ -86,7 +86,7 @@ public class BekreftDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Be
                                 Map<Integer, LocalDate> originaleFødselsdatoer) {
 
 
-        var builder = new Historikkinnslag2.Builder().medFagsakId(param.getRef().fagsakId())
+        var builder = new Historikkinnslag2.Builder().medFagsakId(param.getFagsakId())
             .medBehandlingId(param.getBehandlingId())
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medTittel(SkjermlenkeType.FAKTA_OM_ADOPSJON)

@@ -93,7 +93,7 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
                 .oppdater(behandlingId, aktørId, bekreftOpptjeningPerioder, skjæringstidspunkt);
 
         if (!bekreftOpptjeningPerioder.isEmpty()) { // erEndret tok ikke hensyn til om disse var like de gamle
-            var fagsakId = param.getRef().fagsakId();
+            var fagsakId = param.getFagsakId();
             for (var bekreftetAktivitet : bekreftOpptjeningPerioder) {
                 var aktivitetNavn = OpptjeningAktivitetType.ARBEID.equals(bekreftetAktivitet.getAktivitetType())
                     ? bekreftetAktivitet.getArbeidsgiverNavn()

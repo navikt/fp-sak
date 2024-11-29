@@ -66,7 +66,7 @@ public class VurderFaresignalerOppdaterer implements AksjonspunktOppdaterer<Vurd
         var tilVerdi = finnTekstForFaresignalVurdering(dto.getFaresignalVurdering());
         if (param.erBegrunnelseEndret() || !Objects.equals(fraVerdi, tilVerdi)) {
             var historikkinnslag = new Historikkinnslag2.Builder().medBehandlingId(param.getBehandlingId())
-                .medFagsakId(param.getRef().fagsakId())
+                .medFagsakId(param.getFagsakId())
                 .medAktør(HistorikkAktør.SAKSBEHANDLER)
                 .medTittel(SkjermlenkeType.VURDER_FARESIGNALER)
                 .addTekstlinje(HistorikkinnslagTekstlinjeBuilder.fraTilEquals("Faresignaler", fraVerdi, tilVerdi))

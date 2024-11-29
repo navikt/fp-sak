@@ -108,7 +108,7 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
             var historikkBuilder = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
                 .medTittel(getSkjermlenkeType(param.getRef().fagsakYtelseType()))
                 .medBehandlingId(param.getBehandlingId())
-                .medFagsakId(param.getRef().fagsakId())
+                .medFagsakId(param.getFagsakId())
                 .addTekstlinje(HistorikkinnslagTekstlinjeBuilder.fraTilEquals("Omsorgsovertakelsesdato", originalOmsorgsovertakelseDato,
                     dto.getOmsorgsovertakelseDato()));
 
