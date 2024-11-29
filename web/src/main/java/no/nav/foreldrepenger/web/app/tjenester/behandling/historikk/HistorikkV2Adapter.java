@@ -91,8 +91,10 @@ public class HistorikkV2Adapter {
 
     private static HistorikkinnslagDtoV2 fraMaltype1(Historikkinnslag innslag, UUID behandlingUUID, List<JournalpostId> journalPosterForSak, URI dokumentPath) {
         var del = innslag.getHistorikkinnslagDeler().getFirst();
-        var begrunnelsetekst = begrunnelseFraDel(del).map(List::of);
-        var body = begrunnelsetekst.orElse(List.of());
+        var body = switch (innslag.getType()) {
+            case ANKEBEH_STARTET, KLAGEBEH_STARTET, INNSYN_OPPR -> new ArrayList<String>(); // Begrunnelse og tittel er identisk for disse. Fører til duplikate innslag (ref. gammel BehandlingOpprettingTjeneste)
+            default -> begrunnelseFraDel(del).map(List::of).orElseGet(List::of);
+        };
         return tilHistorikkInnslagDto(innslag, behandlingUUID, tilDokumentlenker(innslag.getDokumentLinker(), journalPosterForSak, dokumentPath), body);
     }
 
