@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -9,10 +11,8 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Oppgitt
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.BeregnStønadskontoerTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 @ApplicationScoped
 public class ForvaltningUttakTjeneste {
@@ -31,7 +30,7 @@ public class ForvaltningUttakTjeneste {
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private FagsakRepository fagsakRepository;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
-    private HistorikkRepository historikkRepository;
+    private Historikkinnslag2Repository historikkinnslagRepository;
 
     @Inject
     public ForvaltningUttakTjeneste(BehandlingRepository behandlingRepository,
@@ -40,14 +39,14 @@ public class ForvaltningUttakTjeneste {
                                     FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
                                     FagsakRepository fagsakRepository,
                                     YtelseFordelingTjeneste ytelseFordelingTjeneste,
-                                    HistorikkRepository historikkRepository) {
+                                    Historikkinnslag2Repository historikkinnslagRepository) {
         this.behandlingRepository = behandlingRepository;
         this.beregnStønadskontoerTjeneste = beregnStønadskontoerTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.fagsakRepository = fagsakRepository;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
-        this.historikkRepository = historikkRepository;
+        this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     ForvaltningUttakTjeneste() {
@@ -66,22 +65,20 @@ public class ForvaltningUttakTjeneste {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         ytelseFordelingTjeneste.aksjonspunktAvklarStartdatoForPerioden(behandling.getId(), startdato);
 
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
-        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-        historikkinnslag.setBehandlingId(behandling.getId());
-
-        var historieBuilder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
-            .medSkjermlenke(SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER)
-            .medEndretFelt(HistorikkEndretFeltType.STARTDATO_FRA_SOKNAD, null, startdato)
-            .medBegrunnelse(String.format("FORVALTNING - satt startdato til %s pga manglende uttak", startdato));
-        historieBuilder.build(historikkinnslag);
-        historikkRepository.lagre(historikkinnslag);
+        var historikkinnslag = new Historikkinnslag2.Builder()
+            .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
+            .medFagsakId(behandling.getFagsakId())
+            .medBehandlingId(behandling.getId())
+            .medTittel(SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER)
+            .addTekstlinje(fraTilEquals("Startdato fra søknad", null, startdato))
+            .addTekstlinje(String.format("FORVALTNING - satt startdato til %s pga manglende uttak", startdato))
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
     public void endreAnnenForelderHarRett(UUID behandlingUUID, boolean harRett) {
-        var behandlingId = behandlingRepository.hentBehandling(behandlingUUID).getId();
+        var behandling = behandlingRepository.hentBehandling(behandlingUUID);
+        var behandlingId = behandling.getId();
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandlingId);
         if (ytelseFordelingAggregat.getAnnenForelderRettAvklaring() == null) {
             throw new ForvaltningException("Kan ikke endre ettersom annen forelder har rett ikke er avklart");
@@ -90,7 +87,7 @@ public class ForvaltningUttakTjeneste {
             ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(behandlingId, harRett, null, ytelseFordelingAggregat.getMorUføretrygdAvklaring());
 
             var begrunnelse = harRett ? "FORVALTNING - Endret til annen forelder har rett" : "FORVALTNING - Endret til annen forelder har ikke rett";
-            lagHistorikkinnslagRett(behandlingId, begrunnelse);
+            lagHistorikkinnslagRett(behandlingId, behandling.getFagsakId(), begrunnelse);
         }
     }
 
@@ -111,23 +108,21 @@ public class ForvaltningUttakTjeneste {
         }
         var begrunnelse = annenForelderHarRettEØS ? "FORVALTNING - Endret til at bruker har oppgitt at annen forelder har rett i EØS" :
             "FORVALTNING - Endret til at bruker har oppgitt at annen forelder ikke har rett i EØS";
-        lagHistorikkinnslagRett(behandlingId, begrunnelse);
+        lagHistorikkinnslagRett(behandlingId, behandling.getFagsakId(), begrunnelse);
     }
 
     public void endreAleneomsorg(UUID behandlingUuid, boolean aleneomsorg) {
-        var behandlingId = behandlingRepository.hentBehandling(behandlingUuid).getId();
-        ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForAleneomsorg(behandlingId, aleneomsorg);
+        var behandling = behandlingRepository.hentBehandling(behandlingUuid);
+        ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForAleneomsorg(behandling.getId(), aleneomsorg);
 
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
-        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-        historikkinnslag.setBehandlingId(behandlingId);
-
-        var begrunnelse = aleneomsorg ? "FORVALTNING - Endret til aleneomsorg" : "FORVALTNING - Endret til ikke aleneomsorg";
-        var historieBuilder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
-            .medBegrunnelse(begrunnelse);
-        historieBuilder.build(historikkinnslag);
-        historikkRepository.lagre(historikkinnslag);
+        var historikkinnslag = new Historikkinnslag2.Builder()
+            .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
+            .medFagsakId(behandling.getFagsakId())
+            .medBehandlingId(behandling.getId())
+            .medTittel("Fakta endret")
+            .addTekstlinje(aleneomsorg ? "FORVALTNING - Endret til aleneomsorg" : "FORVALTNING - Endret til ikke aleneomsorg")
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
     public void endreMorUføretrygd(UUID behandlingUUID, boolean morUføretrygd) {
@@ -152,18 +147,17 @@ public class ForvaltningUttakTjeneste {
         }
         var begrunnelse = morUføretrygd ? "FORVALTNING - Endret til at mor mottar Uføretrygd" :
             "FORVALTNING - Endret til at mor ikke mottar Uføretrygd";
-        lagHistorikkinnslagRett(behandlingId, begrunnelse);
+        lagHistorikkinnslagRett(behandlingId, behandling.getFagsakId(), begrunnelse);
     }
 
-    private void lagHistorikkinnslagRett(Long behandlingId, String begrunnelse) {
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
-        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-        historikkinnslag.setBehandlingId(behandlingId);
-
-        var historieBuilder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
-            .medBegrunnelse(begrunnelse);
-        historieBuilder.build(historikkinnslag);
-        historikkRepository.lagre(historikkinnslag);
+    private void lagHistorikkinnslagRett(Long behandlingId, Long fagsakId, String begrunnelse) {
+        var historikkinnslag = new Historikkinnslag2.Builder()
+            .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
+            .medFagsakId(fagsakId)
+            .medBehandlingId(behandlingId)
+            .medTittel("Fakta endret")
+            .addTekstlinje(begrunnelse)
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 }
