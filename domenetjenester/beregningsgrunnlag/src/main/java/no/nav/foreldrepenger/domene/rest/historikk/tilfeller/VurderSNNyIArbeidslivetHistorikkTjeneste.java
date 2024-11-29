@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
@@ -36,7 +35,7 @@ public class VurderSNNyIArbeidslivetHistorikkTjeneste extends FaktaOmBeregningHi
 
     private Boolean getOpprinneligNyIArbeidslivetVerdi(Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag) {
         return forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag)
-            .map(bg -> bg.getBeregningsgrunnlagPerioder().get(0))
+            .map(bg -> bg.getBeregningsgrunnlagPerioder().getFirst())
             .stream()
             .flatMap(p -> p.getBeregningsgrunnlagPrStatusOgAndelList().stream())
             .filter(bpsa -> bpsa.getAktivitetStatus().erSelvstendigNæringsdrivende())
@@ -55,11 +54,11 @@ public class VurderSNNyIArbeidslivetHistorikkTjeneste extends FaktaOmBeregningHi
         return null;
     }
 
-    private HistorikkEndretFeltVerdiType konvertBooleanTilFaktaEndretVerdiType(Boolean erNyIArbeidslivet) {
+    private String konvertBooleanTilFaktaEndretVerdiType(Boolean erNyIArbeidslivet) {
         if (erNyIArbeidslivet == null) {
             return null;
         }
-        return erNyIArbeidslivet ? HistorikkEndretFeltVerdiType.NY_I_ARBEIDSLIVET : HistorikkEndretFeltVerdiType.IKKE_NY_I_ARBEIDSLIVET;
+        return erNyIArbeidslivet ? "ny i arbeidslivet" : "ikke ny i arbeidslivet";
     }
 
 }
