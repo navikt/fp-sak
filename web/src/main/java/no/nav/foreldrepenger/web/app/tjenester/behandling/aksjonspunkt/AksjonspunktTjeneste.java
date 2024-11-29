@@ -40,13 +40,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingSaksbehandlerEvent;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat.Builder;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
@@ -65,8 +63,6 @@ public class AksjonspunktTjeneste {
 
     private HenleggBehandlingTjeneste henleggBehandlingTjeneste;
 
-    private HistorikkTjenesteAdapter historikkTjenesteAdapter;
-
     private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
 
     private BehandlingEventPubliserer behandlingEventPubliserer;
@@ -79,12 +75,10 @@ public class AksjonspunktTjeneste {
     public AksjonspunktTjeneste(BehandlingRepositoryProvider repositoryProvider,
                                 BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                 BehandlingsprosessTjeneste behandlingsprosessTjeneste,
-                                HistorikkTjenesteAdapter historikkTjenesteAdapter,
                                 HenleggBehandlingTjeneste henleggBehandlingTjeneste,
                                 BehandlingEventPubliserer behandlingEventPubliserer) {
 
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
-        this.historikkTjenesteAdapter = historikkTjenesteAdapter;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
@@ -101,8 +95,6 @@ public class AksjonspunktTjeneste {
         spoolTilbakeTilTidligsteAksjonspunkt(bekreftedeAksjonspunktDtoer, kontekst);
 
         var overhoppResultat = bekreftAksjonspunkter(kontekst, bekreftedeAksjonspunktDtoer, behandling);
-
-        historikkTjenesteAdapter.opprettHistorikkInnslag(behandling.getId(), HistorikkinnslagType.FAKTA_ENDRET);
 
         behandlingRepository.lagre(getBehandlingsresultat(behandling.getId()).getVilkårResultat(), kontekst.getSkriveLås());
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
@@ -175,8 +167,6 @@ public class AksjonspunktTjeneste {
         spoolTilbakeTilTidligsteAksjonspunkt(overstyrteAksjonspunkter, kontekst);
 
         var overhoppForOverstyring = overstyrVilkårEllerBeregning(overstyrteAksjonspunkter, behandling, kontekst);
-
-        lagreHistorikkInnslag(behandling, overstyrteAksjonspunkter);
 
         // Fremoverhopp hvis vilkår settes til AVSLÅTT
         håndterOverhopp(overhoppForOverstyring, kontekst);
@@ -306,15 +296,6 @@ public class AksjonspunktTjeneste {
             return behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst, List.of(apRes.getAksjonspunktDefinisjon())).get(0);
         }
         return behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst, behandling.getAktivtBehandlingSteg(), List.of(apRes.getAksjonspunktDefinisjon())).get(0);
-    }
-
-
-    private void lagreHistorikkInnslag(Behandling behandling, Collection<OverstyringAksjonspunktDto> overstyrteAksjonspunkter) {
-
-        var innslagstype = overstyrteAksjonspunkter.stream().findFirst()
-            .map(OverstyringAksjonspunkt::historikkmalForOverstyring).orElse(HistorikkinnslagType.OVERSTYRT);
-        historikkTjenesteAdapter.opprettHistorikkInnslag(behandling.getId(), innslagstype);
-
     }
 
     private OverhoppResultat bekreftAksjonspunkter(BehandlingskontrollKontekst kontekst,
