@@ -18,7 +18,7 @@ public class Historikkinnslag2Repository {
         this.entityManager = entityManager;
     }
 
-    Historikkinnslag2Repository() {
+    public Historikkinnslag2Repository() {
         //CDI
     }
 

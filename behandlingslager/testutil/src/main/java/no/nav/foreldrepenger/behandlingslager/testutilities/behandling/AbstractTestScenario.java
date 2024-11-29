@@ -54,6 +54,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapBehandlingsgrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittLandOppholdEntitet;
@@ -175,6 +176,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private UttakResultatPerioderEntitet uttak;
     private Stønadskontoberegning stønadskontoberegning;
     private boolean manueltOpprettet;
+    private List<Historikkinnslag2> historikkinnslagListe = new ArrayList<>();
 
     protected AbstractTestScenario(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType brukerRolle,
             NavBrukerKjønn kjønn) {
@@ -218,6 +220,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         var fagsakRelasjonRepositoryMock = mockFagsakRelasjonRepository();
         var resultatRepository = mockBehandlingresultatRepository();
         var opptjeningRepository = mockOpptjeningRepository();
+        var historikkinnslag2Repository = mockHistorikkinnslag2Repository();
 
         var behandlingLåsReposiory = mockBehandlingLåsRepository();
 
@@ -238,9 +241,31 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         lenient().when(repositoryProvider.getFagsakRelasjonRepository()).thenReturn(fagsakRelasjonRepositoryMock);
         lenient().when(repositoryProvider.getBehandlingsresultatRepository()).thenReturn(resultatRepository);
         lenient().when(repositoryProvider.getOpptjeningRepository()).thenReturn(opptjeningRepository);
-        lenient().when(repositoryProvider.getHistorikkinnslag2Repository()).thenReturn(mock(Historikkinnslag2Repository.class));
+        lenient().when(repositoryProvider.getHistorikkinnslag2Repository()).thenReturn(historikkinnslag2Repository);
 
         return behandlingRepository;
+    }
+
+    public Historikkinnslag2Repository mockHistorikkinnslag2Repository() {
+        return new Historikkinnslag2Repository() {
+
+            @Override
+            public void lagre(Historikkinnslag2 historikkinnslag) {
+                historikkinnslagListe.add(historikkinnslag);
+            }
+
+            @Override
+            public List<Historikkinnslag2> hent(Long behandlingId) {
+                return historikkinnslagListe.stream()
+                    .filter(h -> h.getBehandlingId().equals(behandlingId))
+                    .toList();
+            }
+
+            @Override
+            public List<Historikkinnslag2> hent(Saksnummer saksnummer) {
+                return historikkinnslagListe;
+            }
+        };
     }
 
     private OpptjeningRepository mockOpptjeningRepository() {
