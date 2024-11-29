@@ -1,20 +1,19 @@
 package no.nav.foreldrepenger.økonomistøtte.simulering.tjeneste;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingValg;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingVidereBehandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.økonomistøtte.SimulerOppdragTjeneste;
 
 @ApplicationScoped
@@ -23,7 +22,7 @@ public class SimulerInntrekkSjekkeTjeneste {
     private SimuleringIntegrasjonTjeneste simuleringIntegrasjonTjeneste;
     private SimulerOppdragTjeneste simulerOppdragTjeneste;
     private TilbakekrevingRepository tilbakekrevingRepository;
-    private HistorikkRepository historikkRepository;
+    private Historikkinnslag2Repository historikkinnslagRepository;
 
     SimulerInntrekkSjekkeTjeneste() {
         // for CDI proxy
@@ -33,11 +32,11 @@ public class SimulerInntrekkSjekkeTjeneste {
     public SimulerInntrekkSjekkeTjeneste(SimuleringIntegrasjonTjeneste simuleringIntegrasjonTjeneste,
                                          SimulerOppdragTjeneste simulerOppdragTjeneste,
                                          TilbakekrevingRepository tilbakekrevingRepository,
-                                         HistorikkRepository historikkRepository) {
+                                         Historikkinnslag2Repository historikkinnslagRepository) {
         this.simuleringIntegrasjonTjeneste = simuleringIntegrasjonTjeneste;
         this.simulerOppdragTjeneste = simulerOppdragTjeneste;
         this.tilbakekrevingRepository = tilbakekrevingRepository;
-        this.historikkRepository = historikkRepository;
+        this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     /**
@@ -56,23 +55,23 @@ public class SimulerInntrekkSjekkeTjeneste {
 
             var simuleringResultatDto = simuleringIntegrasjonTjeneste.hentResultat(behandling.getId());
             if (simuleringResultatDto.filter(SimuleringIntegrasjonTjeneste::harFeilutbetaling).isPresent()) {
-                tilbakekrevingRepository.lagre(behandling, TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING, null));
-                opprettHistorikkInnslag(behandling.getId());
+                tilbakekrevingRepository.lagre(behandling,
+                    TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING, null));
+                opprettHistorikkInnslag(behandling.getId(), behandling.getFagsakId());
             }
         }
     }
 
-    private void opprettHistorikkInnslag(Long behandlingId) {
-        var innslag = new Historikkinnslag();
-        innslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
-        innslag.setBehandlingId(behandlingId);
-        innslag.setType(HistorikkinnslagType.TILBAKEKREVING_VIDEREBEHANDLING);
-
-        var tekstBuilder = new HistorikkInnslagTekstBuilder().medSkjermlenke(SkjermlenkeType.FAKTA_OM_SIMULERING);
-        tekstBuilder.medHendelse(innslag.getType());
-        tekstBuilder.medEndretFelt(HistorikkEndretFeltType.FASTSETT_VIDERE_BEHANDLING, TilbakekrevingVidereBehandling.INNTREKK, TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING);
-        tekstBuilder.build(innslag);
-        historikkRepository.lagre(innslag);
+    private void opprettHistorikkInnslag(Long behandlingId, Long fagsakId) {
+        var historikkinnslag = new Historikkinnslag2.Builder()
+            .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
+            .medBehandlingId(behandlingId)
+            .medFagsakId(fagsakId)
+            .medTittel(SkjermlenkeType.FAKTA_OM_SIMULERING)
+            .addTekstlinje(
+                fraTilEquals("Fastsett videre behandling", "Feilutbetaling hvor inntrekk dekker hele beløpet", "Feilutbetaling med tilbakekreving"))
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
 }
