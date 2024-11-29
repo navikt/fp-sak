@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -10,11 +9,9 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
@@ -22,27 +19,29 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 class FaktaUttakHistorikkinnslagTjenesteTest {
 
     private static final LocalDate FOM = LocalDate.of(2022,12,1);
     private static final LocalDate TOM = LocalDate.of(2022,12,7);
+    private static final String BEGRUNNELSE_TEKST = "Begrunnelse";
 
-    private HistorikkTjenesteAdapter adapter;
     private FaktaUttakHistorikkinnslagTjeneste tjeneste;
+    private Historikkinnslag2Repository historikkinnslagRepository;
+    private Behandling behandling;
 
     @BeforeEach
     public void setup() {
-        adapter = new HistorikkTjenesteAdapter(mock(HistorikkRepository.class));
-        tjeneste = new FaktaUttakHistorikkinnslagTjeneste(adapter);
+        var scenarioFarSøkerForeldrepenger = ScenarioFarSøkerForeldrepenger.forFødsel();
+        behandling = scenarioFarSøkerForeldrepenger.lagMocked();
+        historikkinnslagRepository = scenarioFarSøkerForeldrepenger.mockBehandlingRepositoryProvider().getHistorikkinnslag2Repository();
+        tjeneste = new FaktaUttakHistorikkinnslagTjeneste(historikkinnslagRepository);
     }
 
     @Test
     void skal_generere_historikkinnslag_uten_perioder_ved_ingen_endring() {
-
         //Scenario med avklar fakta uttak
         var før = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM)
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
@@ -50,19 +49,18 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
         var etter = OppgittPeriodeBuilder.fraEksisterende(før).build();
 
         // dto
-        tjeneste.opprettHistorikkinnslag("Begrunnelse", false, List.of(før), List.of(etter));
-        var historikkinnslag = opprettHistorikkInnslag(adapter.tekstBuilder());
+        tjeneste.opprettHistorikkinnslag(behandling.getId(), behandling.getFagsakId(), List.of(før), List.of(etter), false, BEGRUNNELSE_TEKST);
 
-        assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.FAKTA_ENDRET);
-        assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
-        var del = historikkinnslag.getHistorikkinnslagDeler().get(0);
-        assertThat(del.getSkjermlenke()).as("skjermlenke")
-            .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_UTTAK.getKode()));
-        assertThat(del.getEndredeFelt()).isEmpty();
+        var historikkinnslag = historikkinnslagRepository.hent(behandling.getId());
+        assertThat(historikkinnslag).hasSize(1);
+        assertThat(historikkinnslag.getFirst().getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
+        assertThat(historikkinnslag.getFirst().getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_UTTAK);
+        assertThat(historikkinnslag.getFirst().getTekstlinjer()).hasSize(1);
+        assertThat(historikkinnslag.getFirst().getTekstlinjer().getFirst().getTekst()).contains(BEGRUNNELSE_TEKST);
     }
 
     @Test
-    void skal_generere_historikkinnslag_med_tillagt_periode_ved_utvidelse() {
+    void skal_generere_historikkinnslag_med_tillagt_periode_ved_utvidelse_overtyrt() {
         //Scenario med avklar fakta uttak
         var før = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM)
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
@@ -70,21 +68,16 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
         var etter = OppgittPeriodeBuilder.fraEksisterende(før).medPeriode(FOM, TOM.plusDays(1)).build();
 
         // dto
-        tjeneste.opprettHistorikkinnslag("Begrunnelse", false, List.of(før), List.of(etter));
-        var historikkinnslag = opprettHistorikkInnslag(adapter.tekstBuilder());
+        tjeneste.opprettHistorikkinnslag(behandling.getId(), behandling.getFagsakId(), List.of(før), List.of(etter), true, BEGRUNNELSE_TEKST);
 
-        assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.FAKTA_ENDRET);
-        assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
-        var del = historikkinnslag.getHistorikkinnslagDeler().get(0);
-        assertThat(del.getSkjermlenke()).as("skjermlenke")
-            .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_UTTAK.getKode()));
-        assertThat(del.getEndredeFelt()).hasSize(1);
-        var nyPeriode = del.getEndredeFelt().get(0);
-        assertThat(nyPeriode.getNavn()).isEqualTo(HistorikkEndretFeltType.FAKTA_UTTAK_PERIODE.getKode());
-        assertThat(nyPeriode.getNavnVerdi()).contains("2022");
-        assertThat(nyPeriode.getTilVerdi()).contains("Lagt til");
-        assertThat(nyPeriode.getTilVerdi()).contains("Uttak");
-        assertThat(nyPeriode.getTilVerdi()).contains("Fedrekvoten");
+        var historikkinnslag = historikkinnslagRepository.hent(behandling.getId());
+        assertThat(historikkinnslag).hasSize(1);
+        assertThat(historikkinnslag.getFirst().getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
+        assertThat(historikkinnslag.getFirst().getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_UTTAK);
+        assertThat(historikkinnslag.getFirst().getTekstlinjer()).hasSize(3);
+        assertThat(historikkinnslag.getFirst().getTekstlinjer().get(0).getTekst()).contains("Overstyrt vurdering:");
+        assertThat(historikkinnslag.getFirst().getTekstlinjer().get(1).getTekst()).contains("Perioden", ".2022", "er satt til", "Uttak", "Fedrekvoten");
+        assertThat(historikkinnslag.getFirst().getTekstlinjer().get(2).getTekst()).contains(BEGRUNNELSE_TEKST);
     }
 
     @Test
@@ -96,21 +89,15 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
         var etter = OppgittPeriodeBuilder.fraEksisterende(før).medPeriode(FOM, TOM.minusDays(1)).build();
 
         // dto
-        tjeneste.opprettHistorikkinnslag("Begrunnelse", false, List.of(før), List.of(etter));
-        var historikkinnslag = opprettHistorikkInnslag(adapter.tekstBuilder());
+        tjeneste.opprettHistorikkinnslag(behandling.getId(), behandling.getFagsakId(), List.of(før), List.of(etter), false, BEGRUNNELSE_TEKST);
 
-        assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.FAKTA_ENDRET);
-        assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
-        var del = historikkinnslag.getHistorikkinnslagDeler().get(0);
-        assertThat(del.getSkjermlenke()).as("skjermlenke")
-            .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_UTTAK.getKode()));
-        assertThat(del.getEndredeFelt()).hasSize(1);
-        var slettetPeriode = del.getEndredeFelt().get(0);
-        assertThat(slettetPeriode.getNavn()).isEqualTo(HistorikkEndretFeltType.FAKTA_UTTAK_PERIODE.getKode());
-        assertThat(slettetPeriode.getNavnVerdi()).contains("2022");
-        assertThat(slettetPeriode.getTilVerdi()).contains("Slettet");
-        assertThat(slettetPeriode.getTilVerdi()).contains("Uttak");
-        assertThat(slettetPeriode.getTilVerdi()).contains("Fedrekvoten");
+        var historikkinnslag = historikkinnslagRepository.hent(behandling.getId());
+        assertThat(historikkinnslag).hasSize(1);
+        assertThat(historikkinnslag.getFirst().getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
+        assertThat(historikkinnslag.getFirst().getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_UTTAK);
+        assertThat(historikkinnslag.getFirst().getTekstlinjer()).hasSize(2);
+        assertThat(historikkinnslag.getFirst().getTekstlinjer().get(0).getTekst()).contains("Perioden", ".2022", "Uttak", "Fedrekvoten", "er fjernet");
+        assertThat(historikkinnslag.getFirst().getTekstlinjer().get(1).getTekst()).contains(BEGRUNNELSE_TEKST);
     }
 
     @Test
@@ -125,22 +112,15 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
             .build();
 
         // dto
-        tjeneste.opprettHistorikkinnslag("Begrunnelse", false, List.of(før), List.of(etter));
-        var historikkinnslag = opprettHistorikkInnslag(adapter.tekstBuilder());
+        tjeneste.opprettHistorikkinnslag(behandling.getId(), behandling.getFagsakId(), List.of(før), List.of(etter), false, BEGRUNNELSE_TEKST);
 
-        assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.FAKTA_ENDRET);
-        assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
-        var del = historikkinnslag.getHistorikkinnslagDeler().get(0);
-        assertThat(del.getSkjermlenke()).as("skjermlenke")
-            .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_UTTAK.getKode()));
-        assertThat(del.getEndredeFelt()).hasSize(1);
-        var endretPeriode = del.getEndredeFelt().get(0);
-        assertThat(endretPeriode.getNavn()).isEqualTo(HistorikkEndretFeltType.FAKTA_UTTAK_PERIODE.getKode());
-        assertThat(endretPeriode.getNavnVerdi()).contains("2022");
-        assertThat(endretPeriode.getFraVerdi()).contains("Utsettelse");
-        assertThat(endretPeriode.getFraVerdi()).contains("Barn");
-        assertThat(endretPeriode.getTilVerdi()).contains("Utsettelse");
-        assertThat(endretPeriode.getTilVerdi()).contains("Søker");
+        var historikkinnslag = historikkinnslagRepository.hent(behandling.getId());
+        assertThat(historikkinnslag).hasSize(1);
+        assertThat(historikkinnslag.getFirst().getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
+        assertThat(historikkinnslag.getFirst().getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_UTTAK);
+        assertThat(historikkinnslag.getFirst().getTekstlinjer()).hasSize(2);
+        assertThat(historikkinnslag.getFirst().getTekstlinjer().get(0).getTekst()).contains("Perioden", ".2022", "er endret fra", "Utsettelse", "Barn", "Søker");
+        assertThat(historikkinnslag.getFirst().getTekstlinjer().get(1).getTekst()).contains(BEGRUNNELSE_TEKST);
     }
 
     @Test
@@ -155,22 +135,15 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
             .build();
 
         // dto
-        tjeneste.opprettHistorikkinnslag("Begrunnelse", false, List.of(før), List.of(etter));
-        var historikkinnslag = opprettHistorikkInnslag(adapter.tekstBuilder());
+        tjeneste.opprettHistorikkinnslag(behandling.getId(), behandling.getFagsakId(), List.of(før), List.of(etter), false, BEGRUNNELSE_TEKST);
 
-        assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.FAKTA_ENDRET);
-        assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
-        var del = historikkinnslag.getHistorikkinnslagDeler().get(0);
-        assertThat(del.getSkjermlenke()).as("skjermlenke")
-            .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_UTTAK.getKode()));
-        assertThat(del.getEndredeFelt()).hasSize(1);
-        var endretPeriode = del.getEndredeFelt().get(0);
-        assertThat(endretPeriode.getNavn()).isEqualTo(HistorikkEndretFeltType.FAKTA_UTTAK_PERIODE.getKode());
-        assertThat(endretPeriode.getNavnVerdi()).contains("2022");
-        assertThat(endretPeriode.getFraVerdi()).contains("Utsettelse");
-        assertThat(endretPeriode.getFraVerdi()).contains("Barn");
-        assertThat(endretPeriode.getTilVerdi()).contains("Uttak");
-        assertThat(endretPeriode.getTilVerdi()).contains("Mødrekvoten");
+        var historikkinnslag = historikkinnslagRepository.hent(behandling.getId());
+        assertThat(historikkinnslag).hasSize(1);
+        assertThat(historikkinnslag.getFirst().getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
+        assertThat(historikkinnslag.getFirst().getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_UTTAK);
+        assertThat(historikkinnslag.getFirst().getTekstlinjer()).hasSize(2);
+        assertThat(historikkinnslag.getFirst().getTekstlinjer().get(0).getTekst()).contains("Perioden", ".2022", "er endret fra", "Utsettelse", "Barn", "til" , "Uttak", "Mødrekvoten");
+        assertThat(historikkinnslag.getFirst().getTekstlinjer().get(1).getTekst()).contains(BEGRUNNELSE_TEKST);
     }
 
     @Test
@@ -206,14 +179,14 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
             .build();
 
         // dto
-        tjeneste.opprettHistorikkinnslag("Begrunnelse", false, List.of(før), List.of(etter1, etter2, etter3, etter4, etter5, etter6));
-        var historikkinnslag = opprettHistorikkInnslag(adapter.tekstBuilder());
+        tjeneste.opprettHistorikkinnslag(behandling.getId(), behandling.getFagsakId(), List.of(før), List.of(etter1, etter2, etter3, etter4, etter5, etter6), false,
+            BEGRUNNELSE_TEKST);
 
-        assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.FAKTA_ENDRET);
-        assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
-        var del = historikkinnslag.getHistorikkinnslagDeler().get(0);
-        assertThat(del.getSkjermlenke()).as("skjermlenke")
-            .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_UTTAK.getKode()));
+        var historikkinnslag = historikkinnslagRepository.hent(behandling.getId());
+        assertThat(historikkinnslag).hasSize(1);
+        assertThat(historikkinnslag.getFirst().getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
+        assertThat(historikkinnslag.getFirst().getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_UTTAK);
+
         /**
          * Venter disse 5 endringene av de 6 ukene
          * - Lagt til en uke overført MK før opprinnelig
@@ -224,31 +197,14 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
          * - Ikke endring av nest siste uke
          * - Slettet siste uke FK
          */
-        assertThat(del.getEndredeFelt()).hasSize(6);
-        var endretPeriode = del.getEndredeFelt().get(0);
-        assertThat(del.getEndredeFelt().stream().allMatch(f -> HistorikkEndretFeltType.FAKTA_UTTAK_PERIODE.getKode().equals(f.getNavn()))).isTrue();
-        assertThat(del.getEndredeFelt().stream().anyMatch(f -> f.getTilVerdi().contains("Lagt til") && f.getTilVerdi().contains("Overføring") && f.getTilVerdi().contains("Mødrekvoten"))).isTrue();
-        assertThat(del.getEndredeFelt().stream().anyMatch(f -> f.getTilVerdi().contains("Utsettelse")  && f.getTilVerdi().contains("Barn"))).isTrue();
-        assertThat(del.getEndredeFelt().stream().anyMatch(f -> f.getFraVerdi() != null && f.getFraVerdi().contains("Uttak") && f.getTilVerdi().contains("Samtidig"))).isTrue();
-        assertThat(del.getEndredeFelt().stream().anyMatch(f -> f.getTilVerdi().contains("Gradering")  && f.getTilVerdi().contains("10"))).isTrue();
-        assertThat(del.getEndredeFelt().stream().anyMatch(f -> f.getTilVerdi().contains("Uttak")  && f.getTilVerdi().contains("Fellesperioden"))).isTrue();
-        assertThat(del.getEndredeFelt().stream().anyMatch(f -> f.getTilVerdi().contains("Slettet")  && f.getTilVerdi().contains("Fedrekvoten"))).isTrue();
-    }
 
-    public Historikkinnslag opprettHistorikkInnslag(HistorikkInnslagTekstBuilder builder) {
-        if (!builder.getHistorikkinnslagDeler().isEmpty() || builder.antallEndredeFelter() > 0 || builder.getErBegrunnelseEndret()
-            || builder.getErGjeldendeFraSatt()) {
-
-            var innslag = new Historikkinnslag();
-
-            builder.medHendelse(HistorikkinnslagType.FAKTA_ENDRET);
-            innslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
-            innslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-            innslag.setBehandlingId(123L);
-            builder.build(innslag);
-
-            return innslag;
-        }
-        return null;
+        assertThat(historikkinnslag.getFirst().getTekstlinjer()).hasSize(7);
+        assertThat(historikkinnslag.getFirst().getTekstlinjer().get(0).getTekst()).contains("Perioden", "er satt til", "Overføring", "Mødrekvoten");
+        assertThat(historikkinnslag.getFirst().getTekstlinjer().get(1).getTekst()).contains("Perioden", "er endret fra", "Uttak", "til", "Utsettelse", "Barn");
+        assertThat(historikkinnslag.getFirst().getTekstlinjer().get(2).getTekst()).contains("Perioden", "er endret fra", "Uttak", "til", "Uttak", "Samtidig");
+        assertThat(historikkinnslag.getFirst().getTekstlinjer().get(3).getTekst()).contains("Perioden", "er endret fra", "Uttak", "til", "Gradering", "10");
+        assertThat(historikkinnslag.getFirst().getTekstlinjer().get(4).getTekst()).contains("Perioden", "er endret fra", "Uttak", "Fedrekvoten", "til",  "Fellesperioden");
+        assertThat(historikkinnslag.getFirst().getTekstlinjer().get(5).getTekst()).contains("Perioden", "Uttak", "Fedrekvoten", "er fjernet");
+        assertThat(historikkinnslag.getFirst().getTekstlinjer().get(6).getTekst()).contains(BEGRUNNELSE_TEKST);
     }
 }

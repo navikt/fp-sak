@@ -47,7 +47,8 @@ public class HistorikkinnslagTekstlinjeBuilder {
         }
         if (til == null) {
             //TODO TFP-5554 tekst for at noe er fjernet. Trenger vi?
-            return bold(hva).tekst("er fjernet");
+            // Brukes nå av FaktaUttakFellesTjeneste
+            return bold(hva).bold(fra).tekst("er fjernet");
         }
         return bold(hva).tekst("er endret fra").tekst(fra).tekst("til").bold(til);
     }
