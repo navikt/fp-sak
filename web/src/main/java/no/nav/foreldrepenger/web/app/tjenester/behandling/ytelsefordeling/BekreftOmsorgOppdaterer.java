@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType.FAKTA_FOR_OMSORG;
+
 import java.util.Objects;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -9,8 +11,11 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.familiehendelse.rest.BekreftFaktaForOmsorgVurderingDto;
@@ -20,29 +25,28 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 @DtoTilServiceAdapter(dto = BekreftFaktaForOmsorgVurderingDto.class, adapter = AksjonspunktOppdaterer.class)
 public class BekreftOmsorgOppdaterer implements AksjonspunktOppdaterer<BekreftFaktaForOmsorgVurderingDto> {
 
-    private BehandlingRepositoryProvider behandlingRepository;
-
     private HistorikkTjenesteAdapter historikkAdapter;
-
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
+    private Historikkinnslag2Repository historikkinnslag2Repository;
+
 
     BekreftOmsorgOppdaterer() {
         // for CDI proxy
     }
 
     @Inject
-    public BekreftOmsorgOppdaterer(BehandlingRepositoryProvider behandlingRepositoryProvider,
-                                   HistorikkTjenesteAdapter historikkAdapter,
-                                   YtelseFordelingTjeneste ytelseFordelingTjeneste) {
-        this.behandlingRepository = behandlingRepositoryProvider;
+    public BekreftOmsorgOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
+                                   YtelseFordelingTjeneste ytelseFordelingTjeneste,
+                                   Historikkinnslag2Repository historikkinnslag2Repository) {
         this.historikkAdapter = historikkAdapter;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
+        this.historikkinnslag2Repository = historikkinnslag2Repository;
     }
 
     @Override
     public OppdateringResultat oppdater(BekreftFaktaForOmsorgVurderingDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingId = param.getBehandlingId();
-        var ytelseFordelingAggregat = behandlingRepository.getYtelsesFordelingRepository().hentAggregat(behandlingId);
+        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandlingId);
 
         var harOmsorgForBarnetBekreftetVersjon = ytelseFordelingAggregat.getOverstyrtOmsorg();
 
@@ -50,11 +54,25 @@ public class BekreftOmsorgOppdaterer implements AksjonspunktOppdaterer<BekreftFa
 
         var omsorg = dto.getOmsorg();
 
+        erEndret = !Objects.equals(harOmsorgForBarnetBekreftetVersjon, dto.getOmsorg());
+        if (param.erBegrunnelseEndret() || !Objects.equals(harOmsorgForBarnetBekreftetVersjon, dto.getOmsorg())) {
+            var historikkinnslag = new Historikkinnslag2.Builder()
+                .medBehandlingId(behandlingId)
+                .medFagsakId(param.getRef().fagsakId())
+                .medAktør(HistorikkAktør.SAKSBEHANDLER)
+                .medTittel(SkjermlenkeType.FAKTA_FOR_OMSORG)
+                .addTekstlinje(HistorikkinnslagTekstlinjeBuilder.fraTilEquals("Omsorg",
+                    konverterBooleanTilVerdiForOmsorgForBarnet(harOmsorgForBarnetBekreftetVersjon),
+                    konverterBooleanTilVerdiForOmsorgForBarnet(dto.getOmsorg())))
+                .addTekstlinje(dto.getBegrunnelse())
+                .build();
+            historikkinnslag2Repository.lagre(historikkinnslag);
+        }
         var totrinn = setToTrinns(erEndret, Boolean.FALSE.equals(omsorg));
 
         historikkAdapter.tekstBuilder()
             .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret())
-            .medSkjermlenke(SkjermlenkeType.FAKTA_FOR_OMSORG);
+            .medSkjermlenke(FAKTA_FOR_OMSORG);
 
         ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForOmsorg(behandlingId, omsorg);
 
@@ -76,7 +94,6 @@ public class BekreftOmsorgOppdaterer implements AksjonspunktOppdaterer<BekreftFa
         if (omsorgForBarnet == null) {
             return null;
         }
-        // TODO PFP-8740 midlertidig løsning. Inntil en løsning for å støtte dette
         return omsorgForBarnet ? "Søker har omsorg for barnet" : "Søker har ikke omsorg for barnet";
     }
 
