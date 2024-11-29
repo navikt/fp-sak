@@ -83,7 +83,7 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkTjeneste {
         if (!tekstlinjerBuilder.isEmpty()) {
             historikkinnslagBuilder.medAktør(HistorikkAktør.SAKSBEHANDLER)
                 .medBehandlingId(param.getBehandlingId())
-                .medFagsakId(param.getRef().fagsakId())
+                .medFagsakId(param.getFagsakId())
                 .medTittel(SkjermlenkeType.FAKTA_OM_FORDELING)
                 .medTekstlinjer(tekstlinjerBuilder);
             historikkinnslagRepository.lagre(historikkinnslagBuilder.build());

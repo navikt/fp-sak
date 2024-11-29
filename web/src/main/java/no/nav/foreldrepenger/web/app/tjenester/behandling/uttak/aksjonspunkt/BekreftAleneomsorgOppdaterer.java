@@ -71,7 +71,7 @@ public class BekreftAleneomsorgOppdaterer implements AksjonspunktOppdaterer<Avkl
         omsorgRettTekstlinje.ifPresent(historikkinnslagTekstlinjer::add);
 
         historikkRepository.lagre(new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
-            .medFagsakId(param.getRef().fagsakId())
+            .medFagsakId(param.getFagsakId())
             .medBehandlingId(param.getRef().behandlingId())
             .medTittel(SkjermlenkeType.FAKTA_OMSORG_OG_RETT)
             .medTekstlinjer(historikkinnslagTekstlinjer)
