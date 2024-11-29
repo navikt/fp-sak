@@ -131,7 +131,7 @@ class StønadsstatistikkTjenesteTest {
         assertThat(vedtak.getEngangsstønadInnvilget()).isNull();
         assertThat(vedtak.getLovVersjon()).isEqualTo(LovVersjon.FORELDREPENGER_MINSTERETT_2022_08_02);
         assertThat(vedtak.getForrigeBehandlingUuid()).isNull();
-        assertThat(vedtak.getSaksnummer().id()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        assertThat(vedtak.getSaksnummer().id()).isEqualTo(behandling.getSaksnummer().getVerdi());
         assertThat(vedtak.getFagsakId()).isEqualTo(behandling.getFagsak().getId());
         assertThat(vedtak.getSøker().id()).isEqualTo(behandling.getAktørId().getId());
         assertThat(vedtak.getSaksrolle()).isEqualTo(Saksrolle.MOR);
@@ -336,7 +336,7 @@ class StønadsstatistikkTjenesteTest {
         assertThat(vedtak.getLovVersjon()).isEqualTo(LovVersjon.SVANGERSKAPSPENGER_2019_01_01);
         assertThat(vedtak.getForrigeBehandlingUuid()).isNotNull();
         assertThat(vedtak.getRevurderingÅrsak()).isEqualTo(StønadsstatistikkVedtak.RevurderingÅrsak.SØKNAD);
-        assertThat(vedtak.getSaksnummer().id()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        assertThat(vedtak.getSaksnummer().id()).isEqualTo(behandling.getSaksnummer().getVerdi());
         assertThat(vedtak.getFagsakId()).isEqualTo(behandling.getFagsak().getId());
         assertThat(vedtak.getSøker().id()).isEqualTo(behandling.getAktørId().getId());
         assertThat(vedtak.getSaksrolle()).isEqualTo(Saksrolle.MOR);

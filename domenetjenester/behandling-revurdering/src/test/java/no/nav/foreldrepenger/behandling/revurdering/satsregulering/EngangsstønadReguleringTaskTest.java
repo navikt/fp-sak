@@ -12,8 +12,6 @@ import java.util.List;
 
 import jakarta.persistence.EntityManager;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
@@ -75,7 +74,7 @@ class EngangsstønadReguleringTaskTest {
         var behandling = opprettES(em, BehandlingStatus.AVSLUTTET, cutoff.minusDays(5), gammelSats);
 
         var prosessTaskData = ProsessTaskData.forProsessTask(EngangsstønadReguleringTask.class);
-        prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
 
         task.doTask(prosessTaskData);
 
@@ -93,7 +92,7 @@ class EngangsstønadReguleringTaskTest {
         lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(any(), any(), any())).thenReturn(List.of(byggBaby(fødselsdato)));
 
         var prosessTaskData = ProsessTaskData.forProsessTask(EngangsstønadReguleringTask.class);
-        prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
 
         task.doTask(prosessTaskData);
 

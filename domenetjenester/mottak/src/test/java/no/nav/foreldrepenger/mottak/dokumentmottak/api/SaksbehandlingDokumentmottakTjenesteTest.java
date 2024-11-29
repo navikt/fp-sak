@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.SaksbehandlingDokumentmottakTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.HåndterMottattDokumentTask;
@@ -63,7 +64,7 @@ class SaksbehandlingDokumentmottakTjenesteTest {
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         // Act
-        saksbehandlingDokumentmottakTjeneste.dokumentAnkommet(saksdokument, null);
+        saksbehandlingDokumentmottakTjeneste.dokumentAnkommet(saksdokument, null, new Saksnummer("9999"));
 
         // Assert
         verify(mottatteDokumentTjeneste).lagreMottattDokumentPåFagsak(saksdokument);
@@ -88,7 +89,7 @@ class SaksbehandlingDokumentmottakTjenesteTest {
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         // Act
-        saksbehandlingDokumentmottakTjeneste.dokumentAnkommet(saksdokument, null);
+        saksbehandlingDokumentmottakTjeneste.dokumentAnkommet(saksdokument, null, new Saksnummer("9999"));
         verify(mottatteDokumentTjeneste).lagreMottattDokumentPåFagsak(saksdokument);
 
         // Assert
@@ -109,7 +110,7 @@ class SaksbehandlingDokumentmottakTjenesteTest {
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         // Act
-        saksbehandlingDokumentmottakTjeneste.mottaUbehandletSøknad(md1, BehandlingÅrsakType.UDEFINERT);
+        saksbehandlingDokumentmottakTjeneste.mottaUbehandletSøknad(md1, BehandlingÅrsakType.UDEFINERT, new Saksnummer("456"));
 
         // Assert
         verify(taskTjeneste).lagre(captor.capture());
@@ -125,6 +126,7 @@ class SaksbehandlingDokumentmottakTjenesteTest {
         var behandling = mock(Behandling.class);
         when(behandling.getId()).thenReturn(789L);
         when(behandling.getFagsakId()).thenReturn(456L);
+        when(behandling.getSaksnummer()).thenReturn(new Saksnummer("456"));
         when(behandling.getAktørId()).thenReturn(new AktørId("0000000000000"));
         var md1 = new MottattDokument.Builder()
             .medJournalPostId(new JournalpostId("123"))

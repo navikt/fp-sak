@@ -886,7 +886,7 @@ class EndringsdatoRevurderingUtlederTest {
         var ytelse = ytelselseBuilder.medKilde(Fagsystem.FPSAK)
             .medYtelseType(RelatertYtelseType.FORELDREPENGER)
             .medStatus(RelatertYtelseTilstand.AVSLUTTET)
-            .medSaksnummer(revurdering.getFagsak().getSaksnummer())
+            .medSaksnummer(revurdering.getSaksnummer())
             .medPeriode(
                 DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now().minusMonths(3), LocalDate.now().plusMonths(6)));
         aktørYtelseBuilder.leggTilYtelse(ytelse);

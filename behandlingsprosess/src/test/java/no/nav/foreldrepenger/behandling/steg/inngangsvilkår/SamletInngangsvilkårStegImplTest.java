@@ -62,7 +62,7 @@ class SamletInngangsvilkårStegImplTest {
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         Behandlingsresultat.builderEndreEksisterende(behandling.getBehandlingsresultat())
                 .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
-        kontekst = new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(),
+        kontekst = new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(),
                 repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
 
         var val = new RegelResultat(behandling.getBehandlingsresultat().getVilkårResultat(), emptyList(), emptyMap());
@@ -93,7 +93,7 @@ class SamletInngangsvilkårStegImplTest {
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         Behandlingsresultat.builderEndreEksisterende(behandling.getBehandlingsresultat())
                 .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
-        kontekst = new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(),
+        kontekst = new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(),
                 repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
 
         var val = new RegelResultat(behandling.getBehandlingsresultat().getVilkårResultat(), emptyList(), emptyMap());

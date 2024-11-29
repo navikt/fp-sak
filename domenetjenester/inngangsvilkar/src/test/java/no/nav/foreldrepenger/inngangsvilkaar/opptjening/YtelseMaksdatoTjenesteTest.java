@@ -63,7 +63,7 @@ class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
     @Test
     void finnesIngenVedtattBehandlingForMorSkalReturnereOptionalEmpty() {
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
-        var morsMaksdato = ytelseMaksdatoTjeneste.beregnMorsMaksdato(behandling.getFagsak().getSaksnummer(), behandling.getRelasjonsRolleType());
+        var morsMaksdato = ytelseMaksdatoTjeneste.beregnMorsMaksdato(behandling.getSaksnummer(), behandling.getRelasjonsRolleType());
         assertThat(morsMaksdato).isEmpty();
     }
 
@@ -128,7 +128,7 @@ class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak());
 
         // Act
-        var morsMaksdato = ytelseMaksdatoTjeneste.beregnMorsMaksdato(farsBehandling.getFagsak().getSaksnummer(), farsBehandling.getRelasjonsRolleType());
+        var morsMaksdato = ytelseMaksdatoTjeneste.beregnMorsMaksdato(farsBehandling.getSaksnummer(), farsBehandling.getRelasjonsRolleType());
 
         // Assert
         assertThat(morsMaksdato).isPresent();
@@ -191,7 +191,7 @@ class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak());
 
         // Act
-        var morsMaksdato = ytelseMaksdatoTjeneste.beregnMorsMaksdato(farsBehandling.getFagsak().getSaksnummer(), farsBehandling.getRelasjonsRolleType());
+        var morsMaksdato = ytelseMaksdatoTjeneste.beregnMorsMaksdato(farsBehandling.getSaksnummer(), farsBehandling.getRelasjonsRolleType());
 
         // Assert
         assertThat(morsMaksdato).isPresent();
@@ -244,7 +244,7 @@ class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak());
 
         // Act
-        var morsMaksdato = ytelseMaksdatoTjeneste.beregnMorsMaksdato(farsBehandling.getFagsak().getSaksnummer(), farsBehandling.getRelasjonsRolleType());
+        var morsMaksdato = ytelseMaksdatoTjeneste.beregnMorsMaksdato(farsBehandling.getSaksnummer(), farsBehandling.getRelasjonsRolleType());
 
         // Assert
         assertThat(morsMaksdato).isEmpty();

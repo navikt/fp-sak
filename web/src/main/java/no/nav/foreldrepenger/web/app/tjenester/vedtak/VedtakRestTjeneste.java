@@ -108,7 +108,7 @@ public class VedtakRestTjeneste {
             var behandling = behandlingsprosessTjeneste.hentBehandling(b);
             var prosessTaskData = ProsessTaskData.forProsessTask(ValiderOgRegenererVedtaksXmlTask.class);
 
-            prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+            prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
             prosessTaskData.setCallIdFraEksisterende();
             taskTjeneste.lagre(prosessTaskData);
         }

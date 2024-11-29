@@ -7,7 +7,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
-import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class AksjonspunktStatusEvent implements BehandlingEvent {
     private final BehandlingskontrollKontekst kontekst;
@@ -28,8 +28,8 @@ public class AksjonspunktStatusEvent implements BehandlingEvent {
     }
 
     @Override
-    public AktørId getAktørId() {
-        return kontekst.getAktørId();
+    public Saksnummer getSaksnummer() {
+        return kontekst.getSaksnummer();
     }
 
     @Override

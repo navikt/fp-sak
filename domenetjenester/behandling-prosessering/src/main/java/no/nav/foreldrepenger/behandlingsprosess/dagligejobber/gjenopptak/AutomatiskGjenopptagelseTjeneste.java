@@ -57,7 +57,7 @@ public class AutomatiskGjenopptagelseTjeneste {
     private void opprettProsessTasks(Behandling behandling, String callId, LocalDate dato, LocalTime baseline, int spread) {
         var nesteKjøring = LocalDateTime.of(dato, baseline.plusSeconds(Math.abs(System.nanoTime()) % spread));
         var taskdata = ProsessTaskData.forProsessTask(OpprettGjenopptaTask.class);
-        taskdata.setBehandling(behandling.getFagsakId(), behandling.getId());
+        taskdata.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
         taskdata.setCallId(callId + "_" + behandling.getId());
         taskdata.setNesteKjøringEtter(nesteKjøring);
         taskTjeneste.lagre(taskdata);

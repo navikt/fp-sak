@@ -29,7 +29,7 @@ public class FamiliehendelseEventPubliserer {
     public void fireEventTerminFødsel(Long behandlingId, LocalDate forrigeBekreftetDato, LocalDate sisteBekreftetDato) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var event = new FamiliehendelseEvent(FamiliehendelseEvent.EventType.TERMIN_TIL_FØDSEL,
-            behandling.getAktørId(), behandling.getFagsakId(), behandling.getId(), behandling.getFagsakYtelseType(),
+            behandling.getSaksnummer(), behandling.getFagsakId(), behandling.getId(), behandling.getFagsakYtelseType(),
             forrigeBekreftetDato, sisteBekreftetDato);
         familiehendelseEvent.fire(event);
     }

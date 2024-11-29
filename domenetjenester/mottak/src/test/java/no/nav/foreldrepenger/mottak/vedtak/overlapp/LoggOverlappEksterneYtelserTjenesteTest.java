@@ -136,7 +136,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP);
 
         // Assert
-        var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
+        var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getSaksnummer());
         assertThat(overlappIT).hasSize(1);
         assertThat(overlappIT.getFirst().getPeriode().getTomDato()).isEqualTo(førsteUttaksdatoFp);
         verify(oppgaveTjenesteMock, times(1)).opprettVurderKonsekvensHosPleiepenger(any(), any());
@@ -162,7 +162,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP);
 
         // Assert
-        var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
+        var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getSaksnummer());
         assertThat(overlappIT).isEmpty();
 
         // Arrange2
@@ -178,7 +178,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP);
 
         // Assert
-        var overlappIT2 = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
+        var overlappIT2 = overlappRepository.hentForSaksnummer(behandlingFP.getSaksnummer());
         assertThat(overlappIT2).hasSize(1);
         assertThat(overlappIT2.getFirst().getPeriode().getTomDato()).isEqualTo(førsteUttaksdatoFp.plusWeeks(4));
         verify(oppgaveTjenesteMock, times(1)).opprettVurderKonsekvensHosPleiepenger(any(), any());
@@ -217,7 +217,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP);
 
         // Assert
-        var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
+        var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getSaksnummer());
         assertThat(overlappIT).hasSize(2);
         verify(oppgaveTjenesteMock, times(1)).opprettVurderKonsekvensHosPleiepenger(any(), any());
         verify(oppgaveTjenesteMock, times(1)).opprettVurderKonsekvensHosSykepenger(any(), any());
@@ -257,7 +257,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP);
 
         // Assert
-        var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
+        var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getSaksnummer());
         assertThat(overlappIT).hasSize(3);
         verify(oppgaveTjenesteMock, times(2)).opprettVurderKonsekvensHosSykepenger(any(), any());
         verifyNoMoreInteractions(oppgaveTjenesteMock);
@@ -296,7 +296,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP);
 
         // Assert
-        var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
+        var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getSaksnummer());
         assertThat(overlappIT).hasSize(1);
         assertThat(overlappIT.getFirst().getPeriode().getTomDato()).isEqualTo(førsteUttaksdatoFp.plusWeeks(3));
         verify(oppgaveTjenesteMock, times(1)).opprettVurderKonsekvensHosPleiepenger(any(), any());
@@ -323,7 +323,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP);
 
         // Assert
-        var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
+        var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getSaksnummer());
         assertThat(overlappIT).isEmpty();
         verifyNoInteractions(oppgaveTjenesteMock);
     }
@@ -342,7 +342,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP);
 
         // Assert
-        var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
+        var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getSaksnummer());
         assertThat(overlappIT).isEmpty();
         verifyNoInteractions(oppgaveTjenesteMock);
     }
@@ -368,7 +368,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP);
 
         // Assert
-        var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
+        var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getSaksnummer());
         assertThat(overlappIT).hasSize(2);
         verify(oppgaveTjenesteMock, times(2)).opprettVurderKonsekvensHosPleiepenger(any(), any());
         verifyNoMoreInteractions(oppgaveTjenesteMock);

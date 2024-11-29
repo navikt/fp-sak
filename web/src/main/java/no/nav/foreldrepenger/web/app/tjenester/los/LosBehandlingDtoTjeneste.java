@@ -108,7 +108,7 @@ public class LosBehandlingDtoTjeneste {
 
         return new LosBehandlingDto(behandling.getUuid(),
             Kildesystem.FPSAK,
-            behandling.getFagsak().getSaksnummer().getVerdi(),
+            behandling.getSaksnummer().getVerdi(),
             mapYtelse(behandling),
             new AktørId(behandling.getAktørId().getId()),
             mapBehandlingstype(behandling),

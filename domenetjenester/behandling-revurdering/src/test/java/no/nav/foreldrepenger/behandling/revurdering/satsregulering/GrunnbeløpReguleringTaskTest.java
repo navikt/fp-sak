@@ -95,7 +95,7 @@ class GrunnbeløpReguleringTaskTest {
             .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdatoGrunnbeløp(TERMINDATO.minusWeeks(3)).build());
 
         var prosessTaskData = ProsessTaskData.forProsessTask(GrunnbeløpReguleringTask.class);
-        prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
+        prosessTaskData.setFagsak(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId());
 
         var task = createTask();
         task.doTask(prosessTaskData);
@@ -131,7 +131,7 @@ class GrunnbeløpReguleringTaskTest {
         var behandling = opprettRevurderingsKandidat(BehandlingStatus.UTREDES);
 
         var prosessTaskData = ProsessTaskData.forProsessTask(GrunnbeløpReguleringTask.class);
-        prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
+        prosessTaskData.setFagsak(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId());
 
         var task = createTask();
         task.doTask(prosessTaskData);
@@ -148,7 +148,7 @@ class GrunnbeløpReguleringTaskTest {
             .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdatoGrunnbeløp(TERMINDATO.minusWeeks(3)).build());
 
         var prosessTaskData = ProsessTaskData.forProsessTask(GrunnbeløpReguleringTask.class);
-        prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
+        prosessTaskData.setFagsak(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId());
 
         var task = createTask();
         task.doTask(prosessTaskData);
@@ -169,7 +169,7 @@ class GrunnbeløpReguleringTaskTest {
                 EKSISTERENDE_G.getVerdi().longValue()));
 
         var prosessTaskData = ProsessTaskData.forProsessTask(GrunnbeløpReguleringTask.class);
-        prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
+        prosessTaskData.setFagsak(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId());
 
         var task = createTask();
         task.doTask(prosessTaskData);
@@ -183,7 +183,7 @@ class GrunnbeløpReguleringTaskTest {
         when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(new OrganisasjonsEnhet("1234", "Test"));
 
         var prosessTaskData = ProsessTaskData.forProsessTask(GrunnbeløpReguleringTask.class);
-        prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
+        prosessTaskData.setFagsak(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId());
         prosessTaskData.setProperty(GrunnbeløpReguleringTask.MANUELL_KEY, "true");
 
         var task = createTask();

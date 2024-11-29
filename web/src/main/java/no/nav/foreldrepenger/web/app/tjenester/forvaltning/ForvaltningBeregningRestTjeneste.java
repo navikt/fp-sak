@@ -28,14 +28,6 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
-
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.StoppRefusjonDto;
-
-import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,12 +36,13 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.satsregulering.GrunnbeløpReguleringTask;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -66,6 +59,7 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -73,6 +67,7 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.BeregningSatsDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.StoppRefusjonDto;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -80,6 +75,7 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 @Path("/forvaltningBeregning")
 @ApplicationScoped
@@ -194,7 +190,7 @@ public class ForvaltningBeregningRestTjeneste {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         var prosessTaskData = ProsessTaskData.forProsessTask(GrunnbeløpReguleringTask.class);
-        prosessTaskData.setFagsak(fagsak.getId(), fagsak.getAktørId().getId());
+        prosessTaskData.setFagsak(fagsak.getSaksnummer().getVerdi(), fagsak.getId());
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskData.setProperty(GrunnbeløpReguleringTask.MANUELL_KEY, "true");
         taskTjeneste.lagre(prosessTaskData);
@@ -224,7 +220,7 @@ public class ForvaltningBeregningRestTjeneste {
             return Response.ok(msg).build();
         }
         var task = ProsessTaskData.forProsessTask(OverstyrInntektsmeldingTask.class);
-        task.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+        task.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
         task.setCallIdFraEksisterende();
         task.setProperty(OverstyrInntektsmeldingTask.BEHANDLING_ID, behandling.getId().toString());
         task.setProperty(OverstyrInntektsmeldingTask.JOURNALPOST_ID, dto.getJournalpostId());

@@ -75,7 +75,7 @@ class OppgaveTjenesteTest {
                 "bla bla");
 
         var request = captor.getValue();
-        assertThat(request.saksreferanse()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        assertThat(request.saksreferanse()).isEqualTo(behandling.getSaksnummer().getVerdi());
         assertThat(request.oppgavetype()).isEqualTo(Oppgavetype.VURDER_DOKUMENT);
         assertThat(oppgaveId).isEqualTo(OPPGAVE.id().toString());
     }
@@ -106,7 +106,7 @@ class OppgaveTjenesteTest {
         var oppgaveId = tjeneste.opprettVurderKonsekvensBasertPåFagsakId(behandling.getFagsakId(), "2010", "bla bla", false);
 
         var request = captor.getValue();
-        assertThat(request.saksreferanse()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        assertThat(request.saksreferanse()).isEqualTo(behandling.getSaksnummer().getVerdi());
         assertThat(request.oppgavetype()).isEqualTo(Oppgavetype.VURDER_KONSEKVENS_YTELSE);
         assertThat(oppgaveId).isEqualTo(OPPGAVE.id().toString());
     }
@@ -125,7 +125,7 @@ class OppgaveTjenesteTest {
         var oppgaveId = tjeneste.opprettOppgaveStopUtbetalingAvARENAYtelse(behandling.getId(), førsteAugust);
 
         var request = captor.getValue();
-        assertThat(request.saksreferanse()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        assertThat(request.saksreferanse()).isEqualTo(behandling.getSaksnummer().getVerdi());
         assertThat(request.oppgavetype()).isEqualTo(Oppgavetype.SETT_UTBETALING_VENT);
 
         assertThat(request.tema()).isEqualTo("STO");
@@ -152,14 +152,14 @@ class OppgaveTjenesteTest {
                 "Saksnummer: %s," +
                 "Vedtaksdato: %s," +
                 "Dato for første utbetaling: %s," +
-                "Fødselsnummer arbeidsgiver: %s", behandling.getFagsak().getSaksnummer().getVerdi(),
+                "Fødselsnummer arbeidsgiver: %s", behandling.getSaksnummer().getVerdi(),
                 vedtaksdato, førsteUttaksdato, personIdent.getIdent());
 
         var oppgaveId = tjeneste.opprettOppgaveSettUtbetalingPåVentPrivatArbeidsgiver(behandling.getId(),
                 førsteUttaksdato, vedtaksdato, behandling.getAktørId());
 
         var request = captor.getValue();
-        assertThat(request.saksreferanse()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        assertThat(request.saksreferanse()).isEqualTo(behandling.getSaksnummer().getVerdi());
         assertThat(request.oppgavetype().getKode()).isEqualTo(Oppgavetype.SETT_UTBETALING_VENT.getKode());
         assertThat(request.tema()).isEqualTo("STO");
         assertThat(request.fristFerdigstillelse()).isEqualTo(forventetFrist);

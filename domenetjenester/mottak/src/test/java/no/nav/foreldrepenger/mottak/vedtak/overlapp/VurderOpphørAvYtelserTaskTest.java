@@ -36,7 +36,7 @@ class VurderOpphørAvYtelserTaskTest {
         var behandling = scenario.lagMocked();
 
         var prosessTaskData = ProsessTaskData.forProsessTask(VurderOpphørAvYtelserTask.class);
-        prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().toString());
+        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
 
         vurderOpphørAvYtelserTask.doTask(prosessTaskData);
 

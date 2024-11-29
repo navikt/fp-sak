@@ -117,7 +117,7 @@ class UttakOverstyringshåndtererTest {
     }
 
     private BehandlingskontrollKontekst kontekst(Behandling behandling) {
-        return new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(),
+        return new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(),
             repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
     }
 

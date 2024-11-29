@@ -2,12 +2,12 @@ package no.nav.foreldrepenger.behandlingslager.behandling.events;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
-import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-public record BehandlingEnhetEvent(Long fagsakId, Long behandlingId, AktørId aktørId) implements BehandlingEvent {
+public record BehandlingEnhetEvent(Saksnummer saksnummer, Long fagsakId, Long behandlingId) implements BehandlingEvent {
 
     public BehandlingEnhetEvent(Behandling behandling) {
-        this(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId());
+        this(behandling.getSaksnummer(), behandling.getFagsakId(), behandling.getId());
     }
 
     @Override
@@ -16,8 +16,8 @@ public record BehandlingEnhetEvent(Long fagsakId, Long behandlingId, AktørId ak
     }
 
     @Override
-    public AktørId getAktørId() {
-        return aktørId;
+    public Saksnummer getSaksnummer() {
+        return saksnummer;
     }
 
     @Override

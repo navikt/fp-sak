@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.fordeling;
 
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -13,8 +15,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.exception.TekniskException;
-
-import java.util.Optional;
 
 @ApplicationScoped
 public class OpprettSakTjeneste {

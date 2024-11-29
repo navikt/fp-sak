@@ -28,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentPersisterer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -69,7 +70,7 @@ class HåndterMottattDokumentTaskTest extends EntityManagerAwareTest {
     }
 
     private Fagsak opprettFagsak() {
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()), new Saksnummer("9999"));
         fagsakRepository.opprettNy(fagsak);
         return fagsak;
     }
@@ -91,7 +92,7 @@ class HåndterMottattDokumentTaskTest extends EntityManagerAwareTest {
         var dokumentId = mottatteDokumentTjeneste.lagreMottattDokumentPåFagsak(mottattDokument);
 
         var prosessTask = ProsessTaskData.forProsessTask(HåndterMottattDokumentTask.class);
-        prosessTask.setFagsakId(fagsak.getId());
+        prosessTask.setFagsak(fagsak.getSaksnummer().getVerdi(), fagsak.getId());
         prosessTask.setProperty(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY, dokumentId.toString());
         prosessTask.setProperty(HåndterMottattDokumentTask.BEHANDLING_ÅRSAK_TYPE_KEY, BehandlingÅrsakType.UDEFINERT.getKode());
         var captor = ArgumentCaptor.forClass(MottattDokument.class);
@@ -121,7 +122,7 @@ class HåndterMottattDokumentTaskTest extends EntityManagerAwareTest {
         var dokumentId = mottatteDokumentTjeneste.lagreMottattDokumentPåFagsak(mottattDokument);
 
         var prosessTask = ProsessTaskData.forProsessTask(HåndterMottattDokumentTask.class);
-        prosessTask.setBehandling(fagsak.getId(), behandlingId, AKTØR_ID.getId());
+        prosessTask.setBehandling(fagsak.getSaksnummer().getVerdi(), fagsak.getId(), behandlingId);
         prosessTask.setProperty(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY, dokumentId.toString());
         prosessTask.setProperty(HåndterMottattDokumentTask.BEHANDLING_ÅRSAK_TYPE_KEY, BehandlingÅrsakType.ETTER_KLAGE.getKode());
         var captorBehandling = ArgumentCaptor.forClass(Long.class);

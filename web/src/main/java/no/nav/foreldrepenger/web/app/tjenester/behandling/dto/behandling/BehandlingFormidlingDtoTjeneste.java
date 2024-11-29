@@ -132,7 +132,7 @@ public class BehandlingFormidlingDtoTjeneste {
         var dto = new BehandlingFormidlingDto();
         settStandardfelterForBrev(behandling, dto);
 
-        var saksnummerDto = new SaksnummerDto(behandling.getFagsak().getSaksnummer());
+        var saksnummerDto = new SaksnummerDto(behandling.getSaksnummer());
         dto.leggTil(get(FagsakRestTjeneste.FAGSAK_PATH, "fagsak", saksnummerDto));
 
         var uuidDto = new UuidDto(behandling.getUuid());
@@ -239,7 +239,7 @@ public class BehandlingFormidlingDtoTjeneste {
     }
 
     private Optional<Uttak> hentUttakAnnenpartForeldrepengerHvisEksisterer(Behandling søkersBehandling) {
-        var annenpartBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(søkersBehandling.getFagsak().getSaksnummer());
+        var annenpartBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(søkersBehandling.getSaksnummer());
         return annenpartBehandling.flatMap(ab -> uttakTjeneste.hentHvisEksisterer(ab.getId()));
     }
 

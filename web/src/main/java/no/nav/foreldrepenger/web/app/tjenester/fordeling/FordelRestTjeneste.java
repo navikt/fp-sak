@@ -243,8 +243,9 @@ public class FordelRestTjeneste {
             return Response.ok().build();
         }
         ensureCallId();
-        var dokument = mapTilMottattDokument(mottattJournalpost, dokumentTypeId);
-        dokumentmottakTjeneste.dokumentAnkommet(dokument, null);
+        var saksnummer = new Saksnummer(mottattJournalpost.getSaksnummer());
+        var dokument = mapTilMottattDokument(mottattJournalpost, dokumentTypeId, saksnummer);
+        dokumentmottakTjeneste.dokumentAnkommet(dokument, null, saksnummer);
         return Response.ok().build();
     }
 
@@ -343,9 +344,7 @@ public class FordelRestTjeneste {
         return dto;
     }
 
-    private MottattDokument mapTilMottattDokument(AbacJournalpostMottakDto journalpostMottakDto, DokumentTypeId dokumentTypeId) {
-
-        var saksnummer = new Saksnummer(journalpostMottakDto.getSaksnummer());
+    private MottattDokument mapTilMottattDokument(AbacJournalpostMottakDto journalpostMottakDto, DokumentTypeId dokumentTypeId, Saksnummer saksnummer) {
         var fagsak = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, false)
             .orElseThrow(() -> new IllegalStateException("Finner ingen fagsak for saksnummer " + saksnummer));
         var dokumentKategori = utledDokumentKategori(journalpostMottakDto.getDokumentKategoriOffisiellKode(), dokumentTypeId);

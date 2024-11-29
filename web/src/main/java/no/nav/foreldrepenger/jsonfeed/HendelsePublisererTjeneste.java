@@ -204,7 +204,7 @@ public class HendelsePublisererTjeneste {
         innhold.setFoersteStoenadsdag(utbetPeriode.getFomDato());
         innhold.setSisteStoenadsdag(utbetPeriode.getTomDato());
         innhold.setAktoerId(behandling.getAktørId().getId());
-        innhold.setGsakId(behandling.getFagsak().getSaksnummer().getVerdi());
+        innhold.setGsakId(behandling.getSaksnummer().getVerdi());
         innhold.setFnr(fnr.getIdent());
 
         return innhold;
@@ -224,7 +224,7 @@ public class HendelsePublisererTjeneste {
         innhold.setFoersteStoenadsdag(utbetPeriode.getFomDato());
         innhold.setSisteStoenadsdag(utbetPeriode.getTomDato());
         innhold.setAktoerId(behandling.getAktørId().getId());
-        innhold.setGsakId(behandling.getFagsak().getSaksnummer().getVerdi());
+        innhold.setGsakId(behandling.getSaksnummer().getVerdi());
         innhold.setFnr(fnr.getIdent());
 
         return innhold;

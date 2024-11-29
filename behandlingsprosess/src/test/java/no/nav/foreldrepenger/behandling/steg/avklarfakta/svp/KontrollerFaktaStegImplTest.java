@@ -93,7 +93,7 @@ class KontrollerFaktaStegImplTest {
     void skal_utlede_inngangsvilkår_for_svp() {
         var fagsak = behandling.getFagsak();
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås);
 
         // Act
         steg.utførSteg(kontekst);

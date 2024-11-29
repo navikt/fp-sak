@@ -113,7 +113,7 @@ class OppdragInputTjenesteTest {
         // Assert
         var brukerKjedde = getBrukerKjeddeNøkkel();
 
-        assertFellesFelter(input, behandling.getFagsak().getSaksnummer());
+        assertFellesFelter(input, behandling.getSaksnummer());
         assertTilkjentYtelse(input, brukerKjedde, LocalDate.now());
 
         // Inger oppdrag fra før.
@@ -125,7 +125,7 @@ class OppdragInputTjenesteTest {
     @DisplayName("Simulering oppdrag input for ES fødsel med en tidligere utbetaling.")
     public void oppdragInputSimuleringESRevurderingMedTidligereOppdrag() {
         // Prepare
-        var saksnummer = behandling.getFagsak().getSaksnummer();
+        var saksnummer = behandling.getSaksnummer();
         when(beregningRepository.getSisteBeregning(behandlingId)).thenReturn(
             Optional.of(new LegacyESBeregning(TILKJENT_YTELSE, 1, TILKJENT_YTELSE, LocalDateTime.now())));
 
@@ -151,7 +151,7 @@ class OppdragInputTjenesteTest {
     @DisplayName("Simulering oppdrag input for ES fødsel med to tidligere utbetalinger.")
     public void oppdragInputSimuleringESRevurderingMedToTidligereOppdrag() {
         // Prepare
-        var saksnummer = behandling.getFagsak().getSaksnummer();
+        var saksnummer = behandling.getSaksnummer();
         when(beregningRepository.getSisteBeregning(behandlingId)).thenReturn(
             Optional.of(new LegacyESBeregning(TILKJENT_YTELSE, 1, TILKJENT_YTELSE, LocalDateTime.now())));
 
@@ -183,7 +183,7 @@ class OppdragInputTjenesteTest {
     @DisplayName("Simulering oppdrag input for ES fødsel med to tidligere utbetalinger men med en positiv kvittering.")
     public void oppdragInputSimuleringESRevurderingMedToTidligereOppdragMenKunEnPositivKvittering() {
         // Prepare
-        var saksnummer = behandling.getFagsak().getSaksnummer();
+        var saksnummer = behandling.getSaksnummer();
         when(beregningRepository.getSisteBeregning(behandlingId)).thenReturn(
             Optional.of(new LegacyESBeregning(TILKJENT_YTELSE, 1, TILKJENT_YTELSE, LocalDateTime.now())));
 

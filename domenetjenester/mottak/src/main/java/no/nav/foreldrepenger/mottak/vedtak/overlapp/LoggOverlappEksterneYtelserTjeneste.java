@@ -15,8 +15,6 @@ import java.util.Set;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +22,7 @@ import no.nav.abakus.vedtak.ytelse.Desimaltall;
 import no.nav.abakus.vedtak.ytelse.Kildesystem;
 import no.nav.abakus.vedtak.ytelse.Ytelser;
 import no.nav.abakus.vedtak.ytelse.v1.YtelseV1;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
@@ -137,7 +136,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
                 var overlapp = finnGradertOverlapp(fpTimeline, Fagsystem.K9SAK, mapAbakusYtelseType(ytelse),
                     ytelse.getSaksnummer(), ytelseTidslinje);
                 overlapp.stream()
-                    .map(builder -> builder.medSaksnummer(b.getFagsak().getSaksnummer())
+                    .map(builder -> builder.medSaksnummer(b.getSaksnummer())
                         .medBehandlingId(b.getId())
                         .medHendelse(OverlappVedtak.HENDELSE_VEDTAK_OMS))
                     .forEach(overlappRepository::lagre);
@@ -170,7 +169,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
         vurderOmOverlappOMS(ref.aktørId(), tidligsteUttakFP, perioderFpGradert, overlappene);
         vurderOmOverlappSYK(ident, tidligsteUttakFP, perioderFpGradert, overlappene);
         return overlappene.stream()
-            .map(b -> b.medSaksnummer(behandling.getFagsak().getSaksnummer()).medBehandlingId(ref.behandlingId()))
+            .map(b -> b.medSaksnummer(behandling.getSaksnummer()).medBehandlingId(ref.behandlingId()))
             .toList();
     }
 

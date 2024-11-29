@@ -374,7 +374,7 @@ public class VurderFagsystemFellesUtils {
      */
     private boolean kanFagsakUtenGrunnlagBrukesForDokument(VurderFagsystem vurderFagsystem, Behandling sisteBehandling) {
         var innkommendeReferanseDato = getReferanseDatoFraInnkommendeForVurdering(vurderFagsystem);
-        var alleInntektsmeldinger = inntektsmeldingTjeneste.hentAlleInntektsmeldingerForFagsakInkludertInaktive(sisteBehandling.getFagsak().getSaksnummer());
+        var alleInntektsmeldinger = inntektsmeldingTjeneste.hentAlleInntektsmeldingerForFagsakInkludertInaktive(sisteBehandling.getSaksnummer());
         if (alleInntektsmeldinger.isEmpty()) {
             // Unngå gjenbruk av flere år gamle saker
             var behandlingRefDato = Optional.ofNullable(sisteBehandling.getAvsluttetDato()).map(LocalDateTime::toLocalDate).orElseGet(LocalDate::now);
@@ -452,14 +452,14 @@ public class VurderFagsystemFellesUtils {
             .flatMap(f -> behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(f.getId(), BehandlingType.KLAGE).stream())
             .filter(Objects::nonNull)
             .filter(b -> b.getAvsluttetDato() == null || b.getAvsluttetDato().isAfter(LocalDateTime.now().minusYears(2)))
-            .map(b -> b.getFagsak().getSaksnummer())
+            .map(b -> b.getSaksnummer())
             .collect(Collectors.toSet());
 
         // Først sjekk om det finnes saker med diffus klagehistorikk
         if (sakerMedKjenteNyereKlager.size() > 1) {
             LOG.info("VFS-KLAGE flere klager i VL saksnummer {}", sakerMedKjenteNyereKlager);
             return Optional.empty();
-        } else if (sakerMedKjenteNyereKlager.size() == 1 && (behandlinger.isEmpty() || behandlinger.stream().noneMatch(b -> sakerMedKjenteNyereKlager.contains(b.getFagsak().getSaksnummer())))) {
+        } else if (sakerMedKjenteNyereKlager.size() == 1 && (behandlinger.isEmpty() || behandlinger.stream().noneMatch(b -> sakerMedKjenteNyereKlager.contains(b.getSaksnummer())))) {
             LOG.info("VFS-KLAGE eldre klage i VL saksnummer {}", sakerMedKjenteNyereKlager);
             return Optional.empty();
         }
@@ -482,7 +482,7 @@ public class VurderFagsystemFellesUtils {
             LOG.info("VFS-KLAGE flere saker - antall saker {} saker med klage {} saksnummer {}", sakerTilVurdering.size(), sakerMedKlage, saker);
         }
         return behandlinger.size() != 1 ? Optional.empty() :
-            Optional.of(new BehandlendeFagsystem(VEDTAKSLØSNING, behandlinger.get(0).getFagsak().getSaksnummer()));
+            Optional.of(new BehandlendeFagsystem(VEDTAKSLØSNING, behandlinger.get(0).getSaksnummer()));
     }
 
     public static boolean erSøknad(VurderFagsystem vurderFagsystem) {

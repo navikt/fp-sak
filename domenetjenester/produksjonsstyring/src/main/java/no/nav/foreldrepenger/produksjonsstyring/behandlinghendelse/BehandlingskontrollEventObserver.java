@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingskontrollEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingEnhetEvent;
-import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
@@ -77,11 +77,11 @@ public class BehandlingskontrollEventObserver {
     }
 
     private void opprettProsessTask(BehandlingEvent behandlingEvent, HendelseForBehandling hendelse) {
-        opprettProsessTask(behandlingEvent.getFagsakId(), behandlingEvent.getBehandlingId(), behandlingEvent.getAktørId(), hendelse);
+        opprettProsessTask(behandlingEvent.getSaksnummer(), behandlingEvent.getFagsakId(), behandlingEvent.getBehandlingId(), hendelse);
     }
 
-    private void opprettProsessTask(Long fagsakId, Long behandlingsId, AktørId aktørId, HendelseForBehandling hendelse) {
-        var prosessTaskData = PubliserBehandlingHendelseTask.prosessTask(fagsakId, behandlingsId, aktørId, hendelse);
+    private void opprettProsessTask(Saksnummer saksnummer, Long fagsakId, Long behandlingsId, HendelseForBehandling hendelse) {
+        var prosessTaskData = PubliserBehandlingHendelseTask.prosessTask(saksnummer, fagsakId, behandlingsId, hendelse);
         taskTjeneste.lagre(prosessTaskData);
     }
 }

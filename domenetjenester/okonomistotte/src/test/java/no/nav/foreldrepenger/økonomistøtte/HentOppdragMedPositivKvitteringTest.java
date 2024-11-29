@@ -37,7 +37,7 @@ class HentOppdragMedPositivKvitteringTest {
             Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()), new Saksnummer("123456789")),
             BehandlingType.FØRSTEGANGSSØKNAD).build();
         behandling.setId(123L);
-        saksnummer = behandling.getFagsak().getSaksnummer();
+        saksnummer = behandling.getSaksnummer();
 
         oppdragskontroll = oppdragskontrollMedOppdrag(saksnummer, 1L);
         mockRepository(oppdragskontroll);

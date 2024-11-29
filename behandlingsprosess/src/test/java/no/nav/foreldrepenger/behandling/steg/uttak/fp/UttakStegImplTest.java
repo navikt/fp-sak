@@ -156,7 +156,7 @@ class UttakStegImplTest {
     }
 
     private BehandlingskontrollKontekst kontekst(Behandling behandling) {
-        return new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(), behandlingRepository.taSkriveLås(behandling));
+        return new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(), behandlingRepository.taSkriveLås(behandling));
     }
 
     @Test
@@ -241,7 +241,7 @@ class UttakStegImplTest {
         oppdatereFagsakRelasjonVedVedtak.oppdaterRelasjonVedVedtattBehandling(behandling);
 
         // Act -- behandler fars behandling, skal ikke opprette stønadskontoer på nytt
-        var kontekstForFarsBehandling = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+        var kontekstForFarsBehandling = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(),
                 behandlingRepository.taSkriveLås(farsBehandling));
         steg.utførSteg(kontekstForFarsBehandling);
 
@@ -264,7 +264,7 @@ class UttakStegImplTest {
         opprettUttaksperiodegrense(fødselsdato, morsFørstegang);
         opprettPersonopplysninger(morsFørstegang);
         fagsakRelasjonTjeneste.oppdaterDekningsgrad(morsFørstegang.getFagsakId(), Dekningsgrad._80);
-        var førstegangsKontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+        var førstegangsKontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(),
                 behandlingRepository.taSkriveLås(morsFørstegang));
 
         // Første versjon av kontoer opprettes
@@ -281,7 +281,7 @@ class UttakStegImplTest {
         var morsRevurdering = opprettRevurdering(morsFørstegang, fødselsdato.minusWeeks(3));
         oppdaterDekningsgrad(morsRevurdering.getId(), Dekningsgrad._100);
 
-        var revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+        var revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(),
                 behandlingRepository.taSkriveLås(morsRevurdering));
         steg.utførSteg(revurderingKontekst);
 
@@ -309,7 +309,7 @@ class UttakStegImplTest {
         opprettUttaksperiodegrense(fødselsdato, morsFørstegang);
         opprettPersonopplysninger(morsFørstegang);
         fagsakRelasjonTjeneste.oppdaterDekningsgrad(fagsak.getId(), dekningsgrad);
-        var førstegangsKontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+        var førstegangsKontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(),
             behandlingRepository.taSkriveLås(morsFørstegang));
 
         // Første versjon av kontoer opprettes
@@ -326,7 +326,7 @@ class UttakStegImplTest {
         oppdaterDekningsgrad(morsRevurdering.getId(), dekningsgrad);
 
         nesteSakRepository.lagreNesteSak(morsRevurdering.getId(), new Saksnummer("987"), fødselsdato.plusWeeks(40), fødselsdato.plusWeeks(40));
-        var revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+        var revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(),
             behandlingRepository.taSkriveLås(morsRevurdering));
         steg.utførSteg(revurderingKontekst);
 
@@ -402,8 +402,8 @@ class UttakStegImplTest {
     }
 
     private void kjørSteg(Behandling førstegangsBehandling) {
-        var kontekst = new BehandlingskontrollKontekst(førstegangsBehandling.getFagsakId(),
-                førstegangsBehandling.getAktørId(), behandlingLåsRepository.taLås(førstegangsBehandling.getId()));
+        var kontekst = new BehandlingskontrollKontekst(førstegangsBehandling.getSaksnummer(), førstegangsBehandling.getFagsakId(),
+                behandlingLåsRepository.taLås(førstegangsBehandling.getId()));
         steg.utførSteg(kontekst);
     }
 

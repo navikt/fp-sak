@@ -53,7 +53,7 @@ class VurderMedlemskapvilkårStegTest {
 
         var behandling = lagre(scenario);
         var fagsak = behandling.getFagsak();
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(),
             repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
 
         // Act - vurder vilkåret
@@ -78,7 +78,7 @@ class VurderMedlemskapvilkårStegTest {
 
         var behandling = lagre(scenario);
         var fagsak = behandling.getFagsak();
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(),
             repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
 
         // Act - vurder vilkåret
@@ -103,7 +103,7 @@ class VurderMedlemskapvilkårStegTest {
 
         var behandling = lagre(scenario);
         var fagsak = behandling.getFagsak();
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(),
                 repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
 
         // Act - vurder vilkåret
@@ -129,7 +129,7 @@ class VurderMedlemskapvilkårStegTest {
 
         var behandling = lagre(scenario);
         var fagsak = behandling.getFagsak();
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(),
             repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
 
         // Act - vurder vilkåret

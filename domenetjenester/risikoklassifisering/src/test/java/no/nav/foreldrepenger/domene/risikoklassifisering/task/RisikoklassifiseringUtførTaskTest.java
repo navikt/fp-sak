@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.kontrakter.risk.v1.AnnenPartDto;
 import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingRequestDto;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.vedtak.felles.prosesstask.api.CommonTaskProperties;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ExtendWith(MockitoExtension.class)
@@ -70,7 +69,7 @@ class RisikoklassifiseringUtførTaskTest {
         var ref = BehandlingReferanse.fra(behandling);
         forberedelse(ref, true);
         var prosessTaskData = ProsessTaskData.forProsessTask(RisikoklassifiseringUtførTask.class);
-                prosessTaskData.setProperty(CommonTaskProperties.BEHANDLING_ID, String.valueOf(BEHANDLING_ID));
+                prosessTaskData.setBehandling("9999", 0L, BEHANDLING_ID);
         risikoklassifiseringUtførTask.doTask(prosessTaskData);
         var request = new RisikovurderingRequestDto(
             new no.nav.foreldrepenger.kontrakter.risk.kodeverk.AktørId(ref.aktørId().getId()), SKJÆRINGSTIDSPUNKT, LocalDate.now(),

@@ -210,7 +210,7 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
         var scenario = ScenarioKlageEngangsstønad.forUtenVurderingResultat(ScenarioMorSøkerEngangsstønad.forAdopsjon());
         var klageBehandling = scenario.lagre(repositoryProvider, klageRepository);
 
-        var alleBehandlinger = behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(klageBehandling.getFagsak().getSaksnummer());
+        var alleBehandlinger = behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(klageBehandling.getSaksnummer());
         assertThat(alleBehandlinger).as("Forventer at alle behandlinger opprettet skal eksistere").hasSize(2);
 
         var sisteBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(klageBehandling.getFagsak().getId());
@@ -587,7 +587,7 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
         assertThat(behandlinger).hasSize(1).map(Behandling::getId).containsOnly(behandling.getId());
         var beh1 = behandlinger.get(0);
         assertThat(beh1.getFagsak()).isNotNull();
-        assertThat(beh1.getFagsak().getSaksnummer()).isEqualTo(saksnummer);
+        assertThat(beh1.getSaksnummer()).isEqualTo(saksnummer);
 
     }
 

@@ -206,9 +206,8 @@ class ForvaltningOppdragTjeneste {
         sendØkonomiOppdrag.setGruppe(hovedProsessTask.getGruppe());
         sendØkonomiOppdrag.setCallIdFraEksisterende();
         sendØkonomiOppdrag.setProperty("patchet", hardPatch ? "hardt" : "vanlig"); // for sporing
-        sendØkonomiOppdrag.setBehandling(hovedProsessTask.getFagsakId(),
-            Long.valueOf(hovedProsessTask.getBehandlingId()),
-            hovedProsessTask.getAktørId());
+        sendØkonomiOppdrag.setBehandling(hovedProsessTask.getSaksnummer(), hovedProsessTask.getFagsakId(),
+            Long.valueOf(hovedProsessTask.getBehandlingId()));
         taskTjeneste.lagre(sendØkonomiOppdrag);
     }
 
@@ -216,9 +215,7 @@ class ForvaltningOppdragTjeneste {
         var sendØkonomiOppdrag = ProsessTaskData.forProsessTask(SendØkonomiOppdragTask.class);
         sendØkonomiOppdrag.setCallIdFraEksisterende();
         sendØkonomiOppdrag.setProperty("patchet", "k27rapport"); // for sporing
-        sendØkonomiOppdrag.setBehandling(behandling.getFagsakId(),
-            behandling.getId(),
-            behandling.getAktørId().getId());
+        sendØkonomiOppdrag.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
         taskTjeneste.lagre(sendØkonomiOppdrag);
     }
 
@@ -255,7 +252,7 @@ class ForvaltningOppdragTjeneste {
     }
 
     private void validerFagsystemId(Behandling behandling, long fagsystemId) {
-        if (!Long.toString(fagsystemId / 1000).equals(behandling.getFagsak().getSaksnummer().getVerdi())) {
+        if (!Long.toString(fagsystemId / 1000).equals(behandling.getSaksnummer().getVerdi())) {
             throw new ForvaltningException("FagsystemId=" + fagsystemId + " passer ikke med saksnummer for behandlingId=" + behandling.getId());
         }
     }

@@ -17,8 +17,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.mottak.vedtak.StartBerørtBehandlingTask;
@@ -98,7 +98,7 @@ public class HenleggBehandlingTjeneste {
 
     private void startTaskForDekøingAvBerørtBehandling(Behandling behandling) {
         var taskData = ProsessTaskData.forProsessTask(StartBerørtBehandlingTask.class);
-        taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+        taskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
         taskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(taskData);
     }

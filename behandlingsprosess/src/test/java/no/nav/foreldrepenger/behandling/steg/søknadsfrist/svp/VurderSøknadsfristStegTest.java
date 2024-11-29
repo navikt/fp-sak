@@ -72,7 +72,7 @@ class VurderSøknadsfristStegTest {
         var fagsak = behandling.getFagsak();
 
         // Act
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(),
                 behandlingRepository.taSkriveLås(behandling));
         var behandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(kontekst);
         em.flush();
@@ -105,8 +105,7 @@ class VurderSøknadsfristStegTest {
         var fagsak = behandling.getFagsak();
 
         // Act
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
-                behandlingRepository.taSkriveLås(behandling));
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), behandlingRepository.taSkriveLås(behandling));
         var behandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(kontekst);
         em.flush();
         em.clear();
@@ -138,7 +137,7 @@ class VurderSøknadsfristStegTest {
         var fagsak = behandling.getFagsak();
 
         // Act
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(),
             behandlingRepository.taSkriveLås(behandling));
         var behandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(kontekst);
         em.flush();
@@ -164,7 +163,7 @@ class VurderSøknadsfristStegTest {
         em.flush();
         em.clear();
         // Act
-        var rkontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+        var rkontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(),
             behandlingRepository.taSkriveLås(revurdering));
         var rbehandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(rkontekst);
         em.flush();

@@ -64,7 +64,7 @@ public class BehandlingDvhMapper {
             .behandlingType(behandling.getType().getKode())
             .endretAv(CommonDvhMapper.finnEndretAvEllerOpprettetAv(behandling))
             .fagsakId(behandling.getFagsakId())
-            .saksnummer(behandling.getFagsak().getSaksnummer().getVerdi())
+            .saksnummer(behandling.getSaksnummer().getVerdi())
             .aktørId(behandling.getAktørId().getId())
             .ytelseType(behandling.getFagsakYtelseType().getKode())
             .funksjonellTid(LocalDateTime.now())

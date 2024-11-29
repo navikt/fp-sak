@@ -53,7 +53,7 @@ class RelatertBehandlingTjenesteTest {
     void finnesIngenRelatertFagsakReturnererOptionalEmpty() {
         var farsBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         var annenPartsGjeldendeVedtattBehandling = relatertBehandlingTjeneste
-                .hentAnnenPartsGjeldendeVedtattBehandling(farsBehandling.getFagsak().getSaksnummer());
+                .hentAnnenPartsGjeldendeVedtattBehandling(farsBehandling.getSaksnummer());
 
         assertThat(annenPartsGjeldendeVedtattBehandling).isEmpty();
 
@@ -69,7 +69,7 @@ class RelatertBehandlingTjenesteTest {
         fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak());
 
         var uttakresultat = relatertBehandlingTjeneste
-                .hentAnnenPartsGjeldendeVedtattBehandling(farsBehandling.getFagsak().getSaksnummer());
+                .hentAnnenPartsGjeldendeVedtattBehandling(farsBehandling.getSaksnummer());
 
         assertThat(uttakresultat).isEmpty();
     }
@@ -93,7 +93,7 @@ class RelatertBehandlingTjenesteTest {
         fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak());
 
         var behandling = relatertBehandlingTjeneste
-                .hentAnnenPartsGjeldendeVedtattBehandling(farsBehandling.getFagsak().getSaksnummer());
+                .hentAnnenPartsGjeldendeVedtattBehandling(farsBehandling.getSaksnummer());
 
         assertThat(behandling.get().getId()).isEqualTo(morsBehandling.getId());
     }
@@ -116,7 +116,7 @@ class RelatertBehandlingTjenesteTest {
         fagsakRelasjonTjeneste.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak());
 
         var relatertBehandling = relatertBehandlingTjeneste
-                .hentAnnenPartsGjeldendeVedtattBehandling(farsBehandling.getFagsak().getSaksnummer());
+                .hentAnnenPartsGjeldendeVedtattBehandling(farsBehandling.getSaksnummer());
 
         assertThat(relatertBehandling).isPresent();
         assertThat(relatertBehandling.get().getId()).isEqualTo(morsBehandling.getId());
@@ -154,7 +154,7 @@ class RelatertBehandlingTjenesteTest {
         fagsakRelasjonTjeneste.kobleFagsaker(morsRevurdering.getFagsak(), farsBehandling.getFagsak());
 
         var annenPartsGjeldendeVedtattBehandling = relatertBehandlingTjeneste
-                .hentAnnenPartsGjeldendeVedtattBehandling(farsBehandling.getFagsak().getSaksnummer());
+                .hentAnnenPartsGjeldendeVedtattBehandling(farsBehandling.getSaksnummer());
 
         assertThat(annenPartsGjeldendeVedtattBehandling.get().getId()).isEqualTo(morsRevurdering.getId());
     }
@@ -232,7 +232,7 @@ class RelatertBehandlingTjenesteTest {
         fagsakRelasjonTjeneste.kobleFagsaker(morsRevurdering.getFagsak(), farsBehandling.getFagsak());
 
         var annenPartsGjeldendeVedtattBehandling = relatertBehandlingTjeneste
-                .hentAnnenPartsGjeldendeVedtattBehandling(farsBehandling.getFagsak().getSaksnummer());
+                .hentAnnenPartsGjeldendeVedtattBehandling(farsBehandling.getSaksnummer());
 
         assertThat(annenPartsGjeldendeVedtattBehandling.get().getId()).isEqualTo(morsRevurdering.getId());
     }

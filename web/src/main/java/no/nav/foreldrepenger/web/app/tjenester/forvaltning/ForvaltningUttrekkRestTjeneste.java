@@ -176,7 +176,7 @@ public class ForvaltningUttrekkRestTjeneste {
             return;
         }
         var task = ProsessTaskData.forProsessTask(MigrerTilOmsorgRettTask.class);
-        task.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+        task.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
         task.setCallIdFraEksisterende();
         taskTjeneste.lagre(task);
     }

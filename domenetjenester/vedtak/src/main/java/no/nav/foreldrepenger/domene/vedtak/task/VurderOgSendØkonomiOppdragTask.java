@@ -87,9 +87,7 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
         var sendØkonomiOppdrag = ProsessTaskData.forProsessTask(SendØkonomiOppdragTask.class);
         sendØkonomiOppdrag.setGruppe(hovedProsessTask.getGruppe());
         sendØkonomiOppdrag.setCallIdFraEksisterende();
-        sendØkonomiOppdrag.setBehandling(hovedProsessTask.getFagsakId(),
-            behandlingId,
-            hovedProsessTask.getAktørId());
+        sendØkonomiOppdrag.setBehandling(hovedProsessTask.getSaksnummer(), hovedProsessTask.getFagsakId(), behandlingId);
         taskTjeneste.lagre(sendØkonomiOppdrag);
     }
 

@@ -137,7 +137,7 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
 
         var muligSak = stønadsperioderInnhenter.finnSenereStønadsperiode(behandling);
         assertThat(muligSak).hasValueSatisfying(v -> {
-            assertThat(v.saksnummer()).isEqualTo(nyereBehandling.getFagsak().getSaksnummer());
+            assertThat(v.saksnummer()).isEqualTo(nyereBehandling.getSaksnummer());
             assertThat(v.startdato()).isEqualTo(FH_DATO_YNGRE);
         });
     }
@@ -161,7 +161,7 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
 
         var muligSak = stønadsperioderInnhenter.finnSenereStønadsperiode(nyBehSVPOverlapper);
         assertThat(muligSak).hasValueSatisfying(v -> {
-            assertThat(v.saksnummer()).isEqualTo(avsluttetFPBehMor.getFagsak().getSaksnummer());
+            assertThat(v.saksnummer()).isEqualTo(avsluttetFPBehMor.getSaksnummer());
             assertThat(v.startdato()).isEqualTo(STP_NORMAL);
         });
     }
@@ -187,7 +187,7 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
 
         var muligSak = stønadsperioderInnhenter.finnSenereStønadsperiode(behandling);
         assertThat(muligSak).hasValueSatisfying(v -> {
-            assertThat(v.saksnummer()).isEqualTo(nyereBehandling.getFagsak().getSaksnummer());
+            assertThat(v.saksnummer()).isEqualTo(nyereBehandling.getSaksnummer());
             assertThat(v.startdato()).isEqualTo(FH_DATO_YNGRE.minusWeeks(3));
         });
     }
@@ -212,7 +212,7 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
 
         var muligSak = stønadsperioderInnhenter.finnSenereStønadsperiode(behandling);
         assertThat(muligSak).hasValueSatisfying(v -> {
-            assertThat(v.saksnummer()).isEqualTo(nyereBehandling.getFagsak().getSaksnummer());
+            assertThat(v.saksnummer()).isEqualTo(nyereBehandling.getSaksnummer());
             assertThat(v.startdato()).isEqualTo(FH_DATO_YNGRE.minusWeeks(3));
         });
     }
@@ -257,7 +257,7 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
 
         var muligSak = stønadsperioderInnhenter.finnSenereStønadsperiode(behandling);
         assertThat(muligSak).hasValueSatisfying(v -> {
-            assertThat(v.saksnummer()).isEqualTo(nyereBehandling.getFagsak().getSaksnummer());
+            assertThat(v.saksnummer()).isEqualTo(nyereBehandling.getSaksnummer());
             assertThat(v.startdato()).isEqualTo(FH_DATO_YNGRE.minusWeeks(3));
         });
     }
