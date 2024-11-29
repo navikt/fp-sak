@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.fagsak;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.List;
@@ -33,17 +35,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.task.OppdaterBehandlendeEnhetTask;
 import no.nav.foreldrepenger.produksjonsstyring.behandlinghendelse.HendelseForBehandling;
@@ -94,7 +93,7 @@ public class FagsakRestTjeneste {
     private FagsakTjeneste fagsakTjeneste;
     private FagsakFullTjeneste fagsakFullTjeneste;
     private FagsakEgenskapRepository fagsakEgenskapRepository;
-    private HistorikkRepository historikkRepository;
+    private Historikkinnslag2Repository historikkinnslagRepository;
     private ProsessTaskTjeneste taskTjeneste;
 
     public FagsakRestTjeneste() {
@@ -102,13 +101,13 @@ public class FagsakRestTjeneste {
     }
 
     @Inject
-    public FagsakRestTjeneste(FagsakTjeneste fagsakTjeneste, HistorikkRepository historikkRepository,
+    public FagsakRestTjeneste(FagsakTjeneste fagsakTjeneste, Historikkinnslag2Repository historikkinnslagRepository,
                               FagsakFullTjeneste fagsakFullTjeneste, FagsakEgenskapRepository fagsakEgenskapRepository,
                               ProsessTaskTjeneste taskTjeneste) {
         this.fagsakTjeneste = fagsakTjeneste;
         this.fagsakFullTjeneste = fagsakFullTjeneste;
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
-        this.historikkRepository = historikkRepository;
+        this.historikkinnslagRepository = historikkinnslagRepository;
         this.taskTjeneste = taskTjeneste;
     }
 
@@ -286,20 +285,12 @@ public class FagsakRestTjeneste {
     private void lagHistorikkInnslag(Fagsak fagsak, Collection<FagsakMarkering> eksisterende, Collection<FagsakMarkering> ny) {
         var fraVerdi = eksisterende.stream().map(FagsakMarkering::getNavn).collect(Collectors.joining(","));
         var tilVerdi = ny.stream().map(FagsakMarkering::getNavn).collect(Collectors.joining(","));
-
-        var historikkinnslag = new Historikkinnslag.Builder()
-            .medFagsakId(fagsak.getId())
+        var historikkinnslag = new Historikkinnslag2.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
-            .medType(HistorikkinnslagType.FAKTA_ENDRET)
+            .medFagsakId(fagsak.getId())
+            .medTittel("Fakta endret")
+            .addTekstlinje(fraTilEquals("Saksmarkering", fraVerdi, tilVerdi))
             .build();
-
-        var builder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
-            .medEndretFelt(HistorikkEndretFeltType.SAKSMARKERING, fraVerdi, tilVerdi);
-
-        builder.build(historikkinnslag);
-        historikkRepository.lagre(historikkinnslag);
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
-
-
 }
