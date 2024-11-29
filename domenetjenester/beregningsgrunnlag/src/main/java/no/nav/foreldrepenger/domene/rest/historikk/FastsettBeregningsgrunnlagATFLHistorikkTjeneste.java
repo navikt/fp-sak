@@ -42,7 +42,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjeneste {
     public void lagHistorikk(AksjonspunktOppdaterParameter param,
                              FastsettBeregningsgrunnlagATFLDto dto,
                              BeregningsgrunnlagEntitet forrigeGrunnlag) {
-        var førstePeriode = forrigeGrunnlag.getBeregningsgrunnlagPerioder().get(0);
+        var førstePeriode = forrigeGrunnlag.getBeregningsgrunnlagPerioder().getFirst();
 
         var atAndeler = førstePeriode.getBeregningsgrunnlagPrStatusOgAndelList()
             .stream()

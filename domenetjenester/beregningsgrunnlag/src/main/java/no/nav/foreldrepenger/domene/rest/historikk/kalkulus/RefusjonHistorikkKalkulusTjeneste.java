@@ -50,7 +50,7 @@ public class RefusjonHistorikkKalkulusTjeneste {
             ? arbeidsgiverHistorikkinnslag.lagTekstForArbeidsgiver(andelEndring.getArbeidsgiver().get(), arbeidsforholdOverstyringer)
             : andelEndring.getAktivitetStatus().getNavn();
         return fraTilEquals(
-            String.format("Inntekt fra arbeidsforhold %s", arbeidsforholdInfo),
+            String.format("Inntekt fra %s", arbeidsforholdInfo),
             tilInt(refusjonEndring.getFraRefusjon()),
             tilInt(refusjonEndring.getTilRefusjon()));
     }
