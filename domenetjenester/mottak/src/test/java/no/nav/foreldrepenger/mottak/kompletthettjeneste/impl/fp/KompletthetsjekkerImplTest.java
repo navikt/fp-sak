@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.fp;
 
+import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
@@ -46,6 +47,7 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
 import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
@@ -88,7 +90,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     @BeforeEach
     public void before() {
         manglendeInntektsmeldinger = new HashMap<>();
-        manglendeInntektsmeldinger.put(Arbeidsgiver.virksomhet("1"), new HashSet<>());
+        manglendeInntektsmeldinger.put(Arbeidsgiver.virksomhet(KUNSTIG_ORG), new HashSet<>());
 
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.anyLong())).thenReturn(skjæringstidspunkt);
         lenient().when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(any(), any())).thenReturn(
@@ -245,6 +247,26 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
         assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(3));
         verify(dokumentBestillerTjenesteMock, times(1)).bestillDokument(any(DokumentBestilling.class), any());
+    }
+
+    @Test
+    void skal_ikke_sende_brev_når_inntektsmelding_mangler_for_privat_arbeidsgivere() {
+        // Arrange
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+        HashMap<Arbeidsgiver, Set<InternArbeidsforholdRef>>  manglendeImPrivatArbGiver = new HashMap<>();
+        manglendeImPrivatArbGiver.put(Arbeidsgiver.fra(AktørId.dummy()), new HashSet<>());
+        mockManglendeInntektsmeldingKompletthet(manglendeImPrivatArbGiver);
+        testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(1),
+            STARTDATO_PERMISJON);
+
+        // Act
+        var kompletthetResultat = kompletthetsjekkerImpl.vurderEtterlysningInntektsmelding(
+            lagRef(behandling), lagStp(STARTDATO_PERMISJON));
+
+        // Assert
+        assertThat(kompletthetResultat.erOppfylt()).isTrue();
+        assertThat(kompletthetResultat.ventefrist()).isNull();
+        verify(dokumentBestillerTjenesteMock, times(0)).bestillDokument(any(DokumentBestilling.class), any());
     }
 
     @Test
