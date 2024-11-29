@@ -132,7 +132,7 @@ public class BehandlingsoppretterTjeneste {
         var behandlinger = behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(saksnummer);
 
         if (harMinstEnÅpenFørstegangsbehandling(behandlinger)) {
-            doOpprettNyBehandlingIgjennomMottak(fagsakId, BehandlingÅrsakType.UDEFINERT);
+            doOpprettNyBehandlingIgjennomMottak(fagsakId, saksnummer, BehandlingÅrsakType.UDEFINERT);
         } else {
             throw kanIkkeHenleggeÅpenBehandlingOgOppretteNyFørstegangsbehandling(fagsakId);
         }
