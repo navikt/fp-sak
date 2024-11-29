@@ -33,8 +33,8 @@ class AnkeStegTest {
         var ankeRepository = mock(AnkeVurderingTjeneste.class);
         var prosessTaskTjeneste = mock(ProsessTaskTjeneste.class);
         when(ankeRepository.hentAnkeResultatHvisEksisterer(any())).thenReturn(Optional.empty());
-        var kontekst = new BehandlingskontrollKontekst(ankeBehandling.getFagsakId(),
-                ankeBehandling.getAktørId(), new BehandlingLås(ankeBehandling.getId()));
+        var kontekst = new BehandlingskontrollKontekst(ankeBehandling.getSaksnummer(), ankeBehandling.getFagsakId(),
+                new BehandlingLås(ankeBehandling.getId()));
 
         var steg = new AnkeSteg(ankeRepository, mock(KlageRepository.class), prosessTaskTjeneste, rProvider);
 

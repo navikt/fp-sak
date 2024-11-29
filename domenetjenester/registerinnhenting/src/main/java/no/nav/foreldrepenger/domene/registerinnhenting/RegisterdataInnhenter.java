@@ -215,7 +215,7 @@ public class RegisterdataInnhenter {
     private void doInnhentIAYIAbakus(Behandling behandling, BehandlingType behandlingType, FagsakYtelseType fagsakYtelseType) {
         LOG.info("Trigger innhenting i abakus for behandling med id={} og uuid={}", behandling.getId(), behandling.getUuid());
         var behandlingUuid = behandling.getUuid();
-        var saksnummer = behandling.getFagsak().getSaksnummer().getVerdi();
+        var saksnummer = behandling.getSaksnummer().getVerdi();
         var ytelseType = KodeverkMapper.fraFagsakYtelseType(fagsakYtelseType);
         var opplysningsperiode = opplysningsPeriodeTjeneste.beregn(behandling.getId(), fagsakYtelseType);
         var periode = new Periode(opplysningsperiode.getFomDato(), opplysningsperiode.getTomDato());

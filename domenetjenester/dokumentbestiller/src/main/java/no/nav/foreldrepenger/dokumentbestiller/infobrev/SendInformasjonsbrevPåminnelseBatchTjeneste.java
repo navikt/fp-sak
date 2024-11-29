@@ -42,12 +42,11 @@ public class SendInformasjonsbrevPåminnelseBatchTjeneste implements BatchTjenes
         var saker = informasjonssakRepository.finnSakerDerMedforelderIkkeHarSøktOgBarnetBleFødtInnenforIntervall(periode.fom(), periode.tom());
         var baseline = LocalTime.now();
         saker.forEach(sak -> {
-            LOG.info("Oppretter informasjonsbrev-påminnelse task for {}", sak.getAktørId().getId());
+            LOG.info("Oppretter informasjonsbrev-påminnelse task for {}", sak.saksnummer().getVerdi());
             var data = ProsessTaskData.forProsessTask(SendInformasjonsbrevPåminnelseTask.class);
-            data.setAktørId(sak.getAktørId().getId());
             data.setCallIdFraEksisterende();
             data.setNesteKjøringEtter(LocalDateTime.of(LocalDate.now(), baseline.plusSeconds(LocalDateTime.now().getNano() % 419)));
-            data.setProperty(SendInformasjonsbrevPåminnelseTask.FAGSAK_ID_KEY, sak.getKildeFagsakId().toString());
+            data.setFagsak(sak.saksnummer().getVerdi(), sak.fagsakId());
             taskTjeneste.lagre(data);
         });
         return BATCHNAVN + "-" + saker.size();

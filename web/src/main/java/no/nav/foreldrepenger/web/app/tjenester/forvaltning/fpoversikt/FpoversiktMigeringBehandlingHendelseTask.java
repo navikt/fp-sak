@@ -83,8 +83,8 @@ class FpoversiktMigeringBehandlingHendelseTask implements ProsessTaskHandler {
         var hendelse = new BehandlingHendelseV1.Builder()
             .medHendelse(Hendelse.MIGRERING)
             .medHendelseUuid(UUID.randomUUID())
-            .medSaksnummer(behandling.getFagsak().getSaksnummer().getVerdi())
+            .medSaksnummer(behandling.getSaksnummer().getVerdi())
             .build();
-        kafkaProducer.sendJsonMedNøkkel(behandling.getFagsak().getSaksnummer().getVerdi(), DefaultJsonMapper.toJson(hendelse));
+        kafkaProducer.sendJsonMedNøkkel(behandling.getSaksnummer().getVerdi(), DefaultJsonMapper.toJson(hendelse));
     }
 }

@@ -73,7 +73,7 @@ class RegisterdataOppdatererTaskTest {
         when(mockEnhetsTjeneste.sjekkEnhetEtterEndring(any())).thenReturn(Optional.of(enhet));
 
         var prosessTaskData = ProsessTaskData.forProsessTask(RegisterdataOppdatererTask.class);
-        prosessTaskData.setBehandling(0L, behandlingId, "0");
+        prosessTaskData.setBehandling("123", 0L, behandlingId);
 
         task.doTask(prosessTaskData);
 
@@ -103,7 +103,7 @@ class RegisterdataOppdatererTaskTest {
         var snapshot= EndringsresultatSnapshot.opprett()
             .leggTil(EndringsresultatSnapshot.utenSnapshot(PersonInformasjonEntitet.class));
         var prosessTaskData = ProsessTaskData.forProsessTask(RegisterdataOppdatererTask.class);
-        prosessTaskData.setBehandling(0L, behandlingId, "0");
+        prosessTaskData.setBehandling("123", 0L, behandlingId);
         prosessTaskData.setPayload(StandardJsonConfig.toJson(snapshot));
 
         task.doTask(prosessTaskData);

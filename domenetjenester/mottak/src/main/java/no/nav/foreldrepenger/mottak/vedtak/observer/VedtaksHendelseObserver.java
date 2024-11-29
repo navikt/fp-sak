@@ -65,7 +65,7 @@ public class VedtaksHendelseObserver {
 
     void lagreProsesstaskFor(Behandling behandling, TaskType taskType, int delaysecs) {
         var data = ProsessTaskData.forTaskType(taskType);
-        data.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+        data.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
         data.setCallId(behandling.getUuid().toString());
         data.setNesteKjøringEtter(LocalDateTime.now().plusSeconds(delaysecs));
         taskTjeneste.lagre(data);

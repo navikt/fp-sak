@@ -129,7 +129,7 @@ class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
 
         var behandlingMock = mock(Behandling.class);
-        when(behandlingMock.getAktørId()).thenReturn(fagsak.getAktørId());
+        when(behandlingMock.getSaksnummer()).thenReturn(fagsak.getSaksnummer());
         when(behandlingsoppretter.opprettFørstegangsbehandling(eq(fagsak), any(), any())).thenReturn(behandlingMock);
 
         // Act
@@ -150,7 +150,7 @@ class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         var mottattDokument = DokumentmottakTestUtil.byggMottattPapirsøknad(DokumentTypeId.UDEFINERT, fagsakId, "", now(), true, null);
 
         var behandlingMock = mock(Behandling.class);
-        when(behandlingMock.getAktørId()).thenReturn(fagsak.getAktørId());
+        when(behandlingMock.getSaksnummer()).thenReturn(fagsak.getSaksnummer());
         when(behandlingsoppretter.opprettFørstegangsbehandling(any(), any(), any())).thenReturn(behandlingMock);
 
         // Act
@@ -236,7 +236,7 @@ class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         var revurdering = mock(Behandling.class);
         when(revurdering.getId()).thenReturn(10L);
         when(revurdering.getFagsakId()).thenReturn(behandling.getFagsakId());
-        when(revurdering.getAktørId()).thenReturn(behandling.getAktørId());
+        when(revurdering.getSaksnummer()).thenReturn(behandling.getSaksnummer());
         doReturn(revurdering).when(behandlingsoppretter).opprettRevurdering(behandling.getFagsak(), BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
 
         // Act
@@ -292,7 +292,7 @@ class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
 
         // Arrange - mock tjenestekall
         var nyBehandling = mock(Behandling.class);
-        doReturn(fagsak.getAktørId()).when(nyBehandling).getAktørId();
+        doReturn(fagsak.getSaksnummer()).when(nyBehandling).getSaksnummer();
         when(behandlingsoppretter.opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(eq(fagsak), any(), any(), anyBoolean()))
                 .thenReturn(nyBehandling);
         when(behandlingsoppretter.erAvslåttBehandling(behandling)).thenReturn(Boolean.TRUE);
@@ -313,12 +313,13 @@ class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
     void skal_opprette_køet_førstegangsbehandling_og_kjøre_kompletthet_dersom_køet_behandling_ikke_finnes_og_ingen_tidligere_behandling_finnes() {
         // Arrange - opprette fagsak uten behandling
         var aktørId = AktørId.dummy();
-        var fagsak = DokumentmottakTestUtil.byggFagsak(aktørId, RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("9999"),
+        var saksnummer = new Saksnummer("9999");
+        var fagsak = DokumentmottakTestUtil.byggFagsak(aktørId, RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, saksnummer,
                 fagsakRepository);
 
         // Arrange - mock tjenestekall
         var nyBehandling = mock(Behandling.class);
-        doReturn(aktørId).when(nyBehandling).getAktørId();
+        doReturn(saksnummer).when(nyBehandling).getSaksnummer();
 
         // Act - send inn søknad
         var fagsakId = fagsak.getId();

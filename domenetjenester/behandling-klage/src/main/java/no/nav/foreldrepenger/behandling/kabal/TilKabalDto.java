@@ -43,7 +43,7 @@ public record TilKabalDto(@NotNull Klager klager,
             brukersHenvendelseMottattNavDato, innsendtTilNav,
             Fagsystem.FPSAK.getOffisiellKode(), behandling.getUuid().toString(), behandling.getUuid().toString(),
             KlageAnke.KLAGE, mapYtelseType(behandling), sakMottattKaTidspunkt, sakMottattKaTidspunkt.toLocalDate(),
-            new Sak(behandling.getFagsak().getSaksnummer().getVerdi(), Fagsystem.FPSAK.getOffisiellKode()),
+            new Sak(behandling.getSaksnummer().getVerdi(), Fagsystem.FPSAK.getOffisiellKode()),
             hjemler, kommentar);
     }
 
@@ -60,7 +60,7 @@ public record TilKabalDto(@NotNull Klager klager,
             brukersHenvendelseMottattNavDato, innsendtTilNav,
             Fagsystem.FPSAK.getOffisiellKode(), kildereferanse, kildereferanse,
             KlageAnke.ANKE, mapYtelseType(behandling), sakMottattKaTidspunkt, sakMottattKaTidspunkt.toLocalDate(),
-            new Sak(behandling.getFagsak().getSaksnummer().getVerdi(), Fagsystem.FPSAK.getOffisiellKode()),
+            new Sak(behandling.getSaksnummer().getVerdi(), Fagsystem.FPSAK.getOffisiellKode()),
             hjemler, "");
     }
 

@@ -268,7 +268,7 @@ public class BehandlingDtoTjeneste {
         var dto = new UtvidetBehandlingDto();
         settStandardfelterUtvidet(behandling, dto, erBehandlingMedGjeldendeVedtak);
 
-        var saksnummerDto = new SaksnummerDto(behandling.getFagsak().getSaksnummer());
+        var saksnummerDto = new SaksnummerDto(behandling.getSaksnummer());
         dto.leggTil(get(FagsakRestTjeneste.FAGSAK_PATH, "fagsak", saksnummerDto));
 
         leggTilLenkerForBehandlingsoperasjoner(behandling, dto);

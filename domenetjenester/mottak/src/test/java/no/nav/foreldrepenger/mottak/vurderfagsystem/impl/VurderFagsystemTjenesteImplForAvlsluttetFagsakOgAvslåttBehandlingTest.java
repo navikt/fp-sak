@@ -105,7 +105,7 @@ class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingTest ext
 
         // Assert
         assertThat(resultat.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
-        assertThat(resultat.getSaksnummer()).isEqualTo(Optional.of(behandling.getFagsak().getSaksnummer()));
+        assertThat(resultat.getSaksnummer()).isEqualTo(Optional.of(behandling.getSaksnummer()));
     }
 
     @Test
@@ -116,14 +116,14 @@ class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingTest ext
         var vfData = opprettVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         vfData.setDokumentTypeId(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL);
         vfData.setStrukturertSøknad(false);
-        vfData.setSaksnummer(behandling.getFagsak().getSaksnummer());
+        vfData.setSaksnummer(behandling.getSaksnummer());
 
         // Act
         var resultat = vurderFagsystemFellesTjeneste.vurderFagsystem(vfData);
 
         // Assert
         assertThat(resultat.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
-        assertThat(resultat.getSaksnummer()).isEqualTo(Optional.of(behandling.getFagsak().getSaksnummer()));
+        assertThat(resultat.getSaksnummer()).isEqualTo(Optional.of(behandling.getSaksnummer()));
     }
 
     @Test
@@ -170,7 +170,7 @@ class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingTest ext
         // Assert
         assertThat(resultat.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
         assertThat(resultat.getSaksnummer()).isPresent();
-        assertThat(resultat.getSaksnummer()).contains(behandling.getFagsak().getSaksnummer());
+        assertThat(resultat.getSaksnummer()).contains(behandling.getSaksnummer());
     }
 
     private Behandling opprettBehandling(BehandlingType behandlingType, BehandlingResultatType behandlingResultatType, Avslagsårsak avslagsårsak,

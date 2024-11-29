@@ -69,7 +69,7 @@ class InnsynTjenesteTest {
     void skal_opprette_innsynsbehandling_på_fagsak() {
         // arrange
         var opprinneligBehandling = scenario.lagre(repositoryProvider);
-        var saksnummer = opprinneligBehandling.getFagsak().getSaksnummer();
+        var saksnummer = opprinneligBehandling.getSaksnummer();
 
         // act
         var nyBehandling = innsynTjeneste.opprettManueltInnsyn(saksnummer);
@@ -82,7 +82,7 @@ class InnsynTjenesteTest {
     void skal_ikke_opprette_flere_behandlingsresultat_men_oppdatere_eksisterende_når_det_kommer_endringer() {
         // arrange
         var opprinneligBehandling = scenario.lagre(repositoryProvider);
-        var saksnummer = opprinneligBehandling.getFagsak().getSaksnummer();
+        var saksnummer = opprinneligBehandling.getSaksnummer();
 
         var innsynbehandling = innsynTjeneste.opprettManueltInnsyn(saksnummer);
 

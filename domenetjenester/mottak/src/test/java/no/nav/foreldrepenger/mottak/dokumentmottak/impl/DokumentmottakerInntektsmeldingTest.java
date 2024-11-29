@@ -209,7 +209,7 @@ class DokumentmottakerInntektsmeldingTest {
         when(revurdering.getId()).thenReturn(10L);
         when(revurdering.getFagsakId()).thenReturn(behandling.getFagsakId());
         when(revurdering.getFagsak()).thenReturn(behandling.getFagsak());
-        when(revurdering.getAktørId()).thenReturn(behandling.getAktørId());
+        when(revurdering.getSaksnummer()).thenReturn(behandling.getSaksnummer());
 
         var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true,
@@ -232,7 +232,7 @@ class DokumentmottakerInntektsmeldingTest {
         var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, 123L, "", now(), true, "123");
         var førstegangsbehandling = mock(Behandling.class);
-        when(førstegangsbehandling.getAktørId()).thenReturn(AktørId.dummy());
+        when(førstegangsbehandling.getSaksnummer()).thenReturn(new Saksnummer("9999"));
         when(behandlingsoppretter.opprettFørstegangsbehandling(fagsak, BehandlingÅrsakType.UDEFINERT, Optional.empty()))
                 .thenReturn(førstegangsbehandling);
 
@@ -276,14 +276,15 @@ class DokumentmottakerInntektsmeldingTest {
     void skal_opprette_køet_behandling_og_kjøre_kompletthet_dersom_køet_behandling_ikke_finnes() {
         // Arrange - opprette fagsak uten behandling
         var aktørId = AktørId.dummy();
-        var fagsak = DokumentmottakTestUtil.byggFagsak(aktørId, RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("9999"),
+        var saksnummer = new Saksnummer("9999");
+        var fagsak = DokumentmottakTestUtil.byggFagsak(aktørId, RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, saksnummer,
                 fagsakRepository);
 
         // Arrange - sett opp opprettelse av køet behandling
         var behandling = mock(Behandling.class);
         // doReturn(fagsak.getId()).when(behandling).getFagsakId();
         doReturn(fagsak).when(behandling).getFagsak();
-        doReturn(aktørId).when(behandling).getAktørId();
+        doReturn(saksnummer).when(behandling).getSaksnummer();
         doReturn(behandling).when(behandlingsoppretter).opprettFørstegangsbehandling(fagsak, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING,
                 Optional.empty());
         /*

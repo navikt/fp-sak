@@ -59,7 +59,7 @@ public class RelatertBehandlingTjeneste {
     }
 
     public Optional<Behandling> hentAnnenPartsGjeldendeBehandlingPåVedtakstidspunkt(Behandling behandling) {
-        var annenPartsFagsak = hentAnnenPartsFagsak(behandling.getFagsak().getSaksnummer());
+        var annenPartsFagsak = hentAnnenPartsFagsak(behandling.getSaksnummer());
         if (annenPartsFagsak.isEmpty()) {
             return Optional.empty();
         }

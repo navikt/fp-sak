@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ApplicationScoped
 public class SatsReguleringRepository {
@@ -37,7 +37,7 @@ public class SatsReguleringRepository {
 
     private EntityManager entityManager;
 
-    public record FagsakIdAktørId(Long fagsakId, AktørId aktørId) { }
+    public record FagsakIdSaksnummer(Long fagsakId, Saksnummer saksnummer) { }
 
     SatsReguleringRepository() {
     }
@@ -52,8 +52,8 @@ public class SatsReguleringRepository {
     }
 
     private static final String REGULERING_SELECT_STD_FP = """
-        SELECT DISTINCT f.id , bru.aktoer_id
-          from Fagsak f join bruker bru on f.bruker_id=bru.id
+        SELECT DISTINCT f.id , f.saksnummer
+          from Fagsak f
           join behandling b on b.fagsak_id=f.id
           join behandling_resultat br on br.behandling_id=b.id
           join behandling_vedtak bv on br.id = bv.behandling_resultat_id
@@ -85,7 +85,7 @@ public class SatsReguleringRepository {
         """;
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering over 6G og det ikke finnes åpen behandling */
-    public List<FagsakIdAktørId> finnSakerMedBehovForGrunnbeløpRegulering(LocalDate gjeldendeFom, Long satsmultiplikator) {
+    public List<FagsakIdSaksnummer> finnSakerMedBehovForGrunnbeløpRegulering(LocalDate gjeldendeFom, Long satsmultiplikator) {
         /*
          * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
          * - Saker som har siste avsluttet behandling med gammel sats, brutto overstiger 6G og har uttak etter gammel sats sin utløpsdato
@@ -104,11 +104,11 @@ public class SatsReguleringRepository {
         setStandardParametersFP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(Long.parseLong(row[0].toString()), new AktørId((String) row[1]))).toList();
+        return resultatList.stream().map(row -> new FagsakIdSaksnummer(Long.parseLong(row[0].toString()), new Saksnummer((String) row[1]))).toList();
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering (MS under 3G) og det ikke finnes åpen behandling */
-    public List<FagsakIdAktørId> finnSakerMedBehovForMilSivRegulering(LocalDate gjeldendeFom, Long satsmultiplikator) {
+    public List<FagsakIdSaksnummer> finnSakerMedBehovForMilSivRegulering(LocalDate gjeldendeFom, Long satsmultiplikator) {
         /*
          * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
          * - Saker som har siste avsluttet behandling med gammel sats, status MS, brutto understiger 3G og har uttak etter gammel sats sin utløpsdato
@@ -129,12 +129,12 @@ public class SatsReguleringRepository {
         setStandardParametersFP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(Long.parseLong(row[0].toString()), new AktørId((String) row[1]))).toList();
+        return resultatList.stream().map(row -> new FagsakIdSaksnummer(Long.parseLong(row[0].toString()), new Saksnummer((String) row[1]))).toList();
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering (SN og kombinasjon) og det ikke finnes åpen behandling */
     @SuppressWarnings("unused")
-    public List<FagsakIdAktørId> finnSakerMedBehovForNæringsdrivendeRegulering(LocalDate gjeldendeFom, Long satsmultiplikator) {
+    public List<FagsakIdSaksnummer> finnSakerMedBehovForNæringsdrivendeRegulering(LocalDate gjeldendeFom, Long satsmultiplikator) {
         /*
          * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
          * - Saker som har siste avsluttet behandling med gammel sats, status SN/KOMB og har uttak etter gammel sats sin utløpsdato
@@ -149,11 +149,11 @@ public class SatsReguleringRepository {
         setStandardParametersFP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(Long.parseLong(row[0].toString()), new AktørId((String) row[1]))).toList();
+        return resultatList.stream().map(row -> new FagsakIdSaksnummer(Long.parseLong(row[0].toString()), new Saksnummer((String) row[1]))).toList();
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger Arena-regulering og det ikke finnes åpen behandling */
-    public List<FagsakIdAktørId> finnSakerMedBehovForArenaRegulering(LocalDate gjeldendeFom, LocalDate nySatsDato) {
+    public List<FagsakIdSaksnummer> finnSakerMedBehovForArenaRegulering(LocalDate gjeldendeFom, LocalDate nySatsDato) {
         /*
          * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
          * - Saker som er beregnet med AAP/DP og har uttak etter gammel sats sin utløpsdato
@@ -170,7 +170,7 @@ public class SatsReguleringRepository {
         setStandardParametersFP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(Long.parseLong(row[0].toString()), new AktørId((String) row[1]))).toList();
+        return resultatList.stream().map(row -> new FagsakIdSaksnummer(Long.parseLong(row[0].toString()), new Saksnummer((String) row[1]))).toList();
     }
 
     private void setStandardParametersFP(Query query, LocalDate gjeldendeFom) {
@@ -186,8 +186,8 @@ public class SatsReguleringRepository {
     }
 
     private static final String REGULERING_SELECT_STD_SVP = """
-        SELECT DISTINCT f.id , bru.aktoer_id
-          from Fagsak f join bruker bru on f.bruker_id=bru.id
+        SELECT DISTINCT f.id , f.saksnummer
+          from Fagsak f
           join behandling b on b.fagsak_id=f.id
           join behandling_resultat br on br.behandling_id=b.id
           join behandling_vedtak bv on br.id = bv.behandling_resultat_id
@@ -226,7 +226,7 @@ public class SatsReguleringRepository {
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering over 6G og det ikke finnes åpen behandling */
-    public List<FagsakIdAktørId> finnSakerMedBehovForGrunnbeløpReguleringSVP(LocalDate gjeldendeFom, Long satsmultiplikator) {
+    public List<FagsakIdSaksnummer> finnSakerMedBehovForGrunnbeløpReguleringSVP(LocalDate gjeldendeFom, Long satsmultiplikator) {
         /*
          * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
          * - Saker som har siste avsluttet behandling med gammel sats, brutto overstiger 6G og har uttak etter gammel sats sin utløpsdato
@@ -245,12 +245,12 @@ public class SatsReguleringRepository {
         setStandardParametersSVP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(Long.parseLong(row[0].toString()), new AktørId((String) row[1]))).toList();
+        return resultatList.stream().map(row -> new FagsakIdSaksnummer(Long.parseLong(row[0].toString()), new Saksnummer((String) row[1]))).toList();
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering (MS under 3G) og det ikke finnes åpen behandling */
     @SuppressWarnings("unused")
-    public List<FagsakIdAktørId> finnSakerMedBehovForMilSivReguleringSVP(LocalDate gjeldendeFom, Long satsmultiplikator) {
+    public List<FagsakIdSaksnummer> finnSakerMedBehovForMilSivReguleringSVP(LocalDate gjeldendeFom, Long satsmultiplikator) {
         /*
          * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
          * - Saker som har siste avsluttet behandling med gammel sats, status MS, brutto understiger 3G og har uttak etter gammel sats sin utløpsdato
@@ -271,12 +271,12 @@ public class SatsReguleringRepository {
         setStandardParametersSVP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(Long.parseLong(row[0].toString()), new AktørId((String) row[1]))).toList();
+        return resultatList.stream().map(row -> new FagsakIdSaksnummer(Long.parseLong(row[0].toString()), new Saksnummer((String) row[1]))).toList();
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering (SN og kombinasjon) og det ikke finnes åpen behandling */
     @SuppressWarnings("unused")
-    public List<FagsakIdAktørId> finnSakerMedBehovForNæringsdrivendeReguleringSVP(LocalDate gjeldendeFom, Long satsmultiplikator) {
+    public List<FagsakIdSaksnummer> finnSakerMedBehovForNæringsdrivendeReguleringSVP(LocalDate gjeldendeFom, Long satsmultiplikator) {
         /*
          * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
          * - Saker som har siste avsluttet behandling med gammel sats, status SN/KOMB og har uttak etter gammel sats sin utløpsdato
@@ -291,12 +291,12 @@ public class SatsReguleringRepository {
         setStandardParametersSVP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(Long.parseLong(row[0].toString()), new AktørId((String) row[1]))).toList();
+        return resultatList.stream().map(row -> new FagsakIdSaksnummer(Long.parseLong(row[0].toString()), new Saksnummer((String) row[1]))).toList();
     }
 
     private static final String REGULERING_SELECT_STD_ES = """
-        SELECT DISTINCT f.id , bru.aktoer_id
-          from fagsak f join bruker bru on f.bruker_id=bru.id
+        SELECT DISTINCT f.id , f.saksnummer
+          from fagsak f
           join behandling b on b.fagsak_id=f.id
           join behandling_resultat br on br.behandling_id=b.id
           join behandling_vedtak bv on br.id = bv.behandling_resultat_id
@@ -330,7 +330,7 @@ public class SatsReguleringRepository {
 
 
     /** Liste av fagsakId, aktørId for saker som potensielt trenger regulering pga endret sats */
-    public List<FagsakIdAktørId> finnSakerMedBehovForEngangsstønadRegulering(LocalDate gjeldendeFom) {
+    public List<FagsakIdSaksnummer> finnSakerMedBehovForEngangsstønadRegulering(LocalDate gjeldendeFom) {
         /*
          * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
          * - Saker som har siste avsluttet behandling med gammel sats, brutto overstiger 6G og har uttak etter gammel sats sin utløpsdato
@@ -350,7 +350,7 @@ public class SatsReguleringRepository {
             .setParameter("engang", BeregningSatsType.ENGANG.getKode());
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(Long.parseLong(row[0].toString()), new AktørId((String) row[1]))).toList();
+        return resultatList.stream().map(row -> new FagsakIdSaksnummer(Long.parseLong(row[0].toString()), new Saksnummer((String) row[1]))).toList();
     }
 
 }

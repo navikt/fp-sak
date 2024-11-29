@@ -84,35 +84,36 @@ public class BehandlingsoppretterTjeneste {
                 throw kanIkkeOppretteNyFørstegangsbehandlingEtterKlage(fagsakId);
             }
             var behandlingÅrsakType = erEtterKlageBehandling ? BehandlingÅrsakType.ETTER_KLAGE : BehandlingÅrsakType.UDEFINERT;
-            doOpprettNyBehandlingIgjennomMottak(fagsakId, behandlingÅrsakType);
+            doOpprettNyBehandlingIgjennomMottak(fagsakId, saksnummer, behandlingÅrsakType);
         } else {
             throw kanIkkeOppretteNyFørstegangsbehandling(fagsakId);
         }
     }
 
-    private void doOpprettNyBehandlingIgjennomMottak(Long fagsakId, BehandlingÅrsakType behandlingÅrsakType) {
+    private void doOpprettNyBehandlingIgjennomMottak(Long fagsakId, Saksnummer saksnummer, BehandlingÅrsakType behandlingÅrsakType) {
         var sisteMottatteSøknad = finnSisteMottatteSøknadPåFagsak(fagsakId);
         if (sisteMottatteSøknad != null) {
-            opprettNyBehandlingFraSøknad(behandlingÅrsakType, sisteMottatteSøknad);
+            opprettNyBehandlingFraSøknad(behandlingÅrsakType, sisteMottatteSøknad, saksnummer);
         } else {
             opprettNyBehandlingFraInntektsmelding(fagsakId, behandlingÅrsakType);
         }
     }
 
     private void opprettNyBehandlingFraSøknad(BehandlingÅrsakType behandlingÅrsakType,
-                                              MottattDokument sisteMottatteSøknad) {
+                                              MottattDokument sisteMottatteSøknad,
+                                              Saksnummer saksnummer) {
         if (sisteMottatteSøknad.getBehandlingId() != null) {
             if (sisteMottatteSøknad.getPayloadXml() == null) {
                 // For å registrere papirsøknad på nytt ....
                 var nyMottatt = new MottattDokument.Builder(sisteMottatteSøknad).build();
-                saksbehandlingDokumentmottakTjeneste.dokumentAnkommet(nyMottatt, behandlingÅrsakType);
+                saksbehandlingDokumentmottakTjeneste.dokumentAnkommet(nyMottatt, behandlingÅrsakType, saksnummer);
             } else {
                 var sisteBehandling = behandlingRepository.hentBehandling(sisteMottatteSøknad.getBehandlingId());
                 saksbehandlingDokumentmottakTjeneste.opprettFraTidligereBehandling(sisteMottatteSøknad, sisteBehandling,
                     behandlingÅrsakType);
             }
         } else {
-            saksbehandlingDokumentmottakTjeneste.mottaUbehandletSøknad(sisteMottatteSøknad, behandlingÅrsakType);
+            saksbehandlingDokumentmottakTjeneste.mottaUbehandletSøknad(sisteMottatteSøknad, behandlingÅrsakType, saksnummer);
         }
     }
 
@@ -131,7 +132,7 @@ public class BehandlingsoppretterTjeneste {
         var behandlinger = behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(saksnummer);
 
         if (harMinstEnÅpenFørstegangsbehandling(behandlinger)) {
-            doOpprettNyBehandlingIgjennomMottak(fagsakId, BehandlingÅrsakType.UDEFINERT);
+            doOpprettNyBehandlingIgjennomMottak(fagsakId, saksnummer, BehandlingÅrsakType.UDEFINERT);
         } else {
             throw kanIkkeHenleggeÅpenBehandlingOgOppretteNyFørstegangsbehandling(fagsakId);
         }

@@ -215,7 +215,7 @@ class FatteVedtakStegTest {
         var behandlingLås = lagreBehandling(revurdering);
         opprettFamilieHendelseGrunnlag(originalBehandling, revurdering);
         var fagsak = revurdering.getFagsak();
-        var revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingLås);
+        var revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), behandlingLås);
         oppdaterMedBehandlingsresultat(revurderingKontekst, false, antallBarn);
 
         fatteVedtakSteg.utførSteg(revurderingKontekst);
@@ -247,7 +247,7 @@ class FatteVedtakStegTest {
         var behandlingLås = lagreBehandling(revurdering);
         opprettFamilieHendelseGrunnlag(originalBehandling, revurdering);
         var fagsak = revurdering.getFagsak();
-        var revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingLås);
+        var revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), behandlingLås);
         oppdaterMedBehandlingsresultat(revurderingKontekst, true, faktiskAntallBarn);
 
         fatteVedtakSteg.utførSteg(revurderingKontekst);
@@ -279,7 +279,7 @@ class FatteVedtakStegTest {
 
         opprettFamilieHendelseGrunnlag(originalBehandling, revurdering);
         var fagsak = revurdering.getFagsak();
-        var revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingLås);
+        var revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), behandlingLås);
         oppdaterMedBehandlingsresultat(revurderingKontekst, true, antallBarn);
 
         fatteVedtakSteg.utførSteg(revurderingKontekst);
@@ -319,7 +319,7 @@ class FatteVedtakStegTest {
         var behandlingLås = lagreBehandling(revurdering);
         opprettFamilieHendelseGrunnlag(originalBehandling, revurdering);
         var fagsak = revurdering.getFagsak();
-        var revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingLås);
+        var revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), behandlingLås);
         oppdaterMedBehandlingsresultat(revurderingKontekst, false, antallBarn);
 
         fatteVedtakSteg.utførSteg(revurderingKontekst);
@@ -504,7 +504,7 @@ class FatteVedtakStegTest {
         beregningRepository.lagre(beregningResultat, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
 
         var fagsak = behandling.getFagsak();
-        return new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
+        return new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
     }
 
     private void oppdaterMedVedtak(BehandlingskontrollKontekst kontekst) {

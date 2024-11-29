@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
-import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.hendelser.behandling.Behandlingstype;
@@ -64,18 +64,18 @@ public class PubliserBehandlingHendelseTask extends GenerellProsessTask {
             .medBehandlingUuid(behandling.getUuid())
             .medKildesystem(Kildesystem.FPSAK)
             .medAktørId(behandling.getAktørId().getId())
-            .medSaksnummer(behandling.getFagsak().getSaksnummer().getVerdi())
+            .medSaksnummer(behandling.getSaksnummer().getVerdi())
             .medBehandlingstype(mapBehandlingstype(behandling))
             .medYtelse(mapYtelse(behandling))
             .medTidspunkt(LocalDateTime.now())
             .build();
-        kafkaProducer.sendJsonMedNøkkel(behandling.getFagsak().getSaksnummer().getVerdi(), DefaultJsonMapper.toJson(hendelse));
+        kafkaProducer.sendJsonMedNøkkel(behandling.getSaksnummer().getVerdi(), DefaultJsonMapper.toJson(hendelse));
         LOG.info("Publiser behandlingshendelse på kafka for behandlingsId: {}", behandling.getId());
     }
 
-    public static ProsessTaskData prosessTask(Long fagsakId, Long behandlingsId, AktørId aktørId, HendelseForBehandling hendelse) {
+    public static ProsessTaskData prosessTask(Saksnummer saksnummer, Long fagsakId, Long behandlingsId, HendelseForBehandling hendelse) {
         var prosessTaskData = ProsessTaskData.forProsessTask(PubliserBehandlingHendelseTask.class);
-        prosessTaskData.setBehandling(fagsakId, behandlingsId, aktørId.getId());
+        prosessTaskData.setBehandling(saksnummer.getVerdi(), fagsakId, behandlingsId);
         prosessTaskData.setProperty(PubliserBehandlingHendelseTask.HENDELSE_TYPE, hendelse.name());
         prosessTaskData.setCallIdFraEksisterende();
         return prosessTaskData;

@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.produksjonsstyring.fagsakstatus.OppdaterFagsakStatusTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.OppdaterPersonoversiktTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -125,8 +124,7 @@ class BehandlingHendelseHåndtererTest {
     private void verifiserProsessTaskData(ScenarioMorSøkerEngangsstønad scenario, ProsessTaskData prosessTaskData,
                                           BehandlingStatus expectedStatus, BehandlingType expectedType) {
         assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(OppdaterPersonoversiktTask.class));
-        assertThat(new AktørId(prosessTaskData.getAktørId()))
-                .isEqualTo(scenario.getFagsak().getNavBruker().getAktørId());
+        assertThat(prosessTaskData.getFagsakId()).isEqualTo(scenario.getFagsak().getId());
         assertThat(prosessTaskData.getBehandlingId()).isNull();
         assertThat(prosessTaskData.getPropertyValue(OppdaterPersonoversiktTask.PH_REF_KEY)).contains(Fagsystem.FPSAK.getOffisiellKode() + "_T");
         assertThat(prosessTaskData.getPropertyValue(OppdaterPersonoversiktTask.PH_STATUS_KEY)).isEqualTo(expectedStatus.getKode());

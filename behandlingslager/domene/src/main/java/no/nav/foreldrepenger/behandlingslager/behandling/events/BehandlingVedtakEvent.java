@@ -4,7 +4,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
-import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public record BehandlingVedtakEvent(BehandlingVedtak vedtak, Behandling behandling) implements BehandlingEvent {
 
@@ -14,8 +14,8 @@ public record BehandlingVedtakEvent(BehandlingVedtak vedtak, Behandling behandli
     }
 
     @Override
-    public AktørId getAktørId() {
-        return behandling.getAktørId();
+    public Saksnummer getSaksnummer() {
+        return behandling.getSaksnummer();
     }
 
     @Override

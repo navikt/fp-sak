@@ -98,7 +98,7 @@ public class KobleSakerTjeneste {
         // Håndter utfall
         if (aktuelleFagsaker.isEmpty()) {
             if (!RelasjonsRolleType.erMor(behandling.getFagsak().getRelasjonsRolleType())) {
-                LOG.info("KobleSak: Finner ikke sak å koble med for ikke-mor i sak {} rolle {}", behandling.getFagsak().getSaksnummer(),
+                LOG.info("KobleSak: Finner ikke sak å koble med for ikke-mor i sak {} rolle {}", behandling.getSaksnummer(),
                     behandling.getFagsak().getRelasjonsRolleType().getKode());
             }
             return Optional.empty();

@@ -55,7 +55,7 @@ class ForeslåBeregningsgrunnlagStegTest {
 
         steg = new ForeslåBeregningsgrunnlagSteg(behandlingRepository, beregningsgrunnlagKopierOgLagreTjeneste, beregningTjeneste);
 
-        iayTjeneste.lagreInntektsmeldinger(behandling.getFagsak().getSaksnummer(), behandling.getId(), List.of());
+        iayTjeneste.lagreInntektsmeldinger(behandling.getSaksnummer(), behandling.getId(), List.of());
     }
 
     @Test

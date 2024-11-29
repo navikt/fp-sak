@@ -27,7 +27,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @ExtendWith(MockitoExtension.class)
 class LukkForespørselObserverTest {
@@ -62,12 +61,11 @@ class LukkForespørselObserverTest {
     }
     @Test
     void observer_behandling_avsluttet_event_skal_sette_forespørsel_utgått() {
-        var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
 
         var behandlingsres = new Behandlingsresultat.Builder().medBehandlingResultatType(BehandlingResultatType.MERGET_OG_HENLAGT).build();
-        BehandlingStatusEvent.BehandlingAvsluttetEvent event = BehandlingStatusEvent.nyEvent(byggKontekst(behandling, fagsak, aktørId), BehandlingStatus.AVSLUTTET);
+        BehandlingStatusEvent.BehandlingAvsluttetEvent event = BehandlingStatusEvent.nyEvent(byggKontekst(behandling, fagsak), BehandlingStatus.AVSLUTTET);
 
         behandling.setBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
@@ -80,12 +78,11 @@ class LukkForespørselObserverTest {
 
     @Test
     void observer_behandling_avsluttet_event_skal_ikke_sette_forespørsel_utgått() {
-        var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
 
         var behandlingsres = new Behandlingsresultat.Builder().medBehandlingResultatType(BehandlingResultatType.MERGET_OG_HENLAGT).build();
-        BehandlingStatusEvent.BehandlingAvsluttetEvent event = BehandlingStatusEvent.nyEvent(byggKontekst(behandling, fagsak, aktørId), BehandlingStatus.AVSLUTTET);
+        BehandlingStatusEvent.BehandlingAvsluttetEvent event = BehandlingStatusEvent.nyEvent(byggKontekst(behandling, fagsak), BehandlingStatus.AVSLUTTET);
 
         behandling.setBehandlingType(BehandlingType.REVURDERING);
         when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
@@ -96,9 +93,9 @@ class LukkForespørselObserverTest {
         verify(fpInntektsmeldingTjeneste, times(0)).lagLukkForespørselTask(behandling, null, ForespørselStatus.UTGÅTT);
     }
 
-    private BehandlingskontrollKontekst byggKontekst(Behandling behandling, Fagsak fagsak, AktørId aktørId) {
+    private BehandlingskontrollKontekst byggKontekst(Behandling behandling, Fagsak fagsak) {
         var behandlingLås = new BehandlingLås(behandling.getId()) {
         };
-        return new BehandlingskontrollKontekst(fagsak.getId(), aktørId, behandlingLås);
+        return new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), behandlingLås);
     }
 }

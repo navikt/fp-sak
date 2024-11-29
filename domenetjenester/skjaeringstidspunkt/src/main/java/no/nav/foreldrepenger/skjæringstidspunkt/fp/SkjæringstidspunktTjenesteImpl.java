@@ -138,7 +138,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
                 .build();
         } else {
             Optional<LocalDate> morsMaksdato = UtsettelseCore2021.kreverSammenhengendeUttak(familieHendelseGrunnlag.orElse(null)) ?
-                ytelseMaksdatoTjeneste.beregnMorsMaksdato(behandling.getFagsak().getSaksnummer(), behandling.getFagsak().getRelasjonsRolleType())
+                ytelseMaksdatoTjeneste.beregnMorsMaksdato(behandling.getSaksnummer(), behandling.getFagsak().getRelasjonsRolleType())
                     .filter(UtsettelseCore2021::kreverSammenhengendeUttakMorsMaxdato) : Optional.empty();
             var utledetSkjæringstidspunkt = SkjæringstidspunktUtils.utledSkjæringstidspunktFraBehandling(behandling, førsteUttaksdato,
                 familieHendelseGrunnlag, morsMaksdato, utenMinsterett);

@@ -169,7 +169,7 @@ public class OppgaveTjeneste {
                                                                        AktørId arbeidsgiverAktørId) {
 
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var saksnummer = behandling.getFagsak().getSaksnummer();
+        var saksnummer = behandling.getSaksnummer();
         var arbeidsgiverIdent = hentPersonInfo(arbeidsgiverAktørId).getIdent();
 
         var beskrivelse = String.format(

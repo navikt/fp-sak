@@ -78,7 +78,7 @@ public class BehandlingDtoForBackendTjeneste {
 
         var uuidDto = new UuidDto(behandling.getUuid());
 
-        dto.leggTil(get(FagsakRestTjeneste.FAGSAK_PATH, "fagsak", new SaksnummerDto(behandling.getFagsak().getSaksnummer())));
+        dto.leggTil(get(FagsakRestTjeneste.FAGSAK_PATH, "fagsak", new SaksnummerDto(behandling.getSaksnummer())));
         dto.leggTil(get(PersonRestTjeneste.VERGE_BACKEND_PATH, "verge-backend", uuidDto));
         dto.leggTil(get(PersonRestTjeneste.PERSONOPPLYSNINGER_TILBAKE_PATH, "personopplysninger-tilbake", uuidDto));
         dto.leggTil(get(SøknadRestTjeneste.SOKNAD_BACKEND_PATH, "soknad-backend", uuidDto));

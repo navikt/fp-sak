@@ -141,9 +141,8 @@ public class InformasjonssakRepository {
      * og ingen av foreldrene har foreldrepengesak på et senere barn.
      */
     private static final String QUERY_INFORMASJONSBREV_PÅMINNELSE = """
-        select distinct f_far.id as fagsak_id, a.aktoer_id, b_far.behandlende_enhet
+        select distinct f_far.id as fagsak_id, f_far.saksnummer
           from fagsak f_far
-          join bruker a on a.id = f_far.bruker_id
           join fagsak_relasjon fr_far on (f_far.id in (fr_far.fagsak_en_id, fr_far.fagsak_to_id) and fr_far.aktiv='J')
           join stoenadskonto sk on sk.stoenadskontoberegning_id = nvl(fr_far.overstyrt_konto_beregning_id, fr_far.konto_beregning_id)
           join behandling b_far on b_far.fagsak_id = f_far.id
@@ -182,7 +181,7 @@ public class InformasjonssakRepository {
           and not exists (select * from fagsak f_far_2 where f_far_2.ytelse_type = :foreldrepenger and f_far_2.bruker_id = f_far.bruker_id and f_far_2.id != f_far.id and f_far_2.opprettet_tid > f_far.opprettet_tid)
         """;
 
-    public List<InformasjonssakData> finnSakerDerMedforelderIkkeHarSøktOgBarnetBleFødtInnenforIntervall(LocalDate fom, LocalDate tom) {
+    public List<InformasjonPåminnelseData> finnSakerDerMedforelderIkkeHarSøktOgBarnetBleFødtInnenforIntervall(LocalDate fom, LocalDate tom) {
         var avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode)
             .toList();
         var query = entityManager.createNativeQuery(QUERY_INFORMASJONSBREV_PÅMINNELSE);
@@ -197,16 +196,10 @@ public class InformasjonssakRepository {
         return toPåminnelseData(resultatList);
     }
 
-    private List<InformasjonssakData> toPåminnelseData(List<Object[]> resultatList) {
-        List<InformasjonssakData> returnList = new ArrayList<>();
-        resultatList.forEach(resultat -> {
-            var builder = InformasjonssakData.InformasjonssakDataBuilder
-                .ny(Long.parseLong(resultat[0].toString()))
-                .medAktørIdAnnenPart((String) resultat[1])
-                .medEnhet((String) resultat[2]);
-            returnList.add(builder.build());
-        });
-        return returnList;
+    private List<InformasjonPåminnelseData> toPåminnelseData(List<Object[]> resultatList) {
+        return resultatList.stream()
+            .map(resultat -> new InformasjonPåminnelseData(new Saksnummer((String) resultat[1]), Long.parseLong(resultat[0].toString())))
+            .toList();
     }
 
     private static final String QUERY_AVSTEMMING_INTERVALL_SAK_MED_VEDTAK = """

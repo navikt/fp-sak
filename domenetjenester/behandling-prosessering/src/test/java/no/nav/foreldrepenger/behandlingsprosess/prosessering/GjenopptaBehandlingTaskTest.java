@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.GjenopptaBehandlingTask;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,7 +44,7 @@ class GjenopptaBehandlingTaskTest {
         when(mockBehandlingRepository.hentBehandling(any(Long.class))).thenReturn(behandling);
 
         var prosessTaskData = ProsessTaskData.forProsessTask(GjenopptaBehandlingTask.class);
-        prosessTaskData.setBehandling(0L, behandlingId, AktørId.dummy().getId());
+        prosessTaskData.setBehandling("123", 0L, behandlingId);
 
         task.doTask(prosessTaskData);
 

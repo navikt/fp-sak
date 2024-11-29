@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.fagsak;
 
-import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 /**
  * Marker interface for events fyrt på en Fagsak.
@@ -10,6 +10,6 @@ public interface FagsakEvent {
 
     Long getFagsakId();
 
-    AktørId getAktørId();
+    Saksnummer getSaksnummer();
 
 }

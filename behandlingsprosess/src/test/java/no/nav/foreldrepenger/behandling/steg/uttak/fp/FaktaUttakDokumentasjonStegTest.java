@@ -48,7 +48,7 @@ class FaktaUttakDokumentasjonStegTest {
         var behandling = scenario.lagre(repositoryProvider);
 
         var stegResultat = steg.utførSteg(
-            new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(), new BehandlingLås(behandling.getId())));
+            new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(), new BehandlingLås(behandling.getId())));
 
         assertThat(stegResultat.getAksjonspunktListe()).containsExactly(AksjonspunktDefinisjon.VURDER_UTTAK_DOKUMENTASJON);
 

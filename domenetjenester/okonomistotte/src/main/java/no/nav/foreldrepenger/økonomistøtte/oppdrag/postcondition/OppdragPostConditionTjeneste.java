@@ -75,7 +75,7 @@ public class OppdragPostConditionTjeneste {
             sammenlignEffektAvOppdragMedTilkjentYtelseOgLoggAvvik(behandling, beregningsresultat);
         } catch (Exception e) {
             LOG.warn("Teknisk feil ved sammenligning av effekt av oppdrag mot tilkjent ytelse for {} behandling {} . Dette bør undersøkes: {}",
-                behandling.getFagsak().getSaksnummer(), behandling.getId(), e.getMessage(), e);
+                behandling.getSaksnummer(), behandling.getId(), e.getMessage(), e);
         }
     }
 
@@ -83,7 +83,7 @@ public class OppdragPostConditionTjeneste {
         var resultat = sammenlignEffektAvOppdragMedTilkjentYtelse(behandling, beregningsresultat);
         var altOk = true;
         for (var entry : resultat.entrySet()) {
-            var feil = konverterTilFeil(behandling.getFagsak().getSaksnummer(), Long.toString(behandling.getId()), entry.getKey(), entry.getValue());
+            var feil = konverterTilFeil(behandling.getSaksnummer(), Long.toString(behandling.getId()), entry.getKey(), entry.getValue());
             if (feil != null) {
                 LOG.warn(feil.getMessage());
                 if ("FP-767898".equals(feil.getKode())) {
@@ -96,7 +96,7 @@ public class OppdragPostConditionTjeneste {
 
     private Map<Betalingsmottaker, TilkjentYtelseDifferanse> sammenlignEffektAvOppdragMedTilkjentYtelse(Behandling behandling,
                                                                                                         BehandlingBeregningsresultatEntitet beregningsresultat) {
-        var saksnummer = behandling.getFagsak().getSaksnummer();
+        var saksnummer = behandling.getSaksnummer();
         var oppdragene = økonomioppdragRepository.finnAlleOppdragForSak(saksnummer);
         var oppdragskjeder = EksisterendeOppdragMapper.tilKjeder(oppdragene);
         var målbilde = beregningsresultat == null ? GruppertYtelse.TOM :

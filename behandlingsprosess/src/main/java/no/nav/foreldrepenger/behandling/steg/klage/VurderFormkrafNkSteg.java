@@ -76,7 +76,7 @@ public class VurderFormkrafNkSteg implements BehandlingSteg {
                     KlageHjemmel.standardHjemmelForYtelse(behandling.getFagsakYtelseType()) : klageVurderingResultat.getKlageHjemmel();
 
                 var tilKabalTask = ProsessTaskData.forProsessTask(SendTilKabalTask.class);
-                tilKabalTask.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+                tilKabalTask.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
                 tilKabalTask.setCallIdFraEksisterende();
                 tilKabalTask.setProperty(SendTilKabalTask.HJEMMEL_KEY, klageHjemmel.getKode());
                 taskTjeneste.lagre(tilKabalTask);

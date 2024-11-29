@@ -54,7 +54,7 @@ public class PubliserVedtattYtelseHendelseTask implements ProsessTaskHandler {
             .flatMap(behandlingRepository::finnUnikBehandlingForBehandlingId)
             .ifPresent(b -> {
                 var payload = generatePayload(b);
-                producer.sendJson(b.getFagsak().getSaksnummer().getVerdi(), payload);
+                producer.sendJson(b.getSaksnummer().getVerdi(), payload);
             });
     }
 

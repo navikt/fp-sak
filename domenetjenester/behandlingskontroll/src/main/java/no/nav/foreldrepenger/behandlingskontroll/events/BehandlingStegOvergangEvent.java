@@ -9,7 +9,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 /**
  * Event publiseres av {@link BehandlingskontrollTjeneste} når en
@@ -50,8 +50,8 @@ public class BehandlingStegOvergangEvent implements BehandlingEvent {
     }
 
     @Override
-    public AktørId getAktørId() {
-        return kontekst.getAktørId();
+    public Saksnummer getSaksnummer() {
+        return kontekst.getSaksnummer();
     }
 
     @Override

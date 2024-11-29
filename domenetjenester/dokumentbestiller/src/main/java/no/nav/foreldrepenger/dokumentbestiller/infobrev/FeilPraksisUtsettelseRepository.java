@@ -170,7 +170,8 @@ public class FeilPraksisUtsettelseRepository {
      */
     private static final String QUERY_VENTEFRIST_DESEMBER = """
         select * from (
-          select distinct b.FAGSAK_ID, b.ID from fpsak.BEHANDLING b
+          select distinct b.FAGSAK_ID, b.ID, f.saksnummer from fpsak.BEHANDLING b
+                                               join fpsak.FAGSAK f on b.FAGSAK_ID = f.ID
                                                join fpsak.AKSJONSPUNKT a on a.BEHANDLING_ID = b.ID
                                                join fpsak.BEHANDLING_STEG_TILSTAND steg on steg.BEHANDLING_ID = b.ID
                                                join fpsak.BEHANDLING_ARSAK ba on ba.BEHANDLING_ID = b.ID
@@ -192,6 +193,6 @@ public class FeilPraksisUtsettelseRepository {
         return query.getResultList();
     }
 
-    public record BehandlingMedFagsakId(Long fagsakId, Long id) {
+    public record BehandlingMedFagsakId(Long fagsakId, Long id, String saksnummer) {
     }
 }

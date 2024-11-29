@@ -202,7 +202,7 @@ class TilbakehoppTest {
         var fraTilstand = new BehandlingStegTilstandSnapshot(1L, fra.steg(), getBehandlingStegStatus(fra));
         var tilTilstand = new BehandlingStegTilstandSnapshot(2L, til.steg(), getBehandlingStegStatus(til));
         var fagsak = behandling.getFagsak();
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingLås);
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), behandlingLås);
         var event = new BehandlingStegOvergangEvent.BehandlingStegTilbakeføringEvent(
                 kontekst,
                 fraTilstand, tilTilstand);
@@ -218,7 +218,7 @@ class TilbakehoppTest {
         var tilTilstand = new BehandlingStegTilstandSnapshot(2L, til.steg(), getBehandlingStegStatus(til));
 
         var fagsak = behandling.getFagsak();
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingLås);
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), behandlingLås);
         var event = new BehandlingStegOvergangEvent.BehandlingStegTilbakeføringEvent(
                 kontekst,
                 fraTilstand, tilTilstand);

@@ -6,7 +6,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 /**
  * Event som fyres når Behandlingskontroll STARTER å prosessere en behandling,
@@ -30,13 +30,13 @@ public abstract class BehandlingskontrollEvent implements BehandlingEvent {
     }
 
     @Override
-    public AktørId getAktørId() {
-        return kontekst.getAktørId();
+    public Long getFagsakId() {
+        return kontekst.getFagsakId();
     }
 
     @Override
-    public Long getFagsakId() {
-        return kontekst.getFagsakId();
+    public Saksnummer getSaksnummer() {
+        return kontekst.getSaksnummer();
     }
 
     @Override

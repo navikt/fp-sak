@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.Kompletthetskontroller;
 import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
@@ -106,7 +107,7 @@ public class HåndterOpphørAvYtelser {
 
     private void opprettVurderKonsekvens(Behandling behandling, String beskrivelse) {
         var enhet = utledEnhetFraBehandling(behandling);
-        opprettTaskForÅVurdereKonsekvens(behandling.getFagsakId(), enhet.enhetId(), beskrivelse);
+        opprettTaskForÅVurdereKonsekvens(behandling.getSaksnummer(), behandling.getFagsakId(), enhet.enhetId(), beskrivelse);
     }
 
     private Behandling opprettRevurdering(Fagsak sakRevurdering, BehandlingÅrsakType behandlingÅrsakType, OrganisasjonsEnhet enhet, boolean skalKøes) {
@@ -125,12 +126,12 @@ public class HåndterOpphørAvYtelser {
         return FagsakYtelseType.SVANGERSKAPSPENGER.equals(fagsak.getYtelseType()) ? revurderingTjenesteSVP : revurderingTjenesteFP;
     }
 
-    private void opprettTaskForÅVurdereKonsekvens(Long fagsakId, String behandlendeEnhetsId, String oppgaveBeskrivelse) {
+    private void opprettTaskForÅVurdereKonsekvens(Saksnummer saksnummer, Long fagsakId, String behandlendeEnhetsId, String oppgaveBeskrivelse) {
         var prosessTaskData = ProsessTaskData.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class);
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BEHANDLENDE_ENHET, behandlendeEnhetsId);
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE, oppgaveBeskrivelse);
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_PRIORITET, OpprettOppgaveVurderKonsekvensTask.PRIORITET_HØY);
-        prosessTaskData.setFagsakId(fagsakId);
+        prosessTaskData.setFagsak(saksnummer.getVerdi(), fagsakId);
         prosessTaskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(prosessTaskData);
     }

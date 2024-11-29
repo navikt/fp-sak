@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.SatsReguleringRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
-import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -59,7 +59,7 @@ public class EngangsstønadFinnSakerTask implements ProsessTaskHandler {
         var kandidater = satsReguleringRepository.finnSakerMedBehovForEngangsstønadRegulering(esFomDato);
 
         if (revurder) {
-            kandidater.forEach(sak -> opprettReguleringTask(sak.fagsakId(), sak.aktørId(), callIdRoot));
+            kandidater.forEach(sak -> opprettReguleringTask(sak.fagsakId(), sak.saksnummer(), callIdRoot));
         }
         LOG.info("ESregulering finner {} saker til vurdering", kandidater.size());
     }
@@ -74,9 +74,9 @@ public class EngangsstønadFinnSakerTask implements ProsessTaskHandler {
         return gjeldende.getPeriode().getFomDato();
     }
 
-    private void opprettReguleringTask(Long fagsakId, AktørId aktørId, String callId) {
+    private void opprettReguleringTask(Long fagsakId, Saksnummer saksnummer, String callId) {
         var prosessTaskData = ProsessTaskData.forProsessTask(EngangsstønadReguleringTask.class);
-        prosessTaskData.setFagsak(fagsakId, aktørId.getId());
+        prosessTaskData.setFagsak(saksnummer.getVerdi(), fagsakId);
         prosessTaskData.setCallId(callId + fagsakId);
         taskTjeneste.lagre(prosessTaskData);
     }

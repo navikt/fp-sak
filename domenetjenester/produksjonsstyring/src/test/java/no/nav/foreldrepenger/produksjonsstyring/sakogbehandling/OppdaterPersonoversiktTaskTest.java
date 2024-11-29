@@ -53,7 +53,7 @@ class OppdaterPersonoversiktTaskTest {
         var behandling = scenario.lagMocked();
         var fagsak = behandling.getFagsak();
         var task = ProsessTaskData.forProsessTask(OppdaterPersonoversiktTask.class);
-        task.setBehandling(fagsak.getId(), behandling.getId(), fagsak.getAktørId().getId());
+        task.setBehandling(fagsak.getSaksnummer().getVerdi(), fagsak.getId(), behandling.getId());
         task.setProperty(OppdaterPersonoversiktTask.PH_REF_KEY, Fagsystem.FPSAK.getOffisiellKode() + "_" + behandling.getId());
         task.setProperty(OppdaterPersonoversiktTask.PH_STATUS_KEY, behandling.getStatus().getKode());
         task.setProperty(OppdaterPersonoversiktTask.PH_TID_KEY, LocalDateTime.now().toString());
@@ -92,7 +92,7 @@ class OppdaterPersonoversiktTaskTest {
         behandling = repositoryProvider.getBehandlingRepository().hentBehandling(behandling.getId());
         var fagsak =behandling.getFagsak();
         var task = ProsessTaskData.forProsessTask(OppdaterPersonoversiktTask.class);
-        task.setBehandling(fagsak.getId(), behandling.getId(), fagsak.getAktørId().getId());
+        task.setBehandling(fagsak.getSaksnummer().getVerdi(), fagsak.getId(), behandling.getId());
         task.setProperty(OppdaterPersonoversiktTask.PH_REF_KEY, Fagsystem.FPSAK.getOffisiellKode() + "_" + behandling.getId());
         task.setProperty(OppdaterPersonoversiktTask.PH_STATUS_KEY, behandling.getStatus().getKode());
         task.setProperty(OppdaterPersonoversiktTask.PH_TID_KEY, LocalDateTime.now().toString());
@@ -132,7 +132,7 @@ class OppdaterPersonoversiktTaskTest {
         var fagsak =behandling.getFagsak();
         var task = ProsessTaskData.forProsessTask(OppdaterPersonoversiktTask.class);
         var tbkUUID = UUID.randomUUID();
-        task.setFagsak(fagsak.getId(), fagsak.getAktørId().getId());
+        task.setFagsak(fagsak.getSaksnummer().getVerdi(), fagsak.getId());
         task.setProperty(OppdaterPersonoversiktTask.PH_REF_KEY, Fagsystem.FPSAK.getOffisiellKode() + "_T" + tbkUUID);
         task.setProperty(OppdaterPersonoversiktTask.PH_STATUS_KEY, BehandlingStatus.OPPRETTET.getKode());
         task.setProperty(OppdaterPersonoversiktTask.PH_TID_KEY, LocalDateTime.now().toString());
@@ -172,7 +172,7 @@ class OppdaterPersonoversiktTaskTest {
         var fagsak =behandling.getFagsak();
         var task = ProsessTaskData.forProsessTask(OppdaterPersonoversiktTask.class);
         var tbkUUID = UUID.randomUUID();
-        task.setFagsak(fagsak.getId(), fagsak.getAktørId().getId());
+        task.setFagsak(fagsak.getSaksnummer().getVerdi(), fagsak.getId());
         task.setProperty(OppdaterPersonoversiktTask.PH_REF_KEY, Fagsystem.FPSAK.getOffisiellKode() + "_T" + tbkUUID);
         task.setProperty(OppdaterPersonoversiktTask.PH_STATUS_KEY, BehandlingStatus.AVSLUTTET.getKode());
         task.setProperty(OppdaterPersonoversiktTask.PH_TID_KEY, LocalDateTime.now().toString());

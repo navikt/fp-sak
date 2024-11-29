@@ -100,7 +100,7 @@ class BehandlingDvhMapperTest {
         assertThat(dvh.getBehandlingType()).isEqualTo(BehandlingType.FØRSTEGANGSSØKNAD.getKode());
         assertThat(dvh.getEndretAv()).isEqualTo("OpprettetAv");
         assertThat(dvh.getFagsakId()).isEqualTo(behandling.getFagsakId());
-        assertThat(dvh.getSaksnummer()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        assertThat(dvh.getSaksnummer()).isEqualTo(behandling.getSaksnummer().getVerdi());
         assertThat(dvh.getAktørId()).isEqualTo(behandling.getAktørId().getId());
         assertThat(dvh.getYtelseType()).isEqualTo(behandling.getFagsakYtelseType().getKode());
         assertThat(dvh.getFunksjonellTid()).isCloseTo(LocalDateTime.now(), within(5, ChronoUnit.SECONDS));

@@ -17,7 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
@@ -83,9 +82,7 @@ class BrevmalTjenesteTest {
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.FORELDREPENGER);
         when(behandling.getType()).thenReturn(BehandlingType.REVURDERING);
         when(behandling.erManueltOpprettet()).thenReturn(true);
-        var fag = mock(Fagsak.class);
-        when(fag.getSaksnummer()).thenReturn(new Saksnummer("123"));
-        when(behandling.getFagsak()).thenReturn(fag);
+        when(behandling.getSaksnummer()).thenReturn(new Saksnummer("123"));
         var brevmalDtos = brevmalTjeneste.hentBrevmalerFor(behandling);
 
         assertThat(brevmalDtos.stream().map(BrevmalDto::kode).toList()).containsExactlyInAnyOrder(DokumentMalType.VARSEL_OM_REVURDERING.getKode(),
@@ -103,9 +100,7 @@ class BrevmalTjenesteTest {
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.FORELDREPENGER);
         when(behandling.getType()).thenReturn(BehandlingType.REVURDERING);
         when(behandling.erManueltOpprettet()).thenReturn(true);
-        var fag = mock(Fagsak.class);
-        when(fag.getSaksnummer()).thenReturn(new Saksnummer("123"));
-        when(behandling.getFagsak()).thenReturn(fag);
+        when(behandling.getSaksnummer()).thenReturn(new Saksnummer("123"));
         var brevmalDtos = brevmalTjeneste.hentBrevmalerFor(behandling);
 
         assertThat(brevmalDtos.stream().map(BrevmalDto::kode).toList()).containsExactlyInAnyOrder(DokumentMalType.VARSEL_OM_REVURDERING.getKode(),
@@ -128,9 +123,7 @@ class BrevmalTjenesteTest {
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.FORELDREPENGER);
         when(behandling.getType()).thenReturn(BehandlingType.REVURDERING);
         when(behandling.erManueltOpprettet()).thenReturn(true);
-        var fag = mock(Fagsak.class);
-        when(fag.getSaksnummer()).thenReturn(new Saksnummer("123"));
-        when(behandling.getFagsak()).thenReturn(fag);
+        when(behandling.getSaksnummer()).thenReturn(new Saksnummer("123"));
         var brevmalDtos = brevmalTjeneste.hentBrevmalerFor(behandling);
 
         assertThat(brevmalDtos.stream().map(BrevmalDto::kode).toList()).containsExactlyInAnyOrder(DokumentMalType.VARSEL_OM_REVURDERING.getKode(),
@@ -150,9 +143,7 @@ class BrevmalTjenesteTest {
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.FORELDREPENGER);
         when(behandling.getType()).thenReturn(BehandlingType.REVURDERING);
         when(behandling.erManueltOpprettet()).thenReturn(true);
-        var fag = mock(Fagsak.class);
-        when(fag.getSaksnummer()).thenReturn(new Saksnummer("123"));
-        when(behandling.getFagsak()).thenReturn(fag);
+        when(behandling.getSaksnummer()).thenReturn(new Saksnummer("123"));
         when(dokumentBehandlingTjeneste.erDokumentBestilt(anyLong(), eq(DokumentMalType.VARSEL_OM_REVURDERING))).thenReturn(true);
 
         var brevmalDtos = brevmalTjeneste.hentBrevmalerFor(behandling);
@@ -224,9 +215,7 @@ class BrevmalTjenesteTest {
         var behandling = mock(Behandling.class);
         when(behandling.getFagsakYtelseType()).thenReturn(foreldrepenger);
         when(behandling.getType()).thenReturn(BehandlingType.FØRSTEGANGSSØKNAD);
-        var fag = mock(Fagsak.class);
-        when(fag.getSaksnummer()).thenReturn(new Saksnummer("123"));
-        when(behandling.getFagsak()).thenReturn(fag);
+        when(behandling.getSaksnummer()).thenReturn(new Saksnummer("123"));
         return behandling;
     }
 }

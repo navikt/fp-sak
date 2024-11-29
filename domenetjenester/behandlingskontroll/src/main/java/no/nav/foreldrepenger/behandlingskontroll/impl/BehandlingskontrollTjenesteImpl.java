@@ -250,7 +250,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
         var lås = serviceProvider.taLås(behandlingId);
         // så les
         var behandling = serviceProvider.hentBehandling(behandlingId);
-        return new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(), lås);
+        return new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(), lås);
     }
 
     @Override
@@ -260,7 +260,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
         var lås = serviceProvider.taLås(behandlingUuid);
         // så les
         var behandling = serviceProvider.hentBehandling(behandlingUuid);
-        return new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(), lås);
+        return new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(), lås);
     }
 
     @Override
@@ -270,7 +270,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
         var lås = serviceProvider.taLås(behandling.getId());
 
         // så les
-        return new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(), lås);
+        return new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(), lås);
     }
 
     void aksjonspunkterEndretStatus(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType,
@@ -693,7 +693,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
         // Oppdater behandling og lagre
         InternalManipulerBehandling.forceOppdaterBehandlingSteg(behandling, revidertStegType, behandlingStegStatus, sluttStatusForAndreÅpneSteg);
         var skriveLås = behandlingRepository.taSkriveLås(behandling);
-        var kontekst = new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(), skriveLås);
+        var kontekst = new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(), skriveLås);
         behandlingRepository.lagre(behandling, skriveLås);
 
         // Publiser oppdatering

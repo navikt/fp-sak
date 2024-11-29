@@ -66,7 +66,7 @@ public class TilbakeførTilDekningsgradStegTask extends FagsakProsessTask {
             .map(YtelseFordelingAggregat::getGjeldendeDekningsgrad);
         if (fagsakrelDekningsgrad.isEmpty() || behandlingDekningsgrad.isEmpty()) {
             LOG.warn("Burde ikke ha opprettet task på sak {}. Fagsakrel dekningsgrad eller yfa dekningsgrad er {} {}.",
-                behandling.getFagsak().getSaksnummer(), fagsakrelDekningsgrad, behandlingDekningsgrad);
+                behandling.getSaksnummer(), fagsakrelDekningsgrad, behandlingDekningsgrad);
             return;
         }
         if (fagsakrelDekningsgrad.get().equals(behandlingDekningsgrad.get())) {

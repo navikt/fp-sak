@@ -120,7 +120,7 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
             if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
                 kobleSakTjeneste.opprettFagsakRelasjon(behandling.getFagsak());
             } else {
-                throw new IllegalStateException("Utviklerfeil: Foreldrepenger revurdering uten relasjon, sak " + behandling.getFagsak().getSaksnummer().getVerdi());
+                throw new IllegalStateException("Utviklerfeil: Foreldrepenger revurdering uten relasjon, sak " + behandling.getSaksnummer().getVerdi());
             }
         } else { // Finnes fagsakrelasjon. Skal ikke endre denne dersom det finnes vedtak. Dersom finnes og det ikke er vedtak - lagre ny (uten DG)
             var harVedtak = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId()).isPresent();

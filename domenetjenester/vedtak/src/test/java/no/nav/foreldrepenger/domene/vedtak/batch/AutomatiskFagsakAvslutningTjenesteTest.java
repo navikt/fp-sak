@@ -16,7 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
@@ -64,9 +64,8 @@ class AutomatiskFagsakAvslutningTjenesteTest {
 
     private Fagsak lagFagsak() {
         var fagsak = mock(Fagsak.class);
-        var aktørId = mock(AktørId.class);
-        when(aktørId.getId()).thenReturn("1");
-        when(fagsak.getAktørId()).thenReturn(aktørId);
+        var saksnummer = new Saksnummer("9999");
+        when(fagsak.getSaksnummer()).thenReturn(saksnummer);
 
         return fagsak;
     }

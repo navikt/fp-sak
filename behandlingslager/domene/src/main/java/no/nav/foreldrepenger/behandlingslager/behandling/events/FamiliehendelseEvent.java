@@ -4,23 +4,23 @@ import java.time.LocalDate;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class FamiliehendelseEvent  implements BehandlingEvent {
 
     private EventType eventType;
     private Long fagsakId;
     private Long behandlingId;
-    private AktørId aktørId;
+    private Saksnummer saksnummer;
     private FagsakYtelseType ytelseType;
     private LocalDate forrigeBekreftetDato;
     private LocalDate sisteBekreftetDato;
 
 
-    public FamiliehendelseEvent(EventType eventType, AktørId aktørId, Long fagsakId, Long behandlingId,
+    public FamiliehendelseEvent(EventType eventType, Saksnummer saksnummer, Long fagsakId, Long behandlingId,
                                 FagsakYtelseType ytelseType, LocalDate forrigeBekreftetDato, LocalDate sisteBekreftetDato) {
         this.eventType = eventType;
-        this.aktørId = aktørId;
+        this.saksnummer = saksnummer;
         this.fagsakId = fagsakId;
         this.behandlingId = behandlingId;
         this.ytelseType = ytelseType;
@@ -36,8 +36,8 @@ public class FamiliehendelseEvent  implements BehandlingEvent {
 
 
     @Override
-    public AktørId getAktørId() {
-        return aktørId;
+    public Saksnummer getSaksnummer() {
+        return saksnummer;
     }
 
 

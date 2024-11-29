@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.events;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
-import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public record MottattDokumentPersistertEvent(MottattDokument mottattDokument, Behandling behandling) implements BehandlingEvent {
 
@@ -13,8 +13,8 @@ public record MottattDokumentPersistertEvent(MottattDokument mottattDokument, Be
     }
 
     @Override
-    public AktørId getAktørId() {
-        return behandling.getAktørId();
+    public Saksnummer getSaksnummer() {
+        return behandling.getSaksnummer();
     }
 
     @Override

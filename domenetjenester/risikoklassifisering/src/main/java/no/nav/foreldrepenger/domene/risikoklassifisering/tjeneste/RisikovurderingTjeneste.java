@@ -73,7 +73,7 @@ public class RisikovurderingTjeneste {
             if (callId == null || callId.isBlank())
                 callId = MDCOperations.generateCallId();
             var taskData = ProsessTaskData.forProsessTask(RisikoklassifiseringUtførTask.class);
-            taskData.setBehandling(referanse.fagsakId(), referanse.behandlingId(), referanse.aktørId().getId());
+            taskData.setBehandling(referanse.saksnummer().getVerdi(), referanse.fagsakId(), referanse.behandlingId());
             taskData.setCallId(callId);
             prosessTaskTjeneste.lagre(taskData);
         }

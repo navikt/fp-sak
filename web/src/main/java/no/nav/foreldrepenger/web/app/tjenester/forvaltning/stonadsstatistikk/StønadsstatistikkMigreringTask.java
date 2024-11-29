@@ -121,7 +121,7 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
     }
 
     private StønadsstatistikkVedtak lagDto(Behandling behandling, BehandlingVedtak vedtak) {
-        LOG.info("Produserer stønadsstatistikk for sak {} behandling {} vedtak {} fattet {}", behandling.getFagsak().getSaksnummer().getVerdi(), behandling.getId(),
+        LOG.info("Produserer stønadsstatistikk for sak {} behandling {} vedtak {} fattet {}", behandling.getSaksnummer().getVerdi(), behandling.getId(),
             vedtak.getId(), vedtak.getOpprettetTidspunkt());
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         var generertVedtak = stønadsstatistikkTjeneste.genererVedtak(BehandlingReferanse.fra(behandling), stp);

@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 
@@ -52,9 +51,7 @@ class AksjonspunktUtlederForForeldrepengerAdopsjonTest {
 
     @Test
     void skal_utlede_aksjonspunkt_basert_på_fakta_om_fp_til_mor() {
-        var fagsakMock = mock(Fagsak.class);
         var behandlingMock = mock(Behandling.class);
-        when(behandlingMock.getFagsak()).thenReturn(fagsakMock);
 
         var aksjonspunkter = aksjonspunktForFakta(behandlingMock);
 
@@ -65,9 +62,7 @@ class AksjonspunktUtlederForForeldrepengerAdopsjonTest {
 
     @Test
     void skal_utlede_aksjonspunkt_basert_på_fakta_om_fp_til_far() {
-        var fagsakMock = mock(Fagsak.class);
         var behandlingMock = mock(Behandling.class);
-        when(behandlingMock.getFagsak()).thenReturn(fagsakMock);
         var aksjonspunkter = aksjonspunktForFakta(behandlingMock);
 
         assertThat(aksjonspunkter).hasSize(2);
@@ -77,9 +72,7 @@ class AksjonspunktUtlederForForeldrepengerAdopsjonTest {
 
     @Test
     void skal_utlede_aksjonspunkt_basert_på_fakta_om_fp_til_medmor() {
-        var fagsakMock = mock(Fagsak.class);
         var behandlingMock = mock(Behandling.class);
-        when(behandlingMock.getFagsak()).thenReturn(fagsakMock);
         var aksjonspunkter = aksjonspunktForFakta(behandlingMock);
 
         assertThat(aksjonspunkter).hasSize(2);
