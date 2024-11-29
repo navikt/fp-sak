@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.fpinntektsmelding;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -8,11 +9,12 @@ import jakarta.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public record OpprettForespørselRequest(@NotNull @Valid AktørIdDto aktørId,
-                                        @NotNull @Valid OrganisasjonsnummerDto orgnummer,
+                                        @Valid OrganisasjonsnummerDto orgnummer,
                                         @NotNull LocalDate skjæringstidspunkt,
                                         @NotNull YtelseType ytelsetype,
                                         @NotNull @Valid SaksnummerDto fagsakSaksnummer,
-                                        @Valid LocalDate førsteUttaksdato) {
+                                        @Valid LocalDate førsteUttaksdato,
+                                        @Valid List<OrganisasjonsnummerDto> organisasjonsnumre) {
     protected record AktørIdDto(@NotNull @JsonValue String id){
         @Override
         public String toString() {
