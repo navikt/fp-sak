@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynResultatType;
@@ -42,8 +41,6 @@ class InnsynTjenesteTest {
     @Inject
     private BehandlingsresultatRepository behandlingsresultatRepository;
     @Inject
-    private HistorikkRepository historikkRepository;
-    @Inject
     private BehandlingRepositoryProvider repositoryProvider;
     @Inject
     private FagsakRepository fagsakRepository;
@@ -60,7 +57,7 @@ class InnsynTjenesteTest {
     @BeforeEach
     public void oppsett() {
         when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(new OrganisasjonsEnhet("1234", ""));
-        var oppretter = new BehandlingOpprettingTjeneste(behandlingKontrollTjeneste, behandlendeEnhetTjeneste, historikkRepository,
+        var oppretter = new BehandlingOpprettingTjeneste(behandlingKontrollTjeneste, behandlendeEnhetTjeneste, repositoryProvider.getHistorikkinnslag2Repository(),
                 mock(ProsessTaskTjeneste.class));
         innsynTjeneste = new InnsynTjeneste(oppretter, fagsakRepository, behandlingRepository, behandlingsresultatRepository, innsynRepository);
     }
