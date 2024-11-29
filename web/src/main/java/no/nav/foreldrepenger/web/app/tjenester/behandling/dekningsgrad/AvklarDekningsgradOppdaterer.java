@@ -25,6 +25,6 @@ public class AvklarDekningsgradOppdaterer implements AksjonspunktOppdaterer<Avkl
 
     @Override
     public OppdateringResultat oppdater(AvklarDekningsgradDto dto, AksjonspunktOppdaterParameter param) {
-        return fellesTjeneste.oppdater(dto.getDekningsgrad(), param.getRef().fagsakId(), param.getBehandlingId(), dto.getBegrunnelse());
+        return fellesTjeneste.oppdater(dto.getDekningsgrad(), param.getFagsakId(), param.getBehandlingId(), dto.getBegrunnelse());
     }
 }
