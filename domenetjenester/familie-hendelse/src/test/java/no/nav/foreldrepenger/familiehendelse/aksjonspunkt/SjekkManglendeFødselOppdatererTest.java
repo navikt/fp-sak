@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
@@ -14,7 +13,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -25,10 +23,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOpplysningType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Tekstlinje;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
@@ -37,8 +33,6 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkManglendeFodselDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.UidentifisertBarnDto;
 import no.nav.foreldrepenger.familiehendelse.event.FamiliehendelseEventPubliserer;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
 
@@ -51,7 +45,6 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
     private final LocalDate now = LocalDate.now();
 
     private BehandlingRepositoryProvider repositoryProvider;
-    private HistorikkInnslagTekstBuilder tekstBuilder;
 
     @Mock
     private FamiliehendelseEventPubliserer familiehendelseEventPubliserer;
@@ -60,7 +53,6 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
     @BeforeEach
     public void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        tekstBuilder =  new HistorikkInnslagTekstBuilder();
         familieHendelseTjeneste = new FamilieHendelseTjeneste(familiehendelseEventPubliserer, repositoryProvider.getFamilieHendelseRepository());
 
     }
@@ -96,14 +88,12 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
 
-        new SjekkManglendeFødselOppdaterer(lagMockHistory(), mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste)
+        new SjekkManglendeFødselOppdaterer(mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste, repositoryProvider.getHistorikkinnslag2Repository())
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-        var historikkInnslagDeler = this.tekstBuilder.build(historikkinnslag);
+        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
 
         // Assert
-        assertFelt(historikkInnslagDeler.get(0), HistorikkEndretFeltType.BRUK_ANTALL_I_SOKNAD, null, true);
+        assertThat(historikkinnslag.getTekstlinjer().stream().map(Historikkinnslag2Tekstlinje::getTekst)).anyMatch(t -> t.contains("Bruk antall fra søknad"));
     }
 
     @Test
@@ -132,24 +122,15 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
         // Act
-        new SjekkManglendeFødselOppdaterer(lagMockHistory(), mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste)
+        new SjekkManglendeFødselOppdaterer(mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste, repositoryProvider.getHistorikkinnslag2Repository())
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-        var historikkInnslagDeler = this.tekstBuilder.build(historikkinnslag);
+        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
 
         // Assert
-        var del = historikkInnslagDeler.get(0);
-
-        assertFelt(del, HistorikkEndretFeltType.FODSELSDATO, TIME_FORMATTER.format(opprinneligFødseldato), TIME_FORMATTER.format(avklartFødseldato));
-        assertFelt(del, HistorikkEndretFeltType.ANTALL_BARN, opprinneligAntallBarn, avklartAntallBarn);
-        assertFelt(del, HistorikkEndretFeltType.FODSELSDATO, TIME_FORMATTER.format(opprinneligFødseldato), TIME_FORMATTER.format(avklartFødseldato));
-
-        var opplysningOpt = del.getOpplysning(HistorikkOpplysningType.ANTALL_BARN);
-        assertThat(opplysningOpt).as("opplysningOpt").hasValueSatisfying(opplysning -> {
-            assertThat(opplysning.getNavn()).isEqualTo(HistorikkOpplysningType.ANTALL_BARN.getKode());
-            assertThat(opplysning.getTilVerdi()).isEqualTo(Integer.toString(avklartAntallBarn));
-        });
+        assertThat(historikkinnslag.getTekstlinjer().stream().map(Historikkinnslag2Tekstlinje::getTekst))
+            .anyMatch(t -> t.contains("Fødselsdato") && t.contains(TIME_FORMATTER.format(opprinneligFødseldato)) && t.contains(TIME_FORMATTER.format(avklartFødseldato)))
+            .anyMatch(t -> t.contains("Antall barn") && t.contains(String.valueOf(avklartAntallBarn)))
+            .anyMatch(t -> t.contains(dto.getBegrunnelse()));
     }
 
     @Test
@@ -180,27 +161,20 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
         // Ulovlig dato
-        assertThrows(FunksjonellException.class, () -> new SjekkManglendeFødselOppdaterer(lagMockHistory(), mock(OpplysningsPeriodeTjeneste.class),
-            familieHendelseTjeneste)
+        assertThrows(FunksjonellException.class, () -> new SjekkManglendeFødselOppdaterer(mock(OpplysningsPeriodeTjeneste.class),
+            familieHendelseTjeneste, repositoryProvider.getHistorikkinnslag2Repository())
             .oppdater(dtoFeil, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dtoFeil, aksjonspunkt)));
 
         // Act
-        new SjekkManglendeFødselOppdaterer(lagMockHistory(), mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste)
+        new SjekkManglendeFødselOppdaterer(mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste, repositoryProvider.getHistorikkinnslag2Repository())
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-        var historikkInnslagDeler = this.tekstBuilder.build(historikkinnslag);
+        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
 
         // Assert
-        var del = historikkInnslagDeler.get(0);
-
-        assertFelt(del, HistorikkEndretFeltType.DODSDATO, null, TIME_FORMATTER.format(avklartDødsdato));
-
-        var opplysningOpt = del.getOpplysning(HistorikkOpplysningType.ANTALL_BARN);
-        assertThat(opplysningOpt).as("opplysningOpt").hasValueSatisfying(opplysning -> {
-            assertThat(opplysning.getNavn()).isEqualTo(HistorikkOpplysningType.ANTALL_BARN.getKode());
-            assertThat(opplysning.getTilVerdi()).isEqualTo(Integer.toString(avklartAntallBarn));
-        });
+        assertThat(historikkinnslag.getTekstlinjer().stream().map(Historikkinnslag2Tekstlinje::getTekst))
+            .anyMatch(t -> t.contains("Dødsdato") && t.contains(TIME_FORMATTER.format(avklartDødsdato)))
+            .anyMatch(t -> t.contains("Antall barn") && t.contains(String.valueOf(avklartAntallBarn)))
+            .anyMatch(t -> t.contains(dto.getBegrunnelse()));
     }
 
     @Test
@@ -223,7 +197,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
         // Act
-        new SjekkManglendeFødselOppdaterer(lagMockHistory(), mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste)
+        new SjekkManglendeFødselOppdaterer(mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste, repositoryProvider.getHistorikkinnslag2Repository())
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
 
         // Assert
@@ -252,7 +226,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
         // Act
-        var resultat = new SjekkManglendeFødselOppdaterer(lagMockHistory(), mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste)
+        var resultat = new SjekkManglendeFødselOppdaterer(mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste, repositoryProvider.getHistorikkinnslag2Repository())
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
 
         // Assert
@@ -285,7 +259,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
         // Act
-        var resultat = new SjekkManglendeFødselOppdaterer(lagMockHistory(), mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste)
+        var resultat = new SjekkManglendeFødselOppdaterer(mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste, repositoryProvider.getHistorikkinnslag2Repository())
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
 
         // Assert
@@ -295,8 +269,8 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         AksjonspunktTestSupport.fjernToTrinnsBehandlingKreves(aksjonspunkt);
 
         // Act
-        var oppdateringResultat = new SjekkManglendeFødselOppdaterer(lagMockHistory(), mock(OpplysningsPeriodeTjeneste.class),
-            familieHendelseTjeneste)
+        var oppdateringResultat = new SjekkManglendeFødselOppdaterer(mock(OpplysningsPeriodeTjeneste.class),
+            familieHendelseTjeneste, repositoryProvider.getHistorikkinnslag2Repository())
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
 
         // Assert
@@ -322,7 +296,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
         // Act
-        new SjekkManglendeFødselOppdaterer(lagMockHistory(), mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste)
+        new SjekkManglendeFødselOppdaterer(mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste, repositoryProvider.getHistorikkinnslag2Repository())
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
 
         // Assert
@@ -359,7 +333,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
         // Act
-        new SjekkManglendeFødselOppdaterer(lagMockHistory(), mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste)
+        new SjekkManglendeFødselOppdaterer(mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste, repositoryProvider.getHistorikkinnslag2Repository())
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
 
         // Assert
@@ -391,7 +365,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
             true, false, List.of(uidentifiserteBarn));
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
-        var oppdaterer = new SjekkManglendeFødselOppdaterer(lagMockHistory(), mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste);
+        var oppdaterer = new SjekkManglendeFødselOppdaterer(mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste, repositoryProvider.getHistorikkinnslag2Repository());
         var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt);
         assertThrows(KanIkkeUtledeGjeldendeFødselsdatoException.class, () -> oppdaterer.oppdater(dto, param));
     }
@@ -403,11 +377,5 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
             assertThat(felt.getFraVerdi()).as(historikkEndretFeltType + ".fraVerdi").isEqualTo(fraVerdi != null ? fraVerdi.toString() : null);
             assertThat(felt.getTilVerdi()).as(historikkEndretFeltType + ".tilVerdi").isEqualTo(tilVerdi != null ? tilVerdi.toString() : null);
         });
-    }
-
-    private HistorikkTjenesteAdapter lagMockHistory() {
-        var mockHistory = Mockito.mock(HistorikkTjenesteAdapter.class);
-        lenient().when(mockHistory.tekstBuilder()).thenReturn(tekstBuilder);
-        return mockHistory;
     }
 }
