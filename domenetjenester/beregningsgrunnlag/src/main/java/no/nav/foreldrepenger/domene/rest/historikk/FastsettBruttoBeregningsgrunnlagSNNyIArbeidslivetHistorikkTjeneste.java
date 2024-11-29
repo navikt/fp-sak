@@ -1,39 +1,47 @@
 package no.nav.foreldrepenger.domene.rest.historikk;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
 public class FastsettBruttoBeregningsgrunnlagSNNyIArbeidslivetHistorikkTjeneste {
 
-    private HistorikkTjenesteAdapter historikkAdapter;
+    private Historikkinnslag2Repository historikkinnslagRepository;
 
     FastsettBruttoBeregningsgrunnlagSNNyIArbeidslivetHistorikkTjeneste() {
         // CDI
     }
 
     @Inject
-    public FastsettBruttoBeregningsgrunnlagSNNyIArbeidslivetHistorikkTjeneste(HistorikkTjenesteAdapter historikkAdapter) {
-        this.historikkAdapter = historikkAdapter;
+    public FastsettBruttoBeregningsgrunnlagSNNyIArbeidslivetHistorikkTjeneste(Historikkinnslag2Repository historikkRepository) {
+        this.historikkinnslagRepository = historikkRepository;
     }
 
-    public void lagHistorikk(FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto dto,
-                             AksjonspunktOppdaterParameter param) {
-        oppdaterVedEndretVerdi(dto.getBruttoBeregningsgrunnlag());
-        historikkAdapter.tekstBuilder()
-            .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret())
-            .medSkjermlenke(SkjermlenkeType.BEREGNING_FORELDREPENGER);
-    }
+    public void lagHistorikk(FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto dto, AksjonspunktOppdaterParameter param) {
+        List<HistorikkinnslagTekstlinjeBuilder> tekstlinjeBuilderList = new ArrayList<>();
+        HistorikkinnslagTekstlinjeBuilder tekstlinjeBuilder = new HistorikkinnslagTekstlinjeBuilder();
+        tekstlinjeBuilderList.add(tekstlinjeBuilder.fraTil("Brutto næringsinntekt", null, dto.getBruttoBeregningsgrunnlag()));
+        tekstlinjeBuilderList.add(tekstlinjeBuilder.linjeskift());
+        tekstlinjeBuilderList.add(tekstlinjeBuilder.tekst(dto.getBegrunnelse()));
 
-    private void oppdaterVedEndretVerdi(Integer bruttoNæringsInntekt) {
-        historikkAdapter.tekstBuilder()
-            .medEndretFelt(HistorikkEndretFeltType.BRUTTO_NAERINGSINNTEKT, null, bruttoNæringsInntekt);
+        var historikkinnslag = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medBehandlingId(param.getBehandlingId())
+            .medFagsakId(param.getRef().fagsakId())
+            .medTittel(SkjermlenkeType.BEREGNING_FORELDREPENGER)
+            .medTekstlinjer(tekstlinjeBuilderList)
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
 }
