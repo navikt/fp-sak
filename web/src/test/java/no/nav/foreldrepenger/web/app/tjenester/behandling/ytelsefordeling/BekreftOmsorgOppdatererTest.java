@@ -10,9 +10,6 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
@@ -59,21 +56,13 @@ class BekreftOmsorgOppdatererTest extends EntityManagerAwareTest {
         dto.setOmsorg(oppdatertOmsorg);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
-        new BekreftOmsorgOppdaterer(behandlingRepositoryProvider, lagMockHistory(), ytelseFordelingTjeneste) {}
+        new BekreftOmsorgOppdaterer(lagMockHistory(), ytelseFordelingTjeneste, behandlingRepositoryProvider.getHistorikkinnslag2Repository())
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-        var historikkinnslagDeler = tekstBuilder.build(historikkinnslag);
 
-        // Assert
-        assertThat(historikkinnslagDeler).hasSize(1);
-        var del = historikkinnslagDeler.get(0);
-        var omsorgOpt = del.getEndretFelt(HistorikkEndretFeltType.OMSORG);
-        assertThat(omsorgOpt).hasValueSatisfying(omsorg -> {
-            assertThat(omsorg.getNavn()).isEqualTo(HistorikkEndretFeltType.OMSORG.getKode());
-            assertThat(omsorg.getFraVerdi()).isNull();
-            assertThat(omsorg.getTilVerdi()).isEqualTo("Søker har omsorg for barnet");
-        });
+        var historikkinnslag = behandlingRepositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
+        assertThat(historikkinnslag.getTekstlinjer()).hasSize(2);
+        assertThat(historikkinnslag.getTekstlinjer().getFirst().getTekst()).contains("Omsorg", "Søker har omsorg for barnet");
+        assertThat(historikkinnslag.getTekstlinjer().get(1).getTekst()).contains(dto.getBegrunnelse());
     }
 
     private HistorikkTjenesteAdapter lagMockHistory() {

@@ -176,7 +176,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private UttakResultatPerioderEntitet uttak;
     private Stønadskontoberegning stønadskontoberegning;
     private boolean manueltOpprettet;
-    private List<Historikkinnslag2> historikkinnslagListe = new ArrayList<>();
 
     protected AbstractTestScenario(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType brukerRolle,
             NavBrukerKjønn kjønn) {
@@ -246,8 +245,10 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         return behandlingRepository;
     }
 
-    public Historikkinnslag2Repository mockHistorikkinnslag2Repository() {
+    private Historikkinnslag2Repository mockHistorikkinnslag2Repository() {
         return new Historikkinnslag2Repository() {
+
+            private final List<Historikkinnslag2> historikkinnslagListe = new ArrayList<>();
 
             @Override
             public void lagre(Historikkinnslag2 historikkinnslag) {
