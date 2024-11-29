@@ -8,6 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.UriBuilder;
 
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.besteberegning.BesteberegningGrunnlagDto;
+import no.nav.folketrygdloven.fpkalkulus.kontrakt.migrering.MigrerBeregningsgrunnlagRequest;
 import no.nav.vedtak.exception.TekniskException;
 
 import org.slf4j.Logger;
@@ -43,6 +44,7 @@ public class KalkulusKlient {
     private URI avklaringsbehov;
     private URI deatkvier;
     private URI avslutt;
+    private URI migrer;
     private final RestClient restClient;
     private final RestConfig restConfig;
 
@@ -57,6 +59,7 @@ public class KalkulusKlient {
         this.avklaringsbehov = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/avklaringsbehov");
         this.deatkvier = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/deaktiver");
         this.avslutt = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/avslutt");
+        this.migrer = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/migrer");
     }
 
     public KalkulusRespons beregn(BeregnRequestDto request) {
@@ -119,6 +122,14 @@ public class KalkulusKlient {
         var respons = restClient.sendReturnUnhandled(restRequest);
         if (respons.statusCode() != HttpURLConnection.HTTP_OK) {
             throw new IllegalStateException("Feil ved avslutning av grunnlag i fpkalkulus");
+        }
+    }
+
+    public void migrerGrunnlag(MigrerBeregningsgrunnlagRequest request) {
+        var restRequest = RestRequest.newPOSTJson(request, migrer, restConfig);
+        var respons = restClient.sendReturnUnhandled(restRequest);
+        if (respons.statusCode() != HttpURLConnection.HTTP_OK) {
+            throw new IllegalStateException("Feil ved migrering av grunnlag i fpkalkulus");
         }
     }
 
