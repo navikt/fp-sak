@@ -90,7 +90,7 @@ class RevurderingTjenesteImplTest {
     void skal_opprette_historikkinnslag_for_registrert_fødsel() {
         var fødselsdato = LocalDate.parse("2017-09-04");
         var barn = Collections.singletonList(byggBaby(fødselsdato));
-        new RevurderingHistorikk(historikkRepository).opprettHistorikkinnslagForFødsler(behandling, barn);
+        tjeneste().opprettHistorikkinnslagForFødsler(behandling, barn);
         var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
 
         verify(historikkRepository).lagre(captor.capture());
@@ -107,6 +107,10 @@ class RevurderingTjenesteImplTest {
                         v -> assertThat(v.getTilVerdi()).as("antallBarn.tilVerdi").isEqualTo(Integer.toString(1)));
     }
 
+    private RevurderingHistorikk tjeneste() {
+        return new RevurderingHistorikk(repositoryProvider.getHistorikkinnslag2Repository());
+    }
+
     @Test
     void skal_opprette_korrekt_historikkinnslag_for_trillingfødsel_over_2_dager() {
         var fødselsdato1 = LocalDate.parse("2017-09-04");
@@ -116,7 +120,7 @@ class RevurderingTjenesteImplTest {
         barn.add(byggBaby(fødselsdato1));
         barn.add(byggBaby(fødselsdato2));
 
-        new RevurderingHistorikk(historikkRepository).opprettHistorikkinnslagForFødsler(behandling, barn);
+        tjeneste().opprettHistorikkinnslagForFødsler(behandling, barn);
         var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
 
         verify(historikkRepository).lagre(captor.capture());
