@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.mottak.dokumentmottak;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.format;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt�
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2DokumentLink;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstBuilderFormater;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
@@ -133,7 +134,7 @@ public class HistorikkinnslagTjeneste {
                                                                      LocalDateTime frist,
                                                                      Venteårsak venteårsak) {
         var tittel = frist == null ? historikkinnslagType.getNavn() :
-            historikkinnslagType.getNavn() + " " + HistorikkinnslagTekstBuilderFormater.formatDate(frist.toLocalDate());
+            historikkinnslagType.getNavn() + " " + format(frist.toLocalDate());
         var build = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medTittel(tittel)
             .medBehandlingId(behandling.getId())
