@@ -1,15 +1,17 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.historikk;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstBuilderFormater.formatDate;
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstBuilderFormater.formatString;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public class HistorikkinnslagTekstlinjeBuilder {
+
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
     private static final String LINJESKIFT = "linjeskift";
 
@@ -143,6 +145,10 @@ public class HistorikkinnslagTekstlinjeBuilder {
             return stringBuilder.toString();
         }
         return stringBuilder.delete(0, 1).toString();
+    }
+
+    public static String formatDate(LocalDate localDate) {
+        return DATE_FORMATTER.format(localDate);
     }
 
     @Override
