@@ -154,7 +154,7 @@ public class VedtaksHendelseHåndterer implements KafkaMessageHandler.KafkaStrin
         // Kjøretidspunkt tidlig neste virkedag slik at OS har fordøyd oppdrag fra K9Sak men ikke utbetalt ennå
         var nesteFormiddag = LocalDateTime.of(VirkedagUtil.fomVirkedag(LocalDate.now().plusDays(1)), LocalTime.of(7, 35, 1));
         var prosessTaskData = ProsessTaskData.forProsessTask(HåndterOverlappPleiepengerTask.class);
-        prosessTaskData.setFagsak(f.getId(), f.getAktørId().getId());
+        prosessTaskData.setFagsak(f.getSaksnummer().getVerdi(), f.getId());
         // Gi abakus tid til å konsumere samme hendelse så det finnes et grunnlag å hente opp.
         prosessTaskData.setNesteKjøringEtter(nesteFormiddag);
         prosessTaskData.setCallId(callID.toString());

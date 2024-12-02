@@ -169,7 +169,7 @@ public class FagsakFullTjeneste {
         return fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)
             .flatMap(r -> r.getRelatertFagsakFraId(fagsak.getId()))
             .map(Fagsak::getId).flatMap(behandlingRepository::hentSisteYtelsesBehandlingForFagsakId)
-            .map(behandling -> new AnnenPartBehandlingDto(behandling.getFagsak().getSaksnummer().getVerdi(),
+            .map(behandling -> new AnnenPartBehandlingDto(behandling.getSaksnummer().getVerdi(),
                 behandling.getFagsak().getRelasjonsRolleType(), behandling.getUuid()));
     }
 }

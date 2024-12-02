@@ -140,7 +140,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
 
     private InntektArbeidYtelseGrunnlagRequest initRequest(Behandling behandling, UUID inntektArbeidYtelseGrunnlagUuid) {
         var request = new InntektArbeidYtelseGrunnlagRequest(new AktørIdPersonident(behandling.getAktørId().getId()));
-        request.medSaksnummer(behandling.getFagsak().getSaksnummer().getVerdi());
+        request.medSaksnummer(behandling.getSaksnummer().getVerdi());
         request.medYtelseType(KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()));
         request.forKobling(behandling.getUuid());
         request.forGrunnlag(inntektArbeidYtelseGrunnlagUuid);
@@ -271,7 +271,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
     public void kopierGrunnlagFraEksisterendeBehandling(Long fraBehandlingId, Long tilBehandlingId) {
         var fraBehandling = behandlingRepository.hentBehandling(fraBehandlingId);
         var tilBehandling = behandlingRepository.hentBehandling(tilBehandlingId);
-        var request = new KopierGrunnlagRequest(tilBehandling.getFagsak().getSaksnummer().getVerdi(),
+        var request = new KopierGrunnlagRequest(tilBehandling.getSaksnummer().getVerdi(),
                 tilBehandling.getUuid(),
                 fraBehandling.getUuid(),
                 KodeverkMapper.fraFagsakYtelseType(tilBehandling.getFagsakYtelseType()),
@@ -294,7 +294,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
     public void kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(Long fraBehandlingId, Long tilBehandlingId) {
         var fraBehandling = behandlingRepository.hentBehandling(fraBehandlingId);
         var tilBehandling = behandlingRepository.hentBehandling(tilBehandlingId);
-        var request = new KopierGrunnlagRequest(tilBehandling.getFagsak().getSaksnummer().getVerdi(),
+        var request = new KopierGrunnlagRequest(tilBehandling.getSaksnummer().getVerdi(),
             tilBehandling.getUuid(),
             fraBehandling.getUuid(),
             KodeverkMapper.fraFagsakYtelseType(tilBehandling.getFagsakYtelseType()),
@@ -314,7 +314,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         var oppgittOpptjening = new IAYTilDtoMapper(behandling.getAktørId(),
             KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()),
             null, behandling.getUuid()).mapTilDto(oppgittOpptjeningBuilder);
-        return new OppgittOpptjeningMottattRequest(behandling.getFagsak().getSaksnummer().getVerdi(), behandling.getUuid(), aktør,
+        return new OppgittOpptjeningMottattRequest(behandling.getSaksnummer().getVerdi(), behandling.getUuid(), aktør,
             KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()), oppgittOpptjening);
     }
 
@@ -368,7 +368,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
     private InntektArbeidYtelseGrunnlagRequest initRequest(Behandling behandling) {
         var request = new InntektArbeidYtelseGrunnlagRequest(new AktørIdPersonident(behandling.getAktørId().getId()));
         request.medSisteKjenteGrunnlagReferanse(requestCache.getSisteAktiveGrunnlagReferanse(behandling.getUuid()));
-        request.medSaksnummer(behandling.getFagsak().getSaksnummer().getVerdi());
+        request.medSaksnummer(behandling.getSaksnummer().getVerdi());
         request.medYtelseType(KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()));
         request.forKobling(behandling.getUuid());
         request.medDataset(Arrays.asList(Dataset.values()));

@@ -125,7 +125,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
         vedtaksHendelseHåndterer.loggVedtakOverlapp(ompYtelse, List.of(svp.getFagsak()));
 
-        assertThat(overlappInfotrygdRepository.hentForSaksnummer(svp.getFagsak().getSaksnummer())).isEmpty();
+        assertThat(overlappInfotrygdRepository.hentForSaksnummer(svp.getSaksnummer())).isEmpty();
     }
 
     @Test
@@ -146,7 +146,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
         vedtaksHendelseHåndterer.loggVedtakOverlapp(ompYtelse, List.of(svp.getFagsak()));
 
-        var behandlingOverlappInfotrygd = overlappInfotrygdRepository.hentForSaksnummer(svp.getFagsak().getSaksnummer());
+        var behandlingOverlappInfotrygd = overlappInfotrygdRepository.hentForSaksnummer(svp.getSaksnummer());
         assertThat(behandlingOverlappInfotrygd).hasSize(1);
         assertThat(behandlingOverlappInfotrygd.getFirst().getBehandlingId()).isEqualTo(svp.getId());
         assertThat(behandlingOverlappInfotrygd.getFirst().getUtbetalingsprosent()).isEqualTo(200);
@@ -172,7 +172,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
         vedtaksHendelseHåndterer.loggVedtakOverlapp(ompYtelse, List.of(svp.getFagsak()));
 
-        assertThat(overlappInfotrygdRepository.hentForSaksnummer(svp.getFagsak().getSaksnummer())).isEmpty();
+        assertThat(overlappInfotrygdRepository.hentForSaksnummer(svp.getSaksnummer())).isEmpty();
     }
 
     @Test
@@ -193,7 +193,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
         vedtaksHendelseHåndterer.loggVedtakOverlapp(ompYtelse, List.of(svp.getFagsak()));
 
-        var behandlingOverlappInfotrygd = overlappInfotrygdRepository.hentForSaksnummer(svp.getFagsak().getSaksnummer());
+        var behandlingOverlappInfotrygd = overlappInfotrygdRepository.hentForSaksnummer(svp.getSaksnummer());
         assertThat(behandlingOverlappInfotrygd).hasSize(1);
         assertThat(behandlingOverlappInfotrygd.getFirst().getBehandlingId()).isEqualTo(svp.getId());
         assertThat(behandlingOverlappInfotrygd.getFirst().getUtbetalingsprosent()).isEqualTo(120);
@@ -242,7 +242,6 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
         var task = prosessTaskDataList.getFirst();
         assertThat(task.taskType()).isEqualTo(TaskType.forProsessTask(HåndterOverlappPleiepengerTask.class));
-        assertThat(task.getAktørId()).isEqualTo(aktørFra(fpBehandling).getVerdi());
         assertThat(task.getFagsakId()).isEqualTo(fpBehandling.getFagsak().getId());
     }
 

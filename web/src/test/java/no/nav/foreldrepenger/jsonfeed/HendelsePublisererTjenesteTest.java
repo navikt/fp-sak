@@ -100,7 +100,7 @@ class HendelsePublisererTjenesteTest {
         assertThat(opphørt.getFnr()).isEqualTo(FNR);
         assertThat(opphørt.getFoersteStoenadsdag()).isEqualTo(INNVILGET_PERIODE_FØRSTE_DAG);
         assertThat(opphørt.getSisteStoenadsdag()).isEqualTo(INNVILGET_PERIODE_SISTE_DAG);
-        assertThat(opphørt.getGsakId()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        assertThat(opphørt.getGsakId()).isEqualTo(behandling.getSaksnummer().getVerdi());
     }
 
     private List<FpVedtakUtgåendeHendelse> hentUtgåendeHendelser(AktørId aktørId) {
@@ -132,7 +132,7 @@ class HendelsePublisererTjenesteTest {
         assertThat(innvilget.getFnr()).isEqualTo(FNR);
         assertThat(innvilget.getFoersteStoenadsdag()).isEqualTo(INNVILGET_PERIODE_FØRSTE_DAG);
         assertThat(innvilget.getSisteStoenadsdag()).isEqualTo(INNVILGET_PERIODE_SISTE_DAG);
-        assertThat(innvilget.getGsakId()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        assertThat(innvilget.getGsakId()).isEqualTo(behandling.getSaksnummer().getVerdi());
     }
 
     @Test
@@ -172,7 +172,7 @@ class HendelsePublisererTjenesteTest {
         assertThat(endret.getFnr()).isEqualTo(FNR);
         assertThat(endret.getFoersteStoenadsdag()).isEqualTo(NY_PERIODE_FØRSTE_DAG);
         assertThat(endret.getSisteStoenadsdag()).isEqualTo(NY_PERIODE_SISTE_DAG);
-        assertThat(endret.getGsakId()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        assertThat(endret.getGsakId()).isEqualTo(behandling.getSaksnummer().getVerdi());
     }
 
     @Test
@@ -197,7 +197,7 @@ class HendelsePublisererTjenesteTest {
         assertThat(opphørt.getFnr()).isEqualTo(FNR);
         assertThat(opphørt.getFoersteStoenadsdag()).isEqualTo(INNVILGET_PERIODE_FØRSTE_DAG);
         assertThat(opphørt.getSisteStoenadsdag()).isEqualTo(INNVILGET_PERIODE_SISTE_DAG);
-        assertThat(opphørt.getGsakId()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        assertThat(opphørt.getGsakId()).isEqualTo(behandling.getSaksnummer().getVerdi());
     }
 
     private BehandlingVedtak byggBehandlingVedtakOgBehandling(BehandlingType behandlingTypeOppr,

@@ -41,7 +41,7 @@ class KlageNfpStegTest {
     void skalOppretteAksjonspunktManuellVurderingAvKlageNfpNårStegKjøres() {
         var scenario = ScenarioKlageEngangsstønad.forMedholdNK(ScenarioMorSøkerEngangsstønad.forFødsel());
         var klageBehandling = scenario.lagMocked();
-        var kontekst = new BehandlingskontrollKontekst(klageBehandling.getFagsakId(), klageBehandling.getAktørId(),
+        var kontekst = new BehandlingskontrollKontekst(klageBehandling.getSaksnummer(), klageBehandling.getFagsakId(),
                 new BehandlingLås(klageBehandling.getId()));
 
         // Act
@@ -62,7 +62,7 @@ class KlageNfpStegTest {
 
         var scenario = ScenarioKlageEngangsstønad.forMedholdNK(ScenarioMorSøkerEngangsstønad.forFødsel());
         var klageBehandling = scenario.lagMocked();
-        var kontekst = new BehandlingskontrollKontekst(klageBehandling.getFagsakId(), klageBehandling.getAktørId(),
+        var kontekst = new BehandlingskontrollKontekst(klageBehandling.getSaksnummer(), klageBehandling.getFagsakId(),
                 new BehandlingLås(klageBehandling.getId()));
         var repositoryProviderMock = scenario.mockBehandlingRepositoryProvider();
         steg = new KlageNfpSteg(repositoryProviderMock.getBehandlingRepository(), behandlendeEnhetTjeneste);

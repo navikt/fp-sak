@@ -66,7 +66,7 @@ class InngangsvilkårStegImplTest {
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         Behandlingsresultat.builderEndreEksisterende(behandling.getBehandlingsresultat())
                 .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
-        var kontekst = new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(),
+        var kontekst = new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(),
                 repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
 
         var val = new RegelResultat(behandling.getBehandlingsresultat().getVilkårResultat(), emptyList(), emptyMap());
@@ -94,7 +94,7 @@ class InngangsvilkårStegImplTest {
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         Behandlingsresultat.builderEndreEksisterende(behandling.getBehandlingsresultat())
                 .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
-        var kontekst = new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(),
+        var kontekst = new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(),
                 repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
 
         var val = lagRegelResultatOpptjening(behandling);
@@ -131,7 +131,7 @@ class InngangsvilkårStegImplTest {
         var repositoryProvider = revurderingsscenario.mockBehandlingRepositoryProvider();
         Behandlingsresultat.builderEndreEksisterende(revurdering.getBehandlingsresultat())
                 .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT);
-        var kontekst = new BehandlingskontrollKontekst(revurdering.getFagsakId(), revurdering.getAktørId(),
+        var kontekst = new BehandlingskontrollKontekst(revurdering.getSaksnummer(), revurdering.getFagsakId(),
                 repositoryProvider.getBehandlingRepository().taSkriveLås(revurdering));
 
         var val = lagRegelResultatOpptjening(revurdering);
@@ -175,7 +175,7 @@ class InngangsvilkårStegImplTest {
         var repositoryProvider = revurderingsscenario.mockBehandlingRepositoryProvider();
         Behandlingsresultat.builderEndreEksisterende(revurdering.getBehandlingsresultat())
                 .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
-        var kontekst = new BehandlingskontrollKontekst(revurdering.getFagsakId(), revurdering.getAktørId(),
+        var kontekst = new BehandlingskontrollKontekst(revurdering.getSaksnummer(), revurdering.getFagsakId(),
                 repositoryProvider.getBehandlingRepository().taSkriveLås(revurdering));
 
         var val = new RegelResultat(revurdering.getBehandlingsresultat().getVilkårResultat(), emptyList(), emptyMap());
@@ -208,7 +208,7 @@ class InngangsvilkårStegImplTest {
         var repositoryProvider = revurderingsscenario.mockBehandlingRepositoryProvider();
         Behandlingsresultat.builderEndreEksisterende(revurdering.getBehandlingsresultat())
                 .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
-        var kontekst = new BehandlingskontrollKontekst(revurdering.getFagsakId(), revurdering.getAktørId(),
+        var kontekst = new BehandlingskontrollKontekst(revurdering.getSaksnummer(), revurdering.getFagsakId(),
                 repositoryProvider.getBehandlingRepository().taSkriveLås(revurdering));
 
         var val = new RegelResultat(revurdering.getBehandlingsresultat().getVilkårResultat(), emptyList(), emptyMap());
@@ -250,7 +250,7 @@ class InngangsvilkårStegImplTest {
         var repositoryProvider = andreRevurderingsscenario.mockBehandlingRepositoryProvider();
         Behandlingsresultat.builderEndreEksisterende(revurdering2.getBehandlingsresultat())
                 .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
-        var kontekst = new BehandlingskontrollKontekst(revurdering2.getFagsakId(), revurdering2.getAktørId(),
+        var kontekst = new BehandlingskontrollKontekst(revurdering2.getSaksnummer(), revurdering2.getFagsakId(),
                 repositoryProvider.getBehandlingRepository().taSkriveLås(revurdering2));
 
         var val = new RegelResultat(revurdering2.getBehandlingsresultat().getVilkårResultat(), emptyList(), emptyMap());
@@ -276,7 +276,7 @@ class InngangsvilkårStegImplTest {
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         Behandlingsresultat.builderEndreEksisterende(behandling.getBehandlingsresultat())
                 .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
-        var kontekst = new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(),
+        var kontekst = new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(),
                 repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         var inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(regelOrkestrerer);
         // Act

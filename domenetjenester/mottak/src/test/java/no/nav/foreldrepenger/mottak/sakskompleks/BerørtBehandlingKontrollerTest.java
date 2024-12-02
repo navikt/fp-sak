@@ -257,7 +257,7 @@ class BerørtBehandlingKontrollerTest {
             .medOriginalBehandling(behandling, årsakType, false)
             .medBehandlingType(BehandlingType.REVURDERING);
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
-        scenario.medFagsakId(behandling.getId()).medSaksnummer(behandling.getFagsak().getSaksnummer());
+        scenario.medFagsakId(behandling.getId()).medSaksnummer(behandling.getSaksnummer());
         var revurdering = scenario.lagMocked();
         revurdering.setOpprettetTidspunkt(LocalDateTime.now());
         return revurdering;

@@ -65,7 +65,7 @@ public class AvklarDekningsgradFellesTjeneste {
         var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsakId).orElseThrow();
         fagsakRelasjon.getRelatertFagsakFraId(fagsakId).ifPresent(sak -> {
             var prosessTaskData = ProsessTaskData.forProsessTask(TilbakeførTilDekningsgradStegTask.class);
-            prosessTaskData.setFagsak(sak.getId(), sak.getAktørId().getId());
+            prosessTaskData.setFagsak(sak.getSaksnummer().getVerdi(), sak.getId());
             prosessTaskData.setNesteKjøringEtter(LocalDateTime.now().plusSeconds(5)); //Liten delay her for å hindre samtidighetsproblem i køing inn i uttak
             prosessTaskTjeneste.lagre(prosessTaskData);
         });

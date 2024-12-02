@@ -44,7 +44,7 @@ class FaktaLøpendeOmsorgStegTest {
         var behandling = scenario.lagre(repositoryProvider);
         var fagsak = behandling.getFagsak();
         var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling);
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås);
 
         var behandleStegResultat = steg.utførSteg(kontekst);
         assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);

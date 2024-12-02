@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.behandlingskontroll;
 import java.util.Objects;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
-import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 /**
  * Container som holder kontekst under prosessering av {@link BehandlingSteg}.
@@ -11,17 +11,17 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 public class BehandlingskontrollKontekst {
 
     private BehandlingLås behandlingLås;
-    private AktørId aktørId;
     private Long fagsakId;
+    private Saksnummer saksnummer;
 
     /**
      * NB: Foretrekk {@link BehandlingskontrollTjeneste#initBehandlingskontroll} i
      * stedet for å opprette her direkte.
      */
-    public BehandlingskontrollKontekst(Long fagsakId, AktørId aktørId, BehandlingLås behandlingLås) {
+    public BehandlingskontrollKontekst(Saksnummer saksnummer, Long fagsakId, BehandlingLås behandlingLås) {
         Objects.requireNonNull(behandlingLås, "behandlingLås");
+        this.saksnummer = saksnummer;
         this.fagsakId = fagsakId;
-        this.aktørId = aktørId;
         this.behandlingLås = behandlingLås;
     }
 
@@ -37,8 +37,8 @@ public class BehandlingskontrollKontekst {
         return fagsakId;
     }
 
-    public AktørId getAktørId() {
-        return aktørId;
+    public Saksnummer getSaksnummer() {
+        return saksnummer;
     }
 
     @Override
@@ -50,17 +50,17 @@ public class BehandlingskontrollKontekst {
             return false;
         }
         return Objects.equals(fagsakId, other.fagsakId)
-                && Objects.equals(aktørId, other.aktørId)
+                && Objects.equals(saksnummer, other.saksnummer)
                 && Objects.equals(getBehandlingId(), other.getBehandlingId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(fagsakId, aktørId, getBehandlingId());
+        return Objects.hash(fagsakId, saksnummer, getBehandlingId());
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<fagsakId=" + fagsakId + ", aktørId=" + aktørId + ", behandlingId=" + getBehandlingId() + ">";
+        return getClass().getSimpleName() + "<fagsakId=" + fagsakId + ", saksnummer=" + saksnummer + ", behandlingId=" + getBehandlingId() + ">";
     }
 }

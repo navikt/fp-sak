@@ -158,7 +158,7 @@ public class UttakGrunnlagTjeneste {
             if (harVedtak) {
                 annenPartBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeBehandlingPåVedtakstidspunkt(behandling);
             } else {
-                annenPartBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(behandling.getFagsak().getSaksnummer());
+                annenPartBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(behandling.getSaksnummer());
             }
             if (annenPartBehandling.isPresent()) {
                 var opprettetTidspunkt = Optional.ofNullable(søknadRepository.hentSøknad(annenPartBehandling.get().getId()))

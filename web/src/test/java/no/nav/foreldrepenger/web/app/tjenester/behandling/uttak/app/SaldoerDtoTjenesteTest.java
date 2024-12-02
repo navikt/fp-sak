@@ -950,7 +950,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
         repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), stønadskontoberegning);
 
-        var saksnummer = behandling.getFagsak().getSaksnummer();
+        var saksnummer = behandling.getSaksnummer();
         var fødselNesteSak = periode.getTom().minusDays(1);
         var nesteSakGrunnlag = NesteSakGrunnlagEntitet.Builder.oppdatere(Optional.empty())
             .medBehandlingId(behandling.getId())

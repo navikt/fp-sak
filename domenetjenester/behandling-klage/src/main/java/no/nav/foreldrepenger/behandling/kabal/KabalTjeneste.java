@@ -90,7 +90,7 @@ public class KabalTjeneste {
         var klager = utledKlager(klageBehandling, Optional.of(resultat.getKlageResultat()));
         var sakMottattKaDato = LocalDateTime.now();
         var dokumentReferanser = kabalDokumenter.finnDokumentReferanserForKlage(klageBehandling.getId(),
-            klageBehandling.getFagsak().getSaksnummer(), resultat.getKlageResultat(), brukHjemmel);
+            klageBehandling.getSaksnummer(), resultat.getKlageResultat(), brukHjemmel);
         var request = TilKabalDto.klage(klageBehandling, klager, enhet, dokumentReferanser,
             klageMottattDato, klageMottattDato, sakMottattKaDato, List.of(brukHjemmel.getKabal()), resultat.getBegrunnelse());
         kabalKlient.sendTilKabal(request);

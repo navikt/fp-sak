@@ -43,7 +43,7 @@ public record BehandlingReferanse(Saksnummer saksnummer,
      */
     public static BehandlingReferanse fra(Behandling behandling) {
         return new BehandlingReferanse(
-                behandling.getFagsak().getSaksnummer(),
+                behandling.getSaksnummer(),
                 behandling.getFagsakId(),
                 behandling.getFagsakYtelseType(),
                 behandling.getId(),

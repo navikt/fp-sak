@@ -64,7 +64,7 @@ public class OppdaterSakOgBehandlingEventObserver {
         }
         var behandlingRef = String.format("%s_%s", Fagsystem.FPSAK.getOffisiellKode(), behandling.getId());
         var prosessTaskData = ProsessTaskData.forProsessTask(OppdaterPersonoversiktTask.class);
-        prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
         prosessTaskData.setProperty(OppdaterPersonoversiktTask.PH_REF_KEY, behandlingRef);
         prosessTaskData.setProperty(OppdaterPersonoversiktTask.PH_STATUS_KEY, nyStatus.getKode());
         prosessTaskData.setProperty(OppdaterPersonoversiktTask.PH_TID_KEY, LocalDateTime.now().toString());

@@ -36,6 +36,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 class VurderOgSendØkonomiOppdragTaskTest {
 
     private static final Long BEHANDLING_ID = 139L;
+    private static final String SAKSNUMMER = "9999";
 
     private static final Long TASK_ID = 238L;
 
@@ -61,8 +62,8 @@ class VurderOgSendØkonomiOppdragTaskTest {
     @BeforeEach
     public void setUp() {
         when(prosessTaskData.getBehandlingId()).thenReturn(BEHANDLING_ID.toString());
+        lenient().when(prosessTaskData.getSaksnummer()).thenReturn(SAKSNUMMER);
         lenient().when(prosessTaskData.getId()).thenReturn(TASK_ID);
-        lenient().when(prosessTaskData.getAktørId()).thenReturn(AKTØR_ID);
         var repositoryProvider = ScenarioMorSøkerForeldrepenger.forFødsel().mockBehandlingRepositoryProvider();
         lenient().when(repositoryProvider.getBehandlingRepository().hentBehandling(BEHANDLING_ID))
             .thenReturn(Behandling.nyBehandlingFor(Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB)), BehandlingType.FØRSTEGANGSSØKNAD).build());

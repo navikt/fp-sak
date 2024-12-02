@@ -273,7 +273,7 @@ public class StønadsstatistikkTjeneste {
     }
 
     private List<StønadsstatistikkUttakPeriode> mapForeldrepengerUttaksperioder(Behandling behandling, RettighetType rettighetType) {
-        var logContext = String.format("saksnummer %s behandling %s", behandling.getFagsak().getSaksnummer().getVerdi(), behandling.getUuid().toString());
+        var logContext = String.format("saksnummer %s behandling %s", behandling.getSaksnummer().getVerdi(), behandling.getUuid().toString());
         return foreldrepengerUttakTjeneste.hentHvisEksisterer(behandling.getId(), true)
             .map(u -> StønadsstatistikkUttakPeriodeMapper.mapUttak(behandling.getRelasjonsRolleType(), rettighetType, u.getGjeldendePerioder(), logContext))
             .orElse(List.of());

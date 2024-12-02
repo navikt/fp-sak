@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
@@ -48,8 +47,7 @@ class OppdaterSakOgBehandlingEventObserverTest {
         repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         observer = new OppdaterSakOgBehandlingEventObserver(repositoryProvider, taskTjenesteMock);
 
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
-                scenario.taSkriveLåsForBehandling());
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), scenario.taSkriveLåsForBehandling());
         BehandlingOpprettetEvent event = BehandlingStatusEvent.nyEvent(kontekst, BehandlingStatus.OPPRETTET);
 
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
@@ -72,8 +70,7 @@ class OppdaterSakOgBehandlingEventObserverTest {
         repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         observer = new OppdaterSakOgBehandlingEventObserver(repositoryProvider, taskTjenesteMock);
 
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
-                scenario.taSkriveLåsForBehandling());
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), scenario.taSkriveLåsForBehandling());
         BehandlingAvsluttetEvent event = BehandlingStatusEvent.nyEvent(kontekst, BehandlingStatus.AVSLUTTET);
 
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
@@ -86,8 +83,7 @@ class OppdaterSakOgBehandlingEventObserverTest {
 
     private void verifiserProsessTaskData(ScenarioMorSøkerEngangsstønad scenario, ProsessTaskData prosessTaskData, BehandlingStatus expected) {
         assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(OppdaterPersonoversiktTask.class));
-        assertThat(new AktørId(prosessTaskData.getAktørId()))
-                .isEqualTo(scenario.getFagsak().getNavBruker().getAktørId());
+        assertThat(prosessTaskData.getFagsakId()).isEqualTo(scenario.getFagsak().getId());
         assertThat(prosessTaskData.getBehandlingId()).isEqualTo(scenario.getBehandling().getId().toString());
         assertThat(prosessTaskData.getPropertyValue(OppdaterPersonoversiktTask.PH_REF_KEY)).contains(scenario.getBehandling().getId().toString());
         assertThat(prosessTaskData.getPropertyValue(OppdaterPersonoversiktTask.PH_STATUS_KEY)).isEqualTo(expected.getKode());

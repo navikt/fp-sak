@@ -43,6 +43,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
@@ -313,6 +314,10 @@ public class Behandling extends BaseEntitet {
 
     public Long getFagsakId() {
         return getFagsak().getId();
+    }
+
+    public Saksnummer getSaksnummer() {
+        return getFagsak().getSaksnummer();
     }
 
     public AktørId getAktørId() {

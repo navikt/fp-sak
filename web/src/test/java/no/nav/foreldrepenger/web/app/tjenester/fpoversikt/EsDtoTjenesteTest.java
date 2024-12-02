@@ -51,7 +51,7 @@ class EsDtoTjenesteTest {
         repositoryProvider.getMottatteDokumentRepository().lagre(mottattDokument);
 
         var dto = (EsSak) tjeneste.hentSak(behandling.getFagsak());
-        assertThat(dto.saksnummer()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        assertThat(dto.saksnummer()).isEqualTo(behandling.getSaksnummer().getVerdi());
         assertThat(dto.aktørId()).isEqualTo(behandling.getAktørId().getId());
         assertThat(dto.vedtak()).hasSize(1);
         assertThat(dto.avsluttet()).isFalse();
@@ -77,7 +77,7 @@ class EsDtoTjenesteTest {
             .lagre(repositoryProvider);
 
         var dto = (EsSak) tjeneste.hentSak(behandling.getFagsak());
-        assertThat(dto.saksnummer()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        assertThat(dto.saksnummer()).isEqualTo(behandling.getSaksnummer().getVerdi());
         assertThat(dto.aktørId()).isEqualTo(behandling.getAktørId().getId());
         assertThat(dto.aksjonspunkt()).hasSize(1);
         var apDto = dto.aksjonspunkt().stream().findFirst().orElseThrow();

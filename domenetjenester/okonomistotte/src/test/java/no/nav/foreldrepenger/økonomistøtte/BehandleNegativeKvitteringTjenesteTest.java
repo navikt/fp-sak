@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -19,7 +20,7 @@ class BehandleNegativeKvitteringTjenesteTest {
     private final static TaskType TASKTYPE = new TaskType("iverksetteVedtak.oppdragTilØkonomi"); //TODO deps
     private final static Long BEHANDLING_ID = 100010010L;
     private final static Long FAGSAK_ID = 987654301L;
-    private final static String AKTØR_ID = "AA-BB-CC-DD-EE";
+    private static final Saksnummer SAKSNUMMER = new Saksnummer(FAGSAK_ID.toString());
 
     private ProsessTaskTjeneste taskTjeneste;
 
@@ -57,7 +58,7 @@ class BehandleNegativeKvitteringTjenesteTest {
 
     private ProsessTaskData lagØkonomioppragTaskPåVent() {
         var taskData = ProsessTaskData.forTaskType(TASKTYPE);
-        taskData.setBehandling(FAGSAK_ID, BEHANDLING_ID, AKTØR_ID);
+        taskData.setBehandling(SAKSNUMMER.getVerdi(), FAGSAK_ID, BEHANDLING_ID);
         taskData.venterPåHendelse(BehandleØkonomioppdragKvittering.ØKONOMI_OPPDRAG_KVITTERING);
         return taskData;
     }

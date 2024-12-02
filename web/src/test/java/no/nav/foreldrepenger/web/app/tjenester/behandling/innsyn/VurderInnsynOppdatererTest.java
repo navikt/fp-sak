@@ -78,7 +78,7 @@ class VurderInnsynOppdatererTest {
         scenario.medDefaultBekreftetTerminbekreftelse();
         var behandling = scenario.lagre(repositoryProvider);
 
-        var innsynbehandling = innsynTjeneste.opprettManueltInnsyn(behandling.getFagsak().getSaksnummer());
+        var innsynbehandling = innsynTjeneste.opprettManueltInnsyn(behandling.getSaksnummer());
         var lås = behandlingRepository.taSkriveLås(innsynbehandling);
         behandlingRepository.lagre(innsynbehandling, lås);
 

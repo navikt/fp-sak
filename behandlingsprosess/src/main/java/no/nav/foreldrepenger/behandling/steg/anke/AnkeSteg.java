@@ -101,7 +101,7 @@ public class AnkeSteg implements BehandlingSteg {
                 .filter(h -> !KlageHjemmel.UDEFINERT.equals(h))
                 .orElseGet(() -> KlageHjemmel.standardHjemmelForYtelse(behandling.getFagsakYtelseType()));
             var tilKabalTask = ProsessTaskData.forProsessTask(SendTilKabalTask.class);
-            tilKabalTask.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+            tilKabalTask.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
             tilKabalTask.setCallIdFraEksisterende();
             tilKabalTask.setProperty(SendTilKabalTask.HJEMMEL_KEY, hjemmel.getKode());
             prosessTaskTjeneste.lagre(tilKabalTask);
@@ -138,7 +138,7 @@ public class AnkeSteg implements BehandlingSteg {
                 .orElseGet(() -> aktuelleKlager.stream().max(Comparator.comparing(Behandling::getAvsluttetDato)).orElseThrow());
             return Optional.of(lagrePåanketBehandling(anke, utvalgtKlage));
         }
-        LOG.warn("ANKE steg: kunne ikke utlede klagebehandling automatisk sak {} anke {}", anke.getFagsak().getSaksnummer().getVerdi(), anke.getId());
+        LOG.warn("ANKE steg: kunne ikke utlede klagebehandling automatisk sak {} anke {}", anke.getSaksnummer().getVerdi(), anke.getId());
         return Optional.empty();
     }
 

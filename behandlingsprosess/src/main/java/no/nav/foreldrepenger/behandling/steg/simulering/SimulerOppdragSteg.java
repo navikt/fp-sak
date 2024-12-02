@@ -242,13 +242,13 @@ public class SimulerOppdragSteg implements BehandlingSteg {
         var harÅpenTilbakekreving = harÅpenTilbakekreving(behandling);
         if (!harÅpenTilbakekreving && SimuleringIntegrasjonTjeneste.harFeilutbetaling(simuleringResultatDto)) {
             LOG.info("Saksnummer {} har ikke åpen tilbakekreving og det er identifisert feilutbetaling. Simuleringsresultat: sumFeilutbetaling={}, sumInntrekk={}, slåttAvInntrekk={}",
-                behandling.getFagsak().getSaksnummer(), simuleringResultatDto.sumFeilutbetaling(), simuleringResultatDto.sumInntrekk(), simuleringResultatDto.slåttAvInntrekk());
+                behandling.getSaksnummer(), simuleringResultatDto.sumFeilutbetaling(), simuleringResultatDto.sumInntrekk(), simuleringResultatDto.slåttAvInntrekk());
         }
         return harÅpenTilbakekreving && simuleringResultatDto.sumFeilutbetaling() != 0;
     }
 
     private boolean harÅpenTilbakekreving(Behandling behandling) {
-        return fptilbakeRestKlient.harÅpenTilbakekrevingsbehandling(behandling.getFagsak().getSaksnummer());
+        return fptilbakeRestKlient.harÅpenTilbakekrevingsbehandling(behandling.getSaksnummer());
     }
 
     private void lagreTilbakekrevingValg(Behandling behandling, TilbakekrevingValg tilbakekrevingValg) {

@@ -146,7 +146,7 @@ public class InntektsmeldingTjeneste {
     }
 
     public void lagreInntektsmelding(InntektsmeldingBuilder im, Behandling behandling) {
-        var saksnummer = behandling.getFagsak().getSaksnummer();
+        var saksnummer = behandling.getSaksnummer();
         iayTjeneste.lagreInntektsmeldinger(saksnummer, behandling.getId(), List.of(im));
     }
 

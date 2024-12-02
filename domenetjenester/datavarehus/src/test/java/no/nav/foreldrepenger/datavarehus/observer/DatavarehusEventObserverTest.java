@@ -78,7 +78,7 @@ class DatavarehusEventObserverTest {
         var behandlingLås = new BehandlingLås(behandling.getId()) {
         };
         var fagsak = behandling.getFagsak();
-        return new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingLås);
+        return new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), behandlingLås);
     }
 
     private Behandling byggBehandling() {

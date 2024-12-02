@@ -34,7 +34,7 @@ class OverlappVedtakRepositoryTest extends EntityManagerAwareTest {
             LocalDate.of(2019, 5, 1));
         var ytelseInfotrygd = OverlappVedtak.OverlappYtelseType.BS;
         var builder = OverlappVedtak.builder()
-            .medSaksnummer(behandling.getFagsak().getSaksnummer())
+            .medSaksnummer(behandling.getSaksnummer())
             .medBehandlingId(behandling.getId())
             .medPeriode(periodeVL)
             .medHendelse("TEST")
@@ -46,9 +46,9 @@ class OverlappVedtakRepositoryTest extends EntityManagerAwareTest {
         overlappVedtakRepository.lagre(builder);
 
         // Assert
-        var hentet = overlappVedtakRepository.hentForSaksnummer(behandling.getFagsak().getSaksnummer()).get(0);
+        var hentet = overlappVedtakRepository.hentForSaksnummer(behandling.getSaksnummer()).get(0);
         assertThat(hentet.getBehandlingId()).isEqualTo(behandling.getId());
-        assertThat(hentet.getSaksnummer()).isEqualTo(behandling.getFagsak().getSaksnummer());
+        assertThat(hentet.getSaksnummer()).isEqualTo(behandling.getSaksnummer());
         assertThat(hentet.getPeriode()).isEqualTo(periodeVL);
         assertThat(hentet.getYtelse()).isEqualTo(ytelseInfotrygd);
 

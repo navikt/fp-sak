@@ -99,7 +99,7 @@ class BehandlingRestTjenesteESTest {
         scenario.medRegisterOpplysninger(personInformasjon);
         scenario.medDefaultBekreftetTerminbekreftelse();
         var behandling = scenario.lagre(repositoryProvider);
-        var saksnummer = behandling.getFagsak().getSaksnummer();
+        var saksnummer = behandling.getSaksnummer();
 
         when(behandlingsutredningTjeneste.hentBehandlingerForSaksnummer(saksnummer)).thenReturn(
             singletonList(behandling));

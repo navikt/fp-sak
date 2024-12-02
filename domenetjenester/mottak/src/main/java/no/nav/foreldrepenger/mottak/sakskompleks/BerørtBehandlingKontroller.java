@@ -130,7 +130,7 @@ public class BerørtBehandlingKontroller {
         var medforelderDekningsgrad = ytelseFordelingTjeneste.hentAggregat(behandlingMedforelder.getId()).getGjeldendeDekningsgrad();
         var ulikDekningsgrad = !Objects.equals(vedtattDekningsgrad, medforelderDekningsgrad);
         if (avsluttetErEndreDekningsgrad && ulikDekningsgrad) {
-            LOG.warn("Endre dekningsgrad potensiell cascade avsluttet behandlingId {} sak medforelder {}", vedtattBehandling.getId(), behandlingMedforelder.getFagsak().getSaksnummer());
+            LOG.warn("Endre dekningsgrad potensiell cascade avsluttet behandlingId {} sak medforelder {}", vedtattBehandling.getId(), behandlingMedforelder.getSaksnummer());
             return false;
         }
         return ulikDekningsgrad;

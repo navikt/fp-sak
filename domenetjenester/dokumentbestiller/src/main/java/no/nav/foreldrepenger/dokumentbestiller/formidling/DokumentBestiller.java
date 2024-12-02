@@ -8,8 +8,8 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.vedtak.felles.prosesstask.api.CommonTaskProperties;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -66,7 +66,7 @@ public class DokumentBestiller {
 
         // Brukes kun i logging
         prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskData.setSaksnummer(behandling.getFagsak().getSaksnummer().getVerdi());
+        prosessTaskData.setSaksnummer(behandling.getSaksnummer().getVerdi());
         taskTjeneste.lagre(prosessTaskData);
     }
 }

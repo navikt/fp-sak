@@ -67,7 +67,7 @@ public class FpInntektsmeldingTjeneste {
 
     public void lagForespørselTask(String ag, BehandlingReferanse ref) {
         var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(FpinntektsmeldingTask.class));
-        taskdata.setBehandling(ref.fagsakId(), ref.behandlingId());
+        taskdata.setBehandling(ref.saksnummer().getVerdi(), ref.fagsakId(), ref.behandlingId());
         taskdata.setCallIdFraEksisterende();
         var gruppeId = String.format(GRUPPE_ID, ref.saksnummer().getVerdi());
         taskdata.setGruppe(gruppeId);
@@ -164,16 +164,16 @@ public class FpInntektsmeldingTjeneste {
     public void lagLukkForespørselTask(Behandling behandling, OrgNummer orgNummer, ForespørselStatus status) {
         var behandlingId = behandling.getId();
         var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(LukkForespørslerImTask.class));
-        taskdata.setBehandling(behandling.getFagsakId(), behandlingId);
+        taskdata.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandlingId);
         taskdata.setCallIdFraEksisterende();
         if (orgNummer != null) {
             taskdata.setProperty(LukkForespørslerImTask.ORG_NUMMER, orgNummer.getId());
         }
-        var gruppeId = String.format(GRUPPE_ID, behandling.getFagsak().getSaksnummer().getVerdi());
+        var gruppeId = String.format(GRUPPE_ID, behandling.getSaksnummer().getVerdi());
         taskdata.setGruppe(gruppeId);
         taskdata.setSekvens(String.valueOf(Instant.now().toEpochMilli()));
         taskdata.setProperty(LukkForespørslerImTask.STATUS, status.name());
-        taskdata.setProperty(LukkForespørslerImTask.SAK_NUMMER, behandling.getFagsak().getSaksnummer().getVerdi());
+        taskdata.setProperty(LukkForespørslerImTask.SAK_NUMMER, behandling.getSaksnummer().getVerdi());
         prosessTaskTjeneste.lagre(taskdata);
     }
 

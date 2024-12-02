@@ -205,7 +205,7 @@ class OpprettNyFørstegangsbehandlingTest {
         mockMottatteDokumentRepository(repositoryProvider);
         // Act and expect Exception
         var fagsakId = behandling.getFagsakId();
-        var saksnummer = behandling.getFagsak().getSaksnummer();
+        var saksnummer = behandling.getSaksnummer();
         assertThrows(FunksjonellException.class, () -> behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(fagsakId, saksnummer, false));
     }
 
@@ -237,7 +237,7 @@ class OpprettNyFørstegangsbehandlingTest {
         repositoryProvider.getBehandlingRepository().lagre(klage, repositoryProvider.getBehandlingRepository().taSkriveLås(klage));
 
         // Act
-        behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer(), true);
+        behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(), behandling.getSaksnummer(), true);
 
         // Assert
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
@@ -253,7 +253,7 @@ class OpprettNyFørstegangsbehandlingTest {
         mockMottatteDokumentRepositoryElsokUtenBehandling(repositoryProvider);
 
         // Act
-        behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer(), false);
+        behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(), behandling.getSaksnummer(), false);
 
         // Assert
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
@@ -269,7 +269,7 @@ class OpprettNyFørstegangsbehandlingTest {
         mockMottatteDokumentRepositoryElsokMedBehandling(repositoryProvider);
 
         // Act
-        behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer(), false);
+        behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(), behandling.getSaksnummer(), false);
 
         // Assert
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
@@ -285,7 +285,7 @@ class OpprettNyFørstegangsbehandlingTest {
         mockMottatteDokumentRepositoryImMedBehandling(repositoryProvider);
 
         // Act
-        behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer(), false);
+        behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(), behandling.getSaksnummer(), false);
 
         // Assert
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
@@ -302,7 +302,7 @@ class OpprettNyFørstegangsbehandlingTest {
 
         // Act
         var fagsakId = behandling.getFagsakId();
-        var saksnummer = behandling.getFagsak().getSaksnummer();
+        var saksnummer = behandling.getSaksnummer();
         assertThrows(FunksjonellException.class, () -> behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(fagsakId, saksnummer, false));
     }
 
@@ -314,7 +314,7 @@ class OpprettNyFørstegangsbehandlingTest {
 
         // Act
         var fagsakId = behandling.getFagsakId();
-        var saksnummer = behandling.getFagsak().getSaksnummer();
+        var saksnummer = behandling.getSaksnummer();
         assertThrows(FunksjonellException.class, () -> behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(fagsakId, saksnummer, true));
     }
 
@@ -322,7 +322,7 @@ class OpprettNyFørstegangsbehandlingTest {
     void skal_opprette_ny_førstegangsbehandling_når_behandlingen_er_åpen() {
         // Act
         mockMottatteDokumentRepository(repositoryProvider);
-        behandlingsoppretterTjeneste.henleggÅpenFørstegangsbehandlingOgOpprettNy(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer());
+        behandlingsoppretterTjeneste.henleggÅpenFørstegangsbehandlingOgOpprettNy(behandling.getFagsakId(), behandling.getSaksnummer());
 
         // Assert
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
@@ -335,7 +335,7 @@ class OpprettNyFørstegangsbehandlingTest {
     void skal_opprette_ny_førstegangsbehandling_når_behandlingen_er_åpen_elektronisk() {
         // Act
         mockMottatteDokumentRepositoryElsokMedBehandling(repositoryProvider);
-        behandlingsoppretterTjeneste.henleggÅpenFørstegangsbehandlingOgOpprettNy(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer());
+        behandlingsoppretterTjeneste.henleggÅpenFørstegangsbehandlingOgOpprettNy(behandling.getFagsakId(), behandling.getSaksnummer());
 
         // Assert
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
@@ -352,7 +352,7 @@ class OpprettNyFørstegangsbehandlingTest {
 
         // Act
         var fagsakId = behandling.getFagsakId();
-        var saksnummer = behandling.getFagsak().getSaksnummer();
+        var saksnummer = behandling.getSaksnummer();
         assertThrows(FunksjonellException.class, () -> behandlingsoppretterTjeneste
                 .henleggÅpenFørstegangsbehandlingOgOpprettNy(fagsakId, saksnummer));
 

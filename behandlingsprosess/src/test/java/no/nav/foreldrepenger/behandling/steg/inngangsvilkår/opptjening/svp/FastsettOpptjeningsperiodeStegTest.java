@@ -90,7 +90,7 @@ class FastsettOpptjeningsperiodeStegTest {
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
         // Simulerer at disse vilkårene har blitt opprettet
         opprettVilkår(List.of(OPPTJENINGSPERIODEVILKÅR, OPPTJENINGSVILKÅRET), behandling, lås);
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås);
 
         // Act
         opptjeningsperiodeSvpSteg.utførSteg(kontekst);
@@ -123,11 +123,11 @@ class FastsettOpptjeningsperiodeStegTest {
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
         // Simulerer at disse vilkårene har blitt opprettet
         opprettVilkår(List.of(OPPTJENINGSPERIODEVILKÅR, OPPTJENINGSVILKÅRET), behandling, lås);
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås);
         opptjeningsperiodeSvpSteg.utførSteg(kontekst);
 
         var lås2 = behandlingRepository.taSkriveLås(behandling.getId());
-        var kontekst2 = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås2);
+        var kontekst2 = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås2);
 
         // Act
         vurderOpptjeningsvilkårSteg.utførSteg(kontekst2);
@@ -155,11 +155,11 @@ class FastsettOpptjeningsperiodeStegTest {
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
         // Simulerer at disse vilkårene har blitt opprettet
         opprettVilkår(List.of(OPPTJENINGSPERIODEVILKÅR, OPPTJENINGSVILKÅRET), behandling, lås);
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås);
         opptjeningsperiodeSvpSteg.utførSteg(kontekst);
 
         var lås2 = behandlingRepository.taSkriveLås(behandling.getId());
-        var kontekst2 = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås2);
+        var kontekst2 = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås2);
 
         // Act
         vurderOpptjeningsvilkårSteg.utførSteg(kontekst2);
@@ -185,11 +185,11 @@ class FastsettOpptjeningsperiodeStegTest {
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
         // Simulerer at disse vilkårene har blitt opprettet
         opprettVilkår(List.of(OPPTJENINGSPERIODEVILKÅR, OPPTJENINGSVILKÅRET), behandling, lås);
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås);
         opptjeningsperiodeSvpSteg.utførSteg(kontekst);
 
         var lås2 = behandlingRepository.taSkriveLås(behandling.getId());
-        var kontekst2 = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås2);
+        var kontekst2 = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås2);
 
         // simuler at aktiviteten har blitt godkjent
         var aktivitetsPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now().minusMonths(6), LocalDate.now().plusMonths(6));

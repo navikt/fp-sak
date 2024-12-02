@@ -70,7 +70,7 @@ class EtterkontrollEventObserverTest {
         etterkontrollRepository.lagre(etterkontroll);
 
         var familiehendelseEvent = new FamiliehendelseEvent(
-                FamiliehendelseEvent.EventType.TERMIN_TIL_FØDSEL, behandling.getAktørId(),
+                FamiliehendelseEvent.EventType.TERMIN_TIL_FØDSEL, behandling.getSaksnummer(),
                 behandling.getFagsakId(), behandling.getId(), FagsakYtelseType.FORELDREPENGER, null, null);
         etterkontrollEventObserver.observerFamiliehendelseEvent(familiehendelseEvent);
 

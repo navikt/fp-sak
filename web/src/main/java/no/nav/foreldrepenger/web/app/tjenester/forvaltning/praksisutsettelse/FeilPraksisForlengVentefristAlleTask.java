@@ -35,7 +35,7 @@ class FeilPraksisForlengVentefristAlleTask implements ProsessTaskHandler {
 
         var behandlinger = utvalgRepository.finnNesteHundreBehandlingerSomErPåVentTilDesember(fraBehandlingId);
 
-        behandlinger.stream().map(behandling -> opprettTaskForEnkeltSak(behandling.fagsakId(), behandling.id())).forEach(prosessTaskTjeneste::lagre);
+        behandlinger.stream().map(behandling -> opprettTaskForEnkeltSak(behandling.fagsakId(), behandling.id(), behandling.saksnummer())).forEach(prosessTaskTjeneste::lagre);
 
         behandlinger.stream()
             .map(FeilPraksisUtsettelseRepository.BehandlingMedFagsakId::id)
@@ -45,9 +45,9 @@ class FeilPraksisForlengVentefristAlleTask implements ProsessTaskHandler {
 
     }
 
-    public static ProsessTaskData opprettTaskForEnkeltSak(Long fagsakId, Long behandlingId) {
+    public static ProsessTaskData opprettTaskForEnkeltSak(Long fagsakId, Long behandlingId, String saksnummer) {
         var prosessTaskData = ProsessTaskData.forProsessTask(FeilPraksisForlengVentefristSingleTask.class);
-        prosessTaskData.setBehandling(fagsakId, behandlingId);
+        prosessTaskData.setBehandling(saksnummer, fagsakId, behandlingId);
         prosessTaskData.setCallIdFraEksisterende();
         return prosessTaskData;
     }

@@ -64,7 +64,7 @@ public class DatavarehusAdminRestTjeneste {
 
         if (lagretVedtak != null) {
             var prosessTaskData = ProsessTaskData.forProsessTask(RegenererVedtaksXmlTask.class);
-            prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+            prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
             prosessTaskData.setCallIdFraEksisterende();
             taskTjeneste.lagre(prosessTaskData);
         } else {

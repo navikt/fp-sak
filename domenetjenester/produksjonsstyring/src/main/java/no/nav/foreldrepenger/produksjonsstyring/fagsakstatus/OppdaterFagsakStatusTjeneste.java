@@ -76,9 +76,9 @@ public class OppdaterFagsakStatusTjeneste {
     public void lagBehandlingAvsluttetTask(Fagsak fagsak, Long behandlingId) {
         var prosessTaskData = ProsessTaskData.forProsessTask(BehandlingAvsluttetHendelseTask.class);
         if (behandlingId != null) {
-            prosessTaskData.setBehandling(fagsak.getId(), behandlingId, fagsak.getAktørId().getId());
+            prosessTaskData.setBehandling(fagsak.getSaksnummer().getVerdi(), fagsak.getId(), behandlingId);
         } else {
-            prosessTaskData.setFagsak(fagsak.getId(), fagsak.getAktørId().getId());
+            prosessTaskData.setFagsak(fagsak.getSaksnummer().getVerdi(), fagsak.getId());
         }
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskTjeneste.lagre(prosessTaskData);
@@ -159,7 +159,7 @@ public class OppdaterFagsakStatusTjeneste {
             try {
                 // Bruker AVSLUTTET her for behandling som allerede er avsluttet. Dette er for å trigge ny opphenting av sak i fpoversikt.
                 // Det vil i realiteten være to AVSLUTTET behandling hendelser på siste behandling i avsluttet fagsak.
-                var task = PubliserBehandlingHendelseTask.prosessTask(fagsakId, behandlingId, fagsak.getAktørId(), HendelseForBehandling.AVSLUTTET);
+                var task = PubliserBehandlingHendelseTask.prosessTask(fagsak.getSaksnummer(), fagsakId, behandlingId, HendelseForBehandling.AVSLUTTET);
                 prosessTaskTjeneste.lagre(task);
             } catch (Exception ex) {
                 LOG.warn("Publisering av FagsakAvsluttet feilet ved fagsak avsluttet", ex);

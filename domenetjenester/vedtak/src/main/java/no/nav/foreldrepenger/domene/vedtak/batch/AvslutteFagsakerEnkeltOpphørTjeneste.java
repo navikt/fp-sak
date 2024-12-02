@@ -122,9 +122,8 @@ public class AvslutteFagsakerEnkeltOpphørTjeneste {
     private ProsessTaskData opprettFagsakAvslutningTask(Fagsak fagsak, String callId, LocalDate dato, LocalTime tid, int spread) {
         var nesteKjøring = LocalDateTime.of(dato, tid.plusSeconds(Math.abs(System.nanoTime()) % spread));
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskFagsakAvslutningTask.class);
-        prosessTaskData.setFagsak(fagsak.getId(), fagsak.getAktørId().getId());
+        prosessTaskData.setFagsak(fagsak.getSaksnummer().getVerdi(), fagsak.getId());
         prosessTaskData.setNesteKjøringEtter(nesteKjøring);
-        prosessTaskData.setSaksnummer(fagsak.getSaksnummer().toString());
         prosessTaskData.setCallId(callId);
         return prosessTaskData;
     }

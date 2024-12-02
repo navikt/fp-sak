@@ -130,7 +130,7 @@ public class StønadsperioderInnhenter {
         var brukStartdato = forrigeInnvilgetFom.filter(d -> d.isBefore(aktuellAntattFørstedag)).isPresent() ?
             forrigeInnvilgetFom.get() : aktuellAntattFørstedag;
         var fhDato = finnFamilieHendelseDato(behandling);
-        var egenSak = new MuligSak(behandling.getFagsakYtelseType(), behandling.getFagsak().getSaksnummer(),
+        var egenSak = new MuligSak(behandling.getFagsakYtelseType(), behandling.getSaksnummer(),
             SaksForhold.EGEN_SAK, brukStartdato, fhDato.orElse(null));
 
         var egneMuligeSaker = utledEgneMuligeSaker(behandling, egenSak);

@@ -193,7 +193,7 @@ class DokumentmottakerKlageTest {
                 .medBehandlingStegStart(BehandlingStegType.FATTE_VEDTAK)
                 .lagre(repositoryProvider);
         var fagsak = behandling.getFagsak();
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(),
                 behandlingRepository.taSkriveLås(behandling));
 
         Behandlingsresultat.builderForInngangsvilkår()

@@ -163,7 +163,7 @@ public class ForvaltningOpptjeningRestTjeneste {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         var prosessTaskData = ProsessTaskData.forProsessTask(InnhentIAYIAbakusTask.class);
-        prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
         prosessTaskData.setProperty(InnhentIAYIAbakusTask.OVERSTYR_KEY, InnhentIAYIAbakusTask.OVERSTYR_VALUE);
         prosessTaskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(prosessTaskData);

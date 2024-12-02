@@ -42,7 +42,7 @@ public class SendInformasjonsbrevBatchTjeneste implements BatchTjeneste {
         var saker = informasjonssakRepository.finnSakerMedInnvilgetMaksdatoInnenIntervall(periode.fom(), periode.tom());
         var baseline = LocalTime.now();
         saker.forEach(sak -> {
-            LOG.info("Oppretter informasjonssak-task for {}", sak.getAktørId().getId());
+            LOG.info("Oppretter informasjonssak-task for {}", sak.getAktørId());
             var data = ProsessTaskData.forProsessTask(OpprettInformasjonsFagsakTask.class);
             data.setAktørId(sak.getAktørId().getId());
             data.setCallIdFraEksisterende();

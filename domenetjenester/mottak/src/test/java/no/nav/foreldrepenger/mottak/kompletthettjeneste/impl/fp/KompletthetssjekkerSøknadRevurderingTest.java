@@ -219,14 +219,14 @@ class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwareTest {
 
         // Matcher med utsettelse:
         var dokumentListe = singleton(DokumentTypeId.DOK_INNLEGGELSE);
-        when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(eq(behandling.getFagsak().getSaksnummer()), eq(søknadsDato))).thenReturn(dokumentListe);
+        when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(eq(behandling.getSaksnummer()), eq(søknadsDato))).thenReturn(dokumentListe);
 
         // Act
         var manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(behandling));
 
         // Assert
         assertThat(manglendeVedlegg).isEmpty();
-        verify(dokumentArkivTjeneste).hentDokumentTypeIdForSak(eq(behandling.getFagsak().getSaksnummer()), eq(søknadsDato));
+        verify(dokumentArkivTjeneste).hentDokumentTypeIdForSak(eq(behandling.getSaksnummer()), eq(søknadsDato));
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {

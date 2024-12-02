@@ -121,7 +121,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         assertThat(klageResultatEntitet.getPåKlagdBehandlingId()).isEmpty();
         assertThat(klageResultatEntitet.getPåKlagdEksternBehandlingUuid()).isEqualTo(Optional.of(TILBAKEKREVING_BEHANDLING_UUID));
 
-        var historikkInnslager = historikkTjenesteAdapter.hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer(),
+        var historikkInnslager = historikkTjenesteAdapter.hentAlleHistorikkInnslagForSak(behandling.getSaksnummer(),
             URI.create("http://dummy/dummy")).stream().sorted(Comparator.comparing(HistorikkinnslagDto::getOpprettetTidspunkt)).toList();
         assertThat(historikkInnslager).hasSize(2);
         var historikkinnslagDto = historikkInnslager.get(0);
@@ -171,7 +171,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         assertThat(klageResultatEntitet.getPåKlagdBehandlingId()).isEmpty();
         assertThat(klageResultatEntitet.getPåKlagdEksternBehandlingUuid()).isEqualTo(Optional.of(nyTilbakekrevingUUID));
 
-        var historikkInnslager = historikkTjenesteAdapter.hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer(),
+        var historikkInnslager = historikkTjenesteAdapter.hentAlleHistorikkInnslagForSak(behandling.getSaksnummer(),
             URI.create("http://dummy/dummy")).stream().sorted(Comparator.comparing(HistorikkinnslagDto::getOpprettetTidspunkt)).toList();
         assertThat(historikkInnslager).hasSize(2);
         var historikkinnslagDto = historikkInnslager.get(0);
@@ -214,7 +214,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         klageFormkravAksjonspunktDto = new KlageFormkravAksjonspunktDto(true, true, true, true, null, "test", false, null, null);
         klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
 
-        var historikkInnslager = historikkTjenesteAdapter.hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer(),
+        var historikkInnslager = historikkTjenesteAdapter.hentAlleHistorikkInnslagForSak(behandling.getSaksnummer(),
             URI.create("http://dummy/dummy")).stream().sorted(Comparator.comparing(HistorikkinnslagDto::getOpprettetTidspunkt)).toList();
         assertThat(historikkInnslager).hasSize(2);
         var historikkinnslagDto = historikkInnslager.get(0);
@@ -256,7 +256,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         klageFormkravAksjonspunktDto = new KlageFormkravAksjonspunktDto(true, true, true, true, behandling.getUuid(), "test", false, null, null);
         klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
 
-        var historikkInnslager = historikkTjenesteAdapter.hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer(),
+        var historikkInnslager = historikkTjenesteAdapter.hentAlleHistorikkInnslagForSak(behandling.getSaksnummer(),
             URI.create("http://dummy/dummy")).stream().sorted(Comparator.comparing(HistorikkinnslagDto::getOpprettetTidspunkt)).toList();
         assertThat(historikkInnslager).hasSize(2);
         var historikkinnslagDto = historikkInnslager.get(0);
@@ -322,7 +322,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
     }
 
     private void fellesKlageHistoriskAssert() {
-        var historikkInnslager = historikkTjenesteAdapter.hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer(),
+        var historikkInnslager = historikkTjenesteAdapter.hentAlleHistorikkInnslagForSak(behandling.getSaksnummer(),
             URI.create("http://dummy/dummy"));
         assertThat(historikkInnslager).hasSize(1);
         var historikkinnslagDto = historikkInnslager.get(0);

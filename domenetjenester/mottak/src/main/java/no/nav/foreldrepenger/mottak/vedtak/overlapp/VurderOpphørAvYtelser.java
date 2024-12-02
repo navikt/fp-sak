@@ -112,7 +112,7 @@ public class VurderOpphørAvYtelser {
 
     private void opprettTaskForÅHåndtereOpphør(Fagsak sakOpphør, Fagsak fersktVedtak) {
         var prosessTaskData = ProsessTaskData.forProsessTask(HåndterOpphørAvYtelserTask.class);
-        prosessTaskData.setFagsakId(sakOpphør.getId());
+        prosessTaskData.setFagsak(sakOpphør.getSaksnummer().getVerdi(), sakOpphør.getId());
         prosessTaskData.setProperty(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY, String.format("Overlapp identifisert: Vurder saksnr %s vedtak i saksnr %s", sakOpphør.getSaksnummer(), fersktVedtak.getSaksnummer()));
         prosessTaskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(prosessTaskData);
@@ -123,12 +123,12 @@ public class VurderOpphørAvYtelser {
 
         //dersom to tette fødsler skal vi opprette VKY for at SB må ta stilling til eventuelt gjenstående minsterett ellers ikke
         if (toTetteFødsler(sakOpphør, iverksattBehandling) && overlappendeYtelse(sakOpphør, iverksattBehandling)) {
-            prosessTaskData.setProperty(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY, String.format("Overlapp på sak med minsterett ved tette fødsler identifisert: Vurder om sak %s har brukt opp minsteretten, og skal opphøres pga ny sak %s", sakOpphør.getSaksnummer(), iverksattBehandling.getFagsak().getSaksnummer()));
+            prosessTaskData.setProperty(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY, String.format("Overlapp på sak med minsterett ved tette fødsler identifisert: Vurder om sak %s har brukt opp minsteretten, og skal opphøres pga ny sak %s", sakOpphør.getSaksnummer(), iverksattBehandling.getSaksnummer()));
         } else {
             prosessTaskData.setProperty(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY, null);
         }
 
-        prosessTaskData.setFagsakId(sakOpphør.getId());
+        prosessTaskData.setFagsak(sakOpphør.getSaksnummer().getVerdi(), sakOpphør.getId());
         prosessTaskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(prosessTaskData);
     }
@@ -207,7 +207,7 @@ public class VurderOpphørAvYtelser {
         return fagsakRepository.hentForBruker(behandlingIVB.getAktørId())
             .stream()
             .filter(f -> VURDER_OVERLAPP.contains(f.getYtelseType()))
-            .filter(f -> !behandlingIVB.getFagsak().getSaksnummer().equals(f.getSaksnummer()))
+            .filter(f -> !behandlingIVB.getSaksnummer().equals(f.getSaksnummer()))
             .flatMap(f -> sjekkOverlappMotIverksattSvangerskapspenger(f, behandlingIVB, stønadsperiodeIVB).stream())
             .toList();
     }
@@ -217,7 +217,7 @@ public class VurderOpphørAvYtelser {
         var overlapp = stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(sjekkFagsak)
             .filter(utbetalingsperiode -> utbetalingsperiode.overlaps(stønadsperiodeIVB));
         if (overlapp.isEmpty()) return Optional.empty();
-        var saksnummer = behandlingIVB.getFagsak().getSaksnummer();
+        var saksnummer = behandlingIVB.getSaksnummer();
         if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(sjekkFagsak.getYtelseType())) {
             LOG.info("Overlapp SVP oppdaget for sak {} med løpende SVP-sak {}. Ingen revurdering opprettet", saksnummer, sjekkFagsak.getSaksnummer());
             return Optional.empty();

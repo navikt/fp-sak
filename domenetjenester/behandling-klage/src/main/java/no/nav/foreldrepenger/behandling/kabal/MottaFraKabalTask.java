@@ -178,7 +178,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
                 kabalTjeneste.lagHistorikkinnslagForHenleggelse(behandlingId, BehandlingResultatType.HENLAGT_ANKE_TRUKKET);
             }
         } else if (KabalUtfall.RETUR.equals(utfall)) {
-            throw new IllegalStateException("KABAL sender ankeutfall RETUR sak " + ankeBehandling.getFagsak().getSaksnummer().getVerdi());
+            throw new IllegalStateException("KABAL sender ankeutfall RETUR sak " + ankeBehandling.getSaksnummer().getVerdi());
         } else {
             kabalTjeneste.lagreAnkeUtfallFraKabal(ankeBehandling, utfall, sendtTrygderetten);
             if (ankeBehandling.isBehandlingPåVent()) { // Autopunkt

@@ -60,7 +60,7 @@ public class VedtattYtelseTjeneste {
         aktør.setVerdi(behandling.getAktørId().getId());
         var ytelse = new YtelseV1();
         ytelse.setKildesystem(Kildesystem.FPSAK);
-        ytelse.setSaksnummer(behandling.getFagsak().getSaksnummer().getVerdi());
+        ytelse.setSaksnummer(behandling.getSaksnummer().getVerdi());
         ytelse.setVedtattTidspunkt(vedtak.getVedtakstidspunkt());
         ytelse.setVedtakReferanse(behandling.getUuid().toString());
         ytelse.setAktør(aktør);

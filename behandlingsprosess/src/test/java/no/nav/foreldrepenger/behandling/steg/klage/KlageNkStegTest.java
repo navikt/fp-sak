@@ -17,7 +17,7 @@ class KlageNkStegTest {
         // Arrange
         var scenario = ScenarioKlageEngangsstønad.forAvvistNFP(ScenarioMorSøkerEngangsstønad.forAdopsjon());
         var klageBehandling = scenario.lagMocked();
-        var kontekst = new BehandlingskontrollKontekst(klageBehandling.getFagsakId(), klageBehandling.getAktørId(),
+        var kontekst = new BehandlingskontrollKontekst(klageBehandling.getSaksnummer(), klageBehandling.getFagsakId(),
                 new BehandlingLås(klageBehandling.getId()));
         var klageRepository = scenario.getKlageRepository();
 

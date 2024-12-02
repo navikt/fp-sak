@@ -53,9 +53,10 @@ class RegistrerSøknadStegTest extends EntityManagerAwareTest {
     void opprette_registrer_endringssøknad_aksjonspunkt_hvis_mottatt_førstegangssøknad_i_en_revurdering() {
 
         var aktørId = AktørId.dummy();
+        var saksnummer = new Saksnummer("9999");
         var fagsakId = fagsakRepository
                 .opprettNy(
-                        new Fagsak(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(aktørId), RelasjonsRolleType.MORA, new Saksnummer("9999")));
+                        new Fagsak(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(aktørId), RelasjonsRolleType.MORA, saksnummer));
 
         var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
         var forrigeBehandling = Behandling.forFørstegangssøknad(fagsak)
@@ -74,7 +75,7 @@ class RegistrerSøknadStegTest extends EntityManagerAwareTest {
                 .build();
         mottatteDokumentRepository.lagre(mottattDokument);
 
-        var kontekst = new BehandlingskontrollKontekst(fagsakId, aktørId, lås);
+        var kontekst = new BehandlingskontrollKontekst(saksnummer, fagsakId, lås);
         var resultat = steg.utførSteg(kontekst);
 
         assertThat(resultat.getAksjonspunktListe()).containsExactly(AksjonspunktDefinisjon.REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER);
@@ -84,9 +85,10 @@ class RegistrerSøknadStegTest extends EntityManagerAwareTest {
     void opprett_registrer_papirsøknad_svangerskapspenger_hvis_fagsaktype_er_svp() {
 
         var aktørId = AktørId.dummy();
+        var saksnummer = new Saksnummer("9999");
         var fagsakId = fagsakRepository
                 .opprettNy(new Fagsak(FagsakYtelseType.SVANGERSKAPSPENGER, NavBruker.opprettNyNB(aktørId), RelasjonsRolleType.MORA,
-                        new Saksnummer("9999")));
+                        saksnummer));
 
         var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
         var forrigeBehandling = Behandling.forFørstegangssøknad(fagsak)
@@ -105,7 +107,7 @@ class RegistrerSøknadStegTest extends EntityManagerAwareTest {
                 .build();
         mottatteDokumentRepository.lagre(mottattDokument);
 
-        var kontekst = new BehandlingskontrollKontekst(fagsakId, aktørId, lås);
+        var kontekst = new BehandlingskontrollKontekst(saksnummer, fagsakId, lås);
         var resultat = steg.utførSteg(kontekst);
 
         assertThat(resultat.getAksjonspunktListe()).containsExactly(AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_SVANGERSKAPSPENGER);

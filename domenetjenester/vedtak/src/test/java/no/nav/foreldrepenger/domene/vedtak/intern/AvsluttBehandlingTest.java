@@ -14,8 +14,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,6 +40,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.impl.VurderBehandlingerUnderIverksettelse;
 
 @ExtendWith(MockitoExtension.class)
@@ -85,14 +84,14 @@ class AvsluttBehandlingTest {
             Long behId = invocation.getArgument(0);
             var lås = new BehandlingLås(behId) {
             };
-            return new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
+            return new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås);
         });
         when(behandlingskontrollTjeneste.initBehandlingskontroll(Mockito.any(Behandling.class))).thenAnswer(
                 invocation -> {
                     Behandling beh = invocation.getArgument(0);
                     var lås = new BehandlingLås(beh.getId()) {
                     };
-                    return new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
+                    return new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås);
                 });
     }
 

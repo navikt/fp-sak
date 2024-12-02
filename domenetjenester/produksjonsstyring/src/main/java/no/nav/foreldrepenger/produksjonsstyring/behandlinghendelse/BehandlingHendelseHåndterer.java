@@ -108,7 +108,7 @@ public class BehandlingHendelseHåndterer implements KafkaMessageHandler.KafkaSt
         var behandlingRef = String.format("%s_T%s", Fagsystem.FPSAK.getOffisiellKode(), hendelse.getBehandlingUuid().toString());
 
         var prosessTaskData = ProsessTaskData.forProsessTask(OppdaterPersonoversiktTask.class);
-        prosessTaskData.setFagsak(fagsak.getId(), fagsak.getAktørId().getId());
+        prosessTaskData.setFagsak(fagsak.getSaksnummer().getVerdi(), fagsak.getId());
         prosessTaskData.setProperty(OppdaterPersonoversiktTask.PH_REF_KEY, behandlingRef);
         prosessTaskData.setProperty(OppdaterPersonoversiktTask.PH_STATUS_KEY, behandlingStatus.getKode());
         prosessTaskData.setProperty(OppdaterPersonoversiktTask.PH_TID_KEY, hendelse.getTidspunkt().toString());
