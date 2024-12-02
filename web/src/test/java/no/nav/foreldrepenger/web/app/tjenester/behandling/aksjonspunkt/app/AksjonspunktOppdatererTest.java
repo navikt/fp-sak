@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -76,7 +75,7 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
         behandlingsresultatRepository = new BehandlingsresultatRepository(em);
         totrinnRepository = new TotrinnRepository(em);
         var totrinnTjeneste = new TotrinnTjeneste(totrinnRepository);
-        vedtakTjeneste = new VedtakTjeneste(behandlingRepository, behandlingsresultatRepository, new HistorikkRepository(em), lagretVedtakRepository,
+        vedtakTjeneste = new VedtakTjeneste(behandlingRepository, behandlingsresultatRepository, repositoryProvider.getHistorikkinnslag2Repository(), lagretVedtakRepository,
                 totrinnTjeneste);
         historikkinnslagRepository = repositoryProvider.getHistorikkinnslag2Repository();
         fatterVedtakAksjonspunkt = new FatterVedtakAksjonspunkt(behandlingskontrollTjeneste, vedtakTjeneste,
