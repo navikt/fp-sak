@@ -7,10 +7,6 @@ import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-
-import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -18,8 +14,10 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt.BekreftSokersOpplysningspliktManuDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt.BekreftSøkersOpplysningspliktManuellOppdaterer;
 
@@ -60,7 +58,7 @@ class BekreftSøkersOpplysningspliktManuellOppdatererTest {
         var tekstlinjer = historikkInnslag.getTekstlinjer();
         assertThat(tekstlinjer).hasSize(2);
         assertThat(tekstlinjer.getFirst().getTekst()).isEqualTo("__Søkers opplysningsplikt__ er satt til __Vilkåret er oppfylt__.");
-        assertThat(tekstlinjer.get(1).getTekst()).isEqualTo("test av manu");
+        assertThat(tekstlinjer.get(1).getTekst()).contains(bekreftSokersOpplysningspliktManuDto.getBegrunnelse());
 
         var aksjonspunktSet = resultat.getEkstraAksjonspunktResultat()
             .stream()
