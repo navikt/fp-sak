@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -39,13 +40,7 @@ public class SakInfoDtoTjeneste {
     public SakInfoV2Dto mapSakInfoV2Dto(Fagsak fagsak) {
         var sisteYtelsesBehandling = behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId()).orElse(null);
         if (sisteYtelsesBehandling != null) {
-            var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(sisteYtelsesBehandling.getId());
-            LocalDate førsteUttaksdato;
-            try {
-                førsteUttaksdato = stp.getFørsteUttaksdato();
-            } catch (Exception e) {
-                førsteUttaksdato = stp.getSkjæringstidspunktHvisUtledet().orElse(null);
-            }
+            LocalDate førsteUttaksdato = finnFørsteUttaksdato(sisteYtelsesBehandling);
             var familiehendelseInfoDto = familieHendelseRepository.hentAggregatHvisEksisterer(sisteYtelsesBehandling.getId())
                 .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
                 .map(this::mapFamiliehendelseInfoV2Dto);
@@ -53,6 +48,19 @@ public class SakInfoDtoTjeneste {
             return mapTilSakInfoV2Dto(fagsak, familiehendelseInfoDto.orElse(null), førsteUttaksdato);
         } else {
             return mapTilSakInfoV2Dto(fagsak, null, null);
+        }
+    }
+
+    private LocalDate finnFørsteUttaksdato(Behandling behandling) {
+        try {
+            var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+            try {
+                return stp.getFørsteUttaksdato();
+            } catch (Exception e) {
+                return stp.getSkjæringstidspunktHvisUtledet().orElse(null);
+            }
+        } catch (Exception e) {
+            return null;
         }
     }
 
