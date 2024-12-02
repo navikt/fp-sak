@@ -3,21 +3,18 @@ package no.nav.foreldrepenger.domene.rest.historikk.tilfeller;
 
 import static no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus.BRUKERS_ANDEL;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
@@ -34,26 +31,20 @@ import no.nav.foreldrepenger.domene.typer.Beløp;
 
 class KunYtelseHistorikkTjenesteTest {
     private static final Long ANDELSNR = 1L;
-    private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
-    private static final Beløp GRUNNBELØP = new Beløp(600000);
-    private static final String ANDELSINFO = "Brukers andel";
-
-    private static final ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste = mock(ArbeidsgiverHistorikkinnslag.class);
 
     private KunYtelseHistorikkTjeneste kunYtelseHistorikkTjeneste;
     private BeregningsgrunnlagEntitet beregningsgrunnlag;
 
     @BeforeEach
     public void setup() {
-        kunYtelseHistorikkTjeneste = new KunYtelseHistorikkTjeneste(arbeidsgiverHistorikkinnslagTjeneste);
-        beregningsgrunnlag = BeregningsgrunnlagEntitet.ny().medGrunnbeløp(GRUNNBELØP).medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
+        var arbeidsgiverTjeneste = mock(ArbeidsgiverTjeneste.class);
+        kunYtelseHistorikkTjeneste = new KunYtelseHistorikkTjeneste(new ArbeidsgiverHistorikkinnslag(arbeidsgiverTjeneste));
+        var stp = LocalDate.now();
+        beregningsgrunnlag = BeregningsgrunnlagEntitet.ny().medGrunnbeløp(new Beløp(600000)).medSkjæringstidspunkt(stp).build();
         var periode1 = BeregningsgrunnlagPeriode.ny()
-            .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusMonths(2).minusDays(1))
+            .medBeregningsgrunnlagPeriode(stp, stp.plusMonths(2).minusDays(1))
             .build(beregningsgrunnlag);
         BeregningsgrunnlagPrStatusOgAndel.builder().medAndelsnr(ANDELSNR).medAktivitetStatus(BRUKERS_ANDEL).build(periode1);
-
-        when(arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(any(), any(), any(), anyList())).thenReturn(
-            ANDELSINFO);
     }
 
     @Test
@@ -70,16 +61,13 @@ class KunYtelseHistorikkTjenesteTest {
         // Act
         var historikkTekstlinjeBuilder = kunYtelseHistorikkTjeneste.lagHistorikk(dto, beregningsgrunnlag, Optional.empty(),
             InntektArbeidYtelseGrunnlagBuilder.nytt().build());
-        var faktiskeTekstlinjer = historikkTekstlinjeBuilder.stream().map(HistorikkinnslagTekstlinjeBuilder::build);
-        var forventetTekstlinjer = List.of(new HistorikkinnslagTekstlinjeBuilder().tekst("Fordeling for __" + ANDELSINFO + "__:").build(),
-            new HistorikkinnslagTekstlinjeBuilder().tekst(" __" + inntektskategori.getNavn() + "__ er satt til __" + fastsatt + "__").build(),
-            new HistorikkinnslagTekstlinjeBuilder().tekst(
-                " __Inntektskategori for " + ANDELSINFO + "__ er satt til __" + inntektskategori.getNavn() + "__").build(),
-            ""); // Linjeskift
+        var faktiskeTekstlinjer = historikkTekstlinjeBuilder.stream().map(HistorikkinnslagTekstlinjeBuilder::build).toList();
 
-        // Assert
-        assertThat(historikkTekstlinjeBuilder).isNotNull();
-        assertThat(faktiskeTekstlinjer).containsAnyElementsOf(forventetTekstlinjer);
+        assertThat(faktiskeTekstlinjer).hasSize(4);
+        assertThat(faktiskeTekstlinjer.getFirst()).isEqualTo("Fordeling for __Brukers andel:__");
+        assertThat(faktiskeTekstlinjer.get(1)).isEqualTo("__" + inntektskategori.getNavn() + "__ er satt til __" + fastsatt + "__");
+        assertThat(faktiskeTekstlinjer.get(2)).isEqualTo("__Inntektskategori for Brukers andel" + "__ er satt til __" + inntektskategori.getNavn() + "__");
+        //Siste linje fritekst
     }
 
     @Test
@@ -108,18 +96,14 @@ class KunYtelseHistorikkTjenesteTest {
         // Act
         var historikkTekstlinjeBuilder = kunYtelseHistorikkTjeneste.lagHistorikk(dto, beregningsgrunnlag, Optional.of(forrigeGrunnlag),
             InntektArbeidYtelseGrunnlagBuilder.nytt().build());
-        var faktiskeTekstlinjer = historikkTekstlinjeBuilder.stream().map(HistorikkinnslagTekstlinjeBuilder::build);
-        var forventetTekstlinjer = List.of(new HistorikkinnslagTekstlinjeBuilder().tekst("Fordeling for __" + ANDELSINFO + "__:").build(),
-            new HistorikkinnslagTekstlinjeBuilder().tekst(
-                " __" + forrigeInntektskategori.getNavn() + "__ er endret fra 66667 til __" + fastsatt + "__").build(),
-            new HistorikkinnslagTekstlinjeBuilder().tekst(
-                " __Inntektskategori for" + ANDELSINFO + "__ er endret fra " + forrigeInntektskategori.getNavn() + " til __"
-                    + inntektskategori.getNavn() + "__").build(),
-            ""); // Linjeskift
 
-        // Assert
-        assertThat(historikkTekstlinjeBuilder).isNotNull();
-        assertThat(faktiskeTekstlinjer).containsAnyElementsOf(forventetTekstlinjer);
+        var faktiskeTekstlinjer = historikkTekstlinjeBuilder.stream().map(HistorikkinnslagTekstlinjeBuilder::build).toList();
+
+        assertThat(faktiskeTekstlinjer).hasSize(4);
+        assertThat(faktiskeTekstlinjer.getFirst()).isEqualTo("Fordeling for __Brukers andel:__");
+        assertThat(faktiskeTekstlinjer.get(1)).isEqualTo("__Frilanser__ er endret fra 66667 til __" + fastsatt + "__");
+        assertThat(faktiskeTekstlinjer.get(2)).isEqualTo("__Inntektskategori for Brukers andel__ er endret fra Frilanser til __" + inntektskategori.getNavn() + "__");
+        //Siste linje fritekst
     }
 
 }

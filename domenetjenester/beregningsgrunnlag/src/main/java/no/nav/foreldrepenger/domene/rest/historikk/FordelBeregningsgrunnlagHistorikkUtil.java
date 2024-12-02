@@ -86,7 +86,7 @@ public final class FordelBeregningsgrunnlagHistorikkUtil {
             case JORDBRUKER -> "Selvstendig næringsdrivende - Jordbruker";
             case FISKER -> "Selvstendig næringsdrivende - Fisker";
             case ARBEIDSTAKER_UTEN_FERIEPENGER -> "Arbeidstaker uten feriepenger";
-            default -> throw new IllegalStateException("Unexpected value inntektskategori: " + inntektskategori);
+            case UDEFINERT -> throw new IllegalStateException("Unexpected value inntektskategori: " + inntektskategori);
         };
     }
 
