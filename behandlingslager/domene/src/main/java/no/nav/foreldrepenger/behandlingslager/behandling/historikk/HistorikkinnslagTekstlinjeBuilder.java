@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.historikk;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2.BOLD_MARKØR;
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstBuilderFormater.formatString;
 
 import java.math.BigDecimal;
@@ -12,13 +13,12 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 public class HistorikkinnslagTekstlinjeBuilder {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-
     private static final String LINJESKIFT = "linjeskift";
 
     private final StringBuilder stringBuilder = new StringBuilder();
 
     public HistorikkinnslagTekstlinjeBuilder bold(String b) {
-        stringBuilder.append(" __").append(b).append("__");
+        stringBuilder.append(" ").append(BOLD_MARKØR).append(b).append(BOLD_MARKØR);
         return this;
     }
 
@@ -141,7 +141,7 @@ public class HistorikkinnslagTekstlinjeBuilder {
     }
 
     public String build() {
-        if (LINJESKIFT.equals(stringBuilder)) {
+        if (LINJESKIFT.contentEquals(stringBuilder)) {
             return stringBuilder.toString();
         }
         return stringBuilder.delete(0, 1).toString();
