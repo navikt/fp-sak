@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.rest.historikk;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstBuilderFormater.formatDate;
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstBuilderFormater.formatString;
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
 
 import java.math.BigDecimal;
@@ -105,7 +103,7 @@ public final class FordelBeregningsgrunnlagHistorikkUtil {
 
                 return new HistorikkinnslagTekstlinjeBuilder().bold("Nytt refusjonskrav")
                     .tekst("endret fra " + BigDecimal.valueOf(forrigeRefusjon) + " til ")
-                    .bold(formatString(endring.getNyTotalRefusjonPrÅr()));
+                    .bold(endring.getNyTotalRefusjonPrÅr());
             }
         }
         return null;
@@ -118,7 +116,7 @@ public final class FordelBeregningsgrunnlagHistorikkUtil {
         var tekstNyAktivitet = new HistorikkinnslagTekstlinjeBuilder().tekst("Det er lagt til ny aktivitet for").bold(arbeidsforholdInfo);
         var endretFeltTekst = endring.isNyAndel() ? tekstNyAktivitet : tekstNyFordeling;
 
-        return endretFeltTekst.tekst("Gjeldende fra").bold(formatDate(dato));
+        return endretFeltTekst.tekst("Gjeldende fra").bold(dato);
     }
 
     private static boolean harEndringSomGirHistorikk(Lønnsendring endring) {
