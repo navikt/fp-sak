@@ -24,9 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
@@ -60,7 +58,7 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
     private BehandlingRepository behandlingRepository;
     private FagsakRepository fagsakRepository;
     private VergeRepository vergeRepository;
-    private HistorikkRepository historikkRepository;
+    private Historikkinnslag2Repository historikkRepository;
     @Mock
     private PersonopplysningTjeneste personopplysningTjeneste;
 
@@ -72,7 +70,7 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
         behandlingRepository = new BehandlingRepository(entityManager);
         fagsakRepository = new FagsakRepository(entityManager);
         vergeRepository = new VergeRepository(entityManager, new BehandlingLåsRepository(entityManager));
-        historikkRepository = new HistorikkRepository(entityManager);
+        historikkRepository = new Historikkinnslag2Repository(entityManager);
         vergeTjeneste = new VergeTjeneste(behandlingskontrollTjeneste, behandlingProsesseringTjeneste, vergeRepository,
             historikkRepository, behandlingRepository, personopplysningTjeneste);
     }
@@ -208,9 +206,9 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
         var ap = behandling.getAksjonspunktFor(AksjonspunktDefinisjon.AVKLAR_VERGE);
         verify(behandlingskontrollTjeneste).lagreAksjonspunkterAvbrutt(any(), any(), eq(List.of(ap)));
         verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandling(behandling);
-        var historikkinnslag = historikkRepository.hentHistorikk(behandling.getId());
-        assertThat(historikkinnslag.stream().map(Historikkinnslag::getType).toList()).contains(
-            HistorikkinnslagType.FJERNET_VERGE);
+        var historikkinnslag = historikkRepository.hent(behandling.getId());
+        assertThat(historikkinnslag).hasSize(1);
+        assertThat(historikkinnslag.getFirst().getTittel()).contains("verge", "fjernet");
     }
 
     private Fagsak opprettFagsak() {
