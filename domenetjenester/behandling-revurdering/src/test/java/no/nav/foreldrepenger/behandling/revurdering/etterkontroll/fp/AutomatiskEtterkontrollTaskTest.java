@@ -399,7 +399,7 @@ class AutomatiskEtterkontrollTaskTest {
     }
 
     private void createTask() {
-        task = new AutomatiskEtterkontrollTask(repositoryProvider, etterkontrollRepository, historikkRepository, familieHendelseTjeneste,
+        task = new AutomatiskEtterkontrollTask(repositoryProvider, etterkontrollRepository, familieHendelseTjeneste,
             personinfoAdapter, behandlendeEnhetTjeneste);
     }
 
