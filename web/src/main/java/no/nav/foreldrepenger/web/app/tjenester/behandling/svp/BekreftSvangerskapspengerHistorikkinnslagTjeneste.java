@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.format;
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
 import static no.nav.foreldrepenger.web.app.tjenester.behandling.svp.BekreftSvangerskapspengerOppdaterer.getFødselsdato;
 import static no.nav.foreldrepenger.web.app.tjenester.behandling.svp.BekreftSvangerskapspengerOppdaterer.getTermindato;
 
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -33,7 +33,6 @@ import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 public class BekreftSvangerskapspengerHistorikkinnslagTjeneste {
-    private static final DateTimeFormatter DATO_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
     private Historikkinnslag2Repository historikkinnslagRepository;
@@ -122,12 +121,12 @@ public class BekreftSvangerskapspengerHistorikkinnslagTjeneste {
             case FERIE -> "Ferie";
         };
         return SvpOppholdKilde.SØKNAD.equals(opphold.getKilde())
-            ? String.format("__%s – %s__ med __%s__ og kilde søknad", DATO_FORMATTER.format(opphold.getFom()), DATO_FORMATTER.format(opphold.getTom()), oppholdÅrsakTekst)
-            : String.format("__%s – %s__ med __%s__", DATO_FORMATTER.format(opphold.getFom()), DATO_FORMATTER.format(opphold.getTom()), oppholdÅrsakTekst);
+            ? String.format("__%s__ med __%s__ og kilde søknad", format(opphold.getTidsperiode()), oppholdÅrsakTekst)
+            : String.format("__%s__ med __%s__", format(opphold.getTidsperiode()), oppholdÅrsakTekst);
     }
 
     private String formaterForHistorikk(TilretteleggingFOM fom) {
-        var builder = new StringBuilder(String.format("__%s__ fra og med __%s__", fom.getType().getNavn(), DATO_FORMATTER.format(fom.getFomDato())));
+        var builder = new StringBuilder(String.format("__%s__ fra og med __%s__", fom.getType().getNavn(), format(fom.getFomDato())));
         if (TilretteleggingType.DELVIS_TILRETTELEGGING.equals(fom.getType())) {
             builder.append(String.format(" med stillingsprosent __%s__", fom.getStillingsprosent()));
         }
