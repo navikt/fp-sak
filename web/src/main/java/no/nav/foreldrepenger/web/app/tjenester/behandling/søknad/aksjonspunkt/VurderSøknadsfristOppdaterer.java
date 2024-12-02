@@ -56,8 +56,7 @@ public class VurderSøknadsfristOppdaterer implements AksjonspunktOppdaterer<Vur
             .medTittel(SkjermlenkeType.SOEKNADSFRIST)
             .addTekstlinje(fraTilEquals("Søknadsfrist", null,  dto.harGyldigGrunn()
                 ? HistorikkEndretFeltVerdiType.HAR_GYLDIG_GRUNN.getNavn()
-                : HistorikkEndretFeltVerdiType.HAR_IKKE_GYLDIG_GRUNN.getNavn()))
-            .addTekstlinje(dto.getBegrunnelse());
+                : HistorikkEndretFeltVerdiType.HAR_IKKE_GYLDIG_GRUNN.getNavn()));
 
         if (dto.harGyldigGrunn()) {
             var uttaksperiodegrense = uttaksperiodegrenseRepository.hent(param.getBehandlingId());
@@ -69,6 +68,7 @@ public class VurderSøknadsfristOppdaterer implements AksjonspunktOppdaterer<Vur
                 builder.addTekstlinje(fraTilEquals("Mottatt dato", tidligereAnseesMottattDato, dtoMottattDato));
             }
         }
+        builder.addTekstlinje(dto.getBegrunnelse());
         return builder.build();
     }
 
