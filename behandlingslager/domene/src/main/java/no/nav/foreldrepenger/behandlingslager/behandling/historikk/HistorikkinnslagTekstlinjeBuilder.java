@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 public class HistorikkinnslagTekstlinjeBuilder {
@@ -60,7 +61,23 @@ public class HistorikkinnslagTekstlinjeBuilder {
     }
 
     public HistorikkinnslagTekstlinjeBuilder fraTil(String hva, Kodeverdi fra, Kodeverdi til) {
-        return fraTil(hva, fra == null ? null : fra.getNavn(), til.getNavn());
+        return fraTil(hva, format(fra), format(til));
+    }
+
+    public HistorikkinnslagTekstlinjeBuilder fraTil(String hva, Boolean fra, boolean til) {
+        return fraTil(hva, format(fra), format(til));
+    }
+
+    public HistorikkinnslagTekstlinjeBuilder fraTil(String hva, BigDecimal fra, BigDecimal til) {
+        return fraTil(hva, format(fra), format(til));
+    }
+
+    public HistorikkinnslagTekstlinjeBuilder fraTil(String hva, LocalDate fra, LocalDate til) {
+        return fraTil(hva, format(fra), format(til));
+    }
+
+    public HistorikkinnslagTekstlinjeBuilder fraTil(String hva, Integer fra, Integer til) {
+        return fraTil(hva, format(fra), format(til));
     }
 
     public HistorikkinnslagTekstlinjeBuilder til(String hva, Number til) {
@@ -83,39 +100,6 @@ public class HistorikkinnslagTekstlinjeBuilder {
         return fraTil(hva, null, til);
     }
 
-    public HistorikkinnslagTekstlinjeBuilder fraTil(String hva, Boolean fra, boolean til) {
-        var fraTekst = fra == null ? null : fra ? "Ja" : "Nei";
-        var tilTekst = til ? "Ja" : "Nei";
-        return fraTil(hva, fraTekst, tilTekst);
-    }
-
-    public HistorikkinnslagTekstlinjeBuilder fraTil(String hva, BigDecimal fra, BigDecimal til) {
-        var fraTekst = fra == null ? null : fra.toString();
-        var tilTekst = til == null ? null : til.toString();
-        return fraTil(hva, fraTekst, tilTekst);
-    }
-
-    public HistorikkinnslagTekstlinjeBuilder fraTil(String hva, LocalDate fra, LocalDate til) {
-        String fraTekst;
-        fraTekst = fra != null ? DATE_FORMATTER.format(fra) : null;
-        String tilTekst;
-        tilTekst = til != null ? DATE_FORMATTER.format(til) : null;
-        return fraTil(hva, fraTekst, tilTekst);
-    }
-
-    public HistorikkinnslagTekstlinjeBuilder fraTil(String hva, Integer fra, Integer til) {
-        var fraTekst = fra == null ? null : fra.toString();
-        var tilTekst = til == null ? null : til.toString();
-        return fraTil(hva, fraTekst, tilTekst);
-    }
-
-    public static HistorikkinnslagTekstlinjeBuilder fraTilEquals(String hva, Kodeverdi fra, Kodeverdi til) {
-        if (Objects.equals(fra, til)) {
-            return null;
-        }
-        return new HistorikkinnslagTekstlinjeBuilder().fraTil(hva, fra, til);
-    }
-
     public static HistorikkinnslagTekstlinjeBuilder fraTilEquals(String hva, String fra, String til) {
         if (Objects.equals(fra, til)) {
             return null;
@@ -123,29 +107,24 @@ public class HistorikkinnslagTekstlinjeBuilder {
         return new HistorikkinnslagTekstlinjeBuilder().fraTil(hva, fra, til);
     }
 
+    public static HistorikkinnslagTekstlinjeBuilder fraTilEquals(String hva, Kodeverdi fra, Kodeverdi til) {
+        return fraTilEquals(hva, format(fra), format(til));
+    }
+
+    public static HistorikkinnslagTekstlinjeBuilder fraTilEquals(String hva, BigDecimal fra, BigDecimal til) {
+        return fraTilEquals(hva, format(fra), format(til));
+    }
+
     public static HistorikkinnslagTekstlinjeBuilder fraTilEquals(String hva, Boolean fra, boolean til) {
-        if (Objects.equals(fra, til)) {
-            return null;
-        }
-        return new HistorikkinnslagTekstlinjeBuilder().fraTil(hva, fra, til);
+        return fraTilEquals(hva, format(fra), format(til));
     }
 
     public static HistorikkinnslagTekstlinjeBuilder fraTilEquals(String hva, LocalDate fra, LocalDate til) {
-        if (Objects.equals(fra, til)) {
-            return null;
-        }
-        String fraTekst;
-        fraTekst = fra != null ? DATE_FORMATTER.format(fra) : null;
-        String tilTekst;
-        tilTekst = til != null ? DATE_FORMATTER.format(til) : null;
-        return new HistorikkinnslagTekstlinjeBuilder().fraTil(hva, fraTekst, tilTekst);
+        return fraTilEquals(hva, format(fra), format(til));
     }
 
     public static HistorikkinnslagTekstlinjeBuilder fraTilEquals(String hva, Number fra, Number til) {
-        if (Objects.equals(fra, til)) {
-            return null;
-        }
-        return new HistorikkinnslagTekstlinjeBuilder().fraTil(hva, fra != null ? format(fra) : null, format(til));
+        return fraTilEquals(hva, format(fra), format(til));
     }
 
     public String build() {
@@ -160,7 +139,12 @@ public class HistorikkinnslagTekstlinjeBuilder {
             case null -> null;
             case LocalDate localDate -> DATE_FORMATTER.format(localDate);
             case LocalDateInterval interval -> DATE_FORMATTER.format(interval.getFomDato()) + " - " + DATE_FORMATTER.format(interval.getTomDato());
-            default -> verdi.toString();
+            case AbstractLocalDateInterval interval -> DATE_FORMATTER.format(interval.getFomDato()) + " - " + DATE_FORMATTER.format(interval.getTomDato());
+            case BigDecimal bd -> bd.toString();
+            case Number n -> n.toString();
+            case Boolean b -> b ? "Ja" : "Nei";
+            case Kodeverdi k -> k.getNavn();
+            default -> throw new IllegalStateException("Ikke støttet historikkformatering for " + verdi);
         };
     }
 

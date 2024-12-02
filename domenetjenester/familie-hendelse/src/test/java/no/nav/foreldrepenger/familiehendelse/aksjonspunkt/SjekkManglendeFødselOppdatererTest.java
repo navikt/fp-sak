@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +40,6 @@ import no.nav.vedtak.exception.FunksjonellException;
 class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
 
     private static final AksjonspunktDefinisjon AKSJONSPUNKT_DEF = AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL;
-    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
     private final LocalDate now = LocalDate.now();
 
@@ -128,8 +127,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(historikkinnslag.getTekstlinjer().stream().map(Historikkinnslag2Tekstlinje::getTekst)).anyMatch(
-                t -> t.contains("Fødselsdato") && t.contains(TIME_FORMATTER.format(opprinneligFødseldato)) && t.contains(
-                    TIME_FORMATTER.format(avklartFødseldato)))
+                t -> t.contains("Fødselsdato") && t.contains(format(opprinneligFødseldato)) && t.contains(format(avklartFødseldato)))
             .anyMatch(t -> t.contains("Antall barn") && t.contains(String.valueOf(avklartAntallBarn)))
             .anyMatch(t -> t.contains(dto.getBegrunnelse()));
     }
@@ -173,7 +171,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(historikkinnslag.getTekstlinjer().stream().map(Historikkinnslag2Tekstlinje::getTekst)).anyMatch(
-                t -> t.contains("Dødsdato") && t.contains(TIME_FORMATTER.format(avklartDødsdato)))
+                t -> t.contains("Dødsdato") && t.contains(format(avklartDødsdato)))
             .anyMatch(t -> t.contains("Antall barn") && t.contains(String.valueOf(avklartAntallBarn)))
             .anyMatch(t -> t.contains(dto.getBegrunnelse()));
     }

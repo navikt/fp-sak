@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.klage;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.UUID;
@@ -189,7 +189,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         tekstlinjer = historikkinnslag.getTekstlinjer();
         assertThat(tekstlinjer.stream()
             .anyMatch(tekstlinje -> tekstlinje.getTekst().contains(KlageHistorikkinnslag.PÅKLAGD_BEHANDLING) && tekstlinje.getTekst()
-                .contains(TILBAKEKREVING_BEHANDLING_TYPE_NAVN + " " + vedtakDato.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))))).isTrue();
+                .contains(TILBAKEKREVING_BEHANDLING_TYPE_NAVN + " " + format(vedtakDato)))).isTrue();
     }
 
     @Test

@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.format;
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
-import static no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder.formatString;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -78,11 +78,11 @@ public class FaktaUttakHistorikkinnslagTjeneste {
     private LocalDateSegment<Endring> utledEndringForPerioder(LocalDateInterval di, LocalDateSegment<OppgittPeriodeEntitet> oppdaterteLhs,
                                                               LocalDateSegment<OppgittPeriodeEntitet> eksisterendeRhs) {
         if (eksisterendeRhs == null) {
-            return new LocalDateSegment<>(di, new Endring(tekstIntro(di), null, tekstPeriodeFull(oppdaterteLhs.getValue())));
+            return new LocalDateSegment<>(di, new Endring(format(di), null, tekstPeriodeFull(oppdaterteLhs.getValue())));
         } else if (oppdaterteLhs == null) {
-            return new LocalDateSegment<>(di, new Endring(tekstIntro(di), tekstPeriodeFull(eksisterendeRhs.getValue()), null));
+            return new LocalDateSegment<>(di, new Endring(format(di), tekstPeriodeFull(eksisterendeRhs.getValue()), null));
         } else if (!erLikePerioder(oppdaterteLhs.getValue(), eksisterendeRhs.getValue())) {
-            return new LocalDateSegment<>(di, new Endring(tekstIntro(di), tekstPeriodeEndret(oppdaterteLhs.getValue(), eksisterendeRhs.getValue()),
+            return new LocalDateSegment<>(di, new Endring(format(di), tekstPeriodeEndret(oppdaterteLhs.getValue(), eksisterendeRhs.getValue()),
                 tekstPeriodeEndret(eksisterendeRhs.getValue(), oppdaterteLhs.getValue())));
         } else {
             return null;
@@ -116,10 +116,6 @@ public class FaktaUttakHistorikkinnslagTjeneste {
         } else {
             return null;
         }
-    }
-
-    private String tekstIntro(LocalDateInterval intervall) {
-        return String.format("%s - %s", formatString(intervall.getFomDato()), formatString(intervall.getTomDato()));
     }
 
     private String tekstPeriodeFull(OppgittPeriodeEntitet periode) {
