@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.rest.historikk;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstBuilderFormater.formatDate;
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstBuilderFormater.formatString;
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
 
 import java.math.BigDecimal;
@@ -155,7 +153,7 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkTjeneste {
         var tilStartdato = fastsattAndel.getFastsattRefusjonFom();
 
         List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder = new ArrayList<>();
-        tekstlinjerBuilder.add(fraTilEquals("Startdato for refusjon til " + arbeidsforholdInfo, formatDate(fraStartdato), formatDate(tilStartdato)));
+        tekstlinjerBuilder.add(fraTilEquals("Startdato for refusjon til " + arbeidsforholdInfo, fraStartdato, tilStartdato));
 
         if (fastsattAndel.getDelvisRefusjonPrMndFørStart() != null && fastsattAndel.getDelvisRefusjonPrMndFørStart() != 0) {
             var fraBeløpPrMnd = forrigeDelvisRefusjonPrÅr.map(forrigeDelvisRef -> forrigeDelvisRef.divide(MÅNEDER_I_ÅR, RoundingMode.HALF_EVEN))
@@ -163,7 +161,7 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkTjeneste {
                 .orElse(null);
             var tilBeløpPrMnd = fastsattAndel.getDelvisRefusjonPrMndFørStart();
             tekstlinjerBuilder.add(
-                fraTilEquals("Delvis refusjon før " + arbeidsforholdInfo, formatString(fraBeløpPrMnd), formatString(tilBeløpPrMnd)));
+                fraTilEquals("Delvis refusjon før " + arbeidsforholdInfo, fraBeløpPrMnd, tilBeløpPrMnd));
         }
 
         return tekstlinjerBuilder;

@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.historikk;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2.BOLD_MARKØR;
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstBuilderFormater.formatString;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -9,6 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 public class HistorikkinnslagTekstlinjeBuilder {
 
@@ -26,6 +26,10 @@ public class HistorikkinnslagTekstlinjeBuilder {
         return bold(String.valueOf(integer));
     }
 
+    public HistorikkinnslagTekstlinjeBuilder bold(LocalDate dato) {
+        return bold(DATE_FORMATTER.format(dato));
+    }
+
     public HistorikkinnslagTekstlinjeBuilder tekst(String t) {
         stringBuilder.append(" ").append(t);
         return this;
@@ -37,7 +41,7 @@ public class HistorikkinnslagTekstlinjeBuilder {
     }
 
     public HistorikkinnslagTekstlinjeBuilder tekst(LocalDate dato) {
-        return tekst(formatDate(dato));
+        return tekst(DATE_FORMATTER.format(dato));
     }
 
     public HistorikkinnslagTekstlinjeBuilder fraTil(String hva, String fra, String til) {
@@ -60,7 +64,7 @@ public class HistorikkinnslagTekstlinjeBuilder {
     }
 
     public HistorikkinnslagTekstlinjeBuilder til(String hva, Number til) {
-        return fraTil(hva, null, formatString(til));
+        return fraTil(hva, null, format(til));
     }
 
     public HistorikkinnslagTekstlinjeBuilder til(String hva, LocalDate til) {
@@ -92,8 +96,10 @@ public class HistorikkinnslagTekstlinjeBuilder {
     }
 
     public HistorikkinnslagTekstlinjeBuilder fraTil(String hva, LocalDate fra, LocalDate til) {
-        var fraTekst = fra != null ? formatDate(fra) : null;
-        var tilTekst = til != null ? formatDate(til) : null;
+        String fraTekst;
+        fraTekst = fra != null ? DATE_FORMATTER.format(fra) : null;
+        String tilTekst;
+        tilTekst = til != null ? DATE_FORMATTER.format(til) : null;
         return fraTil(hva, fraTekst, tilTekst);
     }
 
@@ -128,8 +134,10 @@ public class HistorikkinnslagTekstlinjeBuilder {
         if (Objects.equals(fra, til)) {
             return null;
         }
-        var fraTekst = fra != null ? formatDate(fra) : null;
-        var tilTekst = til != null ? formatDate(til) : null;
+        String fraTekst;
+        fraTekst = fra != null ? DATE_FORMATTER.format(fra) : null;
+        String tilTekst;
+        tilTekst = til != null ? DATE_FORMATTER.format(til) : null;
         return new HistorikkinnslagTekstlinjeBuilder().fraTil(hva, fraTekst, tilTekst);
     }
 
@@ -137,7 +145,7 @@ public class HistorikkinnslagTekstlinjeBuilder {
         if (Objects.equals(fra, til)) {
             return null;
         }
-        return new HistorikkinnslagTekstlinjeBuilder().fraTil(hva, fra != null ? formatString(fra) : null, formatString(til));
+        return new HistorikkinnslagTekstlinjeBuilder().fraTil(hva, fra != null ? format(fra) : null, format(til));
     }
 
     public String build() {
@@ -147,8 +155,13 @@ public class HistorikkinnslagTekstlinjeBuilder {
         return stringBuilder.delete(0, 1).toString();
     }
 
-    public static String formatDate(LocalDate localDate) {
-        return DATE_FORMATTER.format(localDate);
+    public static <T> String format(T verdi) {
+        return switch (verdi) {
+            case null -> null;
+            case LocalDate localDate -> DATE_FORMATTER.format(localDate);
+            case LocalDateInterval interval -> DATE_FORMATTER.format(interval.getFomDato()) + " - " + DATE_FORMATTER.format(interval.getTomDato());
+            default -> verdi.toString();
+        };
     }
 
     @Override

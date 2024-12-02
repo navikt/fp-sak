@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.historikk;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagMal;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstBuilderFormater;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTotrinnsvurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageAvvistÅrsak;
@@ -49,6 +49,8 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.exception.TekniskException;
 
 public class HistorikkInnslagTekstBuilder {
+
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
     /** Kodeverdi mappinger støttet i historikk. */
     public static final Map<String, Map<String, ? extends Kodeverdi>> KODEVERK_KODEVERDI_MAP = Map.ofEntries(
@@ -353,7 +355,20 @@ public class HistorikkInnslagTekstBuilder {
     }
 
     public static String formatString(Object verdi) {
-        return HistorikkinnslagTekstBuilderFormater.formatString(verdi);
+        if (verdi == null) {
+            return null;
+        }
+        if (verdi instanceof LocalDate localDate) {
+            return formatDate(localDate);
+        }
+        if (verdi instanceof LocalDateInterval interval) {
+            return formatDate(interval.getFomDato()) + " - " + formatDate(interval.getTomDato());
+        }
+        return verdi.toString();
+    }
+
+    private static String formatDate(LocalDate localDate) {
+        return DATE_FORMATTER.format(localDate);
     }
 
     public HistorikkInnslagTekstBuilder medTotrinnsvurdering(Map<SkjermlenkeType, List<HistorikkinnslagTotrinnsvurdering>> vurdering,
