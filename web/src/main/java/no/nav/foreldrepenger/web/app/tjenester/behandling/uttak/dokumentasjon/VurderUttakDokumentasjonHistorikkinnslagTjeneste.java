@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.format;
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
 
 import java.time.LocalDate;
@@ -62,7 +61,7 @@ public class VurderUttakDokumentasjonHistorikkinnslagTjeneste {
             return Optional.empty();
         }
 
-        var tekstperiode = String.format("%s - %s", format(periode.getFom()), format(periode.getTom()));
+        var tekstperiode = HistorikkinnslagTekstlinjeBuilder.format(periode.getTidsperiode());
         var fraVerdi = Optional.ofNullable(eksisterendeInnslag).map(VurderUttakDokumentasjonHistorikkinnslagTjeneste::formaterStreng).orElse(null);
         var nyVerdi = formaterStreng(nyttInnslag);
         return Optional.ofNullable(fraTilEquals(String.format("Avklart dokumentasjon for periode %s", tekstperiode), fraVerdi, nyVerdi));

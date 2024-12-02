@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.format;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -114,7 +114,7 @@ public class KlageHistorikkinnslag {
         var påKlagdBehandling = behandlingRepository.hentBehandling(behandlingId);
         var vedtaksDatoPåklagdBehandling = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(påKlagdBehandling.getId())
             .map(BehandlingVedtak::getVedtaksdato);
-        return påKlagdBehandling.getType().getNavn() + " " + vedtaksDatoPåklagdBehandling.map(this::formatDato).orElse("");
+        return påKlagdBehandling.getType().getNavn() + " " + vedtaksDatoPåklagdBehandling.map(dato -> format(dato)).orElse("");
     }
 
     private String hentPåklagdBehandlingTekst(UUID behandlingUuid) {
@@ -125,7 +125,7 @@ public class KlageHistorikkinnslag {
         if (påKlagdEksternBehandlingUuid == null) {
             return IKKE_PÅKLAGD_ET_VEDTAK_HISTORIKKINNSLAG_TEKST;
         }
-        return BehandlingType.fraKode(behandlingType).getNavn() + " " + formatDato(vedtakDato);
+        return BehandlingType.fraKode(behandlingType).getNavn() + " " + format(vedtakDato);
     }
 
     private List<String> lagHistorikkTekstlinjer(KlageFormKravLagreDto formkravDto) {
@@ -241,7 +241,4 @@ public class KlageHistorikkinnslag {
             formkravDto.hentpåKlagdEksternBehandlingUuId());
     }
 
-    private String formatDato(LocalDate dato) {
-        return dato.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-    }
 }
