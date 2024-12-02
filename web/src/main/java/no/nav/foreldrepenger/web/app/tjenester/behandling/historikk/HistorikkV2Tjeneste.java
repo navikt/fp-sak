@@ -82,7 +82,7 @@ public class HistorikkV2Tjeneste {
         var tekstlinjer = h.getTekstlinjer()
             .stream()
             .sorted(Comparator.comparing(Historikkinnslag2Tekstlinje::getRekkefølgeIndeks))
-            .map(Historikkinnslag2Tekstlinje::getTekst)
+            .map(t -> t.getTekst().equals(Historikkinnslag2.LINJESKIFT) ? HistorikkDtoFellesMapper.LINJESKIFT : t.getTekst())
             .toList();
         return new HistorikkinnslagDtoV2(uuid, HistorikkinnslagDtoV2.HistorikkAktørDto.fra(h.getAktør(), h.getOpprettetAv()), h.getSkjermlenke(),
             h.getOpprettetTidspunkt(), dokumenter, h.getTittel(), fjernTrailingAvsnittFraTekst(tekstlinjer));

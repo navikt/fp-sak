@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.historikk;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2.BOLD_MARKØR;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2.LINJESKIFT;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -14,7 +15,6 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 public class HistorikkinnslagTekstlinjeBuilder {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-    private static final String LINJESKIFT = "linjeskift";
 
     private final StringBuilder stringBuilder = new StringBuilder();
 

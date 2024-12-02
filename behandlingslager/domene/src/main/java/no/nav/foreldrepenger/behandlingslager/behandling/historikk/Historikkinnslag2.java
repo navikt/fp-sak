@@ -21,6 +21,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.Skjermlenke
 public class Historikkinnslag2 extends BaseEntitet {
 
     public static final String BOLD_MARKØR = "__";
+    public static final String LINJESKIFT = "linjeskift";
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_HISTORIKKINNSLAG2")
@@ -187,7 +189,7 @@ public class Historikkinnslag2 extends BaseEntitet {
         }
 
         private String sluttMedPunktum(String tekst) {
-            if (tekst.isEmpty()) {
+            if (tekst.isEmpty() || tekst.equals(Historikkinnslag2.LINJESKIFT)) {
                 return tekst;
             }
             var sisteTegn = finnSisteTegn(tekst);
