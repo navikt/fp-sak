@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 
 class BekreftDokumentasjonOppdatererTest extends EntityManagerAwareTest {
 
-    private final DateTimeFormatter formatterer = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     private BehandlingRepositoryProvider repositoryProvider;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
 
@@ -74,10 +73,9 @@ class BekreftDokumentasjonOppdatererTest extends EntityManagerAwareTest {
         var tekstlinjer = historikkInnslag.getFirst().getTekstlinjer();
         assertThat(tekstlinjer).hasSize(3);
 
-        assertThat(tekstlinjer.getFirst().getTekst()).contains("Omsorgsovertakelsesdato", formatterer.format(opprinneligOvertakelsesdato),
-            formatterer.format(bekreftetOvertakelsesdato));
-        assertThat(tekstlinjer.get(1).getTekst()).contains("Fødselsdato", formatterer.format(opprinneligFødselsdato),
-            formatterer.format(bekreftetFødselsdato));
+        assertThat(tekstlinjer.getFirst().getTekst()).contains("Omsorgsovertakelsesdato", format(opprinneligOvertakelsesdato),
+            format(bekreftetOvertakelsesdato));
+        assertThat(tekstlinjer.get(1).getTekst()).contains("Fødselsdato", format(opprinneligFødselsdato), format(bekreftetFødselsdato));
         assertThat(tekstlinjer.get(2).getTekst()).contains(dto.getBegrunnelse());
     }
 }

@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,6 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
     private static final AksjonspunktDefinisjon AKSJONSPUNKT_DEF = AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE;
 
     private final LocalDate now = LocalDate.now();
-    private final DateTimeFormatter formatterer = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
     private BehandlingRepositoryProvider repositoryProvider;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
@@ -80,8 +79,8 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
         verify(historikkRepository, times(1)).lagre(captor.capture());
         var historikkinnslag = captor.getValue();
         assertThat(historikkinnslag.getTekstlinjer()).hasSize(4);
-        assertThat(historikkinnslag.getTekstlinjer().get(0).getTekst()).contains("Termindato", opprinneligTermindato.format(formatterer), avklartTermindato.format(formatterer));
-        assertThat(historikkinnslag.getTekstlinjer().get(1).getTekst()).contains("Utstedtdato", opprinneligUtstedtDato.format(formatterer), avklartUtstedtDato.format(formatterer));
+        assertThat(historikkinnslag.getTekstlinjer().get(0).getTekst()).contains("Termindato", format(opprinneligTermindato), format(avklartTermindato));
+        assertThat(historikkinnslag.getTekstlinjer().get(1).getTekst()).contains("Utstedtdato", format(opprinneligUtstedtDato), format(avklartUtstedtDato));
         assertThat(historikkinnslag.getTekstlinjer().get(2).getTekst()).contains("Antall barn", Integer.toString(opprinneligAntallBarn), Integer.toString(avklartAntallBarn));
         assertThat(historikkinnslag.getTekstlinjer().get(3).getTekst()).contains(dto.getBegrunnelse());
     }
