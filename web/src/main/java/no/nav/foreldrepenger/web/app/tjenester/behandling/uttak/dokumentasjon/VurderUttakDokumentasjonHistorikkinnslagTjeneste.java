@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.format;
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
-import static no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder.formatString;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -34,13 +34,15 @@ public class VurderUttakDokumentasjonHistorikkinnslagTjeneste {
         //CDI
     }
 
-    public void opprettHistorikkinnslag(BehandlingReferanse ref, String begrunnelse, List<OppgittPeriodeEntitet> eksisterendePerioder , List<OppgittPeriodeEntitet> nyFordeling) {
+    public void opprettHistorikkinnslag(BehandlingReferanse ref,
+                                        String begrunnelse,
+                                        List<OppgittPeriodeEntitet> eksisterendePerioder,
+                                        List<OppgittPeriodeEntitet> nyFordeling) {
         var tekstlinjer = new ArrayList<HistorikkinnslagTekstlinjeBuilder>();
         for (var periode : nyFordeling) {
             opprettAvklaring(eksisterendePerioder, periode).ifPresent(tekstlinjer::add);
         }
-        var historikkinnslag = new Historikkinnslag2.Builder()
-            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+        var historikkinnslag = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())
             .medTittel(SkjermlenkeType.FAKTA_OM_UTTAK_DOKUMENTASJON)
@@ -50,30 +52,33 @@ public class VurderUttakDokumentasjonHistorikkinnslagTjeneste {
         historikkinnslagRepository.lagre(historikkinnslag);
     }
 
-    private static Optional<HistorikkinnslagTekstlinjeBuilder> opprettAvklaring(List<OppgittPeriodeEntitet> eksisterendePerioder, OppgittPeriodeEntitet periode) {
-        var eksisterendeInnslag = finnEksisterendePerioder(eksisterendePerioder, periode.getFom(), periode.getTom())
-            .map(OppgittPeriodeEntitet::getDokumentasjonVurdering)
-            .orElse(null);
+    private static Optional<HistorikkinnslagTekstlinjeBuilder> opprettAvklaring(List<OppgittPeriodeEntitet> eksisterendePerioder,
+                                                                                OppgittPeriodeEntitet periode) {
+        var eksisterendeInnslag = finnEksisterendePerioder(eksisterendePerioder, periode.getFom(), periode.getTom()).map(
+            OppgittPeriodeEntitet::getDokumentasjonVurdering).orElse(null);
         var nyttInnslag = periode.getDokumentasjonVurdering();
 
         if (nyttInnslag == null || nyttInnslag.equals(eksisterendeInnslag)) {
             return Optional.empty();
         }
 
-        var tekstperiode = String.format("%s - %s", formatString(periode.getFom()), formatString(periode.getTom()));
+        var tekstperiode = String.format("%s - %s", format(periode.getFom()), format(periode.getTom()));
         var fraVerdi = Optional.ofNullable(eksisterendeInnslag).map(VurderUttakDokumentasjonHistorikkinnslagTjeneste::formaterStreng).orElse(null);
         var nyVerdi = formaterStreng(nyttInnslag);
         return Optional.ofNullable(fraTilEquals(String.format("Avklart dokumentasjon for periode %s", tekstperiode), fraVerdi, nyVerdi));
     }
 
     private static String formaterStreng(DokumentasjonVurdering dokumentasjonVurdering) {
-        if (DokumentasjonVurdering.Type.MORS_AKTIVITET_GODKJENT.equals(dokumentasjonVurdering.type()) && dokumentasjonVurdering.morsStillingsprosent() != null) {
+        if (DokumentasjonVurdering.Type.MORS_AKTIVITET_GODKJENT.equals(dokumentasjonVurdering.type())
+            && dokumentasjonVurdering.morsStillingsprosent() != null) {
             return String.format("%s (%s%% arbeid)", dokumentasjonVurdering.type().getNavn(), dokumentasjonVurdering.morsStillingsprosent());
         }
         return dokumentasjonVurdering.type().getNavn();
     }
 
-    private static Optional<OppgittPeriodeEntitet> finnEksisterendePerioder(List<OppgittPeriodeEntitet> eksisterendePerioder, LocalDate fom, LocalDate tom) {
+    private static Optional<OppgittPeriodeEntitet> finnEksisterendePerioder(List<OppgittPeriodeEntitet> eksisterendePerioder,
+                                                                            LocalDate fom,
+                                                                            LocalDate tom) {
         return eksisterendePerioder.stream().filter(ep -> !ep.getFom().isBefore(fom) && !ep.getTom().isAfter(tom)).findFirst();
     }
 }

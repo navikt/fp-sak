@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.behandling.revurdering;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstBuilderFormater.formatDate;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.format;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -59,9 +59,9 @@ public class RevurderingHistorikk {
         if (barnFødtIPeriode.size() > 1) {
             SortedSet<LocalDate> fødselsdatoer = new TreeSet<>(
                     barnFødtIPeriode.stream().map(FødtBarnInfo::fødselsdato).collect(Collectors.toSet()));
-            return fødselsdatoer.stream().map(HistorikkinnslagTekstlinjeBuilder::formatDate).collect(Collectors.joining(", "));
+            return fødselsdatoer.stream().map(HistorikkinnslagTekstlinjeBuilder::format).collect(Collectors.joining(", "));
         }
-        return formatDate(barnFødtIPeriode.getFirst().fødselsdato());
+        return format(barnFødtIPeriode.getFirst().fødselsdato());
     }
 
     public void opprettHistorikkinnslagForVenteFristRelaterteInnslag(Long behandlingId, Long fagsakId) {
