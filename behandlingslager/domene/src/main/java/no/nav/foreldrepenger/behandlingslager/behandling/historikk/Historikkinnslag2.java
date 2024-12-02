@@ -20,6 +20,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.Skjermlenke
 @Table(name = "HISTORIKKINNSLAG2")
 public class Historikkinnslag2 extends BaseEntitet {
 
+    public static final String BOLD_MARKØR = "__";
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_HISTORIKKINNSLAG2")
     private Long id;
@@ -185,12 +187,18 @@ public class Historikkinnslag2 extends BaseEntitet {
         }
 
         private String sluttMedPunktum(String tekst) {
-            var sisteTegn = tekst.charAt(tekst.length() - 1);
-            var sisteTegnBold = tekst.charAt(tekst.length() - 3);
-            if (tekst.isEmpty() || sisteTegn == ':' || sisteTegnBold == ':') {
+            if (tekst.isEmpty()) {
                 return tekst;
             }
-            return sisteTegn == '.' ? tekst : tekst + '.';
+            var sisteTegn = finnSisteTegn(tekst);
+            return List.of(':', '.', '?', '!').contains(sisteTegn) ? tekst : tekst + ".";
+        }
+
+        private static char finnSisteTegn(String tekst) {
+            if (tekst.endsWith(BOLD_MARKØR)) {
+                return tekst.charAt(tekst.length() - 1 - BOLD_MARKØR.length());
+            }
+            return tekst.charAt(tekst.length() - 1);
         }
     }
 }
