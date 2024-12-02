@@ -5,6 +5,7 @@ import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.tilMas
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -122,7 +123,7 @@ public class FpInntektsmeldingTjeneste {
         var førsteUttaksdato = stp.getFørsteUttaksdato();
         var request = new OpprettForespørselRequest(new OpprettForespørselRequest.AktørIdDto(ref.aktørId().getId()),
             new OrganisasjonsnummerDto(ag), skjæringstidspunkt, mapYtelsetype(ref.fagsakYtelseType()),
-            new SaksnummerDto(ref.saksnummer().getVerdi()), førsteUttaksdato);
+            new SaksnummerDto(ref.saksnummer().getVerdi()), førsteUttaksdato, Collections.emptyList());
 
         var opprettForespørselResponse = klient.opprettForespørsel(request);
 
