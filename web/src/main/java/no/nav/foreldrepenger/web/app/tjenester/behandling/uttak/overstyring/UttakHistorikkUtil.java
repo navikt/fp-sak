@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.format;
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
 
 import java.util.ArrayList;
@@ -151,9 +152,7 @@ public final class UttakHistorikkUtil {
         var introTekst = erOverstyring ? "Overstyrt vurdering" : "Manuell vurdering";
         return new HistorikkinnslagTekstlinjeBuilder().bold(introTekst)
             .tekst("av perioden")
-            .tekst(nyPeriode.getFom())
-            .tekst("-")
-            .tekst(nyPeriode.getTom());
+            .tekst(format(new LocalDateInterval(nyPeriode.getFom(), nyPeriode.getTom())));
     }
 
     private List<HistorikkinnslagTekstlinjeBuilder> lagHistorikkinnslagTekstForOppholdsperiode(List<ForeldrepengerUttakPeriode> gjeldende,
