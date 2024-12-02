@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -484,6 +485,23 @@ class ForeldrepengerUttakTest {
             List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER), konto);
 
         assertThat(uttakResultatRevurdering.harUlikKontoEllerMinsterett(uttakResultatOriginal)).isFalse();
+    }
+
+    @Test
+    void skal_bruke_gjeldende_periode_for_å_sjekke_om_alt_er_avslått() {
+        var fom = LocalDate.now();
+        var opprinnelig = new ForeldrepengerUttakPeriode.Builder().medResultatÅrsak(PeriodeResultatÅrsak.IKKE_STØNADSDAGER_IGJEN)
+            .medResultatType(PeriodeResultatType.MANUELL_BEHANDLING)
+            .medTidsperiode(fom, fom.plusWeeks(1))
+            .build();
+        var overstyrt = new ForeldrepengerUttakPeriode.Builder().medResultatÅrsak(PeriodeResultatÅrsak.IKKE_STØNADSDAGER_IGJEN)
+            .medResultatType(PeriodeResultatType.AVSLÅTT)
+            .medTidsperiode(fom, fom.plusWeeks(1))
+            .build();
+        var foreldrepengerUttak = new ForeldrepengerUttak(List.of(opprinnelig), List.of(overstyrt), Map.of());
+
+        assertThat(foreldrepengerUttak.altAvslått()).isTrue();
+
     }
 
     private ForeldrepengerUttakPeriode lagUttakPeriode(LocalDateInterval periode,

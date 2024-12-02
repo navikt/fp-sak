@@ -59,8 +59,8 @@ public class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandli
     public Behandlingsresultat foreslåBehandlingsresultat(BehandlingReferanse ref) {
         var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(ref.behandlingId());
         if (behandlingsresultat.isPresent()) {
-            if (sjekkVilkårAvslått(behandlingsresultat.get())) {
-                vilkårAvslått(ref, behandlingsresultat.get());
+            if (behandlingsresultat.get().isVilkårAvslått() || uttakErAvslått(behandlingsresultat.get())) {
+                behandlingAvslått(ref, behandlingsresultat.get());
             } else {
                 Behandlingsresultat.builderEndreEksisterende(behandlingsresultat.get()).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
                 // Må nullstille avslagårsak (for symmetri med setting avslagsårsak ovenfor,
@@ -76,11 +76,11 @@ public class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandli
         return behandlingsresultat.orElse(null);
     }
 
-    private boolean sjekkVilkårAvslått(Behandlingsresultat behandlingsresultat) {
-        return behandlingsresultat.isVilkårAvslått() || !erInnvilgetUttak(behandlingsresultat.getBehandlingId());
+    private boolean uttakErAvslått(Behandlingsresultat behandlingsresultat) {
+        return !erInnvilgetUttak(behandlingsresultat.getBehandlingId());
     }
 
-    private void vilkårAvslått(BehandlingReferanse ref, Behandlingsresultat behandlingsresultat) {
+    private void behandlingAvslått(BehandlingReferanse ref, Behandlingsresultat behandlingsresultat) {
         behandlingsresultat.getVilkårResultat()
             .hentIkkeOppfyltVilkår()
             .map(AvslagsårsakMapper::finnAvslagsårsak)

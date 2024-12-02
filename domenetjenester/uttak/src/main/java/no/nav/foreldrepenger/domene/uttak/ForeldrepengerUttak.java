@@ -88,7 +88,7 @@ public class ForeldrepengerUttak implements Uttak {
 
     @Override
     public boolean altAvslått() {
-        return perioder.stream().allMatch(p -> PeriodeResultatType.AVSLÅTT.equals(p.getResultatType()));
+        return getGjeldendePerioder().stream().allMatch(p -> PeriodeResultatType.AVSLÅTT.equals(p.getResultatType()));
     }
 
     @Override
