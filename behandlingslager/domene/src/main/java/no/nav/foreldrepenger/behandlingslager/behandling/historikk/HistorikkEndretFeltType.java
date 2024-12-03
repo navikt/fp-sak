@@ -66,7 +66,7 @@ public enum HistorikkEndretFeltType implements Kodeverdi {
     SVANGERSKAPSPENGERVILKÅRET("SVANGERSKAPSPENGERVILKÅRET", "Svangerskapsvilkåret"),
     SOKNADSFRIST("SOKNADSFRIST", "Søknadsfrist"),
     SOKNADSFRISTVILKARET("SOKNADSFRISTVILKARET", "Søknadsfristvilkåret"),
-    STARTDATO_FRA_SOKNAD("STARTDATO_FRA_SOKNAD", "Startdato fra søknad"),
+    STARTDATO_FRA_SOKNAD("STARTDATO_FRA_SOKNAD", "Startdato for foreldrepengeperioden"),
     TERMINBEKREFTELSE("TERMINBEKREFTELSE", "Terminbekreftelse"),
     TERMINDATO("TERMINDATO", "Termindato"),
     UTSTEDTDATO("UTSTEDTDATO", "Utstedtdato"),
