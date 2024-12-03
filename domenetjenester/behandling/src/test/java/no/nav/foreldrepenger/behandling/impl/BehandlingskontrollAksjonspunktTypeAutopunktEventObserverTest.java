@@ -26,10 +26,9 @@ import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 
@@ -45,7 +44,7 @@ class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
     @Mock
     private Aksjonspunkt manuellpunkt;
     @Mock
-    private HistorikkRepository historikkRepository;
+    private Historikkinnslag2Repository historikkinnslagRepository;
     @Mock
     private BehandlingRepository behandlingRepository;
     @Mock
@@ -65,7 +64,7 @@ class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
 
         lenient().when(behandlingskontrollKontekst.getBehandlingId()).thenReturn(behandlingId);
 
-        observer = new HistorikkInnslagForAksjonspunktEventObserver(historikkRepository, behandlingRepository);
+        observer = new HistorikkInnslagForAksjonspunktEventObserver(historikkinnslagRepository, behandlingRepository);
     }
 
     @Test
@@ -75,7 +74,7 @@ class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
 
         observer.oppretteHistorikkForBehandlingPåVent(event);
 
-        verify(historikkRepository).lagre(any(Historikkinnslag.class));
+        verify(historikkinnslagRepository).lagre(any(Historikkinnslag2.class));
     }
 
     @Test
@@ -85,7 +84,7 @@ class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
 
         observer.oppretteHistorikkForBehandlingPåVent(event);
 
-        verify(historikkRepository, never()).lagre(any());
+        verify(historikkinnslagRepository, never()).lagre(any());
     }
 
     @Test
@@ -99,7 +98,7 @@ class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
 
         observer.oppretteHistorikkForGjenopptattBehandling(event);
 
-        verify(historikkRepository, never()).lagre(any());
+        verify(historikkinnslagRepository, never()).lagre(any());
     }
 
     @Test
@@ -107,20 +106,15 @@ class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
 
         var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(manuellpunkt, autopunkt), null);
 
-        var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
+        var captor = ArgumentCaptor.forClass(Historikkinnslag2.class);
 
         observer.oppretteHistorikkForBehandlingPåVent(event);
 
-        verify(historikkRepository).lagre(captor.capture());
+        verify(historikkinnslagRepository).lagre(captor.capture());
         var historikkinnslag = captor.getValue();
-        var historikkinnslagDel = historikkinnslag.getHistorikkinnslagDeler().get(0);
 
         assertThat(historikkinnslag.getBehandlingId()).isEqualTo(behandlingId);
-        assertThat(historikkinnslagDel.getHendelse()).hasValueSatisfying(hendelse -> {
-            assertThat(hendelse.getNavn()).as("navn").isEqualTo(HistorikkinnslagType.BEH_VENT.getKode());
-            assertThat(hendelse.getTilVerdi()).as("tilVerdi").isEqualTo(HistorikkinnslagTekstlinjeBuilder.format(localDate));
-        });
-        assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.BEH_VENT);
+        assertThat(historikkinnslag.getTittel()).isEqualTo("Behandling på vent " + HistorikkinnslagTekstlinjeBuilder.format(localDate));
     }
 
     @Test
@@ -130,7 +124,7 @@ class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
 
         observer.oppretteHistorikkForBehandlingPåVent(event);
 
-        verify(historikkRepository, times(2)).lagre(any());
+        verify(historikkinnslagRepository, times(2)).lagre(any());
     }
 
 }
