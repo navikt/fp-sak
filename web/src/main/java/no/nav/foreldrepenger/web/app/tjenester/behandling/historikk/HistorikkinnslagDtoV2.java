@@ -7,7 +7,6 @@ import java.util.UUID;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
-import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagDokumentLinkDto;
 
 public record HistorikkinnslagDtoV2(UUID behandlingUuid,
                                     HistorikkAktørDto aktør,

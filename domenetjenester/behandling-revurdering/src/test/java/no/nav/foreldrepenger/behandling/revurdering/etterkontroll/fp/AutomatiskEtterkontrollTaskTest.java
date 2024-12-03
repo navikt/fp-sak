@@ -31,7 +31,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
@@ -81,7 +80,6 @@ class AutomatiskEtterkontrollTaskTest {
     private AutomatiskEtterkontrollTask task;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
 
-    private HistorikkRepository historikkRepository;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private EntityManager entityManager;
 
@@ -95,7 +93,6 @@ class AutomatiskEtterkontrollTaskTest {
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class)))
             .thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
 
-        this.historikkRepository = mock(HistorikkRepository.class);
         this.fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
     }
 

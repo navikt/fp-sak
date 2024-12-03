@@ -9,7 +9,6 @@ import jakarta.persistence.EntityManager;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskapRepository;
@@ -41,7 +40,6 @@ public class BehandlingRepositoryProvider {
     private MedlemskapRepository medlemskapRepository;
     private VilkårMedlemskapRepository vilkårMedlemskapRepository;
     private FamilieHendelseRepository familieHendelseRepository;
-    private HistorikkRepository historikkRepository;
     private SøknadRepository søknadRepository;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
     private FpUttakRepository fpUttakRepository;
@@ -92,7 +90,6 @@ public class BehandlingRepositoryProvider {
 
         // behandling støtte repositories
         this.mottatteDokumentRepository = new MottatteDokumentRepository(entityManager);
-        this.historikkRepository = new HistorikkRepository(entityManager);
         this.historikkinnslag2Repository = new Historikkinnslag2Repository(entityManager);
         this.behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
 
@@ -138,10 +135,6 @@ public class BehandlingRepositoryProvider {
 
     public FamilieHendelseRepository getFamilieHendelseRepository() {
         return familieHendelseRepository;
-    }
-
-    public HistorikkRepository getHistorikkRepository() {
-        return historikkRepository;
     }
 
     public Historikkinnslag2Repository getHistorikkinnslag2Repository() {
