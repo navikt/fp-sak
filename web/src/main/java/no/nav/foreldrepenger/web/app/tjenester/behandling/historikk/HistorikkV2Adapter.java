@@ -91,11 +91,15 @@ public class HistorikkV2Adapter {
 
     private static HistorikkinnslagDtoV2 fraMaltype1(Historikkinnslag innslag, UUID behandlingUUID, List<JournalpostId> journalPosterForSak, URI dokumentPath) {
         var del = innslag.getHistorikkinnslagDeler().getFirst();
-        var body = switch (innslag.getType()) {
-            case ANKEBEH_STARTET, KLAGEBEH_STARTET, INNSYN_OPPR -> new ArrayList<String>(); // Begrunnelse og tittel er identisk for disse. Fører til duplikate innslag (ref. gammel BehandlingOpprettingTjeneste)
-            default -> begrunnelseFraDel(del).map(List::of).orElseGet(List::of);
-        };
-        return tilHistorikkInnslagDto(innslag, behandlingUUID, tilDokumentlenker(innslag.getDokumentLinker(), journalPosterForSak, dokumentPath), body);
+        var begrunnelse = begrunnelseFraDel(del);
+
+        if (begrunnelse.isPresent() && Objects.equals(innslag.getType().getNavn(), begrunnelse.get())) {
+            // ANKEBEH_STARTET, KLAGEBEH_STARTET, INNSYN_OPPR, BEH_STARTET_PÅ_NYTT Begrunnelse og tittel er identisk for disse. Fører til duplikate innslag
+            // Kanskje flere? Sjekker derfor alle typer
+            return tilHistorikkInnslagDto(innslag, behandlingUUID, tilDokumentlenker(innslag.getDokumentLinker(), journalPosterForSak, dokumentPath), List.of());
+        }
+        var tekster = begrunnelseFraDel(del).map(List::of).orElseGet(List::of);
+        return tilHistorikkInnslagDto(innslag, behandlingUUID, tilDokumentlenker(innslag.getDokumentLinker(), journalPosterForSak, dokumentPath), tekster);
     }
 
     private static HistorikkinnslagDtoV2 fraMaltype2(Historikkinnslag h, UUID behandlingUUID) {
