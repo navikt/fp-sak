@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.util.Collections;
 
 import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,9 +40,9 @@ class DokumentBehandlingTjenesteTest {
     private int fristUker = 6;
 
     @BeforeEach
-    public void setUp(EntityManager em) {
+    public void setUp() {
         behandlingRepository = repositoryProvider.getBehandlingRepository();
-        behandlingDokumentRepository = new BehandlingDokumentRepository(em);
+        behandlingDokumentRepository = new BehandlingDokumentRepository(repositoryProvider.getEntityManager());
         dokumentBehandlingTjeneste = new DokumentBehandlingTjeneste(repositoryProvider, behandlingskontrollTjeneste, behandlingDokumentRepository);
         this.scenario = ScenarioMorSøkerEngangsstønad
                 .forFødsel()
