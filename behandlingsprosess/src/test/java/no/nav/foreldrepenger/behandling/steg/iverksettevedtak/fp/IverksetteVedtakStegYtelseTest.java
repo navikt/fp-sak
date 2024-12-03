@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 
-import jakarta.persistence.EntityManager;
+import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,11 +18,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
@@ -36,30 +31,21 @@ import no.nav.foreldrepenger.domene.vedtak.impl.VurderBehandlingerUnderIverksett
 @CdiDbAwareTest
 class IverksetteVedtakStegYtelseTest {
 
-    private BehandlingRepositoryProvider repositoryProvider;
-    private BehandlingRepository behandlingRepository;
-
-    private Behandling behandling;
-
     @Mock
     private OpprettProsessTaskIverksett opprettProsessTaskIverksett;
-
-    private EntityManager entityManager;
+    @Inject
     private BehandlingVedtakRepository behandlingVedtakRepository;
-    private HistorikkRepository historikkRepository;
-
+    @Inject
+    private BehandlingRepositoryProvider repositoryProvider;
     @Mock
     private VurderBehandlingerUnderIverksettelse vurderBehandlingerUnderIverksettelse;
 
     private IverksetteVedtakStegFelles iverksetteVedtakSteg;
+    private Behandling behandling;
 
     @BeforeEach
-    public void setup(EntityManager entityManager) {
-        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        this.entityManager = entityManager;
-        behandlingRepository = repositoryProvider.getBehandlingRepository();
+    public void setup() {
         behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
-        historikkRepository = repositoryProvider.getHistorikkRepository();
         iverksetteVedtakSteg = new IverksetteVedtakStegFelles(repositoryProvider, opprettProsessTaskIverksett,
                 vurderBehandlingerUnderIverksettelse);
         behandling = opprettBehandling();
@@ -77,12 +63,10 @@ class IverksetteVedtakStegYtelseTest {
         // Assert
         assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.STARTET);
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
-        var historikkinnslag = historikkRepository.hentHistorikk(behandling.getId()).get(0);
-        assertThat(historikkinnslag.getHistorikkinnslagDeler()).hasSize(1);
-        var del1 = historikkinnslag.getHistorikkinnslagDeler().get(0);
-        assertThat(del1.getHendelse()).hasValueSatisfying(
-            hendelse -> assertThat(hendelse.getNavn()).as("navn").isEqualTo(HistorikkinnslagType.IVERKSETTELSE_VENT.getKode()));
-        assertThat(del1.getAarsak()).contains(Venteårsak.VENT_TIDLIGERE_BEHANDLING.getKode());
+
+        var historikinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
+        assertThat(historikinnslag.getTittel()).isEqualTo("Behandlingen venter på iverksettelse");
+        assertThat(historikinnslag.getTekstlinjer().getFirst().getTekst()).isEqualTo("Venter på iverksettelse av en tidligere behandling i denne saken.");
     }
 
     @Test
@@ -100,7 +84,7 @@ class IverksetteVedtakStegYtelseTest {
     }
 
     private BehandleStegResultat utførSteg(Behandling behandling) {
-        var lås = behandlingRepository.taSkriveLås(behandling);
+        var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling);
         return iverksetteVedtakSteg.utførSteg(new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(), lås));
     }
 
@@ -109,10 +93,12 @@ class IverksetteVedtakStegYtelseTest {
                 .medBehandlingStegStart(BehandlingStegType.IVERKSETT_VEDTAK);
 
         var behandling = scenario.lagre(repositoryProvider);
+        var behandlingRepository = repositoryProvider.getBehandlingRepository();
         var lås = behandlingRepository.taSkriveLås(behandling);
 
-        var behandlingsresultat = getBehandlingsresultat(behandling);
+        var behandlingsresultat = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId());
         behandlingRepository.lagre(behandlingsresultat.getVilkårResultat(), lås);
+        var entityManager = repositoryProvider.getEntityManager();
         entityManager.persist(behandlingsresultat);
 
         entityManager.flush();
@@ -121,20 +107,16 @@ class IverksetteVedtakStegYtelseTest {
     }
 
     private BehandlingVedtak opprettBehandlingVedtak(VedtakResultatType resultatType, IverksettingStatus iverksettingStatus) {
-        var lås = behandlingRepository.taSkriveLås(behandling);
-        var behandlingsresultat = getBehandlingsresultat(behandling);
+        var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling);
         var behandlingVedtak = BehandlingVedtak.builder()
                 .medVedtakstidspunkt(LocalDateTime.now().minusDays(3))
                 .medAnsvarligSaksbehandler("E2354345")
                 .medVedtakResultatType(resultatType)
                 .medIverksettingStatus(iverksettingStatus)
-                .medBehandlingsresultat(behandlingsresultat)
+                .medBehandlingsresultat(repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId()))
                 .build();
         behandlingVedtakRepository.lagre(behandlingVedtak, lås);
         return behandlingVedtak;
     }
 
-    private Behandlingsresultat getBehandlingsresultat(Behandling behandling) {
-        return behandling.getBehandlingsresultat();
-    }
 }
