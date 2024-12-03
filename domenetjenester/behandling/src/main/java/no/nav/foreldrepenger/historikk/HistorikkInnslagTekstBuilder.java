@@ -48,6 +48,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.exception.TekniskException;
 
+@Deprecated(forRemoval = true) // Bruk HistorikkinnslagTekstlinjeBuilder eller rå string
 public class HistorikkInnslagTekstBuilder {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
