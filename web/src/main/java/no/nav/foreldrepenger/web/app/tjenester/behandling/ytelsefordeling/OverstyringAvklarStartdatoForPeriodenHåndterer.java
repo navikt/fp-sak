@@ -49,7 +49,7 @@ public class OverstyringAvklarStartdatoForPeriodenHåndterer implements Overstyr
                 .medAktør(HistorikkAktør.SAKSBEHANDLER)
                 .medBehandlingId(behandling.getId())
                 .medFagsakId(behandling.getFagsakId())
-                .addTekstlinje(fraTilEquals("Startdato fra søknad", opprinneligDato, startdatoFraSoknad))
+                .addTekstlinje(fraTilEquals("Startdato for foreldrepengeperioden", opprinneligDato, startdatoFraSoknad))
                 .addTekstlinje(dto.getBegrunnelse())
                 .build();
             historikkinnslag2Repository.lagre(historikkinnslag);
