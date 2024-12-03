@@ -7,39 +7,35 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 @ApplicationScoped
 public class DokumentBestilt {
-    private HistorikkRepository historikkRepository;
+    private Historikkinnslag2Repository historikkinnslag2Repository;
 
     public DokumentBestilt() {
         // for cdi proxy
     }
 
     @Inject
-    public DokumentBestilt(HistorikkRepository historikkRepository) {
-        this.historikkRepository = historikkRepository;
+    public DokumentBestilt(Historikkinnslag2Repository historikkinnslag2Repository) {
+        this.historikkinnslag2Repository = historikkinnslag2Repository;
     }
 
     public void opprettHistorikkinnslag(HistorikkAktør historikkAktør,
                                         Behandling behandling,
                                         DokumentBestilling bestilling) {
-
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setBehandling(behandling);
-        historikkinnslag.setAktør(historikkAktør);
-        historikkinnslag.setType(HistorikkinnslagType.BREV_BESTILT);
-
-        new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.BREV_BESTILT)
-            .medBegrunnelse(utledBegrunnelse(bestilling.dokumentMal(), bestilling.journalførSom()))
-            .build(historikkinnslag);
-        historikkRepository.lagre(historikkinnslag);
+        var historikkinnslag = new Historikkinnslag2.Builder()
+            .medFagsakId(behandling.getFagsakId())
+            .medBehandlingId(behandling.getId())
+            .medAktør(historikkAktør)
+            .medTittel("Brev bestilt")
+            .addTekstlinje(utledBegrunnelse(bestilling.dokumentMal(), bestilling.journalførSom()))
+            .build();
+        historikkinnslag2Repository.lagre(historikkinnslag);
     }
 
     private String utledBegrunnelse(DokumentMalType dokumentMal, DokumentMalType journalførSom) {
