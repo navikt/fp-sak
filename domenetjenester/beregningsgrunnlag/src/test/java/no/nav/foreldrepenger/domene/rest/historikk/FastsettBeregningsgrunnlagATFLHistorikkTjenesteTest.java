@@ -94,7 +94,7 @@ class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medBehandlingId(ref.behandlingId())
             .medFagsakId(ref.fagsakId())
-            .addTekstlinje("Grunnlag for beregnet årsinntekt")
+            .addTekstlinje("Grunnlag for beregnet årsinntekt:")
             .addTekstlinje("__Inntekt fra AF1 (889640782) ...050d__ er satt til __200000__")
             .addTekstlinje("begrunnelse")
             .build();
@@ -120,10 +120,11 @@ class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medBehandlingId(ref.behandlingId())
             .medFagsakId(ref.fagsakId())
-            .addTekstlinje("Grunnlag for beregnet årsinntekt")
+            .addTekstlinje("Grunnlag for beregnet årsinntekt:")
             .addTekstlinje("__Frilansinntekt__ er satt til __4000__")
             .addTekstlinje("begrunnelse")
             .build();
+        verify(historikkRepo).lagre(historikk);
 
     }
 

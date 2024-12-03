@@ -7,7 +7,6 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
@@ -84,7 +83,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjeneste {
                                         Historikkinnslag2.Builder historikkBuilder) {
         if (arbeidstakerList.stream()
             .noneMatch(bgpsa -> bgpsa.getAktivitetStatus().equals(AktivitetStatus.FRILANSER))) {
-            historikkBuilder.addTekstlinje(HistorikkResultatType.BEREGNET_AARSINNTEKT.getNavn());
+            historikkBuilder.addTekstlinje("Grunnlag for beregnet årsinntekt:");
         }
 
         if (inntektFrilanser != null && !frilanserList.isEmpty()) {

@@ -10,7 +10,6 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
@@ -77,10 +76,11 @@ public class FastsettBeregningsgrunnlagATFLHistorikkKalkulusTjeneste {
                                    List<InntektPrAndelDto> inntektPrAndelList,
                                    List<BeregningsgrunnlagPrStatusOgAndelEndring> atAndeler,
                                    List<BeregningsgrunnlagPrStatusOgAndelEndring> flAndeler,
-                                   Integer inntektFrilanser, Historikkinnslag2.Builder historikkBuilder) {
+                                   Integer inntektFrilanser,
+                                   Historikkinnslag2.Builder historikkBuilder) {
         if (atAndeler.stream()
             .noneMatch(bgpsa -> bgpsa.getAktivitetStatus().equals(AktivitetStatus.FRILANSER))) {
-            historikkBuilder.addTekstlinje(HistorikkResultatType.BEREGNET_AARSINNTEKT.getNavn());
+            historikkBuilder.addTekstlinje("Grunnlag for beregnet årsinntekt:");
         }
 
         if (inntektFrilanser != null && !flAndeler.isEmpty()) {
