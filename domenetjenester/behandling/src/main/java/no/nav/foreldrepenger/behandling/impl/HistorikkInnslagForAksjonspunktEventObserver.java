@@ -12,11 +12,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
@@ -27,12 +26,13 @@ import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 @ApplicationScoped
 public class HistorikkInnslagForAksjonspunktEventObserver {
 
-    private HistorikkRepository historikkRepository;
+    private Historikkinnslag2Repository historikkinnslagRepository;
     private BehandlingRepository behandlingRepository;
 
     @Inject
-    public HistorikkInnslagForAksjonspunktEventObserver(HistorikkRepository historikkRepository, BehandlingRepository behandlingRepository) {
-        this.historikkRepository = historikkRepository;
+    public HistorikkInnslagForAksjonspunktEventObserver(Historikkinnslag2Repository historikkinnslagRepository,
+                                                        BehandlingRepository behandlingRepository) {
+        this.historikkinnslagRepository = historikkinnslagRepository;
         this.behandlingRepository = behandlingRepository;
     }
 
@@ -43,54 +43,52 @@ public class HistorikkInnslagForAksjonspunktEventObserver {
         var ktx = aksjonspunkterFunnetEvent.getKontekst();
         for (var aksjonspunkt : aksjonspunkterFunnetEvent.getAksjonspunkter()) {
             if (aksjonspunkt.erOpprettet() && AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING.equals(aksjonspunkt.getAksjonspunktDefinisjon())) {
-                opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), HistorikkinnslagType.BEH_KØET, null,
+                opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), "Behandlingen er satt på vent", null,
                     Venteårsak.VENT_ÅPEN_BEHANDLING);
             } else if (aksjonspunkt.erOpprettet() && aksjonspunkt.getFristTid() != null) {
                 var frist = aksjonspunkt.getFristTid();
                 var venteårsak = aksjonspunkt.getVenteårsak();
-                opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), HistorikkinnslagType.BEH_VENT, frist,
+                opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), "Behandling på vent", frist,
                     venteårsak);
             }
         }
     }
 
     private void opprettHistorikkinnslagForVenteFristRelaterteInnslag(Long behandlingId,
-            Long fagsakId,
-            HistorikkinnslagType historikkinnslagType,
-            LocalDateTime fristTid,
-            Venteårsak venteårsak) {
-        var builder = new HistorikkInnslagTekstBuilder();
+                                                                      Long fagsakId,
+                                                                      String tittel,
+                                                                      LocalDateTime fristTid,
+                                                                      Venteårsak venteårsak) {
+        var historikkinnslagBuilder = new Historikkinnslag2.Builder();
         if (fristTid != null) {
-            builder.medHendelse(historikkinnslagType, fristTid.toLocalDate());
+            historikkinnslagBuilder.medTittel(tittel + " " + HistorikkinnslagTekstlinjeBuilder.format(fristTid.toLocalDate()));
         } else {
-            builder.medHendelse(historikkinnslagType);
+            historikkinnslagBuilder.medTittel(tittel);
         }
         if (venteårsak != null) {
-            builder.medÅrsak(venteårsak);
+            historikkinnslagBuilder.addTekstlinje(venteårsak.getNavn());
         }
-        var historikkinnslag = new Historikkinnslag();
         var erSystemBruker = Optional.ofNullable(KontekstHolder.getKontekst().getIdentType()).filter(IdentType::erSystem).isPresent() ||
             Optional.ofNullable(KontekstHolder.getKontekst().getUid()).map(String::toLowerCase).filter(s -> s.startsWith("srv")).isPresent();
-        historikkinnslag.setAktør(erSystemBruker ? HistorikkAktør.VEDTAKSLØSNINGEN : HistorikkAktør.SAKSBEHANDLER);
-        historikkinnslag.setType(historikkinnslagType);
-        historikkinnslag.setBehandlingId(behandlingId);
-        historikkinnslag.setFagsakId(fagsakId);
-        builder.build(historikkinnslag);
-        historikkRepository.lagre(historikkinnslag);
+        historikkinnslagBuilder
+            .medAktør(erSystemBruker ? HistorikkAktør.VEDTAKSLØSNINGEN : HistorikkAktør.SAKSBEHANDLER)
+            .medBehandlingId(behandlingId)
+            .medFagsakId(fagsakId);
+        historikkinnslagRepository.lagre(historikkinnslagBuilder.build());
     }
 
     public void oppretteHistorikkForGjenopptattBehandling(@Observes AksjonspunktStatusEvent aksjonspunkterFunnetEvent) {
         for (var aksjonspunkt : aksjonspunkterFunnetEvent.getAksjonspunkter()) {
             var ktx = aksjonspunkterFunnetEvent.getKontekst();
             if (aksjonspunkt.erUtført() && AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING.equals(aksjonspunkt.getAksjonspunktDefinisjon())) {
-                opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), HistorikkinnslagType.KØET_BEH_GJEN,
+                opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), "Køet behandling er gjenopptatt",
                     null, null);
             } else if (aksjonspunkt.erUtført() && aksjonspunkt.getFristTid() != null) {
                 // Unngå dobbelinnslag (innslag ved manuellTaAvVent) + konvensjon med påVent->SBH=null og manuellGjenoppta->SBH=ident
                 var manueltTattAvVent = Optional.ofNullable(behandlingRepository.hentBehandlingReadOnly(ktx.getBehandlingId()))
                     .map(Behandling::getAnsvarligSaksbehandler).isPresent();
                 if (!manueltTattAvVent) {
-                    opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), HistorikkinnslagType.BEH_GJEN,
+                    opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), "Behandling gjenopptatt",
                         null, null);
                 }
             }
