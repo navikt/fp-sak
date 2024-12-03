@@ -46,8 +46,6 @@ import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.QueryParam;
 
-import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentbestillingDto;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -151,7 +149,7 @@ class RestApiOppdragInputValideringDtoTest extends RestApiTester {
         }
         Set<Class<?>> filtreteParametre = new TreeSet<>(Comparator.comparing(Class::getName));
         for (var klasse : parametre) {
-            if (klasse.getName().startsWith("java") || klasse.isInterface() || klasse.isAssignableFrom(DokumentbestillingDto.class)) {
+            if (klasse.getName().startsWith("java") || klasse.isInterface()) {
                 // ikke sjekk nedover i innebygde klasser, det skal brukes annoteringer på tidligere tidspunkt
                 continue;
             }
