@@ -104,7 +104,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
             }
             if (erIkkeHenlagt(klageBehandling)) {
                 behandlingskontrollTjeneste.henleggBehandling(kontekst, BehandlingResultatType.HENLAGT_KLAGE_TRUKKET);
-                kabalTjeneste.lagHistorikkinnslagForHenleggelse(behandlingId, BehandlingResultatType.HENLAGT_KLAGE_TRUKKET);
+                kabalTjeneste.lagHistorikkinnslagForHenleggelse(klageBehandling, BehandlingResultatType.HENLAGT_KLAGE_TRUKKET);
             }
         } else if (KabalUtfall.RETUR.equals(utfall)) {
             // Knoteri siden behandling tilbakeføres og deretter kanskje skal til Kabal på nytt. Gjennomgå retur-semantikk på nytt.
@@ -175,7 +175,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
             }
             if (erIkkeHenlagt(ankeBehandling)) {
                 behandlingskontrollTjeneste.henleggBehandling(kontekst, BehandlingResultatType.HENLAGT_ANKE_TRUKKET);
-                kabalTjeneste.lagHistorikkinnslagForHenleggelse(behandlingId, BehandlingResultatType.HENLAGT_ANKE_TRUKKET);
+                kabalTjeneste.lagHistorikkinnslagForHenleggelse(ankeBehandling, BehandlingResultatType.HENLAGT_ANKE_TRUKKET);
             }
         } else if (KabalUtfall.RETUR.equals(utfall)) {
             throw new IllegalStateException("KABAL sender ankeutfall RETUR sak " + ankeBehandling.getSaksnummer().getVerdi());
@@ -206,7 +206,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
         }
         if (erIkkeHenlagt(behandling)) {
             behandlingskontrollTjeneste.henleggBehandling(kontekst, BehandlingResultatType.HENLAGT_FEILOPPRETTET);
-            kabalTjeneste.lagHistorikkinnslagForHenleggelse(behandlingId, BehandlingResultatType.HENLAGT_FEILOPPRETTET);
+            kabalTjeneste.lagHistorikkinnslagForHenleggelse(behandling, BehandlingResultatType.HENLAGT_FEILOPPRETTET);
         }
     }
 
