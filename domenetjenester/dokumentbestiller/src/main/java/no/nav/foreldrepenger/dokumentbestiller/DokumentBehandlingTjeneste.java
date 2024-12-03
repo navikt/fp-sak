@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDoku
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
@@ -42,9 +42,9 @@ public class DokumentBehandlingTjeneste {
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private FamilieHendelseRepository familieHendelseRepository;
     private BehandlingDokumentRepository behandlingDokumentRepository;
-    private HistorikkRepository historikkRepository;
+    private Historikkinnslag2Repository historikkinnslag2Repository;
 
-    public DokumentBehandlingTjeneste() {
+    DokumentBehandlingTjeneste() {
         // for cdi proxy
     }
 
@@ -57,15 +57,14 @@ public class DokumentBehandlingTjeneste {
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingDokumentRepository = behandlingDokumentRepository;
-        this.historikkRepository = repositoryProvider.getHistorikkRepository();
+        this.historikkinnslag2Repository = repositoryProvider.getHistorikkinnslag2Repository();
     }
 
     public void loggDokumentBestilt(Behandling behandling, DokumentBestilling bestilling) {
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId())
             .orElseGet(() -> BehandlingDokumentEntitet.Builder.ny().medBehandling(behandling.getId()).build());
 
-        behandlingDokument.leggTilBestiltDokument(new BehandlingDokumentBestiltEntitet.Builder()
-            .medBehandlingDokument(behandlingDokument)
+        behandlingDokument.leggTilBestiltDokument(new BehandlingDokumentBestiltEntitet.Builder().medBehandlingDokument(behandlingDokument)
             .medDokumentMalType(bestilling.dokumentMal().getKode())
             .medBestillingUuid(bestilling.bestillingUuid())
             .medOpprinneligDokumentMal(Optional.ofNullable(bestilling.journalførSom()).map(DokumentMalType::getKode).orElse(null))
@@ -79,7 +78,8 @@ public class DokumentBehandlingTjeneste {
             .map(BehandlingDokumentEntitet::getBestilteDokumenter)
             .orElse(List.of())
             .stream()
-            .anyMatch(dok -> dok.getDokumentMalType().equals(dokumentMalTypeKode.getKode()) || dokumentMalTypeKode.getKode().equals(dok.getOpprineligDokumentMal()));
+            .anyMatch(dok -> dok.getDokumentMalType().equals(dokumentMalTypeKode.getKode()) || dokumentMalTypeKode.getKode()
+                .equals(dok.getOpprineligDokumentMal()));
     }
 
     public Optional<LocalDateTime> dokumentSistBestiltTidspunkt(Long behandlingId, DokumentMalType dokumentMalTypeKode) {
@@ -87,13 +87,15 @@ public class DokumentBehandlingTjeneste {
             .map(BehandlingDokumentEntitet::getBestilteDokumenter)
             .orElse(List.of())
             .stream()
-            .filter(dok -> dok.getDokumentMalType().equals(dokumentMalTypeKode.getKode()) || dokumentMalTypeKode.getKode().equals(dok.getOpprineligDokumentMal()))
+            .filter(dok -> dok.getDokumentMalType().equals(dokumentMalTypeKode.getKode()) || dokumentMalTypeKode.getKode()
+                .equals(dok.getOpprineligDokumentMal()))
             .map(BaseCreateableEntitet::getOpprettetTidspunkt)
             .max(Comparator.naturalOrder());
     }
 
     public boolean erDokumentBestiltForFagsak(Long fagsakId, DokumentMalType dokumentMalTypeKode) {
-        return behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsakId).stream()
+        return behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsakId)
+            .stream()
             .anyMatch(b -> erDokumentBestilt(b.getId(), dokumentMalTypeKode));
     }
 
@@ -133,7 +135,8 @@ public class DokumentBehandlingTjeneste {
         if (dokumentBestiling.isPresent()) {
             var bestilling = dokumentBestiling.get();
             var journalpostId = kvittering.journalpostId();
-            if (Objects.isNull(bestilling.getJournalpostId())) { // behandlinger med verge produserer to brev per bestilling - vi ble enig om å ignorere det andre.
+            if (Objects.isNull(
+                bestilling.getJournalpostId())) { // behandlinger med verge produserer to brev per bestilling - vi ble enig om å ignorere det andre.
                 bestilling.setJournalpostId(new JournalpostId(journalpostId));
                 LOG.trace("JournalpostId: {}.", journalpostId);
                 behandlingDokumentRepository.lagreOgFlush(bestilling);
@@ -146,9 +149,9 @@ public class DokumentBehandlingTjeneste {
     }
 
     private void lagreHistorikk(Behandling behandling, DokumentMalType dokumentMalBrukt, String journalpostId, String dokumentId) {
-        var historikkInnslag = HistorikkFraDokumentKvitteringMapper
-            .opprettHistorikkInnslag(dokumentMalBrukt, journalpostId, dokumentId, behandling.getId(), behandling.getFagsakId());
-        historikkRepository.lagre(historikkInnslag);
+        var historikkinnslag = HistorikkFraDokumentKvitteringMapper.opprettHistorikkInnslag(dokumentMalBrukt, journalpostId, dokumentId,
+            behandling.getId(), behandling.getFagsakId());
+        historikkinnslag2Repository.lagre(historikkinnslag);
     }
 
     private DokumentMalType utledMalBrukt(String dokumentMalType, String opprineligDokumentMal) {
