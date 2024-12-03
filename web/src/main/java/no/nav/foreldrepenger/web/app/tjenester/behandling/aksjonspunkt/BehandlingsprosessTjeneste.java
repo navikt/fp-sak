@@ -10,16 +10,14 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkBegrunnelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTask;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.ÅpneBehandlingForEndringerTask;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.tilganger.AnsattInfoKlient;
 import no.nav.foreldrepenger.web.app.tjenester.VurderProsessTaskStatusForPollingApi;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
@@ -33,7 +31,7 @@ public class BehandlingsprosessTjeneste {
     private BehandlingRepository behandlingRepository;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private ProsesseringAsynkTjeneste prosesseringAsynkTjeneste;
-    private HistorikkRepository historikkRepository;
+    private Historikkinnslag2Repository historikkRepository;
     private AnsattInfoKlient ansattInfoKlient;
 
     BehandlingsprosessTjeneste() {
@@ -48,7 +46,8 @@ public class BehandlingsprosessTjeneste {
     @Inject
     public BehandlingsprosessTjeneste(BehandlingRepository behandlingRepository,
                                       ProsesseringAsynkTjeneste prosesseringAsynkTjeneste,
-                                      BehandlingProsesseringTjeneste behandlingProsesseringTjeneste, HistorikkRepository historikkRepository,
+                                      BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
+                                      Historikkinnslag2Repository historikkRepository,
                                       AnsattInfoKlient ansattInfoKlient) {
 
         Objects.requireNonNull(behandlingRepository, "behandlingRepository");
@@ -190,26 +189,22 @@ public class BehandlingsprosessTjeneste {
      * Derfor velger vi her å legge på et innslag til med saksbehandler som eier slik at historikken blir korrekt.
      */
     private void opprettHistorikkinnslagForManueltGjenopptakelse(Behandling behandling) {
-        var builder = new HistorikkInnslagTekstBuilder();
-        builder.medHendelse(HistorikkinnslagType.BEH_MAN_GJEN);
-
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
-        historikkinnslag.setType(HistorikkinnslagType.BEH_MAN_GJEN);
-        historikkinnslag.setBehandlingId(behandling.getId());
-        historikkinnslag.setFagsakId(behandling.getFagsakId());
-        builder.build(historikkinnslag);
+        var historikkinnslag = new Historikkinnslag2.Builder()
+            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medFagsakId(behandling.getFagsakId())
+            .medBehandlingId(behandling.getId())
+            .medTittel("Gjenoppta behandling")
+            .build();
         historikkRepository.lagre(historikkinnslag);
     }
 
     private void opprettHistorikkinnslagForBehandlingStartetPåNytt(Behandling behandling) {
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setType(HistorikkinnslagType.BEH_STARTET_PÅ_NYTT);
-        historikkinnslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
-        var historikkInnslagTekstBuilder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.BEH_STARTET_PÅ_NYTT)
-            .medBegrunnelse(HistorikkBegrunnelseType.BEH_STARTET_PA_NYTT);
-        historikkInnslagTekstBuilder.build(historikkinnslag);
-        historikkinnslag.setBehandling(behandling);
+        var historikkinnslag = new Historikkinnslag2.Builder()
+            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medFagsakId(behandling.getFagsakId())
+            .medBehandlingId(behandling.getId())
+            .medTittel("Behandling startet på nytt")
+            .build();
         historikkRepository.lagre(historikkinnslag);
     }
 }
