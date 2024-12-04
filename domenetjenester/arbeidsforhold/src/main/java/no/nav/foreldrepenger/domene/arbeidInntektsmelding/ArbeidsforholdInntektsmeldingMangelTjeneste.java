@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @ApplicationScoped
 public class ArbeidsforholdInntektsmeldingMangelTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(ArbeidsforholdInntektsmeldingMangelTjeneste.class);
+    private static final Logger SECURE_LOG = LoggerFactory.getLogger("secureLogger");
 
     private ArbeidsforholdValgRepository arbeidsforholdValgRepository;
     private ArbeidsforholdAdministrasjonTjeneste arbeidsforholdTjeneste;
@@ -190,6 +191,7 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
     public List<ArbeidsforholdInntektsmeldingStatus> finnStatusForInntektsmeldingArbeidsforhold(BehandlingReferanse referanse, Skjæringstidspunkt skjæringstidspunkt) {
         var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(referanse, skjæringstidspunkt);
         var allePåkrevdeInntektsmeldinger = inntektsmeldingRegisterTjeneste.hentAllePåkrevdeInntektsmeldinger(referanse, skjæringstidspunkt);
+        SECURE_LOG.info("Manglende inntektsmeldinger:{}, Påkrevde inntektsmeldinger: {}", manglendeInntektsmeldinger, allePåkrevdeInntektsmeldinger);
         var saksbehandlersValg = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(referanse.behandlingId());
         return InntektsmeldingStatusMapper.mapInntektsmeldingStatus(allePåkrevdeInntektsmeldinger, manglendeInntektsmeldinger, saksbehandlersValg);
     }
