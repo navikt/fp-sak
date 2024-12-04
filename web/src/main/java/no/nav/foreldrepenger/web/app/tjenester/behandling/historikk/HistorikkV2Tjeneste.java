@@ -20,7 +20,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2DokumentLink;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Tekstlinje;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Linje;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
@@ -78,13 +79,13 @@ public class HistorikkV2Tjeneste {
         var behandlingId = h.getBehandlingId();
         var uuid = behandlingId == null ? null : behandlingRepository.hentBehandling(behandlingId).getUuid();
         List<HistorikkInnslagDokumentLinkDto> dokumenter = tilDokumentlenker(h.getDokumentLinker(), journalPosterForSak, dokumentPath);
-        var tekstlinjer = h.getTekstlinjer()
+        var linjer = h.getLinjer()
             .stream()
-            .sorted(Comparator.comparing(Historikkinnslag2Tekstlinje::getSekvensNr))
-            .map(t -> t.getTekst().equals(Historikkinnslag2.LINJESKIFT) ? HistorikkDtoFellesMapper.LINJESKIFT : t.getTekst())
+            .sorted(Comparator.comparing(Historikkinnslag2Linje::getSekvensNr))
+            .map(t -> t.getType() == HistorikkinnslagLinjeType.TEKST ? t.getTekst() : HistorikkDtoFellesMapper.LINJESKIFT)
             .toList();
         return new HistorikkinnslagDtoV2(uuid, HistorikkinnslagDtoV2.HistorikkAktørDto.fra(h.getAktør(), h.getOpprettetAv()), h.getSkjermlenke(),
-            h.getOpprettetTidspunkt(), dokumenter, h.getTittel(), fjernTrailingAvsnittFraTekst(tekstlinjer));
+            h.getOpprettetTidspunkt(), dokumenter, h.getTittel(), fjernTrailingAvsnittFraTekst(linjer));
     }
 
     private static List<HistorikkInnslagDokumentLinkDto> tilDokumentlenker(List<Historikkinnslag2DokumentLink> dokumentLinker,

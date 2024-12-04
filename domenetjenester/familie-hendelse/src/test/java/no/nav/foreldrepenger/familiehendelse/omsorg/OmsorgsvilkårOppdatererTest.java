@@ -61,10 +61,10 @@ class OmsorgsvilkårOppdatererTest extends EntityManagerAwareTest {
         assertThat(resultat.getVilkårUtfallSomSkalLeggesTil().get(0).getVilkårUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
 
         var historikk = historikkinnslag2Repository.hent(behandling.getId()).getFirst();
-        assertThat(historikk.getTekstlinjer()).hasSize(2);
+        assertThat(historikk.getLinjer()).hasSize(2);
         assertThat(historikk.getSkjermlenke()).isEqualTo(SkjermlenkeType.PUNKT_FOR_OMSORG);
-        assertThat(historikk.getTekstlinjer().get(0).getTekst()).contains("Omsorgsvilkåret", VilkårUtfallType.OPPFYLT.getNavn());
-        assertThat(historikk.getTekstlinjer().get(1).getTekst()).contains(dto.getBegrunnelse());
+        assertThat(historikk.getLinjer().get(0).getTekst()).contains("Omsorgsvilkåret", VilkårUtfallType.OPPFYLT.getNavn());
+        assertThat(historikk.getLinjer().get(1).getTekst()).contains(dto.getBegrunnelse());
     }
 
     @Test
@@ -90,10 +90,10 @@ class OmsorgsvilkårOppdatererTest extends EntityManagerAwareTest {
         assertThat(resultat.getVilkårUtfallSomSkalLeggesTil().get(0).getVilkårUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
 
         var historikk = historikkinnslag2Repository.hent(behandling.getId()).getFirst();
-        assertThat(historikk.getTekstlinjer()).hasSize(2);
+        assertThat(historikk.getLinjer()).hasSize(2);
         assertThat(historikk.getSkjermlenke()).isEqualTo(SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR);
-        assertThat(historikk.getTekstlinjer().get(0).getTekst()).contains("Foreldreansvarsvilkåret", VilkårUtfallType.OPPFYLT.getNavn());
-        assertThat(historikk.getTekstlinjer().get(1).getTekst()).contains(dto.getBegrunnelse());
+        assertThat(historikk.getLinjer().get(0).getTekst()).contains("Foreldreansvarsvilkåret", VilkårUtfallType.OPPFYLT.getNavn());
+        assertThat(historikk.getLinjer().get(1).getTekst()).contains(dto.getBegrunnelse());
     }
 
     @Test
@@ -122,10 +122,10 @@ class OmsorgsvilkårOppdatererTest extends EntityManagerAwareTest {
         assertThat(resultat.getVilkårUtfallSomSkalLeggesTil().get(0).getAvslagsårsak()).isEqualTo(Avslagsårsak.IKKE_FORELDREANSVAR_ALENE_ETTER_BARNELOVA);
 
         var historikk = historikkinnslag2Repository.hent(behandling.getId()).getFirst();
-        assertThat(historikk.getTekstlinjer()).hasSize(2);
+        assertThat(historikk.getLinjer()).hasSize(2);
         assertThat(historikk.getSkjermlenke()).isEqualTo(SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR);
-        assertThat(historikk.getTekstlinjer().get(0).getTekst()).contains("Foreldreansvarsvilkåret", VilkårUtfallType.IKKE_OPPFYLT.getNavn());
-        assertThat(historikk.getTekstlinjer().get(1).getTekst()).contains(dto.getBegrunnelse());
+        assertThat(historikk.getLinjer().get(0).getTekst()).contains("Foreldreansvarsvilkåret", VilkårUtfallType.IKKE_OPPFYLT.getNavn());
+        assertThat(historikk.getLinjer().get(1).getTekst()).contains(dto.getBegrunnelse());
     }
 
 }

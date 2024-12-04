@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.økonomistøtte.simulering.tjeneste;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -68,7 +68,7 @@ public class SimulerInntrekkSjekkeTjeneste {
             .medBehandlingId(behandlingId)
             .medFagsakId(fagsakId)
             .medTittel(SkjermlenkeType.FAKTA_OM_SIMULERING)
-            .addTekstlinje(
+            .addlinje(
                 fraTilEquals("Fastsett videre behandling", "Feilutbetaling hvor inntrekk dekker hele beløpet", "Feilutbetaling med tilbakekreving"))
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);

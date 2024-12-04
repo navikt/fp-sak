@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -70,8 +70,8 @@ public class ForvaltningUttakTjeneste {
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
             .medTittel(SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER)
-            .addTekstlinje(fraTilEquals("Startdato for foreldrepengeperioden", null, startdato))
-            .addTekstlinje(String.format("FORVALTNING - satt startdato til %s pga manglende uttak", startdato))
+            .addlinje(fraTilEquals("Startdato for foreldrepengeperioden", null, startdato))
+            .addLinje(String.format("FORVALTNING - satt startdato til %s pga manglende uttak", startdato))
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }
@@ -120,7 +120,7 @@ public class ForvaltningUttakTjeneste {
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
             .medTittel("Fakta endret")
-            .addTekstlinje(aleneomsorg ? "FORVALTNING - Endret til aleneomsorg" : "FORVALTNING - Endret til ikke aleneomsorg")
+            .addLinje(aleneomsorg ? "FORVALTNING - Endret til aleneomsorg" : "FORVALTNING - Endret til ikke aleneomsorg")
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }
@@ -156,7 +156,7 @@ public class ForvaltningUttakTjeneste {
             .medFagsakId(fagsakId)
             .medBehandlingId(behandlingId)
             .medTittel("Fakta endret")
-            .addTekstlinje(begrunnelse)
+            .addLinje(begrunnelse)
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }

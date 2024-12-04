@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.domene.rest.historikk;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -33,9 +33,9 @@ public class VurderVarigEndringEllerNyoppstarteteSNHistorikkTjeneste {
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())
             .medTittel(SkjermlenkeType.BEREGNING_FORELDREPENGER)
-            .addTekstlinje(fraTilEquals("Endring i næringsvirksomhet", null, konvertBooleanTilFaktaEndretVerdiType(dto.getErVarigEndretNaering())))
-            .addTekstlinje(fraTilEquals("Brutto næringsinntekt", null, dto.getBruttoBeregningsgrunnlag()))
-            .addTekstlinje(dto.getBegrunnelse())
+            .addlinje(fraTilEquals("Endring i næringsvirksomhet", null, konvertBooleanTilFaktaEndretVerdiType(dto.getErVarigEndretNaering())))
+            .addlinje(fraTilEquals("Brutto næringsinntekt", null, dto.getBruttoBeregningsgrunnlag()))
+            .addLinje(dto.getBegrunnelse())
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }

@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.domene.rest.historikk;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt�
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetAggregatEntitet;
@@ -47,12 +47,12 @@ public class BeregningsaktivitetHistorikkTjeneste {
                              String begrunnelse,
                              Optional<BeregningAktivitetAggregatEntitet> forrigeAggregat) {
 
-        var tekstlinjer = new ArrayList<HistorikkinnslagTekstlinjeBuilder>();
+        var linjer = new ArrayList<HistorikkinnslagLinjeBuilder>();
         for (var ba : registerAktiviteter.getBeregningAktiviteter()) {
             var arbeidsforholdOverstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.behandlingId()).getArbeidsforholdOverstyringer();
             var aktivitetnavn = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningaktivitet(ba, arbeidsforholdOverstyringer);
-            lagSkalBrukesHistorikk(saksbehandledeAktiviteter, forrigeAggregat, ba, aktivitetnavn).ifPresent(tekstlinjer::add);
-            lagPeriodeHistorikk(saksbehandledeAktiviteter, ba, aktivitetnavn).ifPresent(tekstlinjer::add);
+            lagSkalBrukesHistorikk(saksbehandledeAktiviteter, forrigeAggregat, ba, aktivitetnavn).ifPresent(linjer::add);
+            lagPeriodeHistorikk(saksbehandledeAktiviteter, ba, aktivitetnavn).ifPresent(linjer::add);
         }
 
         var historikkinnslag = new Historikkinnslag2.Builder()
@@ -60,16 +60,16 @@ public class BeregningsaktivitetHistorikkTjeneste {
             .medFagsakId(behandlingReferanse.fagsakId())
             .medBehandlingId(behandlingReferanse.behandlingId())
             .medTittel(SkjermlenkeType.FAKTA_OM_BEREGNING)
-            .medTekstlinjer(tekstlinjer)
-            .addTekstlinje(begrunnelse)
+            .medLinjer(linjer)
+            .addLinje(begrunnelse)
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }
 
-    private Optional<HistorikkinnslagTekstlinjeBuilder> lagSkalBrukesHistorikk(BeregningAktivitetAggregatEntitet saksbehandledeAktiviteter,
-                                                                               Optional<BeregningAktivitetAggregatEntitet> forrigeAggregat,
-                                                                               BeregningAktivitetEntitet ba,
-                                                                               String aktivitetnavn) {
+    private Optional<HistorikkinnslagLinjeBuilder> lagSkalBrukesHistorikk(BeregningAktivitetAggregatEntitet saksbehandledeAktiviteter,
+                                                                          Optional<BeregningAktivitetAggregatEntitet> forrigeAggregat,
+                                                                          BeregningAktivitetEntitet ba,
+                                                                          String aktivitetnavn) {
         var skalBrukesTilVerdi = finnSkalBrukesTilVerdi(saksbehandledeAktiviteter, ba);
         var skalBrukesFraVerdi = finnSkalBrukesFraVerdi(forrigeAggregat, ba);
         if (skalBrukesTilVerdi.equals(skalBrukesFraVerdi)) {
@@ -96,9 +96,9 @@ public class BeregningsaktivitetHistorikkTjeneste {
         return finnesISaksbehandletVersjon ? HistorikkEndretFeltVerdiType.BENYTT : HistorikkEndretFeltVerdiType.IKKE_BENYTT;
     }
 
-    private Optional<HistorikkinnslagTekstlinjeBuilder> lagPeriodeHistorikk(BeregningAktivitetAggregatEntitet saksbehandledeAktiviteter,
-                                                                            BeregningAktivitetEntitet ba,
-                                                                            String aktivitetnavn) {
+    private Optional<HistorikkinnslagLinjeBuilder> lagPeriodeHistorikk(BeregningAktivitetAggregatEntitet saksbehandledeAktiviteter,
+                                                                       BeregningAktivitetEntitet ba,
+                                                                       String aktivitetnavn) {
         var saksbehandletAktivitet = saksbehandledeAktiviteter.getBeregningAktiviteter()
             .stream()
             .filter(a -> Objects.equals(a.getNøkkel(), ba.getNøkkel()))
@@ -112,7 +112,7 @@ public class BeregningsaktivitetHistorikkTjeneste {
             return Optional.empty();
         }
 
-        return Optional.of(new HistorikkinnslagTekstlinjeBuilder()
+        return Optional.of(new HistorikkinnslagLinjeBuilder()
             .fraTil("Periode t.o.m.", gammelPeriodeTom, nyPeriodeTom)
             .tekst(String.format("__Det er lagt til ny aktivitet: %s__", aktivitetnavn)));
     }

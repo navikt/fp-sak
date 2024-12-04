@@ -9,7 +9,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
@@ -67,7 +67,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjeneste {
             dto.getInntektFrilanser(), historikkBuilder);
 
         var ref = param.getRef();
-        historikkBuilder.addTekstlinje(dto.getBegrunnelse())
+        historikkBuilder.addLinje(dto.getBegrunnelse())
             .medTittel(SkjermlenkeType.BEREGNING_FORELDREPENGER)
             .medBehandlingId(param.getBehandlingId())
             .medFagsakId(ref.fagsakId())
@@ -83,11 +83,11 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjeneste {
                                         Historikkinnslag2.Builder historikkBuilder) {
         if (arbeidstakerList.stream()
             .noneMatch(bgpsa -> bgpsa.getAktivitetStatus().equals(AktivitetStatus.FRILANSER))) {
-            historikkBuilder.addTekstlinje("Grunnlag for beregnet årsinntekt:");
+            historikkBuilder.addLinje("Grunnlag for beregnet årsinntekt:");
         }
 
         if (inntektFrilanser != null && !frilanserList.isEmpty()) {
-            historikkBuilder.addTekstlinje(HistorikkinnslagTekstlinjeBuilder.fraTilEquals("Frilansinntekt", null, inntektFrilanser));
+            historikkBuilder.addlinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Frilansinntekt", null, inntektFrilanser));
         }
 
         if (overstyrtList != null) {
@@ -110,8 +110,8 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjeneste {
                 var visningsNavn = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(
                     prStatus.getAktivitetStatus(), prStatus.getArbeidsgiver(), prStatus.getArbeidsforholdRef(),
                     arbeidsforholOverstyringer);
-                var textBuilder = new HistorikkinnslagTekstlinjeBuilder();
-                historikkBuilder.addTekstlinje(textBuilder.til(String.format("Inntekt fra %s", visningsNavn), overstyrt.get().getInntekt()));
+                var textBuilder = new HistorikkinnslagLinjeBuilder();
+                historikkBuilder.addlinje(textBuilder.til(String.format("Inntekt fra %s", visningsNavn), overstyrt.get().getInntekt()));
             }
         }
     }

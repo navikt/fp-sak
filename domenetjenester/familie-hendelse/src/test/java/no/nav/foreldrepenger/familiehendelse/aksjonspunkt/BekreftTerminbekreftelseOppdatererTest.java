@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.format;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -78,11 +78,11 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
         var captor = ArgumentCaptor.forClass(Historikkinnslag2.class);
         verify(historikkRepository, times(1)).lagre(captor.capture());
         var historikkinnslag = captor.getValue();
-        assertThat(historikkinnslag.getTekstlinjer()).hasSize(4);
-        assertThat(historikkinnslag.getTekstlinjer().get(0).getTekst()).contains("Termindato", format(opprinneligTermindato), format(avklartTermindato));
-        assertThat(historikkinnslag.getTekstlinjer().get(1).getTekst()).contains("Utstedtdato", format(opprinneligUtstedtDato), format(avklartUtstedtDato));
-        assertThat(historikkinnslag.getTekstlinjer().get(2).getTekst()).contains("Antall barn", Integer.toString(opprinneligAntallBarn), Integer.toString(avklartAntallBarn));
-        assertThat(historikkinnslag.getTekstlinjer().get(3).getTekst()).contains(dto.getBegrunnelse());
+        assertThat(historikkinnslag.getLinjer()).hasSize(4);
+        assertThat(historikkinnslag.getLinjer().get(0).getTekst()).contains("Termindato", format(opprinneligTermindato), format(avklartTermindato));
+        assertThat(historikkinnslag.getLinjer().get(1).getTekst()).contains("Utstedtdato", format(opprinneligUtstedtDato), format(avklartUtstedtDato));
+        assertThat(historikkinnslag.getLinjer().get(2).getTekst()).contains("Antall barn", Integer.toString(opprinneligAntallBarn), Integer.toString(avklartAntallBarn));
+        assertThat(historikkinnslag.getLinjer().get(3).getTekst()).contains(dto.getBegrunnelse());
     }
 
     @Test
@@ -116,9 +116,9 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
         var captor = ArgumentCaptor.forClass(Historikkinnslag2.class);
         verify(historikkRepository, times(1)).lagre(captor.capture());
         var historikkinnslag = captor.getValue();
-        assertThat(historikkinnslag.getTekstlinjer()).hasSize(2);
-        assertThat(historikkinnslag.getTekstlinjer().get(0).getTekst()).contains("Terminbekreftelse", "godkjent");
-        assertThat(historikkinnslag.getTekstlinjer().get(1).getTekst()).contains(dto.getBegrunnelse());
+        assertThat(historikkinnslag.getLinjer()).hasSize(2);
+        assertThat(historikkinnslag.getLinjer().get(0).getTekst()).contains("Terminbekreftelse", "godkjent");
+        assertThat(historikkinnslag.getLinjer().get(1).getTekst()).contains(dto.getBegrunnelse());
     }
 
     @Test

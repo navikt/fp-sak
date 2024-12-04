@@ -36,8 +36,8 @@ public class Historikkinnslag2Repository {
 
     public void lagre(Historikkinnslag2 historikkinnslag) {
         entityManager.persist(historikkinnslag);
-        for (var tekstlinje : historikkinnslag.getTekstlinjer()) {
-            entityManager.persist(tekstlinje);
+        for (var linje : historikkinnslag.getLinjer()) {
+            entityManager.persist(linje);
         }
         for (var dokument : historikkinnslag.getDokumentLinker()) {
             entityManager.persist(dokument);

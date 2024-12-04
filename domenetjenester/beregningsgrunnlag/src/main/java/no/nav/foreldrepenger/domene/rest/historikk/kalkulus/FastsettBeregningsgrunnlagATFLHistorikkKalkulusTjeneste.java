@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningsgrunnlagEndring;
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningsgrunnlagPeriodeEndring;
@@ -80,11 +80,11 @@ public class FastsettBeregningsgrunnlagATFLHistorikkKalkulusTjeneste {
                                    Historikkinnslag2.Builder historikkBuilder) {
         if (atAndeler.stream()
             .noneMatch(bgpsa -> bgpsa.getAktivitetStatus().equals(AktivitetStatus.FRILANSER))) {
-            historikkBuilder.addTekstlinje("Grunnlag for beregnet årsinntekt:");
+            historikkBuilder.addLinje("Grunnlag for beregnet årsinntekt:");
         }
 
         if (inntektFrilanser != null && !flAndeler.isEmpty()) {
-            historikkBuilder.addTekstlinje(HistorikkinnslagTekstlinjeBuilder.fraTilEquals("Frilansinntekt", null, inntektFrilanser));
+            historikkBuilder.addlinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Frilansinntekt", null, inntektFrilanser));
         }
 
         if (inntektPrAndelList != null) {
@@ -103,7 +103,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkKalkulusTjeneste {
     private void ferdigStillHistorikkInnslag(FastsettBeregningsgrunnlagATFLDto dto, AksjonspunktOppdaterParameter param,
                                              Historikkinnslag2.Builder historikkBuilder) {
         var ref = param.getRef();
-        historikkBuilder.addTekstlinje(dto.getBegrunnelse())
+        historikkBuilder.addLinje(dto.getBegrunnelse())
             .medTittel(SkjermlenkeType.BEREGNING_FORELDREPENGER)
             .medBehandlingId(param.getBehandlingId())
             .medFagsakId(ref.fagsakId())
@@ -127,8 +127,8 @@ public class FastsettBeregningsgrunnlagATFLHistorikkKalkulusTjeneste {
                 var fra = endretAndel.getInntektEndring().get().getFraBeløp();
                 var til = endretAndel.getInntektEndring().get().getTilBeløp();
                 if (fra.isEmpty() || fra.get().compareTo(til) != 0) {
-                    var textBuilder = new HistorikkinnslagTekstlinjeBuilder();
-                    historikkBuilder.addTekstlinje(textBuilder.fraTil(String.format("Inntekt fra %s", visningsNavn), fra.orElse(null), til));
+                    var textBuilder = new HistorikkinnslagLinjeBuilder();
+                    historikkBuilder.addlinje(textBuilder.fraTil(String.format("Inntekt fra %s", visningsNavn), fra.orElse(null), til));
                 }
             }
         }

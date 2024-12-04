@@ -6,7 +6,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningsgrunnlagPrStatusOgAndelEndring;
 import no.nav.foreldrepenger.domene.aksjonspunkt.InntektskategoriEndring;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
@@ -29,19 +29,19 @@ public class InntektskategoriHistorikkKalkukusTjeneste {
         this.arbeidsgiverHistorikkinnslag = arbeidsgiverHistorikkinnslag;
     }
 
-    Optional<HistorikkinnslagTekstlinjeBuilder> lagHistorikkOmEndret(List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer, BeregningsgrunnlagPrStatusOgAndelEndring andelEndring) {
+    Optional<HistorikkinnslagLinjeBuilder> lagHistorikkOmEndret(List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer, BeregningsgrunnlagPrStatusOgAndelEndring andelEndring) {
         return andelEndring.getInntektskategoriEndring()
-            .map(inntektskategoriEndring -> lagHistorikkinnslagTekstlinjeFor(arbeidsforholdOverstyringer, andelEndring, inntektskategoriEndring));
+            .map(inntektskategoriEndring -> lagHistorikkinnslagLinjeFor(arbeidsforholdOverstyringer, andelEndring, inntektskategoriEndring));
     }
 
-    private HistorikkinnslagTekstlinjeBuilder lagHistorikkinnslagTekstlinjeFor(List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer,
-                                                                               BeregningsgrunnlagPrStatusOgAndelEndring andelEndring,
-                                                                               InntektskategoriEndring endring) {
+    private HistorikkinnslagLinjeBuilder lagHistorikkinnslagLinjeFor(List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer,
+                                                                     BeregningsgrunnlagPrStatusOgAndelEndring andelEndring,
+                                                                     InntektskategoriEndring endring) {
         var arbeidsgiverinfo = arbeidsgiverHistorikkinnslag.lagHistorikkinnslagTekstForBeregningsgrunnlag(
             andelEndring.getAktivitetStatus(),
             andelEndring.getArbeidsgiver(),
             Optional.of(andelEndring.getArbeidsforholdRef()),
             arbeidsforholdOverstyringer);
-        return HistorikkinnslagTekstlinjeBuilder.fraTilEquals(String.format("Inntektskategori %s", arbeidsgiverinfo), endring.getFraVerdi(), endring.getTilVerdi());
+        return HistorikkinnslagLinjeBuilder.fraTilEquals(String.format("Inntektskategori %s", arbeidsgiverinfo), endring.getFraVerdi(), endring.getTilVerdi());
     }
 }

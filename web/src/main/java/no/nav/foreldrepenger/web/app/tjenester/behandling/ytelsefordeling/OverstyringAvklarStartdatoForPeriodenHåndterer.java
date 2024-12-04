@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -49,8 +49,8 @@ public class OverstyringAvklarStartdatoForPeriodenHåndterer implements Overstyr
                 .medAktør(HistorikkAktør.SAKSBEHANDLER)
                 .medBehandlingId(behandling.getId())
                 .medFagsakId(behandling.getFagsakId())
-                .addTekstlinje(fraTilEquals("Startdato for foreldrepengeperioden", opprinneligDato, startdatoFraSoknad))
-                .addTekstlinje(dto.getBegrunnelse())
+                .addlinje(fraTilEquals("Startdato for foreldrepengeperioden", opprinneligDato, startdatoFraSoknad))
+                .addLinje(dto.getBegrunnelse())
                 .build();
             historikkinnslag2Repository.lagre(historikkinnslag);
         }

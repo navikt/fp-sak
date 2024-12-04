@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.impl;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import java.time.LocalDate;
 
@@ -35,7 +35,7 @@ public class RegisterinnhentingHistorikkinnslagTjeneste {
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
-            .addTekstlinje("Saksbehandling starter på nytt")
+            .addLinje("Saksbehandling starter på nytt")
             .build();
         historikkinnslag2Repository.lagre(historikkinnslag);
     }
@@ -46,7 +46,7 @@ public class RegisterinnhentingHistorikkinnslagTjeneste {
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
-            .addTekstlinje("Behandlingen er flyttet fra " + førSteg.getNavn() + " tilbake til " + etterSteg.getNavn())
+            .addLinje("Behandlingen er flyttet fra " + førSteg.getNavn() + " tilbake til " + etterSteg.getNavn())
             .build();
         historikkinnslag2Repository.lagre(historikkinnslag);
     }
@@ -57,7 +57,7 @@ public class RegisterinnhentingHistorikkinnslagTjeneste {
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
-            .addTekstlinje(behandlingÅrsakType.getNavn())
+            .addLinje(behandlingÅrsakType.getNavn())
             .build();
         historikkinnslag2Repository.lagre(historikkinnslag);
     }
@@ -68,7 +68,7 @@ public class RegisterinnhentingHistorikkinnslagTjeneste {
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
-            .addTekstlinje(fraTilEquals("Startdato for foreldrepengeperioden", endretFra, endretTil))
+            .addlinje(fraTilEquals("Startdato for foreldrepengeperioden", endretFra, endretTil))
             .build();
         historikkinnslag2Repository.lagre(historikkinnslag);
     }

@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.format;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.format;
 
 import java.util.Objects;
 import java.util.Optional;

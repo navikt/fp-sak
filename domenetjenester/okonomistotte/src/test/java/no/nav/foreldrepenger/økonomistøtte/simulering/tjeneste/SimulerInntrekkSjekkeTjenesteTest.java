@@ -92,7 +92,7 @@ class SimulerInntrekkSjekkeTjenesteTest {
         assertThat(historikkinnslag).isNotNull();
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.VEDTAKSLØSNINGEN);
         assertThat(historikkinnslag.getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_OM_SIMULERING);
-        assertThat(historikkinnslag.getTekstlinjer().getFirst().getTekst()).contains(
+        assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).contains(
             "__Fastsett videre behandling__ er endret fra Feilutbetaling hvor inntrekk dekker hele beløpet til __Feilutbetaling med tilbakekreving__.");
     }
 

@@ -14,7 +14,7 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningsgrunnlagEndring;
 import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -53,30 +53,30 @@ public class FordelBeregningsgrunnlagHistorikkKalkulusTjeneste {
         var endredePerioder = endringsaggregat.flatMap(OppdaterBeregningsgrunnlagResultat::getBeregningsgrunnlagEndring)
             .map(BeregningsgrunnlagEndring::getBeregningsgrunnlagPeriodeEndringer)
             .orElse(List.of());
-        List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder = new ArrayList<>();
+        List<HistorikkinnslagLinjeBuilder> linjeBuilder = new ArrayList<>();
         for (var endretPeriode : dto.getEndretBeregningsgrunnlagPerioder()) {
             var korrektPeriodeFom = FordelBeregningsgrunnlagHistorikkUtil.getKorrektPeriodeEndring(endredePerioder, endretPeriode)
                 .getPeriode().getFom();
-            tekstlinjerBuilder = lagHistorikk(endretPeriode, korrektPeriodeFom, arbeidsforholdOverstyringer);
+            linjeBuilder = lagHistorikk(endretPeriode, korrektPeriodeFom, arbeidsforholdOverstyringer);
         }
 
-        tekstlinjerBuilder.add(new HistorikkinnslagTekstlinjeBuilder().tekst(dto.getBegrunnelse()));
-        var historikkinnslagBuilder = FordelBeregningsgrunnlagHistorikkUtil.lagHistorikkInnslag(param, tekstlinjerBuilder);
+        linjeBuilder.add(new HistorikkinnslagLinjeBuilder().tekst(dto.getBegrunnelse()));
+        var historikkinnslagBuilder = FordelBeregningsgrunnlagHistorikkUtil.lagHistorikkInnslag(param, linjeBuilder);
         historikkinnslagBuilder.ifPresent(builder -> historikkinnslagRepository.lagre(builder.build()));
 
         return OppdateringResultat.utenOverhopp();
     }
 
-    private List<HistorikkinnslagTekstlinjeBuilder> lagHistorikk(FordelBeregningsgrunnlagPeriodeDto endretPeriode,
-                                                                 LocalDate korrektPeriodeFom,
-                                                                 List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
-        List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder = new ArrayList<>();
+    private List<HistorikkinnslagLinjeBuilder> lagHistorikk(FordelBeregningsgrunnlagPeriodeDto endretPeriode,
+                                                            LocalDate korrektPeriodeFom,
+                                                            List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
+        List<HistorikkinnslagLinjeBuilder> linjeBuilder = new ArrayList<>();
         for (var endretAndel : endretPeriode.getAndeler()) {
             var endring = lagEndringsoppsummeringForHistorikk(endretAndel).build();
             var arbeidsforholdInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(endring.getAktivitetStatus(),
                 endring.getArbeidsgiver(), endring.getArbeidsforholdRef(), arbeidsforholdOverstyringer);
-            tekstlinjerBuilder.addAll(leggTilArbeidsforholdHistorikkinnslag(endring, korrektPeriodeFom, arbeidsforholdInfo));
+            linjeBuilder.addAll(leggTilArbeidsforholdHistorikkinnslag(endring, korrektPeriodeFom, arbeidsforholdInfo));
         }
-        return tekstlinjerBuilder;
+        return linjeBuilder;
     }
 }

@@ -6,7 +6,7 @@ import java.util.List;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningsgrunnlagPeriodeEndring;
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningsgrunnlagPrStatusOgAndelEndring;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -38,7 +38,7 @@ public class BeregningsgrunnlagVerdierHistorikkTjeneste {
         this.refusjonHistorikkTjeneste = refusjonHistorikkTjeneste;
     }
 
-    public List<HistorikkinnslagTekstlinjeBuilder> lagHistorikkForBeregningsgrunnlagVerdier(Long behandlingId, BeregningsgrunnlagPeriodeEndring periode) {
+    public List<HistorikkinnslagLinjeBuilder> lagHistorikkForBeregningsgrunnlagVerdier(Long behandlingId, BeregningsgrunnlagPeriodeEndring periode) {
         var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId);
         var arbeidsforholdOverstyringer = inntektArbeidYtelseGrunnlag.getArbeidsforholdOverstyringer();
         return periode.getBeregningsgrunnlagPrStatusOgAndelEndringer().stream()
@@ -46,12 +46,12 @@ public class BeregningsgrunnlagVerdierHistorikkTjeneste {
             .toList();
     }
 
-    private List<HistorikkinnslagTekstlinjeBuilder> lagHistorikkForAndel(List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer, BeregningsgrunnlagPrStatusOgAndelEndring andelEndring) {
-        var tekstlinjer = new ArrayList<HistorikkinnslagTekstlinjeBuilder>();
-        inntektHistorikkKalkulusTjeneste.lagHistorikkOmEndret(arbeidsforholdOverstyringer, andelEndring).ifPresent(tekstlinjer::add);
-        inntektskategoriHistorikkTjeneste.lagHistorikkOmEndret(arbeidsforholdOverstyringer, andelEndring).ifPresent(tekstlinjer::add);
-        refusjonHistorikkTjeneste.lagHistorikkOmEndret(arbeidsforholdOverstyringer, andelEndring).ifPresent(tekstlinjer::add);
-        return tekstlinjer;
+    private List<HistorikkinnslagLinjeBuilder> lagHistorikkForAndel(List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer, BeregningsgrunnlagPrStatusOgAndelEndring andelEndring) {
+        var linjer = new ArrayList<HistorikkinnslagLinjeBuilder>();
+        inntektHistorikkKalkulusTjeneste.lagHistorikkOmEndret(arbeidsforholdOverstyringer, andelEndring).ifPresent(linjer::add);
+        inntektskategoriHistorikkTjeneste.lagHistorikkOmEndret(arbeidsforholdOverstyringer, andelEndring).ifPresent(linjer::add);
+        refusjonHistorikkTjeneste.lagHistorikkOmEndret(arbeidsforholdOverstyringer, andelEndring).ifPresent(linjer::add);
+        return linjer;
     }
 
 }

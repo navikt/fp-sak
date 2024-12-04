@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.klage;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.format;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -126,19 +126,19 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         assertThat(historikk).hasSize(2);
         var historikkinnslag = historikk.getFirst();
         assertThat(historikkinnslag.getSkjermlenke()).isEqualByComparingTo(SkjermlenkeType.FORMKRAV_KLAGE_NFP);
-        assertThat(historikkinnslag.getTekstlinjer()).hasSize(6);
-        var historikkinnslagTekstlinjer = historikkinnslag.getTekstlinjer();
+        assertThat(historikkinnslag.getLinjer()).hasSize(6);
+        var linjer = historikkinnslag.getLinjer();
 
 
-        assertThat(historikkinnslagTekstlinjer.stream()
-            .anyMatch(tekstlinje -> tekstlinje.getTekst().contains(KlageHistorikkinnslag.PÅKLAGD_BEHANDLING) && tekstlinje.getTekst()
+        assertThat(linjer.stream()
+            .anyMatch(linje -> linje.getTekst().contains(KlageHistorikkinnslag.PÅKLAGD_BEHANDLING) && linje.getTekst()
                 .contains(BehandlingType.FØRSTEGANGSSØKNAD.getNavn()))).isTrue();
 
         historikkinnslag = historikk.get(1);
-        assertThat(historikkinnslag.getTekstlinjer()).hasSize(2);
-        historikkinnslagTekstlinjer = historikkinnslag.getTekstlinjer();
-        assertThat(historikkinnslagTekstlinjer.stream()
-            .anyMatch(tekstlinje -> tekstlinje.getTekst().contains(KlageHistorikkinnslag.PÅKLAGD_BEHANDLING) && tekstlinje.getTekst()
+        assertThat(historikkinnslag.getLinjer()).hasSize(2);
+        linjer = historikkinnslag.getLinjer();
+        assertThat(linjer.stream()
+            .anyMatch(linje -> linje.getTekst().contains(KlageHistorikkinnslag.PÅKLAGD_BEHANDLING) && linje.getTekst()
                 .contains(TILBAKEKREVING_BEHANDLING_TYPE_NAVN))).isTrue();
     }
 
@@ -178,16 +178,16 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         assertThat(historikk).hasSize(2);
         var historikkinnslag = historikk.get(0);
         assertThat(historikkinnslag.getSkjermlenke()).isEqualByComparingTo(SkjermlenkeType.FORMKRAV_KLAGE_NFP);
-        assertThat(historikkinnslag.getTekstlinjer()).hasSize(6);
-        var tekstlinjer = historikkinnslag.getTekstlinjer();
-        assertThat(tekstlinjer.stream()
+        assertThat(historikkinnslag.getLinjer()).hasSize(6);
+        var linjer = historikkinnslag.getLinjer();
+        assertThat(linjer.stream()
             .anyMatch(tekstlinje -> tekstlinje.getTekst().contains(KlageHistorikkinnslag.PÅKLAGD_BEHANDLING) && tekstlinje.getTekst()
                 .contains(TILBAKEKREVING_BEHANDLING_TYPE_NAVN))).isTrue();
 
         historikkinnslag = historikk.get(1);
-        assertThat(historikkinnslag.getTekstlinjer()).hasSize(2);
-        tekstlinjer = historikkinnslag.getTekstlinjer();
-        assertThat(tekstlinjer.stream()
+        assertThat(historikkinnslag.getLinjer()).hasSize(2);
+        linjer = historikkinnslag.getLinjer();
+        assertThat(linjer.stream()
             .anyMatch(tekstlinje -> tekstlinje.getTekst().contains(KlageHistorikkinnslag.PÅKLAGD_BEHANDLING) && tekstlinje.getTekst()
                 .contains(TILBAKEKREVING_BEHANDLING_TYPE_NAVN + " " + format(vedtakDato)))).isTrue();
     }
@@ -220,16 +220,16 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         assertThat(historikk).hasSize(2);
         var historikkinnslag = historikk.get(0);
         assertThat(historikkinnslag.getSkjermlenke()).isEqualByComparingTo(SkjermlenkeType.FORMKRAV_KLAGE_NFP);
-        assertThat(historikkinnslag.getTekstlinjer()).hasSize(6);
-        var tekstlinjer = historikkinnslag.getTekstlinjer();
-        assertThat(tekstlinjer.stream()
+        assertThat(historikkinnslag.getLinjer()).hasSize(6);
+        var linjer = historikkinnslag.getLinjer();
+        assertThat(linjer.stream()
             .anyMatch(tekstlinje -> tekstlinje.getTekst().contains(KlageHistorikkinnslag.PÅKLAGD_BEHANDLING) && tekstlinje.getTekst()
                 .contains(TILBAKEKREVING_BEHANDLING_TYPE_NAVN))).isTrue();
 
         historikkinnslag = historikk.get(1);
-        assertThat(historikkinnslag.getTekstlinjer()).hasSize(2);
-        tekstlinjer = historikkinnslag.getTekstlinjer();
-        assertThat(tekstlinjer.stream()
+        assertThat(historikkinnslag.getLinjer()).hasSize(2);
+        linjer = historikkinnslag.getLinjer();
+        assertThat(linjer.stream()
             .anyMatch(tekstlinje -> tekstlinje.getTekst().contains(KlageHistorikkinnslag.PÅKLAGD_BEHANDLING) && tekstlinje.getTekst()
                 .contains("Ikke påklagd et vedtak"))).isTrue();
     }
@@ -262,16 +262,16 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         assertThat(historikk).hasSize(2);
         var historikkinnslag = historikk.get(0);
         assertThat(historikkinnslag.getSkjermlenke()).isEqualByComparingTo(SkjermlenkeType.FORMKRAV_KLAGE_NFP);
-        assertThat(historikkinnslag.getTekstlinjer()).hasSize(6);
-        var tekstlinjer = historikkinnslag.getTekstlinjer();
-        assertThat(tekstlinjer.stream()
+        assertThat(historikkinnslag.getLinjer()).hasSize(6);
+        var linjer = historikkinnslag.getLinjer();
+        assertThat(linjer.stream()
             .anyMatch(tekstlinje -> tekstlinje.getTekst().contains(KlageHistorikkinnslag.PÅKLAGD_BEHANDLING) && tekstlinje.getTekst()
                 .contains(TILBAKEKREVING_BEHANDLING_TYPE_NAVN))).isTrue();
 
         historikkinnslag = historikk.get(1);
-        assertThat(historikkinnslag.getTekstlinjer()).hasSize(2);
-        tekstlinjer = historikkinnslag.getTekstlinjer();
-        assertThat(tekstlinjer.stream()
+        assertThat(historikkinnslag.getLinjer()).hasSize(2);
+        linjer = historikkinnslag.getLinjer();
+        assertThat(linjer.stream()
             .anyMatch(tekstlinje -> tekstlinje.getTekst().contains(KlageHistorikkinnslag.PÅKLAGD_BEHANDLING) && tekstlinje.getTekst()
                 .contains(BehandlingType.FØRSTEGANGSSØKNAD.getNavn()))).isTrue();
     }

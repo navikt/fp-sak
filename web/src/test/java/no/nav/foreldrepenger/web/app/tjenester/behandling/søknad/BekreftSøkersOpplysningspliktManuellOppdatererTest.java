@@ -55,10 +55,10 @@ class BekreftSøkersOpplysningspliktManuellOppdatererTest {
         // Assert
         assertThat(historikkInnslagForBehandling).hasSize(1);
         var historikkInnslag = historikkInnslagForBehandling.getFirst();
-        var tekstlinjer = historikkInnslag.getTekstlinjer();
-        assertThat(tekstlinjer).hasSize(2);
-        assertThat(tekstlinjer.getFirst().getTekst()).isEqualTo("__Søkers opplysningsplikt__ er satt til __Vilkåret er oppfylt__.");
-        assertThat(tekstlinjer.get(1).getTekst()).contains(bekreftSokersOpplysningspliktManuDto.getBegrunnelse());
+        var linjer = historikkInnslag.getLinjer();
+        assertThat(linjer).hasSize(2);
+        assertThat(linjer.getFirst().getTekst()).isEqualTo("__Søkers opplysningsplikt__ er satt til __Vilkåret er oppfylt__.");
+        assertThat(linjer.get(1).getTekst()).contains(bekreftSokersOpplysningspliktManuDto.getBegrunnelse());
 
         var aksjonspunktSet = resultat.getEkstraAksjonspunktResultat()
             .stream()

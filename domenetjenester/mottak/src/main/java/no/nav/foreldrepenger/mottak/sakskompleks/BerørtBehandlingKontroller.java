@@ -256,7 +256,7 @@ public class BerørtBehandlingKontroller {
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())
             .medTittel("Revurdering opprettet")
-            .addTekstlinje(begrunnelse.getNavn())
+            .addLinje(begrunnelse.getNavn())
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }

@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
@@ -71,8 +71,8 @@ public class BekreftSøkersOpplysningspliktManuellOppdaterer implements Aksjonsp
             .medBehandlingId(param.getBehandlingId())
             .medFagsakId(param.getFagsakId())
             .medTittel(SkjermlenkeType.OPPLYSNINGSPLIKT)
-            .addTekstlinje(new HistorikkinnslagTekstlinjeBuilder().til("Søkers opplysningsplikt", tilVerdi))
-            .addTekstlinje(begrunnelse);
+            .addlinje(new HistorikkinnslagLinjeBuilder().til("Søkers opplysningsplikt", tilVerdi))
+            .addLinje(begrunnelse);
 
         historikkinnslag2Repository.lagre(historikkinnslag.build());
     }

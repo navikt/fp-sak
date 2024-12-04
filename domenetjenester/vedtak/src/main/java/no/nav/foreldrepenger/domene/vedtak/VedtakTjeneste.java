@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
@@ -95,7 +95,7 @@ public class VedtakTjeneste {
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
             .medTittel(SkjermlenkeType.VEDTAK)
-            .addTekstlinje(erUendretUtfall ? "Uendret utfall" : String.format("Vedtak fattet: %s", utledVedtakResultatType(behandling).getNavn()))
+            .addLinje(erUendretUtfall ? "Uendret utfall" : String.format("Vedtak fattet: %s", utledVedtakResultatType(behandling).getNavn()))
             .build();
         historikkRepository.lagre(historikkinnslag);
     }
@@ -110,7 +110,7 @@ public class VedtakTjeneste {
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
             .medTittel("Sak retur")
-            .medTekstlinjerString(lagTekstForHverTotrinnkontroll(medTotrinnskontroll))
+            .medTekstlinjer(lagTekstForHverTotrinnkontroll(medTotrinnskontroll))
             .build();
         historikkRepository.lagre(historikkinnslag);
     }
@@ -119,7 +119,7 @@ public class VedtakTjeneste {
         return medTotrinnskontroll.stream()
             .sorted(Comparator.comparing(ttv -> ttv.getEndretTidspunkt() != null ? ttv.getEndretTidspunkt() : ttv.getOpprettetTidspunkt()))
             .map(VedtakTjeneste::tilHistorikkinnslagTekst)
-            .map(VedtakTjeneste::leggTilLinjeskift) // TODO: Blir trailing linjeskift. Håndtere her eller i frontend?
+            .map(VedtakTjeneste::leggTilLinjeskift) // TODO TFP-5554: Blir trailing linjeskift. Håndtere her eller i frontend?
             .flatMap(Collection::stream)
             .toList();
     }
@@ -132,9 +132,9 @@ public class VedtakTjeneste {
     }
 
     private static List<String> leggTilLinjeskift(List<String> eksistrendeLinjer) {
-        var tekstlinjer = new ArrayList<>(eksistrendeLinjer);
-        tekstlinjer.add(new HistorikkinnslagTekstlinjeBuilder().linjeskift().build());
-        return tekstlinjer;
+        var linjer = new ArrayList<>(eksistrendeLinjer);
+        linjer.add(HistorikkinnslagLinjeBuilder.LINJESKIFT.build());
+        return linjer;
     }
 
     public VedtakResultatType utledVedtakResultatType(Behandling behandling) {

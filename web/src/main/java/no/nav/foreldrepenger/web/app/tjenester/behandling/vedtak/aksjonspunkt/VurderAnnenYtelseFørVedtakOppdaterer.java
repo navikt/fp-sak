@@ -39,7 +39,7 @@ class VurderAnnenYtelseFørVedtakOppdaterer implements AksjonspunktOppdaterer<Vu
             .medFagsakId(behandlingReferanse.fagsakId())
             .medBehandlingId(behandlingReferanse.behandlingId())
             .medTittel("Oppgave før vedtak")
-            .addTekstlinje("Vurder konsekvens for ytelse")
+            .addLinje("Vurder konsekvens for ytelse")
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }

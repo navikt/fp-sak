@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.behandling.revurdering.flytkontroll.TilbakeførTilD
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
@@ -62,8 +62,8 @@ public class AvklarDekningsgradFellesTjeneste {
             .medFagsakId(fagsakId)
             .medBehandlingId(behandlingId)
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
-            .addTekstlinje(new HistorikkinnslagTekstlinjeBuilder().til("Dekningsgrad", avklartDekningsgrad.getVerdi()))
-            .addTekstlinje(begrunnelse)
+            .addlinje(new HistorikkinnslagLinjeBuilder().til("Dekningsgrad", avklartDekningsgrad.getVerdi()))
+            .addLinje(begrunnelse)
             .build();
         historikkinnslag2Repository.lagre(historikkinnslag);
     }

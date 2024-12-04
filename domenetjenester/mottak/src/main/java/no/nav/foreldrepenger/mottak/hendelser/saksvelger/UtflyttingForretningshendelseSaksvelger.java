@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -67,7 +67,7 @@ public class UtflyttingForretningshendelseSaksvelger implements Forretningshende
             saker.forEach(f -> historikkinnslagTjeneste.opprettHistorikkinnslagForEndringshendelse(f, "Endrede opplysninger om utflytting i Folkeregisteret"));
         } else if (Endringstype.OPPRETTET.equals(forretningshendelse.endringstype())) {
             var begrunnelse = String.format("Folkeregisteret har registrert utflyttingsdato %s",
-                HistorikkinnslagTekstlinjeBuilder.format(forretningshendelse.utflyttingsdato()));
+                HistorikkinnslagLinjeBuilder.format(forretningshendelse.utflyttingsdato()));
             saker.forEach(f -> historikkinnslagTjeneste.opprettHistorikkinnslagForEndringshendelse(f, begrunnelse));
         }
 

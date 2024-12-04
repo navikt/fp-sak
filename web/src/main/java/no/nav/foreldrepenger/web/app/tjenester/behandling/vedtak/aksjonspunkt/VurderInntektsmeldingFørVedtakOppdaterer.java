@@ -39,7 +39,7 @@ class VurderInntektsmeldingFørVedtakOppdaterer implements AksjonspunktOppdatere
             .medFagsakId(behandlingReferanse.fagsakId())
             .medBehandlingId(behandlingReferanse.behandlingId())
             .medTittel("Oppgave før vedtak")
-            .addTekstlinje("Vurder beregningsgrunnlag og klage ref ny inntektsmelding")
+            .addLinje("Vurder beregningsgrunnlag og klage ref ny inntektsmelding")
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }

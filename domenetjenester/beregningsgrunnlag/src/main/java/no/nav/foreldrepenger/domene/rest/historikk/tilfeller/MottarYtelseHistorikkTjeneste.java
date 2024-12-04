@@ -7,7 +7,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
@@ -36,15 +36,15 @@ public class MottarYtelseHistorikkTjeneste extends FaktaOmBeregningHistorikkTjen
     }
 
     @Override
-    public List<HistorikkinnslagTekstlinjeBuilder> lagHistorikk(FaktaBeregningLagreDto dto,
-                                                                BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
-                                                                Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
-                                                                InntektArbeidYtelseGrunnlag iayGrunnlag) {
+    public List<HistorikkinnslagLinjeBuilder> lagHistorikk(FaktaBeregningLagreDto dto,
+                                                           BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
+                                                           Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
+                                                           InntektArbeidYtelseGrunnlag iayGrunnlag) {
         var mottarYtelseDto = dto.getMottarYtelse();
-        List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder = new ArrayList<>();
+        List<HistorikkinnslagLinjeBuilder> linjeBuilder = new ArrayList<>();
         var forrigeBG = forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
         if (erFrilanser(nyttBeregningsgrunnlag) && mottarYtelseDto.getFrilansMottarYtelse() != null) {
-            tekstlinjerBuilder.add(lagHistorikkinnslagForFrilans(forrigeBG, mottarYtelseDto));
+            linjeBuilder.add(lagHistorikkinnslagForFrilans(forrigeBG, mottarYtelseDto));
         }
         var arbeidsforholdOverstyringer = iayGrunnlag.getArbeidsforholdOverstyringer();
         mottarYtelseDto.getArbeidstakerUtenIMMottarYtelse().forEach(a -> {
@@ -60,10 +60,10 @@ public class MottarYtelseHistorikkTjeneste extends FaktaOmBeregningHistorikkTjen
                     .filter(mottarYtelseAndel -> mottarYtelseAndel.getAndelsnr() == andel.getAndelsnr())
                     .findFirst()
                     .map(ArbeidstakerandelUtenIMMottarYtelseDto::getMottarYtelse);
-                tekstlinjerBuilder.addAll(lagHistorikkinnslagForArbeidstakerUtenIM(forrigeBG, andel, mottarYtelseVerdi, arbeidsforholdOverstyringer));
+                linjeBuilder.addAll(lagHistorikkinnslagForArbeidstakerUtenIM(forrigeBG, andel, mottarYtelseVerdi, arbeidsforholdOverstyringer));
             });
         });
-        return tekstlinjerBuilder;
+        return linjeBuilder;
     }
 
     private boolean erFrilanser(BeregningsgrunnlagEntitet nyttBeregningsgrunnlag) {
@@ -74,30 +74,30 @@ public class MottarYtelseHistorikkTjeneste extends FaktaOmBeregningHistorikkTjen
             .anyMatch(a -> a.getAktivitetStatus().erFrilanser());
     }
 
-    private List<HistorikkinnslagTekstlinjeBuilder> lagHistorikkinnslagForArbeidstakerUtenIM(Optional<BeregningsgrunnlagEntitet> forrigeBG,
-                                                                                             BeregningsgrunnlagPrStatusOgAndel andel,
-                                                                                             Optional<Boolean> mottarYtelseVerdi,
-                                                                                             List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
-        List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder = new ArrayList<>();
+    private List<HistorikkinnslagLinjeBuilder> lagHistorikkinnslagForArbeidstakerUtenIM(Optional<BeregningsgrunnlagEntitet> forrigeBG,
+                                                                                        BeregningsgrunnlagPrStatusOgAndel andel,
+                                                                                        Optional<Boolean> mottarYtelseVerdi,
+                                                                                        List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
+        List<HistorikkinnslagLinjeBuilder> linjeBuilder = new ArrayList<>();
         mottarYtelseVerdi.ifPresent(mottarYtelse -> {
             var mottarYtelseForrige = finnVerdiForMottarYtelseForAndelIForrigeGrunnlag(andel, forrigeBG);
             if (mottarYtelseForrige.isEmpty() || !mottarYtelseForrige.get().equals(mottarYtelse)) {
                 var andelsInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(andel.getAktivitetStatus(),
                     andel.getArbeidsgiver(), andel.getArbeidsforholdRef(), arbeidsforholdOverstyringer);
-                tekstlinjerBuilder.add(
-                    new HistorikkinnslagTekstlinjeBuilder().fraTil("Mottar søker ytelse for arbeid i " + andelsInfo, mottarYtelseForrige.orElse(null),
+                linjeBuilder.add(
+                    new HistorikkinnslagLinjeBuilder().fraTil("Mottar søker ytelse for arbeid i " + andelsInfo, mottarYtelseForrige.orElse(null),
                         mottarYtelse));
-                tekstlinjerBuilder.add(new HistorikkinnslagTekstlinjeBuilder().linjeskift());
+                linjeBuilder.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
             }
         });
-        return tekstlinjerBuilder;
+        return linjeBuilder;
     }
 
-    private HistorikkinnslagTekstlinjeBuilder lagHistorikkinnslagForFrilans(Optional<BeregningsgrunnlagEntitet> forrigeBG,
-                                                                            MottarYtelseDto mottarYtelseDto) {
+    private HistorikkinnslagLinjeBuilder lagHistorikkinnslagForFrilans(Optional<BeregningsgrunnlagEntitet> forrigeBG,
+                                                                       MottarYtelseDto mottarYtelseDto) {
         var mottarYtelseForrige = finnVerdiForMottarYtelseForFrilansIForrigeGrunnlag(forrigeBG);
         if (mottarYtelseForrige.isEmpty() || !mottarYtelseForrige.get().equals(mottarYtelseDto.getFrilansMottarYtelse())) {
-            return new HistorikkinnslagTekstlinjeBuilder().fraTil("Mottar søker ytelse for frilansaktiviteten", mottarYtelseForrige.orElse(null),
+            return new HistorikkinnslagLinjeBuilder().fraTil("Mottar søker ytelse for frilansaktiviteten", mottarYtelseForrige.orElse(null),
                 mottarYtelseDto.getFrilansMottarYtelse());
         }
         return null;

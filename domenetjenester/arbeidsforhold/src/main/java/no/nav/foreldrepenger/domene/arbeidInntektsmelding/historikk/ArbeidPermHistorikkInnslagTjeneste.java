@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
@@ -44,19 +44,19 @@ public class ArbeidPermHistorikkInnslagTjeneste {
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())
             .medTittel(SkjermlenkeType.FAKTA_OM_ARBEIDSFORHOLD_PERMISJON)
-            .medTekstlinjer(lagEndredeTekstlinjerForHvertAvklartArbeidsforhold(avklarteArbForhold))
-            .addTekstlinje(begrunnelse)
+            .medLinjer(lagEndredeLinjerForHvertAvklartArbeidsforhold(avklarteArbForhold))
+            .addLinje(begrunnelse)
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }
 
-    private List<HistorikkinnslagTekstlinjeBuilder> lagEndredeTekstlinjerForHvertAvklartArbeidsforhold(List<AvklarPermisjonUtenSluttdatoDto> avklarteArbForhold) {
+    private List<HistorikkinnslagLinjeBuilder> lagEndredeLinjerForHvertAvklartArbeidsforhold(List<AvklarPermisjonUtenSluttdatoDto> avklarteArbForhold) {
         return avklarteArbForhold.stream()
-            .map(this::tilTekstlinje)
+            .map(this::tilLinje)
             .toList();
     }
 
-    private HistorikkinnslagTekstlinjeBuilder tilTekstlinje(AvklarPermisjonUtenSluttdatoDto avklartArbForhold) {
+    private HistorikkinnslagLinjeBuilder tilLinje(AvklarPermisjonUtenSluttdatoDto avklartArbForhold) {
         var arbeidsforholdNavn = arbeisdforholdNavnFra(avklartArbForhold);
         var historikkInnslagType = utledHistorikkInnslagValg(avklartArbForhold.permisjonStatus());
         return fraTilEquals(String.format("Arbeidsforhold hos %s", arbeidsforholdNavn), null, historikkInnslagType);

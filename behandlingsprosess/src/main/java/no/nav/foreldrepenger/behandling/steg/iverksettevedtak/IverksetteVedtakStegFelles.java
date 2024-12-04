@@ -111,7 +111,7 @@ public class IverksetteVedtakStegFelles implements IverksetteVedtakSteg {
             .medBehandlingId(behandling.getId())
             .medTittel("Behandlingen venter på iverksettelse")
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
-            .addTekstlinje("Venter på iverksettelse av en tidligere behandling i denne saken")
+            .addLinje("Venter på iverksettelse av en tidligere behandling i denne saken")
             .build();
         historikkinnslag2Repository.lagre(historikkinnslag);
     }

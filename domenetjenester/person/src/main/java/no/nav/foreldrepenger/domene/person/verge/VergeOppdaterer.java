@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeOrganisasjonEntitet;
@@ -97,31 +97,31 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
             .medTittel(SkjermlenkeType.FAKTA_OM_VERGE);
 
         if (vergeAggregatOpt.isEmpty() || vergeAggregatOpt.get().getVerge().isEmpty()) {
-            historikkBuilder.addTekstlinje("Registrering av opplysninger om verge/fullmektig.");
+            historikkBuilder.addLinje("Registrering av opplysninger om verge/fullmektig.");
         } else {
             vergeAggregatOpt.get().getVerge().ifPresent(vergeEntitet -> {
                 var aktørId = Optional.ofNullable(vergeEntitet.getBruker()).map(Aktør::getAktørId);
                 aktørId.flatMap(id -> personinfoAdapter.hentBrukerArbeidsgiverForAktør(id)).ifPresent(pib -> {
-                    historikkBuilder.addTekstlinje(HistorikkinnslagTekstlinjeBuilder.fraTilEquals("Navn", pib.getNavn(), dto.getNavn()));
-                    historikkBuilder.addTekstlinje(
-                        HistorikkinnslagTekstlinjeBuilder.fraTilEquals("Fødselsnummer", pib.getPersonIdent().getIdent(), dto.getFnr()));
+                    historikkBuilder.addlinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Navn", pib.getNavn(), dto.getNavn()));
+                    historikkBuilder.addlinje(
+                        HistorikkinnslagLinjeBuilder.fraTilEquals("Fødselsnummer", pib.getPersonIdent().getIdent(), dto.getFnr()));
                 });
-                historikkBuilder.addTekstlinje(
-                    HistorikkinnslagTekstlinjeBuilder.fraTilEquals("Periode f.o.m.", vergeEntitet.getGyldigFom(), dto.getGyldigFom()));
-                historikkBuilder.addTekstlinje(
-                    HistorikkinnslagTekstlinjeBuilder.fraTilEquals("Periode t.o.m.", vergeEntitet.getGyldigTom(), dto.getGyldigTom()));
-                historikkBuilder.addTekstlinje(
-                    HistorikkinnslagTekstlinjeBuilder.fraTilEquals("Type verge", vergeEntitet.getVergeType(), dto.getVergeType()));
+                historikkBuilder.addlinje(
+                    HistorikkinnslagLinjeBuilder.fraTilEquals("Periode f.o.m.", vergeEntitet.getGyldigFom(), dto.getGyldigFom()));
+                historikkBuilder.addlinje(
+                    HistorikkinnslagLinjeBuilder.fraTilEquals("Periode t.o.m.", vergeEntitet.getGyldigTom(), dto.getGyldigTom()));
+                historikkBuilder.addlinje(
+                    HistorikkinnslagLinjeBuilder.fraTilEquals("Type verge", vergeEntitet.getVergeType(), dto.getVergeType()));
                 if (vergeEntitet.getVergeOrganisasjon().isPresent()) {
                     var vergeOrg = vergeEntitet.getVergeOrganisasjon().get();
-                    historikkBuilder.addTekstlinje(HistorikkinnslagTekstlinjeBuilder.fraTilEquals("Navn", vergeOrg.getNavn(), dto.getNavn()));
-                    historikkBuilder.addTekstlinje(
-                        HistorikkinnslagTekstlinjeBuilder.fraTilEquals("Organisasjonsnummer", vergeOrg.getOrganisasjonsnummer(),
+                    historikkBuilder.addlinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Navn", vergeOrg.getNavn(), dto.getNavn()));
+                    historikkBuilder.addlinje(
+                        HistorikkinnslagLinjeBuilder.fraTilEquals("Organisasjonsnummer", vergeOrg.getOrganisasjonsnummer(),
                             dto.getOrganisasjonsnummer()));
                 }
             });
         }
-        historikkBuilder.addTekstlinje(dto.getBegrunnelse());
+        historikkBuilder.addLinje(dto.getBegrunnelse());
         return historikkBuilder;
     }
 

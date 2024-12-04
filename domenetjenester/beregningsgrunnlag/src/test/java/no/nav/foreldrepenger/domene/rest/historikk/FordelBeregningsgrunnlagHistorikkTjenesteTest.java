@@ -1,14 +1,31 @@
 package no.nav.foreldrepenger.domene.rest.historikk;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Linje;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Tekstlinje;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -23,17 +40,6 @@ import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagP
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelFastsatteVerdierDto;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Beløp;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
 
 public class FordelBeregningsgrunnlagHistorikkTjenesteTest {
     private static final String ARBEIDSFORHOLDINFO = "DYNAMISK OPPSTEMT HAMSTER KF (311343483)";
@@ -76,14 +82,14 @@ public class FordelBeregningsgrunnlagHistorikkTjenesteTest {
         List<Historikkinnslag2> historikkCaptor = captor.getAllValues();
         assertThat(historikkCaptor).hasSize(1);
 
-        var forventetTekstlinjer = historikkCaptor.getFirst().getTekstlinjer().stream().map(Historikkinnslag2Tekstlinje::getTekst);
-        var faktiskeTekstlinjer = List.of(
-                new HistorikkinnslagTekstlinjeBuilder().tekst("Det er lagt til ny aktivitet for __" + ARBEIDSFORHOLDINFO + "__ Gjeldende fra __01.02.2024__.").build(),
-                new HistorikkinnslagTekstlinjeBuilder().tekst("__Inntekt__ er satt til __2231__.").build(),
-                new HistorikkinnslagTekstlinjeBuilder().tekst("__Inntektskategori__ er satt til __Arbeidstaker__.").build(),
-                new HistorikkinnslagTekstlinjeBuilder().tekst("linjeskift.").build()
+        var linjer = historikkCaptor.getFirst().getLinjer().stream().map(Historikkinnslag2Linje::getTekst);
+        var faktiskelinjer = List.of(
+                new HistorikkinnslagLinjeBuilder().tekst("Det er lagt til ny aktivitet for __" + ARBEIDSFORHOLDINFO + "__ Gjeldende fra __01.02.2024__.").build(),
+                new HistorikkinnslagLinjeBuilder().tekst("__Inntekt__ er satt til __2231__.").build(),
+                new HistorikkinnslagLinjeBuilder().tekst("__Inntektskategori__ er satt til __Arbeidstaker__.").build(),
+                new HistorikkinnslagLinjeBuilder().tekst("linjeskift.").build()
         );
-        assertThat(forventetTekstlinjer).containsAnyElementsOf(faktiskeTekstlinjer);
+        assertThat(linjer).containsAnyElementsOf(faktiskelinjer);
     }
 
     private FordelBeregningsgrunnlagDto lagFordelBeregningsgrunnlagDto() {

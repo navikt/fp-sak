@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.domene.opptjening.aksjonspunkt;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import java.util.Objects;
 
@@ -55,8 +55,8 @@ public class MerkOpptjeningUtlandOppdaterer implements AksjonspunktOppdaterer<Me
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())
             .medTittel("Fakta endret")
-            .addTekstlinje(fraTilEquals("Innhent dokumentasjon", fraUtlandDokStatus(eksisterende), fraUtlandDokStatus(dto.getDokStatus())))
-            .addTekstlinje(dto.getBegrunnelse())
+            .addlinje(fraTilEquals("Innhent dokumentasjon", fraUtlandDokStatus(eksisterende), fraUtlandDokStatus(dto.getDokStatus())))
+            .addLinje(dto.getBegrunnelse())
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }

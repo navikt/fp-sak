@@ -146,7 +146,7 @@ public class FpInntektsmeldingTjeneste {
             .medTittel("Min side - arbeidsgiver")
             .medBehandlingId(ref.behandlingId())
             .medFagsakId(ref.fagsakId())
-            .addTekstlinje(beg)
+            .addLinje(beg)
             .build();
 
         historikkRepo.lagre(historikkinnslag);

@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -54,7 +54,7 @@ public class VurderSøknadsfristOppdaterer implements AksjonspunktOppdaterer<Vur
             .medBehandlingId(param.getBehandlingId())
             .medFagsakId(param.getFagsakId())
             .medTittel(SkjermlenkeType.SOEKNADSFRIST)
-            .addTekstlinje(fraTilEquals("Søknadsfrist", null,  dto.harGyldigGrunn()
+            .addlinje(fraTilEquals("Søknadsfrist", null,  dto.harGyldigGrunn()
                 ? HistorikkEndretFeltVerdiType.HAR_GYLDIG_GRUNN.getNavn()
                 : HistorikkEndretFeltVerdiType.HAR_IKKE_GYLDIG_GRUNN.getNavn()));
 
@@ -65,10 +65,10 @@ public class VurderSøknadsfristOppdaterer implements AksjonspunktOppdaterer<Vur
             var dtoMottattDato = dto.getAnsesMottattDato();
 
             if (!dtoMottattDato.equals(tidligereAnseesMottattDato)) {
-                builder.addTekstlinje(fraTilEquals("Mottatt dato", tidligereAnseesMottattDato, dtoMottattDato));
+                builder.addlinje(fraTilEquals("Mottatt dato", tidligereAnseesMottattDato, dtoMottattDato));
             }
         }
-        builder.addTekstlinje(dto.getBegrunnelse());
+        builder.addLinje(dto.getBegrunnelse());
         return builder.build();
     }
 

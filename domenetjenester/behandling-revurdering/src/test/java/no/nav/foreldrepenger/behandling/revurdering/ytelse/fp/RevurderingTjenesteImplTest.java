@@ -78,8 +78,8 @@ class RevurderingTjenesteImplTest {
         var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
 
         assertThat(historikkinnslag.getTittel()).isEqualTo("Opplysning om fødsel");
-        assertThat(historikkinnslag.getTekstlinjer().getFirst().getTekst()).contains("Fødselsdato: 04.09.2017");
-        assertThat(historikkinnslag.getTekstlinjer().get(1).getTekst()).contains("Antall barn: 1");
+        assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).contains("Fødselsdato: 04.09.2017");
+        assertThat(historikkinnslag.getLinjer().get(1).getTekst()).contains("Antall barn: 1");
     }
 
     private RevurderingHistorikk tjeneste() {
@@ -101,8 +101,8 @@ class RevurderingTjenesteImplTest {
         var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
 
         assertThat(historikkinnslag.getTittel()).isEqualTo("Opplysning om fødsel");
-        assertThat(historikkinnslag.getTekstlinjer().getFirst().getTekst()).contains("Fødselsdato: 04.09.2017, 05.09.2017");
-        assertThat(historikkinnslag.getTekstlinjer().get(1).getTekst()).contains("Antall barn: 3");
+        assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).contains("Fødselsdato: 04.09.2017, 05.09.2017");
+        assertThat(historikkinnslag.getLinjer().get(1).getTekst()).contains("Antall barn: 3");
     }
 
     @Test

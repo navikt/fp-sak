@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.domene.rest.historikk;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -64,7 +64,7 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkTjeneste {
         var behandlingId = param.getBehandlingId();
         var arbeidsforholdOverstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId).getArbeidsforholdOverstyringer();
         var historikkinnslagBuilder = new Historikkinnslag2.Builder();
-        List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder = new ArrayList<>();
+        List<HistorikkinnslagLinjeBuilder> linjeBuilder = new ArrayList<>();
         var forrigeOverstyringer = forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getRefusjonOverstyringer)
             .map(BeregningRefusjonOverstyringerEntitet::getRefusjonOverstyringer)
             .orElse(Collections.emptyList());
@@ -73,17 +73,17 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkTjeneste {
             var forrigeRefusjonsstart = finnForrigeRefusjonsstartForArbeidsforhold(fastsattAndel, forrigeOverstyringer);
             Optional<BigDecimal> forrigeDelvisRefusjonPrÅr = forrigeRefusjonsstart.isEmpty() ? Optional.empty() : finnForrigeDelvisRefusjon(
                 fastsattAndel, forrigeRefusjonsstart.get(), forrigeBeregningsgrunnlag);
-            tekstlinjerBuilder.addAll(leggTilArbeidsforholdHistorikkinnslag(fastsattAndel, forrigeRefusjonsstart, forrigeDelvisRefusjonPrÅr,
+            linjeBuilder.addAll(leggTilArbeidsforholdHistorikkinnslag(fastsattAndel, forrigeRefusjonsstart, forrigeDelvisRefusjonPrÅr,
                 arbeidsforholdOverstyringer));
-            tekstlinjerBuilder.add(new HistorikkinnslagTekstlinjeBuilder().tekst(dto.getBegrunnelse()));
+            linjeBuilder.add(new HistorikkinnslagLinjeBuilder().tekst(dto.getBegrunnelse()));
         }
 
-        if (!tekstlinjerBuilder.isEmpty()) {
+        if (!linjeBuilder.isEmpty()) {
             historikkinnslagBuilder.medAktør(HistorikkAktør.SAKSBEHANDLER)
                 .medBehandlingId(param.getBehandlingId())
                 .medFagsakId(param.getFagsakId())
                 .medTittel(SkjermlenkeType.FAKTA_OM_FORDELING)
-                .medTekstlinjer(tekstlinjerBuilder);
+                .medLinjer(linjeBuilder);
             historikkinnslagRepository.lagre(historikkinnslagBuilder.build());
         }
     }
@@ -135,10 +135,10 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkTjeneste {
         return Objects.equals(fastsattAndel.getArbeidsgiverAktoerId(), arbeidsgiver.getIdentifikator());
     }
 
-    private List<HistorikkinnslagTekstlinjeBuilder> leggTilArbeidsforholdHistorikkinnslag(VurderRefusjonAndelBeregningsgrunnlagDto fastsattAndel,
-                                                                                          Optional<LocalDate> forrigeRefusjonsstart,
-                                                                                          Optional<BigDecimal> forrigeDelvisRefusjonPrÅr,
-                                                                                          List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
+    private List<HistorikkinnslagLinjeBuilder> leggTilArbeidsforholdHistorikkinnslag(VurderRefusjonAndelBeregningsgrunnlagDto fastsattAndel,
+                                                                                     Optional<LocalDate> forrigeRefusjonsstart,
+                                                                                     Optional<BigDecimal> forrigeDelvisRefusjonPrÅr,
+                                                                                     List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
         Arbeidsgiver ag;
         if (fastsattAndel.getArbeidsgiverAktoerId() != null) {
             ag = Arbeidsgiver.person(new AktørId(fastsattAndel.getArbeidsgiverAktoerId()));
@@ -152,18 +152,18 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkTjeneste {
         var fraStartdato = forrigeRefusjonsstart.orElse(null);
         var tilStartdato = fastsattAndel.getFastsattRefusjonFom();
 
-        List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder = new ArrayList<>();
-        tekstlinjerBuilder.add(fraTilEquals("Startdato for refusjon til " + arbeidsforholdInfo, fraStartdato, tilStartdato));
+        List<HistorikkinnslagLinjeBuilder> linjeBuilder = new ArrayList<>();
+        linjeBuilder.add(fraTilEquals("Startdato for refusjon til " + arbeidsforholdInfo, fraStartdato, tilStartdato));
 
         if (fastsattAndel.getDelvisRefusjonPrMndFørStart() != null && fastsattAndel.getDelvisRefusjonPrMndFørStart() != 0) {
             var fraBeløpPrMnd = forrigeDelvisRefusjonPrÅr.map(forrigeDelvisRef -> forrigeDelvisRef.divide(MÅNEDER_I_ÅR, RoundingMode.HALF_EVEN))
                 .map(BigDecimal::intValue)
                 .orElse(null);
             var tilBeløpPrMnd = fastsattAndel.getDelvisRefusjonPrMndFørStart();
-            tekstlinjerBuilder.add(
+            linjeBuilder.add(
                 fraTilEquals("Delvis refusjon før " + arbeidsforholdInfo, fraBeløpPrMnd, tilBeløpPrMnd));
         }
 
-        return tekstlinjerBuilder;
+        return linjeBuilder;
     }
 }

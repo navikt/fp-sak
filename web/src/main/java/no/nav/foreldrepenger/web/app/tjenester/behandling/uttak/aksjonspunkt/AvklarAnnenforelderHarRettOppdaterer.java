@@ -55,16 +55,16 @@ public class AvklarAnnenforelderHarRettOppdaterer implements AksjonspunktOppdate
                                         AksjonspunktOppdaterParameter param,
                                         Boolean annenforelderHarRett,
                                         Boolean annenForelderHarRettEØS) {
-        var historikkinnslagTekstlinjer = Stream.concat(
-                faktaOmsorgRettTjeneste.annenforelderRettHistorikkTekstlinjer(param, annenforelderHarRett, dto.getAnnenforelderMottarUføretrygd(),
-                    annenForelderHarRettEØS).stream(), faktaOmsorgRettTjeneste.omsorgRettHistorikkTekstlinje(param, dto.getBegrunnelse()).stream())
+        var historikkinnslagLinjer = Stream.concat(
+                faktaOmsorgRettTjeneste.annenforelderRettHistorikkLinjer(param, annenforelderHarRett, dto.getAnnenforelderMottarUføretrygd(),
+                    annenForelderHarRettEØS).stream(), faktaOmsorgRettTjeneste.omsorgRettHistorikkLinje(param, dto.getBegrunnelse()).stream())
             .toList();
 
         var historikkinnslag = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(param.getFagsakId())
             .medBehandlingId(param.getRef().behandlingId())
             .medTittel(SkjermlenkeType.FAKTA_OMSORG_OG_RETT)
-            .medTekstlinjer(historikkinnslagTekstlinjer)
+            .medLinjer(historikkinnslagLinjer)
             .build();
         historikkRepository.lagre(historikkinnslag);
     }

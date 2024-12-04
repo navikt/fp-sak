@@ -7,7 +7,7 @@ import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
@@ -22,25 +22,25 @@ import no.nav.foreldrepenger.domene.rest.dto.FaktaBeregningLagreDto;
 public class VurderEtterlønnSluttpakkeHistorikkTjeneste extends FaktaOmBeregningHistorikkTjeneste {
 
     @Override
-    public List<HistorikkinnslagTekstlinjeBuilder> lagHistorikk(FaktaBeregningLagreDto dto,
-                                                                BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
-                                                                Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
-                                                                InntektArbeidYtelseGrunnlag iayGrunnlag) {
+    public List<HistorikkinnslagLinjeBuilder> lagHistorikk(FaktaBeregningLagreDto dto,
+                                                           BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
+                                                           Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
+                                                           InntektArbeidYtelseGrunnlag iayGrunnlag) {
 
-        List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder = new ArrayList<>();
+        List<HistorikkinnslagLinjeBuilder> linjeBuilder = new ArrayList<>();
         if (dto.getFaktaOmBeregningTilfeller().contains(FaktaOmBeregningTilfelle.VURDER_ETTERLØNN_SLUTTPAKKE)) {
-            tekstlinjerBuilder.add(
+            linjeBuilder.add(
                 lagHistorikkinnslagVurderEtterlønnSluttpakke(dto, forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag)));
         }
-        return tekstlinjerBuilder;
+        return linjeBuilder;
     }
 
-    private HistorikkinnslagTekstlinjeBuilder lagHistorikkinnslagVurderEtterlønnSluttpakke(FaktaBeregningLagreDto dto,
-                                                                                           Optional<BeregningsgrunnlagEntitet> forrigeBg) {
+    private HistorikkinnslagLinjeBuilder lagHistorikkinnslagVurderEtterlønnSluttpakke(FaktaBeregningLagreDto dto,
+                                                                                      Optional<BeregningsgrunnlagEntitet> forrigeBg) {
         var vurderDto = dto.getVurderEtterlønnSluttpakke();
         var opprinneligVerdiEtterlønnSLuttpakke = forrigeBg.flatMap(this::hentOpprinneligVerdiErEtterlønnSluttpakke).orElse(null);
         if (!vurderDto.erEtterlønnSluttpakke().equals(opprinneligVerdiEtterlønnSLuttpakke)) {
-            return new HistorikkinnslagTekstlinjeBuilder().fraTil("Inntekt fra etterlønn eller sluttpakke", opprinneligVerdiEtterlønnSLuttpakke,
+            return new HistorikkinnslagLinjeBuilder().fraTil("Inntekt fra etterlønn eller sluttpakke", opprinneligVerdiEtterlønnSLuttpakke,
                 vurderDto.erEtterlønnSluttpakke());
         }
         return null;

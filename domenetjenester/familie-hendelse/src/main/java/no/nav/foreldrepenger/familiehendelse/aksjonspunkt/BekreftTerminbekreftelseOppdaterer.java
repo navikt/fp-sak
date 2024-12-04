@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -107,15 +107,15 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
             .medTittel(SkjermlenkeType.FAKTA_OM_FOEDSEL);
         if (erEndret) {
             return historikkinnslagBuilder
-                .addTekstlinje(fraTilEquals("Termindato", getTermindato(grunnlag), dto.getTermindato()))
-                .addTekstlinje(fraTilEquals("Utstedtdato", getUtstedtdato(grunnlag), dto.getUtstedtdato()))
-                .addTekstlinje(fraTilEquals("Antall barn", getAntallBarnVedSøknadTerminbekreftelse(grunnlag), dto.getAntallBarn()))
-                .addTekstlinje(dto.getBegrunnelse())
+                .addlinje(fraTilEquals("Termindato", getTermindato(grunnlag), dto.getTermindato()))
+                .addlinje(fraTilEquals("Utstedtdato", getUtstedtdato(grunnlag), dto.getUtstedtdato()))
+                .addlinje(fraTilEquals("Antall barn", getAntallBarnVedSøknadTerminbekreftelse(grunnlag), dto.getAntallBarn()))
+                .addLinje(dto.getBegrunnelse())
                 .build();
         } else {
             return historikkinnslagBuilder
-                .addTekstlinje(fraTilEquals("Terminbekreftelse", null, "godkjent"))
-                .addTekstlinje(dto.getBegrunnelse())
+                .addlinje(fraTilEquals("Terminbekreftelse", null, "godkjent"))
+                .addLinje(dto.getBegrunnelse())
                 .build();
         }
     }

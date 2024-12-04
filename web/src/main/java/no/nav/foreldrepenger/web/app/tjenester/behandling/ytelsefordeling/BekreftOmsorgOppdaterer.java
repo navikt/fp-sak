@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.familiehendelse.rest.BekreftFaktaForOmsorgVurderingDto;
@@ -65,10 +65,10 @@ public class BekreftOmsorgOppdaterer implements AksjonspunktOppdaterer<BekreftFa
             .medFagsakId(param.getFagsakId())
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medTittel(SkjermlenkeType.FAKTA_FOR_OMSORG)
-            .addTekstlinje(HistorikkinnslagTekstlinjeBuilder.fraTilEquals("Omsorg",
+            .addlinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Omsorg",
                 konverterBooleanTilVerdiForOmsorgForBarnet(harOmsorgForBarnetBekreftetVersjon),
                 konverterBooleanTilVerdiForOmsorgForBarnet(dto.getOmsorg())))
-            .addTekstlinje(dto.getBegrunnelse())
+            .addLinje(dto.getBegrunnelse())
             .build();
         historikkinnslag2Repository.lagre(historikkinnslag);
     }

@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
@@ -56,8 +56,8 @@ public class BekreftSvangerskapspengervilkårOppdaterer implements AksjonspunktO
             .medBehandlingId(param.getBehandlingId())
             .medFagsakId(param.getFagsakId())
             .medTittel(SkjermlenkeType.PUNKT_FOR_SVANGERSKAPSPENGER)
-            .addTekstlinje(new HistorikkinnslagTekstlinjeBuilder().til("Svangerskapsvilkåret", tilVerdi))
-            .addTekstlinje(begrunnelse)
+            .addlinje(new HistorikkinnslagLinjeBuilder().til("Svangerskapsvilkåret", tilVerdi))
+            .addLinje(begrunnelse)
             .build());
     }
 }

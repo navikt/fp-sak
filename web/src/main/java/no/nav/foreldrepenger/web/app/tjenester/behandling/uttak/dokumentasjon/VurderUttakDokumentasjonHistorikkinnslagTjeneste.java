@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
@@ -37,22 +37,22 @@ public class VurderUttakDokumentasjonHistorikkinnslagTjeneste {
                                         String begrunnelse,
                                         List<OppgittPeriodeEntitet> eksisterendePerioder,
                                         List<OppgittPeriodeEntitet> nyFordeling) {
-        var tekstlinjer = new ArrayList<HistorikkinnslagTekstlinjeBuilder>();
+        var linjer = new ArrayList<HistorikkinnslagLinjeBuilder>();
         for (var periode : nyFordeling) {
-            opprettAvklaring(eksisterendePerioder, periode).ifPresent(tekstlinjer::add);
+            opprettAvklaring(eksisterendePerioder, periode).ifPresent(linjer::add);
         }
         var historikkinnslag = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())
             .medTittel(SkjermlenkeType.FAKTA_OM_UTTAK_DOKUMENTASJON)
-            .medTekstlinjer(tekstlinjer)
-            .addTekstlinje(begrunnelse)
+            .medLinjer(linjer)
+            .addLinje(begrunnelse)
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }
 
-    private static Optional<HistorikkinnslagTekstlinjeBuilder> opprettAvklaring(List<OppgittPeriodeEntitet> eksisterendePerioder,
-                                                                                OppgittPeriodeEntitet periode) {
+    private static Optional<HistorikkinnslagLinjeBuilder> opprettAvklaring(List<OppgittPeriodeEntitet> eksisterendePerioder,
+                                                                           OppgittPeriodeEntitet periode) {
         var eksisterendeInnslag = finnEksisterendePerioder(eksisterendePerioder, periode.getFom(), periode.getTom()).map(
             OppgittPeriodeEntitet::getDokumentasjonVurdering).orElse(null);
         var nyttInnslag = periode.getDokumentasjonVurdering();
@@ -61,7 +61,7 @@ public class VurderUttakDokumentasjonHistorikkinnslagTjeneste {
             return Optional.empty();
         }
 
-        var tekstperiode = HistorikkinnslagTekstlinjeBuilder.format(periode.getTidsperiode());
+        var tekstperiode = HistorikkinnslagLinjeBuilder.format(periode.getTidsperiode());
         var fraVerdi = Optional.ofNullable(eksisterendeInnslag).map(VurderUttakDokumentasjonHistorikkinnslagTjeneste::formaterStreng).orElse(null);
         var nyVerdi = formaterStreng(nyttInnslag);
         return Optional.ofNullable(fraTilEquals(String.format("Avklart dokumentasjon for periode %s", tekstperiode), fraVerdi, nyVerdi));

@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 
@@ -50,8 +50,8 @@ public class SøknadsfristOppdaterer implements AksjonspunktOppdaterer<Soknadsfr
             .medBehandlingId(param.getBehandlingId())
             .medTittel(SkjermlenkeType.SOEKNADSFRIST)
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
-            .addTekstlinje(new HistorikkinnslagTekstlinjeBuilder().til("Søknadsfristvilkåret", tilTekst))
-            .addTekstlinje(dto.getBegrunnelse())
+            .addlinje(new HistorikkinnslagLinjeBuilder().til("Søknadsfristvilkåret", tilTekst))
+            .addLinje(dto.getBegrunnelse())
             .build();
         historikkinnslag2Repository.lagre(historikkinnslag);
     }

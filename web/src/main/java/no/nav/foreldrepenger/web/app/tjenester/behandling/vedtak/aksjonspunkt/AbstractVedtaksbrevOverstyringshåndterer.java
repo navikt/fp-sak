@@ -155,7 +155,7 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())
             .medTittel(SkjermlenkeType.VEDTAK)
-            .addTekstlinje(String.format("%s: %s", hendelseTekst, vedtakResultatType.getNavn()))
+            .addLinje(String.format("%s: %s", hendelseTekst, vedtakResultatType.getNavn()))
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }

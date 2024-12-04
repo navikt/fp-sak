@@ -75,8 +75,8 @@ class VergeOppdatererTest {
         assertThat(historikkinnslag.getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_OM_VERGE);
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
 
-        assertThat(historikkinnslag.getTekstlinjer()).hasSize(1);
-        assertThat(historikkinnslag.getTekstlinjer().getFirst().getTekst()).isEqualTo("Registrering av opplysninger om verge/fullmektig.");
+        assertThat(historikkinnslag.getLinjer()).hasSize(1);
+        assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).isEqualTo("Registrering av opplysninger om verge/fullmektig.");
     }
 
     private AvklarVergeDto opprettDtoVerge() {

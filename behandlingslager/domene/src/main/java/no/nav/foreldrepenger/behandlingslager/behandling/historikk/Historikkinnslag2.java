@@ -21,8 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.Skjermlenke
 public class Historikkinnslag2 extends BaseEntitet {
 
     public static final String BOLD_MARKØR = "__";
-    public static final String LINJESKIFT = "linjeskift";
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_HISTORIKKINNSLAG2")
@@ -43,7 +41,7 @@ public class Historikkinnslag2 extends BaseEntitet {
     private SkjermlenkeType skjermlenke;
 
     @OneToMany(mappedBy = "historikkinnslag")
-    private List<Historikkinnslag2Tekstlinje> tekstlinjer = new ArrayList<>();
+    private List<Historikkinnslag2Linje> linjer = new ArrayList<>();
 
     @OneToMany(mappedBy = "historikkinnslag")
     private List<Historikkinnslag2DokumentLink> dokumentLinker = new ArrayList<>();
@@ -70,8 +68,8 @@ public class Historikkinnslag2 extends BaseEntitet {
         return skjermlenke;
     }
 
-    public List<Historikkinnslag2Tekstlinje> getTekstlinjer() {
-        return tekstlinjer;
+    public List<Historikkinnslag2Linje> getLinjer() {
+        return linjer;
     }
 
     public List<Historikkinnslag2DokumentLink> getDokumentLinker() {
@@ -81,7 +79,7 @@ public class Historikkinnslag2 extends BaseEntitet {
     @Override
     public String toString() {
         return "Historikkinnslag2{" + "fagsakId=" + fagsakId + ", behandlingId=" + behandlingId + ", aktør=" + aktør + ", skjermlenkeType="
-            + skjermlenke + ", tekstlinjer=" + tekstlinjer + ", tittel='" + tittel + '\'' + '}';
+            + skjermlenke + ", linjer=" + linjer + ", tittel='" + tittel + '\'' + '}';
     }
 
     @Override
@@ -93,12 +91,12 @@ public class Historikkinnslag2 extends BaseEntitet {
             return false;
         }
         return Objects.equals(behandlingId, that.behandlingId) && Objects.equals(fagsakId, that.fagsakId) && Objects.equals(tittel, that.tittel)
-            && Objects.equals(dokumentLinker, that.dokumentLinker) && Objects.equals(tekstlinjer, that.tekstlinjer);
+            && Objects.equals(dokumentLinker, that.dokumentLinker) && Objects.equals(linjer, that.linjer);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(behandlingId, fagsakId, tittel, dokumentLinker, tekstlinjer);
+        return Objects.hash(behandlingId, fagsakId, tittel, dokumentLinker, linjer);
     }
 
     public String getTittel() {
@@ -108,7 +106,7 @@ public class Historikkinnslag2 extends BaseEntitet {
     public static class Builder {
 
         private Historikkinnslag2 kladd = new Historikkinnslag2();
-        private List<String> internLinjer = new ArrayList<>();
+        private List<HistorikkinnslagLinjeBuilder> internLinjer = new ArrayList<>();
 
         public Builder medFagsakId(Long fagsakId) {
             kladd.fagsakId = fagsakId;
@@ -136,26 +134,30 @@ public class Historikkinnslag2 extends BaseEntitet {
         }
 
 
-        public Builder medTekstlinjer(List<HistorikkinnslagTekstlinjeBuilder> linjer) {
-            medTekstlinjerString(linjer.stream().filter(Objects::nonNull).map(HistorikkinnslagTekstlinjeBuilder::build).toList()); // fraTilEquals kan legger til null objekter
+        public Builder medLinjer(List<HistorikkinnslagLinjeBuilder> linjer) {
+            medTekstlinjer(linjer.stream()
+                .filter(Objects::nonNull)
+                .map(HistorikkinnslagLinjeBuilder::build)
+                .toList()); // fraTilEquals kan legger til null objekter
             return this;
         }
 
-        public Builder medTekstlinjerString(List<String> linjer) {
-            internLinjer = new ArrayList<>(linjer.stream().filter(Objects::nonNull).toList());
+        public Builder medTekstlinjer(List<String> linjer) {
+            internLinjer = new ArrayList<>(
+                linjer.stream().filter(Objects::nonNull).map(t -> new HistorikkinnslagLinjeBuilder().tekst(t)).toList());
             return this;
         }
 
-        public Builder addTekstlinje(HistorikkinnslagTekstlinjeBuilder historikkinnslagTekstlinjeBuilder) {
-            if (historikkinnslagTekstlinjeBuilder != null) {
-                internLinjer.add(historikkinnslagTekstlinjeBuilder.build());
+        public Builder addlinje(HistorikkinnslagLinjeBuilder historikkinnslagLinjeBuilder) {
+            if (historikkinnslagLinjeBuilder != null) {
+                internLinjer.add(historikkinnslagLinjeBuilder);
             }
             return this;
         }
 
-        public Builder addTekstlinje(String tekst) {
+        public Builder addLinje(String tekst) {
             if (tekst != null) {
-                internLinjer.add(tekst);
+                internLinjer.add(new HistorikkinnslagLinjeBuilder().tekst(tekst));
             }
             return this;
         }
@@ -176,9 +178,10 @@ public class Historikkinnslag2 extends BaseEntitet {
             }
 
             for (var i = 0; i < internLinjer.size(); i++) {
-                var tekst = internLinjer.get(i);
-                var linje = new Historikkinnslag2Tekstlinje(sluttMedPunktum(tekst), i);
-                kladd.tekstlinjer.add(linje);
+                var type = internLinjer.get(i).getType();
+                var tekst = type == HistorikkinnslagLinjeType.TEKST ? sluttMedPunktum(internLinjer.get(i).build()) : null;
+                var linje = new Historikkinnslag2Linje(tekst, i, type);
+                kladd.linjer.add(linje);
                 linje.setHistorikkinnslag(kladd);
             }
             //TODO TFP-5554 validering for partall bold
@@ -189,7 +192,7 @@ public class Historikkinnslag2 extends BaseEntitet {
         }
 
         private String sluttMedPunktum(String tekst) {
-            if (tekst.isEmpty() || tekst.equals(Historikkinnslag2.LINJESKIFT)) {
+            if (tekst.isEmpty()) {
                 return tekst;
             }
             var sisteTegn = finnSisteTegn(tekst);

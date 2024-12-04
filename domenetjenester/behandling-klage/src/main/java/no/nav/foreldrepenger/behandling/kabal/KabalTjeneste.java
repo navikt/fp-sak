@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.behandling.kabal;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -230,7 +230,7 @@ public class KabalTjeneste {
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())
             .medTittel("Klagebehandling KA")
-            .addTekstlinje(fraTilEquals("Ytelsesvedtak", null, resultat))
+            .addlinje(fraTilEquals("Ytelsesvedtak", null, resultat))
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }
@@ -245,7 +245,7 @@ public class KabalTjeneste {
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())
             .medTittel("Ankebehandling")
-            .addTekstlinje(fraTilEquals("Anke resultat", null, resultat))
+            .addlinje(fraTilEquals("Anke resultat", null, resultat))
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }
@@ -294,7 +294,7 @@ public class KabalTjeneste {
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())
             .medTittel("Behandling er henlagt")
-            .addTekstlinje(aarsak.getNavn())
+            .addLinje(aarsak.getNavn())
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }

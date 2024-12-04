@@ -60,10 +60,10 @@ class ArbeidPermHistorikkInnslagTjenesteTest {
         assertThat(historikkinnslag.getFirst().getFagsakId()).isEqualTo(ref.fagsakId());
         assertThat(historikkinnslag.getFirst().getBehandlingId()).isEqualTo(ref.behandlingId());
         assertThat(historikkinnslag.getFirst().getSkjermlenke()).isEqualTo(FAKTA_OM_ARBEIDSFORHOLD_PERMISJON);
-        assertThat(historikkinnslag.getFirst().getTekstlinjer()).hasSize(3);
-        assertThat(historikkinnslag.getFirst().getTekstlinjer().get(0).getTekst()).contains(ARB_NAVN, VurderArbeidsforholdHistorikkinnslag.SØKER_ER_I_PERMISJON.getNavn());
-        assertThat(historikkinnslag.getFirst().getTekstlinjer().get(1).getTekst()).contains(ARB_NAVN, VurderArbeidsforholdHistorikkinnslag.SØKER_ER_IKKE_I_PERMISJON.getNavn());
-        assertThat(historikkinnslag.getFirst().getTekstlinjer().get(2).getTekst()).contains("begrunnelse");
+        assertThat(historikkinnslag.getFirst().getLinjer()).hasSize(3);
+        assertThat(historikkinnslag.getFirst().getLinjer().get(0).getTekst()).contains(ARB_NAVN, VurderArbeidsforholdHistorikkinnslag.SØKER_ER_I_PERMISJON.getNavn());
+        assertThat(historikkinnslag.getFirst().getLinjer().get(1).getTekst()).contains(ARB_NAVN, VurderArbeidsforholdHistorikkinnslag.SØKER_ER_IKKE_I_PERMISJON.getNavn());
+        assertThat(historikkinnslag.getFirst().getLinjer().get(2).getTekst()).contains("begrunnelse");
     }
 
     private BehandlingReferanse getBehandlingReferanse() {

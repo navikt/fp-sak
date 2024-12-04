@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.praksisutsettelse;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import java.util.Optional;
 
@@ -57,7 +57,7 @@ class FeilPraksisSaksmerkingSingleTask implements ProsessTaskHandler {
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(fagsak.getId())
             .medTittel("Fakta endret")
-            .addTekstlinje(fraTilEquals("Saksmarkering", eksisterende.getNavn(), ny.getNavn()))
+            .addlinje(fraTilEquals("Saksmarkering", eksisterende.getNavn(), ny.getNavn()))
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }

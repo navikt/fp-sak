@@ -53,8 +53,8 @@ class SøkersopplysningspliktOverstyringhåndtererTest {
 
         var historikkinnslag = historikkinnslagene.getFirst();
         assertThat(historikkinnslag.getSkjermlenke()).isEqualTo(SkjermlenkeType.OPPLYSNINGSPLIKT);
-        assertThat(historikkinnslag.getTekstlinjer().getFirst().getTekst()).contains("Søkers opplysningsplikt", "ikke oppfylt");
-        assertThat(historikkinnslag.getTekstlinjer().get(1).getTekst()).contains(overstyringspunktDto.getBegrunnelse());
+        assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).contains("Søkers opplysningsplikt", "ikke oppfylt");
+        assertThat(historikkinnslag.getLinjer().get(1).getTekst()).contains(overstyringspunktDto.getBegrunnelse());
 
         var aksjonspunktSet = behandling.getAksjonspunkter();
 

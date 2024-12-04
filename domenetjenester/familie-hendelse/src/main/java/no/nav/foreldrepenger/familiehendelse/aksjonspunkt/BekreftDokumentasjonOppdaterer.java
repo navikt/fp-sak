@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -90,15 +90,15 @@ public class BekreftDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Be
             .medBehandlingId(param.getBehandlingId())
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medTittel(SkjermlenkeType.FAKTA_OM_ADOPSJON)
-            .addTekstlinje(fraTilEquals("Omsorgsovertakelsesdato", originalOmsorgsovertakelse, dto.getOmsorgsovertakelseDato()));
+            .addlinje(fraTilEquals("Omsorgsovertakelsesdato", originalOmsorgsovertakelse, dto.getOmsorgsovertakelseDato()));
 
         for (Map.Entry<Integer, LocalDate> eksisterendeFødselsdatoer : originaleFødselsdatoer.entrySet()) {
             var eksisterende = eksisterendeFødselsdatoer.getValue();
             var oppdatert = dto.getFodselsdatoer().get(eksisterendeFødselsdatoer.getKey());
-            builder.addTekstlinje(fraTilEquals("Fødselsdato", eksisterende, oppdatert));
+            builder.addlinje(fraTilEquals("Fødselsdato", eksisterende, oppdatert));
         }
 
-        var historikkinnslag = builder.addTekstlinje(dto.getBegrunnelse()).build();
+        var historikkinnslag = builder.addLinje(dto.getBegrunnelse()).build();
         historikkinnslag2Repository.lagre(historikkinnslag);
     }
 

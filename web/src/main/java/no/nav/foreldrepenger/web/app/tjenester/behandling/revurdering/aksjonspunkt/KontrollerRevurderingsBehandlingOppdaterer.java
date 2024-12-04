@@ -40,7 +40,7 @@ class KontrollerRevurderingsBehandlingOppdaterer implements AksjonspunktOppdater
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())
             .medTittel("Oppgave før vedtak")
-            .addTekstlinje("Vurder varsel om ugunst")
+            .addLinje("Vurder varsel om ugunst")
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }

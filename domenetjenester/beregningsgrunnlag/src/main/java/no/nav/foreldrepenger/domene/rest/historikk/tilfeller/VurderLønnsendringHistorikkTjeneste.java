@@ -7,7 +7,7 @@ import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
@@ -23,20 +23,20 @@ import no.nav.foreldrepenger.domene.rest.dto.VurderLønnsendringDto;
 public class VurderLønnsendringHistorikkTjeneste extends FaktaOmBeregningHistorikkTjeneste {
 
     @Override
-    public List<HistorikkinnslagTekstlinjeBuilder> lagHistorikk(FaktaBeregningLagreDto dto,
-                                                                BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
-                                                                Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
-                                                                InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder = new ArrayList<>();
+    public List<HistorikkinnslagLinjeBuilder> lagHistorikk(FaktaBeregningLagreDto dto,
+                                                           BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
+                                                           Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
+                                                           InntektArbeidYtelseGrunnlag iayGrunnlag) {
+        List<HistorikkinnslagLinjeBuilder> linjerBuilder = new ArrayList<>();
         if (!dto.getFaktaOmBeregningTilfeller().contains(FaktaOmBeregningTilfelle.VURDER_LØNNSENDRING)) {
-            return tekstlinjerBuilder;
+            return linjerBuilder;
         }
         var lønnsendringDto = dto.getVurdertLonnsendring();
         var opprinneligVerdiErLønnsendring = hentOpprinneligVerdiErLønnsendring(
             forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag));
-        tekstlinjerBuilder.add(lagHistorikkinnslag(lønnsendringDto, opprinneligVerdiErLønnsendring));
+        linjerBuilder.add(lagHistorikkinnslag(lønnsendringDto, opprinneligVerdiErLønnsendring));
 
-        return tekstlinjerBuilder;
+        return linjerBuilder;
     }
 
 
@@ -53,9 +53,9 @@ public class VurderLønnsendringHistorikkTjeneste extends FaktaOmBeregningHistor
             .orElse(null);
     }
 
-    private HistorikkinnslagTekstlinjeBuilder lagHistorikkinnslag(VurderLønnsendringDto dto, Boolean opprinneligVerdiErLønnsendring) {
+    private HistorikkinnslagLinjeBuilder lagHistorikkinnslag(VurderLønnsendringDto dto, Boolean opprinneligVerdiErLønnsendring) {
         if (!dto.erLønnsendringIBeregningsperioden().equals(opprinneligVerdiErLønnsendring)) {
-            return new HistorikkinnslagTekstlinjeBuilder().fraTil("Lønnsendring siste tre måneder", opprinneligVerdiErLønnsendring,
+            return new HistorikkinnslagLinjeBuilder().fraTil("Lønnsendring siste tre måneder", opprinneligVerdiErLønnsendring,
                 dto.erLønnsendringIBeregningsperioden());
         }
         return null;

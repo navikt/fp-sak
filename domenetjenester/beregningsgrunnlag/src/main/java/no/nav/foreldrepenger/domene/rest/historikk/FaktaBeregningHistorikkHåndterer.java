@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
@@ -66,9 +66,9 @@ public class FaktaBeregningHistorikkHåndterer {
                              BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
                              Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag) {
         var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(param.getBehandlingId());
-        var tekstlinjerBuilder = håndterTilfelleHistorikk(dto.getFakta(), nyttBeregningsgrunnlag, forrigeGrunnlag,
+        var linjeBuilder = håndterTilfelleHistorikk(dto.getFakta(), nyttBeregningsgrunnlag, forrigeGrunnlag,
             inntektArbeidYtelseGrunnlag);
-        lagHistorikkInnslag(param.getRef(),tekstlinjerBuilder, dto.getBegrunnelse());
+        lagHistorikkInnslag(param.getRef(),linjeBuilder, dto.getBegrunnelse());
     }
 
     /**
@@ -85,38 +85,38 @@ public class FaktaBeregningHistorikkHåndterer {
                                                Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag) {
 
         var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId());
-        var tekstlinjerBuilder = håndterTilfelleHistorikk(dto.getFakta(), aktivtGrunnlag, forrigeGrunnlag, iayGrunnlag);
-        tekstlinjerBuilder.addAll(faktaOmBeregningOverstyringHistorikkTjeneste.lagHistorikk(dto, aktivtGrunnlag, forrigeGrunnlag, iayGrunnlag));
-        lagHistorikkInnslag(BehandlingReferanse.fra(behandling), tekstlinjerBuilder, dto.getBegrunnelse());
+        var linjeBuilder = håndterTilfelleHistorikk(dto.getFakta(), aktivtGrunnlag, forrigeGrunnlag, iayGrunnlag);
+        linjeBuilder.addAll(faktaOmBeregningOverstyringHistorikkTjeneste.lagHistorikk(dto, aktivtGrunnlag, forrigeGrunnlag, iayGrunnlag));
+        lagHistorikkInnslag(BehandlingReferanse.fra(behandling), linjeBuilder, dto.getBegrunnelse());
     }
 
-    private List<HistorikkinnslagTekstlinjeBuilder> håndterTilfelleHistorikk(FaktaBeregningLagreDto dto,
-                                                                             BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
-                                                                             Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
-                                                                             InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder = new ArrayList<>();
+    private List<HistorikkinnslagLinjeBuilder> håndterTilfelleHistorikk(FaktaBeregningLagreDto dto,
+                                                                        BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
+                                                                        Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
+                                                                        InntektArbeidYtelseGrunnlag iayGrunnlag) {
+        List<HistorikkinnslagLinjeBuilder> linjeBuilder = new ArrayList<>();
         dto.getFaktaOmBeregningTilfeller()
             .stream()
             .map(kode -> FaktaOmBeregningTilfelleRef.Lookup.find(faktaOmBeregningHistorikkTjeneste, kode))
             .filter(Optional::isPresent)
             .map(Optional::get)
             .toList()
-            .forEach(historikkTjeneste -> tekstlinjerBuilder.addAll(
+            .forEach(historikkTjeneste -> linjeBuilder.addAll(
                 historikkTjeneste.lagHistorikk(dto, nyttBeregningsgrunnlag, forrigeGrunnlag, iayGrunnlag)));
 
-        return tekstlinjerBuilder;
+        return linjeBuilder;
     }
 
     private void lagHistorikkInnslag(BehandlingReferanse behandlingRef,
-                                     List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder,
+                                     List<HistorikkinnslagLinjeBuilder> linjeBuilder,
                                      String begrunnelse) {
-        tekstlinjerBuilder.add(new HistorikkinnslagTekstlinjeBuilder().tekst(begrunnelse));
-        if (!tekstlinjerBuilder.isEmpty()) {
+        linjeBuilder.add(new HistorikkinnslagLinjeBuilder().tekst(begrunnelse));
+        if (!linjeBuilder.isEmpty()) {
             var historikkinnslag = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
                 .medBehandlingId(behandlingRef.behandlingId())
                 .medFagsakId(behandlingRef.fagsakId())
                 .medTittel(SkjermlenkeType.FAKTA_OM_BEREGNING)
-                .medTekstlinjer(tekstlinjerBuilder)
+                .medLinjer(linjeBuilder)
                 .build();
             historikkinnslagRepository.lagre(historikkinnslag);
         }
