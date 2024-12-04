@@ -33,7 +33,7 @@ public class DokumentBestilt {
             .medBehandlingId(behandling.getId())
             .medAktør(historikkAktør)
             .medTittel("Brev bestilt")
-            .addTekstlinje(utledBegrunnelse(bestilling.dokumentMal(), bestilling.journalførSom()))
+            .addLinje(utledBegrunnelse(bestilling.dokumentMal(), bestilling.journalførSom()))
             .build();
         historikkinnslag2Repository.lagre(historikkinnslag);
     }

@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
@@ -61,8 +61,8 @@ public abstract class InngangsvilkårOverstyringshåndterer<T extends Overstyrin
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())
-            .addTekstlinje(fraTilEquals("Overstyrt vurdering: Utfallet", fraVerdi, tilVerdi))
-            .addTekstlinje(begrunnelse)
+            .addlinje(fraTilEquals("Overstyrt vurdering: Utfallet", fraVerdi, tilVerdi))
+            .addLinje(begrunnelse)
             .build();
         historikkinnslag2Repository.lagre(historikkinnslag);
     }

@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.domene.opptjening.aksjonspunkt;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -106,8 +106,8 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
                     .medFagsakId(fagsakId)
                     .medBehandlingId(behandlingId)
                     .medTittel(SkjermlenkeType.FAKTA_OM_OPPTJENING)
-                    .addTekstlinje(fraTilEquals(String.format("Aktivitet %s", aktivitetNavn), fraVerdi, tilVerdi))
-                    .addTekstlinje(bekreftetAktivitet.getBegrunnelse())
+                    .addlinje(fraTilEquals(String.format("Aktivitet %s", aktivitetNavn), fraVerdi, tilVerdi))
+                    .addLinje(bekreftetAktivitet.getBegrunnelse())
                     .build();
                 historikkinnslagRepository.lagre(historikkinnslag);
             }
@@ -184,7 +184,7 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
         if (Tid.TIDENES_ENDE.equals(localDate)) {
             return "d.d.";
         }
-        return HistorikkinnslagTekstlinjeBuilder.format(localDate);
+        return HistorikkinnslagLinjeBuilder.format(localDate);
     }
 
     private List<BekreftOpptjeningPeriodeDto> map(List<AvklarOpptjeningAktivitetDto> opptjeningAktiviteter, List<ArbeidsforholdOverstyring> overstyringer) {

@@ -164,10 +164,10 @@ class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwareTest 
 
         avklarOmsorgOgForeldreansvar(behandling, dto);
         var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
-        var tekstlinjer = historikkinnslag.getTekstlinjer();
+        var linjer = historikkinnslag.getLinjer();
 
         // Assert
-        assertThat(tekstlinjer).hasSize(2);
-        assertThat(tekstlinjer.getFirst().getTekst()).contains("Omsorgsovertakelsesdato", "04.03.2019", "05.03.2019");
+        assertThat(linjer).hasSize(2);
+        assertThat(linjer.getFirst().getTekst()).contains("Omsorgsovertakelsesdato", "04.03.2019", "05.03.2019");
     }
 }

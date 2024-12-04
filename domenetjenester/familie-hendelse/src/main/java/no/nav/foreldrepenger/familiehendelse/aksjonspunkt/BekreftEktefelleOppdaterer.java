@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftEktefelleAksjonspunktDto;
@@ -60,9 +60,9 @@ public class BekreftEktefelleOppdaterer implements AksjonspunktOppdaterer<Bekref
             .medBehandlingId(behandlingId)
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medTittel(SkjermlenkeType.FAKTA_OM_ADOPSJON)
-            .addTekstlinje(new HistorikkinnslagTekstlinjeBuilder().tekst("Barnet er vurdert til å")
+            .addlinje(new HistorikkinnslagLinjeBuilder().tekst("Barnet er vurdert til å")
                 .bold(dto.getEktefellesBarn() ? "være ektefelles/samboers barn" : "ikke være ektefelles/samboers barn"))
-            .addTekstlinje(dto.getBegrunnelse())
+            .addLinje(dto.getBegrunnelse())
             .build();
         historikkinnslag2Repository.lagre(historikkinnslag);
     }

@@ -9,7 +9,7 @@ import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
@@ -26,25 +26,25 @@ public class EtterlønnSluttpakkeHistorikkTjeneste extends FaktaOmBeregningHisto
     private static final BigDecimal MÅNEDER_I_ET_ÅR = BigDecimal.valueOf(12);
 
     @Override
-    public List<HistorikkinnslagTekstlinjeBuilder> lagHistorikk(FaktaBeregningLagreDto dto,
-                                                                BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
-                                                                Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
-                                                                InntektArbeidYtelseGrunnlag iayGrunnlag) {
+    public List<HistorikkinnslagLinjeBuilder> lagHistorikk(FaktaBeregningLagreDto dto,
+                                                           BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
+                                                           Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
+                                                           InntektArbeidYtelseGrunnlag iayGrunnlag) {
         return lagHistorikkForFastsetting(dto, forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag));
     }
 
-    private List<HistorikkinnslagTekstlinjeBuilder> lagHistorikkForFastsetting(FaktaBeregningLagreDto dto,
-                                                                               Optional<BeregningsgrunnlagEntitet> forrigeBg) {
+    private List<HistorikkinnslagLinjeBuilder> lagHistorikkForFastsetting(FaktaBeregningLagreDto dto,
+                                                                          Optional<BeregningsgrunnlagEntitet> forrigeBg) {
         var fastsattPrMndForrige = forrigeBg.map(this::hentOpprinneligVerdiFastsattEtterlønnSluttpakke).orElse(null);
         var nyVerdiEtterlønnSLuttpakke = BigDecimal.valueOf(dto.getFastsettEtterlønnSluttpakke().getFastsattPrMnd());
         var opprinneligInntektInt = fastsattPrMndForrige == null ? null : fastsattPrMndForrige.intValue();
-        List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder = new ArrayList<>();
+        List<HistorikkinnslagLinjeBuilder> linjeBuilder = new ArrayList<>();
         if (!Objects.equals(nyVerdiEtterlønnSLuttpakke.intValue(), opprinneligInntektInt)) {
-            tekstlinjerBuilder.add(
-                new HistorikkinnslagTekstlinjeBuilder().fraTil("Inntekten", opprinneligInntektInt, nyVerdiEtterlønnSLuttpakke.intValue()));
-            tekstlinjerBuilder.add(new HistorikkinnslagTekstlinjeBuilder().linjeskift());
+            linjeBuilder.add(
+                new HistorikkinnslagLinjeBuilder().fraTil("Inntekten", opprinneligInntektInt, nyVerdiEtterlønnSLuttpakke.intValue()));
+            linjeBuilder.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
         }
-        return tekstlinjerBuilder;
+        return linjeBuilder;
     }
 
     private BigDecimal hentOpprinneligVerdiFastsattEtterlønnSluttpakke(BeregningsgrunnlagEntitet beregningsgrunnlag) {

@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.mottak.dokumentmottak;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.format;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.format;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -113,7 +113,7 @@ public class HistorikkinnslagTjeneste {
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
-            .addTekstlinje("Mottatt ny søknad")
+            .addLinje("Mottatt ny søknad")
             .build();
 
         historikkinnslagRepository.lagre(historikk);
@@ -140,7 +140,7 @@ public class HistorikkinnslagTjeneste {
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId());
         if (!Venteårsak.UDEFINERT.equals(venteårsak)) {
-            build.addTekstlinje(venteårsak.getNavn());
+            build.addLinje(venteårsak.getNavn());
         }
         historikkinnslagRepository.lagre(build.build());
     }
@@ -150,7 +150,7 @@ public class HistorikkinnslagTjeneste {
             .medTittel("Behandlingen oppdatert med nye opplysninger")
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())
-            .addTekstlinje(behandlingÅrsakType.getNavn())
+            .addLinje(behandlingÅrsakType.getNavn())
             .build();
 
         historikkinnslagRepository.lagre(historikkinnslag);
@@ -160,7 +160,7 @@ public class HistorikkinnslagTjeneste {
         var historikkinnslag = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medTittel("Behandlingen oppdatert med nye opplysninger")
             .medFagsakId(fagsak.getId())
-            .addTekstlinje(begrunnelse)
+            .addLinje(begrunnelse)
             .build();
 
         historikkinnslagRepository.lagre(historikkinnslag);

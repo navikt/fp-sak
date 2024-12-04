@@ -65,9 +65,9 @@ class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
         // Assert
         assertThat(oppdateringresultat.kreverTotrinnsKontroll()).isFalse();
         var historikkinnslag = historikkRepository.hent(behandling.getId()).getFirst();
-        assertThat(historikkinnslag.getTekstlinjer()).hasSize(2);
-        assertThat(historikkinnslag.getTekstlinjer().get(0).getTekst()).contains("Søker har aleneomsorg for barnet");
-        assertThat(historikkinnslag.getTekstlinjer().get(1).getTekst()).isEqualTo(dto.getBegrunnelse());
+        assertThat(historikkinnslag.getLinjer()).hasSize(2);
+        assertThat(historikkinnslag.getLinjer().get(0).getTekst()).contains("Søker har aleneomsorg for barnet");
+        assertThat(historikkinnslag.getLinjer().get(1).getTekst()).isEqualTo(dto.getBegrunnelse());
     }
 
     @Test
@@ -99,10 +99,10 @@ class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
         // Assert
         assertThat(oppdateringresultat.kreverTotrinnsKontroll()).isTrue();
         var historikk = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
-        assertThat(historikk.getTekstlinjer()).hasSize(3);
-        assertThat(historikk.getTekstlinjer().getFirst().getTekst()).contains("Søker har ikke aleneomsorg for barnet");
-        assertThat(historikk.getTekstlinjer().get(1).getTekst()).contains("Annen forelder har rett");
-        assertThat(historikk.getTekstlinjer().get(2).getTekst()).isEqualTo(dto.getBegrunnelse());
+        assertThat(historikk.getLinjer()).hasSize(3);
+        assertThat(historikk.getLinjer().getFirst().getTekst()).contains("Søker har ikke aleneomsorg for barnet");
+        assertThat(historikk.getLinjer().get(1).getTekst()).contains("Annen forelder har rett");
+        assertThat(historikk.getLinjer().get(2).getTekst()).isEqualTo(dto.getBegrunnelse());
     }
 
     @Test
@@ -135,10 +135,10 @@ class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
         assertThat(oppdateringresultat.kreverTotrinnsKontroll()).isTrue();
 
         var historikk = historikkRepository.hent(behandling.getId()).getFirst();
-        assertThat(historikk.getTekstlinjer()).hasSize(3);
-        assertThat(historikk.getTekstlinjer().get(0).getTekst()).contains("Søker har ikke aleneomsorg for barnet");
-        assertThat(historikk.getTekstlinjer().get(1).getTekst()).contains("Annen forelder har rett");
-        assertThat(historikk.getTekstlinjer().get(2).getTekst()).isEqualTo(dto.getBegrunnelse());
+        assertThat(historikk.getLinjer()).hasSize(3);
+        assertThat(historikk.getLinjer().get(0).getTekst()).contains("Søker har ikke aleneomsorg for barnet");
+        assertThat(historikk.getLinjer().get(1).getTekst()).contains("Annen forelder har rett");
+        assertThat(historikk.getLinjer().get(2).getTekst()).isEqualTo(dto.getBegrunnelse());
     }
 
     @Test
@@ -177,10 +177,10 @@ class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
 
         assertThat(ytelseFordelingTjeneste.hentAggregat(behandling.getId()).getMorUføretrygdAvklaring()).isTrue();
 
-        assertThat(historikkinnslag.getFirst().getTekstlinjer()).hasSize(4);
-        assertThat(historikkinnslag.getFirst().getTekstlinjer().get(0).getTekst()).contains("Søker har ikke aleneomsorg for barnet");
-        assertThat(historikkinnslag.getFirst().getTekstlinjer().get(1).getTekst()).contains("Annen forelder har ikke rett");
-        assertThat(historikkinnslag.getFirst().getTekstlinjer().get(2).getTekst()).contains("Mor mottar uføretrygd");
-        assertThat(historikkinnslag.getFirst().getTekstlinjer().get(3).getTekst()).isEqualTo(dto.getBegrunnelse());
+        assertThat(historikkinnslag.getFirst().getLinjer()).hasSize(4);
+        assertThat(historikkinnslag.getFirst().getLinjer().get(0).getTekst()).contains("Søker har ikke aleneomsorg for barnet");
+        assertThat(historikkinnslag.getFirst().getLinjer().get(1).getTekst()).contains("Annen forelder har ikke rett");
+        assertThat(historikkinnslag.getFirst().getLinjer().get(2).getTekst()).contains("Mor mottar uføretrygd");
+        assertThat(historikkinnslag.getFirst().getLinjer().get(3).getTekst()).isEqualTo(dto.getBegrunnelse());
     }
 }

@@ -39,7 +39,7 @@ class VurderDokumentFørVedtakOppdaterer implements AksjonspunktOppdaterer<Vurde
             .medFagsakId(behandlingReferanse.fagsakId())
             .medBehandlingId(behandlingReferanse.behandlingId())
             .medTittel("Oppgave før vedtak")
-            .addTekstlinje("Vurder dokument")
+            .addLinje("Vurder dokument")
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }

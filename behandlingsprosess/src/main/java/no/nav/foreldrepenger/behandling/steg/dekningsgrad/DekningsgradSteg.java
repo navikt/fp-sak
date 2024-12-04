@@ -83,7 +83,7 @@ public class DekningsgradSteg implements BehandlingSteg {
                 .medBehandlingId(kontekst.getBehandlingId())
                 .medFagsakId(kontekst.getFagsakId())
                 .medTittel("Dekningsgrad er endret")
-                .addTekstlinje(begrunnelse)
+                .addLinje(begrunnelse)
             .build());
     }
 

@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 
@@ -114,7 +114,7 @@ class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
         var historikkinnslag = captor.getValue();
 
         assertThat(historikkinnslag.getBehandlingId()).isEqualTo(behandlingId);
-        assertThat(historikkinnslag.getTittel()).isEqualTo("Behandling på vent " + HistorikkinnslagTekstlinjeBuilder.format(localDate));
+        assertThat(historikkinnslag.getTittel()).isEqualTo("Behandling på vent " + HistorikkinnslagLinjeBuilder.format(localDate));
     }
 
     @Test

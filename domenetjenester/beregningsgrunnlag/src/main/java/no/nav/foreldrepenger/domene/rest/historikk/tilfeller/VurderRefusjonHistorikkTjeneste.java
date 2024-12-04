@@ -10,7 +10,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.entiteter.BeregningRefusjonOverstyringerEntitet;
@@ -39,21 +39,21 @@ public class VurderRefusjonHistorikkTjeneste extends FaktaOmBeregningHistorikkTj
     }
 
     @Override
-    public List<HistorikkinnslagTekstlinjeBuilder> lagHistorikk(FaktaBeregningLagreDto dto,
-                                                                BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
-                                                                Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
-                                                                InntektArbeidYtelseGrunnlag iayGrunnlag) {
+    public List<HistorikkinnslagLinjeBuilder> lagHistorikk(FaktaBeregningLagreDto dto,
+                                                           BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
+                                                           Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
+                                                           InntektArbeidYtelseGrunnlag iayGrunnlag) {
 
-        List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder = new ArrayList<>();
+        List<HistorikkinnslagLinjeBuilder> linjerBuilder = new ArrayList<>();
         for (var vurderingDto : dto.getRefusjonskravGyldighet()) {
             var arbeidsgiver = finnArbeidsgiver(vurderingDto.getArbeidsgiverId());
             var frist = nyttBeregningsgrunnlag.getSkjæringstidspunkt();
             var forrige = finnForrigeVerdi(forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getRefusjonOverstyringer), arbeidsgiver, frist);
-            tekstlinjerBuilder.add(lagHistorikkInnslag(Boolean.TRUE.equals(vurderingDto.isSkalUtvideGyldighet()), forrige,
+            linjerBuilder.add(lagHistorikkInnslag(Boolean.TRUE.equals(vurderingDto.isSkalUtvideGyldighet()), forrige,
                 arbeidsgiverHistorikkinnslag.lagTekstForArbeidsgiver(arbeidsgiver, iayGrunnlag.getArbeidsforholdOverstyringer())));
-            tekstlinjerBuilder.add(new HistorikkinnslagTekstlinjeBuilder().linjeskift());
+            linjerBuilder.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
         }
-        return tekstlinjerBuilder;
+        return linjerBuilder;
     }
 
     private Boolean finnForrigeVerdi(Optional<BeregningRefusjonOverstyringerEntitet> forrigeBeregningRefusjonOverstyringer,
@@ -75,8 +75,8 @@ public class VurderRefusjonHistorikkTjeneste extends FaktaOmBeregningHistorikkTj
         return Arbeidsgiver.fra(new AktørId(identifikator));
     }
 
-    private HistorikkinnslagTekstlinjeBuilder lagHistorikkInnslag(Boolean nyVerdi, Boolean forrige, String arbeidsgivernavn) {
-        return new HistorikkinnslagTekstlinjeBuilder().fraTil("Utvidelse av frist for fremsatt refusjonskrav for " + arbeidsgivernavn, forrige,
+    private HistorikkinnslagLinjeBuilder lagHistorikkInnslag(Boolean nyVerdi, Boolean forrige, String arbeidsgivernavn) {
+        return new HistorikkinnslagLinjeBuilder().fraTil("Utvidelse av frist for fremsatt refusjonskrav for " + arbeidsgivernavn, forrige,
             nyVerdi);
     }
 
