@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import java.util.Objects;
 
@@ -87,8 +87,8 @@ public abstract class OmsorgsvilkårAksjonspunktOppdaterer implements Aksjonspun
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())
             .medTittel(HistorikkSammeBarnTjeneste.getSkjermlenkeType(vilkårType, aksjonspunktDefinisjon))
-            .addTekstlinje(fraTilEquals(fraVerdiNavn, null, dto.getErVilkarOk() ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT))
-            .addTekstlinje(dto.getBegrunnelse())
+            .addlinje(fraTilEquals(fraVerdiNavn, null, dto.getErVilkarOk() ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT))
+            .addLinje(dto.getBegrunnelse())
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }

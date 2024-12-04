@@ -66,7 +66,7 @@ class IverksetteVedtakStegYtelseTest {
 
         var historikinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
         assertThat(historikinnslag.getTittel()).isEqualTo("Behandlingen venter på iverksettelse");
-        assertThat(historikinnslag.getTekstlinjer().getFirst().getTekst()).isEqualTo("Venter på iverksettelse av en tidligere behandling i denne saken.");
+        assertThat(historikinnslag.getLinjer().getFirst().getTekst()).isEqualTo("Venter på iverksettelse av en tidligere behandling i denne saken.");
     }
 
     @Test

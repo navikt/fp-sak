@@ -13,7 +13,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagBuilder;
@@ -59,14 +59,14 @@ class KunYtelseHistorikkTjenesteTest {
         var dto = new FaktaBeregningLagreDto(Collections.singletonList(FaktaOmBeregningTilfelle.FASTSETT_BG_KUN_YTELSE), kunYtelseDto);
 
         // Act
-        var historikkTekstlinjeBuilder = kunYtelseHistorikkTjeneste.lagHistorikk(dto, beregningsgrunnlag, Optional.empty(),
+        var historikkLinjeBuilder = kunYtelseHistorikkTjeneste.lagHistorikk(dto, beregningsgrunnlag, Optional.empty(),
             InntektArbeidYtelseGrunnlagBuilder.nytt().build());
-        var faktiskeTekstlinjer = historikkTekstlinjeBuilder.stream().map(HistorikkinnslagTekstlinjeBuilder::build).toList();
+        var faktiskeLinjer = historikkLinjeBuilder.stream().map(HistorikkinnslagLinjeBuilder::build).toList();
 
-        assertThat(faktiskeTekstlinjer).hasSize(4);
-        assertThat(faktiskeTekstlinjer.getFirst()).isEqualTo("Fordeling for __Brukers andel:__");
-        assertThat(faktiskeTekstlinjer.get(1)).isEqualTo("__" + inntektskategori.getNavn() + "__ er satt til __" + fastsatt + "__");
-        assertThat(faktiskeTekstlinjer.get(2)).isEqualTo("__Inntektskategori for Brukers andel" + "__ er satt til __" + inntektskategori.getNavn() + "__");
+        assertThat(faktiskeLinjer).hasSize(4);
+        assertThat(faktiskeLinjer.getFirst()).isEqualTo("Fordeling for __Brukers andel:__");
+        assertThat(faktiskeLinjer.get(1)).isEqualTo("__" + inntektskategori.getNavn() + "__ er satt til __" + fastsatt + "__");
+        assertThat(faktiskeLinjer.get(2)).isEqualTo("__Inntektskategori for Brukers andel" + "__ er satt til __" + inntektskategori.getNavn() + "__");
         //Siste linje fritekst
     }
 
@@ -94,15 +94,15 @@ class KunYtelseHistorikkTjenesteTest {
             .build(1L, BeregningsgrunnlagTilstand.KOFAKBER_UT);
 
         // Act
-        var historikkTekstlinjeBuilder = kunYtelseHistorikkTjeneste.lagHistorikk(dto, beregningsgrunnlag, Optional.of(forrigeGrunnlag),
+        var historikkLinjeBuilder = kunYtelseHistorikkTjeneste.lagHistorikk(dto, beregningsgrunnlag, Optional.of(forrigeGrunnlag),
             InntektArbeidYtelseGrunnlagBuilder.nytt().build());
 
-        var faktiskeTekstlinjer = historikkTekstlinjeBuilder.stream().map(HistorikkinnslagTekstlinjeBuilder::build).toList();
+        var linjer = historikkLinjeBuilder.stream().map(HistorikkinnslagLinjeBuilder::build).toList();
 
-        assertThat(faktiskeTekstlinjer).hasSize(4);
-        assertThat(faktiskeTekstlinjer.getFirst()).isEqualTo("Fordeling for __Brukers andel:__");
-        assertThat(faktiskeTekstlinjer.get(1)).isEqualTo("__Frilanser__ er endret fra 66667 til __" + fastsatt + "__");
-        assertThat(faktiskeTekstlinjer.get(2)).isEqualTo("__Inntektskategori for Brukers andel__ er endret fra Frilanser til __" + inntektskategori.getNavn() + "__");
+        assertThat(linjer).hasSize(4);
+        assertThat(linjer.getFirst()).isEqualTo("Fordeling for __Brukers andel:__");
+        assertThat(linjer.get(1)).isEqualTo("__Frilanser__ er endret fra 66667 til __" + fastsatt + "__");
+        assertThat(linjer.get(2)).isEqualTo("__Inntektskategori for Brukers andel__ er endret fra Frilanser til __" + inntektskategori.getNavn() + "__");
         //Siste linje fritekst
     }
 

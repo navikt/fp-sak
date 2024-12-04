@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
@@ -67,9 +67,9 @@ class VurderRefusjonHistorikkTjenesteTest {
         var dto = lagDto(false);
 
         // Act
-        var tekstlinjerBuilder = vurderRefusjonHistorikkTjeneste.lagHistorikk(dto, grunnlag.getBeregningsgrunnlag().orElseThrow(), Optional.empty(),
+        var linjeBuilder = vurderRefusjonHistorikkTjeneste.lagHistorikk(dto, grunnlag.getBeregningsgrunnlag().orElseThrow(), Optional.empty(),
             InntektArbeidYtelseGrunnlagBuilder.nytt().build());
-        var tekster = tekstlinjerBuilder.stream().map(HistorikkinnslagTekstlinjeBuilder::build).toList();
+        var tekster = linjeBuilder.stream().map(HistorikkinnslagLinjeBuilder::build).toList();
 
         // Assert
         assertHistorikk(tekster, "er satt til __Nei__");
@@ -83,9 +83,9 @@ class VurderRefusjonHistorikkTjenesteTest {
         var dto = lagDto(true);
 
         // Act
-        var tekstlinjerBuilder = vurderRefusjonHistorikkTjeneste.lagHistorikk(dto, grunnlag.getBeregningsgrunnlag().orElseThrow(), Optional.empty(),
+        var linjeBuilder = vurderRefusjonHistorikkTjeneste.lagHistorikk(dto, grunnlag.getBeregningsgrunnlag().orElseThrow(), Optional.empty(),
             InntektArbeidYtelseGrunnlagBuilder.nytt().build());
-        var tekster = tekstlinjerBuilder.stream().map(HistorikkinnslagTekstlinjeBuilder::build).toList();
+        var tekster = linjeBuilder.stream().map(HistorikkinnslagLinjeBuilder::build).toList();
 
         // Assert
         assertHistorikk(tekster, "er satt til __Ja__");
@@ -99,9 +99,9 @@ class VurderRefusjonHistorikkTjenesteTest {
         var dto = lagDto(true);
 
         // Act
-        var tekstlinjerBuilder = vurderRefusjonHistorikkTjeneste.lagHistorikk(dto, grunnlag.getBeregningsgrunnlag().orElseThrow(),
+        var linjeBuilder = vurderRefusjonHistorikkTjeneste.lagHistorikk(dto, grunnlag.getBeregningsgrunnlag().orElseThrow(),
             Optional.of(forrige), InntektArbeidYtelseGrunnlagBuilder.nytt().build());
-        var tekster = tekstlinjerBuilder.stream().map(HistorikkinnslagTekstlinjeBuilder::build).toList();
+        var tekster = linjeBuilder.stream().map(HistorikkinnslagLinjeBuilder::build).toList();
 
         // Assert
         assertHistorikk(tekster, "er endret fra Nei til __Ja__");
@@ -127,9 +127,9 @@ class VurderRefusjonHistorikkTjenesteTest {
         var dto = lagDto(false);
 
         // Act
-        var tekstlinjerBuilder = vurderRefusjonHistorikkTjeneste.lagHistorikk(dto, grunnlag.getBeregningsgrunnlag().orElseThrow(),
+        var linjeBuilder = vurderRefusjonHistorikkTjeneste.lagHistorikk(dto, grunnlag.getBeregningsgrunnlag().orElseThrow(),
             Optional.of(forrige), InntektArbeidYtelseGrunnlagBuilder.nytt().build());
-        var tekster = tekstlinjerBuilder.stream().map(HistorikkinnslagTekstlinjeBuilder::build).toList();
+        var tekster = linjeBuilder.stream().map(HistorikkinnslagLinjeBuilder::build).toList();
 
         // Assert
         assertHistorikk(tekster, "er endret fra Ja til __Nei__");

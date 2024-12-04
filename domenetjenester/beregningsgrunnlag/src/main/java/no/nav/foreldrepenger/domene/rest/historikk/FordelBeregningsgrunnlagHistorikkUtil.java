@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.domene.rest.historikk;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -11,7 +11,7 @@ import java.util.Optional;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
@@ -25,14 +25,14 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 public final class FordelBeregningsgrunnlagHistorikkUtil {
 
     public static Optional<Historikkinnslag2.Builder> lagHistorikkInnslag(AksjonspunktOppdaterParameter param,
-                                                                          List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder) {
+                                                                          List<HistorikkinnslagLinjeBuilder> linjeBuilder) {
         Historikkinnslag2.Builder historikkinnslagBuilder = null;
-        if (!tekstlinjerBuilder.isEmpty()) {
+        if (!linjeBuilder.isEmpty()) {
             historikkinnslagBuilder = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
                 .medBehandlingId(param.getBehandlingId())
                 .medFagsakId(param.getFagsakId())
                 .medTittel(SkjermlenkeType.FAKTA_OM_FORDELING)
-                .medTekstlinjer(tekstlinjerBuilder);
+                .medLinjer(linjeBuilder);
         }
         return Optional.ofNullable(historikkinnslagBuilder);
     }
@@ -53,23 +53,23 @@ public final class FordelBeregningsgrunnlagHistorikkUtil {
             .orElseThrow(() -> new IllegalStateException("Finner ikke periode"));
     }
 
-    public static List<HistorikkinnslagTekstlinjeBuilder> leggTilArbeidsforholdHistorikkinnslag(Lønnsendring endring,
-                                                                                                LocalDate korrektPeriodeFom,
-                                                                                                String arbeidsforholdInfo) {
+    public static List<HistorikkinnslagLinjeBuilder> leggTilArbeidsforholdHistorikkinnslag(Lønnsendring endring,
+                                                                                           LocalDate korrektPeriodeFom,
+                                                                                           String arbeidsforholdInfo) {
 
         if (!harEndringSomGirHistorikk(endring)) {
             return new ArrayList<>();
         }
-        List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder = new ArrayList<>();
-        tekstlinjerBuilder.add(gjeldendeFraTekstlinje(endring, arbeidsforholdInfo, korrektPeriodeFom));
-        tekstlinjerBuilder.add(refusjonTekstlinje(endring));
-        tekstlinjerBuilder.add(
+        List<HistorikkinnslagLinjeBuilder> linjeBuilder = new ArrayList<>();
+        linjeBuilder.add(gjeldendeFraLinje(endring, arbeidsforholdInfo, korrektPeriodeFom));
+        linjeBuilder.add(refusjonLinje(endring));
+        linjeBuilder.add(
             fraTilEquals("Inntekt", endring.getGammelArbeidsinntektPrÅr(), endring.getNyArbeidsinntektPrÅr()));
-        tekstlinjerBuilder.add(inntektskategoriTekstlinje(endring));
+        linjeBuilder.add(inntektskategoriLinje(endring));
 
-        tekstlinjerBuilder.add(new HistorikkinnslagTekstlinjeBuilder().linjeskift());
+        linjeBuilder.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
 
-        return tekstlinjerBuilder;
+        return linjeBuilder;
     }
 
     public static String fraInntektskategori(Inntektskategori inntektskategori) {
@@ -88,7 +88,7 @@ public final class FordelBeregningsgrunnlagHistorikkUtil {
         };
     }
 
-    private static HistorikkinnslagTekstlinjeBuilder inntektskategoriTekstlinje(Lønnsendring endring) {
+    private static HistorikkinnslagLinjeBuilder inntektskategoriLinje(Lønnsendring endring) {
         var nyInntektskategori = endring.getNyInntektskategori();
         if (nyInntektskategori != null) {
             return fraTilEquals("Inntektskategori", null, fraInntektskategori(nyInntektskategori));
@@ -96,12 +96,12 @@ public final class FordelBeregningsgrunnlagHistorikkUtil {
         return null;
     }
 
-    private static HistorikkinnslagTekstlinjeBuilder refusjonTekstlinje(Lønnsendring endring) {
+    private static HistorikkinnslagLinjeBuilder refusjonLinje(Lønnsendring endring) {
         if (endring.getNyTotalRefusjonPrÅr() != null && endring.getArbeidsgiver().isPresent() && endring.getArbeidsforholdRef().isPresent()) {
             var forrigeRefusjon = endring.getGammelRefusjonPrÅr();
             if (!endring.getNyTotalRefusjonPrÅr().equals(forrigeRefusjon)) {
 
-                return new HistorikkinnslagTekstlinjeBuilder().bold("Nytt refusjonskrav")
+                return new HistorikkinnslagLinjeBuilder().bold("Nytt refusjonskrav")
                     .tekst("endret fra " + BigDecimal.valueOf(forrigeRefusjon) + " til ")
                     .bold(endring.getNyTotalRefusjonPrÅr());
             }
@@ -109,11 +109,11 @@ public final class FordelBeregningsgrunnlagHistorikkUtil {
         return null;
     }
 
-    private static HistorikkinnslagTekstlinjeBuilder gjeldendeFraTekstlinje(Lønnsendring endring,
-                                                                            String arbeidsforholdInfo,
-                                                                            LocalDate dato) {
-        var tekstNyFordeling = new HistorikkinnslagTekstlinjeBuilder().tekst("Ny fordeling").bold(arbeidsforholdInfo);
-        var tekstNyAktivitet = new HistorikkinnslagTekstlinjeBuilder().tekst("Det er lagt til ny aktivitet for").bold(arbeidsforholdInfo);
+    private static HistorikkinnslagLinjeBuilder gjeldendeFraLinje(Lønnsendring endring,
+                                                                  String arbeidsforholdInfo,
+                                                                  LocalDate dato) {
+        var tekstNyFordeling = new HistorikkinnslagLinjeBuilder().tekst("Ny fordeling").bold(arbeidsforholdInfo);
+        var tekstNyAktivitet = new HistorikkinnslagLinjeBuilder().tekst("Det er lagt til ny aktivitet for").bold(arbeidsforholdInfo);
         var endretFeltTekst = endring.isNyAndel() ? tekstNyAktivitet : tekstNyFordeling;
 
         return endretFeltTekst.tekst("Gjeldende fra").bold(dato);

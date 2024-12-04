@@ -178,7 +178,7 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())
             .medTittel(tittel)
-            .addTekstlinje(kommentarEndring)
+            .addLinje(kommentarEndring)
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }

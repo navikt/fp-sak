@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaOmsorgRettTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AvklarAleneomsorgVurderingDto;
@@ -53,28 +53,28 @@ public class BekreftAleneomsorgOppdaterer implements AksjonspunktOppdaterer<Avkl
         var totrinn = faktaOmsorgRettTjeneste.totrinnForAleneomsorg(param, dto.getAleneomsorg());
 
 
-        List<HistorikkinnslagTekstlinjeBuilder> historikkinnslagTekstlinjer = new ArrayList<>();
-        var aleneomsorgTekstlinje = faktaOmsorgRettTjeneste.aleneomsorgHistorikkTekstlinje(param, dto.getAleneomsorg());
-        aleneomsorgTekstlinje.ifPresent(historikkinnslagTekstlinjer::add);
+        List<HistorikkinnslagLinjeBuilder> historikkinnslagLinjer = new ArrayList<>();
+        var aleneomsorglinje = faktaOmsorgRettTjeneste.aleneomsorgHistorikkLinje(param, dto.getAleneomsorg());
+        aleneomsorglinje.ifPresent(historikkinnslagLinjer::add);
 
         faktaOmsorgRettTjeneste.oppdaterAleneomsorg(param, dto.getAleneomsorg());
         if (!dto.getAleneomsorg() && dto.getAnnenforelderHarRett() != null) {
             // Inntil videre ...
             totrinn = totrinn || faktaOmsorgRettTjeneste.totrinnForAnnenforelderRett(param, dto.getAnnenforelderHarRett(),
                 dto.getAnnenforelderMottarUføretrygd(), dto.getAnnenForelderHarRettEØS());
-            historikkinnslagTekstlinjer.addAll(faktaOmsorgRettTjeneste.annenforelderRettHistorikkTekstlinjer(param, dto.getAnnenforelderHarRett(),
+            historikkinnslagLinjer.addAll(faktaOmsorgRettTjeneste.annenforelderRettHistorikkLinjer(param, dto.getAnnenforelderHarRett(),
                 dto.getAnnenforelderMottarUføretrygd(), dto.getAnnenForelderHarRettEØS()));
             faktaOmsorgRettTjeneste.oppdaterAnnenforelderRett(param, dto.getAnnenforelderHarRett(), dto.getAnnenforelderMottarUføretrygd(),
                 dto.getAnnenForelderHarRettEØS());
         }
-        var omsorgRettTekstlinje = faktaOmsorgRettTjeneste.omsorgRettHistorikkTekstlinje(param, dto.getBegrunnelse());
-        omsorgRettTekstlinje.ifPresent(historikkinnslagTekstlinjer::add);
+        var omsorgRettLinje = faktaOmsorgRettTjeneste.omsorgRettHistorikkLinje(param, dto.getBegrunnelse());
+        omsorgRettLinje.ifPresent(historikkinnslagLinjer::add);
 
         historikkRepository.lagre(new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(param.getFagsakId())
             .medBehandlingId(param.getRef().behandlingId())
             .medTittel(SkjermlenkeType.FAKTA_OMSORG_OG_RETT)
-            .medTekstlinjer(historikkinnslagTekstlinjer)
+            .medLinjer(historikkinnslagLinjer)
             .build());
 
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();

@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeløpEndring;
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningsgrunnlagEndring;
@@ -119,45 +119,45 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste {
                                      AksjonspunktOppdaterParameter param,
                                      Map<String, List<Integer>> tilHistorikkInnslag,
                                      BigDecimal forrigeFrilansInntekt) {
-        List<HistorikkinnslagTekstlinjeBuilder> tekstlinjeBuilderList = new ArrayList<>(oppdaterVedEndretVerdi(tilHistorikkInnslag));
-        tekstlinjeBuilderList.addAll(oppdaterFrilansInntektVedEndretVerdi(forrigeFrilansInntekt, dto));
-        tekstlinjeBuilderList.add(new HistorikkinnslagTekstlinjeBuilder().tekst(dto.getBegrunnelse()));
+        List<HistorikkinnslagLinjeBuilder> linjeBuilderList = new ArrayList<>(oppdaterVedEndretVerdi(tilHistorikkInnslag));
+        linjeBuilderList.addAll(oppdaterFrilansInntektVedEndretVerdi(forrigeFrilansInntekt, dto));
+        linjeBuilderList.add(new HistorikkinnslagLinjeBuilder().tekst(dto.getBegrunnelse()));
 
         var historikkinnslag = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medBehandlingId(param.getBehandlingId())
             .medFagsakId(param.getRef().fagsakId())
             .medTittel(SkjermlenkeType.BEREGNING_FORELDREPENGER)
-            .medTekstlinjer(tekstlinjeBuilderList)
+            .medLinjer(linjeBuilderList)
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }
 
-    private List<HistorikkinnslagTekstlinjeBuilder> oppdaterVedEndretVerdi(Map<String, List<Integer>> tilHistorikkInnslag) {
-        List<HistorikkinnslagTekstlinjeBuilder> tekstlinjeBuilderList = new ArrayList<>();
-        HistorikkinnslagTekstlinjeBuilder tekstlinjeBuilder = new HistorikkinnslagTekstlinjeBuilder();
+    private List<HistorikkinnslagLinjeBuilder> oppdaterVedEndretVerdi(Map<String, List<Integer>> tilHistorikkInnslag) {
+        List<HistorikkinnslagLinjeBuilder> linjeBuilderList = new ArrayList<>();
+        HistorikkinnslagLinjeBuilder linjeBuilder = new HistorikkinnslagLinjeBuilder();
         for (var entry : tilHistorikkInnslag.entrySet()) {
             var arbeidsforholdInfo = entry.getKey();
             var inntekter = entry.getValue();
-            tekstlinjeBuilderList.add(
-                tekstlinjeBuilder.fraTil(String.format("Inntekt fra %s", arbeidsforholdInfo), null, formaterInntekter(inntekter)));
-            tekstlinjeBuilderList.add(tekstlinjeBuilder.linjeskift());
+            linjeBuilderList.add(
+                linjeBuilder.fraTil(String.format("Inntekt fra %s", arbeidsforholdInfo), null, formaterInntekter(inntekter)));
+            linjeBuilderList.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
         }
-        return tekstlinjeBuilderList;
+        return linjeBuilderList;
     }
 
-    private List<HistorikkinnslagTekstlinjeBuilder> oppdaterFrilansInntektVedEndretVerdi(BigDecimal forrigeFrilansInntekt,
-                                                                                         FastsettBGTidsbegrensetArbeidsforholdDto dto) {
-        List<HistorikkinnslagTekstlinjeBuilder> tekstlinjeBuilderList = new ArrayList<>();
-        HistorikkinnslagTekstlinjeBuilder tekstlinjeBuilder = new HistorikkinnslagTekstlinjeBuilder();
+    private List<HistorikkinnslagLinjeBuilder> oppdaterFrilansInntektVedEndretVerdi(BigDecimal forrigeFrilansInntekt,
+                                                                                    FastsettBGTidsbegrensetArbeidsforholdDto dto) {
+        List<HistorikkinnslagLinjeBuilder> linjeBuilderList = new ArrayList<>();
+        HistorikkinnslagLinjeBuilder linjeBuilder = new HistorikkinnslagLinjeBuilder();
         if (forrigeFrilansInntekt != null && dto.getFrilansInntekt() != null) {
             var fraInntekt = (int) Math.round(forrigeFrilansInntekt.doubleValue());
-            tekstlinjeBuilderList.add(tekstlinjeBuilder.fraTil("Frilansinntekt", fraInntekt, dto.getFrilansInntekt()));
-            tekstlinjeBuilderList.add(tekstlinjeBuilder.linjeskift());
+            linjeBuilderList.add(linjeBuilder.fraTil("Frilansinntekt", fraInntekt, dto.getFrilansInntekt()));
+            linjeBuilderList.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
         } else if (dto.getFrilansInntekt() != null) {
-            tekstlinjeBuilderList.add(tekstlinjeBuilder.fraTil("Frilansinntekt", null, dto.getFrilansInntekt()));
-            tekstlinjeBuilderList.add(tekstlinjeBuilder.linjeskift());
+            linjeBuilderList.add(linjeBuilder.fraTil("Frilansinntekt", null, dto.getFrilansInntekt()));
+            linjeBuilderList.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
         }
-        return tekstlinjeBuilderList;
+        return linjeBuilderList;
     }
 
     private String formaterInntekter(List<Integer> inntekter) {

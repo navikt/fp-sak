@@ -48,9 +48,9 @@ class SøknadsfristVilkårOppdatererTest {
         var historikkinnslag = historikkinnslag2Repository.hent(behandling.getId()).getFirst();
 
         // Assert
-        assertThat(historikkinnslag.getTekstlinjer().getFirst().getTekst()).contains("Søknadsfristvilkåret", "oppfylt");
-        assertThat(historikkinnslag.getTekstlinjer().getFirst().getTekst()).doesNotContain("ikke oppfylt");
-        assertThat(historikkinnslag.getTekstlinjer().get(1).getTekst()).contains(dto.getBegrunnelse());
+        assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).contains("Søknadsfristvilkåret", "oppfylt");
+        assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).doesNotContain("ikke oppfylt");
+        assertThat(historikkinnslag.getLinjer().get(1).getTekst()).contains(dto.getBegrunnelse());
     }
 
 }

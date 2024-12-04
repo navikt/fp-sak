@@ -8,7 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
@@ -36,41 +36,41 @@ public class VurderTidsbegrensetHistorikkTjeneste extends FaktaOmBeregningHistor
     }
 
     @Override
-    public List<HistorikkinnslagTekstlinjeBuilder> lagHistorikk(FaktaBeregningLagreDto dto,
-                                                                BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
-                                                                Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
-                                                                InntektArbeidYtelseGrunnlag iayGrunnlag) {
+    public List<HistorikkinnslagLinjeBuilder> lagHistorikk(FaktaBeregningLagreDto dto,
+                                                           BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
+                                                           Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
+                                                           InntektArbeidYtelseGrunnlag iayGrunnlag) {
 
         var tidsbegrensetDto = dto.getVurderTidsbegrensetArbeidsforhold();
         var periode = nyttBeregningsgrunnlag.getBeregningsgrunnlagPerioder().get(0);
         var fastsatteArbeidsforhold = tidsbegrensetDto.getFastsatteArbeidsforhold();
         var arbeidsforholdOverstyringer = iayGrunnlag.getArbeidsforholdOverstyringer();
-        List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder = new ArrayList<>();
+        List<HistorikkinnslagLinjeBuilder> linjeBuilder = new ArrayList<>();
         for (var arbeidsforhold : fastsatteArbeidsforhold) {
             var korrektAndel = periode.getBeregningsgrunnlagPrStatusOgAndelList()
                 .stream()
                 .filter(a -> a.getAndelsnr().equals(arbeidsforhold.getAndelsnr()))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Finner ikke andel med andelsnr " + arbeidsforhold.getAndelsnr()));
-            tekstlinjerBuilder.addAll(lagHistorikkInnslag(arbeidsforhold, korrektAndel, arbeidsforholdOverstyringer));
+            linjeBuilder.addAll(lagHistorikkInnslag(arbeidsforhold, korrektAndel, arbeidsforholdOverstyringer));
         }
-        return tekstlinjerBuilder;
+        return linjeBuilder;
     }
 
-    private List<HistorikkinnslagTekstlinjeBuilder> lagHistorikkInnslag(VurderteArbeidsforholdDto arbeidsforhold,
-                                                                        BeregningsgrunnlagPrStatusOgAndel andel,
-                                                                        List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
+    private List<HistorikkinnslagLinjeBuilder> lagHistorikkInnslag(VurderteArbeidsforholdDto arbeidsforhold,
+                                                                   BeregningsgrunnlagPrStatusOgAndel andel,
+                                                                   List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
         var arbeidsforholdInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(andel.getAktivitetStatus(),
             andel.getArbeidsgiver(), andel.getArbeidsforholdRef(), arbeidsforholdOverstyringer);
         var opprinneligVerdi = konvertBooleanTilFaktaEndretVerdiType(arbeidsforhold.isOpprinneligVerdi());
         var nyVerdi = konvertBooleanTilFaktaEndretVerdiType(arbeidsforhold.isTidsbegrensetArbeidsforhold());
-        List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder = new ArrayList<>();
+        List<HistorikkinnslagLinjeBuilder> linjerBuilder = new ArrayList<>();
         if (opprinneligVerdi != nyVerdi) {
-            tekstlinjerBuilder.add(
-                new HistorikkinnslagTekstlinjeBuilder().fraTil("Arbeidsforhold hos " + arbeidsforholdInfo, opprinneligVerdi, nyVerdi));
-            tekstlinjerBuilder.add(new HistorikkinnslagTekstlinjeBuilder().linjeskift());
+            linjerBuilder.add(
+                new HistorikkinnslagLinjeBuilder().fraTil("Arbeidsforhold hos " + arbeidsforholdInfo, opprinneligVerdi, nyVerdi));
+            linjerBuilder.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
         }
-        return tekstlinjerBuilder;
+        return linjerBuilder;
     }
 
     private HistorikkEndretFeltVerdiType konvertBooleanTilFaktaEndretVerdiType(Boolean endringTidsbegrensetArbeidsforhold) {

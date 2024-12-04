@@ -53,12 +53,12 @@ class BekreftMannAdoptererAleneTest extends EntityManagerAwareTest {
         new BekreftMannAdoptererOppdaterer(familieHendelseTjeneste, repositoryProvider.getHistorikkinnslag2Repository())
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
         var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
-        var tekstlinjer = historikkinnslag.getTekstlinjer();
+        var linjer = historikkinnslag.getLinjer();
 
         // Assert
-        assertThat(tekstlinjer).hasSize(2);
-        assertThat(tekstlinjer.getFirst().getTekst()).contains("Mann adopterer", "Ja");
-        assertThat(tekstlinjer.get(1).getTekst()).contains(dto.getBegrunnelse());
+        assertThat(linjer).hasSize(2);
+        assertThat(linjer.getFirst().getTekst()).contains("Mann adopterer", "Ja");
+        assertThat(linjer.get(1).getTekst()).contains(dto.getBegrunnelse());
     }
 
 }

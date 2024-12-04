@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.aksjonspunkt;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -59,8 +59,8 @@ public class BeregningOverstyringshåndterer implements Overstyringshåndterer<O
                 .medFagsakId(behandling.getFagsakId())
                 .medBehandlingId(behandlingId)
                 .medTittel(SkjermlenkeType.BEREGNING_ENGANGSSTOENAD)
-                .addTekstlinje(fraTilEquals("__Overstyrt beregning:__ Beløpet", fraBeregning, tilBeregning))
-                .addTekstlinje(begrunnelse)
+                .addlinje(fraTilEquals("__Overstyrt beregning:__ Beløpet", fraBeregning, tilBeregning))
+                .addLinje(begrunnelse)
                 .build();
             historikkinnslagRepository.lagre(historikkinnslag);
         }

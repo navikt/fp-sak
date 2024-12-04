@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.format;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Tekstlinje;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Linje;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
@@ -91,7 +91,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
 
         // Assert
-        assertThat(historikkinnslag.getTekstlinjer().stream().map(Historikkinnslag2Tekstlinje::getTekst)).anyMatch(
+        assertThat(historikkinnslag.getLinjer().stream().map(Historikkinnslag2Linje::getTekst)).anyMatch(
             t -> t.contains("Bruk antall fra søknad"));
     }
 
@@ -126,7 +126,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
 
         // Assert
-        assertThat(historikkinnslag.getTekstlinjer().stream().map(Historikkinnslag2Tekstlinje::getTekst)).anyMatch(
+        assertThat(historikkinnslag.getLinjer().stream().map(Historikkinnslag2Linje::getTekst)).anyMatch(
                 t -> t.contains("Fødselsdato") && t.contains(format(opprinneligFødseldato)) && t.contains(format(avklartFødseldato)))
             .anyMatch(t -> t.contains("Antall barn") && t.contains(String.valueOf(avklartAntallBarn)))
             .anyMatch(t -> t.contains(dto.getBegrunnelse()));
@@ -170,7 +170,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
 
         // Assert
-        assertThat(historikkinnslag.getTekstlinjer().stream().map(Historikkinnslag2Tekstlinje::getTekst)).anyMatch(
+        assertThat(historikkinnslag.getLinjer().stream().map(Historikkinnslag2Linje::getTekst)).anyMatch(
                 t -> t.contains("Dødsdato") && t.contains(format(avklartDødsdato)))
             .anyMatch(t -> t.contains("Antall barn") && t.contains(String.valueOf(avklartAntallBarn)))
             .anyMatch(t -> t.contains(dto.getBegrunnelse()));
