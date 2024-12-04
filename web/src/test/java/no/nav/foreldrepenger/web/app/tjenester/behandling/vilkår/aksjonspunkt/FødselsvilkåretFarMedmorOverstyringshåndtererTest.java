@@ -61,10 +61,10 @@ class FødselsvilkåretFarMedmorOverstyringshåndtererTest {
 
         // Assert
         var historikkinnslagene = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId());
-        var tekstlinjer = historikkinnslagene.getFirst().getTekstlinjer();
-        assertThat(tekstlinjer).hasSize(2);
-        assertThat(tekstlinjer.getFirst().getTekst()).contains("Overstyrt vurdering", "ikke oppfylt");
-        assertThat(tekstlinjer.get(1).getTekst()).contains(overstyringDto.getBegrunnelse());
+        var linjer = historikkinnslagene.getFirst().getLinjer();
+        assertThat(linjer).hasSize(2);
+        assertThat(linjer.getFirst().getTekst()).contains("Overstyrt vurdering", "ikke oppfylt");
+        assertThat(linjer.get(1).getTekst()).contains(overstyringDto.getBegrunnelse());
 
         var aksjonspunktSet = behandling.getAksjonspunkter();
 

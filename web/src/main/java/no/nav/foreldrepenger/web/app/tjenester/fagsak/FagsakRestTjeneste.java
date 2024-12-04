@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.fagsak;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import java.net.URISyntaxException;
 import java.util.Collection;
@@ -289,7 +289,7 @@ public class FagsakRestTjeneste {
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(fagsak.getId())
             .medTittel("Fakta endret")
-            .addTekstlinje(fraTilEquals("Saksmarkering", fraVerdi, tilVerdi))
+            .addlinje(fraTilEquals("Saksmarkering", fraVerdi, tilVerdi))
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }

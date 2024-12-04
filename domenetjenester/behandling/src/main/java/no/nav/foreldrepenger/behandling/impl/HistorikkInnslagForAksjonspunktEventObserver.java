@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsa
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
@@ -61,12 +61,12 @@ public class HistorikkInnslagForAksjonspunktEventObserver {
                                                                       Venteårsak venteårsak) {
         var historikkinnslagBuilder = new Historikkinnslag2.Builder();
         if (fristTid != null) {
-            historikkinnslagBuilder.medTittel(tittel + " " + HistorikkinnslagTekstlinjeBuilder.format(fristTid.toLocalDate()));
+            historikkinnslagBuilder.medTittel(tittel + " " + HistorikkinnslagLinjeBuilder.format(fristTid.toLocalDate()));
         } else {
             historikkinnslagBuilder.medTittel(tittel);
         }
         if (venteårsak != null) {
-            historikkinnslagBuilder.addTekstlinje(venteårsak.getNavn());
+            historikkinnslagBuilder.addLinje(venteårsak.getNavn());
         }
         var erSystemBruker = Optional.ofNullable(KontekstHolder.getKontekst().getIdentType()).filter(IdentType::erSystem).isPresent() ||
             Optional.ofNullable(KontekstHolder.getKontekst().getUid()).map(String::toLowerCase).filter(s -> s.startsWith("srv")).isPresent();

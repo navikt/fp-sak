@@ -73,11 +73,11 @@ class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
         var historikk = historikkinnslag2Repository.hent(behandling.getId()).getFirst();
 
         //assert
-        assertThat(historikk.getTekstlinjer()).hasSize(3);
+        assertThat(historikk.getLinjer()).hasSize(3);
         assertThat(historikk.getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_OMSORG_OG_RETT);
-        assertThat(historikk.getTekstlinjer().getFirst().getTekst()).contains("Annen forelder har rett");
-        assertThat(historikk.getTekstlinjer().get(1).getTekst()).contains("Mor mottar uføretrygd");
-        assertThat(historikk.getTekstlinjer().get(2).getTekst()).contains(dto.getBegrunnelse());
+        assertThat(historikk.getLinjer().getFirst().getTekst()).contains("Annen forelder har rett");
+        assertThat(historikk.getLinjer().get(1).getTekst()).contains("Mor mottar uføretrygd");
+        assertThat(historikk.getLinjer().get(2).getTekst()).contains(dto.getBegrunnelse());
     }
 
     @Test

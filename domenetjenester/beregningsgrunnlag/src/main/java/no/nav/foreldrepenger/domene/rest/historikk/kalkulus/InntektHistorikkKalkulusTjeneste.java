@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.domene.rest.historikk.kalkulus;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeløpEndring;
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningsgrunnlagPrStatusOgAndelEndring;
@@ -34,12 +34,12 @@ public class InntektHistorikkKalkulusTjeneste {
         this.arbeidsgiverHistorikkinnslag = arbeidsgiverHistorikkinnslag;
     }
 
-    public Optional<HistorikkinnslagTekstlinjeBuilder> lagHistorikkOmEndret(List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer, BeregningsgrunnlagPrStatusOgAndelEndring andelEndring) {
+    public Optional<HistorikkinnslagLinjeBuilder> lagHistorikkOmEndret(List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer, BeregningsgrunnlagPrStatusOgAndelEndring andelEndring) {
         return andelEndring.getInntektEndring()
             .map(endring -> opprettInntektHistorikk(arbeidsforholdOverstyringer, andelEndring, endring));
     }
 
-    private HistorikkinnslagTekstlinjeBuilder opprettInntektHistorikk(List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer, BeregningsgrunnlagPrStatusOgAndelEndring andelEndring, BeløpEndring beløpEndring) {
+    private HistorikkinnslagLinjeBuilder opprettInntektHistorikk(List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer, BeregningsgrunnlagPrStatusOgAndelEndring andelEndring, BeløpEndring beløpEndring) {
         if (andelEndring.getAktivitetStatus().erArbeidstaker() && OpptjeningAktivitetType.ETTERLØNN_SLUTTPAKKE.equals(andelEndring.getArbeidsforholdType())) {
             return fraTilEquals("Fastsett søkers månedsinntekt fra etterlønn eller sluttpakke", beløpEndring.getFraMånedsbeløp(), beløpEndring.getTilMånedsbeløp());
         } else if (andelEndring.getAktivitetStatus().erFrilanser()) {

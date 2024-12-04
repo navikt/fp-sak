@@ -9,7 +9,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
@@ -21,7 +21,7 @@ import org.jboss.weld.exceptions.UnsupportedOperationException;
 import java.util.Objects;
 import java.util.Optional;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 @ApplicationScoped
 class HistorikkSammeBarnTjeneste {
@@ -49,13 +49,13 @@ class HistorikkSammeBarnTjeneste {
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())
             .medTittel(getSkjermlenkeType(vilkårType, dto.getAksjonspunktDefinisjon()))
-            .addTekstlinje(vilkårResultatTekst(relevantVilkårPåBehandling, dto))
-            .addTekstlinje(dto.getBegrunnelse())
+            .addlinje(vilkårResultatTekst(relevantVilkårPåBehandling, dto))
+            .addLinje(dto.getBegrunnelse())
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }
 
-    private static HistorikkinnslagTekstlinjeBuilder vilkårResultatTekst(Vilkår relevantVilkårPåBehandling, AvslagbartAksjonspunktDto dto) {
+    private static HistorikkinnslagLinjeBuilder vilkårResultatTekst(Vilkår relevantVilkårPåBehandling, AvslagbartAksjonspunktDto dto) {
         var navn = finnTekstForFelt(relevantVilkårPåBehandling);
         var gjeldendeVilkårUtfall = relevantVilkårPåBehandling.getGjeldendeVilkårUtfall();
         var nyttVilkårUtfall = vilkårUtfallTypeFra(dto);

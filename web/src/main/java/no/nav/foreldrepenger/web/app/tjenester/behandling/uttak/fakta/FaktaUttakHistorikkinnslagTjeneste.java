@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.format;
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.format;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -15,7 +15,7 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
@@ -53,13 +53,13 @@ public class FaktaUttakHistorikkinnslagTjeneste {
             .medFagsakId(fagsakId)
             .medBehandlingId(behandlingId)
             .medTittel(SkjermlenkeType.FAKTA_UTTAK)
-            .addTekstlinje(overstyring ? "Overstyrt vurdering:" : null);
-        perioderMedEndringer.forEach(historikkinnslagBuilder::addTekstlinje);
-        historikkinnslagBuilder.addTekstlinje(begrunnelse);
+            .addLinje(overstyring ? "Overstyrt vurdering:" : null);
+        perioderMedEndringer.forEach(historikkinnslagBuilder::addlinje);
+        historikkinnslagBuilder.addLinje(begrunnelse);
         historikkinnslagRepository.lagre(historikkinnslagBuilder.build());
     }
 
-    private List<HistorikkinnslagTekstlinjeBuilder> lagTekstForPerioderSomErEndret(List<OppgittPeriodeEntitet> eksisterendePerioder, List<OppgittPeriodeEntitet> oppdatertePerioder) {
+    private List<HistorikkinnslagLinjeBuilder> lagTekstForPerioderSomErEndret(List<OppgittPeriodeEntitet> eksisterendePerioder, List<OppgittPeriodeEntitet> oppdatertePerioder) {
         var eksisterendeSegment = eksisterendePerioder.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), p)).toList();
         var oppdaterteSegment = oppdatertePerioder.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), p)).toList();
         var diffTidslinje = new LocalDateTimeline<>(oppdaterteSegment).combine(new LocalDateTimeline<>(eksisterendeSegment),

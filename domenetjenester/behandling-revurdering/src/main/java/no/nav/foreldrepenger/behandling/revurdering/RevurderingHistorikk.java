@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.behandling.revurdering;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.format;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.format;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 
 /**
  * Lag historikk innslag ved revurdering.
@@ -36,7 +36,7 @@ public class RevurderingHistorikk {
             .medFagsakId(behandling.getFagsakId())
             .medAktør(historikkAktør)
             .medTittel("Revurdering opprettet")
-            .addTekstlinje(revurderingsÅrsak.getNavn())
+            .addLinje(revurderingsÅrsak.getNavn())
             .build();
         historikkRepository.lagre(historikkinnslag);
     }
@@ -48,8 +48,8 @@ public class RevurderingHistorikk {
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
-            .addTekstlinje("Fødselsdato: " + fødselsdatoVerdi)
-            .addTekstlinje("Antall barn: " + barnFødtIPeriode.size())
+            .addLinje("Fødselsdato: " + fødselsdatoVerdi)
+            .addLinje("Antall barn: " + barnFødtIPeriode.size())
             .build();
         historikkRepository.lagre(historikkinnslag);
 
@@ -59,7 +59,7 @@ public class RevurderingHistorikk {
         if (barnFødtIPeriode.size() > 1) {
             SortedSet<LocalDate> fødselsdatoer = new TreeSet<>(
                     barnFødtIPeriode.stream().map(FødtBarnInfo::fødselsdato).collect(Collectors.toSet()));
-            return fødselsdatoer.stream().map(HistorikkinnslagTekstlinjeBuilder::format).collect(Collectors.joining(", "));
+            return fødselsdatoer.stream().map(HistorikkinnslagLinjeBuilder::format).collect(Collectors.joining(", "));
         }
         return format(barnFødtIPeriode.getFirst().fødselsdato());
     }
@@ -70,7 +70,7 @@ public class RevurderingHistorikk {
             .medBehandlingId(behandlingId)
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medTittel("Behandlingen er satt på vent")
-            .addTekstlinje("Søker eller den andre forelderen har en åpen behandling")
+            .addLinje("Søker eller den andre forelderen har en åpen behandling")
             .build();
         historikkRepository.lagre(historikkinnslag1);
     }

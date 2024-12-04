@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsgrunnlag;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -46,8 +46,8 @@ public class KontrollerBesteberegningOppdaterer implements AksjonspunktOppdatere
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())
             .medTittel(SkjermlenkeType.BESTEBEREGNING)
-            .addTekstlinje(fraTilEquals("Godkjenning av automatisk besteberegning", null, dto.getBesteberegningErKorrekt()))
-            .addTekstlinje(dto.getBegrunnelse())
+            .addlinje(fraTilEquals("Godkjenning av automatisk besteberegning", null, dto.getBesteberegningErKorrekt()))
+            .addLinje(dto.getBegrunnelse())
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }

@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.domene.opptjening.aksjonspunkt;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import java.util.List;
 
@@ -81,8 +81,8 @@ public class AvklarOpptjeningsvilkåretOppdaterer implements AksjonspunktOppdate
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())
             .medTittel(SkjermlenkeType.PUNKT_FOR_OPPTJENING)
-            .addTekstlinje(fraTilEquals("Opptjeningsvilkåret", null, nyVerdi))
-            .addTekstlinje(begrunnelse)
+            .addlinje(fraTilEquals("Opptjeningsvilkåret", null, nyVerdi))
+            .addLinje(begrunnelse)
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }

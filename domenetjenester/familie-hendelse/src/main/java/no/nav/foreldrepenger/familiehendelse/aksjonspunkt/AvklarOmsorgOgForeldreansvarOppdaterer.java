@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt�
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
@@ -109,14 +109,14 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
                 .medTittel(getSkjermlenkeType(param.getRef().fagsakYtelseType()))
                 .medBehandlingId(param.getBehandlingId())
                 .medFagsakId(param.getFagsakId())
-                .addTekstlinje(HistorikkinnslagTekstlinjeBuilder.fraTilEquals("Omsorgsovertakelsesdato", originalOmsorgsovertakelseDato,
+                .addlinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Omsorgsovertakelsesdato", originalOmsorgsovertakelseDato,
                     dto.getOmsorgsovertakelseDato()));
 
             if (nyttVilk책rType) {
-                historikkBuilder.addTekstlinje(new HistorikkinnslagTekstlinjeBuilder().til("Vilk책r som anvendes", finnTekstBasertP책Omsorgsvilk책r(
+                historikkBuilder.addlinje(new HistorikkinnslagLinjeBuilder().til("Vilk책r som anvendes", finnTekstBasertP책Omsorgsvilk책r(
                     vilk책rType)));
             }
-            historikkinnslag2Repository.lagre(historikkBuilder.addTekstlinje(dto.getBegrunnelse()).build());
+            historikkinnslag2Repository.lagre(historikkBuilder.addLinje(dto.getBegrunnelse()).build());
         }
         return erEndret;
     }

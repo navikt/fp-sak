@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -109,8 +109,8 @@ public class ArbeidInntektHistorikkinnslagTjeneste {
             .medTittel(SkjermlenkeType.FAKTA_OM_ARBEIDSFORHOLD_INNTEKTSMELDING)
             .medBehandlingId(behandlingReferanse.behandlingId())
             .medFagsakId(behandlingReferanse.fagsakId())
-            .addTekstlinje(fraTilEquals("Arbeidsforhold hos " + arbeidsforholdNavn, null, fraArbeidsforholdKomplettVurderingType(tilVerdi)))
-            .addTekstlinje(begrunnelse)
+            .addlinje(fraTilEquals("Arbeidsforhold hos " + arbeidsforholdNavn, null, fraArbeidsforholdKomplettVurderingType(tilVerdi)))
+            .addLinje(begrunnelse)
             .build();
 
         historikkinnslagRepository.lagre(historikkinnslag);

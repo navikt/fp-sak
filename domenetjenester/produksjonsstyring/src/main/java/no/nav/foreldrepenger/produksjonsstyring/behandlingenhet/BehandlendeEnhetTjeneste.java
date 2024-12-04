@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -230,8 +230,8 @@ public class BehandlendeEnhetTjeneste {
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())
             .medTittel("Bytt enhet")
-            .addTekstlinje(fraTilEquals("Behandlende enhet", fraMessage, nyEnhet.enhetId() + " " + nyEnhet.enhetNavn()))
-            .addTekstlinje(begrunnelse)
+            .addlinje(fraTilEquals("Behandlende enhet", fraMessage, nyEnhet.enhetId() + " " + nyEnhet.enhetNavn()))
+            .addLinje(begrunnelse)
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }

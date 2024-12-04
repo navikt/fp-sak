@@ -6,7 +6,7 @@ import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
@@ -21,16 +21,16 @@ import no.nav.foreldrepenger.domene.rest.dto.VurderSelvstendigNæringsdrivendeNy
 public class VurderSNNyIArbeidslivetHistorikkTjeneste extends FaktaOmBeregningHistorikkTjeneste {
 
     @Override
-    public List<HistorikkinnslagTekstlinjeBuilder> lagHistorikk(FaktaBeregningLagreDto dto,
-                                                                BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
-                                                                Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
-                                                                InntektArbeidYtelseGrunnlag iayGrunnlag) {
+    public List<HistorikkinnslagLinjeBuilder> lagHistorikk(FaktaBeregningLagreDto dto,
+                                                           BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
+                                                           Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
+                                                           InntektArbeidYtelseGrunnlag iayGrunnlag) {
         var nyIArbeidslivetDto = dto.getVurderNyIArbeidslivet();
         var opprinneligNyIArbeidslivetVerdi = getOpprinneligNyIArbeidslivetVerdi(forrigeGrunnlag);
-        List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder = new ArrayList<>();
-        tekstlinjerBuilder.add(lagHistorikkInnslag(nyIArbeidslivetDto, opprinneligNyIArbeidslivetVerdi));
+        List<HistorikkinnslagLinjeBuilder> linjerBuilder = new ArrayList<>();
+        linjerBuilder.add(lagHistorikkInnslag(nyIArbeidslivetDto, opprinneligNyIArbeidslivetVerdi));
 
-        return tekstlinjerBuilder;
+        return linjerBuilder;
     }
 
     private Boolean getOpprinneligNyIArbeidslivetVerdi(Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag) {
@@ -44,12 +44,12 @@ public class VurderSNNyIArbeidslivetHistorikkTjeneste extends FaktaOmBeregningHi
             .orElse(null);
     }
 
-    private HistorikkinnslagTekstlinjeBuilder lagHistorikkInnslag(VurderSelvstendigNæringsdrivendeNyIArbeidslivetDto dto,
-                                                                  Boolean opprinneligNyIArbeidslivetVerdi) {
+    private HistorikkinnslagLinjeBuilder lagHistorikkInnslag(VurderSelvstendigNæringsdrivendeNyIArbeidslivetDto dto,
+                                                             Boolean opprinneligNyIArbeidslivetVerdi) {
         var opprinneligVerdi = konvertBooleanTilFaktaEndretVerdiType(opprinneligNyIArbeidslivetVerdi);
         var nyVerdi = konvertBooleanTilFaktaEndretVerdiType(dto.erNyIArbeidslivet());
         if (opprinneligVerdi != nyVerdi) {
-            return new HistorikkinnslagTekstlinjeBuilder().fraTil("Selvstendig næringsdrivende", opprinneligVerdi, nyVerdi);
+            return new HistorikkinnslagLinjeBuilder().fraTil("Selvstendig næringsdrivende", opprinneligVerdi, nyVerdi);
         }
         return null;
     }

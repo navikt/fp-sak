@@ -34,8 +34,8 @@ class DokumentBestiltTest {
 
         assertThat(historikkinnslag.getAktør()).isEqualTo(saksbehandler);
         assertThat(historikkinnslag.getTittel()).isEqualTo("Brev bestilt");
-        assertThat(historikkinnslag.getTekstlinjer()).hasSize(1);
-        assertThat(historikkinnslag.getTekstlinjer().getFirst().getTekst()).containsSubsequence(journalførSom.getNavn(), malBrukt.getNavn());
+        assertThat(historikkinnslag.getLinjer()).hasSize(1);
+        assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).containsSubsequence(journalførSom.getNavn(), malBrukt.getNavn());
     }
 
     @Test
@@ -55,8 +55,8 @@ class DokumentBestiltTest {
 
         assertThat(historikkinnslag.getAktør()).isEqualTo(saksbehandler);
         assertThat(historikkinnslag.getTittel()).isEqualTo("Brev bestilt");
-        assertThat(historikkinnslag.getTekstlinjer()).hasSize(1);
-        assertThat(historikkinnslag.getTekstlinjer().getFirst().getTekst()).containsSubsequence(malBrukt.getNavn());
+        assertThat(historikkinnslag.getLinjer()).hasSize(1);
+        assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).containsSubsequence(malBrukt.getNavn());
     }
 
     private DokumentBestilling lagBestilling(DokumentMalType dokumentMal, DokumentMalType journalførSomMal) {
