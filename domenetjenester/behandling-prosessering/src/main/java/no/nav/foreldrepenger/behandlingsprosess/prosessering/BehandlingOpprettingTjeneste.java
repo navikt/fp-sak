@@ -95,7 +95,6 @@ public class BehandlingOpprettingTjeneste {
                 beh.setBehandlingstidFrist(LocalDate.now().plusWeeks(behandlingType.getBehandlingstidFristUker()));
                 beh.setBehandlendeEnhet(enhet);
             });
-        // TODO: historikk blir satt til true som ikke har disse behandlingtypene... Da vil man ikke lage historikkinnslag. Bør ryddes opp i.
         if (historikk && Set.of(BehandlingType.ANKE, BehandlingType.INNSYN, BehandlingType.KLAGE).contains(behandlingType)) {
             opprettHistorikkinnslag(behandling, behandlingType);
         }

@@ -37,6 +37,7 @@ public class HistorikkinnslagTekstlinjeBuilder {
     }
 
     public HistorikkinnslagTekstlinjeBuilder linjeskift() {
+        //TODO TFP-5554 linjeskift ut av builder?
         stringBuilder.append(LINJESKIFT);
         return this;
     }
@@ -53,8 +54,6 @@ public class HistorikkinnslagTekstlinjeBuilder {
             return bold(hva).tekst("er satt til").bold(til);
         }
         if (til == null) {
-            //TODO TFP-5554 tekst for at noe er fjernet. Trenger vi?
-            // Brukes nå av FaktaUttakFellesTjeneste
             return bold(hva).bold(fra).tekst("er fjernet");
         }
         return bold(hva).tekst("er endret fra").tekst(fra).tekst("til").bold(til);
