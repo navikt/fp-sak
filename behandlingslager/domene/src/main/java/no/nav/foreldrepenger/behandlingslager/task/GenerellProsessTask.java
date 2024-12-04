@@ -23,6 +23,6 @@ public abstract class GenerellProsessTask implements ProsessTaskHandler {
     protected abstract void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId);
 
     private Long getBehandlingId(ProsessTaskData data) {
-        return data.getBehandlingId() != null ? Long.valueOf(data.getBehandlingId()) : null;
+        return data.getBehandlingIdAsLong();
     }
 }

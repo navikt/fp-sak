@@ -128,7 +128,6 @@ public class ForvaltningBehandlingRestTjeneste {
         var prosessTaskData = ProsessTaskData.forProsessTask(HenleggFlyttFagsakTask.class);
         prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
         prosessTaskData.setProperty(HenleggFlyttFagsakTask.HENLEGGELSE_TYPE_KEY, henleggelseType.getKode());
-        prosessTaskData.setCallIdFraEksisterende();
 
         taskTjeneste.lagre(prosessTaskData);
     }
@@ -194,7 +193,6 @@ public class ForvaltningBehandlingRestTjeneste {
         prosessTaskData.setFagsak(saksnummer.getVerdi(), fagsakId);
         prosessTaskData.setProperty(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY, mottattDokument.getId().toString());
         prosessTaskData.setProperty(HåndterMottattDokumentTask.BEHANDLING_ÅRSAK_TYPE_KEY, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING.getKode());
-        prosessTaskData.setCallIdFraEksisterende();
 
         taskTjeneste.lagre(prosessTaskData);
     }

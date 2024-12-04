@@ -93,7 +93,6 @@ public class InnhentIAYIAbakusTask extends GenerellProsessTask {
 
     private void settTaskPåVent(ProsessTaskData prosessTaskData) {
         prosessTaskData.venterPåHendelse(IAY_REGISTERDATA_CALLBACK);
-        prosessTaskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(prosessTaskData);
     }
 }

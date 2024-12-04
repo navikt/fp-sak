@@ -80,7 +80,6 @@ public class OppdaterFagsakStatusTjeneste {
         } else {
             prosessTaskData.setFagsak(fagsak.getSaksnummer().getVerdi(), fagsak.getId());
         }
-        prosessTaskData.setCallIdFraEksisterende();
         prosessTaskTjeneste.lagre(prosessTaskData);
     }
 

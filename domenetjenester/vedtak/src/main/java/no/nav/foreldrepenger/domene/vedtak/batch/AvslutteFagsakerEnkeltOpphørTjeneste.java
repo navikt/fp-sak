@@ -7,6 +7,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -70,6 +71,7 @@ public class AvslutteFagsakerEnkeltOpphørTjeneste {
 
         var dato = LocalDate.now();
         var baseline = LocalTime.now();
+        var callId = Optional.ofNullable(MDCOperations.getCallId()).orElseGet(MDCOperations::generateCallId);
 
         for (var fagsak : aktuelleFagsaker) {
             var sisteBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).orElseThrow(() -> new IllegalStateException("Ugyldig tilstand for faksak " + fagsak.getSaksnummer()));
@@ -79,10 +81,8 @@ public class AvslutteFagsakerEnkeltOpphørTjeneste {
                 LOG.info("AvslutteFagsakerEnkeltOpphørTjeneste: Sak med {} oppfyller kriteriene. Opphørsdato + 3 måneder: {}", fagsak.getSaksnummer().toString(), leggPåSøknadsfristMåneder(opphørsdato));
 
                 if (LocalDate.now().isAfter(leggPåSøknadsfristMåneder(opphørsdato))) {
-                    var callId = MDCOperations.getCallId();
-                    callId = (callId == null ? MDCOperations.generateCallId() : callId) + "_";
 
-                    var avslutningstaskData = opprettFagsakAvslutningTask(fagsak, callId + fagsak.getSaksnummer(), dato, baseline, 7199);
+                    var avslutningstaskData = opprettFagsakAvslutningTask(fagsak, callId, dato, baseline, 7199);
                     taskTjeneste.lagre(avslutningstaskData);
 
                     LOG.info("AvslutteFagsakerEnkeltOpphørTjeneste: Sak med {} vil avsluttes.", fagsak.getSaksnummer().toString());
@@ -124,7 +124,7 @@ public class AvslutteFagsakerEnkeltOpphørTjeneste {
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskFagsakAvslutningTask.class);
         prosessTaskData.setFagsak(fagsak.getSaksnummer().getVerdi(), fagsak.getId());
         prosessTaskData.setNesteKjøringEtter(nesteKjøring);
-        prosessTaskData.setCallId(callId);
+        prosessTaskData.setCallId(callId + "_" + fagsak.getId());
         return prosessTaskData;
     }
 }

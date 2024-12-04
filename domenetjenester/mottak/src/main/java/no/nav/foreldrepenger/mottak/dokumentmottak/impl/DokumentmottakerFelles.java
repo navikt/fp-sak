@@ -85,7 +85,6 @@ public class DokumentmottakerFelles {
     void opprettTaskForÅStarteBehandling(Behandling behandling) {
         var prosessTaskData = ProsessTaskData.forProsessTask(StartBehandlingTask.class);
         prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
-        prosessTaskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(prosessTaskData);
     }
 
@@ -97,7 +96,6 @@ public class DokumentmottakerFelles {
         prosessTaskData.setProperty(OpprettOppgaveVurderDokumentTask.KEY_BEHANDLENDE_ENHET, behandlendeEnhetsId);
         prosessTaskData.setProperty(OpprettOppgaveVurderDokumentTask.KEY_DOKUMENT_TYPE, mottattDokument.getDokumentType().getKode());
         prosessTaskData.setFagsak(fagsak.getSaksnummer().getVerdi(), fagsak.getId());
-        prosessTaskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(prosessTaskData);
     }
 

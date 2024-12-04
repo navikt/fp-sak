@@ -141,7 +141,6 @@ class StønadskontoMigreringTask implements ProsessTaskHandler {
         prosessTaskData.setProperty(StønadskontoMigreringTask.FRA_ID, fraVedtakId == null ? null : String.valueOf(fraVedtakId));
         prosessTaskData.setProperty(StønadskontoMigreringTask.MAX_ID, maxId == null ? null : String.valueOf(maxId));
         prosessTaskData.setProperty(StønadskontoMigreringTask.DRY_RUN, String.valueOf(dryRun));
-        prosessTaskData.setCallIdFraEksisterende();
         return prosessTaskData;
     }
 }

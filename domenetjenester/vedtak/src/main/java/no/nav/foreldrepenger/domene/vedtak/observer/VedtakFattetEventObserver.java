@@ -61,7 +61,6 @@ public class VedtakFattetEventObserver {
         var taskData = ProsessTaskData.forProsessTask(PubliserVedtattYtelseHendelseTask.class);
         taskData.setBehandling(vedtakEvent.getSaksnummer().getVerdi(), vedtakEvent.getFagsakId(), vedtakEvent.getBehandlingId());
         taskData.setProperty(PubliserVedtattYtelseHendelseTask.KEY, vedtakEvent.getBehandlingId().toString());
-        taskData.setCallIdFraEksisterende();
         taskRepository.lagre(taskData);
     }
 

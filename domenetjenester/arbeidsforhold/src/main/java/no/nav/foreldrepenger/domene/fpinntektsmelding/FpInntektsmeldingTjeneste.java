@@ -68,7 +68,6 @@ public class FpInntektsmeldingTjeneste {
     public void lagForespørselTask(String ag, BehandlingReferanse ref) {
         var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(FpinntektsmeldingTask.class));
         taskdata.setBehandling(ref.saksnummer().getVerdi(), ref.fagsakId(), ref.behandlingId());
-        taskdata.setCallIdFraEksisterende();
         var gruppeId = String.format(GRUPPE_ID, ref.saksnummer().getVerdi());
         taskdata.setGruppe(gruppeId);
         taskdata.setSekvens(String.valueOf(Instant.now().toEpochMilli()));
@@ -165,7 +164,6 @@ public class FpInntektsmeldingTjeneste {
         var behandlingId = behandling.getId();
         var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(LukkForespørslerImTask.class));
         taskdata.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandlingId);
-        taskdata.setCallIdFraEksisterende();
         if (orgNummer != null) {
             taskdata.setProperty(LukkForespørslerImTask.ORG_NUMMER, orgNummer.getId());
         }

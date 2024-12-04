@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.kontrakter.risk.v1.LagreFaresignalVurderingDto;
 import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingRequestDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-import no.nav.vedtak.log.mdc.MDCOperations;
 
 @ApplicationScoped
 public class RisikovurderingTjeneste {
@@ -70,12 +69,8 @@ public class RisikovurderingTjeneste {
             LOG.info("Risikoklassifisering er allerede blitt utført på behandling " + referanse.behandlingId());
         } else {
             LOG.info("Oppretter task for risikoklassifisering på behandling " + referanse.behandlingId());
-            var callId = MDCOperations.getCallId();
-            if (callId == null || callId.isBlank())
-                callId = MDCOperations.generateCallId();
             var taskData = ProsessTaskData.forProsessTask(RisikoklassifiseringUtførTask.class);
             taskData.setBehandling(referanse.saksnummer().getVerdi(), referanse.fagsakId(), referanse.behandlingId());
-            taskData.setCallId(callId);
             prosessTaskTjeneste.lagre(taskData);
         }
     }

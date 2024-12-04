@@ -114,7 +114,6 @@ public class VurderOpphørAvYtelser {
         var prosessTaskData = ProsessTaskData.forProsessTask(HåndterOpphørAvYtelserTask.class);
         prosessTaskData.setFagsak(sakOpphør.getSaksnummer().getVerdi(), sakOpphør.getId());
         prosessTaskData.setProperty(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY, String.format("Overlapp identifisert: Vurder saksnr %s vedtak i saksnr %s", sakOpphør.getSaksnummer(), fersktVedtak.getSaksnummer()));
-        prosessTaskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(prosessTaskData);
     }
 
@@ -129,7 +128,6 @@ public class VurderOpphørAvYtelser {
         }
 
         prosessTaskData.setFagsak(sakOpphør.getSaksnummer().getVerdi(), sakOpphør.getId());
-        prosessTaskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(prosessTaskData);
     }
 

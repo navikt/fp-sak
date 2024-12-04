@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.vedtak.batch;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -35,15 +36,13 @@ public class AutomatiskFagsakAvslutningTjeneste {
     String avsluttFagsaker(String batchname, LocalDate date) {
         var fagsaker = fagsakRelasjonTjeneste.finnFagsakerForAvsluttning(date);
 
-        var callId = MDCOperations.getCallId();
-        callId = (callId == null ? MDCOperations.generateCallId() : callId) + "_";
+        var callId = Optional.ofNullable(MDCOperations.getCallId()).orElseGet(MDCOperations::generateCallId);
 
         var dato = LocalDate.now();
         var baseline = LocalTime.now();
 
         for (var fagsak : fagsaker) {
-            var nyCallId = callId + fagsak.getId();
-            var task = opprettFagsakAvslutningTask(fagsak, nyCallId, dato, baseline, 10799); // Spre kjøring utover 3 timer
+            var task = opprettFagsakAvslutningTask(fagsak, callId, dato, baseline, 10799); // Spre kjøring utover 3 timer
             taskTjeneste.lagre(task);
         }
         return batchname + "-" + UUID.randomUUID();
@@ -55,7 +54,7 @@ public class AutomatiskFagsakAvslutningTjeneste {
         prosessTaskData.setFagsak(fagsak.getSaksnummer().getVerdi(), fagsak.getId());
         prosessTaskData.setNesteKjøringEtter(nesteKjøring);
         // unik per task da det er ulike tasks for hver behandling
-        prosessTaskData.setCallId(callId);
+        prosessTaskData.setCallId(callId + "_" + fagsak.getId());
         return prosessTaskData;
     }
 

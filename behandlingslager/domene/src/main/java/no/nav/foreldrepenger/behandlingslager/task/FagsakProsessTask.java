@@ -58,6 +58,6 @@ public abstract class FagsakProsessTask implements ProsessTaskHandler {
     }
 
     private Long getBehandlingId(ProsessTaskData data) {
-        return data.getBehandlingId() != null ? Long.valueOf(data.getBehandlingId()) : null;
+        return data.getBehandlingIdAsLong();
     }
 }

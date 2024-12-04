@@ -75,7 +75,7 @@ public class GrunnbeløpFinnSakerTask implements ProsessTaskHandler {
         }
         boolean revurder = Optional.ofNullable(prosessTaskData.getPropertyValue(REVURDERING_KEY)).map(Boolean::parseBoolean).orElse(false);
         if (MDCOperations.getCallId() == null) MDCOperations.putCallId();
-        var callIdRoot = MDCOperations.getCallId() + "_";
+        var callIdRoot = MDCOperations.getCallId();
 
         var gFomDato = finnGjeldendeGrunnbeløpFomDato();
         if (gFomDato == null) {
@@ -132,7 +132,7 @@ public class GrunnbeløpFinnSakerTask implements ProsessTaskHandler {
     private void opprettReguleringTask(Long fagsakId, Saksnummer saksnummer, String callId) {
         var prosessTaskData = ProsessTaskData.forProsessTask(GrunnbeløpReguleringTask.class);
         prosessTaskData.setFagsak(saksnummer.getVerdi(), fagsakId);
-        prosessTaskData.setCallId(callId + fagsakId);
+        prosessTaskData.setCallId(callId + "_" + fagsakId);
         taskTjeneste.lagre(prosessTaskData);
     }
 }

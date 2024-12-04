@@ -77,7 +77,6 @@ public class VurderFormkrafNkSteg implements BehandlingSteg {
 
                 var tilKabalTask = ProsessTaskData.forProsessTask(SendTilKabalTask.class);
                 tilKabalTask.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
-                tilKabalTask.setCallIdFraEksisterende();
                 tilKabalTask.setProperty(SendTilKabalTask.HJEMMEL_KEY, klageHjemmel.getKode());
                 taskTjeneste.lagre(tilKabalTask);
                 var frist = LocalDateTime.now().plusYears(3);

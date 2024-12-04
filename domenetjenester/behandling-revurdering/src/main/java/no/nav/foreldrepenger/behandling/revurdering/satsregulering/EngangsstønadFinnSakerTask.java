@@ -50,7 +50,7 @@ public class EngangsstønadFinnSakerTask implements ProsessTaskHandler {
     public void doTask(ProsessTaskData prosessTaskData) {
         boolean revurder = Optional.ofNullable(prosessTaskData.getPropertyValue(REVURDERING_KEY)).map(Boolean::parseBoolean).orElse(false);
         if (MDCOperations.getCallId() == null) MDCOperations.putCallId();
-        var callIdRoot = MDCOperations.getCallId() + "_";
+        var callIdRoot = MDCOperations.getCallId();
 
         var esFomDato = finnGjeldendeSatsFomDato();
         if (esFomDato == null) {
@@ -77,7 +77,7 @@ public class EngangsstønadFinnSakerTask implements ProsessTaskHandler {
     private void opprettReguleringTask(Long fagsakId, Saksnummer saksnummer, String callId) {
         var prosessTaskData = ProsessTaskData.forProsessTask(EngangsstønadReguleringTask.class);
         prosessTaskData.setFagsak(saksnummer.getVerdi(), fagsakId);
-        prosessTaskData.setCallId(callId + fagsakId);
+        prosessTaskData.setCallId(callId + "_" + fagsakId);
         taskTjeneste.lagre(prosessTaskData);
     }
 

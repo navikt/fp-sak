@@ -162,7 +162,6 @@ public class ForretningshendelseMottak {
         taskData.setProperty(MottaHendelseFagsakTask.PROPERTY_HENDELSE_TYPE, hendelseType.getKode());
         taskData.setProperty(MottaHendelseFagsakTask.PROPERTY_ÅRSAK_TYPE, behandlingÅrsakType.getKode());
         taskData.setFagsak(fagsak.getSaksnummer().getVerdi(), fagsak.getId());
-        taskData.setCallIdFraEksisterende();
         if (IS_PROD && LocalTime.now().isBefore(OPPDRAG_VÅKNER)) {
             // Porsjoner utover neste 7 min
             taskData.setNesteKjøringEtter(LocalDateTime.of(LocalDate.now(), OPPDRAG_VÅKNER.plusSeconds(LocalDateTime.now().getNano() % 1739)));
@@ -199,7 +198,6 @@ public class ForretningshendelseMottak {
     private ProsessTaskData opprettOppdaterEnhetTask(Behandling behandling) {
         var prosessTaskData = ProsessTaskData.forProsessTask(OppdaterBehandlendeEnhetTask.class);
         prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
-        prosessTaskData.setCallIdFraEksisterende();
         return prosessTaskData;
     }
 }

@@ -97,7 +97,6 @@ public class HenleggBehandlingTjeneste {
     private void startTaskForDekøingAvBerørtBehandling(Behandling behandling) {
         var taskData = ProsessTaskData.forProsessTask(StartBerørtBehandlingTask.class);
         taskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
-        taskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(taskData);
     }
 

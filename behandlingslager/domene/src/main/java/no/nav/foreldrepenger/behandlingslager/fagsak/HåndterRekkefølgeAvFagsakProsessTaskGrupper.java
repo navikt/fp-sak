@@ -78,7 +78,7 @@ public class HåndterRekkefølgeAvFagsakProsessTaskGrupper implements ProsessTas
             try (var handler = LocalProsessTaskHandlerRef.lookup(task.taskType())) {
                 var rekkefølge = handler.getFagsakProsesstaskRekkefølge();
                 var sekvensNr = rekkefølge.gruppeSekvens() ? gruppeSekvensNr : null;
-                repository.lagre(new FagsakProsessTask(task.getFagsakId(), task.getId(), getBehandlingId(task), sekvensNr));
+                repository.lagre(new FagsakProsessTask(task.getFagsakId(), task.getId(), task.getBehandlingIdAsLong(), sekvensNr));
             }
         }
     }
@@ -90,10 +90,6 @@ public class HåndterRekkefølgeAvFagsakProsessTaskGrupper implements ProsessTas
      */
     protected Long getGruppeSekvensNr() {
         return Instant.now().toEpochMilli();
-    }
-
-    private Long getBehandlingId(ProsessTaskData data) {
-        return data.getBehandlingId() != null ? Long.valueOf(data.getBehandlingId()) : null;
     }
 
     private static class LocalProsessTaskHandlerRef extends ProsessTaskHandlerRef {

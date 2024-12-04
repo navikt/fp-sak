@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Period;
+import java.util.Optional;
 import java.util.Properties;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -17,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.log.mdc.MDCOperations;
 
 @ApplicationScoped
 public class SendInformasjonsbrevPåminnelseBatchTjeneste implements BatchTjeneste {
@@ -40,13 +42,14 @@ public class SendInformasjonsbrevPåminnelseBatchTjeneste implements BatchTjenes
         }
         LOG.info("Ser etter aktuelle saker med barn født mellom {} og {}", periode.fom(), periode.tom());
         var saker = informasjonssakRepository.finnSakerDerMedforelderIkkeHarSøktOgBarnetBleFødtInnenforIntervall(periode.fom(), periode.tom());
+        var callId = Optional.ofNullable(MDCOperations.getCallId()).orElseGet(MDCOperations::generateCallId);
         var baseline = LocalTime.now();
         saker.forEach(sak -> {
             LOG.info("Oppretter informasjonsbrev-påminnelse task for {}", sak.saksnummer().getVerdi());
             var data = ProsessTaskData.forProsessTask(SendInformasjonsbrevPåminnelseTask.class);
-            data.setCallIdFraEksisterende();
             data.setNesteKjøringEtter(LocalDateTime.of(LocalDate.now(), baseline.plusSeconds(LocalDateTime.now().getNano() % 419)));
             data.setFagsak(sak.saksnummer().getVerdi(), sak.fagsakId());
+            data.setCallId(callId + "_" + sak.fagsakId());
             taskTjeneste.lagre(data);
         });
         return BATCHNAVN + "-" + saker.size();

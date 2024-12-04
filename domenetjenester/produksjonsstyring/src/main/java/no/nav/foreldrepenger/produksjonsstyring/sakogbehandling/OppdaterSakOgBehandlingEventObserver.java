@@ -69,7 +69,6 @@ public class OppdaterSakOgBehandlingEventObserver {
         prosessTaskData.setProperty(OppdaterPersonoversiktTask.PH_STATUS_KEY, nyStatus.getKode());
         prosessTaskData.setProperty(OppdaterPersonoversiktTask.PH_TID_KEY, LocalDateTime.now().toString());
         prosessTaskData.setProperty(OppdaterPersonoversiktTask.PH_TYPE_KEY, behandling.getType().getKode());
-        prosessTaskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(prosessTaskData);
     }
 }

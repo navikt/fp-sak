@@ -102,7 +102,6 @@ public class MottaKlageAnkeVedtakTask extends GenerellProsessTask {
         opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BEHANDLENDE_ENHET, sisteYtelseBehandling.getBehandlendeEnhet());
         opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE, beskrivelse);
         opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_PRIORITET, OpprettOppgaveVurderKonsekvensTask.PRIORITET_HØY);
-        opprettOppgave.setCallIdFraEksisterende();
         opprettOppgave.setFagsak(sisteYtelseBehandling.getSaksnummer().getVerdi(), sisteYtelseBehandling.getFagsakId());
         taskTjeneste.lagre(opprettOppgave);
     }

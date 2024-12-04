@@ -55,7 +55,7 @@ public class HåndterMottattDokumentTask extends FagsakProsessTask {
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: HåndterMottattDokument uten gyldig mottatt dokument, id=" + dokumentId.toString()));
         var behandlingÅrsakType = Optional.ofNullable(prosessTaskData.getPropertyValue(BEHANDLING_ÅRSAK_TYPE_KEY))
             .map(BehandlingÅrsakType::fraKode).orElse(BehandlingÅrsakType.UDEFINERT);
-        LOG.info("HåndterMottattDokument taskId {} fagsakId {} behandlingId {} dokumentid {}", prosessTaskData.getId(), prosessTaskData.getFagsakId(), prosessTaskData.getBehandlingId(), mottattDokument.getId());
+        LOG.info("HåndterMottattDokument taskId {} saksnummer {} behandlingId {} dokumentid {}", prosessTaskData.getId(), prosessTaskData.getSaksnummer(), prosessTaskData.getBehandlingId(), mottattDokument.getId());
         if (behandlingId != null) {
             innhentDokumentTjeneste.opprettFraTidligereBehandling(behandlingId, mottattDokument, behandlingÅrsakType);
         } else {

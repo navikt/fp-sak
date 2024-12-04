@@ -177,7 +177,6 @@ public class ForvaltningUttrekkRestTjeneste {
         }
         var task = ProsessTaskData.forProsessTask(MigrerTilOmsorgRettTask.class);
         task.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
-        task.setCallIdFraEksisterende();
         taskTjeneste.lagre(task);
     }
 
@@ -254,7 +253,6 @@ public class ForvaltningUttrekkRestTjeneste {
         var prosessTaskData = ProsessTaskData.forProsessTask(VedtakOverlappAvstemSakTask.class);
         prosessTaskData.setProperty(VedtakOverlappAvstemSakTask.LOG_SAKSNUMMER_KEY, s.getVerdi());
         prosessTaskData.setProperty(VedtakOverlappAvstemSakTask.LOG_HENDELSE_KEY, OverlappVedtak.HENDELSE_AVSTEM_SAK);
-        prosessTaskData.setCallIdFraEksisterende();
 
         taskTjeneste.lagre(prosessTaskData);
 
