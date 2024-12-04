@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingBehan
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingRelasjonEvent;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 
 @ApplicationScoped
@@ -98,30 +97,30 @@ public class AnkeVurderingTjeneste {
         }
     }
 
-    public static HistorikkResultatType konverterAnkeVurderingTilResultatType(AnkeVurdering vurdering, AnkeVurderingOmgjør ankeVurderingOmgjør) {
+    public static String konverterAnkeVurderingTilResultatTekst(AnkeVurdering vurdering, AnkeVurderingOmgjør ankeVurderingOmgjør) {
         if (AnkeVurdering.ANKE_AVVIS.equals(vurdering)) {
-            return HistorikkResultatType.ANKE_AVVIS;
+            return "Anken er avvist";
         }
         if (AnkeVurdering.ANKE_OMGJOER.equals(vurdering)) {
             if (AnkeVurderingOmgjør.ANKE_DELVIS_OMGJOERING_TIL_GUNST.equals(ankeVurderingOmgjør)) {
-                return HistorikkResultatType.ANKE_DELVIS_OMGJOERING_TIL_GUNST;
+                return "Delvis omgjøring, til gunst i anke";
             }
             if (AnkeVurderingOmgjør.ANKE_TIL_UGUNST.equals(ankeVurderingOmgjør)) {
-                return HistorikkResultatType.ANKE_TIL_UGUNST;
+                return "Omgjør til ugunst";
             }
             if (AnkeVurderingOmgjør.ANKE_TIL_GUNST.equals(ankeVurderingOmgjør)) {
-                return HistorikkResultatType.ANKE_TIL_GUNST;
+                return "Omgjør til gunst";
             }
-            return HistorikkResultatType.ANKE_OMGJOER;
+            return "Omgjør i anke";
         }
         if (AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE.equals(vurdering)) {
-            return HistorikkResultatType.ANKE_OPPHEVE_OG_HJEMSENDE;
+            return "Opphevet og hjemsendt";
         }
         if (AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV.equals(vurdering)) {
-            return HistorikkResultatType.ANKE_HJEMSENDE;
+            return "Hjemsendt";
         }
         if (AnkeVurdering.ANKE_STADFESTE_YTELSESVEDTAK.equals(vurdering)) {
-            return HistorikkResultatType.ANKE_STADFESTET_VEDTAK;
+            return "Vedtaket er stadfestet";
         }
         return null;
     }

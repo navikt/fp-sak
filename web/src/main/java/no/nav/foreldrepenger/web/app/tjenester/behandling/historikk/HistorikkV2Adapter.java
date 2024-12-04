@@ -76,17 +76,7 @@ public class HistorikkV2Adapter {
             case OPPTJENING -> throw new IllegalStateException(String.format("Kode: %s har ingen maltype", h.getType())); // Ingen historikkinnslag for denne typen i DB!
             case OVST_UTTAK_SPLITT, FASTSATT_UTTAK_SPLITT, TILBAKEKREVING_VIDEREBEHANDLING -> fraMalType9(h, behandlingUUID);
             case OVST_UTTAK, FASTSATT_UTTAK -> fraMaltype10(h, behandlingUUID, journalPosterForSak, dokumentPath);
-            case AVKLART_AKTIVITETSKRAV ->
-                fraMalTypeAktivitetskrav(h, behandlingUUID);
-
-            /* fptilbake
-            case FAKTA_OM_FEILUTBETALING ->
-                fraMaltypeFeilutbetaling(h, behandlingUUID);
-            case FORELDELSE ->
-                fraMaltypeForeldelse(h, behandlingUUID);
-            case TILBAKEKREVING ->
-                fraMaltypeTilbakekreving(h, behandlingUUID);
-             */
+            case AVKLART_AKTIVITETSKRAV -> fraMalTypeAktivitetskrav(h, behandlingUUID);
             case UDEFINERT -> throw new IllegalStateException("Unexpected value: " + h.getType());
         };
     }
