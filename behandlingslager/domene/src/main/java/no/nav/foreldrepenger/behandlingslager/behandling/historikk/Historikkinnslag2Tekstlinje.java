@@ -25,21 +25,23 @@ public class Historikkinnslag2Tekstlinje extends BaseEntitet implements IndexKey
     @Column(name="tekst", nullable = false)
     private String tekst;
 
-    @Column(name="rekkefoelge_indeks", nullable = false)
-    private String rekkefølgeIndeks;
+    @Column(name="SEKVENS_NR", nullable = false)
+    private int sekvensNr;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "historikkinnslag_id", nullable = false)
     private Historikkinnslag2 historikkinnslag;
 
+    //TFP-5554 type for å støtte linjeskift istf inni teksten
+
     @Override
     public String getIndexKey() {
-        return IndexKey.createKey(rekkefølgeIndeks);
+        return IndexKey.createKey(sekvensNr);
     }
 
-    public Historikkinnslag2Tekstlinje(String tekst, String rekkefølgeIndeks) {
+    public Historikkinnslag2Tekstlinje(String tekst, int sekvensNr) {
         this.tekst = tekst;
-        this.rekkefølgeIndeks = rekkefølgeIndeks;
+        this.sekvensNr = sekvensNr;
     }
 
     protected Historikkinnslag2Tekstlinje() {
@@ -49,8 +51,8 @@ public class Historikkinnslag2Tekstlinje extends BaseEntitet implements IndexKey
         return tekst;
     }
 
-    public int getRekkefølgeIndeks() {
-        return Integer.parseInt(rekkefølgeIndeks); //TODO: TFP-5554 Sjekk om vi skal lage number i database istedenfor varchar.
+    public int getSekvensNr() {
+        return sekvensNr;
     }
 
     void setHistorikkinnslag(Historikkinnslag2 historikkinnslag) {
@@ -63,12 +65,12 @@ public class Historikkinnslag2Tekstlinje extends BaseEntitet implements IndexKey
             return true;
         if (!(o instanceof Historikkinnslag2Tekstlinje that))
             return false;
-        return Objects.equals(tekst, that.tekst) && Objects.equals(rekkefølgeIndeks, that.rekkefølgeIndeks);
+        return Objects.equals(tekst, that.tekst) && Objects.equals(sekvensNr, that.sekvensNr);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(tekst, rekkefølgeIndeks);
+        return Objects.hash(tekst, sekvensNr);
     }
 
 //    @Override
@@ -77,9 +79,8 @@ public class Historikkinnslag2Tekstlinje extends BaseEntitet implements IndexKey
 //    }
 
 
-    //TODO: TFP-5554 masker tekst pga fritekst i begrunnelse
     @Override
     public String toString() {
-        return "Historikkinnslag2Tekstlinje{" + "tekst='" + tekst + '\'' + ", rekkefølgeIndeks='" + rekkefølgeIndeks + '\'' + '}';
+        return "Historikkinnslag2Tekstlinje{" + "id=" + id + ", sekvensNr=" + sekvensNr + ", tekst='***" + '\'' + '}';
     }
 }
