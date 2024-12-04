@@ -91,7 +91,6 @@ public class HistorikkV2Adapter {
         };
     }
 
-    // TODO: Fiks begrunnelse... .her er det duplisering. Får både tittel og begrunnelse som er lik der hvor historikkinnslag ble laget av BehandlingOpprettingTjeneste.
     private static HistorikkinnslagDtoV2 fraMaltype1(Historikkinnslag innslag, UUID behandlingUUID, List<JournalpostId> journalPosterForSak, URI dokumentPath) {
         var del = innslag.getHistorikkinnslagDeler().getFirst();
         var begrunnelse = begrunnelseFraDel(del);
