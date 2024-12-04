@@ -101,10 +101,10 @@ class VurderUttakDokumentasjonOppdatererTest {
         var historikk = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId());
         assertThat(historikk).hasSize(1);
         assertThat(historikk.getFirst().getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_OM_UTTAK_DOKUMENTASJON);
-        assertThat(historikk.getFirst().getTekstlinjer()).hasSize(3);
-        assertThat(historikk.getFirst().getTekstlinjer().get(0).getTekst()).contains("Avklart dokumentasjon for periode", SYKDOM_SØKER_GODKJENT.getNavn());
-        assertThat(historikk.getFirst().getTekstlinjer().get(1).getTekst()).contains("Avklart dokumentasjon for periode", SYKDOM_SØKER_IKKE_GODKJENT.getNavn());
-        assertThat(historikk.getFirst().getTekstlinjer().get(2).getTekst()).contains(dto.getBegrunnelse());
+        assertThat(historikk.getFirst().getLinjer()).hasSize(3);
+        assertThat(historikk.getFirst().getLinjer().get(0).getTekst()).contains("Avklart dokumentasjon for periode", SYKDOM_SØKER_GODKJENT.getNavn());
+        assertThat(historikk.getFirst().getLinjer().get(1).getTekst()).contains("Avklart dokumentasjon for periode", SYKDOM_SØKER_IKKE_GODKJENT.getNavn());
+        assertThat(historikk.getFirst().getLinjer().get(2).getTekst()).contains(dto.getBegrunnelse());
     }
 
     @Test
@@ -197,9 +197,9 @@ class VurderUttakDokumentasjonOppdatererTest {
         var historikk = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId());
         assertThat(historikk).hasSize(1);
         assertThat(historikk.getFirst().getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_OM_UTTAK_DOKUMENTASJON);
-        assertThat(historikk.getFirst().getTekstlinjer()).hasSize(2);
-        assertThat(historikk.getFirst().getTekstlinjer().get(0).getTekst()).contains("Avklart dokumentasjon for periode", MORS_AKTIVITET_GODKJENT.getNavn(), vurdering1.morsStillingsprosent().toString());
-        assertThat(historikk.getFirst().getTekstlinjer().get(1).getTekst()).contains(dto.getBegrunnelse());
+        assertThat(historikk.getFirst().getLinjer()).hasSize(2);
+        assertThat(historikk.getFirst().getLinjer().get(0).getTekst()).contains("Avklart dokumentasjon for periode", MORS_AKTIVITET_GODKJENT.getNavn(), vurdering1.morsStillingsprosent().toString());
+        assertThat(historikk.getFirst().getLinjer().get(1).getTekst()).contains(dto.getBegrunnelse());
     }
 
     @Test

@@ -63,12 +63,12 @@ class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
         vurderFaresignalerOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
 
         // Assert
-        var tekstlinjer = historikkRepository.hent(behandling.getId()).getFirst().getTekstlinjer();
+        var linjer = historikkRepository.hent(behandling.getId()).getFirst().getLinjer();
 
-        assertThat(tekstlinjer).hasSize(2);
+        assertThat(linjer).hasSize(2);
 
-        assertThat(tekstlinjer.get(0).getTekst()).contains("__Faresignaler__ er satt til __Innvirkning__");
-        assertThat(tekstlinjer.get(1).getTekst()).contains(dto.getBegrunnelse());
+        assertThat(linjer.get(0).getTekst()).contains("__Faresignaler__ er satt til __Innvirkning__");
+        assertThat(linjer.get(1).getTekst()).contains(dto.getBegrunnelse());
     }
 
     @Test
@@ -82,12 +82,12 @@ class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
         vurderFaresignalerOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
 
         // Assert
-        var tekstlinjer = historikkRepository.hent(behandling.getId()).getFirst().getTekstlinjer();
+        var linjer = historikkRepository.hent(behandling.getId()).getFirst().getLinjer();
 
-        assertThat(tekstlinjer).hasSize(2);
+        assertThat(linjer).hasSize(2);
 
-        assertThat(tekstlinjer.get(0).getTekst()).contains("Faresignaler", "Ingen innvirkning", "Innvirkning");
-        assertThat(tekstlinjer.get(1).getTekst()).contains(dto.getBegrunnelse());
+        assertThat(linjer.get(0).getTekst()).contains("Faresignaler", "Ingen innvirkning", "Innvirkning");
+        assertThat(linjer.get(1).getTekst()).contains(dto.getBegrunnelse());
     }
 
     @Test
@@ -101,12 +101,12 @@ class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
         vurderFaresignalerOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
 
         // Assert
-        var tekstlinjer = historikkRepository.hent(behandling.getId()).getFirst().getTekstlinjer();
+        var linjer = historikkRepository.hent(behandling.getId()).getFirst().getLinjer();
 
-        assertThat(tekstlinjer).hasSize(2);
+        assertThat(linjer).hasSize(2);
 
-        assertThat(tekstlinjer.get(0).getTekst()).contains("Faresignaler", "Ingen innvirkning", "Innvirkning");
-        assertThat(tekstlinjer.get(1).getTekst()).contains(dto.getBegrunnelse());
+        assertThat(linjer.get(0).getTekst()).contains("Faresignaler", "Ingen innvirkning", "Innvirkning");
+        assertThat(linjer.get(1).getTekst()).contains(dto.getBegrunnelse());
     }
 
     @Test

@@ -10,7 +10,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
 
@@ -39,8 +39,8 @@ public class FaktaBeregningHistorikkKalkulusTjeneste {
 
 
     public void lagHistorikk(BehandlingReferanse behandlingReferanse, OppdaterBeregningsgrunnlagResultat oppdatering, String begrunnelse) {
-        var tekstlinjer = byggHistorikkForEndring(behandlingReferanse.behandlingId(), oppdatering);
-        if (tekstlinjer.isEmpty()) {
+        var linjer = byggHistorikkForEndring(behandlingReferanse.behandlingId(), oppdatering);
+        if (linjer.isEmpty()) {
             return;
         }
 
@@ -49,22 +49,22 @@ public class FaktaBeregningHistorikkKalkulusTjeneste {
             .medFagsakId(behandlingReferanse.fagsakId())
             .medBehandlingId(behandlingReferanse.behandlingId())
             .medTittel(SkjermlenkeType.FAKTA_OM_BEREGNING)
-            .medTekstlinjer(tekstlinjer)
-            .addTekstlinje(begrunnelse)
+            .medLinjer(linjer)
+            .addLinje(begrunnelse)
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }
 
-    private List<HistorikkinnslagTekstlinjeBuilder> byggHistorikkForEndring(Long behandlingId, OppdaterBeregningsgrunnlagResultat oppdaterBeregningsgrunnlagResultat) {
-        var endredeTekstlinjer = new ArrayList<HistorikkinnslagTekstlinjeBuilder>();
+    private List<HistorikkinnslagLinjeBuilder> byggHistorikkForEndring(Long behandlingId, OppdaterBeregningsgrunnlagResultat oppdaterBeregningsgrunnlagResultat) {
+        var linjer = new ArrayList<HistorikkinnslagLinjeBuilder>();
         oppdaterBeregningsgrunnlagResultat.getFaktaOmBeregningVurderinger().ifPresent(vurderinger ->
-            endredeTekstlinjer.addAll(vurderingHistorikkTjeneste.lagHistorikkForVurderinger(behandlingId, vurderinger)));
+            linjer.addAll(vurderingHistorikkTjeneste.lagHistorikkForVurderinger(behandlingId, vurderinger)));
         oppdaterBeregningsgrunnlagResultat.getBeregningsgrunnlagEndring()
             .ifPresent(endring -> {
                 var førstePeriode = endring.getBeregningsgrunnlagPeriodeEndringer().getFirst();
-                endredeTekstlinjer.addAll(verdierHistorikkTjeneste.lagHistorikkForBeregningsgrunnlagVerdier(behandlingId, førstePeriode));
+                linjer.addAll(verdierHistorikkTjeneste.lagHistorikkForBeregningsgrunnlagVerdier(behandlingId, førstePeriode));
             });
-        return endredeTekstlinjer;
+        return linjer;
     }
 
 }

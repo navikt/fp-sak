@@ -9,7 +9,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskap;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
@@ -91,9 +91,9 @@ public class MedlemskapAksjonspunktFellesTjeneste {
         var builder = lagFellesHistorikkBuilder(ref, nyVerdi, skjermlenkeType);
 
         if (nyVerdi.equals(VilkårUtfallType.OPPFYLT) && opphørFom != null) {
-            builder.addTekstlinje(new HistorikkinnslagTekstlinjeBuilder().til("Opphørt medlemskap", opphørFom));
+            builder.addlinje(new HistorikkinnslagLinjeBuilder().til("Opphørt medlemskap", opphørFom));
         }
-        builder.addTekstlinje(begrunnelse);
+        builder.addLinje(begrunnelse);
         historikkRepository.lagre(builder.build());
     }
 
@@ -106,9 +106,9 @@ public class MedlemskapAksjonspunktFellesTjeneste {
         var builder = lagFellesHistorikkBuilder(ref, nyVerdi, skjermlenkeType);
 
         if (VilkårUtfallType.IKKE_OPPFYLT.equals(nyVerdi) && medlemFom != null) {
-            builder.addTekstlinje(new HistorikkinnslagTekstlinjeBuilder().til("Innflyttingsdato", medlemFom));
+            builder.addlinje(new HistorikkinnslagLinjeBuilder().til("Innflyttingsdato", medlemFom));
         }
-        builder.addTekstlinje(begrunnelse);
+        builder.addLinje(begrunnelse);
         historikkRepository.lagre(builder.build());
     }
 
@@ -119,7 +119,7 @@ public class MedlemskapAksjonspunktFellesTjeneste {
             .medFagsakId(ref.fagsakId())
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medTittel(skjermlenkeType)
-            .addTekstlinje(new HistorikkinnslagTekstlinjeBuilder().til("Medlemskap", nyVerdi.getNavn().toLowerCase()));
+            .addlinje(new HistorikkinnslagLinjeBuilder().til("Medlemskap", nyVerdi.getNavn().toLowerCase()));
     }
 
     private boolean erOpphørEtterStp(BehandlingReferanse ref, LocalDate opphørFom) {

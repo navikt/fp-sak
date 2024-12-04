@@ -96,7 +96,7 @@ class KlagevurderingOppdatererTest {
         var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
         assertThat(historikkinnslag.getSkjermlenke()).isEqualTo(SkjermlenkeType.KLAGE_BEH_NFP);
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
-        var tekstlinje = historikkinnslag.getTekstlinjer().get(0).getTekst();
+        var tekstlinje = historikkinnslag.getLinjer().get(0).getTekst();
         assertThat(tekstlinje).contains("Resultat");
 
         // Verifiserer at behandlende enhet er byttet til Nav klageinstans

@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.format;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -70,12 +70,12 @@ class BekreftDokumentasjonOppdatererTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(historikkInnslag).hasSize(1);
-        var tekstlinjer = historikkInnslag.getFirst().getTekstlinjer();
-        assertThat(tekstlinjer).hasSize(3);
+        var linjer = historikkInnslag.getFirst().getLinjer();
+        assertThat(linjer).hasSize(3);
 
-        assertThat(tekstlinjer.getFirst().getTekst()).contains("Omsorgsovertakelsesdato", format(opprinneligOvertakelsesdato),
+        assertThat(linjer.getFirst().getTekst()).contains("Omsorgsovertakelsesdato", format(opprinneligOvertakelsesdato),
             format(bekreftetOvertakelsesdato));
-        assertThat(tekstlinjer.get(1).getTekst()).contains("Fødselsdato", format(opprinneligFødselsdato), format(bekreftetFødselsdato));
-        assertThat(tekstlinjer.get(2).getTekst()).contains(dto.getBegrunnelse());
+        assertThat(linjer.get(1).getTekst()).contains("Fødselsdato", format(opprinneligFødselsdato), format(bekreftetFødselsdato));
+        assertThat(linjer.get(2).getTekst()).contains(dto.getBegrunnelse());
     }
 }

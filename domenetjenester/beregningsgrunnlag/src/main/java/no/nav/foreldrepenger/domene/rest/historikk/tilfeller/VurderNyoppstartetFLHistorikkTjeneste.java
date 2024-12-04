@@ -7,7 +7,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
@@ -22,17 +22,17 @@ import no.nav.foreldrepenger.domene.rest.dto.VurderNyoppstartetFLDto;
 public class VurderNyoppstartetFLHistorikkTjeneste extends FaktaOmBeregningHistorikkTjeneste {
 
     @Override
-    public List<HistorikkinnslagTekstlinjeBuilder> lagHistorikk(FaktaBeregningLagreDto dto,
-                                                                BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
-                                                                Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
-                                                                InntektArbeidYtelseGrunnlag iayGrunnlag) {
+    public List<HistorikkinnslagLinjeBuilder> lagHistorikk(FaktaBeregningLagreDto dto,
+                                                           BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
+                                                           Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
+                                                           InntektArbeidYtelseGrunnlag iayGrunnlag) {
         var nyoppstartetDto = dto.getVurderNyoppstartetFL();
         var opprinneligErNyoppstartetFLVerdi = getOpprinneligErNyoppstartetFLVerdi(forrigeGrunnlag);
-        List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder = new ArrayList<>();
-        tekstlinjerBuilder.add(lagHistorikkInnslag(nyoppstartetDto, opprinneligErNyoppstartetFLVerdi));
-        tekstlinjerBuilder.add(new HistorikkinnslagTekstlinjeBuilder().linjeskift());
+        List<HistorikkinnslagLinjeBuilder> linjerBuilder = new ArrayList<>();
+        linjerBuilder.add(lagHistorikkInnslag(nyoppstartetDto, opprinneligErNyoppstartetFLVerdi));
+        linjerBuilder.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
 
-        return tekstlinjerBuilder;
+        return linjerBuilder;
     }
 
     private Boolean getOpprinneligErNyoppstartetFLVerdi(Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag) {
@@ -46,11 +46,11 @@ public class VurderNyoppstartetFLHistorikkTjeneste extends FaktaOmBeregningHisto
             .orElse(null);
     }
 
-    private HistorikkinnslagTekstlinjeBuilder lagHistorikkInnslag(VurderNyoppstartetFLDto dto, Boolean opprinneligErNyoppstartetFLVerdi) {
+    private HistorikkinnslagLinjeBuilder lagHistorikkInnslag(VurderNyoppstartetFLDto dto, Boolean opprinneligErNyoppstartetFLVerdi) {
         var opprinneligVerdi = konvertBooleanTilFaktaEndretVerdiType(opprinneligErNyoppstartetFLVerdi);
         var nyVerdi = konvertBooleanTilFaktaEndretVerdiType(dto.erErNyoppstartetFL());
         if (opprinneligVerdi != nyVerdi) {
-            return new HistorikkinnslagTekstlinjeBuilder().fraTil("Frilansvirksomhet", opprinneligVerdi, nyVerdi);
+            return new HistorikkinnslagLinjeBuilder().fraTil("Frilansvirksomhet", opprinneligVerdi, nyVerdi);
         }
         return null;
     }

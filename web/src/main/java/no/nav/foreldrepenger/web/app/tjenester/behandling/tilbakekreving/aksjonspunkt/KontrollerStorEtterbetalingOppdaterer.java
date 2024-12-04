@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.aksjonspunkt;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -38,8 +38,8 @@ class KontrollerStorEtterbetalingOppdaterer implements AksjonspunktOppdaterer<Ko
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())
             .medTittel(SkjermlenkeType.FAKTA_OM_SIMULERING)
-            .addTekstlinje(fraTilEquals("Vurdert etterbetaling til søker", null, "Godkjent"))
-            .addTekstlinje(dto.getBegrunnelse())
+            .addlinje(fraTilEquals("Vurdert etterbetaling til søker", null, "Godkjent"))
+            .addLinje(dto.getBegrunnelse())
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
         return OppdateringResultat.utenOverhopp();

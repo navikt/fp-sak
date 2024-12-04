@@ -7,7 +7,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstlinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -38,13 +38,13 @@ public class FaktaOmBeregningOverstyringHistorikkTjeneste {
      * @param forrigeGrunnlag        Forrige beregningsgrunnlag fra KOFAKBER_UT
      * @param iayGrunnlag            InntektArbeidYtelseGrunnlag
      */
-    public List<HistorikkinnslagTekstlinjeBuilder> lagHistorikk(OverstyrBeregningsgrunnlagDto dto,
-                                                                BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
-                                                                Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
-                                                                InntektArbeidYtelseGrunnlag iayGrunnlag) {
+    public List<HistorikkinnslagLinjeBuilder> lagHistorikk(OverstyrBeregningsgrunnlagDto dto,
+                                                           BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
+                                                           Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
+                                                           InntektArbeidYtelseGrunnlag iayGrunnlag) {
         var bgPerioder = nyttBeregningsgrunnlag.getBeregningsgrunnlagPerioder();
         var overstyrteAndeler = dto.getOverstyrteAndeler();
-        List<HistorikkinnslagTekstlinjeBuilder> tekstlinjerBuilder = new ArrayList<>();
+        List<HistorikkinnslagLinjeBuilder> linjeBuilder = new ArrayList<>();
         for (var bgPeriode : bgPerioder) {
             var forrigeBgPeriode = MatchBeregningsgrunnlagTjeneste.finnOverlappendePeriodeOmKunEnFinnes(bgPeriode,
                 forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag));
@@ -52,9 +52,9 @@ public class FaktaOmBeregningOverstyringHistorikkTjeneste {
                 .map(andelDto -> MapTilLønnsendring.mapTilLønnsendringForAndelIPeriode(andelDto, andelDto.getFastsatteVerdier(), bgPeriode,
                     forrigeBgPeriode))
                 .toList();
-            tekstlinjerBuilder = inntektHistorikkTjeneste.lagHistorikk(endringer, iayGrunnlag);
-            tekstlinjerBuilder.add(new HistorikkinnslagTekstlinjeBuilder().linjeskift());
+            linjeBuilder = inntektHistorikkTjeneste.lagHistorikk(endringer, iayGrunnlag);
+            linjeBuilder.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
         }
-        return tekstlinjerBuilder;
+        return linjeBuilder;
     }
 }

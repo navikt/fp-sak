@@ -154,7 +154,7 @@ public class ForvaltningStegRestTjeneste {
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
             .medTittel("Behandlingen er flyttet")
-            .addTekstlinje(String.format("Behandlingen er flyttet fra %s tilbake til %s", fraStegNavn, tilStegNavn))
+            .addLinje(String.format("Behandlingen er flyttet fra %s tilbake til %s", fraStegNavn, tilStegNavn))
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }

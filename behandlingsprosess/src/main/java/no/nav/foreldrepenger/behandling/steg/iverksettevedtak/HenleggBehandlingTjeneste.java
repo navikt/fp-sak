@@ -113,8 +113,8 @@ public class HenleggBehandlingTjeneste {
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())
             .medTittel("Behandling er henlagt")
-            .addTekstlinje(aarsak.getNavn())
-            .addTekstlinje(begrunnelse)
+            .addLinje(aarsak.getNavn())
+            .addLinje(begrunnelse)
             .build();
 
         historikkRepository.lagre(historikkinnslag);

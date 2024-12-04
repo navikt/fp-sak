@@ -54,7 +54,7 @@ public class VarselRevurderingOppdaterer implements AksjonspunktOppdaterer<Varse
             .medBehandlingId(ref.behandlingId())
             .medFagsakId(ref.fagsakId())
             .medTittel("Varsel om revurdering ikke sendt")
-            .addTekstlinje(varselRevurderingDto.getBegrunnelse())
+            .addLinje(varselRevurderingDto.getBegrunnelse())
             .build();
         historikkinnslagRepository.lagre(historikkinnslag2);
     }
