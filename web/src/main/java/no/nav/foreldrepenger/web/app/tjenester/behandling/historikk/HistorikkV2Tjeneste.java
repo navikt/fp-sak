@@ -80,7 +80,7 @@ public class HistorikkV2Tjeneste {
         List<HistorikkInnslagDokumentLinkDto> dokumenter = tilDokumentlenker(h.getDokumentLinker(), journalPosterForSak, dokumentPath);
         var tekstlinjer = h.getTekstlinjer()
             .stream()
-            .sorted(Comparator.comparing(Historikkinnslag2Tekstlinje::getRekkefølgeIndeks))
+            .sorted(Comparator.comparing(Historikkinnslag2Tekstlinje::getSekvensNr))
             .map(t -> t.getTekst().equals(Historikkinnslag2.LINJESKIFT) ? HistorikkDtoFellesMapper.LINJESKIFT : t.getTekst())
             .toList();
         return new HistorikkinnslagDtoV2(uuid, HistorikkinnslagDtoV2.HistorikkAktørDto.fra(h.getAktør(), h.getOpprettetAv()), h.getSkjermlenke(),
