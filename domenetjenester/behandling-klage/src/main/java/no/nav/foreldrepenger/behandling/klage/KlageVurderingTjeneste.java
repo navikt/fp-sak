@@ -201,24 +201,24 @@ public class KlageVurderingTjeneste {
         }
         if (KlageVurdering.MEDHOLD_I_KLAGE.equals(vurdering)) {
             if (KlageVurderingOmgjør.DELVIS_MEDHOLD_I_KLAGE.equals(klageVurderingOmgjør)) {
-                return "omgjør vedtaket, delvis";
+                return "Vedtaket er delvis omgjort";
             }
             if (KlageVurderingOmgjør.UGUNST_MEDHOLD_I_KLAGE.equals(klageVurderingOmgjør)) {
-                return "omgjør vedtaket, til ugunst";
+                return "Vedtaket er omgjort til ugunst";
             }
-            return "omgjør vedtaket, til gunst";
+            return "Vedtaket er omgjort";
         }
         if (KlageVurdering.OPPHEVE_YTELSESVEDTAK.equals(vurdering)) {
-            return "opphevet og hjemsendt";
+            return "Vedtaket er opphevet";
         }
         if (KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE.equals(vurdering)) {
-            return "hjemsendt";
+            return "Behandling er hjemsendt";
         }
         if (KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(vurdering)) {
             if (KlageVurdertAv.NFP.equals(vurdertAv)) {
-                return "opprettholdt";
+                return "Vedtaket er opprettholdt";
             }
-            return "stadfestet";
+            return "Vedtaket er stadfestet";
         }
         return null;
     }
