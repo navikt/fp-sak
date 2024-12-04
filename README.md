@@ -52,5 +52,3 @@ Det er mulig å kalle tjenesten med bruk av følgende tokens
     - fpsak-saksbehandler
     - fpsak-veileder
     - fpsak-drift
-- STS (fases ut)
-- SAML (fases ut)
