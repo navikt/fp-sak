@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.Skjermlenke
 public class HistorikkDtoFellesMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(HistorikkDtoFellesMapper.class);
-    public static final String LINJESKIFT = "";
+    private static final String TOM_LINJE = "";
 
     public static HistorikkinnslagDtoV2 tilHistorikkInnslagDto(Historikkinnslag h, UUID behandlingUUID, List<Linje> linjer) {
         return tilHistorikkInnslagDto(h, behandlingUUID, null, linjer);
