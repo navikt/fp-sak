@@ -15,7 +15,8 @@ public record HistorikkinnslagDtoV2(UUID behandlingUuid,
                                     LocalDateTime opprettetTidspunkt,
                                     List<HistorikkInnslagDokumentLinkDto> dokumenter,
                                     String tittel,
-                                    List<String> body) {
+                                    @Deprecated List<String> body,
+                                    List<Linje> linjer) {
 
     public record HistorikkAktørDto(HistorikkAktør type, String ident) {
         public static HistorikkAktørDto fra(HistorikkAktør aktør, String opprettetAv) {
@@ -26,4 +27,22 @@ public record HistorikkinnslagDtoV2(UUID behandlingUuid,
         }
     }
 
+    public record Linje(Type type, String tekst) {
+        public static Linje tekstlinje(String tekst) {
+            return new Linje(Type.TEKST, tekst);
+        }
+
+        public static Linje linjeskift() {
+            return new Linje(Type.LINJESKIFT, null);
+        }
+
+        public boolean erLinjeskift() {
+            return Type.LINJESKIFT.equals(type);
+        }
+
+        enum Type {
+            TEKST,
+            LINJESKIFT
+        }
+    }
 }

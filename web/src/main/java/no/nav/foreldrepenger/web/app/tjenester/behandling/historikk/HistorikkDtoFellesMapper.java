@@ -1,5 +1,9 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.historikk;
 
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkinnslagDtoV2.HistorikkAktørDto;
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkinnslagDtoV2.Linje;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,22 +23,29 @@ public class HistorikkDtoFellesMapper {
     private static final Logger LOG = LoggerFactory.getLogger(HistorikkDtoFellesMapper.class);
     private static final String TOM_LINJE = "";
 
-    public static HistorikkinnslagDtoV2 tilHistorikkInnslagDto(Historikkinnslag h, UUID behandlingUUID, List<String> tekster) {
+    public static HistorikkinnslagDtoV2 tilHistorikkInnslagDto(Historikkinnslag h, UUID behandlingUUID, List<Linje> tekster) {
         return tilHistorikkInnslagDto(h, behandlingUUID, null, tekster);
     }
 
-    public static HistorikkinnslagDtoV2 tilHistorikkInnslagDto(Historikkinnslag h, UUID behandlingUUID, List<HistorikkInnslagDokumentLinkDto> lenker, List<String> tekster) {
+    public static HistorikkinnslagDtoV2 tilHistorikkInnslagDto(Historikkinnslag h, UUID behandlingUUID, List<HistorikkInnslagDokumentLinkDto> lenker, List<Linje> tekster) {
         var skjermlenkeOpt = skjermlenkeFra(h);
-
+        var linjer = fjernTrailingAvsnittFraTekst(tekster);
         return new HistorikkinnslagDtoV2(
             behandlingUUID,
-            HistorikkinnslagDtoV2.HistorikkAktørDto.fra(h.getAktør(), h.getOpprettetAv()),
+            HistorikkAktørDto.fra(h.getAktør(), h.getOpprettetAv()),
             skjermlenkeOpt.orElse(null),
             h.getOpprettetTidspunkt(),
             lenker,
             skjermlenkeOpt.isEmpty() ? lagTittel(h) : null,
-            fjernTrailingAvsnittFraTekst(tekster)
+            tilDeprecatedTekstListe(linjer),
+            linjer
         );
+    }
+
+    private static List<String> tilDeprecatedTekstListe(List<Linje> linjer) {
+        return linjer.stream()
+            .map(linje -> linje.erLinjeskift() ? TOM_LINJE : linje.tekst())
+            .toList();
     }
 
     private static String lagTittel(Historikkinnslag h) {
@@ -61,20 +72,20 @@ public class HistorikkDtoFellesMapper {
     }
 
     @SafeVarargs
-    public static void leggTilAlleTeksterIHovedliste(List<String> hovedListe, List<String>... lister) {
-        for (List<String> liste : lister) {
-            hovedListe.addAll(liste);
+    public static List<Linje> konverterTilLinjerMedLinjeskift(List<String>... alleTekster) {
+        var linjer = new ArrayList<Linje>();
+        for (var tekster : alleTekster) {
+            linjer.addAll(tekster.stream().map(Linje::tekstlinje).toList());
         }
-        hovedListe.add(TOM_LINJE);
+        linjer.add(Linje.linjeskift());
+        return linjer;
     }
 
-
-    private static List<String> fjernTrailingAvsnittFraTekst(List<String> tekster) {
+    private static List<Linje> fjernTrailingAvsnittFraTekst(List<Linje> tekster) {
         if (tekster.isEmpty()) {
             return tekster;
         }
-
-        if (tekster.getLast().equals(TOM_LINJE)) {
+        if (tekster.getLast().erLinjeskift()) {
             tekster.removeLast();
         }
         return tekster.stream().toList();
