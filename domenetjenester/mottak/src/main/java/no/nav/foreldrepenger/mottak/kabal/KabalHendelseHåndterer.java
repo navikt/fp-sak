@@ -157,7 +157,7 @@ public class KabalHendelseHåndterer implements KafkaMessageHandler.KafkaStringM
         opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE, beskrivelse);
         opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_PRIORITET, OpprettOppgaveVurderKonsekvensTask.PRIORITET_HØY);
         opprettOppgave.setCallIdFraEksisterende();
-        opprettOppgave.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+        opprettOppgave.setFagsak(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId());
         taskTjeneste.lagre(opprettOppgave);
     }
 

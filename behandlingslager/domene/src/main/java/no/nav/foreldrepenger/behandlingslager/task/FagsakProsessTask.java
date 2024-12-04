@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.behandlingslager.task;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
@@ -54,11 +54,7 @@ public abstract class FagsakProsessTask implements ProsessTaskHandler {
      * @return behandlingId
      */
     protected List<Long> identifiserBehandling(ProsessTaskData prosessTaskData) {
-        var behandlingId = getBehandlingId(prosessTaskData);
-        if (behandlingId != null) {
-            return List.of(behandlingId);
-        }
-        return Collections.emptyList();
+        return Optional.ofNullable(getBehandlingId(prosessTaskData)).map(List::of).orElseGet(List::of);
     }
 
     private Long getBehandlingId(ProsessTaskData data) {

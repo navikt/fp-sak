@@ -99,6 +99,7 @@ public class SendInformasjonsbrevPåminnelseTask implements ProsessTaskHandler {
         if (eksisterendeBehandling.isPresent() && !eksisterendeBehandling.get().erAvsluttet()) {
             var dokumentBestilling = DokumentBestilling.builder()
                 .medBehandlingUuid(eksisterendeBehandling.get().getUuid())
+                .medSaksnummer(eksisterendeBehandling.get().getSaksnummer())
                 .medDokumentMal(DokumentMalType.FORELDREPENGER_INFO_TIL_ANNEN_FORELDER)
                 .build();
             dokumentBestillerTjeneste.bestillDokument(dokumentBestilling, HistorikkAktør.VEDTAKSLØSNINGEN);

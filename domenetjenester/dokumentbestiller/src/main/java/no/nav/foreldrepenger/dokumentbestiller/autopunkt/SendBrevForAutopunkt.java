@@ -74,7 +74,10 @@ public class SendBrevForAutopunkt {
     }
 
     private static DokumentBestilling.Builder getBuilder(Behandling behandling, DokumentMalType dokumentMal) {
-        return DokumentBestilling.builder().medBehandlingUuid(behandling.getUuid()).medDokumentMal(dokumentMal);
+        return DokumentBestilling.builder()
+            .medBehandlingUuid(behandling.getUuid())
+            .medSaksnummer(behandling.getSaksnummer())
+            .medDokumentMal(dokumentMal);
     }
 
     private boolean erSøktPåPapir(Behandling behandling) {

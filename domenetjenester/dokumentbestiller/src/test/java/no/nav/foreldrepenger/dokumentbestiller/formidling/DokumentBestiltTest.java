@@ -23,6 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ExtendWith(MockitoExtension.class)
 class DokumentBestiltTest {
@@ -85,6 +86,7 @@ class DokumentBestiltTest {
     private DokumentBestilling lagBestilling(DokumentMalType dokumentMal, DokumentMalType journalførSomMal) {
         return DokumentBestilling.builder()
             .medBehandlingUuid(UUID.randomUUID())
+            .medSaksnummer(new Saksnummer("9999"))
             .medDokumentMal(dokumentMal)
             .medJournalførSom(journalførSomMal)
             .medFritekst("test")

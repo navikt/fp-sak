@@ -51,6 +51,7 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
 
         var bestilling = DokumentForhandsvisning.builder()
             .medBehandlingUuid(behandling.getUuid())
+            .medSaksnummer(behandling.getSaksnummer())
             .medDokumentType(DokumentForhandsvisning.DokumentType.OVERSTYRT)
             .build();
 
@@ -73,6 +74,7 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
 
         var bestilling = DokumentForhandsvisning.builder()
             .medBehandlingUuid(behandling.getUuid())
+            .medSaksnummer(behandling.getSaksnummer())
             .medDokumentMal(DokumentMalType.FRITEKSTBREV)
             .medTittel("test")
             .medFritekst("fritekst")
@@ -98,6 +100,7 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
 
         var bestilling = DokumentForhandsvisning.builder()
             .medBehandlingUuid(behandling.getUuid())
+            .medSaksnummer(behandling.getSaksnummer())
             .medDokumentType(DokumentForhandsvisning.DokumentType.AUTOMATISK)
             .build();
 
@@ -120,6 +123,7 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
 
         var bestilling = DokumentForhandsvisning.builder()
             .medBehandlingUuid(behandling.getUuid())
+            .medSaksnummer(behandling.getSaksnummer())
             .medDokumentType(DokumentForhandsvisning.DokumentType.OVERSTYRT)
             .build();
 

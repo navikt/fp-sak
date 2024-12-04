@@ -12,6 +12,7 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
+import no.nav.foreldrepenger.kontrakter.formidling.kodeverk.Saksnummer;
 import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentBestillingDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -44,6 +45,7 @@ public class BestillDokumentTask implements ProsessTaskHandler {
 
     private DokumentBestillingDto mapTilDto(ProsessTaskData prosessTaskData) {
         return new DokumentBestillingDto(prosessTaskData.getBehandlingUuid(),
+            new Saksnummer(prosessTaskData.getSaksnummer()),
             UUID.fromString(prosessTaskData.getPropertyValue(BESTILLING_UUID)),
             mapDokumentMal(DokumentMalType.valueOf(prosessTaskData.getPropertyValue(DOKUMENT_MAL))),
             mapRevurderignÅrsak(Optional.ofNullable(prosessTaskData.getPropertyValue(REVURDERING_ÅRSAK)).map(RevurderingVarslingÅrsak::valueOf).orElse(null)),

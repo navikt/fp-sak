@@ -97,6 +97,7 @@ public class BrevRestTjeneste {
 
         var dokumentBestilling = DokumentBestilling.builder()
             .medBehandlingUuid(bestillBrevDto.behandlingUuid())
+            .medSaksnummer(behandling.getSaksnummer())
             .medDokumentMal(bestillBrevDto.brevmalkode())
             .medRevurderingÅrsak(bestillBrevDto.arsakskode())
             .medFritekst(bestillBrevDto.fritekst())
@@ -128,9 +129,10 @@ public class BrevRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response forhåndsvisDokument(@Parameter(description = "Inneholder kode til brevmal og bestillingsdetaljer.") @TilpassetAbacAttributt(supplierClass = ForhåndsvisSupplier.class) @Valid ForhåndsvisDokumentDto forhåndsvisDto) { // NOSONAR
-
+        var behandling = behandlingRepository.hentBehandling(forhåndsvisDto.behandlingUuid());
         var bestilling = DokumentForhandsvisning.builder()
             .medBehandlingUuid(forhåndsvisDto.behandlingUuid())
+            .medSaksnummer(behandling.getSaksnummer())
             .medDokumentMal(forhåndsvisDto.dokumentMal())
             .medRevurderingÅrsak(forhåndsvisDto.arsakskode())
             .medFritekst(forhåndsvisDto.fritekst())
@@ -139,7 +141,6 @@ public class BrevRestTjeneste {
             .build();
 
         if (DokumentMalType.ETTERLYS_INNTEKTSMELDING.equals(forhåndsvisDto.dokumentMal())) {
-            var behandling = behandlingRepository.hentBehandling(forhåndsvisDto.behandlingUuid());
             validerFinnesManglendeInntektsmelding(behandling);
         }
 

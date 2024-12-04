@@ -72,6 +72,7 @@ public class IverksetteInnsynVedtakStegFelles implements IverksetteVedtakSteg {
 
         return DokumentBestilling.builder()
             .medBehandlingUuid(behandling.getUuid())
+            .medSaksnummer(behandling.getSaksnummer())
             .medDokumentMal(DokumentMalType.INNSYN_SVAR)
             .medFritekst(fritekst)
             .build();

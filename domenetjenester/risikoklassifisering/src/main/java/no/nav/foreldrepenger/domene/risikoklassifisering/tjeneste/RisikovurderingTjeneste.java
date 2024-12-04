@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresul
 import no.nav.foreldrepenger.domene.risikoklassifisering.mapper.KontrollresultatMapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.task.RisikoklassifiseringUtførTask;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalWrapper;
+import no.nav.foreldrepenger.kontrakter.risk.kodeverk.Saksnummer;
 import no.nav.foreldrepenger.kontrakter.risk.v1.HentRisikovurderingDto;
 import no.nav.foreldrepenger.kontrakter.risk.v1.LagreFaresignalVurderingDto;
 import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingRequestDto;
@@ -94,7 +95,8 @@ public class RisikovurderingTjeneste {
     }
 
     private void sendVurderingTilFprisk(BehandlingReferanse referanse, FaresignalVurdering vurdering) {
-        var request = new LagreFaresignalVurderingDto(referanse.behandlingUuid(), KontrollresultatMapper.mapFaresignalvurderingTilKontrakt(vurdering));
+        var request = new LagreFaresignalVurderingDto(referanse.behandlingUuid(), new Saksnummer(referanse.saksnummer().getVerdi()),
+            KontrollresultatMapper.mapFaresignalvurderingTilKontrakt(vurdering));
         fpriskTjeneste.sendRisikovurderingTilFprisk(request);
     }
 
@@ -103,7 +105,7 @@ public class RisikovurderingTjeneste {
     }
 
     private Optional<FaresignalWrapper> hentFaresignalerFraFprisk(BehandlingReferanse ref) {
-        var request = new HentRisikovurderingDto(ref.behandlingUuid());
+        var request = new HentRisikovurderingDto(ref.behandlingUuid(), new Saksnummer(ref.saksnummer().getVerdi()));
         return fpriskTjeneste.hentFaresignalerForBehandling(request).map(KontrollresultatMapper::fraFaresignalRespons);
     }
 }

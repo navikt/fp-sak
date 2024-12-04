@@ -54,6 +54,7 @@ class DokumentBestillerTjenesteTest {
         var historikkAktør = HistorikkAktør.SAKSBEHANDLER;
         var dokumentBestilling = DokumentBestilling.builder()
             .medBehandlingUuid(behandling.getUuid())
+            .medSaksnummer(behandling.getSaksnummer())
             .medDokumentMal(dokumentMal)
             .medFritekst("fritekst")
             .build();

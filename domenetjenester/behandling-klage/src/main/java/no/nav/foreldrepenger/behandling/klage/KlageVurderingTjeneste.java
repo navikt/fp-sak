@@ -168,6 +168,7 @@ public class KlageVurderingTjeneste {
         if (skalBehandlesAvKlageInstans(vurdertAv, klageVurdering) && !dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.KLAGE_OVERSENDT)) {
             var dokumentBestilling = DokumentBestilling.builder()
                 .medBehandlingUuid(behandling.getUuid())
+                .medSaksnummer(behandling.getSaksnummer())
                 .medDokumentMal(DokumentMalType.KLAGE_OVERSENDT)
                 .build();
             dokumentBestillerTjeneste.bestillDokument(dokumentBestilling, HistorikkAktør.SAKSBEHANDLER);

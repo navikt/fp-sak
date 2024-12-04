@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 import no.nav.foreldrepenger.kontrakter.risk.kodeverk.AktørId;
+import no.nav.foreldrepenger.kontrakter.risk.kodeverk.Saksnummer;
 import no.nav.foreldrepenger.kontrakter.risk.kodeverk.YtelseType;
 import no.nav.foreldrepenger.kontrakter.risk.v1.AnnenPartDto;
 import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingRequestDto;
@@ -64,7 +65,8 @@ public class RisikoklassifiseringUtførTask extends GenerellProsessTask {
         var konsumentId = ref.behandlingUuid();
         var ytelsetype = mapFagsaktype(ref.fagsakYtelseType());
         var annenPartOpt = mapAnnenPart(ref);
-        return new RisikovurderingRequestDto(søkerAktørId, stp, opplysningsperiode.getFomDato(), opplysningsperiode.getTomDato(), konsumentId, ytelsetype, annenPartOpt.orElse(null));
+        return new RisikovurderingRequestDto(søkerAktørId, stp, opplysningsperiode.getFomDato(), opplysningsperiode.getTomDato(),
+            konsumentId, ytelsetype, annenPartOpt.orElse(null), new Saksnummer(ref.saksnummer().getVerdi()));
     }
 
     private Optional<AnnenPartDto> mapAnnenPart(BehandlingReferanse ref) {

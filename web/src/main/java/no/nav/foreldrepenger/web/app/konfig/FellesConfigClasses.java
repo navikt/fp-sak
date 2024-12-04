@@ -19,8 +19,6 @@ public class FellesConfigClasses {
         Set<Class<?>> classes = new HashSet<>();
         // Autentisering
         classes.add(AuthenticationFilter.class);
-        // Monitorering
-        classes.add(TimingFilter.class);
         // swagger
         classes.add(OpenApiResource.class);
 
