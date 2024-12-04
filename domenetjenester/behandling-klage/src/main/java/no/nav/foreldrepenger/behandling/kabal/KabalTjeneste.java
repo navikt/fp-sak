@@ -230,7 +230,7 @@ public class KabalTjeneste {
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())
             .medTittel("Klagebehandling KA")
-            .addTekstlinje(fraTilEquals("Ytelsesvedtak", null, resultat.getNavn()))
+            .addTekstlinje(fraTilEquals("Ytelsesvedtak", null, resultat))
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }
@@ -238,14 +238,14 @@ public class KabalTjeneste {
     private void opprettHistorikkinnslagAnke(Behandling behandling, KabalUtfall utfall) {
         var ankeVurdering = ankeVurderingFraUtfall(utfall);
         var ankeVurderingOmgjør = ankeVurderingOmgjørFraUtfall(utfall);
-        var resultat = AnkeVurderingTjeneste.konverterAnkeVurderingTilResultatType(ankeVurdering, ankeVurderingOmgjør);
+        var resultat = AnkeVurderingTjeneste.konverterAnkeVurderingTilResultatTekst(ankeVurdering, ankeVurderingOmgjør);
 
         var historikkinnslag = new Historikkinnslag2.Builder()
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())
             .medTittel("Ankebehandling")
-            .addTekstlinje(fraTilEquals("Anke resultat", null, resultat.getNavn()))
+            .addTekstlinje(fraTilEquals("Anke resultat", null, resultat))
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }

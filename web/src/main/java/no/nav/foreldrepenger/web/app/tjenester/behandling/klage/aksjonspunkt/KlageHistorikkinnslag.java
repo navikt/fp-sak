@@ -89,7 +89,7 @@ public class KlageHistorikkinnslag {
             erNfpAksjonspunkt ? KlageVurdertAv.NFP : KlageVurdertAv.NK, klageVurderingOmgjør);
         var tekstlinjer = new ArrayList<String>();
         if (erNfpAksjonspunkt && resultat != null) {
-            tekstlinjer.add(tekstlinjeBuilder().til("Resultat", resultat.getNavn()).build());
+            tekstlinjer.add(tekstlinjeBuilder().til("Resultat", resultat).build());
         }
         var årsak = dto.getKlageMedholdArsak();
         if (årsak != null) {
