@@ -23,13 +23,12 @@ public class HistorikkDtoFellesMapper {
     private static final Logger LOG = LoggerFactory.getLogger(HistorikkDtoFellesMapper.class);
     private static final String TOM_LINJE = "";
 
-    public static HistorikkinnslagDtoV2 tilHistorikkInnslagDto(Historikkinnslag h, UUID behandlingUUID, List<Linje> tekster) {
-        return tilHistorikkInnslagDto(h, behandlingUUID, null, tekster);
+    public static HistorikkinnslagDtoV2 tilHistorikkInnslagDto(Historikkinnslag h, UUID behandlingUUID, List<Linje> linjer) {
+        return tilHistorikkInnslagDto(h, behandlingUUID, null, linjer);
     }
 
-    public static HistorikkinnslagDtoV2 tilHistorikkInnslagDto(Historikkinnslag h, UUID behandlingUUID, List<HistorikkInnslagDokumentLinkDto> lenker, List<Linje> tekster) {
+    public static HistorikkinnslagDtoV2 tilHistorikkInnslagDto(Historikkinnslag h, UUID behandlingUUID, List<HistorikkInnslagDokumentLinkDto> lenker, List<Linje> linjer) {
         var skjermlenkeOpt = skjermlenkeFra(h);
-        var linjer = fjernTrailingAvsnittFraTekst(tekster);
         return new HistorikkinnslagDtoV2(
             behandlingUUID,
             HistorikkAktørDto.fra(h.getAktør(), h.getOpprettetAv()),
@@ -37,8 +36,8 @@ public class HistorikkDtoFellesMapper {
             h.getOpprettetTidspunkt(),
             lenker,
             skjermlenkeOpt.isEmpty() ? lagTittel(h) : null,
-            tilDeprecatedTekstListe(linjer),
-            linjer
+            tilDeprecatedTekstListe(fjernTrailingAvsnittFraTekst(linjer)),
+            fjernTrailingAvsnittFraTekst(linjer)
         );
     }
 
