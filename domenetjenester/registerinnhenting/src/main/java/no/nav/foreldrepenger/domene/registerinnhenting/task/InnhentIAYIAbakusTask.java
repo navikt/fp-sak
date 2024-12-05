@@ -88,7 +88,7 @@ public class InnhentIAYIAbakusTask extends GenerellProsessTask {
         if (prosessTaskData.getVentetHendelse().filter(IAY_REGISTERDATA_CALLBACK::equals).isEmpty()) {
             throw new IllegalStateException("Ugyldig hendelse");
         }
-        LOG.info("Nytt aktivt grunnlag for behandling={} i abakus har uuid={}", prosessTaskData.getBehandlingId(), prosessTaskData.getPropertyValue(OPPDATERT_GRUNNLAG_KEY));
+        LOG.info("Nytt aktivt grunnlag for behandling={} i abakus har uuid={}", prosessTaskData.getBehandlingIdAsLong(), prosessTaskData.getPropertyValue(OPPDATERT_GRUNNLAG_KEY));
     }
 
     private void settTaskPåVent(ProsessTaskData prosessTaskData) {

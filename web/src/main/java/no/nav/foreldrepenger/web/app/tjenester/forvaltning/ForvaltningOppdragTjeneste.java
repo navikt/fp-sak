@@ -206,7 +206,7 @@ class ForvaltningOppdragTjeneste {
         sendØkonomiOppdrag.setGruppe(hovedProsessTask.getGruppe());
         sendØkonomiOppdrag.setProperty("patchet", hardPatch ? "hardt" : "vanlig"); // for sporing
         sendØkonomiOppdrag.setBehandling(hovedProsessTask.getSaksnummer(), hovedProsessTask.getFagsakId(),
-            Long.valueOf(hovedProsessTask.getBehandlingId()));
+            hovedProsessTask.getBehandlingIdAsLong());
         taskTjeneste.lagre(sendØkonomiOppdrag);
     }
 

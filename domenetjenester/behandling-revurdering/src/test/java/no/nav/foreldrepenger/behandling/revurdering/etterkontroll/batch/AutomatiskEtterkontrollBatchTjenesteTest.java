@@ -183,7 +183,7 @@ class AutomatiskEtterkontrollBatchTjenesteTest {
 
     static Optional<ProsessTaskData> finnTaskFor(ArgumentCaptor<ProsessTaskData> captor, Behandling behandling) {
         return captor.getAllValues().stream()
-            .filter(t -> Long.valueOf(t.getBehandlingId()).equals(behandling.getId()))
+            .filter(t -> t.getBehandlingIdAsLong().equals(behandling.getId()))
             .findFirst();
     }
 

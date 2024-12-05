@@ -33,10 +33,10 @@ public class BehandlingAvsluttetHendelseTask extends FagsakProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
+    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId) {
         // For å sikre at fagsaken hentes opp i cache - ellers dukker den opp via readonly-query og det blir problem.
         var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
 
-        oppdaterFagsakStatusTjeneste.oppdaterFagsakNårBehandlingAvsluttet(fagsak, behandlingId);
+        oppdaterFagsakStatusTjeneste.oppdaterFagsakNårBehandlingAvsluttet(fagsak, prosessTaskData.getBehandlingIdAsLong());
     }
 }

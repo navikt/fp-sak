@@ -69,7 +69,7 @@ public class EngangsstønadReguleringTask extends FagsakProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
+    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId) {
         LOG.info("ESregulering fagsak med fagsakId = {}", fagsakId);
 
         var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);

@@ -31,7 +31,6 @@ public abstract class FagsakProsessTask implements ProsessTaskHandler {
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         var fagsakId = prosessTaskData.getFagsakId();
-        var behandlingId = getBehandlingId(prosessTaskData);
 
         identifiserBehandling(prosessTaskData)
             .stream()
@@ -39,10 +38,10 @@ public abstract class FagsakProsessTask implements ProsessTaskHandler {
             .forEach(behandling -> behandlingLåsRepository.taLås(behandling));
 
         fagsakLåsRepository.taLås(fagsakId);
-        prosesser(prosessTaskData, fagsakId, behandlingId);
+        prosesser(prosessTaskData, fagsakId);
     }
 
-    protected abstract void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId);
+    protected abstract void prosesser(ProsessTaskData prosessTaskData, Long fagsakId);
 
     /**
      * Må alltid ta behandlingen før vi tar lås på fagsaken.
@@ -54,10 +53,6 @@ public abstract class FagsakProsessTask implements ProsessTaskHandler {
      * @return behandlingId
      */
     protected List<Long> identifiserBehandling(ProsessTaskData prosessTaskData) {
-        return Optional.ofNullable(getBehandlingId(prosessTaskData)).map(List::of).orElseGet(List::of);
-    }
-
-    private Long getBehandlingId(ProsessTaskData data) {
-        return data.getBehandlingIdAsLong();
+        return Optional.ofNullable(prosessTaskData.getBehandlingIdAsLong()).map(List::of).orElseGet(List::of);
     }
 }

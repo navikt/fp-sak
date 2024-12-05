@@ -62,10 +62,10 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
+    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId) {
         LOG.info("Etterkontrollerer fagsak med fagsakId = {}", fagsakId);
 
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(prosessTaskData.getBehandlingIdAsLong());
 
         etterkontrollRepository.avflaggDersomEksisterer(fagsakId, KontrollType.MANGLENDE_FØDSEL);
 

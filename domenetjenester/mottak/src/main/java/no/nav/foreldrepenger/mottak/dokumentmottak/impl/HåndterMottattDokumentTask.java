@@ -49,13 +49,14 @@ public class HåndterMottattDokumentTask extends FagsakProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
+    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId) {
+        var behandlingId = prosessTaskData.getBehandlingIdAsLong();
         var dokumentId = Long.valueOf(prosessTaskData.getPropertyValue(MOTTATT_DOKUMENT_ID_KEY));
         var mottattDokument = mottatteDokumentTjeneste.hentMottattDokument(dokumentId)
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: HåndterMottattDokument uten gyldig mottatt dokument, id=" + dokumentId.toString()));
         var behandlingÅrsakType = Optional.ofNullable(prosessTaskData.getPropertyValue(BEHANDLING_ÅRSAK_TYPE_KEY))
             .map(BehandlingÅrsakType::fraKode).orElse(BehandlingÅrsakType.UDEFINERT);
-        LOG.info("HåndterMottattDokument taskId {} saksnummer {} behandlingId {} dokumentid {}", prosessTaskData.getId(), prosessTaskData.getSaksnummer(), prosessTaskData.getBehandlingId(), mottattDokument.getId());
+        LOG.info("HåndterMottattDokument taskId {} saksnummer {} behandlingId {} dokumentid {}", prosessTaskData.getId(), prosessTaskData.getSaksnummer(), behandlingId, mottattDokument.getId());
         if (behandlingId != null) {
             innhentDokumentTjeneste.opprettFraTidligereBehandling(behandlingId, mottattDokument, behandlingÅrsakType);
         } else {

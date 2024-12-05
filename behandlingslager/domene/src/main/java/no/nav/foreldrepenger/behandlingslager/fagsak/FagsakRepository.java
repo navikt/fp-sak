@@ -56,9 +56,26 @@ public class FagsakRepository {
         return fagsak;
     }
 
+    public Fagsak finnEksaktFagsak(Saksnummer saksnummer) {
+        var query = entityManager.createQuery("from Fagsak where saksnummer=:saksnummer", Fagsak.class)
+            .setParameter("saksnummer", saksnummer);
+        var fagsak = HibernateVerktøy.hentEksaktResultat(query);
+        entityManager.refresh(fagsak); // hent alltid på nytt
+        return fagsak;
+    }
+
     public Fagsak finnEksaktFagsakReadOnly(long fagsakId) {
         var query = entityManager.createQuery("from Fagsak where id=:fagsakId", Fagsak.class)
             .setParameter("fagsakId", fagsakId)
+            .setHint(HibernateHints.HINT_READ_ONLY, "true");
+        var fagsak = HibernateVerktøy.hentEksaktResultat(query);
+        entityManager.refresh(fagsak); // hent alltid på nytt
+        return fagsak;
+    }
+
+    public Fagsak finnEksaktFagsakReadOnly(Saksnummer saksnummer) {
+        var query = entityManager.createQuery("from Fagsak where saksnummer=:saksnummer", Fagsak.class)
+            .setParameter("saksnummer", saksnummer)
             .setHint(HibernateHints.HINT_READ_ONLY, "true");
         var fagsak = HibernateVerktøy.hentEksaktResultat(query);
         entityManager.refresh(fagsak); // hent alltid på nytt

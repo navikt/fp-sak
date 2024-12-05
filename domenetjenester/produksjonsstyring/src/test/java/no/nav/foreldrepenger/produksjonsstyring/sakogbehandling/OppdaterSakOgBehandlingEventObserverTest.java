@@ -84,7 +84,8 @@ class OppdaterSakOgBehandlingEventObserverTest {
     private void verifiserProsessTaskData(ScenarioMorSøkerEngangsstønad scenario, ProsessTaskData prosessTaskData, BehandlingStatus expected) {
         assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(OppdaterPersonoversiktTask.class));
         assertThat(prosessTaskData.getFagsakId()).isEqualTo(scenario.getFagsak().getId());
-        assertThat(prosessTaskData.getBehandlingId()).isEqualTo(scenario.getBehandling().getId().toString());
+        assertThat(prosessTaskData.getSaksnummer()).isEqualTo(scenario.getFagsak().getSaksnummer().getVerdi());
+        assertThat(prosessTaskData.getBehandlingIdAsLong()).isEqualTo(scenario.getBehandling().getId());
         assertThat(prosessTaskData.getPropertyValue(OppdaterPersonoversiktTask.PH_REF_KEY)).contains(scenario.getBehandling().getId().toString());
         assertThat(prosessTaskData.getPropertyValue(OppdaterPersonoversiktTask.PH_STATUS_KEY)).isEqualTo(expected.getKode());
         assertThat(LocalDateTime.parse(prosessTaskData.getPropertyValue(OppdaterPersonoversiktTask.PH_TID_KEY), DateTimeFormatter.ISO_LOCAL_DATE_TIME))

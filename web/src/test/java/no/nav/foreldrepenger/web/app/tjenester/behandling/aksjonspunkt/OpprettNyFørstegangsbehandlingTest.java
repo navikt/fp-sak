@@ -366,10 +366,11 @@ class OpprettNyFørstegangsbehandlingTest {
 
         assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(HåndterMottattDokumentTask.class));
         assertThat(prosessTaskData.getFagsakId()).isEqualTo(behandling.getFagsakId());
+        assertThat(prosessTaskData.getSaksnummer()).isEqualTo(behandling.getSaksnummer().getVerdi());
         if (skalhabehandling) {
-            assertThat(prosessTaskData.getBehandlingId()).isEqualTo(behandling.getId().toString());
+            assertThat(prosessTaskData.getBehandlingIdAsLong()).isEqualTo(behandling.getId());
         } else {
-            assertThat(prosessTaskData.getBehandlingId()).isNull();
+            assertThat(prosessTaskData.getBehandlingIdAsLong()).isNull();
         }
         assertThat(prosessTaskData.getPropertyValue(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY))
                 .isEqualTo(ventetDokument.toString());

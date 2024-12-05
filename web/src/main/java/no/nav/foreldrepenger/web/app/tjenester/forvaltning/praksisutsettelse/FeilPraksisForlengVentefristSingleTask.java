@@ -50,7 +50,7 @@ class FeilPraksisForlengVentefristSingleTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        var behandlingId = Long.valueOf(prosessTaskData.getBehandlingId());
+        var behandlingId = prosessTaskData.getBehandlingIdAsLong();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (behandling.erAvsluttet()) {
             LOG.info("FeilPraksisUtsettelse: Forlenger ikke ventefrist. Behandling er avsluttet");
