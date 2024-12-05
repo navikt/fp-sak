@@ -61,7 +61,7 @@ public abstract class InngangsvilkårOverstyringshåndterer<T extends Overstyrin
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())
-            .addlinje(fraTilEquals("Overstyrt vurdering: Utfallet", fraVerdi, tilVerdi))
+            .addLinje(fraTilEquals("Overstyrt vurdering: Utfallet", fraVerdi, tilVerdi))
             .addLinje(begrunnelse)
             .build();
         historikkinnslag2Repository.lagre(historikkinnslag);

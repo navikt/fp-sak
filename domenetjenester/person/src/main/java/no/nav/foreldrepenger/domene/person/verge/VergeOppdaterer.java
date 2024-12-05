@@ -102,20 +102,20 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
             vergeAggregatOpt.get().getVerge().ifPresent(vergeEntitet -> {
                 var aktørId = Optional.ofNullable(vergeEntitet.getBruker()).map(Aktør::getAktørId);
                 aktørId.flatMap(id -> personinfoAdapter.hentBrukerArbeidsgiverForAktør(id)).ifPresent(pib -> {
-                    historikkBuilder.addlinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Navn", pib.getNavn(), dto.getNavn()));
-                    historikkBuilder.addlinje(
+                    historikkBuilder.addLinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Navn", pib.getNavn(), dto.getNavn()));
+                    historikkBuilder.addLinje(
                         HistorikkinnslagLinjeBuilder.fraTilEquals("Fødselsnummer", pib.getPersonIdent().getIdent(), dto.getFnr()));
                 });
-                historikkBuilder.addlinje(
+                historikkBuilder.addLinje(
                     HistorikkinnslagLinjeBuilder.fraTilEquals("Periode f.o.m.", vergeEntitet.getGyldigFom(), dto.getGyldigFom()));
-                historikkBuilder.addlinje(
+                historikkBuilder.addLinje(
                     HistorikkinnslagLinjeBuilder.fraTilEquals("Periode t.o.m.", vergeEntitet.getGyldigTom(), dto.getGyldigTom()));
-                historikkBuilder.addlinje(
+                historikkBuilder.addLinje(
                     HistorikkinnslagLinjeBuilder.fraTilEquals("Type verge", vergeEntitet.getVergeType(), dto.getVergeType()));
                 if (vergeEntitet.getVergeOrganisasjon().isPresent()) {
                     var vergeOrg = vergeEntitet.getVergeOrganisasjon().get();
-                    historikkBuilder.addlinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Navn", vergeOrg.getNavn(), dto.getNavn()));
-                    historikkBuilder.addlinje(
+                    historikkBuilder.addLinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Navn", vergeOrg.getNavn(), dto.getNavn()));
+                    historikkBuilder.addLinje(
                         HistorikkinnslagLinjeBuilder.fraTilEquals("Organisasjonsnummer", vergeOrg.getOrganisasjonsnummer(),
                             dto.getOrganisasjonsnummer()));
                 }

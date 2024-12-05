@@ -49,7 +49,7 @@ class HistorikkSammeBarnTjeneste {
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())
             .medTittel(getSkjermlenkeType(vilkårType, dto.getAksjonspunktDefinisjon()))
-            .addlinje(vilkårResultatTekst(relevantVilkårPåBehandling, dto))
+            .addLinje(vilkårResultatTekst(relevantVilkårPåBehandling, dto))
             .addLinje(dto.getBegrunnelse())
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);

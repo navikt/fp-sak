@@ -59,7 +59,7 @@ public class BeregningOverstyringshåndterer implements Overstyringshåndterer<O
                 .medFagsakId(behandling.getFagsakId())
                 .medBehandlingId(behandlingId)
                 .medTittel(SkjermlenkeType.BEREGNING_ENGANGSSTOENAD)
-                .addlinje(fraTilEquals("__Overstyrt beregning:__ Beløpet", fraBeregning, tilBeregning))
+                .addLinje(fraTilEquals("__Overstyrt beregning:__ Beløpet", fraBeregning, tilBeregning))
                 .addLinje(begrunnelse)
                 .build();
             historikkinnslagRepository.lagre(historikkinnslag);
