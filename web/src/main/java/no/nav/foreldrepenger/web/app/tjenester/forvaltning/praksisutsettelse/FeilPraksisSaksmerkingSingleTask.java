@@ -57,7 +57,7 @@ class FeilPraksisSaksmerkingSingleTask implements ProsessTaskHandler {
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(fagsak.getId())
             .medTittel("Fakta endret")
-            .addlinje(fraTilEquals("Saksmarkering", eksisterende.getNavn(), ny.getNavn()))
+            .addLinje(fraTilEquals("Saksmarkering", eksisterende.getNavn(), ny.getNavn()))
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }

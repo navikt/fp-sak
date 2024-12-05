@@ -109,11 +109,11 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
                 .medTittel(getSkjermlenkeType(param.getRef().fagsakYtelseType()))
                 .medBehandlingId(param.getBehandlingId())
                 .medFagsakId(param.getFagsakId())
-                .addlinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Omsorgsovertakelsesdato", originalOmsorgsovertakelseDato,
+                .addLinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Omsorgsovertakelsesdato", originalOmsorgsovertakelseDato,
                     dto.getOmsorgsovertakelseDato()));
 
             if (nyttVilkårType) {
-                historikkBuilder.addlinje(new HistorikkinnslagLinjeBuilder().til("Vilkår som anvendes", finnTekstBasertPåOmsorgsvilkår(
+                historikkBuilder.addLinje(new HistorikkinnslagLinjeBuilder().til("Vilkår som anvendes", finnTekstBasertPåOmsorgsvilkår(
                     vilkårType)));
             }
             historikkinnslag2Repository.lagre(historikkBuilder.addLinje(dto.getBegrunnelse()).build());

@@ -87,7 +87,7 @@ public abstract class OmsorgsvilkårAksjonspunktOppdaterer implements Aksjonspun
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())
             .medTittel(HistorikkSammeBarnTjeneste.getSkjermlenkeType(vilkårType, aksjonspunktDefinisjon))
-            .addlinje(fraTilEquals(fraVerdiNavn, null, dto.getErVilkarOk() ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT))
+            .addLinje(fraTilEquals(fraVerdiNavn, null, dto.getErVilkarOk() ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT))
             .addLinje(dto.getBegrunnelse())
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);

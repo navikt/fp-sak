@@ -81,7 +81,7 @@ public class AvklarOpptjeningsvilkåretOppdaterer implements AksjonspunktOppdate
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())
             .medTittel(SkjermlenkeType.PUNKT_FOR_OPPTJENING)
-            .addlinje(fraTilEquals("Opptjeningsvilkåret", null, nyVerdi))
+            .addLinje(fraTilEquals("Opptjeningsvilkåret", null, nyVerdi))
             .addLinje(begrunnelse)
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);

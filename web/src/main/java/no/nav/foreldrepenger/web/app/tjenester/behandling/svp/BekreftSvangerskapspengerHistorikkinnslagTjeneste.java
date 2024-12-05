@@ -61,12 +61,12 @@ public class BekreftSvangerskapspengerHistorikkinnslagTjeneste {
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())
             .medTittel(SkjermlenkeType.PUNKT_FOR_SVP_INNGANG)
-            .addlinje(fraTilEquals("Termindato", getTermindato(familieHendelseGrunnlag, ref), dto.getTermindato()))
-            .addlinje(fraTilEquals("Fødselsdato", getFødselsdato(familieHendelseGrunnlag).orElse(null), dto.getFødselsdato()));
+            .addLinje(fraTilEquals("Termindato", getTermindato(familieHendelseGrunnlag, ref), dto.getTermindato()))
+            .addLinje(fraTilEquals("Fødselsdato", getFødselsdato(familieHendelseGrunnlag).orElse(null), dto.getFødselsdato()));
         linjer.forEach(t -> {
-            builder.addlinje(HistorikkinnslagLinjeBuilder.LINJESKIFT);
-            t.forEach(builder::addlinje);
-            builder.addlinje(HistorikkinnslagLinjeBuilder.LINJESKIFT);
+            builder.addLinje(HistorikkinnslagLinjeBuilder.LINJESKIFT);
+            t.forEach(builder::addLinje);
+            builder.addLinje(HistorikkinnslagLinjeBuilder.LINJESKIFT);
         });
         builder.addLinje(dto.getBegrunnelse());
         historikkinnslagRepository.lagre(builder.build());

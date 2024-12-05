@@ -91,12 +91,12 @@ public class BekreftDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Be
             .medBehandlingId(param.getBehandlingId())
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medTittel(SkjermlenkeType.FAKTA_OM_ADOPSJON)
-            .addlinje(fraTilEquals("Omsorgsovertakelsesdato", originalOmsorgsovertakelse, dto.getOmsorgsovertakelseDato()));
+            .addLinje(fraTilEquals("Omsorgsovertakelsesdato", originalOmsorgsovertakelse, dto.getOmsorgsovertakelseDato()));
 
         for (Map.Entry<Integer, LocalDate> eksisterendeFødselsdatoer : originaleFødselsdatoer.entrySet()) {
             var eksisterende = eksisterendeFødselsdatoer.getValue();
             var oppdatert = dto.getFodselsdatoer().get(eksisterendeFødselsdatoer.getKey());
-            builder.addlinje(fraTilEquals("Fødselsdato", eksisterende, oppdatert));
+            builder.addLinje(fraTilEquals("Fødselsdato", eksisterende, oppdatert));
         }
 
         var historikkinnslag = builder.addLinje(dto.getBegrunnelse()).build();

@@ -230,7 +230,7 @@ public class KabalTjeneste {
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())
             .medTittel("Klagebehandling KA")
-            .addlinje(fraTilEquals("Ytelsesvedtak", null, resultat))
+            .addLinje(fraTilEquals("Ytelsesvedtak", null, resultat))
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }
@@ -245,7 +245,7 @@ public class KabalTjeneste {
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())
             .medTittel("Ankebehandling")
-            .addlinje(fraTilEquals("Anke resultat", null, resultat))
+            .addLinje(fraTilEquals("Anke resultat", null, resultat))
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }

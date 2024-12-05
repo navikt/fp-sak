@@ -38,7 +38,7 @@ class KontrollerStorEtterbetalingOppdaterer implements AksjonspunktOppdaterer<Ko
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())
             .medTittel(SkjermlenkeType.FAKTA_OM_SIMULERING)
-            .addlinje(fraTilEquals("Vurdert etterbetaling til søker", null, "Godkjent"))
+            .addLinje(fraTilEquals("Vurdert etterbetaling til søker", null, "Godkjent"))
             .addLinje(dto.getBegrunnelse())
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);

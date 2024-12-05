@@ -106,7 +106,7 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
                     .medFagsakId(fagsakId)
                     .medBehandlingId(behandlingId)
                     .medTittel(SkjermlenkeType.FAKTA_OM_OPPTJENING)
-                    .addlinje(fraTilEquals(String.format("Aktivitet %s", aktivitetNavn), fraVerdi, tilVerdi))
+                    .addLinje(fraTilEquals(String.format("Aktivitet %s", aktivitetNavn), fraVerdi, tilVerdi))
                     .addLinje(bekreftetAktivitet.getBegrunnelse())
                     .build();
                 historikkinnslagRepository.lagre(historikkinnslag);

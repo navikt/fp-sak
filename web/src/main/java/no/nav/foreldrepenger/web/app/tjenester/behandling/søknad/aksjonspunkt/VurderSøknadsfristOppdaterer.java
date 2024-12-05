@@ -54,7 +54,7 @@ public class VurderSøknadsfristOppdaterer implements AksjonspunktOppdaterer<Vur
             .medBehandlingId(param.getBehandlingId())
             .medFagsakId(param.getFagsakId())
             .medTittel(SkjermlenkeType.SOEKNADSFRIST)
-            .addlinje(fraTilEquals("Søknadsfrist", null,  dto.harGyldigGrunn()
+            .addLinje(fraTilEquals("Søknadsfrist", null,  dto.harGyldigGrunn()
                 ? HistorikkEndretFeltVerdiType.HAR_GYLDIG_GRUNN.getNavn()
                 : HistorikkEndretFeltVerdiType.HAR_IKKE_GYLDIG_GRUNN.getNavn()));
 
@@ -65,7 +65,7 @@ public class VurderSøknadsfristOppdaterer implements AksjonspunktOppdaterer<Vur
             var dtoMottattDato = dto.getAnsesMottattDato();
 
             if (!dtoMottattDato.equals(tidligereAnseesMottattDato)) {
-                builder.addlinje(fraTilEquals("Mottatt dato", tidligereAnseesMottattDato, dtoMottattDato));
+                builder.addLinje(fraTilEquals("Mottatt dato", tidligereAnseesMottattDato, dtoMottattDato));
             }
         }
         builder.addLinje(dto.getBegrunnelse());

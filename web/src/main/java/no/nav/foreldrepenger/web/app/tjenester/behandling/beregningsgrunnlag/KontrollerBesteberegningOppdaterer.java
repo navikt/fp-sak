@@ -46,7 +46,7 @@ public class KontrollerBesteberegningOppdaterer implements AksjonspunktOppdatere
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())
             .medTittel(SkjermlenkeType.BESTEBEREGNING)
-            .addlinje(fraTilEquals("Godkjenning av automatisk besteberegning", null, dto.getBesteberegningErKorrekt()))
+            .addLinje(fraTilEquals("Godkjenning av automatisk besteberegning", null, dto.getBesteberegningErKorrekt()))
             .addLinje(dto.getBegrunnelse())
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);

@@ -65,7 +65,7 @@ public class BekreftOmsorgOppdaterer implements AksjonspunktOppdaterer<BekreftFa
             .medFagsakId(param.getFagsakId())
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medTittel(SkjermlenkeType.FAKTA_FOR_OMSORG)
-            .addlinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Omsorg",
+            .addLinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Omsorg",
                 konverterBooleanTilVerdiForOmsorgForBarnet(harOmsorgForBarnetBekreftetVersjon),
                 konverterBooleanTilVerdiForOmsorgForBarnet(dto.getOmsorg())))
             .addLinje(dto.getBegrunnelse())

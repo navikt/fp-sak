@@ -69,7 +69,7 @@ public class SøkersOpplysningspliktOverstyringshåndterer implements Overstyrin
             .medFagsakId(fagsakId)
             .medBehandlingId(behandlingId)
             .medTittel(SkjermlenkeType.OPPLYSNINGSPLIKT)
-            .addlinje(fraTilEquals("Søkers opplysningsplikt", null, dto.getErVilkarOk() ? "oppfylt" : "ikke oppfylt"))
+            .addLinje(fraTilEquals("Søkers opplysningsplikt", null, dto.getErVilkarOk() ? "oppfylt" : "ikke oppfylt"))
             .addLinje(dto.getBegrunnelse())
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);

@@ -69,7 +69,7 @@ public class VurderFaresignalerOppdaterer implements AksjonspunktOppdaterer<Vurd
                 .medFagsakId(param.getFagsakId())
                 .medAktør(HistorikkAktør.SAKSBEHANDLER)
                 .medTittel(SkjermlenkeType.VURDER_FARESIGNALER)
-                .addlinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Faresignaler", fraVerdi, tilVerdi))
+                .addLinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Faresignaler", fraVerdi, tilVerdi))
                 .addLinje(dto.getBegrunnelse())
                 .build();
             historikkinnslag2Repository.lagre(historikkinnslag);

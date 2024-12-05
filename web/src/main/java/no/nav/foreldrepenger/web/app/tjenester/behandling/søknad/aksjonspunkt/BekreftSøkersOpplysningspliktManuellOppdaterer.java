@@ -71,7 +71,7 @@ public class BekreftSøkersOpplysningspliktManuellOppdaterer implements Aksjonsp
             .medBehandlingId(param.getBehandlingId())
             .medFagsakId(param.getFagsakId())
             .medTittel(SkjermlenkeType.OPPLYSNINGSPLIKT)
-            .addlinje(new HistorikkinnslagLinjeBuilder().til("Søkers opplysningsplikt", tilVerdi))
+            .addLinje(new HistorikkinnslagLinjeBuilder().til("Søkers opplysningsplikt", tilVerdi))
             .addLinje(begrunnelse);
 
         historikkinnslag2Repository.lagre(historikkinnslag.build());

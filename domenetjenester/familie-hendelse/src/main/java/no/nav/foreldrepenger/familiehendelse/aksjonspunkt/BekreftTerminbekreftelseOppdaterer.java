@@ -107,14 +107,14 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
             .medTittel(SkjermlenkeType.FAKTA_OM_FOEDSEL);
         if (erEndret) {
             return historikkinnslagBuilder
-                .addlinje(fraTilEquals("Termindato", getTermindato(grunnlag), dto.getTermindato()))
-                .addlinje(fraTilEquals("Utstedtdato", getUtstedtdato(grunnlag), dto.getUtstedtdato()))
-                .addlinje(fraTilEquals("Antall barn", getAntallBarnVedSøknadTerminbekreftelse(grunnlag), dto.getAntallBarn()))
+                .addLinje(fraTilEquals("Termindato", getTermindato(grunnlag), dto.getTermindato()))
+                .addLinje(fraTilEquals("Utstedtdato", getUtstedtdato(grunnlag), dto.getUtstedtdato()))
+                .addLinje(fraTilEquals("Antall barn", getAntallBarnVedSøknadTerminbekreftelse(grunnlag), dto.getAntallBarn()))
                 .addLinje(dto.getBegrunnelse())
                 .build();
         } else {
             return historikkinnslagBuilder
-                .addlinje(fraTilEquals("Terminbekreftelse", null, "godkjent"))
+                .addLinje(fraTilEquals("Terminbekreftelse", null, "godkjent"))
                 .addLinje(dto.getBegrunnelse())
                 .build();
         }

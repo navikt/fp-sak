@@ -147,7 +147,7 @@ public class Historikkinnslag2 extends BaseEntitet {
             return this;
         }
 
-        public Builder addlinje(HistorikkinnslagLinjeBuilder historikkinnslagLinjeBuilder) {
+        public Builder addLinje(HistorikkinnslagLinjeBuilder historikkinnslagLinjeBuilder) {
             if (historikkinnslagLinjeBuilder != null) {
                 internLinjer.add(historikkinnslagLinjeBuilder);
             }
@@ -175,6 +175,7 @@ public class Historikkinnslag2 extends BaseEntitet {
             if (kladd.tittel == null && kladd.skjermlenke == null) {
                 throw new NullPointerException("Forventer å enten ha tittel eller skjermlenke");
             }
+            fjernLeadingOgTrailingLinjeskift();
 
             for (var i = 0; i < internLinjer.size(); i++) {
                 var type = internLinjer.get(i).getType();
@@ -187,6 +188,17 @@ public class Historikkinnslag2 extends BaseEntitet {
             var t = kladd;
             kladd = null;
             return t;
+        }
+
+        private void fjernLeadingOgTrailingLinjeskift() {
+            if (!internLinjer.isEmpty()) {
+                if (internLinjer.getFirst().getType() == HistorikkinnslagLinjeType.LINJESKIFT) {
+                    internLinjer.removeFirst();
+                }
+                if (internLinjer.getLast().getType() == HistorikkinnslagLinjeType.LINJESKIFT) {
+                    internLinjer.removeLast();
+                }
+            }
         }
 
         private String sluttMedPunktum(String tekst) {

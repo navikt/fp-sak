@@ -46,7 +46,7 @@ public class TilbakekrevingvalgHistorikkinnslagBygger {
             .medBehandlingId(ref.behandlingId())
             .medTittel(SkjermlenkeType.FAKTA_OM_SIMULERING)
             .medLinjer(linjer)
-            .addlinje(fraTilEquals("Fastsett videre behandling", forrigeValg.map(TilbakekrevingValg::getVidereBehandling).orElse(null), tilbakekrevingValg.getVidereBehandling()))
+            .addLinje(fraTilEquals("Fastsett videre behandling", forrigeValg.map(TilbakekrevingValg::getVidereBehandling).orElse(null), tilbakekrevingValg.getVidereBehandling()))
             .addLinje(begrunnelse)
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
