@@ -67,7 +67,7 @@ public class Historikkinnslag2RepositoryTest extends EntityManagerAwareTest {
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandlingId)
             .medTittel(SkjermlenkeType.FAKTA_OM_FORDELING)
-            .addlinje(tekstlinje)
+            .addLinje(tekstlinje)
             .build();
         repository.lagre(historikkinnslag);
 

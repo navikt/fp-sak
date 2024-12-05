@@ -50,7 +50,7 @@ public class SøknadsfristOppdaterer implements AksjonspunktOppdaterer<Soknadsfr
             .medBehandlingId(param.getBehandlingId())
             .medTittel(SkjermlenkeType.SOEKNADSFRIST)
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
-            .addlinje(new HistorikkinnslagLinjeBuilder().til("Søknadsfristvilkåret", tilTekst))
+            .addLinje(new HistorikkinnslagLinjeBuilder().til("Søknadsfristvilkåret", tilTekst))
             .addLinje(dto.getBegrunnelse())
             .build();
         historikkinnslag2Repository.lagre(historikkinnslag);

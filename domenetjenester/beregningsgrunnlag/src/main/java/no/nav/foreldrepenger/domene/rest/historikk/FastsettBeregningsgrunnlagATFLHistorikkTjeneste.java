@@ -87,7 +87,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjeneste {
         }
 
         if (inntektFrilanser != null && !frilanserList.isEmpty()) {
-            historikkBuilder.addlinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Frilansinntekt", null, inntektFrilanser));
+            historikkBuilder.addLinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Frilansinntekt", null, inntektFrilanser));
         }
 
         if (overstyrtList != null) {
@@ -111,7 +111,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjeneste {
                     prStatus.getAktivitetStatus(), prStatus.getArbeidsgiver(), prStatus.getArbeidsforholdRef(),
                     arbeidsforholOverstyringer);
                 var textBuilder = new HistorikkinnslagLinjeBuilder();
-                historikkBuilder.addlinje(textBuilder.til(String.format("Inntekt fra %s", visningsNavn), overstyrt.get().getInntekt()));
+                historikkBuilder.addLinje(textBuilder.til(String.format("Inntekt fra %s", visningsNavn), overstyrt.get().getInntekt()));
             }
         }
     }
