@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagDokumentLinkDto;
 public class HistorikkDtoFellesMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(HistorikkDtoFellesMapper.class);
-    private static final String TOM_LINJE = "";
 
     public static HistorikkinnslagDtoV2 tilHistorikkInnslagDto(Historikkinnslag h, UUID behandlingUUID, List<Linje> linjer) {
         return tilHistorikkInnslagDto(h, behandlingUUID, null, linjer);
@@ -36,15 +35,8 @@ public class HistorikkDtoFellesMapper {
             h.getOpprettetTidspunkt(),
             lenker,
             skjermlenkeOpt.isEmpty() ? lagTittel(h) : null,
-            tilDeprecatedTekstListe(fjernTrailingAvsnittFraTekst(linjer)),
             fjernTrailingAvsnittFraTekst(linjer)
         );
-    }
-
-    private static List<String> tilDeprecatedTekstListe(List<Linje> linjer) {
-        return linjer.stream()
-            .map(linje -> linje.erLinjeskift() ? TOM_LINJE : linje.tekst())
-            .toList();
     }
 
     private static String lagTittel(Historikkinnslag h) {
