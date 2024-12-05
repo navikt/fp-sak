@@ -44,8 +44,8 @@ public class BekreftMannAdoptererOppdaterer implements AksjonspunktOppdaterer<Be
         var behandlingReferanse = param.getRef();
 
         var eksisterendeMannAdoptererAlene = finnEksisterendeMannAdoptererAlene(behandlingReferanse);
-        var erEndret = !Objects.equals(eksisterendeMannAdoptererAlene.orElse(null), dto.getMannAdoptererAlene()) || param.erBegrunnelseEndret();
-        if (erEndret) {
+        var erEndret = !Objects.equals(eksisterendeMannAdoptererAlene.orElse(null), dto.getMannAdoptererAlene());
+        if (erEndret || param.erBegrunnelseEndret()) {
             lagreHistorikkinnslag(param, dto, eksisterendeMannAdoptererAlene.orElse(null));
         }
         var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandlingReferanse.behandlingId());
