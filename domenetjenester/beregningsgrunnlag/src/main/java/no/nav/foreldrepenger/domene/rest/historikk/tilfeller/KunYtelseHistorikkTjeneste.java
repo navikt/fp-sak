@@ -110,14 +110,13 @@ public class KunYtelseHistorikkTjeneste extends FaktaOmBeregningHistorikkTjenest
 
     private List<HistorikkinnslagLinjeBuilder> lagHistorikkinnslagdelForFordeling(String andel,
                                                                                   Inntektskategori inntektskategori,
-                                                                                  Integer fastsattBeløp,
-                                                                                  Integer forrigeBeløp) {
-        var fastsattÅrsbeløp = fastsattBeløp == null ? null : fastsattBeløp * MND_I_1_ÅR;
+                                                                                  Integer fastsattMånedsBeløp,
+                                                                                  Integer forrigeMånedsBeløp) {
         List<HistorikkinnslagLinjeBuilder> linjerBuilder = new ArrayList<>();
-        if (fastsattÅrsbeløp != null && !fastsattÅrsbeløp.equals(forrigeBeløp)) {
+        if (fastsattMånedsBeløp != null && !fastsattMånedsBeløp.equals(forrigeMånedsBeløp)) {
             linjerBuilder.add(new HistorikkinnslagLinjeBuilder().tekst("Fordeling for").bold(andel + ":"));
             linjerBuilder.add(
-                new HistorikkinnslagLinjeBuilder().fraTil(fraInntektskategori(inntektskategori), forrigeBeløp, fastsattBeløp));
+                new HistorikkinnslagLinjeBuilder().fraTil(fraInntektskategori(inntektskategori), forrigeMånedsBeløp, fastsattMånedsBeløp));
         }
         return linjerBuilder;
     }
