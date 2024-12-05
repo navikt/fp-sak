@@ -112,7 +112,7 @@ public class FagsakFullTjeneste {
             .flatMap(førsteBeh -> behandlinger.stream().filter(beh -> beh.getUuid().equals(førsteBeh.getUuid())).findFirst())
             .map(FagsakBehandlingDto::getKontrollResultat);
         var dto = new FagsakFullDto(fagsak, dekningsgrad, bruker, manglerAdresse, annenpart, annenpartSak, familiehendelse, fagsakMarkeringer,
-            oppretting, behandlinger, historikk, notater, ferskesteKontrollresultatBehandling.orElse(null), historikk);
+            oppretting, behandlinger, historikk, notater, ferskesteKontrollresultatBehandling.orElse(null));
         return Optional.of(dto);
     }
 
