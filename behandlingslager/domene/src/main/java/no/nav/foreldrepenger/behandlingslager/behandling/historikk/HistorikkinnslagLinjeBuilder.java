@@ -21,7 +21,7 @@ public class HistorikkinnslagLinjeBuilder {
         return b;
     }
 
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+    public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
     private final StringBuilder stringBuilder = new StringBuilder();
     private HistorikkinnslagLinjeType type = HistorikkinnslagLinjeType.TEKST;
