@@ -15,7 +15,6 @@ public record HistorikkinnslagDtoV2(UUID behandlingUuid,
                                     LocalDateTime opprettetTidspunkt,
                                     List<HistorikkInnslagDokumentLinkDto> dokumenter,
                                     String tittel,
-                                    @Deprecated List<String> body,
                                     List<Linje> linjer) {
 
     public record HistorikkAktørDto(HistorikkAktør type, String ident) {

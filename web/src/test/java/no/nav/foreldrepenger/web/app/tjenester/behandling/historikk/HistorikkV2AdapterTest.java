@@ -52,6 +52,8 @@ class HistorikkV2AdapterTest {
         var historikkinnslagDtoV2 = HistorikkV2Adapter.map(historikkinnslag, BEHANDLING_UUID, List.of(), null);
 
         assertThat(historikkinnslagDtoV2).isNotNull();
-        assertThat(historikkinnslagDtoV2.body()).contains("__Trekkdager__ er endret fra 20.0 til __41.0__");
+        assertThat(historikkinnslagDtoV2.linjer())
+            .extracting(HistorikkinnslagDtoV2.Linje::tekst)
+            .contains("__Trekkdager__ er endret fra 20.0 til __41.0__");
     }
 }
