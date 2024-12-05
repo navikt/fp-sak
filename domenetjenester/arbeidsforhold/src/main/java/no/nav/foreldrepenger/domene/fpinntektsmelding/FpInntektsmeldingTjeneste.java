@@ -113,13 +113,13 @@ public class FpInntektsmeldingTjeneste {
     }
 
     public void lagForespørsel(BehandlingReferanse ref, Skjæringstidspunkt stp) {
-        var manglendeIMPerArbeidsgiver = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraAAreg(ref, stp)
+        var arbeidsgivereViManglerInntektsmeldingFra = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraAAreg(ref, stp)
             .keySet()
             .stream()
             .filter(arbeidsgiver -> OrganisasjonsNummerValidator.erGyldig(arbeidsgiver.getOrgnr()))
             .map(arbeidsgiver -> new OrganisasjonsnummerDto(arbeidsgiver.getOrgnr()))
             .toList();
-        if (manglendeIMPerArbeidsgiver.isEmpty()) {
+        if (arbeidsgivereViManglerInntektsmeldingFra.isEmpty()) {
             //Burde ikke skje - men kan skje om inntektsmeldinger kommer fra LPS eller altinn før vi rekker å opprette oppgave - logger warn inntil vi vet om dette er feil eller ok
             LOG.warn("FpInntektsmeldingTjeneste:lagForespørsel: Ingen inntektsmeldinger mangler for sak {} og behandlingId {}", ref.saksnummer(), ref.behandlingId());
             return;
@@ -129,9 +129,9 @@ public class FpInntektsmeldingTjeneste {
 
         var request = new OpprettForespørselRequest(new OpprettForespørselRequest.AktørIdDto(ref.aktørId().getId()),
             null, skjæringstidspunkt, mapYtelsetype(ref.fagsakYtelseType()),
-            new SaksnummerDto(ref.saksnummer().getVerdi()), førsteUttaksdato, manglendeIMPerArbeidsgiver);
+            new SaksnummerDto(ref.saksnummer().getVerdi()), førsteUttaksdato, arbeidsgivereViManglerInntektsmeldingFra);
 
-        LOG.info("Sender kall til fpinntektsmelding om å opprette forespørsel for saksnummer {} med skjæringstidspunkt {} for følgende organisasjonsnumre: {}",  ref.saksnummer(), stp, manglendeIMPerArbeidsgiver);
+        LOG.info("Sender kall til fpinntektsmelding om å opprette forespørsel for saksnummer {} med skjæringstidspunkt {} for følgende organisasjonsnumre: {}",  ref.saksnummer(), stp, arbeidsgivereViManglerInntektsmeldingFra);
         var opprettForespørselResponseNy = klient.opprettForespørsel(request);
 
         opprettForespørselResponseNy.organisasjonsnumreMedStatus().forEach( organisasjonsnummerMedStatus -> {
