@@ -38,18 +38,24 @@ public class Historikkinnslag2Linje extends BaseEntitet implements IndexKey {
     @JoinColumn(name = "historikkinnslag_id", nullable = false)
     private Historikkinnslag2 historikkinnslag;
 
-    private static final String RIKTIG_FORMATERING_BOLD = "^(?:[^_]*__[^_]+__)*[^_]*$";
 
     @Override
     public String getIndexKey() {
         return IndexKey.createKey(sekvensNr);
     }
 
+    private void validerBoldMarkering(String tekst) {
+        var antallBoldMarkører = tekst.split(Historikkinnslag2.BOLD_MARKØR, -1).length -1;
+        if (antallBoldMarkører % 2 == 1) {
+            throw new IllegalArgumentException("Ugyldig bold markering av tekst for tekstlinje");
+        }
+    }
+
     private Historikkinnslag2Linje(String tekst, int sekvensNr, HistorikkinnslagLinjeType type) {
         Objects.requireNonNull(type);
 
-        if (HistorikkinnslagLinjeType.TEKST.equals(type) && !tekst.matches(RIKTIG_FORMATERING_BOLD)) {
-            throw new IllegalArgumentException("Ugyldig bold markering av tekst for tekstlinje");
+        if (HistorikkinnslagLinjeType.TEKST.equals(type)) {
+            validerBoldMarkering(tekst);
         }
 
         if (HistorikkinnslagLinjeType.LINJESKIFT.equals(type) && tekst != null) {
