@@ -34,7 +34,7 @@ public class HistorikkDtoFellesMapper {
             h.getOpprettetTidspunkt(),
             lenker,
             skjermlenkeOpt.isEmpty() ? lagTittel(h) : null,
-            fjernTrailingAvsnittFraTekst(linjer)
+            linjer
         );
     }
 
@@ -69,16 +69,6 @@ public class HistorikkDtoFellesMapper {
         }
         linjer.add(Linje.linjeskift());
         return linjer;
-    }
-
-    private static List<Linje> fjernTrailingAvsnittFraTekst(List<Linje> tekster) {
-        if (tekster.isEmpty()) {
-            return tekster;
-        }
-        if (tekster.getLast().erLinjeskift()) {
-            tekster.removeLast();
-        }
-        return tekster.stream().toList();
     }
 
     private static Optional<SkjermlenkeType> skjermlenkeFra(Historikkinnslag h) {
