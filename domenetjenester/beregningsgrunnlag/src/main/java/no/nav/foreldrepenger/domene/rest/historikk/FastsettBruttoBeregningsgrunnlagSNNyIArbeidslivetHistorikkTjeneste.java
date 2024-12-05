@@ -1,8 +1,5 @@
 package no.nav.foreldrepenger.domene.rest.historikk;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -29,12 +26,6 @@ public class FastsettBruttoBeregningsgrunnlagSNNyIArbeidslivetHistorikkTjeneste 
     }
 
     public void lagHistorikk(FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto dto, AksjonspunktOppdaterParameter param) {
-        List<HistorikkinnslagLinjeBuilder> linjeBuilderList = new ArrayList<>();
-        HistorikkinnslagLinjeBuilder linjeBuilder = new HistorikkinnslagLinjeBuilder();
-        linjeBuilderList.add(linjeBuilder.fraTil("Brutto næringsinntekt", null, dto.getBruttoBeregningsgrunnlag()));
-        linjeBuilderList.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
-        linjeBuilderList.add(linjeBuilder.tekst(dto.getBegrunnelse()));
-
         var historikkinnslag = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medBehandlingId(param.getBehandlingId())
             .medFagsakId(param.getRef().fagsakId())
