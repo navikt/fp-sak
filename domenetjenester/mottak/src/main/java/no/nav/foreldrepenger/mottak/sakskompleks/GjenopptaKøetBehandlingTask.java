@@ -32,9 +32,9 @@ public class GjenopptaKøetBehandlingTask extends FagsakProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
-        if (behandlingId != null) {
-            køKontroller.oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling(behandlingId);
+    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId) {
+        if (prosessTaskData.getBehandlingIdAsLong() != null) {
+            køKontroller.oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling(prosessTaskData.getBehandlingIdAsLong());
         }
     }
 }

@@ -138,8 +138,8 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
         var prosessTaskData = ProsessTaskData.forProsessTask(StønadsstatistikkMigreringTask.class);
 
         prosessTaskData.setProperty(StønadsstatistikkMigreringTask.FOM_DATO_KEY, fomDato.toString());
-        prosessTaskData.setProperty(StønadsstatistikkMigreringTask.FRA_ID, fraVedtakId == null ? null : String.valueOf(fraVedtakId));
-        prosessTaskData.setCallIdFraEksisterende();
+        prosessTaskData.setProperty(StønadsstatistikkMigreringTask.FRA_ID, Optional.ofNullable(fraVedtakId).map(String::valueOf).orElse(null));
+
         return prosessTaskData;
     }
 }

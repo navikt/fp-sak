@@ -256,14 +256,12 @@ public class FagsakRestTjeneste {
         var prosessTaskData = ProsessTaskData.forProsessTask(PubliserBehandlingHendelseTask.class);
         prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
         prosessTaskData.setProperty(PubliserBehandlingHendelseTask.HENDELSE_TYPE, HendelseForBehandling.AKSJONSPUNKT.name());
-        prosessTaskData.setCallIdFraEksisterende();
         return prosessTaskData;
     }
 
     private ProsessTaskData opprettOppdaterEnhetTask(Behandling behandling) {
         var prosessTaskData = ProsessTaskData.forProsessTask(OppdaterBehandlendeEnhetTask.class);
         prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
-        prosessTaskData.setCallIdFraEksisterende();
         return prosessTaskData;
     }
 

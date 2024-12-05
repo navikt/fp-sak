@@ -191,7 +191,6 @@ public class ForvaltningBeregningRestTjeneste {
         }
         var prosessTaskData = ProsessTaskData.forProsessTask(GrunnbeløpReguleringTask.class);
         prosessTaskData.setFagsak(fagsak.getSaksnummer().getVerdi(), fagsak.getId());
-        prosessTaskData.setCallIdFraEksisterende();
         prosessTaskData.setProperty(GrunnbeløpReguleringTask.MANUELL_KEY, "true");
         taskTjeneste.lagre(prosessTaskData);
         return Response.ok().build();
@@ -221,7 +220,6 @@ public class ForvaltningBeregningRestTjeneste {
         }
         var task = ProsessTaskData.forProsessTask(OverstyrInntektsmeldingTask.class);
         task.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
-        task.setCallIdFraEksisterende();
         task.setProperty(OverstyrInntektsmeldingTask.BEHANDLING_ID, behandling.getId().toString());
         task.setProperty(OverstyrInntektsmeldingTask.JOURNALPOST_ID, dto.getJournalpostId());
         task.setProperty(OverstyrInntektsmeldingTask.OPPHØR_FOM, dto.getRefusjonOpphørFom().toString());

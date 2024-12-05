@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.dokumentbestiller.formidling.Dokument;
+import no.nav.foreldrepenger.kontrakter.formidling.kodeverk.Saksnummer;
 import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentForhåndsvisDto;
 
 @ApplicationScoped
@@ -97,6 +98,7 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
     private DokumentForhåndsvisDto lagForhåndsvisningDto(DokumentForhandsvisning bestilling, DokumentMalType bestillingDokumentMal) {
         return new DokumentForhåndsvisDto(
             bestilling.behandlingUuid(),
+            new Saksnummer(bestilling.saksnummer().getVerdi()),
             mapDokumentMal(bestillingDokumentMal),
             mapRevurderignÅrsak(bestilling.revurderingÅrsak()),
             bestilling.tittel(),

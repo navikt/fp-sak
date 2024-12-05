@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.control.ActivateRequestContext;
@@ -39,6 +38,7 @@ import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.integrasjon.kafka.KafkaMessageHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.log.util.LoggerUtils;
 
 @ApplicationScoped
@@ -100,6 +100,7 @@ public class VedtaksHendelseHåndterer implements KafkaMessageHandler.KafkaStrin
         if (Kildesystem.FPSAK.equals(ytelse.getKildesystem())) {
             return;
         }
+        setCallIdForHendelse(ytelse);
 
         /* Re-Enable ved flytting av Kafka til Aiven eller mottak fra nye system/ytelser
             var hendelseId = ytelse.getKildesystem().name() + ytelse.getVedtakReferanse() + Optional.ofNullable(ytelse.getSaksnummer()).orElse("") + ytelse.getYtelse().name();
@@ -118,8 +119,8 @@ public class VedtaksHendelseHåndterer implements KafkaMessageHandler.KafkaStrin
         if (skalLoggeOverlappDB(ytelse)) {
             loggVedtakOverlapp(ytelse, fagsaker);
         } else if (EKSTERNE_HÅNDTERES.contains(ytelse.getYtelse())) {
-            var callID = UUID.randomUUID();
-            fagsakerMedVedtakOverlapp(ytelse, fagsaker).forEach(f -> opprettHåndterOverlappTaskPleiepenger(f, callID));
+            var callId = MDCOperations.getCallId();
+            fagsakerMedVedtakOverlapp(ytelse, fagsaker).forEach(f -> opprettHåndterOverlappTaskPleiepenger(f, callId));
         } else {
             LOG.info("Vedtatt-Ytelse mottok vedtak fra system {} saksnummer {} ytelse {}", ytelse.getKildesystem(), ytelse.getSaksnummer(),
                 ytelse.getYtelse());
@@ -150,14 +151,14 @@ public class VedtaksHendelseHåndterer implements KafkaMessageHandler.KafkaStrin
         mottakRepository.registrerMottattVedtak(mottattVedtakBuilder.build());
     }
 
-    private void opprettHåndterOverlappTaskPleiepenger(Fagsak f, UUID callID) {
+    private void opprettHåndterOverlappTaskPleiepenger(Fagsak f, String callId) {
         // Kjøretidspunkt tidlig neste virkedag slik at OS har fordøyd oppdrag fra K9Sak men ikke utbetalt ennå
         var nesteFormiddag = LocalDateTime.of(VirkedagUtil.fomVirkedag(LocalDate.now().plusDays(1)), LocalTime.of(7, 35, 1));
         var prosessTaskData = ProsessTaskData.forProsessTask(HåndterOverlappPleiepengerTask.class);
         prosessTaskData.setFagsak(f.getSaksnummer().getVerdi(), f.getId());
         // Gi abakus tid til å konsumere samme hendelse så det finnes et grunnlag å hente opp.
         prosessTaskData.setNesteKjøringEtter(nesteFormiddag);
-        prosessTaskData.setCallId(callID.toString());
+        prosessTaskData.setCallId(callId + "_" + f.getId());
         taskTjeneste.lagre(prosessTaskData);
     }
 
@@ -190,6 +191,9 @@ public class VedtaksHendelseHåndterer implements KafkaMessageHandler.KafkaStrin
             .toList();
     }
 
+    private static void setCallIdForHendelse(YtelseV1 hendelse) {
+        MDCOperations.putCallId(hendelse.getVedtakReferanse());
+    }
 
     @Override
     public String topic() {

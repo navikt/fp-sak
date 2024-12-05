@@ -5,14 +5,10 @@ import java.math.BigDecimal;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
-import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.flytkontroll.BehandlingFlytkontroll;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
@@ -25,6 +21,9 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølg
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -69,7 +68,7 @@ public class GrunnbeløpReguleringTask extends FagsakProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
+    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId) {
         // For å sikre at fagsaken hentes opp i cache - ellers dukker den opp via readonly-query og det blir problem.
         var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
 

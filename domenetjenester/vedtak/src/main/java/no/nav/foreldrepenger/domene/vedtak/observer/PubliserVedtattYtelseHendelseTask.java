@@ -48,9 +48,8 @@ public class PubliserVedtattYtelseHendelseTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        Optional.ofNullable(prosessTaskData.getPropertyValue(KEY))
-            .filter(s -> !s.isEmpty())
-            .map(Long::parseLong)
+        Optional.ofNullable(prosessTaskData.getBehandlingIdAsLong())
+            .or(() -> Optional.ofNullable(prosessTaskData.getPropertyValue(KEY)).filter(s -> !s.isEmpty()).map(Long::parseLong))
             .flatMap(behandlingRepository::finnUnikBehandlingForBehandlingId)
             .ifPresent(b -> {
                 var payload = generatePayload(b);

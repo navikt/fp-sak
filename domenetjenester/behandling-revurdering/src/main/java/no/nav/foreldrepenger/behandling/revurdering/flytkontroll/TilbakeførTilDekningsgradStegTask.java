@@ -54,7 +54,7 @@ public class TilbakeførTilDekningsgradStegTask extends FagsakProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
+    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId) {
         var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElseThrow();
         if (behandling.erSaksbehandlingAvsluttet() || SpesialBehandling.erSpesialBehandling(behandling)) {
             return;

@@ -165,7 +165,6 @@ public class ForvaltningOpptjeningRestTjeneste {
         var prosessTaskData = ProsessTaskData.forProsessTask(InnhentIAYIAbakusTask.class);
         prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
         prosessTaskData.setProperty(InnhentIAYIAbakusTask.OVERSTYR_KEY, InnhentIAYIAbakusTask.OVERSTYR_VALUE);
-        prosessTaskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(prosessTaskData);
         return Response.noContent().build();
     }

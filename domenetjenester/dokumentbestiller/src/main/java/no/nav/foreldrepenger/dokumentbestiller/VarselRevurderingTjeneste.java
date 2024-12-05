@@ -42,6 +42,7 @@ public class VarselRevurderingTjeneste {
     public void håndterVarselRevurdering(BehandlingReferanse ref, VarselRevurderingAksjonspunktDto adapter) {
         var dokumentBestilling = DokumentBestilling.builder()
             .medBehandlingUuid(ref.behandlingUuid())
+            .medSaksnummer(ref.saksnummer())
             .medDokumentMal(DokumentMalType.VARSEL_OM_REVURDERING)
             .medRevurderingÅrsak(RevurderingVarslingÅrsak.ANNET)
             .medFritekst(adapter.getFritekst())

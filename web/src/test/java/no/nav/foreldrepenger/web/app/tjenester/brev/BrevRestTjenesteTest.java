@@ -11,23 +11,21 @@ import static org.mockito.Mockito.when;
 
 import java.util.UUID;
 
-import no.nav.foreldrepenger.dokumentbestiller.DokumentForhåndsvisningTjeneste;
-
-import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentForhåndsvisningTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillDokumentDto;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
-
-import org.mockito.ArgumentCaptor;
 
 class BrevRestTjenesteTest {
 
@@ -55,7 +53,9 @@ class BrevRestTjenesteTest {
     void bestillerDokument() {
         // Arrange
         var behandlingUuid = UUID.randomUUID();
-        when(behandlingRepository.hentBehandling(behandlingUuid)).thenReturn(mock(Behandling.class));
+        var behandlingMock = mock(Behandling.class);
+        when(behandlingMock.getSaksnummer()).thenReturn(new Saksnummer("9999"));
+        when(behandlingRepository.hentBehandling(behandlingUuid)).thenReturn(behandlingMock);
         var fritekst = "Dette er en fritekst";
         var dokumentMal = INNHENTE_OPPLYSNINGER;
         var bestillBrevDto = new BestillDokumentDto(behandlingUuid, dokumentMal, fritekst, null);

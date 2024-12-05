@@ -4,8 +4,10 @@ import java.util.Objects;
 import java.util.UUID;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
- public record DokumentForhandsvisning(UUID behandlingUuid,
+public record DokumentForhandsvisning(UUID behandlingUuid,
+                                       Saksnummer saksnummer,
                                        DokumentMalType dokumentMal,
                                        String fritekst,
                                        String tittel,
@@ -23,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrs
 
     public static final class Builder {
         private UUID behandlingUuid;
+        private Saksnummer saksnummer;
         private DokumentMalType dokumentMal;
         private RevurderingVarslingÅrsak revurderingÅrsak;
         private String fritekst;
@@ -31,6 +34,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrs
 
         public Builder medBehandlingUuid(UUID behandlingUuid) {
             this.behandlingUuid = behandlingUuid;
+            return this;
+        }
+
+        public Builder medSaksnummer(Saksnummer saksnummer) {
+            this.saksnummer = saksnummer;
             return this;
         }
 
@@ -61,11 +69,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrs
 
         public DokumentForhandsvisning build() {
             valider();
-            return new DokumentForhandsvisning(behandlingUuid, dokumentMal, fritekst, tittel, revurderingÅrsak, dokumentType);
+            return new DokumentForhandsvisning(behandlingUuid, saksnummer, dokumentMal, fritekst, tittel, revurderingÅrsak, dokumentType);
         }
 
         private void valider() {
             Objects.requireNonNull(behandlingUuid, "Behandling UUID må være satt");
+            Objects.requireNonNull(saksnummer, "Saksnummer må være satt");
             Objects.requireNonNull(dokumentType, "Dokument type må være satt");
 
             if (DokumentMalType.FRITEKSTBREV.equals(dokumentMal)) {

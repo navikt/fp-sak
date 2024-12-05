@@ -71,7 +71,6 @@ public class FpoversiktMigreringRestTjeneste {
         if (ytelseType != null) {
             prosessTaskData.setProperty(FpoversiktMigeringBehandlingHendelseTask.YTELSE_TYPE_KEY, ytelseType.getKode());
         }
-        prosessTaskData.setCallIdFraEksisterende();
         prosessTaskData.setNesteKjøringEtter(LocalDateTime.now().plusSeconds(delay));
         return prosessTaskData;
     }

@@ -192,6 +192,7 @@ class DokumentBehandlingTjenesteTest {
     private DokumentBestilling lagBestilling(DokumentMalType dokumentMal, DokumentMalType journalførSomMal) {
         return DokumentBestilling.builder()
             .medBehandlingUuid(behandling.getUuid())
+            .medSaksnummer(behandling.getSaksnummer())
             .medDokumentMal(dokumentMal)
             .medJournalførSom(journalførSomMal)
             .medFritekst("test")

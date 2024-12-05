@@ -125,7 +125,8 @@ class BehandlingHendelseHåndtererTest {
                                           BehandlingStatus expectedStatus, BehandlingType expectedType) {
         assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(OppdaterPersonoversiktTask.class));
         assertThat(prosessTaskData.getFagsakId()).isEqualTo(scenario.getFagsak().getId());
-        assertThat(prosessTaskData.getBehandlingId()).isNull();
+        assertThat(prosessTaskData.getSaksnummer()).isEqualTo(scenario.getFagsak().getSaksnummer().getVerdi());
+        assertThat(prosessTaskData.getBehandlingIdAsLong()).isNull();
         assertThat(prosessTaskData.getPropertyValue(OppdaterPersonoversiktTask.PH_REF_KEY)).contains(Fagsystem.FPSAK.getOffisiellKode() + "_T");
         assertThat(prosessTaskData.getPropertyValue(OppdaterPersonoversiktTask.PH_STATUS_KEY)).isEqualTo(expectedStatus.getKode());
         assertThat(LocalDateTime.parse(prosessTaskData.getPropertyValue(OppdaterPersonoversiktTask.PH_TID_KEY), DateTimeFormatter.ISO_LOCAL_DATE_TIME))

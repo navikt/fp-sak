@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.iverksettevedtak;
 
-import java.util.UUID;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -70,7 +68,7 @@ public class HenleggBehandlingTjeneste {
         if (BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET.equals(årsakKode)
                 || BehandlingResultatType.HENLAGT_KLAGE_TRUKKET.equals(årsakKode)
                 || BehandlingResultatType.HENLAGT_INNSYN_TRUKKET.equals(årsakKode)) {
-            sendHenleggelsesbrev(behandling.getUuid());
+            sendHenleggelsesbrev(behandling);
         }
         lagHistorikkinnslagForHenleggelse(behandlingId, årsakKode, begrunnelse, HistorikkAktør.SAKSBEHANDLER);
 
@@ -99,13 +97,13 @@ public class HenleggBehandlingTjeneste {
     private void startTaskForDekøingAvBerørtBehandling(Behandling behandling) {
         var taskData = ProsessTaskData.forProsessTask(StartBerørtBehandlingTask.class);
         taskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
-        taskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(taskData);
     }
 
-    private void sendHenleggelsesbrev(UUID behandlingUuid) {
+    private void sendHenleggelsesbrev(Behandling behandling) {
         var dokumentBestilling = DokumentBestilling.builder()
-            .medBehandlingUuid(behandlingUuid)
+            .medBehandlingUuid(behandling.getUuid())
+            .medSaksnummer(behandling.getSaksnummer())
             .medDokumentMal(DokumentMalType.INFO_OM_HENLEGGELSE)
             .build();
         dokumentBestillerTjeneste.bestillDokument(dokumentBestilling, HistorikkAktør.VEDTAKSLØSNINGEN);

@@ -48,7 +48,6 @@ class FeilPraksisForlengVentefristAlleTask implements ProsessTaskHandler {
     public static ProsessTaskData opprettTaskForEnkeltSak(Long fagsakId, Long behandlingId, String saksnummer) {
         var prosessTaskData = ProsessTaskData.forProsessTask(FeilPraksisForlengVentefristSingleTask.class);
         prosessTaskData.setBehandling(saksnummer, fagsakId, behandlingId);
-        prosessTaskData.setCallIdFraEksisterende();
         return prosessTaskData;
     }
 
@@ -58,7 +57,6 @@ class FeilPraksisForlengVentefristAlleTask implements ProsessTaskHandler {
         prosessTaskData.setProperty(FeilPraksisForlengVentefristAlleTask.FRA_BEHANDLING_ID,
             fraBehandlingId == null ? null : String.valueOf(fraBehandlingId));
         prosessTaskData.setNesteKjøringEtter(LocalDateTime.now().plusSeconds(10));
-        prosessTaskData.setCallIdFraEksisterende();
         return prosessTaskData;
     }
 }

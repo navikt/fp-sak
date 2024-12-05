@@ -30,6 +30,7 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 class SaksbehandlingDokumentmottakTjenesteTest {
 
     private static final Long FAGSAK_ID = 1L;
+    private static final Saksnummer SAKSNUMMER = new Saksnummer("9999");
     private static final JournalpostId JOURNALPOST_ID = new JournalpostId("2");
     private static final DokumentTypeId DOKUMENTTYPE = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
     private static final DokumentKategori DOKUMENTKATEGORI = DokumentKategori.SØKNAD;
@@ -64,7 +65,7 @@ class SaksbehandlingDokumentmottakTjenesteTest {
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         // Act
-        saksbehandlingDokumentmottakTjeneste.dokumentAnkommet(saksdokument, null, new Saksnummer("9999"));
+        saksbehandlingDokumentmottakTjeneste.dokumentAnkommet(saksdokument, null, SAKSNUMMER);
 
         // Assert
         verify(mottatteDokumentTjeneste).lagreMottattDokumentPåFagsak(saksdokument);
@@ -72,6 +73,7 @@ class SaksbehandlingDokumentmottakTjenesteTest {
         var prosessTaskData = captor.getValue();
         assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(HåndterMottattDokumentTask.class));
         assertThat(prosessTaskData.getFagsakId()).isEqualTo(FAGSAK_ID);
+        assertThat(prosessTaskData.getSaksnummer()).isEqualTo(SAKSNUMMER.getVerdi());
     }
 
     @Test
@@ -89,7 +91,7 @@ class SaksbehandlingDokumentmottakTjenesteTest {
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         // Act
-        saksbehandlingDokumentmottakTjeneste.dokumentAnkommet(saksdokument, null, new Saksnummer("9999"));
+        saksbehandlingDokumentmottakTjeneste.dokumentAnkommet(saksdokument, null, SAKSNUMMER);
         verify(mottatteDokumentTjeneste).lagreMottattDokumentPåFagsak(saksdokument);
 
         // Assert
@@ -116,7 +118,8 @@ class SaksbehandlingDokumentmottakTjenesteTest {
         verify(taskTjeneste).lagre(captor.capture());
         var data = captor.getValue();
         assertThat(data.getFagsakId()).isEqualTo(456L);
-        assertThat(data.getBehandlingId()).isNull();
+        assertThat(data.getSaksnummer()).isEqualTo("456");
+        assertThat(data.getBehandlingIdAsLong()).isNull();
         assertThat(data.getPropertyValue(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY)).isEqualTo("1");
     }
 
@@ -146,7 +149,8 @@ class SaksbehandlingDokumentmottakTjenesteTest {
         verify(taskTjeneste).lagre(captor.capture());
         var data = captor.getValue();
         assertThat(data.getFagsakId()).isEqualTo(456L);
-        assertThat(data.getBehandlingId()).isEqualTo("789");
+        assertThat(data.getSaksnummer()).isEqualTo("456");
+        assertThat(data.getBehandlingIdAsLong()).isEqualTo(789L);
         assertThat(data.getPropertyValue(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY)).isEqualTo("1");
         assertThat(data.getPropertyValue(HåndterMottattDokumentTask.BEHANDLING_ÅRSAK_TYPE_KEY)).isEqualToIgnoringCase(BehandlingÅrsakType.ETTER_KLAGE.getKode());
     }

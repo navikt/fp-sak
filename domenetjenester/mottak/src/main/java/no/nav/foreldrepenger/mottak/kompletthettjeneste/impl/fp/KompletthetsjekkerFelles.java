@@ -8,7 +8,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -152,7 +151,7 @@ public class KompletthetsjekkerFelles {
         // Gjeldende logikk: Alltid etterlys ved mangler. Tidligere: Etterlys hvis ingen mottatte
         var erSendtBrev = erEtterlysInntektsmeldingBrevSendt(ref.behandlingId());
         if (!erSendtBrev) {
-            sendEtterlysInntektsmeldingBrev(ref.behandlingId(), ref.behandlingUuid());
+            sendEtterlysInntektsmeldingBrev(ref);
             return finnVentefristNårSendtEtterlysning(ref, stp, ventefristEtterlysning.get(), LocalDate.now(), manglendeInntektsmeldinger);
         } else {
             var sendtEtterlysningDato = dokumentBehandlingTjeneste.dokumentSistBestiltTidspunkt(ref.behandlingId(), DokumentMalType.ETTERLYS_INNTEKTSMELDING)
@@ -223,10 +222,11 @@ public class KompletthetsjekkerFelles {
         LOG.info("Behandling {} er ikke komplett - mangler IM fra arbeidsgivere: {}", behandlingId, arbgivere);
     }
 
-    private void sendEtterlysInntektsmeldingBrev(Long behandlingId, UUID behandlingUuid) {
-        if (!erEtterlysInntektsmeldingBrevSendt(behandlingId)) {
+    private void sendEtterlysInntektsmeldingBrev(BehandlingReferanse ref) {
+        if (!erEtterlysInntektsmeldingBrevSendt(ref.behandlingId())) {
             var dokumentBestilling = DokumentBestilling.builder()
-                .medBehandlingUuid(behandlingUuid)
+                .medBehandlingUuid(ref.behandlingUuid())
+                .medSaksnummer(ref.saksnummer())
                 .medDokumentMal(DokumentMalType.ETTERLYS_INNTEKTSMELDING)
                 .build();
             dokumentBestillerTjeneste.bestillDokument(dokumentBestilling, HistorikkAktør.VEDTAKSLØSNINGEN);

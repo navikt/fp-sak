@@ -55,6 +55,7 @@ public class DokumentBestillerTjeneste extends AbstractDokumentBestillerTjeneste
 
         bestillDokument(DokumentBestilling.builder()
             .medBehandlingUuid(behandling.getUuid())
+            .medSaksnummer(behandling.getSaksnummer())
             .medDokumentMal(dokumentMal)
             .medJournalførSom(journalførSom)
             .build(), HistorikkAktør.VEDTAKSLØSNINGEN);

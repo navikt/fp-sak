@@ -27,6 +27,7 @@ import no.nav.vedtak.hendelser.behandling.BehandlingHendelse;
 import no.nav.vedtak.hendelser.behandling.Hendelse;
 import no.nav.vedtak.hendelser.behandling.Kildesystem;
 import no.nav.vedtak.hendelser.behandling.v1.BehandlingHendelseV1;
+import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.log.util.LoggerUtils;
 
 @ApplicationScoped
@@ -62,6 +63,7 @@ public class BehandlingHendelseHåndterer implements KafkaMessageHandler.KafkaSt
         try {
             var mottattHendelse = StandardJsonConfig.fromJson(value, BehandlingHendelse.class);
             if (Kildesystem.FPTILBAKE.equals(mottattHendelse.getKildesystem()) && mottattHendelse instanceof BehandlingHendelseV1 hendelseV1) {
+                setCallIdForHendelse(hendelseV1);
                 handleMessageIntern(hendelseV1);
             }
         } catch (VLException e) {
@@ -113,8 +115,11 @@ public class BehandlingHendelseHåndterer implements KafkaMessageHandler.KafkaSt
         prosessTaskData.setProperty(OppdaterPersonoversiktTask.PH_STATUS_KEY, behandlingStatus.getKode());
         prosessTaskData.setProperty(OppdaterPersonoversiktTask.PH_TID_KEY, hendelse.getTidspunkt().toString());
         prosessTaskData.setProperty(OppdaterPersonoversiktTask.PH_TYPE_KEY, behandlingType.getKode());
-        prosessTaskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(prosessTaskData);
+    }
+
+    private static void setCallIdForHendelse(BehandlingHendelseV1 hendelse) {
+        MDCOperations.putCallId(hendelse.getBehandlingUuid().toString());
     }
 
     @Override

@@ -1,12 +1,13 @@
 package no.nav.foreldrepenger.dokumentbestiller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 class BrevForhåndsvisningTest {
 
@@ -17,7 +18,7 @@ class BrevForhåndsvisningTest {
         var tittel = "tittel";
         var revurderingÅrsak = RevurderingVarslingÅrsak.ANNET;
         var brevType = DokumentForhandsvisning.DokumentType.AUTOMATISK;
-        var forhåndsvisning = new DokumentForhandsvisning(UUID.randomUUID(), dokumentMal, fritekst, tittel, revurderingÅrsak, brevType);
+        var forhåndsvisning = new DokumentForhandsvisning(UUID.randomUUID(), new Saksnummer("9999"), dokumentMal, fritekst, tittel, revurderingÅrsak, brevType);
         assertThat(forhåndsvisning.behandlingUuid()).isNotNull();
         assertThat(forhåndsvisning.dokumentMal()).isNotNull().isEqualTo(dokumentMal);
         assertThat(forhåndsvisning.fritekst()).isNotNull().isEqualTo(fritekst);
@@ -33,6 +34,7 @@ class BrevForhåndsvisningTest {
 
         var bestilling = DokumentForhandsvisning.builder()
             .medBehandlingUuid(behandlingUuid)
+            .medSaksnummer(new Saksnummer("9999"))
             .medDokumentMal(dokumentMal)
             .medDokumentType(DokumentForhandsvisning.DokumentType.AUTOMATISK)
             .build();
@@ -55,6 +57,7 @@ class BrevForhåndsvisningTest {
         var brevType = DokumentForhandsvisning.DokumentType.OVERSTYRT;
         var bestilling = DokumentForhandsvisning.builder()
             .medBehandlingUuid(behandlingUuid)
+            .medSaksnummer(new Saksnummer("9999"))
             .medDokumentMal(dokumentMal)
             .medFritekst(fritekst)
             .medTittel(tittel)

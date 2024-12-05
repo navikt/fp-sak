@@ -4,8 +4,10 @@ import java.util.Objects;
 import java.util.UUID;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public record DokumentBestilling(UUID behandlingUuid,
+                                 Saksnummer saksnummer,
                                  DokumentMalType dokumentMal,
                                  String fritekst,
                                  RevurderingVarslingÅrsak revurderingÅrsak,
@@ -18,6 +20,7 @@ public record DokumentBestilling(UUID behandlingUuid,
 
     public static final class Builder {
         private UUID behandlingUuid;
+        private Saksnummer saksnummer;
         private DokumentMalType dokumentMal;
         private RevurderingVarslingÅrsak revurderingÅrsak;
         private String fritekst;
@@ -25,6 +28,11 @@ public record DokumentBestilling(UUID behandlingUuid,
 
         public Builder medBehandlingUuid(UUID behandlingUuid) {
             this.behandlingUuid = behandlingUuid;
+            return this;
+        }
+
+        public Builder medSaksnummer(Saksnummer saksnummer) {
+            this.saksnummer = saksnummer;
             return this;
         }
 
@@ -50,11 +58,12 @@ public record DokumentBestilling(UUID behandlingUuid,
 
         public DokumentBestilling build() {
             valider();
-            return new DokumentBestilling(behandlingUuid, dokumentMal, fritekst, revurderingÅrsak, journalførSom, UUID.randomUUID());
+            return new DokumentBestilling(behandlingUuid, saksnummer, dokumentMal, fritekst, revurderingÅrsak, journalførSom, UUID.randomUUID());
         }
 
         private void valider() {
             Objects.requireNonNull(behandlingUuid, "Behandling UUID må være satt");
+            Objects.requireNonNull(saksnummer, "Saksnummer må være satt");
             Objects.requireNonNull(dokumentMal, "Dokument mal må være satt");
 
             if (DokumentMalType.FRITEKSTBREV.equals(dokumentMal)) {

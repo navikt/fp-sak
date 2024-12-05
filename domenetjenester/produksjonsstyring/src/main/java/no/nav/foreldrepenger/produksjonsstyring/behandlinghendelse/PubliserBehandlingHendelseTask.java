@@ -77,7 +77,6 @@ public class PubliserBehandlingHendelseTask extends GenerellProsessTask {
         var prosessTaskData = ProsessTaskData.forProsessTask(PubliserBehandlingHendelseTask.class);
         prosessTaskData.setBehandling(saksnummer.getVerdi(), fagsakId, behandlingsId);
         prosessTaskData.setProperty(PubliserBehandlingHendelseTask.HENDELSE_TYPE, hendelse.name());
-        prosessTaskData.setCallIdFraEksisterende();
         return prosessTaskData;
     }
 

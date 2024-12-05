@@ -173,12 +173,10 @@ public class BehandlingsprosessTjeneste {
 
         var åpneBehandlingForEndringerTask = ProsessTaskData.forProsessTask(ÅpneBehandlingForEndringerTask.class);
         åpneBehandlingForEndringerTask.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
-        åpneBehandlingForEndringerTask.setCallIdFraEksisterende();
         gruppe.addNesteSekvensiell(åpneBehandlingForEndringerTask);
         var fortsettBehandlingTask = ProsessTaskData.forProsessTask(FortsettBehandlingTask.class);
         fortsettBehandlingTask.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
         fortsettBehandlingTask.setProperty(FortsettBehandlingTask.MANUELL_FORTSETTELSE, String.valueOf(true));
-        fortsettBehandlingTask.setCallIdFraEksisterende();
         gruppe.addNesteSekvensiell(fortsettBehandlingTask);
 
         opprettHistorikkinnslagForBehandlingStartetPåNytt(behandling);

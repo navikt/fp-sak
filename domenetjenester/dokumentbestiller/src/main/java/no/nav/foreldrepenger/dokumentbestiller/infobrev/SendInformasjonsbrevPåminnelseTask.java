@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
@@ -77,7 +78,7 @@ public class SendInformasjonsbrevPåminnelseTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        var fagsakFar = fagsakRepository.finnEksaktFagsakReadOnly(prosessTaskData.getFagsakId());
+        var fagsakFar = fagsakRepository.finnEksaktFagsakReadOnly(new Saksnummer(prosessTaskData.getSaksnummer()));
 
         var aktørId = fagsakFar.getAktørId();
         var bruker = hentPersonInfo(aktørId);
@@ -99,6 +100,7 @@ public class SendInformasjonsbrevPåminnelseTask implements ProsessTaskHandler {
         if (eksisterendeBehandling.isPresent() && !eksisterendeBehandling.get().erAvsluttet()) {
             var dokumentBestilling = DokumentBestilling.builder()
                 .medBehandlingUuid(eksisterendeBehandling.get().getUuid())
+                .medSaksnummer(eksisterendeBehandling.get().getSaksnummer())
                 .medDokumentMal(DokumentMalType.FORELDREPENGER_INFO_TIL_ANNEN_FORELDER)
                 .build();
             dokumentBestillerTjeneste.bestillDokument(dokumentBestilling, HistorikkAktør.VEDTAKSLØSNINGEN);

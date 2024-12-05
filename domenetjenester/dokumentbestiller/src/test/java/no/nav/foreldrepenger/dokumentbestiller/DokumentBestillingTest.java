@@ -5,15 +5,18 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.UUID;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
-
 import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 class DokumentBestillingTest {
 
+    private static final Saksnummer SAKSNUMMER = new Saksnummer("123456789");
+
     @Test
     void positiv() {
-        var bestilling = new DokumentBestilling(UUID.randomUUID(), DokumentMalType.FORELDREPENGER_INNVILGELSE, null, null, null, UUID.randomUUID());
+        var bestilling = new DokumentBestilling(UUID.randomUUID(), SAKSNUMMER, DokumentMalType.FORELDREPENGER_INNVILGELSE, null, null, null, UUID.randomUUID());
         assertThat(bestilling.behandlingUuid()).isNotNull();
         assertThat(bestilling.bestillingUuid()).isNotNull();
         assertThat(bestilling.dokumentMal()).isNotNull();
@@ -29,6 +32,7 @@ class DokumentBestillingTest {
 
         var bestilling = DokumentBestilling.builder()
             .medBehandlingUuid(behandlingUuid)
+            .medSaksnummer(SAKSNUMMER)
             .medDokumentMal(dokumentMal)
             .build();
 
@@ -53,7 +57,7 @@ class DokumentBestillingTest {
         var behandlingUuid = UUID.randomUUID();
 
         var bestillingBuilder = DokumentBestilling.builder()
-            .medBehandlingUuid(behandlingUuid);
+            .medBehandlingUuid(behandlingUuid).medSaksnummer(SAKSNUMMER);
 
         var ex = assertThrows(NullPointerException.class, bestillingBuilder::build);
         assertThat(ex.getMessage()).contains("Dokument mal må være satt");
@@ -66,6 +70,7 @@ class DokumentBestillingTest {
 
         var bestillingBuilder = DokumentBestilling.builder()
             .medBehandlingUuid(behandlingUuid)
+            .medSaksnummer(SAKSNUMMER)
             .medDokumentMal(dokumentMal);
 
         var ex = assertThrows(NullPointerException.class, bestillingBuilder::build);
@@ -80,6 +85,7 @@ class DokumentBestillingTest {
 
         var bestilling = DokumentBestilling.builder()
             .medBehandlingUuid(behandlingUuid)
+            .medSaksnummer(SAKSNUMMER)
             .medDokumentMal(dokumentMal)
             .medJournalførSom(journalførSom)
             .build();
@@ -99,6 +105,7 @@ class DokumentBestillingTest {
 
         var bestillingBuilder = DokumentBestilling.builder()
             .medBehandlingUuid(behandlingUuid)
+            .medSaksnummer(SAKSNUMMER)
             .medDokumentMal(dokumentMal);
 
         var ex = assertThrows(NullPointerException.class, bestillingBuilder::build);
@@ -112,6 +119,7 @@ class DokumentBestillingTest {
 
         var bestilling = DokumentBestilling.builder()
             .medBehandlingUuid(behandlingUuid)
+            .medSaksnummer(SAKSNUMMER)
             .medDokumentMal(dokumentMal)
             .medFritekst("test")
             .build();
@@ -131,6 +139,7 @@ class DokumentBestillingTest {
 
         var bestillingBuilder = DokumentBestilling.builder()
             .medBehandlingUuid(behandlingUuid)
+            .medSaksnummer(SAKSNUMMER)
             .medDokumentMal(dokumentMal);
 
         var ex = assertThrows(NullPointerException.class, bestillingBuilder::build);
@@ -144,6 +153,7 @@ class DokumentBestillingTest {
 
         var bestillingBuilder = DokumentBestilling.builder()
             .medBehandlingUuid(behandlingUuid)
+            .medSaksnummer(SAKSNUMMER)
             .medDokumentMal(dokumentMal)
             .medRevurderingÅrsak(RevurderingVarslingÅrsak.ANNET);
 
@@ -159,6 +169,7 @@ class DokumentBestillingTest {
 
         var bestilling = DokumentBestilling.builder()
             .medBehandlingUuid(behandlingUuid)
+            .medSaksnummer(SAKSNUMMER)
             .medDokumentMal(dokumentMal)
             .medRevurderingÅrsak(revurderingÅrsak)
             .medFritekst("test")
@@ -180,6 +191,7 @@ class DokumentBestillingTest {
 
         var bestilling = DokumentBestilling.builder()
             .medBehandlingUuid(behandlingUuid)
+            .medSaksnummer(SAKSNUMMER)
             .medDokumentMal(dokumentMal)
             .medRevurderingÅrsak(revurderingÅrsak)
             .build();

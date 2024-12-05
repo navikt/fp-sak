@@ -37,7 +37,6 @@ class FlyttEnhetTask implements ProsessTaskHandler {
         kandidater.forEach(beh -> {
             var taskData = ProsessTaskData.forProsessTask(OppdaterBehandlendeEnhetTask.class);
             taskData.setBehandling(beh.getSaksnummer().getVerdi(), beh.getFagsakId(), beh.getId());
-            taskData.setCallIdFraEksisterende();
             taskTjeneste.lagre(taskData);
         });
     }

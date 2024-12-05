@@ -105,7 +105,6 @@ public class HendelserRestTjeneste {
         taskData.setPayload(StandardJsonConfig.toJson(hendelse));
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE, hendelse.getHendelsetype());
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_UID, hendelse.getId());
-        taskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(taskData);
         return new EnkelRespons("OK");
     }

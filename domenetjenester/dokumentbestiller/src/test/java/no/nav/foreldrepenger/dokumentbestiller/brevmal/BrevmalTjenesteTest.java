@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntekts
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.kontrakter.formidling.v1.BrevmalDto;
+import no.nav.foreldrepenger.kontrakter.formidling.v3.BrevmalDto;
 
 @ExtendWith(MockitoExtension.class)
 class BrevmalTjenesteTest {

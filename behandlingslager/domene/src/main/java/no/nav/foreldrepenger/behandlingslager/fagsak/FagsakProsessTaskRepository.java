@@ -128,8 +128,6 @@ public class FagsakProsessTaskRepository {
         var nyeTasks = gruppe.getTasks();
         var eksisterendeTasks = sjekkStatusProsessTasks(fagsakId, behandlingId, null);
 
-        gruppe.setCallIdFraEksisterende();
-
         if (eksisterendeTasks.isEmpty()) {
             // legg inn nye
             return taskTjeneste.lagre(gruppe);

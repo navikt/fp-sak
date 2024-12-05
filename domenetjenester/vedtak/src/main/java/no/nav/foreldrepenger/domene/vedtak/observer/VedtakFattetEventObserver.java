@@ -38,7 +38,7 @@ public class VedtakFattetEventObserver {
     public void observerStegOvergang(@Observes BehandlingVedtakEvent event) {
         if (event.iverksattYtelsesVedtak()
             && erBehandlingAvRettType(event.behandling(), event.vedtak())) {
-            opprettTaskForPubliseringAvVedtak(event.getBehandlingId());
+            opprettTaskForPubliseringAvVedtak(event);
         }
     }
 
@@ -57,10 +57,10 @@ public class VedtakFattetEventObserver {
             .isPresent();
     }
 
-    private void opprettTaskForPubliseringAvVedtak(Long behandlingId) {
+    private void opprettTaskForPubliseringAvVedtak(BehandlingVedtakEvent vedtakEvent) {
         var taskData = ProsessTaskData.forProsessTask(PubliserVedtattYtelseHendelseTask.class);
-        taskData.setProperty(PubliserVedtattYtelseHendelseTask.KEY, behandlingId.toString());
-        taskData.setCallIdFraEksisterende();
+        taskData.setBehandling(vedtakEvent.getSaksnummer().getVerdi(), vedtakEvent.getFagsakId(), vedtakEvent.getBehandlingId());
+        taskData.setProperty(PubliserVedtattYtelseHendelseTask.KEY, vedtakEvent.getBehandlingId().toString());
         taskRepository.lagre(taskData);
     }
 

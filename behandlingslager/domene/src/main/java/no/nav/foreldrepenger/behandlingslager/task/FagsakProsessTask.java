@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.behandlingslager.task;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
@@ -31,7 +31,6 @@ public abstract class FagsakProsessTask implements ProsessTaskHandler {
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         var fagsakId = prosessTaskData.getFagsakId();
-        var behandlingId = getBehandlingId(prosessTaskData);
 
         identifiserBehandling(prosessTaskData)
             .stream()
@@ -39,10 +38,10 @@ public abstract class FagsakProsessTask implements ProsessTaskHandler {
             .forEach(behandling -> behandlingLåsRepository.taLås(behandling));
 
         fagsakLåsRepository.taLås(fagsakId);
-        prosesser(prosessTaskData, fagsakId, behandlingId);
+        prosesser(prosessTaskData, fagsakId);
     }
 
-    protected abstract void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId);
+    protected abstract void prosesser(ProsessTaskData prosessTaskData, Long fagsakId);
 
     /**
      * Må alltid ta behandlingen før vi tar lås på fagsaken.
@@ -54,14 +53,6 @@ public abstract class FagsakProsessTask implements ProsessTaskHandler {
      * @return behandlingId
      */
     protected List<Long> identifiserBehandling(ProsessTaskData prosessTaskData) {
-        var behandlingId = getBehandlingId(prosessTaskData);
-        if (behandlingId != null) {
-            return List.of(behandlingId);
-        }
-        return Collections.emptyList();
-    }
-
-    private Long getBehandlingId(ProsessTaskData data) {
-        return data.getBehandlingId() != null ? Long.valueOf(data.getBehandlingId()) : null;
+        return Optional.ofNullable(prosessTaskData.getBehandlingIdAsLong()).map(List::of).orElseGet(List::of);
     }
 }

@@ -47,7 +47,6 @@ class FeilPraksisUtsettelseAlleTask implements ProsessTaskHandler {
     public static ProsessTaskData opprettTaskForEnkeltSak(Long fagsakId) {
         var prosessTaskData = ProsessTaskData.forProsessTask(FeilPraksisUtsettelseSingleTask.class);
         prosessTaskData.setProperty(FeilPraksisUtsettelseSingleTask.FAGSAK_ID, String.valueOf(fagsakId));
-        prosessTaskData.setCallIdFraEksisterende();
         return prosessTaskData;
     }
 
@@ -56,7 +55,6 @@ class FeilPraksisUtsettelseAlleTask implements ProsessTaskHandler {
         var prosessTaskData = ProsessTaskData.forProsessTask(FeilPraksisUtsettelseAlleTask.class);
         prosessTaskData.setProperty(FeilPraksisUtsettelseAlleTask.FRA_FAGSAK_ID, fraFagsakId == null ? null : String.valueOf(fraFagsakId));
         prosessTaskData.setNesteKjøringEtter(LocalDateTime.now().plusSeconds(10));
-        prosessTaskData.setCallIdFraEksisterende();
         return prosessTaskData;
     }
 }

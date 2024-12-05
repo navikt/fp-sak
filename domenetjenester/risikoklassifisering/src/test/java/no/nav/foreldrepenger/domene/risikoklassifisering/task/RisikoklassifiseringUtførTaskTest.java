@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.kontrakter.risk.kodeverk.Saksnummer;
 import no.nav.foreldrepenger.kontrakter.risk.kodeverk.YtelseType;
 import no.nav.foreldrepenger.kontrakter.risk.v1.AnnenPartDto;
 import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingRequestDto;
@@ -74,7 +75,8 @@ class RisikoklassifiseringUtførTaskTest {
         var request = new RisikovurderingRequestDto(
             new no.nav.foreldrepenger.kontrakter.risk.kodeverk.AktørId(ref.aktørId().getId()), SKJÆRINGSTIDSPUNKT, LocalDate.now(),
             LocalDate.now(), ref.behandlingUuid(), YtelseType.ENGANGSSTØNAD,
-            new AnnenPartDto(new no.nav.foreldrepenger.kontrakter.risk.kodeverk.AktørId(ANNEN_PART_AKTØR_ID.getId()), null));
+            new AnnenPartDto(new no.nav.foreldrepenger.kontrakter.risk.kodeverk.AktørId(ANNEN_PART_AKTØR_ID.getId()), null),
+            new Saksnummer(ref.saksnummer().getVerdi()));
         verify(risikovurderingTjeneste).startRisikoklassifisering(ref, request);
     }
 

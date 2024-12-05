@@ -65,7 +65,6 @@ public class DokumentBestiller {
         prosessTaskData.setPayload(bestilling.fritekst());
 
         // Brukes kun i logging
-        prosessTaskData.setCallIdFraEksisterende();
         prosessTaskData.setSaksnummer(behandling.getSaksnummer().getVerdi());
         taskTjeneste.lagre(prosessTaskData);
     }

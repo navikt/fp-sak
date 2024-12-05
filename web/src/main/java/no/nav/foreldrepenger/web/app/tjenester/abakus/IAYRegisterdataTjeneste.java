@@ -45,7 +45,7 @@ public class IAYRegisterdataTjeneste {
         var tasksSomVenterPåSvar = taskTjeneste.finnAlle(ProsessTaskStatus.VENTER_SVAR)
             .stream()
             .filter(it -> ABAKUS_TASK.equals(it.taskType()))
-            .filter(it -> it.getBehandlingId().equals("" + callback.getBehandlingId()))
+            .filter(it -> it.getBehandlingIdAsLong().equals(callback.getBehandlingId()))
             .toList();
 
         if (tasksSomVenterPåSvar.isEmpty()) {
@@ -58,6 +58,6 @@ public class IAYRegisterdataTjeneste {
         var props = new Properties();
         props.setProperty(InnhentIAYIAbakusTask.OPPDATERT_GRUNNLAG_KEY, oppdatertGrunnlagRef.toString());
         taskTjeneste.mottaHendelse(task, InnhentIAYIAbakusTask.IAY_REGISTERDATA_CALLBACK, props);
-        LOG.info("Behandler hendelse {} i task {}, behandling id {}", InnhentIAYIAbakusTask.IAY_REGISTERDATA_CALLBACK, task.getId(), task.getBehandlingId());
+        LOG.info("Behandler hendelse {} i task {}, behandling id {}", InnhentIAYIAbakusTask.IAY_REGISTERDATA_CALLBACK, task.getId(), task.getBehandlingIdAsLong());
     }
 }

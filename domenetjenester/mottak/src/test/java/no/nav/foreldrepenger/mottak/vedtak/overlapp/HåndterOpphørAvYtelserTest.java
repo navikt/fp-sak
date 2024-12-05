@@ -124,6 +124,7 @@ class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
         assertThat(vurderKonsekvens.taskType()).isEqualTo(
             TaskType.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class));
         assertThat(vurderKonsekvens.getFagsakId()).isEqualTo(fsavsluttetBehMor.getId());
+        assertThat(vurderKonsekvens.getSaksnummer()).isEqualTo(fsavsluttetBehMor.getSaksnummer().getVerdi());
         assertThat(vurderKonsekvens.getPropertyValue(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE)).isEqualTo(
             BESKRIVELSE);
     }

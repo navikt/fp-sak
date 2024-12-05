@@ -90,7 +90,6 @@ public class BehandlingOpprettingTjeneste {
     public String asynkStartBehandlingsprosess(Behandling behandling) {
         var taskData = ProsessTaskData.forProsessTask(StartBehandlingTask.class);
         taskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
-        taskData.setCallIdFraEksisterende();
         return taskTjeneste.lagre(taskData);
     }
 

@@ -79,14 +79,12 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
 
     private void oppdaterProsessTask(ProsessTaskData prosessTaskData) {
         prosessTaskData.venterPåHendelse(BehandleØkonomioppdragKvittering.ØKONOMI_OPPDRAG_KVITTERING);
-        prosessTaskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(prosessTaskData);
     }
 
     private void sendØkonomioppdragTask(ProsessTaskData hovedProsessTask, Long behandlingId) {
         var sendØkonomiOppdrag = ProsessTaskData.forProsessTask(SendØkonomiOppdragTask.class);
         sendØkonomiOppdrag.setGruppe(hovedProsessTask.getGruppe());
-        sendØkonomiOppdrag.setCallIdFraEksisterende();
         sendØkonomiOppdrag.setBehandling(hovedProsessTask.getSaksnummer(), hovedProsessTask.getFagsakId(), behandlingId);
         taskTjeneste.lagre(sendØkonomiOppdrag);
     }

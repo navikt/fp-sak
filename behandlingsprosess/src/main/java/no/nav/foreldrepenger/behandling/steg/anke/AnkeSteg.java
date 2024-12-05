@@ -102,7 +102,6 @@ public class AnkeSteg implements BehandlingSteg {
                 .orElseGet(() -> KlageHjemmel.standardHjemmelForYtelse(behandling.getFagsakYtelseType()));
             var tilKabalTask = ProsessTaskData.forProsessTask(SendTilKabalTask.class);
             tilKabalTask.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
-            tilKabalTask.setCallIdFraEksisterende();
             tilKabalTask.setProperty(SendTilKabalTask.HJEMMEL_KEY, hjemmel.getKode());
             prosessTaskTjeneste.lagre(tilKabalTask);
         }

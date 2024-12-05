@@ -55,11 +55,10 @@ public class AutomatiskEtterkontrollBatchTjeneste implements BatchTjeneste {
             .flatMap(Optional::stream)
             .toList();
 
-        var callId = (MDCOperations.getCallId() != null ? MDCOperations.getCallId() : MDCOperations.generateCallId()) + "_";
+        var callId = Optional.ofNullable(MDCOperations.getCallId()).orElseGet(MDCOperations::generateCallId);
 
         for (var kandidat : kontrollKandidater) {
-            var nyCallId = callId + kandidat.getId();
-            opprettEtterkontrollTask(kandidat, nyCallId);
+            opprettEtterkontrollTask(kandidat, callId);
         }
         return BATCHNAME;
     }
@@ -72,7 +71,7 @@ public class AutomatiskEtterkontrollBatchTjeneste implements BatchTjeneste {
     private void opprettEtterkontrollTask(Behandling kandidat, String callId) {
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
         prosessTaskData.setBehandling(kandidat.getSaksnummer().getVerdi(), kandidat.getFagsakId(), kandidat.getId());
-        prosessTaskData.setCallId(callId);
+        prosessTaskData.setCallId(callId + "_" + kandidat.getFagsakId());
         taskTjeneste.lagre(prosessTaskData);
     }
 

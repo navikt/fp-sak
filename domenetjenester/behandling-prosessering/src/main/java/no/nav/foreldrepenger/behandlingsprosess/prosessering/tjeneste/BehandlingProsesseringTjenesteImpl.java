@@ -233,7 +233,6 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     private ProsessTaskData lagTaskData(TaskType tasktype, Behandling behandling, LocalDateTime nesteKjøringEtter, int prioritet) {
         var taskdata = ProsessTaskData.forTaskType(tasktype);
         taskdata.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
-        taskdata.setCallIdFraEksisterende();
         if (nesteKjøringEtter != null) {
             taskdata.setNesteKjøringEtter(nesteKjøringEtter);
         }
@@ -248,7 +247,7 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     private Optional<String> erAlleredeOpprettetOppdateringFor(Behandling behandling) {
         return taskTjeneste.finnAlleStatuser(List.of(ProsessTaskStatus.VENTER_SVAR, ProsessTaskStatus.KLAR)).stream()
             .filter(it -> TASK_ABAKUS.equals(it.taskType()))
-            .filter(it -> it.getBehandlingId().equals("" + behandling.getId()))
+            .filter(it -> it.getBehandlingIdAsLong().equals(behandling.getId()))
             .map(ProsessTaskData::getGruppe)
             .findFirst();
     }
@@ -256,7 +255,7 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     private Optional<String> finnesFeiletOppdateringFor(Behandling behandling) {
         return taskTjeneste.finnAlle(ProsessTaskStatus.FEILET).stream()
             .filter(it -> TASK_ABAKUS.equals(it.taskType()))
-            .filter(it -> it.getBehandlingId().equals("" + behandling.getId()))
+            .filter(it -> it.getBehandlingIdAsLong().equals(behandling.getId()))
             .map(ProsessTaskData::getGruppe)
             .findFirst();
     }
@@ -265,9 +264,8 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     public Set<Long> behandlingerMedFeiletProsessTask() {
         return taskTjeneste.finnAlle(ProsessTaskStatus.FEILET).stream()
             .filter(it -> TASK_FORTSETT.equals(it.taskType()) || TASK_START.equals(it.taskType()))
-            .map(ProsessTaskData::getBehandlingId)
+            .map(ProsessTaskData::getBehandlingIdAsLong)
             .filter(Objects::nonNull)
-            .map(Long::valueOf)
             .collect(Collectors.toSet());
     }
 }

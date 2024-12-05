@@ -61,7 +61,7 @@ class VurderOgSendØkonomiOppdragTaskTest {
 
     @BeforeEach
     public void setUp() {
-        when(prosessTaskData.getBehandlingId()).thenReturn(BEHANDLING_ID.toString());
+        when(prosessTaskData.getBehandlingIdAsLong()).thenReturn(BEHANDLING_ID);
         lenient().when(prosessTaskData.getSaksnummer()).thenReturn(SAKSNUMMER);
         lenient().when(prosessTaskData.getId()).thenReturn(TASK_ID);
         var repositoryProvider = ScenarioMorSøkerForeldrepenger.forFødsel().mockBehandlingRepositoryProvider();

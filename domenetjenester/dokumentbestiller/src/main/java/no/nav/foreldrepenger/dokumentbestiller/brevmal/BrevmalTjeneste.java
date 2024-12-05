@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus;
-import no.nav.foreldrepenger.kontrakter.formidling.v1.BrevmalDto;
+import no.nav.foreldrepenger.kontrakter.formidling.v3.BrevmalDto;
 
 @Dependent
 public class BrevmalTjeneste {

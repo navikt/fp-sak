@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.produksjonsstyring.sakogbehandling;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -81,7 +82,7 @@ public class OppdaterPersonoversiktTask extends GenerellProsessTask {
         var erAvsluttet = BehandlingStatus.AVSLUTTET.equals(behandlingStatus);
         var hendelseType = erAvsluttet ? "behandlingAvsluttet" : "behandlingOpprettet";
 
-        var callId = MDCOperations.getCallId() != null ? MDCOperations.getCallId() : MDCOperations.generateCallId();
+        var callId = Optional.ofNullable(MDCOperations.getCallId()).orElseGet(MDCOperations::generateCallId);
 
         LOG.info("OppdaterPersonoversikt sender behandlingsstatus {} for id {}", behandlingStatus.getKode(), behandlingRef);
 

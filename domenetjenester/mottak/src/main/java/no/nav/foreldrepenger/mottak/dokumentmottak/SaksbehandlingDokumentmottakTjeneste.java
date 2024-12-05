@@ -41,7 +41,6 @@ public class SaksbehandlingDokumentmottakTjeneste {
         prosessTaskData.setFagsak(saksnummer.getVerdi(), mottattDokument.getFagsakId());
         prosessTaskData.setProperty(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY, mottattDokumentId.toString());
         settÅrsakHvisDefinert(behandlingÅrsakType, prosessTaskData);
-        prosessTaskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(prosessTaskData);
     }
 
@@ -51,7 +50,6 @@ public class SaksbehandlingDokumentmottakTjeneste {
         prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
         prosessTaskData.setProperty(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY, mottattDokument.getId().toString());
         settÅrsakHvisDefinert(behandlingÅrsakType, prosessTaskData);
-        prosessTaskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(prosessTaskData);
     }
 
@@ -61,7 +59,6 @@ public class SaksbehandlingDokumentmottakTjeneste {
         prosessTaskData.setFagsak(saksnummer.getVerdi(), mottattDokument.getFagsakId());
         prosessTaskData.setProperty(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY, mottattDokument.getId().toString());
         settÅrsakHvisDefinert(behandlingÅrsakType, prosessTaskData);
-        prosessTaskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(prosessTaskData);
     }
 
