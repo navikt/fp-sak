@@ -29,17 +29,19 @@ public class FastsettBruttoBeregningsgrunnlagSNNyIArbeidslivetHistorikkTjeneste 
     }
 
     public void lagHistorikk(FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto dto, AksjonspunktOppdaterParameter param) {
-        List<HistorikkinnslagLinjeBuilder> llinjeBuilderList = new ArrayList<>();
+        List<HistorikkinnslagLinjeBuilder> linjeBuilderList = new ArrayList<>();
         HistorikkinnslagLinjeBuilder linjeBuilder = new HistorikkinnslagLinjeBuilder();
-        llinjeBuilderList.add(linjeBuilder.fraTil("Brutto næringsinntekt", null, dto.getBruttoBeregningsgrunnlag()));
-        llinjeBuilderList.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
-        llinjeBuilderList.add(linjeBuilder.tekst(dto.getBegrunnelse()));
+        linjeBuilderList.add(linjeBuilder.fraTil("Brutto næringsinntekt", null, dto.getBruttoBeregningsgrunnlag()));
+        linjeBuilderList.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
+        linjeBuilderList.add(linjeBuilder.tekst(dto.getBegrunnelse()));
 
         var historikkinnslag = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medBehandlingId(param.getBehandlingId())
             .medFagsakId(param.getRef().fagsakId())
             .medTittel(SkjermlenkeType.BEREGNING_FORELDREPENGER)
-            .medLinjer(llinjeBuilderList)
+            .addLinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Brutto næringsinntekt", null, dto.getBruttoBeregningsgrunnlag()))
+            .addLinje(HistorikkinnslagLinjeBuilder.LINJESKIFT)
+            .addLinje(dto.getBegrunnelse())
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }
