@@ -34,10 +34,6 @@ public record HistorikkinnslagDtoV2(UUID behandlingUuid,
             return new Linje(Type.LINJESKIFT, null);
         }
 
-        public boolean erLinjeskift() {
-            return Type.LINJESKIFT.equals(type);
-        }
-
         enum Type {
             TEKST,
             LINJESKIFT
