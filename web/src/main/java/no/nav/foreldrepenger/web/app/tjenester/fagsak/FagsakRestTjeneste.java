@@ -289,7 +289,7 @@ public class FagsakRestTjeneste {
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(fagsak.getId())
             .medTittel("Fakta endret")
-            .addlinje(fraTilEquals("Saksmarkering", fraVerdi, tilVerdi))
+            .addLinje(fraTilEquals("Saksmarkering", fraVerdi, tilVerdi))
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }

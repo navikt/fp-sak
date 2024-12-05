@@ -64,7 +64,7 @@ public class BekreftMannAdoptererOppdaterer implements AksjonspunktOppdaterer<Be
             .medBehandlingId(param.getBehandlingId())
             .medFagsakId(param.getFagsakId())
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
-            .addlinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Mann adopterer", eksisterende, dto.getMannAdoptererAlene()))
+            .addLinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Mann adopterer", eksisterende, dto.getMannAdoptererAlene()))
             .addLinje(dto.getBegrunnelse())
             .build();
         historikkinnslag2Repository.lagre(historikkinnslag);

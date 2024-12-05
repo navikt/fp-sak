@@ -230,7 +230,7 @@ public class BehandlendeEnhetTjeneste {
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())
             .medTittel("Bytt enhet")
-            .addlinje(fraTilEquals("Behandlende enhet", fraMessage, nyEnhet.enhetId() + " " + nyEnhet.enhetNavn()))
+            .addLinje(fraTilEquals("Behandlende enhet", fraMessage, nyEnhet.enhetId() + " " + nyEnhet.enhetNavn()))
             .addLinje(begrunnelse)
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);

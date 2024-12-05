@@ -62,7 +62,7 @@ public class AvklarDekningsgradFellesTjeneste {
             .medFagsakId(fagsakId)
             .medBehandlingId(behandlingId)
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
-            .addlinje(new HistorikkinnslagLinjeBuilder().til("Dekningsgrad", avklartDekningsgrad.getVerdi()))
+            .addLinje(new HistorikkinnslagLinjeBuilder().til("Dekningsgrad", avklartDekningsgrad.getVerdi()))
             .addLinje(begrunnelse)
             .build();
         historikkinnslag2Repository.lagre(historikkinnslag);

@@ -109,7 +109,7 @@ public class ArbeidInntektHistorikkinnslagTjeneste {
             .medTittel(SkjermlenkeType.FAKTA_OM_ARBEIDSFORHOLD_INNTEKTSMELDING)
             .medBehandlingId(behandlingReferanse.behandlingId())
             .medFagsakId(behandlingReferanse.fagsakId())
-            .addlinje(fraTilEquals("Arbeidsforhold hos " + arbeidsforholdNavn, null, fraArbeidsforholdKomplettVurderingType(tilVerdi)))
+            .addLinje(fraTilEquals("Arbeidsforhold hos " + arbeidsforholdNavn, null, fraArbeidsforholdKomplettVurderingType(tilVerdi)))
             .addLinje(begrunnelse)
             .build();
 
