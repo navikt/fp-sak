@@ -99,25 +99,25 @@ public class FaktaOmBeregningVurderingHistorikkTjeneste {
         return linjer;
     }
 
-    private HistorikkEndretFeltVerdiType konvertBooleanTilErTidsbegrensetVerdiType(Boolean endringTidsbegrensetArbeidsforhold) {
+    private String konvertBooleanTilErTidsbegrensetVerdiType(Boolean endringTidsbegrensetArbeidsforhold) {
         if (endringTidsbegrensetArbeidsforhold == null) {
             return null;
         }
-        return endringTidsbegrensetArbeidsforhold ? HistorikkEndretFeltVerdiType.TIDSBEGRENSET_ARBEIDSFORHOLD : HistorikkEndretFeltVerdiType.IKKE_TIDSBEGRENSET_ARBEIDSFORHOLD;
+        return endringTidsbegrensetArbeidsforhold ? "tidsbegrenset" : "ikke tidsbegrenset";
     }
 
-    private HistorikkEndretFeltVerdiType konvertBooleanTilNyIarbeidslivetVerdiType(Boolean erNyIArbeidslivet) {
+    private String konvertBooleanTilNyIarbeidslivetVerdiType(Boolean erNyIArbeidslivet) {
         if (erNyIArbeidslivet == null) {
             return null;
         }
-        return erNyIArbeidslivet ? HistorikkEndretFeltVerdiType.NY_I_ARBEIDSLIVET : HistorikkEndretFeltVerdiType.IKKE_NY_I_ARBEIDSLIVET;
+        return erNyIArbeidslivet ? "ny i arbeidslivet" : "ikke ny i arbeidslivet";
     }
 
-    private HistorikkEndretFeltVerdiType konvertBooleanTilNyoppstartetFLVerdiType(Boolean erNyoppstartet) {
+    private String konvertBooleanTilNyoppstartetFLVerdiType(Boolean erNyoppstartet) {
         if (erNyoppstartet == null) {
             return null;
         }
-        return erNyoppstartet ? HistorikkEndretFeltVerdiType.NYOPPSTARTET : HistorikkEndretFeltVerdiType.IKKE_NYOPPSTARTET;
+        return erNyoppstartet ? "nyoppstartet" : "ikke nyoppstartet";
     }
 
 }

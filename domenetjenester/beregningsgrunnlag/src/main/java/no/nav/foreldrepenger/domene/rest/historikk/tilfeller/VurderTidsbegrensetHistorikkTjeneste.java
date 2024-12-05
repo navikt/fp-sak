@@ -7,7 +7,6 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
@@ -42,7 +41,7 @@ public class VurderTidsbegrensetHistorikkTjeneste extends FaktaOmBeregningHistor
                                                            InntektArbeidYtelseGrunnlag iayGrunnlag) {
 
         var tidsbegrensetDto = dto.getVurderTidsbegrensetArbeidsforhold();
-        var periode = nyttBeregningsgrunnlag.getBeregningsgrunnlagPerioder().get(0);
+        var periode = nyttBeregningsgrunnlag.getBeregningsgrunnlagPerioder().getFirst();
         var fastsatteArbeidsforhold = tidsbegrensetDto.getFastsatteArbeidsforhold();
         var arbeidsforholdOverstyringer = iayGrunnlag.getArbeidsforholdOverstyringer();
         List<HistorikkinnslagLinjeBuilder> linjeBuilder = new ArrayList<>();
@@ -73,11 +72,11 @@ public class VurderTidsbegrensetHistorikkTjeneste extends FaktaOmBeregningHistor
         return linjerBuilder;
     }
 
-    private HistorikkEndretFeltVerdiType konvertBooleanTilFaktaEndretVerdiType(Boolean endringTidsbegrensetArbeidsforhold) {
+    private String konvertBooleanTilFaktaEndretVerdiType(Boolean endringTidsbegrensetArbeidsforhold) {
         if (endringTidsbegrensetArbeidsforhold == null) {
             return null;
         }
-        return endringTidsbegrensetArbeidsforhold ? HistorikkEndretFeltVerdiType.TIDSBEGRENSET_ARBEIDSFORHOLD : HistorikkEndretFeltVerdiType.IKKE_TIDSBEGRENSET_ARBEIDSFORHOLD;
+        return endringTidsbegrensetArbeidsforhold ? "tidsbegrenset" : "ikke tidsbegrenset";
     }
 
 
