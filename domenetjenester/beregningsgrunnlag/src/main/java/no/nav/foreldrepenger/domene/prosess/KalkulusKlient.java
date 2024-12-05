@@ -9,6 +9,7 @@ import jakarta.ws.rs.core.UriBuilder;
 
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.besteberegning.BesteberegningGrunnlagDto;
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.migrering.MigrerBeregningsgrunnlagRequest;
+import no.nav.folketrygdloven.fpkalkulus.kontrakt.migrering.MigrerBeregningsgrunnlagResponse;
 import no.nav.vedtak.exception.TekniskException;
 
 import org.slf4j.Logger;
@@ -125,12 +126,15 @@ public class KalkulusKlient {
         }
     }
 
-    public void migrerGrunnlag(MigrerBeregningsgrunnlagRequest request) {
+    public MigrerBeregningsgrunnlagResponse migrerGrunnlag(MigrerBeregningsgrunnlagRequest request) {
         var restRequest = RestRequest.newPOSTJson(request, migrer, restConfig);
-        var respons = restClient.sendReturnUnhandled(restRequest);
-        if (respons.statusCode() != HttpURLConnection.HTTP_OK) {
-            throw new IllegalStateException("Feil ved migrering av grunnlag i fpkalkulus");
+        try {
+            return restClient.sendReturnOptional(restRequest, MigrerBeregningsgrunnlagResponse.class).orElseThrow(() -> new TekniskException("FP-503910", "Tomt resultat etter migrering til kalkulus, ugyldig respons"));
         }
+        catch (Exception e) {
+            throw new TekniskException("FP-503900", "Feil under migrering til kalkulus: " + e);
+        }
+
     }
 
     private URI toUri(URI endpointURI, String path) {
