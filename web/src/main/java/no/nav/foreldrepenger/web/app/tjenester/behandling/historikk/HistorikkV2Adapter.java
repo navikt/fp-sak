@@ -21,6 +21,8 @@ import jakarta.ws.rs.core.UriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOpplysningType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkResultatType;
@@ -30,13 +32,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTotrinnsvurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageAvvistÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingVidereBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.historikk.HistorikkAvklartSoeknadsperiodeType;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagDokumentLinkDto;
 
 public class HistorikkV2Adapter {
 
@@ -74,17 +76,7 @@ public class HistorikkV2Adapter {
             case OPPTJENING -> throw new IllegalStateException(String.format("Kode: %s har ingen maltype", h.getType())); // Ingen historikkinnslag for denne typen i DB!
             case OVST_UTTAK_SPLITT, FASTSATT_UTTAK_SPLITT, TILBAKEKREVING_VIDEREBEHANDLING -> fraMalType9(h, behandlingUUID);
             case OVST_UTTAK, FASTSATT_UTTAK -> fraMaltype10(h, behandlingUUID, journalPosterForSak, dokumentPath);
-            case AVKLART_AKTIVITETSKRAV ->
-                fraMalTypeAktivitetskrav(h, behandlingUUID);
-
-            /* fptilbake
-            case FAKTA_OM_FEILUTBETALING ->
-                fraMaltypeFeilutbetaling(h, behandlingUUID);
-            case FORELDELSE ->
-                fraMaltypeForeldelse(h, behandlingUUID);
-            case TILBAKEKREVING ->
-                fraMaltypeTilbakekreving(h, behandlingUUID);
-             */
+            case AVKLART_AKTIVITETSKRAV -> fraMalTypeAktivitetskrav(h, behandlingUUID);
             case UDEFINERT -> throw new IllegalStateException("Unexpected value: " + h.getType());
         };
     }
@@ -522,12 +514,16 @@ public class HistorikkV2Adapter {
         if (aarsak.getKlTilVerdi() == null) {
             return Optional.empty();
         }
-
-        var kodeverdiMap = HistorikkInnslagTekstBuilder.KODEVERK_KODEVERDI_MAP.get(aarsak.getKlTilVerdi());
-        if (kodeverdiMap == null) {
-            throw new IllegalStateException("Har ikke støtte for HistorikkinnslagFelt#klTilVerdi=" + aarsak.getKlTilVerdi());
-        }
-        return Optional.ofNullable(kodeverdiMap.get(aarsakVerdi));
+        /**
+         * kl_til_verdi er satt til enten: VENT_AARSAK, BEHANDLING_RESULTAT_TYPE, KLAGE_MEDHOLD_AARSAK eller KLAGE_AVVIST_AARSAK
+         */
+        return Optional.ofNullable(switch (aarsak.getKlTilVerdi()) {
+            case "VENT_AARSAK" -> Venteårsak.fraKode(aarsakVerdi);
+            case "BEHANDLING_RESULTAT_TYPE" -> BehandlingResultatType.fraKode(aarsakVerdi);
+            case "KLAGE_MEDHOLD_AARSAK" -> KlageMedholdÅrsak.kodeMap().get(aarsakVerdi);
+            case "KLAGE_AVVIST_AARSAK" -> KlageAvvistÅrsak.kodeMap().get(aarsakVerdi);
+            default -> throw new IllegalStateException("Har ikke støtte for HistorikkinnslagFelt#klTilVerdi=" + aarsak.getKlTilVerdi());
+        });
     }
 
     private static List<HistorikkInnslagDokumentLinkDto> tilDokumentlenker(List<HistorikkinnslagDokumentLink> dokumentLinker,

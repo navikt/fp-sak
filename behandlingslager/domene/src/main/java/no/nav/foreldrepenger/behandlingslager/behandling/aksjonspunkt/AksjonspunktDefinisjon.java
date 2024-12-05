@@ -617,7 +617,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
 
     /**
      * @deprecated Bruk heller
-     *             {@link no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder#medSkjermlenke(SkjermlenkeType)}
+     *             {@link no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2.Builder#medTittel(SkjermlenkeType)}
      *             direkte og unngå å slå opp fra aksjonspunktdefinisjon
      */
     @Deprecated

@@ -51,6 +51,10 @@ public class SvpAvklartOpphold extends BaseCreateableEntitet {
         return oppholdPeriode.getTomDato();
     }
 
+    public DatoIntervallEntitet getTidsperiode() {
+        return oppholdPeriode;
+    }
+
     public SvpOppholdÅrsak getOppholdÅrsak() {
         return svpOppholdÅrsak;
     }

@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingRelasjonEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
@@ -195,30 +194,30 @@ public class KlageVurderingTjeneste {
         behandlingRepository.lagre(behandling, lås);
     }
 
-    public static HistorikkResultatType historikkResultatForKlageVurdering(KlageVurdering vurdering, KlageVurdertAv vurdertAv, KlageVurderingOmgjør klageVurderingOmgjør) {
+    public static String historikkResultatForKlageVurdering(KlageVurdering vurdering, KlageVurdertAv vurdertAv, KlageVurderingOmgjør klageVurderingOmgjør) {
         if (KlageVurdering.AVVIS_KLAGE.equals(vurdering)) {
-            return HistorikkResultatType.AVVIS_KLAGE;
+            return "Klagen er avvist";
         }
         if (KlageVurdering.MEDHOLD_I_KLAGE.equals(vurdering)) {
             if (KlageVurderingOmgjør.DELVIS_MEDHOLD_I_KLAGE.equals(klageVurderingOmgjør)) {
-                return HistorikkResultatType.DELVIS_MEDHOLD_I_KLAGE;
+                return "Vedtaket er delvis omgjort";
             }
             if (KlageVurderingOmgjør.UGUNST_MEDHOLD_I_KLAGE.equals(klageVurderingOmgjør)) {
-                return HistorikkResultatType.UGUNST_MEDHOLD_I_KLAGE;
+                return "Vedtaket er omgjort til ugunst";
             }
-            return HistorikkResultatType.MEDHOLD_I_KLAGE;
+            return "Vedtaket er omgjort";
         }
         if (KlageVurdering.OPPHEVE_YTELSESVEDTAK.equals(vurdering)) {
-            return HistorikkResultatType.OPPHEVE_VEDTAK;
+            return "Vedtaket er opphevet";
         }
         if (KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE.equals(vurdering)) {
-            return HistorikkResultatType.KLAGE_HJEMSENDE_UTEN_OPPHEVE;
+            return "Behandling er hjemsendt";
         }
         if (KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(vurdering)) {
             if (KlageVurdertAv.NFP.equals(vurdertAv)) {
-                return HistorikkResultatType.OPPRETTHOLDT_VEDTAK;
+                return "Vedtaket er opprettholdt";
             }
-            return HistorikkResultatType.STADFESTET_VEDTAK;
+            return "Vedtaket er stadfestet";
         }
         return null;
     }

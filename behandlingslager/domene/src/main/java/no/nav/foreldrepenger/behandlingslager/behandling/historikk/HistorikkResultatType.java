@@ -11,8 +11,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
+@Deprecated(forRemoval = true)
 public enum HistorikkResultatType implements Kodeverdi {
-
     UDEFINIERT("-", "Ikke definert"),
     AVVIS_KLAGE("AVVIS_KLAGE", "Klagen er avvist"),
     MEDHOLD_I_KLAGE("MEDHOLD_I_KLAGE", "omgjør vedtaket, til gunst"),

@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.historikk.dto;
+package no.nav.foreldrepenger.web.app.tjenester.behandling.historikk;
 
 import java.net.URI;
 

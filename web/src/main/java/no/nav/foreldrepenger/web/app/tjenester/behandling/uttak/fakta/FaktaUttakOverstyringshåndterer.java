@@ -3,25 +3,20 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.aksjonspunkt.AbstractOverstyringshåndterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = OverstyringFaktaUttakDto.class, adapter = Overstyringshåndterer.class)
-public class FaktaUttakOverstyringshåndterer extends AbstractOverstyringshåndterer<OverstyringFaktaUttakDto> {
+public class FaktaUttakOverstyringshåndterer implements Overstyringshåndterer<OverstyringFaktaUttakDto> {
 
     private FaktaUttakFellesTjeneste fellesTjeneste;
 
     @Inject
-    public FaktaUttakOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter,
-                                           FaktaUttakFellesTjeneste fellesTjeneste) {
-        super(historikkAdapter, AksjonspunktDefinisjon.OVERSTYRING_FAKTA_UTTAK);
+    public FaktaUttakOverstyringshåndterer(FaktaUttakFellesTjeneste fellesTjeneste) {
         this.fellesTjeneste = fellesTjeneste;
     }
 
@@ -31,11 +26,6 @@ public class FaktaUttakOverstyringshåndterer extends AbstractOverstyringshåndt
 
     @Override
     public OppdateringResultat håndterOverstyring(OverstyringFaktaUttakDto dto, Behandling behandling, BehandlingskontrollKontekst kontekst) {
-        return fellesTjeneste.oppdater(dto.getBegrunnelse(), dto.getPerioder(), behandling.getId(), true);
-    }
-
-    @Override
-    protected void lagHistorikkInnslag(Behandling behandling, OverstyringFaktaUttakDto dto) {
-
+        return fellesTjeneste.oppdater(dto.getBegrunnelse(), dto.getPerioder(), behandling.getId(), behandling.getFagsakId(), true);
     }
 }
