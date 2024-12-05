@@ -153,6 +153,11 @@ public class FaktaUttakHistorikkinnslagTjeneste {
         }
         return builder.toString();
     }
+    private String mapGraderingAktivitetType(OppgittPeriodeEntitet periode) {
+        return Optional.ofNullable(periode.getGraderingAktivitetType())
+            .map(Enum::name)
+            .orElse(null);
+    }
 
     private String prefixUttakType(OppgittPeriodeEntitet periode) {
         if (periode.isUtsettelse()) {
@@ -189,7 +194,7 @@ public class FaktaUttakHistorikkinnslagTjeneste {
             return Optional.empty();
         }
         var aktivitet = Optional.ofNullable(periode.getArbeidsgiver()).map(Arbeidsgiver::getIdentifikator)
-            .orElseGet(() -> periode.getGraderingAktivitetType().name());
+            .orElseGet(() -> periode.getGraderingAktivitetType().getNavn());
         return Optional.of(aktivitet + " - Arbeid: " + Optional.ofNullable(arbeidsprosent(periode)).orElse(BigDecimal.ZERO).setScale(0, RoundingMode.HALF_EVEN) + "%");
     }
 

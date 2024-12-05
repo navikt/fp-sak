@@ -24,8 +24,8 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 
 class FaktaUttakHistorikkinnslagTjenesteTest {
 
-    private static final LocalDate FOM = LocalDate.of(2022,12,1);
-    private static final LocalDate TOM = LocalDate.of(2022,12,7);
+    private static final LocalDate FOM = LocalDate.of(2022, 12, 1);
+    private static final LocalDate TOM = LocalDate.of(2022, 12, 7);
     private static final String BEGRUNNELSE_TEKST = "Begrunnelse";
 
     private FaktaUttakHistorikkinnslagTjeneste tjeneste;
@@ -43,9 +43,7 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
     @Test
     void skal_generere_historikkinnslag_uten_perioder_ved_ingen_endring() {
         //Scenario med avklar fakta uttak
-        var før = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM)
-            .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
-            .build();
+        var før = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM).medPeriodeType(UttakPeriodeType.FEDREKVOTE).build();
         var etter = OppgittPeriodeBuilder.fraEksisterende(før).build();
 
         // dto
@@ -62,9 +60,7 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
     @Test
     void skal_generere_historikkinnslag_med_tillagt_periode_ved_utvidelse_overtyrt() {
         //Scenario med avklar fakta uttak
-        var før = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM)
-            .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
-            .build();
+        var før = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM).medPeriodeType(UttakPeriodeType.FEDREKVOTE).build();
         var etter = OppgittPeriodeBuilder.fraEksisterende(før).medPeriode(FOM, TOM.plusDays(1)).build();
 
         // dto
@@ -83,9 +79,7 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
     @Test
     void skal_generere_historikkinnslag_med_slettet_periode_ved_krymping() {
         //Scenario med avklar fakta uttak
-        var før = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM)
-            .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
-            .build();
+        var før = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM).medPeriodeType(UttakPeriodeType.FEDREKVOTE).build();
         var etter = OppgittPeriodeBuilder.fraEksisterende(før).medPeriode(FOM, TOM.minusDays(1)).build();
 
         // dto
@@ -104,12 +98,8 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
     void skal_generere_historikkinnslag_med_endring_ved_ny_årsak() {
 
         //Scenario med avklar fakta uttak
-        var før = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM)
-            .medÅrsak(UtsettelseÅrsak.INSTITUSJON_BARN)
-            .build();
-        var etter = OppgittPeriodeBuilder.fraEksisterende(før)
-            .medÅrsak(UtsettelseÅrsak.INSTITUSJON_SØKER)
-            .build();
+        var før = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM).medÅrsak(UtsettelseÅrsak.INSTITUSJON_BARN).build();
+        var etter = OppgittPeriodeBuilder.fraEksisterende(før).medÅrsak(UtsettelseÅrsak.INSTITUSJON_SØKER).build();
 
         // dto
         tjeneste.opprettHistorikkinnslag(behandling.getId(), behandling.getFagsakId(), List.of(før), List.of(etter), false, BEGRUNNELSE_TEKST);
@@ -119,7 +109,8 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
         assertThat(historikkinnslag.getFirst().getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         assertThat(historikkinnslag.getFirst().getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_UTTAK);
         assertThat(historikkinnslag.getFirst().getLinjer()).hasSize(2);
-        assertThat(historikkinnslag.getFirst().getLinjer().get(0).getTekst()).contains("Perioden", ".2022", "er endret fra", "Utsettelse", "Barn", "Søker");
+        assertThat(historikkinnslag.getFirst().getLinjer().get(0).getTekst()).contains("Perioden", ".2022", "er endret fra", "Utsettelse", "Barn",
+            "Søker");
         assertThat(historikkinnslag.getFirst().getLinjer().get(1).getTekst()).contains(BEGRUNNELSE_TEKST);
     }
 
@@ -127,12 +118,8 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
     void skal_generere_historikkinnslag_med_endring_type() {
 
         //Scenario med avklar fakta uttak
-        var før = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM)
-            .medÅrsak(UtsettelseÅrsak.INSTITUSJON_BARN)
-            .build();
-        var etter = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM)
-            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
-            .build();
+        var før = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM).medÅrsak(UtsettelseÅrsak.INSTITUSJON_BARN).build();
+        var etter = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM).medPeriodeType(UttakPeriodeType.MØDREKVOTE).build();
 
         // dto
         tjeneste.opprettHistorikkinnslag(behandling.getId(), behandling.getFagsakId(), List.of(før), List.of(etter), false, BEGRUNNELSE_TEKST);
@@ -142,7 +129,8 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
         assertThat(historikkinnslag.getFirst().getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         assertThat(historikkinnslag.getFirst().getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_UTTAK);
         assertThat(historikkinnslag.getFirst().getLinjer()).hasSize(2);
-        assertThat(historikkinnslag.getFirst().getLinjer().get(0).getTekst()).contains("Perioden", ".2022", "er endret fra", "Utsettelse", "Barn", "til" , "Uttak", "Mødrekvoten");
+        assertThat(historikkinnslag.getFirst().getLinjer().get(0).getTekst()).contains("Perioden", ".2022", "er endret fra", "Utsettelse", "Barn",
+            "til", "Uttak", "Mødrekvoten");
         assertThat(historikkinnslag.getFirst().getLinjer().get(1).getTekst()).contains(BEGRUNNELSE_TEKST);
     }
 
@@ -150,37 +138,38 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
     void skal_generere_historikkinnslag_med_splitt() {
 
         //Scenario med avklar fakta uttak
-        var før = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM.plusWeeks(5).minusDays(1))
-            .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
-            .build();
-        var etter1 = OppgittPeriodeBuilder.ny().medPeriode(FOM.minusWeeks(1), FOM.minusDays(1))
+        var før = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM.plusWeeks(5).minusDays(1)).medPeriodeType(UttakPeriodeType.FEDREKVOTE).build();
+        var etter1 = OppgittPeriodeBuilder.ny()
+            .medPeriode(FOM.minusWeeks(1), FOM.minusDays(1))
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medÅrsak(OverføringÅrsak.SYKDOM_ANNEN_FORELDER)
             .build();
-        var etter2 = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM.minusDays(1))
-            .medÅrsak(UtsettelseÅrsak.INSTITUSJON_BARN)
-            .build();
-        var etter3 = OppgittPeriodeBuilder.ny().medPeriode(TOM, TOM.plusWeeks(1).minusDays(1))
+        var etter2 = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM.minusDays(1)).medÅrsak(UtsettelseÅrsak.INSTITUSJON_BARN).build();
+        var etter3 = OppgittPeriodeBuilder.ny()
+            .medPeriode(TOM, TOM.plusWeeks(1).minusDays(1))
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
             .medSamtidigUttak(true)
             .medSamtidigUttaksprosent(new SamtidigUttaksprosent(50))
             .build();
-        var etter4 = OppgittPeriodeBuilder.ny().medPeriode(TOM.plusWeeks(1), TOM.plusWeeks(2).minusDays(1))
+        var etter4 = OppgittPeriodeBuilder.ny()
+            .medPeriode(TOM.plusWeeks(1), TOM.plusWeeks(2).minusDays(1))
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
             .medGraderingAktivitetType(GraderingAktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE)
             .medArbeidsprosent(BigDecimal.TEN)
             .build();
-        var etter5 = OppgittPeriodeBuilder.ny().medPeriode(TOM.plusWeeks(2), TOM.plusWeeks(3).minusDays(1))
+        var etter5 = OppgittPeriodeBuilder.ny()
+            .medPeriode(TOM.plusWeeks(2), TOM.plusWeeks(3).minusDays(1))
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .medMorsAktivitet(MorsAktivitet.TRENGER_HJELP)
             .build();
-        var etter6 = OppgittPeriodeBuilder.ny().medPeriode(TOM.plusWeeks(3), TOM.plusWeeks(4).minusDays(1))
+        var etter6 = OppgittPeriodeBuilder.ny()
+            .medPeriode(TOM.plusWeeks(3), TOM.plusWeeks(4).minusDays(1))
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
             .build();
 
         // dto
-        tjeneste.opprettHistorikkinnslag(behandling.getId(), behandling.getFagsakId(), List.of(før), List.of(etter1, etter2, etter3, etter4, etter5, etter6), false,
-            BEGRUNNELSE_TEKST);
+        tjeneste.opprettHistorikkinnslag(behandling.getId(), behandling.getFagsakId(), List.of(før),
+            List.of(etter1, etter2, etter3, etter4, etter5, etter6), false, BEGRUNNELSE_TEKST);
 
         var historikkinnslag = historikkinnslagRepository.hent(behandling.getId());
         assertThat(historikkinnslag).hasSize(1);
@@ -198,13 +187,19 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
          * - Slettet siste uke FK
          */
 
-        assertThat(historikkinnslag.getFirst().getLinjer()).hasSize(7);
-        assertThat(historikkinnslag.getFirst().getLinjer().get(0).getTekst()).contains("Perioden", "er satt til", "Overføring", "Mødrekvoten");
-        assertThat(historikkinnslag.getFirst().getLinjer().get(1).getTekst()).contains("Perioden", "er endret fra", "Uttak", "til", "Utsettelse", "Barn");
-        assertThat(historikkinnslag.getFirst().getLinjer().get(2).getTekst()).contains("Perioden", "er endret fra", "Uttak", "til", "Uttak", "Samtidig");
-        assertThat(historikkinnslag.getFirst().getLinjer().get(3).getTekst()).contains("Perioden", "er endret fra", "Uttak", "til", "Gradering", "10");
-        assertThat(historikkinnslag.getFirst().getLinjer().get(4).getTekst()).contains("Perioden", "er endret fra", "Uttak", "Fedrekvoten", "til",  "Fellesperioden");
-        assertThat(historikkinnslag.getFirst().getLinjer().get(5).getTekst()).contains("Perioden", "Uttak", "Fedrekvoten", "er fjernet");
-        assertThat(historikkinnslag.getFirst().getLinjer().get(6).getTekst()).contains(BEGRUNNELSE_TEKST);
+        assertThat(historikkinnslag.getFirst().getLinjer()).satisfies(l -> {
+            assertThat(l).hasSize(7);
+            assertThat(l.get(0).getTekst()).isEqualTo(
+                "__Perioden 24.11.2022 - 30.11.2022__ er satt til __Overføring, Konto: Mødrekvoten, Årsak: Den andre foreldren er pga sykdom avhengig av hjelp for å ta seg av barnet/barna__.");
+            assertThat(l.get(1).getTekst()).isEqualTo(
+                "__Perioden 01.12.2022 - 06.12.2022__ er endret fra Uttak, Konto: Fedrekvoten til __Utsettelse, Årsak: Barn er innlagt i helseinstitusjon__.");
+            assertThat(l.get(2).getTekst()).isEqualTo("__Perioden 07.12.2022 - 13.12.2022__ er endret fra Uttak til __Uttak, Samtidig uttak%: 50__.");
+            assertThat(l.get(3).getTekst()).isEqualTo(
+                "__Perioden 14.12.2022 - 20.12.2022__ er endret fra Uttak til __Uttak, Gradering: Selvstendig næringsdrivende - Arbeid: 10%__.");
+            assertThat(l.get(4).getTekst()).isEqualTo(
+                "__Perioden 21.12.2022 - 27.12.2022__ er endret fra Uttak, Konto: Fedrekvoten til __Uttak, Konto: Fellesperioden, Mors aktivitet: Er avhengig av hjelp til å ta seg av barnet__.");
+            assertThat(l.get(5).getTekst()).isEqualTo("__Perioden 04.01.2023 - 10.01.2023__ __Uttak, Konto: Fedrekvoten__ er fjernet.");
+            assertThat(l.get(6).getTekst()).contains(BEGRUNNELSE_TEKST);
+        });
     }
 }
