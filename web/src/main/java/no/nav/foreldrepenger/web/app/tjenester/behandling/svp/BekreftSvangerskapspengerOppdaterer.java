@@ -98,7 +98,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         var endredeTilrettelegginger = oppdaterTilrettelegging(dto, behandling);
         oppdaterPermisjonVedBehov(dto, param);
 
-        if (termindatoEndret || !endredeTilrettelegginger.isEmpty() || param.erBegrunnelseEndret()) {
+        if (termindatoEndret || !endredeTilrettelegginger.isEmpty()) {
             bekreftSvangerskapspengerHistorikkinnslagTjeneste.lagHistorikkinnslagVedEndring(ref, dto, familieHendelseGrunnlag, endredeTilrettelegginger, eksisterendeTilretteleginger);
             var sistefikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandling.getId(), ref.fagsakYtelseType());
             if (Objects.equals(forrigeFikspunkt, sistefikspunkt)) {

@@ -57,8 +57,9 @@ public class BekreftDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Be
 
         var originalOmsorgsovertakelse = getOmsorgsovertakelsesdatoForAdopsjon(hendelseGrunnlag.getGjeldendeAdopsjon().orElseThrow());
         var originalFødselsdatoer = getAdopsjonFødselsdatoer(hendelseGrunnlag);
-        var erEndret = !Objects.equals(originalOmsorgsovertakelse, dto.getOmsorgsovertakelseDato()) || !Objects.equals(originalFødselsdatoer,
-            dto.getFodselsdatoer()) || param.erBegrunnelseEndret();
+        var toTrinn = !Objects.equals(originalOmsorgsovertakelse, dto.getOmsorgsovertakelseDato()) || !Objects.equals(originalFødselsdatoer,
+            dto.getFodselsdatoer());
+        var erEndret = toTrinn || param.erBegrunnelseEndret();
         if (erEndret) {
             lagreHistorikk(param, dto, originalOmsorgsovertakelse, originalFødselsdatoer);
         }
@@ -74,9 +75,9 @@ public class BekreftDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Be
 
         var sistefikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandlingId, param.getRef().fagsakYtelseType());
         if (Objects.equals(forrigeFikspunkt, sistefikspunkt)) {
-            return OppdateringResultat.utenTransisjon().medTotrinnHvis(erEndret).build();
+            return OppdateringResultat.utenTransisjon().medTotrinnHvis(toTrinn).build();
         } else {
-            return OppdateringResultat.utenTransisjon().medTotrinnHvis(erEndret).medOppdaterGrunnlag().build();
+            return OppdateringResultat.utenTransisjon().medTotrinnHvis(toTrinn).medOppdaterGrunnlag().build();
         }
     }
 
