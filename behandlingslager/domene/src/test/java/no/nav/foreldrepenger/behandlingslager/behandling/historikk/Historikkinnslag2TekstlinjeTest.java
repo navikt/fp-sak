@@ -19,7 +19,7 @@ class Historikkinnslag2LinjeTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"en_tekst__", "Overstyrt vurdering fra __0,5__ til __1,7_.", "Endret adresse til BOSTEDSADRESSE_UTLAND"})
+    @ValueSource(strings = {"en_tekst__", "Overstyrt vurdering fra __0,5__ til __1,7_.", "Endret adresse type til __Bostedsadresse"})
     void kast_feil_for_ugyldig_bold_syntax(String tekst) {
         assertThatIllegalArgumentException().isThrownBy(() -> Historikkinnslag2Linje.tekst(tekst, 1));
     }
