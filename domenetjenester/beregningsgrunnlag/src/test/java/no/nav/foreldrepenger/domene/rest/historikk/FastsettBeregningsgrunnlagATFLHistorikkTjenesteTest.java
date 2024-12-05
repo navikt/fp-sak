@@ -1,167 +1,152 @@
 package no.nav.foreldrepenger.domene.rest.historikk;
 
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.Optional;
 
-import jakarta.persistence.EntityManager;
+import jakarta.inject.Inject;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.dbstoette.JpaExtension;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
+import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBeregningsgrunnlagATFLDto;
 import no.nav.foreldrepenger.domene.rest.dto.InntektPrAndelDto;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
-@ExtendWith(JpaExtension.class)
+@CdiDbAwareTest
 class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
     private static final String NAV_ORGNR = "889640782";
+    private static final String ARBEIDSGIVER_NAVN = "AF1";
+    private static final Virksomhet VIRKSOMHET = new Virksomhet.Builder().medOrgnr(NAV_ORGNR).medNavn(ARBEIDSGIVER_NAVN).build();
     private static final BigDecimal GRUNNBELØP = BigDecimal.valueOf(90000);
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.namedRef("TEST-REF");
     private static final int BRUTTO_PR_AR = 150000;
     private static final int OVERSTYRT_PR_AR = 200000;
     private static final int FRILANSER_INNTEKT = 4000;
 
+    @Inject
     private BehandlingRepositoryProvider repositoryProvider;
-
-    private final VirksomhetTjeneste virksomhetTjeneste = mock(VirksomhetTjeneste.class);
-
-    private final InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = mock(InntektArbeidYtelseTjeneste.class);
-    private final Historikkinnslag2Repository historikkRepo = mock(Historikkinnslag2Repository.class);
-    private FastsettBeregningsgrunnlagATFLHistorikkTjeneste fastsettBeregningsgrunnlagATFLHistorikkTjeneste;
-
-    private Behandling behandling;
-    private Virksomhet virk;
-
-    @BeforeEach
-    void setUp(EntityManager entityManager) {
-        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        var arbeidsgiverHistorikkinnslagTjeneste = new ArbeidsgiverHistorikkinnslag(
-            new ArbeidsgiverTjeneste(null, virksomhetTjeneste));
-        when(inntektArbeidYtelseTjeneste.hentGrunnlag(anyLong())).thenReturn(
-            InntektArbeidYtelseGrunnlagBuilder.nytt().build());
-        fastsettBeregningsgrunnlagATFLHistorikkTjeneste = new FastsettBeregningsgrunnlagATFLHistorikkTjeneste(arbeidsgiverHistorikkinnslagTjeneste, inntektArbeidYtelseTjeneste, historikkRepo);
-        virk = new Virksomhet.Builder().medOrgnr(NAV_ORGNR).medNavn("AF1").build();
-        when(virksomhetTjeneste.hentOrganisasjon(NAV_ORGNR)).thenReturn(Virksomhet.getBuilder().medOrgnr(NAV_ORGNR).medNavn("AF1").build());
-    }
+    @Inject
+    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
 
     @Test
     void skal_generere_historikkinnslag_ved_fastsettelse_av_brutto_beregningsgrunnlag_AT() {
+        var arbeidsgiverTjeneste = mock(ArbeidsgiverTjeneste.class);
+        when(arbeidsgiverTjeneste.hent(any())).thenReturn(new ArbeidsgiverOpplysninger(NAV_ORGNR, ARBEIDSGIVER_NAVN));
+        var inntektArbeidYtelseTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+        var fastsettBeregningsgrunnlagATFLHistorikkTjeneste = new FastsettBeregningsgrunnlagATFLHistorikkTjeneste(
+            new ArbeidsgiverHistorikkinnslag(arbeidsgiverTjeneste), inntektArbeidYtelseTjeneste, repositoryProvider.getHistorikkinnslag2Repository());
+
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagre(repositoryProvider);
+        inntektArbeidYtelseTjeneste.lagreIayAggregat(behandling.getId(),
+            InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER));
+
         // Arrange
-        var bg = buildOgLagreBeregningsgrunnlag(false);
+        var bg = buildOgLagreBeregningsgrunnlag(behandling, false);
 
         //Dto
-        var dto = new FastsettBeregningsgrunnlagATFLDto("begrunnelse",
-            Collections.singletonList(new InntektPrAndelDto(OVERSTYRT_PR_AR, 1L)), null);
+        var dto = new FastsettBeregningsgrunnlagATFLDto("begrunnelse", Collections.singletonList(new InntektPrAndelDto(OVERSTYRT_PR_AR, 1L)), null);
 
         // Act
         var ref = BehandlingReferanse.fra(behandling);
-        fastsettBeregningsgrunnlagATFLHistorikkTjeneste.lagHistorikk(
-            new AksjonspunktOppdaterParameter(ref, dto), dto, bg);
+        fastsettBeregningsgrunnlagATFLHistorikkTjeneste.lagHistorikk(new AksjonspunktOppdaterParameter(ref, dto), dto, bg);
 
         // Assert
-        var builder = new Historikkinnslag2.Builder();
-        var historikk = builder.medTittel(SkjermlenkeType.BEREGNING_FORELDREPENGER)
-            .medAktør(HistorikkAktør.SAKSBEHANDLER)
-            .medBehandlingId(ref.behandlingId())
-            .medFagsakId(ref.fagsakId())
-            .addLinje("Grunnlag for beregnet årsinntekt:")
-            .addLinje("__Inntekt fra AF1 (889640782) ...050d__ er satt til __200000__")
-            .addLinje("begrunnelse")
-            .build();
-        verify(historikkRepo).lagre(historikk);
+        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
+        assertThat(historikkinnslag.getSkjermlenke()).isEqualTo(SkjermlenkeType.BEREGNING_FORELDREPENGER);
+        assertThat(historikkinnslag.getLinjer()).hasSize(3);
+        assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).isEqualTo("Grunnlag for beregnet årsinntekt:");
+        assertThat(historikkinnslag.getLinjer().get(1).getTekst()).isEqualTo("__Inntekt fra AF1 (889640782) ...050d__ er satt til __200000__.");
+        assertThat(historikkinnslag.getLinjer().get(2).getTekst()).contains(dto.getBegrunnelse());
     }
 
     @Test
     void skal_generere_historikkinnslag_ved_fastsettelse_av_brutto_beregningsgrunnlag_FL() {
+        var inntektArbeidYtelseTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+        var fastsettBeregningsgrunnlagATFLHistorikkTjeneste = new FastsettBeregningsgrunnlagATFLHistorikkTjeneste(
+            new ArbeidsgiverHistorikkinnslag(mock(ArbeidsgiverTjeneste.class)), inntektArbeidYtelseTjeneste, repositoryProvider.getHistorikkinnslag2Repository());
+
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagre(repositoryProvider);
+        inntektArbeidYtelseTjeneste.lagreIayAggregat(behandling.getId(),
+            InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER));
+
         // Arrange
-        var bg = buildOgLagreBeregningsgrunnlag(true);
+        var bg = buildOgLagreBeregningsgrunnlag(behandling, true);
 
         //Dto
         var dto = new FastsettBeregningsgrunnlagATFLDto("begrunnelse", FRILANSER_INNTEKT);
 
         // Act
         var ref = BehandlingReferanse.fra(behandling);
-        fastsettBeregningsgrunnlagATFLHistorikkTjeneste.lagHistorikk(
-            new AksjonspunktOppdaterParameter(ref, dto), dto, bg);
+        fastsettBeregningsgrunnlagATFLHistorikkTjeneste.lagHistorikk(new AksjonspunktOppdaterParameter(ref, dto), dto, bg);
 
         // Assert
-        var builder = new Historikkinnslag2.Builder();
-        var historikk = builder.medTittel(SkjermlenkeType.BEREGNING_FORELDREPENGER)
-            .medAktør(HistorikkAktør.SAKSBEHANDLER)
-            .medBehandlingId(ref.behandlingId())
-            .medFagsakId(ref.fagsakId())
-            .addLinje("Grunnlag for beregnet årsinntekt:")
-            .addLinje("__Frilansinntekt__ er satt til __4000__")
-            .addLinje("begrunnelse")
-            .build();
-        verify(historikkRepo).lagre(historikk);
+        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
+        assertThat(historikkinnslag.getSkjermlenke()).isEqualTo(SkjermlenkeType.BEREGNING_FORELDREPENGER);
+        assertThat(historikkinnslag.getLinjer()).hasSize(3);
+        assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).isEqualTo("Grunnlag for beregnet årsinntekt:");
+        assertThat(historikkinnslag.getLinjer().get(1).getTekst()).isEqualTo("__Frilansinntekt__ er satt til __4000__.");
+        assertThat(historikkinnslag.getLinjer().get(2).getTekst()).contains(dto.getBegrunnelse());
 
     }
 
-    private BeregningsgrunnlagEntitet buildOgLagreBeregningsgrunnlag(boolean erFrilans) {
-        AbstractTestScenario<?> scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        behandling = scenario.lagre(repositoryProvider);
-        var beregningsgrunnlagBuilder = BeregningsgrunnlagEntitet.ny()
-            .medGrunnbeløp(GRUNNBELØP)
-            .medSkjæringstidspunkt(LocalDate.now().minusDays(5));
+    private BeregningsgrunnlagEntitet buildOgLagreBeregningsgrunnlag(Behandling behandling, boolean erFrilans) {
+        var beregningsgrunnlagBuilder = BeregningsgrunnlagEntitet.ny().medGrunnbeløp(GRUNNBELØP).medSkjæringstidspunkt(LocalDate.now().minusDays(5));
 
         var fom = LocalDate.now().minusDays(20);
         leggTilBeregningsgrunnlagPeriode(beregningsgrunnlagBuilder, fom, erFrilans);
 
+        beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlagBuilder.build(), BeregningsgrunnlagTilstand.FASTSATT);
+
         return beregningsgrunnlagBuilder.build();
     }
 
-    private void leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagEntitet.Builder beregningsgrunnlagBuilder,
-                                                  LocalDate fomDato,
-                                                  boolean erFrilans) {
-        var beregningsgrunnlagPeriodeBuilder = BeregningsgrunnlagPeriode.ny()
-            .medBeregningsgrunnlagPeriode(fomDato, null);
-        leggTilBeregningsgrunnlagPrStatusOgAndel(beregningsgrunnlagPeriodeBuilder, virk, erFrilans);
+    private void leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagEntitet.Builder beregningsgrunnlagBuilder, LocalDate fomDato, boolean erFrilans) {
+        var beregningsgrunnlagPeriodeBuilder = BeregningsgrunnlagPeriode.ny().medBeregningsgrunnlagPeriode(fomDato, null);
+        leggTilBeregningsgrunnlagPrStatusOgAndel(beregningsgrunnlagPeriodeBuilder, erFrilans);
         beregningsgrunnlagBuilder.leggTilBeregningsgrunnlagPeriode(beregningsgrunnlagPeriodeBuilder);
     }
 
-    private void leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPeriode.Builder beregningsgrunnlagPeriodeBuilder,
-                                                          Virksomhet virksomheten, boolean erFrilans) {
+    private void leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPeriode.Builder beregningsgrunnlagPeriodeBuilder, boolean erFrilans) {
 
         var builder = BeregningsgrunnlagPrStatusOgAndel.builder()
             .medAndelsnr(1L)
             .medInntektskategori(erFrilans ? Inntektskategori.FRILANSER : Inntektskategori.ARBEIDSTAKER)
             .medAktivitetStatus(erFrilans ? AktivitetStatus.FRILANSER : AktivitetStatus.ARBEIDSTAKER)
             .medBeregnetPrÅr(BigDecimal.valueOf(BRUTTO_PR_AR));
-        if (virksomheten != null && !erFrilans) {
+        if (!erFrilans) {
             var bga = BGAndelArbeidsforhold.builder()
                 .medArbeidsforholdRef(FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest.ARBEIDSFORHOLD_ID)
-                .medArbeidsgiver(Arbeidsgiver.virksomhet(virksomheten.getOrgnr()))
+                .medArbeidsgiver(Arbeidsgiver.virksomhet(VIRKSOMHET.getOrgnr()))
                 .medArbeidsperiodeFom(LocalDate.now().minusYears(1))
                 .medArbeidsperiodeTom(LocalDate.now().plusYears(2));
             builder.medBGAndelArbeidsforhold(bga);
