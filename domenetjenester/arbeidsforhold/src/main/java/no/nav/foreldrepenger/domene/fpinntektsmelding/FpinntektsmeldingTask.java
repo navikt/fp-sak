@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.fpinntektsmelding;
 
-import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.tilMaskertNummer;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -20,7 +18,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 @ProsessTask("fpinntektsmelding.foresporsel")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class FpinntektsmeldingTask extends GenerellProsessTask {
-    public static final String ARBEIDSGIVER_KEY = "arbeidsgiverIdent";
     private static final Logger LOG = LoggerFactory.getLogger(FpinntektsmeldingTask.class);
 
     private BehandlingRepository behandlingRepository;
@@ -43,10 +40,9 @@ public class FpinntektsmeldingTask extends GenerellProsessTask {
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var arbeidsgiverIdent = prosessTaskData.getPropertyValue(ARBEIDSGIVER_KEY);
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
-        LOG.info("Starter task for å opprette forespørsel i fpinntektsmelding for behandlingId {} med orgnummer {} og skjæringstidspunkt {}",  behandlingId, tilMaskertNummer(arbeidsgiverIdent), stp);
         var ref = BehandlingReferanse.fra(behandling);
-        fpInntektsmeldingTjeneste.lagForespørsel(arbeidsgiverIdent, ref, stp);
+        LOG.info("Starter task for å opprette forespørsel i fpinntektsmelding for behandlingId {} med skjæringstidspunkt {}",  behandlingId, stp);
+        fpInntektsmeldingTjeneste.lagForespørsel(ref, stp);
     }
 }
