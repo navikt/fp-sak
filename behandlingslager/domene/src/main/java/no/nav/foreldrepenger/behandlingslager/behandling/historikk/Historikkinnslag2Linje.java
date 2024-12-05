@@ -24,7 +24,7 @@ public class Historikkinnslag2Linje extends BaseEntitet implements IndexKey {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_HISTORIKKINNSLAG2_LINJE")
     private Long id;
 
-    @Column(name = "tekst", nullable = false)
+    @Column(name = "tekst")
     private String tekst;
 
     @Column(name = "SEKVENS_NR", nullable = false)
@@ -38,15 +38,35 @@ public class Historikkinnslag2Linje extends BaseEntitet implements IndexKey {
     @JoinColumn(name = "historikkinnslag_id", nullable = false)
     private Historikkinnslag2 historikkinnslag;
 
+    private static final String RIKTIG_FORMATERING_BOLD = "^(?:[^_]*__[^_]+__)*[^_]*$";
+
     @Override
     public String getIndexKey() {
         return IndexKey.createKey(sekvensNr);
     }
 
-    public Historikkinnslag2Linje(String tekst, int sekvensNr, HistorikkinnslagLinjeType type) {
+    private Historikkinnslag2Linje(String tekst, int sekvensNr, HistorikkinnslagLinjeType type) {
+        Objects.requireNonNull(type);
+
+        if (HistorikkinnslagLinjeType.TEKST.equals(type) && !tekst.matches(RIKTIG_FORMATERING_BOLD)) {
+            throw new IllegalArgumentException("Ugyldig bold markering av tekst for tekstlinje");
+        }
+
+        if (HistorikkinnslagLinjeType.LINJESKIFT.equals(type) && tekst != null) {
+            throw new IllegalArgumentException("Linjeskift kan ikke ha tekst");
+        }
+
         this.tekst = tekst;
         this.sekvensNr = sekvensNr;
         this.type = type;
+    }
+
+    public static Historikkinnslag2Linje tekst(String tekst, int sekvensNr) {
+        return new Historikkinnslag2Linje(tekst, sekvensNr, HistorikkinnslagLinjeType.TEKST);
+    }
+
+    public static Historikkinnslag2Linje linjeskift(int sekvensNr) {
+        return new Historikkinnslag2Linje(null, sekvensNr, HistorikkinnslagLinjeType.LINJESKIFT);
     }
 
     protected Historikkinnslag2Linje() {

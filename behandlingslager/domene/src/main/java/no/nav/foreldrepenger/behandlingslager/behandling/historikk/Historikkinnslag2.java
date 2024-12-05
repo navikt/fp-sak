@@ -143,8 +143,7 @@ public class Historikkinnslag2 extends BaseEntitet {
         }
 
         public Builder medTekstlinjer(List<String> linjer) {
-            internLinjer = new ArrayList<>(
-                linjer.stream().filter(Objects::nonNull).map(t -> new HistorikkinnslagLinjeBuilder().tekst(t)).toList());
+            internLinjer = new ArrayList<>(linjer.stream().filter(Objects::nonNull).map(t -> new HistorikkinnslagLinjeBuilder().tekst(t)).toList());
             return this;
         }
 
@@ -179,12 +178,11 @@ public class Historikkinnslag2 extends BaseEntitet {
 
             for (var i = 0; i < internLinjer.size(); i++) {
                 var type = internLinjer.get(i).getType();
-                var tekst = type == HistorikkinnslagLinjeType.TEKST ? sluttMedPunktum(internLinjer.get(i).build()) : null;
-                var linje = new Historikkinnslag2Linje(tekst, i, type);
+                var linje = type == HistorikkinnslagLinjeType.TEKST ? Historikkinnslag2Linje.tekst(sluttMedPunktum(internLinjer.get(i).build()),
+                    i) : Historikkinnslag2Linje.linjeskift(i);
                 kladd.linjer.add(linje);
                 linje.setHistorikkinnslag(kladd);
             }
-            //TODO TFP-5554 validering for partall bold
 
             var t = kladd;
             kladd = null;
