@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.historikk;
 
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkDtoFellesMapper.fjernTrailingAvsnittFraTekst;
-
 import java.net.URI;
 import java.util.Comparator;
 import java.util.List;
@@ -19,14 +17,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2DokumentLink;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Linje;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkinnslagDtoV2.Linje;
 
 @ApplicationScoped
 public class HistorikkV2Tjeneste {
@@ -77,10 +76,10 @@ public class HistorikkV2Tjeneste {
         var linjer = h.getLinjer()
             .stream()
             .sorted(Comparator.comparing(Historikkinnslag2Linje::getSekvensNr))
-            .map(t -> t.getType() == HistorikkinnslagLinjeType.TEKST ? t.getTekst() : HistorikkDtoFellesMapper.LINJESKIFT)
+            .map(t -> t.getType() == HistorikkinnslagLinjeType.TEKST ? Linje.tekstlinje(t.getTekst()) : Linje.linjeskift())
             .toList();
         return new HistorikkinnslagDtoV2(uuid, HistorikkinnslagDtoV2.HistorikkAktørDto.fra(h.getAktør(), h.getOpprettetAv()), h.getSkjermlenke(),
-            h.getOpprettetTidspunkt(), dokumenter, h.getTittel(), fjernTrailingAvsnittFraTekst(linjer));
+            h.getOpprettetTidspunkt(), dokumenter, h.getTittel(), linjer);
     }
 
     private static List<HistorikkInnslagDokumentLinkDto> tilDokumentlenker(List<Historikkinnslag2DokumentLink> dokumentLinker,
