@@ -68,7 +68,7 @@ public class RegisterinnhentingHistorikkinnslagTjeneste {
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
-            .addlinje(fraTilEquals("Startdato for foreldrepengeperioden", endretFra, endretTil))
+            .addLinje(fraTilEquals("Startdato for foreldrepengeperioden", endretFra, endretTil))
             .build();
         historikkinnslag2Repository.lagre(historikkinnslag);
     }

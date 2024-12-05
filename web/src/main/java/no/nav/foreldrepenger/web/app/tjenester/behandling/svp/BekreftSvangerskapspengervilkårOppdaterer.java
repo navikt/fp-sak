@@ -56,7 +56,7 @@ public class BekreftSvangerskapspengervilkårOppdaterer implements AksjonspunktO
             .medBehandlingId(param.getBehandlingId())
             .medFagsakId(param.getFagsakId())
             .medTittel(SkjermlenkeType.PUNKT_FOR_SVANGERSKAPSPENGER)
-            .addlinje(new HistorikkinnslagLinjeBuilder().til("Svangerskapsvilkåret", tilVerdi))
+            .addLinje(new HistorikkinnslagLinjeBuilder().til("Svangerskapsvilkåret", tilVerdi))
             .addLinje(begrunnelse)
             .build());
     }

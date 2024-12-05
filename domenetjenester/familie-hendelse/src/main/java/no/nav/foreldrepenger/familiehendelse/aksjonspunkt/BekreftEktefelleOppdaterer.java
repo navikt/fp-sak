@@ -60,7 +60,7 @@ public class BekreftEktefelleOppdaterer implements AksjonspunktOppdaterer<Bekref
             .medBehandlingId(behandlingId)
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medTittel(SkjermlenkeType.FAKTA_OM_ADOPSJON)
-            .addlinje(new HistorikkinnslagLinjeBuilder().tekst("Barnet er vurdert til å")
+            .addLinje(new HistorikkinnslagLinjeBuilder().tekst("Barnet er vurdert til å")
                 .bold(dto.getEktefellesBarn() ? "være ektefelles/samboers barn" : "ikke være ektefelles/samboers barn"))
             .addLinje(dto.getBegrunnelse())
             .build();

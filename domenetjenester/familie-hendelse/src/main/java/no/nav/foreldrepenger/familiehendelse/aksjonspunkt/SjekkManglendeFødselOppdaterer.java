@@ -99,7 +99,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
                 .orElse(0);
             erEndret = sjekkFødselsDatoOgAntallBarnEndret(historikkinnslag, grunnlag, utledetResultat, erEndret);
             opprettetInnslagforFeltBrukAntallBarnIPDL(dto, historikkinnslag, behandlingReferanse);
-            historikkinnslag.addlinje(
+            historikkinnslag.addLinje(
                 new HistorikkinnslagLinjeBuilder().bold("Antall barn").tekst("som brukes i behandlingen:").bold(gjeldendeAntallBarn));
         }
 
@@ -178,7 +178,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
                                                            BehandlingReferanse behandlingReferanse) {
         if (dto.getDokumentasjonForeligger()) {
             var feltNavn = utledFeltNavn(dto, behandlingReferanse);
-            historikkinnslag.addlinje(new HistorikkinnslagLinjeBuilder().til(utledFeltNavn(dto, behandlingReferanse).getNavn(), true));
+            historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().til(utledFeltNavn(dto, behandlingReferanse).getNavn(), true));
         }
     }
 
@@ -192,7 +192,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
 
     private boolean oppdaterVedEndretVerdi(Historikkinnslag2.Builder historikkinnslag, LocalDate original, LocalDate bekreftet) {
         if (!Objects.equals(bekreftet, original)) {
-            historikkinnslag.addlinje(new HistorikkinnslagLinjeBuilder().fraTil("Fødselsdato", original, bekreftet));
+            historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().fraTil("Fødselsdato", original, bekreftet));
             return true;
         }
         return false;
@@ -200,7 +200,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
 
     private boolean oppdaterVedEndretVerdi(Historikkinnslag2.Builder historikkinnslag, Integer original, Integer bekreftet) {
         if (!Objects.equals(bekreftet, original)) {
-            historikkinnslag.addlinje(new HistorikkinnslagLinjeBuilder().fraTil("Antall barn", original, bekreftet));
+            historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().fraTil("Antall barn", original, bekreftet));
             return true;
         }
         return false;
@@ -208,7 +208,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
 
     private boolean oppdaterVedEndretVerdi(Historikkinnslag2.Builder historikkinnslag, Boolean original, Boolean bekreftet) {
         if (!Objects.equals(bekreftet, original)) {
-            historikkinnslag.addlinje(new HistorikkinnslagLinjeBuilder().fraTil("Dokumentasjon foreligger", original, bekreftet));
+            historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().fraTil("Dokumentasjon foreligger", original, bekreftet));
             return true;
         }
         return false;
@@ -219,7 +219,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
         var dtoDødEndretMin = bekreftet.stream().filter(d -> !original.contains(d)).min(LocalDate::compareTo).orElse(null);
 
         if (!Objects.equals(bekreftet, original)) {
-            historikkinnslag.addlinje(new HistorikkinnslagLinjeBuilder().fraTil("Dødsdato", originalEndretMin, dtoDødEndretMin));
+            historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().fraTil("Dødsdato", originalEndretMin, dtoDødEndretMin));
             return true;
         }
         return false;

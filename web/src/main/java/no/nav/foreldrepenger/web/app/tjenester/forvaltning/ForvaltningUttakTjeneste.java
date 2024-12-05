@@ -70,7 +70,7 @@ public class ForvaltningUttakTjeneste {
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
             .medTittel(SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER)
-            .addlinje(fraTilEquals("Startdato for foreldrepengeperioden", null, startdato))
+            .addLinje(fraTilEquals("Startdato for foreldrepengeperioden", null, startdato))
             .addLinje(String.format("FORVALTNING - satt startdato til %s pga manglende uttak", startdato))
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);

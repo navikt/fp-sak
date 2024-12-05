@@ -33,8 +33,8 @@ public class VurderVarigEndringEllerNyoppstarteteSNHistorikkTjeneste {
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())
             .medTittel(SkjermlenkeType.BEREGNING_FORELDREPENGER)
-            .addlinje(fraTilEquals("Endring i næringsvirksomhet", null, konvertBooleanTilFaktaEndretVerdiType(dto.getErVarigEndretNaering())))
-            .addlinje(fraTilEquals("Brutto næringsinntekt", null, dto.getBruttoBeregningsgrunnlag()))
+            .addLinje(fraTilEquals("Endring i næringsvirksomhet", null, konvertBooleanTilFaktaEndretVerdiType(dto.getErVarigEndretNaering())))
+            .addLinje(fraTilEquals("Brutto næringsinntekt", null, dto.getBruttoBeregningsgrunnlag()))
             .addLinje(dto.getBegrunnelse())
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
