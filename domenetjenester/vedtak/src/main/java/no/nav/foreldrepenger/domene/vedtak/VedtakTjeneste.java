@@ -119,7 +119,7 @@ public class VedtakTjeneste {
         return medTotrinnskontroll.stream()
             .sorted(Comparator.comparing(ttv -> ttv.getEndretTidspunkt() != null ? ttv.getEndretTidspunkt() : ttv.getOpprettetTidspunkt()))
             .map(VedtakTjeneste::tilHistorikkinnslagTekst)
-            .map(VedtakTjeneste::leggTilLinjeskift) // TODO TFP-5554: Blir trailing linjeskift. Håndtere her eller i frontend?
+            .map(VedtakTjeneste::leggTilLinjeskift)
             .flatMap(Collection::stream)
             .toList();
     }
