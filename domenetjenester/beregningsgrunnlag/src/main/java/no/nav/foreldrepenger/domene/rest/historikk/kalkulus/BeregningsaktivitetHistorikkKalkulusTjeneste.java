@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.rest.historikk.kalkulus;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.LINJESKIFT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import java.util.ArrayList;
@@ -48,8 +49,14 @@ public class BeregningsaktivitetHistorikkKalkulusTjeneste {
         for (var ba : endringsaggregat.getBeregningAktivitetEndringer()) {
             var arbeidsforholdOverstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.behandlingId()).getArbeidsforholdOverstyringer();
             var aktivitetnavn = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningaktivitet(ba.getAktivitetNøkkel(), arbeidsforholdOverstyringer);
-            lagSkalBrukesHistorikk(ba, aktivitetnavn).ifPresent(linjer::add);
-            lagPeriodeHistorikk(ba, aktivitetnavn).ifPresent(linjer::add);
+            var skalBrukes = lagSkalBrukesHistorikk(ba);
+            var tomDatoEndret = lagPeriodeHistorikk(ba);
+            if (skalBrukes.isPresent() || tomDatoEndret.isPresent()) {
+                linjer.add(new HistorikkinnslagLinjeBuilder().bold(aktivitetnavn));
+                skalBrukes.ifPresent(linjer::add);
+                tomDatoEndret.ifPresent(linjer::add);
+                linjer.add(LINJESKIFT);
+            }
         }
 
         var historikkinnslag = new Historikkinnslag2.Builder()
@@ -63,13 +70,13 @@ public class BeregningsaktivitetHistorikkKalkulusTjeneste {
         historikkinnslagRepository.lagre(historikkinnslag);
     }
 
-    private Optional<HistorikkinnslagLinjeBuilder> lagSkalBrukesHistorikk(BeregningAktivitetEndring ba, String aktivitetnavn) {
+    private Optional<HistorikkinnslagLinjeBuilder> lagSkalBrukesHistorikk(BeregningAktivitetEndring ba) {
         var skalBrukesTilVerdi = finnSkalBrukesTilVerdi(ba);
         var skalBrukesFraVerdi = finnSkalBrukesFraVerdi(ba);
         if (Objects.equals(skalBrukesTilVerdi, skalBrukesFraVerdi)) {
             return Optional.empty();
         }
-        return Optional.ofNullable(fraTilEquals(String.format("Aktivitet %s", aktivitetnavn), skalBrukesFraVerdi, skalBrukesTilVerdi));
+        return Optional.ofNullable(fraTilEquals("Aktivitet", skalBrukesFraVerdi, skalBrukesTilVerdi));
     }
 
     private HistorikkEndretFeltVerdiType finnSkalBrukesFraVerdi(BeregningAktivitetEndring ba) {
@@ -86,7 +93,7 @@ public class BeregningsaktivitetHistorikkKalkulusTjeneste {
         return null;
     }
 
-    private Optional<HistorikkinnslagLinjeBuilder> lagPeriodeHistorikk(BeregningAktivitetEndring ba, String aktivitetnavn) {
+    private Optional<HistorikkinnslagLinjeBuilder> lagPeriodeHistorikk(BeregningAktivitetEndring ba) {
         if (ba.getTomDatoEndring() == null) {
             return Optional.empty();
         }
@@ -96,8 +103,6 @@ public class BeregningsaktivitetHistorikkKalkulusTjeneste {
             return Optional.empty();
         }
 
-        return Optional.of(new HistorikkinnslagLinjeBuilder()
-            .fraTil("Periode t.o.m.", gammelPeriodeTom, nyPeriodeTom)
-            .tekst(String.format("__Det er lagt til ny aktivitet: %s__", aktivitetnavn)));
+        return Optional.of(fraTilEquals("Periode t.o.m.", gammelPeriodeTom, nyPeriodeTom));
     }
 }
