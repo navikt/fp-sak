@@ -171,7 +171,7 @@ public class Historikkinnslag2 extends BaseEntitet {
 
             for (var i = 0; i < internLinjer.size(); i++) {
                 var type = internLinjer.get(i).getType();
-                var linje = type == HistorikkinnslagLinjeType.TEKST ? Historikkinnslag2Linje.tekst(sluttMedPunktum(internLinjer.get(i).build()),
+                var linje = type == HistorikkinnslagLinjeType.TEKST ? Historikkinnslag2Linje.tekst(sluttMedPunktum(internLinjer.get(i).tilTekst()),
                     i) : Historikkinnslag2Linje.linjeskift(i);
                 kladd.linjer.add(linje);
                 linje.setHistorikkinnslag(kladd);
