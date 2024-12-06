@@ -69,7 +69,7 @@ class VurderRefusjonHistorikkTjenesteTest {
         // Act
         var linjeBuilder = vurderRefusjonHistorikkTjeneste.lagHistorikk(dto, grunnlag.getBeregningsgrunnlag().orElseThrow(), Optional.empty(),
             InntektArbeidYtelseGrunnlagBuilder.nytt().build());
-        var tekster = linjeBuilder.stream().map(HistorikkinnslagLinjeBuilder::build).toList();
+        var tekster = linjeBuilder.stream().map(HistorikkinnslagLinjeBuilder::tilTekst).toList();
 
         // Assert
         assertHistorikk(tekster, "er satt til __Nei__");
@@ -85,7 +85,7 @@ class VurderRefusjonHistorikkTjenesteTest {
         // Act
         var linjeBuilder = vurderRefusjonHistorikkTjeneste.lagHistorikk(dto, grunnlag.getBeregningsgrunnlag().orElseThrow(), Optional.empty(),
             InntektArbeidYtelseGrunnlagBuilder.nytt().build());
-        var tekster = linjeBuilder.stream().map(HistorikkinnslagLinjeBuilder::build).toList();
+        var tekster = linjeBuilder.stream().map(HistorikkinnslagLinjeBuilder::tilTekst).toList();
 
         // Assert
         assertHistorikk(tekster, "er satt til __Ja__");
@@ -101,7 +101,7 @@ class VurderRefusjonHistorikkTjenesteTest {
         // Act
         var linjeBuilder = vurderRefusjonHistorikkTjeneste.lagHistorikk(dto, grunnlag.getBeregningsgrunnlag().orElseThrow(),
             Optional.of(forrige), InntektArbeidYtelseGrunnlagBuilder.nytt().build());
-        var tekster = linjeBuilder.stream().map(HistorikkinnslagLinjeBuilder::build).toList();
+        var tekster = linjeBuilder.stream().map(HistorikkinnslagLinjeBuilder::tilTekst).toList();
 
         // Assert
         assertHistorikk(tekster, "er endret fra Nei til __Ja__");
@@ -129,7 +129,7 @@ class VurderRefusjonHistorikkTjenesteTest {
         // Act
         var linjeBuilder = vurderRefusjonHistorikkTjeneste.lagHistorikk(dto, grunnlag.getBeregningsgrunnlag().orElseThrow(),
             Optional.of(forrige), InntektArbeidYtelseGrunnlagBuilder.nytt().build());
-        var tekster = linjeBuilder.stream().map(HistorikkinnslagLinjeBuilder::build).toList();
+        var tekster = linjeBuilder.stream().map(HistorikkinnslagLinjeBuilder::tilTekst).toList();
 
         // Assert
         assertHistorikk(tekster, "er endret fra Ja til __Nei__");
