@@ -61,7 +61,7 @@ class KunYtelseHistorikkTjenesteTest {
         // Act
         var historikkLinjeBuilder = kunYtelseHistorikkTjeneste.lagHistorikk(dto, beregningsgrunnlag, Optional.empty(),
             InntektArbeidYtelseGrunnlagBuilder.nytt().build());
-        var faktiskeLinjer = historikkLinjeBuilder.stream().map(HistorikkinnslagLinjeBuilder::build).toList();
+        var faktiskeLinjer = historikkLinjeBuilder.stream().map(HistorikkinnslagLinjeBuilder::tilTekst).toList();
 
         assertThat(faktiskeLinjer).hasSize(4);
         assertThat(faktiskeLinjer.getFirst()).isEqualTo("Fordeling for __Brukers andel:__");
@@ -97,7 +97,7 @@ class KunYtelseHistorikkTjenesteTest {
         var historikkLinjeBuilder = kunYtelseHistorikkTjeneste.lagHistorikk(dto, beregningsgrunnlag, Optional.of(forrigeGrunnlag),
             InntektArbeidYtelseGrunnlagBuilder.nytt().build());
 
-        var linjer = historikkLinjeBuilder.stream().map(HistorikkinnslagLinjeBuilder::build).toList();
+        var linjer = historikkLinjeBuilder.stream().map(HistorikkinnslagLinjeBuilder::tilTekst).toList();
 
         assertThat(linjer).hasSize(4);
         assertThat(linjer.getFirst()).isEqualTo("Fordeling for __Brukers andel:__");
