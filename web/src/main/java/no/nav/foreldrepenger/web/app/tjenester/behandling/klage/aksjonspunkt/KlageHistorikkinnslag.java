@@ -71,7 +71,7 @@ public class KlageHistorikkinnslag {
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(klageBehandling.getFagsakId())
             .medBehandlingId(klageBehandling.getId())
-            .medTekstlinjer(linjer)
+            .medLinjer(linjer)
             .addLinje(begrunnelse)
             .build();
         historikkinnslag2Repository.lagre(historikkinnslag);
@@ -87,13 +87,13 @@ public class KlageHistorikkinnslag {
 
         var resultat = KlageVurderingTjeneste.historikkResultatForKlageVurdering(klageVurdering,
             erNfpAksjonspunkt ? KlageVurdertAv.NFP : KlageVurdertAv.NK, klageVurderingOmgjør);
-        var linjer = new ArrayList<String>();
+        var linjer = new ArrayList<HistorikkinnslagLinjeBuilder>();
         if (erNfpAksjonspunkt && resultat != null) {
-            linjer.add(linjeBuilder().til("Resultat", resultat).build());
+            linjer.add(linjeBuilder().til("Resultat", resultat));
         }
         var årsak = dto.getKlageMedholdArsak();
         if (årsak != null) {
-            linjer.add(linjeBuilder().til("Årsak til omgjøring", årsak.getNavn()).build());
+            linjer.add(linjeBuilder().til("Årsak til omgjøring", årsak.getNavn()));
         }
 
         var skjermlenkeType = erNfpAksjonspunkt ? SkjermlenkeType.KLAGE_BEH_NFP : SkjermlenkeType.KLAGE_BEH_NK;
@@ -101,7 +101,7 @@ public class KlageHistorikkinnslag {
             .medBehandlingId(behandling.getId())
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medTittel(skjermlenkeType)
-            .medTekstlinjer(linjer)
+            .medLinjer(linjer)
             .addLinje(begrunnelse)
             .build();
         historikkinnslag2Repository.lagre(historikkinnslag);
@@ -128,17 +128,17 @@ public class KlageHistorikkinnslag {
         return BehandlingType.fraKode(behandlingType).getNavn() + " " + format(vedtakDato);
     }
 
-    private List<String> lagHistorikkLinjer(KlageFormKravLagreDto formkravDto) {
+    private List<HistorikkinnslagLinjeBuilder> lagHistorikkLinjer(KlageFormKravLagreDto formkravDto) {
         var behandlingId = formkravDto.påKlagdBehandlingUuid();
         var påKlagdBehandling = !formkravDto.erTilbakekreving() ? hentPåklagdBehandlingTekst(behandlingId) : hentPåKlagdEksternBehandlingTekst(
             formkravDto.hentpåKlagdEksternBehandlingUuId(), formkravDto.klageTilbakekreving().tilbakekrevingBehandlingType(),
             formkravDto.klageTilbakekreving().tilbakekrevingVedtakDato());
 
-        return List.of(linjeBuilder().til(PÅKLAGD_BEHANDLING, påKlagdBehandling).build(),
-            linjeBuilder().til("Er klager part", formkravDto.erKlagerPart()).build(),
-            linjeBuilder().til("Er klagefrist overholdt", formkravDto.erFristOverholdt()).build(),
-            linjeBuilder().til("Er klagen signert", formkravDto.erSignert()).build(),
-            linjeBuilder().til("Er klagen konkret", formkravDto.erKonkret()).build());
+        return List.of(linjeBuilder().til(PÅKLAGD_BEHANDLING, påKlagdBehandling),
+            linjeBuilder().til("Er klager part", formkravDto.erKlagerPart()),
+            linjeBuilder().til("Er klagefrist overholdt", formkravDto.erFristOverholdt()),
+            linjeBuilder().til("Er klagen signert", formkravDto.erSignert()),
+            linjeBuilder().til("Er klagen konkret", formkravDto.erKonkret()));
 
 
     }
@@ -147,10 +147,10 @@ public class KlageHistorikkinnslag {
         return new HistorikkinnslagLinjeBuilder();
     }
 
-    private List<String> lagHistorikkLinjer(KlageFormkravEntitet klageFormkrav,
+    private List<HistorikkinnslagLinjeBuilder> lagHistorikkLinjer(KlageFormkravEntitet klageFormkrav,
                                             KlageFormKravLagreDto formkravDto,
                                             KlageResultatEntitet klageResultat) {
-        var linjer = new ArrayList<String>();
+        var linjer = new ArrayList<HistorikkinnslagLinjeBuilder>();
         if (erVedtakOppdatert(klageResultat, formkravDto)) {
             var lagretPåklagdEksternBehandlingUuid = klageResultat.getPåKlagdEksternBehandlingUuid().orElse(null);
             var lagretPåklagdBehandlingId = klageResultat.getPåKlagdBehandlingId().orElse(null);
@@ -167,30 +167,30 @@ public class KlageHistorikkinnslag {
                 var tilVerdi = formkravDto.erTilbakekreving() ? hentPåKlagdEksternBehandlingTekst(formkravDto.hentpåKlagdEksternBehandlingUuId(),
                     klageTilbakekrevingDto.tilbakekrevingBehandlingType(),
                     klageTilbakekrevingDto.tilbakekrevingVedtakDato()) : hentPåklagdBehandlingTekst(formkravDto.påKlagdBehandlingUuid());
-                linjer.add(new HistorikkinnslagLinjeBuilder().til(PÅKLAGD_BEHANDLING, tilVerdi).build());
+                linjer.add(new HistorikkinnslagLinjeBuilder().til(PÅKLAGD_BEHANDLING, tilVerdi));
             }
         }
         if (klageFormkrav.erKlagerPart() != formkravDto.erKlagerPart()) {
             linjer.add(
-                new HistorikkinnslagLinjeBuilder().fraTil("Er klager part", klageFormkrav.erKlagerPart(), formkravDto.erKlagerPart()).build());
+                new HistorikkinnslagLinjeBuilder().fraTil("Er klager part", klageFormkrav.erKlagerPart(), formkravDto.erKlagerPart()));
         }
         if (klageFormkrav.erFristOverholdt() != formkravDto.erFristOverholdt()) {
             linjer.add(new HistorikkinnslagLinjeBuilder().fraTil("Er klagefrist overholdt", klageFormkrav.erFristOverholdt(),
-                formkravDto.erFristOverholdt()).build());
+                formkravDto.erFristOverholdt()));
         }
         if (klageFormkrav.erSignert() != formkravDto.erSignert()) {
             linjer.add(
-                new HistorikkinnslagLinjeBuilder().fraTil("Er klagen signert", klageFormkrav.erSignert(), formkravDto.erSignert()).build());
+                new HistorikkinnslagLinjeBuilder().fraTil("Er klagen signert", klageFormkrav.erSignert(), formkravDto.erSignert()));
 
         }
         if (klageFormkrav.erKonkret() != formkravDto.erKonkret()) {
             linjer.add(
-                new HistorikkinnslagLinjeBuilder().fraTil("Er klagen konkret", klageFormkrav.erKonkret(), formkravDto.erKonkret()).build());
+                new HistorikkinnslagLinjeBuilder().fraTil("Er klagen konkret", klageFormkrav.erKonkret(), formkravDto.erKonkret()));
         }
         return linjer;
     }
 
-    private String lagLinjeHvisForrigePåklagdBehandlingFinnes(KlageFormKravLagreDto formkravDto,
+    private HistorikkinnslagLinjeBuilder lagLinjeHvisForrigePåklagdBehandlingFinnes(KlageFormKravLagreDto formkravDto,
                                                               KlageResultatEntitet klageResultat,
                                                               Long lagretPåklagdBehandlingId,
                                                               KlageTilbakekrevingDto klageTilbakekrevingDto) {
@@ -198,15 +198,15 @@ public class KlageHistorikkinnslag {
             var fraVerdi = hentPåklagdBehandlingTekst(lagretPåklagdBehandlingId);
             var tilVerdi = hentPåKlagdEksternBehandlingTekst(formkravDto.hentpåKlagdEksternBehandlingUuId(),
                 klageTilbakekrevingDto.tilbakekrevingBehandlingType(), klageTilbakekrevingDto.tilbakekrevingVedtakDato());
-            return HistorikkinnslagLinjeBuilder.fraTilEquals(PÅKLAGD_BEHANDLING, fraVerdi, tilVerdi).build();
+            return HistorikkinnslagLinjeBuilder.fraTilEquals(PÅKLAGD_BEHANDLING, fraVerdi, tilVerdi);
         } else {
             var fraVerdi = hentPåklagdBehandlingTekst(klageResultat.getPåKlagdBehandlingId().orElse(null));
             var tilVerdi = hentPåklagdBehandlingTekst(formkravDto.påKlagdBehandlingUuid());
-            return HistorikkinnslagLinjeBuilder.fraTilEquals(PÅKLAGD_BEHANDLING, fraVerdi, tilVerdi).build();
+            return HistorikkinnslagLinjeBuilder.fraTilEquals(PÅKLAGD_BEHANDLING, fraVerdi, tilVerdi);
         }
     }
 
-    private String lagLinjeHvisForrigePåklagdEksternBehandlingUuidFinnes(KlageFormKravLagreDto formkravDto,
+    private HistorikkinnslagLinjeBuilder lagLinjeHvisForrigePåklagdEksternBehandlingUuidFinnes(KlageFormKravLagreDto formkravDto,
                                                                          UUID lagretPåklagdEksternBehandlingUuid,
                                                                          KlageTilbakekrevingDto klageTilbakekrevingDto) {
         var tilbakekrevingVedtakDto = fptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(lagretPåklagdEksternBehandlingUuid);
@@ -215,12 +215,12 @@ public class KlageHistorikkinnslag {
                 tilbakekrevingVedtakDto.tilbakekrevingBehandlingType(), tilbakekrevingVedtakDto.tilbakekrevingVedtakDato());
             var tilVerdi = hentPåKlagdEksternBehandlingTekst(formkravDto.hentpåKlagdEksternBehandlingUuId(),
                 klageTilbakekrevingDto.tilbakekrevingBehandlingType(), klageTilbakekrevingDto.tilbakekrevingVedtakDato());
-            return HistorikkinnslagLinjeBuilder.fraTilEquals(PÅKLAGD_BEHANDLING, fraVerdi, tilVerdi).build();
+            return HistorikkinnslagLinjeBuilder.fraTilEquals(PÅKLAGD_BEHANDLING, fraVerdi, tilVerdi);
         } else {
             var fraVerdi = hentPåKlagdEksternBehandlingTekst(lagretPåklagdEksternBehandlingUuid,
                 tilbakekrevingVedtakDto.tilbakekrevingBehandlingType(), tilbakekrevingVedtakDto.tilbakekrevingVedtakDato());
             var tilVerdi = hentPåklagdBehandlingTekst(formkravDto.påKlagdBehandlingUuid());
-            return HistorikkinnslagLinjeBuilder.fraTilEquals(PÅKLAGD_BEHANDLING, fraVerdi, tilVerdi).build();
+            return HistorikkinnslagLinjeBuilder.fraTilEquals(PÅKLAGD_BEHANDLING, fraVerdi, tilVerdi);
         }
     }
 
