@@ -40,9 +40,6 @@ public class HistorikkinnslagLinjeBuilder {
     }
 
     public HistorikkinnslagLinjeBuilder tekst(String t) {
-        if (t == null) {
-            throw new NullPointerException("Null tekst");
-        }
         stringBuilder.append(" ").append(t);
         return this;
     }
@@ -131,7 +128,7 @@ public class HistorikkinnslagLinjeBuilder {
         return fraTilEquals(hva, format(fra), format(til));
     }
 
-    public String build() {
+    public String tilTekst() {
         if (type == HistorikkinnslagLinjeType.TEKST && stringBuilder.isEmpty()) {
             throw new IllegalArgumentException("Forventer ikke tom streng for type " + type);
         }

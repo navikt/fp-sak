@@ -84,10 +84,10 @@ public class FordelBeregningsgrunnlagHistorikkTjenesteTest {
 
         var linjer = historikkCaptor.getFirst().getLinjer().stream().map(Historikkinnslag2Linje::getTekst);
         var faktiskelinjer = List.of(
-                new HistorikkinnslagLinjeBuilder().tekst("Det er lagt til ny aktivitet for __" + ARBEIDSFORHOLDINFO + "__ Gjeldende fra __01.02.2024__.").build(),
-                new HistorikkinnslagLinjeBuilder().tekst("__Inntekt__ er satt til __2231__.").build(),
-                new HistorikkinnslagLinjeBuilder().tekst("__Inntektskategori__ er satt til __Arbeidstaker__.").build(),
-                new HistorikkinnslagLinjeBuilder().tekst("linjeskift.").build()
+                new HistorikkinnslagLinjeBuilder().tekst("Det er lagt til ny aktivitet for __" + ARBEIDSFORHOLDINFO + "__ Gjeldende fra __01.02.2024__.").tilTekst(),
+                new HistorikkinnslagLinjeBuilder().tekst("__Inntekt__ er satt til __2231__.").tilTekst(),
+                new HistorikkinnslagLinjeBuilder().tekst("__Inntektskategori__ er satt til __Arbeidstaker__.").tilTekst(),
+                new HistorikkinnslagLinjeBuilder().tekst("linjeskift.").tilTekst()
         );
         assertThat(linjer).containsAnyElementsOf(faktiskelinjer);
     }
