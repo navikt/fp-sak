@@ -55,6 +55,9 @@ public class Historikkinnslag2Linje extends BaseEntitet implements IndexKey {
         Objects.requireNonNull(type);
 
         if (HistorikkinnslagLinjeType.TEKST.equals(type)) {
+            if (tekst == null || tekst.isEmpty()) {
+                throw new IllegalArgumentException("Teksttype må ha tekst");
+            }
             validerBoldMarkering(tekst);
         }
 

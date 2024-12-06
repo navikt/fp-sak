@@ -110,12 +110,12 @@ public class VedtakTjeneste {
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
             .medTittel("Sak retur")
-            .medTekstlinjer(lagTekstForHverTotrinnkontroll(medTotrinnskontroll))
+            .medLinjer(lagTekstForHverTotrinnkontroll(medTotrinnskontroll))
             .build();
         historikkRepository.lagre(historikkinnslag);
     }
 
-    private static List<String> lagTekstForHverTotrinnkontroll(Collection<Totrinnsvurdering> medTotrinnskontroll) {
+    private static List<HistorikkinnslagLinjeBuilder> lagTekstForHverTotrinnkontroll(Collection<Totrinnsvurdering> medTotrinnskontroll) {
         return medTotrinnskontroll.stream()
             .sorted(Comparator.comparing(ttv -> ttv.getEndretTidspunkt() != null ? ttv.getEndretTidspunkt() : ttv.getOpprettetTidspunkt()))
             .map(VedtakTjeneste::tilHistorikkinnslagTekst)
@@ -124,16 +124,17 @@ public class VedtakTjeneste {
             .toList();
     }
 
-    private static List<String> tilHistorikkinnslagTekst(Totrinnsvurdering ttv) {
+    private static List<HistorikkinnslagLinjeBuilder> tilHistorikkinnslagTekst(Totrinnsvurdering ttv) {
         var aksjonspunktNavn = ttv.getAksjonspunktDefinisjon().getNavn();
         return Boolean.TRUE.equals(ttv.isGodkjent())
-            ? List.of(String.format("__%s er godkjent__", aksjonspunktNavn))
-            : List.of(String.format("__%s må vurderes på nytt__", aksjonspunktNavn), String.format("Kommentar: %s", ttv.getBegrunnelse()));
+            ? List.of(new HistorikkinnslagLinjeBuilder().bold(aksjonspunktNavn).bold("er godkjent"))
+            : List.of(new HistorikkinnslagLinjeBuilder().bold(aksjonspunktNavn).bold("må vurderes på nytt"),
+            new HistorikkinnslagLinjeBuilder().tekst("Kommentar:").tekst(ttv.getBegrunnelse()));
     }
 
-    private static List<String> leggTilLinjeskift(List<String> eksistrendeLinjer) {
+    private static List<HistorikkinnslagLinjeBuilder> leggTilLinjeskift(List<HistorikkinnslagLinjeBuilder> eksistrendeLinjer) {
         var linjer = new ArrayList<>(eksistrendeLinjer);
-        linjer.add(HistorikkinnslagLinjeBuilder.LINJESKIFT.build());
+        linjer.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
         return linjer;
     }
 

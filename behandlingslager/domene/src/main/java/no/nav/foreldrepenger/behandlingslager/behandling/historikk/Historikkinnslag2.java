@@ -135,15 +135,7 @@ public class Historikkinnslag2 extends BaseEntitet {
 
 
         public Builder medLinjer(List<HistorikkinnslagLinjeBuilder> linjer) {
-            medTekstlinjer(linjer.stream()
-                .filter(Objects::nonNull)
-                .map(HistorikkinnslagLinjeBuilder::build)
-                .toList()); // fraTilEquals kan legger til null objekter
-            return this;
-        }
-
-        public Builder medTekstlinjer(List<String> linjer) {
-            internLinjer = new ArrayList<>(linjer.stream().filter(Objects::nonNull).map(t -> new HistorikkinnslagLinjeBuilder().tekst(t)).toList());
+            internLinjer = new ArrayList<>(linjer.stream().filter(Objects::nonNull).toList()); // fraTilEquals kan legger til null objekter
             return this;
         }
 
