@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTj
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTask;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.ÅpneBehandlingForEndringerTask;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.tilganger.BrukerProfilKlient;
+import no.nav.foreldrepenger.tilganger.AnsattInfoKlient;
 import no.nav.foreldrepenger.web.app.tjenester.VurderProsessTaskStatusForPollingApi;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.vedtak.exception.FunksjonellException;
@@ -34,7 +34,7 @@ public class BehandlingsprosessTjeneste {
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private ProsesseringAsynkTjeneste prosesseringAsynkTjeneste;
     private HistorikkRepository historikkRepository;
-    private BrukerProfilKlient brukerProfilKlient;
+    private AnsattInfoKlient ansattInfoKlient;
 
     BehandlingsprosessTjeneste() {
         // for CDI proxy
@@ -49,14 +49,14 @@ public class BehandlingsprosessTjeneste {
     public BehandlingsprosessTjeneste(BehandlingRepository behandlingRepository,
                                       ProsesseringAsynkTjeneste prosesseringAsynkTjeneste,
                                       BehandlingProsesseringTjeneste behandlingProsesseringTjeneste, HistorikkRepository historikkRepository,
-                                      BrukerProfilKlient brukerProfilKlient) {
+                                      AnsattInfoKlient ansattInfoKlient) {
 
         Objects.requireNonNull(behandlingRepository, "behandlingRepository");
         this.behandlingRepository = behandlingRepository;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.prosesseringAsynkTjeneste = prosesseringAsynkTjeneste;
         this.historikkRepository = historikkRepository;
-        this.brukerProfilKlient = brukerProfilKlient;
+        this.ansattInfoKlient = ansattInfoKlient;
     }
 
     /**
@@ -148,7 +148,7 @@ public class BehandlingsprosessTjeneste {
     }
 
     private boolean kanSaksbehandle() {
-        return brukerProfilKlient.innloggetBruker().kanSaksbehandle();
+        return ansattInfoKlient.innloggetNavAnsatt().kanSaksbehandle();
     }
 
     public Behandling hentBehandling(Long behandlingsId) {

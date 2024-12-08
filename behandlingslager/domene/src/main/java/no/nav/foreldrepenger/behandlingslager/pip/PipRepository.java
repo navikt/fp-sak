@@ -192,6 +192,17 @@ public class PipRepository {
         return new LinkedHashSet<>((List<Long>) query.getResultList());
     }
 
+    @SuppressWarnings({ "unchecked", "cast" })
+    public Set<String> saksnummerForFagsakId(Collection<Long> fagsakIds) {
+        if (fagsakIds.isEmpty()) {
+            return Collections.emptySet();
+        }
+        var sql = "SELECT saksnummer from FAGSAK where id in (:fagsakIder) ";
+        var query = entityManager.createNativeQuery(sql);
+        query.setParameter("fagsakIder", fagsakIds);
+        return new LinkedHashSet<>((List<String>) query.getResultList());
+    }
+
     public Set<Long> behandlingsIdForUuid(Set<UUID> behandlingsUUIDer) {
         if (behandlingsUUIDer == null || behandlingsUUIDer.isEmpty()) {
             return Collections.emptySet();
