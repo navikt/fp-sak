@@ -61,8 +61,9 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
             pipBehandlingsData -> validerSamsvarBehandlingOgFagsak(behandlingIder.get(), pipBehandlingsData.getFagsakId(), fagsakIder));
 
         if (!fagsakIder.isEmpty()) {
+            var saksnumre = pipRepository.saksnummerForFagsakId(fagsakIder);
             MDC_EXTENDED_LOG_CONTEXT.remove("fagsak");
-            MDC_EXTENDED_LOG_CONTEXT.add("fagsak", fagsakIder.size() == 1 ? fagsakIder.iterator().next().toString() : fagsakIder.toString());
+            MDC_EXTENDED_LOG_CONTEXT.add("fagsak", saksnumre.size() == 1 ? saksnumre.iterator().next() : saksnumre.toString());
         }
         behandlingIder.ifPresent(behId -> {
             MDC_EXTENDED_LOG_CONTEXT.remove("behandling");
