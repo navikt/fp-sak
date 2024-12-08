@@ -77,12 +77,13 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
         //Vi må sjekke om tilretteleggingene i listen tilretteleggingerMedArbeidsforholdId fortsatt har en matchende inntektsmelding
         //Dersom det ikke finnes må det opprettes nye tilrettelegginger for nye yrkesaktiviteter (feks pga endringer i aa-Reg og det er sendt inn ny IM)
         //Eller om det er endring på om arbeidsforholdsId er satt på IM eller ikke
+        //Eller om det er kommet nye inntektsmeldinger for nye yrkesaktiviteter
         if (!tilretteleggingerMedArbeidsforholdId.isEmpty()) {
             var arbeidsforholdIdgruppertPerArbeidsgiver = tilretteleggingerMedArbeidsforholdId.stream().collect(Collectors.groupingBy(this::tilretteleggingNøkkel));
             List<SvpTilretteleggingEntitet> måVurderesPåNytt = finnTilretteleggingerSomMåVurderesPåNytt(inntektsmeldinger, arbeidsforholdIdgruppertPerArbeidsgiver);
 
             tilretteleggingerMedArbeidsforholdId.removeAll(måVurderesPåNytt);
-            //Dersom det er allerede finnes tilrettelegging for samme arbeidsgiver skal den ikke legges til listen. Vi vet ikke hvilken tilrettelegging som hører til en eventuell ny arbeidsforholdsId. Vi oppretter en kopi av den første tilr vi finner for hver nye yrkesaktivitet for arbeidsgiveren.
+            //Dersom det er allerede finnes tilrettelegging for samme arbeidsgiver skal den ikke legges til listen.
             måVurderesPåNytt.forEach(tilr -> {
                 if (tilretteleggingerUtenArbeidsforholdId.stream().map(SvpTilretteleggingEntitet::getArbeidsgiver).noneMatch(a -> a.equals(tilr.getArbeidsgiver()))) {
                     tilretteleggingerUtenArbeidsforholdId.add(tilr);
@@ -108,10 +109,8 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
                 var tilrettelegginger = opprettTilretteleggingForHverYrkesaktivitet(relevanteYrkesaktiviteter, tilrettelegging, arbeidsgiver);
                 nyeTilrettelegginger.addAll(tilrettelegginger);
             }
-
         }
         return nyeTilrettelegginger;
-
     }
 
     private String tilretteleggingNøkkel(SvpTilretteleggingEntitet tilrettelegging) {
@@ -119,17 +118,22 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
     }
 
     List<SvpTilretteleggingEntitet> finnTilretteleggingerSomMåVurderesPåNytt(List<Inntektsmelding> kobledeInntektsmeldinger, Map<String, List<SvpTilretteleggingEntitet>> tilrMedArbeidsforholdsIdPerArbeidsgiverMap) {
-        List<SvpTilretteleggingEntitet> tilrSomMåvurderesPåNytt = new ArrayList<>();
+        List<SvpTilretteleggingEntitet> tilretteleggingerSomMåVurderesPåNytt = new ArrayList<>();
 
-        tilrMedArbeidsforholdsIdPerArbeidsgiverMap.forEach( (key, value) -> {
-            var arbeidsgiver = Arbeidsgiver.virksomhet(key);
-            var alleIderHarMatchendeIm = value.stream().map(SvpTilretteleggingEntitet::getInternArbeidsforholdRef)
+        tilrMedArbeidsforholdsIdPerArbeidsgiverMap.forEach((arbeidsgiverIdentifikator, tilretteleggingerForArbeidsgiver) -> {
+            var inntektsmeldingerForArbeidsgiver = kobledeInntektsmeldinger.stream()
+                .filter(im -> im.getArbeidsgiver().getIdentifikator().equals(arbeidsgiverIdentifikator))
+                .toList();
+            var arbeidsgiver = Arbeidsgiver.virksomhet(arbeidsgiverIdentifikator);
+
+            var alleIderHarMatchendeIm = tilretteleggingerForArbeidsgiver.stream().map(SvpTilretteleggingEntitet::getInternArbeidsforholdRef)
                 .allMatch(internArbeidsforholdRef -> finnesIdIListenAvInntektsmeldingerForArbeidsgiver(arbeidsgiver, kobledeInntektsmeldinger, internArbeidsforholdRef.orElse(null)));
-            if (!alleIderHarMatchendeIm) {
-                tilrSomMåvurderesPåNytt.addAll(value);
+
+            if (!alleIderHarMatchendeIm || inntektsmeldingerForArbeidsgiver.size() > tilretteleggingerForArbeidsgiver.size() ) {
+                tilretteleggingerSomMåVurderesPåNytt.addAll(tilretteleggingerForArbeidsgiver);
             }
         });
-        return tilrSomMåvurderesPåNytt;
+        return tilretteleggingerSomMåVurderesPåNytt;
     }
 
     private boolean finnesIdIListenAvInntektsmeldingerForArbeidsgiver(Arbeidsgiver arbeidsgvier, List<Inntektsmelding> inntektsmeldinger, InternArbeidsforholdRef internArbeidsforholdRef) {

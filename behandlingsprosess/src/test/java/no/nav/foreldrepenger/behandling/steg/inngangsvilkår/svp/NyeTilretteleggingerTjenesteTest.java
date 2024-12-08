@@ -8,10 +8,6 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.svp.NyeTilretteleggingerTjeneste;
-
-import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.svp.UtledTilretteleggingerMedArbeidsgiverTjeneste;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -94,7 +90,6 @@ class NyeTilretteleggingerTjenesteTest {
         assertThat(result).hasSize(2);
 
         assertThat(NyeTilretteleggingerTjeneste.likeTilrettelegginger(result, tilretteleggingEntiteter)).isTrue();
-
     }
 
     @Test
