@@ -38,8 +38,8 @@ import no.nav.vedtak.konfig.Tid;
 class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.of(2019, 8, 1);
-    private static final Arbeidsgiver DEFAULT_VIRKSOMHET = Arbeidsgiver.virksomhet("123");
-    private static final Arbeidsgiver VIRKSOMHET_2 = Arbeidsgiver.virksomhet("456");
+    private static final Arbeidsgiver DEFAULT_VIRKSOMHET = Arbeidsgiver.virksomhet("123456789");
+    private static final Arbeidsgiver VIRKSOMHET_2 = Arbeidsgiver.virksomhet("987654321");
     private static final InternArbeidsforholdRef INTERN_ARBEIDSFORHOLD_REF_1 = InternArbeidsforholdRef.nyRef();
     private static final InternArbeidsforholdRef INTERN_ARBEIDSFORHOLD_REF_2 = InternArbeidsforholdRef.nyRef();
     private static final InternArbeidsforholdRef INTERN_ARBEIDSFORHOLD_REF_3 = InternArbeidsforholdRef.nyRef();
@@ -387,6 +387,34 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
         // Assert
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getArbeidsgiver()).isEqualTo(Optional.of(DEFAULT_VIRKSOMHET));
+    }
+
+    @Test
+    void skal_legge_til_tilrettelegginger_om_nye_inntektsmeldinger() {
+        // Arrange
+        var tilrettelegginger = List.of(
+            lagTilrettelegging(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_1),
+            lagTilrettelegging(VIRKSOMHET_2, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, null));
+
+
+        when(iayTjeneste.hentGrunnlag(anyLong())).thenReturn(lagGrunnlag(behandling, List.of(
+            lagYrkesaktivitet(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_1, SKJÆRINGSTIDSPUNKT.minusYears(1), Tid.TIDENES_ENDE),
+            lagYrkesaktivitet(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_2, SKJÆRINGSTIDSPUNKT.minusYears(2), Tid.TIDENES_ENDE),
+            lagYrkesaktivitet(VIRKSOMHET_2, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, null, SKJÆRINGSTIDSPUNKT.minusYears(2), Tid.TIDENES_ENDE))));
+
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(List.of(
+            lagInntektsmelding(DEFAULT_VIRKSOMHET, INTERN_ARBEIDSFORHOLD_REF_1),
+            lagInntektsmelding(DEFAULT_VIRKSOMHET, INTERN_ARBEIDSFORHOLD_REF_2),
+            lagInntektsmelding(VIRKSOMHET_2, null)));
+
+        // Act
+        var result = utledTilretteleggingerMedArbeidsgiverTjeneste.utled(behandling, skjæringstidspunkt, tilrettelegginger);
+
+        // Assert
+        assertThat(result).hasSize(3);
+        assertThat(result.stream().anyMatch(svpTilretteleggingEntitet -> svpTilretteleggingEntitet.getArbeidsgiver().equals(Optional.of(DEFAULT_VIRKSOMHET)) && svpTilretteleggingEntitet.getInternArbeidsforholdRef().equals(Optional.of(INTERN_ARBEIDSFORHOLD_REF_1)))).isTrue();
+        assertThat(result.stream().anyMatch(svpTilretteleggingEntitet -> svpTilretteleggingEntitet.getArbeidsgiver().equals(Optional.of(DEFAULT_VIRKSOMHET)) && svpTilretteleggingEntitet.getInternArbeidsforholdRef().equals(Optional.of(INTERN_ARBEIDSFORHOLD_REF_2)))).isTrue();
+        assertThat(result.stream().anyMatch(svpTilretteleggingEntitet -> svpTilretteleggingEntitet.getArbeidsgiver().equals(Optional.of(VIRKSOMHET_2)) && svpTilretteleggingEntitet.getInternArbeidsforholdRef().isEmpty())).isTrue();
     }
 
     private SvpTilretteleggingEntitet lagTilrettelegging(Arbeidsgiver arbeidsgiver, ArbeidType arbeidType,
