@@ -17,7 +17,7 @@ import jakarta.ws.rs.core.MediaType;
 
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
-import no.nav.foreldrepenger.tilganger.BrukerProfilKlient;
+import no.nav.foreldrepenger.tilganger.AnsattInfoKlient;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.FagsakRestTjeneste;
@@ -35,15 +35,15 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @Produces(MediaType.APPLICATION_JSON)
 public class InitielleLinksRestTjeneste {
 
-    private BrukerProfilKlient brukerProfilKlient;
+    private AnsattInfoKlient ansattInfoKlient;
 
     InitielleLinksRestTjeneste() {
         // for CDI proxy
     }
 
     @Inject
-    public InitielleLinksRestTjeneste(BrukerProfilKlient brukerProfilKlient) {
-        this.brukerProfilKlient = brukerProfilKlient;
+    public InitielleLinksRestTjeneste(AnsattInfoKlient ansattInfoKlient) {
+        this.ansattInfoKlient = ansattInfoKlient;
     }
 
 
@@ -63,7 +63,7 @@ public class InitielleLinksRestTjeneste {
         saklenker.add(post(FagsakRestTjeneste.NOTAT_PATH, "lagre-notat"));
         saklenker.add(get(RedirectToRegisterRestTjeneste.AAREG_REG_PATH, "arbeidstaker-redirect"));
         saklenker.add(get(RedirectToRegisterRestTjeneste.AINNTEKT_REG_PATH, "ainntekt-redirect"));
-        return new InitLinksDto(brukerProfilKlient.innloggetBruker(), BehandlendeEnhetTjeneste.hentEnhetListe(), lenkene, saklenker);
+        return new InitLinksDto(ansattInfoKlient.innloggetBruker(), BehandlendeEnhetTjeneste.hentEnhetListe(), lenkene, saklenker);
     }
 
 }
