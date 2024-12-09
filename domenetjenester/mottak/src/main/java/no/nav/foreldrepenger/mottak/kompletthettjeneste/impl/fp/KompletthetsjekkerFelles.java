@@ -8,7 +8,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -110,9 +109,7 @@ public class KompletthetsjekkerFelles {
     public Optional<KompletthetResultat> getInntektsmeldingKomplett(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var manglendeInntektsmeldinger = kompletthetssjekkerInntektsmelding.utledManglendeInntektsmeldinger(ref, stp);
         if (!manglendeInntektsmeldinger.isEmpty()) {
-            var alleAgUtenInntektsmelding = manglendeInntektsmeldinger.stream()
-                .map(ManglendeVedlegg::getArbeidsgiver).collect(Collectors.toSet());
-            alleAgUtenInntektsmelding.forEach(ag -> fpInntektsmeldingTjeneste.lagForespørselTask(ag, ref));
+            fpInntektsmeldingTjeneste.lagForespørselTask(ref);
             loggManglendeInntektsmeldinger(ref.behandlingId(), manglendeInntektsmeldinger);
             var resultat = finnVentefristTilManglendeInntektsmelding(ref, stp).map(
                 frist -> KompletthetResultat.ikkeOppfylt(frist, Venteårsak.VENT_OPDT_INNTEKTSMELDING)).orElse(KompletthetResultat.fristUtløpt());

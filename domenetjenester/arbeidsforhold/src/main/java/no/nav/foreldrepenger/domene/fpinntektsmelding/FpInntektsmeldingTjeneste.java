@@ -5,7 +5,6 @@ import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.tilMas
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
+import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
@@ -45,6 +45,7 @@ public class FpInntektsmeldingTjeneste {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private HistorikkRepository historikkRepo;
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
+    private InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste;
 
     private static final Logger LOG = LoggerFactory.getLogger(FpInntektsmeldingTjeneste.class);
 
@@ -57,21 +58,22 @@ public class FpInntektsmeldingTjeneste {
                                      ProsessTaskTjeneste prosessTaskTjeneste,
                                      SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                      HistorikkRepository historikkRepo,
-                                     ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
+                                     ArbeidsgiverTjeneste arbeidsgiverTjeneste,
+                                     InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste) {
         this.klient = klient;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.historikkRepo = historikkRepo;
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
+        this.inntektsmeldingRegisterTjeneste = inntektsmeldingRegisterTjeneste;
     }
 
-    public void lagForespørselTask(String ag, BehandlingReferanse ref) {
+    public void lagForespørselTask(BehandlingReferanse ref) {
         var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(FpinntektsmeldingTask.class));
         taskdata.setBehandling(ref.saksnummer().getVerdi(), ref.fagsakId(), ref.behandlingId());
         var gruppeId = String.format(GRUPPE_ID, ref.saksnummer().getVerdi());
         taskdata.setGruppe(gruppeId);
         taskdata.setSekvens(String.valueOf(Instant.now().toEpochMilli()));
-        taskdata.setProperty(FpinntektsmeldingTask.ARBEIDSGIVER_KEY, ag);
         prosessTaskTjeneste.lagre(taskdata);
     }
 
@@ -110,30 +112,39 @@ public class FpInntektsmeldingTjeneste {
         return endringer;
     }
 
-    public void lagForespørsel(String ag, BehandlingReferanse ref, Skjæringstidspunkt stp) {
-        if (!OrganisasjonsNummerValidator.erGyldig(ag)) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("FpInntektsmeldingTjeneste: Oppretter ikke forespørsel for saksnummer: {} fordi orgnummer: {} ikke er gyldig", ref.saksnummer(), tilMaskertNummer(ag));
-            }
+    public void lagForespørsel(BehandlingReferanse ref, Skjæringstidspunkt stp) {
+        var arbeidsgivereViManglerInntektsmeldingFra = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraAAreg(ref, stp)
+            .keySet()
+            .stream()
+            .filter(arbeidsgiver -> OrganisasjonsNummerValidator.erGyldig(arbeidsgiver.getOrgnr()))
+            .map(arbeidsgiver -> new OrganisasjonsnummerDto(arbeidsgiver.getOrgnr()))
+            .toList();
+        if (arbeidsgivereViManglerInntektsmeldingFra.isEmpty()) {
+            //Burde ikke skje - men kan skje om inntektsmeldinger kommer fra LPS eller altinn før vi rekker å opprette oppgave - logger warn inntil vi vet om dette er feil eller ok
+            LOG.warn("FpInntektsmeldingTjeneste:lagForespørsel: Ingen inntektsmeldinger mangler for sak {} og behandlingId {}", ref.saksnummer(), ref.behandlingId());
             return;
         }
-
         var skjæringstidspunkt = stp.getUtledetSkjæringstidspunkt();
         var førsteUttaksdato = stp.getFørsteUttaksdato();
+
         var request = new OpprettForespørselRequest(new OpprettForespørselRequest.AktørIdDto(ref.aktørId().getId()),
-            new OrganisasjonsnummerDto(ag), skjæringstidspunkt, mapYtelsetype(ref.fagsakYtelseType()),
-            new SaksnummerDto(ref.saksnummer().getVerdi()), førsteUttaksdato, Collections.emptyList());
+            null, skjæringstidspunkt, mapYtelsetype(ref.fagsakYtelseType()),
+            new SaksnummerDto(ref.saksnummer().getVerdi()), førsteUttaksdato, arbeidsgivereViManglerInntektsmeldingFra);
 
-        var opprettForespørselResponse = klient.opprettForespørsel(request);
+        LOG.info("Sender kall til fpinntektsmelding om å opprette forespørsel for saksnummer {} med skjæringstidspunkt {} for følgende organisasjonsnumre: {}",  ref.saksnummer(), stp, arbeidsgivereViManglerInntektsmeldingFra);
+        var opprettForespørselResponseNy = klient.opprettForespørsel(request);
 
-        if (opprettForespørselResponse.forespørselResultat().equals(OpprettForespørselResponse.ForespørselResultat.FORESPØRSEL_OPPRETTET)) {
-            lagHistorikkForForespørsel(ag, ref);
-        } else {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Fpinntektsmelding har allerede oppgave på saksnummer: {} og orgnummer: {} på stp: {} og første uttaksdato: {}",
-                    ref.saksnummer(), tilMaskertNummer(ag), skjæringstidspunkt, førsteUttaksdato );
+        opprettForespørselResponseNy.organisasjonsnumreMedStatus().forEach( organisasjonsnummerMedStatus -> {
+            var ag = organisasjonsnummerMedStatus.organisasjonsnummerDto().orgnr();
+            if (organisasjonsnummerMedStatus.status().equals(OpprettForespørselResponsNy.ForespørselResultat.FORESPØRSEL_OPPRETTET)) {
+                lagHistorikkForForespørsel(ag, ref);
+            }else {
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Fpinntektsmelding har allerede oppgave på saksnummer: {} og orgnummer: {} på stp: {} og første uttaksdato: {}",
+                        ref.saksnummer(), tilMaskertNummer(ag), skjæringstidspunkt, førsteUttaksdato );
+                }
             }
-        }
+        });
     }
 
     private void lagHistorikkForForespørsel(String ag, BehandlingReferanse ref) {
