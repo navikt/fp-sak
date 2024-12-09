@@ -115,7 +115,8 @@ public class BeregningKalkulus implements BeregningAPI {
         var kobling = koblingRepository.hentKobling(referanse.behandlingId());
         return kobling.flatMap(k -> {
             var kalkulusInput = kalkulusInputTjeneste.lagKalkulusInput(referanse);
-            var hentGuiDtoRequest = new HentBeregningsgrunnlagGUIRequest(k.getKoblingUuid(), kalkulusInput);
+            var hentGuiDtoRequest = new HentBeregningsgrunnlagGUIRequest(k.getKoblingUuid(),
+                new Saksnummer(referanse.saksnummer().getVerdi()), kalkulusInput);
             return klient.hentGrunnlagGUI(hentGuiDtoRequest);
         });
     }
@@ -167,7 +168,8 @@ public class BeregningKalkulus implements BeregningAPI {
                                                                           HåndterBeregningDto kalkulusDtoer) {
         var kobling = koblingRepository.hentKobling(referanse.behandlingId())
             .orElseThrow(() -> new IllegalStateException("Kan ikke løse aksjonspunkter i beregning uten først å ha opprettet kobling!"));
-        var request = new HåndterBeregningRequestDto(kobling.getKoblingUuid(), kalkulusInputTjeneste.lagKalkulusInput(referanse), Collections.singletonList(kalkulusDtoer));
+        var request = new HåndterBeregningRequestDto(kobling.getKoblingUuid(), new Saksnummer(referanse.saksnummer().getVerdi()),
+            kalkulusInputTjeneste.lagKalkulusInput(referanse), Collections.singletonList(kalkulusDtoer));
         var respons = klient.løsAvklaringsbehov(request);
         return Optional.of(MapEndringsresultat.mapFraOppdateringRespons(respons));
     }
