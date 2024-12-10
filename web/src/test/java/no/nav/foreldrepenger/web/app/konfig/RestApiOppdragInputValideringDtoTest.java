@@ -30,6 +30,8 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.Valid;
@@ -44,6 +46,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
 
 import org.junit.jupiter.params.ParameterizedTest;
@@ -74,7 +77,8 @@ class RestApiOppdragInputValideringDtoTest extends RestApiTester {
     }
 
     private static final Set<Class<? extends Object>> ALLOWED_ENUM_ANNOTATIONS = Set.of(JsonProperty.class,
-        JsonValue.class, JsonIgnore.class, Valid.class, Null.class, NotNull.class, ValidKodeverk.class, DefaultValue.class, FormParam.class, QueryParam.class);
+        JsonValue.class, JsonIgnore.class, JsonAlias.class, Valid.class, Null.class, NotNull.class, ValidKodeverk.class, DefaultValue.class, FormParam.class, QueryParam.class,
+        PathParam.class);
 
     @SuppressWarnings("rawtypes")
     private static final Map<Class, List<List<Class<? extends Annotation>>>> UNNTATT_FRA_VALIDERING = new HashMap<>() {

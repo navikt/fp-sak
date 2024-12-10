@@ -84,7 +84,6 @@ public class RestImplementationClasses {
         classes.add(KodeverkRestTjeneste.class);
         classes.add(HistorikkRestTjeneste.class);
         classes.add(BatchRestTjeneste.class);
-        classes.add(ProsessTaskRestTjeneste.class);
         classes.add(VedtakJsonFeedRestTjeneste.class);
         classes.add(FordelRestTjeneste.class);
         classes.add(HendelserRestTjeneste.class);
@@ -130,6 +129,7 @@ public class RestImplementationClasses {
         Set<Class<?>> classes = new HashSet<>();
 
         // UtilTjenester for uttrekk fra registre
+        classes.add(ProsessTaskRestTjeneste.class);
         classes.add(DatavarehusAdminRestTjeneste.class);
         classes.add(ForvaltningBehandlingskontrollRestTjeneste.class);
         classes.add(ForvaltningBeregningRestTjeneste.class);
