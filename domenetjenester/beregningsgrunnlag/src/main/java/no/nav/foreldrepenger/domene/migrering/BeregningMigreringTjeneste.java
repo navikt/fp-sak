@@ -19,7 +19,6 @@ import no.nav.folketrygdloven.kalkulus.felles.v1.Saksnummer;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKobling;
@@ -78,8 +77,6 @@ public class BeregningMigreringTjeneste {
             var migreringsDto = BeregningMigreringMapper.map(grunnlag.get());
             var kobling = koblingRepository.opprettKobling(referanse);
             var request = lagMigreringRequest(referanse, kobling, originalKobling, migreringsDto);
-//            var bb = klient.hentGrunnlagBesteberegning(
-//                new EnkelFpkalkulusRequestDto(kobling.getKoblingUuid(), new Saksnummer(referanse.saksnummer().getVerdi())));
             var response = klient.migrerGrunnlag(request);
             sammenlignGrunnlag(response, referanse);
 

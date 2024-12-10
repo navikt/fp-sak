@@ -44,8 +44,6 @@ public class BeregningsgrunnlagPrStatusOgAndel {
     private Beløp årsbeløpFraTilstøtendeYtelse;
     private Boolean fastsattAvSaksbehandler = Boolean.FALSE;
     private Inntektskategori inntektskategori = Inntektskategori.UDEFINERT;
-    private Inntektskategori inntektskategoriManuellFordeling;
-    private Inntektskategori inntektskategoriAutomatiskFordeling;
     private Boolean lagtTilAvSaksbehandler = Boolean.FALSE;
     private BGAndelArbeidsforhold bgAndelArbeidsforhold;
     private Long orginalDagsatsFraTilstøtendeYtelse;
@@ -68,14 +66,6 @@ public class BeregningsgrunnlagPrStatusOgAndel {
 
     public Inntektskategori getInntektskategori() {
         return inntektskategori;
-    }
-
-    public Inntektskategori getInntektskategoriManuellFordeling() {
-        return inntektskategoriManuellFordeling;
-    }
-
-    public Inntektskategori getInntektskategoriAutomatiskFordeling() {
-        return inntektskategoriAutomatiskFordeling;
     }
 
     public LocalDate getBeregningsperiodeFom() {
@@ -183,11 +173,6 @@ public class BeregningsgrunnlagPrStatusOgAndel {
     }
 
     public Inntektskategori getGjeldendeInntektskategori() {
-        if (inntektskategoriManuellFordeling != null) {
-            return inntektskategoriManuellFordeling;
-        } else if (inntektskategoriAutomatiskFordeling != null) {
-            return inntektskategoriAutomatiskFordeling;
-        }
         return inntektskategori;
     }
 
@@ -279,8 +264,6 @@ public class BeregningsgrunnlagPrStatusOgAndel {
         var other = (BeregningsgrunnlagPrStatusOgAndel) obj;
         return Objects.equals(this.getAktivitetStatus(), other.getAktivitetStatus())
                 && Objects.equals(this.getInntektskategori(), other.getInntektskategori())
-                && Objects.equals(this.getInntektskategoriAutomatiskFordeling(), other.getInntektskategoriAutomatiskFordeling())
-                && Objects.equals(this.getInntektskategoriManuellFordeling(), other.getInntektskategoriManuellFordeling())
                 && Objects.equals(this.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver),
                     other.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver))
                 && Objects.equals(this.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsforholdRef),
@@ -476,19 +459,6 @@ public class BeregningsgrunnlagPrStatusOgAndel {
             kladd.inntektskategori = inntektskategori;
             return this;
         }
-
-        public Builder medInntektskategoriManuellFordeling(Inntektskategori inntektskategori) {
-            verifiserKanModifisere();
-            kladd.inntektskategoriManuellFordeling = inntektskategori;
-            return this;
-        }
-
-        public Builder medInntektskategoriAutomatiskFordeling(Inntektskategori inntektskategori) {
-            verifiserKanModifisere();
-            kladd.inntektskategoriAutomatiskFordeling = inntektskategori;
-            return this;
-        }
-
 
         public Builder medFastsattAvSaksbehandler(Boolean fastsattAvSaksbehandler) {
             verifiserKanModifisere();
