@@ -60,6 +60,7 @@ import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
+import no.nav.foreldrepenger.domene.migrering.BeregningMigreringTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -90,6 +91,7 @@ public class ForvaltningBeregningRestTjeneste {
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private SatsRepository satsRepository;
+    private BeregningMigreringTjeneste beregningMigreringTjeneste;
 
     @Inject
     public ForvaltningBeregningRestTjeneste(ProsessTaskTjeneste taskTjeneste,
@@ -98,7 +100,8 @@ public class ForvaltningBeregningRestTjeneste {
                                             BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider,
                                             BeregningsgrunnlagRepository beregningsgrunnlagRepository,
                                             InntektArbeidYtelseTjeneste iayTjeneste,
-                                            SatsRepository satsRepository) {
+                                            SatsRepository satsRepository,
+                                            BeregningMigreringTjeneste beregningMigreringTjeneste) {
         this.taskTjeneste = taskTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.fagsakRepository = fagsakRepository;
@@ -106,6 +109,7 @@ public class ForvaltningBeregningRestTjeneste {
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
         this.iayTjeneste = iayTjeneste;
         this.satsRepository = satsRepository;
+        this.beregningMigreringTjeneste = beregningMigreringTjeneste;
     }
 
     public ForvaltningBeregningRestTjeneste() {
@@ -260,6 +264,17 @@ public class ForvaltningBeregningRestTjeneste {
             return Response.noContent().build();
         }
         return Response.ok(kalkulatorInputDto).build();
+    }
+
+    @POST
+    @Path("/migrerSak")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Migrerer en sak over til kalkulus", tags = "FORVALTNING-beregning")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response migrerSak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto dto) {
+        beregningMigreringTjeneste.migrerSak(new Saksnummer(dto.getVerdi()));
+        return Response.ok().build();
     }
 
     @POST

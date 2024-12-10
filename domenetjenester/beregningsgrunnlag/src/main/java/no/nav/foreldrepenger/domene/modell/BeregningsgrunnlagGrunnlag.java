@@ -3,15 +3,10 @@ package no.nav.foreldrepenger.domene.modell;
 import java.util.Optional;
 import java.util.UUID;
 
-import no.nav.foreldrepenger.behandlingslager.diff.DiffIgnore;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 
 
 public class BeregningsgrunnlagGrunnlag {
-
-    @DiffIgnore
-    private UUID uuid;
-
     private Beregningsgrunnlag beregningsgrunnlag;
     private BeregningAktivitetAggregat registerAktiviteter;
     private BeregningAktivitetAggregat saksbehandletAktiviteter;
@@ -131,13 +126,6 @@ public class BeregningsgrunnlagGrunnlag {
 
     void setRefusjonOverstyringer(BeregningRefusjonOverstyringer refusjonOverstyringer) {
         this.refusjonOverstyringer = refusjonOverstyringer;
-    }
-
-    /**
-     * Identifisere en immutable instans av grunnlaget unikt og er egnet for utveksling (eks. til abakus eller andre systemer)
-     */
-    public UUID getEksternReferanse() {
-        return uuid;
     }
 
     public Optional<UUID> getKoblingReferanse() {
