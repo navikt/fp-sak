@@ -40,7 +40,7 @@
 
         <fp-kontrakter.version>9.2.0</fp-kontrakter.version>
         <abakus-kontrakt.version>2.1.2</abakus-kontrakt.version>
-        <kalkulus.version>0.0.11</kalkulus.version>
+        <kalkulus.version>0.0.12</kalkulus.version>
 
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
         <sonar.projectName>fp-sak</sonar.projectName>
@@ -55,7 +55,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>fp-bom</artifactId>
-                <version>3.6.0</version>
+                <version>3.6.1</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
