@@ -272,7 +272,7 @@ public class ForvaltningBeregningRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Migrerer en sak over til kalkulus", tags = "FORVALTNING-beregning")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response migrerSak(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto dto) {
+    public Response migrerSak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto dto) {
         beregningMigreringTjeneste.migrerSak(new Saksnummer(dto.getVerdi()));
         return Response.ok().build();
     }
