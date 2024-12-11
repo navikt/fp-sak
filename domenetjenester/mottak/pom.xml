@@ -86,6 +86,10 @@
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-xmlutils</artifactId>
         </dependency>
         <dependency>
