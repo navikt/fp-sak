@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.tilganger;
 
 import java.net.URI;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -32,12 +34,14 @@ public class AnsattInfoKlient {
 
     private final RestClient restClient;
     private final RestConfig restConfig;
-    private final URI uri;
+    private final URI ansattInfoUri;
+    private final URI gruppeMedlemskapUri;
 
     public AnsattInfoKlient() {
         this.restClient = RestClient.client();
         this.restConfig = RestConfig.forClient(this.getClass());
-        this.uri = UriBuilder.fromUri(restConfig.fpContextPath()).path("/api/ansatt/utvidet/kontekst").build();
+        this.ansattInfoUri = UriBuilder.fromUri(restConfig.fpContextPath()).path("/api/ansatt/utvidet/kontekst").build();
+        this.gruppeMedlemskapUri = UriBuilder.fromUri(restConfig.fpContextPath()).path("/api/ansatt/utvidet/gruppemedlemskap-kontekst").build();
     }
 
     public InnloggetNavAnsattDto innloggetBruker() {
@@ -60,8 +64,35 @@ public class AnsattInfoKlient {
         return AZURE_CACHE.get(ident);
     }
 
+    public boolean medlemAvAlleGrupper(List<AnsattGruppe> grupper) {
+        if (grupper.isEmpty()) {
+            throw new IllegalArgumentException("medlemAvAlleGrupper - request uten oppgitt AnsattGruppe");
+        }
+        var request = RestRequest.newPOSTJson(new AnsattInfoKlient.GruppeDto(new HashSet<>(grupper)), gruppeMedlemskapUri, restConfig);
+        var medlemAvGrupper = restClient.send(request, AnsattInfoKlient.GruppeDto.class);
+        return medlemAvGrupper.grupper().containsAll(grupper);
+    }
+
+    public boolean medlemAvNoenGrupper(List<AnsattGruppe> grupper) {
+        if (grupper.isEmpty()) {
+            throw new IllegalArgumentException("medlemAvAlleGrupper - request uten oppgitt AnsattGruppe");
+        }
+        var request = RestRequest.newPOSTJson(new AnsattInfoKlient.GruppeDto(new HashSet<>(grupper)), gruppeMedlemskapUri, restConfig);
+        var medlemAvGrupper = restClient.send(request, AnsattInfoKlient.GruppeDto.class);
+        return grupper.stream().anyMatch(g -> medlemAvGrupper.grupper().contains(g));
+    }
+
+    public Set<AnsattGruppe> medlemAvGrupper(List<AnsattGruppe> grupper) {
+        if (grupper.isEmpty()) {
+            throw new IllegalArgumentException("medlemAvAlleGrupper - request uten oppgitt AnsattGruppe");
+        }
+        var request = RestRequest.newPOSTJson(new AnsattInfoKlient.GruppeDto(new HashSet<>(grupper)), gruppeMedlemskapUri, restConfig);
+        var medlemAvGrupper = restClient.send(request, AnsattInfoKlient.GruppeDto.class);
+        return medlemAvGrupper.grupper();
+    }
+
     private AnsattInfoKlient.BrukerInfoResponseDto hentAnsattInfo() {
-        var request = RestRequest.newGET(UriBuilder.fromUri(uri).build(), restConfig);
+        var request = RestRequest.newGET(ansattInfoUri, restConfig);
         return restClient.send(request, AnsattInfoKlient.BrukerInfoResponseDto.class);
     }
 
@@ -77,4 +108,6 @@ public class AnsattInfoKlient {
     }
 
     record BrukerInfoResponseDto(String brukernavn, String navn, Set<AnsattGruppe> ansattGrupper) { }
+
+    record GruppeDto(Set<AnsattGruppe> grupper) { }
 }

@@ -39,6 +39,7 @@ import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdFPGrunnlag;
 import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdFPSak;
 import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdSvpGrunnlag;
 import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdSvpSak;
+import no.nav.foreldrepenger.tilganger.AnsattInfoKlient;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SokefeltDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.pdl.HentIdenterQueryRequest;
@@ -46,6 +47,7 @@ import no.nav.pdl.IdentGruppe;
 import no.nav.pdl.IdentInformasjon;
 import no.nav.pdl.IdentInformasjonResponseProjection;
 import no.nav.pdl.IdentlisteResponseProjection;
+import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.GrunnlagRequest;
@@ -60,6 +62,7 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
+import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
 
 @Path(InfotrygdOppslagRestTjeneste.BASE_PATH)
 @ApplicationScoped
@@ -80,6 +83,7 @@ public class InfotrygdOppslagRestTjeneste {
 
     private InfotrygdFPSak foreldrepengerSak;
     private InfotrygdSvpSak svangerskapspengerSak;
+    private AnsattInfoKlient ansattInfoKlient;
 
     public InfotrygdOppslagRestTjeneste() {
         // For Rest-CDI
@@ -87,11 +91,13 @@ public class InfotrygdOppslagRestTjeneste {
 
     @Inject
     public InfotrygdOppslagRestTjeneste(Persondata pdlKlient,
+                                        AnsattInfoKlient ansattInfoKlient,
                                         InfotrygdFPGrunnlag foreldrepenger,
                                         InfotrygdSvpGrunnlag svangerskapspenger,
                                         InfotrygdFPSak foreldrepengerSak,
                                         InfotrygdSvpSak svangerskapspengerSak) {
         this.pdlKlient = pdlKlient;
+        this.ansattInfoKlient = ansattInfoKlient;
         this.foreldrepenger = foreldrepenger;
         this.svangerskapspenger = svangerskapspenger;
         this.foreldrepengerSak = foreldrepengerSak;
@@ -114,6 +120,12 @@ public class InfotrygdOppslagRestTjeneste {
         if (!PersonIdent.erGyldigFnr(ident)) {
             return Response.status(HttpURLConnection.HTTP_BAD_REQUEST).build();
         }
+
+        if (!ansattInfoKlient.medlemAvAlleGrupper(List.of(AnsattGruppe.HISTORISK))) {
+            LOG.info("FPSAK INFOTRYGD SØK IKKE MEDLEM AV AD-GRUPPE HISTORISK"); // Sjekke bruksfrekvens ...
+            throw new FunksjonellException("FP-110706", "Mangler tilgangen Foreldrepenger Historisk", "Be nærmeste leder om tilgangen Foreldrepenger Historisk");
+        }
+
         Set<String> identer = new HashSet<>(finnAlleHistoriskeFødselsnummer(ident));
         identer.add(ident);
 
