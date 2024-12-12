@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-bom</artifactId>
-        <version>3.6.1</version>
+        <version>3.6.2</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger</groupId>
@@ -35,12 +35,12 @@
         <svp-uttak.version>2.4.5</svp-uttak.version>
         <fp-ytelse-beregn.version>1.0.4</fp-ytelse-beregn.version>
 
-        <felles.version>7.4.1</felles.version>
-        <prosesstask.version>5.0.21</prosesstask.version>
+        <felles.version>7.4.3</felles.version>
+        <prosesstask.version>5.1.0</prosesstask.version>
 
         <fp-kontrakter.version>9.2.0</fp-kontrakter.version>
         <abakus-kontrakt.version>2.1.2</abakus-kontrakt.version>
-        <kalkulus.version>0.0.11</kalkulus.version>
+        <kalkulus.version>0.0.12</kalkulus.version>
 
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
         <sonar.projectName>fp-sak</sonar.projectName>
@@ -55,7 +55,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>fp-bom</artifactId>
-                <version>3.6.0</version>
+                <version>3.6.2</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>

@@ -59,6 +59,10 @@
             <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>jms-integrasjon</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-server</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>no.nav.foreldrepenger</groupId>
 			<artifactId>uttak</artifactId>

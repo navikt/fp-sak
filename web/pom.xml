@@ -82,6 +82,10 @@
             <artifactId>felles-util</artifactId>
         </dependency>
         <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-server</artifactId>
+        </dependency>
+        <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>migreringer</artifactId>
             <scope>compile</scope>
