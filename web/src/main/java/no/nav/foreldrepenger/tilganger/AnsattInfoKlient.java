@@ -65,21 +65,13 @@ public class AnsattInfoKlient {
     }
 
     public boolean medlemAvAlleGrupper(List<AnsattGruppe> grupper) {
-        if (grupper.isEmpty()) {
-            throw new IllegalArgumentException("medlemAvAlleGrupper - request uten oppgitt AnsattGruppe");
-        }
-        var request = RestRequest.newPOSTJson(new AnsattInfoKlient.GruppeDto(new HashSet<>(grupper)), gruppeMedlemskapUri, restConfig);
-        var medlemAvGrupper = restClient.send(request, AnsattInfoKlient.GruppeDto.class);
-        return medlemAvGrupper.grupper().containsAll(grupper);
+        var medlemAvGrupper = medlemAvGrupper(grupper);
+        return medlemAvGrupper.containsAll(grupper);
     }
 
     public boolean medlemAvNoenGrupper(List<AnsattGruppe> grupper) {
-        if (grupper.isEmpty()) {
-            throw new IllegalArgumentException("medlemAvAlleGrupper - request uten oppgitt AnsattGruppe");
-        }
-        var request = RestRequest.newPOSTJson(new AnsattInfoKlient.GruppeDto(new HashSet<>(grupper)), gruppeMedlemskapUri, restConfig);
-        var medlemAvGrupper = restClient.send(request, AnsattInfoKlient.GruppeDto.class);
-        return grupper.stream().anyMatch(g -> medlemAvGrupper.grupper().contains(g));
+        var medlemAvGrupper = medlemAvGrupper(grupper);
+        return grupper.stream().anyMatch(medlemAvGrupper::contains);
     }
 
     public Set<AnsattGruppe> medlemAvGrupper(List<AnsattGruppe> grupper) {
@@ -87,9 +79,9 @@ public class AnsattInfoKlient {
             throw new IllegalArgumentException("medlemAvAlleGrupper - request uten oppgitt AnsattGruppe");
         }
         var request = RestRequest.newPOSTJson(new AnsattInfoKlient.GruppeDto(new HashSet<>(grupper)), gruppeMedlemskapUri, restConfig);
-        var medlemAvGrupper = restClient.send(request, AnsattInfoKlient.GruppeDto.class);
-        return medlemAvGrupper.grupper();
+        return restClient.sendReturnOptional(request, AnsattInfoKlient.GruppeDto.class).map(GruppeDto::grupper).orElseGet(Set::of);
     }
+
 
     private AnsattInfoKlient.BrukerInfoResponseDto hentAnsattInfo() {
         var request = RestRequest.newGET(ansattInfoUri, restConfig);
