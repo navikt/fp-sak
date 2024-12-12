@@ -5,6 +5,9 @@ import java.util.List;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.vedtak.server.Controllable;
+import no.nav.vedtak.server.LiveAndReadinessAware;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,8 +15,6 @@ import no.nav.foreldrepenger.mottak.kabal.KabalHendelseHåndterer;
 import no.nav.foreldrepenger.mottak.vedtak.kafka.VedtaksHendelseHåndterer;
 import no.nav.foreldrepenger.produksjonsstyring.behandlinghendelse.BehandlingHendelseHåndterer;
 import no.nav.vedtak.felles.integrasjon.kafka.KafkaConsumerManager;
-import no.nav.vedtak.log.metrics.Controllable;
-import no.nav.vedtak.log.metrics.LiveAndReadinessAware;
 
 
 @ApplicationScoped
@@ -24,7 +25,9 @@ public class KafkaStringConsumerStarter implements LiveAndReadinessAware, Contro
     private KafkaConsumerManager<String, String> kcm;
 
     KafkaStringConsumerStarter() {
+        // CDI proxy
     }
+
     @Inject
     public KafkaStringConsumerStarter(VedtaksHendelseHåndterer vedtaksHendelseHåndterer,
                                       BehandlingHendelseHåndterer behandlingHendelseHåndterer,

@@ -15,8 +15,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.web.app.tjenester.ApplicationServiceStarter;
-import no.nav.vedtak.log.metrics.LivenessAware;
-import no.nav.vedtak.log.metrics.ReadinessAware;
+import no.nav.vedtak.server.LivenessAware;
+import no.nav.vedtak.server.ReadinessAware;
 
 @ExtendWith(MockitoExtension.class)
 class HealthCheckRestServiceTest {
