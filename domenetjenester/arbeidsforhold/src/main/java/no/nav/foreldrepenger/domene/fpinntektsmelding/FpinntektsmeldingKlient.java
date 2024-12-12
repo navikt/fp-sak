@@ -18,7 +18,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @Dependent
-@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, application = FpApplication.FPINNTEKTSMELDING)
+@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPINNTEKTSMELDING)
 public class FpinntektsmeldingKlient {
     private static final Logger LOG = LoggerFactory.getLogger(FpinntektsmeldingKlient.class);
 
