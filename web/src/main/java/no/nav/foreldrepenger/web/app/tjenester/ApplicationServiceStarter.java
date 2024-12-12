@@ -12,10 +12,11 @@ import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 
+import no.nav.vedtak.server.Controllable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.vedtak.log.metrics.Controllable;
 
 @ApplicationScoped
 public class ApplicationServiceStarter {
