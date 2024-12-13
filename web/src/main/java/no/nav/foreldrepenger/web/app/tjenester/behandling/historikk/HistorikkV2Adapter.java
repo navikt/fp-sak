@@ -373,9 +373,15 @@ public class HistorikkV2Adapter {
         var navn = kodeverdiTilStreng(feltNavnType, felt.getNavnVerdi());
         var tilVerdi = endretFeltVerdi(feltNavnType, felt.getTilVerdi(), felt.getTilVerdiKode());
         var fraVerdi = endretFeltVerdi(feltNavnType, felt.getFraVerdi(), felt.getFraVerdiKode());
+        if (Objects.equals(fraVerdi, tilVerdi)) {
+            throw new IllegalArgumentException("Like verdier " + fraVerdi);
+        }
 
         if (fraVerdi == null) {
             return String.format("__%s__ er satt til __%s__.", navn, tilVerdi);
+        }
+        if (tilVerdi == null) {
+            return String.format("__%s %s__ er fjernet", navn, fraVerdi);
         }
         return String.format("__%s__ er endret fra %s til __%s__", navn, fraVerdi, tilVerdi);
     }
