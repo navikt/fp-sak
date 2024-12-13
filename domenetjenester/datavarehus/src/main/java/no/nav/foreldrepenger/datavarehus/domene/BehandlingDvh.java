@@ -64,9 +64,6 @@ public class BehandlingDvh implements Serializable {
     @Column(name = "ANSVARLIG_BESLUTTER")
     private String ansvarligBeslutter;
 
-    @Column(name = "RELATERT_TIL")
-    private Long relatertBehandling;
-
     @Column(name = "RELATERT_TIL_UUID")
     private UUID relatertBehandlingUuid;
 
@@ -128,8 +125,8 @@ public class BehandlingDvh implements Serializable {
     @Column(name = "FUNKSJONELL_TID", nullable = false)
     private LocalDateTime funksjonellTid;
 
-    @Column(name = "ENDRET_AV")
-    private String endretAv;
+    @Column(name = "KLAGE_HJEMMEL")
+    private String klageHjemmel;
 
     @PrePersist
     protected void onCreate() {
@@ -196,10 +193,6 @@ public class BehandlingDvh implements Serializable {
 
     public String getAnsvarligBeslutter() {
         return ansvarligBeslutter;
-    }
-
-    public Long getRelatertBehandling() {
-        return relatertBehandling;
     }
 
     public UUID getRelatertBehandlingUuid() {
@@ -285,12 +278,8 @@ public class BehandlingDvh implements Serializable {
         this.transTid = transTid;
     }
 
-    public String getEndretAv() {
-        return endretAv;
-    }
-
-    public void setEndretAv(String endretAv) {
-        this.endretAv = endretAv;
+    public String getKlageHjemmel() {
+        return klageHjemmel;
     }
 
     @Override
@@ -316,7 +305,6 @@ public class BehandlingDvh implements Serializable {
                 && Objects.equals(utlandstilsnitt, other.utlandstilsnitt)
                 && Objects.equals(ansvarligSaksbehandler, other.ansvarligSaksbehandler)
                 && Objects.equals(ansvarligBeslutter, other.ansvarligBeslutter)
-                && Objects.equals(relatertBehandling, other.relatertBehandling)
                 && Objects.equals(relatertBehandlingUuid, other.relatertBehandlingUuid)
                 && Objects.equals(familieHendelseType, other.familieHendelseType)
                 && Objects.equals(foersteStoenadsdag, other.foersteStoenadsdag)
@@ -336,7 +324,7 @@ public class BehandlingDvh implements Serializable {
                 && Objects.equals(vilkårIkkeOppfylt, other.vilkårIkkeOppfylt)
                 && Objects.equals(transTid, other.transTid)
                 && Objects.equals(funksjonellTid, other.funksjonellTid)
-                && Objects.equals(endretAv, other.endretAv);
+                && Objects.equals(klageHjemmel, other.klageHjemmel);
     }
 
     @Override
@@ -345,7 +333,7 @@ public class BehandlingDvh implements Serializable {
             behandlingStatus, behandlendeEnhet, utlandstilsnitt, ansvarligSaksbehandler, ansvarligBeslutter,
             familieHendelseType, foersteStoenadsdag,papirSøknad,
             behandlingMetode, revurderingÅrsak, omgjøringÅrsak, mottattTid, registrertTid, kanBehandlesTid, ferdigBehandletTid, forventetOppstartTid,
-            vedtakTid, utbetaltTid, vedtakResultatType, vilkårIkkeOppfylt, saksnummer, aktørId, ytelseType, transTid, funksjonellTid, endretAv);
+            vedtakTid, utbetaltTid, vedtakResultatType, vilkårIkkeOppfylt, saksnummer, aktørId, ytelseType, transTid, funksjonellTid, klageHjemmel);
     }
 
 
@@ -367,8 +355,7 @@ public class BehandlingDvh implements Serializable {
         private String ansvarligSaksbehandler;
         private String ansvarligBeslutter;
         private LocalDateTime funksjonellTid;
-        private String endretAv;
-        private Long relatertBehandling;
+        private String klageHjemmel;
         private UUID relatertBehandlingUuid;
         private String relatertBehandlingFagsystem;
         private String familieHendelseType;
@@ -459,13 +446,8 @@ public class BehandlingDvh implements Serializable {
             return this;
         }
 
-        public Builder endretAv(String endretAv) {
-            this.endretAv = endretAv;
-            return this;
-        }
-
-        public Builder relatertBehandling(Long behandlingId) {
-            this.relatertBehandling = behandlingId;
+        public Builder klageHjemmel(String klageHjemmel) {
+            this.klageHjemmel = klageHjemmel;
             return this;
         }
 
@@ -568,14 +550,13 @@ public class BehandlingDvh implements Serializable {
             behandlingDvh.utlandstilsnitt = utlandstilsnitt;
             behandlingDvh.ansvarligSaksbehandler = ansvarligSaksbehandler;
             behandlingDvh.ansvarligBeslutter = ansvarligBeslutter;
-            behandlingDvh.relatertBehandling = relatertBehandling;
             behandlingDvh.relatertBehandlingUuid = relatertBehandlingUuid;
             behandlingDvh.relatertBehandlingFagsystem = relatertBehandlingFagsystem;
             behandlingDvh.setFunksjonellTid(funksjonellTid);
-            behandlingDvh.setEndretAv(endretAv);
             behandlingDvh.familieHendelseType = familieHendelseType;
             behandlingDvh.foersteStoenadsdag = foersteStoenadsdag;
             behandlingDvh.uuid = uuid;
+            behandlingDvh.klageHjemmel = klageHjemmel;
             behandlingDvh.papirSøknad = papirSøknad;
             behandlingDvh.behandlingMetode = behandlingMetode;
             behandlingDvh.revurderingÅrsak = revurderingÅrsak;
