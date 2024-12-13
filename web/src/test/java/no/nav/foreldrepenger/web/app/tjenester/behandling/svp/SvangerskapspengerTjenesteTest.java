@@ -116,11 +116,11 @@ class SvangerskapspengerTjenesteTest {
     @Test
     void skal_summere_stillingsprosent_hvis_flere_arbeidsforhold_i_samme_virksomhet() {
         var arbeidsgiver = Arbeidsgiver.virksomhet("123456789");
-        var forventetStillingsprosent = BigDecimal.valueOf(100);
+        var forventetStillingsprosent = BigDecimal.valueOf(150);
 
         var avtaler1 = List.of(AktivitetsAvtaleBuilder.ny()
             .medPeriode(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.minusYears(1).minusWeeks(1)))
-            .medProsentsats(BigDecimal.valueOf(50)));
+            .medProsentsats(BigDecimal.valueOf(100)));
         var avtaler2 = List.of(AktivitetsAvtaleBuilder.ny()
             .medPeriode(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.minusYears(1).minusWeeks(1)))
             .medProsentsats(BigDecimal.valueOf(50)));
