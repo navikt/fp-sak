@@ -52,7 +52,7 @@ public class BehandlingDvhMapper {
                                     Optional<String> brukEnhet,
                                     String omgjøringÅrsak,
                                     String klageHjemmel,
-                                    Function<Long, UUID> behandlingUuidHenter) {
+                                    Function<Long, UUID> relatertBehandlingUuidHenter) {
 
         var builder = BehandlingDvh.builder()
             .ansvarligBeslutter(behandling.getAnsvarligBeslutter())
@@ -69,7 +69,7 @@ public class BehandlingDvhMapper {
             .ytelseType(behandling.getFagsakYtelseType().getKode())
             .funksjonellTid(LocalDateTime.now())
             .utlandstilsnitt(getUtlandstilsnitt(fagsakMarkering))
-            .relatertBehandlingUuid(getRelatertBehandlingUuid(behandling, klageResultat, ankeResultat, behandlingUuidHenter))
+            .relatertBehandlingUuid(getRelatertBehandlingUuid(behandling, klageResultat, ankeResultat, relatertBehandlingUuidHenter))
             .relatertBehandlingFagsystem(getRelatertBehandlingFagsystem(behandling, klageResultat))
             .familieHendelseType(mapFamilieHendelse(fh))
             .medFoersteStoenadsdag(skjæringstidspunkt.orElse(null))

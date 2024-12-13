@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehand
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
@@ -219,6 +220,12 @@ public class ScenarioKlageEngangsstønad {
     public ScenarioKlageEngangsstønad medKlageVurderingOmgjør(KlageVurderingOmgjør klageVurderingOmgjør) {
         vurderingResultatNFP.medKlageVurderingOmgjør(klageVurderingOmgjør);
         vurderingResultatNK.medKlageVurderingOmgjør(klageVurderingOmgjør);
+        return this;
+    }
+
+    public ScenarioKlageEngangsstønad medKlageHjemmel(KlageHjemmel hjemmel) {
+        vurderingResultatNFP.medKlageHjemmel(hjemmel);
+        vurderingResultatNK.medKlageHjemmel(hjemmel);
         return this;
     }
 

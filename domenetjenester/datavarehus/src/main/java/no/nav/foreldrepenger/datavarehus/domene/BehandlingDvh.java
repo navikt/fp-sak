@@ -31,7 +31,7 @@ public class BehandlingDvh implements Serializable {
     @Column(name = "BEHANDLING_ID", nullable = false)
     private Long behandlingId;
 
-    @Column(name = "FAGSAK_ID", nullable = false)
+    @Column(name = "FAGSAK_ID")
     private Long fagsakId;
 
     @Column(name = "SAKSNUMMER")

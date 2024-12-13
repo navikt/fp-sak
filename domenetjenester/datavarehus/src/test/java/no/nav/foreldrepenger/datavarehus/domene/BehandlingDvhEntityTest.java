@@ -18,15 +18,13 @@ class BehandlingDvhEntityTest {
         assertThat(behandlingDvh.getBehandlingResultatType()).isEqualTo(DatavarehusTestUtils.BEHANDLING_RESULTAT_TYPE);
         assertThat(behandlingDvh.getBehandlingStatus()).isEqualTo(DatavarehusTestUtils.BEHANDLING_STATUS);
         assertThat(behandlingDvh.getBehandlingType()).isEqualTo(DatavarehusTestUtils.BEHANDLING_TYPE);
-        assertThat(behandlingDvh.getEndretAv()).isEqualTo(DatavarehusTestUtils.ENDRET_AV);
-        assertThat(behandlingDvh.getFagsakId()).isEqualTo(DatavarehusTestUtils.FAGSAK_ID);
         assertThat(behandlingDvh.getSaksnummer()).isEqualTo(String.valueOf(DatavarehusTestUtils.SAKSNUMMER));
         assertThat(behandlingDvh.getAktørId()).isEqualTo(DatavarehusTestUtils.BRUKER_AKTØR_ID);
         assertThat(behandlingDvh.getYtelseType()).isEqualTo(DatavarehusTestUtils.FAGSAK_YTELSE);
         assertThat(behandlingDvh.getFunksjonellTid()).isEqualTo(DatavarehusTestUtils.FUNKSJONELL_TID);
         assertThat(behandlingDvh.getUtlandstilsnitt()).isEqualTo(DatavarehusTestUtils.UTLANDSTILSNITT);
         assertThat(behandlingDvh.getFamilieHendelseType()).isEqualTo(DatavarehusTestUtils.FAMILIE_HENDELSE_TYPE);
-        assertThat(behandlingDvh.getRelatertBehandling()).isEqualTo(DatavarehusTestUtils.BEHANDLING_ID);
+        assertThat(behandlingDvh.getRelatertBehandlingUuid()).isEqualTo(DatavarehusTestUtils.BEHANDLING_UUID);
         assertThat(behandlingDvh.getPapirSøknad()).isFalse();
         assertThat(behandlingDvh.getBehandlingMetode()).isEqualTo(BehandlingMetode.AUTOMATISK.name());
         assertThat(behandlingDvh.getRevurderingÅrsak()).isEqualTo(RevurderingÅrsak.SØKNAD.name());

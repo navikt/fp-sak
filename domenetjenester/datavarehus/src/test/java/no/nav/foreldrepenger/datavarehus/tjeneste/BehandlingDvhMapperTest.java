@@ -35,6 +35,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -98,7 +99,6 @@ class BehandlingDvhMapperTest {
         assertThat(dvh.getBehandlingResultatType()).isEqualTo(BehandlingResultatType.IKKE_FASTSATT.getKode());
         assertThat(dvh.getBehandlingStatus()).isEqualTo(BehandlingStatus.OPPRETTET.getKode());
         assertThat(dvh.getBehandlingType()).isEqualTo(BehandlingType.FØRSTEGANGSSØKNAD.getKode());
-        assertThat(dvh.getFagsakId()).isEqualTo(behandling.getFagsakId());
         assertThat(dvh.getSaksnummer()).isEqualTo(behandling.getSaksnummer().getVerdi());
         assertThat(dvh.getAktørId()).isEqualTo(behandling.getAktørId().getId());
         assertThat(dvh.getYtelseType()).isEqualTo(behandling.getFagsakYtelseType().getKode());
@@ -265,11 +265,12 @@ class BehandlingDvhMapperTest {
             .hent(klageBehandling.getId());
         var dvh = BehandlingDvhMapper.map(klageBehandling, behandlingsresultat, mottattDokument, Optional.empty(), Optional.empty(), Optional.empty(),
             Optional.empty(), klageVurderingResultat, Optional.empty(), Optional.empty(), List.of(),
-            Optional.empty(), Optional.empty(), null, l -> UUID.randomUUID());
+            Optional.empty(), Optional.empty(), null, KlageHjemmel.ENGANGS.getKabal(), l -> behandling.getUuid());
 
         assertThat(dvh.getRelatertBehandlingUuid()).as(
             "Forventer at relatert behandling på klagen er satt itl orginalbehandlingen vi klager på")
             .isEqualTo(behandling.getUuid());
+        assertThat(dvh.getKlageHjemmel()).isEqualTo(KlageHjemmel.ENGANGS.getKabal());
         assertThat(dvh.getMottattTid()).isEqualTo(mottattDokument.get(0).getMottattTidspunkt());
     }
 
@@ -290,10 +291,11 @@ class BehandlingDvhMapperTest {
             .hent(klageBehandling.getId());
         var dvh = BehandlingDvhMapper.map(klageBehandling, behandlingsresultat, mottattTidspunkt, Optional.empty(), Optional.empty(), Optional.empty(),
             Optional.empty(), klageVurderingResultat, Optional.empty(), Optional.empty(), List.of(),
-            Optional.empty(), Optional.empty(), null, l -> UUID.randomUUID());
+            Optional.empty(), Optional.empty(), null, KlageHjemmel.ENGANGS.getKabal(), l -> UUID.randomUUID());
 
         assertThat(dvh.getRelatertBehandlingUuid()).as(
             "Forventer at relatert behandling på klagen ikke blir satt når det ikke er påklagd ett vedtak.").isNull();
+        assertThat(dvh.getKlageHjemmel()).isEqualTo(KlageHjemmel.ENGANGS.getKabal());
         assertThat(dvh.getMottattTid()).isEqualTo(mottattTidspunkt.get(0).getMottattTidspunkt());
     }
 
@@ -316,7 +318,7 @@ class BehandlingDvhMapperTest {
 
         var dvh = BehandlingDvhMapper.map(behandling, behandlingsresultat, mottattTidspunkt,
             Optional.of(behandlingVedtak), Optional.of(LocalDate.now()), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), List.of(),
-            Optional.empty(), Optional.empty(), null, l -> UUID.randomUUID());
+            Optional.empty(), Optional.empty(), null, null, l -> UUID.randomUUID());
 
         assertThat(dvh.getMottattTid()).isEqualTo(mottattTidspunkt.get(0).getMottattTidspunkt());
         assertThat(dvh.getVedtakTid()).isEqualTo(vedtaksTid);
@@ -328,6 +330,7 @@ class BehandlingDvhMapperTest {
         var scenario = ScenarioKlageEngangsstønad.forMedholdNFP(abstractTestScenario);
         return scenario.medKlageMedholdÅrsak(klageMedholdÅrsak)
             .medKlageVurderingOmgjør(klageVurderingOmgjør)
+            .medKlageHjemmel(KlageHjemmel.ENGANGS)
             .medBegrunnelse(KLAGE_BEGRUNNELSE)
             .medBehandlendeEnhet(BEHANDLENDE_ENHET_ID);
     }
