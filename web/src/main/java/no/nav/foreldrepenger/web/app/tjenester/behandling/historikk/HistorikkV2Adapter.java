@@ -157,7 +157,7 @@ public class HistorikkV2Adapter {
                 .flatMap(List::stream)
                 .toList();
             var endretFelter = del.getEndredeFelt().stream()
-                .map(HistorikkV2Adapter::fraEndretFelt)
+                .flatMap(felt -> fraEndretFelt(felt).stream())
                 .toList();
             var opplysninger = del.getOpplysninger().stream()
                 .map(HistorikkV2Adapter::fraOpplysning)
@@ -198,7 +198,7 @@ public class HistorikkV2Adapter {
                 .toList();
             var endretFelter = del.getEndredeFelt().stream()
                 .filter(felt -> felt.getFraVerdi() != null)
-                .map(HistorikkV2Adapter::fraEndretFelt)
+                .flatMap(felt -> fraEndretFelt(felt).stream())
                 .toList();
             // OPPLYSNINGER finnes ikke i DB for denne maltypen
             var tema = del.getTema().stream() // Vises bare getNavnVerdi... gjør forbedring her
@@ -256,7 +256,7 @@ public class HistorikkV2Adapter {
 
             var endretFelter = del.getEndredeFelt().stream()
                 .sorted(Comparator.comparing(HistorikkV2Adapter::sortering))
-                .map(HistorikkV2Adapter::fraEndretFelt)
+                .flatMap(felt -> fraEndretFelt(felt).stream())
                 .toList();
 
             var begrunnelsetekst = begrunnelseFraDel(del).stream().toList();
@@ -289,7 +289,7 @@ public class HistorikkV2Adapter {
     private static List<String> fraEndretFeltMalType9Tilbakekr(HistorikkinnslagDel del) {
         return del.getEndredeFelt().stream()
             .filter(felt -> !TilbakekrevingVidereBehandling.INNTREKK.getKode().equals(felt.getTilVerdi()))
-            .map(HistorikkV2Adapter::fraEndretFelt)
+            .flatMap(felt -> fraEndretFelt(felt).stream())
             .toList();
     }
 
@@ -368,22 +368,26 @@ public class HistorikkV2Adapter {
         };
     }
 
-    public static String fraEndretFelt(HistorikkinnslagFelt felt) {
+    public static Optional<String> fraEndretFelt(HistorikkinnslagFelt felt) {
         var feltNavnType = FeltNavnType.getByKey(felt.getNavn());
         var navn = kodeverdiTilStreng(feltNavnType, felt.getNavnVerdi());
         var tilVerdi = endretFeltVerdi(feltNavnType, felt.getTilVerdi(), felt.getTilVerdiKode());
         var fraVerdi = endretFeltVerdi(feltNavnType, felt.getFraVerdi(), felt.getFraVerdiKode());
-        if (Objects.equals(fraVerdi, tilVerdi)) {
-            throw new IllegalArgumentException("Like verdier " + fraVerdi);
+        if (Objects.equals(getFraVerdi(fraVerdi), tilVerdi)) {
+            return Optional.empty();
         }
 
         if (fraVerdi == null) {
-            return String.format("__%s__ er satt til __%s__.", navn, tilVerdi);
+            return Optional.of(String.format("__%s__ er satt til __%s__.", navn, tilVerdi));
         }
         if (tilVerdi == null) {
-            return String.format("__%s %s__ er fjernet", navn, fraVerdi);
+            return Optional.of(String.format("__%s %s__ er fjernet", navn, fraVerdi));
         }
-        return String.format("__%s__ er endret fra %s til __%s__", navn, fraVerdi, tilVerdi);
+        return Optional.of(String.format("__%s__ er endret fra %s til __%s__", navn, fraVerdi, tilVerdi));
+    }
+
+    private static String getFraVerdi(String fraVerdi) {
+        return fraVerdi;
     }
 
     private static String endretFeltVerdi(FeltNavnType feltNavnType, String verdi, String verdiKode) {
