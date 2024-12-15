@@ -28,11 +28,8 @@ public class BehandlingDvh implements Serializable {
     @Column(name="TRANS_ID")
     private Long id;
 
-    @Column(name = "BEHANDLING_ID", nullable = false)
+    @Column(name = "BEHANDLING_ID", nullable = false) // Brukes ikke lenger av DVH, men beholder her for å forenkle etterpopulering av nye felt.
     private Long behandlingId;
-
-    @Column(name = "FAGSAK_ID")
-    private Long fagsakId;
 
     @Column(name = "SAKSNUMMER")
     private String saksnummer;
@@ -150,10 +147,6 @@ public class BehandlingDvh implements Serializable {
     }
 
     public UUID getBehandlingUuid() { return uuid; }
-
-    public Long getFagsakId() {
-        return fagsakId;
-    }
 
     public String getSaksnummer() {
         return saksnummer;
@@ -294,7 +287,6 @@ public class BehandlingDvh implements Serializable {
             return false;
         }
         return Objects.equals(behandlingId, other.behandlingId)
-                && Objects.equals(fagsakId, other.fagsakId)
                 && Objects.equals(saksnummer, other.saksnummer)
                 && Objects.equals(aktørId, other.aktørId)
                 && Objects.equals(ytelseType, other.ytelseType)
@@ -329,7 +321,7 @@ public class BehandlingDvh implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), behandlingId, fagsakId, behandlingResultatType, behandlingType,
+        return Objects.hash(super.hashCode(), behandlingId, behandlingResultatType, behandlingType,
             behandlingStatus, behandlendeEnhet, utlandstilsnitt, ansvarligSaksbehandler, ansvarligBeslutter,
             familieHendelseType, foersteStoenadsdag,papirSøknad,
             behandlingMetode, revurderingÅrsak, omgjøringÅrsak, mottattTid, registrertTid, kanBehandlesTid, ferdigBehandletTid, forventetOppstartTid,
@@ -343,7 +335,6 @@ public class BehandlingDvh implements Serializable {
 
     public static class Builder {
         private Long behandlingId;
-        private Long fagsakId;
         private String saksnummer;
         private String aktørId;
         private String ytelseType;
@@ -383,11 +374,6 @@ public class BehandlingDvh implements Serializable {
 
         public Builder behandlingUuid(UUID uuid) {
             this.uuid = uuid;
-            return this;
-        }
-
-        public Builder fagsakId(Long fagsakId) {
-            this.fagsakId = fagsakId;
             return this;
         }
 
@@ -539,7 +525,6 @@ public class BehandlingDvh implements Serializable {
         public BehandlingDvh build() {
             var behandlingDvh = new BehandlingDvh();
             behandlingDvh.behandlingId = behandlingId;
-            behandlingDvh.fagsakId = fagsakId;
             behandlingDvh.saksnummer = saksnummer;
             behandlingDvh.aktørId = aktørId;
             behandlingDvh.ytelseType = ytelseType;

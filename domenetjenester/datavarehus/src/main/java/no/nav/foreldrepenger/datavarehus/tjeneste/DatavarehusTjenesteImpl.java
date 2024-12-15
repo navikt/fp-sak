@@ -279,9 +279,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
     }
 
     private Optional<String> finnHjemmelTekst(Behandling klageBehandling) {
-        return klageRepository.hentGjeldendeKlageVurderingResultat(klageBehandling)
-            .map(KlageVurderingResultat::getKlageHjemmel)
-            .filter(hjemmel -> !KlageHjemmel.UDEFINERT.equals(hjemmel))
+        return klageRepository.hentGjeldendeKlageHjemmel(klageBehandling)
             .map(KlageHjemmel::getKabal)
             .filter(hjemmel -> !hjemmel.isEmpty());
     }
