@@ -300,4 +300,88 @@ public class ForvaltningUttrekkRestTjeneste {
         return Response.ok(restanse).build();
     }
 
+    @POST
+    @Path("/etterpopulerKlageHjemmel")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "etterpopulerKlageHjemmel", tags = "FORVALTNING-uttrekk")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
+    public Response etterpopulerKlageHjemmel() {
+        var antall = entityManager.createNativeQuery("""
+            merge into fpsak_hist.behandling_dvh bdvh
+            using (select klage_behandling_id kbid,
+                          case when klage_hjemmel = '14-02' then 'FTRL_14_2'
+                               when klage_hjemmel = '14-04' then 'FTRL_14_4'
+                               when klage_hjemmel = '14-05' then 'FTRL_14_5'
+                               when klage_hjemmel = '14-06' then 'FTRL_14_6'
+                               when klage_hjemmel = '14-07' then 'FTRL_14_7'
+                               when klage_hjemmel = '14-09' then 'FTRL_14_9'
+                               when klage_hjemmel = '14-10' then 'FTRL_14_10'
+                               when klage_hjemmel = '14-11' then 'FTRL_14_11'
+                               when klage_hjemmel = '14-12' then 'FTRL_14_12'
+                               when klage_hjemmel = '14-13' then 'FTRL_14_13'
+                               when klage_hjemmel = '14-14' then 'FTRL_14_14'
+                               when klage_hjemmel = '14-15' then 'FTRL_14_15'
+                               when klage_hjemmel = '14-16' then 'FTRL_14_16'
+                               when klage_hjemmel = '14-17' then 'FTRL_14_17'
+                               when klage_hjemmel = '8-2' then 'FTRL_8_2'
+                               when klage_hjemmel = '21-3' then 'FTRL_21_3'
+                               when klage_hjemmel = '22-13' then 'FTRL_22_13'
+                               when klage_hjemmel = '22-15' then 'FTRL_22_15'
+                               when klage_hjemmel = '883-5' then 'EOES_883_2004_5'
+                               when klage_hjemmel = '883-6' then 'EOES_883_2004_6'
+                              end hjemmel
+                   from fpsak.KLAGE_RESULTAT k join fpsak.KLAGE_VURDERING_RESULTAT kr on kr.klage_resultat_id = k.id
+                   where klage_hjemmel is not null and klage_hjemmel <> '-') kilde
+            on (bdvh.behandling_id = kilde.kbid)
+            when matched then
+                update set bdvh.klage_hjemmel = kilde.hjemmel
+            """).executeUpdate();
+
+        return Response.ok(antall).build();
+    }
+
+    @POST
+    @Path("/etterpopulerAnkeHjemmel")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "etterpopulerAnkeHjemmel", tags = "FORVALTNING-uttrekk")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
+    public Response etterpopulerAnkeHjemmel() {
+        var antall = entityManager.createNativeQuery("""
+            merge into fpsak_hist.behandling_dvh bdvh
+            using (select anke_behandling_id abid,
+                          case when klage_hjemmel = '14-02' then 'FTRL_14_2'
+                               when klage_hjemmel = '14-04' then 'FTRL_14_4'
+                               when klage_hjemmel = '14-05' then 'FTRL_14_5'
+                               when klage_hjemmel = '14-06' then 'FTRL_14_6'
+                               when klage_hjemmel = '14-07' then 'FTRL_14_7'
+                               when klage_hjemmel = '14-09' then 'FTRL_14_9'
+                               when klage_hjemmel = '14-10' then 'FTRL_14_10'
+                               when klage_hjemmel = '14-11' then 'FTRL_14_11'
+                               when klage_hjemmel = '14-12' then 'FTRL_14_12'
+                               when klage_hjemmel = '14-13' then 'FTRL_14_13'
+                               when klage_hjemmel = '14-14' then 'FTRL_14_14'
+                               when klage_hjemmel = '14-15' then 'FTRL_14_15'
+                               when klage_hjemmel = '14-16' then 'FTRL_14_16'
+                               when klage_hjemmel = '14-17' then 'FTRL_14_17'
+                               when klage_hjemmel = '8-2' then 'FTRL_8_2'
+                               when klage_hjemmel = '21-3' then 'FTRL_21_3'
+                               when klage_hjemmel = '22-13' then 'FTRL_22_13'
+                               when klage_hjemmel = '22-15' then 'FTRL_22_15'
+                               when klage_hjemmel = '883-5' then 'EOES_883_2004_5'
+                               when klage_hjemmel = '883-6' then 'EOES_883_2004_6'
+                              end hjemmel
+                   from fpsak.anke_resultat a
+                            join fpsak.KLAGE_RESULTAT k on a.paa_anket_behandling_id = k.klage_behandling_id
+                            join fpsak.KLAGE_VURDERING_RESULTAT kr on kr.klage_resultat_id = k.id
+                   where klage_hjemmel is not null and klage_hjemmel <> '-') kilde
+            on (bdvh.behandling_id = kilde.abid)
+            when matched then
+                update set bdvh.klage_hjemmel = kilde.hjemmel
+            """).executeUpdate();
+
+        return Response.ok(antall).build();
+    }
+
 }

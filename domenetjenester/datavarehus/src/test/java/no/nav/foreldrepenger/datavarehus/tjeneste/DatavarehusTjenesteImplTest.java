@@ -93,6 +93,7 @@ class DatavarehusTjenesteImplTest {
         verify(datavarehusRepository).lagre(captor.capture());
 
         assertThat(captor.getValue().getBehandlingId()).isEqualTo(behandling.getId());
+        assertThat(captor.getValue().getBehandlingUuid()).isEqualTo(behandling.getUuid());
     }
 
     @Test
@@ -123,6 +124,7 @@ class DatavarehusTjenesteImplTest {
         verify(datavarehusRepository).lagre(captor.capture());
 
         assertThat(captor.getValue().getBehandlingId()).isEqualTo(behandling.getId());
+        assertThat(captor.getValue().getBehandlingUuid()).isEqualTo(behandling.getUuid());
         assertThat(captor.getValue().getMottattTid()).isEqualTo(mottattDokument.getMottattTidspunkt());
     }
 
@@ -145,6 +147,7 @@ class DatavarehusTjenesteImplTest {
 
         verify(datavarehusRepository).lagre(captor.capture());
         assertThat(captor.getValue().getBehandlingId()).isEqualTo(behandling.getId());
+        assertThat(captor.getValue().getBehandlingUuid()).isEqualTo(behandling.getUuid());
     }
 
 }

@@ -51,7 +51,8 @@ public class BehandlingDvhMapper {
                                     Optional<LocalDate> forventetOppstartDato,
                                     Optional<String> brukEnhet,
                                     String omgjøringÅrsak,
-                                    Function<Long, UUID> behandlingUuidHenter) {
+                                    String klageHjemmel,
+                                    Function<Long, UUID> relatertBehandlingUuidHenter) {
 
         var builder = BehandlingDvh.builder()
             .ansvarligBeslutter(behandling.getAnsvarligBeslutter())
@@ -62,15 +63,13 @@ public class BehandlingDvhMapper {
             .behandlingResultatType(behandlingsresultat == null ? null : behandlingsresultat.getBehandlingResultatType().getKode())
             .behandlingStatus(mapBehandlingStatus(behandling))
             .behandlingType(behandling.getType().getKode())
-            .endretAv(CommonDvhMapper.finnEndretAvEllerOpprettetAv(behandling))
             .fagsakId(behandling.getFagsakId())
             .saksnummer(behandling.getSaksnummer().getVerdi())
             .aktørId(behandling.getAktørId().getId())
             .ytelseType(behandling.getFagsakYtelseType().getKode())
             .funksjonellTid(LocalDateTime.now())
             .utlandstilsnitt(getUtlandstilsnitt(fagsakMarkering))
-            .relatertBehandling(getRelatertBehandling(behandling, klageResultat, ankeResultat))
-            .relatertBehandlingUuid(getRelatertBehandlingUuid(behandling, klageResultat, ankeResultat, behandlingUuidHenter))
+            .relatertBehandlingUuid(getRelatertBehandlingUuid(behandling, klageResultat, ankeResultat, relatertBehandlingUuidHenter))
             .relatertBehandlingFagsystem(getRelatertBehandlingFagsystem(behandling, klageResultat))
             .familieHendelseType(mapFamilieHendelse(fh))
             .medFoersteStoenadsdag(skjæringstidspunkt.orElse(null))
@@ -78,6 +77,7 @@ public class BehandlingDvhMapper {
             .medBehandlingMetode(utledBehandlingMetode(behandling, behandlingsresultat))
             .medRevurderingÅrsak(utledRevurderingÅrsak(behandling, fagsakMarkering))
             .medOmgjøringÅrsak(omgjøringÅrsak)
+            .klageHjemmel(klageHjemmel)
             .medMottattTid(finnMottattTidspunkt(mottatteDokument))
             .medRegistrertTid(behandling.getOpprettetTidspunkt())
             .medKanBehandlesTid(kanBehandlesTid(behandling))
@@ -126,18 +126,6 @@ public class BehandlingDvhMapper {
     /**
      * Er det klage, hentes relatert behandling fra klageresultat. Hvis ikke hentes relatert behandling fra orginalbehandling-referansen på behandlingen.
      */
-    private static Long getRelatertBehandling(Behandling behandling,
-                                              Optional<KlageResultatEntitet> klageResultat,
-                                              Optional<AnkeResultatEntitet> ankeResultat) {
-        if (BehandlingType.ANKE.equals(behandling.getType()) && ankeResultat.isPresent()) {
-            return ankeResultat.flatMap(AnkeResultatEntitet::getPåAnketKlageBehandlingId).orElse(null);
-        }
-        if (BehandlingType.KLAGE.equals(behandling.getType()) && klageResultat.isPresent()) {
-            return klageResultat.flatMap(KlageResultatEntitet::getPåKlagdBehandlingId).orElse(null);
-        }
-        return behandling.getOriginalBehandlingId().orElse(null);
-    }
-
     private static UUID getRelatertBehandlingUuid(Behandling behandling,
                                                   Optional<KlageResultatEntitet> klageResultat,
                                                   Optional<AnkeResultatEntitet> ankeResultat,
