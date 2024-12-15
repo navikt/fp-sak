@@ -63,7 +63,6 @@ public class BehandlingDvhMapper {
             .behandlingResultatType(behandlingsresultat == null ? null : behandlingsresultat.getBehandlingResultatType().getKode())
             .behandlingStatus(mapBehandlingStatus(behandling))
             .behandlingType(behandling.getType().getKode())
-            .fagsakId(behandling.getFagsakId())
             .saksnummer(behandling.getSaksnummer().getVerdi())
             .aktørId(behandling.getAktørId().getId())
             .ytelseType(behandling.getFagsakYtelseType().getKode())

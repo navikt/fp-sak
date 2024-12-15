@@ -45,7 +45,6 @@ public class DatavarehusTestUtils {
                 .behandlingUuid(BEHANDLING_UUID)
                 .behandlingStatus(BEHANDLING_STATUS)
                 .behandlingType(BEHANDLING_TYPE)
-                .fagsakId(FAGSAK_ID)
                 .saksnummer(String.valueOf(SAKSNUMMER))
                 .aktørId(BRUKER_AKTØR_ID)
                 .ytelseType(FAGSAK_YTELSE)

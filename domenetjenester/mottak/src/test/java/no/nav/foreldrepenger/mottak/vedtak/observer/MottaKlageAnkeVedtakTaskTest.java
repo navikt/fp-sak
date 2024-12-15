@@ -14,14 +14,14 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioK
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
 class MottaKlageAnkeVedtakTaskTest extends EntityManagerAwareTest {
 
-    private static final String VKY_TASK_TYPE = OpprettOppgaveVurderKonsekvensTask.class.getAnnotation(ProsessTask.class).value();
+    private static final TaskType VKY_TASK_TYPE = TaskType.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class);
 
     @Mock
     private ProsessTaskTjeneste taskTjeneste;
@@ -41,7 +41,7 @@ class MottaKlageAnkeVedtakTaskTest extends EntityManagerAwareTest {
         // Assert
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste).lagre(captor.capture());
-        var tasktype = captor.getValue().getTaskType();
+        var tasktype = captor.getValue().taskType();
         assertThat(tasktype).isEqualTo(VKY_TASK_TYPE);
     }
 
@@ -59,7 +59,7 @@ class MottaKlageAnkeVedtakTaskTest extends EntityManagerAwareTest {
         // Assert
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste).lagre(captor.capture());
-        var tasktype = captor.getValue().getTaskType();
+        var tasktype = captor.getValue().taskType();
         assertThat(tasktype).isEqualTo(VKY_TASK_TYPE);
     }
 
@@ -78,7 +78,7 @@ class MottaKlageAnkeVedtakTaskTest extends EntityManagerAwareTest {
         // Assert
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste).lagre(captor.capture());
-        var tasktype = captor.getValue().getTaskType();
+        var tasktype = captor.getValue().taskType();
         assertThat(tasktype).isEqualTo(VKY_TASK_TYPE);
     }
 
@@ -96,7 +96,7 @@ class MottaKlageAnkeVedtakTaskTest extends EntityManagerAwareTest {
         // Assert
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste).lagre(captor.capture());
-        var tasktype = captor.getValue().getTaskType();
+        var tasktype = captor.getValue().taskType();
         assertThat(tasktype).isEqualTo(VKY_TASK_TYPE);
     }
 
@@ -120,7 +120,7 @@ class MottaKlageAnkeVedtakTaskTest extends EntityManagerAwareTest {
         // Assert
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste).lagre(captor.capture());
-        var tasktype = captor.getValue().getTaskType();
+        var tasktype = captor.getValue().taskType();
         assertThat(tasktype).isEqualTo(VKY_TASK_TYPE);
     }
 
@@ -138,7 +138,7 @@ class MottaKlageAnkeVedtakTaskTest extends EntityManagerAwareTest {
         // Assert
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste).lagre(captor.capture());
-        var tasktype = captor.getValue().getTaskType();
+        var tasktype = captor.getValue().taskType();
         assertThat(tasktype).isEqualTo(VKY_TASK_TYPE);
     }
 
