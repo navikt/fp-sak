@@ -13,12 +13,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 
 @Entity(name = "Historikkinnslag2")
 @Table(name = "HISTORIKKINNSLAG2")
-public class Historikkinnslag2 extends BaseEntitet {
+public class Historikkinnslag2 extends BaseCreateableEntitet {
 
     public static final String BOLD_MARKØR = "__";
 
