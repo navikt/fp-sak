@@ -7,6 +7,9 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
+import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +37,7 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
     private ArbeidInntektHistorikkinnslagTjeneste arbeidInntektHistorikkinnslagTjeneste;
     private InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste;
 
 
     public ArbeidsforholdInntektsmeldingMangelTjeneste() {
@@ -47,7 +51,8 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
                                                        ArbeidsforholdInntektsmeldingsMangelUtleder arbeidsforholdInntektsmeldingsMangelUtleder,
                                                        ArbeidInntektHistorikkinnslagTjeneste arbeidInntektHistorikkinnslagTjeneste,
                                                        InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste,
-                                                       SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                                       SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                                       FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste) {
         this.arbeidsforholdValgRepository = arbeidsforholdValgRepository;
         this.arbeidsforholdTjeneste = arbeidsforholdTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
@@ -55,14 +60,21 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
         this.arbeidInntektHistorikkinnslagTjeneste = arbeidInntektHistorikkinnslagTjeneste;
         this.inntektsmeldingRegisterTjeneste = inntektsmeldingRegisterTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.fpInntektsmeldingTjeneste = fpInntektsmeldingTjeneste;
     }
 
     public void lagreManglendeOpplysningerVurdering(BehandlingReferanse behandlingReferanse, Skjæringstidspunkt skjæringstidspunkt, ManglendeOpplysningerVurderingDto dto) {
-
         var arbeidsforholdMedMangler = arbeidsforholdInntektsmeldingsMangelUtleder.finnAlleManglerIArbeidsforholdInntektsmeldinger(behandlingReferanse, skjæringstidspunkt);
         var entiteter = ArbeidsforholdInntektsmeldingMangelMapper.mapManglendeOpplysningerVurdering(dto, arbeidsforholdMedMangler);
         sjekkUnikeReferanser(entiteter); // Skal kun være en avklaring pr referanse
         entiteter.forEach(ent -> arbeidsforholdValgRepository.lagre(ent, behandlingReferanse.behandlingId()));
+
+        // Hvis det må sendes melding til arbeidsgiver
+        if (ArbeidsforholdKomplettVurderingType.MELDING_TIL_ARBEIDSGIVER_NAV_NO.equals(dto.getVurdering())) {
+            sendBeskjedTilArbeidsgiver(behandlingReferanse, dto);
+        }
+
+        // Historikk
         var iaygrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.behandlingId());
         arbeidInntektHistorikkinnslagTjeneste.opprettHistorikkinnslag(behandlingReferanse, dto, iaygrunnlag);
 
@@ -70,8 +82,15 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
         ryddBortManuelleArbeidsforholdVedBehov(behandlingReferanse, dto);
     }
 
+    private void sendBeskjedTilArbeidsgiver(BehandlingReferanse behandlingReferanse, ManglendeOpplysningerVurderingDto dto) {
+        if (!OrganisasjonsNummerValidator.erGyldig(dto.getArbeidsgiverIdent())) {
+            throw new IllegalArgumentException("Forsøk på å sende beskjed til ugyldig organisasjonsnummer, ulovlig tilstand");
+        }
+        fpInntektsmeldingTjeneste.sendNyBeskjedTilArbeidsgiver(behandlingReferanse, dto.getArbeidsgiverIdent());
+    }
+
     private void sjekkUnikeReferanser(List<ArbeidsforholdValg> entiteter) {
-        var ag = entiteter.get(0).getArbeidsgiver();
+        var ag = entiteter.getFirst().getArbeidsgiver();
         Map<InternArbeidsforholdRef, List<ArbeidsforholdValg>> map = entiteter.stream()
             .collect(Collectors.groupingBy(ArbeidsforholdValg::getArbeidsforholdRef));
         map.forEach((key, value) -> {
