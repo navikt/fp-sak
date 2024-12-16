@@ -1,0 +1,1 @@
+alter table BEHANDLING_DVH set unused (FAGSAK_ID, RELATERT_TIL, ENDRET_AV);

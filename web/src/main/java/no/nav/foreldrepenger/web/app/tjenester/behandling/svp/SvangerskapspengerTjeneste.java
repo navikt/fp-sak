@@ -15,6 +15,9 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -50,6 +53,7 @@ import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
 public class SvangerskapspengerTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(SvangerskapspengerTjeneste.class);
 
     private static final Map<ArbeidType, UttakArbeidType> ARBTYPE_MAP = Map.ofEntries(
         Map.entry(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, UttakArbeidType.ORDINÆRT_ARBEID), Map.entry(ArbeidType.FRILANSER, UttakArbeidType.FRILANS),
@@ -131,7 +135,7 @@ public class SvangerskapspengerTjeneste {
             .orElseThrow(() -> SvangerskapsTjenesteFeil.kanIkkeFinneSvangerskapspengerGrunnlagForBehandling(behandlingId));
     }
 
-    private Optional<BigDecimal> utledStillingsprosentForTilrPeriode(YrkesaktivitetFilter registerFilter, SvpTilretteleggingEntitet tilrettelegging) {
+    public Optional<BigDecimal> utledStillingsprosentForTilrPeriode(YrkesaktivitetFilter registerFilter, SvpTilretteleggingEntitet tilrettelegging) {
         if (ArbeidType.ORDINÆRT_ARBEIDSFORHOLD.equals(tilrettelegging.getArbeidType())) {
             var førsteTilrStartDato = tilrettelegging.getTilretteleggingFOMListe()
                 .stream()
@@ -143,28 +147,37 @@ public class SvangerskapspengerTjeneste {
                 .stream()
                 .filter(ya -> Objects.equals(ya.getArbeidsgiver(), tilrettelegging.getArbeidsgiver().orElse(null))
                     && tilrettelegging.getInternArbeidsforholdRef().orElse(InternArbeidsforholdRef.nullRef()).gjelderFor(ya.getArbeidsforholdRef()))
-                .findFirst()
-                .orElse(null);
+                .toList();
 
-            if (yrkesaktivitet == null || førsteTilrStartDato == null) {
+            if (yrkesaktivitet.isEmpty() || førsteTilrStartDato == null) {
                 return Optional.of(BigDecimal.ZERO);
             }
-            return Optional.of(finnStillingsprosentForDato(yrkesaktivitet, førsteTilrStartDato));
+            var stillingsprosent =finnStillingsprosentForDato(yrkesaktivitet, førsteTilrStartDato);
+            if (stillingsprosent.compareTo(BigDecimal.valueOf(100)) > 0) {
+                var arbeidsgiverident = tilrettelegging.getArbeidsgiver().stream().map(Arbeidsgiver::getIdentifikator);
+                LOG.info("SvangerskapspengerTjeneste: utledStillingsprosentForTilrPeriode: Stillingsprosent over 100% for tilrettelegging med id:{} og arbeidsgviver:{}, stillingsprosent:{}", tilrettelegging.getId(), arbeidsgiverident, stillingsprosent);
+            }
+            return Optional.of(stillingsprosent);
         } else {
             return Optional.empty();
         }
     }
 
-    private BigDecimal finnStillingsprosentForDato(Yrkesaktivitet ya, LocalDate førsteTilrStartDato) {
+    private BigDecimal finnStillingsprosentForDato(List<Yrkesaktivitet> yrkesaktiviteter, LocalDate førsteTilrStartDato) {
+        return yrkesaktiviteter.stream()
+            .map( ya -> hentStillingsprosentForAktivitet(ya, førsteTilrStartDato))
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private BigDecimal hentStillingsprosentForAktivitet(Yrkesaktivitet ya, LocalDate førsteTilrStartDato) {
         //Dersom ingen periode overlapper er stillingsprosent 0
-        return ya.getAlleAktivitetsAvtaler()
-            .stream()
-            .filter(aa -> !aa.erAnsettelsesPeriode() && aa.getPeriode().inkluderer(førsteTilrStartDato))
+        return  ya.getAlleAktivitetsAvtaler().stream()
+            .filter(aa -> !aa.erAnsettelsesPeriode() && aa.getPeriode().inkluderer(førsteTilrStartDato.minusDays(1))|| aa.getPeriode().getFomDato().isAfter(førsteTilrStartDato.minusDays(1)))
             .filter(aa -> aa.getProsentsats() != null && aa.getProsentsats().getVerdi() != null)
             .max(Comparator.comparing(AktivitetsAvtale::getPeriode))
             .map(AktivitetsAvtale::getProsentsats)
             .map(Stillingsprosent::getVerdi)
-            .orElse(java.math.BigDecimal.ZERO);
+            .orElse(BigDecimal.ZERO);
     }
 
     private Optional<AktørArbeid> finnSaksbehandletHvisEksisterer(AktørId aktørId, InntektArbeidYtelseGrunnlag g) {

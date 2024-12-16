@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
@@ -34,6 +35,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
@@ -149,7 +151,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
             mottatteDokumenter, vedtak, ytelseMedUtbetalingFra, vilkårIkkeOppfylt, familieHendelseGrunnlag,
             gjeldendeKlagevurderingresultat, gjeldendeAnkevurderingresultat,
             skjæringstidspunkt.flatMap(Skjæringstidspunkt::getSkjæringstidspunktHvisUtledet), utlandMarkering, forventetOppstart,
-            finnEnhet(behandling, behandlingsresultat), finnOmgjøringÅrsak(behandling),
+            finnEnhet(behandling, behandlingsresultat), finnOmgjøringÅrsak(behandling), finnKlageHjemmel(behandling),
             behandlingId -> behandlingRepository.hentBehandling(behandlingId).getUuid());
         datavarehusRepository.lagre(behandlingDvh);
     }
@@ -260,6 +262,26 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
         } else {
             return null;
         }
+    }
+
+    private String finnKlageHjemmel(Behandling behandling) {
+        if (BehandlingType.KLAGE.equals(behandling.getType())) {
+            return finnHjemmelTekst(behandling).orElse(null);
+        } else if (BehandlingType.ANKE.equals(behandling.getType())) {
+            return ankeRepository.hentAnkeResultat(behandling.getId())
+                .flatMap(AnkeResultatEntitet::getPåAnketKlageBehandlingId)
+                .map(behandlingRepository::hentBehandling)
+                .flatMap(this::finnHjemmelTekst)
+                .orElse(null);
+        } else {
+            return null;
+        }
+    }
+
+    private Optional<String> finnHjemmelTekst(Behandling klageBehandling) {
+        return klageRepository.hentGjeldendeKlageHjemmel(klageBehandling)
+            .map(KlageHjemmel::getKabal)
+            .filter(hjemmel -> !hjemmel.isEmpty());
     }
 
     private Optional<String> finnEnhet(Behandling behandling, Optional<Behandlingsresultat> behandlingsresultat) {

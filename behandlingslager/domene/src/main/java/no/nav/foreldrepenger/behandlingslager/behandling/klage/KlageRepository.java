@@ -150,4 +150,16 @@ public class KlageRepository {
             .findFirst();
     }
 
+    public Optional<KlageHjemmel> hentGjeldendeKlageHjemmel(Behandling behandling) {
+        var klageVurderingResultatMedHjemmel = hentVurderingsResultaterForKlageBehandling(behandling.getId()).stream()
+            .filter(kvr -> kvr.getKlageHjemmel() != null && !KlageHjemmel.UDEFINERT.equals(kvr.getKlageHjemmel()))
+            .toList();
+
+        return klageVurderingResultatMedHjemmel.stream()
+            .filter(kvr -> KlageVurdertAv.NK.equals(kvr.getKlageVurdertAv()))
+            .findFirst()
+            .or(() -> klageVurderingResultatMedHjemmel.stream().findFirst())
+            .map(KlageVurderingResultat::getKlageHjemmel);
+    }
+
 }

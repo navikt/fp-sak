@@ -53,7 +53,7 @@ public class FagsakProsessTaskRepository {
 
     public void lagre(FagsakProsessTask fagsakProsessTask) {
         var ptData = taskTjeneste.finn(fagsakProsessTask.getProsessTaskId());
-        LOG.debug("Linker fagsak[{}] -> prosesstask[{}], tasktype=[{}] gruppeSekvensNr=[{}]", fagsakProsessTask.getFagsakId(), fagsakProsessTask.getProsessTaskId(), ptData.getTaskType(), fagsakProsessTask.getGruppeSekvensNr());
+        LOG.debug("Linker fagsak[{}] -> prosesstask[{}], {} gruppeSekvensNr=[{}]", fagsakProsessTask.getFagsakId(), fagsakProsessTask.getProsessTaskId(), ptData.taskType(), fagsakProsessTask.getGruppeSekvensNr());
         var em = getEntityManager();
         em.persist(fagsakProsessTask);
         em.flush();
@@ -71,7 +71,7 @@ public class FagsakProsessTaskRepository {
 
     public void fjern(Long fagsakId, Long prosessTaskId, Long gruppeSekvensNr) {
         var ptData = taskTjeneste.finn(prosessTaskId);
-        LOG.debug("Fjerner link fagsak[{}] -> prosesstask[{}], tasktype=[{}] gruppeSekvensNr=[{}]", fagsakId, prosessTaskId, ptData.getTaskType(), gruppeSekvensNr);
+        LOG.debug("Fjerner link fagsak[{}] -> prosesstask[{}], {} gruppeSekvensNr=[{}]", fagsakId, prosessTaskId, ptData.taskType(), gruppeSekvensNr);
         var em = getEntityManager();
         var query = em.createNativeQuery("delete from FAGSAK_PROSESS_TASK where prosess_task_id = :prosessTaskId and fagsak_id=:fagsakId");
         query.setParameter("prosessTaskId", prosessTaskId);
