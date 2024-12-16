@@ -13,12 +13,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 
 @Entity(name = "Historikkinnslag2Linje")
 @Table(name = "HISTORIKKINNSLAG2_LINJE")
-public class Historikkinnslag2Linje extends BaseEntitet implements IndexKey {
+public class Historikkinnslag2Linje extends BaseCreateableEntitet implements IndexKey {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_HISTORIKKINNSLAG2_LINJE")
