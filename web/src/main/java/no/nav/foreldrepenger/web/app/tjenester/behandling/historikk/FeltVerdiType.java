@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.historikk;
 
-public enum FeltType {
+public enum FeltVerdiType {
     INNVILGET("INNVILGET", "Oppfylt"),
     AVSLÅTT("AVSLÅTT", "Ikke oppfylt"),
     INNVILGET_UTTAK_AV_KVOTE("2003", "Innvilget uttak av kvote"),
@@ -243,7 +243,7 @@ public enum FeltType {
     private final String key;
     private final String text;
 
-    FeltType(String key, String text) {
+    FeltVerdiType(String key, String text) {
         this.key = key;
         this.text = text;
     }
@@ -256,10 +256,10 @@ public enum FeltType {
         return text;
     }
 
-    public static FeltType getByKey(String key) {
-        for (FeltType feltType : values()) {
-            if (feltType.getKey().equals(key)) {
-                return feltType;
+    public static FeltVerdiType getByKey(String key) {
+        for (FeltVerdiType feltVerdiType : values()) {
+            if (feltVerdiType.getKey().equals(key)) {
+                return feltVerdiType;
             }
         }
 

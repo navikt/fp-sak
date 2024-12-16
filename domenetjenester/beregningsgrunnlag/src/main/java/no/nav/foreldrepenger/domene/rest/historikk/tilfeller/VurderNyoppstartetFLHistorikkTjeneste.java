@@ -1,12 +1,13 @@
 package no.nav.foreldrepenger.domene.rest.historikk.tilfeller;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
@@ -31,7 +32,6 @@ public class VurderNyoppstartetFLHistorikkTjeneste extends FaktaOmBeregningHisto
         List<HistorikkinnslagLinjeBuilder> linjerBuilder = new ArrayList<>();
         linjerBuilder.add(lagHistorikkInnslag(nyoppstartetDto, opprinneligErNyoppstartetFLVerdi));
         linjerBuilder.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
-
         return linjerBuilder;
     }
 
@@ -49,17 +49,14 @@ public class VurderNyoppstartetFLHistorikkTjeneste extends FaktaOmBeregningHisto
     private HistorikkinnslagLinjeBuilder lagHistorikkInnslag(VurderNyoppstartetFLDto dto, Boolean opprinneligErNyoppstartetFLVerdi) {
         var opprinneligVerdi = konvertBooleanTilFaktaEndretVerdiType(opprinneligErNyoppstartetFLVerdi);
         var nyVerdi = konvertBooleanTilFaktaEndretVerdiType(dto.erErNyoppstartetFL());
-        if (opprinneligVerdi != nyVerdi) {
-            return new HistorikkinnslagLinjeBuilder().fraTil("Frilansvirksomhet", opprinneligVerdi, nyVerdi);
-        }
-        return null;
+        return fraTilEquals("Frilansvirksomhet", opprinneligVerdi, nyVerdi);
     }
 
-    private HistorikkEndretFeltVerdiType konvertBooleanTilFaktaEndretVerdiType(Boolean erNyoppstartet) {
+    private String konvertBooleanTilFaktaEndretVerdiType(Boolean erNyoppstartet) {
         if (erNyoppstartet == null) {
             return null;
         }
-        return erNyoppstartet ? HistorikkEndretFeltVerdiType.NYOPPSTARTET : HistorikkEndretFeltVerdiType.IKKE_NYOPPSTARTET;
+        return erNyoppstartet ? "nyoppstartet" : "ikke nyoppstartet";
     }
 
 }
