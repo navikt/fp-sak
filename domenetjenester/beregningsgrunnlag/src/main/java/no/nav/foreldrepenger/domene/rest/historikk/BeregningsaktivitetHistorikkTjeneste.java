@@ -12,7 +12,6 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
@@ -72,28 +71,25 @@ public class BeregningsaktivitetHistorikkTjeneste {
                                                                           String aktivitetnavn) {
         var skalBrukesTilVerdi = finnSkalBrukesTilVerdi(saksbehandledeAktiviteter, ba);
         var skalBrukesFraVerdi = finnSkalBrukesFraVerdi(forrigeAggregat, ba);
-        if (skalBrukesTilVerdi.equals(skalBrukesFraVerdi)) {
-            return Optional.empty();
-        }
         return Optional.ofNullable(fraTilEquals(String.format("Aktivitet %s", aktivitetnavn), skalBrukesFraVerdi, skalBrukesTilVerdi));
     }
 
-    private HistorikkEndretFeltVerdiType finnSkalBrukesFraVerdi(Optional<BeregningAktivitetAggregatEntitet> forrigeAggregat,
+    private String finnSkalBrukesFraVerdi(Optional<BeregningAktivitetAggregatEntitet> forrigeAggregat,
                                                                 BeregningAktivitetEntitet ba) {
         if (forrigeAggregat.isPresent()) {
             var finnesIForrige = forrigeAggregat.get()
                 .getBeregningAktiviteter()
                 .stream()
                 .anyMatch(a -> a.getNøkkel().equals(ba.getNøkkel()));
-            return finnesIForrige ? HistorikkEndretFeltVerdiType.BENYTT : HistorikkEndretFeltVerdiType.IKKE_BENYTT;
+            return finnesIForrige ? "Benytt" : "Ikke benytt";
         }
         return null;
     }
 
-    private HistorikkEndretFeltVerdiType finnSkalBrukesTilVerdi(BeregningAktivitetAggregatEntitet saksbehandledeAktiviteter,
+    private String finnSkalBrukesTilVerdi(BeregningAktivitetAggregatEntitet saksbehandledeAktiviteter,
                                                                 BeregningAktivitetEntitet ba) {
         var finnesISaksbehandletVersjon = finnesMatch(saksbehandledeAktiviteter.getBeregningAktiviteter(), ba);
-        return finnesISaksbehandletVersjon ? HistorikkEndretFeltVerdiType.BENYTT : HistorikkEndretFeltVerdiType.IKKE_BENYTT;
+        return finnesISaksbehandletVersjon ? "Benytt" : "Ikke benytt";
     }
 
     private Optional<HistorikkinnslagLinjeBuilder> lagPeriodeHistorikk(BeregningAktivitetAggregatEntitet saksbehandledeAktiviteter,

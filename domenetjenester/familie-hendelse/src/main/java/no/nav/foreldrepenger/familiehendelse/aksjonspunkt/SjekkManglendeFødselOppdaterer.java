@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
@@ -177,17 +176,17 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
                                                            Historikkinnslag2.Builder historikkinnslag,
                                                            BehandlingReferanse behandlingReferanse) {
         if (dto.getDokumentasjonForeligger()) {
-            var feltNavn = utledFeltNavn(dto, behandlingReferanse);
-            historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().til(utledFeltNavn(dto, behandlingReferanse).getNavn(), true));
+            historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().til(utledFeltNavn(dto, behandlingReferanse), true));
         }
     }
 
-    private static HistorikkEndretFeltType utledFeltNavn(SjekkManglendeFodselDto dto, BehandlingReferanse behandlingReferanse) {
+    private static String utledFeltNavn(SjekkManglendeFodselDto dto, BehandlingReferanse behandlingReferanse) {
         if (dto.isBrukAntallBarnITps()) {
-            return HistorikkEndretFeltType.BRUK_ANTALL_I_TPS;
+            return "Bruk antall fra folkeregisteret";
         }
-        return BehandlingType.REVURDERING.equals(
-            behandlingReferanse.behandlingType()) ? HistorikkEndretFeltType.BRUK_ANTALL_I_VEDTAKET : HistorikkEndretFeltType.BRUK_ANTALL_I_SOKNAD;
+        return BehandlingType.REVURDERING.equals(behandlingReferanse.behandlingType())
+            ? "Bruk antall fra vedtaket"
+            : "Bruk antall fra søknad";
     }
 
     private boolean oppdaterVedEndretVerdi(Historikkinnslag2.Builder historikkinnslag, LocalDate original, LocalDate bekreftet) {

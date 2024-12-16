@@ -10,7 +10,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -55,8 +54,8 @@ public class VurderSøknadsfristOppdaterer implements AksjonspunktOppdaterer<Vur
             .medFagsakId(param.getFagsakId())
             .medTittel(SkjermlenkeType.SOEKNADSFRIST)
             .addLinje(fraTilEquals("Søknadsfrist", null,  dto.harGyldigGrunn()
-                ? HistorikkEndretFeltVerdiType.HAR_GYLDIG_GRUNN.getNavn()
-                : HistorikkEndretFeltVerdiType.HAR_IKKE_GYLDIG_GRUNN.getNavn()));
+                ? "Gyldig grunn for sen fremsetting av søknaden"
+                : "Ingen gyldig grunn for sen fremsetting av søknaden"));
 
         if (dto.harGyldigGrunn()) {
             var uttaksperiodegrense = uttaksperiodegrenseRepository.hent(param.getBehandlingId());

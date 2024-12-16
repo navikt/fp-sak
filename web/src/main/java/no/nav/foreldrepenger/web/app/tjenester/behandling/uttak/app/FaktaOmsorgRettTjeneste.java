@@ -9,7 +9,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
@@ -137,18 +136,18 @@ public class FaktaOmsorgRettTjeneste {
     }
 
 
-    private HistorikkEndretFeltVerdiType konvertBooleanTilVerdiForAleneomsorgForBarnet(Boolean aleneomsorgForBarnet) {
+    private String konvertBooleanTilVerdiForAleneomsorgForBarnet(Boolean aleneomsorgForBarnet) {
         if (aleneomsorgForBarnet == null) {
             return null;
         }
-        return aleneomsorgForBarnet ? HistorikkEndretFeltVerdiType.ALENEOMSORG : HistorikkEndretFeltVerdiType.IKKE_ALENEOMSORG;
+        return aleneomsorgForBarnet ? "Søker har aleneomsorg for barnet" : "Søker har ikke aleneomsorg for barnet";
     }
 
     private String konvertBooleanTilVerdiForAnnenforelderHarRett(Boolean annenforelderHarRett) {
         if (annenforelderHarRett == null) {
             return null;
         }
-        return annenforelderHarRett ? HistorikkEndretFeltVerdiType.ANNEN_FORELDER_HAR_RETT.getNavn() : HistorikkEndretFeltVerdiType.ANNEN_FORELDER_HAR_IKKE_RETT.getNavn();
+        return annenforelderHarRett ? "Annen forelder har rett" : "Annen forelder har ikke rett";
     }
 
     private boolean harAvklartUdefinertEllerEndretBekreftet(Boolean original, boolean bekreftet) {
