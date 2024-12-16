@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.domene.arbeidInntektsmelding.AvklarPermisjonUtenSlu
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.historikk.VurderArbeidsforholdHistorikkinnslag;
 
 @ApplicationScoped
 public class ArbeidPermHistorikkInnslagTjeneste {
@@ -68,11 +67,11 @@ public class ArbeidPermHistorikkInnslagTjeneste {
         return ArbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(opplysninger, Optional.empty());
     }
 
-    private static VurderArbeidsforholdHistorikkinnslag utledHistorikkInnslagValg(BekreftetPermisjonStatus permisjonStatus) {
+    private static String utledHistorikkInnslagValg(BekreftetPermisjonStatus permisjonStatus) {
         if (BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON.equals(permisjonStatus)) {
-           return  VurderArbeidsforholdHistorikkinnslag.SØKER_ER_IKKE_I_PERMISJON;
+           return "Søker er ikke i permisjon";
         } else if (BekreftetPermisjonStatus.BRUK_PERMISJON.equals(permisjonStatus)) {
-            return VurderArbeidsforholdHistorikkinnslag.SØKER_ER_I_PERMISJON;
+            return "Søker er i permisjon";
         } else return null;
     }
 

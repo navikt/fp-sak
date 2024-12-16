@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkBegrunnelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -29,7 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
@@ -157,8 +155,8 @@ public class BerørtBehandlingKontroller {
             KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER) ? BerørtBehandlingTjeneste.BerørtÅrsak.OPPHØR : årsak;
         switch (årsakHist) {
             case KONTO_REDUSERT ->
-                opprettHistorikkinnslagOmRevurdering(behandlingMedForelder, HistorikkBegrunnelseType.BERORT_BEH_ENDRING_DEKNINGSGRAD);
-            case OPPHØR -> opprettHistorikkinnslagOmRevurdering(behandlingMedForelder, HistorikkBegrunnelseType.BERORT_BEH_OPPHOR);
+                opprettHistorikkinnslagOmRevurdering(behandlingMedForelder, "Den andre forelderens behandling har endret antall disponible stønadsdager");
+            case OPPHØR -> opprettHistorikkinnslagOmRevurdering(behandlingMedForelder, "Den andre forelderens vedtak er opphørt");
             case ORDINÆR, FERIEPENGER -> opprettHistorikkinnslagOmRevurdering(behandlingMedForelder, BehandlingÅrsakType.BERØRT_BEHANDLING);
         }
     }
@@ -242,21 +240,21 @@ public class BerørtBehandlingKontroller {
         køKontroller.håndterSakskompleks(fagsak);
     }
 
-    private void opprettHistorikkinnslagOmRevurdering(Behandling behandling, HistorikkBegrunnelseType historikkBegrunnelseType) {
-        opprettHistorikkinnslag(behandling, historikkBegrunnelseType);
+    private void opprettHistorikkinnslagOmRevurdering(Behandling behandling, String historikkBegrunnelse) {
+        opprettHistorikkinnslag(behandling, historikkBegrunnelse);
     }
 
     public void opprettHistorikkinnslagOmRevurdering(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
-        opprettHistorikkinnslag(behandling, behandlingÅrsakType);
+        opprettHistorikkinnslag(behandling, behandlingÅrsakType.getNavn());
     }
 
-    private void opprettHistorikkinnslag(Behandling behandling, Kodeverdi begrunnelse) {
+    private void opprettHistorikkinnslag(Behandling behandling, String begrunnelse) {
         var historikkinnslag = new Historikkinnslag2.Builder()
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())
             .medTittel("Revurdering opprettet")
-            .addLinje(begrunnelse.getNavn())
+            .addLinje(begrunnelse)
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }

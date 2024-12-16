@@ -9,7 +9,6 @@ import java.util.List;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.domene.aksjonspunkt.ErMottattYtelseEndring;
 import no.nav.foreldrepenger.domene.aksjonspunkt.ErTidsbegrensetArbeidsforholdEndring;

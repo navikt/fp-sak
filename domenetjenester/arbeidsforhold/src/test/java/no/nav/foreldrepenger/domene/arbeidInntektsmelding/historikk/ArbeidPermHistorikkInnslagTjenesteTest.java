@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYS
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
-import no.nav.foreldrepenger.historikk.VurderArbeidsforholdHistorikkinnslag;
 
 
 @CdiDbAwareTest
@@ -61,8 +60,8 @@ class ArbeidPermHistorikkInnslagTjenesteTest {
         assertThat(historikkinnslag.getFirst().getBehandlingId()).isEqualTo(ref.behandlingId());
         assertThat(historikkinnslag.getFirst().getSkjermlenke()).isEqualTo(FAKTA_OM_ARBEIDSFORHOLD_PERMISJON);
         assertThat(historikkinnslag.getFirst().getLinjer()).hasSize(3);
-        assertThat(historikkinnslag.getFirst().getLinjer().get(0).getTekst()).contains(ARB_NAVN, VurderArbeidsforholdHistorikkinnslag.SØKER_ER_I_PERMISJON.getNavn());
-        assertThat(historikkinnslag.getFirst().getLinjer().get(1).getTekst()).contains(ARB_NAVN, VurderArbeidsforholdHistorikkinnslag.SØKER_ER_IKKE_I_PERMISJON.getNavn());
+        assertThat(historikkinnslag.getFirst().getLinjer().get(0).getTekst()).contains(ARB_NAVN, "Søker er i permisjon");
+        assertThat(historikkinnslag.getFirst().getLinjer().get(1).getTekst()).contains(ARB_NAVN, "Søker er ikke i permisjon");
         assertThat(historikkinnslag.getFirst().getLinjer().get(2).getTekst()).contains("begrunnelse");
     }
 
