@@ -12,8 +12,6 @@ create table HISTORIKKINNSLAG2
     TITTEL         VARCHAR2(1000 char),
     OPPRETTET_AV   VARCHAR2(20 char) default 'VL'         not null,
     OPPRETTET_TID  TIMESTAMP(3)      default systimestamp not null,
-    ENDRET_AV      VARCHAR2(20 char),
-    ENDRET_TID     TIMESTAMP(3),
     MIGRERT_FRA_ID NUMBER(19)
         constraint FK_HISTORIKKINNSLAG2_03 references HISTORIKKINNSLAG
 );
@@ -25,7 +23,7 @@ comment on column HISTORIKKINNSLAG2.BEHANDLING_ID is 'FK behandling';
 comment on column HISTORIKKINNSLAG2.AKTOER is 'Hvilken aktoer';
 comment on column HISTORIKKINNSLAG2.SKJERMLENKE is 'Skjermlenke til endring i saken';
 comment on column HISTORIKKINNSLAG2.TITTEL is 'Tittel';
-comment on column HISTORIKKINNSLAG2.MIGRERT_FRA_ID is 'Temp tabell til bruk i migrering. Kan fjernes etter migrering fra tidligere tabell er utfort';
+comment on column HISTORIKKINNSLAG2.MIGRERT_FRA_ID is 'Temp kolonne til bruk i migrering. Kan fjernes etter migrering fra tidligere tabell er utfort';
 
 create index IDX_HISTORIKKINNSLAG2_01
     on HISTORIKKINNSLAG2 (BEHANDLING_ID);
@@ -52,9 +50,7 @@ create table HISTORIKKINNSLAG2_LINJE
     TEKST               VARCHAR2(4000 char),
     SEKVENS_NR          NUMBER(5)                              not null,
     OPPRETTET_AV        VARCHAR2(20 char) default 'VL'         not null,
-    OPPRETTET_TID       TIMESTAMP(3)      default systimestamp not null,
-    ENDRET_AV           VARCHAR2(20 char),
-    ENDRET_TID          TIMESTAMP(3)
+    OPPRETTET_TID       TIMESTAMP(3)      default systimestamp not null
 );
 
 comment on table HISTORIKKINNSLAG2_LINJE is 'Linjer i historikkinnslag';
@@ -83,9 +79,7 @@ create table HISTORIKKINNSLAG2_DOK_LINK
     JOURNALPOST_ID      VARCHAR2(100 char),
     DOKUMENT_ID         VARCHAR2(100 char),
     OPPRETTET_AV        VARCHAR2(20 char) default 'VL'         not null,
-    OPPRETTET_TID       TIMESTAMP(3)      default systimestamp not null,
-    ENDRET_AV           VARCHAR2(20 char),
-    ENDRET_TID          TIMESTAMP(3)
+    OPPRETTET_TID       TIMESTAMP(3)      default systimestamp not null
 );
 
 create sequence SEQ_HISTORIKKINNSLAG2_DOK_LINK
