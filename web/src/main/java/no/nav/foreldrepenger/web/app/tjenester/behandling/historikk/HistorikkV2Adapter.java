@@ -472,21 +472,9 @@ public class HistorikkV2Adapter {
 
 
     private static String fraHistorikkResultat(HistorikkinnslagFelt resultat) {
-        if (resultat.getKlTilVerdi().equals(HistorikkResultatType.KODEVERK)) {
-            var historikkResultatType = HistorikkResultatType.valueOf(resultat.getTilVerdiKode());
-            return switch (historikkResultatType) {
-                case MEDHOLD_I_KLAGE -> "Vedtaket er omgjort";
-                case OPPHEVE_VEDTAK -> "Vedtaket er opphevet";
-                case OPPRETTHOLDT_VEDTAK -> "Vedtaket er opprettholdt";
-                case STADFESTET_VEDTAK -> "Vedtaket er stadfestet";
-                case DELVIS_MEDHOLD_I_KLAGE -> "Vedtaket er delvis omgjort";
-                case KLAGE_HJEMSENDE_UTEN_OPPHEVE -> "Behandling er hjemsendt";
-                case UGUNST_MEDHOLD_I_KLAGE -> "Vedtaket er omgjort til ugunst";
-                default -> historikkResultatType.getNavn(); // Resten lik enum
-            };
-        } else {
-            return VedtakResultatType.valueOf(resultat.getTilVerdiKode()).getNavn(); // Alle like som enum navn
-        }
+        return resultat.getKlTilVerdi().equals(HistorikkResultatType.KODEVERK)
+            ? HistorikkResultatType.valueOf(resultat.getTilVerdiKode()).getNavn()
+            : VedtakResultatType.valueOf(resultat.getTilVerdiKode()).getNavn();
     }
 
     private static Optional<String> begrunnelseFraDel(HistorikkinnslagDel historikkinnslagDel) {
