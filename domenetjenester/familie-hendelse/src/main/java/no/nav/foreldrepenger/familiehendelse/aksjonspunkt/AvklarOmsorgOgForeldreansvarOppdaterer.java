@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Adopsjo
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.OmsorgsovertakelseVilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
@@ -164,15 +163,15 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
             fagsakYtelseType) ? SkjermlenkeType.FAKTA_OM_OMSORG_OG_FORELDREANSVAR : SkjermlenkeType.FAKTA_FOR_OMSORG;
     }
 
-    private HistorikkEndretFeltVerdiType finnTekstBasertPåOmsorgsvilkår(VilkårType vilkårType) {
+    private OmsorgsovertakelseVilkårType finnTekstBasertPåOmsorgsvilkår(VilkårType vilkårType) {
         if (VilkårType.OMSORGSVILKÅRET.equals(vilkårType)) {
-            return HistorikkEndretFeltVerdiType.OMSORGSVILKARET_TITTEL;
+            return OmsorgsovertakelseVilkårType.OMSORGSVILKÅRET;
         }
         if (VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD.equals(vilkårType)) {
-            return HistorikkEndretFeltVerdiType.FORELDREANSVAR_2_TITTEL;
+            return OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_2_LEDD;
         }
         if (VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD.equals(vilkårType)) {
-            return HistorikkEndretFeltVerdiType.FORELDREANSVAR_4_TITTEL;
+            return OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_4_LEDD;
         }
         return null;
     }

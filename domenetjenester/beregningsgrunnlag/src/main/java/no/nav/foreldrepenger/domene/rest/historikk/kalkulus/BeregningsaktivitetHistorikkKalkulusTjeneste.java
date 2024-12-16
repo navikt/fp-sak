@@ -12,7 +12,6 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
@@ -73,22 +72,19 @@ public class BeregningsaktivitetHistorikkKalkulusTjeneste {
     private Optional<HistorikkinnslagLinjeBuilder> lagSkalBrukesHistorikk(BeregningAktivitetEndring ba) {
         var skalBrukesTilVerdi = finnSkalBrukesTilVerdi(ba);
         var skalBrukesFraVerdi = finnSkalBrukesFraVerdi(ba);
-        if (Objects.equals(skalBrukesTilVerdi, skalBrukesFraVerdi)) {
-            return Optional.empty();
-        }
         return Optional.ofNullable(fraTilEquals("Aktivitet", skalBrukesFraVerdi, skalBrukesTilVerdi));
     }
 
-    private HistorikkEndretFeltVerdiType finnSkalBrukesFraVerdi(BeregningAktivitetEndring ba) {
+    private String finnSkalBrukesFraVerdi(BeregningAktivitetEndring ba) {
         if (ba.getSkalBrukesEndring() != null && ba.getSkalBrukesEndring().getFraVerdi().isPresent()) {
-            return ba.getSkalBrukesEndring().getFraVerdi().get() ? HistorikkEndretFeltVerdiType.BENYTT : HistorikkEndretFeltVerdiType.IKKE_BENYTT;
+            return Boolean.TRUE.equals(ba.getSkalBrukesEndring().getFraVerdi().get()) ? "Benytt" : "Ikke benytt";
         }
         return null;
     }
 
-    private HistorikkEndretFeltVerdiType finnSkalBrukesTilVerdi(BeregningAktivitetEndring ba) {
+    private String finnSkalBrukesTilVerdi(BeregningAktivitetEndring ba) {
         if (ba.getSkalBrukesEndring() != null) {
-            return ba.getSkalBrukesEndring().getTilVerdi() ? HistorikkEndretFeltVerdiType.BENYTT : HistorikkEndretFeltVerdiType.IKKE_BENYTT;
+            return Boolean.TRUE.equals(ba.getSkalBrukesEndring().getTilVerdi()) ? "Benytt" : "Ikke benytt";
         }
         return null;
     }
