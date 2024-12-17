@@ -467,7 +467,7 @@ public class HistorikkV2Adapter {
             default -> throw new IllegalStateException("Unexpected value: " + type);
         };
 
-        if (type.equals(HistorikkAvklartSoeknadsperiodeType.GRADERING)) {
+        if (type.equals(HistorikkAvklartSoeknadsperiodeType.GRADERING) && søknadsperiode.getNavnVerdi() != null) {
             return List.of(
                 tekst,
                 søknadsperiode.getNavnVerdi(),
