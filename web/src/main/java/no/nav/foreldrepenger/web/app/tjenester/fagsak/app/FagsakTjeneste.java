@@ -152,8 +152,8 @@ public class FagsakTjeneste {
     }
 
     private FagsakBackendDto mapFraFagsakTilFagsakDto(Fagsak fagsak) {
-        var behandling = hentSisteYtelsesBehandling(fagsak);
-        var dekningsgrad = behandling.flatMap(b -> dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(BehandlingReferanse.fra(b)))
+        var dekningsgrad = hentSisteYtelsesBehandling(fagsak)
+            .flatMap(b -> dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(BehandlingReferanse.fra(b)))
             .map(Dekningsgrad::getVerdi)
             .orElse(null);
         return new FagsakBackendDto(fagsak, dekningsgrad);
@@ -174,12 +174,12 @@ public class FagsakTjeneste {
     }
 
     private Optional<Behandling> hentSisteYtelsesBehandling(Fagsak fagsak) {
-        return behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId());
+        return behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingReadOnlyFor(fagsak.getId())
+            .or(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId()));
     }
 
     private LocalDate hendelseDato(FamilieHendelseEntitet fh) {
         return Optional.ofNullable(fh.getSkjæringstidspunkt())
             .orElseGet(() -> fh.getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).orElse(null));
     }
-
 }
