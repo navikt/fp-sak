@@ -63,21 +63,21 @@ public class AbakusTjeneste {
     private final ObjectReader arbeidsforholdReader = iayMapper.readerFor(ArbeidsforholdDto[].class);
     private final ObjectReader uuidReader = iayMapper.readerFor(UuidDto.class);
     private final ObjectReader inntektsmeldingerReader = iayMapper.readerFor(InntektsmeldingerDto.class);
-    private URI innhentRegisterdata;
-    private RestClient restClient;
-    private RestConfig restConfig;
-    private URI endpointArbeidsforholdIPeriode;
-    private URI endpointGrunnlag;
-    private URI endpointMottaInntektsmeldinger;
-    private URI endpointMottaOppgittOpptjening;
-    private URI endpointKopierGrunnlag;
-    private URI endpointKopierGrunnlagBeholdIM;
-    private URI endpointInntektsmeldinger;
-    private URI endpointYtelser;
-    private URI endpointOverstyring;
-    private URI endpointLagreOverstyrtOppgittOpptjening;
-    private URI endpointLagreOppgittOpptjeningNullstillOverstyring;
-    private URI endpointArbeidsforholdMedPermisjonerIPeriode;
+    private final URI innhentRegisterdata;
+    private final RestClient restClient;
+    private final RestConfig restConfig;
+    private final URI endpointArbeidsforholdIPeriode;
+    private final URI endpointGrunnlag;
+    private final URI endpointMottaInntektsmeldinger;
+    private final URI endpointMottaOppgittOpptjening;
+    private final URI endpointKopierGrunnlag;
+    private final URI endpointKopierGrunnlagBeholdIM;
+    private final URI endpointInntektsmeldinger;
+    private final URI endpointYtelser;
+    private final URI endpointOverstyring;
+    private final URI endpointLagreOverstyrtOppgittOpptjening;
+    private final URI endpointLagreOppgittOpptjeningNullstillOverstyring;
+    private final URI endpointArbeidsforholdMedPermisjonerIPeriode;
 
     @Inject
     public AbakusTjeneste() {
