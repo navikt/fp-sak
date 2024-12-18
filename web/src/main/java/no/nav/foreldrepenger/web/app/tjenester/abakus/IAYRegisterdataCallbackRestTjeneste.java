@@ -56,7 +56,7 @@ public class IAYRegisterdataCallbackRestTjeneste {
 
     @POST
     @Path("/iay/callback")
-  @Consumes(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Callback når registerinnhenting av IAY har blitt fullført i Abakus", tags = "registerdata")
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.APPLIKASJON)
