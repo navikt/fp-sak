@@ -40,18 +40,18 @@ public class IAYRegisterdataTjeneste {
 
     public void håndterCallback(RegisterdataCallback callback) {
         LOG.info("Mottatt callback fra Abakus etter registerinnhenting for behandlingId={}, eksisterendeGrunnlag={}, nyttGrunnlag={}",
-            callback.getBehandlingId(), callback.getEksisterendeGrunnlagRef(), callback.getOppdatertGrunnlagRef());
+            callback.behandlingId(), callback.eksisterendeGrunnlagRef(), callback.oppdatertGrunnlagRef());
 
         var tasksSomVenterPåSvar = taskTjeneste.finnAlle(ProsessTaskStatus.VENTER_SVAR)
             .stream()
             .filter(it -> ABAKUS_TASK.equals(it.taskType()))
-            .filter(it -> it.getBehandlingIdAsLong().equals(callback.getBehandlingId()))
+            .filter(it -> it.getBehandlingIdAsLong().equals(callback.behandlingId()))
             .toList();
 
         if (tasksSomVenterPåSvar.isEmpty()) {
             LOG.info("Mottatt callback hvor ingen task venter på svar... {}", callback);
         }
-        tasksSomVenterPåSvar.forEach(t -> mottaHendelse(t, callback.getOppdatertGrunnlagRef()));
+        tasksSomVenterPåSvar.forEach(t -> mottaHendelse(t, callback.oppdatertGrunnlagRef()));
     }
 
     private void mottaHendelse(ProsessTaskData task, UUID oppdatertGrunnlagRef) {
