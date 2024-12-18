@@ -7,13 +7,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.besteberegning.BesteberegningGrunnlagDto;
-import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningAktivitetAggregatDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningAktivitetDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningAktivitetOverstyringDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningAktivitetOverstyringerDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningRefusjonOverstyringDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningRefusjonOverstyringerDto;
+import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagAktivitetStatusDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagGrunnlagDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagPeriodeDto;
@@ -144,8 +144,8 @@ public final class KalkulusTilFpsakMapper {
             .medOverstyring(beregningsgrunnlagDto.isOverstyrt());
 
         // Aktivitetstatuser
-        beregningsgrunnlagDto.getAktivitetStatuser().stream()
-            .map(KalkulusTilFpsakMapper::mapAktivitetstatus)
+        beregningsgrunnlagDto.getAktivitetStatuserMedHjemmel().stream()
+            .map(KalkulusTilFpsakMapper::mapAktivitetstatusMedHjemmel)
             .forEach(builder::leggTilAktivitetStatus);
 
         // Fakta tilfeller
@@ -168,6 +168,7 @@ public final class KalkulusTilFpsakMapper {
 
         return builder.build();
     }
+
 
     private static SammenligningsgrunnlagPrStatus mapSammenligningsgrunnlag(SammenligningsgrunnlagPrStatusDto sg) {
         return SammenligningsgrunnlagPrStatus.builder()
@@ -252,9 +253,10 @@ public final class KalkulusTilFpsakMapper {
         return beløp == null ? null : beløp.verdi();
     }
 
-    private static BeregningsgrunnlagAktivitetStatus mapAktivitetstatus(AktivitetStatus aktivitetstatusDto) {
+    private static BeregningsgrunnlagAktivitetStatus mapAktivitetstatusMedHjemmel(BeregningsgrunnlagAktivitetStatusDto dto) {
         return BeregningsgrunnlagAktivitetStatus.builder()
-            .medAktivitetStatus(KodeverkFraKalkulusMapper.mapAktivitetstatus(aktivitetstatusDto)) // TODO TFP-5742 Trengs hjemmel?
+            .medAktivitetStatus(KodeverkFraKalkulusMapper.mapAktivitetstatus(dto.getAktivitetStatus()))
+            .medHjemmel(KodeverkFraKalkulusMapper.mapHjemmel(dto.getHjemmel()))
             .build();
     }
 
