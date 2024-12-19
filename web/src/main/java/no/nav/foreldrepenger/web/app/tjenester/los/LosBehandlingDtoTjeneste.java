@@ -315,13 +315,14 @@ public class LosBehandlingDtoTjeneste {
             case SAMMENSATT_KONTROLL -> FagsakEgenskap.SAMMENSATT_KONTROLL;
             case DØD_DØDFØDSEL -> FagsakEgenskap.DØD;
             case SELVSTENDIG_NÆRING -> FagsakEgenskap.NÆRING;
+            case BARE_FAR_RETT -> FagsakEgenskap.BARE_FAR_RETT;
             case PRAKSIS_UTSETTELSE -> FagsakEgenskap.PRAKSIS_UTSETTELSE;
         };
     }
 
     // Bør matche LOS sin LokalFagsakEgenskap 1:1
     public enum FagsakEgenskap {
-        EØS_BOSATT_NORGE, BOSATT_UTLAND, SAMMENSATT_KONTROLL, DØD, NÆRING, PRAKSIS_UTSETTELSE;
+        EØS_BOSATT_NORGE, BOSATT_UTLAND, SAMMENSATT_KONTROLL, DØD, NÆRING, BARE_FAR_RETT, PRAKSIS_UTSETTELSE;
 
     }
 
