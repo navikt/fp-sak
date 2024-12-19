@@ -110,7 +110,7 @@ public class LosBehandlingDtoTjeneste {
         var refusjonegenskap = refusjonskrav ? BehandlingEgenskap.REFUSJONSKRAV : BehandlingEgenskap.DIREKTE_UTBETALING;
         List<String> behandlingsegenskaper = new ArrayList<>(List.of(refusjonegenskap.name()));
         if (faresignaler) behandlingsegenskaper.add(BehandlingEgenskap.FARESIGNALER.name());
-        if (farForeldrepengerUtenMorEllerMorRAV(behandling)) behandlingsegenskaper.add(BehandlingEgenskap.GRUPPE2.name());
+        if (farForeldrepengerUtenMorEllerMorRAV(behandling)) behandlingsegenskaper.add(BehandlingEgenskap.MOR_UKJENT_UTLAND.name());
         var fpUttak = mapForeldrepengerUttak(behandling, behandlingsegenskaper);
 
 
@@ -349,7 +349,7 @@ public class LosBehandlingDtoTjeneste {
     }
 
     public enum BehandlingEgenskap {
-        SYKDOMSVURDERING, BARE_FAR_RETT, GRUPPE2, FARESIGNALER, DIREKTE_UTBETALING, REFUSJONSKRAV
+        SYKDOMSVURDERING, BARE_FAR_RETT, MOR_UKJENT_UTLAND, FARESIGNALER, DIREKTE_UTBETALING, REFUSJONSKRAV
     }
 
 }
