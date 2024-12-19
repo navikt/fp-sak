@@ -131,6 +131,6 @@ class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
     }
 
     private AvklarAnnenforelderHarRettOppdaterer oppdaterer() {
-        return new AvklarAnnenforelderHarRettOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste), repositoryProvider.getHistorikkinnslag2Repository(), mock(FagsakEgenskapRepository.class));
+        return new AvklarAnnenforelderHarRettOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, mock(FagsakEgenskapRepository.class)), repositoryProvider.getHistorikkinnslag2Repository());
     }
 }
