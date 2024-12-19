@@ -32,7 +32,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBereg
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
@@ -70,9 +69,6 @@ class AutomatiskEtterkontrollTaskTest {
 
     private SatsRepository satsRepository;
 
-    @Mock
-    private HistorikkRepository historikkRepository;
-
     private EntityManager em;
 
     @BeforeEach
@@ -84,7 +80,7 @@ class AutomatiskEtterkontrollTaskTest {
         satsRepository = new SatsRepository(entityManager);
         etterkontrollRepository = new EtterkontrollRepository(entityManager);
         familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
-        task = new AutomatiskEtterkontrollTask(repositoryProvider, etterkontrollRepository, historikkRepository,
+        task = new AutomatiskEtterkontrollTask(repositoryProvider, etterkontrollRepository,
                 familieHendelseTjeneste, personinfoAdapter, behandlendeEnhetTjeneste);
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class)))
                 .thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
@@ -129,7 +125,7 @@ class AutomatiskEtterkontrollTaskTest {
 
     private void createTask() {
         Period.parse("P11W");
-        task = new AutomatiskEtterkontrollTask(repositoryProvider, etterkontrollRepository, historikkRepository,
+        task = new AutomatiskEtterkontrollTask(repositoryProvider, etterkontrollRepository,
                 familieHendelseTjeneste, personinfoAdapter,
                 behandlendeEnhetTjeneste);
     }

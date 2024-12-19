@@ -43,22 +43,23 @@ public class AvklarAktiviteterOppdaterer implements AksjonspunktOppdaterer<Avkla
     @Override
     public OppdateringResultat oppdater(AvklarteAktiviteterDto dto, AksjonspunktOppdaterParameter param) {
 
-        var originalBehandlingId = param.getRef().getOriginalBehandlingId();
+        var behandlingReferanse = param.getRef();
+        var originalBehandlingId = behandlingReferanse.getOriginalBehandlingId();
         var behandlingId = param.getBehandlingId();
         var forrige = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandlingId, originalBehandlingId,
             BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER)
             .flatMap(BeregningsgrunnlagGrunnlagEntitet::getSaksbehandletAktiviteter);
 
-        var endringsaggregat = beregningTjeneste.oppdaterBeregning(dto, param.getRef());
+        var endringsaggregat = beregningTjeneste.oppdaterBeregning(dto, behandlingReferanse);
         if (endringsaggregat.isPresent()) {
-            beregningsaktivitetHistorikkKalkulusTjeneste.lagHistorikk(param.getBehandlingId(), dto.getBegrunnelse(), endringsaggregat.get());
+            beregningsaktivitetHistorikkKalkulusTjeneste.lagHistorikk(behandlingReferanse, dto.getBegrunnelse(), endringsaggregat.get());
         } else {
             var lagretGrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(behandlingId)
                 .orElseThrow(() -> new IllegalStateException("Har ikke et aktivt grunnlag"));
             var registerAktiviteter = lagretGrunnlag.getRegisterAktiviteter();
             var saksbehandledeAktiviteter = lagretGrunnlag.getSaksbehandletAktiviteter()
                 .orElseThrow(() -> new IllegalStateException("Forventer å ha lagret ned saksbehandlet grunnlag"));
-            beregningsaktivitetHistorikkTjeneste.lagHistorikk(behandlingId, registerAktiviteter, saksbehandledeAktiviteter, dto.getBegrunnelse(), forrige);
+            beregningsaktivitetHistorikkTjeneste.lagHistorikk(behandlingReferanse, registerAktiviteter, saksbehandledeAktiviteter, dto.getBegrunnelse(), forrige);
         }
         return OppdateringResultat.utenOverhopp();
     }

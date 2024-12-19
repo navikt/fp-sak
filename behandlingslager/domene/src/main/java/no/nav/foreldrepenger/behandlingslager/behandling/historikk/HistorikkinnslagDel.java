@@ -57,10 +57,6 @@ public class HistorikkinnslagDel extends BaseEntitet {
         return historikkinnslagFelt;
     }
 
-    public Optional<String> getAarsak() {
-        return finnFeltTilVerdi(HistorikkinnslagFeltType.AARSAK);
-    }
-
     public Optional<HistorikkinnslagFelt> getAarsakFelt() {
         return finnFelt(HistorikkinnslagFeltType.AARSAK);
     }
@@ -98,10 +94,6 @@ public class HistorikkinnslagDel extends BaseEntitet {
         return finnFelt(HistorikkinnslagFeltType.RESULTAT);
     }
 
-    public Optional<String> getGjeldendeFra() {
-        return finnFeltTilVerdi(HistorikkinnslagFeltType.GJELDENDE_FRA);
-    }
-
     public Optional<HistorikkinnslagFelt> getGjeldendeFraFelt() {
         return finnFelt(HistorikkinnslagFeltType.GJELDENDE_FRA);
     }
@@ -110,23 +102,8 @@ public class HistorikkinnslagDel extends BaseEntitet {
         return finnFeltTilVerdi(HistorikkinnslagFeltType.SKJERMLENKE);
     }
 
-    public Optional<HistorikkinnslagFelt> getEndretFelt(HistorikkEndretFeltType endretFeltVerdiType) {
-        var endredeFelt = getEndredeFelt();
-        return endredeFelt
-            .stream()
-            .filter(felt -> Objects.equals(endretFeltVerdiType.getKode(), felt.getNavn()))
-            .findFirst();
-    }
-
     public List<HistorikkinnslagFelt> getEndredeFelt() {
         return finnFeltListe(HistorikkinnslagFeltType.ENDRET_FELT);
-    }
-
-    public Optional<HistorikkinnslagFelt> getOpplysning(HistorikkOpplysningType historikkOpplysningType) {
-        var opplysninger = getOpplysninger();
-        return opplysninger.stream()
-            .filter(felt -> Objects.equals(historikkOpplysningType.getKode(), felt.getNavn()))
-            .findFirst();
     }
 
     public List<HistorikkinnslagFelt> getOpplysninger() {

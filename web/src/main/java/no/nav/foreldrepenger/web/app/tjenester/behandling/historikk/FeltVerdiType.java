@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.historikk;
 
-public enum FeltType {
+public enum FeltVerdiType {
     INNVILGET("INNVILGET", "Oppfylt"),
     AVSLÅTT("AVSLÅTT", "Ikke oppfylt"),
     INNVILGET_UTTAK_AV_KVOTE("2003", "Innvilget uttak av kvote"),
@@ -44,7 +44,7 @@ public enum FeltType {
     UTSETTELSE_PGA_ARBEID_KUN_FAR_HAR_RETT("2016", "Utsettelse pga. 100% arbeid, kun far har rett"),
     GRADERING_FORELDREPENGER_KUN_FAR_HAR_RETT("2033", "Gradering foreldrepenger, kun far har rett"),
     ANNEN_PART_HAR_OVERLAPPENDE_UTTAK("4084", "Annen part har overlappende uttak, det er ikke søkt/innvilget samtidig uttak"),
-    INNTEKT_IKKE_MED_I_BG("INNTEKT_IKKE_MED_I_BG", "Benytt i behandligen. Inntekten er ikke med i beregningsgrunnlaget"),
+    INNTEKT_IKKE_MED_I_BG("INNTEKT_IKKE_MED_I_BG", "Benytt i behandlingen. Inntekten er ikke med i beregningsgrunnlaget"),
     OVERFØRING_OPPFYLT_ANNEN_PART_AVHENGIG_AV_HJELP("2021", "Overføring oppfylt, annen part er helt avhengig av hjelp til å ta seg av barnet"),
     OPPFYLT("OPPFYLT", "oppfylt"),
     SØKER_ER_IKKE_I_PERMISJON("SØKER_ER_IKKE_I_PERMISJON", "Søker er ikke i permisjon"),
@@ -244,7 +244,7 @@ public enum FeltType {
     private final String key;
     private final String text;
 
-    FeltType(String key, String text) {
+    FeltVerdiType(String key, String text) {
         this.key = key;
         this.text = text;
     }
@@ -257,10 +257,10 @@ public enum FeltType {
         return text;
     }
 
-    public static FeltType getByKey(String key) {
-        for (FeltType feltType : values()) {
-            if (feltType.getKey().equals(key)) {
-                return feltType;
+    public static FeltVerdiType getByKey(String key) {
+        for (FeltVerdiType feltVerdiType : values()) {
+            if (feltVerdiType.getKey().equals(key)) {
+                return feltVerdiType;
             }
         }
 

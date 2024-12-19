@@ -5,12 +5,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -70,25 +67,23 @@ class ForeslåVedtakTjenesteTest {
     private OppgaveTjeneste oppgaveTjeneste;
     @Mock
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
-    private HistorikkRepository historikkRepository;
     @Mock
     private Behandling behandling;
 
     private ForeslåVedtakTjeneste tjeneste;
 
     @BeforeEach
-    public void setUp(EntityManager em) {
-        historikkRepository = spy(repositoryProvider.getHistorikkRepository());
+    public void setUp() {
         behandling = ScenarioMorSøkerEngangsstønad.forFødsel().lagre(repositoryProvider);
 
         lenient().when(oppgaveTjeneste.harÅpneVurderKonsekvensOppgaver(any(AktørId.class))).thenReturn(Boolean.FALSE);
         lenient().when(oppgaveTjeneste.harÅpneVurderDokumentOppgaver(any(AktørId.class))).thenReturn(Boolean.FALSE);
         lenient().when(dokumentBehandlingTjeneste.erDokumentBestilt(anyLong(), any())).thenReturn(true);
 
-        var sjekkMotEksisterendeOppgaverTjeneste = new SjekkMotEksisterendeOppgaverTjeneste(historikkRepository, oppgaveTjeneste);
+        var sjekkMotEksisterendeOppgaverTjeneste = new SjekkMotEksisterendeOppgaverTjeneste(oppgaveTjeneste);
         var klageAnke = new KlageAnkeVedtakTjeneste(klageRepository, ankeRepository);
-        tjeneste = new ForeslåVedtakTjeneste(fagsakRepository, behandlingRepository, behandlingsresultatRepository,
-            klageAnke, sjekkMotEksisterendeOppgaverTjeneste, dokumentBehandlingTjeneste, mock(FagsakEgenskapRepository.class));
+        tjeneste = new ForeslåVedtakTjeneste(fagsakRepository, behandlingRepository, behandlingsresultatRepository, klageAnke,
+            sjekkMotEksisterendeOppgaverTjeneste, dokumentBehandlingTjeneste, mock(FagsakEgenskapRepository.class));
     }
 
     @Test
@@ -246,7 +241,6 @@ class ForeslåVedtakTjenesteTest {
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
-        verify(historikkRepository, times(2)).lagre(any());
         assertThat(stegResultat.getAksjonspunktListe().contains(AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK)).isTrue();
         assertThat(stegResultat.getAksjonspunktListe().contains(AksjonspunktDefinisjon.VURDERE_DOKUMENT_FØR_VEDTAK)).isTrue();
     }
@@ -264,7 +258,6 @@ class ForeslåVedtakTjenesteTest {
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
-        verify(historikkRepository, times(0)).lagre(any());
     }
 
     @Test
@@ -283,12 +276,10 @@ class ForeslåVedtakTjenesteTest {
     @Test
     void utførerMedAksjonspunktForeslåVedtakManueltHvisRevurderingOpprettetManueltOgIkkeTotrinnskontroll() {
         // Arrange
-        var behandling = ScenarioMorSøkerEngangsstønad.forFødsel()
-                .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-                .lagre(repositoryProvider);
+        var behandling = ScenarioMorSøkerEngangsstønad.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagre(repositoryProvider);
         var revurdering = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
-                .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING).medManueltOpprettet(true))
-                .build();
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING).medManueltOpprettet(true))
+            .build();
         var lås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, lås);
 
@@ -298,7 +289,7 @@ class ForeslåVedtakTjenesteTest {
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
         assertThat(stegResultat.getAksjonspunktListe()).hasSize(1);
-        assertThat(stegResultat.getAksjonspunktListe().get(0)).isEqualTo(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
+        assertThat(stegResultat.getAksjonspunktListe().getFirst()).isEqualTo(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
     }
 
     @Test
@@ -318,12 +309,10 @@ class ForeslåVedtakTjenesteTest {
     @Test
     void utførerMedAksjonspunktForeslåVedtakManueltHvisRevurderingOpprettetManueltOgIkkeTotrinnskontrollBehandling2TrinnIkkeReset() {
         // Arrange
-        var behandling = ScenarioMorSøkerEngangsstønad.forFødsel()
-                .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-                .lagre(repositoryProvider);
+        var behandling = ScenarioMorSøkerEngangsstønad.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagre(repositoryProvider);
         var revurdering = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
-                .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING).medManueltOpprettet(true))
-                .build();
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING).medManueltOpprettet(true))
+            .build();
         revurdering.setToTrinnsBehandling();
         var lås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, lås);
@@ -334,7 +323,7 @@ class ForeslåVedtakTjenesteTest {
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
         assertThat(stegResultat.getAksjonspunktListe()).hasSize(1);
-        assertThat(stegResultat.getAksjonspunktListe().get(0)).isEqualTo(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
+        assertThat(stegResultat.getAksjonspunktListe().getFirst()).isEqualTo(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
     }
 
     @Test
@@ -349,7 +338,7 @@ class ForeslåVedtakTjenesteTest {
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
         assertThat(stegResultat.getAksjonspunktListe()).hasSize(1);
-        assertThat(stegResultat.getAksjonspunktListe().get(0)).isEqualTo(AksjonspunktDefinisjon.FORESLÅ_VEDTAK);
+        assertThat(stegResultat.getAksjonspunktListe().getFirst()).isEqualTo(AksjonspunktDefinisjon.FORESLÅ_VEDTAK);
     }
 
     @Test

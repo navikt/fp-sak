@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -49,7 +49,7 @@ class FpInntektsmeldingTjenesteTest {
     @Mock
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     @Mock
-    private HistorikkRepository historikkRepository;
+    private Historikkinnslag2Repository historikkRepository;
     @Mock
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
     @Mock

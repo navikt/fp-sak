@@ -48,7 +48,6 @@ class AksjonspunktUtlederForTidligereMottattYtelse implements AksjonspunktUtlede
             return opprettListeForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
         }
 
-
         if (harAnnenpartSakForSammeBarn(param) == JA) {
             return opprettListeForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE);
         }

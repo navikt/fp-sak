@@ -1,10 +1,8 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
@@ -21,8 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioF
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Personopplysning;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 class VurdereYtelseSammeBarnAnnenForelderOppdatererTest {
 
@@ -64,13 +60,6 @@ class VurdereYtelseSammeBarnAnnenForelderOppdatererTest {
         assertThat(vilkår.getAvslagsårsak()).isEqualTo(Avslagsårsak.MANN_ADOPTERER_IKKE_ALENE);
     }
 
-    private HistorikkTjenesteAdapter lagMockHistory() {
-        var tekstBuilder = new HistorikkInnslagTekstBuilder();
-        var mockHistory = mock(HistorikkTjenesteAdapter.class);
-        Mockito.when(mockHistory.tekstBuilder()).thenReturn(tekstBuilder);
-        return mockHistory;
-    }
-
     private ScenarioFarSøkerEngangsstønad scenario() {
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
 
@@ -91,11 +80,10 @@ class VurdereYtelseSammeBarnAnnenForelderOppdatererTest {
     private void utførAksjonspunktOppdaterer(Behandling behandling,
                                              VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto dto,
                                              BehandlingRepositoryProvider repositoryProvider) {
-        var mockHistory = lagMockHistory();
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
-        var resultat = new VurdereYtelseSammeBarnOppdaterer.VurdereYtelseSammeBarnAnnenForelderOppdaterer(mockHistory,
-            repositoryProvider.getBehandlingsresultatRepository(), repositoryProvider.getBehandlingRepository())
+        var resultat = new VurdereYtelseSammeBarnOppdaterer.VurdereYtelseSammeBarnAnnenForelderOppdaterer(
+            new HistorikkSammeBarnTjeneste(repositoryProvider.getHistorikkinnslag2Repository()), repositoryProvider.getBehandlingsresultatRepository())
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
         byggVilkårResultat(vilkårBuilder, resultat);
         vilkårBuilder.buildFor(behandling);
