@@ -33,7 +33,7 @@ class DokumentBestiltTest {
         var historikkinnslag = behandlingRepositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
 
         assertThat(historikkinnslag.getAktør()).isEqualTo(saksbehandler);
-        assertThat(historikkinnslag.getTittel()).isEqualTo("Brev bestilt");
+        assertThat(historikkinnslag.getTittel()).isEqualTo("Brev er bestilt");
         assertThat(historikkinnslag.getLinjer()).hasSize(1);
         assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).containsSubsequence(journalførSom.getNavn(), malBrukt.getNavn());
     }
@@ -54,7 +54,7 @@ class DokumentBestiltTest {
         var historikkinnslag = behandlingRepositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
 
         assertThat(historikkinnslag.getAktør()).isEqualTo(saksbehandler);
-        assertThat(historikkinnslag.getTittel()).isEqualTo("Brev bestilt");
+        assertThat(historikkinnslag.getTittel()).isEqualTo("Brev er bestilt");
         assertThat(historikkinnslag.getLinjer()).hasSize(1);
         assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).containsSubsequence(malBrukt.getNavn());
     }

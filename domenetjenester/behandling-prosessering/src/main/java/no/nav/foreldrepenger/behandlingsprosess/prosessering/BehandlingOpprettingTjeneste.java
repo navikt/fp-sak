@@ -103,9 +103,9 @@ public class BehandlingOpprettingTjeneste {
 
     private void opprettHistorikkinnslag(Behandling behandling, BehandlingType behandlingType) {
         var tittel = switch (behandlingType) {
-            case ANKE -> "Anke mottatt";
-            case INNSYN -> "Innsynsbehandling opprettet";
-            case KLAGE -> "Klage mottatt";
+            case ANKE -> "Anke er mottatt";
+            case INNSYN -> "Innsynsbehandling er opprettet";
+            case KLAGE -> "Klage er mottatt";
             default -> throw new IllegalStateException("Skal ikke lage historikkinnslag for type " + behandlingType);
         };
         var historikkinnslag = new Historikkinnslag2.Builder()

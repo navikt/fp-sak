@@ -114,7 +114,7 @@ class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
         var historikkinnslag = captor.getValue();
 
         assertThat(historikkinnslag.getBehandlingId()).isEqualTo(behandlingId);
-        assertThat(historikkinnslag.getTittel()).isEqualTo("Behandling på vent " + HistorikkinnslagLinjeBuilder.format(localDate));
+        assertThat(historikkinnslag.getTittel()).isEqualTo("Behandling er satt på vent " + HistorikkinnslagLinjeBuilder.format(localDate));
     }
 
     @Test

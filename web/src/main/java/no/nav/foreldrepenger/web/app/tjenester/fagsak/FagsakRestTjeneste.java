@@ -288,7 +288,7 @@ public class FagsakRestTjeneste {
         var historikkinnslag = new Historikkinnslag2.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(fagsak.getId())
-            .medTittel("Fakta endret")
+            .medTittel("Fakta er endret")
             .addLinje(fraTilEquals("Saksmarkering", fraVerdi, tilVerdi))
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);

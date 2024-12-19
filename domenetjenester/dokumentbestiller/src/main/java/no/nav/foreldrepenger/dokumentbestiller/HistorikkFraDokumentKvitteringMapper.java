@@ -21,7 +21,7 @@ class HistorikkFraDokumentKvitteringMapper {
             .medFagsakId(fagsakId)
             .medBehandlingId(behandlingId)
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
-            .medTittel("Brev sendt")
+            .medTittel("Brev er sendt")
             .medDokumenter(List.of(new Historikkinnslag2DokumentLink.Builder()
                     .medDokumentId(dokumentId)
                     .medJournalpostId(JournalpostId.erGyldig(journalpostId) ? new JournalpostId(journalpostId) : null)

@@ -83,7 +83,7 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
             var adapter = new ManuellRegistreringAksjonspunktDto(!dto.getUfullstendigSoeknad());
             dokumentRegistrererTjeneste.aksjonspunktManuellRegistrering(behandlingReferanse, adapter)
                 .ifPresent(ad -> resultatBuilder.medEkstraAksjonspunktResultat(ad, AksjonspunktStatus.OPPRETTET));
-            lagHistorikkInnslag(behandlingReferanse, "Mangelfull søknad", null);
+            lagHistorikkInnslag(behandlingReferanse, "Søknad er mangelfull", null);
             return resultatBuilder
                 .leggTilIkkeVurdertVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT)
                 .medFremoverHopp(FellesTransisjoner.FREMHOPP_TIL_KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT).build();

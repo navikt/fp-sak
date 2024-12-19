@@ -203,7 +203,7 @@ public class BehandlingsprosessTjeneste {
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
-            .medTittel("Behandling startet på nytt")
+            .medTittel("Behandling er startet på nytt")
             .build();
         historikkRepository.lagre(historikkinnslag);
     }
