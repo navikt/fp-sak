@@ -27,6 +27,7 @@ public class HistorikkinnslagLinjeBuilder {
     private HistorikkinnslagLinjeType type = HistorikkinnslagLinjeType.TEKST;
 
     public HistorikkinnslagLinjeBuilder bold(String b) {
+        Objects.requireNonNull(b);
         stringBuilder.append(" ").append(BOLD_MARKØR).append(b).append(BOLD_MARKØR);
         return this;
     }
@@ -40,6 +41,7 @@ public class HistorikkinnslagLinjeBuilder {
     }
 
     public HistorikkinnslagLinjeBuilder tekst(String t) {
+        Objects.requireNonNull(t);
         stringBuilder.append(" ").append(t);
         return this;
     }
