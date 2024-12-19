@@ -1,16 +1,21 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.praksisutsettelse;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
@@ -38,6 +43,7 @@ class BareFarRettSaksmerkingSingleTask implements ProsessTaskHandler {
     static final String FAGSAK_ID = "fagsakId";
     private final FagsakRepository fagsakRepository;
     private final BehandlingRepository behandlingRepository;
+    private final BeregningsresultatRepository beregningsresultatRepository;
     private final YtelsesFordelingRepository ytelsesFordelingRepository;
     private final FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private final FpUttakRepository fpUttakRepository;
@@ -46,11 +52,14 @@ class BareFarRettSaksmerkingSingleTask implements ProsessTaskHandler {
     @Inject
     public BareFarRettSaksmerkingSingleTask(FagsakRepository fagsakRepository,
                                             BehandlingRepository behandlingRepository,
+                                            BeregningsresultatRepository beregningsresultatRepository,
                                             YtelsesFordelingRepository ytelsesFordelingRepository,
-                                            FagsakRelasjonTjeneste fagsakRelasjonTjeneste, FpUttakRepository fpUttakRepository,
+                                            FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
+                                            FpUttakRepository fpUttakRepository,
                                             FagsakEgenskapRepository fagsakEgenskapRepository) {
         this.fagsakRepository = fagsakRepository;
         this.behandlingRepository = behandlingRepository;
+        this.beregningsresultatRepository = beregningsresultatRepository;
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.fpUttakRepository = fpUttakRepository;
@@ -69,8 +78,19 @@ class BareFarRettSaksmerkingSingleTask implements ProsessTaskHandler {
         var relatertSak = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)
             .flatMap(r -> r.getRelatertFagsak(fagsak));
         if (relatertSak.isPresent()) {
-            LOG.info("BareFarRettMarkering: Sak {} har relatert sak {}", fagsak.getSaksnummer().getVerdi(), relatertSak.get().getSaksnummer().getVerdi());
-            return;
+            var annenpartÅpenFørstegang = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(relatertSak.get().getId()).stream()
+                .anyMatch(b -> BehandlingType.FØRSTEGANGSSØKNAD.equals(b.getType()));
+            var sisteRelaterteUtbetaling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(relatertSak.get().getId())
+                .map(Behandling::getId)
+                .flatMap(beregningsresultatRepository::hentUtbetBeregningsresultat)
+                .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElseGet(List::of).stream()
+                .filter(bp -> bp.getDagsats() > 0)
+                .toList();
+            if (!sisteRelaterteUtbetaling.isEmpty() || annenpartÅpenFørstegang) {
+                LOG.info("BareFarRettMarkering: Sak {} har relatert sak {} med utbetaling eller åpen førstegang", fagsak.getSaksnummer().getVerdi(),
+                    relatertSak.get().getSaksnummer().getVerdi());
+                return;
+            }
         }
         var eksisterende = fagsakEgenskapRepository.finnFagsakMarkeringer(fagsak.getId());
         if (eksisterende.contains(FagsakMarkering.BARE_FAR_RETT)) {
