@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
@@ -70,10 +71,11 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
         assertThat(historikkinnslag).hasSize(1);
         assertThat(historikkinnslag.getFirst().getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         assertThat(historikkinnslag.getFirst().getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_UTTAK);
-        assertThat(historikkinnslag.getFirst().getLinjer()).hasSize(3);
+        assertThat(historikkinnslag.getFirst().getLinjer()).hasSize(4);
         assertThat(historikkinnslag.getFirst().getLinjer().get(0).getTekst()).contains("Overstyrt vurdering:");
         assertThat(historikkinnslag.getFirst().getLinjer().get(1).getTekst()).contains("Perioden", ".2022", "er satt til", "Uttak", "Fedrekvoten");
-        assertThat(historikkinnslag.getFirst().getLinjer().get(2).getTekst()).contains(BEGRUNNELSE_TEKST);
+        assertThat(historikkinnslag.getFirst().getLinjer().get(2).getType()).isEqualTo(HistorikkinnslagLinjeType.LINJESKIFT);
+        assertThat(historikkinnslag.getFirst().getLinjer().get(3).getTekst()).contains(BEGRUNNELSE_TEKST);
     }
 
     @Test
@@ -89,9 +91,10 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
         assertThat(historikkinnslag).hasSize(1);
         assertThat(historikkinnslag.getFirst().getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         assertThat(historikkinnslag.getFirst().getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_UTTAK);
-        assertThat(historikkinnslag.getFirst().getLinjer()).hasSize(2);
+        assertThat(historikkinnslag.getFirst().getLinjer()).hasSize(3);
         assertThat(historikkinnslag.getFirst().getLinjer().get(0).getTekst()).contains("Perioden", ".2022", "Uttak", "Fedrekvoten", "er fjernet");
-        assertThat(historikkinnslag.getFirst().getLinjer().get(1).getTekst()).contains(BEGRUNNELSE_TEKST);
+        assertThat(historikkinnslag.getFirst().getLinjer().get(1).getType()).isEqualTo(HistorikkinnslagLinjeType.LINJESKIFT);
+        assertThat(historikkinnslag.getFirst().getLinjer().get(2).getTekst()).contains(BEGRUNNELSE_TEKST);
     }
 
     @Test
@@ -108,10 +111,11 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
         assertThat(historikkinnslag).hasSize(1);
         assertThat(historikkinnslag.getFirst().getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         assertThat(historikkinnslag.getFirst().getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_UTTAK);
-        assertThat(historikkinnslag.getFirst().getLinjer()).hasSize(2);
+        assertThat(historikkinnslag.getFirst().getLinjer()).hasSize(3);
         assertThat(historikkinnslag.getFirst().getLinjer().get(0).getTekst()).contains("Perioden", ".2022", "er endret fra", "Utsettelse", "Barn",
             "Søker");
-        assertThat(historikkinnslag.getFirst().getLinjer().get(1).getTekst()).contains(BEGRUNNELSE_TEKST);
+        assertThat(historikkinnslag.getFirst().getLinjer().get(1).getType()).isEqualTo(HistorikkinnslagLinjeType.LINJESKIFT);
+        assertThat(historikkinnslag.getFirst().getLinjer().get(2).getTekst()).contains(BEGRUNNELSE_TEKST);
     }
 
     @Test
@@ -128,10 +132,11 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
         assertThat(historikkinnslag).hasSize(1);
         assertThat(historikkinnslag.getFirst().getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         assertThat(historikkinnslag.getFirst().getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_UTTAK);
-        assertThat(historikkinnslag.getFirst().getLinjer()).hasSize(2);
+        assertThat(historikkinnslag.getFirst().getLinjer()).hasSize(3);
         assertThat(historikkinnslag.getFirst().getLinjer().get(0).getTekst()).contains("Perioden", ".2022", "er endret fra", "Utsettelse", "Barn",
             "til", "Uttak", "Mødrekvoten");
-        assertThat(historikkinnslag.getFirst().getLinjer().get(1).getTekst()).contains(BEGRUNNELSE_TEKST);
+        assertThat(historikkinnslag.getFirst().getLinjer().get(1).getType()).isEqualTo(HistorikkinnslagLinjeType.LINJESKIFT);
+        assertThat(historikkinnslag.getFirst().getLinjer().get(2).getTekst()).contains(BEGRUNNELSE_TEKST);
     }
 
     @Test
@@ -188,18 +193,24 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
          */
 
         assertThat(historikkinnslag.getFirst().getLinjer()).satisfies(l -> {
-            assertThat(l).hasSize(7);
+            assertThat(l).hasSize(13);
             assertThat(l.get(0).getTekst()).isEqualTo(
                 "__Perioden 24.11.2022 - 30.11.2022__ er satt til __Overføring, Konto: Mødrekvoten, Årsak: Den andre foreldren er pga sykdom avhengig av hjelp for å ta seg av barnet/barna__.");
-            assertThat(l.get(1).getTekst()).isEqualTo(
+            assertThat(l.get(1).getType()).isEqualTo(HistorikkinnslagLinjeType.LINJESKIFT);
+            assertThat(l.get(2).getTekst()).isEqualTo(
                 "__Perioden 01.12.2022 - 06.12.2022__ er endret fra Uttak, Konto: Fedrekvoten til __Utsettelse, Årsak: Barn er innlagt i helseinstitusjon__.");
-            assertThat(l.get(2).getTekst()).isEqualTo("__Perioden 07.12.2022 - 13.12.2022__ er endret fra Uttak til __Uttak, Samtidig uttak%: 50__.");
-            assertThat(l.get(3).getTekst()).isEqualTo(
+            assertThat(l.get(3).getType()).isEqualTo(HistorikkinnslagLinjeType.LINJESKIFT);
+            assertThat(l.get(4).getTekst()).isEqualTo("__Perioden 07.12.2022 - 13.12.2022__ er endret fra Uttak til __Uttak, Samtidig uttak%: 50__.");
+            assertThat(l.get(5).getType()).isEqualTo(HistorikkinnslagLinjeType.LINJESKIFT);
+            assertThat(l.get(6).getTekst()).isEqualTo(
                 "__Perioden 14.12.2022 - 20.12.2022__ er endret fra Uttak til __Uttak, Gradering: Selvstendig næringsdrivende - Arbeid: 10%__.");
-            assertThat(l.get(4).getTekst()).isEqualTo(
+            assertThat(l.get(7).getType()).isEqualTo(HistorikkinnslagLinjeType.LINJESKIFT);
+            assertThat(l.get(8).getTekst()).isEqualTo(
                 "__Perioden 21.12.2022 - 27.12.2022__ er endret fra Uttak, Konto: Fedrekvoten til __Uttak, Konto: Fellesperioden, Mors aktivitet: Er avhengig av hjelp til å ta seg av barnet__.");
-            assertThat(l.get(5).getTekst()).isEqualTo("__Perioden 04.01.2023 - 10.01.2023__ __Uttak, Konto: Fedrekvoten__ er fjernet.");
-            assertThat(l.get(6).getTekst()).contains(BEGRUNNELSE_TEKST);
+            assertThat(l.get(9).getType()).isEqualTo(HistorikkinnslagLinjeType.LINJESKIFT);
+            assertThat(l.get(10).getTekst()).isEqualTo("__Perioden 04.01.2023 - 10.01.2023__ __Uttak, Konto: Fedrekvoten__ er fjernet.");
+            assertThat(l.get(11).getType()).isEqualTo(HistorikkinnslagLinjeType.LINJESKIFT);
+            assertThat(l.get(12).getTekst()).contains(BEGRUNNELSE_TEKST);
         });
     }
 }
