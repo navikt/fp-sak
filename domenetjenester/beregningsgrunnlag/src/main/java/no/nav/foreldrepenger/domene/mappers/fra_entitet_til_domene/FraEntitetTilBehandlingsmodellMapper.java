@@ -73,7 +73,8 @@ public class FraEntitetTilBehandlingsmodellMapper {
             .stream()
             .map(r -> new BeregningRefusjonPeriode(r.getArbeidsforholdRef(), r.getStartdatoRefusjon()))
             .toList();
-        return new BeregningRefusjonOverstyring(refusjonOverstyring.getArbeidsgiver(), refusjonOverstyring.getFørsteMuligeRefusjonFom().orElse(null), refusjonOverstyring.getErFristUtvidet(), perioder);
+        return new BeregningRefusjonOverstyring(refusjonOverstyring.getArbeidsgiver(), refusjonOverstyring.getFørsteMuligeRefusjonFom().orElse(null),
+            Boolean.TRUE.equals(refusjonOverstyring.getErFristUtvidet()), perioder);
     }
 
     private static no.nav.foreldrepenger.domene.modell.BeregningAktivitetOverstyringer mapBeregningAktivitetOverstyringer(
