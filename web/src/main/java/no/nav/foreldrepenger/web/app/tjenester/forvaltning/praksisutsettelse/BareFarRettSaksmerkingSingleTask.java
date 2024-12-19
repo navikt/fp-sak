@@ -7,6 +7,8 @@ import java.util.Optional;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,14 +78,16 @@ class BareFarRettSaksmerkingSingleTask implements ProsessTaskHandler {
         var relatertSak = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)
             .flatMap(r -> r.getRelatertFagsak(fagsak));
         if (relatertSak.isPresent()) {
-            var sisteRelaterteUtbetaling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
+            var annenpartÅpenFørstegang = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(relatertSak.get().getId()).stream()
+                .anyMatch(b -> BehandlingType.FØRSTEGANGSSØKNAD.equals(b.getType()));
+            var sisteRelaterteUtbetaling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(relatertSak.get().getId())
                 .map(Behandling::getId)
                 .flatMap(beregningsresultatRepository::hentUtbetBeregningsresultat)
                 .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElseGet(List::of).stream()
                 .filter(bp -> bp.getDagsats() > 0)
                 .toList();
-            if (!sisteRelaterteUtbetaling.isEmpty()) {
-                LOG.info("BareFarRettMarkering: Sak {} har relatert sak {} mer utbetaling", fagsak.getSaksnummer().getVerdi(),
+            if (!sisteRelaterteUtbetaling.isEmpty() || annenpartÅpenFørstegang) {
+                LOG.info("BareFarRettMarkering: Sak {} har relatert sak {} med utbetaling eller åpen førstegang", fagsak.getSaksnummer().getVerdi(),
                     relatertSak.get().getSaksnummer().getVerdi());
                 return;
             }
