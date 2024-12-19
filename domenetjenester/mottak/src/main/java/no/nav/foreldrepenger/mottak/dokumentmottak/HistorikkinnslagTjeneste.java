@@ -52,7 +52,7 @@ public class HistorikkinnslagTjeneste {
                                         boolean elektronisk,
                                         boolean erIM) {
         var dokumenter = lagDokumenterLenker(behandling.getType(), journalpostId, elektronisk, erIM);
-        var tittel = BehandlingType.KLAGE.equals(behandling.getType()) ? "Klage mottatt" : "Behandling startet";
+        var tittel = BehandlingType.KLAGE.equals(behandling.getType()) ? "Klage er mottatt" : "Behandling er startet";
         var h = new Historikkinnslag2.Builder().medTittel(tittel)
             .medAktør(HistorikkAktør.SØKER)
             .medBehandlingId(behandling.getId())
@@ -122,7 +122,7 @@ public class HistorikkinnslagTjeneste {
     public void opprettHistorikkinnslagForVedlegg(Fagsak fagsak, JournalpostId journalpostId, DokumentTypeId dokumentTypeId, boolean elektronisk) {
         var dokumenter = lagDokumenterLenker(BehandlingType.UDEFINERT, journalpostId, elektronisk,
             DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId));
-        historikkinnslagRepository.lagre(new Historikkinnslag2.Builder().medTittel("Vedlegg mottatt")
+        historikkinnslagRepository.lagre(new Historikkinnslag2.Builder().medTittel("Vedlegg er mottatt")
             .medFagsakId(fagsak.getId())
             .medAktør(DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId) ? HistorikkAktør.ARBEIDSGIVER : HistorikkAktør.SØKER)
             .medDokumenter(dokumenter)

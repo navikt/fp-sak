@@ -21,9 +21,9 @@ public enum Inntektskategori implements Kodeverdi {
     DAGPENGER("DAGPENGER", "Dagpenger"),
     ARBEIDSAVKLARINGSPENGER("ARBEIDSAVKLARINGSPENGER", "Arbeidsavklaringspenger"),
     SJØMANN("SJØMANN", "Arbeidstaker - Sjømann"),
-    DAGMAMMA("DAGMAMMA", "Selvstendig næringsdrivende (dagmamma)"),
-    JORDBRUKER("JORDBRUKER", "Selvstendig næringsdrivende - Jordbruker"),
-    FISKER("FISKER", "Selvstendig næringsdrivende (fisker)"),
+    DAGMAMMA("DAGMAMMA", "Selvstendig næringsdrivende - dagmamma"),
+    JORDBRUKER("JORDBRUKER", "Selvstendig næringsdrivende - jordbruker"),
+    FISKER("FISKER", "Selvstendig næringsdrivende - fisker"),
     ARBEIDSTAKER_UTEN_FERIEPENGER("ARBEIDSTAKER_UTEN_FERIEPENGER", "Arbeidstaker uten feriepenger"),
     UDEFINERT("-", "Ingen inntektskategori (default)"),
     ;

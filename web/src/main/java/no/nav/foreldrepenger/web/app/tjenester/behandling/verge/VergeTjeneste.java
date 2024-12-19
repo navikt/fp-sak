@@ -108,7 +108,7 @@ public class VergeTjeneste {
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
-            .medTittel("Opplysninger om verge/fullmektig fjernet")
+            .medTittel("Opplysninger om verge/fullmektig er fjernet")
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }

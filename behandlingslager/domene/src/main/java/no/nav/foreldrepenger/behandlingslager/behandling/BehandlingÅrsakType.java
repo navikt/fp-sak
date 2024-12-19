@@ -21,15 +21,15 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     RE_FEIL_PROSESSUELL("RE-PRSSL", "Prosessuell feil"),
     RE_ANNET("RE-ANNET", "Annet"),
 
-    RE_OPPLYSNINGER_OM_MEDLEMSKAP("RE-MDL", "Opplysninger medlemskap"),
-    RE_OPPLYSNINGER_OM_OPPTJENING("RE-OPTJ", "Opplysninger opptjening"),
-    RE_OPPLYSNINGER_OM_FORDELING("RE-FRDLING", "Opplysninger uttak"),
-    RE_OPPLYSNINGER_OM_INNTEKT("RE-INNTK", "Opplysninger inntekt"),
+    RE_OPPLYSNINGER_OM_MEDLEMSKAP("RE-MDL", "Nye opplysninger om medlemskap"),
+    RE_OPPLYSNINGER_OM_OPPTJENING("RE-OPTJ", "Nye opplysninger om opptjening"),
+    RE_OPPLYSNINGER_OM_FORDELING("RE-FRDLING", "Nye opplysninger om uttak"),
+    RE_OPPLYSNINGER_OM_INNTEKT("RE-INNTK", "Nye opplysninger om inntekt"),
     RE_OPPLYSNINGER_OM_FØDSEL("RE-FØDSEL", "Fødsel"),
     RE_OPPLYSNINGER_OM_DØD("RE-DØD", "Opplysninger død"),
     RE_OPPLYSNINGER_OM_SØKERS_REL("RE-SRTB", "Opplysninger relasjon/barn"),
-    RE_OPPLYSNINGER_OM_SØKNAD_FRIST("RE-FRIST", "Opplysninger søknadsfrist"),
-    RE_OPPLYSNINGER_OM_BEREGNINGSGRUNNLAG("RE-BER-GRUN", "Opplysninger beregning"),
+    RE_OPPLYSNINGER_OM_SØKNAD_FRIST("RE-FRIST", "Nye opplysninger om søknadsfrist"),
+    RE_OPPLYSNINGER_OM_BEREGNINGSGRUNNLAG("RE-BER-GRUN", "Nye opplysninger om beregning"),
 
     // KLAGE - Manuelt opprettet revurdering (obs: årsakene kan også bli satt på en automatisk opprettet revurdering)
     RE_KLAGE_UTEN_END_INNTEKT("RE-KLAG-U-INNTK", "Klage/Anke uendret inntekt"),
@@ -56,7 +56,7 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     ENDRE_DEKNINGSGRAD("ENDRE-DEKNINGSGRAD", "Endre dekningsgrad"),
 
     // For automatiske informasjonsbrev
-    INFOBREV_BEHANDLING("INFOBREV_BEHANDLING", "Informasjonsbrev uttak"),
+    INFOBREV_BEHANDLING("INFOBREV_BEHANDLING", "Informasjonsbrev"),
     INFOBREV_OPPHOLD("INFOBREV_OPPHOLD", "Informasjonsbrev opphold"),
     INFOBREV_PÅMINNELSE("INFOBREV_PÅMINNELSE", "Informasjonsbrev påminnelse"),
 

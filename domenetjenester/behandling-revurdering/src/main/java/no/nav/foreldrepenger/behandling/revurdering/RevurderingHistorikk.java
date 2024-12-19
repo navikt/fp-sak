@@ -35,7 +35,7 @@ public class RevurderingHistorikk {
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())
             .medAktør(historikkAktør)
-            .medTittel("Revurdering opprettet")
+            .medTittel("Revurdering er opprettet")
             .addLinje(revurderingsÅrsak.getNavn())
             .build();
         historikkRepository.lagre(historikkinnslag);

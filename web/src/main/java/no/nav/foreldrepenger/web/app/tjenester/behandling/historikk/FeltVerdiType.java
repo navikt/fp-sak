@@ -170,7 +170,7 @@ public enum FeltVerdiType {
     GYLDIG_UTSETTELSE_PGA_INNLEGGELSE("2012", "Gyldig utsettelse pga innleggelse"),
     MOR_HAR_IKKE_OMSORG("4003", "Mor har ikke omsorg"),
     UNNTAK_FOR_AKTIVITETSKRAVET_MORS_MOTTAK_AV_UFØRETRYGD_IKKE_OPPFYLT("4057", "Unntak for aktivitetskravet, mors mottak av uføretrygd ikke oppfylt"),
-    FASTSETT_RESULTAT_PERIODEN_NAV_TILTAK_DOKUMENTERT("FASTSETT_RESULTAT_PERIODEN_NAV_TILTAK_DOKUMENTERT", "Tiltak i regi av NAV er dokumentert"),
+    FASTSETT_RESULTAT_PERIODEN_NAV_TILTAK_DOKUMENTERT("FASTSETT_RESULTAT_PERIODEN_NAV_TILTAK_DOKUMENTERT", "Tiltak i regi av Nav er dokumentert"),
     AKTIVITETSKRAV_INTRODUKSJONSPROGRAM_IKKE_DOKUMENTERT("4088", "Aktivitetskrav – introduksjonsprogram ikke dokumentert"),
     FISKER("FISKER", "Selvstendig næringsdrivende - Fisker"),
     AVSLAG_GRADERING_ARBEID_HUNDRE_PROSENT_ELLER_MER_4523("4523", "Avslag gradering - arbeid 100% eller mer"),
@@ -178,7 +178,7 @@ public enum FeltVerdiType {
     IKKE_NOK_DAGER_UTEN_AKTIVITETSKRAV("4107", "Ikke nok dager uten aktivitetskrav"),
     AVSLAG_GRADERING_GRADERING_FØR_UKE_SJU("4504", "Avslag gradering - gradering før uke 7"),
     GRADERING_PÅ_ANDEL_UTEN_BG_IKKE_SATT_PÅ_VENT("GRADERING_PÅ_ANDEL_UTEN_BG_IKKE_SATT_PÅ_VENT", "Riktig"),
-    FASTSETT_RESULTAT_PERIODEN_NAV_TILTAK_DOKUMENTERT_IKKE("FASTSETT_RESULTAT_PERIODEN_NAV_TILTAK_DOKUMENTERT_IKKE", "Tiltak i regi av NAV er ikke dokumentert"),
+    FASTSETT_RESULTAT_PERIODEN_NAV_TILTAK_DOKUMENTERT_IKKE("FASTSETT_RESULTAT_PERIODEN_NAV_TILTAK_DOKUMENTERT_IKKE", "Tiltak i regi av Nav er ikke dokumentert"),
     KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_ARBEIDSFORHOLD("KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_ARBEIDSFORHOLD", "Arbeidsgiver kontaktes"),
     UTTAK_FØR_OMSORGOVERTAKELSE("4100", "Uttak før omsorgsovertakelse"),
     IKKE_RETT_TIL_FELLESPERIODE_MOR_IKKE_RETT_TIL_FP("4075", "Ikke rett til fellesperiode fordi mor ikke har rett til foreldrepenger"),
@@ -237,7 +237,7 @@ public enum FeltVerdiType {
     IKKE_VURDERT("IKKE_VURDERT", "Ikke vurdert"),
     INNTREKK("TILBAKEKR_INNTREKK", "Feilutbetaling hvor inntrekk dekker hele beløpet"),
     FAR_MER_ENN_TI_DAGER_FEDREKVOTE_IFM_FØDSEL("4106", "Far/medmor søker mer enn 10 dager ifm fødsel"),
-    SELVSTENDIG_NÆRING("SELVSTENDIG_NÆRING", "Næringsdrivende"),
+    SELVSTENDIG_NÆRING("SELVSTENDIG_NÆRING", "Selvstendig næringsdrivende"),
     DØD_DØDFØDSEL("DØD_DØDFØDSEL", "Død eller dødfødsel"),
     SOEKER("SOEKER", "Søker");
 

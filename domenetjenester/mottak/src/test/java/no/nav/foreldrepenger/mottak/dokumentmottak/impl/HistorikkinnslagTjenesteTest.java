@@ -153,7 +153,7 @@ class HistorikkinnslagTjenesteTest {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var behandling = scenario.lagMocked();
 
-        var eksisterendeHistorikkinnslag = new Historikkinnslag2.Builder().medTittel("Behandling startet")
+        var eksisterendeHistorikkinnslag = new Historikkinnslag2.Builder().medTittel("Behandling er startet")
             .medFagsakId(1L)
             .medBehandlingId(1L)
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)

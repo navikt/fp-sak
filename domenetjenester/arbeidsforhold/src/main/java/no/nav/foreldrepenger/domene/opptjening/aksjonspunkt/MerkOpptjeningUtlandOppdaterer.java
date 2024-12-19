@@ -54,7 +54,7 @@ public class MerkOpptjeningUtlandOppdaterer implements AksjonspunktOppdaterer<Me
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())
-            .medTittel("Fakta endret")
+            .medTittel("Fakta er endret")
             .addLinje(fraTilEquals("Innhent dokumentasjon", fraUtlandDokStatus(eksisterende), fraUtlandDokStatus(dto.getDokStatus())))
             .addLinje(dto.getBegrunnelse())
             .build();

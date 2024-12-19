@@ -119,7 +119,7 @@ public class ForvaltningUttakTjeneste {
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
-            .medTittel("Fakta endret")
+            .medTittel("Fakta er endret")
             .addLinje(aleneomsorg ? "FORVALTNING - Endret til aleneomsorg" : "FORVALTNING - Endret til ikke aleneomsorg")
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
@@ -155,7 +155,7 @@ public class ForvaltningUttakTjeneste {
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medFagsakId(fagsakId)
             .medBehandlingId(behandlingId)
-            .medTittel("Fakta endret")
+            .medTittel("Fakta er endret")
             .addLinje(begrunnelse)
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);

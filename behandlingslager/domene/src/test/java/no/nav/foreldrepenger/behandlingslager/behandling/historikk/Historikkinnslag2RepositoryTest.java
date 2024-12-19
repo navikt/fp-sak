@@ -37,7 +37,7 @@ public class Historikkinnslag2RepositoryTest extends EntityManagerAwareTest {
         assertThat(hentet).isNotNull();
         assertThat(hentet.getBehandlingId()).isEqualTo(behandlingId);
         assertThat(hentet.getFagsakId()).isEqualTo(behandling.getFagsakId());
-        assertThat(hentet.getTittel()).isEqualTo("Fakta endret");
+        assertThat(hentet.getTittel()).isEqualTo("Fakta er endret");
     }
 
     @Test
@@ -103,7 +103,7 @@ public class Historikkinnslag2RepositoryTest extends EntityManagerAwareTest {
         return new Historikkinnslag2.Builder().medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medFagsakId(fagsakId)
             .medBehandlingId(behandlingId)
-            .medTittel("Fakta endret")
+            .medTittel("Fakta er endret")
             .addLinje("begrunnelsestekst")
             .build();
     }
