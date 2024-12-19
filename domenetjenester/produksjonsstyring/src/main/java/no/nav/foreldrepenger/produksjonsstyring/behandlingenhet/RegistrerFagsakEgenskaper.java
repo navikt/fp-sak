@@ -16,6 +16,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt�
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
@@ -35,18 +38,21 @@ public class RegistrerFagsakEgenskaper {
     private final MedlemskapRepository medlemskapRepository;
     private final FagsakEgenskapRepository fagsakEgenskapRepository;
     private final InntektArbeidYtelseTjeneste iayTjeneste;
+    private final YtelsesFordelingRepository ytelsesFordelingRepository;
 
     @Inject
     public RegistrerFagsakEgenskaper(BehandlendeEnhetTjeneste enhetTjeneste,
                                      PersoninfoAdapter personinfo,
                                      MedlemskapRepository medlemskapRepository,
                                      FagsakEgenskapRepository fagsakEgenskapRepository,
-                                     InntektArbeidYtelseTjeneste iayTjeneste) {
+                                     InntektArbeidYtelseTjeneste iayTjeneste,
+                                     YtelsesFordelingRepository ytelsesFordelingRepository) {
         this.enhetTjeneste = enhetTjeneste;
         this.personinfo = personinfo;
         this.medlemskapRepository = medlemskapRepository;
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
         this.iayTjeneste = iayTjeneste;
+        this.ytelsesFordelingRepository = ytelsesFordelingRepository;
     }
 
     public void fagsakEgenskaperForBruker(Behandling behandling) {
@@ -81,6 +87,9 @@ public class RegistrerFagsakEgenskaper {
         if (harOppgittEgenNæring(behandling.getId())) {
             saksmarkering.add(FagsakMarkering.SELVSTENDIG_NÆRING);
         }
+        if (erBareFarRett(behandling)) {
+            saksmarkering.add(FagsakMarkering.BARE_FAR_RETT);
+        }
         if (!saksmarkering.isEmpty()) {
             saksmarkering.forEach(fsm -> fagsakEgenskapRepository.leggTilFagsakMarkering(behandling.getFagsakId(), fsm));
             BehandlendeEnhetTjeneste.sjekkSkalOppdatereEnhet(behandling, saksmarkering)
@@ -90,6 +99,19 @@ public class RegistrerFagsakEgenskaper {
 
     public boolean harVurdertInnhentingDokumentasjon(Behandling behandling) {
         return fagsakEgenskapRepository.finnUtlandDokumentasjonStatus(behandling.getFagsakId()).isPresent();
+    }
+
+    public boolean erBareFarRett(Behandling behandling) {
+        if (RelasjonsRolleType.MORA.equals(behandling.getRelasjonsRolleType())) {
+            return false;
+        }
+        var yfAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId());
+        if (yfAggregat.isEmpty()) {
+            return false;
+        }
+        var aleneomsorg = yfAggregat.filter(YtelseFordelingAggregat::harAleneomsorg).isPresent();
+        var bareFarRett = yfAggregat.filter(a -> a.harAnnenForelderRett(false)).isEmpty();
+        return bareFarRett && !aleneomsorg;
     }
 
     private boolean vurderOppgittUtlandsopphold(Long behandlingId) {
