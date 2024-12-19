@@ -28,6 +28,7 @@ public class FpinntektsmeldingKlient {
     private final URI uriLukkForesporsel;
     private final URI uriOverstyrInntektsmelding;
     private final URI uriSettForesporselTilUtgaatt;
+    private final URI uriSendNyBeskjedPåForespørsel;
 
 
     public FpinntektsmeldingKlient() {
@@ -37,6 +38,7 @@ public class FpinntektsmeldingKlient {
         this.uriLukkForesporsel = toUri(restConfig.fpContextPath(), "/api/foresporsel/lukk");
         this.uriOverstyrInntektsmelding = toUri(restConfig.fpContextPath(), "/api/overstyring/inntektsmelding");
         this.uriSettForesporselTilUtgaatt = toUri(restConfig.fpContextPath(), "/api/foresporsel/sett-til-utgatt");
+        this.uriSendNyBeskjedPåForespørsel = toUri(restConfig.fpContextPath(), "/api/foresporsel/ny-beskjed");
     }
 
     public OpprettForespørselResponsNy opprettForespørsel(OpprettForespørselRequest request) {
@@ -63,14 +65,6 @@ public class FpinntektsmeldingKlient {
         }
     }
 
-    private URI toUri(URI endpointURI, String path) {
-        try {
-            return UriBuilder.fromUri(endpointURI).path(path).build();
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Ugyldig uri: " + endpointURI + path, e);
-        }
-    }
-
     public void lukkForespørsel(LukkForespørselRequest request) {
         Objects.requireNonNull(request, "request");
         try {
@@ -83,10 +77,6 @@ public class FpinntektsmeldingKlient {
         }
     }
 
-    private static TekniskException feilVedKallTilFpinntektsmelding(String feilmelding) {
-        return new TekniskException("FP-97215", "Feil ved kall til Fpinntektsmelding: " + feilmelding);
-    }
-
     public void settForespørselTilUtgått(LukkForespørselRequest request) {
         Objects.requireNonNull(request, "request");
         try {
@@ -96,6 +86,29 @@ public class FpinntektsmeldingKlient {
         } catch (Exception e) {
             skrivTilLogg(request);
             throw feilVedKallTilFpinntektsmelding(e.getMessage());
+        }
+    }
+
+    public void sendNyBeskjedPåForespørsel(NyBeskjedRequest request) {
+        Objects.requireNonNull(request, "request");
+        try {
+            LOG.info("Sender ny beskjed request til fpinntektsmelding for å legge til ny beskjed på eksisterende forespørsel for saksnummer {} ", request.fagsakSaksnummer().saksnr());
+            var restRequest = RestRequest.newPOSTJson(request, uriSendNyBeskjedPåForespørsel, restConfig);
+            restClient.send(restRequest, String.class);
+        } catch (Exception e) {
+            throw feilVedKallTilFpinntektsmelding(e.getMessage());
+        }
+    }
+
+    private static TekniskException feilVedKallTilFpinntektsmelding(String feilmelding) {
+        return new TekniskException("FP-97215", "Feil ved kall til Fpinntektsmelding: " + feilmelding);
+    }
+
+    private URI toUri(URI endpointURI, String path) {
+        try {
+            return UriBuilder.fromUri(endpointURI).path(path).build();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Ugyldig uri: " + endpointURI + path, e);
         }
     }
 

@@ -135,7 +135,7 @@ public class FpInntektsmeldingTjeneste {
         opprettForespørselResponseNy.organisasjonsnumreMedStatus().forEach( organisasjonsnummerMedStatus -> {
             var ag = organisasjonsnummerMedStatus.organisasjonsnummerDto().orgnr();
             if (organisasjonsnummerMedStatus.status().equals(OpprettForespørselResponsNy.ForespørselResultat.FORESPØRSEL_OPPRETTET)) {
-                lagHistorikkForForespørsel(ag, ref);
+                lagHistorikkForForespørsel(ref, String.format("Oppgave til %s om å sende inntektsmelding", hentArbeidsgivernavn(ag)));
             }else {
                 if (LOG.isInfoEnabled()) {
                     LOG.info("Fpinntektsmelding har allerede oppgave på saksnummer: {} og orgnummer: {} på stp: {} og første uttaksdato: {}",
@@ -145,18 +145,13 @@ public class FpInntektsmeldingTjeneste {
         });
     }
 
-    private void lagHistorikkForForespørsel(String ag, BehandlingReferanse ref) {
-        var virksomhet = arbeidsgiverTjeneste.hentVirksomhet(ag);
-
-        var agNavn = String.format("%s (%s)", virksomhet.getNavn(), virksomhet.getOrgnr());
-        var beg = String.format("Oppgave til %s om å sende inntektsmelding", agNavn);
-
+    private void lagHistorikkForForespørsel(BehandlingReferanse ref, String tekst) {
         var historikkinnslag = new Historikkinnslag2.Builder()
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medTittel("Min side - arbeidsgiver")
             .medBehandlingId(ref.behandlingId())
             .medFagsakId(ref.fagsakId())
-            .addLinje(beg)
+            .addLinje(tekst)
             .build();
 
         historikkRepo.lagre(historikkinnslag);
@@ -199,5 +194,15 @@ public class FpInntektsmeldingTjeneste {
     public void settForespørselTilUtgått(String saksnummer) {
         var request = new LukkForespørselRequest(null, new SaksnummerDto(saksnummer));
         klient.settForespørselTilUtgått(request);
+    }
+
+    public void sendNyBeskjedTilArbeidsgiver(BehandlingReferanse ref, String orgnummer) {
+        var request = new NyBeskjedRequest(new OrganisasjonsnummerDto(orgnummer), new SaksnummerDto(ref.saksnummer().getVerdi()));
+        klient.sendNyBeskjedPåForespørsel(request);
+    }
+
+    private String hentArbeidsgivernavn(String ag) {
+        var virksomhet = arbeidsgiverTjeneste.hentVirksomhet(ag);
+        return String.format("%s (%s)", virksomhet.getNavn(), virksomhet.getOrgnr());
     }
 }

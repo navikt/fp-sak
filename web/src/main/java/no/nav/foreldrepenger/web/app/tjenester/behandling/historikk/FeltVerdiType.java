@@ -33,6 +33,7 @@ public enum FeltVerdiType {
     INNVILGET_FELLES_PERIODE_TIL_FAR("2037", "Innvilget fellesperiode til far"),
     VILKAR_IKKE_OPPFYLT("VILKAR_IKKE_OPPFYLT", "Vilkåret er ikke oppfylt"),
     FORTSETT_UTEN_INNTEKTSMELDING("FORTSETT_UTEN_INNTEKTSMELDING", "Gå videre uten inntektsmelding"),
+    MELDING_TIL_ARBEIDSGIVER_NAV_NO("MELDING_TIL_ARBEIDSGIVER_NAV_NO", "Melding sendt til Min side - arbeidsgiver på nav.no"),
     MANGLENDE_OPPLYSNINGER("MANGLENDE_OPPLYSNINGER", "Benytt i behandlingen, men har manglende opplysninger"),
     IKKE_OPPFYLT("IKKE_OPPFYLT", "ikke oppfylt"),
     BENYTT("BENYTT", "Benytt"),

@@ -407,15 +407,20 @@ public class BehandlingRepository {
     }
 
     public Optional<Behandling> finnSisteIkkeHenlagteYtelseBehandlingFor(Long fagsakId) {
-        return finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeForFagsakId(fagsakId, BehandlingType.getYtelseBehandlingTyper());
+        return finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeForFagsakId(fagsakId, false, BehandlingType.getYtelseBehandlingTyper());
+    }
+
+    public Optional<Behandling> finnSisteIkkeHenlagteYtelseBehandlingReadOnlyFor(Long fagsakId) {
+        return finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeForFagsakId(fagsakId, true, BehandlingType.getYtelseBehandlingTyper());
     }
 
     public Optional<Behandling> finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(Long fagsakId, BehandlingType behandlingType) {
         Objects.requireNonNull(behandlingType, "behandlingType");
-        return finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeForFagsakId(fagsakId, Set.of(behandlingType));
+        return finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeForFagsakId(fagsakId, false, Set.of(behandlingType));
     }
 
-    private Optional<Behandling> finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeForFagsakId(Long fagsakId, Set<BehandlingType> behandlingTyper) {
+    private Optional<Behandling> finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeForFagsakId(Long fagsakId, boolean readOnly,
+                                                                                              Set<BehandlingType> behandlingTyper) {
         Objects.requireNonNull(fagsakId, FAGSAK_ID);
 
         var query = entityManager.createQuery(
@@ -430,6 +435,9 @@ public class BehandlingRepository {
         query.setParameter(FAGSAK_ID, fagsakId);
         query.setParameter("behandlingTyper", behandlingTyper);
         query.setParameter("henlagtKoder", BehandlingResultatType.getAlleHenleggelseskoder());
+        if (readOnly) {
+            query.setHint(HibernateHints.HINT_READ_ONLY, "true");
+        }
 
         return optionalFirst(query.getResultList());
     }

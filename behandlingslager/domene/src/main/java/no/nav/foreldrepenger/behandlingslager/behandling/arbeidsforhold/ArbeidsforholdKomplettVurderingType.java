@@ -15,6 +15,7 @@ public enum ArbeidsforholdKomplettVurderingType implements Kodeverdi {
 
     KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING("KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING", "Saksbehandler kontakter arbeidsgiver for å avklare manglende inntektsmelding"),
     FORTSETT_UTEN_INNTEKTSMELDING("FORTSETT_UTEN_INNTEKTSMELDING", "Behandlingen kan fortsette uten inntektsmelding for dette arbeidsforholdet"),
+    MELDING_TIL_ARBEIDSGIVER_NAV_NO("MELDING_TIL_ARBEIDSGIVER_NAV_NO", "Ny melding sendes til arbeidsgiver med beskjed om å sende inntektsmelding på Min side - arbeidsgiver"),
 
     KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_ARBEIDSFORHOLD("KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_ARBEIDSFORHOLD", "Saksbehandler kontakter arbeidsgiver for å avklare manglende arbeidsforhold"),
     IKKE_OPPRETT_BASERT_PÅ_INNTEKTSMELDING("IKKE_OPPRETT_BASERT_PÅ_INNTEKTSMELDING", "Arbeidsforhold som tilhører inntetksmeldingen skal ikke opprettes manuelt."),

@@ -198,9 +198,11 @@ class KalkulusTilFpsakMapperTest {
             {
                  "beregningsgrunnlag": {
                      "skjæringstidspunkt": "2019-07-16",
-                     "aktivitetStatuser": [
-                         "AT"
-                     ],
+                 "aktivitetStatuserMedHjemmel": [{
+                    "aktivitetStatus": "AT",
+                    "hjemmel": "F_14_7_8_30"
+                }
+                ],
                      "beregningsgrunnlagPerioder": [
                          {
                              "beregningsgrunnlagPrStatusOgAndelList": [

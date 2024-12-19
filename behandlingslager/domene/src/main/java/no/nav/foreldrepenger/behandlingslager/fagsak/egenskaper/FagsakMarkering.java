@@ -18,6 +18,7 @@ public enum FagsakMarkering implements EgenskapVerdi, Kodeverdi {
     SAMMENSATT_KONTROLL("Sammensatt kontroll", "Kontroll"),
     DØD_DØDFØDSEL("Død eller dødfødsel", "Død"),
     PRAKSIS_UTSETTELSE("Praksis utsettelse", "Utsettelse"),
+    BARE_FAR_RETT("Bare far har rett", "BareFar"),
     SELVSTENDIG_NÆRING("Næringsdrivende", "Næring");
 
     @JsonIgnore

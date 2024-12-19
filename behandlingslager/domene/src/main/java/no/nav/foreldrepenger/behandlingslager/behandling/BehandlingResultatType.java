@@ -22,7 +22,7 @@ public enum BehandlingResultatType implements Kodeverdi {
     HENLAGT_FEILOPPRETTET("HENLAGT_FEILOPPRETTET", "Henlagt, søknaden er feilopprettet"),
     HENLAGT_BRUKER_DØD("HENLAGT_BRUKER_DØD", "Henlagt, brukeren er død"),
     MERGET_OG_HENLAGT("MERGET_OG_HENLAGT", "Mottatt ny søknad"),
-    HENLAGT_SØKNAD_MANGLER("HENLAGT_SØKNAD_MANGLER", "Henlagt søknad mangler"),
+    HENLAGT_SØKNAD_MANGLER("HENLAGT_SØKNAD_MANGLER", "Henlagt, søknad mangler"),
     FORELDREPENGER_ENDRET("FORELDREPENGER_ENDRET", "Sak er endret"),
     FORELDREPENGER_SENERE("FORELDREPENGER_SENERE", "Sak er endret"),
     INGEN_ENDRING("INGEN_ENDRING", "Ingen endring"),

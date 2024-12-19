@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -125,19 +126,19 @@ public class FagsakFullTjeneste {
         return fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)
             .flatMap(fr -> fr.getRelatertFagsak(fagsak))
             .map(Fagsak::getAktørId)
-            .or(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
+            .or(() -> finnYtelsesBehandling(fagsak.getId())
                 .flatMap(b -> personopplysningTjeneste.hentOppgittAnnenPartAktørId(b.getId())))
             .flatMap(a -> personinfoAdapter.hentBrukerBasisForAktør(fagsak.getYtelseType(), a))
             .map(FagsakFullTjeneste::mapFraPersoninfoBasisTilPersonDto)
-            .or(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
+            .or(() -> finnYtelsesBehandling(fagsak.getId())
                 .flatMap(b -> personopplysningTjeneste.hentOppgittAnnenPart(b.getId()))
                 .filter(ap -> ap.getAktørId() == null && ap.getUtenlandskFnrLand() != null && !Landkoder.UDEFINERT.equals(ap.getUtenlandskFnrLand()))
                 .map(ap -> new PersonDto(null, null, null, null, null, null, null, null, null)));
     }
 
     private Integer finnDekningsgrad(Fagsak fagsak) {
-        var sisteYtelsesBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId());
-        return sisteYtelsesBehandling.flatMap(b -> ytelseFordelingTjeneste.hentAggregatHvisEksisterer(b.getId()))
+        return finnYtelsesBehandling(fagsak.getId())
+            .flatMap(b -> ytelseFordelingTjeneste.hentAggregatHvisEksisterer(b.getId()))
             .flatMap(yfa -> Optional.ofNullable(yfa.getGjeldendeDekningsgrad()))
             .map(Dekningsgrad::getVerdi)
             .orElse(null);
@@ -153,7 +154,7 @@ public class FagsakFullTjeneste {
     }
 
     private Optional<SakHendelseDto> hentFamilieHendelse(Fagsak fagsak) {
-        return behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
+        return finnYtelsesBehandling(fagsak.getId())
             .flatMap(b -> familieHendelseTjeneste.finnAggregat(b.getId()))
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
             .map(h -> new SakHendelseDto(h.getType(), hendelseDato(h), h.getAntallBarn(),
@@ -168,8 +169,13 @@ public class FagsakFullTjeneste {
     private Optional<AnnenPartBehandlingDto> hentAnnenPartsGjeldendeYtelsesBehandling(Fagsak fagsak) {
         return fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)
             .flatMap(r -> r.getRelatertFagsakFraId(fagsak.getId()))
-            .map(Fagsak::getId).flatMap(behandlingRepository::hentSisteYtelsesBehandlingForFagsakId)
+            .map(Fagsak::getId).flatMap(this::finnYtelsesBehandling)
             .map(behandling -> new AnnenPartBehandlingDto(behandling.getSaksnummer().getVerdi(),
                 behandling.getFagsak().getRelasjonsRolleType(), behandling.getUuid()));
+    }
+
+    private Optional<Behandling> finnYtelsesBehandling(Long fagsakId) {
+        return behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingReadOnlyFor(fagsakId)
+            .or(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsakId));
     }
 }

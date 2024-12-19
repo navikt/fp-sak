@@ -6,6 +6,7 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningAktivitetHandlingType;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle;
+import no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori;
 import no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak;
 import no.nav.foreldrepenger.domene.modell.kodeverk.SammenligningsgrunnlagType;
@@ -172,6 +173,25 @@ public class KodeverkFraKalkulusMapper {
             case PROSESS_PERIODISERING -> AndelKilde.PROSESS_PERIODISERING;
             case PROSESS_OMFORDELING -> AndelKilde.PROSESS_OMFORDELING;
             case PROSESS_PERIODISERING_TILKOMMET_INNTEKT -> throw new IllegalStateException(ukjentKodeFeil("AndelKilde", kilde.getKode()));
+        };
+    }
+
+    public static Hjemmel mapHjemmel(no.nav.folketrygdloven.kalkulus.kodeverk.Hjemmel hjemmel) {
+        return switch (hjemmel) {
+            case F_14_7 -> Hjemmel.F_14_7;
+            case F_14_7_8_30 -> Hjemmel.F_14_7_8_30;
+            case F_14_7_8_28_8_30 -> Hjemmel.F_14_7_8_28_8_30;
+            case F_14_7_8_35 -> Hjemmel.F_14_7_8_35;
+            case F_14_7_8_38 -> Hjemmel.F_14_7_8_38;
+            case F_14_7_8_40 -> Hjemmel.F_14_7_8_40;
+            case F_14_7_8_41 -> Hjemmel.F_14_7_8_41;
+            case F_14_7_8_42 -> Hjemmel.F_14_7_8_42;
+            case F_14_7_8_43 -> Hjemmel.F_14_7_8_43;
+            case F_14_7_8_47 -> Hjemmel.F_14_7_8_47;
+            case F_14_7_8_49 -> Hjemmel.F_14_7_8_49;
+            case UDEFINERT -> Hjemmel.UDEFINERT;
+            case F_9_9, COV_1_5, F_9_9_8_35, F_9_9_8_38, F_9_9_8_41, F_9_9_8_42, F_9_9_8_43, F_9_9_8_47, F_9_9_8_49, F_9_9_8_28_8_30, F_9_8_8_28,
+                 F_9_9_8_40, KORONALOVEN_3, F_22_13_6 -> throw new IllegalArgumentException(ukjentKodeFeil("hjemmel", hjemmel.getKode()));
         };
     }
 }
