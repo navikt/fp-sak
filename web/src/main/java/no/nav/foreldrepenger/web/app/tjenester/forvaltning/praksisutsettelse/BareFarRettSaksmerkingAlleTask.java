@@ -77,6 +77,15 @@ class BareFarRettSaksmerkingAlleTask implements ProsessTaskHandler {
             join fpsak.fagsak f on b.fagsak_id = f.id
             where stoenadskontotype = 'FORELDREPENGER' and ur.aktiv = 'J' and bruker_rolle <> 'MORA' and behandling_resultat_type not like '%ENLAG%'
             and f.id >:fraFagsakId
+            union
+            select distinct f.id as fid from fpsak.GR_YTELSES_FORDELING gp
+            join fpsak.behandling b on gp.behandling_id = b.id
+            join fpsak.fagsak f on b.fagsak_id = f.id
+            left outer join fpsak.behandling_resultat br on br.behandling_id = b.id
+            where (overstyrt_rettighet_id in (select id from fpsak.so_rettighet where aleneomsorg = 'N' and annen_foreldre_rett = 'N' and (ANNEN_FORELDER_RETT_EOS is null or ANNEN_FORELDER_RETT_EOS = 'N'))
+             or so_rettighet_id in (select id from fpsak.so_rettighet where aleneomsorg = 'N' and annen_foreldre_rett = 'N' and (ANNEN_FORELDER_RETT_EOS is null or ANNEN_FORELDER_RETT_EOS = 'N')))
+            and gp.aktiv = 'J' and ytelse_type = 'FP' and bruker_rolle <> 'MORA' and (behandling_resultat_type is null or behandling_resultat_type not like '%ENLAG%')
+            and f.id >:fraFagsakId
           ) order by fid
         ) where ROWNUM <= 100
         """;

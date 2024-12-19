@@ -8,7 +8,10 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
@@ -16,6 +19,7 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 public class FaktaOmsorgRettTjeneste {
 
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
+    private FagsakEgenskapRepository fagsakEgenskapRepository;
     private HistorikkTjenesteAdapter historikkAdapter;
 
     FaktaOmsorgRettTjeneste() {
@@ -24,9 +28,11 @@ public class FaktaOmsorgRettTjeneste {
 
     @Inject
     public FaktaOmsorgRettTjeneste(YtelseFordelingTjeneste ytelseFordelingTjeneste,
-                                   HistorikkTjenesteAdapter historikkTjenesteAdapter) {
+                                   HistorikkTjenesteAdapter historikkTjenesteAdapter,
+                                   FagsakEgenskapRepository fagsakEgenskapRepository) {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.historikkAdapter = historikkTjenesteAdapter;
+        this.fagsakEgenskapRepository = fagsakEgenskapRepository;
     }
 
     public boolean totrinnForAnnenforelderRett(AksjonspunktOppdaterParameter param,
@@ -110,11 +116,19 @@ public class FaktaOmsorgRettTjeneste {
                                           Boolean annenforelderMottarUføretrygd,
                                           Boolean annenForelderHarRettEØS) {
         ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(param.getBehandlingId(), annenforelderHarRett, annenForelderHarRettEØS, annenforelderMottarUføretrygd);
+        if (annenforelderHarRett || Boolean.TRUE.equals(annenForelderHarRettEØS)) {
+            fagsakEgenskapRepository.fjernFagsakMarkering(param.getRef().fagsakId(), FagsakMarkering.BARE_FAR_RETT);
+        } else if (!RelasjonsRolleType.MORA.equals(param.getRef().relasjonRolle())) {
+            fagsakEgenskapRepository.leggTilFagsakMarkering(param.getRef().fagsakId(), FagsakMarkering.BARE_FAR_RETT);
+        }
     }
 
     public void oppdaterAleneomsorg(AksjonspunktOppdaterParameter param,
                                     boolean aleneomsorg) {
         ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForAleneomsorg(param.getBehandlingId(), aleneomsorg);
+        if (aleneomsorg) {
+            fagsakEgenskapRepository.fjernFagsakMarkering(param.getRef().fagsakId(), FagsakMarkering.BARE_FAR_RETT);
+        }
     }
 
 

@@ -79,8 +79,12 @@ class BareFarRettSaksmerkingSingleTask implements ProsessTaskHandler {
         }
         var behandling = behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingReadOnlyFor(fagsak.getId());
         var yfAggregat = behandling.flatMap(b -> ytelsesFordelingRepository.hentAggregatHvisEksisterer(b.getId()));
-        if (yfAggregat.isEmpty() || !harKontoForeldrepenger(behandling.get())) {
+        if (yfAggregat.isEmpty()) {
             LOG.info("BareFarRettMarkering: Sak {} finner ikke søknadsopplysninger", fagsak.getSaksnummer().getVerdi());
+            return;
+        }
+        if (harKvoter(behandling.get())) {
+            LOG.info("BareFarRettMarkering: Sak {} er tredelt", fagsak.getSaksnummer().getVerdi());
             return;
         }
         var aleneomsorg = yfAggregat.filter(YtelseFordelingAggregat::harAleneomsorg).isPresent();
@@ -90,7 +94,7 @@ class BareFarRettSaksmerkingSingleTask implements ProsessTaskHandler {
         }
     }
 
-    private boolean harKontoForeldrepenger(Behandling behandling) {
+    private boolean harKvoter(Behandling behandling) {
         var konti =  fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())
             .map(UttakResultatEntitet::getStønadskontoberegning)
             .map(Stønadskontoberegning::getStønadskontoutregning)
@@ -98,7 +102,7 @@ class BareFarRettSaksmerkingSingleTask implements ProsessTaskHandler {
                 .flatMap(FagsakRelasjon::getStønadskontoberegning)
                 .map(Stønadskontoberegning::getStønadskontoutregning))
             .orElseGet(Map::of);
-        return konti.get(StønadskontoType.FORELDREPENGER) != null && konti.get(StønadskontoType.FORELDREPENGER) > 0;
+        return konti.get(StønadskontoType.FEDREKVOTE) != null && konti.get(StønadskontoType.FEDREKVOTE) > 0;
     }
 
 
