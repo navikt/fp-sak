@@ -82,7 +82,7 @@ class FraEntitetTilBehandlingsmodellMapperTest {
         assertThat(mappetPeriode.getBeregnetPrÅr()).isEqualByComparingTo(faktiskPeriode.getBeregnetPrÅr());
         assertThat(mappetPeriode.getBeregningsgrunnlagPeriodeFom()).isEqualTo(faktiskPeriode.getBeregningsgrunnlagPeriodeFom());
         assertThat(mappetPeriode.getBeregningsgrunnlagPeriodeTom()).isEqualTo(faktiskPeriode.getBeregningsgrunnlagPeriodeTom());
-        assertThat(mappetPeriode.getBeregningsgrunnlagPeriodeÅrsaker()).isEmpty();
+        assertThat(mappetPeriode.getPeriodeÅrsaker()).isEmpty();
         assertThat(mappetPeriode.getDagsats()).isEqualTo(faktiskPeriode.getDagsats());
         assertThat(mappetPeriode.getBeregningsgrunnlagPrStatusOgAndelList().size()).isEqualTo(faktiskPeriode.getBeregningsgrunnlagPrStatusOgAndelList().size());
 
