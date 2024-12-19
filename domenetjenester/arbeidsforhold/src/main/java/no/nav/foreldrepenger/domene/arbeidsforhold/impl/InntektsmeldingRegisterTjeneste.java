@@ -132,6 +132,34 @@ public class InntektsmeldingRegisterTjeneste {
         return filtrerInntektsmeldingerForYtelseUtvidet(referanse, stp, inntektArbeidYtelseGrunnlag, filtrertHvisSvp, false);
     }
 
+    private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledPåkrevdeInntektsmeldingerFraGrunnlag(BehandlingReferanse referanse,
+                                                                                                      Skjæringstidspunkt skjæringstidspunkt, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag) {
+        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger = new HashMap<>();
+
+        inntektArbeidYtelseGrunnlag.ifPresent(grunnlag -> {
+
+            var filterFør = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(referanse.aktørId()))
+                .før(skjæringstidspunkt.getUtledetSkjæringstidspunkt());
+
+            var relevanteYrkesaktiviteter = filterFør.getYrkesaktiviteter().stream()
+                .filter(ya -> AA_REG_TYPER.contains(ya.getArbeidType()))
+                .filter(ya -> harRelevantAnsettelsesperiodeSomDekkerAngittDato(filterFør, ya, skjæringstidspunkt.getUtledetSkjæringstidspunkt()))
+                .toList();
+            relevanteYrkesaktiviteter.forEach(relevantYrkesaktivitet -> {
+                var identifikator = relevantYrkesaktivitet.getArbeidsgiver();
+                var arbeidsforholdRef = InternArbeidsforholdRef.ref(relevantYrkesaktivitet.getArbeidsforholdRef().getReferanse());
+
+                if (påkrevdeInntektsmeldinger.containsKey(identifikator)) {
+                    påkrevdeInntektsmeldinger.get(identifikator).add(arbeidsforholdRef);
+                } else {
+                    final Set<InternArbeidsforholdRef> arbeidsforholdSet = new LinkedHashSet<>();
+                    arbeidsforholdSet.add(arbeidsforholdRef);
+                    påkrevdeInntektsmeldinger.put(identifikator, arbeidsforholdSet);
+                }
+            });
+        });
+        return påkrevdeInntektsmeldinger;
+    }
     /**
      * Liste av arbeidsforhold per arbeidsgiver (ident) som må sende
      * inntektsmelding. Filtrert ut åpenbart passive arbeidsforhold
@@ -144,9 +172,9 @@ public class InntektsmeldingRegisterTjeneste {
         logInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, "UFILTRERT");
 
         filtrerUtMottatteInntektsmeldinger(referanse, stp, påkrevdeInntektsmeldinger, (a, i) -> i);
-        logInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, "FILTRERT");
-
         var filtrert = filtrerInntektsmeldingerForYtelse(referanse, påkrevdeInntektsmeldinger);
+
+        logInntektsmeldinger(referanse, filtrert, "FILTRERT mottatte og eventuelt ikke søkt(SVP)");
         return filtrerInntektsmeldingerForYtelseUtvidet(referanse, stp, inntektArbeidYtelseGrunnlag, filtrert, true);
     }
 
@@ -222,35 +250,6 @@ public class InntektsmeldingRegisterTjeneste {
 
     }
 
-    private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledPåkrevdeInntektsmeldingerFraGrunnlag(BehandlingReferanse referanse,
-        Skjæringstidspunkt skjæringstidspunkt, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag) {
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger = new HashMap<>();
-
-        inntektArbeidYtelseGrunnlag.ifPresent(grunnlag -> {
-
-            var filterFør = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(),
-                    grunnlag.getAktørArbeidFraRegister(referanse.aktørId()))
-                            .før(skjæringstidspunkt.getUtledetSkjæringstidspunkt());
-
-            filterFør.getYrkesaktiviteter().stream()
-                    .filter(ya -> AA_REG_TYPER.contains(ya.getArbeidType()))
-                    .filter(ya -> harRelevantAnsettelsesperiodeSomDekkerAngittDato(filterFør, ya, skjæringstidspunkt.getUtledetSkjæringstidspunkt()))
-                    .forEach(relevantYrkesaktivitet -> {
-                        var identifikator = relevantYrkesaktivitet.getArbeidsgiver();
-                        var arbeidsforholdRef = InternArbeidsforholdRef.ref(relevantYrkesaktivitet.getArbeidsforholdRef().getReferanse());
-
-                        if (påkrevdeInntektsmeldinger.containsKey(identifikator)) {
-                            påkrevdeInntektsmeldinger.get(identifikator).add(arbeidsforholdRef);
-                        } else {
-                            final Set<InternArbeidsforholdRef> arbeidsforholdSet = new LinkedHashSet<>();
-                            arbeidsforholdSet.add(arbeidsforholdRef);
-                            påkrevdeInntektsmeldinger.put(identifikator, arbeidsforholdSet);
-                        }
-                    });
-        });
-        return påkrevdeInntektsmeldinger;
-    }
-
     private boolean harRelevantAnsettelsesperiodeSomDekkerAngittDato(YrkesaktivitetFilter filter, Yrkesaktivitet yrkesaktivitet, LocalDate dato) {
         if (yrkesaktivitet.erArbeidsforhold()) {
             var ansettelsesPerioder = filter.getAnsettelsesPerioder(yrkesaktivitet);
@@ -278,7 +277,7 @@ public class InntektsmeldingRegisterTjeneste {
         return filter.filtrerInntektsmeldingerForYtelse(referanse, påkrevdeInntektsmeldinger);
     }
 
-    private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> filtrerInntektsmeldingerForYtelseUtvidet(BehandlingReferanse referanse,
+    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> filtrerInntektsmeldingerForYtelseUtvidet(BehandlingReferanse referanse,
                                                                                                      Skjæringstidspunkt stp,
                                                                                                      Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger,
                                                                                                      boolean tahensynTilPermisjon) {
