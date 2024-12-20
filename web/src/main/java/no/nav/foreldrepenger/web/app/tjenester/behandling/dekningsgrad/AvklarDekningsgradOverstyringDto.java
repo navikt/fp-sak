@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_DEKNINGSGRAD_KODE)
 public class AvklarDekningsgradOverstyringDto extends OverstyringAksjonspunktDto {
@@ -40,11 +39,5 @@ public class AvklarDekningsgradOverstyringDto extends OverstyringAksjonspunktDto
     @JsonIgnore
     public boolean getErVilkarOk() {
         return false;
-    }
-
-    @JsonIgnore
-    @Override
-    public HistorikkinnslagType historikkmalForOverstyring() {
-        return HistorikkinnslagType.FAKTA_ENDRET;
     }
 }

@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk;
 
-import java.time.format.DateTimeFormatter;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.format;
+
 import java.util.Objects;
 import java.util.Optional;
 
@@ -9,7 +10,6 @@ import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 
 class ArbeidsgiverHistorikkinnslag {
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
     private ArbeidsgiverHistorikkinnslag() {
         // Skjuler default konstruktør
@@ -41,7 +41,7 @@ class ArbeidsgiverHistorikkinnslag {
 
         String identifikator;
         if (opplysninger.getFødselsdato() != null) {
-            identifikator = DATE_FORMATTER.format(opplysninger.getFødselsdato());
+            identifikator = format(opplysninger.getFødselsdato());
         } else {
             identifikator = opplysninger.getIdentifikator();
         }

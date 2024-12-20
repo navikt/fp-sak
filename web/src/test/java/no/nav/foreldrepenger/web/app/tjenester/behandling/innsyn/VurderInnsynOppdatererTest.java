@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OverhoppKontroll;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -55,7 +54,6 @@ class VurderInnsynOppdatererTest {
     @Inject
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
 
-    private HistorikkRepository historikkRepository = Mockito.mock(HistorikkRepository.class);
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste = Mockito.mock(BehandlendeEnhetTjeneste.class);
     private InnsynTjeneste innsynTjeneste;
     private VurderInnsynOppdaterer oppdaterer;
@@ -64,7 +62,7 @@ class VurderInnsynOppdatererTest {
     public void konfigurerMocker() {
         var enhet = new OrganisasjonsEnhet("enhetId", "enhetNavn");
         when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
-        var oppretter = new BehandlingOpprettingTjeneste(behandlingskontrollTjeneste, behandlendeEnhetTjeneste, historikkRepository,
+        var oppretter = new BehandlingOpprettingTjeneste(behandlingskontrollTjeneste, behandlendeEnhetTjeneste, repositoryProvider.getHistorikkinnslag2Repository(),
                 mock(ProsessTaskTjeneste.class));
         innsynTjeneste = new InnsynTjeneste(oppretter, fagsakRepository, behandlingRepository, behandlingsresultatRepository, innsynRepository);
         oppdaterer = new VurderInnsynOppdaterer(behandlingskontrollTjeneste, innsynTjeneste, behandlingRepository);

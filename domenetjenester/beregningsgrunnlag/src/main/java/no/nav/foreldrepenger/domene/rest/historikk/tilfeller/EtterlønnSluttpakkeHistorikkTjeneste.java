@@ -2,13 +2,14 @@ package no.nav.foreldrepenger.domene.rest.historikk.tilfeller;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
@@ -17,7 +18,6 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.domene.rest.FaktaOmBeregningTilfelleRef;
 import no.nav.foreldrepenger.domene.rest.dto.FaktaBeregningLagreDto;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 @ApplicationScoped
 @FaktaOmBeregningTilfelleRef(FaktaOmBeregningTilfelle.FASTSETT_ETTERLØNN_SLUTTPAKKE)
@@ -26,15 +26,25 @@ public class EtterlønnSluttpakkeHistorikkTjeneste extends FaktaOmBeregningHisto
     private static final BigDecimal MÅNEDER_I_ET_ÅR = BigDecimal.valueOf(12);
 
     @Override
-    public void lagHistorikk(Long behandlingId, FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, BeregningsgrunnlagEntitet nyttBeregningsgrunnlag, Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        lagHistorikkForFastsetting(dto, tekstBuilder, forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag));
+    public List<HistorikkinnslagLinjeBuilder> lagHistorikk(FaktaBeregningLagreDto dto,
+                                                           BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
+                                                           Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
+                                                           InntektArbeidYtelseGrunnlag iayGrunnlag) {
+        return lagHistorikkForFastsetting(dto, forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag));
     }
 
-    private void lagHistorikkForFastsetting(FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, Optional<BeregningsgrunnlagEntitet> forrigeBg) {
-        var fastettDto = dto.getFastsettEtterlønnSluttpakke();
-        var fastsattPrMnd = fastettDto.getFastsattPrMnd();
+    private List<HistorikkinnslagLinjeBuilder> lagHistorikkForFastsetting(FaktaBeregningLagreDto dto,
+                                                                          Optional<BeregningsgrunnlagEntitet> forrigeBg) {
         var fastsattPrMndForrige = forrigeBg.map(this::hentOpprinneligVerdiFastsattEtterlønnSluttpakke).orElse(null);
-        lagHistorikkInnslagFastsattEtterlønnSluttpakke(BigDecimal.valueOf(fastsattPrMnd), fastsattPrMndForrige, tekstBuilder);
+        var nyVerdiEtterlønnSLuttpakke = BigDecimal.valueOf(dto.getFastsettEtterlønnSluttpakke().getFastsattPrMnd());
+        var opprinneligInntektInt = fastsattPrMndForrige == null ? null : fastsattPrMndForrige.intValue();
+        List<HistorikkinnslagLinjeBuilder> linjeBuilder = new ArrayList<>();
+        if (!Objects.equals(nyVerdiEtterlønnSLuttpakke.intValue(), opprinneligInntektInt)) {
+            linjeBuilder.add(
+                new HistorikkinnslagLinjeBuilder().fraTil("Inntekten", opprinneligInntektInt, nyVerdiEtterlønnSLuttpakke.intValue()));
+            linjeBuilder.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
+        }
+        return linjeBuilder;
     }
 
     private BigDecimal hentOpprinneligVerdiFastsattEtterlønnSluttpakke(BeregningsgrunnlagEntitet beregningsgrunnlag) {
@@ -54,15 +64,4 @@ public class EtterlønnSluttpakkeHistorikkTjeneste extends FaktaOmBeregningHisto
             .toList();
     }
 
-    private void lagHistorikkInnslagFastsattEtterlønnSluttpakke(BigDecimal nyVerdiEtterlønnSLuttpakke, BigDecimal opprinneligEtterlønnSluttpakkeInntekt,
-                                                                HistorikkInnslagTekstBuilder tekstBuilder) {
-        var opprinneligInntektInt = opprinneligEtterlønnSluttpakkeInntekt == null ? null : opprinneligEtterlønnSluttpakkeInntekt.intValue();
-        oppdaterVedEndretVerdi(nyVerdiEtterlønnSLuttpakke, opprinneligInntektInt, tekstBuilder);
-    }
-
-    private void oppdaterVedEndretVerdi(BigDecimal nyVerdiEtterlønnSLuttpakke, Integer opprinneligEtterlønnSluttpakkeInntekt, HistorikkInnslagTekstBuilder tekstBuilder) {
-        if (!Objects.equals(nyVerdiEtterlønnSLuttpakke.intValue(), opprinneligEtterlønnSluttpakkeInntekt)) {
-            tekstBuilder.medEndretFelt(HistorikkEndretFeltType.FASTSETT_ETTERLØNN_SLUTTPAKKE, opprinneligEtterlønnSluttpakkeInntekt, nyVerdiEtterlønnSLuttpakke.intValue());
-        }
-    }
 }

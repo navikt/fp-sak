@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.historikk;
 
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkinnslagDtoV2.HistorikkAktørDto;
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkinnslagDtoV2.Linje;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkinnslagDtoV2.HistorikkAktørDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkinnslagDtoV2.Linje;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
-import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagDokumentLinkDto;
 
 public class HistorikkDtoFellesMapper {
 
@@ -35,7 +34,7 @@ public class HistorikkDtoFellesMapper {
             h.getOpprettetTidspunkt(),
             lenker,
             skjermlenkeOpt.isEmpty() ? lagTittel(h) : null,
-            fjernTrailingAvsnittFraTekst(linjer)
+            linjer
         );
     }
 
@@ -70,16 +69,6 @@ public class HistorikkDtoFellesMapper {
         }
         linjer.add(Linje.linjeskift());
         return linjer;
-    }
-
-    private static List<Linje> fjernTrailingAvsnittFraTekst(List<Linje> tekster) {
-        if (tekster.isEmpty()) {
-            return tekster;
-        }
-        if (tekster.getLast().erLinjeskift()) {
-            tekster.removeLast();
-        }
-        return tekster.stream().toList();
     }
 
     private static Optional<SkjermlenkeType> skjermlenkeFra(Historikkinnslag h) {

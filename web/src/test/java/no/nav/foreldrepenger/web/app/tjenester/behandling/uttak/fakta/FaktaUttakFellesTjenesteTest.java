@@ -347,6 +347,6 @@ class FaktaUttakFellesTjenesteTest {
     }
 
     private OppdateringResultat kjørOppdaterer(Behandling behandling, List<FaktaUttakPeriodeDto> perioder) {
-        return faktaUttakFellesTjeneste.oppdater("begrunnelse", perioder, behandling.getId(), false);
+        return faktaUttakFellesTjeneste.oppdater("begrunnelse", perioder, behandling.getId(), behandling.getFagsakId(), false);
     }
 }

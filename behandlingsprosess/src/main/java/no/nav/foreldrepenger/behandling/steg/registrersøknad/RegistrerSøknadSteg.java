@@ -96,7 +96,7 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE) &&
             !behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
             if (henleggBehandling(behandling)) {
-                henleggBehandlingTjeneste.lagHistorikkInnslagForHenleggelseFraSteg(behandling.getId(), BehandlingResultatType.HENLAGT_SØKNAD_MANGLER,
+                henleggBehandlingTjeneste.lagHistorikkInnslagForHenleggelseFraSteg(behandling, BehandlingResultatType.HENLAGT_SØKNAD_MANGLER,
                     null);
                 return BehandleStegResultat.henlagtBehandling();
             }
@@ -203,7 +203,7 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
     private BehandleStegResultat evaluerSøknadMottattUoppfylt(Behandling behandling, KompletthetResultat kompletthetResultat,
             AksjonspunktDefinisjon apDef) {
         if (henleggBehandling(behandling)) {
-            henleggBehandlingTjeneste.lagHistorikkInnslagForHenleggelseFraSteg(behandling.getId(), BehandlingResultatType.HENLAGT_SØKNAD_MANGLER,
+            henleggBehandlingTjeneste.lagHistorikkInnslagForHenleggelseFraSteg(behandling, BehandlingResultatType.HENLAGT_SØKNAD_MANGLER,
                     null);
             return BehandleStegResultat.henlagtBehandling();
         }

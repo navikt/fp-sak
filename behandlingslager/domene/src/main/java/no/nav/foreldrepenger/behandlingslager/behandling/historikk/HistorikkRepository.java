@@ -9,6 +9,7 @@ import jakarta.persistence.EntityManager;
 
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
+@Deprecated(forRemoval = true) // Bruk Historikkinnslag2Repository
 @ApplicationScoped
 public class HistorikkRepository {
     private EntityManager entityManager;

@@ -88,7 +88,7 @@ public class AvklarArbeidPermisjonUtenSluttdatoOppdaterer implements Aksjonspunk
                 throw new IllegalStateException("Ugyldig permisjonsstaus for arbeidsgiverIdent : "+ avklartArbeidsForhold.arbeidsgiverIdent());
             }
         }
-        arbeidPermHistorikkInnslagTjeneste.opprettHistorikkinnslag(bekreftetArbforholdDto.getArbeidsforhold(), bekreftetArbforholdDto.getBegrunnelse());
+        arbeidPermHistorikkInnslagTjeneste.opprettHistorikkinnslag(param.getRef(), bekreftetArbforholdDto.getArbeidsforhold(), bekreftetArbforholdDto.getBegrunnelse());
         arbeidsforholdAdministrasjonTjeneste.lagreOverstyring(behandlingId, arbeidsforholdInformasjonBuilder );
         return OppdateringResultat.utenTransisjon().build();
     }
