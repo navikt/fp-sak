@@ -32,6 +32,11 @@ public class SvpTilretteleggingerEntitet extends BaseEntitet {
         return Collections.unmodifiableList(tilretteleggingListe);
     }
 
+    @Override
+    public String toString() {
+        return "SvpTilretteleggingerEntitet{" + "tilretteleggingListe=" + tilretteleggingListe + '}';
+    }
+
     public static class Builder {
 
         private List<SvpTilretteleggingEntitet> tilretteleggingListe = new ArrayList<>();

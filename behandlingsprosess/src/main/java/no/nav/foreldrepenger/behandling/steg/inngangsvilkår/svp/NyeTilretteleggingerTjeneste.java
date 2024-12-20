@@ -7,6 +7,9 @@ import java.util.stream.Stream;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
@@ -15,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilr
 
 @ApplicationScoped
 class NyeTilretteleggingerTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(NyeTilretteleggingerTjeneste.class);
 
     private SvangerskapspengerRepository svangerskapspengerRepository;
     private UtledTilretteleggingerMedArbeidsgiverTjeneste utledTilretteleggingerMedArbeidsgiverTjeneste;
@@ -36,6 +40,7 @@ class NyeTilretteleggingerTjeneste {
             .getGjeldendeVersjon().getTilretteleggingListe();
         var justerteTilrettelegginger = utledJusterte(behandling, skjæringstidspunkt, gjeldendeTilrettelegginger);
         if (!likeTilrettelegginger(justerteTilrettelegginger, gjeldendeTilrettelegginger)) {
+            LOG.info("Differanse mellom gammel og justert tilrettelegging på behandling med id {}, gamle tilrettelegginger var {} mens nye var {}", behandling.getId(), gjeldendeTilrettelegginger, justerteTilrettelegginger);
             lagre(behandling, justerteTilrettelegginger);
         }
     }

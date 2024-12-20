@@ -119,6 +119,16 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
         return Objects.hash(behovForTilretteleggingFom, tilretteleggingFOMListe, arbeidType, arbeidsgiver, internArbeidsforholdRef);
     }
 
+    @Override
+    public String toString() {
+        return "SvpTilretteleggingEntitet{" + "avklarteOpphold=" + avklarteOpphold + ", internArbeidsforholdRef=" + internArbeidsforholdRef
+            + ", skalBrukes=" + skalBrukes + ", mottattTidspunkt=" + mottattTidspunkt + ", kopiertFraTidligereBehandling="
+            + kopiertFraTidligereBehandling + ", begrunnelse='" + begrunnelse + '\'' + ", opplysningerOmTilretteleggingstiltak='"
+            + opplysningerOmTilretteleggingstiltak + '\'' + ", opplysningerOmRisikofaktorer='" + opplysningerOmRisikofaktorer + '\''
+            + ", arbeidsgiver=" + arbeidsgiver + ", arbeidType=" + arbeidType + ", tilretteleggingFOMListe=" + tilretteleggingFOMListe
+            + ", behovForTilretteleggingFom=" + behovForTilretteleggingFom + '}';
+    }
+
     public boolean erLik(Object o) {
         return erLikUtenomTilrettelegginger(o) && o instanceof SvpTilretteleggingEntitet that &&
             tilretteleggingFOMListe.size() == that.tilretteleggingFOMListe.size() &&
