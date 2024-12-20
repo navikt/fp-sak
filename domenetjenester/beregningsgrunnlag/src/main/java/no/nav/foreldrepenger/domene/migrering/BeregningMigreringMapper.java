@@ -435,7 +435,8 @@ public class BeregningMigreringMapper {
         if (!harVurderManuellBesteberegningTilfelle) {
             return Optional.empty();
         }
-        var harManuellBesteberegningtilfelle = tilfeller.stream().anyMatch(b -> b.equals(FaktaOmBeregningTilfelle.FASTSETT_BESTEBEREGNING_FØDENDE_KVINNE));
+        var harManuellBesteberegningtilfelle = tilfeller.stream().anyMatch(b -> b.equals(FaktaOmBeregningTilfelle.FASTSETT_BESTEBEREGNING_FØDENDE_KVINNE)
+            || b.equals(FaktaOmBeregningTilfelle.FASTSETT_BG_KUN_YTELSE));
         var harSattManuellBesteberegning = andelListe.stream().anyMatch(a -> a.getBesteberegningPrÅr() != null && a.getBesteberegningPrÅr().compareTo(BigDecimal.ZERO)>0);
 
         if (!Objects.equals(harManuellBesteberegningtilfelle, harSattManuellBesteberegning)) {

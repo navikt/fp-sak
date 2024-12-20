@@ -124,11 +124,6 @@ public class FaktaAggregat {
             return this;
         }
 
-        public Builder kopierTilEksisterenderEllerLeggTil(FaktaArbeidsforhold faktaArbeidsforhold) {
-            kladd.leggTilFaktaArbeidsforholdOgKopierEksisterende(faktaArbeidsforhold);
-            return this;
-        }
-
         public Builder medFaktaAktør(FaktaAktør faktaAktør) {
             kladd.setFaktaAktør(faktaAktør);
             return this;

@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.modell;
 import java.util.Objects;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaVurderingKilde;
 import no.nav.foreldrepenger.domene.modell.typer.FaktaVurdering;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
@@ -120,23 +119,6 @@ public class FaktaArbeidsforhold {
 
         public Builder medHarLønnsendringIBeregningsperioden(FaktaVurdering harLønnsendringIBeregningsperioden) {
             mal.harLønnsendringIBeregningsperioden = harLønnsendringIBeregningsperioden;
-            return this;
-        }
-
-        public Builder medHarMottattYtelseFastsattAvSaksbehandler(Boolean harMottattYtelse) {
-            mal.harMottattYtelse = harMottattYtelse == null ? null : new FaktaVurdering(harMottattYtelse, FaktaVurderingKilde.SAKSBEHANDLER);
-            return this;
-        }
-
-        public Builder medErTidsbegrensetFastsattAvSaksbehandler(Boolean erTidsbegrenset) {
-            mal.erTidsbegrenset = erTidsbegrenset == null ? null : new FaktaVurdering(erTidsbegrenset, FaktaVurderingKilde.SAKSBEHANDLER);
-            return this;
-        }
-
-        public Builder medHarLønnsendringIBeregningsperiodenFastsattAvSaksbehandler(Boolean harLønnsendringIBeregningsperioden) {
-            mal.harLønnsendringIBeregningsperioden =
-                harLønnsendringIBeregningsperioden == null ? null : new FaktaVurdering(harLønnsendringIBeregningsperioden,
-                    FaktaVurderingKilde.SAKSBEHANDLER);
             return this;
         }
 

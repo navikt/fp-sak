@@ -19,7 +19,9 @@ import no.nav.foreldrepenger.domene.entiteter.BesteberegningInntektEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BesteberegningMånedsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BesteberegninggrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.Sammenligningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitet;
 import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregat;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitetOverstyring;
 import no.nav.foreldrepenger.domene.modell.BeregningAktivitetOverstyringer;
 import no.nav.foreldrepenger.domene.modell.BeregningRefusjonOverstyring;
 import no.nav.foreldrepenger.domene.modell.BeregningRefusjonOverstyringer;
@@ -36,7 +38,9 @@ import no.nav.foreldrepenger.domene.modell.FaktaAggregat;
 import no.nav.foreldrepenger.domene.modell.FaktaAktør;
 import no.nav.foreldrepenger.domene.modell.FaktaArbeidsforhold;
 import no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagPrStatus;
+import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaVurderingKilde;
+import no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak;
 import no.nav.foreldrepenger.domene.modell.kodeverk.SammenligningsgrunnlagType;
 import no.nav.foreldrepenger.domene.modell.typer.FaktaVurdering;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
@@ -83,6 +87,8 @@ public class FraEntitetTilBehandlingsmodellMapper {
         overstyringer.getOverstyringer()
             .stream()
             .map(FraEntitetTilBehandlingsmodellMapper::mapAktivitetOverstyring)
+            .sorted(Comparator.comparing(BeregningAktivitetOverstyring::getOpptjeningAktivitetType)
+                .thenComparing(a -> a.getPeriode().getFomDato()).thenComparing(a -> a.getPeriode().getTomDato()))
             .forEach(builder::leggTilOverstyring);
         return builder.build();
     }
@@ -104,6 +110,8 @@ public class FraEntitetTilBehandlingsmodellMapper {
         registerAktiviteter.getBeregningAktiviteter()
             .stream()
             .map(FraEntitetTilBehandlingsmodellMapper::mapBeregningAktivitet)
+            .sorted(Comparator.comparing(BeregningAktivitet::getOpptjeningAktivitetType)
+                .thenComparing(a -> a.getPeriode().getFomDato()).thenComparing(a -> a.getPeriode().getTomDato()))
             .forEach(builder::leggTilAktivitet);
         return builder.build();
     }
@@ -126,7 +134,8 @@ public class FraEntitetTilBehandlingsmodellMapper {
 
 
         // Aktivitetstatuser
-        beregningsgrunnlagDto.getAktivitetStatuser()
+        beregningsgrunnlagDto.getAktivitetStatuser().stream()
+            .sorted(Comparator.comparing(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus::getAktivitetStatus))
             .forEach(aktivitetStatus -> builder.leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder()
                 .medAktivitetStatus(aktivitetStatus.getAktivitetStatus()).medHjemmel(aktivitetStatus.getHjemmel()).build()));
 
@@ -135,11 +144,12 @@ public class FraEntitetTilBehandlingsmodellMapper {
 
         // Faktatilfeller
         if (beregningsgrunnlagDto.getFaktaOmBeregningTilfeller() != null) {
-            beregningsgrunnlagDto.getFaktaOmBeregningTilfeller().forEach(builder::leggTilFaktaOmBeregningTilfelle);
+            beregningsgrunnlagDto.getFaktaOmBeregningTilfeller().stream().sorted(Comparator.comparing(FaktaOmBeregningTilfelle::getKode)).forEach(builder::leggTilFaktaOmBeregningTilfelle);
         }
 
         // Beregningsgrunnlagperioder
-        mapPerioder(beregningsgrunnlagDto.getBeregningsgrunnlagPerioder()).forEach(builder::leggTilBeregningsgrunnlagPeriode);
+        mapPerioder(beregningsgrunnlagDto.getBeregningsgrunnlagPerioder()).stream().sorted(Comparator.comparing(
+            BeregningsgrunnlagPeriode::getBeregningsgrunnlagPeriodeFom)).forEach(builder::leggTilBeregningsgrunnlagPeriode);
 
         // Sammenligningsgrunnlag
         beregningsgrunnlagDto.getSammenligningsgrunnlag().ifPresentOrElse(sg -> builder.leggTilSammenligningsgrunnlagPrStatus(mapSammenligningsgrunnlagTilNyModell(sg, beregningsgrunnlagDto.getAktivitetStatuser())),
@@ -208,8 +218,9 @@ public class FraEntitetTilBehandlingsmodellMapper {
             .medBruttoPrÅr(beregningsgrunnlagPeriodeDto.getBruttoPrÅr())
             .medRedusertPrÅr(beregningsgrunnlagPeriodeDto.getRedusertPrÅr())
             .medDagsats(beregningsgrunnlagPeriodeDto.getDagsats());
-        beregningsgrunnlagPeriodeDto.getPeriodeÅrsaker().forEach(periodeBuilder::leggTilPeriodeÅrsak);
-        mapAndeler(beregningsgrunnlagPeriodeDto.getBeregningsgrunnlagPrStatusOgAndelList()).forEach(
+        beregningsgrunnlagPeriodeDto.getPeriodeÅrsaker().stream().sorted(Comparator.comparing(PeriodeÅrsak::getKode)).forEach(periodeBuilder::leggTilPeriodeÅrsak);
+        mapAndeler(beregningsgrunnlagPeriodeDto.getBeregningsgrunnlagPrStatusOgAndelList()).stream().sorted(Comparator.comparing(
+            no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel::getAndelsnr)).forEach(
             periodeBuilder::leggTilBeregningsgrunnlagPrStatusOgAndel);
         return periodeBuilder.build();
     }
