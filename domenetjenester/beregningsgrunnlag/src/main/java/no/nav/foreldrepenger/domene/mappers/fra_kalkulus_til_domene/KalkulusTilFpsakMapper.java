@@ -2,18 +2,18 @@ package no.nav.foreldrepenger.domene.mappers.fra_kalkulus_til_domene;
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.besteberegning.BesteberegningGrunnlagDto;
-import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningAktivitetAggregatDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningAktivitetDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningAktivitetOverstyringDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningAktivitetOverstyringerDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningRefusjonOverstyringDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningRefusjonOverstyringerDto;
+import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagAktivitetStatusDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagGrunnlagDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagPeriodeDto;
@@ -65,9 +65,8 @@ public final class KalkulusTilFpsakMapper {
 
     public static BesteberegningGrunnlag mapBesteberegning(BesteberegningGrunnlagDto bbg) {
         var builder = BesteberegningGrunnlag.ny().medAvvik(mapTilBigDecimal(bbg.avvikFørsteOgTredjeLedd()));
-        bbg.seksBesteMåneder().stream().map(KalkulusTilFpsakMapper::mapBesteberegningMåned).forEach(builder::leggTilMånedsgrunnlag);
+        bbg.seksBesteMåneder().stream().map(KalkulusTilFpsakMapper::mapBesteberegningMåned).sorted(Comparator.comparing(bb -> bb.getPeriode().getFomDato())).forEach(builder::leggTilMånedsgrunnlag);
         return builder.build();
-
     }
 
     private static BesteberegningMånedsgrunnlag mapBesteberegningMåned(BesteberegningGrunnlagDto.BesteberegningMånedDto m) {
@@ -144,8 +143,8 @@ public final class KalkulusTilFpsakMapper {
             .medOverstyring(beregningsgrunnlagDto.isOverstyrt());
 
         // Aktivitetstatuser
-        beregningsgrunnlagDto.getAktivitetStatuser().stream()
-            .map(KalkulusTilFpsakMapper::mapAktivitetstatus)
+        beregningsgrunnlagDto.getAktivitetStatuserMedHjemmel().stream()
+            .map(KalkulusTilFpsakMapper::mapAktivitetstatusMedHjemmel)
             .forEach(builder::leggTilAktivitetStatus);
 
         // Fakta tilfeller
@@ -168,6 +167,7 @@ public final class KalkulusTilFpsakMapper {
 
         return builder.build();
     }
+
 
     private static SammenligningsgrunnlagPrStatus mapSammenligningsgrunnlag(SammenligningsgrunnlagPrStatusDto sg) {
         return SammenligningsgrunnlagPrStatus.builder()
@@ -215,6 +215,7 @@ public final class KalkulusTilFpsakMapper {
             .medMaksimalRefusjonPrÅr(mapTilBigDecimal(beregningsgrunnlagPrStatusOgAndelDto.getMaksimalRefusjonPrÅr()))
             .medOrginalDagsatsFraTilstøtendeYtelse(beregningsgrunnlagPrStatusOgAndelDto.getOrginalDagsatsFraTilstøtendeYtelse())
             .medOverstyrtPrÅr(mapTilBigDecimal(beregningsgrunnlagPrStatusOgAndelDto.getOverstyrtPrÅr()))
+            .medBesteberegnetPrÅr(mapTilBigDecimal(beregningsgrunnlagPrStatusOgAndelDto.getBesteberegningPrÅr()))
             .medRedusertBrukersAndelPrÅr(mapTilBigDecimal(beregningsgrunnlagPrStatusOgAndelDto.getRedusertBrukersAndelPrÅr()))
             .medRedusertPrÅr(mapTilBigDecimal(beregningsgrunnlagPrStatusOgAndelDto.getRedusertPrÅr()))
             .medRedusertRefusjonPrÅr(mapTilBigDecimal(beregningsgrunnlagPrStatusOgAndelDto.getRedusertRefusjonPrÅr()))
@@ -238,7 +239,7 @@ public final class KalkulusTilFpsakMapper {
 
     private static BGAndelArbeidsforhold mapBgAndelArbeidsforhold(no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BGAndelArbeidsforhold bgAndelArbeidsforhold) {
         return BGAndelArbeidsforhold.builder()
-            .medArbeidsforholdRef(Optional.ofNullable(bgAndelArbeidsforhold.getArbeidsforholdRef()).map(UUID::toString).orElse(null))
+            .medArbeidsforholdRef(bgAndelArbeidsforhold.getArbeidsforholdRef() == null ? InternArbeidsforholdRef.nullRef() : InternArbeidsforholdRef.ref(bgAndelArbeidsforhold.getArbeidsforholdRef()))
             .medArbeidsgiver(mapArbeidsgiver(bgAndelArbeidsforhold.getArbeidsgiver()))
             .medArbeidsperiodeFom(bgAndelArbeidsforhold.getArbeidsperiodeFom())
             .medArbeidsperiodeTom(bgAndelArbeidsforhold.getArbeidsperiodeTom())
@@ -252,9 +253,10 @@ public final class KalkulusTilFpsakMapper {
         return beløp == null ? null : beløp.verdi();
     }
 
-    private static BeregningsgrunnlagAktivitetStatus mapAktivitetstatus(AktivitetStatus aktivitetstatusDto) {
+    private static BeregningsgrunnlagAktivitetStatus mapAktivitetstatusMedHjemmel(BeregningsgrunnlagAktivitetStatusDto dto) {
         return BeregningsgrunnlagAktivitetStatus.builder()
-            .medAktivitetStatus(KodeverkFraKalkulusMapper.mapAktivitetstatus(aktivitetstatusDto)) // TODO TFP-5742 Trengs hjemmel?
+            .medAktivitetStatus(KodeverkFraKalkulusMapper.mapAktivitetstatus(dto.getAktivitetStatus()))
+            .medHjemmel(KodeverkFraKalkulusMapper.mapHjemmel(dto.getHjemmel()))
             .build();
     }
 

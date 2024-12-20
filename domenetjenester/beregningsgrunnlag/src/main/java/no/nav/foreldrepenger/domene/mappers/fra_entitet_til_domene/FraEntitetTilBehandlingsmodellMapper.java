@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.mappers.fra_entitet_til_domene;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -9,6 +10,8 @@ import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetAggregatEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetOverstyringEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetOverstyringerEntitet;
+import no.nav.foreldrepenger.domene.entiteter.BeregningRefusjonOverstyringEntitet;
+import no.nav.foreldrepenger.domene.entiteter.BeregningRefusjonOverstyringerEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
@@ -18,6 +21,9 @@ import no.nav.foreldrepenger.domene.entiteter.BesteberegninggrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.Sammenligningsgrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregat;
 import no.nav.foreldrepenger.domene.modell.BeregningAktivitetOverstyringer;
+import no.nav.foreldrepenger.domene.modell.BeregningRefusjonOverstyring;
+import no.nav.foreldrepenger.domene.modell.BeregningRefusjonOverstyringer;
+import no.nav.foreldrepenger.domene.modell.BeregningRefusjonPeriode;
 import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
@@ -50,9 +56,25 @@ public class FraEntitetTilBehandlingsmodellMapper {
                 grunnlagEntitet.getSaksbehandletAktiviteter().map(FraEntitetTilBehandlingsmodellMapper::mapBeregningAktivitetAggregat).orElse(null))
             .medOverstyring(
                 grunnlagEntitet.getOverstyring().map(FraEntitetTilBehandlingsmodellMapper::mapBeregningAktivitetOverstyringer).orElse(null))
+            .medRefusjonOverstyring(grunnlagEntitet.getRefusjonOverstyringer().map(FraEntitetTilBehandlingsmodellMapper::mapRefusjonOverstyringer).orElse(null))
             .medFakta(grunnlagEntitet.getBeregningsgrunnlag()
                 .flatMap(FraEntitetTilBehandlingsmodellMapper::mapFaktaAggregat).orElse(null))
             .build(grunnlagEntitet.getBeregningsgrunnlagTilstand());
+    }
+
+    private static BeregningRefusjonOverstyringer mapRefusjonOverstyringer(BeregningRefusjonOverstyringerEntitet refusjonOverstyringAggregat) {
+        var builder = BeregningRefusjonOverstyringer.builder();
+        refusjonOverstyringAggregat.getRefusjonOverstyringer().stream().map(FraEntitetTilBehandlingsmodellMapper::mapRefusjonOverstyring).forEach(builder::leggTilOverstyring);
+        return builder.build();
+    }
+
+    private static BeregningRefusjonOverstyring mapRefusjonOverstyring(BeregningRefusjonOverstyringEntitet refusjonOverstyring) {
+        var perioder = refusjonOverstyring.getRefusjonPerioder()
+            .stream()
+            .map(r -> new BeregningRefusjonPeriode(r.getArbeidsforholdRef(), r.getStartdatoRefusjon()))
+            .toList();
+        return new BeregningRefusjonOverstyring(refusjonOverstyring.getArbeidsgiver(), refusjonOverstyring.getFørsteMuligeRefusjonFom().orElse(null),
+            Boolean.TRUE.equals(refusjonOverstyring.getErFristUtvidet()), perioder);
     }
 
     private static no.nav.foreldrepenger.domene.modell.BeregningAktivitetOverstyringer mapBeregningAktivitetOverstyringer(
@@ -154,7 +176,7 @@ public class FraEntitetTilBehandlingsmodellMapper {
     private static BesteberegningGrunnlag mapBesteberegning(BesteberegninggrunnlagEntitet besteberegninggrunnlagEntitet) {
         var builder = BesteberegningGrunnlag.ny();
         besteberegninggrunnlagEntitet.getAvvik().ifPresent(builder::medAvvik);
-        besteberegninggrunnlagEntitet.getSeksBesteMåneder().forEach(bbMåned -> builder.leggTilMånedsgrunnlag(mapBesteMåned(bbMåned)));
+        besteberegninggrunnlagEntitet.getSeksBesteMåneder().stream().sorted(Comparator.comparing(bbp -> bbp.getPeriode().getFomDato())).forEach(bbMåned -> builder.leggTilMånedsgrunnlag(mapBesteMåned(bbMåned)));
         return builder.build();
     }
 

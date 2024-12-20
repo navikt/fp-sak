@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnl
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -47,7 +48,7 @@ class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
     private HistorikkInnslagTekstBuilder tekstBuilder;
 
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
-    private UføretrygdRepository uføretrygdRepository = mock(UføretrygdRepository.class);
+    private final UføretrygdRepository uføretrygdRepository = mock(UføretrygdRepository.class);
 
     @BeforeEach
     public void setUp() {
@@ -147,7 +148,7 @@ class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
     }
 
     private AvklarAnnenforelderHarRettOppdaterer oppdaterer() {
-        return new AvklarAnnenforelderHarRettOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, lagMockHistory()));
+        return new AvklarAnnenforelderHarRettOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, lagMockHistory(), mock(FagsakEgenskapRepository.class)));
     }
 
     private HistorikkTjenesteAdapter lagMockHistory() {

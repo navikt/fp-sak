@@ -23,6 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
@@ -39,8 +40,11 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
+import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.EndringsdatoRevurderingUtleder;
@@ -69,6 +73,7 @@ public class LosBehandlingDtoTjeneste {
     private FagsakEgenskapRepository fagsakEgenskapRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private SvangerskapspengerRepository svangerskapspengerRepository;
+    private PersonopplysningTjeneste personopplysningTjeneste;
     private UttakInputTjeneste uttakInputTjeneste;
     private EndringsdatoRevurderingUtleder endringsdatoRevurderingUtleder;
 
@@ -80,6 +85,7 @@ public class LosBehandlingDtoTjeneste {
                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                     SvangerskapspengerRepository svangerskapspengerRepository,
                                     FagsakEgenskapRepository fagsakEgenskapRepository,
+                                    PersonopplysningTjeneste personopplysningTjeneste,
                                     UttakInputTjeneste uttakInputTjeneste,
                                     @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) EndringsdatoRevurderingUtleder endringsdatoRevurderingUtleder) {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
@@ -89,6 +95,7 @@ public class LosBehandlingDtoTjeneste {
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
         this.svangerskapspengerRepository = svangerskapspengerRepository;
         this.uttakInputTjeneste = uttakInputTjeneste;
+        this.personopplysningTjeneste = personopplysningTjeneste;
         this.endringsdatoRevurderingUtleder = endringsdatoRevurderingUtleder;
     }
 
@@ -103,6 +110,7 @@ public class LosBehandlingDtoTjeneste {
         var refusjonegenskap = refusjonskrav ? BehandlingEgenskap.REFUSJONSKRAV : BehandlingEgenskap.DIREKTE_UTBETALING;
         List<String> behandlingsegenskaper = new ArrayList<>(List.of(refusjonegenskap.name()));
         if (faresignaler) behandlingsegenskaper.add(BehandlingEgenskap.FARESIGNALER.name());
+        if (farForeldrepengerUtenMorEllerMorRAV(behandling)) behandlingsegenskaper.add(BehandlingEgenskap.MOR_UKJENT_UTLAND.name());
         var fpUttak = mapForeldrepengerUttak(behandling, behandlingsegenskaper);
 
 
@@ -224,11 +232,6 @@ public class LosBehandlingDtoTjeneste {
             return null;
         }
         var aggregat = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId());
-        if (!RelasjonsRolleType.erMor(behandling.getRelasjonsRolleType()) && aggregat.isPresent() &&
-            aggregat.filter(YtelseFordelingAggregat::harAleneomsorg).isEmpty() &&
-            aggregat.filter(a -> a.harAnnenForelderRett(false)).isEmpty()) {
-            behandlingsegenskaper.add(BehandlingEgenskap.BARE_FAR_RETT.name());
-        }
         var vurderSykdom = aggregat.map(YtelseFordelingAggregat::getGjeldendeFordeling).map(OppgittFordelingEntitet::getPerioder).orElse(List.of())
             .stream().anyMatch(LosBehandlingDtoTjeneste::periodeGjelderSykdom);
         if (vurderSykdom) {
@@ -291,6 +294,23 @@ public class LosBehandlingDtoTjeneste {
         return utsettelseSykdom || overføringSykdom;
     }
 
+    private boolean farForeldrepengerUtenMorEllerMorRAV(Behandling behandling) {
+        if (!FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) || RelasjonsRolleType.MORA.equals(behandling.getRelasjonsRolleType())) {
+            return false;
+        }
+        if (!behandling.erYtelseBehandling()) {
+            return false;
+        }
+        var annenpart = personopplysningTjeneste.hentOppgittAnnenPart(behandling.getId());
+        var annenpartBosattRAV = annenpart
+            .filter(a -> a.getAktørId() == null)
+            .map(OppgittAnnenPartEntitet::getUtenlandskFnrLand)
+            .map(MapRegionLandkoder::mapLandkode)
+            .filter(r -> !Region.NORDEN.equals(r) && !Region.EOS.equals(r))
+            .isPresent();
+        return annenpart.isEmpty() || annenpartBosattRAV;
+    }
+
     private boolean harRefusjonskravAlleIM(Behandling behandling) {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) || !behandling.erYtelseBehandling() || behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING)) {
             return false;
@@ -315,18 +335,19 @@ public class LosBehandlingDtoTjeneste {
             case SAMMENSATT_KONTROLL -> FagsakEgenskap.SAMMENSATT_KONTROLL;
             case DØD_DØDFØDSEL -> FagsakEgenskap.DØD;
             case SELVSTENDIG_NÆRING -> FagsakEgenskap.NÆRING;
+            case BARE_FAR_RETT -> FagsakEgenskap.BARE_FAR_RETT;
             case PRAKSIS_UTSETTELSE -> FagsakEgenskap.PRAKSIS_UTSETTELSE;
         };
     }
 
     // Bør matche LOS sin LokalFagsakEgenskap 1:1
     public enum FagsakEgenskap {
-        EØS_BOSATT_NORGE, BOSATT_UTLAND, SAMMENSATT_KONTROLL, DØD, NÆRING, PRAKSIS_UTSETTELSE;
+        EØS_BOSATT_NORGE, BOSATT_UTLAND, SAMMENSATT_KONTROLL, DØD, NÆRING, BARE_FAR_RETT, PRAKSIS_UTSETTELSE;
 
     }
 
     public enum BehandlingEgenskap {
-        SYKDOMSVURDERING, BARE_FAR_RETT, FARESIGNALER, DIREKTE_UTBETALING, REFUSJONSKRAV
+        SYKDOMSVURDERING, MOR_UKJENT_UTLAND, FARESIGNALER, DIREKTE_UTBETALING, REFUSJONSKRAV
     }
 
 }

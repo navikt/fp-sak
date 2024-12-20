@@ -23,7 +23,7 @@ public class BeregningsgrunnlagPeriode {
     private BigDecimal avkortetPrÅr;
     private BigDecimal redusertPrÅr;
     private Long dagsats;
-    private final List<BeregningsgrunnlagPeriodeÅrsak> beregningsgrunnlagPeriodeÅrsaker = new ArrayList<>();
+    private List<PeriodeÅrsak> periodeårsaker = new ArrayList<>();
 
     private BeregningsgrunnlagPeriode() {
     }
@@ -71,21 +71,8 @@ public class BeregningsgrunnlagPeriode {
         return dagsats;
     }
 
-    public List<BeregningsgrunnlagPeriodeÅrsak> getBeregningsgrunnlagPeriodeÅrsaker() {
-        return Collections.unmodifiableList(beregningsgrunnlagPeriodeÅrsaker);
-    }
-
     public List<PeriodeÅrsak> getPeriodeÅrsaker() {
-        return beregningsgrunnlagPeriodeÅrsaker.stream()
-            .map(BeregningsgrunnlagPeriodeÅrsak::getPeriodeÅrsak)
-            .toList();
-    }
-
-    void addBeregningsgrunnlagPeriodeÅrsak(BeregningsgrunnlagPeriodeÅrsak bgPeriodeÅrsak) {
-        Objects.requireNonNull(bgPeriodeÅrsak, "beregningsgrunnlagPeriodeÅrsak");
-        if (!beregningsgrunnlagPeriodeÅrsaker.contains(bgPeriodeÅrsak)) {  // Class defines List based fields but uses them like Sets: Ingening å tjene på å bytte til Set ettersom det er små lister
-            beregningsgrunnlagPeriodeÅrsaker.add(bgPeriodeÅrsak);
-        }
+        return Collections.unmodifiableList(periodeårsaker);
     }
 
     @Override
@@ -175,9 +162,7 @@ public class BeregningsgrunnlagPeriode {
         public Builder leggTilPeriodeÅrsak(PeriodeÅrsak periodeÅrsak) {
             verifiserKanModifisere();
             if (!kladd.getPeriodeÅrsaker().contains(periodeÅrsak)) {
-                var bgPeriodeÅrsakBuilder = new BeregningsgrunnlagPeriodeÅrsak.Builder();
-                bgPeriodeÅrsakBuilder.medPeriodeÅrsak(periodeÅrsak);
-                bgPeriodeÅrsakBuilder.build(kladd);
+                kladd.periodeårsaker.add(periodeÅrsak);
             }
             return this;
         }
