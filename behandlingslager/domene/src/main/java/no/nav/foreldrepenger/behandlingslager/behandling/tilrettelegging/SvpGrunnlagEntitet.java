@@ -74,6 +74,13 @@ public class SvpGrunnlagEntitet extends BaseEntitet {
         this.aktiv = false;
     }
 
+
+    @Override
+    public String toString() {
+        return "SvpGrunnlagEntitet{" + "opprinneligeTilrettelegginger=" + opprinneligeTilrettelegginger + ", overstyrteTilrettelegginger="
+            + overstyrteTilrettelegginger + ", aktiv=" + aktiv + '}';
+    }
+
     public static class Builder {
 
         private List<SvpTilretteleggingEntitet> opprinneligeTilretteleggingListe = new ArrayList<>();
