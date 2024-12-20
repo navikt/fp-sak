@@ -340,7 +340,7 @@ class JusterFordelingTjenesteTest {
     }
 
     @Test
-    void gradert_fellesperiode_før_fødsel_skal_beholdes_uendret_hvis_innenfor_ukene_forbeholdt_mor_og_fff_blir_redusert() {
+    void gradert_fellesperiode_som_havner_inne_i_ny_peridoer_forbehold_foreldrepenger_før_fødsel_skal_erstattes_med_FFF_med_redusert_utbetaling() {
         var termin = LocalDate.of(2024,8, 14);
         var fødsel = termin.minusWeeks(2);
         var gradertFellesperiodeFørFFF = lagGradering(FELLESPERIODE, termin.minusWeeks(10), termin.minusWeeks(3).minusDays(1), BigDecimal.TEN);
@@ -349,28 +349,46 @@ class JusterFordelingTjenesteTest {
 
         var justertePerioder = juster(oppgittePerioder, termin, fødsel);
 
-        assertThat(justertePerioder).hasSize(3);
-        assertThat(justertePerioder.get(0)).isEqualTo(gradertFellesperiodeFørFFF);
+        assertThat(justertePerioder).hasSize(4);
+        assertThat(justertePerioder.get(0).getFom()).isEqualTo(gradertFellesperiodeFørFFF.getFom());
+        assertThat(justertePerioder.get(0).getTom()).isEqualTo(fødsel.minusWeeks(3).minusDays(1));
 
-        assertThat(justertePerioder.get(1).getFom()).isEqualTo(flyttFraHelgTilMandag(gradertFellesperiodeFørFFF.getTom().plusDays(1)));
-        assertThat(justertePerioder.get(1).getTom()).isEqualTo(flyttFraHelgTilFredag(fødsel.minusDays(1)));
+        assertThat(justertePerioder.get(1).getFom()).isEqualTo(fødsel.minusWeeks(3));
+        assertThat(justertePerioder.get(1).getTom()).isEqualTo(gradertFellesperiodeFørFFF.getTom());
+        assertThat(justertePerioder.get(1).isGradert()).isTrue();
+
+        assertThat(justertePerioder.get(2).getFom()).isEqualTo(fpff.getFom());
+        assertThat(justertePerioder.get(2).getTom()).isEqualTo(fødsel.minusDays(1));
+        assertThat(justertePerioder.get(2).isGradert()).isFalse();
+
+        assertThat(justertePerioder.get(3).getFom()).isEqualTo(fødsel);
+        assertThat(justertePerioder.get(3).getTom()).isEqualTo(fpff.getTom());
     }
 
     @Test
-    void gradert_foreldrepenger_før_fødsel_skal_beholdes_uendret_hvis_innenfor_ukene_forbeholdt_mor_og_fff_blir_redusert() {
+    void gradert_foreldrepenger_som_havner_inne_i_ny_peridoer_forbehold_foreldrepenger_før_fødsel_skal_erstattes_med_FFF_med_redusert_utbetaling() {
         var termin = LocalDate.of(2024,8, 14);
         var fødsel = termin.minusWeeks(2);
-        var gradertFellesperiodeFørFFF = lagGradering(FORELDREPENGER, termin.minusWeeks(10), termin.minusWeeks(3).minusDays(1), BigDecimal.TEN);
+        var gradertForeldrepengerFørFFF = lagGradering(FORELDREPENGER, termin.minusWeeks(10), termin.minusWeeks(3).minusDays(1), BigDecimal.TEN);
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termin.minusWeeks(3), termin.minusDays(1));
-        var oppgittePerioder = List.of(gradertFellesperiodeFørFFF, fpff);
+        var oppgittePerioder = List.of(gradertForeldrepengerFørFFF, fpff);
 
         var justertePerioder = juster(oppgittePerioder, termin, fødsel);
 
-        assertThat(justertePerioder).hasSize(3);
-        assertThat(justertePerioder.get(0)).isEqualTo(gradertFellesperiodeFørFFF);
+        assertThat(justertePerioder).hasSize(4);
+        assertThat(justertePerioder.get(0).getFom()).isEqualTo(gradertForeldrepengerFørFFF.getFom());
+        assertThat(justertePerioder.get(0).getTom()).isEqualTo(fødsel.minusWeeks(3).minusDays(1));
 
-        assertThat(justertePerioder.get(1).getFom()).isEqualTo(flyttFraHelgTilMandag(gradertFellesperiodeFørFFF.getTom().plusDays(1)));
-        assertThat(justertePerioder.get(1).getTom()).isEqualTo(flyttFraHelgTilFredag(fødsel.minusDays(1)));
+        assertThat(justertePerioder.get(1).getFom()).isEqualTo(fødsel.minusWeeks(3));
+        assertThat(justertePerioder.get(1).getTom()).isEqualTo(gradertForeldrepengerFørFFF.getTom());
+        assertThat(justertePerioder.get(1).isGradert()).isTrue();
+
+        assertThat(justertePerioder.get(2).getFom()).isEqualTo(fpff.getFom());
+        assertThat(justertePerioder.get(2).getTom()).isEqualTo(fødsel.minusDays(1));
+        assertThat(justertePerioder.get(2).isGradert()).isFalse();
+
+        assertThat(justertePerioder.get(3).getFom()).isEqualTo(fødsel);
+        assertThat(justertePerioder.get(3).getTom()).isEqualTo(fpff.getTom());
     }
 
     @Test
@@ -2065,6 +2083,10 @@ class JusterFordelingTjenesteTest {
         assertThat(justertePerioder.get(5)).isEqualTo(oppgittePerioder.get(5));
     }
 
+
+
+    //   F F|mmmmmmmmmmmmmmm
+    //   F |mmmmmmmmmmmmmmmm
     @Test
     void utsettelse_mellom_fødsel_og_termin_skal_ikke_føre_til_at_perioder_som_var_etter_termin_blir_skyvet_forbi_fødsel_pga_utsettelse_ved_fødsel_før_termin() {
         var termindato = LocalDate.of(2024, 3, 13);
@@ -2080,8 +2102,9 @@ class JusterFordelingTjenesteTest {
         var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
         assertThat(justertePerioder).hasSize(3);
         assertThat(justertePerioder.get(0)).isEqualTo(fpff1);
-        assertThat(justertePerioder.get(1)).isEqualTo(utsettelse);
-        assertThat(justertePerioder.get(2).getFom()).isEqualTo(utsettelse.getTom().plusDays(1)).isNotEqualTo(fødselsdato);
+        assertThat(justertePerioder.get(1).getFom()).isEqualTo(utsettelse.getFom());
+        assertThat(justertePerioder.get(1).getTom()).isEqualTo(fødselsdato.minusDays(1));
+        assertThat(justertePerioder.get(2).getFom()).isEqualTo(fødselsdato);
         assertThat(justertePerioder.get(2).getTom()).isEqualTo(mødrekvote.getTom());
         assertThat(justertePerioder.get(2).getPeriodeType()).isEqualTo(MØDREKVOTE);
     }
@@ -2142,6 +2165,39 @@ class JusterFordelingTjenesteTest {
         assertThat(justertePerioder.get(1).getTom()).isEqualTo(mødrekvote.getTom());
 
         assertThat(justertePerioder.get(2)).isEqualTo(fellesperiode);
+    }
+
+    // G er gradert fellesperiode, F er fp_før_fødsel:
+    //  GGGGGGGGGFFF|mmmmmmmmmmmmmmffffffffffff
+    //  GGGGGG|GG                               (G avkortes til dagen før ny familiehendelse)
+    //  GGGGGG|mmmmmmmmmmmmmmffffffffffffffffff (juster resten til venstre)
+    //  GGGFFF|mmmmmmmmmmmmmmffffffffffffffffff (Legg til FFF til slutt hvor F nå arver egenskapene til G, altså redusert utbetaling)
+    @Test
+    void fødsel_havner_i_ikke_flyttbar_periode_fører_til_avvkorting_og_gradert_fellesperiode_erstattes_med_FFFF() {
+        var termindato = LocalDate.of(2024, 12, 27);
+        var fødselsdato = LocalDate.of(2024, 12, 4);
+        var fp1 = lagGradering(FELLESPERIODE, termindato.minusWeeks(11),  termindato.minusWeeks(3).minusDays(1), BigDecimal.valueOf(20));
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(3), termindato.minusDays(1));
+        var mk = lagPeriode(MØDREKVOTE, termindato, termindato.plusWeeks(19).minusDays(1));
+        var fp2 = lagPeriode(FELLESPERIODE, termindato.plusWeeks(19), termindato.plusWeeks(31));
+        var oppgittePerioder = List.of(fp1, fpff, mk, fp2);
+
+        //Føder på termin
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
+
+        //Oppgitteperioder er uendret
+        assertThat(justertePerioder.get(0).getFom()).isEqualTo(oppgittePerioder.get(0).getFom());
+        assertThat(justertePerioder.get(0).getTom()).isEqualTo(fødselsdato.minusWeeks(3).minusDays(1));
+
+        assertThat(justertePerioder.get(1).getFom()).isEqualTo(fødselsdato.minusWeeks(3));
+        assertThat(justertePerioder.get(1).getTom()).isEqualTo(fødselsdato.minusDays(1));
+        assertThat(justertePerioder.get(1).getPeriodeType()).isEqualTo(FORELDREPENGER_FØR_FØDSEL);
+        assertThat(justertePerioder.get(1).isGradert()).isTrue();
+
+        assertThat(justertePerioder.get(2).getFom()).isEqualTo(fødselsdato);
+        assertThat(justertePerioder.get(2).getTom()).isEqualTo(fødselsdato.plusWeeks(19).minusDays(1));
+        assertThat(justertePerioder.get(3).getFom()).isEqualTo(fødselsdato.plusWeeks(19));
+        assertThat(justertePerioder.get(3).getTom()).isEqualTo(fp2.getTom());
     }
 
     private static List<OppgittPeriodeEntitet> juster(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate familehendelse1, LocalDate familehendelse2) {
