@@ -76,6 +76,8 @@ public class KlageRestTjeneste {
     private static final String MOTTATT_KLAGEDOKUMENT_V2_PART_PATH = "/klage/mottatt-klagedokument-v2";
     public static final String MOTTATT_KLAGEDOKUMENT_V2_PATH = BASE_PATH + MOTTATT_KLAGEDOKUMENT_V2_PART_PATH;
 
+    private static final String HISTORIKK_MELLOMLAGRE_TEKST = "Lagret klagevurdering";
+
     private BehandlingRepository behandlingRepository;
     private KlageVurderingTjeneste klageVurderingTjeneste;
     private FptilbakeRestKlient fptilbakeRestKlient;
@@ -144,7 +146,7 @@ public class KlageRestTjeneste {
 
             mapMellomlagreKlage(apDto, builder);
             klageFormkravHistorikk.opprettHistorikkinnslagVurdering(behandling, AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP,
-                apDto, apDto.getBegrunnelse());
+                apDto, HISTORIKK_MELLOMLAGRE_TEKST);
         }
 
         builder.medFritekstTilBrev(apDto.getFritekstTilBrev());
@@ -189,7 +191,7 @@ public class KlageRestTjeneste {
             mapMellomlagreFormKrav(apDto, builderFormKrav, klageResultat);
             klageVurderingTjeneste.lagreFormkrav(behandling, builderFormKrav);
             klageFormkravHistorikk.opprettHistorikkinnslagFormkrav(behandling, AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP, apDto,
-                lagretFormkrav, klageResultat, apDto.begrunnelse());
+                lagretFormkrav, klageResultat, HISTORIKK_MELLOMLAGRE_TEKST);
         }
 
         vurderingResultatBuilder.medFritekstTilBrev(apDto.fritekstTilBrev());
