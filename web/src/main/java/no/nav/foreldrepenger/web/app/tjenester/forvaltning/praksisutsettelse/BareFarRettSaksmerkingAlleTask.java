@@ -69,6 +69,7 @@ class BareFarRettSaksmerkingAlleTask implements ProsessTaskHandler {
             join fpsak.fagsak_relasjon fr on sk.stoenadskontoberegning_id = coalesce(overstyrt_konto_beregning_id, konto_beregning_id)
             join fpsak.fagsak f on f.id in (fr.fagsak_en_id, fr.fagsak_to_id)
             where stoenadskontotype = 'FORELDREPENGER' and fr.aktiv = 'J' and bruker_rolle <> 'MORA' and f.id >:fraFagsakId
+            and f.id not in (select fagsak_id from fpsak.fagsak_egenskap where egenskap_value = 'BARE_FAR_RETT')
             union
             select distinct f.id as fid from fpsak.STOENADSKONTO sk
             join fpsak.uttak_resultat ur on sk.stoenadskontoberegning_id = ur.konto_beregning_id
@@ -76,6 +77,7 @@ class BareFarRettSaksmerkingAlleTask implements ProsessTaskHandler {
             join fpsak.behandling b on br.behandling_id = b.id
             join fpsak.fagsak f on b.fagsak_id = f.id
             where stoenadskontotype = 'FORELDREPENGER' and ur.aktiv = 'J' and bruker_rolle <> 'MORA' and behandling_resultat_type not like '%ENLAG%'
+            and f.id not in (select fagsak_id from fpsak.fagsak_egenskap where egenskap_value = 'BARE_FAR_RETT')
             and f.id >:fraFagsakId
             union
             select distinct f.id as fid from fpsak.GR_YTELSES_FORDELING gp
@@ -85,6 +87,7 @@ class BareFarRettSaksmerkingAlleTask implements ProsessTaskHandler {
             where (overstyrt_rettighet_id in (select id from fpsak.so_rettighet where aleneomsorg = 'N' and annen_foreldre_rett = 'N' and (ANNEN_FORELDER_RETT_EOS is null or ANNEN_FORELDER_RETT_EOS = 'N'))
              or so_rettighet_id in (select id from fpsak.so_rettighet where aleneomsorg = 'N' and annen_foreldre_rett = 'N' and (ANNEN_FORELDER_RETT_EOS is null or ANNEN_FORELDER_RETT_EOS = 'N')))
             and gp.aktiv = 'J' and ytelse_type = 'FP' and bruker_rolle <> 'MORA' and (behandling_resultat_type is null or behandling_resultat_type not like '%ENLAG%')
+            and f.id not in (select fagsak_id from fpsak.fagsak_egenskap where egenskap_value = 'BARE_FAR_RETT')
             and f.id >:fraFagsakId
           ) order by fid
         ) where ROWNUM <= 100

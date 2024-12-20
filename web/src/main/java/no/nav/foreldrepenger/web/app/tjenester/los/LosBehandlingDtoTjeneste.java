@@ -232,11 +232,6 @@ public class LosBehandlingDtoTjeneste {
             return null;
         }
         var aggregat = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId());
-        if (!RelasjonsRolleType.erMor(behandling.getRelasjonsRolleType()) && aggregat.isPresent() &&
-            aggregat.filter(YtelseFordelingAggregat::harAleneomsorg).isEmpty() &&
-            aggregat.filter(a -> a.harAnnenForelderRett(false)).isEmpty()) {
-            behandlingsegenskaper.add(BehandlingEgenskap.BARE_FAR_RETT.name());
-        }
         var vurderSykdom = aggregat.map(YtelseFordelingAggregat::getGjeldendeFordeling).map(OppgittFordelingEntitet::getPerioder).orElse(List.of())
             .stream().anyMatch(LosBehandlingDtoTjeneste::periodeGjelderSykdom);
         if (vurderSykdom) {
@@ -303,6 +298,9 @@ public class LosBehandlingDtoTjeneste {
         if (!FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) || RelasjonsRolleType.MORA.equals(behandling.getRelasjonsRolleType())) {
             return false;
         }
+        if (!behandling.erYtelseBehandling()) {
+            return false;
+        }
         var annenpart = personopplysningTjeneste.hentOppgittAnnenPart(behandling.getId());
         var annenpartBosattRAV = annenpart
             .filter(a -> a.getAktørId() == null)
@@ -349,7 +347,7 @@ public class LosBehandlingDtoTjeneste {
     }
 
     public enum BehandlingEgenskap {
-        SYKDOMSVURDERING, BARE_FAR_RETT, MOR_UKJENT_UTLAND, FARESIGNALER, DIREKTE_UTBETALING, REFUSJONSKRAV
+        SYKDOMSVURDERING, MOR_UKJENT_UTLAND, FARESIGNALER, DIREKTE_UTBETALING, REFUSJONSKRAV
     }
 
 }
