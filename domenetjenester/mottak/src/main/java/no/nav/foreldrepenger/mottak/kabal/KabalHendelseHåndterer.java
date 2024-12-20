@@ -111,7 +111,7 @@ public class KabalHendelseHåndterer implements KafkaMessageHandler.KafkaStringM
         }
         mottakRepository.registrerMottattHendelse(KABAL+ mottattHendelse.eventId());
 
-        if (KabalHendelse.BehandlingEventType.OMGJOERINGSKRAV_AVSLUTTET.equals(mottattHendelse.type())) {
+        if (KabalHendelse.BehandlingEventType.OMGJOERINGSKRAVBEHANDLING_AVSLUTTET.equals(mottattHendelse.type())) {
             opprettVurderKonsekvens(behandling, VKY_OMGJØRINGSKRAV_TEKST);
             return;
         }
