@@ -172,7 +172,7 @@ public class SvangerskapspengerTjeneste {
     private BigDecimal hentStillingsprosentForAktivitet(Yrkesaktivitet ya, LocalDate førsteTilrStartDato) {
         //Dersom ingen periode overlapper er stillingsprosent 0
         return  ya.getAlleAktivitetsAvtaler().stream()
-            .filter(aa -> !aa.erAnsettelsesPeriode() && aa.getPeriode().inkluderer(førsteTilrStartDato.minusDays(1))|| aa.getPeriode().getFomDato().isAfter(førsteTilrStartDato.minusDays(1)))
+            .filter(aa -> !aa.erAnsettelsesPeriode() && aa.getPeriode().inkluderer(førsteTilrStartDato))
             .filter(aa -> aa.getProsentsats() != null && aa.getProsentsats().getVerdi() != null)
             .max(Comparator.comparing(AktivitetsAvtale::getPeriode))
             .map(AktivitetsAvtale::getProsentsats)
