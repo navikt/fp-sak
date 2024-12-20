@@ -56,7 +56,7 @@ class MorsJustering implements ForelderFødselJustering {
     @Override
     public List<OppgittPeriodeEntitet> justerVedFødselFørTermin(List<OppgittPeriodeEntitet> oppgittePerioder) {
         LOG.info("Fødselsjusterer ved fødsel før termin {} {} {}", gammelFamiliehendelse, nyFamiliehendelse, oppgittePerioder);
-        var justertePerioder = flyttPerioderTilVenstre(oppgittePerioder);
+        var justertePerioder = justerUttakMotVenstre(oppgittePerioder);
         LOG.info("Flyttet perioder til venstre {}", justertePerioder);
         justertePerioder = fyllHullSomOppstårPgaJustering(oppgittePerioder, justertePerioder);
         LOG.info("Flyttet perioder fylt hull oppstått pga justering {}", justertePerioder);
@@ -289,64 +289,69 @@ class MorsJustering implements ForelderFødselJustering {
         return justertFellesperiode;
     }
 
-    /**
-     * Her har vi 6 håndteringer:
-     *  1) FORELDREPENGER_FØR_FØDSEL legger vi på til slutt
-     *  2) Perioder er ikke flyttbar eller er en uttaksperioder som slutter før F-3U, eller hvis vi er ferdig med forskyvning (virkedagerSomSkalSkyves==0) beholdes uendret
-     *  3) Perioder som starter før F-3U, men slutter etter F-3U avkortes til F-3U minus en dag
-     *  4) Perioder som er mellom F-3U og T fjernes.
-     *  5) Perioder som er etter termin justeres antall virkedager som er mellom termin og fødsel
-     */
-    private List<OppgittPeriodeEntitet> flyttPerioderTilVenstre(List<OppgittPeriodeEntitet> oppgittePerioder) {
-        var ikkeFlyttbarePerioder = ikkeFlyttbarePerioder(oppgittePerioder);
+    private List<OppgittPeriodeEntitet> justerUttakMotVenstre(List<OppgittPeriodeEntitet> oppgittePerioder) {
+        var ikkeFlyttbarePerioderEtterTermin = ikkeFlyttbarePerioder(oppgittePerioder).stream()
+            .filter(periode -> !periode.getFom().isBefore(gammelFamiliehendelse))
+            .toList();
         var virkedagerSomSkalSkyves = Virkedager.beregnAntallVirkedager(nyFamiliehendelse, gammelFamiliehendelse) - 1;
-        var fomForbeholdtFFF = TidsperiodeForbeholdtMor.fraOgMed(nyFamiliehendelse);
-
-        var justertePerioder = new ArrayList<OppgittPeriodeEntitet>();
-        for (var oppgittPeriode : oppgittePerioder) {
-            // 1) FORELDREPENGER_FØR_FØDSEL legger vi på til slutt
-            if (oppgittPeriode.getPeriodeType().equals(FORELDREPENGER_FØR_FØDSEL)) {
-                // Legges til etterpå for å få riktig potensiell reduksjon
-            }
-
-            // 2) Perioder er ikke flyttbar eller er en uttaksperioder som slutter før F-3U, eller hvis vi er ferdig med forskyvning (virkedagerSomSkalSkyves==0) beholdes uendret
-            else if (!erPeriodeFlyttbar(oppgittPeriode) || oppgittPeriode.getTom().isBefore(fomForbeholdtFFF) || virkedagerSomSkalSkyves == 0) {
-                justertePerioder.add(oppgittPeriode);
-            }
-
-            // 3) Perioder som starter før F-3U, men slutter etter F-3U avkortes til F-3U minus en dag
-            else if (oppgittPeriode.getFom().isBefore(fomForbeholdtFFF)) {
-                var nyTom = PerioderUtenHelgUtil.justerTomFredag(fomForbeholdtFFF.minusDays(1));
-                justertePerioder.add(kopier(oppgittPeriode, oppgittPeriode.getFom(), nyTom));
-            }
-
-            // 4) Perioder som er mellom F-3U og T fjernes.r
-            else if (!oppgittPeriode.getFom().isBefore(fomForbeholdtFFF) && oppgittPeriode.getTom().isBefore(gammelFamiliehendelse)) {
-                // Fjernes
-            }
-
-            // 5) Perioder som er etter termin justeres antall virkedager som er mellom termin og fødsel
-            else {
-                var justert = flyttPeriodeVenstre(oppgittPeriode, virkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
-                justertePerioder.addAll(justert);
-            }
-        }
-
-        var resultat = leggTilFFFkonto(justertePerioder, oppgittePerioder); // FORELDREPENGER_FØR_FØDSEL legger vi på til slutt
-        return sorterEtterFom(resultat);
+        var justertePerioderUtenFFF = oppgittePerioder.stream()
+            .filter(p -> !FORELDREPENGER_FØR_FØDSEL.equals(p.getPeriodeType()))  // Legges til etter justering
+            .map(p -> justerPeriodeVenstrejustert(p, virkedagerSomSkalSkyves, ikkeFlyttbarePerioderEtterTermin))
+            .flatMap(List::stream)
+            .toList();
+        return leggTilFFFkonto(justertePerioderUtenFFF, oppgittePerioder); // 6) FORELDREPENGER_FØR_FØDSEL legger vi på til slutt
     }
 
-    private List<OppgittPeriodeEntitet> leggTilFFFkonto(List<OppgittPeriodeEntitet> justertePerioder, List<OppgittPeriodeEntitet> oppgittePerioder) {
+    /**
+     * Justering av perioder mot venstre gjøre på følgende måte
+     * 1) Perioder før ny familiehendelse beholdes uendret
+     * 2) Perioder som strekker seg forbi ny familiehendelse reduseres/avvkortes til dagen før ny familiehendelse
+     * 3) Perioder som ligger mellom ny og gammel familiehendelse fjernes
+     * 4) Perioder etter gammel familiehendelse
+     *  a) Flyttbare perioder flyttes til venstre
+     *  b) Ikke flyttbare perioder beholdes uendret
+     */
+    private List<OppgittPeriodeEntitet> justerPeriodeVenstrejustert(OppgittPeriodeEntitet gjeldendePeriode, int virkedagerSomSkalSkyves,
+                                                                    List<OppgittPeriodeEntitet> ikkeFlyttbarePerioderEtterTermin) {
+
+        // 1) Perioder før ny familiehendelse beholdes uendret
+        if (gjeldendePeriode.getTom().isBefore(nyFamiliehendelse)) {
+            return List.of(gjeldendePeriode);
+        }
+
+        // 2) Perioder som strekker seg forbi ny familiehendelse reduseres/avvkortes til dagen før ny familiehendelse
+        if (gjeldendePeriode.getFom().isBefore(nyFamiliehendelse)) {
+            var nyTom = PerioderUtenHelgUtil.justerTomFredag(nyFamiliehendelse.minusDays(1));
+            return List.of(kopier(gjeldendePeriode, gjeldendePeriode.getFom(), nyTom));
+        }
+
+        // 3) Perioder som ligger mellom ny og gammel familiehendelse fjernes
+        if (gjeldendePeriode.getTom().isBefore(gammelFamiliehendelse)) {
+            return List.of(); // Fjern perioder som er mellom ny og gammel familiehendelse
+        }
+
+        // 4a) Perioder som er flyttbare etter gammel familiehendelse flyttes til venstre
+        if (erPeriodeFlyttbar(gjeldendePeriode) && virkedagerSomSkalSkyves > 0) {
+            return flyttPeriodeTilVenstre(gjeldendePeriode, virkedagerSomSkalSkyves, ikkeFlyttbarePerioderEtterTermin);
+        }
+
+        // 4b) Perioder som ikke er flyttbare og som ikke skal avvkortes beholdes uendret
+        return List.of(gjeldendePeriode);
+    }
+
+    private List<OppgittPeriodeEntitet> leggTilFFFkonto(List<OppgittPeriodeEntitet> justertePerioderUtenFFF, List<OppgittPeriodeEntitet> oppgittePerioder) {
         var opprinneligeFFFperioder = oppgittePerioder.stream()
             .filter(p -> p.getPeriodeType().equals(FORELDREPENGER_FØR_FØDSEL))
             .toList();
         if (opprinneligeFFFperioder.isEmpty()) {
-            return justertePerioder;
+            return justertePerioderUtenFFF;
         }
 
         var antallTilgjengeligeFFFDager = antallVirkedager(opprinneligeFFFperioder);
         var intervalForbeholdMorForeldrepengerFørFødsel = new LocalDateInterval(TidsperiodeForbeholdtMor.fraOgMed(nyFamiliehendelse), nyFamiliehendelse.minusDays(1));
-        var perioderSomErFlyttbareIOpprinneligUttak = tilLocalDateTimeLine(oppgittePerioder.stream().filter(MorsJustering::erPeriodeFlyttbar).toList());
+        var perioderSomErFlyttbareIOpprinneligUttak = tilLocalDateTimeLine(oppgittePerioder.stream()
+            .filter(oppgittPeriodeEntitet ->  erPeriodeFlyttbar(oppgittPeriodeEntitet) || oppgittPeriodeEntitet.isGradert())
+            .toList());
         var perioderHvorFFFKanFylles = perioderSomErFlyttbareIOpprinneligUttak.intersection(intervalForbeholdMorForeldrepengerFørFødsel);
 
         var justerteFFFPerioder = new ArrayList<OppgittPeriodeEntitet>();
@@ -356,13 +361,15 @@ class MorsJustering implements ForelderFødselJustering {
             }
 
             if (beregnAntallVirkedager(seg.getFom(), seg.getTom()) <= antallTilgjengeligeFFFDager) {
-                antallTilgjengeligeFFFDager -= beregnAntallVirkedager(seg.getFom(), seg.getTom());
-                justerteFFFPerioder.add(OppgittPeriodeBuilder.fraEksisterende(opprinneligeFFFperioder.getFirst())
+                justerteFFFPerioder.add(OppgittPeriodeBuilder.fraEksisterende(seg.getValue())
+                    .medPeriodeType(FORELDREPENGER_FØR_FØDSEL)
                     .medPeriode(flyttFraHelgTilMandag(seg.getFom()), flyttFraHelgTilFredag(seg.getTom()))
                     .build());
+                antallTilgjengeligeFFFDager -= beregnAntallVirkedager(seg.getFom(), seg.getTom());
             } else {
-                // Ikke nok tilgjengelige dager for FFF for å fylle hele perioden
-                justerteFFFPerioder.add(OppgittPeriodeBuilder.fraEksisterende(opprinneligeFFFperioder.getFirst())
+                // Ikke nok tilgjengelige dager for FFF slik at vi kan fylle hele perioden
+                justerteFFFPerioder.add(OppgittPeriodeBuilder.fraEksisterende(seg.getValue())
+                    .medPeriodeType(FORELDREPENGER_FØR_FØDSEL)
                     .medPeriode(minusVirkedager(seg.getTom(), antallTilgjengeligeFFFDager), seg.getTom())
                     .build());
                 antallTilgjengeligeFFFDager = 0;
@@ -374,9 +381,20 @@ class MorsJustering implements ForelderFødselJustering {
             LOG.info("Justering ved fødsel før termin førte til at mor tapte {} dager med FFF", antallTapteFFF);
         }
 
-        var resultat = new ArrayList<>(justertePerioder);
-        resultat.addAll(justerteFFFPerioder);
-        return sorterEtterFom(resultat);
+        var justertePerioderUtenFFFTimeline = tilLocalDateTimeLine(justertePerioderUtenFFF);
+        var justerteFFFTimeline = tilLocalDateTimeLine(justerteFFFPerioder);
+        return justertePerioderUtenFFFTimeline.combine(justerteFFFTimeline, MorsJustering::kombinerFFFogJustertUttak, LocalDateTimeline.JoinStyle.CROSS_JOIN).stream()
+            .map(LocalDateSegment::getValue)
+            .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
+            .toList();
+    }
+
+    private static LocalDateSegment<OppgittPeriodeEntitet> kombinerFFFogJustertUttak(LocalDateInterval datoInterval,
+                                                                                     LocalDateSegment<OppgittPeriodeEntitet> periodeUtenFFF,
+                                                                                     LocalDateSegment<OppgittPeriodeEntitet> fffPeriode) {
+        return fffPeriode == null
+            ? new LocalDateSegment<>(datoInterval, kopier(periodeUtenFFF.getValue(), datoInterval.getFomDato(), datoInterval.getTomDato()))
+            : new LocalDateSegment<>(datoInterval, kopier(fffPeriode.getValue(), datoInterval.getFomDato(), datoInterval.getTomDato()));
     }
 
     private static LocalDate minusVirkedager(LocalDate dato, int virkedager) {
@@ -410,7 +428,7 @@ class MorsJustering implements ForelderFødselJustering {
             .toList();
     }
 
-    private List<OppgittPeriodeEntitet> flyttPeriodeVenstre(OppgittPeriodeEntitet oppgittPeriode, int antallVirkedagerSomSkalSkyves, List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder) {
+    private List<OppgittPeriodeEntitet> flyttPeriodeTilVenstre(OppgittPeriodeEntitet oppgittPeriode, int antallVirkedagerSomSkalSkyves, List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder) {
         List<OppgittPeriodeEntitet> resultat = new ArrayList<>();
         var gjeldendePeriode = oppgittPeriode;
         var antallGjenståendeVirkedager = beregnAntallVirkedager(oppgittPeriode.getFom(), oppgittPeriode.getTom());
