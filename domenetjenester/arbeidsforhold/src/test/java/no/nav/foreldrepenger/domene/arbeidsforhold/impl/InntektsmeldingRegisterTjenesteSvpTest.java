@@ -23,6 +23,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValgRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
@@ -33,6 +34,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.abakus.ArbeidsforholdTjeneste;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.InntektsmeldingStatusMapper;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.svp.InntektsmeldingFilterYtelseImpl;
@@ -68,6 +71,8 @@ class InntektsmeldingRegisterTjenesteSvpTest {
     private ArbeidsforholdTjeneste abakusArbeidsforholdTjeneste;
     @Mock
     private SvangerskapspengerRepository svangerskapspengerRepository;
+    @Mock
+    private ArbeidsforholdValgRepository arbeidsforholdValgRepository;
 
     private static BehandlingReferanse behandlingReferanse;
     private static final AktørId aktørId = AktørId.dummy();
@@ -107,12 +112,17 @@ class InntektsmeldingRegisterTjenesteSvpTest {
             Collections.emptyList());
 
         var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
+        var statusPerArbeidsgiver = finnStatusForInntektsmeldingArbeidsforhold(behandlingReferanse, skjæringstidspunkt);
 
         var listeAvArbeidsforholdsider = manglendeInntektsmeldinger.values().stream().toList();
 
         assertThat(manglendeInntektsmeldinger).hasSize(1);
         assertThat(manglendeInntektsmeldinger.keySet().stream().findFirst()).isEqualTo(Optional.of(arbeidsgiver));
         assertThat(listeAvArbeidsforholdsider.getFirst()).isEqualTo(Set.of(ref));
+
+        assertThat(statusPerArbeidsgiver).hasSize(1);
+        assertThat(statusPerArbeidsgiver.stream().toList().getFirst().inntektsmeldingStatus()).isEqualTo(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT);
+        assertThat(statusPerArbeidsgiver.stream().toList().getFirst().arbeidsgiver()).isEqualTo(arbeidsgiver);
     }
 
     @Test
@@ -141,12 +151,17 @@ class InntektsmeldingRegisterTjenesteSvpTest {
             Collections.emptyList());
 
         var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
+        var statusPerArbeidsgiver = finnStatusForInntektsmeldingArbeidsforhold(behandlingReferanse, skjæringstidspunkt);
 
         var listeAvArbeidsforholdsider = manglendeInntektsmeldinger.values().stream().toList();
 
         assertThat(manglendeInntektsmeldinger).hasSize(1);
         assertThat(manglendeInntektsmeldinger.keySet().stream().findFirst()).isEqualTo(Optional.of(arbeidsgiver));
         assertThat(listeAvArbeidsforholdsider.getFirst()).isEqualTo(Set.of(ref));
+
+        assertThat(statusPerArbeidsgiver).hasSize(1);
+        assertThat(statusPerArbeidsgiver.stream().toList().getFirst().inntektsmeldingStatus()).isEqualTo(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT);
+        assertThat(statusPerArbeidsgiver.stream().toList().getFirst().arbeidsgiver()).isEqualTo(arbeidsgiver);
     }
 
     @Test
@@ -177,12 +192,17 @@ class InntektsmeldingRegisterTjenesteSvpTest {
             Collections.emptyList());
 
         var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
+        var statusPerArbeidsgiver = finnStatusForInntektsmeldingArbeidsforhold(behandlingReferanse, skjæringstidspunkt);
 
         var listeAvArbeidsforholdsider = manglendeInntektsmeldinger.values().stream().toList();
 
         assertThat(manglendeInntektsmeldinger).hasSize(1);
         assertThat(manglendeInntektsmeldinger.keySet().stream().findFirst()).isEqualTo(Optional.of(arbeidsgiver));
         assertThat(listeAvArbeidsforholdsider.getFirst()).isEqualTo(Set.of(ref));
+
+        assertThat(statusPerArbeidsgiver).hasSize(1);
+        assertThat(statusPerArbeidsgiver.stream().toList().getFirst().inntektsmeldingStatus()).isEqualTo(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT);
+        assertThat(statusPerArbeidsgiver.stream().toList().getFirst().arbeidsgiver()).isEqualTo(arbeidsgiver);
     }
 
     @Test
@@ -213,6 +233,7 @@ class InntektsmeldingRegisterTjenesteSvpTest {
             Collections.emptyList());
 
         var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
+        var statusPerArbeidsgiver = finnStatusForInntektsmeldingArbeidsforhold(behandlingReferanse, skjæringstidspunkt);
 
         List<InternArbeidsforholdRef> internrefs = manglendeInntektsmeldinger.entrySet()
             .stream()
@@ -222,6 +243,12 @@ class InntektsmeldingRegisterTjenesteSvpTest {
         assertThat(manglendeInntektsmeldinger).hasSize(1);
         assertThat(manglendeInntektsmeldinger.keySet().stream().findFirst()).isEqualTo(Optional.of(arbeidsgiver));
         assertThat(internrefs).containsAll(List.of(ref, ref2));
+
+        assertThat(statusPerArbeidsgiver).hasSize(2);
+        assertThat(statusPerArbeidsgiver.stream().toList().getFirst().inntektsmeldingStatus()).isEqualTo(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT);
+        assertThat(statusPerArbeidsgiver.stream().toList().getFirst().arbeidsgiver()).isEqualTo(arbeidsgiver);
+        assertThat(statusPerArbeidsgiver.stream().toList().get(1).inntektsmeldingStatus()).isEqualTo(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT);
+        assertThat(statusPerArbeidsgiver.stream().toList().get(1).arbeidsgiver()).isEqualTo(arbeidsgiver);
     }
 
     @Test
@@ -252,6 +279,7 @@ class InntektsmeldingRegisterTjenesteSvpTest {
             Collections.emptyList());
 
         var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
+        var statusPerArbeidsgiver = finnStatusForInntektsmeldingArbeidsforhold(behandlingReferanse, skjæringstidspunkt);
 
         List<InternArbeidsforholdRef> internrefs = manglendeInntektsmeldinger.entrySet()
             .stream()
@@ -261,6 +289,12 @@ class InntektsmeldingRegisterTjenesteSvpTest {
         assertThat(manglendeInntektsmeldinger).hasSize(1);
         assertThat(manglendeInntektsmeldinger.keySet().stream().findFirst()).isEqualTo(Optional.of(arbeidsgiver));
         assertThat(internrefs).containsAll(List.of(ref2, ref));
+
+        assertThat(statusPerArbeidsgiver).hasSize(2);
+        assertThat(statusPerArbeidsgiver.stream().toList().get(0).inntektsmeldingStatus()).isEqualTo(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT);
+        assertThat(statusPerArbeidsgiver.stream().toList().get(0).arbeidsgiver()).isEqualTo(arbeidsgiver);
+        assertThat(statusPerArbeidsgiver.stream().toList().get(1).inntektsmeldingStatus()).isEqualTo(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT);
+        assertThat(statusPerArbeidsgiver.stream().toList().get(1).arbeidsgiver()).isEqualTo(arbeidsgiver);
     }
 
     @Test
@@ -292,8 +326,14 @@ class InntektsmeldingRegisterTjenesteSvpTest {
             List.of(inntektsmeldingUtenArbId));
 
         var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
+        var statusPerArbeidsgiver = finnStatusForInntektsmeldingArbeidsforhold(behandlingReferanse, skjæringstidspunkt);
 
         assertThat(manglendeInntektsmeldinger).isEmpty();
+        assertThat(statusPerArbeidsgiver).hasSize(2);
+        assertThat(statusPerArbeidsgiver.stream().toList().get(0).inntektsmeldingStatus()).isEqualTo(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.MOTTATT);
+        assertThat(statusPerArbeidsgiver.stream().toList().get(0).arbeidsgiver()).isEqualTo(arbeidsgiver);
+        assertThat(statusPerArbeidsgiver.stream().toList().get(1).inntektsmeldingStatus()).isEqualTo(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.MOTTATT);
+        assertThat(statusPerArbeidsgiver.stream().toList().get(1).arbeidsgiver()).isEqualTo(arbeidsgiver);
     }
 
     @Test
@@ -325,6 +365,7 @@ class InntektsmeldingRegisterTjenesteSvpTest {
             List.of(inntektsmeldingMedArbId));
 
         var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
+        var statusPerArbeidsgiver = finnStatusForInntektsmeldingArbeidsforhold(behandlingReferanse, skjæringstidspunkt);
 
         List<InternArbeidsforholdRef> internrefs = manglendeInntektsmeldinger.entrySet()
             .stream()
@@ -334,10 +375,18 @@ class InntektsmeldingRegisterTjenesteSvpTest {
         assertThat(manglendeInntektsmeldinger).hasSize(1);
         assertThat(manglendeInntektsmeldinger.keySet().stream().findFirst()).isEqualTo(Optional.of(arbeidsgiver));
         assertThat(internrefs).containsAll(List.of(ref2));
+
+        assertThat(statusPerArbeidsgiver).hasSize(2);
+        assertThat(statusPerArbeidsgiver.stream().filter(status -> status.ref().equals(ref))
+            .map(ArbeidsforholdInntektsmeldingStatus::inntektsmeldingStatus)).containsAll(
+            Collections.singleton(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.MOTTATT));
+        assertThat(statusPerArbeidsgiver.stream().filter(status -> status.ref().equals(ref2))
+            .map(ArbeidsforholdInntektsmeldingStatus::inntektsmeldingStatus)).containsAll(
+            Collections.singleton(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT));
     }
 
     @Test
-    void ett_arbeidsforhold_har_ikke_inntekt_men_siden_det_søkt_svp_skal_det_bli_vurdert() {
+    void ett_arbeidsforhold_har_ikke_inntekt_men_siden_det_er_søkt_svp_skal_det_bli_vurdert() {
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
         var arbeidsgiver = Arbeidsgiver.virksomhet("123456789");
         var arbeidsgiver2 = Arbeidsgiver.virksomhet("987654321");
@@ -364,9 +413,18 @@ class InntektsmeldingRegisterTjenesteSvpTest {
             Collections.emptyList());
 
         var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
+        var statusPerArbeidsgiver = finnStatusForInntektsmeldingArbeidsforhold(behandlingReferanse, skjæringstidspunkt);
 
         assertThat(manglendeInntektsmeldinger).hasSize(2);
         assertThat(manglendeInntektsmeldinger.keySet().stream().toList()).containsAll(List.of(arbeidsgiver, arbeidsgiver2));
+
+        assertThat(statusPerArbeidsgiver).hasSize(2);
+        assertThat(statusPerArbeidsgiver.stream().filter(status -> status.arbeidsgiver().equals(arbeidsgiver))
+            .map(ArbeidsforholdInntektsmeldingStatus::inntektsmeldingStatus)).containsAll(
+            Collections.singleton(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT));
+        assertThat(statusPerArbeidsgiver.stream().filter(status -> status.arbeidsgiver().equals(arbeidsgiver2))
+            .map(ArbeidsforholdInntektsmeldingStatus::inntektsmeldingStatus)).containsAll(
+            Collections.singleton(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT));
     }
 
     @Test
@@ -399,9 +457,18 @@ class InntektsmeldingRegisterTjenesteSvpTest {
             List.of(inntektsmeldingMottatt));
 
         var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
+        var statusPerArbeidsgiver = finnStatusForInntektsmeldingArbeidsforhold(behandlingReferanse, skjæringstidspunkt);
 
         assertThat(manglendeInntektsmeldinger).hasSize(1);
         assertThat(manglendeInntektsmeldinger.keySet().stream().findFirst()).isEqualTo(Optional.of(arbeidsgiver));
+
+        assertThat(statusPerArbeidsgiver).hasSize(2);
+        assertThat(statusPerArbeidsgiver.stream().filter(status -> status.arbeidsgiver().equals(arbeidsgiver))
+            .map(ArbeidsforholdInntektsmeldingStatus::inntektsmeldingStatus)).containsAll(
+            Collections.singleton(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT));
+        assertThat(statusPerArbeidsgiver.stream().filter(status -> status.arbeidsgiver().equals(arbeidsgiver2))
+            .map(ArbeidsforholdInntektsmeldingStatus::inntektsmeldingStatus)).containsAll(
+            Collections.singleton(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.MOTTATT));
     }
 
     @Test
@@ -435,8 +502,108 @@ class InntektsmeldingRegisterTjenesteSvpTest {
             List.of(inntektsmeldingArbeidsgiver1, inntektsmeldingArbeidsgiver2));
 
         var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
+        var statusPerArbeidsgiver = finnStatusForInntektsmeldingArbeidsforhold(behandlingReferanse, skjæringstidspunkt);
 
         assertThat(manglendeInntektsmeldinger).isEmpty();
+        assertThat(statusPerArbeidsgiver).hasSize(2);
+        assertThat(statusPerArbeidsgiver.stream().filter(status -> status.arbeidsgiver().equals(arbeidsgiver))
+            .map(ArbeidsforholdInntektsmeldingStatus::inntektsmeldingStatus)).containsAll(
+            Collections.singleton(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.MOTTATT));
+        assertThat(statusPerArbeidsgiver.stream().filter(status -> status.arbeidsgiver().equals(arbeidsgiver2))
+            .map(ArbeidsforholdInntektsmeldingStatus::inntektsmeldingStatus)).containsAll(
+            Collections.singleton(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.MOTTATT));
+    }
+
+    @Test
+    void to_arbforhold_i_en_virksomhet_en_mottatt_im_og_en_ikke_mottatt_men_trenger_ikke_fordi_det_er_100_prosent_permisjon() {
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
+        var arbeidsgiver = Arbeidsgiver.virksomhet("123456789");
+        var ref = InternArbeidsforholdRef.nyRef();
+        var ref2 = InternArbeidsforholdRef.nyRef();
+        var ansettelse1 = lagAktivitetsAvtaleBuilder(SKJÆRINGSTIDSPUNKT.minusYears(1), null);
+        var ansettelse2 = lagAktivitetsAvtaleBuilder(SKJÆRINGSTIDSPUNKT.minusYears(1), null);
+        var arbavtale1 = lagAktivitetsAvtale100ProsentBuilder(SKJÆRINGSTIDSPUNKT.minusYears(1), null);
+        var arbavtale2 = lagAktivitetsAvtale100ProsentBuilder(SKJÆRINGSTIDSPUNKT.minusYears(1), null);
+        var permisjon2 = byggPermisjon(SKJÆRINGSTIDSPUNKT.minusDays(2), SKJÆRINGSTIDSPUNKT.plusMonths(2),
+            PermisjonsbeskrivelseType.ANNEN_PERMISJON_IKKE_LOVFESTET, BigDecimal.valueOf(100));
+        var yrkesaktivitet1 = lagYrkesaktivitetBuilder(List.of(ansettelse1, arbavtale1), arbeidsgiver, ref, List.of());
+        var yrkesaktivitet2 = lagYrkesaktivitetBuilder(List.of(ansettelse2, arbavtale2), arbeidsgiver, ref2, List.of(permisjon2));
+
+        lagArbeid(List.of(yrkesaktivitet1, yrkesaktivitet2));
+        lagInntekt(arbeidsgiver, SKJÆRINGSTIDSPUNKT.minusMonths(12), 12);
+        var inntektsmeldingMedArbId = lagInntektsmelding(arbeidsgiver, BigDecimal.valueOf(55000), EksternArbeidsforholdRef.ref("1"), ref);
+        var grunnlag = byggIAY(List.of(inntektsmeldingMedArbId));
+
+        var tilrFomArbeidsforhold1 = lagTilretteleggingFom(SKJÆRINGSTIDSPUNKT, TilretteleggingType.DELVIS_TILRETTELEGGING);
+        var tilretteleggingEntitet = lagTilrettelegging(arbeidsgiver, null, SKJÆRINGSTIDSPUNKT, List.of(tilrFomArbeidsforhold1));
+
+        var svpGrunnlag = byggSvangerskapspengerGrunnlag(List.of(tilretteleggingEntitet), behandlingReferanse.behandlingId());
+
+        when(svangerskapspengerRepository.hentGrunnlag(behandlingReferanse.behandlingId())).thenReturn(Optional.of(svpGrunnlag));
+        when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingReferanse.behandlingId())).thenReturn(Optional.of(grunnlag));
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingReferanse, skjæringstidspunkt.getUtledetSkjæringstidspunkt())).thenReturn(
+            List.of(inntektsmeldingMedArbId));
+
+        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
+        var statusPerArbeidsgiver = finnStatusForInntektsmeldingArbeidsforhold(behandlingReferanse, skjæringstidspunkt);
+
+        assertThat(manglendeInntektsmeldinger).isEmpty();
+        assertThat(statusPerArbeidsgiver).hasSize(1);
+        assertThat(statusPerArbeidsgiver.stream().filter(status -> status.arbeidsgiver().equals(arbeidsgiver))
+            .map(ArbeidsforholdInntektsmeldingStatus::inntektsmeldingStatus)).containsAll(
+            Collections.singleton(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.MOTTATT));
+    }
+
+    @Test
+    void dersom_søkt_på_inaktivt_arbeidsforhold_svp_skal_vi_kreve_inntektsmelding() {
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
+        var arbeidsgiver = Arbeidsgiver.virksomhet("123456789");
+        var arbeidsgiverUtenInntekt =Arbeidsgiver.virksomhet("987456321");
+        var ansettelse1 = lagAktivitetsAvtaleBuilder(SKJÆRINGSTIDSPUNKT.minusYears(1), null);
+        var ansettelse2 = lagAktivitetsAvtaleBuilder(SKJÆRINGSTIDSPUNKT.minusYears(1), null);
+        var arbavtale1 = lagAktivitetsAvtale100ProsentBuilder(SKJÆRINGSTIDSPUNKT.minusYears(1), null);
+        var arbavtale2 = lagAktivitetsAvtale100ProsentBuilder(SKJÆRINGSTIDSPUNKT.minusYears(1), null);
+        var permisjon2 = byggPermisjon(SKJÆRINGSTIDSPUNKT.minusDays(2), SKJÆRINGSTIDSPUNKT.plusMonths(2),
+            PermisjonsbeskrivelseType.ANNEN_PERMISJON_IKKE_LOVFESTET, BigDecimal.valueOf(50));
+        var yrkesaktivitet1 = lagYrkesaktivitetBuilder(List.of(ansettelse1, arbavtale1), arbeidsgiver, null, List.of());
+        var yrkesaktivitet2 = lagYrkesaktivitetBuilder(List.of(ansettelse2, arbavtale2), arbeidsgiverUtenInntekt, null, List.of(permisjon2));
+
+        lagArbeid(List.of(yrkesaktivitet1, yrkesaktivitet2));
+        lagInntekt(arbeidsgiver, SKJÆRINGSTIDSPUNKT.minusMonths(12), 12);
+        var inntektsmeldingForArbeidsgiver = lagInntektsmelding(arbeidsgiver, BigDecimal.valueOf(55000), null, null);
+        var grunnlag = byggIAY(List.of(inntektsmeldingForArbeidsgiver));
+
+        var tilrFom = lagTilretteleggingFom(SKJÆRINGSTIDSPUNKT, TilretteleggingType.DELVIS_TILRETTELEGGING);
+        var tilrFom2 = lagTilretteleggingFom(SKJÆRINGSTIDSPUNKT, TilretteleggingType.INGEN_TILRETTELEGGING);
+        var tilretteleggingArbeidsgiver = lagTilrettelegging(arbeidsgiver, null, SKJÆRINGSTIDSPUNKT, List.of(tilrFom));
+        var tilretteleggingArbgiverUtenInntekt = lagTilrettelegging(arbeidsgiverUtenInntekt, null, SKJÆRINGSTIDSPUNKT, List.of(tilrFom2));
+
+        var svpGrunnlag = byggSvangerskapspengerGrunnlag(List.of(tilretteleggingArbeidsgiver, tilretteleggingArbgiverUtenInntekt), behandlingReferanse.behandlingId());
+
+        when(svangerskapspengerRepository.hentGrunnlag(behandlingReferanse.behandlingId())).thenReturn(Optional.of(svpGrunnlag));
+        when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingReferanse.behandlingId())).thenReturn(Optional.of(grunnlag));
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingReferanse, skjæringstidspunkt.getUtledetSkjæringstidspunkt())).thenReturn(
+            List.of(inntektsmeldingForArbeidsgiver));
+
+        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
+        var statusPerArbeidsgiver = finnStatusForInntektsmeldingArbeidsforhold(behandlingReferanse, skjæringstidspunkt);
+
+        assertThat(manglendeInntektsmeldinger).hasSize(1);
+        assertThat(statusPerArbeidsgiver).hasSize(2);
+        assertThat(statusPerArbeidsgiver.stream().filter(status -> status.arbeidsgiver().equals(arbeidsgiver))
+            .map(ArbeidsforholdInntektsmeldingStatus::inntektsmeldingStatus)).containsAll(
+            Collections.singleton(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.MOTTATT));
+        assertThat(statusPerArbeidsgiver.stream().filter(status -> status.arbeidsgiver().equals(arbeidsgiverUtenInntekt))
+            .map(ArbeidsforholdInntektsmeldingStatus::inntektsmeldingStatus)).containsAll(
+            Collections.singleton(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT));
+    }
+
+    public List<ArbeidsforholdInntektsmeldingStatus> finnStatusForInntektsmeldingArbeidsforhold(BehandlingReferanse referanse, Skjæringstidspunkt skjæringstidspunkt) {
+        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(referanse, skjæringstidspunkt);
+        var allePåkrevdeInntektsmeldinger = inntektsmeldingRegisterTjeneste.hentAllePåkrevdeInntektsmeldinger(referanse, skjæringstidspunkt);
+
+        var saksbehandlersValg = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(referanse.behandlingId());
+        return InntektsmeldingStatusMapper.mapInntektsmeldingStatus(allePåkrevdeInntektsmeldinger, manglendeInntektsmeldinger, saksbehandlersValg);
     }
 
     private TilretteleggingFOM lagTilretteleggingFom(LocalDate startdato, TilretteleggingType type) {
@@ -530,4 +697,15 @@ class InntektsmeldingRegisterTjenesteSvpTest {
             .medPermisjonsbeskrivelseType(permisjonType)
             .build();
     }
+
+    private AktivitetsAvtaleBuilder lagAktivitetsAvtale100ProsentBuilder(LocalDate fom, LocalDate tom) {
+        var builder = AktivitetsAvtaleBuilder.ny();
+        if (tom == null) {
+            builder.medPeriode(DatoIntervallEntitet.fraOgMed(fom));
+        } else {
+            builder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
+        }
+        return builder.medProsentsats(BigDecimal.valueOf(100));
+    }
+
 }
