@@ -102,7 +102,7 @@ public class InntektsmeldingRegisterTjeneste {
 
         filtrerUtMottatteInntektsmeldinger(referanse, stp, påkrevdeInntektsmeldinger, new FinnEksternReferanse());
 
-        return filtrerInntektsmeldingerForYtelse(referanse, påkrevdeInntektsmeldinger);
+        return krevKunIMFraArbeidsforholdDetErSøktSvpFor(referanse, påkrevdeInntektsmeldinger);
     }
 
     private void logInntektsmeldinger(BehandlingReferanse referanse, Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger,
@@ -128,8 +128,8 @@ public class InntektsmeldingRegisterTjeneste {
         Objects.requireNonNull(referanse, VALID_REF);
         var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(referanse.behandlingId());
         var påkrevdeInntektsmeldinger = utledPåkrevdeInntektsmeldingerFraGrunnlag(referanse, stp, inntektArbeidYtelseGrunnlag);
-        var filtrertHvisSvp = filtrerInntektsmeldingerForYtelse(referanse, påkrevdeInntektsmeldinger);
-        return filtrerInntektsmeldingerForYtelseUtvidet(referanse, stp, inntektArbeidYtelseGrunnlag, filtrertHvisSvp, false);
+        var filtrertHvisSvp = krevKunIMFraArbeidsforholdDetErSøktSvpFor(referanse, påkrevdeInntektsmeldinger);
+        return filtrerBortInaktiveArbeidsforhold(referanse, stp, inntektArbeidYtelseGrunnlag, filtrertHvisSvp, false);
     }
 
     private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledPåkrevdeInntektsmeldingerFraGrunnlag(BehandlingReferanse referanse,
@@ -171,11 +171,14 @@ public class InntektsmeldingRegisterTjeneste {
         var påkrevdeInntektsmeldinger = utledPåkrevdeInntektsmeldingerFraGrunnlag(referanse, stp, inntektArbeidYtelseGrunnlag);
         logInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, "UFILTRERT");
 
-        filtrerUtMottatteInntektsmeldinger(referanse, stp, påkrevdeInntektsmeldinger, (a, i) -> i);
-        var filtrert = filtrerInntektsmeldingerForYtelse(referanse, påkrevdeInntektsmeldinger);
+        var påkrevdListeUtenIkkeSøktSvp = krevKunIMFraArbeidsforholdDetErSøktSvpFor(referanse, påkrevdeInntektsmeldinger);
+        logInntektsmeldinger(referanse, påkrevdListeUtenIkkeSøktSvp, "FILTRERT bort eventuelt ikke søkt(SVP)");
 
-        logInntektsmeldinger(referanse, filtrert, "FILTRERT mottatte og eventuelt ikke søkt(SVP)");
-        return filtrerInntektsmeldingerForYtelseUtvidet(referanse, stp, inntektArbeidYtelseGrunnlag, filtrert, true);
+        var påkrevdListeKunAktiveArbeidsforhold = filtrerBortInaktiveArbeidsforhold(referanse, stp, inntektArbeidYtelseGrunnlag, påkrevdListeUtenIkkeSøktSvp, true);
+        filtrerUtMottatteInntektsmeldinger(referanse, stp, påkrevdListeKunAktiveArbeidsforhold, (a, i) -> i);
+        logInntektsmeldinger(referanse, påkrevdListeKunAktiveArbeidsforhold, "FILTRERT bort ikke aktive arbeidsforhold, og de vi har mottatt inntektsmelding fra");
+
+        return påkrevdListeKunAktiveArbeidsforhold;
     }
 
     // Vent med å ta i bruk denne til vi ikke lenger venter på andel i beregning
@@ -269,21 +272,21 @@ public class InntektsmeldingRegisterTjeneste {
      * utledManglendeInntektsmeldingerFraAAreg da disse verdiene skal ikke påvirkes
      * av endringer i arkivet.
      */
-    private <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForYtelse(BehandlingReferanse referanse,
-                                                                            Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger) {
+    private <V> Map<Arbeidsgiver, Set<V>> krevKunIMFraArbeidsforholdDetErSøktSvpFor(BehandlingReferanse referanse,
+                                                                                    Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger) {
         var filter = FagsakYtelseTypeRef.Lookup.find(inntektsmeldingFiltere, referanse.fagsakYtelseType())
                 .orElseThrow(
                         () -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + referanse.fagsakYtelseType().getKode()));
-        return filter.filtrerInntektsmeldingerForYtelse(referanse, påkrevdeInntektsmeldinger);
+        return filter.krevKunIMFraArbeidsforholdDetErSøktSvpFor(referanse, påkrevdeInntektsmeldinger);
     }
 
-    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> filtrerInntektsmeldingerForYtelseUtvidet(BehandlingReferanse referanse,
-                                                                                                     Skjæringstidspunkt stp,
-                                                                                                     Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger,
-                                                                                                     boolean tahensynTilPermisjon) {
+    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> filtrerBortInaktiveArbeidsforhold(BehandlingReferanse referanse,
+                                                                                             Skjæringstidspunkt stp,
+                                                                                             Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger,
+                                                                                             boolean tahensynTilPermisjon) {
         var filter = FagsakYtelseTypeRef.Lookup.find(inntektsmeldingFiltere, referanse.fagsakYtelseType())
                 .orElseThrow(
                         () -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + referanse.fagsakYtelseType().getKode()));
-        return filter.filtrerInntektsmeldingerForYtelseUtvidet(referanse, stp, inntektArbeidYtelseGrunnlag, påkrevdeInntektsmeldinger, tahensynTilPermisjon);
+        return filter.filtrerBortInaktiveArbeidsforhold(referanse, stp, inntektArbeidYtelseGrunnlag, påkrevdeInntektsmeldinger, tahensynTilPermisjon);
     }
 }
