@@ -7,6 +7,9 @@ import java.util.List;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -26,6 +29,8 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 @ApplicationScoped
 public class HistorikkinnslagTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(HistorikkinnslagTjeneste.class);
 
     private static final String KLAGE = "Klage";
     private static final String VEDLEGG = "Vedlegg";
@@ -49,6 +54,7 @@ public class HistorikkinnslagTjeneste {
 
     public void opprettHistorikkinnslag(Behandling behandling, JournalpostId journalpostId, Boolean selvOmLoggetTidligere, boolean elektronisk, boolean erIM) {
         if (!selvOmLoggetTidligere && historikkinnslagForBehandlingStartetErLoggetTidligere(behandling.getId(), HistorikkinnslagType.BEH_STARTET)) {
+            LOG.info("Oppretter ikke behandling startet historikkinnslag ettersom det allerede eksisterer");
             return;
         }
 
