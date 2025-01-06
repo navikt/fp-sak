@@ -16,7 +16,7 @@ public enum KlageAvvistÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
 
     KLAGET_FOR_SENT("KLAGET_FOR_SENT", "Bruker har klaget for sent",
             "{\"klageAvvistAarsak\":{\"NFP\": {\"lovreferanser\": [\"31\", \"33\"]},\"KA\": {\"lovreferanser\": [\"31\", \"34\"]}}}"),
-    KLAGE_UGYLDIG("KLAGE_UGYLDIG", "Klage er ugyldig", null),
+    KLAGE_UGYLDIG("KLAGE_UGYLDIG", "Klagen er ugyldig", null),
     IKKE_PAKLAGD_VEDTAK("IKKE_PAKLAGD_VEDTAK", "Ikke påklagd et vedtak",
             "{\"klageAvvistAarsak\":{\"NFP\": {\"lovreferanser\": [\"28\", \"33\"]},\"KA\": {\"lovreferanser\": [\"28\", \"34\"]}}}"),
     KLAGER_IKKE_PART("KLAGER_IKKE_PART", "Klager er ikke part",

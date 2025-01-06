@@ -23,7 +23,7 @@ public enum FeltVerdiType {
     TILBAKEKR_INFOTRYGD("TILBAKEKR_INFOTRYGD", "Opprett tilbakekreving"), // Gammel kode som er migrert over TILBAKEKR_OPPRETT, men finnes fremdeles i dev (trengs for testing).
     FASTSETT_RESULTAT_PERIODEN_AVKLARES_IKKE("FASTSETT_RESULTAT_PERIODEN_AVKLARES_IKKE", "Perioden kan ikke avklares"),
     FASTSETT_RESULTAT_PERIODEN_SYKDOM_DOKUMENTERT("FASTSETT_RESULTAT_PERIODEN_SYKDOM_DOKUMENTERT", "Sykdommen/skaden er dokumentert"),
-    HAR_GYLDIG_GRUNN("HAR_GYLDIG_GRUNN", "Gyldig grunn for sen fremsetting av søknaden"),
+    HAR_GYLDIG_GRUNN("HAR_GYLDIG_GRUNN", "Gyldig grunn til at søknaden er satt frem for sent"),
     BRUK_MED_OVERSTYRTE_PERIODER("BRUK_MED_OVERSTYRTE_PERIODER", "Bruk arbeidsforholdet med overstyrt periode"),
     GRADERING_IKKE_OPPFYLT("GRADERING_IKKE_OPPFYLT", "Ikke oppfylt"),
     GYLDIG_UTSETTELSE_PGA_FERIE("2010", "Gyldig utsettelse pga ferie"),
@@ -78,7 +78,7 @@ public enum FeltVerdiType {
     TIDSBEGRENSET_ARBEIDSFORHOLD("TIDSBEGRENSET_ARBEIDSFORHOLD", "tidsbegrenset"),
     FAR_ALENEOMSORG_MOR_FYLLER_IKKE_AKTIVITETSKRAVET("4035", "Far aleneomsorg, mor fyller ikke aktivitetskravet"),
     AKTIVITETSKRAVET_OFFENTLIG_GODKJENT_UTDANNING_IKKE_OPPFYLT("4051", "Aktivitetskravet offentlig godkjent utdanning ikke oppfylt"),
-    HAR_IKKE_GYLDIG_GRUNN("HAR_IKKE_GYLDIG_GRUNN", "Ingen gyldig grunn for sen fremsetting av søknaden"),
+    HAR_IKKE_GYLDIG_GRUNN("HAR_IKKE_GYLDIG_GRUNN", "Ingen gyldig grunn til at søknaden er satt frem for sent"),
     EØS_BOSATT_NORGE("EØS_BOSATT_NORGE", "EØS bosatt Norge"),
     AKTIVITETSKRAV_ARBEID_IKKE_DOKUMENTERT("4066", "Aktivitetskrav- arbeid ikke dokumentert"),
     AKTIVITETSKRAV_UTDANNING_IKKE_DOKUMENTERT("467", "Aktivitetskrav – utdanning ikke dokumentert"),

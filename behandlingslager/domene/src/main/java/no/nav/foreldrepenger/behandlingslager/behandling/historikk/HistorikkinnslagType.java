@@ -29,7 +29,7 @@ public enum HistorikkinnslagType implements Kodeverdi {
     ANKEBEH_STARTET("ANKEBEH_STARTET", "Anke er mottatt", HistorikkinnslagMal.MAL_TYPE_1),
     VRS_REV_IKKE_SNDT("VRS_REV_IKKE_SNDT", "Varsel om revurdering er ikke sendt", HistorikkinnslagMal.MAL_TYPE_1),
     VEDLEGG_MOTTATT("VEDLEGG_MOTTATT", "Vedlegg er mottatt", HistorikkinnslagMal.MAL_TYPE_1),
-    TERMINBEKREFTELSE_UGYLDIG("TERMINBEKREFTELSE_UGYLDIG", "Terminbekreftelsens utstedt dato er før 22. svangerskapsuke. Behandlingen fortsatt uten ny terminbekreftelse", HistorikkinnslagMal.MAL_TYPE_1),
+    TERMINBEKREFTELSE_UGYLDIG("TERMINBEKREFTELSE_UGYLDIG", "Terminbekreftelsens utstedtdato er før 22. svangerskapsuke. Behandlingen har fortsatt uten ny terminbekreftelse.", HistorikkinnslagMal.MAL_TYPE_1),
     SPOLT_TILBAKE("SPOLT_TILBAKE", "Behandlingen er flyttet", HistorikkinnslagMal.MAL_TYPE_1),
     REVURD_OPPR("REVURD_OPPR", "Revurdering er opprettet", HistorikkinnslagMal.MAL_TYPE_1),
     REGISTRER_PAPIRSØK("REGISTRER_PAPIRSØK", "Registrer papirsøknad", HistorikkinnslagMal.MAL_TYPE_1),
@@ -51,7 +51,7 @@ public enum HistorikkinnslagType implements Kodeverdi {
     FORSLAG_VEDTAK("FORSLAG_VEDTAK", "Vedtak er foreslått og sendt til beslutter", HistorikkinnslagMal.MAL_TYPE_2),
 
     // Mal Type 3
-    SAK_RETUR("SAK_RETUR", "Sak retur", HistorikkinnslagMal.MAL_TYPE_3),
+    SAK_RETUR("SAK_RETUR", "Sak er sendt i retur", HistorikkinnslagMal.MAL_TYPE_3),
     SAK_GODKJENT("SAK_GODKJENT", "Sak er godkjent", HistorikkinnslagMal.MAL_TYPE_3),
 
     // Mal Type 4
@@ -63,7 +63,7 @@ public enum HistorikkinnslagType implements Kodeverdi {
 
     // Mal Type 5
     UTTAK("UTTAK", "Behandlet søknadsperiode", HistorikkinnslagMal.MAL_TYPE_5),
-    KLAGE_BEH_NK("KLAGE_BEH_NK", "Klagebehandling KA", HistorikkinnslagMal.MAL_TYPE_5),
+    KLAGE_BEH_NK("KLAGE_BEH_NK", "Klagebehandling Klageinstansen", HistorikkinnslagMal.MAL_TYPE_5),
     KLAGE_BEH_NFP("KLAGE_BEH_NFP", "Klagebehandling NFP", HistorikkinnslagMal.MAL_TYPE_5),
     FAKTA_ENDRET("FAKTA_ENDRET", "Fakta er endret", HistorikkinnslagMal.MAL_TYPE_5),
     BYTT_ENHET("BYTT_ENHET", "Bytt enhet", HistorikkinnslagMal.MAL_TYPE_5),
@@ -79,13 +79,13 @@ public enum HistorikkinnslagType implements Kodeverdi {
     OPPTJENING("OPPTJENING", "Behandlet opptjeningsperiode", HistorikkinnslagMal.MAL_TYPE_8),
 
     // Mal Type 9
-    OVST_UTTAK_SPLITT("OVST_UTTAK_SPLITT", "Manuelt overstyring av uttak - splitting av periode", HistorikkinnslagMal.MAL_TYPE_9),
-    FASTSATT_UTTAK_SPLITT("FASTSATT_UTTAK_SPLITT", "Manuelt fastsetting av uttak - splitting av periode", HistorikkinnslagMal.MAL_TYPE_9),
+    OVST_UTTAK_SPLITT("OVST_UTTAK_SPLITT", "Manuell overstyring av uttak - splitting av periode", HistorikkinnslagMal.MAL_TYPE_9),
+    FASTSATT_UTTAK_SPLITT("FASTSATT_UTTAK_SPLITT", "Manuell fastsetting av uttak - splitting av periode", HistorikkinnslagMal.MAL_TYPE_9),
     TILBAKEKREVING_VIDEREBEHANDLING("TILBAKEKR_VIDEREBEHANDLING", "Metode for å håndtere tilbakekreving av feilutbetailng er valgt.", HistorikkinnslagMal.MAL_TYPE_9),
 
     // Mal Type 10
-    FASTSATT_UTTAK("FASTSATT_UTTAK", "Manuelt fastsetting av uttak", HistorikkinnslagMal.MAL_TYPE_10),
-    OVST_UTTAK("OVST_UTTAK", "Manuelt overstyring av uttak", HistorikkinnslagMal.MAL_TYPE_10),
+    FASTSATT_UTTAK("FASTSATT_UTTAK", "Manuell fastsetting av uttak", HistorikkinnslagMal.MAL_TYPE_10),
+    OVST_UTTAK("OVST_UTTAK", "Manuell overstyring av uttak", HistorikkinnslagMal.MAL_TYPE_10),
 
     UDEFINERT("-", "Ikke definert", null),
 

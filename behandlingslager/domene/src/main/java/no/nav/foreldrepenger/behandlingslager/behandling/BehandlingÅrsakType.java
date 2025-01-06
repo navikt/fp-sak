@@ -38,7 +38,7 @@ public enum BehandlingÅrsakType implements Kodeverdi {
 
     // Etterkontroll + funksjonell
     RE_MANGLER_FØDSEL("RE-MF", "Mangler fødselsregistrering"),
-    RE_MANGLER_FØDSEL_I_PERIODE("RE-MFIP", "Mangler fødselsreg. u26-29"),
+    RE_MANGLER_FØDSEL_I_PERIODE("RE-MFIP", "Mangler fødselsreg. for uke 26-29"),
     RE_AVVIK_ANTALL_BARN("RE-AVAB", "Avvik antall barn"),
 
     // Mottak
