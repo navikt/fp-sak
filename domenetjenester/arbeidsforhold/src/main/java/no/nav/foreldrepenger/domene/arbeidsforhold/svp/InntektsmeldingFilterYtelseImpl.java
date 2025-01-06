@@ -40,7 +40,7 @@ public class InntektsmeldingFilterYtelseImpl implements InntektsmeldingFilterYte
     }
 
     @Override
-    public <V> Map<Arbeidsgiver, Set<V>> krevKunIMFraArbeidsforholdDetErSøktSvpFor(BehandlingReferanse referanse, Map<Arbeidsgiver, Set<V>> påkrevde) {
+    public <V> Map<Arbeidsgiver, Set<V>> søknadsFilter(BehandlingReferanse referanse, Map<Arbeidsgiver, Set<V>> påkrevde) {
         Map<Arbeidsgiver, Set<V>> filtrert = new HashMap<>();
         var arbeidsforholdFraSøknad = getArbeidsforholdSøktTilretteleggingI(referanse);
         påkrevde.forEach((key, value) -> {
@@ -64,11 +64,11 @@ public class InntektsmeldingFilterYtelseImpl implements InntektsmeldingFilterYte
     }
 
     @Override
-    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> filtrerBortInaktiveArbeidsforhold(BehandlingReferanse referanse,
-                                                                                             Skjæringstidspunkt stp,
-                                                                                             Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
-                                                                                             Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevde,
-                                                                                             boolean taHensynTilPermisjon) {
+    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> aktiveArbeidsforholdFilter(BehandlingReferanse referanse,
+                                                                                      Skjæringstidspunkt stp,
+                                                                                      Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
+                                                                                      Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevde,
+                                                                                      boolean taHensynTilPermisjon) {
         var kunAktive = InaktiveArbeidsforholdUtleder.finnKunAktive(påkrevde, inntektArbeidYtelseGrunnlag, referanse, stp, true);
 
         // Legger inn alle arbeidsforhold det er søkt tilrettelegging i

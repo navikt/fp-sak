@@ -27,16 +27,16 @@ public class InntektsmeldingFilterYtelseImpl implements InntektsmeldingFilterYte
     }
 
     @Override
-    public <V> Map<Arbeidsgiver, Set<V>> krevKunIMFraArbeidsforholdDetErSøktSvpFor(BehandlingReferanse referanse, Map<Arbeidsgiver, Set<V>> påkrevde) {
+    public <V> Map<Arbeidsgiver, Set<V>> søknadsFilter(BehandlingReferanse referanse, Map<Arbeidsgiver, Set<V>> påkrevde) {
         return påkrevde;
     }
 
     @Override
-    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> filtrerBortInaktiveArbeidsforhold(BehandlingReferanse referanse,
-                                                                                             Skjæringstidspunkt skjæringstidspunkt,
-                                                                                             Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
-                                                                                             Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevde,
-                                                                                             boolean taHensynTilPermisjon) {
+    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> aktiveArbeidsforholdFilter(BehandlingReferanse referanse,
+                                                                                      Skjæringstidspunkt skjæringstidspunkt,
+                                                                                      Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
+                                                                                      Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevde,
+                                                                                      boolean taHensynTilPermisjon) {
         return InaktiveArbeidsforholdUtleder.finnKunAktive(påkrevde, inntektArbeidYtelseGrunnlag, referanse, skjæringstidspunkt, taHensynTilPermisjon);
     }
 }

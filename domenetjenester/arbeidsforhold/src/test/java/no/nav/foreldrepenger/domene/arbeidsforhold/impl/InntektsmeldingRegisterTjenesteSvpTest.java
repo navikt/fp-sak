@@ -126,7 +126,7 @@ class InntektsmeldingRegisterTjenesteSvpTest {
     }
 
     @Test
-    void skal_ikke_mangle_inntektsmelding_i_arbeidsforhold_det_ikke_er_søkt_om_tilrettelegging() {
+    void skal_ikke_kreve_inntektsmelding_i_arbeidsforhold_det_ikke_er_søkt_om_tilrettelegging() {
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
         var arbeidsgiver = Arbeidsgiver.virksomhet("123456789");
         var ref = InternArbeidsforholdRef.nyRef();
@@ -165,7 +165,7 @@ class InntektsmeldingRegisterTjenesteSvpTest {
     }
 
     @Test
-    void ett_arbeidsforhold_blir_ikke_tatt_med_fordi_det_er_100_prosent_permisjon() {
+    void krever_ikkeinntektsmelding_for_en_av_arbeidsforholdene_fordi_det_er_100_prosent_permisjon() {
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
         var arbeidsgiver = Arbeidsgiver.virksomhet("123456789");
         var ref = InternArbeidsforholdRef.nyRef();
@@ -206,7 +206,7 @@ class InntektsmeldingRegisterTjenesteSvpTest {
     }
 
     @Test
-    void ett_arbeidsforhold_har_100_prosent_permisjon_vi_ikke_bryr_oss_om_og_skal_bli_vurdert() {
+    void ett_arbeidsforhold_har_100_prosent_permisjon_vi_ikke_bryr_oss_om_og_inntektsmelding_kreves() {
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
         var arbeidsgiver = Arbeidsgiver.virksomhet("123456789");
         var ref = InternArbeidsforholdRef.nyRef();
@@ -252,7 +252,7 @@ class InntektsmeldingRegisterTjenesteSvpTest {
     }
 
     @Test
-    void ett_arbeidsforhold_har_50_prosent_permisjon_og_skal_bli_vurdert() {
+    void ett_arbeidsforhold_har_50_prosent_permisjon_og_inntektsmelding_kreves() {
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
         var arbeidsgiver = Arbeidsgiver.virksomhet("123456789");
         var ref = InternArbeidsforholdRef.nyRef();
@@ -304,9 +304,8 @@ class InntektsmeldingRegisterTjenesteSvpTest {
         var ref = InternArbeidsforholdRef.nyRef();
         var ref2 = InternArbeidsforholdRef.nyRef();
         var aktivitetsAvtaleBuilder = lagAktivitetsAvtaleBuilder(SKJÆRINGSTIDSPUNKT.minusYears(1), null);
-        var permisjon1 = byggPermisjon(SKJÆRINGSTIDSPUNKT.minusDays(2), SKJÆRINGSTIDSPUNKT.plusMonths(2), PermisjonsbeskrivelseType.ANNEN_PERMISJON_IKKE_LOVFESTET, BigDecimal.valueOf(50));
         var yrkesaktivitet1 = lagYrkesaktivitetBuilder(List.of(aktivitetsAvtaleBuilder), arbeidsgiver, ref, List.of());
-        var yrkesaktivitet2 = lagYrkesaktivitetBuilder(List.of(aktivitetsAvtaleBuilder), arbeidsgiver, ref2, List.of(permisjon1));
+        var yrkesaktivitet2 = lagYrkesaktivitetBuilder(List.of(aktivitetsAvtaleBuilder), arbeidsgiver, ref2, List.of());
 
         lagArbeid(List.of(yrkesaktivitet1, yrkesaktivitet2));
         lagInntekt(arbeidsgiver, SKJÆRINGSTIDSPUNKT.minusMonths(12), 12 );
@@ -343,9 +342,8 @@ class InntektsmeldingRegisterTjenesteSvpTest {
         var ref = InternArbeidsforholdRef.nyRef();
         var ref2 = InternArbeidsforholdRef.nyRef();
         var aktivitetsAvtaleBuilder = lagAktivitetsAvtaleBuilder(SKJÆRINGSTIDSPUNKT.minusYears(1), null);
-        var permisjon1 = byggPermisjon(SKJÆRINGSTIDSPUNKT.minusDays(2), SKJÆRINGSTIDSPUNKT.plusMonths(2), PermisjonsbeskrivelseType.ANNEN_PERMISJON_IKKE_LOVFESTET, BigDecimal.valueOf(50));
         var yrkesaktivitet1 = lagYrkesaktivitetBuilder(List.of(aktivitetsAvtaleBuilder), arbeidsgiver, ref, List.of());
-        var yrkesaktivitet2 = lagYrkesaktivitetBuilder(List.of(aktivitetsAvtaleBuilder), arbeidsgiver, ref2, List.of(permisjon1));
+        var yrkesaktivitet2 = lagYrkesaktivitetBuilder(List.of(aktivitetsAvtaleBuilder), arbeidsgiver, ref2, List.of());
 
         lagArbeid(List.of(yrkesaktivitet1, yrkesaktivitet2));
         lagInntekt(arbeidsgiver, SKJÆRINGSTIDSPUNKT.minusMonths(12), 12 );
@@ -386,15 +384,14 @@ class InntektsmeldingRegisterTjenesteSvpTest {
     }
 
     @Test
-    void ett_arbeidsforhold_har_ikke_inntekt_men_siden_det_er_søkt_svp_skal_det_bli_vurdert() {
+    void ett_arbeidsforhold_har_ikke_inntekt_men_siden_det_er_søkt_svp_skal_inntektsmelding_kreves() {
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
         var arbeidsgiver = Arbeidsgiver.virksomhet("123456789");
         var arbeidsgiver2 = Arbeidsgiver.virksomhet("987654321");
 
         var aktivitetsAvtaleBuilder = lagAktivitetsAvtaleBuilder(SKJÆRINGSTIDSPUNKT.minusYears(1), null);
-        var permisjon1 = byggPermisjon(SKJÆRINGSTIDSPUNKT.minusDays(2), SKJÆRINGSTIDSPUNKT.plusMonths(2), PermisjonsbeskrivelseType.ANNEN_PERMISJON_IKKE_LOVFESTET, BigDecimal.valueOf(50));
         var yrkesaktivitet1 = lagYrkesaktivitetBuilder(List.of(aktivitetsAvtaleBuilder), arbeidsgiver, null, List.of());
-        var yrkesaktivitet2 = lagYrkesaktivitetBuilder(List.of(aktivitetsAvtaleBuilder), arbeidsgiver2, null, List.of(permisjon1));
+        var yrkesaktivitet2 = lagYrkesaktivitetBuilder(List.of(aktivitetsAvtaleBuilder), arbeidsgiver2, null, List.of());
 
         lagArbeid(List.of(yrkesaktivitet1, yrkesaktivitet2));
         lagInntekt(arbeidsgiver, SKJÆRINGSTIDSPUNKT.minusMonths(12), 12 );
@@ -434,9 +431,8 @@ class InntektsmeldingRegisterTjenesteSvpTest {
         var arbeidsgiver2 = Arbeidsgiver.virksomhet("987654321");
 
         var aktivitetsAvtaleBuilder = lagAktivitetsAvtaleBuilder(SKJÆRINGSTIDSPUNKT.minusYears(1), null);
-        var permisjon1 = byggPermisjon(SKJÆRINGSTIDSPUNKT.minusDays(2), SKJÆRINGSTIDSPUNKT.plusMonths(2), PermisjonsbeskrivelseType.ANNEN_PERMISJON_IKKE_LOVFESTET, BigDecimal.valueOf(50));
         var yrkesaktivitet1 = lagYrkesaktivitetBuilder(List.of(aktivitetsAvtaleBuilder), arbeidsgiver, null, List.of());
-        var yrkesaktivitet2 = lagYrkesaktivitetBuilder(List.of(aktivitetsAvtaleBuilder), arbeidsgiver2, null, List.of(permisjon1));
+        var yrkesaktivitet2 = lagYrkesaktivitetBuilder(List.of(aktivitetsAvtaleBuilder), arbeidsgiver2, null, List.of());
 
         lagArbeid(List.of(yrkesaktivitet1, yrkesaktivitet2));
         lagInntekt(arbeidsgiver, SKJÆRINGSTIDSPUNKT.minusMonths(12), 12 );
@@ -478,9 +474,8 @@ class InntektsmeldingRegisterTjenesteSvpTest {
         var arbeidsgiver2 = Arbeidsgiver.virksomhet("987654321");
 
         var aktivitetsAvtaleBuilder = lagAktivitetsAvtaleBuilder(SKJÆRINGSTIDSPUNKT.minusYears(1), null);
-        var permisjon1 = byggPermisjon(SKJÆRINGSTIDSPUNKT.minusDays(2), SKJÆRINGSTIDSPUNKT.plusMonths(2), PermisjonsbeskrivelseType.ANNEN_PERMISJON_IKKE_LOVFESTET, BigDecimal.valueOf(50));
         var yrkesaktivitet1 = lagYrkesaktivitetBuilder(List.of(aktivitetsAvtaleBuilder), arbeidsgiver, null, List.of());
-        var yrkesaktivitet2 = lagYrkesaktivitetBuilder(List.of(aktivitetsAvtaleBuilder), arbeidsgiver2, null, List.of(permisjon1));
+        var yrkesaktivitet2 = lagYrkesaktivitetBuilder(List.of(aktivitetsAvtaleBuilder), arbeidsgiver2, null, List.of());
 
         lagArbeid(List.of(yrkesaktivitet1, yrkesaktivitet2));
         lagInntekt(arbeidsgiver, SKJÆRINGSTIDSPUNKT.minusMonths(12), 12 );
@@ -557,42 +552,29 @@ class InntektsmeldingRegisterTjenesteSvpTest {
     @Test
     void dersom_søkt_på_inaktivt_arbeidsforhold_svp_skal_vi_kreve_inntektsmelding() {
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
-        var arbeidsgiver = Arbeidsgiver.virksomhet("123456789");
         var arbeidsgiverUtenInntekt =Arbeidsgiver.virksomhet("987456321");
         var ansettelse1 = lagAktivitetsAvtaleBuilder(SKJÆRINGSTIDSPUNKT.minusYears(1), null);
-        var ansettelse2 = lagAktivitetsAvtaleBuilder(SKJÆRINGSTIDSPUNKT.minusYears(1), null);
         var arbavtale1 = lagAktivitetsAvtale100ProsentBuilder(SKJÆRINGSTIDSPUNKT.minusYears(1), null);
-        var arbavtale2 = lagAktivitetsAvtale100ProsentBuilder(SKJÆRINGSTIDSPUNKT.minusYears(1), null);
-        var permisjon2 = byggPermisjon(SKJÆRINGSTIDSPUNKT.minusDays(2), SKJÆRINGSTIDSPUNKT.plusMonths(2),
-            PermisjonsbeskrivelseType.ANNEN_PERMISJON_IKKE_LOVFESTET, BigDecimal.valueOf(50));
-        var yrkesaktivitet1 = lagYrkesaktivitetBuilder(List.of(ansettelse1, arbavtale1), arbeidsgiver, null, List.of());
-        var yrkesaktivitet2 = lagYrkesaktivitetBuilder(List.of(ansettelse2, arbavtale2), arbeidsgiverUtenInntekt, null, List.of(permisjon2));
+        var yrkesaktivitet2 = lagYrkesaktivitetBuilder(List.of(ansettelse1, arbavtale1), arbeidsgiverUtenInntekt, null, List.of());
 
-        lagArbeid(List.of(yrkesaktivitet1, yrkesaktivitet2));
-        lagInntekt(arbeidsgiver, SKJÆRINGSTIDSPUNKT.minusMonths(12), 12);
-        var inntektsmeldingForArbeidsgiver = lagInntektsmelding(arbeidsgiver, BigDecimal.valueOf(55000), null, null);
-        var grunnlag = byggIAY(List.of(inntektsmeldingForArbeidsgiver));
+        lagArbeid(List.of(yrkesaktivitet2));
+        var grunnlag = byggIAY(List.of());
 
         var tilrFom = lagTilretteleggingFom(SKJÆRINGSTIDSPUNKT, TilretteleggingType.DELVIS_TILRETTELEGGING);
-        var tilrFom2 = lagTilretteleggingFom(SKJÆRINGSTIDSPUNKT, TilretteleggingType.INGEN_TILRETTELEGGING);
-        var tilretteleggingArbeidsgiver = lagTilrettelegging(arbeidsgiver, null, SKJÆRINGSTIDSPUNKT, List.of(tilrFom));
-        var tilretteleggingArbgiverUtenInntekt = lagTilrettelegging(arbeidsgiverUtenInntekt, null, SKJÆRINGSTIDSPUNKT, List.of(tilrFom2));
+        var tilretteleggingArbgiverUtenInntekt = lagTilrettelegging(arbeidsgiverUtenInntekt, null, SKJÆRINGSTIDSPUNKT, List.of(tilrFom));
 
-        var svpGrunnlag = byggSvangerskapspengerGrunnlag(List.of(tilretteleggingArbeidsgiver, tilretteleggingArbgiverUtenInntekt), behandlingReferanse.behandlingId());
+        var svpGrunnlag = byggSvangerskapspengerGrunnlag(List.of(tilretteleggingArbgiverUtenInntekt), behandlingReferanse.behandlingId());
 
         when(svangerskapspengerRepository.hentGrunnlag(behandlingReferanse.behandlingId())).thenReturn(Optional.of(svpGrunnlag));
         when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingReferanse.behandlingId())).thenReturn(Optional.of(grunnlag));
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingReferanse, skjæringstidspunkt.getUtledetSkjæringstidspunkt())).thenReturn(
-            List.of(inntektsmeldingForArbeidsgiver));
+            List.of());
 
         var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
         var statusPerArbeidsgiver = finnStatusForInntektsmeldingArbeidsforhold(behandlingReferanse, skjæringstidspunkt);
 
         assertThat(manglendeInntektsmeldinger).hasSize(1);
-        assertThat(statusPerArbeidsgiver).hasSize(2);
-        assertThat(statusPerArbeidsgiver.stream().filter(status -> status.arbeidsgiver().equals(arbeidsgiver))
-            .map(ArbeidsforholdInntektsmeldingStatus::inntektsmeldingStatus)).containsAll(
-            Collections.singleton(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.MOTTATT));
+        assertThat(statusPerArbeidsgiver).hasSize(1);
         assertThat(statusPerArbeidsgiver.stream().filter(status -> status.arbeidsgiver().equals(arbeidsgiverUtenInntekt))
             .map(ArbeidsforholdInntektsmeldingStatus::inntektsmeldingStatus)).containsAll(
             Collections.singleton(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT));

@@ -102,7 +102,7 @@ public class InntektsmeldingRegisterTjeneste {
 
         filtrerUtMottatteInntektsmeldinger(referanse, stp, påkrevdeInntektsmeldinger, new FinnEksternReferanse());
 
-        return krevKunIMFraArbeidsforholdDetErSøktSvpFor(referanse, påkrevdeInntektsmeldinger);
+        return søknadsFilter(referanse, påkrevdeInntektsmeldinger);
     }
 
     private void logInntektsmeldinger(BehandlingReferanse referanse, Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger,
@@ -128,8 +128,8 @@ public class InntektsmeldingRegisterTjeneste {
         Objects.requireNonNull(referanse, VALID_REF);
         var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(referanse.behandlingId());
         var påkrevdeInntektsmeldinger = utledPåkrevdeInntektsmeldingerFraGrunnlag(referanse, stp, inntektArbeidYtelseGrunnlag);
-        var filtrertHvisSvp = krevKunIMFraArbeidsforholdDetErSøktSvpFor(referanse, påkrevdeInntektsmeldinger);
-        return filtrerBortInaktiveArbeidsforhold(referanse, stp, inntektArbeidYtelseGrunnlag, filtrertHvisSvp, false);
+        var filtrertHvisSvp = søknadsFilter(referanse, påkrevdeInntektsmeldinger);
+        return aktiveArbeidsforholdFilter(referanse, stp, inntektArbeidYtelseGrunnlag, filtrertHvisSvp, false);
     }
 
     private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledPåkrevdeInntektsmeldingerFraGrunnlag(BehandlingReferanse referanse,
@@ -171,14 +171,14 @@ public class InntektsmeldingRegisterTjeneste {
         var påkrevdeInntektsmeldinger = utledPåkrevdeInntektsmeldingerFraGrunnlag(referanse, stp, inntektArbeidYtelseGrunnlag);
         logInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, "UFILTRERT");
 
-        var påkrevdListeUtenIkkeSøktSvp = krevKunIMFraArbeidsforholdDetErSøktSvpFor(referanse, påkrevdeInntektsmeldinger);
-        logInntektsmeldinger(referanse, påkrevdListeUtenIkkeSøktSvp, "FILTRERT bort eventuelt ikke søkt(SVP)");
+        var påkrevdListeSøkteArbeidsforhold = søknadsFilter(referanse, påkrevdeInntektsmeldinger);
+        logInntektsmeldinger(referanse, påkrevdListeSøkteArbeidsforhold, "FILTRERT bort arbeidsforhold det ikke er søkt(svp) for");
 
-        var påkrevdListeKunAktiveArbeidsforhold = filtrerBortInaktiveArbeidsforhold(referanse, stp, inntektArbeidYtelseGrunnlag, påkrevdListeUtenIkkeSøktSvp, true);
-        filtrerUtMottatteInntektsmeldinger(referanse, stp, påkrevdListeKunAktiveArbeidsforhold, (a, i) -> i);
-        logInntektsmeldinger(referanse, påkrevdListeKunAktiveArbeidsforhold, "FILTRERT bort ikke aktive arbeidsforhold, og de vi har mottatt inntektsmelding fra");
+        var påkrevdListeAktiveArbeidsforhold = aktiveArbeidsforholdFilter(referanse, stp, inntektArbeidYtelseGrunnlag, påkrevdListeSøkteArbeidsforhold, true);
+        filtrerUtMottatteInntektsmeldinger(referanse, stp, påkrevdListeAktiveArbeidsforhold, (a, i) -> i);
+        logInntektsmeldinger(referanse, påkrevdListeAktiveArbeidsforhold, "FILTRERT bort inaktive arbeidsforhold, og arbeidsforhold vi har mottatt inntektsmelding på");
 
-        return påkrevdListeKunAktiveArbeidsforhold;
+        return påkrevdListeAktiveArbeidsforhold;
     }
 
     // Vent med å ta i bruk denne til vi ikke lenger venter på andel i beregning
@@ -272,21 +272,21 @@ public class InntektsmeldingRegisterTjeneste {
      * utledManglendeInntektsmeldingerFraAAreg da disse verdiene skal ikke påvirkes
      * av endringer i arkivet.
      */
-    private <V> Map<Arbeidsgiver, Set<V>> krevKunIMFraArbeidsforholdDetErSøktSvpFor(BehandlingReferanse referanse,
-                                                                                    Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger) {
+    private <V> Map<Arbeidsgiver, Set<V>> søknadsFilter(BehandlingReferanse referanse,
+                                                        Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger) {
         var filter = FagsakYtelseTypeRef.Lookup.find(inntektsmeldingFiltere, referanse.fagsakYtelseType())
                 .orElseThrow(
                         () -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + referanse.fagsakYtelseType().getKode()));
-        return filter.krevKunIMFraArbeidsforholdDetErSøktSvpFor(referanse, påkrevdeInntektsmeldinger);
+        return filter.søknadsFilter(referanse, påkrevdeInntektsmeldinger);
     }
 
-    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> filtrerBortInaktiveArbeidsforhold(BehandlingReferanse referanse,
-                                                                                             Skjæringstidspunkt stp,
-                                                                                             Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger,
-                                                                                             boolean tahensynTilPermisjon) {
+    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> aktiveArbeidsforholdFilter(BehandlingReferanse referanse,
+                                                                                      Skjæringstidspunkt stp,
+                                                                                      Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger,
+                                                                                      boolean tahensynTilPermisjon) {
         var filter = FagsakYtelseTypeRef.Lookup.find(inntektsmeldingFiltere, referanse.fagsakYtelseType())
                 .orElseThrow(
                         () -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + referanse.fagsakYtelseType().getKode()));
-        return filter.filtrerBortInaktiveArbeidsforhold(referanse, stp, inntektArbeidYtelseGrunnlag, påkrevdeInntektsmeldinger, tahensynTilPermisjon);
+        return filter.aktiveArbeidsforholdFilter(referanse, stp, inntektArbeidYtelseGrunnlag, påkrevdeInntektsmeldinger, tahensynTilPermisjon);
     }
 }

@@ -16,11 +16,11 @@ public interface InntektsmeldingFilterYtelse {
      * Returnerer påkrevde inntektsmeldinger etter ytelsesspesifikke vurdering og
      * filtrering
      */
-    <V> Map<Arbeidsgiver, Set<V>> krevKunIMFraArbeidsforholdDetErSøktSvpFor(BehandlingReferanse referanse, Map<Arbeidsgiver, Set<V>> påkrevde);
+    <V> Map<Arbeidsgiver, Set<V>> søknadsFilter(BehandlingReferanse referanse, Map<Arbeidsgiver, Set<V>> påkrevde);
 
-    Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> filtrerBortInaktiveArbeidsforhold(BehandlingReferanse referanse,
-                                                                                      Skjæringstidspunkt stp,
-                                                                                      Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
-                                                                                      Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevde,
-                                                                                      boolean taHensynTilPermisjon);
+    Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> aktiveArbeidsforholdFilter(BehandlingReferanse referanse,
+                                                                               Skjæringstidspunkt stp,
+                                                                               Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
+                                                                               Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevde,
+                                                                               boolean taHensynTilPermisjon);
 }
