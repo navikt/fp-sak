@@ -1,19 +1,19 @@
 package no.nav.foreldrepenger.domene.modell;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public class BesteberegningGrunnlag {
     private static final int ANTALL_BESTEBEREGNING_MÅNEDER = 6;
 
-    private Set<BesteberegningMånedsgrunnlag> seksBesteMåneder = new HashSet<>();
+    private List<BesteberegningMånedsgrunnlag> seksBesteMåneder = new ArrayList<>();
     private BigDecimal avvik;
 
-    public Set<BesteberegningMånedsgrunnlag> getSeksBesteMåneder() {
-        return Collections.unmodifiableSet(seksBesteMåneder);
+    public List<BesteberegningMånedsgrunnlag> getSeksBesteMåneder() {
+        return seksBesteMåneder.stream().sorted(Comparator.comparing(b -> b.getPeriode().getFomDato())).toList();
     }
 
     public Optional<BigDecimal> getAvvik() {

@@ -22,7 +22,7 @@ public class Beregningsgrunnlag {
     private final List<BeregningsgrunnlagAktivitetStatus> aktivitetStatuser = new ArrayList<>();
     private List<BeregningsgrunnlagPeriode> beregningsgrunnlagPerioder = new ArrayList<>();
     private final List<SammenligningsgrunnlagPrStatus> sammenligningsgrunnlagPrStatusListe = new ArrayList<>();
-    private final List<BeregningsgrunnlagFaktaOmBeregningTilfelle> faktaOmBeregningTilfeller = new ArrayList<>();
+    private final List<FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller = new ArrayList<>();
 
     private Beregningsgrunnlag() {
     }
@@ -92,10 +92,7 @@ public class Beregningsgrunnlag {
     }
 
     public List<FaktaOmBeregningTilfelle> getFaktaOmBeregningTilfeller() {
-        return faktaOmBeregningTilfeller
-            .stream()
-            .map(BeregningsgrunnlagFaktaOmBeregningTilfelle::getFaktaOmBeregningTilfelle)
-            .toList();
+        return Collections.unmodifiableList(faktaOmBeregningTilfeller);
     }
 
     public List<SammenligningsgrunnlagPrStatus> getSammenligningsgrunnlagPrStatusListe() {
@@ -191,9 +188,9 @@ public class Beregningsgrunnlag {
         }
 
         public Builder leggTilFaktaOmBeregningTilfelle(FaktaOmBeregningTilfelle tilfelle) {
-            verifiserKanModifisere();
-            var b = BeregningsgrunnlagFaktaOmBeregningTilfelle.builder().medFaktaOmBeregningTilfelle(tilfelle).build(kladd);
-            this.kladd.faktaOmBeregningTilfeller.add(b);
+            if (!kladd.faktaOmBeregningTilfeller.contains(tilfelle)) {
+                this.kladd.faktaOmBeregningTilfeller.add(tilfelle);
+            }
             return this;
         }
 

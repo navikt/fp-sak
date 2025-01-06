@@ -2,11 +2,13 @@ package no.nav.foreldrepenger.domene.mappers.fra_kalkulus_til_domene;
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import no.nav.folketrygdloven.fpkalkulus.kontrakt.besteberegning.BesteberegningGrunnlagDto;
+import no.nav.folketrygdloven.kalkulus.kodeverk.FaktaOmBeregningTilfelle;
+import no.nav.folketrygdloven.kalkulus.kodeverk.PeriodeÅrsak;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningAktivitetAggregatDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningAktivitetDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningAktivitetOverstyringDto;
@@ -18,6 +20,9 @@ import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagGrunnlagDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagPeriodeDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagPrStatusOgAndelDto;
+import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.FaktaAggregatDto;
+import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.FaktaAktørDto;
+import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.FaktaArbeidsforholdDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.SammenligningsgrunnlagPrStatusDto;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.mappers.fra_kalkulator_til_entitet.KodeverkFraKalkulusMapper;
@@ -38,7 +43,12 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.BesteberegningGrunnlag;
 import no.nav.foreldrepenger.domene.modell.BesteberegningInntekt;
 import no.nav.foreldrepenger.domene.modell.BesteberegningMånedsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.FaktaAggregat;
+import no.nav.foreldrepenger.domene.modell.FaktaAktør;
+import no.nav.foreldrepenger.domene.modell.FaktaArbeidsforhold;
 import no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagPrStatus;
+import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaVurderingKilde;
+import no.nav.foreldrepenger.domene.modell.typer.FaktaVurdering;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Beløp;
@@ -55,6 +65,7 @@ public final class KalkulusTilFpsakMapper {
 
     public static BeregningsgrunnlagGrunnlag map(BeregningsgrunnlagGrunnlagDto grunnlagDto, Optional<BesteberegningGrunnlagDto> besteberegningGrunnlagDto) {
         return BeregningsgrunnlagGrunnlagBuilder.nytt()
+            .medFakta(grunnlagDto.getFaktaAggregat() == null ? null : mapFakta(grunnlagDto.getFaktaAggregat()))
             .medBeregningsgrunnlag(grunnlagDto.getBeregningsgrunnlag() == null ? null : mapGrunnlag(grunnlagDto.getBeregningsgrunnlag(), besteberegningGrunnlagDto))
             .medRegisterAktiviteter(grunnlagDto.getRegisterAktiviteter() == null ? null : mapAktiviteter(grunnlagDto.getRegisterAktiviteter()))
             .medSaksbehandletAktiviteter(grunnlagDto.getSaksbehandletAktiviteter() == null ? null : mapAktiviteter(grunnlagDto.getSaksbehandletAktiviteter()))
@@ -63,11 +74,46 @@ public final class KalkulusTilFpsakMapper {
             .build(KodeverkFraKalkulusMapper.mapTilstand(grunnlagDto.getBeregningsgrunnlagTilstand()));
     }
 
+    private static FaktaAggregat mapFakta(FaktaAggregatDto faktaAggregat) {
+        var builder = FaktaAggregat.builder();
+        builder.medFaktaAktør(faktaAggregat.getFaktaAktør() == null ? null : mapFaktaAktør(faktaAggregat.getFaktaAktør()));
+        faktaAggregat.getFaktaArbeidsforholdListe().stream().map(KalkulusTilFpsakMapper::mapFaktaArbeidsforhold).forEach(builder::erstattEksisterendeEllerLeggTil);
+        return builder.build();
+    }
+
+    private static FaktaArbeidsforhold mapFaktaArbeidsforhold(FaktaArbeidsforholdDto fa) {
+        return FaktaArbeidsforhold.builder(mapArbeidsgiver(fa.getArbeidsgiver()), fa.getArbeidsforholdRef() == null ? InternArbeidsforholdRef.nullRef() : InternArbeidsforholdRef.ref(fa.getArbeidsforholdRef().getAbakusReferanse()))
+            .medErTidsbegrenset(new FaktaVurdering(fa.getErTidsbegrenset(), FaktaVurderingKilde.SAKSBEHANDLER))
+            .medHarMottattYtelse(new FaktaVurdering(fa.getHarMottattYtelse(), FaktaVurderingKilde.SAKSBEHANDLER))
+            .medHarLønnsendringIBeregningsperioden(new FaktaVurdering(fa.getHarLønnsendringIBeregningsperioden(), FaktaVurderingKilde.SAKSBEHANDLER))
+            .build();
+    }
+
+    private static FaktaAktør mapFaktaAktør(FaktaAktørDto faktaAktør) {
+        var builder = FaktaAktør.builder();
+
+        if (faktaAktør.getSkalBeregnesSomMilitær() != null) {
+            builder.medErMilitærSiviltjeneste(new FaktaVurdering(faktaAktør.getSkalBeregnesSomMilitær(), FaktaVurderingKilde.SAKSBEHANDLER));
+        }
+        if (faktaAktør.getErNyoppstartetFL() != null) {
+            builder.medErNyoppstartetFL(new FaktaVurdering(faktaAktør.getErNyoppstartetFL(), FaktaVurderingKilde.SAKSBEHANDLER));
+        }
+        if (faktaAktør.getErNyIArbeidslivetSN() != null) {
+            builder.medErNyIArbeidslivetSN(new FaktaVurdering(faktaAktør.getErNyIArbeidslivetSN(), FaktaVurderingKilde.SAKSBEHANDLER));
+        }
+        if (faktaAktør.getHarFLMottattYtelse() != null) {
+            builder.medHarFLMottattYtelse(new FaktaVurdering(faktaAktør.getHarFLMottattYtelse(), FaktaVurderingKilde.SAKSBEHANDLER));
+        }
+        if (faktaAktør.getSkalBesteberegnes() != null) {
+            builder.medSkalBesteberegnes(new FaktaVurdering(faktaAktør.getSkalBesteberegnes(), FaktaVurderingKilde.SAKSBEHANDLER));
+        }
+        return builder.build();
+    }
+
     public static BesteberegningGrunnlag mapBesteberegning(BesteberegningGrunnlagDto bbg) {
         var builder = BesteberegningGrunnlag.ny().medAvvik(mapTilBigDecimal(bbg.avvikFørsteOgTredjeLedd()));
-        bbg.seksBesteMåneder().stream().map(KalkulusTilFpsakMapper::mapBesteberegningMåned).forEach(builder::leggTilMånedsgrunnlag);
+        bbg.seksBesteMåneder().stream().map(KalkulusTilFpsakMapper::mapBesteberegningMåned).sorted(Comparator.comparing(bb -> bb.getPeriode().getFomDato())).forEach(builder::leggTilMånedsgrunnlag);
         return builder.build();
-
     }
 
     private static BesteberegningMånedsgrunnlag mapBesteberegningMåned(BesteberegningGrunnlagDto.BesteberegningMånedDto m) {
@@ -107,7 +153,11 @@ public final class KalkulusTilFpsakMapper {
 
     private static BeregningAktivitetOverstyringer mapAktivitetOverstyringer(BeregningAktivitetOverstyringerDto overstyringer) {
         var builder = BeregningAktivitetOverstyringer.builder();
-        overstyringer.getOverstyringer().stream().map(KalkulusTilFpsakMapper::mapAktivitetOverstyring).forEach(builder::leggTilOverstyring);
+        overstyringer.getOverstyringer().stream().map(KalkulusTilFpsakMapper::mapAktivitetOverstyring)
+            .sorted(Comparator.comparing(BeregningAktivitetOverstyring::getOpptjeningAktivitetType)
+            .thenComparing(a -> a.getPeriode().getFomDato())
+            .thenComparing(a -> a.getPeriode().getTomDato()))
+            .forEach(builder::leggTilOverstyring);
         return builder.build();
     }
 
@@ -123,7 +173,10 @@ public final class KalkulusTilFpsakMapper {
 
     private static BeregningAktivitetAggregat mapAktiviteter(BeregningAktivitetAggregatDto registerAktiviteter) {
         var builder = BeregningAktivitetAggregat.builder().medSkjæringstidspunktOpptjening(registerAktiviteter.getSkjæringstidspunktOpptjening());
-        registerAktiviteter.getAktiviteter().stream().map(KalkulusTilFpsakMapper::mapAktivitet).forEach(builder::leggTilAktivitet);
+        registerAktiviteter.getAktiviteter().stream().map(KalkulusTilFpsakMapper::mapAktivitet)
+            .sorted(Comparator.comparing(BeregningAktivitet::getOpptjeningAktivitetType)
+                .thenComparing(a -> a.getPeriode().getFomDato()).thenComparing(a -> a.getPeriode().getTomDato()))
+            .forEach(builder::leggTilAktivitet);
         return builder.build();
     }
 
@@ -144,17 +197,21 @@ public final class KalkulusTilFpsakMapper {
             .medOverstyring(beregningsgrunnlagDto.isOverstyrt());
 
         // Aktivitetstatuser
-        beregningsgrunnlagDto.getAktivitetStatuserMedHjemmel().stream()
+        beregningsgrunnlagDto.getAktivitetStatuserMedHjemmel()
+            .stream()
+            .sorted(Comparator.comparing(BeregningsgrunnlagAktivitetStatusDto::getAktivitetStatus))
             .map(KalkulusTilFpsakMapper::mapAktivitetstatusMedHjemmel)
             .forEach(builder::leggTilAktivitetStatus);
 
         // Fakta tilfeller
         beregningsgrunnlagDto.getFaktaOmBeregningTilfeller().stream()
+            .sorted(Comparator.comparing(FaktaOmBeregningTilfelle::getKode))
             .map(KodeverkFraKalkulusMapper::mapFaktaTilfelle)
             .forEach(builder::leggTilFaktaOmBeregningTilfelle);
 
         // Beregningsgrunnlagperioder
         beregningsgrunnlagDto.getBeregningsgrunnlagPerioder().stream()
+            .sorted(Comparator.comparing(p -> p.getPeriode().getFom()))
             .map(KalkulusTilFpsakMapper::mapBeregningsgrunnlagperiodePeriode)
             .forEach(builder::leggTilBeregningsgrunnlagPeriode);
 
@@ -188,10 +245,11 @@ public final class KalkulusTilFpsakMapper {
             .medDagsats(bgPeriodeDto.getDagsats());
 
         // Periodeårsaker
-        bgPeriodeDto.getPeriodeÅrsaker().stream().map(KodeverkFraKalkulusMapper::mapPeriodeÅrsak).forEach(builder::leggTilPeriodeÅrsak);
+        bgPeriodeDto.getPeriodeÅrsaker().stream().sorted(Comparator.comparing(PeriodeÅrsak::getKode)).map(KodeverkFraKalkulusMapper::mapPeriodeÅrsak).forEach(builder::leggTilPeriodeÅrsak);
 
         // Beregningsgrunnlagandeler
         bgPeriodeDto.getBeregningsgrunnlagPrStatusOgAndelList().stream()
+            .sorted(Comparator.comparing(BeregningsgrunnlagPrStatusOgAndelDto::getAndelsnr))
             .map(KalkulusTilFpsakMapper::mapAndel)
             .forEach(builder::leggTilBeregningsgrunnlagPrStatusOgAndel);
 
@@ -210,12 +268,14 @@ public final class KalkulusTilFpsakMapper {
             .medBeregningsperiode(beregningsgrunnlagPrStatusOgAndelDto.getBeregningsperiodeFom(), beregningsgrunnlagPrStatusOgAndelDto.getBeregningsperiodeTom())
             .medFastsattAvSaksbehandler(beregningsgrunnlagPrStatusOgAndelDto.getFastsattAvSaksbehandler())
             .medFordeltPrÅr(mapTilBigDecimal(beregningsgrunnlagPrStatusOgAndelDto.getFordeltPrÅr()))
+            .medManueltFordeltPrÅr(mapTilBigDecimal(beregningsgrunnlagPrStatusOgAndelDto.getManueltFordeltPrÅr()))
             .medBruttoPrÅr(mapTilBigDecimal(beregningsgrunnlagPrStatusOgAndelDto.getBruttoPrÅr()))
             .medInntektskategori(KodeverkFraKalkulusMapper.mapInntektskategori(beregningsgrunnlagPrStatusOgAndelDto.getInntektskategori()))
             .medLagtTilAvSaksbehandler(beregningsgrunnlagPrStatusOgAndelDto.getLagtTilAvSaksbehandler())
             .medMaksimalRefusjonPrÅr(mapTilBigDecimal(beregningsgrunnlagPrStatusOgAndelDto.getMaksimalRefusjonPrÅr()))
             .medOrginalDagsatsFraTilstøtendeYtelse(beregningsgrunnlagPrStatusOgAndelDto.getOrginalDagsatsFraTilstøtendeYtelse())
             .medOverstyrtPrÅr(mapTilBigDecimal(beregningsgrunnlagPrStatusOgAndelDto.getOverstyrtPrÅr()))
+            .medBesteberegnetPrÅr(mapTilBigDecimal(beregningsgrunnlagPrStatusOgAndelDto.getBesteberegningPrÅr()))
             .medRedusertBrukersAndelPrÅr(mapTilBigDecimal(beregningsgrunnlagPrStatusOgAndelDto.getRedusertBrukersAndelPrÅr()))
             .medRedusertPrÅr(mapTilBigDecimal(beregningsgrunnlagPrStatusOgAndelDto.getRedusertPrÅr()))
             .medRedusertRefusjonPrÅr(mapTilBigDecimal(beregningsgrunnlagPrStatusOgAndelDto.getRedusertRefusjonPrÅr()))
@@ -239,7 +299,7 @@ public final class KalkulusTilFpsakMapper {
 
     private static BGAndelArbeidsforhold mapBgAndelArbeidsforhold(no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BGAndelArbeidsforhold bgAndelArbeidsforhold) {
         return BGAndelArbeidsforhold.builder()
-            .medArbeidsforholdRef(Optional.ofNullable(bgAndelArbeidsforhold.getArbeidsforholdRef()).map(UUID::toString).orElse(null))
+            .medArbeidsforholdRef(bgAndelArbeidsforhold.getArbeidsforholdRef() == null ? InternArbeidsforholdRef.nullRef() : InternArbeidsforholdRef.ref(bgAndelArbeidsforhold.getArbeidsforholdRef()))
             .medArbeidsgiver(mapArbeidsgiver(bgAndelArbeidsforhold.getArbeidsgiver()))
             .medArbeidsperiodeFom(bgAndelArbeidsforhold.getArbeidsperiodeFom())
             .medArbeidsperiodeTom(bgAndelArbeidsforhold.getArbeidsperiodeTom())
