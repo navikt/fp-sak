@@ -235,7 +235,7 @@ public enum FeltVerdiType {
     UTPE("UTPE", "Utgått person"),
     UTAN("UTAN", "Utgått person annullert tilgang Fnr"),
     IKKE_VURDERT("IKKE_VURDERT", "Ikke vurdert"),
-    INNTREKK("TILBAKEKR_INNTREKK", "Feilutbetaling hvor inntrekk dekker hele beløpet"),
+    INNTREKK("TILBAKEKR_INNTREKK", "Feilutbetalingen er trukket inn i annen utbetaling"),
     FAR_MER_ENN_TI_DAGER_FEDREKVOTE_IFM_FØDSEL("4106", "Far/medmor søker mer enn 10 dager ifm fødsel"),
     SELVSTENDIG_NÆRING("SELVSTENDIG_NÆRING", "Selvstendig næringsdrivende"),
     DØD_DØDFØDSEL("DØD_DØDFØDSEL", "Død eller dødfødsel"),
