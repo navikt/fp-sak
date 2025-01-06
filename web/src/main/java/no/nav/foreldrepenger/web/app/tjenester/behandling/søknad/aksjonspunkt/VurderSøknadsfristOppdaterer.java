@@ -54,8 +54,8 @@ public class VurderSøknadsfristOppdaterer implements AksjonspunktOppdaterer<Vur
             .medFagsakId(param.getFagsakId())
             .medTittel(SkjermlenkeType.SOEKNADSFRIST)
             .addLinje(fraTilEquals("Søknadsfrist", null,  dto.harGyldigGrunn()
-                ? "Gyldig grunn for sen fremsetting av søknaden"
-                : "Ingen gyldig grunn for sen fremsetting av søknaden"));
+                ? "Gyldig grunn til at søknaden er satt frem for sent"
+                : "Ingen gyldig grunn til at søknaden er satt frem for sent"));
 
         if (dto.harGyldigGrunn()) {
             var uttaksperiodegrense = uttaksperiodegrenseRepository.hent(param.getBehandlingId());

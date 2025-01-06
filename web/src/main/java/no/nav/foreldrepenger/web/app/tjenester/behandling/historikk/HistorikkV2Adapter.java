@@ -421,7 +421,7 @@ public class HistorikkV2Adapter {
 
     private static List<String> fraSøknadsperiode(HistorikkinnslagFelt søknadsperiode) {
         var tekst = switch (søknadsperiode.getNavn()) {
-            case "GRADERING" -> "__Uttak: gradering__";
+            case "GRADERING" -> "__Gradering på grunn av arbeid__";
             case "UTSETTELSE_ARBEID" -> "__Utsettelse: Arbeid__";
             case "UTSETTELSE_FERIE" -> "__Utsettelse: Ferie__";
             case "UTSETTELSE_SKYDOM" -> "__Utsettelse: Sykdom/skade__";

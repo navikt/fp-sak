@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 public enum Inntektskategori implements Kodeverdi {
 
     ARBEIDSTAKER("ARBEIDSTAKER", "Arbeidstaker"),
-    FRILANSER("FRILANSER", "Frilans"),
+    FRILANSER("FRILANSER", "Frilanser"),
     SELVSTENDIG_NÆRINGSDRIVENDE("SELVSTENDIG_NÆRINGSDRIVENDE", "Selvstendig næringsdrivende"),
     DAGPENGER("DAGPENGER", "Dagpenger"),
     ARBEIDSAVKLARINGSPENGER("ARBEIDSAVKLARINGSPENGER", "Arbeidsavklaringspenger"),
