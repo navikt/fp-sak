@@ -104,7 +104,7 @@ public class HenleggBehandlingTjeneste {
             .medSaksnummer(behandling.getSaksnummer())
             .medDokumentMal(DokumentMalType.INFO_OM_HENLEGGELSE)
             .build();
-        dokumentBestillerTjeneste.bestillDokument(dokumentBestilling, HistorikkAktør.VEDTAKSLØSNINGEN);
+        dokumentBestillerTjeneste.bestillDokument(dokumentBestilling);
     }
 
     private void lagHistorikkinnslagForHenleggelse(Behandling behandling, BehandlingResultatType aarsak, String begrunnelse, HistorikkAktør aktør) {

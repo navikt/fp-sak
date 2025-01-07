@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingVedtakEvent;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
@@ -54,7 +53,7 @@ public class IverksetteInnsynVedtakStegFelles implements IverksetteVedtakSteg {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
         // MS VEDTAKSBREV
-        dokumentBestillerTjeneste.bestillDokument(lagBrevBestilling(behandling), HistorikkAktør.VEDTAKSLØSNINGEN);
+        dokumentBestillerTjeneste.bestillDokument(lagBrevBestilling(behandling));
 
         var vedtak = vedtakRepository.hentForBehandling(behandling.getId());
         if (vedtak != null) {

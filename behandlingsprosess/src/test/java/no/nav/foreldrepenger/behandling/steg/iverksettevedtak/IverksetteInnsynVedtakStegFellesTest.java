@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.iverksettevedtak;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -15,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
@@ -31,12 +29,11 @@ class IverksetteInnsynVedtakStegFellesTest {
         var behandling = scenario.getBehandling();
         var fagsak = behandling.getFagsak();
         var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(),
-                repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
+            repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         steg.utførSteg(kontekst);
 
         var argumentCaptor = ArgumentCaptor.forClass(DokumentBestilling.class);
-        verify(dokumentBestillerTjeneste, times(1))
-                .bestillDokument(argumentCaptor.capture(), any(HistorikkAktør.class));
+        verify(dokumentBestillerTjeneste, times(1)).bestillDokument(argumentCaptor.capture());
     }
 
     @Test
@@ -48,12 +45,11 @@ class IverksetteInnsynVedtakStegFellesTest {
         var behandling = scenario.getBehandling();
         var fagsak = behandling.getFagsak();
         var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(),
-                repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
+            repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         steg.utførSteg(kontekst);
 
         var argumentCaptor = ArgumentCaptor.forClass(DokumentBestilling.class);
-        verify(dokumentBestillerTjeneste, times(1))
-                .bestillDokument(argumentCaptor.capture(), any(HistorikkAktør.class));
+        verify(dokumentBestillerTjeneste, times(1)).bestillDokument(argumentCaptor.capture());
 
         assertThat(argumentCaptor.getValue().fritekst()).isNull();
     }
@@ -68,12 +64,11 @@ class IverksetteInnsynVedtakStegFellesTest {
         var behandling = scenario.getBehandling();
         var fagsak = behandling.getFagsak();
         var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(),
-                repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
+            repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         steg.utførSteg(kontekst);
 
         var argumentCaptor = ArgumentCaptor.forClass(DokumentBestilling.class);
-        verify(dokumentBestillerTjeneste, times(1))
-                .bestillDokument(argumentCaptor.capture(), any(HistorikkAktør.class));
+        verify(dokumentBestillerTjeneste, times(1)).bestillDokument(argumentCaptor.capture());
 
         assertThat(argumentCaptor.getValue().fritekst()).isEqualTo(begrunnelse);
     }

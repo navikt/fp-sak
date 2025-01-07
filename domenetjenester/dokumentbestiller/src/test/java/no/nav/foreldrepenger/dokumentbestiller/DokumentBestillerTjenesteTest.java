@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.dokumentbestiller;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -17,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
@@ -51,7 +49,6 @@ class DokumentBestillerTjenesteTest {
         settOpp(scenario);
 
         var dokumentMal = DokumentMalType.INNHENTE_OPPLYSNINGER;
-        var historikkAktør = HistorikkAktør.SAKSBEHANDLER;
         var dokumentBestilling = DokumentBestilling.builder()
             .medBehandlingUuid(behandling.getUuid())
             .medSaksnummer(behandling.getSaksnummer())
@@ -60,10 +57,10 @@ class DokumentBestillerTjenesteTest {
             .build();
 
         // Act
-        tjeneste.bestillDokument(dokumentBestilling, historikkAktør);
+        tjeneste.bestillDokument(dokumentBestilling);
 
         // Assert
-        verify(dokumentBestiller).bestillDokument(dokumentBestilling, historikkAktør);
+        verify(dokumentBestiller).bestillDokument(dokumentBestilling);
     }
 
     @Test
@@ -81,15 +78,13 @@ class DokumentBestillerTjenesteTest {
         when(behandlingVedtakMock.getVedtakResultatType()).thenReturn(VedtakResultatType.INNVILGET);
         when(behandlingVedtakMock.isBeslutningsvedtak()).thenReturn(false);
 
-        var historikkAktør = HistorikkAktør.VEDTAKSLØSNINGEN;
-
         // Act
         tjeneste.produserVedtaksbrev(behandlingVedtakMock);
 
         var bestillingCaptor = ArgumentCaptor.forClass(DokumentBestilling.class);
 
         // Assert
-        verify(dokumentBestiller).bestillDokument(bestillingCaptor.capture(), eq(historikkAktør));
+        verify(dokumentBestiller).bestillDokument(bestillingCaptor.capture());
         var bestilling = bestillingCaptor.getValue();
 
         assertThat(bestilling.behandlingUuid()).isEqualTo(behandling.getUuid());
@@ -113,15 +108,13 @@ class DokumentBestillerTjenesteTest {
         when(behandlingVedtakMock.getVedtakResultatType()).thenReturn(VedtakResultatType.INNVILGET);
         when(behandlingVedtakMock.isBeslutningsvedtak()).thenReturn(false);
 
-        var historikkAktør = HistorikkAktør.VEDTAKSLØSNINGEN;
-
         // Act
         tjeneste.produserVedtaksbrev(behandlingVedtakMock);
 
         var bestillingCaptor = ArgumentCaptor.forClass(DokumentBestilling.class);
 
         // Assert
-        verify(dokumentBestiller).bestillDokument(bestillingCaptor.capture(), eq(historikkAktør));
+        verify(dokumentBestiller).bestillDokument(bestillingCaptor.capture());
         var bestilling = bestillingCaptor.getValue();
 
         assertThat(bestilling.behandlingUuid()).isEqualTo(behandling.getUuid());

@@ -24,7 +24,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
@@ -107,7 +106,7 @@ public class BrevRestTjeneste {
             validerFinnesManglendeInntektsmelding(behandling);
         }
 
-        dokumentBestillerTjeneste.bestillDokument(dokumentBestilling, HistorikkAktør.SAKSBEHANDLER);
+        dokumentBestillerTjeneste.bestillDokument(dokumentBestilling);
         oppdaterBehandlingBasertPåManueltBrev(bestillBrevDto.brevmalkode(), behandling.getId());
     }
 

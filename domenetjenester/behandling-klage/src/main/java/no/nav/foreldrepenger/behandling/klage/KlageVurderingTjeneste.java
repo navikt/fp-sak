@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingRelasjonEvent;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
@@ -170,7 +169,7 @@ public class KlageVurderingTjeneste {
                 .medSaksnummer(behandling.getSaksnummer())
                 .medDokumentMal(DokumentMalType.KLAGE_OVERSENDT)
                 .build();
-            dokumentBestillerTjeneste.bestillDokument(dokumentBestilling, HistorikkAktør.SAKSBEHANDLER);
+            dokumentBestillerTjeneste.bestillDokument(dokumentBestilling);
             oppdaterBehandlingMedNyFrist(behandling);
         }
         var klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());

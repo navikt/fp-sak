@@ -9,7 +9,6 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
@@ -51,7 +50,7 @@ public class SendBrevForAutopunkt {
         }
         if (harIkkeSendtBrevForMal(behandling.getId(), dokumentMal)) {
             var dokumentBestilling = getBuilder(behandling, dokumentMal).build();
-            dokumentBestillerTjeneste.bestillDokument(dokumentBestilling, HistorikkAktør.VEDTAKSLØSNINGEN);
+            dokumentBestillerTjeneste.bestillDokument(dokumentBestilling);
         }
     }
 
@@ -59,7 +58,7 @@ public class SendBrevForAutopunkt {
         var dokumentMal = DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_TIDLIG;
         if (harIkkeSendtBrevForMal(behandling.getId(), dokumentMal) && erSøktPåPapir(behandling)) {
             var dokumentBestilling = getBuilder(behandling, dokumentMal).build();
-            dokumentBestillerTjeneste.bestillDokument(dokumentBestilling, HistorikkAktør.VEDTAKSLØSNINGEN);
+            dokumentBestillerTjeneste.bestillDokument(dokumentBestilling);
         }
     }
 
@@ -69,7 +68,7 @@ public class SendBrevForAutopunkt {
             var dokumentBestilling = getBuilder(behandling, dokumentMal)
                 .medRevurderingÅrsak(RevurderingVarslingÅrsak.BARN_IKKE_REGISTRERT_FOLKEREGISTER)
                 .build();
-            dokumentBestillerTjeneste.bestillDokument(dokumentBestilling, HistorikkAktør.VEDTAKSLØSNINGEN);
+            dokumentBestillerTjeneste.bestillDokument(dokumentBestilling);
         }
     }
 
