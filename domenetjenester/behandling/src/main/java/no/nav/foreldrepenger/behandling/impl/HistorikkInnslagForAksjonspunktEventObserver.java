@@ -88,7 +88,7 @@ public class HistorikkInnslagForAksjonspunktEventObserver {
                 var manueltTattAvVent = Optional.ofNullable(behandlingRepository.hentBehandlingReadOnly(ktx.getBehandlingId()))
                     .map(Behandling::getAnsvarligSaksbehandler).isPresent();
                 if (!manueltTattAvVent) {
-                    opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), "Behandling er gjenopptatt",
+                    opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), "Behandlingen er gjenopptatt",
                         null, null);
                 }
             }
