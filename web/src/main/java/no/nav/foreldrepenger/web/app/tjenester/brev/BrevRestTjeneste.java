@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.brev;
 
+import java.util.Objects;
 import java.util.function.Function;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -24,6 +25,9 @@ import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
@@ -67,6 +71,7 @@ public class BrevRestTjeneste {
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
     private BehandlingRepository behandlingRepository;
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
+    private Historikkinnslag2Repository historikkinnslag2Repository;
 
     public BrevRestTjeneste() {
         // For Rest-CDI
@@ -77,12 +82,14 @@ public class BrevRestTjeneste {
                             DokumentBestillerTjeneste dokumentBestillerTjeneste,
                             DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
                             BehandlingRepository behandlingRepository,
-                            ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste) {
+                            ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste,
+                            Historikkinnslag2Repository historikkinnslag2Repository) {
         this.dokumentForhåndsvisningTjeneste = dokumentForhåndsvisningTjeneste;
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
+        this.historikkinnslag2Repository = historikkinnslag2Repository;
     }
 
     @POST
@@ -106,8 +113,29 @@ public class BrevRestTjeneste {
             validerFinnesManglendeInntektsmelding(behandling);
         }
 
+        opprettHistorikkinnslag(behandling, dokumentBestilling);
         dokumentBestillerTjeneste.bestillDokument(dokumentBestilling);
         oppdaterBehandlingBasertPåManueltBrev(bestillBrevDto.brevmalkode(), behandling.getId());
+    }
+
+    public void opprettHistorikkinnslag(Behandling behandling,
+                                        DokumentBestilling bestilling) {
+        var historikkinnslag = new Historikkinnslag2.Builder()
+            .medFagsakId(behandling.getFagsakId())
+            .medBehandlingId(behandling.getId())
+            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medTittel("Brev er bestilt")
+            .addLinje(utledBegrunnelse(bestilling.dokumentMal(), bestilling.journalførSom()))
+            .build();
+        historikkinnslag2Repository.lagre(historikkinnslag);
+    }
+
+    private static String utledBegrunnelse(DokumentMalType dokumentMal, DokumentMalType journalførSom) {
+        if (DokumentMalType.FRITEKSTBREV.equals(dokumentMal)) {
+            Objects.requireNonNull(journalførSom, "journalførSom må være satt om FRITEKST brev brukes.");
+            return journalførSom.getNavn() + " (" + dokumentMal.getNavn() + ")";
+        }
+        return dokumentMal.getNavn();
     }
 
     private void validerFinnesManglendeInntektsmelding(Behandling behandling) {
