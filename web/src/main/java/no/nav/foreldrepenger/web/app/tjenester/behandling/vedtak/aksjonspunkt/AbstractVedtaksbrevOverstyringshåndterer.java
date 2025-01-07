@@ -147,8 +147,8 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
 
     private void opprettHistorikkinnslag(BehandlingReferanse ref, Behandling behandling, boolean toTrinn) {
         var hendelseTekst = BehandlingType.INNSYN.equals(behandling.getType()) || !toTrinn
-            ? "Vedtak foreslått"
-            : "Vedtak foreslått og sendt til beslutter";
+            ? "Vedtak er foreslått"
+            : "Vedtak er foreslått og sendt til beslutter";
         var vedtakResultatType = vedtakTjeneste.utledVedtakResultatType(behandling);
         var historikkinnslag = new Historikkinnslag2.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)

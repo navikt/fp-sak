@@ -20,17 +20,17 @@ public enum Venteårsak implements Kodeverdi {
      */
     AVV_DOK("AVV_DOK", "Avventer dokumentasjon"), // Frontend
     AVV_FODSEL("AVV_FODSEL", "Avventer fødsel"), // Frontend
-    FOR_TIDLIG_SOKNAD("FOR_TIDLIG_SOKNAD", "Venter pga for tidlig søknad"), // Frontend
-    SCANN("SCANN", "Venter på scanning"),
+    FOR_TIDLIG_SOKNAD("FOR_TIDLIG_SOKNAD", "Venter pga. for tidlig søknad"), // Frontend
+    SCANN("SCANN", "Venter på skanning"),
     UTV_FRIST("UTV_FRIST", "Utvidet frist"), // Frontend
     VENT_PÅ_BRUKERTILBAKEMELDING("VENT_PÅ_BRUKERTILBAKEMELDING", "Venter på tilbakemelding fra bruker"), // Frontend
-    VENT_UTLAND_TRYGD("VENT_UTLAND_TRYGD", "Venter på utlandsk trygdemyndighet"), // Frontend
+    VENT_UTLAND_TRYGD("VENT_UTLAND_TRYGD", "Venter på utenlandsk trygdemyndighet"), // Frontend
     VENT_INNTEKT_RAPPORTERINGSFRIST("VENT_INNTEKT_RAPPORTERINGSFRIST", "Inntekt rapporteringsfrist"), // Kalkulus
     VENT_MANGLENDE_SYKEMELDING("VENT_MANGLENDE_SYKEMELDING", "Venter på siste sykemelding for sykepenger basert på dagpenger"), // Kalkulus
     VENT_OPDT_INNTEKTSMELDING("VENT_OPDT_INNTEKTSMELDING", "Venter på inntektsmelding"), // Frontend
     VENT_OPPTJENING_OPPLYSNINGER("VENT_OPPTJENING_OPPLYSNINGER", "Venter på opptjeningsopplysninger"),
     VENT_PÅ_SISTE_AAP_ELLER_DP_MELDEKORT("VENT_PÅ_SISTE_AAP_MELDEKORT", "Venter på siste meldekort for AAP eller dagpenger før første uttaksdag."), // Kalkulus
-    VENT_SØKNAD_SENDT_INFORMASJONSBREV("VENT_SØKNAD_SENDT_INFORMASJONSBREV", "Sendt informasjonsbrev venter søknad."),
+    VENT_SØKNAD_SENDT_INFORMASJONSBREV("VENT_SØKNAD_SENDT_INFORMASJONSBREV", "Sendt informasjonsbrev, og venter på søknad."),
     VENT_ÅPEN_BEHANDLING("VENT_ÅPEN_BEHANDLING", "Søker eller den andre forelderen har en åpen behandling"),
     VENT_KABAL("VENT_KABAL", "Klage / anke behandles av Klageinstans i egen løsning"),
 
@@ -69,7 +69,7 @@ public enum Venteårsak implements Kodeverdi {
     ULIKE_STARTDATOER_SVP("ULIKE_STARTDATOER_SVP", "Behandlingen er satt på vent på grunn av mangel i løsningen. Det jobbes med å løse dette."),
     VENT_LOVENDRING_8_41("VENT_LOVENDRING_8_41", "Venter på vedtak om lovendring vedrørende beregning av næring i kombinasjon med arbeid eller frilans"),
     VENT_PÅ_KORRIGERT_BESTEBEREGNING("VENT_PÅ_KORRIGERT_BESTEBEREGNING", "Besteberegningen er feil. Feilen må meldes og korrigeres."),
-    VENT_PÅ_NY_INNTEKTSMELDING_MED_GYLDIG_ARB_ID("VENT_PÅ_NY_INNTEKTSMELDING_MED_GYLDIG_ARB_ID", "Venter på ny inntektsmelding med arbeidsforholdId som stemmer med Aareg"),
+    VENT_PÅ_NY_INNTEKTSMELDING_MED_GYLDIG_ARB_ID("VENT_PÅ_NY_INNTEKTSMELDING_MED_GYLDIG_ARB_ID", "Venter på ny inntektsmelding med arbeidsforholdsID som stemmer med AA-reg"),
     VENT_REGISTERINNHENTING("VENT_REGISTERINNHENTING", "Venter på registerinformasjon"),
     VENT_ØKONOMI("VENT_ØKONOMI", "Venter på økonomiløsningen"),
 

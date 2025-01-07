@@ -69,7 +69,7 @@ public class SimulerInntrekkSjekkeTjeneste {
             .medFagsakId(fagsakId)
             .medTittel(SkjermlenkeType.FAKTA_OM_SIMULERING)
             .addLinje(
-                fraTilEquals("Fastsett videre behandling", "Feilutbetaling hvor inntrekk dekker hele beløpet", "Feilutbetaling med tilbakekreving"))
+                fraTilEquals("Fastsett videre behandling", "Feilutbetalingen er trukket inn i annen utbetaling", "Feilutbetaling med tilbakekreving"))
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }

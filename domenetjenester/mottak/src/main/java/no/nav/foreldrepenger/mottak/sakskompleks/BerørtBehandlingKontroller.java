@@ -253,7 +253,7 @@ public class BerørtBehandlingKontroller {
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())
-            .medTittel("Revurdering opprettet")
+            .medTittel("Revurdering er opprettet")
             .addLinje(begrunnelse)
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);

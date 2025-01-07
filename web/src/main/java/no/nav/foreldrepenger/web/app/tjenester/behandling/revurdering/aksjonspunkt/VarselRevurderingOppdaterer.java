@@ -53,7 +53,7 @@ public class VarselRevurderingOppdaterer implements AksjonspunktOppdaterer<Varse
         var historikkinnslag2 = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medBehandlingId(ref.behandlingId())
             .medFagsakId(ref.fagsakId())
-            .medTittel("Varsel om revurdering ikke sendt")
+            .medTittel("Varsel om revurdering er ikke sendt")
             .addLinje(varselRevurderingDto.getBegrunnelse())
             .build();
         historikkinnslagRepository.lagre(historikkinnslag2);
