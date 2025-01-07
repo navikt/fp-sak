@@ -133,13 +133,13 @@ public class FpInntektsmeldingTjeneste {
         var opprettForespørselResponseNy = klient.opprettForespørsel(request);
 
         opprettForespørselResponseNy.organisasjonsnumreMedStatus().forEach( organisasjonsnummerMedStatus -> {
-            var ag = organisasjonsnummerMedStatus.organisasjonsnummerDto().orgnr();
+            var orgnr = organisasjonsnummerMedStatus.organisasjonsnummerDto().orgnr();
             if (organisasjonsnummerMedStatus.status().equals(OpprettForespørselResponsNy.ForespørselResultat.FORESPØRSEL_OPPRETTET)) {
-                lagHistorikkForForespørsel(ref, String.format("Oppgave til %s om å sende inntektsmelding", hentArbeidsgivernavn(ag)));
+                lagHistorikkForForespørsel(ref, String.format("Oppgave om å sende inntektsmelding er opprettet for %s.", hentArbeidsgivernavn(orgnr)));
             }else {
                 if (LOG.isInfoEnabled()) {
                     LOG.info("Fpinntektsmelding har allerede oppgave på saksnummer: {} og orgnummer: {} på stp: {} og første uttaksdato: {}",
-                        ref.saksnummer(), tilMaskertNummer(ag), skjæringstidspunkt, førsteUttaksdato );
+                        ref.saksnummer(), tilMaskertNummer(orgnr), skjæringstidspunkt, førsteUttaksdato );
                 }
             }
         });
