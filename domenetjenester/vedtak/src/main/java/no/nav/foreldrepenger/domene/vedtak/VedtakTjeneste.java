@@ -95,7 +95,7 @@ public class VedtakTjeneste {
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
             .medTittel(SkjermlenkeType.VEDTAK)
-            .addLinje(erUendretUtfall ? "Uendret utfall" : String.format("Vedtak fattet: %s", utledVedtakResultatType(behandling).getNavn()))
+            .addLinje(erUendretUtfall ? "Uendret utfall" : String.format("Vedtak er fattet: %s", utledVedtakResultatType(behandling).getNavn()))
             .build();
         historikkRepository.lagre(historikkinnslag);
     }
