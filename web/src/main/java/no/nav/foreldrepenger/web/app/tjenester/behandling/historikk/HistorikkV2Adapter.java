@@ -33,6 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsa
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingVidereBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
 public class HistorikkV2Adapter {
@@ -320,15 +321,14 @@ public class HistorikkV2Adapter {
             .findFirst()
             .orElseThrow();
 
-        var tilVerdiNavn = FeltVerdiType.valueOf(felt.getTilVerdiKode()).name();
+        var tilVerdiNavn = endretVerdiTilTekst(felt.getTilVerdiKode(), felt.getKlTilVerdi());
         var periodeFom = periodeFraDel(del, "UTTAK_PERIODE_FOM");
         var periodeTom = periodeFraDel(del, "UTTAK_PERIODE_TOM");
-
 
         if (felt.getFraVerdi() == null) {
             return String.format("Perioden __%s - %s__ er avklart til __%s__", periodeFom, periodeTom, tilVerdiNavn);
         } else {
-            var fraVerdi = FeltVerdiType.valueOf(felt.getFraVerdiKode()).getText();
+            var fraVerdi = endretVerdiTilTekst(felt.getFraVerdiKode(), felt.getKlFraVerdi());
             return String.format("Perioden __%s - %s__ er endret fra %s til __%s__", periodeFom, periodeTom, fraVerdi, tilVerdiNavn);
         }
     }
@@ -346,8 +346,8 @@ public class HistorikkV2Adapter {
     public static Optional<String> fraEndretFelt(HistorikkinnslagFelt felt) {
         var feltNavnType = FeltNavnType.getByKey(felt.getNavn());
         var navn = kodeverdiTilStreng(feltNavnType, felt.getNavnVerdi());
-        var tilVerdi = endretFeltVerdi(feltNavnType, felt.getTilVerdi(), felt.getTilVerdiKode());
-        var fraVerdi = endretFeltVerdi(feltNavnType, felt.getFraVerdi(), felt.getFraVerdiKode());
+        var tilVerdi = endretFeltVerdi(feltNavnType, felt.getTilVerdi(), felt.getTilVerdiKode(), felt.getKlTilVerdi());
+        var fraVerdi = endretFeltVerdi(feltNavnType, felt.getFraVerdi(), felt.getFraVerdiKode(), felt.getFraVerdiKode());
         if (Objects.equals(getFraVerdi(fraVerdi), tilVerdi)) {
             return Optional.empty();
         }
@@ -365,9 +365,9 @@ public class HistorikkV2Adapter {
         return fraVerdi;
     }
 
-    private static String endretFeltVerdi(FeltNavnType feltNavnType, String verdi, String verdiKode) {
+    private static String endretFeltVerdi(FeltNavnType feltNavnType, String verdi, String verdiKode, String kodeverk) {
         if (verdiKode != null && !verdiKode.equals("-")) {
-            return FeltVerdiType.getByKey(verdiKode).getText();
+            return endretVerdiTilTekst(verdiKode, kodeverk);
         }
         if (verdi != null) {
             if (Set.of(FeltNavnType.UTTAK_PROSENT_UTBETALING, FeltNavnType.STILLINGSPROSENT).contains(feltNavnType)) {
@@ -376,6 +376,13 @@ public class HistorikkV2Adapter {
             return konverterBoolean(verdi);
         }
         return null;
+    }
+
+    private static String endretVerdiTilTekst(String verdiKode, String kodeverk) {
+        if (PeriodeResultatÅrsak.KODEVERK.equals(kodeverk)) {
+            return PeriodeResultatÅrsak.fraKode(verdiKode).getNavn();
+        }
+        return FeltVerdiType.getByKey(verdiKode).getText();
     }
 
     private static String konverterBoolean(String verdi) {

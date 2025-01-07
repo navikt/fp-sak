@@ -227,7 +227,7 @@ public enum FeltVerdiType {
     MANUELL_BEHANDLING("MANUELL_BEHANDLING", "Manuell behandling"),
     FORELDREPENGER("FORELDREPENGER", "Foreldrepenger"),
     AKTIVITETSKRAVET_UTDANNING_IKKE_DOKUMENTERT("4067", "Aktivitetskrav – utdanning ikke dokumentert"),
-    ADNR("ADNR", "Aktivt"),
+    ADNR("ADNR", "D-nummer"),
     DØD("DØD", "Død"),
     FOSV("FOSV", "Forsvunnet/savnet"),
     FØDR("FØDR", "Fødselsregistrert"),
