@@ -34,7 +34,7 @@ public record HistorikkinnslagDtoV2(UUID behandlingUuid,
             return new Linje(Type.LINJESKIFT, null);
         }
 
-        enum Type {
+        public enum Type {
             TEKST,
             LINJESKIFT
         }

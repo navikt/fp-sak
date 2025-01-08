@@ -16,6 +16,8 @@ import java.util.UUID;
 
 import jakarta.ws.rs.core.UriBuilder;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

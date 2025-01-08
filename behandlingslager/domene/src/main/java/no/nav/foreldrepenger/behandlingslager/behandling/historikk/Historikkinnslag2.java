@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.historikk;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -49,6 +50,10 @@ public class Historikkinnslag2 extends BaseCreateableEntitet {
     @Column(name = "tittel")
     private String tittel;
 
+    //TODO: Temp kolonne til bruk i migrering. Kan fjernes etter migrering fra tidligere tabell er utført
+    @Column(name = "migrert_fra_id")
+    private Long migrertFraId;
+
     protected Historikkinnslag2() {
     }
 
@@ -76,6 +81,14 @@ public class Historikkinnslag2 extends BaseCreateableEntitet {
         return dokumentLinker;
     }
 
+    public String getTittel() {
+        return tittel;
+    }
+
+    public Long getMigrertFraId() {
+        return migrertFraId;
+    }
+
     @Override
     public String toString() {
         return "Historikkinnslag2{" + "fagsakId=" + fagsakId + ", behandlingId=" + behandlingId + ", aktør=" + aktør + ", skjermlenkeType="
@@ -99,9 +112,6 @@ public class Historikkinnslag2 extends BaseCreateableEntitet {
         return Objects.hash(behandlingId, fagsakId, tittel, dokumentLinker, linjer);
     }
 
-    public String getTittel() {
-        return tittel;
-    }
 
     public static class Builder {
 
@@ -130,6 +140,11 @@ public class Historikkinnslag2 extends BaseCreateableEntitet {
 
         public Builder medTittel(String tittel) {
             kladd.tittel = tittel;
+            return this;
+        }
+
+        public Builder medMigrertFraId(Long migrertFraId) {
+            kladd.migrertFraId = migrertFraId;
             return this;
         }
 
