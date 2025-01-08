@@ -21,7 +21,7 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
  */
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, endpointProperty = "ufore.rs.url", endpointDefault = "http://pensjon-pen.pensjondeployer/pen/springapi/sak/harUforegrad",
+@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, endpointProperty = "ufore.rs.url", endpointDefault = "http://pensjon-pen.pensjondeployer/api/sak/harUforegrad",
     scopesProperty = "ufore.scopes", scopesDefault = "api://prod-fss.pensjondeployer.pensjon-pen/.default")
 public class PesysUføreKlient {
 
