@@ -34,7 +34,7 @@ class DatavarehusEventObserverTest {
 
     @BeforeEach
     public void setUp() {
-        datavarehusEventObserver = new DatavarehusEventObserver(datavarehusTjeneste);
+        datavarehusEventObserver = new DatavarehusEventObserver(datavarehusTjeneste, true);
     }
 
     @Test
