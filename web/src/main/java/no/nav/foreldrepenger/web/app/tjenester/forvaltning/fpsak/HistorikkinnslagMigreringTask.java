@@ -11,7 +11,6 @@ import jakarta.persistence.EntityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2DokumentLink;
@@ -29,33 +28,30 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 @Dependent
 @ProsessTask(value = "historikkinnslag.migrering", prioritet = 4, maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-public class HistorikkinnslagHendelseTask implements ProsessTaskHandler {
-    private static final Logger LOG = LoggerFactory.getLogger(HistorikkinnslagHendelseTask.class);
-    static final String FRA_ID = "fraId";
-    static final String MED_ID = "medId";
+public class HistorikkinnslagMigreringTask implements ProsessTaskHandler {
+    private static final Logger LOG = LoggerFactory.getLogger(HistorikkinnslagMigreringTask.class);
+    static final String FOM_ID = "fomId";
+    static final String TOM_ID = "tomId";
 
     private final EntityManager entityManager;
-    private final HistorikkRepository historikkRepository;
     private final Historikkinnslag2Repository historikkinnslag2Repository;
     private final ProsessTaskTjeneste prosessTaskTjeneste;
 
     @Inject
-    public HistorikkinnslagHendelseTask(EntityManager entityManager,
-                                        HistorikkRepository historikkRepository,
-                                        Historikkinnslag2Repository historikkinnslag2Repository,
-                                        ProsessTaskTjeneste prosessTaskTjeneste) {
+    public HistorikkinnslagMigreringTask(EntityManager entityManager,
+                                         Historikkinnslag2Repository historikkinnslag2Repository,
+                                         ProsessTaskTjeneste prosessTaskTjeneste) {
         this.entityManager = entityManager;
-        this.historikkRepository = historikkRepository;
         this.historikkinnslag2Repository = historikkinnslag2Repository;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
     }
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        Long fraId = Long.valueOf(prosessTaskData.getPropertyValue(FRA_ID));
-        var medIdString = prosessTaskData.getPropertyValue(MED_ID);
+        Long fraId = Long.valueOf(prosessTaskData.getPropertyValue(FOM_ID));
+        var medIdString = prosessTaskData.getPropertyValue(TOM_ID);
         Long medId = Optional.ofNullable(medIdString).map(Long::parseLong).orElse(99999999999L);
-        LOG.info("Starter migrering med FraId={} og medId={}", fraId, medId);
+        LOG.info("Starter migrering med fomId={} og tomId={}", fraId, medId);
         var startTid = System.currentTimeMillis();
         var historikkinnslagListe = finnNesteHundreHistorikkinnslag(fraId, medId);
 
@@ -76,7 +72,7 @@ public class HistorikkinnslagHendelseTask implements ProsessTaskHandler {
             .ifPresent(nesteId -> prosessTaskTjeneste.lagre(opprettNesteTask(nesteId + 1)));
 
         var sluttTid = System.currentTimeMillis();
-        LOG.info("Migrering for fraId={} og medId={} tar totalt={} ms.", fraId, medId, sluttTid - startTid);
+        LOG.info("Migrering for fomId={} og tomId={} tar totalt={} ms.", fraId, medId, sluttTid - startTid);
     }
 
     private boolean erMigrert(Long id) {
@@ -87,8 +83,8 @@ public class HistorikkinnslagHendelseTask implements ProsessTaskHandler {
     }
 
     private ProsessTaskData opprettNesteTask(Long nesteId) {
-        var prosessTaskData = ProsessTaskData.forProsessTask(HistorikkinnslagHendelseTask.class);
-        prosessTaskData.setProperty(HistorikkinnslagHendelseTask.FRA_ID, nesteId.toString());
+        var prosessTaskData = ProsessTaskData.forProsessTask(HistorikkinnslagMigreringTask.class);
+        prosessTaskData.setProperty(HistorikkinnslagMigreringTask.FOM_ID, nesteId.toString());
         return prosessTaskData;
     }
 
