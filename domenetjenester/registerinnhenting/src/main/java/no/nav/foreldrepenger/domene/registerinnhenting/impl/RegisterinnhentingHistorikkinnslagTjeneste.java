@@ -46,7 +46,7 @@ public class RegisterinnhentingHistorikkinnslagTjeneste {
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
-            .addLinje("Behandlingen er flyttet fra " + førSteg.getNavn() + " tilbake til " + etterSteg.getNavn())
+            .addLinje(String.format("Behandlingen er flyttet fra __%s__ tilbake til __%s__", førSteg.getNavn(), etterSteg.getNavn()))
             .build();
         historikkinnslag2Repository.lagre(historikkinnslag);
     }
