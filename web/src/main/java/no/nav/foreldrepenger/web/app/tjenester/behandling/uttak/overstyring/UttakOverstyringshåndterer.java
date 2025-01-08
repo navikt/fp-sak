@@ -57,6 +57,6 @@ public class UttakOverstyringshåndterer implements Overstyringshåndterer<Overs
     public void lagHistorikkInnslag(OverstyringUttakDto dto, Behandling behandling) {
         var historikkinnslag = UttakHistorikkUtil.forOverstyring()
             .lagHistorikkinnslag(BehandlingReferanse.fra(behandling), dto.getPerioder(), forrigeUttak.getGjeldendePerioder());
-        historikkinnslag.forEach(innslag -> historikkinnslag2Repository.lagre(innslag));
+        historikkinnslag.ifPresent(innslag -> historikkinnslag2Repository.lagre(innslag));
     }
 }

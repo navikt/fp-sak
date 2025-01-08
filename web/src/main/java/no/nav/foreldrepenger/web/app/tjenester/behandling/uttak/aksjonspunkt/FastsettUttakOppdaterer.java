@@ -75,7 +75,7 @@ public class FastsettUttakOppdaterer implements AksjonspunktOppdaterer<Fastsette
     private void lagHistorikkInnslag(BehandlingReferanse behandling, FastsetteUttakDto dto, ForeldrepengerUttak forrigeResultat) {
         var historikkinnslag = UttakHistorikkUtil.forFastsetting().lagHistorikkinnslag(
             behandling, dto.getPerioder(), forrigeResultat.getGjeldendePerioder());
-        historikkinnslag.forEach(innslag -> historikkinnslag2Repository.lagre(innslag));
+        historikkinnslag.ifPresent(innslag -> historikkinnslag2Repository.lagre(innslag));
     }
 
     private Optional<Aksjonspunkt> avbrytOverflødigOverstyrAksjonpunkt(BehandlingReferanse referanse) {

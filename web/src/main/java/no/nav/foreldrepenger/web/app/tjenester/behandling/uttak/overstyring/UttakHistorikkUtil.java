@@ -1,12 +1,15 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.LINJESKIFT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.format;
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring.EndreUttakUtil.finnGjeldendePeriodeFor;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
@@ -36,45 +39,46 @@ public final class UttakHistorikkUtil {
         return new UttakHistorikkUtil(false);
     }
 
-    public List<Historikkinnslag2> lagHistorikkinnslag(BehandlingReferanse behandling,
-                                                       List<UttakResultatPeriodeLagreDto> uttakResultat,
-                                                       List<ForeldrepengerUttakPeriode> gjeldende) {
-        return lagHistorikkinnslagFraPeriodeEndringer(behandling, uttakResultat, gjeldende);
-    }
+    public Optional<Historikkinnslag2> lagHistorikkinnslag(BehandlingReferanse behandling,
+                                                           List<UttakResultatPeriodeLagreDto> uttakResultat,
+                                                           List<ForeldrepengerUttakPeriode> gjeldende) {
+        var tekstlinjer = uttakResultat.stream()
+            .map(periode -> lagHistorikkinnslagForPeriode(periode, gjeldende))
+            .flatMap(Collection::stream)
+            .toList();
 
-    private List<Historikkinnslag2> lagHistorikkinnslagFraPeriodeEndringer(BehandlingReferanse behandling,
-                                                                           List<UttakResultatPeriodeLagreDto> perioder,
-                                                                           List<ForeldrepengerUttakPeriode> gjeldende) {
-        return perioder.stream().map(periode -> lagHistorikkinnslagForPeriode(behandling, periode, gjeldende)).flatMap(Collection::stream).toList();
-    }
-
-    private List<Historikkinnslag2> lagHistorikkinnslagForPeriode(BehandlingReferanse behandling,
-                                                                  UttakResultatPeriodeLagreDto periode,
-                                                                  List<ForeldrepengerUttakPeriode> gjeldende) {
-        List<Historikkinnslag2> list = new ArrayList<>();
-        if (erOppholdsPeriode(periode)) {
-            list.add(lagHistorikkinnslagForOppholdsperiode(behandling, gjeldende, periode));
+        if (tekstlinjer.isEmpty()) {
+            return Optional.empty();
         }
-        for (var aktivitet : periode.getAktiviteter()) {
-            list.add(lagHistorikkinnslag(behandling, gjeldende, periode, aktivitet));
-        }
-        return list.stream().filter(h -> h.getLinjer().size() > 1).toList();
-    }
 
-    private Historikkinnslag2 lagHistorikkinnslag(BehandlingReferanse behandling,
-                                                  List<ForeldrepengerUttakPeriode> gjeldende,
-                                                  UttakResultatPeriodeLagreDto nyPeriode,
-                                                  UttakResultatPeriodeAktivitetLagreDto nyAktivitet) {
-        var gjeldendePeriode = EndreUttakUtil.finnGjeldendePeriodeFor(gjeldende, new LocalDateInterval(nyPeriode.getFom(), nyPeriode.getTom()));
-
-        var linjer = linjer(gjeldendePeriode, nyPeriode, nyAktivitet);
-
-        return new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
+        return Optional.of(new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medBehandlingId(behandling.behandlingId())
             .medFagsakId(behandling.fagsakId())
             .medTittel(SkjermlenkeType.UTTAK)
-            .medLinjer(linjer)
-            .build();
+            .medLinjer(tekstlinjer)
+            .build());
+    }
+
+    private List<HistorikkinnslagLinjeBuilder> lagHistorikkinnslagForPeriode(UttakResultatPeriodeLagreDto periode, List<ForeldrepengerUttakPeriode> gjeldende) {
+        List<HistorikkinnslagLinjeBuilder> linjer = new ArrayList<>();
+        if (erOppholdsPeriode(periode)) {
+            var tekstlinjerOpphold = lagHistorikkinnslagTekstForOppholdsperiode(gjeldende, periode);
+            if (tekstlinjerOpphold.stream().filter(Objects::nonNull).toList().size() > 1) { // Mer enn overskrift
+                linjer.addAll(tekstlinjerOpphold);
+            }
+        }
+        for (var aktivitet : periode.getAktiviteter()) {
+            var gjeldendePeriode = finnGjeldendePeriodeFor(gjeldende, new LocalDateInterval(periode.getFom(), periode.getTom()));
+            var tekstlinjerAktivitet = linjer(gjeldendePeriode, periode, aktivitet);
+            if (tekstlinjerAktivitet.stream().filter(Objects::nonNull).toList().size() > 1) { // Mer enn overskrift
+                linjer.addAll(tekstlinjerAktivitet);
+            }
+        }
+        if (linjer.isEmpty()) {
+            return List.of();
+        }
+        linjer.add(LINJESKIFT);
+        return linjer;
     }
 
     private List<HistorikkinnslagLinjeBuilder> linjer(ForeldrepengerUttakPeriode gjeldendePeriode,
@@ -136,17 +140,6 @@ public final class UttakHistorikkUtil {
         return fraTilEquals("Trekkdager", gjeldendeAktivitetTrekkdager, nyAktivitetTrekkdager);
     }
 
-    private Historikkinnslag2 lagHistorikkinnslagForOppholdsperiode(BehandlingReferanse behandling,
-                                                                    List<ForeldrepengerUttakPeriode> gjeldende,
-                                                                    UttakResultatPeriodeLagreDto nyPeriode) {
-        return new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
-            .medBehandlingId(behandling.behandlingId())
-            .medFagsakId(behandling.fagsakId())
-            .medTittel(SkjermlenkeType.UTTAK)
-            .medLinjer(lagHistorikkinnslagTekstForOppholdsperiode(gjeldende, nyPeriode))
-            .build();
-    }
-
     private HistorikkinnslagLinjeBuilder periodeErManueltVurdertLinje(UttakResultatPeriodeLagreDto nyPeriode) {
         var introTekst = erOverstyring ? "Overstyrt vurdering" : "Manuell vurdering";
         return new HistorikkinnslagLinjeBuilder().bold(introTekst)
@@ -156,7 +149,7 @@ public final class UttakHistorikkUtil {
 
     private List<HistorikkinnslagLinjeBuilder> lagHistorikkinnslagTekstForOppholdsperiode(List<ForeldrepengerUttakPeriode> gjeldende,
                                                                                           UttakResultatPeriodeLagreDto nyPeriode) {
-        var gjeldendePeriode = EndreUttakUtil.finnGjeldendePeriodeFor(gjeldende, new LocalDateInterval(nyPeriode.getFom(), nyPeriode.getTom()));
+        var gjeldendePeriode = finnGjeldendePeriodeFor(gjeldende, new LocalDateInterval(nyPeriode.getFom(), nyPeriode.getTom()));
 
         var list = new ArrayList<HistorikkinnslagLinjeBuilder>();
         list.add(periodeErManueltVurdertLinje(nyPeriode));

@@ -46,9 +46,8 @@ class UttakHistorikkUtilTest {
         var perioder = nyMedResultatType(PeriodeResultatType.INNVILGET, new ArbeidsgiverLagreDto(ORGNR));
 
         var historikkinnslag = UttakHistorikkUtil.forOverstyring().lagHistorikkinnslag(BEHANDLING, perioder, List.of(gjeldende));
-
-        assertThat(historikkinnslag).hasSize(1);
-        var innslag = historikkinnslag.getFirst();
+        assertThat(historikkinnslag).isPresent();
+        var innslag = historikkinnslag.get();
         assertThat(innslag.getBehandlingId()).isEqualTo(BEHANDLING.behandlingId());
         assertThat(innslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         assertThat(innslag.getLinjer()).hasSize(3);
@@ -81,8 +80,8 @@ class UttakHistorikkUtilTest {
             var historikk = UttakHistorikkUtil.forOverstyring().lagHistorikkinnslag(BEHANDLING,
                     perioder, List.of(gjeldende));
 
-            assertThat(historikk).hasSize(1);
-            var historikkinnslag = historikk.getFirst();
+            assertThat(historikk).isPresent();
+            var historikkinnslag = historikk.get();
             assertThat(historikkinnslag.getBehandlingId()).isEqualTo(BEHANDLING.behandlingId());
             assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
             assertThat(historikkinnslag.getLinjer()).hasSize(3);
