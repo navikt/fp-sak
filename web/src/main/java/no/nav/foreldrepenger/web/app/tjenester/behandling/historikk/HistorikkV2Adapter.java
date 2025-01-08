@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
@@ -35,6 +36,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
+import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 
 public class HistorikkV2Adapter {
 
@@ -486,8 +488,7 @@ public class HistorikkV2Adapter {
 
     private static Optional<String> begrunnelseFraDel(HistorikkinnslagDel historikkinnslagDel) {
         return historikkinnslagDel.getBegrunnelseFelt()
-            .flatMap(HistorikkV2Adapter::finnÅrsakKodeListe)
-            .map(Kodeverdi::getNavn)
+            .flatMap(HistorikkV2Adapter::finnBegrunnelseKodeListe)
             .or(historikkinnslagDel::getBegrunnelse);
     }
 
@@ -509,6 +510,32 @@ public class HistorikkV2Adapter {
             case "KLAGE_MEDHOLD_AARSAK" -> KlageMedholdÅrsak.kodeMap().get(aarsakVerdi);
             case "KLAGE_AVVIST_AARSAK" -> KlageAvvistÅrsak.kodeMap().get(aarsakVerdi);
             default -> throw new IllegalStateException("Har ikke støtte for HistorikkinnslagFelt#klTilVerdi=" + aarsak.getKlTilVerdi());
+        });
+    }
+
+    // Fra HistorikkinnslagDelTo
+    private static Optional<String> finnBegrunnelseKodeListe(HistorikkinnslagFelt begrunnelseFelt) {
+        var begrunnelseVerdi = begrunnelseFelt.getTilVerdi();
+        if (Objects.equals("-", begrunnelseVerdi)) {
+            return Optional.empty();
+        }
+        if (begrunnelseFelt.getKlTilVerdi() == null) {
+            return Optional.empty();
+        }
+        /**
+         * kl_til_verdi er satt til enten: VENT_AARSAK, BEHANDLING_RESULTAT_TYPE, KLAGE_MEDHOLD_AARSAK eller KLAGE_AVVIST_AARSAK
+         */
+        return Optional.ofNullable(switch (begrunnelseFelt.getKlTilVerdi()) {
+            case "BEHANDLING_AARSAK" -> BehandlingÅrsakType.kodeMap().get(begrunnelseVerdi).getNavn();
+            case "OPPGAVE_AARSAK" -> OppgaveÅrsak.kodeMap().get(begrunnelseVerdi).getNavn();
+            case "HISTORIKK_BEGRUNNELSE_TYPE" -> switch (begrunnelseVerdi) {
+                case "SAKSBEH_START_PA_NYTT" -> "Saksbehandling starter på nytt";
+                case "BEH_STARTET_PA_NYTT" -> "Behandling startet på nytt";
+                case "BERORT_BEH_ENDRING_DEKNINGSGRAD" -> "Den andre forelderens behandling har endret antall disponible stønadsdager";
+                case "BERORT_BEH_OPPHOR" -> "Den andre forelderens vedtak er opphørt";
+                default -> throw new IllegalStateException("Unexpected value: " + begrunnelseVerdi);
+            };
+            default -> throw new IllegalStateException("Har ikke støtte for HistorikkinnslagFelt#klTilVerdi=" + begrunnelseFelt.getKlTilVerdi());
         });
     }
 
