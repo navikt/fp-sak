@@ -109,7 +109,7 @@ public class HistorikkinnslagTjeneste {
     }
 
     public void opprettHistorikkinnslagForAutomatiskHenlegelsePgaNySøknad(Behandling behandling) {
-        var historikk = new Historikkinnslag2.Builder().medTittel("Behandling er henlagt")
+        var historikk = new Historikkinnslag2.Builder().medTittel("Behandlingen er henlagt")
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
@@ -134,7 +134,7 @@ public class HistorikkinnslagTjeneste {
                                                                      LocalDateTime frist,
                                                                      Venteårsak venteårsak) {
         var tittel = frist == null ? historikkinnslagType.getNavn() :
-            historikkinnslagType.getNavn() + " " + format(frist.toLocalDate());
+            historikkinnslagType.getNavn() + " til " + format(frist.toLocalDate());
         var build = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medTittel(tittel)
             .medBehandlingId(behandling.getId())

@@ -43,12 +43,12 @@ public class HistorikkInnslagForAksjonspunktEventObserver {
         var ktx = aksjonspunkterFunnetEvent.getKontekst();
         for (var aksjonspunkt : aksjonspunkterFunnetEvent.getAksjonspunkter()) {
             if (aksjonspunkt.erOpprettet() && AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING.equals(aksjonspunkt.getAksjonspunktDefinisjon())) {
-                opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), "Behandling er satt på vent", null,
+                opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), "Behandlingen er satt på vent", null,
                     Venteårsak.VENT_ÅPEN_BEHANDLING);
             } else if (aksjonspunkt.erOpprettet() && aksjonspunkt.getFristTid() != null) {
                 var frist = aksjonspunkt.getFristTid();
                 var venteårsak = aksjonspunkt.getVenteårsak();
-                opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), "Behandling er satt på vent", frist,
+                opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), "Behandlingen er satt på vent", frist,
                     venteårsak);
             }
         }
@@ -61,7 +61,7 @@ public class HistorikkInnslagForAksjonspunktEventObserver {
                                                                       Venteårsak venteårsak) {
         var historikkinnslagBuilder = new Historikkinnslag2.Builder();
         if (fristTid != null) {
-            historikkinnslagBuilder.medTittel(tittel + " " + HistorikkinnslagLinjeBuilder.format(fristTid.toLocalDate()));
+            historikkinnslagBuilder.medTittel(tittel + " til " + HistorikkinnslagLinjeBuilder.format(fristTid.toLocalDate()));
         } else {
             historikkinnslagBuilder.medTittel(tittel);
         }
