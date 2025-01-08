@@ -192,7 +192,7 @@ public class BehandlingsprosessTjeneste {
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
-            .medTittel("Behandling er gjenopptatt")
+            .medTittel("Behandlingen er gjenopptatt")
             .build();
         historikkRepository.lagre(historikkinnslag);
     }
