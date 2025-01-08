@@ -42,8 +42,8 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     RE_AVVIK_ANTALL_BARN("RE-AVAB", "Avvik antall barn"),
 
     // Mottak
-    RE_ENDRING_FRA_BRUKER("RE-END-FRA-BRUKER", "Søknad"),
-    RE_ENDRET_INNTEKTSMELDING("RE-END-INNTEKTSMELD", "Inntektsmelding"),
+    RE_ENDRING_FRA_BRUKER("RE-END-FRA-BRUKER", "Ny søknad"),
+    RE_ENDRET_INNTEKTSMELDING("RE-END-INNTEKTSMELD", "Ny inntektsmelding"),
 
     // Tekniske behandlinger som skal spesialbehandles i prosessen
     BERØRT_BEHANDLING("BERØRT-BEHANDLING", "Berørt behandling"),
