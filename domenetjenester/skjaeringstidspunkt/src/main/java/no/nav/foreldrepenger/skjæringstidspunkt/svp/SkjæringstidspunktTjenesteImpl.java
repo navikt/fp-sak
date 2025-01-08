@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
@@ -65,7 +66,10 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var førsteUttakSøknadOpt = Optional.ofNullable(førsteØnskedeUttaksdag(behandling));
         var førsteUttakSøknad = førsteUttakSøknadOpt.orElseGet(LocalDate::now); // Mangler grunnlag for å angi dato, bruker midlertidig dagens dato pga Dtos etc.
-        var skjæringstidspunkt = opptjeningRepository.finnOpptjening(behandlingId).map(o -> o.getTom().plusDays(1)).orElse(førsteUttakSøknad);
+        var skjæringstidspunkt = opptjeningRepository.finnOpptjening(behandlingId)
+            .filter(Opptjening::erOpptjeningPeriodeVilkårOppfylt)
+            .map(o -> o.getTom().plusDays(1))
+            .orElse(førsteUttakSøknad);
 
         var builder = Skjæringstidspunkt.builder()
             .medFørsteUttaksdato(førsteUttakSøknad)
@@ -89,7 +93,10 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     public Skjæringstidspunkt getSkjæringstidspunkterForAvsluttetBehandling(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var førsteUttak = finnFørsteDatoMedUttak(behandling).orElseThrow();
-        var skjæringstidspunkt = opptjeningRepository.finnOpptjening(behandlingId).map(o -> o.getTom().plusDays(1)).orElse(førsteUttak);
+        var skjæringstidspunkt = opptjeningRepository.finnOpptjening(behandlingId)
+            .filter(Opptjening::erOpptjeningPeriodeVilkårOppfylt)
+            .map(o -> o.getTom().plusDays(1))
+            .orElse(førsteUttak);
 
         var builder = Skjæringstidspunkt.builder()
             .medFørsteUttaksdato(førsteUttak)
@@ -174,11 +181,6 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     private Long originalBehandling(Behandling behandling) {
         return behandling.getOriginalBehandlingId()
             .orElseThrow(() -> new IllegalArgumentException("Revurdering må ha original behandling"));
-    }
-
-    private Long originalBehandling(Long behandlingId) {
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        return behandling.erRevurdering() ? originalBehandling(behandling) : behandlingId;
     }
 
     private boolean finnesPerioderMedUtbetaling(List<BeregningsresultatPeriode> perioder) {
