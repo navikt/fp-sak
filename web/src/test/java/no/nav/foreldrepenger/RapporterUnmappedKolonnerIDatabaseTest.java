@@ -13,8 +13,6 @@ import java.util.stream.Collectors;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 
-import no.nav.foreldrepenger.dbstoette.TestDatabaseInit;
-
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.model.relational.Database;
 import org.hibernate.boot.model.relational.Namespace;
@@ -24,10 +22,12 @@ import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.hibernate.service.spi.SessionFactoryServiceRegistry;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import no.nav.foreldrepenger.dbstoette.JpaExtension;
 
 /**
  * Denne testen rapporterer kun tabeller og kolonner som ikke er mappet i
@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * aksesseres gjennom native sql), men p.t. høyst sannsynlig ikke. Bør
  * gjennomgås jevnlig for å luke manglende contract av db skjema.
  */
-@Disabled
+@ExtendWith(JpaExtension.class)
 class RapporterUnmappedKolonnerIDatabaseTest {
     private static final Logger LOG = LoggerFactory.getLogger(RapporterUnmappedKolonnerIDatabaseTest.class);
 
@@ -53,14 +53,6 @@ class RapporterUnmappedKolonnerIDatabaseTest {
 
     @BeforeAll
     public static void setup() {
-        // Kan ikke skrus på nå - trigger på CHAR kolonner som kunne vært VARCHAR. Må
-        // fikses først
-        // System.setProperty("hibernate.hbm2ddl.auto", "validate");
-        try {
-            //TestDatabaseInit.settJdniOppslag();
-        } catch (Exception e) {
-            throw new ExceptionInInitializerError(e);
-        }
 
         Map<String, Object> configuration = new HashMap<>();
 

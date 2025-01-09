@@ -27,15 +27,17 @@ import jakarta.persistence.metamodel.Type;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import no.nav.foreldrepenger.dbstoette.TestDatabaseInit;
+import no.nav.foreldrepenger.dbstoette.JpaExtension;
 
 /**
  * Sjekker alle entiteter er mappet korrekt. Ligger i web slik at den fanger
  * alle orm filer lagt i ulike moduler.
  */
+@ExtendWith(JpaExtension.class)
 class EntityTest {
 
     private static final EntityManagerFactory entityManagerFactory;
@@ -103,7 +105,7 @@ class EntityTest {
         }
     }
 
-    @Disabled("Venter til etter migrering av aliased tables")
+    //@Disabled("Venter til etter migrering av aliased tables")
     @ParameterizedTest
     @MethodSource("parameters")
     public void sjekk_felt_mapping_primitive_felt_i_entiteter_må_ha_not_nullable_i_db(Class<?> entityClass) throws Exception {
@@ -134,6 +136,7 @@ class EntityTest {
         }
     }
 
+    // TODO: Slå på og gjennomgå resultatene
     @Disabled("Venter til etter migrering av aliased tables")
     @ParameterizedTest
     @MethodSource("parameters")
@@ -184,7 +187,7 @@ class EntityTest {
                 .setParameter("col", columnName)
                 .getResultList();
 
-        return result.isEmpty() ? null : result.get(0);
+        return result.isEmpty() ? null : String.valueOf(result.get(0));
     }
 
     private String getTableName(Class<?> entityClass, Field field) {

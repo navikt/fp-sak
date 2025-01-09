@@ -16,26 +16,20 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import jakarta.persistence.metamodel.Type;
 
-import no.nav.foreldrepenger.dbstoette.TestDatabaseInit;
-
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
+import no.nav.foreldrepenger.dbstoette.JpaExtension;
 
 /** Lagt til web for å sjekke orm filer fra alle moduler. */
-@Disabled
+@ExtendWith(JpaExtension.class)
 class SjekkCollectionsOrderedIEntiteterTest {
 
     private static final EntityManagerFactory entityManagerFactory;
 
     static {
-        try {
-            //TestDatabaseInit.settJdniOppslag();
-        } catch (Exception e) {
-            throw new ExceptionInInitializerError(e);
-        }
         entityManagerFactory = Persistence.createEntityManagerFactory("pu-default");
     }
 

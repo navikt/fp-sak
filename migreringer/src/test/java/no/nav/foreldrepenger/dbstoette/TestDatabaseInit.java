@@ -19,15 +19,16 @@ import no.nav.foreldrepenger.konfig.Environment;
 
 public final class TestDatabaseInit {
 
+    public static final String DEFAULT_DS_SCHEMA = "defaultDS";
+
     private static final AtomicBoolean GUARD_UNIT_TEST_SKJEMAER = new AtomicBoolean();
 
     private static final Environment ENV = Environment.current();
 
     private static final String DB_SCRIPT_LOCATION = "/db/migration/";
 
-    public static void settOppDatasourceOgMigrer(String jdbcUrl, String username, String password, String schema) {
+    public static DataSource settOppDatasourceOgMigrer(String jdbcUrl, String username, String password, String schema) {
         var ds = createDatasource(jdbcUrl, username, password);
-        settJdniOppslag(ds);
         if (GUARD_UNIT_TEST_SKJEMAER.compareAndSet(false, true)) {
             var flyway = Flyway.configure()
                 .dataSource(ds)
@@ -50,6 +51,7 @@ public final class TestDatabaseInit {
             }
         }
         GUARD_UNIT_TEST_SKJEMAER.compareAndSet(true, false);
+        return ds;
     }
 
     private static String getScriptLocation(String schema) {
@@ -70,7 +72,7 @@ public final class TestDatabaseInit {
         return "filesystem:" + location.getPath();
     }
 
-    private static void settJdniOppslag(DataSource dataSource) {
+    public static void settJdniOppslag(DataSource dataSource) {
         try {
             new EnvEntry("jdbc/defaultDS", dataSource); // NOSONAR
         } catch (NamingException e) {

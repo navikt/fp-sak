@@ -2,20 +2,24 @@ package no.nav.foreldrepenger.db.validering;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.sql.DataSource;
 
-import no.nav.foreldrepenger.dbstoette.TestDatabaseInit;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.oracle.OracleContainer;
+import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.utility.MountableFile;
+
+import no.nav.foreldrepenger.dbstoette.TestDatabaseInit;
+import no.nav.foreldrepenger.konfig.Environment;
 
 /**
  * Tester at alle migreringer følger standarder for navn og god praksis.
  */
-@Disabled
 class SjekkDbStrukturTest {
 
     private static final String HJELP = """
@@ -30,9 +34,19 @@ class SjekkDbStrukturTest {
 
     @BeforeAll
     public static void setup() {
-        //TestDatabaseInit.migrerUnittestSkjemaer();
-        //ds = TestDatabaseInit.initUnitTestDataSource();
-        //schema = TestDatabaseInit.DEFAULTDS_USER;
+        var testDbContainer = Environment.current().getProperty("testcontainer.test.db", String.class, "gvenzl/oracle-free:23-slim-faststart");
+
+        var initPath = "../.oracle/oracle-init/fpsak.sql";
+        while (!(new File(initPath)).exists()) {
+            initPath = "../" + initPath;
+        }
+        var testDatabase = new OracleContainer(DockerImageName.parse(testDbContainer))
+            .withCopyFileToContainer(MountableFile.forHostPath(initPath), "/docker-entrypoint-initdb.d/init.sql")
+            .withReuse(true);
+        testDatabase.start();
+        ds = TestDatabaseInit.settOppDatasourceOgMigrer(testDatabase.getJdbcUrl(), "fpsak", "fpsak", TestDatabaseInit.DEFAULT_DS_SCHEMA);
+        TestDatabaseInit.settJdniOppslag(ds);
+        schema = TestDatabaseInit.DEFAULT_DS_SCHEMA;
     }
 
     @Test
@@ -49,7 +63,8 @@ class SjekkDbStrukturTest {
         try (var conn = ds.getConnection(); var stmt = conn.prepareStatement(sql); var rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                avvik.add(rs.getString(1));
+                if (!"flyway_schema_history".equals(rs.getString(1)))
+                    avvik.add(rs.getString(1));
             }
 
         }
@@ -82,7 +97,8 @@ class SjekkDbStrukturTest {
         try (var conn = ds.getConnection(); var stmt = conn.prepareStatement(sql); var rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                avvik.add("\n" + rs.getString(1));
+                if (!rs.getString(1).startsWith("flyway_schema_history"))
+                    avvik.add("\n" + rs.getString(1));
             }
 
         }
