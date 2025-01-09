@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.db.validering;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +14,6 @@ import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
 import no.nav.foreldrepenger.dbstoette.TestDatabaseInit;
-import no.nav.foreldrepenger.konfig.Environment;
 
 /**
  * Tester at alle migreringer følger standarder for navn og god praksis.
@@ -34,19 +32,12 @@ class SjekkDbStrukturTest {
 
     @BeforeAll
     public static void setup() {
-        var testDbContainer = Environment.current().getProperty("testcontainer.test.db", String.class, "gvenzl/oracle-free:23-slim-faststart");
-
-        var initPath = "../.oracle/oracle-init/fpsak.sql";
-        while (!(new File(initPath)).exists()) {
-            initPath = "../" + initPath;
-        }
-        var testDatabase = new OracleContainer(DockerImageName.parse(testDbContainer))
-            .withCopyFileToContainer(MountableFile.forHostPath(initPath), "/docker-entrypoint-initdb.d/init.sql")
+        schema = TestDatabaseInit.DEFAULT_DS_SCHEMA;
+        var testDatabase = new OracleContainer(DockerImageName.parse(TestDatabaseInit.TEST_DB_CONTAINER))
+            .withCopyFileToContainer(MountableFile.forHostPath(TestDatabaseInit.DB_SETUP_SCRIPT_PATH), "/docker-entrypoint-initdb.d/init.sql")
             .withReuse(true);
         testDatabase.start();
-        ds = TestDatabaseInit.settOppDatasourceOgMigrer(testDatabase.getJdbcUrl(), "fpsak", "fpsak", TestDatabaseInit.DEFAULT_DS_SCHEMA);
-        TestDatabaseInit.settJdniOppslag(ds);
-        schema = TestDatabaseInit.DEFAULT_DS_SCHEMA;
+        ds = TestDatabaseInit.settOppDatasourceOgMigrer(testDatabase.getJdbcUrl(), "fpsak", "fpsak", schema);
     }
 
     @Test

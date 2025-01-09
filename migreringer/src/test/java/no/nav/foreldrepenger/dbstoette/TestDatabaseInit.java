@@ -21,6 +21,12 @@ public final class TestDatabaseInit {
 
     public static final String DEFAULT_DS_SCHEMA = "defaultDS";
 
+    public static final String TEST_DB_CONTAINER = Environment.current()
+        .getProperty("testcontainer.test.db", String.class, "gvenzl/oracle-free:23-slim-faststart");
+    public static final String DB_SETUP_SCRIPT_PATH =  getTestDbSetupScriptPath();
+
+    private static final String INIT_SCRIPT_PATH = "../.oracle/oracle-init/fpsak.sql";
+
     private static final AtomicBoolean GUARD_UNIT_TEST_SKJEMAER = new AtomicBoolean();
 
     private static final Environment ENV = Environment.current();
@@ -72,7 +78,15 @@ public final class TestDatabaseInit {
         return "filesystem:" + location.getPath();
     }
 
-    public static void settJdniOppslag(DataSource dataSource) {
+    private static String getTestDbSetupScriptPath() {
+        var initPath = INIT_SCRIPT_PATH;
+        while (!(new File(initPath)).exists()) {
+            initPath = "../" + initPath;
+        }
+        return initPath;
+    }
+
+    static void settJdniOppslag(DataSource dataSource) {
         try {
             new EnvEntry("jdbc/defaultDS", dataSource); // NOSONAR
         } catch (NamingException e) {
