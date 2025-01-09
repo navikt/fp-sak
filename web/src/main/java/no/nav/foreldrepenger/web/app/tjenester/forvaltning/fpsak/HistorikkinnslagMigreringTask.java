@@ -48,12 +48,11 @@ public class HistorikkinnslagMigreringTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        Long fraId = Long.valueOf(prosessTaskData.getPropertyValue(FOM_ID));
-        var medIdString = prosessTaskData.getPropertyValue(TOM_ID);
-        Long medId = Optional.ofNullable(medIdString).map(Long::parseLong).orElse(Long.MAX_VALUE);
-        LOG.info("Starter migrering med fomId={} og tomId={}", fraId, medId);
+        Long fomId = Long.valueOf(prosessTaskData.getPropertyValue(FOM_ID));
+        Long tomId = Optional.ofNullable(prosessTaskData.getPropertyValue(TOM_ID)).map(Long::parseLong).orElse(Long.MAX_VALUE);
+        LOG.info("Starter migrering med fomId={} og tomId={}", fomId, tomId);
         var startTid = System.currentTimeMillis();
-        var historikkinnslagListe = finnNesteHundreHistorikkinnslag(fraId, medId);
+        var historikkinnslagListe = finnNesteHundreHistorikkinnslag(fomId, tomId);
 
         historikkinnslagListe.forEach(h -> {
             try {
@@ -67,10 +66,10 @@ public class HistorikkinnslagMigreringTask implements ProsessTaskHandler {
         historikkinnslagListe.stream()
             .map(HistorikkinnslagOld::getId)
             .max(Long::compareTo)
-            .ifPresent(nesteId -> prosessTaskTjeneste.lagre(opprettNesteTask(nesteId + 1)));
+            .ifPresent(nesteId -> prosessTaskTjeneste.lagre(opprettNesteTask(nesteId + 1, tomId)));
 
         var sluttTid = System.currentTimeMillis();
-        LOG.info("Migrering for fomId={} og tomId={} tar totalt={} ms.", fraId, medId, sluttTid - startTid);
+        LOG.info("Migrering for fomId={} og tomId={} tar totalt={} ms.", fomId, tomId, sluttTid - startTid);
     }
 
     private void migrer(HistorikkinnslagOld h) {
@@ -91,9 +90,10 @@ public class HistorikkinnslagMigreringTask implements ProsessTaskHandler {
         return rader == 1;
     }
 
-    private ProsessTaskData opprettNesteTask(Long nesteId) {
+    private ProsessTaskData opprettNesteTask(Long nesteId, Long tomId) {
         var prosessTaskData = ProsessTaskData.forProsessTask(HistorikkinnslagMigreringTask.class);
-        prosessTaskData.setProperty(HistorikkinnslagMigreringTask.FOM_ID, nesteId.toString());
+        prosessTaskData.setProperty(HistorikkinnslagMigreringTask.FOM_ID, String.valueOf(nesteId));
+        prosessTaskData.setProperty(HistorikkinnslagMigreringTask.TOM_ID, String.valueOf(tomId));
         return prosessTaskData;
     }
 
