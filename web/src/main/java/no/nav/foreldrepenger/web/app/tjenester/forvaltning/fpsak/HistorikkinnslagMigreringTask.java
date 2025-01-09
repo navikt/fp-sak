@@ -128,7 +128,7 @@ public class HistorikkinnslagMigreringTask implements ProsessTaskHandler {
         historikkinnslag2.setOpprettetAv(h.getOpprettetAv());
         historikkinnslagRepository.lagre(historikkinnslag2);
 
-        LOG.info("Nytt historikkinnslag er migrert med migrertFraId={}", historikkinnslag2.getMigrertFraId());
+        LOG.debug("Nytt historikkinnslag er migrert med migrertFraId={}", historikkinnslag2.getMigrertFraId());
     }
 
     private HistorikkinnslagDtoV2 tilHistorikkinnslag2(HistorikkinnslagOld h) {
