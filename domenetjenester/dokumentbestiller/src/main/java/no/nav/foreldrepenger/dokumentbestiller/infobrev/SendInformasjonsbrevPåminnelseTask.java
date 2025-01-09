@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -103,7 +102,7 @@ public class SendInformasjonsbrevPåminnelseTask implements ProsessTaskHandler {
                 .medSaksnummer(eksisterendeBehandling.get().getSaksnummer())
                 .medDokumentMal(DokumentMalType.FORELDREPENGER_INFO_TIL_ANNEN_FORELDER)
                 .build();
-            dokumentBestillerTjeneste.bestillDokument(dokumentBestilling, HistorikkAktør.VEDTAKSLØSNINGEN);
+            dokumentBestillerTjeneste.bestillDokument(dokumentBestilling);
         } else {
             var behandling = opprettFørstegangsbehandlingTilInfobrev(fagsakFar, brukEnhet);
             behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);

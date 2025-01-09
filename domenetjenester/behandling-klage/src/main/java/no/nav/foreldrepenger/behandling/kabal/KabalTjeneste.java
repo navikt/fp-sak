@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.behandling.kabal;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,10 +21,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
@@ -36,7 +36,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 
 @ApplicationScoped
@@ -48,7 +47,7 @@ public class KabalTjeneste {
     private KabalDokumenter kabalDokumenter;
     private VergeRepository vergeRepository;
     private PersoninfoAdapter personinfoAdapter;
-    private HistorikkRepository historikkRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private KabalKlient kabalKlient;
 
@@ -65,14 +64,14 @@ public class KabalTjeneste {
                          AnkeVurderingTjeneste ankeVurderingTjeneste,
                          KlageVurderingTjeneste klageVurderingTjeneste,
                          BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
-                         HistorikkRepository historikkRepository) {
+                         HistorikkinnslagRepository historikkinnslagRepository) {
         this.personinfoAdapter = personinfoAdapter;
         this.ankeVurderingTjeneste = ankeVurderingTjeneste;
         this.klageVurderingTjeneste = klageVurderingTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.kabalDokumenter = kabalDokumenter;
         this.vergeRepository = vergeRepository;
-        this.historikkRepository = historikkRepository;
+        this.historikkinnslagRepository = historikkinnslagRepository;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.kabalKlient = kabalKlient;
     }
@@ -224,37 +223,31 @@ public class KabalTjeneste {
     private void opprettHistorikkinnslagKlage(Behandling behandling, KabalUtfall utfall) {
         var klageVurdering = klageVurderingFraUtfall(utfall);
         var klageVurderingOmgjør = klageVurderingOmgjørFraUtfall(utfall);
-
         var resultat = KlageVurderingTjeneste.historikkResultatForKlageVurdering(klageVurdering, KlageVurdertAv.NK, klageVurderingOmgjør);
 
-        var builder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.KLAGE_BEH_NK)
-            .medEndretFelt(HistorikkEndretFeltType.KLAGE_RESULTAT_KA, null, resultat.getNavn());
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setType(HistorikkinnslagType.KLAGE_BEH_NK);
-        historikkinnslag.setBehandlingId(behandling.getId());
-        historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
-        builder.build(historikkinnslag);
-
-        historikkRepository.lagre(historikkinnslag);
+        var historikkinnslag = new Historikkinnslag.Builder()
+            .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
+            .medBehandlingId(behandling.getId())
+            .medFagsakId(behandling.getFagsakId())
+            .medTittel("Klagebehandling KA")
+            .addLinje(fraTilEquals("Ytelsesvedtak", null, resultat))
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
     private void opprettHistorikkinnslagAnke(Behandling behandling, KabalUtfall utfall) {
         var ankeVurdering = ankeVurderingFraUtfall(utfall);
         var ankeVurderingOmgjør = ankeVurderingOmgjørFraUtfall(utfall);
+        var resultat = AnkeVurderingTjeneste.konverterAnkeVurderingTilResultatTekst(ankeVurdering, ankeVurderingOmgjør);
 
-        var resultat = AnkeVurderingTjeneste.konverterAnkeVurderingTilResultatType(ankeVurdering, ankeVurderingOmgjør);
-
-        var builder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.ANKE_BEH)
-            .medEndretFelt(HistorikkEndretFeltType.ANKE_RESULTAT, null, resultat.getNavn());
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setType(HistorikkinnslagType.ANKE_BEH);
-        historikkinnslag.setBehandlingId(behandling.getId());
-        historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
-        builder.build(historikkinnslag);
-
-        historikkRepository.lagre(historikkinnslag);
+        var historikkinnslag = new Historikkinnslag.Builder()
+            .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
+            .medBehandlingId(behandling.getId())
+            .medFagsakId(behandling.getFagsakId())
+            .medTittel("Ankebehandling")
+            .addLinje(fraTilEquals("Anke resultat", null, resultat))
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
     private KlageVurdering klageVurderingFraUtfall(KabalUtfall utfall) {
@@ -295,17 +288,15 @@ public class KabalTjeneste {
         };
     }
 
-    public void lagHistorikkinnslagForHenleggelse(Long behandlingsId, BehandlingResultatType aarsak) {
-        var builder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.AVBRUTT_BEH)
-            .medÅrsak(aarsak);
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setType(HistorikkinnslagType.AVBRUTT_BEH);
-        historikkinnslag.setBehandlingId(behandlingsId);
-        builder.build(historikkinnslag);
-
-        historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
-        historikkRepository.lagre(historikkinnslag);
+    public void lagHistorikkinnslagForHenleggelse(Behandling behandling, BehandlingResultatType aarsak) {
+        var historikkinnslag = new Historikkinnslag.Builder()
+            .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
+            .medBehandlingId(behandling.getId())
+            .medFagsakId(behandling.getFagsakId())
+            .medTittel("Behandling er henlagt")
+            .addLinje(aarsak.getNavn())
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
     public void lagHistorikkinnslagForBrevSendt(Behandling behandling, JournalpostId journalpostId) {

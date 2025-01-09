@@ -10,16 +10,12 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
@@ -33,8 +29,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.AvklarFaktaTestUtil;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaOmsorgRettTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AvklarAnnenforelderHarRettDto;
@@ -44,20 +38,18 @@ class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
     private static final AksjonspunktDefinisjon AKSONSPUNKT_DEF = AksjonspunktDefinisjon.AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT;
 
     private BehandlingRepositoryProvider repositoryProvider;
-    private HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
-    private HistorikkInnslagTekstBuilder tekstBuilder;
 
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private final UføretrygdRepository uføretrygdRepository = mock(UføretrygdRepository.class);
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     @BeforeEach
     public void setUp() {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        historikkApplikasjonTjeneste = mock(HistorikkTjenesteAdapter.class);
-        tekstBuilder = new HistorikkInnslagTekstBuilder();
         var inntektArbeidYtelseTjeneste = mock(InntektArbeidYtelseTjeneste.class);
         this.ytelseFordelingTjeneste = new YtelseFordelingTjeneste(new YtelsesFordelingRepository(entityManager));
+        this.historikkinnslagRepository = repositoryProvider.getHistorikkinnslagRepository();
         when(inntektArbeidYtelseTjeneste.hentGrunnlag(anyLong())).thenReturn(
             InntektArbeidYtelseGrunnlagBuilder.nytt().build());
     }
@@ -78,24 +70,15 @@ class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
         dto.setAnnenforelderMottarUføretrygd(Boolean.TRUE);
 
         oppdaterer().oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-        var historikkinnslagDeler = tekstBuilder.build(historikkinnslag);
+
+        var historikk = historikkinnslagRepository.hent(behandling.getSaksnummer()).getFirst();
 
         //assert
-        assertThat(historikkinnslagDeler).hasSize(1);
-        var del = historikkinnslagDeler.get(0);
-        var rettOpt = del.getEndretFelt(HistorikkEndretFeltType.RETT_TIL_FORELDREPENGER);
-        assertThat(rettOpt).hasValueSatisfying(rett -> {
-            assertThat(rett.getNavn()).isEqualTo(HistorikkEndretFeltType.RETT_TIL_FORELDREPENGER.getKode());
-            assertThat(rett.getFraVerdi()).isNull();
-            assertThat(rett.getTilVerdi()).isEqualTo(HistorikkEndretFeltVerdiType.ANNEN_FORELDER_HAR_RETT.getKode());
-        });
-        assertThat(del.getEndretFelt(HistorikkEndretFeltType.MOR_MOTTAR_UFØRETRYGD)).isNotEmpty();
-        assertThat(del.getSkjermlenke()).hasValueSatisfying(
-            skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_OMSORG_OG_RETT.getKode()));
-        assertThat(del.getBegrunnelse()).hasValueSatisfying(
-            begrunnelse -> assertThat(begrunnelse).isEqualTo("Har rett"));
+        assertThat(historikk.getLinjer()).hasSize(3);
+        assertThat(historikk.getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_OMSORG_OG_RETT);
+        assertThat(historikk.getLinjer().getFirst().getTekst()).contains("Annen forelder har rett");
+        assertThat(historikk.getLinjer().get(1).getTekst()).contains("Mor mottar uføretrygd");
+        assertThat(historikk.getLinjer().get(2).getTekst()).contains(dto.getBegrunnelse());
     }
 
     @Test
@@ -148,11 +131,6 @@ class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
     }
 
     private AvklarAnnenforelderHarRettOppdaterer oppdaterer() {
-        return new AvklarAnnenforelderHarRettOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, lagMockHistory(), mock(FagsakEgenskapRepository.class)));
-    }
-
-    private HistorikkTjenesteAdapter lagMockHistory() {
-        Mockito.when(historikkApplikasjonTjeneste.tekstBuilder()).thenReturn(tekstBuilder);
-        return historikkApplikasjonTjeneste;
+        return new AvklarAnnenforelderHarRettOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, mock(FagsakEgenskapRepository.class)), repositoryProvider.getHistorikkinnslagRepository());
     }
 }

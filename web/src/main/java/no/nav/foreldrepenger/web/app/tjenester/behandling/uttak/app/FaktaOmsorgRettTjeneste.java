@@ -1,26 +1,25 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
 public class FaktaOmsorgRettTjeneste {
 
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private FagsakEgenskapRepository fagsakEgenskapRepository;
-    private HistorikkTjenesteAdapter historikkAdapter;
 
     FaktaOmsorgRettTjeneste() {
         //For CDI proxy
@@ -28,10 +27,8 @@ public class FaktaOmsorgRettTjeneste {
 
     @Inject
     public FaktaOmsorgRettTjeneste(YtelseFordelingTjeneste ytelseFordelingTjeneste,
-                                   HistorikkTjenesteAdapter historikkTjenesteAdapter,
                                    FagsakEgenskapRepository fagsakEgenskapRepository) {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
-        this.historikkAdapter = historikkTjenesteAdapter;
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
     }
 
@@ -57,8 +54,7 @@ public class FaktaOmsorgRettTjeneste {
             || harAnnenForeldreRettBekreftetVersjon != null && erEndretBekreftetVersjon;
     }
 
-    public boolean totrinnForAleneomsorg(AksjonspunktOppdaterParameter param,
-                                         boolean aleneomsorg) {
+    public boolean totrinnForAleneomsorg(AksjonspunktOppdaterParameter param, boolean aleneomsorg) {
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(param.getBehandlingId());
 
         var aleneomsorgForBarnetBekreftetVersjon = ytelseFordelingAggregat.getAleneomsorgAvklaring();
@@ -70,28 +66,36 @@ public class FaktaOmsorgRettTjeneste {
         return avkreftetBrukersOpplysinger || aleneomsorgForBarnetBekreftetVersjon != null && erEndretBekreftetVersjon;
     }
 
-    public void annenforelderRettHistorikkFelt(AksjonspunktOppdaterParameter param,
-                                               boolean annenforelderHarRett,
-                                               Boolean annenforelderMottarUføretrygd, Boolean annenForelderHarRettEØS) {
+    public List<HistorikkinnslagLinjeBuilder> annenforelderRettHistorikkLinjer(AksjonspunktOppdaterParameter param,
+                                                                               boolean annenforelderHarRett,
+                                                                               Boolean annenforelderMottarUføretrygd,
+                                                                               Boolean annenForelderHarRettEØS) {
         var ytelsefordelingAggregat = ytelseFordelingTjeneste.hentAggregat(param.getBehandlingId());
-        var endretVurderingAvMorsUføretrygd = endretVurderingAvMorsUføretrygd(annenforelderMottarUføretrygd, ytelsefordelingAggregat.getMorUføretrygdAvklaring());
+        var endretVurderingAvMorsUføretrygd = endretVurderingAvMorsUføretrygd(annenforelderMottarUføretrygd,
+            ytelsefordelingAggregat.getMorUføretrygdAvklaring());
         var endretVurderingAvRettEØS = endretVurderingAvRettEØS(annenForelderHarRettEØS, ytelsefordelingAggregat.getAnnenForelderRettEØSAvklaring());
         var harAnnenForeldreRettBekreftetVersjon = ytelsefordelingAggregat.getAnnenForelderRettAvklaring();
 
-        historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.RETT_TIL_FORELDREPENGER,
-            konvertBooleanTilVerdiForAnnenforelderHarRett(harAnnenForeldreRettBekreftetVersjon),
-            konvertBooleanTilVerdiForAnnenforelderHarRett(annenforelderHarRett));
+        List<HistorikkinnslagLinjeBuilder> linjer = new ArrayList<>();
+
+        if (!Objects.equals(konvertBooleanTilVerdiForAnnenforelderHarRett(harAnnenForeldreRettBekreftetVersjon),
+            konvertBooleanTilVerdiForAnnenforelderHarRett(annenforelderHarRett))) {
+            linjer.add(new HistorikkinnslagLinjeBuilder().fraTil("Rett til foreldrepenger",
+                konvertBooleanTilVerdiForAnnenforelderHarRett(harAnnenForeldreRettBekreftetVersjon),
+                konvertBooleanTilVerdiForAnnenforelderHarRett(annenforelderHarRett)));
+        }
         if (endretVurderingAvMorsUføretrygd) {
-            historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.MOR_MOTTAR_UFØRETRYGD,
-                ytelsefordelingAggregat.getMorUføretrygdAvklaring(), annenforelderMottarUføretrygd);
+            linjer.add(new HistorikkinnslagLinjeBuilder().fraTil("Mor mottar uføretrygd", ytelsefordelingAggregat.getMorUføretrygdAvklaring(),
+                annenforelderMottarUføretrygd));
         }
         if (endretVurderingAvRettEØS) {
-            historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.ANNEN_FORELDER_RETT_EØS,
-                ytelsefordelingAggregat.getAnnenForelderRettEØSAvklaring(), annenForelderHarRettEØS);
+            linjer.add(new HistorikkinnslagLinjeBuilder().fraTil("Annen forelder har opptjent rett fra land i EØS",
+                ytelsefordelingAggregat.getAnnenForelderRettEØSAvklaring(), annenForelderHarRettEØS));
         }
+        return linjer;
     }
 
-    public void aleneomsorgHistorikkFelt(AksjonspunktOppdaterParameter param, boolean aleneomsorg) {
+    public Optional<HistorikkinnslagLinjeBuilder> aleneomsorgHistorikkLinje(AksjonspunktOppdaterParameter param, boolean aleneomsorg) {
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(param.getBehandlingId());
 
         var aleneomsorgForBarnetBekreftetVersjon = ytelseFordelingAggregat.getAleneomsorgAvklaring();
@@ -100,15 +104,16 @@ public class FaktaOmsorgRettTjeneste {
         var til = konvertBooleanTilVerdiForAleneomsorgForBarnet(aleneomsorg);
 
         if (!Objects.equals(fra, til)) {
-            historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.ALENEOMSORG, fra, til);
+            return Optional.of(new HistorikkinnslagLinjeBuilder().fraTil("Aleneomsorg", fra, til));
         }
-
+        return Optional.empty();
     }
 
-    public void omsorgRettHistorikkInnslag(AksjonspunktOppdaterParameter param, String begrunnelse) {
-        historikkAdapter.tekstBuilder()
-            .medBegrunnelse(begrunnelse, param.erBegrunnelseEndret())
-            .medSkjermlenke(SkjermlenkeType.FAKTA_OMSORG_OG_RETT);
+    public Optional<HistorikkinnslagLinjeBuilder> omsorgRettHistorikkLinje(AksjonspunktOppdaterParameter param, String begrunnelse) {
+        if (param.erBegrunnelseEndret()) {
+            return Optional.of(new HistorikkinnslagLinjeBuilder().tekst(begrunnelse));
+        }
+        return Optional.empty();
     }
 
     public void oppdaterAnnenforelderRett(AksjonspunktOppdaterParameter param,
@@ -123,8 +128,7 @@ public class FaktaOmsorgRettTjeneste {
         }
     }
 
-    public void oppdaterAleneomsorg(AksjonspunktOppdaterParameter param,
-                                    boolean aleneomsorg) {
+    public void oppdaterAleneomsorg(AksjonspunktOppdaterParameter param, boolean aleneomsorg) {
         ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForAleneomsorg(param.getBehandlingId(), aleneomsorg);
         if (aleneomsorg) {
             fagsakEgenskapRepository.fjernFagsakMarkering(param.getRef().fagsakId(), FagsakMarkering.BARE_FAR_RETT);
@@ -132,18 +136,18 @@ public class FaktaOmsorgRettTjeneste {
     }
 
 
-    private HistorikkEndretFeltVerdiType konvertBooleanTilVerdiForAleneomsorgForBarnet(Boolean aleneomsorgForBarnet) {
+    private String konvertBooleanTilVerdiForAleneomsorgForBarnet(Boolean aleneomsorgForBarnet) {
         if (aleneomsorgForBarnet == null) {
             return null;
         }
-        return aleneomsorgForBarnet ? HistorikkEndretFeltVerdiType.ALENEOMSORG : HistorikkEndretFeltVerdiType.IKKE_ALENEOMSORG;
+        return aleneomsorgForBarnet ? "Søker har aleneomsorg for barnet" : "Søker har ikke aleneomsorg for barnet";
     }
 
-    private HistorikkEndretFeltVerdiType konvertBooleanTilVerdiForAnnenforelderHarRett(Boolean annenforelderHarRett) {
+    private String konvertBooleanTilVerdiForAnnenforelderHarRett(Boolean annenforelderHarRett) {
         if (annenforelderHarRett == null) {
             return null;
         }
-        return annenforelderHarRett ? HistorikkEndretFeltVerdiType.ANNEN_FORELDER_HAR_RETT : HistorikkEndretFeltVerdiType.ANNEN_FORELDER_HAR_IKKE_RETT;
+        return annenforelderHarRett ? "Annen forelder har rett" : "Annen forelder har ikke rett";
     }
 
     private boolean harAvklartUdefinertEllerEndretBekreftet(Boolean original, boolean bekreftet) {

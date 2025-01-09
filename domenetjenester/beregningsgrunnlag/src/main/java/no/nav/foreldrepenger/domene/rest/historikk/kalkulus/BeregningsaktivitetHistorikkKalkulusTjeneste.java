@@ -1,26 +1,30 @@
 package no.nav.foreldrepenger.domene.rest.historikk.kalkulus;
 
-import java.util.List;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.LINJESKIFT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
+
+import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningAktivitetEndring;
 import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.rest.historikk.ArbeidsgiverHistorikkinnslag;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
 public class BeregningsaktivitetHistorikkKalkulusTjeneste {
 
-    private HistorikkTjenesteAdapter historikkAdapter;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
@@ -30,75 +34,71 @@ public class BeregningsaktivitetHistorikkKalkulusTjeneste {
 
     @Inject
     BeregningsaktivitetHistorikkKalkulusTjeneste(ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste,
-                                                 HistorikkTjenesteAdapter historikkAdapter,
+                                                 HistorikkinnslagRepository historikkinnslagRepository,
                                                  InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
-        this.historikkAdapter = historikkAdapter;
+        this.historikkinnslagRepository = historikkinnslagRepository;
         this.arbeidsgiverHistorikkinnslagTjeneste = arbeidsgiverHistorikkinnslagTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
     }
 
-    public HistorikkInnslagTekstBuilder lagHistorikk(Long behandlingId,
-                                                     String begrunnelse,
-                                                     OppdaterBeregningsgrunnlagResultat endringsaggregat) {
-        var historikkInnslagTekstBuilder = historikkAdapter.tekstBuilder();
-        var builder = lagHistorikk(behandlingId, historikkInnslagTekstBuilder, endringsaggregat.getBeregningAktivitetEndringer(),
-            begrunnelse);
-        historikkAdapter.opprettHistorikkInnslag(behandlingId, HistorikkinnslagType.FAKTA_ENDRET);
-        return builder;
-    }
-
-    private HistorikkInnslagTekstBuilder lagHistorikk(Long behandlingId,
-                                                      HistorikkInnslagTekstBuilder tekstBuilder,
-                                                      List<BeregningAktivitetEndring> beregningAktivitetEndringer,
-                                                      String begrunnelse) {
-        tekstBuilder.medBegrunnelse(begrunnelse).medSkjermlenke(SkjermlenkeType.FAKTA_OM_BEREGNING);
-        var arbeidsforholdOverstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId)
-            .getArbeidsforholdOverstyringer();
-        beregningAktivitetEndringer.forEach(ba -> {
-            var aktivitetnavn = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningaktivitet(ba.getAktivitetNøkkel(),
-                arbeidsforholdOverstyringer);
-            lagSkalBrukesHistorikk(tekstBuilder, ba, aktivitetnavn);
-            lagPeriodeHistorikk(tekstBuilder, ba, aktivitetnavn);
-        });
-        return tekstBuilder;
-    }
-
-    private void lagSkalBrukesHistorikk(HistorikkInnslagTekstBuilder tekstBuilder,
-                                        BeregningAktivitetEndring ba,
-                                        String aktivitetnavn) {
-        var skalBrukesTilVerdi = finnSkalBrukesTilVerdi(ba);
-        var skalBrukesFraVerdi = finnSkalBrukesFraVerdi(ba);
-        if (!Objects.equals(skalBrukesTilVerdi, skalBrukesFraVerdi)) {
-            tekstBuilder.medEndretFelt(HistorikkEndretFeltType.AKTIVITET, aktivitetnavn, skalBrukesFraVerdi,
-                skalBrukesTilVerdi);
-        }
-    }
-
-    private HistorikkEndretFeltVerdiType finnSkalBrukesFraVerdi(BeregningAktivitetEndring ba) {
-        if (ba.getSkalBrukesEndring() != null && ba.getSkalBrukesEndring().getFraVerdi().isPresent()) {
-            return ba.getSkalBrukesEndring().getFraVerdi().get() ? HistorikkEndretFeltVerdiType.BENYTT : HistorikkEndretFeltVerdiType.IKKE_BENYTT;
-        }
-        return null;
-    }
-
-    private HistorikkEndretFeltVerdiType finnSkalBrukesTilVerdi(BeregningAktivitetEndring ba) {
-        if (ba.getSkalBrukesEndring() != null) {
-            return ba.getSkalBrukesEndring().getTilVerdi() ? HistorikkEndretFeltVerdiType.BENYTT : HistorikkEndretFeltVerdiType.IKKE_BENYTT;
-        }
-        return null;
-    }
-
-    private void lagPeriodeHistorikk(HistorikkInnslagTekstBuilder tekstBuilder,
-                                     BeregningAktivitetEndring ba,
-                                     String aktivitetnavn) {
-        if (ba.getTomDatoEndring() != null) {
-            var nyPeriodeTom = ba.getTomDatoEndring().getTilVerdi();
-            var gammelPeriodeTom = ba.getTomDatoEndring().getFraVerdi();
-            if (!Objects.equals(nyPeriodeTom, gammelPeriodeTom)) {
-                tekstBuilder.medEndretFelt(HistorikkEndretFeltType.PERIODE_TOM, gammelPeriodeTom, nyPeriodeTom);
-                tekstBuilder.medTema(HistorikkEndretFeltType.AKTIVITET, aktivitetnavn);
+    public void lagHistorikk(BehandlingReferanse behandlingReferanse,
+                             String begrunnelse,
+                             OppdaterBeregningsgrunnlagResultat endringsaggregat) {
+        var linjer = new ArrayList<HistorikkinnslagLinjeBuilder>();
+        for (var ba : endringsaggregat.getBeregningAktivitetEndringer()) {
+            var arbeidsforholdOverstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.behandlingId()).getArbeidsforholdOverstyringer();
+            var aktivitetnavn = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningaktivitet(ba.getAktivitetNøkkel(), arbeidsforholdOverstyringer);
+            var skalBrukes = lagSkalBrukesHistorikk(ba);
+            var tomDatoEndret = lagPeriodeHistorikk(ba);
+            if (skalBrukes.isPresent() || tomDatoEndret.isPresent()) {
+                linjer.add(new HistorikkinnslagLinjeBuilder().bold(aktivitetnavn));
+                skalBrukes.ifPresent(linjer::add);
+                tomDatoEndret.ifPresent(linjer::add);
+                linjer.add(LINJESKIFT);
             }
         }
 
+        var historikkinnslag = new Historikkinnslag.Builder()
+            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medFagsakId(behandlingReferanse.fagsakId())
+            .medBehandlingId(behandlingReferanse.behandlingId())
+            .medTittel(SkjermlenkeType.FAKTA_OM_BEREGNING)
+            .medLinjer(linjer)
+            .addLinje(begrunnelse)
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
+    }
+
+    private Optional<HistorikkinnslagLinjeBuilder> lagSkalBrukesHistorikk(BeregningAktivitetEndring ba) {
+        var skalBrukesTilVerdi = finnSkalBrukesTilVerdi(ba);
+        var skalBrukesFraVerdi = finnSkalBrukesFraVerdi(ba);
+        return Optional.ofNullable(fraTilEquals("Aktivitet", skalBrukesFraVerdi, skalBrukesTilVerdi));
+    }
+
+    private String finnSkalBrukesFraVerdi(BeregningAktivitetEndring ba) {
+        if (ba.getSkalBrukesEndring() != null && ba.getSkalBrukesEndring().getFraVerdi().isPresent()) {
+            return Boolean.TRUE.equals(ba.getSkalBrukesEndring().getFraVerdi().get()) ? "Benytt" : "Ikke benytt";
+        }
+        return null;
+    }
+
+    private String finnSkalBrukesTilVerdi(BeregningAktivitetEndring ba) {
+        if (ba.getSkalBrukesEndring() != null) {
+            return Boolean.TRUE.equals(ba.getSkalBrukesEndring().getTilVerdi()) ? "Benytt" : "Ikke benytt";
+        }
+        return null;
+    }
+
+    private Optional<HistorikkinnslagLinjeBuilder> lagPeriodeHistorikk(BeregningAktivitetEndring ba) {
+        if (ba.getTomDatoEndring() == null) {
+            return Optional.empty();
+        }
+        var nyPeriodeTom = ba.getTomDatoEndring().getTilVerdi();
+        var gammelPeriodeTom = ba.getTomDatoEndring().getFraVerdi();
+        if (Objects.equals(nyPeriodeTom, gammelPeriodeTom)) {
+            return Optional.empty();
+        }
+
+        return Optional.of(fraTilEquals("Periode t.o.m.", gammelPeriodeTom, nyPeriodeTom));
     }
 }

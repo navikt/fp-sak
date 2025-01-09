@@ -4,7 +4,6 @@ import static no.nav.foreldrepenger.dokumentbestiller.DokumentMalType.INNHENTE_O
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
@@ -46,7 +45,8 @@ class BrevRestTjenesteTest {
 
         when(behandlingRepository.hentBehandling(anyLong())).thenReturn(mock(Behandling.class));
 
-        brevRestTjeneste = new BrevRestTjeneste(dokumentForhåndsvisningTjenesteMock, dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock, behandlingRepository, arbeidsforholdInntektsmeldingMangelTjeneste);
+        brevRestTjeneste = new BrevRestTjeneste(dokumentForhåndsvisningTjenesteMock, dokumentBestillerTjenesteMock,
+            dokumentBehandlingTjenesteMock, behandlingRepository, arbeidsforholdInntektsmeldingMangelTjeneste, mock(HistorikkinnslagRepository.class));
     }
 
     @Test
@@ -66,7 +66,7 @@ class BrevRestTjenesteTest {
         var bestillingCaptor = ArgumentCaptor.forClass(DokumentBestilling.class);
 
         // Assert
-        verify(dokumentBestillerTjenesteMock).bestillDokument(bestillingCaptor.capture(), eq(HistorikkAktør.SAKSBEHANDLER));
+        verify(dokumentBestillerTjenesteMock).bestillDokument(bestillingCaptor.capture());
         verify(behandlingRepository).hentBehandling(behandlingUuid);
 
         var bestilling = bestillingCaptor.getValue();

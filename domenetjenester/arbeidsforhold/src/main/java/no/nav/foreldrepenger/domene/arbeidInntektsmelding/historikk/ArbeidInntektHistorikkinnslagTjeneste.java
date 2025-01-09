@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
+
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
@@ -9,8 +11,9 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
@@ -24,23 +27,21 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
 public class ArbeidInntektHistorikkinnslagTjeneste {
 
-    private HistorikkTjenesteAdapter historikkAdapter;
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     ArbeidInntektHistorikkinnslagTjeneste() {
         // CDI
     }
 
     @Inject
-    ArbeidInntektHistorikkinnslagTjeneste(HistorikkTjenesteAdapter historikkAdapter,
-                                          ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
-        this.historikkAdapter = historikkAdapter;
+    ArbeidInntektHistorikkinnslagTjeneste(ArbeidsgiverTjeneste arbeidsgiverTjeneste, HistorikkinnslagRepository historikkinnslagRepository) {
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
+        this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     public void opprettHistorikkinnslag(BehandlingReferanse behandlingReferanse,
@@ -51,7 +52,8 @@ public class ArbeidInntektHistorikkinnslagTjeneste {
         var eksternRef = finnEksternRef(internRef, ag, iayGrunnlag);
         var opplysninger = arbeidsgiverTjeneste.hent(ag);
         var arbeidsforholdNavn = ArbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(opplysninger, eksternRef);
-        opprettHistorikkinnslagDel(behandlingReferanse, vurderingFraSaksbehandler.getVurdering(), vurderingFraSaksbehandler.getBegrunnelse(), arbeidsforholdNavn);
+        lagHistorikkinnslag(behandlingReferanse, vurderingFraSaksbehandler.getVurdering(), vurderingFraSaksbehandler.getBegrunnelse(),
+            arbeidsforholdNavn);
     }
 
     public void opprettHistorikkinnslag(BehandlingReferanse behandlingReferanse,
@@ -68,13 +70,12 @@ public class ArbeidInntektHistorikkinnslagTjeneste {
             opplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver);
         }
         var arbeidsforholdNavn = ArbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(opplysninger, eksternRef);
-        opprettHistorikkinnslagDel(behandlingReferanse, arbeidsforholdFraSaksbehandler.getVurdering(), arbeidsforholdFraSaksbehandler.getBegrunnelse(), arbeidsforholdNavn);
+        lagHistorikkinnslag(behandlingReferanse, arbeidsforholdFraSaksbehandler.getVurdering(), arbeidsforholdFraSaksbehandler.getBegrunnelse(),
+            arbeidsforholdNavn);
     }
 
     private InternArbeidsforholdRef lagInternRef(String internReferanse) {
-        return internReferanse == null
-            ? InternArbeidsforholdRef.nullRef()
-            : InternArbeidsforholdRef.ref(internReferanse);
+        return internReferanse == null ? InternArbeidsforholdRef.nullRef() : InternArbeidsforholdRef.ref(internReferanse);
     }
 
     private Arbeidsgiver lagArbeidsgiver(String arbeidsgiverIdent) {
@@ -84,7 +85,9 @@ public class ArbeidInntektHistorikkinnslagTjeneste {
         return Arbeidsgiver.fra(new AktørId(arbeidsgiverIdent));
     }
 
-    private Optional<EksternArbeidsforholdRef> finnEksternRef(InternArbeidsforholdRef internRef, Arbeidsgiver arbeidsgiver, InntektArbeidYtelseGrunnlag iayGrunnlag) {
+    private Optional<EksternArbeidsforholdRef> finnEksternRef(InternArbeidsforholdRef internRef,
+                                                              Arbeidsgiver arbeidsgiver,
+                                                              InntektArbeidYtelseGrunnlag iayGrunnlag) {
         if (iayGrunnlag == null) {
             return Optional.empty();
         }
@@ -98,13 +101,32 @@ public class ArbeidInntektHistorikkinnslagTjeneste {
             .findFirst();
     }
 
-    private void opprettHistorikkinnslagDel(BehandlingReferanse behandlingReferanse,
-                                            ArbeidsforholdKomplettVurderingType tilVerdi,
-                                            String begrunnelse,
-                                            String arbeidsforholdNavn) {
-        historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.ARBEIDSFORHOLD, arbeidsforholdNavn, null, tilVerdi);
-        historikkAdapter.tekstBuilder().medBegrunnelse(begrunnelse);
-        historikkAdapter.tekstBuilder().medSkjermlenke(SkjermlenkeType.FAKTA_OM_ARBEIDSFORHOLD_INNTEKTSMELDING);
-        historikkAdapter.opprettHistorikkInnslag(behandlingReferanse.behandlingId(), HistorikkinnslagType.FAKTA_ENDRET);
+    private void lagHistorikkinnslag(BehandlingReferanse behandlingReferanse,
+                                     ArbeidsforholdKomplettVurderingType tilVerdi,
+                                     String begrunnelse,
+                                     String arbeidsforholdNavn) {
+        var historikkinnslag = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medTittel(SkjermlenkeType.FAKTA_OM_ARBEIDSFORHOLD_INNTEKTSMELDING)
+            .medBehandlingId(behandlingReferanse.behandlingId())
+            .medFagsakId(behandlingReferanse.fagsakId())
+            .addLinje(fraTilEquals("Arbeidsforhold hos " + arbeidsforholdNavn, null, fraArbeidsforholdKomplettVurderingType(tilVerdi)))
+            .addLinje(begrunnelse)
+            .build();
+
+        historikkinnslagRepository.lagre(historikkinnslag);
+    }
+
+    private String fraArbeidsforholdKomplettVurderingType(ArbeidsforholdKomplettVurderingType type) {
+        return switch (type) {
+            case KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING, KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_ARBEIDSFORHOLD -> "Arbeidsgiver kontaktes";
+            case FORTSETT_UTEN_INNTEKTSMELDING -> "Gå videre uten inntektsmelding";
+            case IKKE_OPPRETT_BASERT_PÅ_INNTEKTSMELDING -> "Ikke opprett arbeidsforhold";
+            case OPPRETT_BASERT_PÅ_INNTEKTSMELDING -> "Opprettet basert på inntektsmeldingen";
+            case MANUELT_OPPRETTET_AV_SAKSBEHANDLER -> "Opprettet av saksbehandler";
+            case FJERN_FRA_BEHANDLINGEN -> "Fjernet fra behandlingen";
+            case NYTT_ARBEIDSFORHOLD -> "Arbeidsforholdet er ansett som nytt";
+            case MELDING_TIL_ARBEIDSGIVER_NAV_NO -> "Ny melding sendes til arbeidsgiver med beskjed om å sende inntektsmelding på Min side - arbeidsgiver";
+            case UDEFINERT, SLÅTT_SAMMEN_MED_ANNET, BRUK_MED_OVERSTYRT_PERIODE, INNTEKT_IKKE_MED_I_BG, BRUK -> throw new IllegalStateException("Unexpected value ArbeidsforholdKomplettVurderingType: " + type);
+        };
     }
 }

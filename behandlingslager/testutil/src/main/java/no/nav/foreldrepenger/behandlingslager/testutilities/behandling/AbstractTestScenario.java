@@ -54,6 +54,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapBehandlingsgrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittLandOppholdEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
@@ -217,6 +219,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         var fagsakRelasjonRepositoryMock = mockFagsakRelasjonRepository();
         var resultatRepository = mockBehandlingresultatRepository();
         var opptjeningRepository = mockOpptjeningRepository();
+        var historikkinnslagRepository = mockHistorikkinnslagRepository();
 
         var behandlingLåsReposiory = mockBehandlingLåsRepository();
 
@@ -237,8 +240,26 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         lenient().when(repositoryProvider.getFagsakRelasjonRepository()).thenReturn(fagsakRelasjonRepositoryMock);
         lenient().when(repositoryProvider.getBehandlingsresultatRepository()).thenReturn(resultatRepository);
         lenient().when(repositoryProvider.getOpptjeningRepository()).thenReturn(opptjeningRepository);
+        lenient().when(repositoryProvider.getHistorikkinnslagRepository()).thenReturn(historikkinnslagRepository);
 
         return behandlingRepository;
+    }
+
+    private HistorikkinnslagRepository mockHistorikkinnslagRepository() {
+        return new HistorikkinnslagRepository() {
+
+            private final List<Historikkinnslag> historikkinnslagListe = new ArrayList<>();
+
+            @Override
+            public void lagre(Historikkinnslag historikkinnslag) {
+                historikkinnslagListe.add(historikkinnslag);
+            }
+
+            @Override
+            public List<Historikkinnslag> hent(Saksnummer saksnummer) {
+                return historikkinnslagListe;
+            }
+        };
     }
 
     private OpptjeningRepository mockOpptjeningRepository() {

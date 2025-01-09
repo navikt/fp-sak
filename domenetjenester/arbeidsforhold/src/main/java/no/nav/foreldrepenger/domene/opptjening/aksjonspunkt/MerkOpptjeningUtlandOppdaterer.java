@@ -1,32 +1,36 @@
 package no.nav.foreldrepenger.domene.opptjening.aksjonspunkt;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
+
 import java.util.Objects;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandDokumentasjonStatus;
 import no.nav.foreldrepenger.domene.opptjening.dto.MerkOpptjeningUtlandDto;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = MerkOpptjeningUtlandDto.class, adapter = AksjonspunktOppdaterer.class)
 public class MerkOpptjeningUtlandOppdaterer implements AksjonspunktOppdaterer<MerkOpptjeningUtlandDto> {
 
     private FagsakEgenskapRepository fagsakEgenskapRepository;
-    private HistorikkTjenesteAdapter historikkTjenesteAdapter;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     @Inject
     public MerkOpptjeningUtlandOppdaterer(FagsakEgenskapRepository fagsakEgenskapRepository,
-                                          HistorikkTjenesteAdapter historikkAdapter) {
+                                          HistorikkinnslagRepository historikkinnslagRepository) {
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
-        this.historikkTjenesteAdapter = historikkAdapter;
+        this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     MerkOpptjeningUtlandOppdaterer() {
@@ -35,17 +39,29 @@ public class MerkOpptjeningUtlandOppdaterer implements AksjonspunktOppdaterer<Me
 
     @Override
     public OppdateringResultat oppdater(MerkOpptjeningUtlandDto dto, AksjonspunktOppdaterParameter param) {
-        var eksisterende = fagsakEgenskapRepository.finnUtlandDokumentasjonStatus(param.getRef().fagsakId()).orElse(null);
-        fagsakEgenskapRepository.lagreUtlandDokumentasjonStatus(param.getRef().fagsakId(), dto.getDokStatus());
+        var ref = param.getRef();
+        var fagsakId = ref.fagsakId();
+        var eksisterende = fagsakEgenskapRepository.finnUtlandDokumentasjonStatus(fagsakId).orElse(null);
+        fagsakEgenskapRepository.lagreUtlandDokumentasjonStatus(fagsakId, dto.getDokStatus());
         if (!Objects.equals(eksisterende, dto.getDokStatus())) {
-            historikkTjenesteAdapter.tekstBuilder()
-                .medEndretFelt(HistorikkEndretFeltType.INNHENT_SED, fraUtlandDokStatus(eksisterende), fraUtlandDokStatus(dto.getDokStatus()))
-                .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret());
+            lagHistorikkinnslag(ref, dto, eksisterende);
         }
         return OppdateringResultat.utenOverhopp();
     }
 
-    private String fraUtlandDokStatus(UtlandDokumentasjonStatus status) {
+    private void lagHistorikkinnslag(BehandlingReferanse ref, MerkOpptjeningUtlandDto dto, UtlandDokumentasjonStatus eksisterende) {
+        var historikkinnslag = new Historikkinnslag.Builder()
+            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medFagsakId(ref.fagsakId())
+            .medBehandlingId(ref.behandlingId())
+            .medTittel("Fakta er endret")
+            .addLinje(fraTilEquals("Innhent dokumentasjon", fraUtlandDokStatus(eksisterende), fraUtlandDokStatus(dto.getDokStatus())))
+            .addLinje(dto.getBegrunnelse())
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
+    }
+
+    private static String fraUtlandDokStatus(UtlandDokumentasjonStatus status) {
         if (status == null) {
             return null;
         }

@@ -1,14 +1,18 @@
 package no.nav.foreldrepenger.domene.rest.historikk.kalkulus;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
-import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningsgrunnlagPeriodeEndring;
 import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 /**
  * Lager historikk for aksjonspunkter løst i fakta om beregning.
@@ -16,7 +20,7 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 @Dependent
 public class FaktaBeregningHistorikkKalkulusTjeneste {
 
-    private HistorikkTjenesteAdapter historikkAdapter;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private FaktaOmBeregningVurderingHistorikkTjeneste vurderingHistorikkTjeneste;
     private BeregningsgrunnlagVerdierHistorikkTjeneste verdierHistorikkTjeneste;
 
@@ -25,33 +29,42 @@ public class FaktaBeregningHistorikkKalkulusTjeneste {
     }
 
     @Inject
-    public FaktaBeregningHistorikkKalkulusTjeneste(HistorikkTjenesteAdapter historikkAdapter,
-                                                     FaktaOmBeregningVurderingHistorikkTjeneste vurderingHistorikkTjeneste,
-                                                     BeregningsgrunnlagVerdierHistorikkTjeneste verdierHistorikkTjeneste) {
-        this.historikkAdapter = historikkAdapter;
+    public FaktaBeregningHistorikkKalkulusTjeneste(HistorikkinnslagRepository historikkinnslagRepository,
+                                                   FaktaOmBeregningVurderingHistorikkTjeneste vurderingHistorikkTjeneste,
+                                                   BeregningsgrunnlagVerdierHistorikkTjeneste verdierHistorikkTjeneste) {
+        this.historikkinnslagRepository = historikkinnslagRepository;
         this.vurderingHistorikkTjeneste = vurderingHistorikkTjeneste;
         this.verdierHistorikkTjeneste = verdierHistorikkTjeneste;
     }
 
 
-    public void lagHistorikk(Long behandlingId, OppdaterBeregningsgrunnlagResultat oppdatering, String begrunnelse) {
-        HistorikkInnslagTekstBuilder tekstBuilder = historikkAdapter.tekstBuilder();
-        byggHistorikkForEndring(behandlingId, oppdatering, tekstBuilder);
-
-        if (tekstBuilder.antallEndredeFelter() > 0) {
-            tekstBuilder.medSkjermlenke(SkjermlenkeType.FAKTA_OM_BEREGNING).medBegrunnelse(begrunnelse);
-            historikkAdapter.opprettHistorikkInnslag(behandlingId, HistorikkinnslagType.FAKTA_ENDRET);
+    public void lagHistorikk(BehandlingReferanse behandlingReferanse, OppdaterBeregningsgrunnlagResultat oppdatering, String begrunnelse) {
+        var linjer = byggHistorikkForEndring(behandlingReferanse.behandlingId(), oppdatering);
+        if (linjer.isEmpty()) {
+            return;
         }
+
+        var historikkinnslag = new Historikkinnslag.Builder()
+            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medFagsakId(behandlingReferanse.fagsakId())
+            .medBehandlingId(behandlingReferanse.behandlingId())
+            .medTittel(SkjermlenkeType.FAKTA_OM_BEREGNING)
+            .medLinjer(linjer)
+            .addLinje(begrunnelse)
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
-    private void byggHistorikkForEndring(Long behandlingId, OppdaterBeregningsgrunnlagResultat oppdaterBeregningsgrunnlagResultat, HistorikkInnslagTekstBuilder tekstBuilder) {
-        oppdaterBeregningsgrunnlagResultat.getFaktaOmBeregningVurderinger()
-            .ifPresent(vurderinger -> vurderingHistorikkTjeneste.lagHistorikkForVurderinger(behandlingId, tekstBuilder, vurderinger));
+    private List<HistorikkinnslagLinjeBuilder> byggHistorikkForEndring(Long behandlingId, OppdaterBeregningsgrunnlagResultat oppdaterBeregningsgrunnlagResultat) {
+        var linjer = new ArrayList<HistorikkinnslagLinjeBuilder>();
+        oppdaterBeregningsgrunnlagResultat.getFaktaOmBeregningVurderinger().ifPresent(vurderinger ->
+            linjer.addAll(vurderingHistorikkTjeneste.lagHistorikkForVurderinger(behandlingId, vurderinger)));
         oppdaterBeregningsgrunnlagResultat.getBeregningsgrunnlagEndring()
             .ifPresent(endring -> {
-                BeregningsgrunnlagPeriodeEndring førstePeriode = endring.getBeregningsgrunnlagPeriodeEndringer().get(0);
-                verdierHistorikkTjeneste.lagHistorikkForBeregningsgrunnlagVerdier(behandlingId, førstePeriode, tekstBuilder);
+                var førstePeriode = endring.getBeregningsgrunnlagPeriodeEndringer().getFirst();
+                linjer.addAll(verdierHistorikkTjeneste.lagHistorikkForBeregningsgrunnlagVerdier(behandlingId, førstePeriode));
             });
+        return linjer;
     }
 
 }

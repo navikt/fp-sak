@@ -34,15 +34,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKontrollRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @CdiDbAwareTest
@@ -51,7 +50,7 @@ class HenleggBehandlingTjenesteTest {
     private BehandlingRepositoryProvider repositoryProvider;
 
     @Mock
-    private HistorikkRepository historikkRepositoryMock;
+    private HistorikkinnslagRepository historikkRepositoryMock;
 
     @Mock
     private DokumentBestillerTjeneste dokumentBestillerTjenesteMock;
@@ -79,7 +78,7 @@ class HenleggBehandlingTjenesteTest {
 
         forceOppdaterBehandlingSteg(behandling, BehandlingStegType.INNHENT_SØKNADOPP);
 
-        when(repositoryProvider.getHistorikkRepository()).thenReturn(historikkRepositoryMock);
+        when(repositoryProvider.getHistorikkinnslagRepository()).thenReturn(historikkRepositoryMock);
 
         var serviceProvider = new BehandlingskontrollServiceProvider(
                 repositoryProvider.getFagsakRepository(),
@@ -107,7 +106,7 @@ class HenleggBehandlingTjenesteTest {
         // Assert
         verify(historikkRepositoryMock).lagre(any(Historikkinnslag.class));
         verify(repositoryProvider.getBehandlingRepository(), atLeast(2)).lagre(eq(behandling), any(BehandlingLås.class));
-        verify(dokumentBestillerTjenesteMock).bestillDokument(any(DokumentBestilling.class), eq(HistorikkAktør.VEDTAKSLØSNINGEN));
+        verify(dokumentBestillerTjenesteMock).bestillDokument(any(DokumentBestilling.class));
     }
 
     @Test
@@ -121,7 +120,7 @@ class HenleggBehandlingTjenesteTest {
         // Assert
         verify(historikkRepositoryMock).lagre(any(Historikkinnslag.class));
         verify(repositoryProvider.getBehandlingRepository(), atLeast(2)).lagre(eq(behandling), any(BehandlingLås.class));
-        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(DokumentBestilling.class), any());
+        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(DokumentBestilling.class));
     }
 
     @Test
@@ -138,7 +137,7 @@ class HenleggBehandlingTjenesteTest {
         // Assert
         verify(historikkRepositoryMock).lagre(any(Historikkinnslag.class));
         verify(repositoryProvider.getBehandlingRepository(), atLeastOnce()).lagre(eq(behandling), any(BehandlingLås.class));
-        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(DokumentBestilling.class), any());
+        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(DokumentBestilling.class));
         assertThat(aksjonspunkt.getStatus()).isEqualTo(AksjonspunktStatus.AVBRUTT);
     }
 
@@ -153,7 +152,7 @@ class HenleggBehandlingTjenesteTest {
         // Assert
         verify(historikkRepositoryMock).lagre(any(Historikkinnslag.class));
         verify(repositoryProvider.getBehandlingRepository(), atLeast(2)).lagre(eq(behandling), any(BehandlingLås.class));
-        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(DokumentBestilling.class), any());
+        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(DokumentBestilling.class));
     }
 
     @Test

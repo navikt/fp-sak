@@ -9,7 +9,6 @@ import java.util.Objects;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
@@ -19,9 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.OmsorgsovertakelseVilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
@@ -33,14 +29,11 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.AvklarOmsorgOgForeldreansvarOppdaterer;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 
 class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwareTest {
 
     private final ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
-    private final HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
     private final VilkårResultat.Builder vilkårBuilder = VilkårResultat.builder();
 
     private BehandlingRepositoryProvider repositoryProvider;
@@ -92,7 +85,7 @@ class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwareTest 
 
     private OppdateringResultat avklarOmsorgOgForeldreansvar(Behandling behandling, AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto) {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
-        var resultat = new AvklarOmsorgOgForeldreansvarOppdaterer(repositoryProvider, mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste, lagMockHistory())
+        var resultat = new AvklarOmsorgOgForeldreansvarOppdaterer(repositoryProvider, mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste)
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
         byggVilkårResultat(vilkårBuilder, resultat);
         return resultat;
@@ -170,23 +163,11 @@ class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwareTest 
         dto.setVilkårType(VilkårType.OMSORGSVILKÅRET);
 
         avklarOmsorgOgForeldreansvar(behandling, dto);
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-        var historikkInnslagDeler = this.tekstBuilder.build(historikkinnslag);
+        var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
+        var linjer = historikkinnslag.getLinjer();
 
         // Assert
-        assertThat(historikkInnslagDeler).hasSize(1);
-        var feltList = historikkInnslagDeler.get(0).getEndredeFelt();
-        var felt = feltList.get(0);
-        assertThat(felt.getNavn()).as("navn").isEqualTo(HistorikkEndretFeltType.OMSORGSOVERTAKELSESDATO.getKode());
-        assertThat(felt.getFraVerdi()).as("fraVerdi").isEqualTo("04.03.2019");
-        assertThat(felt.getTilVerdi()).as("tilVerdi").isEqualTo("05.03.2019");
+        assertThat(linjer).hasSize(2);
+        assertThat(linjer.getFirst().getTekst()).contains("Omsorgsovertakelsesdato", "04.03.2019", "05.03.2019");
     }
-
-    private HistorikkTjenesteAdapter lagMockHistory() {
-        var mockHistory = Mockito.mock(HistorikkTjenesteAdapter.class);
-        Mockito.when(mockHistory.tekstBuilder()).thenReturn(tekstBuilder);
-        return mockHistory;
-    }
-
 }

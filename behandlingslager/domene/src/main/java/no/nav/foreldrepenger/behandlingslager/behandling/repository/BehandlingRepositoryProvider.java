@@ -9,7 +9,7 @@ import jakarta.persistence.EntityManager;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
@@ -40,7 +40,6 @@ public class BehandlingRepositoryProvider {
     private MedlemskapRepository medlemskapRepository;
     private VilkårMedlemskapRepository vilkårMedlemskapRepository;
     private FamilieHendelseRepository familieHendelseRepository;
-    private HistorikkRepository historikkRepository;
     private SøknadRepository søknadRepository;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
     private FpUttakRepository fpUttakRepository;
@@ -55,6 +54,7 @@ public class BehandlingRepositoryProvider {
 
     private BehandlingRepository behandlingRepository;
     private FagsakLåsRepository fagsakLåsRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     BehandlingRepositoryProvider() {
         // for CDI proxy
@@ -90,7 +90,7 @@ public class BehandlingRepositoryProvider {
 
         // behandling støtte repositories
         this.mottatteDokumentRepository = new MottatteDokumentRepository(entityManager);
-        this.historikkRepository = new HistorikkRepository(entityManager);
+        this.historikkinnslagRepository = new HistorikkinnslagRepository(entityManager);
         this.behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
 
         this.svangerskapspengerUttakResultatRepository = new SvangerskapspengerUttakResultatRepository(entityManager);
@@ -137,8 +137,8 @@ public class BehandlingRepositoryProvider {
         return familieHendelseRepository;
     }
 
-    public HistorikkRepository getHistorikkRepository() {
-        return historikkRepository;
+    public HistorikkinnslagRepository getHistorikkinnslagRepository() {
+        return historikkinnslagRepository;
     }
 
     public SøknadRepository getSøknadRepository() {

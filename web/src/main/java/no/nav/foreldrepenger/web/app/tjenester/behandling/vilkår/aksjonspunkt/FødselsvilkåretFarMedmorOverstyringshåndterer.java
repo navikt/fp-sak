@@ -6,10 +6,9 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.inngangsvilkaar.InngangsvilkårTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt.dto.OverstyringFødselvilkåretFarMedmorDto;
 
@@ -22,16 +21,13 @@ public class FødselsvilkåretFarMedmorOverstyringshåndterer extends Inngangsvi
     }
 
     @Inject
-    public FødselsvilkåretFarMedmorOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter,
-                                                InngangsvilkårTjeneste inngangsvilkårTjeneste) {
-        super(historikkAdapter, AksjonspunktDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET_FAR_MEDMOR,
-            VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR,
-            inngangsvilkårTjeneste);
+    public FødselsvilkåretFarMedmorOverstyringshåndterer(InngangsvilkårTjeneste inngangsvilkårTjeneste, HistorikkinnslagRepository historikkinnslagRepository) {
+        super(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR, inngangsvilkårTjeneste, historikkinnslagRepository);
     }
 
 
     @Override
-    protected void lagHistorikkInnslag(Behandling behandling, OverstyringFødselvilkåretFarMedmorDto dto) {
-        lagHistorikkInnslagForOverstyrtVilkår(dto.getBegrunnelse(), dto.getErVilkarOk(), SkjermlenkeType.PUNKT_FOR_FOEDSEL);
+    public void lagHistorikkInnslag(OverstyringFødselvilkåretFarMedmorDto dto, Behandling behandling) {
+        lagHistorikkInnslagForOverstyrtVilkår(behandling, dto.getBegrunnelse(), dto.getErVilkarOk(), SkjermlenkeType.PUNKT_FOR_FOEDSEL);
     }
 }

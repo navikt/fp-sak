@@ -4,15 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
@@ -20,14 +16,10 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.familiehendelse.rest.BekreftFaktaForOmsorgVurderingDto;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 class BekreftOmsorgOppdatererTest extends EntityManagerAwareTest {
 
     private static final AksjonspunktDefinisjon AKSJONSPUNKT_DEF = AksjonspunktDefinisjon.AVKLAR_LØPENDE_OMSORG;
-
-    private final HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
 
     private BehandlingRepositoryProvider behandlingRepositoryProvider;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
@@ -59,26 +51,12 @@ class BekreftOmsorgOppdatererTest extends EntityManagerAwareTest {
         dto.setOmsorg(oppdatertOmsorg);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
-        new BekreftOmsorgOppdaterer(behandlingRepositoryProvider, lagMockHistory(), ytelseFordelingTjeneste) {}
+        new BekreftOmsorgOppdaterer(ytelseFordelingTjeneste, behandlingRepositoryProvider.getHistorikkinnslagRepository())
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-        var historikkinnslagDeler = tekstBuilder.build(historikkinnslag);
 
-        // Assert
-        assertThat(historikkinnslagDeler).hasSize(1);
-        var del = historikkinnslagDeler.get(0);
-        var omsorgOpt = del.getEndretFelt(HistorikkEndretFeltType.OMSORG);
-        assertThat(omsorgOpt).hasValueSatisfying(omsorg -> {
-            assertThat(omsorg.getNavn()).isEqualTo(HistorikkEndretFeltType.OMSORG.getKode());
-            assertThat(omsorg.getFraVerdi()).isNull();
-            assertThat(omsorg.getTilVerdi()).isEqualTo("Søker har omsorg for barnet");
-        });
-    }
-
-    private HistorikkTjenesteAdapter lagMockHistory() {
-        var mockHistory = Mockito.mock(HistorikkTjenesteAdapter.class);
-        Mockito.when(mockHistory.tekstBuilder()).thenReturn(tekstBuilder);
-        return mockHistory;
+        var historikkinnslag = behandlingRepositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
+        assertThat(historikkinnslag.getLinjer()).hasSize(2);
+        assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).contains("Omsorg", "Søker har omsorg for barnet");
+        assertThat(historikkinnslag.getLinjer().get(1).getTekst()).contains(dto.getBegrunnelse());
     }
 }

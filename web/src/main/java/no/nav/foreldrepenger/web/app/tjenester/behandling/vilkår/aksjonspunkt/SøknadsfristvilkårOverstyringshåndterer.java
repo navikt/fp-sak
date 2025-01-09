@@ -6,15 +6,14 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.inngangsvilkaar.InngangsvilkårTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt.dto.OverstyringSøknadsfristvilkåretDto;
 
 @ApplicationScoped
-@DtoTilServiceAdapter(dto = OverstyringSøknadsfristvilkåretDto.class, adapter= Overstyringshåndterer.class)
+@DtoTilServiceAdapter(dto = OverstyringSøknadsfristvilkåretDto.class, adapter = Overstyringshåndterer.class)
 public class SøknadsfristvilkårOverstyringshåndterer extends InngangsvilkårOverstyringshåndterer<OverstyringSøknadsfristvilkåretDto> {
 
     SøknadsfristvilkårOverstyringshåndterer() {
@@ -22,17 +21,14 @@ public class SøknadsfristvilkårOverstyringshåndterer extends InngangsvilkårO
     }
 
     @Inject
-    public SøknadsfristvilkårOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter,
-            InngangsvilkårTjeneste inngangsvilkårTjeneste) {
-        super(historikkAdapter,
-                AksjonspunktDefinisjon.OVERSTYRING_AV_SØKNADSFRISTVILKÅRET,
-                VilkårType.SØKNADSFRISTVILKÅRET,
-                inngangsvilkårTjeneste);
+    public SøknadsfristvilkårOverstyringshåndterer(InngangsvilkårTjeneste inngangsvilkårTjeneste,
+                                                   HistorikkinnslagRepository historikkinnslagRepository) {
+        super(VilkårType.SØKNADSFRISTVILKÅRET, inngangsvilkårTjeneste, historikkinnslagRepository);
     }
 
     @Override
-    protected void lagHistorikkInnslag(Behandling behandling, OverstyringSøknadsfristvilkåretDto dto) {
-        lagHistorikkInnslagForOverstyrtVilkår(dto.getBegrunnelse(), dto.getErVilkarOk(), SkjermlenkeType.SOEKNADSFRIST);
+    public void lagHistorikkInnslag(OverstyringSøknadsfristvilkåretDto dto, Behandling behandling) {
+        lagHistorikkInnslagForOverstyrtVilkår(behandling, dto.getBegrunnelse(), dto.getErVilkarOk(), SkjermlenkeType.SOEKNADSFRIST);
     }
 
 }

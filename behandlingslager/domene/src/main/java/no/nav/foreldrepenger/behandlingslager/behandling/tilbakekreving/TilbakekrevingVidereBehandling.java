@@ -16,7 +16,7 @@ public enum TilbakekrevingVidereBehandling implements Kodeverdi {
     UDEFINIERT("-", "Udefinert."),
     OPPRETT_TILBAKEKREVING("TILBAKEKR_OPPRETT", "Feilutbetaling med tilbakekreving"),
     IGNORER_TILBAKEKREVING("TILBAKEKR_IGNORER", "Feilutbetaling, avvent samordning"),
-    INNTREKK("TILBAKEKR_INNTREKK", "Feilutbetaling hvor inntrekk dekker hele beløpet"),
+    INNTREKK("TILBAKEKR_INNTREKK", "Feilutbetalingen er trukket inn i annen utbetaling"),
     TILBAKEKR_OPPDATER("TILBAKEKR_OPPDATER", "Endringer vil oppdatere eksisterende feilutbetalte perioder og beløp."),
     ;
 

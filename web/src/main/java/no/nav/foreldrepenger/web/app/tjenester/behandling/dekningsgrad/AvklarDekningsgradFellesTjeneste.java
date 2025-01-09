@@ -8,11 +8,13 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.revurdering.flytkontroll.TilbakeførTilDekningsgradStegTask;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
@@ -21,18 +23,18 @@ public class AvklarDekningsgradFellesTjeneste {
 
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
-    private HistorikkTjenesteAdapter historikkTjenesteAdapter;
     private ProsessTaskTjeneste prosessTaskTjeneste;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     @Inject
     public AvklarDekningsgradFellesTjeneste(YtelseFordelingTjeneste ytelseFordelingTjeneste,
                                             FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
-                                            HistorikkTjenesteAdapter historikkTjenesteAdapter,
-                                            ProsessTaskTjeneste prosessTaskTjeneste) {
+                                            ProsessTaskTjeneste prosessTaskTjeneste,
+                                            HistorikkinnslagRepository historikkinnslagRepository) {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
-        this.historikkTjenesteAdapter = historikkTjenesteAdapter;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
+        this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     AvklarDekningsgradFellesTjeneste() {
@@ -42,7 +44,7 @@ public class AvklarDekningsgradFellesTjeneste {
     public OppdateringResultat oppdater(int avklartDekningsgrad, Long fagsakId, Long behandlingId, String begrunnelse) {
         var avklart = Dekningsgrad.grad(avklartDekningsgrad);
         lagreDekningsgrad(avklart, fagsakId, behandlingId);
-        opprettHistorikkinnslag(begrunnelse, avklart);
+        opprettHistorikkinnslag(begrunnelse, avklart, fagsakId, behandlingId);
         tilbakeførAnnenpartsSak(fagsakId);
 
 
@@ -54,11 +56,16 @@ public class AvklarDekningsgradFellesTjeneste {
         fagsakRelasjonTjeneste.oppdaterDekningsgrad(fagsakId, avklartDekningsgrad);
     }
 
-    private void opprettHistorikkinnslag(String begrunnelse, Dekningsgrad avklartDekningsgrad) {
-        historikkTjenesteAdapter.tekstBuilder()
-            .medBegrunnelse(begrunnelse)
-            .medSkjermlenke(SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER)
-            .medEndretFelt(HistorikkEndretFeltType.DEKNINGSGRAD, null, avklartDekningsgrad.getVerdi());
+    private void opprettHistorikkinnslag(String begrunnelse, Dekningsgrad avklartDekningsgrad, Long fagsakId, Long behandlingId) {
+        var historikkinnslag = new Historikkinnslag.Builder()
+            .medTittel(SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER)
+            .medFagsakId(fagsakId)
+            .medBehandlingId(behandlingId)
+            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .addLinje(new HistorikkinnslagLinjeBuilder().til("Dekningsgrad", avklartDekningsgrad.getVerdi()))
+            .addLinje(begrunnelse)
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
     private void tilbakeførAnnenpartsSak(Long fagsakId) {

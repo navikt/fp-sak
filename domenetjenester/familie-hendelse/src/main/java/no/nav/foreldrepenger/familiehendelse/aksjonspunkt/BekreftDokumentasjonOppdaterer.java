@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -19,46 +20,54 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Adopsjo
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarnEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftDokumentertDatoAksjonspunktDto;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = BekreftDokumentertDatoAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
 public class BekreftDokumentasjonOppdaterer implements AksjonspunktOppdaterer<BekreftDokumentertDatoAksjonspunktDto> {
 
-    private HistorikkTjenesteAdapter historikkAdapter;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     BekreftDokumentasjonOppdaterer() {
         // for CDI proxy
     }
 
     @Inject
-    public BekreftDokumentasjonOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
-                                          FamilieHendelseTjeneste familieHendelseTjeneste,
-                                          OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste) {
+    public BekreftDokumentasjonOppdaterer(FamilieHendelseTjeneste familieHendelseTjeneste,
+                                          OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
+                                          HistorikkinnslagRepository historikkinnslagRepository) {
         this.familieHendelseTjeneste = familieHendelseTjeneste;
-        this.historikkAdapter = historikkAdapter;
         this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
+        this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     @Override
     public OppdateringResultat oppdater(BekreftDokumentertDatoAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingId = param.getBehandlingId();
         var forrigeFikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandlingId, param.getRef().fagsakYtelseType());
-        var totrinn = håndterEndringHistorikk(dto, param);
+        var hendelseGrunnlag = familieHendelseTjeneste.hentAggregat(param.getBehandlingId());
+
+        var originalOmsorgsovertakelse = getOmsorgsovertakelsesdatoForAdopsjon(hendelseGrunnlag.getGjeldendeAdopsjon().orElseThrow());
+        var originalFødselsdatoer = getAdopsjonFødselsdatoer(hendelseGrunnlag);
+        var toTrinn = !Objects.equals(originalOmsorgsovertakelse, dto.getOmsorgsovertakelseDato()) || !Objects.equals(originalFødselsdatoer,
+            dto.getFodselsdatoer());
+        var erEndret = toTrinn || param.erBegrunnelseEndret();
+        if (erEndret) {
+            lagreHistorikk(param, dto, originalOmsorgsovertakelse, originalFødselsdatoer);
+        }
 
         var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandlingId);
-        oppdatertOverstyrtHendelse
-            .tilbakestillBarn()
+        oppdatertOverstyrtHendelse.tilbakestillBarn()
             .medAntallBarn(dto.getFodselsdatoer().keySet().size())
-            .medAdopsjon(oppdatertOverstyrtHendelse.getAdopsjonBuilder()
-                .medOmsorgsovertakelseDato(dto.getOmsorgsovertakelseDato()));
+            .medAdopsjon(oppdatertOverstyrtHendelse.getAdopsjonBuilder().medOmsorgsovertakelseDato(dto.getOmsorgsovertakelseDato()));
         dto.getFodselsdatoer()
             .forEach((barnnummer, fødselsdato) -> oppdatertOverstyrtHendelse.leggTilBarn(new UidentifisertBarnEntitet(fødselsdato, barnnummer)));
 
@@ -66,32 +75,32 @@ public class BekreftDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Be
 
         var sistefikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandlingId, param.getRef().fagsakYtelseType());
         if (Objects.equals(forrigeFikspunkt, sistefikspunkt)) {
-            return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();
+            return OppdateringResultat.utenTransisjon().medTotrinnHvis(toTrinn).build();
         } else {
-            return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).medOppdaterGrunnlag().build();
+            return OppdateringResultat.utenTransisjon().medTotrinnHvis(toTrinn).medOppdaterGrunnlag().build();
         }
     }
 
-    private boolean håndterEndringHistorikk(BekreftDokumentertDatoAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
-        boolean erEndret;
-        var hendelseGrunnlag = familieHendelseTjeneste.hentAggregat(param.getBehandlingId());
+    private void lagreHistorikk(AksjonspunktOppdaterParameter param,
+                                BekreftDokumentertDatoAksjonspunktDto dto,
+                                LocalDate originalOmsorgsovertakelse,
+                                Map<Integer, LocalDate> originaleFødselsdatoer) {
 
-        var originalDato = getOmsorgsovertakelsesdatoForAdopsjon(
-            hendelseGrunnlag.getGjeldendeAdopsjon().orElseThrow(IllegalStateException::new));
-        erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.OMSORGSOVERTAKELSESDATO, originalDato, dto.getOmsorgsovertakelseDato());
 
-        var orginaleFødselsdatoer = getAdopsjonFødselsdatoer(hendelseGrunnlag);
-        var oppdaterteFødselsdatoer = dto.getFodselsdatoer();
+        var builder = new Historikkinnslag.Builder().medFagsakId(param.getFagsakId())
+            .medBehandlingId(param.getBehandlingId())
+            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medTittel(SkjermlenkeType.FAKTA_OM_ADOPSJON)
+            .addLinje(fraTilEquals("Omsorgsovertakelsesdato", originalOmsorgsovertakelse, dto.getOmsorgsovertakelseDato()));
 
-        for (var entry : orginaleFødselsdatoer.entrySet()) {
-            var oppdatertFødselsdato = oppdaterteFødselsdatoer.get(entry.getKey());
-            erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.FODSELSDATO, entry.getValue(), oppdatertFødselsdato) || erEndret;
+        for (Map.Entry<Integer, LocalDate> eksisterendeFødselsdatoer : originaleFødselsdatoer.entrySet()) {
+            var eksisterende = eksisterendeFødselsdatoer.getValue();
+            var oppdatert = dto.getFodselsdatoer().get(eksisterendeFødselsdatoer.getKey());
+            builder.addLinje(fraTilEquals("Fødselsdato", eksisterende, oppdatert));
         }
 
-        historikkAdapter.tekstBuilder()
-            .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret())
-            .medSkjermlenke(SkjermlenkeType.FAKTA_OM_ADOPSJON);
-        return erEndret;
+        var historikkinnslag = builder.addLinje(dto.getBegrunnelse()).build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
     private LocalDate getOmsorgsovertakelsesdatoForAdopsjon(AdopsjonEntitet adopsjon) {
@@ -100,17 +109,7 @@ public class BekreftDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Be
 
     private Map<Integer, LocalDate> getAdopsjonFødselsdatoer(FamilieHendelseGrunnlagEntitet grunnlag) {
         return Optional.ofNullable(grunnlag.getGjeldendeBarna())
-            .map(barna -> barna.stream()
-                .collect(toMap(UidentifisertBarn::getBarnNummer, UidentifisertBarn::getFødselsdato)))
+            .map(barna -> barna.stream().collect(toMap(UidentifisertBarn::getBarnNummer, UidentifisertBarn::getFødselsdato)))
             .orElse(emptyMap());
     }
-
-    private boolean oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType, LocalDate original, LocalDate bekreftet) {
-        if (!Objects.equals(bekreftet, original)) {
-            historikkAdapter.tekstBuilder().medEndretFelt(historikkEndretFeltType, original, bekreftet);
-            return true;
-        }
-        return false;
-    }
-
 }

@@ -16,6 +16,19 @@ public class FordelBeregningsgrunnlagAndelDto extends FordelRedigerbarAndelDto {
     private Integer forrigeRefusjonPrÅr;
     private Integer forrigeArbeidsinntektPrÅr;
 
+    public FordelBeregningsgrunnlagAndelDto() {
+    }
+
+    public FordelBeregningsgrunnlagAndelDto(FordelFastsatteVerdierDto fastsatteVerdier,
+                                                         Inntektskategori forrigeInntektskategori,
+                                                         Integer forrigeRefusjonPrÅr,
+                                                         Integer forrigeArbeidsinntektPrÅr) {
+        this.fastsatteVerdier = fastsatteVerdier;
+        this.forrigeInntektskategori = forrigeInntektskategori;
+        this.forrigeRefusjonPrÅr = forrigeRefusjonPrÅr;
+        this.forrigeArbeidsinntektPrÅr = forrigeArbeidsinntektPrÅr;
+    }
+
     public FordelFastsatteVerdierDto getFastsatteVerdier() {
         return fastsatteVerdier;
     }

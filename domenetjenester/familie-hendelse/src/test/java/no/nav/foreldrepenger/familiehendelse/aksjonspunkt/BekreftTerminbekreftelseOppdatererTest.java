@@ -1,51 +1,47 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
-import java.time.Period;
-import java.time.format.DateTimeFormatter;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.mockito.ArgumentCaptor;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 
 class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
 
     private static final AksjonspunktDefinisjon AKSJONSPUNKT_DEF = AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE;
 
-    private final HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
     private final LocalDate now = LocalDate.now();
-    private final DateTimeFormatter formatterer = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
     private BehandlingRepositoryProvider repositoryProvider;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
+    private HistorikkinnslagRepository historikkRepository;
 
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        familieHendelseTjeneste = new FamilieHendelseTjeneste(null,
-            repositoryProvider.getFamilieHendelseRepository());
+        familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
+        historikkRepository = mock(HistorikkinnslagRepository.class);
     }
 
     @Test
@@ -74,24 +70,19 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
             avklartTermindato, avklartUtstedtDato, avklartAntallBarn);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
-        var oppdaterer = new BekreftTerminbekreftelseOppdaterer(lagMockHistory(), mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste,
-            new BekreftTerminbekreftelseValidator(Period.parse("P25D")));
+        var oppdaterer = new BekreftTerminbekreftelseOppdaterer(historikkRepository, mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste);
 
         oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-        var historikkInnslag = tekstBuilder.build(historikkinnslag);
 
         // Assert
-
-        assertThat(historikkInnslag).hasSize(1);
-
-        var del = historikkInnslag.get(0);
-        var feltList = del.getEndredeFelt();
-        assertThat(feltList).hasSize(3);
-        assertFelt(del, HistorikkEndretFeltType.TERMINDATO, opprinneligTermindato.format(formatterer), avklartTermindato.format(formatterer));
-        assertFelt(del, HistorikkEndretFeltType.UTSTEDTDATO, opprinneligUtstedtDato.format(formatterer), avklartUtstedtDato.format(formatterer));
-        assertFelt(del, HistorikkEndretFeltType.ANTALL_BARN, Integer.toString(opprinneligAntallBarn), Integer.toString(avklartAntallBarn));
+        var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
+        verify(historikkRepository, times(1)).lagre(captor.capture());
+        var historikkinnslag = captor.getValue();
+        assertThat(historikkinnslag.getLinjer()).hasSize(4);
+        assertThat(historikkinnslag.getLinjer().get(0).getTekst()).contains("Termindato", format(opprinneligTermindato), format(avklartTermindato));
+        assertThat(historikkinnslag.getLinjer().get(1).getTekst()).contains("Utstedtdato", format(opprinneligUtstedtDato), format(avklartUtstedtDato));
+        assertThat(historikkinnslag.getLinjer().get(2).getTekst()).contains("Antall barn", Integer.toString(opprinneligAntallBarn), Integer.toString(avklartAntallBarn));
+        assertThat(historikkinnslag.getLinjer().get(3).getTekst()).contains(dto.getBegrunnelse());
     }
 
     @Test
@@ -117,32 +108,17 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
             opprinneligTermindato, opprinneligUtstedtDato, opprinneligAntallBarn);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
-        var oppdaterer = new BekreftTerminbekreftelseOppdaterer(lagMockHistory(), mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste,
-            new BekreftTerminbekreftelseValidator(Period.parse("P25D")));
+        var oppdaterer = new BekreftTerminbekreftelseOppdaterer(historikkRepository, mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste);
 
         oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-        var historikkInnslag = tekstBuilder.build(historikkinnslag);
 
         // Assert
-
-        assertThat(historikkInnslag).hasSize(1);
-
-        var del = historikkInnslag.get(0);
-        var feltList = del.getEndredeFelt();
-        assertThat(feltList).hasSize(1);
-        assertFelt(del, HistorikkEndretFeltType.TERMINBEKREFTELSE, null, "godkjent");
-    }
-
-    private void assertFelt(HistorikkinnslagDel del, HistorikkEndretFeltType historikkEndretFeltType, String fraVerdi, String tilVerdi) {
-        var feltOpt = del.getEndretFelt(historikkEndretFeltType);
-        var feltNavn = historikkEndretFeltType.getKode();
-        assertThat(feltOpt).hasValueSatisfying(felt -> {
-            assertThat(felt.getNavn()).as(feltNavn + ".navn").isEqualTo(feltNavn);
-            assertThat(felt.getFraVerdi()).as(feltNavn + ".fraVerdi").isEqualTo(fraVerdi);
-            assertThat(felt.getTilVerdi()).as(feltNavn + ".tilVerdi").isEqualTo(tilVerdi);
-        });
+        var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
+        verify(historikkRepository, times(1)).lagre(captor.capture());
+        var historikkinnslag = captor.getValue();
+        assertThat(historikkinnslag.getLinjer()).hasSize(2);
+        assertThat(historikkinnslag.getLinjer().get(0).getTekst()).contains("Terminbekreftelse", "godkjent");
+        assertThat(historikkinnslag.getLinjer().get(1).getTekst()).contains(dto.getBegrunnelse());
     }
 
     @Test
@@ -163,8 +139,7 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
             "Begrunnelse", now.plusDays(30), now.minusDays(3), 1);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
-        var oppdaterer = new BekreftTerminbekreftelseOppdaterer(lagMockHistory(), mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste,
-            new BekreftTerminbekreftelseValidator(Period.parse("P25D")));
+        var oppdaterer = new BekreftTerminbekreftelseOppdaterer(historikkRepository, mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste);
 
         oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
 
@@ -196,8 +171,7 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
         var dto = new BekreftTerminbekreftelseAksjonspunktDto("Begrunnelse", now.plusDays(30), now.minusDays(3), 2);
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon()).get();
         // Act
-        var oppdaterer = new BekreftTerminbekreftelseOppdaterer(lagMockHistory(), mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste,
-            new BekreftTerminbekreftelseValidator(Period.parse("P25D")));
+        var oppdaterer = new BekreftTerminbekreftelseOppdaterer(historikkRepository, mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste);
 
         var resultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
 
@@ -208,8 +182,7 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
         AksjonspunktTestSupport.fjernToTrinnsBehandlingKreves(aksjonspunkt);
 
         // Act
-        oppdaterer = new BekreftTerminbekreftelseOppdaterer(lagMockHistory(), mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste,
-            new BekreftTerminbekreftelseValidator(Period.parse("P25D")));
+        oppdaterer = new BekreftTerminbekreftelseOppdaterer(historikkRepository, mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste);
 
         var oppdateringResultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto,
             aksjonspunkt));
@@ -217,11 +190,4 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
         // Assert - sjekk at totrinnsbehandling blir satt etter tilbakehopp
         assertThat(oppdateringResultat.kreverTotrinnsKontroll()).isTrue();
     }
-
-    private HistorikkTjenesteAdapter lagMockHistory() {
-        var mockHistory = mock(HistorikkTjenesteAdapter.class);
-        Mockito.when(mockHistory.tekstBuilder()).thenReturn(tekstBuilder);
-        return mockHistory;
-    }
-
 }

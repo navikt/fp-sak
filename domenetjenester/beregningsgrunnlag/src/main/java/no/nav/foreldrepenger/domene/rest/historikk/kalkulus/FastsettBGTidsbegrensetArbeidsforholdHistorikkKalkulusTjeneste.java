@@ -14,7 +14,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeløpEndring;
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningsgrunnlagEndring;
@@ -27,26 +30,25 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.rest.dto.FastsatteAndelerTidsbegrensetDto;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBGTidsbegrensetArbeidsforholdDto;
 import no.nav.foreldrepenger.domene.rest.historikk.ArbeidsgiverHistorikkinnslag;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
 public class FastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste {
 
-    private HistorikkTjenesteAdapter historikkAdapter;
     private ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     FastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste() {
         // CDI
     }
 
     @Inject
-    public FastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste(HistorikkTjenesteAdapter historikkAdapter,
-                                                                          ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste,
-                                                                          InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
-        this.historikkAdapter = historikkAdapter;
+    public FastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste(ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste,
+                                                                          InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
+                                                                          HistorikkinnslagRepository historikkinnslagRepository) {
         this.arbeidsgiverHistorikkinnslagTjeneste = arbeidsgiverHistorikkinnslagTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
+        this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     public void lagHistorikk(AksjonspunktOppdaterParameter param,
@@ -63,7 +65,9 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste {
                 .filter(p -> !p.getPeriode().getFom().isBefore(periode.getPeriodeFom()))
                 .toList();
             var fastatteAndeler = periode.getFastsatteTidsbegrensedeAndeler();
-            fastatteAndeler.forEach(andel -> lagEndretHistorikkForAndelIPeriode(arbeidsforholdInntekterMap, bgPerioderSomSkalFastsettesAvDennePerioden, andel, overstyringer));
+            fastatteAndeler.forEach(
+                andel -> lagEndretHistorikkForAndelIPeriode(arbeidsforholdInntekterMap, bgPerioderSomSkalFastsettesAvDennePerioden, andel,
+                    overstyringer));
         }
 
         var andelerIFørstePeriode = endredePerioder.stream()
@@ -80,7 +84,8 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste {
         lagHistorikkInnslag(dto, param, arbeidsforholdInntekterMap, forrigeOverstyrtFrilansinntekt);
     }
 
-    private void lagEndretHistorikkForAndelIPeriode(Map<String, List<Integer>> arbeidsforholdInntekterMap, List<BeregningsgrunnlagPeriodeEndring> bgPerioderSomSkalFastsettesAvDennePerioden,
+    private void lagEndretHistorikkForAndelIPeriode(Map<String, List<Integer>> arbeidsforholdInntekterMap,
+                                                    List<BeregningsgrunnlagPeriodeEndring> bgPerioderSomSkalFastsettesAvDennePerioden,
                                                     FastsatteAndelerTidsbegrensetDto andel,
                                                     List<ArbeidsforholdOverstyring> overstyringer) {
         bgPerioderSomSkalFastsettesAvDennePerioden.forEach(p -> {
@@ -97,9 +102,8 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste {
                                             Map<String, List<Integer>> tilHistorikkInnslag,
                                             BeregningsgrunnlagPrStatusOgAndelEndring korrektAndel,
                                             List<ArbeidsforholdOverstyring> overstyringer) {
-        var arbeidsforholdInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(
-            korrektAndel.getAktivitetStatus(), korrektAndel.getArbeidsgiver(), Optional.ofNullable(korrektAndel.getArbeidsforholdRef()),
-            overstyringer);
+        var arbeidsforholdInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(korrektAndel.getAktivitetStatus(),
+            korrektAndel.getArbeidsgiver(), Optional.ofNullable(korrektAndel.getArbeidsforholdRef()), overstyringer);
         if (tilHistorikkInnslag.containsKey(arbeidsforholdInfo)) {
             var inntekter = tilHistorikkInnslag.get(arbeidsforholdInfo);
             inntekter.add(arbeidsforhold.getBruttoFastsattInntekt());
@@ -115,33 +119,45 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste {
                                      AksjonspunktOppdaterParameter param,
                                      Map<String, List<Integer>> tilHistorikkInnslag,
                                      BigDecimal forrigeFrilansInntekt) {
-        oppdaterVedEndretVerdi(HistorikkEndretFeltType.INNTEKT_FRA_ARBEIDSFORHOLD, tilHistorikkInnslag);
-        oppdaterFrilansInntektVedEndretVerdi(HistorikkEndretFeltType.FRILANS_INNTEKT, forrigeFrilansInntekt, dto);
+        List<HistorikkinnslagLinjeBuilder> linjeBuilderList = new ArrayList<>(oppdaterVedEndretVerdi(tilHistorikkInnslag));
+        linjeBuilderList.addAll(oppdaterFrilansInntektVedEndretVerdi(forrigeFrilansInntekt, dto));
+        linjeBuilderList.add(new HistorikkinnslagLinjeBuilder().tekst(dto.getBegrunnelse()));
 
-        historikkAdapter.tekstBuilder()
-            .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret())
-            .medSkjermlenke(SkjermlenkeType.BEREGNING_FORELDREPENGER);
+        var historikkinnslag = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medBehandlingId(param.getBehandlingId())
+            .medFagsakId(param.getRef().fagsakId())
+            .medTittel(SkjermlenkeType.BEREGNING_FORELDREPENGER)
+            .medLinjer(linjeBuilderList)
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
-    private void oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType,
-                                        Map<String, List<Integer>> tilHistorikkInnslag) {
+    private List<HistorikkinnslagLinjeBuilder> oppdaterVedEndretVerdi(Map<String, List<Integer>> tilHistorikkInnslag) {
+        List<HistorikkinnslagLinjeBuilder> linjeBuilderList = new ArrayList<>();
+        HistorikkinnslagLinjeBuilder linjeBuilder = new HistorikkinnslagLinjeBuilder();
         for (var entry : tilHistorikkInnslag.entrySet()) {
             var arbeidsforholdInfo = entry.getKey();
             var inntekter = entry.getValue();
-            historikkAdapter.tekstBuilder()
-                .medEndretFelt(historikkEndretFeltType, arbeidsforholdInfo, null, formaterInntekter(inntekter));
+            linjeBuilderList.add(
+                linjeBuilder.fraTil(String.format("Inntekt fra %s", arbeidsforholdInfo), null, formaterInntekter(inntekter)));
+            linjeBuilderList.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
         }
+        return linjeBuilderList;
     }
 
-    private void oppdaterFrilansInntektVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType,
-                                                      BigDecimal forrigeFrilansInntekt,
-                                                      FastsettBGTidsbegrensetArbeidsforholdDto dto) {
+    private List<HistorikkinnslagLinjeBuilder> oppdaterFrilansInntektVedEndretVerdi(BigDecimal forrigeFrilansInntekt,
+                                                                                    FastsettBGTidsbegrensetArbeidsforholdDto dto) {
+        List<HistorikkinnslagLinjeBuilder> linjeBuilderList = new ArrayList<>();
+        HistorikkinnslagLinjeBuilder linjeBuilder = new HistorikkinnslagLinjeBuilder();
         if (forrigeFrilansInntekt != null && dto.getFrilansInntekt() != null) {
-            historikkAdapter.tekstBuilder()
-                .medEndretFelt(historikkEndretFeltType, forrigeFrilansInntekt, dto.getFrilansInntekt());
+            var fraInntekt = (int) Math.round(forrigeFrilansInntekt.doubleValue());
+            linjeBuilderList.add(linjeBuilder.fraTil("Frilansinntekt", fraInntekt, dto.getFrilansInntekt()));
+            linjeBuilderList.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
         } else if (dto.getFrilansInntekt() != null) {
-            historikkAdapter.tekstBuilder().medEndretFelt(historikkEndretFeltType, null, dto.getFrilansInntekt());
+            linjeBuilderList.add(linjeBuilder.fraTil("Frilansinntekt", null, dto.getFrilansInntekt()));
+            linjeBuilderList.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
         }
+        return linjeBuilderList;
     }
 
     private String formaterInntekter(List<Integer> inntekter) {
@@ -150,7 +166,7 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste {
             return inntekterString.substring(0, inntekterString.lastIndexOf(',')) + " og " + inntekterString.substring(
                 inntekterString.lastIndexOf(',') + 1);
         }
-        return inntekter.get(0).toString();
+        return inntekter.getFirst().toString();
     }
 
 }

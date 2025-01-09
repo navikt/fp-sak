@@ -40,7 +40,7 @@ public class HistorikkinnslagDel extends BaseEntitet {
     @ManyToOne(optional = false)
     @JoinColumn(name = "historikkinnslag_id", nullable = false, updatable = false)
     @JsonBackReference
-    private Historikkinnslag historikkinnslag;
+    private HistorikkinnslagOld historikkinnslag;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "historikkinnslagDel")
     private List<HistorikkinnslagFelt> historikkinnslagFelt = new ArrayList<>();
@@ -49,16 +49,12 @@ public class HistorikkinnslagDel extends BaseEntitet {
         return id;
     }
 
-    public Historikkinnslag getHistorikkinnslag() {
+    public HistorikkinnslagOld getHistorikkinnslag() {
         return historikkinnslag;
     }
 
     public List<HistorikkinnslagFelt> getHistorikkinnslagFelt() {
         return historikkinnslagFelt;
-    }
-
-    public Optional<String> getAarsak() {
-        return finnFeltTilVerdi(HistorikkinnslagFeltType.AARSAK);
     }
 
     public Optional<HistorikkinnslagFelt> getAarsakFelt() {
@@ -98,10 +94,6 @@ public class HistorikkinnslagDel extends BaseEntitet {
         return finnFelt(HistorikkinnslagFeltType.RESULTAT);
     }
 
-    public Optional<String> getGjeldendeFra() {
-        return finnFeltTilVerdi(HistorikkinnslagFeltType.GJELDENDE_FRA);
-    }
-
     public Optional<HistorikkinnslagFelt> getGjeldendeFraFelt() {
         return finnFelt(HistorikkinnslagFeltType.GJELDENDE_FRA);
     }
@@ -110,23 +102,8 @@ public class HistorikkinnslagDel extends BaseEntitet {
         return finnFeltTilVerdi(HistorikkinnslagFeltType.SKJERMLENKE);
     }
 
-    public Optional<HistorikkinnslagFelt> getEndretFelt(HistorikkEndretFeltType endretFeltVerdiType) {
-        var endredeFelt = getEndredeFelt();
-        return endredeFelt
-            .stream()
-            .filter(felt -> Objects.equals(endretFeltVerdiType.getKode(), felt.getNavn()))
-            .findFirst();
-    }
-
     public List<HistorikkinnslagFelt> getEndredeFelt() {
         return finnFeltListe(HistorikkinnslagFeltType.ENDRET_FELT);
-    }
-
-    public Optional<HistorikkinnslagFelt> getOpplysning(HistorikkOpplysningType historikkOpplysningType) {
-        var opplysninger = getOpplysninger();
-        return opplysninger.stream()
-            .filter(felt -> Objects.equals(historikkOpplysningType.getKode(), felt.getNavn()))
-            .findFirst();
     }
 
     public List<HistorikkinnslagFelt> getOpplysninger() {
@@ -214,7 +191,7 @@ public class HistorikkinnslagDel extends BaseEntitet {
             return this;
         }
 
-        public Builder medHistorikkinnslag(Historikkinnslag historikkinnslag) {
+        public Builder medHistorikkinnslag(HistorikkinnslagOld historikkinnslag) {
             kladd.historikkinnslag = historikkinnslag;
             return this;
         }

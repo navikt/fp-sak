@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.opptjening.aksjonspunkt;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
+
 import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -10,7 +12,9 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
@@ -19,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.domene.opptjening.dto.AvklarOpptjeningsvilkåretDto;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.vedtak.exception.FunksjonellException;
 
 @ApplicationScoped
@@ -27,7 +30,7 @@ import no.nav.vedtak.exception.FunksjonellException;
 public class AvklarOpptjeningsvilkåretOppdaterer implements AksjonspunktOppdaterer<AvklarOpptjeningsvilkåretDto> {
 
     private OpptjeningRepository opptjeningRepository;
-    private HistorikkTjenesteAdapter historikkAdapter;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     AvklarOpptjeningsvilkåretOppdaterer() {
         // for CDI proxy
@@ -35,10 +38,10 @@ public class AvklarOpptjeningsvilkåretOppdaterer implements AksjonspunktOppdate
 
     @Inject
     public AvklarOpptjeningsvilkåretOppdaterer(OpptjeningRepository opptjeningRepository,
-            HistorikkTjenesteAdapter historikkAdapter) {
+                                               HistorikkinnslagRepository historikkinnslagRepository) {
 
         this.opptjeningRepository = opptjeningRepository;
-        this.historikkAdapter = historikkAdapter;
+        this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     @Override
@@ -72,11 +75,15 @@ public class AvklarOpptjeningsvilkåretOppdaterer implements AksjonspunktOppdate
     }
 
     private void lagHistorikkInnslag(AksjonspunktOppdaterParameter param, VilkårUtfallType nyVerdi, String begrunnelse) {
-        historikkAdapter.tekstBuilder()
-                .medEndretFelt(HistorikkEndretFeltType.OPPTJENINGSVILKARET, null, nyVerdi);
-
-        historikkAdapter.tekstBuilder()
-                .medBegrunnelse(begrunnelse, param.erBegrunnelseEndret())
-                .medSkjermlenke(SkjermlenkeType.PUNKT_FOR_OPPTJENING);
+        var ref = param.getRef();
+        var historikkinnslag = new Historikkinnslag.Builder()
+            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medFagsakId(ref.fagsakId())
+            .medBehandlingId(ref.behandlingId())
+            .medTittel(SkjermlenkeType.PUNKT_FOR_OPPTJENING)
+            .addLinje(fraTilEquals("Opptjeningsvilkåret", null, nyVerdi))
+            .addLinje(begrunnelse)
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 }

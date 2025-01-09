@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.impl;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
+
 import java.time.LocalDate;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -9,79 +11,65 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkBegrunnelseType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 @ApplicationScoped
 public class RegisterinnhentingHistorikkinnslagTjeneste {
 
-    private HistorikkRepository historikkRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     RegisterinnhentingHistorikkinnslagTjeneste() {
         // for CDI proxy
     }
 
     @Inject
-    public RegisterinnhentingHistorikkinnslagTjeneste(HistorikkRepository historikkRepository) {
-        this.historikkRepository = historikkRepository;
+    public RegisterinnhentingHistorikkinnslagTjeneste(HistorikkinnslagRepository historikkinnslagRepository) {
+        this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     public void opprettHistorikkinnslagForNyeRegisteropplysninger(Behandling behandling) {
-        var nyeRegisteropplysningerInnslag = new Historikkinnslag();
-        nyeRegisteropplysningerInnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
-        nyeRegisteropplysningerInnslag.setType(HistorikkinnslagType.NYE_REGOPPLYSNINGER);
-        nyeRegisteropplysningerInnslag.setBehandlingId(behandling.getId());
-
-        var historieBuilder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.NYE_REGOPPLYSNINGER)
-            .medBegrunnelse(HistorikkBegrunnelseType.SAKSBEH_START_PA_NYTT);
-        historieBuilder.build(nyeRegisteropplysningerInnslag);
-        historikkRepository.lagre(nyeRegisteropplysningerInnslag);
+        var historikkinnslag = new Historikkinnslag.Builder()
+            .medTittel("Nye registeropplysninger")
+            .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
+            .medFagsakId(behandling.getFagsakId())
+            .medBehandlingId(behandling.getId())
+            .addLinje("Saksbehandling starter på nytt")
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
     public void opprettHistorikkinnslagForTilbakespoling(Behandling behandling, BehandlingStegType førSteg, BehandlingStegType etterSteg) {
-        var nyeRegisteropplysningerInnslag = new Historikkinnslag();
-        nyeRegisteropplysningerInnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
-        nyeRegisteropplysningerInnslag.setType(HistorikkinnslagType.SPOLT_TILBAKE);
-        nyeRegisteropplysningerInnslag.setBehandlingId(behandling.getId());
-
-        var historieBuilder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.SPOLT_TILBAKE)
-            .medBegrunnelse("Behandlingen er flyttet fra " + førSteg.getNavn() + " tilbake til " + etterSteg.getNavn());
-        historieBuilder.build(nyeRegisteropplysningerInnslag);
-        historikkRepository.lagre(nyeRegisteropplysningerInnslag);
+        var historikkinnslag = new Historikkinnslag.Builder()
+            .medTittel("Behandlingen er flyttet")
+            .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
+            .medFagsakId(behandling.getFagsakId())
+            .medBehandlingId(behandling.getId())
+            .addLinje(String.format("Behandlingen er flyttet fra __%s__ tilbake til __%s__", førSteg.getNavn(), etterSteg.getNavn()))
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
     public void opprettHistorikkinnslagForBehandlingMedNyeOpplysninger(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
-        var nyeRegisteropplysningerInnslag = new Historikkinnslag();
-        nyeRegisteropplysningerInnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
-        nyeRegisteropplysningerInnslag.setType(HistorikkinnslagType.BEH_OPPDATERT_NYE_OPPL);
-        nyeRegisteropplysningerInnslag.setBehandlingId(behandling.getId());
-
-        var historieBuilder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.BEH_OPPDATERT_NYE_OPPL)
-            .medBegrunnelse(behandlingÅrsakType);
-        historieBuilder.build(nyeRegisteropplysningerInnslag);
-        historikkRepository.lagre(nyeRegisteropplysningerInnslag);
+        var historikkinnslag = new Historikkinnslag.Builder()
+            .medTittel("Behandlingen oppdatert med nye opplysninger")
+            .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
+            .medFagsakId(behandling.getFagsakId())
+            .medBehandlingId(behandling.getId())
+            .addLinje(behandlingÅrsakType.getNavn())
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
     public void opprettHistorikkinnslagForEndretStartdatoEtterFødselshendelse(Behandling behandling, LocalDate endretFra, LocalDate endretTil) {
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setBehandlingId(behandling.getId());
-        historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
-        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-
-        var builder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
-            .medSkjermlenke(SkjermlenkeType.FAKTA_OM_MEDLEMSKAP)
-            .medEndretFelt(HistorikkEndretFeltType.STARTDATO_FRA_SOKNAD, endretFra, endretTil);
-
-        builder.build(historikkinnslag);
-        historikkRepository.lagre(historikkinnslag);
+        var historikkinnslag = new Historikkinnslag.Builder()
+            .medTittel(SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER)
+            .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
+            .medFagsakId(behandling.getFagsakId())
+            .medBehandlingId(behandling.getId())
+            .addLinje(fraTilEquals("Startdato for foreldrepengeperioden", endretFra, endretTil))
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 }

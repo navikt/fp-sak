@@ -1,57 +1,49 @@
 package no.nav.foreldrepenger.domene.rest.historikk;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.rest.dto.VurderVarigEndringEllerNyoppstartetSNDto;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
 public class VurderVarigEndringEllerNyoppstarteteSNHistorikkTjeneste {
 
-    private HistorikkTjenesteAdapter historikkAdapter;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     VurderVarigEndringEllerNyoppstarteteSNHistorikkTjeneste() {
         // CDI
     }
 
     @Inject
-    public VurderVarigEndringEllerNyoppstarteteSNHistorikkTjeneste(HistorikkTjenesteAdapter historikkAdapter) {
-        this.historikkAdapter = historikkAdapter;
+    public VurderVarigEndringEllerNyoppstarteteSNHistorikkTjeneste(HistorikkinnslagRepository historikkinnslagRepository) {
+        this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     public void lagHistorikkInnslag(AksjonspunktOppdaterParameter param, VurderVarigEndringEllerNyoppstartetSNDto dto) {
-
-        oppdaterVedEndretVerdi(HistorikkEndretFeltType.ENDRING_NAERING,
-            konvertBooleanTilFaktaEndretVerdiType(dto.getErVarigEndretNaering()));
-
-        if (dto.getBruttoBeregningsgrunnlag() != null) {
-            oppdaterVedEndretVerdi(HistorikkEndretFeltType.BRUTTO_NAERINGSINNTEKT, dto.getBruttoBeregningsgrunnlag());
-        }
-
-        historikkAdapter.tekstBuilder()
-            .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret())
-            .medSkjermlenke(SkjermlenkeType.BEREGNING_FORELDREPENGER);
+        var ref = param.getRef();
+        var historikkinnslag = new Historikkinnslag.Builder()
+            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medFagsakId(ref.fagsakId())
+            .medBehandlingId(ref.behandlingId())
+            .medTittel(SkjermlenkeType.BEREGNING_FORELDREPENGER)
+            .addLinje(fraTilEquals("Endring i næringsvirksomhet", null, konvertBooleanTilFaktaEndretVerdiType(dto.getErVarigEndretNaering())))
+            .addLinje(fraTilEquals("Brutto næringsinntekt", null, dto.getBruttoBeregningsgrunnlag()))
+            .addLinje(dto.getBegrunnelse())
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
-    private HistorikkEndretFeltVerdiType konvertBooleanTilFaktaEndretVerdiType(Boolean endringNæring) {
+    private static String konvertBooleanTilFaktaEndretVerdiType(Boolean endringNæring) {
         if (endringNæring == null) {
             return null;
         }
-        return endringNæring ? HistorikkEndretFeltVerdiType.VARIG_ENDRET_NAERING : HistorikkEndretFeltVerdiType.INGEN_VARIG_ENDRING_NAERING;
+        return endringNæring ? "Varig endret eller nystartet næring" : "Ingen varig endret eller nyoppstartet næring";
     }
-
-    private void oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType,
-                                        HistorikkEndretFeltVerdiType bekreftet) {
-        historikkAdapter.tekstBuilder().medEndretFelt(historikkEndretFeltType, null, bekreftet);
-    }
-
-    private void oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType, Integer sum) {
-        historikkAdapter.tekstBuilder().medEndretFelt(historikkEndretFeltType, null, sum);
-    }
-
 }

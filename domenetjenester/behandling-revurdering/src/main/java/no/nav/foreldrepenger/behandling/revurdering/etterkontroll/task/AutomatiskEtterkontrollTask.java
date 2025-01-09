@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandling.revurdering.RevurderingHistorikk;
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.tjeneste.EtterkontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.etterkontroll.EtterkontrollRepository;
@@ -48,7 +47,6 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
     @Inject
     public AutomatiskEtterkontrollTask(BehandlingRepositoryProvider repositoryProvider,
                                        EtterkontrollRepository etterkontrollRepository,
-                                       HistorikkRepository historikkRepository,
                                        FamilieHendelseTjeneste familieHendelseTjeneste,
                                        PersoninfoAdapter personinfoAdapter,
                                        BehandlendeEnhetTjeneste behandlendeEnhetTjeneste) {
@@ -56,7 +54,7 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.personinfoAdapter = personinfoAdapter;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.revurderingHistorikk = new RevurderingHistorikk(historikkRepository);
+        this.revurderingHistorikk = new RevurderingHistorikk(repositoryProvider.getHistorikkinnslagRepository());
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.etterkontrollRepository = etterkontrollRepository;
     }

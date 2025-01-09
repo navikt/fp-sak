@@ -15,6 +15,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,7 +36,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
@@ -66,7 +67,7 @@ class BerørtBehandlingKontrollerTest {
     @Mock
     private BehandlingsresultatRepository behandlingsresultatRepository;
     @Mock
-    private HistorikkRepository historikkRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     @Mock
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     @Mock
@@ -100,7 +101,7 @@ class BerørtBehandlingKontrollerTest {
         when(repositoryProvider.getBehandlingsresultatRepository()).thenReturn(behandlingsresultatRepository);
         when(repositoryProvider.getFagsakLåsRepository()).thenReturn(fagsakLåsRepository);
         when(repositoryProvider.getSøknadRepository()).thenReturn(søknadRepository);
-        when(repositoryProvider.getHistorikkRepository()).thenReturn(historikkRepository);
+        when(repositoryProvider.getHistorikkinnslagRepository()).thenReturn(historikkinnslagRepository);
 
 
         fBehandling = lagBehandling();

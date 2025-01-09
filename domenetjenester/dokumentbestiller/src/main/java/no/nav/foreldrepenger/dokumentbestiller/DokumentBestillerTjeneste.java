@@ -9,7 +9,6 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
@@ -58,11 +57,11 @@ public class DokumentBestillerTjeneste extends AbstractDokumentBestillerTjeneste
             .medSaksnummer(behandling.getSaksnummer())
             .medDokumentMal(dokumentMal)
             .medJournalførSom(journalførSom)
-            .build(), HistorikkAktør.VEDTAKSLØSNINGEN);
+            .build());
     }
 
-    public void bestillDokument(DokumentBestilling dokumentBestilling, HistorikkAktør aktør) {
-        dokumentBestiller.bestillDokument(dokumentBestilling, aktør);
+    public void bestillDokument(DokumentBestilling dokumentBestilling) {
+        dokumentBestiller.bestillDokument(dokumentBestilling);
     }
 
     private static boolean endretVedtakOgKunEndringIFordeling(BehandlingResultatType resultatType,

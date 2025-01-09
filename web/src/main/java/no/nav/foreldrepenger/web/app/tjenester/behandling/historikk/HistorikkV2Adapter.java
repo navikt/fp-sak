@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.historikk;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOpplysningType.UTTAK_PERIODE_FOM;
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOpplysningType.UTTAK_PERIODE_TOM;
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType.TILBAKEKREVING_VIDEREBEHANDLING;
 import static no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkDtoFellesMapper.konverterTilLinjerMedLinjeskift;
 import static no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkDtoFellesMapper.tilHistorikkInnslagDto;
@@ -18,31 +16,34 @@ import java.util.UUID;
 
 import jakarta.ws.rs.core.UriBuilder;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOpplysningType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagOld;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDokumentLink;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagOldDokumentLink;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTotrinnsvurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageAvvistÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingVidereBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
-import no.nav.foreldrepenger.historikk.HistorikkAvklartSoeknadsperiodeType;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagDokumentLinkDto;
+import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 
 public class HistorikkV2Adapter {
 
     private static final Logger LOG = LoggerFactory.getLogger(HistorikkV2Adapter.class);
 
-    public static HistorikkinnslagDtoV2 map(Historikkinnslag h, UUID behandlingUUID, List<JournalpostId> journalPosterForSak, URI dokumentPath) {
+    public static HistorikkinnslagDtoV2 map(HistorikkinnslagOld h, UUID behandlingUUID, List<JournalpostId> journalPosterForSak, URI dokumentPath) {
         return switch (h.getType()) {
             case BEH_GJEN, KØET_BEH_GJEN, BEH_MAN_GJEN, BEH_STARTET, BEH_STARTET_PÅ_NYTT,
                  // BEH_STARTET_FORFRA,  finnes ikke lenger? fptilbake?
@@ -74,22 +75,12 @@ public class HistorikkV2Adapter {
             case OPPTJENING -> throw new IllegalStateException(String.format("Kode: %s har ingen maltype", h.getType())); // Ingen historikkinnslag for denne typen i DB!
             case OVST_UTTAK_SPLITT, FASTSATT_UTTAK_SPLITT, TILBAKEKREVING_VIDEREBEHANDLING -> fraMalType9(h, behandlingUUID);
             case OVST_UTTAK, FASTSATT_UTTAK -> fraMaltype10(h, behandlingUUID, journalPosterForSak, dokumentPath);
-            case AVKLART_AKTIVITETSKRAV ->
-                fraMalTypeAktivitetskrav(h, behandlingUUID);
-
-            /* fptilbake
-            case FAKTA_OM_FEILUTBETALING ->
-                fraMaltypeFeilutbetaling(h, behandlingUUID);
-            case FORELDELSE ->
-                fraMaltypeForeldelse(h, behandlingUUID);
-            case TILBAKEKREVING ->
-                fraMaltypeTilbakekreving(h, behandlingUUID);
-             */
+            case AVKLART_AKTIVITETSKRAV -> fraMalTypeAktivitetskrav(h, behandlingUUID);
             case UDEFINERT -> throw new IllegalStateException("Unexpected value: " + h.getType());
         };
     }
 
-    private static HistorikkinnslagDtoV2 fraMaltype1(Historikkinnslag innslag, UUID behandlingUUID, List<JournalpostId> journalPosterForSak, URI dokumentPath) {
+    private static HistorikkinnslagDtoV2 fraMaltype1(HistorikkinnslagOld innslag, UUID behandlingUUID, List<JournalpostId> journalPosterForSak, URI dokumentPath) {
         var del = innslag.getHistorikkinnslagDeler().getFirst();
         var begrunnelse = begrunnelseFraDel(del);
 
@@ -102,7 +93,7 @@ public class HistorikkV2Adapter {
         return tilHistorikkInnslagDto(innslag, behandlingUUID, tilDokumentlenker(innslag.getDokumentLinker(), journalPosterForSak, dokumentPath), konverterTilLinjerMedLinjeskift(tekster));
     }
 
-    private static HistorikkinnslagDtoV2 fraMaltype2(Historikkinnslag h, UUID behandlingUUID) {
+    private static HistorikkinnslagDtoV2 fraMaltype2(HistorikkinnslagOld h, UUID behandlingUUID) {
         var del = h.getHistorikkinnslagDeler().getFirst();
         var hendelse = del.getHendelse().map(HistorikkDtoFellesMapper::fraHendelseFelt).orElseThrow();
         var tekst = del.getResultatFelt()
@@ -111,7 +102,7 @@ public class HistorikkV2Adapter {
         return tilHistorikkInnslagDto(h, behandlingUUID, konverterTilLinjerMedLinjeskift(List.of(tekst)));
     }
 
-    private static HistorikkinnslagDtoV2 fraMaltype3(Historikkinnslag h, UUID behandlingUUID) {
+    private static HistorikkinnslagDtoV2 fraMaltype3(HistorikkinnslagOld h, UUID behandlingUUID) {
         var tekster = new ArrayList<HistorikkinnslagDtoV2.Linje>();
         for(var del : h.getHistorikkinnslagDeler()) {
             var aksjonspunkt = del.getTotrinnsvurderinger().stream()
@@ -123,7 +114,7 @@ public class HistorikkV2Adapter {
         return tilHistorikkInnslagDto(h, behandlingUUID, tekster);
     }
 
-    private static HistorikkinnslagDtoV2 fraMalType4(Historikkinnslag h, UUID behandlingUUID) {
+    private static HistorikkinnslagDtoV2 fraMalType4(HistorikkinnslagOld h, UUID behandlingUUID) {
         var tekster = new ArrayList<HistorikkinnslagDtoV2.Linje>();
         for(var del : h.getHistorikkinnslagDeler()) {
             var årsakTekst = del.getAarsakFelt().stream()
@@ -137,7 +128,7 @@ public class HistorikkV2Adapter {
         return tilHistorikkInnslagDto(h, behandlingUUID, tekster);
     }
 
-    private static HistorikkinnslagDtoV2 fraMalType5(Historikkinnslag h, UUID behandlingUUID,
+    private static HistorikkinnslagDtoV2 fraMalType5(HistorikkinnslagOld h, UUID behandlingUUID,
                                                      List<JournalpostId> journalPosterForSak,
                                                      URI dokumentPath) {
         var tekster = new ArrayList<HistorikkinnslagDtoV2.Linje>();
@@ -174,7 +165,7 @@ public class HistorikkV2Adapter {
         return tilHistorikkInnslagDto(h, behandlingUUID, tilDokumentlenker(h.getDokumentLinker(), journalPosterForSak, dokumentPath), tekster);
     }
 
-    private static HistorikkinnslagDtoV2 fraMalType6(Historikkinnslag h, UUID behandlingUUID) {
+    private static HistorikkinnslagDtoV2 fraMalType6(HistorikkinnslagOld h, UUID behandlingUUID) {
         var tekster = new ArrayList<HistorikkinnslagDtoV2.Linje>();
         for (var del : h.getHistorikkinnslagDeler()) {
             var opplysninger = del.getOpplysninger().stream()
@@ -187,7 +178,7 @@ public class HistorikkV2Adapter {
 
     }
 
-    private static HistorikkinnslagDtoV2 fraMalType7(Historikkinnslag h, UUID behandlingUUID,
+    private static HistorikkinnslagDtoV2 fraMalType7(HistorikkinnslagOld h, UUID behandlingUUID,
                                                      List<JournalpostId> journalPosterForSak,
                                                      URI dokumentPath) {
         var tekster = new ArrayList<HistorikkinnslagDtoV2.Linje>();
@@ -215,7 +206,7 @@ public class HistorikkV2Adapter {
 
 
 
-    private static HistorikkinnslagDtoV2 fraMalType9(Historikkinnslag h, UUID behandlingUUID) {
+    private static HistorikkinnslagDtoV2 fraMalType9(HistorikkinnslagOld h, UUID behandlingUUID) {
         var tekster = new ArrayList<HistorikkinnslagDtoV2.Linje>();
         for (var del : h.getHistorikkinnslagDeler()) {
             var endretFeltTekst = h.getType().equals(TILBAKEKREVING_VIDEREBEHANDLING)
@@ -228,22 +219,13 @@ public class HistorikkV2Adapter {
         return tilHistorikkInnslagDto(h, behandlingUUID, tekster);
     }
 
-    private static HistorikkinnslagDtoV2 fraMaltype10(Historikkinnslag h, UUID behandlingUUID,
+    private static HistorikkinnslagDtoV2 fraMaltype10(HistorikkinnslagOld h, UUID behandlingUUID,
                                                       List<JournalpostId> journalPosterForSak,
                                                       URI dokumentPath) {
         var tekster = new ArrayList<HistorikkinnslagDtoV2.Linje>();
         for(var del : h.getHistorikkinnslagDeler()) {
-            var periodeFom = del.getOpplysninger().stream()
-                .filter(o -> UTTAK_PERIODE_FOM.getKode().equals(o.getNavn()))
-                .map(HistorikkinnslagFelt::getTilVerdi)
-                .findFirst()
-                .orElse("");
-
-            var periodeTom = del.getOpplysninger().stream()
-                .filter(o -> UTTAK_PERIODE_TOM.getKode().equals(o.getNavn()))
-                .map(HistorikkinnslagFelt::getTilVerdi)
-                .findFirst()
-                .orElse("");
+            var periodeFom = periodeFraDel(del, "UTTAK_PERIODE_FOM");
+            var periodeTom = periodeFraDel(del, "UTTAK_PERIODE_TOM");
 
             var opplysningTekst = "";
             if (h.getType().equals(HistorikkinnslagType.OVST_UTTAK)) {
@@ -267,15 +249,24 @@ public class HistorikkV2Adapter {
         return tilHistorikkInnslagDto(h, behandlingUUID, tilDokumentlenker(h.getDokumentLinker(), journalPosterForSak, dokumentPath), tekster);
     }
 
-    // Frontend legger UTTAK_PERIODE_RESULTAT_TYPE sist, mens resten følger sekvensnummeret
-    private static Integer sortering(HistorikkinnslagFelt felt) {
-        var historikkEndretFeltType = HistorikkEndretFeltType.fraKode(felt.getNavn());
-        return historikkEndretFeltType.equals(HistorikkEndretFeltType.UTTAK_PERIODE_RESULTAT_TYPE)
-            ? Integer.MAX_VALUE
-            : felt.getSekvensNr();
+    private static String periodeFraDel(HistorikkinnslagDel del, String feltNavn) {
+        return del.getOpplysninger()
+            .stream()
+            .filter(o -> feltNavn.equals(o.getNavn()))
+            .map(HistorikkinnslagFelt::getTilVerdi)
+            .findFirst()
+            .orElse("");
     }
 
-    private static HistorikkinnslagDtoV2 fraMalTypeAktivitetskrav(Historikkinnslag h, UUID behandlingUUID) {
+    // Frontend legger UTTAK_PERIODE_RESULTAT_TYPE sist, mens resten følger sekvensnummeret
+    private static Integer sortering(HistorikkinnslagFelt felt) {
+        return switch (FeltNavnType.getByKey(felt.getNavn())) {
+            case UTTAK_PERIODE_RESULTAT_TYPE -> Integer.MAX_VALUE;
+            default -> felt.getSekvensNr();
+        };
+    }
+
+    private static HistorikkinnslagDtoV2 fraMalTypeAktivitetskrav(HistorikkinnslagOld h, UUID behandlingUUID) {
         var tekster = new ArrayList<HistorikkinnslagDtoV2.Linje>();
         for(var del : h.getHistorikkinnslagDeler()) {
             var endretFelter = byggEndretFeltTekstForAktivitetskravMal(del);
@@ -293,7 +284,7 @@ public class HistorikkV2Adapter {
             .toList();
     }
 
-    private static List<String> fraEndretFeltMalType9(Historikkinnslag h, HistorikkinnslagDel del) {
+    private static List<String> fraEndretFeltMalType9(HistorikkinnslagOld h, HistorikkinnslagDel del) {
         var opprinneligPeriode = del.getEndredeFelt().getFirst().getFraVerdi();
         var numberOfPeriods = String.valueOf(del.getEndredeFelt().size());
         var splitPeriods = tekstRepresentasjonAvListe(del.getEndredeFelt());
@@ -333,46 +324,33 @@ public class HistorikkV2Adapter {
             .findFirst()
             .orElseThrow();
 
-        var tilVerdiNavn = FeltType.valueOf(felt.getTilVerdiKode()).name();
-        var periodeFom = del.getOpplysninger().stream()
-            .filter(o -> UTTAK_PERIODE_FOM.getKode().equals(o.getNavn()))
-            .map(HistorikkinnslagFelt::getTilVerdi)
-            .findFirst()
-            .orElse("");
-        var periodeTom = del.getOpplysninger().stream()
-            .filter(o -> UTTAK_PERIODE_TOM.getKode().equals(o.getNavn()))
-            .map(HistorikkinnslagFelt::getTilVerdi)
-            .findFirst()
-            .orElse("");
-
+        var tilVerdiNavn = endretVerdiTilTekst(felt.getTilVerdiKode(), felt.getKlTilVerdi());
+        var periodeFom = periodeFraDel(del, "UTTAK_PERIODE_FOM");
+        var periodeTom = periodeFraDel(del, "UTTAK_PERIODE_TOM");
 
         if (felt.getFraVerdi() == null) {
             return String.format("Perioden __%s - %s__ er avklart til __%s__", periodeFom, periodeTom, tilVerdiNavn);
         } else {
-            var fraVerdi = FeltType.valueOf(felt.getFraVerdiKode()).getText();
+            var fraVerdi = endretVerdiTilTekst(felt.getFraVerdiKode(), felt.getKlFraVerdi());
             return String.format("Perioden __%s - %s__ er endret fra %s til __%s__", periodeFom, periodeTom, fraVerdi, tilVerdiNavn);
         }
     }
 
 
     private static String fraOpplysning(HistorikkinnslagFelt opplysning) {
-        var historikkOpplysningType = HistorikkOpplysningType.fraKode(opplysning.getNavn());
-
-        return switch (historikkOpplysningType) {
-            case ANTALL_BARN -> "__Antall barn__ som brukes i behandlingen: __{antallBarn}__".replace("{antallBarn}", opplysning.getTilVerdi()); // Brukes bare av maltype 5
-            case TPS_ANTALL_BARN -> "Antall barn {verdi}".replace("{verdi}", opplysning.getTilVerdi());  // Brukes av maltype 6
-            case FODSELSDATO -> "Når ble barnet født? {verdi}".replace("{verdi}", opplysning.getTilVerdi()); // Brukes av maltype 6
-            //case UTTAK_PERIODE_FOM -> historikkOpplysningType.getNavn(); // Brukes av maltype 10 + aktivitetskrav
-            //case UTTAK_PERIODE_TOM -> historikkOpplysningType.getNavn(); // Brukes av maltype 10 + aktivitetskrav
-            default -> throw new IllegalStateException("Unexpected value: " + historikkOpplysningType);
+        return switch (opplysning.getNavn()) {
+            case "ANTALL_BARN" -> "__Antall barn__ som brukes i behandlingen: __{antallBarn}__".replace("{antallBarn}", opplysning.getTilVerdi()); // Brukes bare av maltype 5
+            case "TPS_ANTALL_BARN" -> "Antall barn {verdi}".replace("{verdi}", opplysning.getTilVerdi());  // Brukes av maltype 6
+            case "FODSELSDATO" -> "Når ble barnet født? {verdi}".replace("{verdi}", opplysning.getTilVerdi()); // Brukes av maltype 6
+            default -> throw new IllegalStateException("Unexpected value: " + opplysning.getNavn());
         };
     }
 
     public static Optional<String> fraEndretFelt(HistorikkinnslagFelt felt) {
         var feltNavnType = FeltNavnType.getByKey(felt.getNavn());
         var navn = kodeverdiTilStreng(feltNavnType, felt.getNavnVerdi());
-        var tilVerdi = endretFeltVerdi(feltNavnType, felt.getTilVerdi(), felt.getTilVerdiKode());
-        var fraVerdi = endretFeltVerdi(feltNavnType, felt.getFraVerdi(), felt.getFraVerdiKode());
+        var tilVerdi = endretFeltVerdi(feltNavnType, felt.getTilVerdi(), felt.getTilVerdiKode(), felt.getKlTilVerdi());
+        var fraVerdi = endretFeltVerdi(feltNavnType, felt.getFraVerdi(), felt.getFraVerdiKode(), felt.getFraVerdiKode());
         if (Objects.equals(getFraVerdi(fraVerdi), tilVerdi)) {
             return Optional.empty();
         }
@@ -390,9 +368,9 @@ public class HistorikkV2Adapter {
         return fraVerdi;
     }
 
-    private static String endretFeltVerdi(FeltNavnType feltNavnType, String verdi, String verdiKode) {
+    private static String endretFeltVerdi(FeltNavnType feltNavnType, String verdi, String verdiKode, String kodeverk) {
         if (verdiKode != null && !verdiKode.equals("-")) {
-            return FeltType.getByKey(verdiKode).getText();
+            return endretVerdiTilTekst(verdiKode, kodeverk);
         }
         if (verdi != null) {
             if (Set.of(FeltNavnType.UTTAK_PROSENT_UTBETALING, FeltNavnType.STILLINGSPROSENT).contains(feltNavnType)) {
@@ -401,6 +379,13 @@ public class HistorikkV2Adapter {
             return konverterBoolean(verdi);
         }
         return null;
+    }
+
+    private static String endretVerdiTilTekst(String verdiKode, String kodeverk) {
+        if (PeriodeResultatÅrsak.KODEVERK.equals(kodeverk)) {
+            return PeriodeResultatÅrsak.fraKode(verdiKode).getNavn();
+        }
+        return FeltVerdiType.getByKey(verdiKode).getText();
     }
 
     private static String konverterBoolean(String verdi) {
@@ -426,7 +411,7 @@ public class HistorikkV2Adapter {
     }
 
     private static List<String> fraTema(HistorikkinnslagFelt tema) {
-        var type = HistorikkEndretFeltType.fraKode(tema.getNavn());
+        var type = FeltNavnType.getByKey(tema.getNavn());
         var tekst = switch (type) {
             case AKTIVITET -> "__Det er lagt til ny aktivitet:__"; // Finnes ikke frontend
             case FORDELING_FOR_NY_ANDEL -> "__Det er lagt til ny aktivitet:__";
@@ -434,7 +419,7 @@ public class HistorikkV2Adapter {
             default -> throw new IllegalStateException("Unexpected value: " + type);
         };
 
-        if (type.equals(HistorikkEndretFeltType.FORDELING_FOR_ANDEL)) {
+        if (type.equals(FeltNavnType.FORDELING_FOR_ANDEL)) {
             return List.of(tekst.replace("{value}", tema.getNavnVerdi()));
         } else {
             return List.of(
@@ -445,29 +430,27 @@ public class HistorikkV2Adapter {
     }
 
     private static List<String> fraSøknadsperiode(HistorikkinnslagFelt søknadsperiode) {
-        var type = HistorikkAvklartSoeknadsperiodeType.fraKode(søknadsperiode.getNavn());
-
-        var tekst = switch (type) {
-            case GRADERING -> "__Uttak: gradering__";
-            case UTSETTELSE_ARBEID -> "__Utsettelse: Arbeid__";
-            case UTSETTELSE_FERIE -> "__Utsettelse: Ferie__";
-            case UTSETTELSE_SKYDOM -> "__Utsettelse: Sykdom/skade__";
-            case UTSETTELSE_HV -> "__Utsettelse: Heimevernet__";
-            case UTSETTELSE_TILTAK_I_REGI_AV_NAV -> "__Utsettelse: Tiltak i regi av NAV__";
-            case UTSETTELSE_INSTITUSJON_SØKER -> "__Utsettelse: Innleggelse av forelder__";
-            case UTSETTELSE_INSTITUSJON_BARN -> "__Utsettelse: Innleggelse av barn__";
-            case NY_SOEKNADSPERIODE -> "__Ny periode er lagt til__";
-            case SLETTET_SOEKNASPERIODE -> "__Perioden er slettet__";
-            case OVERFOERING_ALENEOMSORG -> "__Overføring: søker har aleneomsorg__";
-            case OVERFOERING_SKYDOM -> "__Overføring: sykdom/skade__";
-            case OVERFOERING_INNLEGGELSE -> "__Overføring: innleggelse__";
-            case OVERFOERING_IKKE_RETT -> "__Overføring: annen forelder har ikke rett__";
-            case UTTAK -> "__Uttak__";
-            case OPPHOLD -> "__Opphold: annen foreldres uttak__";
-            default -> throw new IllegalStateException("Unexpected value: " + type);
+        var tekst = switch (søknadsperiode.getNavn()) {
+            case "GRADERING" -> "__Gradering på grunn av arbeid__";
+            case "UTSETTELSE_ARBEID" -> "__Utsettelse: Arbeid__";
+            case "UTSETTELSE_FERIE" -> "__Utsettelse: Ferie__";
+            case "UTSETTELSE_SKYDOM" -> "__Utsettelse: Sykdom/skade__";
+            case "UTSETTELSE_HV" -> "__Utsettelse: Heimevernet__";
+            case "UTSETTELSE_TILTAK_I_REGI_AV_NAV" -> "__Utsettelse: Tiltak i regi av NAV__";
+            case "UTSETTELSE_INSTITUSJON_SØKER" -> "__Utsettelse: Innleggelse av forelder__";
+            case "UTSETTELSE_INSTITUSJON_BARN" -> "__Utsettelse: Innleggelse av barn__";
+            case "NY_SOEKNADSPERIODE" -> "__Ny periode er lagt til__";
+            case "SLETTET_SOEKNASPERIODE" -> "__Perioden er slettet__";
+            case "OVERFOERING_ALENEOMSORG" -> "__Overføring: søker har aleneomsorg__";
+            case "OVERFOERING_SKYDOM" -> "__Overføring: sykdom/skade__";
+            case "OVERFOERING_INNLEGGELSE" -> "__Overføring: innleggelse__";
+            case "OVERFOERING_IKKE_RETT" -> "__Overføring: annen forelder har ikke rett__";
+            case "UTTAK" -> "__Uttak__";
+            case "OPPHOLD" -> "__Opphold: annen foreldres uttak__";
+            default -> throw new IllegalStateException("Unexpected value: " + søknadsperiode.getNavn());
         };
 
-        if (type.equals(HistorikkAvklartSoeknadsperiodeType.GRADERING) && søknadsperiode.getNavnVerdi() != null) {
+        if ("GRADERING".equals(søknadsperiode.getNavn()) && søknadsperiode.getNavnVerdi() != null) {
             return List.of(
                 tekst,
                 søknadsperiode.getNavnVerdi(),
@@ -483,9 +466,9 @@ public class HistorikkV2Adapter {
 
     private static String tilGjeldendeFraInnslag(HistorikkinnslagFelt gjeldendeFra, HistorikkinnslagDel del) {
         // Fra DB: Hverken navn, navnverdi, tilVerdi er null (FPSAK)
-        var historikkEndretFeltType = HistorikkEndretFeltType.fraKode(gjeldendeFra.getNavn());
+        var feltNavnType = FeltNavnType.getByKey(gjeldendeFra.getNavn());
 
-        var endretFeltTekst = switch (historikkEndretFeltType) {
+        var endretFeltTekst = switch (feltNavnType) {
             case NY_AKTIVITET -> "Det er lagt til ny aktivitet for __%s__";
             case NY_FORDELING -> "Ny fordeling __%s__";
             default -> throw new IllegalArgumentException();
@@ -499,27 +482,14 @@ public class HistorikkV2Adapter {
 
 
     private static String fraHistorikkResultat(HistorikkinnslagFelt resultat) {
-        if (resultat.getKlTilVerdi().equals(HistorikkResultatType.KODEVERK)) {
-            var historikkResultatType = HistorikkResultatType.valueOf(resultat.getTilVerdiKode());
-            return switch (historikkResultatType) {
-                case MEDHOLD_I_KLAGE -> "Vedtaket er omgjort";
-                case OPPHEVE_VEDTAK -> "Vedtaket er opphevet";
-                case OPPRETTHOLDT_VEDTAK -> "Vedtaket er opprettholdt";
-                case STADFESTET_VEDTAK -> "Vedtaket er stadfestet";
-                case DELVIS_MEDHOLD_I_KLAGE -> "Vedtaket er delvis omgjort";
-                case KLAGE_HJEMSENDE_UTEN_OPPHEVE -> "Behandling er hjemsendt";
-                case UGUNST_MEDHOLD_I_KLAGE -> "Vedtaket er omgjort til ugunst";
-                default -> historikkResultatType.getNavn(); // Resten lik enum
-            };
-        } else {
-            return VedtakResultatType.valueOf(resultat.getTilVerdiKode()).getNavn(); // Alle like som enum navn
-        }
+        return resultat.getKlTilVerdi().equals(HistorikkResultatType.KODEVERK)
+            ? HistorikkResultatType.valueOf(resultat.getTilVerdiKode()).getNavn()
+            : VedtakResultatType.valueOf(resultat.getTilVerdiKode()).getNavn();
     }
 
     private static Optional<String> begrunnelseFraDel(HistorikkinnslagDel historikkinnslagDel) {
         return historikkinnslagDel.getBegrunnelseFelt()
-            .flatMap(HistorikkV2Adapter::finnÅrsakKodeListe)
-            .map(Kodeverdi::getNavn)
+            .flatMap(HistorikkV2Adapter::finnBegrunnelseKodeListe)
             .or(historikkinnslagDel::getBegrunnelse);
     }
 
@@ -532,15 +502,45 @@ public class HistorikkV2Adapter {
         if (aarsak.getKlTilVerdi() == null) {
             return Optional.empty();
         }
-
-        var kodeverdiMap = HistorikkInnslagTekstBuilder.KODEVERK_KODEVERDI_MAP.get(aarsak.getKlTilVerdi());
-        if (kodeverdiMap == null) {
-            throw new IllegalStateException("Har ikke støtte for HistorikkinnslagFelt#klTilVerdi=" + aarsak.getKlTilVerdi());
-        }
-        return Optional.ofNullable(kodeverdiMap.get(aarsakVerdi));
+        /**
+         * kl_til_verdi er satt til enten: VENT_AARSAK, BEHANDLING_RESULTAT_TYPE, KLAGE_MEDHOLD_AARSAK eller KLAGE_AVVIST_AARSAK
+         */
+        return Optional.ofNullable(switch (aarsak.getKlTilVerdi()) {
+            case "VENT_AARSAK" -> Venteårsak.fraKode(aarsakVerdi);
+            case "BEHANDLING_RESULTAT_TYPE" -> BehandlingResultatType.fraKode(aarsakVerdi);
+            case "KLAGE_MEDHOLD_AARSAK" -> KlageMedholdÅrsak.kodeMap().get(aarsakVerdi);
+            case "KLAGE_AVVIST_AARSAK" -> KlageAvvistÅrsak.kodeMap().get(aarsakVerdi);
+            default -> throw new IllegalStateException("Har ikke støtte for HistorikkinnslagFelt#klTilVerdi=" + aarsak.getKlTilVerdi());
+        });
     }
 
-    private static List<HistorikkInnslagDokumentLinkDto> tilDokumentlenker(List<HistorikkinnslagDokumentLink> dokumentLinker,
+    // Fra HistorikkinnslagDelTo
+    private static Optional<String> finnBegrunnelseKodeListe(HistorikkinnslagFelt begrunnelseFelt) {
+        var begrunnelseVerdi = begrunnelseFelt.getTilVerdi();
+        if (Objects.equals("-", begrunnelseVerdi)) {
+            return Optional.empty();
+        }
+        if (begrunnelseFelt.getKlTilVerdi() == null) {
+            return Optional.empty();
+        }
+        /**
+         * kl_til_verdi er satt til enten: VENT_AARSAK, BEHANDLING_RESULTAT_TYPE, KLAGE_MEDHOLD_AARSAK eller KLAGE_AVVIST_AARSAK
+         */
+        return Optional.ofNullable(switch (begrunnelseFelt.getKlTilVerdi()) {
+            case "BEHANDLING_AARSAK" -> BehandlingÅrsakType.kodeMap().get(begrunnelseVerdi).getNavn();
+            case "OPPGAVE_AARSAK" -> OppgaveÅrsak.kodeMap().get(begrunnelseVerdi).getNavn();
+            case "HISTORIKK_BEGRUNNELSE_TYPE" -> switch (begrunnelseVerdi) {
+                case "SAKSBEH_START_PA_NYTT" -> "Saksbehandling starter på nytt";
+                case "BEH_STARTET_PA_NYTT" -> "Behandling startet på nytt";
+                case "BERORT_BEH_ENDRING_DEKNINGSGRAD" -> "Den andre forelderens behandling har endret antall disponible stønadsdager";
+                case "BERORT_BEH_OPPHOR" -> "Den andre forelderens vedtak er opphørt";
+                default -> throw new IllegalStateException("Unexpected value: " + begrunnelseVerdi);
+            };
+            default -> throw new IllegalStateException("Har ikke støtte for HistorikkinnslagFelt#klTilVerdi=" + begrunnelseFelt.getKlTilVerdi());
+        });
+    }
+
+    private static List<HistorikkInnslagDokumentLinkDto> tilDokumentlenker(List<HistorikkinnslagOldDokumentLink> dokumentLinker,
                                                                            List<JournalpostId> journalPosterForSak,
                                                                            URI dokumentPath) {
         if (dokumentLinker == null) {
@@ -550,7 +550,7 @@ public class HistorikkV2Adapter {
             .toList();
     }
 
-    private static HistorikkInnslagDokumentLinkDto tilDokumentlenker(HistorikkinnslagDokumentLink lenke,
+    private static HistorikkInnslagDokumentLinkDto tilDokumentlenker(HistorikkinnslagOldDokumentLink lenke,
                                                                      List<JournalpostId> journalPosterForSak,
                                                                      URI dokumentPath) {
         var erUtgått = aktivJournalPost(lenke.getJournalpostId(), journalPosterForSak);
