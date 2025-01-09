@@ -33,7 +33,7 @@ public class Historikkinnslag2RepositoryTest extends EntityManagerAwareTest {
         historikkinnslag = lagHistorikkinnslag(behandlingId, behandling.getFagsakId());
         repository.lagre(historikkinnslag);
 
-        var hentet = repository.hent(behandlingId).getFirst();
+        var hentet = repository.hent(behandling.getSaksnummer()).getFirst();
         assertThat(hentet).isNotNull();
         assertThat(hentet.getBehandlingId()).isEqualTo(behandlingId);
         assertThat(hentet.getFagsakId()).isEqualTo(behandling.getFagsakId());

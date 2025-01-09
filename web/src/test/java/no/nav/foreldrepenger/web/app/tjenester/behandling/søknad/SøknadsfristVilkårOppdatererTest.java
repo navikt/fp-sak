@@ -45,7 +45,7 @@ class SøknadsfristVilkårOppdatererTest {
         // Act
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
-        var historikkinnslag = historikkinnslag2Repository.hent(behandling.getId()).getFirst();
+        var historikkinnslag = historikkinnslag2Repository.hent(behandling.getSaksnummer()).getFirst();
 
         // Assert
         assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).contains("Søknadsfristvilkåret", "oppfylt");

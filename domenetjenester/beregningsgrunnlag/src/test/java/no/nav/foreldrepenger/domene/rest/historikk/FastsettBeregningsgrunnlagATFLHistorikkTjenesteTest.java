@@ -80,7 +80,7 @@ class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
         fastsettBeregningsgrunnlagATFLHistorikkTjeneste.lagHistorikk(new AksjonspunktOppdaterParameter(ref, dto), dto, bg);
 
         // Assert
-        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
+        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getSaksnummer()).getFirst();
         assertThat(historikkinnslag.getSkjermlenke()).isEqualTo(SkjermlenkeType.BEREGNING_FORELDREPENGER);
         assertThat(historikkinnslag.getLinjer()).hasSize(3);
         assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).isEqualTo("Grunnlag for beregnet årsinntekt:");
@@ -110,7 +110,7 @@ class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
         fastsettBeregningsgrunnlagATFLHistorikkTjeneste.lagHistorikk(new AksjonspunktOppdaterParameter(ref, dto), dto, bg);
 
         // Assert
-        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
+        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getSaksnummer()).getFirst();
         assertThat(historikkinnslag.getSkjermlenke()).isEqualTo(SkjermlenkeType.BEREGNING_FORELDREPENGER);
         assertThat(historikkinnslag.getLinjer()).hasSize(3);
         assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).isEqualTo("Grunnlag for beregnet årsinntekt:");

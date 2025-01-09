@@ -256,13 +256,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             }
 
             @Override
-            public List<Historikkinnslag2> hent(Long behandlingId) {
-                return historikkinnslagListe.stream()
-                    .filter(h -> h.getBehandlingId().equals(behandlingId))
-                    .toList();
-            }
-
-            @Override
             public List<Historikkinnslag2> hent(Saksnummer saksnummer) {
                 return historikkinnslagListe;
             }

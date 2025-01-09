@@ -86,7 +86,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         new SjekkManglendeFødselOppdaterer(mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste,
             repositoryProvider.getHistorikkinnslag2Repository()).oppdater(dto,
             new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
-        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
+        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getSaksnummer()).getFirst();
 
         // Assert
         assertThat(historikkinnslag.getLinjer().stream().map(Historikkinnslag2Linje::getTekst)).anyMatch(
@@ -121,7 +121,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         new SjekkManglendeFødselOppdaterer(mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste,
             repositoryProvider.getHistorikkinnslag2Repository()).oppdater(dto,
             new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
-        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
+        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getSaksnummer()).getFirst();
 
         // Assert
         assertThat(historikkinnslag.getLinjer().stream().map(Historikkinnslag2Linje::getTekst)).anyMatch(
@@ -165,7 +165,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         new SjekkManglendeFødselOppdaterer(mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste,
             repositoryProvider.getHistorikkinnslag2Repository()).oppdater(dto,
             new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
-        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
+        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getSaksnummer()).getFirst();
 
         // Assert
         assertThat(historikkinnslag.getLinjer().stream().map(Historikkinnslag2Linje::getTekst)).anyMatch(

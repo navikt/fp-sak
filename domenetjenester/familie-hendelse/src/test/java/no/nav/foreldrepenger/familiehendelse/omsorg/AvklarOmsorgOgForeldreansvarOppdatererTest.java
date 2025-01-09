@@ -163,7 +163,7 @@ class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwareTest 
         dto.setVilkårType(VilkårType.OMSORGSVILKÅRET);
 
         avklarOmsorgOgForeldreansvar(behandling, dto);
-        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
+        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getSaksnummer()).getFirst();
         var linjer = historikkinnslag.getLinjer();
 
         // Assert

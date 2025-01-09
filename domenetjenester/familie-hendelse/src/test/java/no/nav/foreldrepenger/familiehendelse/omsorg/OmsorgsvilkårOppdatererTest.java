@@ -60,7 +60,7 @@ class OmsorgsvilkårOppdatererTest extends EntityManagerAwareTest {
         assertThat(resultat.getVilkårUtfallSomSkalLeggesTil().get(0).getVilkårType()).isEqualTo(VilkårType.OMSORGSVILKÅRET);
         assertThat(resultat.getVilkårUtfallSomSkalLeggesTil().get(0).getVilkårUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
 
-        var historikk = historikkinnslag2Repository.hent(behandling.getId()).getFirst();
+        var historikk = historikkinnslag2Repository.hent(behandling.getSaksnummer()).getFirst();
         assertThat(historikk.getLinjer()).hasSize(2);
         assertThat(historikk.getSkjermlenke()).isEqualTo(SkjermlenkeType.PUNKT_FOR_OMSORG);
         assertThat(historikk.getLinjer().get(0).getTekst()).contains("Omsorgsvilkåret", VilkårUtfallType.OPPFYLT.getNavn());
@@ -89,7 +89,7 @@ class OmsorgsvilkårOppdatererTest extends EntityManagerAwareTest {
         assertThat(resultat.getVilkårUtfallSomSkalLeggesTil().get(0).getVilkårType()).isEqualTo(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD);
         assertThat(resultat.getVilkårUtfallSomSkalLeggesTil().get(0).getVilkårUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
 
-        var historikk = historikkinnslag2Repository.hent(behandling.getId()).getFirst();
+        var historikk = historikkinnslag2Repository.hent(behandling.getSaksnummer()).getFirst();
         assertThat(historikk.getLinjer()).hasSize(2);
         assertThat(historikk.getSkjermlenke()).isEqualTo(SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR);
         assertThat(historikk.getLinjer().get(0).getTekst()).contains("Foreldreansvarsvilkåret", VilkårUtfallType.OPPFYLT.getNavn());
@@ -121,7 +121,7 @@ class OmsorgsvilkårOppdatererTest extends EntityManagerAwareTest {
         assertThat(resultat.getVilkårUtfallSomSkalLeggesTil().get(0).getVilkårUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
         assertThat(resultat.getVilkårUtfallSomSkalLeggesTil().get(0).getAvslagsårsak()).isEqualTo(Avslagsårsak.IKKE_FORELDREANSVAR_ALENE_ETTER_BARNELOVA);
 
-        var historikk = historikkinnslag2Repository.hent(behandling.getId()).getFirst();
+        var historikk = historikkinnslag2Repository.hent(behandling.getSaksnummer()).getFirst();
         assertThat(historikk.getLinjer()).hasSize(2);
         assertThat(historikk.getSkjermlenke()).isEqualTo(SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR);
         assertThat(historikk.getLinjer().get(0).getTekst()).contains("Foreldreansvarsvilkåret", VilkårUtfallType.IKKE_OPPFYLT.getNavn());

@@ -48,7 +48,6 @@ public class HistorikkinnslagTjeneste {
 
     public void opprettHistorikkinnslag(Behandling behandling,
                                         JournalpostId journalpostId,
-                                        Boolean selvOmLoggetTidligere,
                                         boolean elektronisk,
                                         boolean erIM) {
         var dokumenter = lagDokumenterLenker(behandling.getType(), journalpostId, elektronisk, erIM);
@@ -60,9 +59,7 @@ public class HistorikkinnslagTjeneste {
             .medDokumenter(dokumenter)
             .build();
 
-        if (historikkinnslagRepository.hent(behandling.getId()).stream().noneMatch(ek -> tittel.equals(ek.getTittel())) || selvOmLoggetTidligere) {
-            historikkinnslagRepository.lagre(h);
-        }
+        historikkinnslagRepository.lagre(h);
     }
 
     private List<Historikkinnslag2DokumentLink> lagDokumenterLenker(BehandlingType behandlingType,

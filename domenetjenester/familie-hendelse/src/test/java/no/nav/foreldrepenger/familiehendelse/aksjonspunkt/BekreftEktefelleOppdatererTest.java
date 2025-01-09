@@ -58,7 +58,7 @@ class BekreftEktefelleOppdatererTest {
         // Act
         var oppdateringResultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
         assertThat(oppdateringResultat.kreverTotrinnsKontroll()).isTrue();
-        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
+        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getSaksnummer()).getFirst();
 
         // Assert
         assertThat(historikkinnslag.getLinjer()).hasSize(2);

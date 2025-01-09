@@ -53,7 +53,7 @@ class ArbeidPermHistorikkInnslagTjenesteTest {
         var ref = getBehandlingReferanse();
         arbeidPermHistorikkInnslagTjenesteTest.opprettHistorikkinnslag(ref, avklarteArbForhold, "begrunnelse");
 
-        var historikkinnslag = historikkRepository.hent(ref.behandlingId());
+        var historikkinnslag = historikkRepository.hent(ref.saksnummer());
 
         assertThat(historikkinnslag).hasSize(1);
         assertThat(historikkinnslag.getFirst().getFagsakId()).isEqualTo(ref.fagsakId());

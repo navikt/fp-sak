@@ -54,7 +54,7 @@ class BekreftOmsorgOppdatererTest extends EntityManagerAwareTest {
         new BekreftOmsorgOppdaterer(ytelseFordelingTjeneste, behandlingRepositoryProvider.getHistorikkinnslag2Repository())
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
 
-        var historikkinnslag = behandlingRepositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
+        var historikkinnslag = behandlingRepositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getSaksnummer()).getFirst();
         assertThat(historikkinnslag.getLinjer()).hasSize(2);
         assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).contains("Omsorg", "Søker har omsorg for barnet");
         assertThat(historikkinnslag.getLinjer().get(1).getTekst()).contains(dto.getBegrunnelse());

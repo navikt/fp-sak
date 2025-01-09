@@ -63,7 +63,7 @@ class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
         vurderFaresignalerOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
 
         // Assert
-        var linjer = historikkRepository.hent(behandling.getId()).getFirst().getLinjer();
+        var linjer = historikkRepository.hent(behandling.getSaksnummer()).getFirst().getLinjer();
 
         assertThat(linjer).hasSize(2);
 
@@ -82,7 +82,7 @@ class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
         vurderFaresignalerOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
 
         // Assert
-        var linjer = historikkRepository.hent(behandling.getId()).getFirst().getLinjer();
+        var linjer = historikkRepository.hent(behandling.getSaksnummer()).getFirst().getLinjer();
 
         assertThat(linjer).hasSize(2);
 
@@ -101,7 +101,7 @@ class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
         vurderFaresignalerOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
 
         // Assert
-        var linjer = historikkRepository.hent(behandling.getId()).getFirst().getLinjer();
+        var linjer = historikkRepository.hent(behandling.getSaksnummer()).getFirst().getLinjer();
 
         assertThat(linjer).hasSize(2);
 

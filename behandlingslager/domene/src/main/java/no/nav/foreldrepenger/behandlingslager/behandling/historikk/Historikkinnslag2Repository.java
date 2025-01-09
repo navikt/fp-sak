@@ -27,13 +27,6 @@ public class Historikkinnslag2Repository {
             Historikkinnslag2.class).setParameter("saksnummer", saksnummer).getResultStream().toList();
     }
 
-    public List<Historikkinnslag2> hent(Long behandlingId) {
-        return entityManager.createQuery(
-                "select h from Historikkinnslag2 h where h.behandlingId = :behandlingId OR h.behandlingId = NULL ", Historikkinnslag2.class)
-            .setParameter("behandlingId", behandlingId)
-            .getResultList();
-    }
-
     public void lagre(Historikkinnslag2 historikkinnslag) {
         entityManager.persist(historikkinnslag);
         for (var linje : historikkinnslag.getLinjer()) {

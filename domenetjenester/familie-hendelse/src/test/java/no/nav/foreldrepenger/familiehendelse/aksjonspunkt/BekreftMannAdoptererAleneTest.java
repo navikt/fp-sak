@@ -52,7 +52,7 @@ class BekreftMannAdoptererAleneTest extends EntityManagerAwareTest {
         // Act
         new BekreftMannAdoptererOppdaterer(familieHendelseTjeneste, repositoryProvider.getHistorikkinnslag2Repository())
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
-        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
+        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getSaksnummer()).getFirst();
         var linjer = historikkinnslag.getLinjer();
 
         // Assert

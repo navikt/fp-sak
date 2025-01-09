@@ -111,16 +111,14 @@ public class DokumentmottakerFelles {
 
     void opprettHistorikkinnslagForAutomatiskHenlegelsePgaNySøknad(Behandling behandling, Behandling nyBehandling, MottattDokument mottattDokument) {
         historikkinnslagTjeneste.opprettHistorikkinnslagForAutomatiskHenlegelsePgaNySøknad(behandling);
-        historikkinnslagTjeneste.opprettHistorikkinnslag(nyBehandling, mottattDokument.getJournalpostId(), true,
-            mottattDokument.getElektroniskRegistrert(), DokumentTypeId.INNTEKTSMELDING.equals(mottattDokument.getDokumentType()));
+        historikkinnslagTjeneste.opprettHistorikkinnslag(nyBehandling, mottattDokument.getJournalpostId(), mottattDokument.getElektroniskRegistrert(), DokumentTypeId.INNTEKTSMELDING.equals(mottattDokument.getDokumentType()));
     }
 
     void opprettHistorikk(Behandling behandling, MottattDokument mottattDokument) {
         var dokType = mottattDokument.getDokumentType();
         if (dokType.erSøknadType() || dokType.erEndringsSøknadType() || DokumentTypeId.KLAGE_DOKUMENT.equals(dokType) ||
             DokumentKategori.SØKNAD.equals(mottattDokument.getDokumentKategori())) {
-            historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, mottattDokument.getJournalpostId(), true,
-                mottattDokument.getElektroniskRegistrert(), false);
+            historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, mottattDokument.getJournalpostId(), mottattDokument.getElektroniskRegistrert(), false);
         } else {
             historikkinnslagTjeneste.opprettHistorikkinnslagForVedlegg(behandling.getFagsak(), mottattDokument.getJournalpostId(),
                 mottattDokument.getDokumentType(), mottattDokument.getElektroniskRegistrert());
@@ -215,8 +213,7 @@ public class DokumentmottakerFelles {
     public Behandling opprettNyFørstegangFraBehandlingMedSøknad(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Behandling avsluttetBehandling, MottattDokument mottattDokument) {
         var nyBehandling = behandlingsoppretter.opprettNyFørstegangsbehandlingFraTidligereSøknad(fagsak, behandlingÅrsakType, avsluttetBehandling);
         behandlingsoppretter.opprettInntektsmeldingerFraMottatteDokumentPåNyBehandling(nyBehandling);
-        historikkinnslagTjeneste.opprettHistorikkinnslag(nyBehandling, mottattDokument.getJournalpostId(), false,
-            mottattDokument.getElektroniskRegistrert(), DokumentTypeId.INNTEKTSMELDING.equals(mottattDokument.getDokumentType()));
+        historikkinnslagTjeneste.opprettHistorikkinnslag(nyBehandling, mottattDokument.getJournalpostId(), mottattDokument.getElektroniskRegistrert(), DokumentTypeId.INNTEKTSMELDING.equals(mottattDokument.getDokumentType()));
         opprettTaskForÅStarteBehandling(nyBehandling);
         return nyBehandling;
     }
@@ -333,8 +330,7 @@ public class DokumentmottakerFelles {
                 .medBehandlingId(nyBehandling.getId())
                 .build();
             mottatteDokumentTjeneste.lagreMottattDokumentPåFagsak(søknadKopi);
-            historikkinnslagTjeneste.opprettHistorikkinnslag(nyBehandling, søknadKopi.getJournalpostId(), false,
-                søknadKopi.getElektroniskRegistrert(), false);
+            historikkinnslagTjeneste.opprettHistorikkinnslag(nyBehandling, søknadKopi.getJournalpostId(), søknadKopi.getElektroniskRegistrert(), false);
             leggNyBehandlingPåKøOgOpprettHistorikkinnslag(nyBehandling);
         }
     }

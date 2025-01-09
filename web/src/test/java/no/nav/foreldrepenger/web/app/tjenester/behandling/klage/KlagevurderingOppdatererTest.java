@@ -93,7 +93,7 @@ class KlagevurderingOppdatererTest {
         assertThat(dokumentBestilling.fritekst()).isNull();
 
         // Verifiserer HistorikkinnslagDto
-        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
+        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getSaksnummer()).getFirst();
         assertThat(historikkinnslag.getSkjermlenke()).isEqualTo(SkjermlenkeType.KLAGE_BEH_NFP);
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         var tekstlinje = historikkinnslag.getLinjer().get(0).getTekst();

@@ -56,7 +56,7 @@ class HistorikkinnslagTjenesteTest {
             .thenReturn(Optional.of(byggJournalpost(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, Collections.singletonList(VEDLEGG_DOKUMENT_ID))));
 
         // Act
-        historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, JOURNALPOST_ID, false, true, false);
+        historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, JOURNALPOST_ID, true, false);
 
         // Assert
         var captor = ArgumentCaptor.forClass(Historikkinnslag2.class);
@@ -86,7 +86,7 @@ class HistorikkinnslagTjenesteTest {
             .thenReturn(Optional.of(byggJournalpost(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, Collections.emptyList())));
 
         // Act
-        historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, JOURNALPOST_ID, false, false, false);
+        historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, JOURNALPOST_ID, false, false);
 
         // Assert
         var captor = ArgumentCaptor.forClass(Historikkinnslag2.class);
@@ -148,33 +148,13 @@ class HistorikkinnslagTjenesteTest {
     }
 
     @Test
-    void skal_ikke_lagre_historikkinnslag_når_det_allerede_finnes()  {
-        // Arrange
-        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        var behandling = scenario.lagMocked();
-
-        var eksisterendeHistorikkinnslag = new Historikkinnslag2.Builder().medTittel("Behandling er startet")
-            .medFagsakId(1L)
-            .medBehandlingId(1L)
-            .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
-            .build();
-        when(historikkRepository.hent(behandling.getId())).thenReturn(Collections.singletonList(eksisterendeHistorikkinnslag));
-
-        // Act
-        historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, JOURNALPOST_ID, false, true, false);
-
-        // Assert
-        verify(historikkRepository, times(0)).lagre(any(Historikkinnslag2.class));
-    }
-
-    @Test
     void skal_støtte_at_journalpostId_er_null_og_ikke_kalle_journalTjeneste()  {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var behandling = scenario.lagMocked();
 
         // Act
-        historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, null, false, false, false);
+        historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, null, false, false);
 
         // Assert
         verify(dokumentArkivTjeneste, times(0)).hentJournalpostForSak(any(JournalpostId.class));
