@@ -74,12 +74,12 @@ public class HistorikkinnslagMigreringTask implements ProsessTaskHandler {
 
     private void migrer(HistorikkinnslagOld h) {
         if (!erMigrert(h.getId())) {
-            LOG.info("Start migrering for historikkinnslag med id={}", h.getId());
+            LOG.debug("Start migrering for historikkinnslag med id={}", h.getId());
             var historikkinnslagDtoV2 = tilHistorikkinnslag2(h);
             var dokumentlinker2 = mapTilDokumentLinker2(h.getDokumentLinker());
             lagreHistorikkinnslag2(h, historikkinnslagDtoV2, dokumentlinker2);
         } else {
-            LOG.info("Historikkinnslag med id={} er allerede migrert", h.getId());
+            LOG.debug("Historikkinnslag med id={} er allerede migrert", h.getId());
         }
     }
 
