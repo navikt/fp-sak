@@ -30,8 +30,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class HistorikkinnslagMigreringTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(HistorikkinnslagMigreringTask.class);
-    static final String FOM_ID = "fomId";
-    static final String TOM_ID = "tomId";
+    private static final String FOM_ID = "fomId";
+    private static final String TOM_ID = "tomId";
 
     private final EntityManager entityManager;
     private final HistorikkinnslagRepository historikkinnslagRepository;
@@ -56,13 +56,11 @@ public class HistorikkinnslagMigreringTask implements ProsessTaskHandler {
         var historikkinnslagListe = finnNesteHundreHistorikkinnslag(fraId, medId);
 
         historikkinnslagListe.forEach(h -> {
-            if (!erMigrert(h.getId())) {
-                LOG.info("Start migrering for historikkinnslag med id={}", h.getId());
-                var historikkinnslagDtoV2 = tilHistorikkinnslag2(h);
-                var dokumentlinker2 = mapTilDokumentLinker2(h.getDokumentLinker());
-                lagreHistorikkinnslag2(h, historikkinnslagDtoV2, dokumentlinker2);
-            } else {
-                LOG.info("Historikkinnslag med id={} er allerede migrert", h.getId());
+            try {
+                migrer(h);
+            } catch (Exception e) {
+                LOG.info("Historikkinnslag som feilet er {}", h.getId());
+                throw e;
             }
         });
 
@@ -73,6 +71,17 @@ public class HistorikkinnslagMigreringTask implements ProsessTaskHandler {
 
         var sluttTid = System.currentTimeMillis();
         LOG.info("Migrering for fomId={} og tomId={} tar totalt={} ms.", fraId, medId, sluttTid - startTid);
+    }
+
+    private void migrer(HistorikkinnslagOld h) {
+        if (!erMigrert(h.getId())) {
+            LOG.info("Start migrering for historikkinnslag med id={}", h.getId());
+            var historikkinnslagDtoV2 = tilHistorikkinnslag2(h);
+            var dokumentlinker2 = mapTilDokumentLinker2(h.getDokumentLinker());
+            lagreHistorikkinnslag2(h, historikkinnslagDtoV2, dokumentlinker2);
+        } else {
+            LOG.info("Historikkinnslag med id={} er allerede migrert", h.getId());
+        }
     }
 
     private boolean erMigrert(Long id) {
