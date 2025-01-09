@@ -2,12 +2,16 @@ package no.nav.foreldrepenger.web.app.tjenester.fagsak.app;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
@@ -36,6 +40,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.FagsakB
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.FagsakBehandlingDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkRequestPath;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkV2Tjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkinnslagDtoV2;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakFullDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakNotatDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.PersonDto;
@@ -44,6 +49,9 @@ import no.nav.foreldrepenger.web.app.util.StringUtils;
 
 @ApplicationScoped
 public class FagsakFullTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FagsakFullTjeneste.class);
+
     private FagsakRepository fagsakRepository;
 
     private PersoninfoAdapter personinfoAdapter;
@@ -106,7 +114,13 @@ public class FagsakFullTjeneste {
         var fagsakMarkeringer = fagsakEgenskapRepository.finnFagsakMarkeringer(fagsak.getId());
         var behandlinger = behandlingDtoTjeneste.lagBehandlingDtoer(behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId()));
         var dokumentPath = HistorikkRequestPath.getRequestPath(request);
-        var historikk = historikkV2Tjeneste.hentForSak(saksnummer, dokumentPath);
+        List<HistorikkinnslagDtoV2> historikk;
+        try {
+            historikk = historikkV2Tjeneste.hentForSak(saksnummer, dokumentPath);
+        } catch (Exception e) {
+            LOG.warn("Feil ved henting av historikkinnslag", e);
+            historikk = List.of();
+        }
         var notater = fagsakRepository.hentFagsakNotater(fagsak.getId()).stream().map(FagsakNotatDto::fraNotat).toList();
         var ferskesteKontrollresultatBehandling = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsak.getId(),
                 BehandlingType.FØRSTEGANGSSØKNAD)

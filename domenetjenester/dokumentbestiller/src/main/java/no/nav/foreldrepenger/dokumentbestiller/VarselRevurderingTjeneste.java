@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
@@ -47,7 +46,7 @@ public class VarselRevurderingTjeneste {
             .medRevurderingÅrsak(RevurderingVarslingÅrsak.ANNET)
             .medFritekst(adapter.getFritekst())
             .build();
-        dokumentBestillerTjeneste.bestillDokument(dokumentBestilling, HistorikkAktør.SAKSBEHANDLER);
+        dokumentBestillerTjeneste.bestillDokument(dokumentBestilling);
         settBehandlingPaVent(ref, adapter.getFrist(), fraDto(adapter.getVenteÅrsakKode()));
     }
 

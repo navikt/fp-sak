@@ -1,21 +1,16 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import jakarta.inject.Inject;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 
 import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil;
@@ -33,11 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOpplysningType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
@@ -65,9 +55,6 @@ class RevurderingTjenesteImplTest {
     @Inject
     private BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider;
 
-    private HistorikkRepository historikkRepository;
-    private Behandling behandling;
-
     @Inject
     @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD)
     private RevurderingEndring revurderingEndringES;
@@ -80,31 +67,23 @@ class RevurderingTjenesteImplTest {
     @Inject
     private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
 
-    @BeforeEach
-    public void setup() {
-        historikkRepository = spy(repositoryProvider.getHistorikkRepository());
-        opprettRevurderingsKandidat();
-    }
 
     @Test
     void skal_opprette_historikkinnslag_for_registrert_fødsel() {
         var fødselsdato = LocalDate.parse("2017-09-04");
         var barn = Collections.singletonList(byggBaby(fødselsdato));
-        new RevurderingHistorikk(historikkRepository).opprettHistorikkinnslagForFødsler(behandling, barn);
-        var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
+        var behandling = opprettRevurderingsKandidat();
+        tjeneste().opprettHistorikkinnslagForFødsler(behandling, barn);
 
-        verify(historikkRepository).lagre(captor.capture());
-        var historikkinnslag = captor.getValue();
+        var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
 
-        assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.NY_INFO_FRA_TPS);
-        assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.VEDTAKSLØSNINGEN);
-        var del = historikkinnslag.getHistorikkinnslagDeler().get(0);
-        var fodsel = del.getOpplysning(HistorikkOpplysningType.FODSELSDATO);
-        var antallBarn = del.getOpplysning(HistorikkOpplysningType.TPS_ANTALL_BARN);
-        assertThat(fodsel).hasValueSatisfying(v -> assertThat(v.getTilVerdi()).isEqualTo("04.09.2017"));
-        assertThat(antallBarn).as("antallBarn")
-                .hasValueSatisfying(
-                        v -> assertThat(v.getTilVerdi()).as("antallBarn.tilVerdi").isEqualTo(Integer.toString(1)));
+        assertThat(historikkinnslag.getTittel()).isEqualTo("Opplysning om fødsel");
+        assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).contains("Fødselsdato: 04.09.2017");
+        assertThat(historikkinnslag.getLinjer().get(1).getTekst()).contains("Antall barn: 1");
+    }
+
+    private RevurderingHistorikk tjeneste() {
+        return new RevurderingHistorikk(repositoryProvider.getHistorikkinnslagRepository());
     }
 
     @Test
@@ -116,24 +95,14 @@ class RevurderingTjenesteImplTest {
         barn.add(byggBaby(fødselsdato1));
         barn.add(byggBaby(fødselsdato2));
 
-        new RevurderingHistorikk(historikkRepository).opprettHistorikkinnslagForFødsler(behandling, barn);
-        var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
+        var behandling = opprettRevurderingsKandidat();
+        tjeneste().opprettHistorikkinnslagForFødsler(behandling, barn);
 
-        verify(historikkRepository).lagre(captor.capture());
-        var historikkinnslag = captor.getValue();
+        var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
 
-        var dateFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-        assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.NY_INFO_FRA_TPS);
-        assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.VEDTAKSLØSNINGEN);
-        var del = historikkinnslag.getHistorikkinnslagDeler().get(0);
-        var fodsel = del.getOpplysning(HistorikkOpplysningType.FODSELSDATO);
-        var antallBarn = del.getOpplysning(HistorikkOpplysningType.TPS_ANTALL_BARN);
-        var dateString = dateFormat.format(fødselsdato1) + ", " + dateFormat.format(fødselsdato2);
-        assertThat(fodsel).as("fodsel")
-                .hasValueSatisfying(v -> assertThat(v.getTilVerdi()).as("fodsel.tilVerdi").isEqualTo(dateString));
-        assertThat(antallBarn).as("antallBarn")
-                .hasValueSatisfying(
-                        v -> assertThat(v.getTilVerdi()).as("antallBarn.tilVerdi").isEqualTo(Integer.toString(3)));
+        assertThat(historikkinnslag.getTittel()).isEqualTo("Opplysning om fødsel");
+        assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).contains("Fødselsdato: 04.09.2017, 05.09.2017");
+        assertThat(historikkinnslag.getLinjer().get(1).getTekst()).contains("Antall barn: 3");
     }
 
     @Test
@@ -174,7 +143,7 @@ class RevurderingTjenesteImplTest {
                 behandlingSomSkalRevurderes.getBehandlingstidFrist());
     }
 
-    private void opprettRevurderingsKandidat() {
+    private Behandling opprettRevurderingsKandidat() {
 
         var terminDato = LocalDate.now().minusDays(70);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
@@ -186,7 +155,7 @@ class RevurderingTjenesteImplTest {
                 .medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
                         .medTermindato(terminDato).medUtstedtDato(terminDato.minusDays(40)))
                 .medAntallBarn(1);
-        behandling = scenario.lagre(repositoryProvider);
+        return scenario.lagre(repositoryProvider);
     }
 
     private FødtBarnInfo byggBaby(LocalDate fødselsdato) {

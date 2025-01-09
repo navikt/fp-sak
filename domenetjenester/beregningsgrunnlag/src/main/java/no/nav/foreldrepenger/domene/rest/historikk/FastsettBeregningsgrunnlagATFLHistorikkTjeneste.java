@@ -6,8 +6,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
@@ -15,32 +17,31 @@ import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBeregningsgrunnlagATFLDto;
 import no.nav.foreldrepenger.domene.rest.dto.InntektPrAndelDto;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
 public class FastsettBeregningsgrunnlagATFLHistorikkTjeneste {
 
-    private HistorikkTjenesteAdapter historikkAdapter;
     private ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
+    private HistorikkinnslagRepository historikkRepo;
 
     FastsettBeregningsgrunnlagATFLHistorikkTjeneste() {
         // CDI
     }
 
     @Inject
-    public FastsettBeregningsgrunnlagATFLHistorikkTjeneste(HistorikkTjenesteAdapter historikkAdapter,
-                                                           ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste,
-                                                           InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
-        this.historikkAdapter = historikkAdapter;
+    public FastsettBeregningsgrunnlagATFLHistorikkTjeneste(ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste,
+                                                           InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
+                                                           HistorikkinnslagRepository historikkRepo) {
         this.arbeidsgiverHistorikkinnslagTjeneste = arbeidsgiverHistorikkinnslagTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
+        this.historikkRepo = historikkRepo;
     }
 
     public void lagHistorikk(AksjonspunktOppdaterParameter param,
                              FastsettBeregningsgrunnlagATFLDto dto,
                              BeregningsgrunnlagEntitet forrigeGrunnlag) {
-        var førstePeriode = forrigeGrunnlag.getBeregningsgrunnlagPerioder().get(0);
+        var førstePeriode = forrigeGrunnlag.getBeregningsgrunnlagPerioder().getFirst();
 
         var atAndeler = førstePeriode.getBeregningsgrunnlagPrStatusOgAndelList()
             .stream()
@@ -60,39 +61,45 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjeneste {
                                      AksjonspunktOppdaterParameter param,
                                      List<BeregningsgrunnlagPrStatusOgAndel> arbeidstakerList,
                                      List<BeregningsgrunnlagPrStatusOgAndel> frilanserList) {
+        var historikkBuilder = new Historikkinnslag.Builder();
 
         oppdaterVedEndretVerdi(param.getBehandlingId(), dto.getInntektPrAndelList(), arbeidstakerList, frilanserList,
-            dto.getInntektFrilanser());
+            dto.getInntektFrilanser(), historikkBuilder);
 
-        historikkAdapter.tekstBuilder()
-            .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret())
-            .medSkjermlenke(SkjermlenkeType.BEREGNING_FORELDREPENGER);
+        var ref = param.getRef();
+        historikkBuilder.addLinje(dto.getBegrunnelse())
+            .medTittel(SkjermlenkeType.BEREGNING_FORELDREPENGER)
+            .medBehandlingId(param.getBehandlingId())
+            .medFagsakId(ref.fagsakId())
+            .medAktør(HistorikkAktør.SAKSBEHANDLER);
+        historikkRepo.lagre(historikkBuilder.build());
     }
 
     private void oppdaterVedEndretVerdi(Long behandlingId,
                                         List<InntektPrAndelDto> overstyrtList,
                                         List<BeregningsgrunnlagPrStatusOgAndel> arbeidstakerList,
                                         List<BeregningsgrunnlagPrStatusOgAndel> frilanserList,
-                                        Integer inntektFrilanser) {
+                                        Integer inntektFrilanser,
+                                        Historikkinnslag.Builder historikkBuilder) {
         if (arbeidstakerList.stream()
             .noneMatch(bgpsa -> bgpsa.getAktivitetStatus().equals(AktivitetStatus.FRILANSER))) {
-            historikkAdapter.tekstBuilder().medResultat(HistorikkResultatType.BEREGNET_AARSINNTEKT);
+            historikkBuilder.addLinje("Grunnlag for beregnet årsinntekt:");
         }
 
         if (inntektFrilanser != null && !frilanserList.isEmpty()) {
-            historikkAdapter.tekstBuilder()
-                .medEndretFelt(HistorikkEndretFeltType.FRILANS_INNTEKT, null, inntektFrilanser);
+            historikkBuilder.addLinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Frilansinntekt", null, inntektFrilanser));
         }
 
         if (overstyrtList != null) {
-            oppdaterForOverstyrt(behandlingId, overstyrtList, arbeidstakerList);
+            oppdaterForOverstyrt(behandlingId, overstyrtList, arbeidstakerList, historikkBuilder);
         }
 
     }
 
     private void oppdaterForOverstyrt(Long behandlingId,
                                       List<InntektPrAndelDto> overstyrtList,
-                                      List<BeregningsgrunnlagPrStatusOgAndel> arbeidstakerList) {
+                                      List<BeregningsgrunnlagPrStatusOgAndel> arbeidstakerList,
+                                      Historikkinnslag.Builder historikkBuilder) {
         var arbeidsforholOverstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId)
             .getArbeidsforholdOverstyringer();
         for (var prStatus : arbeidstakerList) {
@@ -103,9 +110,8 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjeneste {
                 var visningsNavn = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(
                     prStatus.getAktivitetStatus(), prStatus.getArbeidsgiver(), prStatus.getArbeidsforholdRef(),
                     arbeidsforholOverstyringer);
-                historikkAdapter.tekstBuilder()
-                    .medEndretFelt(HistorikkEndretFeltType.INNTEKT_FRA_ARBEIDSFORHOLD, visningsNavn, null,
-                        overstyrt.get().getInntekt());
+                var textBuilder = new HistorikkinnslagLinjeBuilder();
+                historikkBuilder.addLinje(textBuilder.til(String.format("Inntekt fra %s", visningsNavn), overstyrt.get().getInntekt()));
             }
         }
     }

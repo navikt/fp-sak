@@ -3,6 +3,8 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 
 import java.math.BigDecimal;
@@ -13,8 +15,6 @@ import java.util.List;
 import java.util.Optional;
 
 import jakarta.persistence.EntityManager;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpOppholdKilde;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,6 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGr
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpAvklartOpphold;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpOppholdKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpOppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingFomKilde;
@@ -44,6 +45,8 @@ import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
+import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
@@ -55,7 +58,6 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseTyp
 import no.nav.foreldrepenger.domene.registerinnhenting.StønadsperioderInnhenter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
 
@@ -76,17 +78,20 @@ class BekreftSvangerskapspengerOppdatererTest {
     private BehandlingGrunnlagRepositoryProvider grunnlagProvider;
     @Mock
     private StønadsperioderInnhenter stønadsperioderInnhenterMock;
+    @Mock
+    private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
 
     @BeforeEach
     public void beforeEach(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         grunnlagProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
-        var historikkAdapter = new HistorikkTjenesteAdapter(
-            repositoryProvider.getHistorikkRepository(), null, repositoryProvider.getBehandlingRepository());
         var arbeidsforholdAdministrasjonTjeneste = new ArbeidsforholdAdministrasjonTjeneste(
             inntektArbeidYtelseTjeneste);
-        oppdaterer = new BekreftSvangerskapspengerOppdaterer(historikkAdapter, grunnlagProvider, inntektArbeidYtelseTjeneste, stønadsperioderInnhenterMock, arbeidsforholdAdministrasjonTjeneste,
-            repositoryProvider.getBehandlingRepository(), mock(OpplysningsPeriodeTjeneste.class));
+        lenient().when(arbeidsgiverTjeneste.hent(any())).thenReturn(new ArbeidsgiverOpplysninger("123", "Arbeidsgiver"));
+        var bekreftSvangerskapspengerHistorikkinnslagTjeneste = new BekreftSvangerskapspengerHistorikkinnslagTjeneste(
+            arbeidsgiverTjeneste, repositoryProvider.getHistorikkinnslagRepository());
+        oppdaterer = new BekreftSvangerskapspengerOppdaterer(grunnlagProvider, inntektArbeidYtelseTjeneste, stønadsperioderInnhenterMock, arbeidsforholdAdministrasjonTjeneste,
+            repositoryProvider.getBehandlingRepository(), mock(OpplysningsPeriodeTjeneste.class), bekreftSvangerskapspengerHistorikkinnslagTjeneste);
     }
 
     @Test

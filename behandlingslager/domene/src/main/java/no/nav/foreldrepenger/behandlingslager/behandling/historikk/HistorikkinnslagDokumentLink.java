@@ -13,30 +13,30 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
 @Entity(name = "HistorikkinnslagDokumentLink")
-@Table(name = "HISTORIKKINNSLAG_DOK_LINK")
-public class HistorikkinnslagDokumentLink extends BaseEntitet implements IndexKey {
+@Table(name = "HISTORIKKINNSLAG2_DOK_LINK")
+public class HistorikkinnslagDokumentLink extends BaseCreateableEntitet implements IndexKey {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_HISTORIKKINNSLAG_DOK_LINK")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_HISTORIKKINNSLAG2_DOK_LINK")
     private Long id;
 
     @Column(name = "link_tekst", updatable=false, nullable = false)
     private String linkTekst;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "historikkinnslag_id", nullable = false, updatable=false)
+    @JoinColumn(name = "historikkinnslag_id", nullable = false)
     private Historikkinnslag historikkinnslag;
 
     @Embedded
-    @AttributeOverride(name = "journalpostId", column = @Column(name = "journalpost_id", updatable=false))
+    @AttributeOverride(name = "journalpostId", column = @Column(name = "journalpost_id"))
     private JournalpostId journalpostId;
 
-    @Column(name = "dokument_id", updatable=false)
+    @Column(name = "dokument_id")
     private String dokumentId;
 
     @Override

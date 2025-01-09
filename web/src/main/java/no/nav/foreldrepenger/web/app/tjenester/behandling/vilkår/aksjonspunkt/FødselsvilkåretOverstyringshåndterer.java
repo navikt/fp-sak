@@ -6,10 +6,9 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.inngangsvilkaar.InngangsvilkårTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt.dto.OverstyringFødselsvilkåretDto;
 
@@ -22,15 +21,13 @@ public class FødselsvilkåretOverstyringshåndterer extends InngangsvilkårOver
     }
 
     @Inject
-    public FødselsvilkåretOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter,
-            InngangsvilkårTjeneste inngangsvilkårTjeneste) {
-        super(historikkAdapter, AksjonspunktDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET,
-                VilkårType.FØDSELSVILKÅRET_MOR,
-                inngangsvilkårTjeneste);
+    public FødselsvilkåretOverstyringshåndterer(InngangsvilkårTjeneste inngangsvilkårTjeneste,
+                                                HistorikkinnslagRepository historikkinnslagRepository) {
+        super(VilkårType.FØDSELSVILKÅRET_MOR, inngangsvilkårTjeneste, historikkinnslagRepository);
     }
 
     @Override
-    protected void lagHistorikkInnslag(Behandling behandling, OverstyringFødselsvilkåretDto dto) {
-        lagHistorikkInnslagForOverstyrtVilkår(dto.getBegrunnelse(), dto.getErVilkarOk(), SkjermlenkeType.PUNKT_FOR_FOEDSEL);
+    public void lagHistorikkInnslag(OverstyringFødselsvilkåretDto dto, Behandling behandling) {
+        lagHistorikkInnslagForOverstyrtVilkår(behandling, dto.getBegrunnelse(), dto.getErVilkarOk(), SkjermlenkeType.PUNKT_FOR_FOEDSEL);
     }
 }

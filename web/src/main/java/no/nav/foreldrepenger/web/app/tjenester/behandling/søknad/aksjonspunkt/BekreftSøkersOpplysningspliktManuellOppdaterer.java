@@ -9,19 +9,22 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
+
 
 @ApplicationScoped
-@DtoTilServiceAdapter(dto = BekreftSokersOpplysningspliktManuDto.class, adapter=AksjonspunktOppdaterer.class)
+@DtoTilServiceAdapter(dto = BekreftSokersOpplysningspliktManuDto.class, adapter = AksjonspunktOppdaterer.class)
 public class BekreftSøkersOpplysningspliktManuellOppdaterer implements AksjonspunktOppdaterer<BekreftSokersOpplysningspliktManuDto> {
 
-    private HistorikkTjenesteAdapter historikkTjenesteAdapter;
+    private HistorikkinnslagRepository historikkinnslagRepository;
+
     private BehandlingRepository behandlingRepository;
 
     protected BekreftSøkersOpplysningspliktManuellOppdaterer() {
@@ -29,9 +32,9 @@ public class BekreftSøkersOpplysningspliktManuellOppdaterer implements Aksjonsp
     }
 
     @Inject
-    public BekreftSøkersOpplysningspliktManuellOppdaterer(HistorikkTjenesteAdapter historikkTjenesteAdapter,
+    public BekreftSøkersOpplysningspliktManuellOppdaterer(HistorikkinnslagRepository historikkinnslagRepository,
                                                           BehandlingRepository behandlingRepository) {
-        this.historikkTjenesteAdapter = historikkTjenesteAdapter;
+        this.historikkinnslagRepository = historikkinnslagRepository;
         this.behandlingRepository = behandlingRepository;
     }
 
@@ -43,7 +46,7 @@ public class BekreftSøkersOpplysningspliktManuellOppdaterer implements Aksjonsp
             .filter(imelding -> !imelding.isBrukerHarSagtAtIkkeKommer())
             .toList()
             .isEmpty();
-        leggTilEndretFeltIHistorikkInnslag(dto.getBegrunnelse(), erVilkårOk);
+        leggTilEndretFeltIHistorikkInnslag(param, dto.getBegrunnelse(), erVilkårOk);
 
         var åpneAksjonspunkter = behandling.getÅpneAksjonspunkter();
         var resultatBuilder = OppdateringResultat.utenTransisjon();
@@ -52,24 +55,25 @@ public class BekreftSøkersOpplysningspliktManuellOppdaterer implements Aksjonsp
             return resultatBuilder.build();
         } else {
             // Hoppe rett til foreslå vedtak uten totrinnskontroll
-            åpneAksjonspunkter.stream()
-                .filter(a -> !a.getAksjonspunktDefinisjon().equals(dto.getAksjonspunktDefinisjon())) // Ikke seg selv
+            åpneAksjonspunkter.stream().filter(a -> !a.getAksjonspunktDefinisjon().equals(dto.getAksjonspunktDefinisjon())) // Ikke seg selv
                 .forEach(a -> resultatBuilder.medEkstraAksjonspunktResultat(a.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
 
-            return resultatBuilder
-                .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
+            return resultatBuilder.medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
                 .leggTilManueltAvslåttVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, Avslagsårsak.MANGLENDE_DOKUMENTASJON)
                 .build();
         }
     }
 
-    private void leggTilEndretFeltIHistorikkInnslag(String begrunnelse, Boolean vilkårOppfylt) {
-        var tilVerdi = Boolean.TRUE.equals(vilkårOppfylt) ? HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT : HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT;
+    private void leggTilEndretFeltIHistorikkInnslag(AksjonspunktOppdaterParameter param, String begrunnelse, Boolean vilkårOppfylt) {
 
-        if (begrunnelse != null) {
-            historikkTjenesteAdapter.tekstBuilder().medBegrunnelse(begrunnelse);
-        }
-        historikkTjenesteAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.SOKERSOPPLYSNINGSPLIKT, null, tilVerdi)
-            .medSkjermlenke(SkjermlenkeType.OPPLYSNINGSPLIKT);
+        var tilVerdi = vilkårOppfylt ? "Vilkåret er oppfylt" : "Vilkåret er ikke oppfylt";
+        var historikkinnslag = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medBehandlingId(param.getBehandlingId())
+            .medFagsakId(param.getFagsakId())
+            .medTittel(SkjermlenkeType.OPPLYSNINGSPLIKT)
+            .addLinje(new HistorikkinnslagLinjeBuilder().til("Søkers opplysningsplikt", tilVerdi))
+            .addLinje(begrunnelse);
+
+        historikkinnslagRepository.lagre(historikkinnslag.build());
     }
 }

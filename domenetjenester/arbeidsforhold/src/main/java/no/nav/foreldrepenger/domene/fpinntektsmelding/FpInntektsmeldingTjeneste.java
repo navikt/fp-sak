@@ -19,9 +19,8 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
@@ -31,7 +30,6 @@ import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
 import no.nav.foreldrepenger.domene.typer.Beløp;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -43,7 +41,7 @@ public class FpInntektsmeldingTjeneste {
     private FpinntektsmeldingKlient klient;
     private ProsessTaskTjeneste prosessTaskTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private HistorikkRepository historikkRepo;
+    private HistorikkinnslagRepository historikkRepo;
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
     private InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste;
 
@@ -57,7 +55,7 @@ public class FpInntektsmeldingTjeneste {
     public FpInntektsmeldingTjeneste(FpinntektsmeldingKlient klient,
                                      ProsessTaskTjeneste prosessTaskTjeneste,
                                      SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                     HistorikkRepository historikkRepo,
+                                     HistorikkinnslagRepository historikkRepo,
                                      ArbeidsgiverTjeneste arbeidsgiverTjeneste,
                                      InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste) {
         this.klient = klient;
@@ -135,28 +133,27 @@ public class FpInntektsmeldingTjeneste {
         var opprettForespørselResponseNy = klient.opprettForespørsel(request);
 
         opprettForespørselResponseNy.organisasjonsnumreMedStatus().forEach( organisasjonsnummerMedStatus -> {
-            var ag = organisasjonsnummerMedStatus.organisasjonsnummerDto().orgnr();
+            var orgnr = organisasjonsnummerMedStatus.organisasjonsnummerDto().orgnr();
             if (organisasjonsnummerMedStatus.status().equals(OpprettForespørselResponsNy.ForespørselResultat.FORESPØRSEL_OPPRETTET)) {
-                lagHistorikkForForespørsel(ref, String.format("Oppgave til %s om å sende inntektsmelding", hentArbeidsgivernavn(ag)));
+                lagHistorikkForForespørsel(ref, String.format("Oppgave om å sende inntektsmelding er opprettet for %s.", hentArbeidsgivernavn(orgnr)));
             }else {
                 if (LOG.isInfoEnabled()) {
                     LOG.info("Fpinntektsmelding har allerede oppgave på saksnummer: {} og orgnummer: {} på stp: {} og første uttaksdato: {}",
-                        ref.saksnummer(), tilMaskertNummer(ag), skjæringstidspunkt, førsteUttaksdato );
+                        ref.saksnummer(), tilMaskertNummer(orgnr), skjæringstidspunkt, førsteUttaksdato );
                 }
             }
         });
     }
 
-
     private void lagHistorikkForForespørsel(BehandlingReferanse ref, String tekst) {
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setBehandlingId(ref.behandlingId());
-        historikkinnslag.setFagsakId(ref.fagsakId());
-        historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
-        historikkinnslag.setType(HistorikkinnslagType.MIN_SIDE_ARBEIDSGIVER);
-        new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.MIN_SIDE_ARBEIDSGIVER)
-            .medBegrunnelse(tekst)
-            .build(historikkinnslag);
+        var historikkinnslag = new Historikkinnslag.Builder()
+            .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
+            .medTittel("Min side - arbeidsgiver")
+            .medBehandlingId(ref.behandlingId())
+            .medFagsakId(ref.fagsakId())
+            .addLinje(tekst)
+            .build();
+
         historikkRepo.lagre(historikkinnslag);
     }
 

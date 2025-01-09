@@ -71,7 +71,9 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
             throw new IllegalArgumentException("Forventer minst en vurdering");
         }
 
-        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(param.getBehandlingId());
+        var ref = param.getRef();
+        var behandlingId = ref.behandlingId();
+        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandlingId);
 
         var gjeldendePerioder = ytelseFordelingAggregat.getGjeldendeFordeling().getPerioder();
 
@@ -92,8 +94,8 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
             return new LocalDateSegment<>(datoInterval, nyPeriode.build());
         }, LocalDateTimeline.JoinStyle.LEFT_JOIN).toSegments().stream().map(LocalDateSegment::getValue).toList();
 
-        ytelseFordelingTjeneste.overstyrSøknadsperioder(param.getBehandlingId(), nyFordeling);
-        historikkinnslagTjeneste.opprettHistorikkinnslag(dto.getBegrunnelse(), gjeldendePerioder, nyFordeling);
+        ytelseFordelingTjeneste.overstyrSøknadsperioder(behandlingId, nyFordeling);
+        historikkinnslagTjeneste.opprettHistorikkinnslag(ref, dto.getBegrunnelse(), gjeldendePerioder, nyFordeling);
         return OppdateringResultat.utenTransisjon().medBeholdAksjonspunktÅpent(!harLøstAksjonspunktet(param)).build();
     }
 

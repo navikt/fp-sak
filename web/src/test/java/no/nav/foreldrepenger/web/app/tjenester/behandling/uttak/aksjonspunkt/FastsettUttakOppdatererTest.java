@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
@@ -40,7 +41,6 @@ import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderTjeneste;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsgiverLagreDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.FastsetteUttakDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeAktivitetLagreDto;
@@ -64,8 +64,8 @@ class FastsettUttakOppdatererTest {
 
     @BeforeEach
     public void setup() {
-        oppdaterer = new FastsettUttakOppdaterer(mock(HistorikkTjenesteAdapter.class), fastettePerioderTjeneste, uttakTjeneste, uttakInputTjeneste,
-            repositoryProvider.getBehandlingRepository());
+        oppdaterer = new FastsettUttakOppdaterer(fastettePerioderTjeneste, uttakTjeneste, uttakInputTjeneste,
+            repositoryProvider.getBehandlingRepository(), mock(HistorikkinnslagRepository.class));
     }
 
     @Test

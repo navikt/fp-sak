@@ -54,7 +54,7 @@ public class RevurderingTjenesteFelles {
         this.behandlingRevurderingTjeneste = behandlingRevurderingTjeneste;
         this.fagsakRevurdering = new FagsakRevurdering(repositoryProvider.getBehandlingRepository());
         this.opptjeningRepository = repositoryProvider.getOpptjeningRepository();
-        this.revurderingHistorikk = new RevurderingHistorikk(repositoryProvider.getHistorikkRepository());
+        this.revurderingHistorikk = new RevurderingHistorikk(repositoryProvider.getHistorikkinnslagRepository());
         this.vilkårMedlemskapRepository = repositoryProvider.getVilkårMedlemskapRepository();
     }
 

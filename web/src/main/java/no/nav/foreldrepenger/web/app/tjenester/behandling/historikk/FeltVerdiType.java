@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.historikk;
 
-public enum FeltType {
+public enum FeltVerdiType {
     INNVILGET("INNVILGET", "Oppfylt"),
     AVSLÅTT("AVSLÅTT", "Ikke oppfylt"),
     INNVILGET_UTTAK_AV_KVOTE("2003", "Innvilget uttak av kvote"),
@@ -23,7 +23,7 @@ public enum FeltType {
     TILBAKEKR_INFOTRYGD("TILBAKEKR_INFOTRYGD", "Opprett tilbakekreving"), // Gammel kode som er migrert over TILBAKEKR_OPPRETT, men finnes fremdeles i dev (trengs for testing).
     FASTSETT_RESULTAT_PERIODEN_AVKLARES_IKKE("FASTSETT_RESULTAT_PERIODEN_AVKLARES_IKKE", "Perioden kan ikke avklares"),
     FASTSETT_RESULTAT_PERIODEN_SYKDOM_DOKUMENTERT("FASTSETT_RESULTAT_PERIODEN_SYKDOM_DOKUMENTERT", "Sykdommen/skaden er dokumentert"),
-    HAR_GYLDIG_GRUNN("HAR_GYLDIG_GRUNN", "Gyldig grunn for sen fremsetting av søknaden"),
+    HAR_GYLDIG_GRUNN("HAR_GYLDIG_GRUNN", "Gyldig grunn til at søknaden er satt frem for sent"),
     BRUK_MED_OVERSTYRTE_PERIODER("BRUK_MED_OVERSTYRTE_PERIODER", "Bruk arbeidsforholdet med overstyrt periode"),
     GRADERING_IKKE_OPPFYLT("GRADERING_IKKE_OPPFYLT", "Ikke oppfylt"),
     GYLDIG_UTSETTELSE_PGA_FERIE("2010", "Gyldig utsettelse pga ferie"),
@@ -44,7 +44,7 @@ public enum FeltType {
     UTSETTELSE_PGA_ARBEID_KUN_FAR_HAR_RETT("2016", "Utsettelse pga. 100% arbeid, kun far har rett"),
     GRADERING_FORELDREPENGER_KUN_FAR_HAR_RETT("2033", "Gradering foreldrepenger, kun far har rett"),
     ANNEN_PART_HAR_OVERLAPPENDE_UTTAK("4084", "Annen part har overlappende uttak, det er ikke søkt/innvilget samtidig uttak"),
-    INNTEKT_IKKE_MED_I_BG("INNTEKT_IKKE_MED_I_BG", "Benytt i behandligen. Inntekten er ikke med i beregningsgrunnlaget"),
+    INNTEKT_IKKE_MED_I_BG("INNTEKT_IKKE_MED_I_BG", "Benytt i behandlingen. Inntekten er ikke med i beregningsgrunnlaget"),
     OVERFØRING_OPPFYLT_ANNEN_PART_AVHENGIG_AV_HJELP("2021", "Overføring oppfylt, annen part er helt avhengig av hjelp til å ta seg av barnet"),
     OPPFYLT("OPPFYLT", "oppfylt"),
     SØKER_ER_IKKE_I_PERMISJON("SØKER_ER_IKKE_I_PERMISJON", "Søker er ikke i permisjon"),
@@ -78,7 +78,7 @@ public enum FeltType {
     TIDSBEGRENSET_ARBEIDSFORHOLD("TIDSBEGRENSET_ARBEIDSFORHOLD", "tidsbegrenset"),
     FAR_ALENEOMSORG_MOR_FYLLER_IKKE_AKTIVITETSKRAVET("4035", "Far aleneomsorg, mor fyller ikke aktivitetskravet"),
     AKTIVITETSKRAVET_OFFENTLIG_GODKJENT_UTDANNING_IKKE_OPPFYLT("4051", "Aktivitetskravet offentlig godkjent utdanning ikke oppfylt"),
-    HAR_IKKE_GYLDIG_GRUNN("HAR_IKKE_GYLDIG_GRUNN", "Ingen gyldig grunn for sen fremsetting av søknaden"),
+    HAR_IKKE_GYLDIG_GRUNN("HAR_IKKE_GYLDIG_GRUNN", "Ingen gyldig grunn til at søknaden er satt frem for sent"),
     EØS_BOSATT_NORGE("EØS_BOSATT_NORGE", "EØS bosatt Norge"),
     AKTIVITETSKRAV_ARBEID_IKKE_DOKUMENTERT("4066", "Aktivitetskrav- arbeid ikke dokumentert"),
     AKTIVITETSKRAV_UTDANNING_IKKE_DOKUMENTERT("467", "Aktivitetskrav – utdanning ikke dokumentert"),
@@ -170,7 +170,7 @@ public enum FeltType {
     GYLDIG_UTSETTELSE_PGA_INNLEGGELSE("2012", "Gyldig utsettelse pga innleggelse"),
     MOR_HAR_IKKE_OMSORG("4003", "Mor har ikke omsorg"),
     UNNTAK_FOR_AKTIVITETSKRAVET_MORS_MOTTAK_AV_UFØRETRYGD_IKKE_OPPFYLT("4057", "Unntak for aktivitetskravet, mors mottak av uføretrygd ikke oppfylt"),
-    FASTSETT_RESULTAT_PERIODEN_NAV_TILTAK_DOKUMENTERT("FASTSETT_RESULTAT_PERIODEN_NAV_TILTAK_DOKUMENTERT", "Tiltak i regi av NAV er dokumentert"),
+    FASTSETT_RESULTAT_PERIODEN_NAV_TILTAK_DOKUMENTERT("FASTSETT_RESULTAT_PERIODEN_NAV_TILTAK_DOKUMENTERT", "Tiltak i regi av Nav er dokumentert"),
     AKTIVITETSKRAV_INTRODUKSJONSPROGRAM_IKKE_DOKUMENTERT("4088", "Aktivitetskrav – introduksjonsprogram ikke dokumentert"),
     FISKER("FISKER", "Selvstendig næringsdrivende - Fisker"),
     AVSLAG_GRADERING_ARBEID_HUNDRE_PROSENT_ELLER_MER_4523("4523", "Avslag gradering - arbeid 100% eller mer"),
@@ -178,7 +178,7 @@ public enum FeltType {
     IKKE_NOK_DAGER_UTEN_AKTIVITETSKRAV("4107", "Ikke nok dager uten aktivitetskrav"),
     AVSLAG_GRADERING_GRADERING_FØR_UKE_SJU("4504", "Avslag gradering - gradering før uke 7"),
     GRADERING_PÅ_ANDEL_UTEN_BG_IKKE_SATT_PÅ_VENT("GRADERING_PÅ_ANDEL_UTEN_BG_IKKE_SATT_PÅ_VENT", "Riktig"),
-    FASTSETT_RESULTAT_PERIODEN_NAV_TILTAK_DOKUMENTERT_IKKE("FASTSETT_RESULTAT_PERIODEN_NAV_TILTAK_DOKUMENTERT_IKKE", "Tiltak i regi av NAV er ikke dokumentert"),
+    FASTSETT_RESULTAT_PERIODEN_NAV_TILTAK_DOKUMENTERT_IKKE("FASTSETT_RESULTAT_PERIODEN_NAV_TILTAK_DOKUMENTERT_IKKE", "Tiltak i regi av Nav er ikke dokumentert"),
     KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_ARBEIDSFORHOLD("KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_ARBEIDSFORHOLD", "Arbeidsgiver kontaktes"),
     UTTAK_FØR_OMSORGOVERTAKELSE("4100", "Uttak før omsorgsovertakelse"),
     IKKE_RETT_TIL_FELLESPERIODE_MOR_IKKE_RETT_TIL_FP("4075", "Ikke rett til fellesperiode fordi mor ikke har rett til foreldrepenger"),
@@ -227,7 +227,7 @@ public enum FeltType {
     MANUELL_BEHANDLING("MANUELL_BEHANDLING", "Manuell behandling"),
     FORELDREPENGER("FORELDREPENGER", "Foreldrepenger"),
     AKTIVITETSKRAVET_UTDANNING_IKKE_DOKUMENTERT("4067", "Aktivitetskrav – utdanning ikke dokumentert"),
-    ADNR("ADNR", "Aktivt"),
+    ADNR("ADNR", "D-nummer"),
     DØD("DØD", "Død"),
     FOSV("FOSV", "Forsvunnet/savnet"),
     FØDR("FØDR", "Fødselsregistrert"),
@@ -235,16 +235,16 @@ public enum FeltType {
     UTPE("UTPE", "Utgått person"),
     UTAN("UTAN", "Utgått person annullert tilgang Fnr"),
     IKKE_VURDERT("IKKE_VURDERT", "Ikke vurdert"),
-    INNTREKK("TILBAKEKR_INNTREKK", "Feilutbetaling hvor inntrekk dekker hele beløpet"),
+    INNTREKK("TILBAKEKR_INNTREKK", "Feilutbetalingen er trukket inn i annen utbetaling"),
     FAR_MER_ENN_TI_DAGER_FEDREKVOTE_IFM_FØDSEL("4106", "Far/medmor søker mer enn 10 dager ifm fødsel"),
-    SELVSTENDIG_NÆRING("SELVSTENDIG_NÆRING", "Næringsdrivende"),
+    SELVSTENDIG_NÆRING("SELVSTENDIG_NÆRING", "Selvstendig næringsdrivende"),
     DØD_DØDFØDSEL("DØD_DØDFØDSEL", "Død eller dødfødsel"),
     SOEKER("SOEKER", "Søker");
 
     private final String key;
     private final String text;
 
-    FeltType(String key, String text) {
+    FeltVerdiType(String key, String text) {
         this.key = key;
         this.text = text;
     }
@@ -257,10 +257,10 @@ public enum FeltType {
         return text;
     }
 
-    public static FeltType getByKey(String key) {
-        for (FeltType feltType : values()) {
-            if (feltType.getKey().equals(key)) {
-                return feltType;
+    public static FeltVerdiType getByKey(String key) {
+        for (FeltVerdiType feltVerdiType : values()) {
+            if (feltVerdiType.getKey().equals(key)) {
+                return feltVerdiType;
             }
         }
 

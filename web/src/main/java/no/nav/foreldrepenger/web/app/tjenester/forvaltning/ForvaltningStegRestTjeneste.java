@@ -7,7 +7,6 @@ import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.BeanParam;
@@ -25,15 +24,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.HoppTilbakeDto;
@@ -46,27 +43,24 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @Transactional
 public class ForvaltningStegRestTjeneste {
 
-    private EntityManager entityManager;
     private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste;
-    private HistorikkRepository historikkRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private FamilieHendelseRepository familieHendelseRepository;
     private BehandlingRepository behandlingRepository;
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
 
     @Inject
-    public ForvaltningStegRestTjeneste(EntityManager entityManager,
-                                       BehandlingsprosessTjeneste behandlingsprosessTjeneste,
+    public ForvaltningStegRestTjeneste(BehandlingsprosessTjeneste behandlingsprosessTjeneste,
                                        BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                        ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste,
                                        BehandlingRepositoryProvider repositoryProvider,
                                        ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste) {
-        this.entityManager = entityManager;
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.arbeidsforholdAdministrasjonTjeneste = arbeidsforholdAdministrasjonTjeneste;
-        this.historikkRepository = repositoryProvider.getHistorikkRepository();
+        this.historikkinnslagRepository = repositoryProvider.getHistorikkinnslagRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
@@ -154,16 +148,14 @@ public class ForvaltningStegRestTjeneste {
     }
 
     private void lagHistorikkinnslag(Behandling behandling, String tilStegNavn) {
-        var nyeRegisteropplysningerInnslag = new Historikkinnslag();
-        nyeRegisteropplysningerInnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
-        nyeRegisteropplysningerInnslag.setType(HistorikkinnslagType.SPOLT_TILBAKE);
-        nyeRegisteropplysningerInnslag.setBehandlingId(behandling.getId());
-
         var fraStegNavn = behandling.getAktivtBehandlingSteg() != null ? behandling.getAktivtBehandlingSteg().getNavn() : null;
-        var historieBuilder = new HistorikkInnslagTekstBuilder()
-                .medHendelse(HistorikkinnslagType.SPOLT_TILBAKE)
-                .medBegrunnelse("Behandlingen er flyttet fra " + fraStegNavn + " tilbake til " + tilStegNavn);
-        historieBuilder.build(nyeRegisteropplysningerInnslag);
-        historikkRepository.lagre(nyeRegisteropplysningerInnslag);
+        var historikkinnslag = new Historikkinnslag.Builder()
+            .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
+            .medFagsakId(behandling.getFagsakId())
+            .medBehandlingId(behandling.getId())
+            .medTittel("Behandlingen er flyttet")
+            .addLinje(String.format("Behandlingen er flyttet fra __%s__ tilbake til __%s__", fraStegNavn, tilStegNavn))
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 }

@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OverhoppKontroll;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -35,7 +36,6 @@ import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderTjeneste;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsgiverLagreDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.OverstyringUttakDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeAktivitetLagreDto;
@@ -61,8 +61,8 @@ class UttakOverstyringshåndtererTest {
 
     @BeforeEach
     public void setup() {
-        oppdaterer = new UttakOverstyringshåndterer(mock(HistorikkTjenesteAdapter.class), fastettePerioderTjeneste, uttakTjeneste,
-            uttakInputTjeneste);
+        oppdaterer = new UttakOverstyringshåndterer(fastettePerioderTjeneste, uttakTjeneste,
+            uttakInputTjeneste, mock(HistorikkinnslagRepository.class));
     }
 
     @Test

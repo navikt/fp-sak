@@ -6,10 +6,9 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.inngangsvilkaar.InngangsvilkårTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt.InngangsvilkårOverstyringshåndterer;
 
@@ -22,15 +21,13 @@ public class AdopsjonsvilkåretOverstyringshåndterer extends InngangsvilkårOve
     }
 
     @Inject
-    public AdopsjonsvilkåretOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter,
-            InngangsvilkårTjeneste inngangsvilkårTjeneste) {
-        super(historikkAdapter, AksjonspunktDefinisjon.OVERSTYRING_AV_ADOPSJONSVILKÅRET,
-                VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD,
-                inngangsvilkårTjeneste);
+    public AdopsjonsvilkåretOverstyringshåndterer(InngangsvilkårTjeneste inngangsvilkårTjeneste,
+                                                  HistorikkinnslagRepository historikkinnslagRepository) {
+        super(VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD, inngangsvilkårTjeneste, historikkinnslagRepository);
     }
 
     @Override
-    protected void lagHistorikkInnslag(Behandling behandling, OverstyringAdopsjonsvilkåretDto dto) {
-        lagHistorikkInnslagForOverstyrtVilkår(dto.getBegrunnelse(), dto.getErVilkarOk(), SkjermlenkeType.PUNKT_FOR_ADOPSJON);
+    public void lagHistorikkInnslag(OverstyringAdopsjonsvilkåretDto dto, Behandling behandling) {
+        lagHistorikkInnslagForOverstyrtVilkår(behandling, dto.getBegrunnelse(), dto.getErVilkarOk(), SkjermlenkeType.PUNKT_FOR_ADOPSJON);
     }
 }

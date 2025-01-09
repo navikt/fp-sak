@@ -1,51 +1,44 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.historikk;
 
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkinnslagDtoV2.HistorikkAktørDto;
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkinnslagDtoV2.Linje;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkinnslagDtoV2.HistorikkAktørDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkinnslagDtoV2.Linje;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagOld;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
-import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagDokumentLinkDto;
 
 public class HistorikkDtoFellesMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(HistorikkDtoFellesMapper.class);
 
-    public static HistorikkinnslagDtoV2 tilHistorikkInnslagDto(Historikkinnslag h, UUID behandlingUUID, List<Linje> linjer) {
+    public static HistorikkinnslagDtoV2 tilHistorikkInnslagDto(HistorikkinnslagOld h, UUID behandlingUUID, List<Linje> linjer) {
         return tilHistorikkInnslagDto(h, behandlingUUID, null, linjer);
     }
 
-    public static HistorikkinnslagDtoV2 tilHistorikkInnslagDto(Historikkinnslag h, UUID behandlingUUID, List<HistorikkInnslagDokumentLinkDto> lenker, List<Linje> linjer) {
+    public static HistorikkinnslagDtoV2 tilHistorikkInnslagDto(HistorikkinnslagOld h,
+                                                               UUID behandlingUUID,
+                                                               List<HistorikkInnslagDokumentLinkDto> lenker,
+                                                               List<Linje> linjer) {
         var skjermlenkeOpt = skjermlenkeFra(h);
-        return new HistorikkinnslagDtoV2(
-            behandlingUUID,
-            HistorikkAktørDto.fra(h.getAktør(), h.getOpprettetAv()),
-            skjermlenkeOpt.orElse(null),
-            h.getOpprettetTidspunkt(),
-            lenker,
-            skjermlenkeOpt.isEmpty() ? lagTittel(h) : null,
-            fjernTrailingAvsnittFraTekst(linjer)
-        );
+        return new HistorikkinnslagDtoV2(behandlingUUID, HistorikkAktørDto.fra(h.getAktør(), h.getOpprettetAv()), skjermlenkeOpt.orElse(null),
+            h.getOpprettetTidspunkt(), lenker, skjermlenkeOpt.isEmpty() ? lagTittel(h) : null, fjernTrailingAvsnittFraTekst(linjer));
     }
 
-    private static String lagTittel(Historikkinnslag h) {
-        var hendelseFelt = h.getHistorikkinnslagDeler().stream()
-            .map(HistorikkinnslagDel::getHendelse)
-            .flatMap(Optional::stream)
-            .toList();
+    private static String lagTittel(HistorikkinnslagOld h) {
+        var hendelseFelt = h.getHistorikkinnslagDeler().stream().map(HistorikkinnslagDel::getHendelse).flatMap(Optional::stream).toList();
         if (hendelseFelt.size() > 1) {
-            LOG.info("Flere deler med HENDELSE-felt for historikkinnslag {} på sak {}. Er alle like? Er det noe grunn til å ha undertittler? ", h.getId(), h.getFagsakId());
+            LOG.info("Flere deler med HENDELSE-felt for historikkinnslag {} på sak {}. Er alle like? Er det noe grunn til å ha undertittler? ",
+                h.getId(), h.getFagsakId());
         }
 
         if (hendelseFelt.isEmpty()) {
@@ -57,9 +50,7 @@ public class HistorikkDtoFellesMapper {
     // BEH_VENT har satt tilverdi som brukes i tittelen (Behandling på vent 05.12.2024)
     public static String fraHendelseFelt(HistorikkinnslagFelt felt) {
         var hendelsetekst = HistorikkinnslagType.fraKode(felt.getNavn()).getNavn();
-        return felt.getTilVerdi() != null
-            ? String.format("%s %s", hendelsetekst, felt.getTilVerdi())
-            : hendelsetekst;
+        return felt.getTilVerdi() != null ? String.format("%s %s", hendelsetekst, felt.getTilVerdi()) : hendelsetekst;
     }
 
     @SafeVarargs
@@ -76,23 +67,18 @@ public class HistorikkDtoFellesMapper {
         if (tekster.isEmpty()) {
             return tekster;
         }
-        if (tekster.getLast().erLinjeskift()) {
+        if (tekster.getLast().type() == Linje.Type.LINJESKIFT) {
             tekster.removeLast();
         }
         return tekster.stream().toList();
     }
 
-    private static Optional<SkjermlenkeType> skjermlenkeFra(Historikkinnslag h) {
-        var skjermlenker = h.getHistorikkinnslagDeler().stream()
-            .flatMap(del -> del.getSkjermlenke().stream())
-            .distinct()
-            .toList();
+    private static Optional<SkjermlenkeType> skjermlenkeFra(HistorikkinnslagOld h) {
+        var skjermlenker = h.getHistorikkinnslagDeler().stream().flatMap(del -> del.getSkjermlenke().stream()).distinct().toList();
         if (skjermlenker.size() > 1) {
             return Optional.empty();
         } else {
-            return skjermlenker.stream()
-                .map(SkjermlenkeType::fraKode)
-                .findFirst();
+            return skjermlenker.stream().map(SkjermlenkeType::fraKode).findFirst();
         }
     }
 }

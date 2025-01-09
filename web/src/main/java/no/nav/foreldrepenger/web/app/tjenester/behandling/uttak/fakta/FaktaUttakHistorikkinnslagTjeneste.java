@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta;
 
-import static no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder.formatString;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.format;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -11,8 +12,10 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
@@ -21,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.uttak.UttakPeriodeEndringDto;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
@@ -29,58 +31,62 @@ import no.nav.fpsak.tidsserie.LocalDateTimeline;
 @ApplicationScoped
 public class FaktaUttakHistorikkinnslagTjeneste {
 
-    private HistorikkTjenesteAdapter historikkTjenesteAdapter;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     @Inject
-    public FaktaUttakHistorikkinnslagTjeneste(HistorikkTjenesteAdapter historikkTjenesteAdapter) {
-        this.historikkTjenesteAdapter = historikkTjenesteAdapter;
+    public FaktaUttakHistorikkinnslagTjeneste(HistorikkinnslagRepository historikkinnslagRepository) {
+        this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     FaktaUttakHistorikkinnslagTjeneste() {
         //CDI
     }
 
-    public void opprettHistorikkinnslag(String begrunnelse, boolean overstyring,
+    public void opprettHistorikkinnslag(Long behandlingId, Long fagsakId,
                                         List<OppgittPeriodeEntitet> eksisterendePerioder,
-                                        List<OppgittPeriodeEntitet> oppdatertePerioder) {
-        var builder = historikkTjenesteAdapter.tekstBuilder()
-            .medBegrunnelse(begrunnelse)
-            .medSkjermlenke(SkjermlenkeType.FAKTA_UTTAK);
-        if (overstyring) {
-            builder.medResultat(HistorikkResultatType.OVERSTYRING_FAKTA_UTTAK);
-        }
+                                        List<OppgittPeriodeEntitet> oppdatertePerioder,
+                                        boolean overstyring,
+                                        String begrunnelse) {
+        var perioderMedEndringer = lagTekstForPerioderSomErEndret(eksisterendePerioder, oppdatertePerioder);
+        var historikkinnslagBuilder = new Historikkinnslag.Builder()
+            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medFagsakId(fagsakId)
+            .medBehandlingId(behandlingId)
+            .medTittel(SkjermlenkeType.FAKTA_UTTAK)
+            .addLinje(overstyring ? "Overstyrt vurdering:" : null);
+        perioderMedEndringer.forEach(historikkinnslagLinjeBuilder -> {
+            historikkinnslagBuilder.addLinje(historikkinnslagLinjeBuilder);
+            historikkinnslagBuilder.addLinje(HistorikkinnslagLinjeBuilder.LINJESKIFT);
+            });
+        historikkinnslagBuilder.addLinje(begrunnelse);
+        historikkinnslagRepository.lagre(historikkinnslagBuilder.build());
+    }
 
+    private List<HistorikkinnslagLinjeBuilder> lagTekstForPerioderSomErEndret(List<OppgittPeriodeEntitet> eksisterendePerioder, List<OppgittPeriodeEntitet> oppdatertePerioder) {
         var eksisterendeSegment = eksisterendePerioder.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), p)).toList();
         var oppdaterteSegment = oppdatertePerioder.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), p)).toList();
-
         var diffTidslinje = new LocalDateTimeline<>(oppdaterteSegment).combine(new LocalDateTimeline<>(eksisterendeSegment),
             this::utledEndringForPerioder, LocalDateTimeline.JoinStyle.CROSS_JOIN);
 
-        diffTidslinje.toSegments().stream()
+        return diffTidslinje.toSegments().stream()
             .filter(Objects::nonNull)
             .map(LocalDateSegment::getValue)
             .filter(Objects::nonNull)
             .filter(e -> e.tekstFra() != null || e.tekstTil() != null)
-            .forEach(endring -> {
-                if (endring.tekstFra() == null) {
-                    builder.medEndretFelt(HistorikkEndretFeltType.FAKTA_UTTAK_PERIODE, endring.intro(), null, endring.tekstTil());
-                } else if (endring.tekstTil() == null) {
-                    builder.medEndretFelt(HistorikkEndretFeltType.FAKTA_UTTAK_PERIODE, endring.intro(), endring.tekstFra(), null);
-                } else {
-                    builder.medEndretFelt(HistorikkEndretFeltType.FAKTA_UTTAK_PERIODE, endring.intro(), endring.tekstFra(), endring.tekstTil());
-                }
-            });
+            .map(endring -> fraTilEquals(String.format("Perioden %s", endring.intro()), endring.tekstFra(), endring.tekstTil()))
+            .toList();
+
     }
 
-    private LocalDateSegment<Endring> utledEndringForPerioder(LocalDateInterval di, LocalDateSegment<OppgittPeriodeEntitet> lhs,
-                                                              LocalDateSegment<OppgittPeriodeEntitet> rhs) {
-        if (rhs == null) {
-            return new LocalDateSegment<>(di, new Endring(tekstIntro(di), null, "Lagt til " + tekstPeriodeFull(lhs.getValue())));
-        } else if (lhs == null) {
-            return new LocalDateSegment<>(di, new Endring(tekstIntro(di), null, "Slettet " + tekstPeriodeFull(rhs.getValue())));
-        } else if (!erLikePerioder(lhs.getValue(), rhs.getValue())) {
-            return new LocalDateSegment<>(di, new Endring(tekstIntro(di), tekstPeriodeEndret(lhs.getValue(), rhs.getValue()),
-                tekstPeriodeEndret(rhs.getValue(), lhs.getValue())));
+    private LocalDateSegment<Endring> utledEndringForPerioder(LocalDateInterval di, LocalDateSegment<OppgittPeriodeEntitet> oppdaterteLhs,
+                                                              LocalDateSegment<OppgittPeriodeEntitet> eksisterendeRhs) {
+        if (eksisterendeRhs == null) {
+            return new LocalDateSegment<>(di, new Endring(format(di), null, tekstPeriodeFull(oppdaterteLhs.getValue())));
+        } else if (oppdaterteLhs == null) {
+            return new LocalDateSegment<>(di, new Endring(format(di), tekstPeriodeFull(eksisterendeRhs.getValue()), null));
+        } else if (!erLikePerioder(oppdaterteLhs.getValue(), eksisterendeRhs.getValue())) {
+            return new LocalDateSegment<>(di, new Endring(format(di), tekstPeriodeEndret(oppdaterteLhs.getValue(), eksisterendeRhs.getValue()),
+                tekstPeriodeEndret(eksisterendeRhs.getValue(), oppdaterteLhs.getValue())));
         } else {
             return null;
         }
@@ -113,10 +119,6 @@ public class FaktaUttakHistorikkinnslagTjeneste {
         } else {
             return null;
         }
-    }
-
-    private String tekstIntro(LocalDateInterval intervall) {
-        return String.format("%s - %s", formatString(intervall.getFomDato()), formatString(intervall.getTomDato()));
     }
 
     private String tekstPeriodeFull(OppgittPeriodeEntitet periode) {
@@ -154,6 +156,11 @@ public class FaktaUttakHistorikkinnslagTjeneste {
         }
         return builder.toString();
     }
+    private String mapGraderingAktivitetType(OppgittPeriodeEntitet periode) {
+        return Optional.ofNullable(periode.getGraderingAktivitetType())
+            .map(Enum::name)
+            .orElse(null);
+    }
 
     private String prefixUttakType(OppgittPeriodeEntitet periode) {
         if (periode.isUtsettelse()) {
@@ -190,7 +197,7 @@ public class FaktaUttakHistorikkinnslagTjeneste {
             return Optional.empty();
         }
         var aktivitet = Optional.ofNullable(periode.getArbeidsgiver()).map(Arbeidsgiver::getIdentifikator)
-            .orElseGet(() -> periode.getGraderingAktivitetType().name());
+            .orElseGet(() -> periode.getGraderingAktivitetType().getNavn());
         return Optional.of(aktivitet + " - Arbeid: " + Optional.ofNullable(arbeidsprosent(periode)).orElse(BigDecimal.ZERO).setScale(0, RoundingMode.HALF_EVEN) + "%");
     }
 

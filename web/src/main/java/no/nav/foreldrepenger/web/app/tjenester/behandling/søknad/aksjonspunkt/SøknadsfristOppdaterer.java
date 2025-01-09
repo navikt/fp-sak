@@ -10,41 +10,49 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = SoknadsfristAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
 public class SøknadsfristOppdaterer implements AksjonspunktOppdaterer<SoknadsfristAksjonspunktDto> {
 
-    private HistorikkTjenesteAdapter historikkAdapter;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
-    protected SøknadsfristOppdaterer() {
+    SøknadsfristOppdaterer() {
     }
 
     @Inject
-    public SøknadsfristOppdaterer(HistorikkTjenesteAdapter historikkAdapter) {
-        this.historikkAdapter = historikkAdapter;
+    public SøknadsfristOppdaterer(HistorikkinnslagRepository historikkinnslagRepository) {
+        this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     @Override
-    public OppdateringResultat oppdater(SoknadsfristAksjonspunktDto dto, AksjonspunktOppdaterParameter  param) {
-        historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.SOKNADSFRISTVILKARET, null, dto.getErVilkarOk() ? HistorikkEndretFeltVerdiType.OPPFYLT : HistorikkEndretFeltVerdiType.IKKE_OPPFYLT)
-                .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret())
-                .medSkjermlenke(SkjermlenkeType.SOEKNADSFRIST);
+    public OppdateringResultat oppdater(SoknadsfristAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
+        lagreHistorikk(dto, param);
 
         if (dto.getErVilkarOk()) {
-            return new OppdateringResultat.Builder()
-                .leggTilManueltOppfyltVilkår(SØKNADSFRISTVILKÅRET)
-                .build();
-        } else {
-            return OppdateringResultat.utenTransisjon()
-                .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
-                .leggTilManueltAvslåttVilkår(SØKNADSFRISTVILKÅRET, Avslagsårsak.SØKT_FOR_SENT)
-                .build();
+            return new OppdateringResultat.Builder().leggTilManueltOppfyltVilkår(SØKNADSFRISTVILKÅRET).build();
         }
+        return OppdateringResultat.utenTransisjon()
+            .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
+            .leggTilManueltAvslåttVilkår(SØKNADSFRISTVILKÅRET, Avslagsårsak.SØKT_FOR_SENT)
+            .build();
+    }
+
+    private void lagreHistorikk(SoknadsfristAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
+        var tilTekst = dto.getErVilkarOk() ? "oppfylt" : "ikke oppfylt";
+        var historikkinnslag = new Historikkinnslag.Builder().medFagsakId(param.getFagsakId())
+            .medBehandlingId(param.getBehandlingId())
+            .medTittel(SkjermlenkeType.SOEKNADSFRIST)
+            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .addLinje(new HistorikkinnslagLinjeBuilder().til("Søknadsfristvilkåret", tilTekst))
+            .addLinje(dto.getBegrunnelse())
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 }

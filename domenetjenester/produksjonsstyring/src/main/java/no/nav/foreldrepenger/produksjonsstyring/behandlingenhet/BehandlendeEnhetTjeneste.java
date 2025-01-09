@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -18,10 +20,8 @@ import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingEnhetEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
@@ -35,7 +35,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 @ApplicationScoped
 public class BehandlendeEnhetTjeneste {
@@ -46,7 +45,7 @@ public class BehandlendeEnhetTjeneste {
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
     private PersonopplysningRepository personopplysningRepository;
-    private HistorikkRepository historikkRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private FagsakEgenskapRepository fagsakEgenskapRepository;
 
     public BehandlendeEnhetTjeneste() {
@@ -65,7 +64,7 @@ public class BehandlendeEnhetTjeneste {
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.fagsakRepository = provider.getFagsakRepository();
         this.behandlingRepository = provider.getBehandlingRepository();
-        this.historikkRepository = provider.getHistorikkRepository();
+        this.historikkinnslagRepository = provider.getHistorikkinnslagRepository();
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
     }
 
@@ -81,7 +80,8 @@ public class BehandlendeEnhetTjeneste {
     }
 
     public OrganisasjonsEnhet finnBehandlendeEnhetFor(Long fagsakId, String enhetId) {
-        return Optional.ofNullable(enhetId).map(e -> EnhetsTjeneste.velgEnhet(e, finnSaksmerking(fagsakId)))
+        return Optional.ofNullable(enhetId)
+            .map(e -> EnhetsTjeneste.velgEnhet(e, finnSaksmerking(fagsakId)))
             .orElseGet(() -> finnBehandlendeEnhetFor(fagsakRepository.finnEksaktFagsak(fagsakId)));
     }
 
@@ -91,7 +91,8 @@ public class BehandlendeEnhetTjeneste {
     }
 
     public OrganisasjonsEnhet finnBehandlendeEnhetForUkoblet(Fagsak fagsak, String sisteBrukt) {
-        return Optional.ofNullable(sisteBrukt).map(e -> EnhetsTjeneste.velgEnhet(e, finnSaksmerking(fagsak.getId())))
+        return Optional.ofNullable(sisteBrukt)
+            .map(e -> EnhetsTjeneste.velgEnhet(e, finnSaksmerking(fagsak.getId())))
             .orElseGet(() -> enhetsTjeneste.hentEnhetSjekkKunAktør(fagsak.getAktørId(), fagsak.getYtelseType()));
     }
 
@@ -134,15 +135,18 @@ public class BehandlendeEnhetTjeneste {
         return getOrganisasjonsEnhetEtterEndring(behandling.getFagsak(), enhet, hovedPerson, allePersoner);
     }
 
-    private Optional<OrganisasjonsEnhet> getOrganisasjonsEnhetEtterEndring(Fagsak fagsak, OrganisasjonsEnhet enhet, AktørId hovedPerson, Set<AktørId> allePersoner) {
+    private Optional<OrganisasjonsEnhet> getOrganisasjonsEnhetEtterEndring(Fagsak fagsak,
+                                                                           OrganisasjonsEnhet enhet,
+                                                                           AktørId hovedPerson,
+                                                                           Set<AktørId> allePersoner) {
         allePersoner.add(hovedPerson);
 
         var relasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak);
         relasjon.map(FagsakRelasjon::getFagsakNrEn).map(Fagsak::getAktørId).ifPresent(allePersoner::add);
         relasjon.flatMap(FagsakRelasjon::getFagsakNrTo).map(Fagsak::getAktørId).ifPresent(allePersoner::add);
 
-        return enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(),
-            fagsak.getYtelseType(), hovedPerson, allePersoner, finnSaksmerking(fagsak));
+        return enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), fagsak.getYtelseType(), hovedPerson, allePersoner,
+            finnSaksmerking(fagsak));
     }
 
 
@@ -153,7 +157,9 @@ public class BehandlendeEnhetTjeneste {
     private Set<AktørId> finnAktørIdFraPersonopplysninger(Behandling behandling) {
         return personopplysningRepository.hentPersonopplysningerHvisEksisterer(behandling.getId())
             .flatMap(PersonopplysningGrunnlagEntitet::getRegisterVersjon)
-            .map(PersonInformasjonEntitet::getPersonopplysninger).orElse(Collections.emptyList()).stream()
+            .map(PersonInformasjonEntitet::getPersonopplysninger)
+            .orElse(Collections.emptyList())
+            .stream()
             .map(PersonopplysningEntitet::getAktørId)
             .collect(Collectors.toSet());
     }
@@ -188,8 +194,7 @@ public class BehandlendeEnhetTjeneste {
 
     public static Optional<OrganisasjonsEnhet> sjekkSkalOppdatereEnhet(Behandling behandling, Collection<FagsakMarkering> merking) {
         var enhet = EnhetsTjeneste.velgEnhet(behandling.getBehandlendeOrganisasjonsEnhet(), merking);
-        return Optional.ofNullable(enhet)
-            .filter(e -> !Objects.equals(e.enhetId(), behandling.getBehandlendeEnhet()));
+        return Optional.ofNullable(enhet).filter(e -> !Objects.equals(e.enhetId(), behandling.getBehandlendeEnhet()));
     }
 
     // Returnerer enhetsnummer for Nav klageinstans
@@ -214,21 +219,20 @@ public class BehandlendeEnhetTjeneste {
         behandlingEventPubliserer.publiserBehandlingEvent(new BehandlingEnhetEvent(behandling));
     }
 
-    private void lagHistorikkInnslagForByttBehandlendeEnhet(Behandling behandling, OrganisasjonsEnhet nyEnhet, String begrunnelse, HistorikkAktør aktør) {
+    private void lagHistorikkInnslagForByttBehandlendeEnhet(Behandling behandling,
+                                                            OrganisasjonsEnhet nyEnhet,
+                                                            String begrunnelse,
+                                                            HistorikkAktør aktør) {
         var eksisterende = behandling.getBehandlendeOrganisasjonsEnhet();
         var fraMessage = eksisterende != null ? eksisterende.enhetId() + " " + eksisterende.enhetNavn() : "ukjent";
-        var builder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.BYTT_ENHET)
-            .medEndretFelt(HistorikkEndretFeltType.BEHANDLENDE_ENHET,
-                fraMessage,
-                nyEnhet.enhetId() + " " + nyEnhet.enhetNavn())
-            .medBegrunnelse(begrunnelse);
-
-        var innslag = new Historikkinnslag();
-        innslag.setAktør(aktør);
-        innslag.setType(HistorikkinnslagType.BYTT_ENHET);
-        innslag.setBehandlingId(behandling.getId());
-        builder.build(innslag);
-        historikkRepository.lagre(innslag);
+        var historikkinnslag = new Historikkinnslag.Builder()
+            .medAktør(aktør)
+            .medBehandlingId(behandling.getId())
+            .medFagsakId(behandling.getFagsakId())
+            .medTittel("Bytt enhet")
+            .addLinje(fraTilEquals("Behandlende enhet", fraMessage, nyEnhet.enhetId() + " " + nyEnhet.enhetNavn()))
+            .addLinje(begrunnelse)
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 }

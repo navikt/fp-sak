@@ -50,7 +50,7 @@ public class VurderFeilutbetalingOppdaterer implements AksjonspunktOppdaterer<Vu
         var valg = TilbakekrevingValg.utenMulighetForInntrekk(dto.getVidereBehandling(), dto.getVarseltekst());
         repository.lagre(behandling, valg);
 
-        historikkInnslagBygger.byggHistorikkinnslag(behandlingId, forrigeValg, valg, dto.getBegrunnelse());
+        historikkInnslagBygger.byggHistorikkinnslag(param.getRef(), forrigeValg, valg, dto.getBegrunnelse());
 
         return OppdateringResultat.utenOverhopp();
     }

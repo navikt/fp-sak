@@ -12,9 +12,8 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
@@ -49,14 +48,13 @@ class SøkersopplysningspliktOverstyringhåndtererTest {
         aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling.getId());
 
         // Assert
-        var historikkinnslagene = repositoryProvider.getHistorikkRepository().hentHistorikk(behandling.getId());
-        assertThat(historikkinnslagene.get(0).getHistorikkinnslagDeler()).hasSize(1);
-        var feltList = historikkinnslagene.get(0).getHistorikkinnslagDeler().get(0).getEndredeFelt();
-        assertThat(feltList).hasSize(1);
-        var felt = feltList.get(0);
-        assertThat(felt.getNavn()).as("navn").isEqualTo(HistorikkEndretFeltType.SOKERSOPPLYSNINGSPLIKT.getKode());
-        assertThat(felt.getFraVerdi()).as("fraVerdi").isNull();
-        assertThat(felt.getTilVerdi()).as("tilVerdi").isEqualTo(HistorikkEndretFeltVerdiType.IKKE_OPPFYLT.getKode());
+        var historikkinnslagene = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer());
+        assertThat(historikkinnslagene).hasSize(1);
+
+        var historikkinnslag = historikkinnslagene.getFirst();
+        assertThat(historikkinnslag.getSkjermlenke()).isEqualTo(SkjermlenkeType.OPPLYSNINGSPLIKT);
+        assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).contains("Søkers opplysningsplikt", "ikke oppfylt");
+        assertThat(historikkinnslag.getLinjer().get(1).getTekst()).contains(overstyringspunktDto.getBegrunnelse());
 
         var aksjonspunktSet = behandling.getAksjonspunkter();
 

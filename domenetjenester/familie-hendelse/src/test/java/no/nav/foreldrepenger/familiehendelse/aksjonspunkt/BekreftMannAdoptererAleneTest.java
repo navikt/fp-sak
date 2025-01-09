@@ -6,30 +6,22 @@ import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftMannAdoptererAksjonspunktDto;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 class BekreftMannAdoptererAleneTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
-    private final HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
 
     @BeforeEach
     void setUp() {
@@ -58,28 +50,15 @@ class BekreftMannAdoptererAleneTest extends EntityManagerAwareTest {
         var dto = new BekreftMannAdoptererAksjonspunktDto("begrunnelse", oppdatertMannAdoptererAlene);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
-        new BekreftMannAdoptererOppdaterer(lagMockHistory(), familieHendelseTjeneste)
+        new BekreftMannAdoptererOppdaterer(familieHendelseTjeneste, repositoryProvider.getHistorikkinnslagRepository())
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-        var historikkInnslagDeler = this.tekstBuilder.build(historikkinnslag);
+        var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
+        var linjer = historikkinnslag.getLinjer();
 
         // Assert
-        assertThat(historikkInnslagDeler).hasSize(1);
-
-        var del = historikkInnslagDeler.get(0);
-        var feltOpt = del.getEndretFelt(HistorikkEndretFeltType.MANN_ADOPTERER);
-        assertThat(feltOpt).as("endretFelt[MANN_ADOPTERER]").hasValueSatisfying(felt -> {
-            assertThat(felt.getNavn()).as("navn").isEqualTo(HistorikkEndretFeltType.MANN_ADOPTERER.getKode());
-            assertThat(felt.getFraVerdi()).as("fraVerdi").isNull();
-            assertThat(felt.getTilVerdi()).as("tilVerdi").isEqualTo(HistorikkEndretFeltVerdiType.ADOPTERER_ALENE.getKode());
-        });
-    }
-
-    private HistorikkTjenesteAdapter lagMockHistory() {
-        var mockHistory = Mockito.mock(HistorikkTjenesteAdapter.class);
-        Mockito.when(mockHistory.tekstBuilder()).thenReturn(tekstBuilder);
-        return mockHistory;
+        assertThat(linjer).hasSize(2);
+        assertThat(linjer.getFirst().getTekst()).contains("Mann adopterer", "Ja");
+        assertThat(linjer.get(1).getTekst()).contains(dto.getBegrunnelse());
     }
 
 }

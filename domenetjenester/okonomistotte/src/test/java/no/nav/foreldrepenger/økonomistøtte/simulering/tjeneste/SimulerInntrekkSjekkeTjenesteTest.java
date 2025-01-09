@@ -19,8 +19,9 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingValg;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingVidereBehandling;
@@ -36,23 +37,23 @@ class SimulerInntrekkSjekkeTjenesteTest {
     private SimulerInntrekkSjekkeTjeneste simulerInntrekkSjekkeTjeneste;
     private Behandling behandling;
     private TilbakekrevingRepository tilbakekrevingRepository;
-    private HistorikkRepository historikkRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private SimulerOppdragTjeneste simulerOppdragTjeneste;
     private SimuleringIntegrasjonTjeneste simuleringIntegrasjonTjeneste;
-    private ArgumentCaptor<Historikkinnslag> hisrotikkInnslagCaptor = ArgumentCaptor.forClass(Historikkinnslag.class);
+    private ArgumentCaptor<Historikkinnslag> historikkInnslagCaptor = ArgumentCaptor.forClass(Historikkinnslag.class);
 
     @BeforeEach
     public void setUp() {
         simuleringIntegrasjonTjeneste = mock(SimuleringIntegrasjonTjeneste.class);
         simulerOppdragTjeneste = mock(SimulerOppdragTjeneste.class);
         tilbakekrevingRepository = mock(TilbakekrevingRepository.class);
-        historikkRepository = mock(HistorikkRepository.class);
-        behandling = Behandling.nyBehandlingFor(
-            Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), new Saksnummer("123456789")),
-            BehandlingType.FØRSTEGANGSSØKNAD).build();
+        historikkinnslagRepository = mock(HistorikkinnslagRepository.class);
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), new Saksnummer("123456789"));
+        behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
         behandling.setId(123L);
+        fagsak.setId(33L);
         simulerInntrekkSjekkeTjeneste = new SimulerInntrekkSjekkeTjeneste(simuleringIntegrasjonTjeneste, simulerOppdragTjeneste,
-            tilbakekrevingRepository, historikkRepository);
+            tilbakekrevingRepository, historikkinnslagRepository);
     }
 
     @Test
@@ -86,10 +87,13 @@ class SimulerInntrekkSjekkeTjenesteTest {
         when(tilbakekrevingRepository.hent(anyLong())).thenReturn(opprettTilbakekrevingValg(TilbakekrevingVidereBehandling.INNTREKK));
         when(simuleringIntegrasjonTjeneste.hentResultat(anyLong())).thenReturn(Optional.of(new SimuleringResultatDto(-2345L, 0L, false)));
         simulerInntrekkSjekkeTjeneste.sjekkIntrekk(behandling);
-        verify(historikkRepository, times(1)).lagre(hisrotikkInnslagCaptor.capture());
-        var historikkinnslag = hisrotikkInnslagCaptor.getValue();
+        verify(historikkinnslagRepository, times(1)).lagre(historikkInnslagCaptor.capture());
+        var historikkinnslag = historikkInnslagCaptor.getValue();
         assertThat(historikkinnslag).isNotNull();
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.VEDTAKSLØSNINGEN);
+        assertThat(historikkinnslag.getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_OM_SIMULERING);
+        assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).contains(
+            "__Fastsett videre behandling__ er endret fra Feilutbetalingen er trukket inn i annen utbetaling til __Feilutbetaling med tilbakekreving__.");
     }
 
     private Optional<TilbakekrevingValg> opprettTilbakekrevingValg(TilbakekrevingVidereBehandling tilbakekrevingVidereBehandling) {

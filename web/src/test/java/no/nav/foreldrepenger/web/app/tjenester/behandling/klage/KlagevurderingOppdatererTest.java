@@ -23,9 +23,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
@@ -39,7 +36,6 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageHistorikkinnslag;
@@ -54,8 +50,6 @@ class KlagevurderingOppdatererTest {
     private BehandlingRepositoryProvider repositoryProvider;
     @Inject
     private KlageRepository klageRepository;
-    @Mock
-    private HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
     @Mock
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
     @Mock
@@ -93,21 +87,17 @@ class KlagevurderingOppdatererTest {
 
         // verifiserer BrevBestilling
         var brevDtoCaptor = ArgumentCaptor.forClass(DokumentBestilling.class);
-        verify(dokumentBestillerTjeneste).bestillDokument(brevDtoCaptor.capture(), eq(HistorikkAktør.SAKSBEHANDLER));
+        verify(dokumentBestillerTjeneste).bestillDokument(brevDtoCaptor.capture());
         var dokumentBestilling = brevDtoCaptor.getValue();
         assertThat(dokumentBestilling.dokumentMal()).isEqualTo(DokumentMalType.KLAGE_OVERSENDT);
         assertThat(dokumentBestilling.fritekst()).isNull();
 
         // Verifiserer HistorikkinnslagDto
-        var historikkCapture = ArgumentCaptor.forClass(Historikkinnslag.class);
-        verify(historikkApplikasjonTjeneste).lagInnslag(historikkCapture.capture());
-        var historikkinnslag = historikkCapture.getValue();
-        assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.KLAGE_BEH_NFP);
+        var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
+        assertThat(historikkinnslag.getSkjermlenke()).isEqualTo(SkjermlenkeType.KLAGE_BEH_NFP);
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
-        var del = historikkinnslag.getHistorikkinnslagDeler().get(0);
-        assertThat(del.getSkjermlenke()).as("skjermlenke")
-                .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.KLAGE_BEH_NFP.getKode()));
-        assertThat(del.getEndretFelt(HistorikkEndretFeltType.KLAGE_RESULTAT_NFP)).isNotNull();
+        var tekstlinje = historikkinnslag.getLinjer().get(0).getTekst();
+        assertThat(tekstlinje).contains("Resultat");
 
         // Verifiserer at behandlende enhet er byttet til Nav klageinstans
         var enhetCapture = ArgumentCaptor.forClass(OrganisasjonsEnhet.class);
@@ -126,7 +116,8 @@ class KlagevurderingOppdatererTest {
         var klageVurderingTjeneste = new KlageVurderingTjeneste(dokumentBestillerTjeneste, Mockito.mock(DokumentBehandlingTjeneste.class),
             prosesseringAsynkTjeneste, behandlingRepository, klageRepository, behandlingskontrollTjeneste,
             repositoryProvider.getBehandlingsresultatRepository(), mock(BehandlingEventPubliserer.class));
-        var klageHistorikk = new KlageHistorikkinnslag(historikkApplikasjonTjeneste, behandlingRepository, repositoryProvider.getBehandlingVedtakRepository(), mock(FptilbakeRestKlient.class));
+        var klageHistorikk = new KlageHistorikkinnslag(repositoryProvider.getHistorikkinnslagRepository(),
+            behandlingRepository, repositoryProvider.getBehandlingVedtakRepository(), mock(FptilbakeRestKlient.class));
         return new KlagevurderingOppdaterer(klageHistorikk, behandlingsutredningTjeneste, mock(BehandlingskontrollTjeneste.class), klageVurderingTjeneste,
             behandlingRepository);
     }

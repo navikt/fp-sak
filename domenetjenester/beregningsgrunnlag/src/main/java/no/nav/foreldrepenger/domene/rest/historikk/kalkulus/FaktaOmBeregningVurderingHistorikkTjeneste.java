@@ -1,23 +1,21 @@
 package no.nav.foreldrepenger.domene.rest.historikk.kalkulus;
 
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.domene.aksjonspunkt.ErMottattYtelseEndring;
 import no.nav.foreldrepenger.domene.aksjonspunkt.ErTidsbegrensetArbeidsforholdEndring;
 import no.nav.foreldrepenger.domene.aksjonspunkt.FaktaOmBeregningVurderinger;
 import no.nav.foreldrepenger.domene.aksjonspunkt.RefusjonskravGyldighetEndring;
-import no.nav.foreldrepenger.domene.aksjonspunkt.ToggleEndring;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.rest.historikk.ArbeidsgiverHistorikkinnslag;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-
-import java.util.List;
 
 /**
  * Lager historikk for radioknapp-vurderinger i fakta om beregning.
@@ -39,118 +37,86 @@ public class FaktaOmBeregningVurderingHistorikkTjeneste {
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
     }
 
-    public void lagHistorikkForVurderinger(Long behandlingId, HistorikkInnslagTekstBuilder tekstBuilder, FaktaOmBeregningVurderinger faktaOmBeregningVurderinger) {
-        faktaOmBeregningVurderinger.getErNyoppstartetFLEndring()
-            .ifPresent(toggleEndring -> lagFaktaVurderingInnslag(tekstBuilder, HistorikkEndretFeltType.FRILANSVIRKSOMHET, toggleEndring, this::konvertBooleanTilNyoppstartetFLVerdiType));
+    public List<HistorikkinnslagLinjeBuilder> lagHistorikkForVurderinger(Long behandlingId, FaktaOmBeregningVurderinger faktaOmBeregningVurderinger) {
+        var linjer = new ArrayList<HistorikkinnslagLinjeBuilder>();
+        faktaOmBeregningVurderinger.getErNyoppstartetFLEndring().ifPresent(e ->
+            linjer.add(fraTilEquals("Frilansvirksomhet", konvertBooleanTilNyoppstartetFLVerdiType(e.getFraVerdiEllerNull()), konvertBooleanTilNyoppstartetFLVerdiType(e.getTilVerdi()))));
+        faktaOmBeregningVurderinger.getErSelvstendingNyIArbeidslivetEndring().ifPresent(e ->
+            linjer.add(fraTilEquals("Selvstendig næringsdrivende", konvertBooleanTilNyIarbeidslivetVerdiType(e.getFraVerdiEllerNull()), konvertBooleanTilNyIarbeidslivetVerdiType(e.getTilVerdi()))));
+        faktaOmBeregningVurderinger.getHarLønnsendringIBeregningsperiodenEndring().ifPresent(e ->
+            linjer.add(fraTilEquals("Lønnsendring i beregningsperioden", e.getFraVerdiEllerNull(), e.getTilVerdi())));
+        faktaOmBeregningVurderinger.getHarMilitærSiviltjenesteEndring().ifPresent(e ->
+            linjer.add(fraTilEquals("Militær- eller siviltjeneste", e.getFraVerdiEllerNull(), e.getTilVerdi())));
+        faktaOmBeregningVurderinger.getHarEtterlønnSluttpakkeEndring().ifPresent(e ->
+            linjer.add(fraTilEquals("Har søker inntekt fra etterlønn eller sluttpakke", e.getFraVerdiEllerNull(), e.getTilVerdi())));
 
-        faktaOmBeregningVurderinger.getErSelvstendingNyIArbeidslivetEndring()
-            .ifPresent(toggleEndring -> lagFaktaVurderingInnslag(tekstBuilder, HistorikkEndretFeltType.SELVSTENDIG_NÆRINGSDRIVENDE, toggleEndring, this::konvertBooleanTilNyIarbeidslivetVerdiType));
 
-        faktaOmBeregningVurderinger.getHarLønnsendringIBeregningsperiodenEndring()
-            .ifPresent(toggleEndring -> tekstBuilder.medEndretFelt(HistorikkEndretFeltType.LØNNSENDRING_I_PERIODEN, toggleEndring.getFraVerdiEllerNull(), toggleEndring.getTilVerdi()));
+        linjer.addAll(lagHistorikkForErMottattYtelseEndringer(behandlingId, faktaOmBeregningVurderinger.getErMottattYtelseEndringer()));
+        linjer.addAll(lagHistorikkForTidsbegrensetArbeidsforholdEndringer(behandlingId, faktaOmBeregningVurderinger.getErTidsbegrensetArbeidsforholdEndringer()));
+        linjer.addAll(lagHistorikkForRefusjonGyldighetEndringer(behandlingId, faktaOmBeregningVurderinger.getVurderRefusjonskravGyldighetEndringer()));
 
-        faktaOmBeregningVurderinger.getHarMilitærSiviltjenesteEndring()
-            .ifPresent(toggleEndring -> tekstBuilder.medEndretFelt(HistorikkEndretFeltType.MILITÆR_ELLER_SIVIL, toggleEndring.getFraVerdiEllerNull(), toggleEndring.getTilVerdi()));
-
-        faktaOmBeregningVurderinger.getHarEtterlønnSluttpakkeEndring()
-            .ifPresent(toggleEndring -> tekstBuilder.medEndretFelt(HistorikkEndretFeltType.VURDER_ETTERLØNN_SLUTTPAKKE, toggleEndring.getFraVerdiEllerNull(), toggleEndring.getTilVerdi()));
-
-        lagHistorikkForErMottattYtelseEndringer(behandlingId,
-            tekstBuilder,
-            faktaOmBeregningVurderinger.getErMottattYtelseEndringer());
-
-        lagHistorikkForTidsbegrensetArbeidsforholdEndringer(behandlingId,
-            tekstBuilder,
-            faktaOmBeregningVurderinger.getErTidsbegrensetArbeidsforholdEndringer());
-
-        lagHistorikkForRefusjonGyldighetEndringer(behandlingId,
-            tekstBuilder,
-            faktaOmBeregningVurderinger.getVurderRefusjonskravGyldighetEndringer());
+        return linjer;
     }
 
-    private void lagHistorikkForTidsbegrensetArbeidsforholdEndringer(Long behandlingId, HistorikkInnslagTekstBuilder tekstBuilder, List<ErTidsbegrensetArbeidsforholdEndring> erTidsbegrensetArbeidsforholdEndringer) {
-        InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId);
-        List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer = inntektArbeidYtelseGrunnlag.getArbeidsforholdOverstyringer();
+    private List<HistorikkinnslagLinjeBuilder> lagHistorikkForTidsbegrensetArbeidsforholdEndringer(Long behandlingId, List<ErTidsbegrensetArbeidsforholdEndring> erTidsbegrensetArbeidsforholdEndringer) {
+        var linjer = new ArrayList<HistorikkinnslagLinjeBuilder>();
+        var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId);
+        var arbeidsforholdOverstyringer = inntektArbeidYtelseGrunnlag.getArbeidsforholdOverstyringer();
         erTidsbegrensetArbeidsforholdEndringer.forEach(erTidsbegrensetArbeidsforholdEndring -> {
-            ToggleEndring endring = erTidsbegrensetArbeidsforholdEndring.getErTidsbegrensetArbeidsforholdEndring();
-            String info = arbeidsgiverHistorikkinnslag.lagTekstForArbeidsgiver(erTidsbegrensetArbeidsforholdEndring.getArbeidsgiver(), arbeidsforholdOverstyringer);
-            lagFaktaVurderingInnslag(tekstBuilder, HistorikkEndretFeltType.ENDRING_TIDSBEGRENSET_ARBEIDSFORHOLD, info, endring, this::konvertBooleanTilErTidsbegrensetVerdiType);
+            var endring = erTidsbegrensetArbeidsforholdEndring.getErTidsbegrensetArbeidsforholdEndring();
+            var info = arbeidsgiverHistorikkinnslag.lagTekstForArbeidsgiver(erTidsbegrensetArbeidsforholdEndring.getArbeidsgiver(), arbeidsforholdOverstyringer);
+            linjer.add(fraTilEquals(String.format("Endring tidsbegrenset arbeidsforhold %s", info), konvertBooleanTilErTidsbegrensetVerdiType(endring.getFraVerdiEllerNull()), konvertBooleanTilErTidsbegrensetVerdiType(endring.getTilVerdi())));
         });
+        return linjer;
     }
 
-    private void lagHistorikkForErMottattYtelseEndringer(Long behandlingId, HistorikkInnslagTekstBuilder tekstBuilder, List<ErMottattYtelseEndring> erMottattYtelseEndringer) {
-        InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId);
-        List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer = inntektArbeidYtelseGrunnlag.getArbeidsforholdOverstyringer();
+    private List<HistorikkinnslagLinjeBuilder> lagHistorikkForErMottattYtelseEndringer(Long behandlingId, List<ErMottattYtelseEndring> erMottattYtelseEndringer) {
+        var linjer = new ArrayList<HistorikkinnslagLinjeBuilder>();
+        var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId);
+        var arbeidsforholdOverstyringer = inntektArbeidYtelseGrunnlag.getArbeidsforholdOverstyringer();
         erMottattYtelseEndringer.forEach(erMottattYtelseEndring -> {
-            ToggleEndring endring = erMottattYtelseEndring.getErMottattYtelseEndring();
+            var endring = erMottattYtelseEndring.getErMottattYtelseEndring();
             if (erMottattYtelseEndring.getArbeidsgiver() != null) {
-                String info = arbeidsgiverHistorikkinnslag.lagTekstForArbeidsgiver(erMottattYtelseEndring.getArbeidsgiver(), arbeidsforholdOverstyringer);
-                tekstBuilder.medEndretFelt(HistorikkEndretFeltType.MOTTAR_YTELSE_ARBEID,
-                    info,
-                    endring.getFraVerdiEllerNull(),
-                    endring.getTilVerdi());
+                var info = arbeidsgiverHistorikkinnslag.lagTekstForArbeidsgiver(erMottattYtelseEndring.getArbeidsgiver(), arbeidsforholdOverstyringer);
+                linjer.add(fraTilEquals(String.format("Mottar søker ytelse for arbeid i %s", info), endring.getFraVerdiEllerNull(), endring.getTilVerdi()));
             } else if (erMottattYtelseEndring.getAktivitetStatus().erFrilanser()) {
-                tekstBuilder.medEndretFelt(HistorikkEndretFeltType.MOTTAR_YTELSE_FRILANS,
-                    endring.getFraVerdiEllerNull(),
-                    endring.getTilVerdi());
+                linjer.add(fraTilEquals("Mottar søker ytelse for frilansaktiviteten", endring.getFraVerdiEllerNull(), endring.getTilVerdi()));
             }
         });
+        return linjer;
     }
 
-    private void lagHistorikkForRefusjonGyldighetEndringer(Long behandlingId, HistorikkInnslagTekstBuilder tekstBuilder, List<RefusjonskravGyldighetEndring> refusjonskravGyldighetEndringer) {
-        InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId);
-        List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer = inntektArbeidYtelseGrunnlag.getArbeidsforholdOverstyringer();
+    private List<HistorikkinnslagLinjeBuilder> lagHistorikkForRefusjonGyldighetEndringer(Long behandlingId, List<RefusjonskravGyldighetEndring> refusjonskravGyldighetEndringer) {
+        var linjer = new ArrayList<HistorikkinnslagLinjeBuilder>();
+        var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId);
+        var arbeidsforholdOverstyringer = inntektArbeidYtelseGrunnlag.getArbeidsforholdOverstyringer();
         refusjonskravGyldighetEndringer.forEach(refusjonskravGyldighetEndring -> {
-            ToggleEndring erGyldighetUtvidet = refusjonskravGyldighetEndring.getErGyldighetUtvidet();
-            tekstBuilder.medEndretFelt(HistorikkEndretFeltType.NY_REFUSJONSFRIST,
-                arbeidsgiverHistorikkinnslag.lagTekstForArbeidsgiver(refusjonskravGyldighetEndring.getArbeidsgiver(), arbeidsforholdOverstyringer),
-                erGyldighetUtvidet.getFraVerdiEllerNull(), erGyldighetUtvidet.getTilVerdi());
+            var erGyldighetUtvidet = refusjonskravGyldighetEndring.getErGyldighetUtvidet();
+            var navnVerdi = arbeidsgiverHistorikkinnslag.lagTekstForArbeidsgiver(refusjonskravGyldighetEndring.getArbeidsgiver(), arbeidsforholdOverstyringer);
+            linjer.add(fraTilEquals(String.format("Ny refusjonsfrist %s", navnVerdi), erGyldighetUtvidet.getFraVerdiEllerNull(), erGyldighetUtvidet.getTilVerdi()));
         });
+        return linjer;
     }
 
-    private void lagFaktaVurderingInnslag(HistorikkInnslagTekstBuilder tekstBuilder,
-                                          HistorikkEndretFeltType endretFeltType,
-                                          String info,
-                                          ToggleEndring endring,
-                                          KonverterBoolenTilVerdiType konverterer) {
-        HistorikkEndretFeltVerdiType opprinneligVerdi = konverterer.konverter(endring.getFraVerdiEllerNull());
-        HistorikkEndretFeltVerdiType nyVerdi = konverterer.konverter(endring.getTilVerdi());
-        tekstBuilder.medEndretFelt(endretFeltType, info, opprinneligVerdi, nyVerdi);
-    }
-
-    private void lagFaktaVurderingInnslag(HistorikkInnslagTekstBuilder tekstBuilder,
-                                          HistorikkEndretFeltType endretFeltType,
-                                          ToggleEndring endring,
-                                          KonverterBoolenTilVerdiType konverterer) {
-        HistorikkEndretFeltVerdiType opprinneligVerdi = konverterer.konverter(endring.getFraVerdiEllerNull());
-        HistorikkEndretFeltVerdiType nyVerdi = konverterer.konverter(endring.getTilVerdi());
-        tekstBuilder.medEndretFelt(endretFeltType, opprinneligVerdi, nyVerdi);
-    }
-
-    private HistorikkEndretFeltVerdiType konvertBooleanTilErTidsbegrensetVerdiType(Boolean endringTidsbegrensetArbeidsforhold) {
+    private String konvertBooleanTilErTidsbegrensetVerdiType(Boolean endringTidsbegrensetArbeidsforhold) {
         if (endringTidsbegrensetArbeidsforhold == null) {
             return null;
         }
-        return endringTidsbegrensetArbeidsforhold ? HistorikkEndretFeltVerdiType.TIDSBEGRENSET_ARBEIDSFORHOLD : HistorikkEndretFeltVerdiType.IKKE_TIDSBEGRENSET_ARBEIDSFORHOLD;
+        return endringTidsbegrensetArbeidsforhold ? "tidsbegrenset" : "ikke tidsbegrenset";
     }
 
-    private HistorikkEndretFeltVerdiType konvertBooleanTilNyIarbeidslivetVerdiType(Boolean erNyIArbeidslivet) {
+    private String konvertBooleanTilNyIarbeidslivetVerdiType(Boolean erNyIArbeidslivet) {
         if (erNyIArbeidslivet == null) {
             return null;
         }
-        return erNyIArbeidslivet ? HistorikkEndretFeltVerdiType.NY_I_ARBEIDSLIVET : HistorikkEndretFeltVerdiType.IKKE_NY_I_ARBEIDSLIVET;
+        return erNyIArbeidslivet ? "ny i arbeidslivet" : "ikke ny i arbeidslivet";
     }
 
-    private HistorikkEndretFeltVerdiType konvertBooleanTilNyoppstartetFLVerdiType(Boolean erNyoppstartet) {
+    private String konvertBooleanTilNyoppstartetFLVerdiType(Boolean erNyoppstartet) {
         if (erNyoppstartet == null) {
             return null;
         }
-        return erNyoppstartet ? HistorikkEndretFeltVerdiType.NYOPPSTARTET : HistorikkEndretFeltVerdiType.IKKE_NYOPPSTARTET;
-    }
-
-    @FunctionalInterface
-    interface KonverterBoolenTilVerdiType {
-        HistorikkEndretFeltVerdiType konverter(Boolean verdi);
+        return erNyoppstartet ? "nyoppstartet" : "ikke nyoppstartet";
     }
 
 }

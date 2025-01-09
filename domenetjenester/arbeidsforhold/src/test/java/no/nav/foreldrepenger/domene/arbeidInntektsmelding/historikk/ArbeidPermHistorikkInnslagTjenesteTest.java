@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType.FAKTA_OM_ARBEIDSFORHOLD_PERMISJON;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -8,22 +9,20 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 
 import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.AvklarPermisjonUtenSluttdatoDto;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYRepositoryProvider;
+import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYScenarioBuilder;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 
 @CdiDbAwareTest
@@ -35,38 +34,40 @@ class ArbeidPermHistorikkInnslagTjenesteTest {
     private static final String ARB_NAVN = "Arbeidsgivernavn";
 
     @Inject
-    private HistorikkTjenesteAdapter historikkAdapter;
-    @Inject
-    private IAYRepositoryProvider provider;
+    private BehandlingRepositoryProvider repositoryProvider;
 
-    @Mock
-    private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
-    @Mock
-    private HistorikkRepository historikkRepository;
-
-    private ArbeidPermHistorikkInnslagTjeneste arbeidPermHistorikkInnslagTjenesteTest;
-
-    @BeforeEach
-    void setUp(EntityManager entityManager) {
-        provider = new IAYRepositoryProvider(entityManager);
-        historikkRepository = new HistorikkRepository(entityManager);
-        historikkAdapter = new HistorikkTjenesteAdapter(historikkRepository, mock(DokumentArkivTjeneste.class),
-            provider.getBehandlingRepository());
-
-        new ArbeidsgiverOpplysninger(KUNSTIG_ORG, INTERN_ARBEIDSFORHOLD_ID);
-        when(arbeidsgiverTjeneste.hent(any())).thenReturn(new ArbeidsgiverOpplysninger(KUNSTIG_ORG, ARB_NAVN ));
-
-        arbeidPermHistorikkInnslagTjenesteTest = new ArbeidPermHistorikkInnslagTjeneste(historikkAdapter, arbeidsgiverTjeneste );
-    }
 
     @Test
     void lagTekstMedArbeidsgiver() {
-        var avklarteArbForhold = List.of(new AvklarPermisjonUtenSluttdatoDto(KUNSTIG_ORG, INTERN_ARBEIDSFORHOLD_ID, BekreftetPermisjonStatus.BRUK_PERMISJON),
-            new AvklarPermisjonUtenSluttdatoDto(NAV_ORGNR, INTERN_ARBEIDSFORHOLD_ID_2, BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON));
 
-        arbeidPermHistorikkInnslagTjenesteTest.opprettHistorikkinnslag(avklarteArbForhold, "begrunnelse");
+        var arbeidsgiverTjeneste = mock(ArbeidsgiverTjeneste.class);
+        when(arbeidsgiverTjeneste.hent(any())).thenReturn(new ArbeidsgiverOpplysninger(KUNSTIG_ORG, ARB_NAVN ));
 
-        assertThat(historikkAdapter.tekstBuilder().getHistorikkinnslagDeler()).hasSize(3);
-        assertThat(historikkAdapter.tekstBuilder().getHistorikkinnslagDeler().get(2).getBegrunnelse()).contains("begrunnelse");
+        var historikkRepository = repositoryProvider.getHistorikkinnslagRepository();
+        var arbeidPermHistorikkInnslagTjenesteTest = new ArbeidPermHistorikkInnslagTjeneste(historikkRepository, arbeidsgiverTjeneste);
+
+        var avklarteArbForhold = List.of(
+            new AvklarPermisjonUtenSluttdatoDto(KUNSTIG_ORG, INTERN_ARBEIDSFORHOLD_ID, BekreftetPermisjonStatus.BRUK_PERMISJON),
+            new AvklarPermisjonUtenSluttdatoDto(NAV_ORGNR, INTERN_ARBEIDSFORHOLD_ID_2, BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON)
+        );
+        var ref = getBehandlingReferanse();
+        arbeidPermHistorikkInnslagTjenesteTest.opprettHistorikkinnslag(ref, avklarteArbForhold, "begrunnelse");
+
+        var historikkinnslag = historikkRepository.hent(ref.saksnummer());
+
+        assertThat(historikkinnslag).hasSize(1);
+        assertThat(historikkinnslag.getFirst().getFagsakId()).isEqualTo(ref.fagsakId());
+        assertThat(historikkinnslag.getFirst().getBehandlingId()).isEqualTo(ref.behandlingId());
+        assertThat(historikkinnslag.getFirst().getSkjermlenke()).isEqualTo(FAKTA_OM_ARBEIDSFORHOLD_PERMISJON);
+        assertThat(historikkinnslag.getFirst().getLinjer()).hasSize(3);
+        assertThat(historikkinnslag.getFirst().getLinjer().get(0).getTekst()).contains(ARB_NAVN, "Søker er i permisjon");
+        assertThat(historikkinnslag.getFirst().getLinjer().get(1).getTekst()).contains(ARB_NAVN, "Søker er ikke i permisjon");
+        assertThat(historikkinnslag.getFirst().getLinjer().get(2).getTekst()).contains("begrunnelse");
+    }
+
+    private BehandlingReferanse getBehandlingReferanse() {
+        var behandling = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER)
+            .lagre(new IAYRepositoryProvider(repositoryProvider.getEntityManager()));
+        return BehandlingReferanse.fra(behandling);
     }
 }

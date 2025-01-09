@@ -12,9 +12,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -24,7 +23,6 @@ import no.nav.foreldrepenger.domene.person.verge.dto.VergeBehandlingsmenyDto;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBehandlingsmenyEnum;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
@@ -33,7 +31,7 @@ public class VergeTjeneste {
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private VergeRepository vergeRepository;
-    private HistorikkRepository historikkRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private BehandlingRepository behandlingRepository;
     private PersonopplysningTjeneste personopplysningTjeneste;
 
@@ -41,12 +39,12 @@ public class VergeTjeneste {
     public VergeTjeneste(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                          BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                          VergeRepository vergeRepository,
-                         HistorikkRepository historikkRepository,
+                         HistorikkinnslagRepository historikkinnslagRepository,
                          BehandlingRepository behandlingRepository, PersonopplysningTjeneste personopplysningTjeneste) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.vergeRepository = vergeRepository;
-        this.historikkRepository = historikkRepository;
+        this.historikkinnslagRepository = historikkinnslagRepository;
         this.behandlingRepository = behandlingRepository;
         this.personopplysningTjeneste = personopplysningTjeneste;
     }
@@ -106,15 +104,13 @@ public class VergeTjeneste {
     }
 
     private void opprettHistorikkinnslagForFjernetVerge(Behandling behandling) {
-        var historikkInnslagTekstBuilder = new HistorikkInnslagTekstBuilder().medHendelse(
-            HistorikkinnslagType.FJERNET_VERGE);
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
-        historikkinnslag.setType(HistorikkinnslagType.FJERNET_VERGE);
-        historikkinnslag.setBehandlingId(behandling.getId());
-        historikkinnslag.setFagsakId(behandling.getFagsakId());
-        historikkInnslagTekstBuilder.build(historikkinnslag);
-        historikkRepository.lagre(historikkinnslag);
+        var historikkinnslag = new Historikkinnslag.Builder()
+            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medFagsakId(behandling.getFagsakId())
+            .medBehandlingId(behandling.getId())
+            .medTittel("Opplysninger om verge/fullmektig er fjernet")
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
     private boolean erSøkerUnder18ar(Long behandlingId, AktørId aktørId) {

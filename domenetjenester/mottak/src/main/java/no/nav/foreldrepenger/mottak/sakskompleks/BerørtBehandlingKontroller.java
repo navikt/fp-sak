@@ -21,19 +21,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkBegrunnelseType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.ytelse.beregning.fp.BeregnFeriepenger;
 
@@ -53,7 +49,7 @@ public class BerørtBehandlingKontroller {
     private BehandlingRepository behandlingRepository;
     private BerørtBehandlingTjeneste berørtBehandlingTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
-    private HistorikkRepository historikkRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private BeregnFeriepenger beregnFeriepenger;
     private FagsakLåsRepository fagsakLåsRepository;
     private Behandlingsoppretter behandlingsoppretter;
@@ -67,7 +63,8 @@ public class BerørtBehandlingKontroller {
                                       BerørtBehandlingTjeneste berørtBehandlingTjeneste,
                                       Behandlingsoppretter behandlingsoppretter,
                                       @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) BeregnFeriepenger beregnFeriepenger,
-                                      KøKontroller køKontroller, YtelseFordelingTjeneste ytelseFordelingTjeneste,
+                                      KøKontroller køKontroller,
+                                      YtelseFordelingTjeneste ytelseFordelingTjeneste,
                                       BehandlingProsesseringTjeneste behandlingProsesseringTjeneste) {
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.fagsakLåsRepository = behandlingRepositoryProvider.getFagsakLåsRepository();
@@ -75,7 +72,7 @@ public class BerørtBehandlingKontroller {
         this.berørtBehandlingTjeneste = berørtBehandlingTjeneste;
         this.behandlingsresultatRepository = behandlingRepositoryProvider.getBehandlingsresultatRepository();
         this.behandlingsoppretter = behandlingsoppretter;
-        this.historikkRepository = behandlingRepositoryProvider.getHistorikkRepository();
+        this.historikkinnslagRepository = behandlingRepositoryProvider.getHistorikkinnslagRepository();
         this.beregnFeriepenger = beregnFeriepenger;
         this.køKontroller = køKontroller;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
@@ -121,8 +118,11 @@ public class BerørtBehandlingKontroller {
         }
     }
 
-    private boolean skalEndreDekningsgradForMedForelder(Behandling vedtattBehandling, Behandlingsresultat vedtattResultat, Behandling behandlingMedforelder) {
-        if (vedtattResultat.isBehandlingHenlagt() || !behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(behandlingMedforelder.getFagsakId()).isEmpty()) {
+    private boolean skalEndreDekningsgradForMedForelder(Behandling vedtattBehandling,
+                                                        Behandlingsresultat vedtattResultat,
+                                                        Behandling behandlingMedforelder) {
+        if (vedtattResultat.isBehandlingHenlagt() || !behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(behandlingMedforelder.getFagsakId())
+            .isEmpty()) {
             return false;
         }
         var avsluttetErEndreDekningsgrad = vedtattBehandling.harBehandlingÅrsak(BehandlingÅrsakType.ENDRE_DEKNINGSGRAD);
@@ -130,7 +130,8 @@ public class BerørtBehandlingKontroller {
         var medforelderDekningsgrad = ytelseFordelingTjeneste.hentAggregat(behandlingMedforelder.getId()).getGjeldendeDekningsgrad();
         var ulikDekningsgrad = !Objects.equals(vedtattDekningsgrad, medforelderDekningsgrad);
         if (avsluttetErEndreDekningsgrad && ulikDekningsgrad) {
-            LOG.warn("Endre dekningsgrad potensiell cascade avsluttet behandlingId {} sak medforelder {}", vedtattBehandling.getId(), behandlingMedforelder.getSaksnummer());
+            LOG.warn("Endre dekningsgrad potensiell cascade avsluttet behandlingId {} sak medforelder {}", vedtattBehandling.getId(),
+                behandlingMedforelder.getSaksnummer());
             return false;
         }
         return ulikDekningsgrad;
@@ -150,20 +151,24 @@ public class BerørtBehandlingKontroller {
     private void opprettHistorikkinnslag(Behandling behandlingMedForelder,
                                          Behandlingsresultat behandlingsresultatBruker,
                                          BerørtBehandlingTjeneste.BerørtÅrsak årsak) {
-        var årsakHist = BerørtBehandlingTjeneste.harKonsekvens(behandlingsresultatBruker, KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER) ?
-            BerørtBehandlingTjeneste.BerørtÅrsak.OPPHØR : årsak;
+        var årsakHist = BerørtBehandlingTjeneste.harKonsekvens(behandlingsresultatBruker,
+            KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER) ? BerørtBehandlingTjeneste.BerørtÅrsak.OPPHØR : årsak;
         switch (årsakHist) {
-            case KONTO_REDUSERT -> opprettHistorikkinnslagOmRevurdering(behandlingMedForelder, HistorikkBegrunnelseType.BERORT_BEH_ENDRING_DEKNINGSGRAD);
-            case OPPHØR -> opprettHistorikkinnslagOmRevurdering(behandlingMedForelder, HistorikkBegrunnelseType.BERORT_BEH_OPPHOR);
+            case KONTO_REDUSERT ->
+                opprettHistorikkinnslagOmRevurdering(behandlingMedForelder, "Den andre forelderens behandling har endret antall disponible stønadsdager");
+            case OPPHØR -> opprettHistorikkinnslagOmRevurdering(behandlingMedForelder, "Den andre forelderens vedtak er opphørt");
             case ORDINÆR, FERIEPENGER -> opprettHistorikkinnslagOmRevurdering(behandlingMedForelder, BehandlingÅrsakType.BERØRT_BEHANDLING);
         }
     }
 
-    private void opprettBerørtBehandling(Fagsak fagsakMedforelder, Behandlingsresultat behandlingsresultatBruker, BerørtBehandlingTjeneste.BerørtÅrsak årsak) {
+    private void opprettBerørtBehandling(Fagsak fagsakMedforelder,
+                                         Behandlingsresultat behandlingsresultatBruker,
+                                         BerørtBehandlingTjeneste.BerørtÅrsak årsak) {
         fagsakLåsRepository.taLås(fagsakMedforelder.getId());
         // Låse behandling som potensielt skal settes på vent
         behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakMedforelder.getId()).ifPresent(behandlingRepository::taSkriveLås);
-        var åpenTømUttak = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakMedforelder.getId()).stream()
+        var åpenTømUttak = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakMedforelder.getId())
+            .stream()
             .anyMatch(SpesialBehandling::erOppsagtUttak);
         if (åpenTømUttak) {
             // Holder på å tømme uttaket. Ingen vits med berørt behandling
@@ -171,11 +176,13 @@ public class BerørtBehandlingKontroller {
             return;
         }
         // Hvis det nå allerede skulle være en åpen behandling (ikke i kø) så legg den i kø før oppretting av berørt.
-        var åpenBerørtBehandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakMedforelder.getId()).stream()
+        var åpenBerørtBehandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakMedforelder.getId())
+            .stream()
             .filter(SpesialBehandling::erBerørtBehandling)
             .findFirst();
         if (åpenBerørtBehandling.isPresent()) {
-            LOG.info("OPPRETT BERØRT finnes allerede åpen berørt for sak {}  behandling {}", fagsakMedforelder.getSaksnummer(), åpenBerørtBehandling.get().getId());
+            LOG.info("OPPRETT BERØRT finnes allerede åpen berørt for sak {}  behandling {}", fagsakMedforelder.getSaksnummer(),
+                åpenBerørtBehandling.get().getId());
             var origBehandlingId = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakMedforelder.getId()).orElseThrow().getId();
             if (åpenBerørtBehandling.flatMap(Behandling::getOriginalBehandlingId).filter(origBehandlingId::equals).isPresent()) {
                 // Allerede opprettet berørt med samme originalbehandling. Kafka-issue.
@@ -184,7 +191,8 @@ public class BerørtBehandlingKontroller {
             }
         }
         // Stans eventuelle åpne feriepengereberegninger - de håndteres av ny berørt behandling
-        behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakMedforelder.getId()).stream()
+        behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakMedforelder.getId())
+            .stream()
             .filter(SpesialBehandling::erJusterFeriepenger)
             .forEach(behandlingsoppretter::henleggBehandling);
 
@@ -212,13 +220,17 @@ public class BerørtBehandlingKontroller {
     }
 
     private boolean skalFeriepengerReberegnesForMedForelder(Fagsak fagsakMedforelder, Behandling sisteVedtatteMedForelder, Long behandlingIdBruker) {
-        var avsluttetErReberegn = behandlingRepository.hentBehandling(behandlingIdBruker).harBehandlingÅrsak(BehandlingÅrsakType.REBEREGN_FERIEPENGER);
-        if (!behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakMedforelder.getId()).isEmpty()) return false;
+        var avsluttetErReberegn = behandlingRepository.hentBehandling(behandlingIdBruker)
+            .harBehandlingÅrsak(BehandlingÅrsakType.REBEREGN_FERIEPENGER);
+        if (!behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakMedforelder.getId()).isEmpty()) {
+            return false;
+        }
 
         var ref = BehandlingReferanse.fra(sisteVedtatteMedForelder);
         var harAvvikFeriepenger = beregnFeriepenger.avvikBeregnetFeriepengerBeregningsresultat(ref);
         if (avsluttetErReberegn && harAvvikFeriepenger) {
-            LOG.warn("REBEREGN FERIEPENGER potensiell cascade avsluttet behandlingId {} sak medforelder {}", behandlingIdBruker, fagsakMedforelder.getSaksnummer());
+            LOG.warn("REBEREGN FERIEPENGER potensiell cascade avsluttet behandlingId {} sak medforelder {}", behandlingIdBruker,
+                fagsakMedforelder.getSaksnummer());
             return false;
         }
         return harAvvikFeriepenger;
@@ -228,27 +240,23 @@ public class BerørtBehandlingKontroller {
         køKontroller.håndterSakskompleks(fagsak);
     }
 
-    private void opprettHistorikkinnslagOmRevurdering(Behandling behandling,
-                                                     HistorikkBegrunnelseType historikkBegrunnelseType) {
-        opprettHistorikkinnslag(behandling, historikkBegrunnelseType);
+    private void opprettHistorikkinnslagOmRevurdering(Behandling behandling, String historikkBegrunnelse) {
+        opprettHistorikkinnslag(behandling, historikkBegrunnelse);
     }
 
     public void opprettHistorikkinnslagOmRevurdering(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
-        opprettHistorikkinnslag(behandling, behandlingÅrsakType);
+        opprettHistorikkinnslag(behandling, behandlingÅrsakType.getNavn());
     }
 
-    private void opprettHistorikkinnslag(Behandling behandling, Kodeverdi begrunnelse) {
-        var revurderingsInnslag = new Historikkinnslag();
-        revurderingsInnslag.setBehandling(behandling);
-        var historikkinnslagType = HistorikkinnslagType.REVURD_OPPR;
-        revurderingsInnslag.setType(historikkinnslagType);
-        revurderingsInnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
-        var historiebygger = new HistorikkInnslagTekstBuilder().medHendelse(historikkinnslagType);
-        historiebygger.medBegrunnelse(begrunnelse);
-
-        historiebygger.build(revurderingsInnslag);
-
-        historikkRepository.lagre(revurderingsInnslag);
+    private void opprettHistorikkinnslag(Behandling behandling, String begrunnelse) {
+        var historikkinnslag = new Historikkinnslag.Builder()
+            .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
+            .medBehandlingId(behandling.getId())
+            .medFagsakId(behandling.getFagsakId())
+            .medTittel("Revurdering er opprettet")
+            .addLinje(begrunnelse)
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
 }

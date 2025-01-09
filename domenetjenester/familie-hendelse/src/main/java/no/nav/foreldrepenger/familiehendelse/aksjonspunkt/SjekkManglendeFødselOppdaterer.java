@@ -21,13 +21,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOpplysningType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkManglendeFodselDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.UidentifisertBarnDto;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
@@ -36,21 +37,21 @@ import no.nav.vedtak.exception.TekniskException;
 @DtoTilServiceAdapter(dto = SjekkManglendeFodselDto.class, adapter = AksjonspunktOppdaterer.class)
 public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<SjekkManglendeFodselDto> {
 
-    private HistorikkTjenesteAdapter historikkAdapter;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     SjekkManglendeFødselOppdaterer() {
         // for CDI proxy
     }
 
     @Inject
-    public SjekkManglendeFødselOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
-                                          OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
-                                          FamilieHendelseTjeneste familieHendelseTjeneste) {
-        this.historikkAdapter = historikkAdapter;
+    public SjekkManglendeFødselOppdaterer(OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
+                                          FamilieHendelseTjeneste familieHendelseTjeneste,
+                                          HistorikkinnslagRepository historikkinnslagRepository) {
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
+        this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     @Override
@@ -58,7 +59,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
         var behandlingId = param.getBehandlingId();
         var grunnlag = familieHendelseTjeneste.hentAggregat(behandlingId);
         var forrigeFikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandlingId, param.getRef().fagsakYtelseType());
-        var totrinn = håndterEndringHistorikk(dto, param.getRef(), param, grunnlag);
+        var totrinn = håndterEndringHistorikk(dto, param.getRef(), grunnlag);
         var utledetResultat = utledFødselsdata(dto, grunnlag);
 
         var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandlingId);
@@ -66,8 +67,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
             .medAntallBarn(utledetResultat.size())
             .erFødsel() // Settes til fødsel for å sikre at typen blir fødsel selv om det ikke er født barn.
             .medErMorForSykVedFødsel(null);
-        utledetResultat.forEach(
-            it -> oppdatertOverstyrtHendelse.leggTilBarn(it.getFødselsdato(), it.getDødsdato().orElse(null)));
+        utledetResultat.forEach(it -> oppdatertOverstyrtHendelse.leggTilBarn(it.getFødselsdato(), it.getDødsdato().orElse(null)));
 
         familieHendelseTjeneste.lagreOverstyrtHendelse(behandlingId, oppdatertOverstyrtHendelse);
 
@@ -81,34 +81,39 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
 
     private boolean håndterEndringHistorikk(SjekkManglendeFodselDto dto,
                                             BehandlingReferanse behandlingReferanse,
-                                            AksjonspunktOppdaterParameter param,
                                             FamilieHendelseGrunnlagEntitet grunnlag) {
         var utledetResultat = utledFødselsdata(dto, grunnlag);
         var originalDokumentasjonForeligger = hentOrginalDokumentasjonForeligger(grunnlag);
-        var erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.DOKUMENTASJON_FORELIGGER,
-            originalDokumentasjonForeligger.orElse(null), dto.getDokumentasjonForeligger());
 
-        erEndret = sjekkFødselsDatoOgAntallBarnEndret(grunnlag, utledetResultat, erEndret);
-        var gjeldendeAntallBarn = dto.getDokumentasjonForeligger() ? dto.getUidentifiserteBarn().size() : grunnlag.getBekreftetVersjon()
-            .map(FamilieHendelseEntitet::getAntallBarn)
-            .orElse(0);
+        var historikkinnslag = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medTittel(SkjermlenkeType.FAKTA_OM_FOEDSEL)
+            .medFagsakId(behandlingReferanse.fagsakId())
+            .medBehandlingId(behandlingReferanse.behandlingId());
 
-        opprettetInnslagforFeltBrukAntallBarnIPDL(dto, behandlingReferanse);
+        var erEndret = oppdaterVedEndretVerdi(historikkinnslag, originalDokumentasjonForeligger.orElse(null), dto.getDokumentasjonForeligger());
 
-        historikkAdapter.tekstBuilder()
-            .medOpplysning(HistorikkOpplysningType.ANTALL_BARN, gjeldendeAntallBarn)
-            .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret())
-            .medSkjermlenke(SkjermlenkeType.FAKTA_OM_FOEDSEL);
+        if (dto.getDokumentasjonForeligger()) {
+            var gjeldendeAntallBarn = dto.getDokumentasjonForeligger() ? dto.getUidentifiserteBarn().size() : grunnlag.getBekreftetVersjon()
+                .map(FamilieHendelseEntitet::getAntallBarn)
+                .orElse(0);
+            erEndret = sjekkFødselsDatoOgAntallBarnEndret(historikkinnslag, grunnlag, utledetResultat, erEndret);
+            opprettetInnslagforFeltBrukAntallBarnIPDL(dto, historikkinnslag, behandlingReferanse);
+            historikkinnslag.addLinje(
+                new HistorikkinnslagLinjeBuilder().bold("Antall barn").tekst("som brukes i behandlingen:").bold(gjeldendeAntallBarn));
+        }
+
+        historikkinnslag.addLinje(dto.getBegrunnelse());
+        historikkinnslagRepository.lagre(historikkinnslag.build());
 
         return erEndret || grunnlag.getOverstyrtVersjon().isPresent();
     }
 
-    private List<UidentifisertBarn> utledFødselsdata(SjekkManglendeFodselDto dto,
-                                                     FamilieHendelseGrunnlagEntitet grunnlag) {
+    private List<UidentifisertBarn> utledFødselsdata(SjekkManglendeFodselDto dto, FamilieHendelseGrunnlagEntitet grunnlag) {
         var bekreftetVersjon = grunnlag.getBekreftetVersjon();
 
         var brukAntallBarnISøknad = dto.getDokumentasjonForeligger() && !dto.isBrukAntallBarnITps();
-        var barn = brukAntallBarnISøknad ? konverterBarn(dto.getUidentifiserteBarn()) : bekreftetVersjon.map(FamilieHendelseEntitet::getBarna).orElse(List.of());
+        var barn = brukAntallBarnISøknad ? konverterBarn(dto.getUidentifiserteBarn()) : bekreftetVersjon.map(FamilieHendelseEntitet::getBarna)
+            .orElse(List.of());
         if (barn.stream().anyMatch(b -> null == b.getFødselsdato())) {
             throw kanIkkeUtledeGjeldendeFødselsdato();
         }
@@ -120,9 +125,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
             // Finnes noen tilfelle i prod. Kan påvirke ytelsen
             throw new FunksjonellException("FP-076345", "Dødsdato før fødselsdato", "Se over fødsels- og dødsdato");
         }
-        return barn.stream()
-            .map(b -> new AntallBarnOgFødselsdato(b.getFodselsdato(), b.getDodsdato(), 0))
-            .collect(Collectors.toList()); //NOSONAR
+        return barn.stream().map(b -> new AntallBarnOgFødselsdato(b.getFodselsdato(), b.getDodsdato(), 0)).collect(Collectors.toList()); //NOSONAR
     }
 
     private Optional<Boolean> hentOrginalDokumentasjonForeligger(FamilieHendelseGrunnlagEntitet grunnlag) {
@@ -142,87 +145,87 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
         return Optional.empty();
     }
 
-    private Integer getAntallBarnVedSøknadFødsel(FamilieHendelseGrunnlagEntitet grunnlag) {
-        return grunnlag.getGjeldendeAntallBarn();
-    }
-
-    private boolean sjekkFødselsDatoOgAntallBarnEndret(FamilieHendelseGrunnlagEntitet behandlingsgrunnlag,
+    private boolean sjekkFødselsDatoOgAntallBarnEndret(Historikkinnslag.Builder historikkinnslag,
+                                                       FamilieHendelseGrunnlagEntitet fhGrunnlag,
                                                        List<UidentifisertBarn> dto,
                                                        boolean erEndret) {
         var erEndretTemp = dto.isEmpty() || erEndret;
-        var orginalFødselsdato = behandlingsgrunnlag.getGjeldendeBarna().stream().map(UidentifisertBarn::getFødselsdato).min(LocalDate::compareTo).orElse(null);
+        var orginalFødselsdato = fhGrunnlag.getGjeldendeBarna()
+            .stream()
+            .map(UidentifisertBarn::getFødselsdato)
+            .min(LocalDate::compareTo)
+            .orElse(null);
         var dtoFødselsdato = dto.stream().map(UidentifisertBarn::getFødselsdato).min(LocalDate::compareTo).orElse(null);
-        var originalDødsdatoer = behandlingsgrunnlag.getGjeldendeBarna().stream().map(UidentifisertBarn::getDødsdato).flatMap(Optional::stream)
+        var originalDødsdatoer = fhGrunnlag.getGjeldendeBarna()
+            .stream()
+            .map(UidentifisertBarn::getDødsdato)
+            .flatMap(Optional::stream)
             .collect(Collectors.toCollection(LinkedHashSet::new));
-        var dtoDødsdatoer = dto.stream().map(UidentifisertBarn::getDødsdato).flatMap(Optional::stream).collect(Collectors.toCollection(LinkedHashSet::new));
-        erEndretTemp = oppdaterVedEndretVerdi(HistorikkEndretFeltType.FODSELSDATO, orginalFødselsdato, dtoFødselsdato) || erEndretTemp;
-        erEndretTemp = oppdaterVedEndretVerdi(HistorikkEndretFeltType.DODSDATO, originalDødsdatoer, dtoDødsdatoer)  || erEndretTemp;
-        var opprinneligAntallBarn = getAntallBarnVedSøknadFødsel(behandlingsgrunnlag);
-        erEndretTemp = oppdaterVedEndretVerdi(HistorikkEndretFeltType.ANTALL_BARN, opprinneligAntallBarn, dto.size())
-            || erEndretTemp;
+        var dtoDødsdatoer = dto.stream()
+            .map(UidentifisertBarn::getDødsdato)
+            .flatMap(Optional::stream)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+        erEndretTemp = oppdaterVedEndretVerdi(historikkinnslag, orginalFødselsdato, dtoFødselsdato) || erEndretTemp;
+        erEndretTemp = oppdaterVedEndretVerdi(historikkinnslag, originalDødsdatoer, dtoDødsdatoer) || erEndretTemp;
+        var opprinneligAntallBarn = fhGrunnlag.getGjeldendeAntallBarn();
+        erEndretTemp = oppdaterVedEndretVerdi(historikkinnslag, opprinneligAntallBarn, dto.size()) || erEndretTemp;
         return erEndretTemp;
     }
 
-    private void opprettetInnslagforFeltBrukAntallBarnIPDL(SjekkManglendeFodselDto dto, BehandlingReferanse behandlingReferanse) {
+    private void opprettetInnslagforFeltBrukAntallBarnIPDL(SjekkManglendeFodselDto dto,
+                                                           Historikkinnslag.Builder historikkinnslag,
+                                                           BehandlingReferanse behandlingReferanse) {
         if (dto.getDokumentasjonForeligger()) {
-            var feltNavn = utledFeltNavn(dto, behandlingReferanse);
-            historikkAdapter.tekstBuilder().medEndretFelt(feltNavn, null, true);
+            historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().til(utledFeltNavn(dto, behandlingReferanse), true));
         }
     }
 
-    private static HistorikkEndretFeltType utledFeltNavn(SjekkManglendeFodselDto dto, BehandlingReferanse behandlingReferanse) {
+    private static String utledFeltNavn(SjekkManglendeFodselDto dto, BehandlingReferanse behandlingReferanse) {
         if (dto.isBrukAntallBarnITps()) {
-            return HistorikkEndretFeltType.BRUK_ANTALL_I_TPS;
+            return "Bruk antall fra folkeregisteret";
         }
-        return BehandlingType.REVURDERING.equals(behandlingReferanse.behandlingType()) ? HistorikkEndretFeltType.BRUK_ANTALL_I_VEDTAKET : HistorikkEndretFeltType.BRUK_ANTALL_I_SOKNAD;
+        return BehandlingType.REVURDERING.equals(behandlingReferanse.behandlingType())
+            ? "Bruk antall fra vedtaket"
+            : "Bruk antall fra søknad";
     }
 
-    private boolean oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType,
-                                           LocalDate original,
-                                           LocalDate bekreftet) {
+    private boolean oppdaterVedEndretVerdi(Historikkinnslag.Builder historikkinnslag, LocalDate original, LocalDate bekreftet) {
         if (!Objects.equals(bekreftet, original)) {
-            historikkAdapter.tekstBuilder().medEndretFelt(historikkEndretFeltType, original, bekreftet);
+            historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().fraTil("Fødselsdato", original, bekreftet));
             return true;
         }
         return false;
     }
 
-    private boolean oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType,
-                                           Number original,
-                                           Number bekreftet) {
+    private boolean oppdaterVedEndretVerdi(Historikkinnslag.Builder historikkinnslag, Integer original, Integer bekreftet) {
         if (!Objects.equals(bekreftet, original)) {
-            historikkAdapter.tekstBuilder().medEndretFelt(historikkEndretFeltType, original, bekreftet);
+            historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().fraTil("Antall barn", original, bekreftet));
             return true;
         }
         return false;
     }
 
-    private boolean oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType,
-                                           Boolean original,
-                                           Boolean bekreftet) {
+    private boolean oppdaterVedEndretVerdi(Historikkinnslag.Builder historikkinnslag, Boolean original, Boolean bekreftet) {
         if (!Objects.equals(bekreftet, original)) {
-            historikkAdapter.tekstBuilder().medEndretFelt(historikkEndretFeltType, original, bekreftet);
+            historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().fraTil("Dokumentasjon foreligger", original, bekreftet));
             return true;
         }
         return false;
     }
 
-    private boolean oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType,
-                                           Set<LocalDate> original,
-                                           Set<LocalDate> bekreftet) {
+    private boolean oppdaterVedEndretVerdi(Historikkinnslag.Builder historikkinnslag, Set<LocalDate> original, Set<LocalDate> bekreftet) {
         var originalEndretMin = original.stream().filter(d -> !bekreftet.contains(d)).min(LocalDate::compareTo).orElse(null);
         var dtoDødEndretMin = bekreftet.stream().filter(d -> !original.contains(d)).min(LocalDate::compareTo).orElse(null);
 
         if (!Objects.equals(bekreftet, original)) {
-            historikkAdapter.tekstBuilder().medEndretFelt(historikkEndretFeltType, originalEndretMin, dtoDødEndretMin);
+            historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().fraTil("Dødsdato", originalEndretMin, dtoDødEndretMin));
             return true;
         }
         return false;
     }
 
     private static TekniskException kanIkkeUtledeGjeldendeFødselsdato() {
-        return new KanIkkeUtledeGjeldendeFødselsdatoException("FP-475767", "Kan ikke utlede gjeldende "
-            + "fødselsdato ved bekreftelse av fødsel");
+        return new KanIkkeUtledeGjeldendeFødselsdatoException("FP-475767", "Kan ikke utlede gjeldende " + "fødselsdato ved bekreftelse av fødsel");
     }
 
     private static class AntallBarnOgFødselsdato implements UidentifisertBarn {

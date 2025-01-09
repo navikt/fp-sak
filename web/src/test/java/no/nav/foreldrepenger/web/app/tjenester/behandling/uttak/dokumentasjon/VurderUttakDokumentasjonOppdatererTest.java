@@ -8,7 +8,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,10 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
@@ -46,7 +41,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.MorsStillingsprosent;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.uttak.fakta.uttak.DokumentasjonVurderingBehov;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @CdiDbAwareTest
@@ -58,9 +52,6 @@ class VurderUttakDokumentasjonOppdatererTest {
     @Inject
     @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-
-    @Inject
-    private HistorikkTjenesteAdapter historikkTjenesteAdapter;
 
     @Inject
     @Any
@@ -91,16 +82,9 @@ class VurderUttakDokumentasjonOppdatererTest {
             DokumentasjonVurderingBehovDto.Vurdering.IKKE_GODKJENT, null);
         var dto = new VurderUttakDokumentasjonDto("begrunnelse", List.of(vurdering1, vurdering2));
 
-
         var resultat = kjørOppdatering(behandling, dto);
 
-        historikkTjenesteAdapter.opprettHistorikkInnslag(behandling.getId(), HistorikkinnslagType.FAKTA_ENDRET);
-
         var lagretPerioder = hentLagretPerioder(behandling);
-
-        var historikk = repositoryProvider.getHistorikkRepository().hentHistorikk(behandling.getId());
-        var historikkDeler = historikk.stream().map(Historikkinnslag::getHistorikkinnslagDeler).flatMap(Collection::stream).toList();
-        var historikkEndretFelt = historikkDeler.stream().map(HistorikkinnslagDel::getEndredeFelt).flatMap(Collection::stream).toList();
 
         assertThat(resultat.skalUtføreAksjonspunkt()).isTrue();
         assertThat(lagretPerioder).hasSize(3);
@@ -114,17 +98,13 @@ class VurderUttakDokumentasjonOppdatererTest {
 
         assertThat(lagretPerioder.get(2)).isEqualTo(eksisterendeUttak);
 
-        assertThat(historikkDeler).hasSize(1);
-        assertThat(historikkDeler.get(0).getSkjermlenke()).hasValueSatisfying(
-            s -> assertThat(SkjermlenkeType.FAKTA_OM_UTTAK_DOKUMENTASJON.getKode()).isEqualTo(s));
-        assertThat(historikkDeler.get(0).getBegrunnelse()).hasValueSatisfying(s -> assertThat(s).isEqualTo("begrunnelse"));
-        assertThat(historikkEndretFelt).hasSize(2);
-        assertThat(historikkEndretFelt.stream()
-            .map(HistorikkinnslagFelt::getTilVerdi)
-            .anyMatch(til -> SYKDOM_SØKER_GODKJENT.getNavn().equals(til))).isTrue();
-        assertThat(historikkEndretFelt.stream()
-            .map(HistorikkinnslagFelt::getTilVerdi)
-            .anyMatch(til -> SYKDOM_SØKER_IKKE_GODKJENT.getNavn().equals(til))).isTrue();
+        var historikk = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer());
+        assertThat(historikk).hasSize(1);
+        assertThat(historikk.getFirst().getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_OM_UTTAK_DOKUMENTASJON);
+        assertThat(historikk.getFirst().getLinjer()).hasSize(3);
+        assertThat(historikk.getFirst().getLinjer().get(0).getTekst()).contains("Avklart dokumentasjon for periode", SYKDOM_SØKER_GODKJENT.getNavn());
+        assertThat(historikk.getFirst().getLinjer().get(1).getTekst()).contains("Avklart dokumentasjon for periode", SYKDOM_SØKER_IKKE_GODKJENT.getNavn());
+        assertThat(historikk.getFirst().getLinjer().get(2).getTekst()).contains(dto.getBegrunnelse());
     }
 
     @Test
@@ -208,27 +188,18 @@ class VurderUttakDokumentasjonOppdatererTest {
 
         var lagretPerioder = hentLagretPerioder(behandling);
 
-        historikkTjenesteAdapter.opprettHistorikkInnslag(behandling.getId(), HistorikkinnslagType.FAKTA_ENDRET);
-
-        var historikk = repositoryProvider.getHistorikkRepository().hentHistorikk(behandling.getId());
-        var historikkDeler = historikk.stream().map(Historikkinnslag::getHistorikkinnslagDeler).flatMap(Collection::stream).toList();
-        var historikkEndretFelt = historikkDeler.stream().map(HistorikkinnslagDel::getEndredeFelt).flatMap(Collection::stream).toList();
-
         assertThat(resultat.skalUtføreAksjonspunkt()).isTrue();
         assertThat(lagretPerioder).hasSize(1);
         assertThat(lagretPerioder.getFirst().getFom()).isEqualTo(vurdering1.fom());
         assertThat(lagretPerioder.getFirst().getTom()).isEqualTo(vurdering1.tom());
         assertThat(lagretPerioder.getFirst().getDokumentasjonVurdering()).isEqualTo(new DokumentasjonVurdering(MORS_AKTIVITET_GODKJENT, vurdering1.morsStillingsprosent()));
 
-        assertThat(historikkDeler).hasSize(1);
-        assertThat(historikkDeler.getFirst().getSkjermlenke()).hasValueSatisfying(
-            s -> assertThat(SkjermlenkeType.FAKTA_OM_UTTAK_DOKUMENTASJON.getKode()).isEqualTo(s));
-        assertThat(historikkDeler.getFirst().getBegrunnelse()).hasValueSatisfying(s -> assertThat(s).isEqualTo("begrunnelse"));
-        assertThat(historikkEndretFelt).hasSize(1);
-        assertThat(historikkEndretFelt.stream()
-            .map(HistorikkinnslagFelt::getTilVerdi)
-            .anyMatch(til -> String.format("%s (%s%% arbeid)", MORS_AKTIVITET_GODKJENT.getNavn(),
-                vurdering1.morsStillingsprosent()).equals(til))).isTrue();
+        var historikk = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer());
+        assertThat(historikk).hasSize(1);
+        assertThat(historikk.getFirst().getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_OM_UTTAK_DOKUMENTASJON);
+        assertThat(historikk.getFirst().getLinjer()).hasSize(2);
+        assertThat(historikk.getFirst().getLinjer().get(0).getTekst()).contains("Avklart dokumentasjon for periode", MORS_AKTIVITET_GODKJENT.getNavn(), vurdering1.morsStillingsprosent().toString());
+        assertThat(historikk.getFirst().getLinjer().get(1).getTekst()).contains(dto.getBegrunnelse());
     }
 
     @Test
@@ -251,7 +222,6 @@ class VurderUttakDokumentasjonOppdatererTest {
     }
 
     private OppdateringResultat kjørOppdatering(Behandling behandling, VurderUttakDokumentasjonDto dto) {
-        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         return oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto,
             behandling.getAksjonspunktFor(AksjonspunktDefinisjon.VURDER_UTTAK_DOKUMENTASJON)));
     }

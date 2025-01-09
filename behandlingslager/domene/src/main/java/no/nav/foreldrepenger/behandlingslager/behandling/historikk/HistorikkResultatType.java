@@ -11,28 +11,16 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
+@Deprecated(forRemoval = true)
 public enum HistorikkResultatType implements Kodeverdi {
-
-    UDEFINIERT("-", "Ikke definert"),
     AVVIS_KLAGE("AVVIS_KLAGE", "Klagen er avvist"),
-    MEDHOLD_I_KLAGE("MEDHOLD_I_KLAGE", "omgjør vedtaket, til gunst"),
-    OPPHEVE_VEDTAK("OPPHEVE_VEDTAK", "opphevet og hjemsendt"),
-    OPPRETTHOLDT_VEDTAK("OPPRETTHOLDT_VEDTAK", "opprettholdt"),
-    STADFESTET_VEDTAK("STADFESTET_VEDTAK", "stadfestet"),
     BEREGNET_AARSINNTEKT("BEREGNET_AARSINNTEKT", "Grunnlag for beregnet årsinntekt"),
-    UTFALL_UENDRET("UTFALL_UENDRET", "Overstyrt vurdering: Utfall er uendret"),
-    DELVIS_MEDHOLD_I_KLAGE("DELVIS_MEDHOLD_I_KLAGE", "omgjør vedtaket, delvis"),
-    KLAGE_HJEMSENDE_UTEN_OPPHEVE("KLAGE_HJEMSENDE_UTEN_OPPHEVE", "hjemsendt"),
-    UGUNST_MEDHOLD_I_KLAGE("UGUNST_MEDHOLD_I_KLAGE", "omgjør vedtaket, til ugunst"),
+    MEDHOLD_I_KLAGE("MEDHOLD_I_KLAGE", "Vedtaket er omgjort"),
+    OPPHEVE_VEDTAK("OPPHEVE_VEDTAK", "Vedtaket er opphevet"),
+    OPPRETTHOLDT_VEDTAK("OPPRETTHOLDT_VEDTAK", "Vedtaket er opprettholdt"),
     OVERSTYRING_FAKTA_UTTAK("OVERSTYRING_FAKTA_UTTAK", "Overstyrt vurdering:"),
-    ANKE_AVVIS("ANKE_AVVIS", "Anken er avvist"),
-    ANKE_OMGJOER("ANKE_OMGJOER", "Omgjør i anke"),
-    ANKE_OPPHEVE_OG_HJEMSENDE("ANKE_OPPHEVE_OG_HJEMSENDE", "Opphevet og hjemsendt"),
-    ANKE_HJEMSENDE("ANKE_HJEMSENDE_UTEN_OPPHEV", "Hjemsendt"),
-    ANKE_STADFESTET_VEDTAK("ANKE_STADFESTET_VEDTAK", "Vedtaket er stadfestet"),
-    ANKE_DELVIS_OMGJOERING_TIL_GUNST("ANKE_DELVIS_OMGJOERING_TIL_GUNST", "Delvis omgjøring, til gunst i anke"),
-    ANKE_TIL_UGUNST("ANKE_TIL_UGUNST", "Omgjør til ugunst"),
-    ANKE_TIL_GUNST("ANKE_TIL_GUNST", "Omgjør til gunst"),
+    STADFESTET_VEDTAK("STADFESTET_VEDTAK", "Vedtaket er stadfestet"),
+    UTFALL_UENDRET("UTFALL_UENDRET", "Overstyrt vurdering: Utfall er uendret"),
     ;
 
     private static final Map<String, HistorikkResultatType> KODER = new LinkedHashMap<>();

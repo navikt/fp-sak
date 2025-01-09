@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeType;
@@ -34,7 +34,6 @@ import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.person.verge.dto.AvklarVergeDto;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ExtendWith(MockitoExtension.class)
 class VergeOppdatererTest {
@@ -42,13 +41,11 @@ class VergeOppdatererTest {
     private static final AksjonspunktDefinisjon AKSJONSPUNKT_DEF = AksjonspunktDefinisjon.AVKLAR_VERGE;
 
     @Mock
-    private HistorikkTjenesteAdapter historikkTjeneste;
+    private HistorikkinnslagRepository historikkReposistory;
     @Mock
     private PersoninfoAdapter personinfoAdapter;
     @Mock
     private NavBrukerTjeneste brukerTjeneste;
-
-    private NavBruker vergeBruker;
 
     @BeforeEach
     public void oppsett() {
@@ -56,7 +53,7 @@ class VergeOppdatererTest {
 
         @SuppressWarnings("unused") var behandling = scenario.lagMocked();
 
-        vergeBruker = NavBruker.opprettNyNB(AktørId.dummy());
+        var vergeBruker = NavBruker.opprettNyNB(AktørId.dummy());
 
         lenient().when(personinfoAdapter.hentAktørForFnr(Mockito.any())).thenReturn(Optional.of(AktørId.dummy()));
         lenient().when(brukerTjeneste.hentEllerOpprettFraAktørId(Mockito.any())).thenReturn(vergeBruker);
@@ -68,18 +65,18 @@ class VergeOppdatererTest {
         var behandling = opprettBehandling();
         var dto = opprettDtoVerge();
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
-        new VergeOppdaterer(historikkTjeneste, personinfoAdapter, mock(VergeRepository.class), brukerTjeneste)
+        new VergeOppdaterer(historikkReposistory, personinfoAdapter, mock(VergeRepository.class), brukerTjeneste)
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
 
         // Verifiserer HistorikkinnslagDto
         var historikkCapture = ArgumentCaptor.forClass(Historikkinnslag.class);
-        verify(historikkTjeneste).lagInnslag(historikkCapture.capture());
+        verify(historikkReposistory).lagre(historikkCapture.capture());
         var historikkinnslag = historikkCapture.getValue();
-        assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.REGISTRER_OM_VERGE);
+        assertThat(historikkinnslag.getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_OM_VERGE);
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
-        var del = historikkinnslag.getHistorikkinnslagDeler().get(0);
-        assertThat(del.getSkjermlenke()).as("skjermlenke").hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_OM_VERGE.getKode()));
-        assertThat(del.getHendelse()).as("hendelse").hasValueSatisfying(hendelse -> assertThat(hendelse.getNavn()).as("navn").isEqualTo(HistorikkinnslagType.REGISTRER_OM_VERGE.getKode()));
+
+        assertThat(historikkinnslag.getLinjer()).hasSize(1);
+        assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).isEqualTo("Registrering av opplysninger om verge/fullmektig.");
     }
 
     private AvklarVergeDto opprettDtoVerge() {
