@@ -50,7 +50,7 @@ public class HistorikkinnslagMigreringTask implements ProsessTaskHandler {
     public void doTask(ProsessTaskData prosessTaskData) {
         Long fraId = Long.valueOf(prosessTaskData.getPropertyValue(FOM_ID));
         var medIdString = prosessTaskData.getPropertyValue(TOM_ID);
-        Long medId = Optional.ofNullable(medIdString).map(Long::parseLong).orElse(99999999999L);
+        Long medId = Optional.ofNullable(medIdString).map(Long::parseLong).orElse(Long.MAX_VALUE);
         LOG.info("Starter migrering med fomId={} og tomId={}", fraId, medId);
         var startTid = System.currentTimeMillis();
         var historikkinnslagListe = finnNesteHundreHistorikkinnslag(fraId, medId);
