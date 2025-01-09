@@ -10,8 +10,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagOld;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
@@ -29,12 +29,12 @@ import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.OmsorgsvilkårAksj
 class OmsorgsvilkårOppdatererTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
-    private Historikkinnslag2Repository historikkinnslag2Repository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     @BeforeEach
     public void setup() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        historikkinnslag2Repository = repositoryProvider.getHistorikkinnslag2Repository();
+        historikkinnslagRepository = repositoryProvider.getHistorikkinnslagRepository();
     }
 
     @Test
@@ -48,10 +48,10 @@ class OmsorgsvilkårOppdatererTest extends EntityManagerAwareTest {
         // Act
         var dto = new OmsorgsvilkårAksjonspunktDto("begrunnelse", true, "-");
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
-        var omsorgsvilkarOppdaterer = new OmsorgsvilkårAksjonspunktOppdaterer.OmsorgsvilkårOppdaterer(historikkinnslag2Repository, repositoryProvider.getBehandlingRepository());
+        var omsorgsvilkarOppdaterer = new OmsorgsvilkårAksjonspunktOppdaterer.OmsorgsvilkårOppdaterer(historikkinnslagRepository, repositoryProvider.getBehandlingRepository());
         var resultat = omsorgsvilkarOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto,
             aksjonspunkt));
-        var historikkinnslag = new Historikkinnslag();
+        var historikkinnslag = new HistorikkinnslagOld();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
 
         // Assert
@@ -60,7 +60,7 @@ class OmsorgsvilkårOppdatererTest extends EntityManagerAwareTest {
         assertThat(resultat.getVilkårUtfallSomSkalLeggesTil().get(0).getVilkårType()).isEqualTo(VilkårType.OMSORGSVILKÅRET);
         assertThat(resultat.getVilkårUtfallSomSkalLeggesTil().get(0).getVilkårUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
 
-        var historikk = historikkinnslag2Repository.hent(behandling.getSaksnummer()).getFirst();
+        var historikk = historikkinnslagRepository.hent(behandling.getSaksnummer()).getFirst();
         assertThat(historikk.getLinjer()).hasSize(2);
         assertThat(historikk.getSkjermlenke()).isEqualTo(SkjermlenkeType.PUNKT_FOR_OMSORG);
         assertThat(historikk.getLinjer().get(0).getTekst()).contains("Omsorgsvilkåret", VilkårUtfallType.OPPFYLT.getNavn());
@@ -79,9 +79,9 @@ class OmsorgsvilkårOppdatererTest extends EntityManagerAwareTest {
         // Act
         var dto = new Foreldreansvarsvilkår1AksjonspunktDto("begrunnelse", true, "-");
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
-        var oppdaterer = new OmsorgsvilkårAksjonspunktOppdaterer.Foreldreansvarsvilkår1Oppdaterer(historikkinnslag2Repository, repositoryProvider.getBehandlingRepository());
+        var oppdaterer = new OmsorgsvilkårAksjonspunktOppdaterer.Foreldreansvarsvilkår1Oppdaterer(historikkinnslagRepository, repositoryProvider.getBehandlingRepository());
         var resultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
-        var historikkinnslag = new Historikkinnslag();
+        var historikkinnslag = new HistorikkinnslagOld();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
 
         // Assert
@@ -89,7 +89,7 @@ class OmsorgsvilkårOppdatererTest extends EntityManagerAwareTest {
         assertThat(resultat.getVilkårUtfallSomSkalLeggesTil().get(0).getVilkårType()).isEqualTo(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD);
         assertThat(resultat.getVilkårUtfallSomSkalLeggesTil().get(0).getVilkårUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
 
-        var historikk = historikkinnslag2Repository.hent(behandling.getSaksnummer()).getFirst();
+        var historikk = historikkinnslagRepository.hent(behandling.getSaksnummer()).getFirst();
         assertThat(historikk.getLinjer()).hasSize(2);
         assertThat(historikk.getSkjermlenke()).isEqualTo(SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR);
         assertThat(historikk.getLinjer().get(0).getTekst()).contains("Foreldreansvarsvilkåret", VilkårUtfallType.OPPFYLT.getNavn());
@@ -108,9 +108,9 @@ class OmsorgsvilkårOppdatererTest extends EntityManagerAwareTest {
         // Act
         var dto = new Foreldreansvarsvilkår2AksjonspunktDto("begrunnelse", false, Avslagsårsak.IKKE_FORELDREANSVAR_ALENE_ETTER_BARNELOVA.getKode());
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
-        var oppdaterer = new OmsorgsvilkårAksjonspunktOppdaterer.Foreldreansvarsvilkår2Oppdaterer(historikkinnslag2Repository, repositoryProvider.getBehandlingRepository());
+        var oppdaterer = new OmsorgsvilkårAksjonspunktOppdaterer.Foreldreansvarsvilkår2Oppdaterer(historikkinnslagRepository, repositoryProvider.getBehandlingRepository());
         var resultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
-        var historikkinnslag = new Historikkinnslag();
+        var historikkinnslag = new HistorikkinnslagOld();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
 
         // Assert
@@ -121,7 +121,7 @@ class OmsorgsvilkårOppdatererTest extends EntityManagerAwareTest {
         assertThat(resultat.getVilkårUtfallSomSkalLeggesTil().get(0).getVilkårUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
         assertThat(resultat.getVilkårUtfallSomSkalLeggesTil().get(0).getAvslagsårsak()).isEqualTo(Avslagsårsak.IKKE_FORELDREANSVAR_ALENE_ETTER_BARNELOVA);
 
-        var historikk = historikkinnslag2Repository.hent(behandling.getSaksnummer()).getFirst();
+        var historikk = historikkinnslagRepository.hent(behandling.getSaksnummer()).getFirst();
         assertThat(historikk.getLinjer()).hasSize(2);
         assertThat(historikk.getSkjermlenke()).isEqualTo(SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR);
         assertThat(historikk.getLinjer().get(0).getTekst()).contains("Foreldreansvarsvilkåret", VilkårUtfallType.IKKE_OPPFYLT.getNavn());

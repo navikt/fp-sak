@@ -15,8 +15,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -33,7 +33,7 @@ public class VedtakTjeneste {
 
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
-    private Historikkinnslag2Repository historikkRepository;
+    private HistorikkinnslagRepository historikkRepository;
     private LagretVedtakRepository lagretVedtakRepository;
     private TotrinnTjeneste totrinnTjeneste;
 
@@ -45,13 +45,13 @@ public class VedtakTjeneste {
     public VedtakTjeneste(LagretVedtakRepository lagretVedtakRepository,
                           BehandlingRepositoryProvider repositoryProvider, TotrinnTjeneste totrinnTjeneste) {
         this(repositoryProvider.getBehandlingRepository(), repositoryProvider.getBehandlingsresultatRepository(),
-            repositoryProvider.getHistorikkinnslag2Repository(), lagretVedtakRepository, totrinnTjeneste);
+            repositoryProvider.getHistorikkinnslagRepository(), lagretVedtakRepository, totrinnTjeneste);
 
     }
 
     public VedtakTjeneste(BehandlingRepository behandlingRepository,
                           BehandlingsresultatRepository behandlingsresultatRepository,
-                          Historikkinnslag2Repository historikkRepository,
+                          HistorikkinnslagRepository historikkRepository,
                           LagretVedtakRepository lagretVedtakRepository,
                           TotrinnTjeneste totrinnTjeneste) {
         this.behandlingRepository = behandlingRepository;
@@ -90,7 +90,7 @@ public class VedtakTjeneste {
 
     private void lagHistorikkInnslagVedtakFattet(Behandling behandling) {
         var erUendretUtfall = getRevurderingTjeneste(behandling).erRevurderingMedUendretUtfall(behandling);
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(behandling.isToTrinnsBehandling() ? HistorikkAktør.BESLUTTER : HistorikkAktør.VEDTAKSLØSNINGEN)
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
@@ -105,7 +105,7 @@ public class VedtakTjeneste {
     }
 
     private void lagHistorikkInnslagVurderPåNytt(Behandling behandling, Collection<Totrinnsvurdering> medTotrinnskontroll) {
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.BESLUTTER)
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())

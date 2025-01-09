@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.historikk;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2.BOLD_MARKØR;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag.BOLD_MARKØR;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

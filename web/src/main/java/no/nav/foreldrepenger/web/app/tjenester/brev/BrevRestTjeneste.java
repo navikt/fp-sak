@@ -26,8 +26,8 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
@@ -71,7 +71,7 @@ public class BrevRestTjeneste {
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
     private BehandlingRepository behandlingRepository;
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
-    private Historikkinnslag2Repository historikkinnslag2Repository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     public BrevRestTjeneste() {
         // For Rest-CDI
@@ -83,13 +83,13 @@ public class BrevRestTjeneste {
                             DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
                             BehandlingRepository behandlingRepository,
                             ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste,
-                            Historikkinnslag2Repository historikkinnslag2Repository) {
+                            HistorikkinnslagRepository historikkinnslagRepository) {
         this.dokumentForhåndsvisningTjeneste = dokumentForhåndsvisningTjeneste;
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
-        this.historikkinnslag2Repository = historikkinnslag2Repository;
+        this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     @POST
@@ -118,16 +118,16 @@ public class BrevRestTjeneste {
         oppdaterBehandlingBasertPåManueltBrev(bestillBrevDto.brevmalkode(), behandling.getId());
     }
 
-    public void opprettHistorikkinnslag(Behandling behandling,
+    private void opprettHistorikkinnslag(Behandling behandling,
                                         DokumentBestilling bestilling) {
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medTittel("Brev er bestilt")
             .addLinje(utledBegrunnelse(bestilling.dokumentMal(), bestilling.journalførSom()))
             .build();
-        historikkinnslag2Repository.lagre(historikkinnslag);
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
     private static String utledBegrunnelse(DokumentMalType dokumentMal, DokumentMalType journalførSom) {

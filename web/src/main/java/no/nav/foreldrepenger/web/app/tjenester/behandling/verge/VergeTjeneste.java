@@ -12,8 +12,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -31,7 +31,7 @@ public class VergeTjeneste {
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private VergeRepository vergeRepository;
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private BehandlingRepository behandlingRepository;
     private PersonopplysningTjeneste personopplysningTjeneste;
 
@@ -39,7 +39,7 @@ public class VergeTjeneste {
     public VergeTjeneste(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                          BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                          VergeRepository vergeRepository,
-                         Historikkinnslag2Repository historikkinnslagRepository,
+                         HistorikkinnslagRepository historikkinnslagRepository,
                          BehandlingRepository behandlingRepository, PersonopplysningTjeneste personopplysningTjeneste) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
@@ -104,7 +104,7 @@ public class VergeTjeneste {
     }
 
     private void opprettHistorikkinnslagForFjernetVerge(Behandling behandling) {
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())

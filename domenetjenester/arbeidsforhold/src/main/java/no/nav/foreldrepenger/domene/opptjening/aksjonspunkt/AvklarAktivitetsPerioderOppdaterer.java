@@ -16,8 +16,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
@@ -49,7 +49,7 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
     private static final String GODKJENT_FOR_PERIODEN = "godkjent for perioden ";
 
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private AksjonspunktutlederForVurderOppgittOpptjening vurderOppgittOpptjening;
     private OpptjeningsperioderTjeneste opptjeningsperioderTjeneste;
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
@@ -62,7 +62,7 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
     @Inject
     public AvklarAktivitetsPerioderOppdaterer(InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
                                               AksjonspunktutlederForVurderOppgittOpptjening vurderOppgittOpptjening,
-                                              Historikkinnslag2Repository historikkinnslagRepository,
+                                              HistorikkinnslagRepository historikkinnslagRepository,
                                               OpptjeningsperioderTjeneste opptjeningsperioderTjeneste,
                                               ArbeidsgiverTjeneste arbeidsgiverTjeneste,
                                               SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
@@ -101,7 +101,7 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
                 var periode = DatoIntervallEntitet.fraOgMedTilOgMed(bekreftetAktivitet.getOpptjeningFom(), bekreftetAktivitet.getOpptjeningTom());
                 var fraVerdi = finnFraVerdi(eksisterendeAktivitet, periode);
                 var tilVerdi = finnTilVerdi(bekreftetAktivitet, periode);
-                var historikkinnslag = new Historikkinnslag2.Builder()
+                var historikkinnslag = new Historikkinnslag.Builder()
                     .medAktør(HistorikkAktør.SAKSBEHANDLER)
                     .medFagsakId(fagsakId)
                     .medBehandlingId(behandlingId)

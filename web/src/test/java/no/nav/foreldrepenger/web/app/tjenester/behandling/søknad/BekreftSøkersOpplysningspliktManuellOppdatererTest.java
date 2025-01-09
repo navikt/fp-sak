@@ -38,8 +38,8 @@ class BekreftSøkersOpplysningspliktManuellOppdatererTest {
 
         var behandling = scenario.getBehandling();
 
-        var historikkinnslag2Repository = repositoryProvider.getHistorikkinnslag2Repository();
-        var oppdaterer = new BekreftSøkersOpplysningspliktManuellOppdaterer(historikkinnslag2Repository,
+        var historikkinnslagRepository = repositoryProvider.getHistorikkinnslagRepository();
+        var oppdaterer = new BekreftSøkersOpplysningspliktManuellOppdaterer(historikkinnslagRepository,
             repositoryProvider.getBehandlingRepository());
 
         // Dto
@@ -50,7 +50,7 @@ class BekreftSøkersOpplysningspliktManuellOppdatererTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(bekreftSokersOpplysningspliktManuDto.getAksjonspunktDefinisjon());
         var resultat = oppdaterer.oppdater(bekreftSokersOpplysningspliktManuDto,
             new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), bekreftSokersOpplysningspliktManuDto, aksjonspunkt));
-        var historikkInnslagForBehandling = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId());
+        var historikkInnslagForBehandling = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer());
 
         // Assert
         assertThat(historikkInnslagForBehandling).hasSize(1);

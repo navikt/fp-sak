@@ -10,8 +10,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepositor
 @DtoTilServiceAdapter(dto = VurderSøknadsfristDto.class, adapter = AksjonspunktOppdaterer.class)
 public class VurderSøknadsfristOppdaterer implements AksjonspunktOppdaterer<VurderSøknadsfristDto> {
 
-    private Historikkinnslag2Repository historikkinnslag2Repository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private SøknadRepository søknadRepository;
     private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
 
@@ -31,8 +31,8 @@ public class VurderSøknadsfristOppdaterer implements AksjonspunktOppdaterer<Vur
     }
 
     @Inject
-    public VurderSøknadsfristOppdaterer(Historikkinnslag2Repository historikkinnslag2Repository, BehandlingRepositoryProvider repositoryProvider) {
-        this.historikkinnslag2Repository = historikkinnslag2Repository;
+    public VurderSøknadsfristOppdaterer(HistorikkinnslagRepository historikkinnslagRepository, BehandlingRepositoryProvider repositoryProvider) {
+        this.historikkinnslagRepository = historikkinnslagRepository;
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.uttaksperiodegrenseRepository = repositoryProvider.getUttaksperiodegrenseRepository();
     }
@@ -43,13 +43,13 @@ public class VurderSøknadsfristOppdaterer implements AksjonspunktOppdaterer<Vur
         var søknad = søknadRepository.hentSøknad(behandlingId);
 
         var historikkinnslag = lagHistorikkinnslag(dto, param, søknad);
-        historikkinnslag2Repository.lagre(historikkinnslag);
+        historikkinnslagRepository.lagre(historikkinnslag);
         lagreResultat(behandlingId, dto, søknad);
         return OppdateringResultat.utenOverhopp();
     }
 
-    private Historikkinnslag2 lagHistorikkinnslag(VurderSøknadsfristDto dto, AksjonspunktOppdaterParameter param, SøknadEntitet søknad) {
-        var builder = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
+    private Historikkinnslag lagHistorikkinnslag(VurderSøknadsfristDto dto, AksjonspunktOppdaterParameter param, SøknadEntitet søknad) {
+        var builder = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medBehandlingId(param.getBehandlingId())
             .medFagsakId(param.getFagsakId())
             .medTittel(SkjermlenkeType.SOEKNADSFRIST)

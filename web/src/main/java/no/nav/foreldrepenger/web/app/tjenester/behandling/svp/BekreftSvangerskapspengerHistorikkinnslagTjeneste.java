@@ -16,8 +16,8 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpAvklartOpphold;
@@ -35,14 +35,14 @@ import no.nav.vedtak.exception.TekniskException;
 public class BekreftSvangerskapspengerHistorikkinnslagTjeneste {
 
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     BekreftSvangerskapspengerHistorikkinnslagTjeneste() {
         //CDI
     }
 
     @Inject
-    public BekreftSvangerskapspengerHistorikkinnslagTjeneste(ArbeidsgiverTjeneste arbeidsgiverTjeneste, Historikkinnslag2Repository historikkinnslagRepository) {
+    public BekreftSvangerskapspengerHistorikkinnslagTjeneste(ArbeidsgiverTjeneste arbeidsgiverTjeneste, HistorikkinnslagRepository historikkinnslagRepository) {
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
         this.historikkinnslagRepository = historikkinnslagRepository;
     }
@@ -56,7 +56,7 @@ public class BekreftSvangerskapspengerHistorikkinnslagTjeneste {
             .filter(ny -> erTilretteleggingEndret(hentEksisterendeTilrettelegging(eksisterendeTilretteleginger, ny), ny))
             .map(ny -> oppprettHistorikkinnslagForTilretteleggingsperiode(hentEksisterendeTilrettelegging(eksisterendeTilretteleginger, ny), ny))
             .toList();
-        var builder = new Historikkinnslag2.Builder()
+        var builder = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())

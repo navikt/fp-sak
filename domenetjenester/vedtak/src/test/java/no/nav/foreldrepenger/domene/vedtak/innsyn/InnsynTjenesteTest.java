@@ -57,7 +57,7 @@ class InnsynTjenesteTest {
     @BeforeEach
     public void oppsett() {
         when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(new OrganisasjonsEnhet("1234", ""));
-        var oppretter = new BehandlingOpprettingTjeneste(behandlingKontrollTjeneste, behandlendeEnhetTjeneste, repositoryProvider.getHistorikkinnslag2Repository(),
+        var oppretter = new BehandlingOpprettingTjeneste(behandlingKontrollTjeneste, behandlendeEnhetTjeneste, repositoryProvider.getHistorikkinnslagRepository(),
                 mock(ProsessTaskTjeneste.class));
         innsynTjeneste = new InnsynTjeneste(oppretter, fagsakRepository, behandlingRepository, behandlingsresultatRepository, innsynRepository);
     }

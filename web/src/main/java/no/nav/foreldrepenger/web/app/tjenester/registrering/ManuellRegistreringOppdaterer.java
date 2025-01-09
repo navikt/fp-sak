@@ -25,8 +25,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -46,7 +46,7 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
     private static final Logger LOG = LoggerFactory.getLogger(ManuellRegistreringOppdaterer.class);
 
     private FagsakRepository fagsakRepository;
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private DokumentRegistrererTjeneste dokumentRegistrererTjeneste;
 
     private Instance<SøknadMapper> søknadMappere;
@@ -57,7 +57,7 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
 
     @Inject
     public ManuellRegistreringOppdaterer(BehandlingRepositoryProvider repositoryProvider,
-                                         Historikkinnslag2Repository historikkinnslagRepository,
+                                         HistorikkinnslagRepository historikkinnslagRepository,
                                          DokumentRegistrererTjeneste dokumentRegistrererTjeneste,
                                          @Any Instance<SøknadMapper> søknadMappere) {
         this.søknadMappere = søknadMappere;
@@ -173,7 +173,7 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
     }
 
     private void lagHistorikkInnslag(BehandlingReferanse ref, String tittel, String kommentarEndring) {
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())

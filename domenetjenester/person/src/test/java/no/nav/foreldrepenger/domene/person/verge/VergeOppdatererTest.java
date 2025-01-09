@@ -23,8 +23,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeType;
@@ -41,7 +41,7 @@ class VergeOppdatererTest {
     private static final AksjonspunktDefinisjon AKSJONSPUNKT_DEF = AksjonspunktDefinisjon.AVKLAR_VERGE;
 
     @Mock
-    private Historikkinnslag2Repository historikkReposistory;
+    private HistorikkinnslagRepository historikkReposistory;
     @Mock
     private PersoninfoAdapter personinfoAdapter;
     @Mock
@@ -69,7 +69,7 @@ class VergeOppdatererTest {
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
 
         // Verifiserer HistorikkinnslagDto
-        var historikkCapture = ArgumentCaptor.forClass(Historikkinnslag2.class);
+        var historikkCapture = ArgumentCaptor.forClass(Historikkinnslag.class);
         verify(historikkReposistory).lagre(historikkCapture.capture());
         var historikkinnslag = historikkCapture.getValue();
         assertThat(historikkinnslag.getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_OM_VERGE);

@@ -12,8 +12,8 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
@@ -32,14 +32,14 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 public class ArbeidInntektHistorikkinnslagTjeneste {
 
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     ArbeidInntektHistorikkinnslagTjeneste() {
         // CDI
     }
 
     @Inject
-    ArbeidInntektHistorikkinnslagTjeneste(ArbeidsgiverTjeneste arbeidsgiverTjeneste, Historikkinnslag2Repository historikkinnslagRepository) {
+    ArbeidInntektHistorikkinnslagTjeneste(ArbeidsgiverTjeneste arbeidsgiverTjeneste, HistorikkinnslagRepository historikkinnslagRepository) {
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
         this.historikkinnslagRepository = historikkinnslagRepository;
     }
@@ -105,7 +105,7 @@ public class ArbeidInntektHistorikkinnslagTjeneste {
                                      ArbeidsforholdKomplettVurderingType tilVerdi,
                                      String begrunnelse,
                                      String arbeidsforholdNavn) {
-        var historikkinnslag = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
+        var historikkinnslag = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medTittel(SkjermlenkeType.FAKTA_OM_ARBEIDSFORHOLD_INNTEKTSMELDING)
             .medBehandlingId(behandlingReferanse.behandlingId())
             .medFagsakId(behandlingReferanse.fagsakId())

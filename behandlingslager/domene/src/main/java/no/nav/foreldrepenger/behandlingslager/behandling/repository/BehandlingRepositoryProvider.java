@@ -9,7 +9,7 @@ import jakarta.persistence.EntityManager;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
@@ -54,7 +54,7 @@ public class BehandlingRepositoryProvider {
 
     private BehandlingRepository behandlingRepository;
     private FagsakLåsRepository fagsakLåsRepository;
-    private Historikkinnslag2Repository historikkinnslag2Repository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     BehandlingRepositoryProvider() {
         // for CDI proxy
@@ -90,7 +90,7 @@ public class BehandlingRepositoryProvider {
 
         // behandling støtte repositories
         this.mottatteDokumentRepository = new MottatteDokumentRepository(entityManager);
-        this.historikkinnslag2Repository = new Historikkinnslag2Repository(entityManager);
+        this.historikkinnslagRepository = new HistorikkinnslagRepository(entityManager);
         this.behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
 
         this.svangerskapspengerUttakResultatRepository = new SvangerskapspengerUttakResultatRepository(entityManager);
@@ -137,8 +137,8 @@ public class BehandlingRepositoryProvider {
         return familieHendelseRepository;
     }
 
-    public Historikkinnslag2Repository getHistorikkinnslag2Repository() {
-        return historikkinnslag2Repository;
+    public HistorikkinnslagRepository getHistorikkinnslagRepository() {
+        return historikkinnslagRepository;
     }
 
     public SøknadRepository getSøknadRepository() {

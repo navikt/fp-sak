@@ -9,25 +9,25 @@ import jakarta.persistence.EntityManager;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ApplicationScoped
-public class Historikkinnslag2Repository {
+public class HistorikkinnslagRepository {
 
     private EntityManager entityManager;
 
     @Inject
-    public Historikkinnslag2Repository(EntityManager entityManager) {
+    public HistorikkinnslagRepository(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
-    public Historikkinnslag2Repository() {
+    public HistorikkinnslagRepository() {
         //CDI
     }
 
-    public List<Historikkinnslag2> hent(Saksnummer saksnummer) {
-        return entityManager.createQuery("select h from Historikkinnslag2 h inner join Fagsak f On f.id = h.fagsakId where f.saksnummer= :saksnummer",
-            Historikkinnslag2.class).setParameter("saksnummer", saksnummer).getResultStream().toList();
+    public List<Historikkinnslag> hent(Saksnummer saksnummer) {
+        return entityManager.createQuery("select h from Historikkinnslag h inner join Fagsak f On f.id = h.fagsakId where f.saksnummer= :saksnummer",
+            Historikkinnslag.class).setParameter("saksnummer", saksnummer).getResultStream().toList();
     }
 
-    public void lagre(Historikkinnslag2 historikkinnslag) {
+    public void lagre(Historikkinnslag historikkinnslag) {
         entityManager.persist(historikkinnslag);
         for (var linje : historikkinnslag.getLinjer()) {
             entityManager.persist(linje);

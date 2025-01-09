@@ -72,7 +72,7 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         var dto = new AvklarAleneomsorgVurderingDto("begrunnelse");
         dto.setAleneomsorg(true);
         // Act
-        new BekreftAleneomsorgOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, mock(FagsakEgenskapRepository.class)), repositoryProvider.getHistorikkinnslag2Repository()) {
+        new BekreftAleneomsorgOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, mock(FagsakEgenskapRepository.class)), repositoryProvider.getHistorikkinnslagRepository()) {
         }.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
         var ytelseFordelingDtoOpt = tjeneste().mapFra(behandling);
         assertThat(ytelseFordelingDtoOpt).isNotNull().isNotEmpty();
@@ -86,7 +86,7 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         var dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
         // Act
         new AvklarAnnenforelderHarRettOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, mock(FagsakEgenskapRepository.class)),
-            repositoryProvider.getHistorikkinnslag2Repository()).oppdater(dto,
+            repositoryProvider.getHistorikkinnslagRepository()).oppdater(dto,
             new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
         var ytelseFordelingDtoOpt = tjeneste().mapFra(behandling);
         assertThat(ytelseFordelingDtoOpt).isNotNull().isNotEmpty();
@@ -107,7 +107,7 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         var dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
         // Act
         new AvklarAnnenforelderHarRettOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, mock(FagsakEgenskapRepository.class)),
-            repositoryProvider.getHistorikkinnslag2Repository()).oppdater(dto,
+            repositoryProvider.getHistorikkinnslagRepository()).oppdater(dto,
             new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
         when(uføretrygdRepository.hentGrunnlag(anyLong())).thenReturn(Optional.of(UføretrygdGrunnlagEntitet.Builder.oppdatere(Optional.empty())
             .medBehandlingId(behandling.getId())
@@ -130,7 +130,7 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         var dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
         // Act
         new AvklarAnnenforelderHarRettOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, mock(FagsakEgenskapRepository.class)),
-            repositoryProvider.getHistorikkinnslag2Repository()).oppdater(dto,
+            repositoryProvider.getHistorikkinnslagRepository()).oppdater(dto,
             new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
         when(uføretrygdRepository.hentGrunnlag(anyLong())).thenReturn(Optional.of(UføretrygdGrunnlagEntitet.Builder.oppdatere(Optional.empty())
             .medBehandlingId(behandling.getId())
@@ -154,7 +154,7 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(behandling.getId(), false, null, true);
         // Act
         new AvklarAnnenforelderHarRettOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, mock(FagsakEgenskapRepository.class)),
-            repositoryProvider.getHistorikkinnslag2Repository()).oppdater(dto,
+            repositoryProvider.getHistorikkinnslagRepository()).oppdater(dto,
             new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
         when(uføretrygdRepository.hentGrunnlag(anyLong())).thenReturn(Optional.of(UføretrygdGrunnlagEntitet.Builder.oppdatere(Optional.empty())
             .medBehandlingId(behandling.getId())

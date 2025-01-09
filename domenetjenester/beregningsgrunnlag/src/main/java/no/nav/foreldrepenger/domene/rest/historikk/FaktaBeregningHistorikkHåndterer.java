@@ -13,8 +13,8 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -34,7 +34,7 @@ public class FaktaBeregningHistorikkHåndterer {
     private Instance<FaktaOmBeregningHistorikkTjeneste> faktaOmBeregningHistorikkTjeneste;
     private FaktaOmBeregningOverstyringHistorikkTjeneste faktaOmBeregningOverstyringHistorikkTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
 
     FaktaBeregningHistorikkHåndterer() {
@@ -45,7 +45,7 @@ public class FaktaBeregningHistorikkHåndterer {
     public FaktaBeregningHistorikkHåndterer(@Any Instance<FaktaOmBeregningHistorikkTjeneste> faktaOmBeregningHistorikkTjeneste,
                                             FaktaOmBeregningOverstyringHistorikkTjeneste faktaOmBeregningOverstyringHistorikkTjeneste,
                                             InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                            Historikkinnslag2Repository historikkinnslagRepository) {
+                                            HistorikkinnslagRepository historikkinnslagRepository) {
         this.faktaOmBeregningHistorikkTjeneste = faktaOmBeregningHistorikkTjeneste;
         this.faktaOmBeregningOverstyringHistorikkTjeneste = faktaOmBeregningOverstyringHistorikkTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
@@ -112,7 +112,7 @@ public class FaktaBeregningHistorikkHåndterer {
                                      String begrunnelse) {
         linjeBuilder.add(new HistorikkinnslagLinjeBuilder().tekst(begrunnelse));
         if (!linjeBuilder.isEmpty()) {
-            var historikkinnslag = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
+            var historikkinnslag = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
                 .medBehandlingId(behandlingRef.behandlingId())
                 .medFagsakId(behandlingRef.fagsakId())
                 .medTittel(SkjermlenkeType.FAKTA_OM_BEREGNING)

@@ -10,8 +10,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 @DtoTilServiceAdapter(dto = BekreftSokersOpplysningspliktManuDto.class, adapter = AksjonspunktOppdaterer.class)
 public class BekreftSøkersOpplysningspliktManuellOppdaterer implements AksjonspunktOppdaterer<BekreftSokersOpplysningspliktManuDto> {
 
-    private Historikkinnslag2Repository historikkinnslag2Repository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     private BehandlingRepository behandlingRepository;
 
@@ -32,9 +32,9 @@ public class BekreftSøkersOpplysningspliktManuellOppdaterer implements Aksjonsp
     }
 
     @Inject
-    public BekreftSøkersOpplysningspliktManuellOppdaterer(Historikkinnslag2Repository historikkinnslag2Repository,
+    public BekreftSøkersOpplysningspliktManuellOppdaterer(HistorikkinnslagRepository historikkinnslagRepository,
                                                           BehandlingRepository behandlingRepository) {
-        this.historikkinnslag2Repository = historikkinnslag2Repository;
+        this.historikkinnslagRepository = historikkinnslagRepository;
         this.behandlingRepository = behandlingRepository;
     }
 
@@ -67,13 +67,13 @@ public class BekreftSøkersOpplysningspliktManuellOppdaterer implements Aksjonsp
     private void leggTilEndretFeltIHistorikkInnslag(AksjonspunktOppdaterParameter param, String begrunnelse, Boolean vilkårOppfylt) {
 
         var tilVerdi = vilkårOppfylt ? "Vilkåret er oppfylt" : "Vilkåret er ikke oppfylt";
-        var historikkinnslag = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
+        var historikkinnslag = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medBehandlingId(param.getBehandlingId())
             .medFagsakId(param.getFagsakId())
             .medTittel(SkjermlenkeType.OPPLYSNINGSPLIKT)
             .addLinje(new HistorikkinnslagLinjeBuilder().til("Søkers opplysningsplikt", tilVerdi))
             .addLinje(begrunnelse);
 
-        historikkinnslag2Repository.lagre(historikkinnslag.build());
+        historikkinnslagRepository.lagre(historikkinnslag.build());
     }
 }

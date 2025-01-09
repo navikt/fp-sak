@@ -43,7 +43,7 @@ class ArbeidPermHistorikkInnslagTjenesteTest {
         var arbeidsgiverTjeneste = mock(ArbeidsgiverTjeneste.class);
         when(arbeidsgiverTjeneste.hent(any())).thenReturn(new ArbeidsgiverOpplysninger(KUNSTIG_ORG, ARB_NAVN ));
 
-        var historikkRepository = repositoryProvider.getHistorikkinnslag2Repository();
+        var historikkRepository = repositoryProvider.getHistorikkinnslagRepository();
         var arbeidPermHistorikkInnslagTjenesteTest = new ArbeidPermHistorikkInnslagTjeneste(historikkRepository, arbeidsgiverTjeneste);
 
         var avklarteArbForhold = List.of(

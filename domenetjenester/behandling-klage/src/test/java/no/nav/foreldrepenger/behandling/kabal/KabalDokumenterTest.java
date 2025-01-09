@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentBestiltEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
@@ -39,7 +39,7 @@ class KabalDokumenterTest {
     @Mock
     private DokumentArkivTjeneste dokumentArkivTjeneste;
     @Mock
-    private Historikkinnslag2Repository historikkRepository;
+    private HistorikkinnslagRepository historikkRepository;
 
     private KabalDokumenter kabalTjeneste;
 

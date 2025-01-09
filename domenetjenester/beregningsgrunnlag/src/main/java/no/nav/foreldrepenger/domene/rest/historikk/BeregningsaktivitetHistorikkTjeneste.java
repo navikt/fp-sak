@@ -12,8 +12,8 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetEntitet;
 @ApplicationScoped
 public class BeregningsaktivitetHistorikkTjeneste {
 
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
@@ -33,7 +33,7 @@ public class BeregningsaktivitetHistorikkTjeneste {
 
     @Inject
     BeregningsaktivitetHistorikkTjeneste(ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste,
-                                         Historikkinnslag2Repository historikkinnslagRepository,
+                                         HistorikkinnslagRepository historikkinnslagRepository,
                                          InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
         this.historikkinnslagRepository = historikkinnslagRepository;
         this.arbeidsgiverHistorikkinnslagTjeneste = arbeidsgiverHistorikkinnslagTjeneste;
@@ -54,7 +54,7 @@ public class BeregningsaktivitetHistorikkTjeneste {
             lagPeriodeHistorikk(saksbehandledeAktiviteter, ba, aktivitetnavn).ifPresent(linjer::add);
         }
 
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(behandlingReferanse.fagsakId())
             .medBehandlingId(behandlingReferanse.behandlingId())

@@ -98,7 +98,7 @@ class VurderUttakDokumentasjonOppdatererTest {
 
         assertThat(lagretPerioder.get(2)).isEqualTo(eksisterendeUttak);
 
-        var historikk = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId());
+        var historikk = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer());
         assertThat(historikk).hasSize(1);
         assertThat(historikk.getFirst().getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_OM_UTTAK_DOKUMENTASJON);
         assertThat(historikk.getFirst().getLinjer()).hasSize(3);
@@ -194,7 +194,7 @@ class VurderUttakDokumentasjonOppdatererTest {
         assertThat(lagretPerioder.getFirst().getTom()).isEqualTo(vurdering1.tom());
         assertThat(lagretPerioder.getFirst().getDokumentasjonVurdering()).isEqualTo(new DokumentasjonVurdering(MORS_AKTIVITET_GODKJENT, vurdering1.morsStillingsprosent()));
 
-        var historikk = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId());
+        var historikk = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer());
         assertThat(historikk).hasSize(1);
         assertThat(historikk.getFirst().getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_OM_UTTAK_DOKUMENTASJON);
         assertThat(historikk.getFirst().getLinjer()).hasSize(2);

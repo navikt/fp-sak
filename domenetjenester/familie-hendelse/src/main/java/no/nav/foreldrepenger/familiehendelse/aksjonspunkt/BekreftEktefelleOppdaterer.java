@@ -12,8 +12,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftEktefelleAk
 @DtoTilServiceAdapter(dto = BekreftEktefelleAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
 public class BekreftEktefelleOppdaterer implements AksjonspunktOppdaterer<BekreftEktefelleAksjonspunktDto> {
 
-    private Historikkinnslag2Repository historikkinnslag2Repository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
 
     BekreftEktefelleOppdaterer() {
@@ -31,8 +31,8 @@ public class BekreftEktefelleOppdaterer implements AksjonspunktOppdaterer<Bekref
     }
 
     @Inject
-    public BekreftEktefelleOppdaterer(Historikkinnslag2Repository historikkinnslag2Repository, FamilieHendelseTjeneste familieHendelseTjeneste) {
-        this.historikkinnslag2Repository = historikkinnslag2Repository;
+    public BekreftEktefelleOppdaterer(HistorikkinnslagRepository historikkinnslagRepository, FamilieHendelseTjeneste familieHendelseTjeneste) {
+        this.historikkinnslagRepository = historikkinnslagRepository;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
     }
 
@@ -56,7 +56,7 @@ public class BekreftEktefelleOppdaterer implements AksjonspunktOppdaterer<Bekref
     }
 
     private void lagreHistorikkinnslag(BekreftEktefelleAksjonspunktDto dto, AksjonspunktOppdaterParameter param, Long behandlingId) {
-        var historikkinnslag = new Historikkinnslag2.Builder().medFagsakId(param.getFagsakId())
+        var historikkinnslag = new Historikkinnslag.Builder().medFagsakId(param.getFagsakId())
             .medBehandlingId(behandlingId)
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medTittel(SkjermlenkeType.FAKTA_OM_ADOPSJON)
@@ -64,6 +64,6 @@ public class BekreftEktefelleOppdaterer implements AksjonspunktOppdaterer<Bekref
                 .bold(dto.getEktefellesBarn() ? "være ektefelles/samboers barn" : "ikke være ektefelles/samboers barn"))
             .addLinje(dto.getBegrunnelse())
             .build();
-        historikkinnslag2Repository.lagre(historikkinnslag);
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 }

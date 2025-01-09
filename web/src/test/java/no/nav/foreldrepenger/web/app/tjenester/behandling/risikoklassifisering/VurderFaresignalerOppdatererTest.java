@@ -16,7 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -38,7 +38,7 @@ class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
     private FpriskTjeneste fpriskTjeneste;
     @Mock
     private ProsessTaskTjeneste prosessTaskTjeneste;
-    private Historikkinnslag2Repository historikkRepository;
+    private HistorikkinnslagRepository historikkRepository;
 
     @BeforeEach
     public void setup() {
@@ -49,8 +49,8 @@ class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenario.lagre(behandlingRepositoryProvider);
         vurderFaresignalerOppdaterer = new VurderFaresignalerOppdaterer(risikovurderingTjeneste,
-            behandlingRepositoryProvider.getHistorikkinnslag2Repository(), behandlingRepository);
-        this.historikkRepository = behandlingRepositoryProvider.getHistorikkinnslag2Repository();
+            behandlingRepositoryProvider.getHistorikkinnslagRepository(), behandlingRepository);
+        this.historikkRepository = behandlingRepositoryProvider.getHistorikkinnslagRepository();
     }
 
     @Test

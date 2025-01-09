@@ -13,8 +13,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
@@ -30,7 +30,7 @@ import no.nav.vedtak.exception.FunksjonellException;
 public class AvklarOpptjeningsvilkåretOppdaterer implements AksjonspunktOppdaterer<AvklarOpptjeningsvilkåretDto> {
 
     private OpptjeningRepository opptjeningRepository;
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     AvklarOpptjeningsvilkåretOppdaterer() {
         // for CDI proxy
@@ -38,7 +38,7 @@ public class AvklarOpptjeningsvilkåretOppdaterer implements AksjonspunktOppdate
 
     @Inject
     public AvklarOpptjeningsvilkåretOppdaterer(OpptjeningRepository opptjeningRepository,
-                                               Historikkinnslag2Repository historikkinnslagRepository) {
+                                               HistorikkinnslagRepository historikkinnslagRepository) {
 
         this.opptjeningRepository = opptjeningRepository;
         this.historikkinnslagRepository = historikkinnslagRepository;
@@ -76,7 +76,7 @@ public class AvklarOpptjeningsvilkåretOppdaterer implements AksjonspunktOppdate
 
     private void lagHistorikkInnslag(AksjonspunktOppdaterParameter param, VilkårUtfallType nyVerdi, String begrunnelse) {
         var ref = param.getRef();
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())

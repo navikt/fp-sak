@@ -14,12 +14,12 @@
     <sequence-generator name="SEQ_HISTORIKKINNSLAG2_LINJE" allocation-size="50" sequence-name="SEQ_HISTORIKKINNSLAG2_LINJE" />
     <sequence-generator name="SEQ_HISTORIKKINNSLAG2_DOK_LINK" allocation-size="50" sequence-name="SEQ_HISTORIKKINNSLAG2_DOK_LINK" />
 
-	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagOld" />
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel" />
-	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDokumentLink" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagOldDokumentLink" />
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt" />
 
-    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2" />
-    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Linje" />
-    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2DokumentLink" />
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag" />
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinje" />
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDokumentLink" />
 </entity-mappings>

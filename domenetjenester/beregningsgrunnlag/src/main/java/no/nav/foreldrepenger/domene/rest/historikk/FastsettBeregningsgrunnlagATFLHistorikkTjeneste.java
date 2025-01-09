@@ -7,8 +7,8 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -23,7 +23,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjeneste {
 
     private ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
-    private Historikkinnslag2Repository historikkRepo;
+    private HistorikkinnslagRepository historikkRepo;
 
     FastsettBeregningsgrunnlagATFLHistorikkTjeneste() {
         // CDI
@@ -32,7 +32,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjeneste {
     @Inject
     public FastsettBeregningsgrunnlagATFLHistorikkTjeneste(ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste,
                                                            InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                                           Historikkinnslag2Repository historikkRepo) {
+                                                           HistorikkinnslagRepository historikkRepo) {
         this.arbeidsgiverHistorikkinnslagTjeneste = arbeidsgiverHistorikkinnslagTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.historikkRepo = historikkRepo;
@@ -61,7 +61,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjeneste {
                                      AksjonspunktOppdaterParameter param,
                                      List<BeregningsgrunnlagPrStatusOgAndel> arbeidstakerList,
                                      List<BeregningsgrunnlagPrStatusOgAndel> frilanserList) {
-        var historikkBuilder = new Historikkinnslag2.Builder();
+        var historikkBuilder = new Historikkinnslag.Builder();
 
         oppdaterVedEndretVerdi(param.getBehandlingId(), dto.getInntektPrAndelList(), arbeidstakerList, frilanserList,
             dto.getInntektFrilanser(), historikkBuilder);
@@ -80,7 +80,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjeneste {
                                         List<BeregningsgrunnlagPrStatusOgAndel> arbeidstakerList,
                                         List<BeregningsgrunnlagPrStatusOgAndel> frilanserList,
                                         Integer inntektFrilanser,
-                                        Historikkinnslag2.Builder historikkBuilder) {
+                                        Historikkinnslag.Builder historikkBuilder) {
         if (arbeidstakerList.stream()
             .noneMatch(bgpsa -> bgpsa.getAktivitetStatus().equals(AktivitetStatus.FRILANSER))) {
             historikkBuilder.addLinje("Grunnlag for beregnet årsinntekt:");
@@ -99,7 +99,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjeneste {
     private void oppdaterForOverstyrt(Long behandlingId,
                                       List<InntektPrAndelDto> overstyrtList,
                                       List<BeregningsgrunnlagPrStatusOgAndel> arbeidstakerList,
-                                      Historikkinnslag2.Builder historikkBuilder) {
+                                      Historikkinnslag.Builder historikkBuilder) {
         var arbeidsforholOverstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId)
             .getArbeidsforholdOverstyringer();
         for (var prStatus : arbeidstakerList) {

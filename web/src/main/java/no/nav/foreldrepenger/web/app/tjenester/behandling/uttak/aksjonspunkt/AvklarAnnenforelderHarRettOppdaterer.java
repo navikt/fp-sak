@@ -12,8 +12,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaOmsorgRettTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AvklarAnnenforelderHarRettDto;
@@ -23,14 +23,14 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AvklarAnnenf
 public class AvklarAnnenforelderHarRettOppdaterer implements AksjonspunktOppdaterer<AvklarAnnenforelderHarRettDto> {
 
     private FaktaOmsorgRettTjeneste faktaOmsorgRettTjeneste;
-    private Historikkinnslag2Repository historikkRepository;
+    private HistorikkinnslagRepository historikkRepository;
 
     AvklarAnnenforelderHarRettOppdaterer() {
         // for CDI proxy
     }
 
     @Inject
-    public AvklarAnnenforelderHarRettOppdaterer(FaktaOmsorgRettTjeneste faktaOmsorgRettTjeneste, Historikkinnslag2Repository historikkRepository) {
+    public AvklarAnnenforelderHarRettOppdaterer(FaktaOmsorgRettTjeneste faktaOmsorgRettTjeneste, HistorikkinnslagRepository historikkRepository) {
         this.faktaOmsorgRettTjeneste = faktaOmsorgRettTjeneste;
         this.historikkRepository = historikkRepository;
     }
@@ -60,7 +60,7 @@ public class AvklarAnnenforelderHarRettOppdaterer implements AksjonspunktOppdate
                     annenForelderHarRettEØS).stream(), faktaOmsorgRettTjeneste.omsorgRettHistorikkLinje(param, dto.getBegrunnelse()).stream())
             .toList();
 
-        var historikkinnslag = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
+        var historikkinnslag = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(param.getFagsakId())
             .medBehandlingId(param.getRef().behandlingId())
             .medTittel(SkjermlenkeType.FAKTA_OMSORG_OG_RETT)

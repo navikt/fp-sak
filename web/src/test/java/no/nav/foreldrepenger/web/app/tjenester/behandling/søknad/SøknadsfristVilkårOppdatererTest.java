@@ -36,8 +36,8 @@ class SøknadsfristVilkårOppdatererTest {
         scenario.lagre(repositoryProvider);
 
         var behandling = scenario.getBehandling();
-        var historikkinnslag2Repository = repositoryProvider.getHistorikkinnslag2Repository();
-        var oppdaterer = new SøknadsfristOppdaterer(historikkinnslag2Repository);
+        var historikkinnslagRepository = repositoryProvider.getHistorikkinnslagRepository();
+        var oppdaterer = new SøknadsfristOppdaterer(historikkinnslagRepository);
 
         // Dto
         var dto = new SoknadsfristAksjonspunktDto("begrunnelse", oppdatertSoknadsfristOk);
@@ -45,7 +45,7 @@ class SøknadsfristVilkårOppdatererTest {
         // Act
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
-        var historikkinnslag = historikkinnslag2Repository.hent(behandling.getSaksnummer()).getFirst();
+        var historikkinnslag = historikkinnslagRepository.hent(behandling.getSaksnummer()).getFirst();
 
         // Assert
         assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).contains("Søknadsfristvilkåret", "oppfylt");

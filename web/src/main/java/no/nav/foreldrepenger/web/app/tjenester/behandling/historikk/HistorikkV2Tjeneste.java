@@ -13,12 +13,12 @@ import jakarta.ws.rs.core.UriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepositoryOld;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagOld;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2DokumentLink;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Linje;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDokumentLink;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinje;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
@@ -32,18 +32,18 @@ public class HistorikkV2Tjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(HistorikkV2Tjeneste.class);
 
-    private HistorikkRepository historikkRepository;
-    private Historikkinnslag2Repository historikkinnslag2Repository;
+    private HistorikkRepositoryOld historikkRepositoryOld;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private BehandlingRepository behandlingRepository;
     private DokumentArkivTjeneste dokumentArkivTjeneste;
 
     @Inject
-    public HistorikkV2Tjeneste(HistorikkRepository historikkRepository,
-                               Historikkinnslag2Repository historikkinnslag2Repository,
+    public HistorikkV2Tjeneste(HistorikkRepositoryOld historikkRepositoryOld,
+                               HistorikkinnslagRepository historikkinnslagRepository,
                                BehandlingRepository behandlingRepository,
                                DokumentArkivTjeneste dokumentArkivTjeneste) {
-        this.historikkRepository = historikkRepository;
-        this.historikkinnslag2Repository = historikkinnslag2Repository;
+        this.historikkRepositoryOld = historikkRepositoryOld;
+        this.historikkinnslagRepository = historikkinnslagRepository;
         this.behandlingRepository = behandlingRepository;
         this.dokumentArkivTjeneste = dokumentArkivTjeneste;
     }
@@ -57,32 +57,32 @@ public class HistorikkV2Tjeneste {
             .stream()
             .map(ArkivJournalPost::getJournalpostId)
             .toList();
-        var historikkV1 = historikkRepository.hentHistorikkForSaksnummer(saksnummer).stream().map(h -> map(dokumentPath, h, journalPosterForSak));
-        var historikkV2 = historikkinnslag2Repository.hent(saksnummer).stream().map(h -> map(dokumentPath, h, journalPosterForSak));
+        var historikkV1 = historikkRepositoryOld.hentHistorikkForSaksnummer(saksnummer).stream().map(h -> map(dokumentPath, h, journalPosterForSak));
+        var historikkV2 = historikkinnslagRepository.hent(saksnummer).stream().map(h -> map(dokumentPath, h, journalPosterForSak));
 
         return Stream.concat(historikkV1, historikkV2).sorted(Comparator.comparing(HistorikkinnslagDtoV2::opprettetTidspunkt)).toList();
     }
 
-    private HistorikkinnslagDtoV2 map(URI dokumentPath, Historikkinnslag h, List<JournalpostId> journalPosterForSak) {
+    private HistorikkinnslagDtoV2 map(URI dokumentPath, HistorikkinnslagOld h, List<JournalpostId> journalPosterForSak) {
         var behandlingId = h.getBehandlingId();
         var uuid = behandlingId == null ? null : behandlingRepository.hentBehandling(behandlingId).getUuid();
         return HistorikkV2Adapter.map(h, uuid, journalPosterForSak, dokumentPath);
     }
 
-    private HistorikkinnslagDtoV2 map(URI dokumentPath, Historikkinnslag2 h, List<JournalpostId> journalPosterForSak) {
+    private HistorikkinnslagDtoV2 map(URI dokumentPath, Historikkinnslag h, List<JournalpostId> journalPosterForSak) {
         var behandlingId = h.getBehandlingId();
         var uuid = behandlingId == null ? null : behandlingRepository.hentBehandling(behandlingId).getUuid();
         List<HistorikkInnslagDokumentLinkDto> dokumenter = tilDokumentlenker(h.getDokumentLinker(), journalPosterForSak, dokumentPath);
         var linjer = h.getLinjer()
             .stream()
-            .sorted(Comparator.comparing(Historikkinnslag2Linje::getSekvensNr))
+            .sorted(Comparator.comparing(HistorikkinnslagLinje::getSekvensNr))
             .map(t -> t.getType() == HistorikkinnslagLinjeType.TEKST ? Linje.tekstlinje(t.getTekst()) : Linje.linjeskift())
             .toList();
         return new HistorikkinnslagDtoV2(uuid, HistorikkinnslagDtoV2.HistorikkAktørDto.fra(h.getAktør(), h.getOpprettetAv()), h.getSkjermlenke(),
             h.getOpprettetTidspunkt(), dokumenter, h.getTittel(), linjer);
     }
 
-    private static List<HistorikkInnslagDokumentLinkDto> tilDokumentlenker(List<Historikkinnslag2DokumentLink> dokumentLinker,
+    private static List<HistorikkInnslagDokumentLinkDto> tilDokumentlenker(List<HistorikkinnslagDokumentLink> dokumentLinker,
                                                                            List<JournalpostId> journalPosterForSak,
                                                                            URI dokumentPath) {
         if (dokumentLinker == null) {
@@ -92,7 +92,7 @@ public class HistorikkV2Tjeneste {
             .toList();
     }
 
-    private static HistorikkInnslagDokumentLinkDto tilDokumentlenker(Historikkinnslag2DokumentLink lenke,
+    private static HistorikkInnslagDokumentLinkDto tilDokumentlenker(HistorikkinnslagDokumentLink lenke,
                                                                      List<JournalpostId> journalPosterForSak,
                                                                      URI dokumentPath) {
         var erUtgått = aktivJournalPost(lenke.getJournalpostId(), journalPosterForSak);

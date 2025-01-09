@@ -17,8 +17,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdaterer<BekreftTerminbekreftelseAksjonspunktDto> {
 
 
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
 
@@ -38,7 +38,7 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
     }
 
     @Inject
-    public BekreftTerminbekreftelseOppdaterer(Historikkinnslag2Repository historikkinnslagRepository,
+    public BekreftTerminbekreftelseOppdaterer(HistorikkinnslagRepository historikkinnslagRepository,
                                               OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
                                               FamilieHendelseTjeneste familieHendelseTjeneste) {
         this.historikkinnslagRepository = historikkinnslagRepository;
@@ -96,11 +96,11 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
         return builder.build();
     }
 
-    private Historikkinnslag2 lagHistorikkinnslag(BekreftTerminbekreftelseAksjonspunktDto dto,
-                                                  BehandlingReferanse behandlingReferanse,
-                                                  FamilieHendelseGrunnlagEntitet grunnlag,
-                                                  boolean erEndret) {
-        var historikkinnslagBuilder = new Historikkinnslag2.Builder()
+    private Historikkinnslag lagHistorikkinnslag(BekreftTerminbekreftelseAksjonspunktDto dto,
+                                                 BehandlingReferanse behandlingReferanse,
+                                                 FamilieHendelseGrunnlagEntitet grunnlag,
+                                                 boolean erEndret) {
+        var historikkinnslagBuilder = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(behandlingReferanse.fagsakId())
             .medBehandlingId(behandlingReferanse.behandlingId())

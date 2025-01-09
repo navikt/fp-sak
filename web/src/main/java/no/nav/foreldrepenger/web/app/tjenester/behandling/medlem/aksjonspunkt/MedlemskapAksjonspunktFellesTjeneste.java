@@ -7,8 +7,8 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskap;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskapRepository;
@@ -25,13 +25,13 @@ public class MedlemskapAksjonspunktFellesTjeneste {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private VilkårMedlemskapRepository vilkårMedlemskapRepository;
     private VilkårResultatRepository vilkårResultatRepository;
-    private Historikkinnslag2Repository historikkRepository;
+    private HistorikkinnslagRepository historikkRepository;
 
     @Inject
     public MedlemskapAksjonspunktFellesTjeneste(SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                                 VilkårMedlemskapRepository vilkårMedlemskapRepository,
                                                 VilkårResultatRepository vilkårResultatRepository,
-                                                Historikkinnslag2Repository historikkRepository) {
+                                                HistorikkinnslagRepository historikkRepository) {
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.vilkårMedlemskapRepository = vilkårMedlemskapRepository;
         this.vilkårResultatRepository = vilkårResultatRepository;
@@ -112,10 +112,10 @@ public class MedlemskapAksjonspunktFellesTjeneste {
         historikkRepository.lagre(builder.build());
     }
 
-    private static Historikkinnslag2.Builder lagFellesHistorikkBuilder(BehandlingReferanse ref,
-                                                                       VilkårUtfallType nyVerdi,
-                                                                       SkjermlenkeType skjermlenkeType) {
-        return new Historikkinnslag2.Builder().medBehandlingId(ref.behandlingId())
+    private static Historikkinnslag.Builder lagFellesHistorikkBuilder(BehandlingReferanse ref,
+                                                                      VilkårUtfallType nyVerdi,
+                                                                      SkjermlenkeType skjermlenkeType) {
+        return new Historikkinnslag.Builder().medBehandlingId(ref.behandlingId())
             .medFagsakId(ref.fagsakId())
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medTittel(skjermlenkeType)

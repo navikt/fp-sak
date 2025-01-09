@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.Historikkinn
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagOld;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
@@ -21,11 +21,11 @@ public class HistorikkDtoFellesMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(HistorikkDtoFellesMapper.class);
 
-    public static HistorikkinnslagDtoV2 tilHistorikkInnslagDto(Historikkinnslag h, UUID behandlingUUID, List<Linje> linjer) {
+    public static HistorikkinnslagDtoV2 tilHistorikkInnslagDto(HistorikkinnslagOld h, UUID behandlingUUID, List<Linje> linjer) {
         return tilHistorikkInnslagDto(h, behandlingUUID, null, linjer);
     }
 
-    public static HistorikkinnslagDtoV2 tilHistorikkInnslagDto(Historikkinnslag h,
+    public static HistorikkinnslagDtoV2 tilHistorikkInnslagDto(HistorikkinnslagOld h,
                                                                UUID behandlingUUID,
                                                                List<HistorikkInnslagDokumentLinkDto> lenker,
                                                                List<Linje> linjer) {
@@ -34,7 +34,7 @@ public class HistorikkDtoFellesMapper {
             h.getOpprettetTidspunkt(), lenker, skjermlenkeOpt.isEmpty() ? lagTittel(h) : null, fjernTrailingAvsnittFraTekst(linjer));
     }
 
-    private static String lagTittel(Historikkinnslag h) {
+    private static String lagTittel(HistorikkinnslagOld h) {
         var hendelseFelt = h.getHistorikkinnslagDeler().stream().map(HistorikkinnslagDel::getHendelse).flatMap(Optional::stream).toList();
         if (hendelseFelt.size() > 1) {
             LOG.info("Flere deler med HENDELSE-felt for historikkinnslag {} på sak {}. Er alle like? Er det noe grunn til å ha undertittler? ",
@@ -73,7 +73,7 @@ public class HistorikkDtoFellesMapper {
         return tekster.stream().toList();
     }
 
-    private static Optional<SkjermlenkeType> skjermlenkeFra(Historikkinnslag h) {
+    private static Optional<SkjermlenkeType> skjermlenkeFra(HistorikkinnslagOld h) {
         var skjermlenker = h.getHistorikkinnslagDeler().stream().flatMap(del -> del.getSkjermlenke().stream()).distinct().toList();
         if (skjermlenker.size() > 1) {
             return Optional.empty();

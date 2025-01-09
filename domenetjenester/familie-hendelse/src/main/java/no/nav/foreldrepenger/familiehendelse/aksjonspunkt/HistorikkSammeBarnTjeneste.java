@@ -7,8 +7,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AvslagbartAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
@@ -25,14 +25,14 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.Histor
 
 @ApplicationScoped
 class HistorikkSammeBarnTjeneste {
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     protected HistorikkSammeBarnTjeneste() {
         // CDI
     }
 
     @Inject
-    public HistorikkSammeBarnTjeneste(Historikkinnslag2Repository historikkinnslagRepository) {
+    public HistorikkSammeBarnTjeneste(HistorikkinnslagRepository historikkinnslagRepository) {
         this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
@@ -44,7 +44,7 @@ class HistorikkSammeBarnTjeneste {
             .map(Behandlingsresultat::getVilkårResultat)
             .flatMap(VilkårResultat::getVilkårForRelasjonTilBarn)
             .orElse(null);
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())

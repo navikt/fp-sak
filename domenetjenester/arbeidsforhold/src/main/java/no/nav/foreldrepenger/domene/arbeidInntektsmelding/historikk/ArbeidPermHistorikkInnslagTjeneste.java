@@ -10,8 +10,8 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @ApplicationScoped
 public class ArbeidPermHistorikkInnslagTjeneste {
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
 
     ArbeidPermHistorikkInnslagTjeneste() {
@@ -31,14 +31,14 @@ public class ArbeidPermHistorikkInnslagTjeneste {
     }
 
     @Inject
-    public ArbeidPermHistorikkInnslagTjeneste(Historikkinnslag2Repository historikkinnslagRepository, ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
+    public ArbeidPermHistorikkInnslagTjeneste(HistorikkinnslagRepository historikkinnslagRepository, ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
         this.historikkinnslagRepository = historikkinnslagRepository;
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
     }
 
 
     public void opprettHistorikkinnslag(BehandlingReferanse ref, List<AvklarPermisjonUtenSluttdatoDto> avklarteArbForhold, String begrunnelse) {
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())

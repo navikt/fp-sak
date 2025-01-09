@@ -10,8 +10,8 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingValg;
@@ -19,14 +19,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.Tilbakek
 @ApplicationScoped
 public class TilbakekrevingvalgHistorikkinnslagBygger {
 
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     protected TilbakekrevingvalgHistorikkinnslagBygger() {
         // For CDI proxy
     }
 
     @Inject
-    public TilbakekrevingvalgHistorikkinnslagBygger(Historikkinnslag2Repository historikkinnslagRepository) {
+    public TilbakekrevingvalgHistorikkinnslagBygger(HistorikkinnslagRepository historikkinnslagRepository) {
         this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
@@ -40,7 +40,7 @@ public class TilbakekrevingvalgHistorikkinnslagBygger {
             var fraVerdi = forrigeValg.map(TilbakekrevingValg::getGrunnerTilReduksjon).orElse(null);
             linjer.add(fraTilEquals("Er det særlige grunner til reduksjon", fraVerdi, tilbakekrevingValg.getGrunnerTilReduksjon()));
         }
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())

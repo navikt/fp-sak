@@ -13,8 +13,8 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -32,7 +32,7 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste {
 
     private ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste() {
         // CDI
@@ -41,7 +41,7 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste {
     @Inject
     public FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste(ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste,
                                                                   InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                                                  Historikkinnslag2Repository historikkinnslagRepository) {
+                                                                  HistorikkinnslagRepository historikkinnslagRepository) {
         this.arbeidsgiverHistorikkinnslagTjeneste = arbeidsgiverHistorikkinnslagTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.historikkinnslagRepository = historikkinnslagRepository;
@@ -133,7 +133,7 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste {
         linjeBuilderList.addAll(oppdaterFrilansInntektVedEndretVerdi(forrigeFrilansInntekt, dto));
         linjeBuilderList.add(new HistorikkinnslagLinjeBuilder().tekst(dto.getBegrunnelse()));
 
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medBehandlingId(param.getBehandlingId())
             .medFagsakId(param.getRef().fagsakId())

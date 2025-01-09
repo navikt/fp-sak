@@ -8,8 +8,8 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResul
 @Dependent
 public class FaktaBeregningHistorikkKalkulusTjeneste {
 
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private FaktaOmBeregningVurderingHistorikkTjeneste vurderingHistorikkTjeneste;
     private BeregningsgrunnlagVerdierHistorikkTjeneste verdierHistorikkTjeneste;
 
@@ -29,9 +29,9 @@ public class FaktaBeregningHistorikkKalkulusTjeneste {
     }
 
     @Inject
-    public FaktaBeregningHistorikkKalkulusTjeneste(Historikkinnslag2Repository historikkinnslagRepository,
-                                                    FaktaOmBeregningVurderingHistorikkTjeneste vurderingHistorikkTjeneste,
-                                                    BeregningsgrunnlagVerdierHistorikkTjeneste verdierHistorikkTjeneste) {
+    public FaktaBeregningHistorikkKalkulusTjeneste(HistorikkinnslagRepository historikkinnslagRepository,
+                                                   FaktaOmBeregningVurderingHistorikkTjeneste vurderingHistorikkTjeneste,
+                                                   BeregningsgrunnlagVerdierHistorikkTjeneste verdierHistorikkTjeneste) {
         this.historikkinnslagRepository = historikkinnslagRepository;
         this.vurderingHistorikkTjeneste = vurderingHistorikkTjeneste;
         this.verdierHistorikkTjeneste = verdierHistorikkTjeneste;
@@ -44,7 +44,7 @@ public class FaktaBeregningHistorikkKalkulusTjeneste {
             return;
         }
 
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(behandlingReferanse.fagsakId())
             .medBehandlingId(behandlingReferanse.behandlingId())

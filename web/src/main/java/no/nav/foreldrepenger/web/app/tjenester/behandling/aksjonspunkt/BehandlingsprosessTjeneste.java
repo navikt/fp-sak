@@ -10,8 +10,8 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
@@ -30,7 +30,7 @@ public class BehandlingsprosessTjeneste {
     private BehandlingRepository behandlingRepository;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private ProsesseringAsynkTjeneste prosesseringAsynkTjeneste;
-    private Historikkinnslag2Repository historikkRepository;
+    private HistorikkinnslagRepository historikkRepository;
     private AnsattInfoKlient ansattInfoKlient;
 
     BehandlingsprosessTjeneste() {
@@ -46,7 +46,7 @@ public class BehandlingsprosessTjeneste {
     public BehandlingsprosessTjeneste(BehandlingRepository behandlingRepository,
                                       ProsesseringAsynkTjeneste prosesseringAsynkTjeneste,
                                       BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
-                                      Historikkinnslag2Repository historikkRepository,
+                                      HistorikkinnslagRepository historikkRepository,
                                       AnsattInfoKlient ansattInfoKlient) {
 
         Objects.requireNonNull(behandlingRepository, "behandlingRepository");
@@ -188,7 +188,7 @@ public class BehandlingsprosessTjeneste {
      * Derfor velger vi her å legge på et innslag til med saksbehandler som eier slik at historikken blir korrekt.
      */
     private void opprettHistorikkinnslagForManueltGjenopptakelse(Behandling behandling) {
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
@@ -198,7 +198,7 @@ public class BehandlingsprosessTjeneste {
     }
 
     private void opprettHistorikkinnslagForBehandlingStartetPåNytt(Behandling behandling) {
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())

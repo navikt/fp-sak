@@ -99,7 +99,7 @@ class DokumentmottakerKlageTest {
             historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter, mock(TomtUttakTjeneste.class));
         dokumentmottakerFelles = Mockito.spy(dokumentmottakerFelles);
         var behOpprettTjeneste = new BehandlingOpprettingTjeneste(behandlingskontrollTjeneste, behandlendeEnhetTjeneste,
-            repositoryProvider.getHistorikkinnslag2Repository(), taskTjeneste);
+            repositoryProvider.getHistorikkinnslagRepository(), taskTjeneste);
 
         dokumentmottaker = new DokumentmottakerKlage(repositoryProvider, behOpprettTjeneste, dokumentmottakerFelles,
                 klageVurderingTjeneste);

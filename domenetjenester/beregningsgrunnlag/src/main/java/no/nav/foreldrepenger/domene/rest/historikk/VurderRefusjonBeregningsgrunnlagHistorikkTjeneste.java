@@ -16,8 +16,8 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -42,7 +42,7 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkTjeneste {
     private static final BigDecimal MÅNEDER_I_ÅR = BigDecimal.valueOf(12);
     private ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
 
     VurderRefusjonBeregningsgrunnlagHistorikkTjeneste() {
@@ -52,7 +52,7 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkTjeneste {
     @Inject
     public VurderRefusjonBeregningsgrunnlagHistorikkTjeneste(ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste,
                                                              InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                                             Historikkinnslag2Repository historikkinnslagRepository) {
+                                                             HistorikkinnslagRepository historikkinnslagRepository) {
         this.arbeidsgiverHistorikkinnslagTjeneste = arbeidsgiverHistorikkinnslagTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.historikkinnslagRepository = historikkinnslagRepository;
@@ -63,7 +63,7 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkTjeneste {
                              Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag) {
         var behandlingId = param.getBehandlingId();
         var arbeidsforholdOverstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId).getArbeidsforholdOverstyringer();
-        var historikkinnslagBuilder = new Historikkinnslag2.Builder();
+        var historikkinnslagBuilder = new Historikkinnslag.Builder();
         List<HistorikkinnslagLinjeBuilder> linjeBuilder = new ArrayList<>();
         var forrigeOverstyringer = forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getRefusjonOverstyringer)
             .map(BeregningRefusjonOverstyringerEntitet::getRefusjonOverstyringer)

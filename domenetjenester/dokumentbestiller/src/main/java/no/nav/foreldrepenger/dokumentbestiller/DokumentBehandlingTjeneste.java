@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDoku
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
@@ -42,7 +42,7 @@ public class DokumentBehandlingTjeneste {
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private FamilieHendelseRepository familieHendelseRepository;
     private BehandlingDokumentRepository behandlingDokumentRepository;
-    private Historikkinnslag2Repository historikkinnslag2Repository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     DokumentBehandlingTjeneste() {
         // for cdi proxy
@@ -57,7 +57,7 @@ public class DokumentBehandlingTjeneste {
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingDokumentRepository = behandlingDokumentRepository;
-        this.historikkinnslag2Repository = repositoryProvider.getHistorikkinnslag2Repository();
+        this.historikkinnslagRepository = repositoryProvider.getHistorikkinnslagRepository();
     }
 
     public void loggDokumentBestilt(Behandling behandling, DokumentBestilling bestilling) {
@@ -151,7 +151,7 @@ public class DokumentBehandlingTjeneste {
     private void lagreHistorikk(Behandling behandling, DokumentMalType dokumentMalBrukt, String journalpostId, String dokumentId) {
         var historikkinnslag = HistorikkFraDokumentKvitteringMapper.opprettHistorikkInnslag(dokumentMalBrukt, journalpostId, dokumentId,
             behandling.getId(), behandling.getFagsakId());
-        historikkinnslag2Repository.lagre(historikkinnslag);
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
     private DokumentMalType utledMalBrukt(String dokumentMalType, String opprineligDokumentMal) {

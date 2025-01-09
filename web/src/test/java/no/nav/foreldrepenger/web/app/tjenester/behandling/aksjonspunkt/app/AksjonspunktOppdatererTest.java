@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
@@ -60,7 +60,7 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
     private TotrinnRepository totrinnRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private VedtakTjeneste vedtakTjeneste;
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     @BeforeEach
     public void setup() {
@@ -75,9 +75,9 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
         behandlingsresultatRepository = new BehandlingsresultatRepository(em);
         totrinnRepository = new TotrinnRepository(em);
         var totrinnTjeneste = new TotrinnTjeneste(totrinnRepository);
-        vedtakTjeneste = new VedtakTjeneste(behandlingRepository, behandlingsresultatRepository, repositoryProvider.getHistorikkinnslag2Repository(), lagretVedtakRepository,
+        vedtakTjeneste = new VedtakTjeneste(behandlingRepository, behandlingsresultatRepository, repositoryProvider.getHistorikkinnslagRepository(), lagretVedtakRepository,
                 totrinnTjeneste);
-        historikkinnslagRepository = repositoryProvider.getHistorikkinnslag2Repository();
+        historikkinnslagRepository = repositoryProvider.getHistorikkinnslagRepository();
         fatterVedtakAksjonspunkt = new FatterVedtakAksjonspunkt(behandlingskontrollTjeneste, vedtakTjeneste,
                 totrinnTjeneste, mock(InntektArbeidYtelseTjeneste.class), behandlingRepository);
     }

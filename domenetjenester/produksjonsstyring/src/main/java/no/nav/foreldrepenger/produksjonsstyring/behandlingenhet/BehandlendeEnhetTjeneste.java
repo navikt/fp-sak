@@ -20,8 +20,8 @@ import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingEnhetEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
@@ -45,7 +45,7 @@ public class BehandlendeEnhetTjeneste {
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
     private PersonopplysningRepository personopplysningRepository;
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private FagsakEgenskapRepository fagsakEgenskapRepository;
 
     public BehandlendeEnhetTjeneste() {
@@ -64,7 +64,7 @@ public class BehandlendeEnhetTjeneste {
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.fagsakRepository = provider.getFagsakRepository();
         this.behandlingRepository = provider.getBehandlingRepository();
-        this.historikkinnslagRepository = provider.getHistorikkinnslag2Repository();
+        this.historikkinnslagRepository = provider.getHistorikkinnslagRepository();
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
     }
 
@@ -225,7 +225,7 @@ public class BehandlendeEnhetTjeneste {
                                                             HistorikkAktør aktør) {
         var eksisterende = behandling.getBehandlendeOrganisasjonsEnhet();
         var fraMessage = eksisterende != null ? eksisterende.enhetId() + " " + eksisterende.enhetNavn() : "ukjent";
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(aktør)
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())

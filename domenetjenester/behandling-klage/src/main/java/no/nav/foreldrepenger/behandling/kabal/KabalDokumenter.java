@@ -21,9 +21,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDoku
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2DokumentLink;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDokumentLink;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
@@ -38,7 +38,7 @@ public class KabalDokumenter {
     private DokumentArkivTjeneste dokumentArkivTjeneste;
     private MottatteDokumentRepository mottatteDokumentRepository;
     private BehandlingDokumentRepository behandlingDokumentRepository;
-    private Historikkinnslag2Repository historikkRepository;
+    private HistorikkinnslagRepository historikkRepository;
 
     KabalDokumenter() {
         // for CDI proxy
@@ -48,7 +48,7 @@ public class KabalDokumenter {
     public KabalDokumenter(DokumentArkivTjeneste dokumentArkivTjeneste,
                            MottatteDokumentRepository mottatteDokumentRepository,
                            BehandlingDokumentRepository behandlingDokumentRepository,
-                           Historikkinnslag2Repository historikkRepository) {
+                           HistorikkinnslagRepository historikkRepository) {
         this.dokumentArkivTjeneste = dokumentArkivTjeneste;
         this.mottatteDokumentRepository = mottatteDokumentRepository;
         this.behandlingDokumentRepository = behandlingDokumentRepository;
@@ -192,12 +192,12 @@ public class KabalDokumenter {
         if (journalPost == null) {
             return;
         }
-        var doklink = new Historikkinnslag2DokumentLink.Builder()
+        var doklink = new HistorikkinnslagDokumentLink.Builder()
             .medLinkTekst(journalPost.tittel())
             .medDokumentId(journalPost.dokumentId())
             .medJournalpostId(journalPost.journalpostId())
             .build();
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())

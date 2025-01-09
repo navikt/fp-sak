@@ -18,8 +18,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
@@ -36,7 +36,7 @@ public class KlageHistorikkinnslag {
     private static final String IKKE_PÅKLAGD_ET_VEDTAK_HISTORIKKINNSLAG_TEKST = "Ikke påklagd et vedtak";
     public static final String PÅKLAGD_BEHANDLING = "Påklagd behandling";
 
-    private Historikkinnslag2Repository historikkinnslag2Repository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private BehandlingRepository behandlingRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
 
@@ -47,11 +47,11 @@ public class KlageHistorikkinnslag {
     }
 
     @Inject
-    public KlageHistorikkinnslag(Historikkinnslag2Repository historikkinnslag2Repository,
+    public KlageHistorikkinnslag(HistorikkinnslagRepository historikkinnslagRepository,
                                  BehandlingRepository behandlingRepository,
                                  BehandlingVedtakRepository behandlingVedtakRepository,
                                  FptilbakeRestKlient fptilbakeRestKlient) {
-        this.historikkinnslag2Repository = historikkinnslag2Repository;
+        this.historikkinnslagRepository = historikkinnslagRepository;
         this.behandlingRepository = behandlingRepository;
         this.behandlingVedtakRepository = behandlingVedtakRepository;
         this.fptilbakeRestKlient = fptilbakeRestKlient;
@@ -67,14 +67,14 @@ public class KlageHistorikkinnslag {
 
         var linjer = klageFormkrav.map(klageFormkravEntitet -> lagHistorikkLinjer(klageFormkravEntitet, formkravDto, klageResultat))
             .orElseGet(() -> lagHistorikkLinjer(formkravDto));
-        var historikkinnslag = new Historikkinnslag2.Builder().medTittel(skjermlenkeType)
+        var historikkinnslag = new Historikkinnslag.Builder().medTittel(skjermlenkeType)
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(klageBehandling.getFagsakId())
             .medBehandlingId(klageBehandling.getId())
             .medLinjer(linjer)
             .addLinje(begrunnelse)
             .build();
-        historikkinnslag2Repository.lagre(historikkinnslag);
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
     public void opprettHistorikkinnslagVurdering(Behandling behandling,
@@ -97,14 +97,14 @@ public class KlageHistorikkinnslag {
         }
 
         var skjermlenkeType = erNfpAksjonspunkt ? SkjermlenkeType.KLAGE_BEH_NFP : SkjermlenkeType.KLAGE_BEH_NK;
-        var historikkinnslag = new Historikkinnslag2.Builder().medFagsakId(behandling.getFagsakId())
+        var historikkinnslag = new Historikkinnslag.Builder().medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medTittel(skjermlenkeType)
             .medLinjer(linjer)
             .addLinje(begrunnelse)
             .build();
-        historikkinnslag2Repository.lagre(historikkinnslag);
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
     private String hentPåklagdBehandlingTekst(Long behandlingId) {

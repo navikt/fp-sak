@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
@@ -41,7 +41,7 @@ class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
 
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private final UføretrygdRepository uføretrygdRepository = mock(UføretrygdRepository.class);
-    private Historikkinnslag2Repository historikkinnslag2Repository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     @BeforeEach
     public void setUp() {
@@ -49,7 +49,7 @@ class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         var inntektArbeidYtelseTjeneste = mock(InntektArbeidYtelseTjeneste.class);
         this.ytelseFordelingTjeneste = new YtelseFordelingTjeneste(new YtelsesFordelingRepository(entityManager));
-        this.historikkinnslag2Repository = repositoryProvider.getHistorikkinnslag2Repository();
+        this.historikkinnslagRepository = repositoryProvider.getHistorikkinnslagRepository();
         when(inntektArbeidYtelseTjeneste.hentGrunnlag(anyLong())).thenReturn(
             InntektArbeidYtelseGrunnlagBuilder.nytt().build());
     }
@@ -71,7 +71,7 @@ class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
 
         oppdaterer().oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
 
-        var historikk = historikkinnslag2Repository.hent(behandling.getId()).getFirst();
+        var historikk = historikkinnslagRepository.hent(behandling.getSaksnummer()).getFirst();
 
         //assert
         assertThat(historikk.getLinjer()).hasSize(3);
@@ -131,6 +131,6 @@ class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
     }
 
     private AvklarAnnenforelderHarRettOppdaterer oppdaterer() {
-        return new AvklarAnnenforelderHarRettOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, mock(FagsakEgenskapRepository.class)), repositoryProvider.getHistorikkinnslag2Repository());
+        return new AvklarAnnenforelderHarRettOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, mock(FagsakEgenskapRepository.class)), repositoryProvider.getHistorikkinnslagRepository());
     }
 }

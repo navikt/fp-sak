@@ -12,8 +12,8 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.ytelse.beregning.es.BeregnYtelseTjenesteES;
 
@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.ytelse.beregning.es.BeregnYtelseTjenesteES;
 public class BeregningOverstyringshåndterer implements Overstyringshåndterer<OverstyringBeregningDto> {
 
     private LegacyESBeregningRepository beregningRepository;
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private BeregnYtelseTjenesteES beregnTjeneste;
 
     BeregningOverstyringshåndterer() {
@@ -31,7 +31,7 @@ public class BeregningOverstyringshåndterer implements Overstyringshåndterer<O
 
     @Inject
     public BeregningOverstyringshåndterer(LegacyESBeregningRepository beregningRepository,
-                                          Historikkinnslag2Repository historikkinnslagRepository,
+                                          HistorikkinnslagRepository historikkinnslagRepository,
                                           BeregnYtelseTjenesteES beregnTjeneste) {
         this.beregningRepository = beregningRepository;
         this.historikkinnslagRepository = historikkinnslagRepository;
@@ -54,7 +54,7 @@ public class BeregningOverstyringshåndterer implements Overstyringshåndterer<O
         var sisteBeregning = beregningRepository.getSisteBeregning(behandlingId);
         if (sisteBeregning.isPresent()) {
             var fraBeregning = sisteBeregning.get().getOpprinneligBeregnetTilkjentYtelse();
-            var historikkinnslag = new Historikkinnslag2.Builder()
+            var historikkinnslag = new Historikkinnslag.Builder()
                 .medAktør(HistorikkAktør.SAKSBEHANDLER)
                 .medFagsakId(behandling.getFagsakId())
                 .medBehandlingId(behandlingId)

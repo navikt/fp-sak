@@ -88,7 +88,7 @@ class BekreftSvangerskapspengervilkårOppdatererTest {
     }
 
     private BekreftSvangerskapspengervilkårOppdaterer oppdaterer() {
-        return new BekreftSvangerskapspengervilkårOppdaterer(repositoryProvider.getHistorikkinnslag2Repository());
+        return new BekreftSvangerskapspengervilkårOppdaterer(repositoryProvider.getHistorikkinnslagRepository());
     }
 
 }

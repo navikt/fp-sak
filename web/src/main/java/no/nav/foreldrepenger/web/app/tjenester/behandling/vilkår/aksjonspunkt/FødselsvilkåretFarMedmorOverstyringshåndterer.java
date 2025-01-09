@@ -6,7 +6,7 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.inngangsvilkaar.InngangsvilkårTjeneste;
@@ -21,8 +21,8 @@ public class FødselsvilkåretFarMedmorOverstyringshåndterer extends Inngangsvi
     }
 
     @Inject
-    public FødselsvilkåretFarMedmorOverstyringshåndterer(InngangsvilkårTjeneste inngangsvilkårTjeneste, Historikkinnslag2Repository historikkinnslag2Repository) {
-        super(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR, inngangsvilkårTjeneste, historikkinnslag2Repository);
+    public FødselsvilkåretFarMedmorOverstyringshåndterer(InngangsvilkårTjeneste inngangsvilkårTjeneste, HistorikkinnslagRepository historikkinnslagRepository) {
+        super(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR, inngangsvilkårTjeneste, historikkinnslagRepository);
     }
 
 

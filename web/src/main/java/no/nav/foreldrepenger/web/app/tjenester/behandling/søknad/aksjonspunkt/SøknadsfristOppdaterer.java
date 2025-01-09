@@ -11,8 +11,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
@@ -21,14 +21,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 @DtoTilServiceAdapter(dto = SoknadsfristAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
 public class SøknadsfristOppdaterer implements AksjonspunktOppdaterer<SoknadsfristAksjonspunktDto> {
 
-    private Historikkinnslag2Repository historikkinnslag2Repository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     SøknadsfristOppdaterer() {
     }
 
     @Inject
-    public SøknadsfristOppdaterer(Historikkinnslag2Repository historikkinnslag2Repository) {
-        this.historikkinnslag2Repository = historikkinnslag2Repository;
+    public SøknadsfristOppdaterer(HistorikkinnslagRepository historikkinnslagRepository) {
+        this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     @Override
@@ -46,13 +46,13 @@ public class SøknadsfristOppdaterer implements AksjonspunktOppdaterer<Soknadsfr
 
     private void lagreHistorikk(SoknadsfristAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         var tilTekst = dto.getErVilkarOk() ? "oppfylt" : "ikke oppfylt";
-        var historikkinnslag = new Historikkinnslag2.Builder().medFagsakId(param.getFagsakId())
+        var historikkinnslag = new Historikkinnslag.Builder().medFagsakId(param.getFagsakId())
             .medBehandlingId(param.getBehandlingId())
             .medTittel(SkjermlenkeType.SOEKNADSFRIST)
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .addLinje(new HistorikkinnslagLinjeBuilder().til("Søknadsfristvilkåret", tilTekst))
             .addLinje(dto.getBegrunnelse())
             .build();
-        historikkinnslag2Repository.lagre(historikkinnslag);
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 }

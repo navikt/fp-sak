@@ -6,7 +6,7 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.inngangsvilkaar.InngangsvilkårTjeneste;
@@ -22,8 +22,8 @@ public class AdopsjonsvilkåretOverstyringshåndterer extends InngangsvilkårOve
 
     @Inject
     public AdopsjonsvilkåretOverstyringshåndterer(InngangsvilkårTjeneste inngangsvilkårTjeneste,
-                                                  Historikkinnslag2Repository historikkinnslag2Repository) {
-        super(VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD, inngangsvilkårTjeneste, historikkinnslag2Repository);
+                                                  HistorikkinnslagRepository historikkinnslagRepository) {
+        super(VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD, inngangsvilkårTjeneste, historikkinnslagRepository);
     }
 
     @Override

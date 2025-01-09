@@ -14,7 +14,7 @@ import org.mockito.ArgumentCaptor;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingValg;
@@ -27,8 +27,8 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.aksjons
 class VurderFeilutbetalingOppdatererTest {
 
     private final TilbakekrevingRepository repository = mock(TilbakekrevingRepository.class);
-    private final Historikkinnslag2Repository historikkinnslag2Repository = mock(Historikkinnslag2Repository.class);
-    private final TilbakekrevingvalgHistorikkinnslagBygger historikkInnslagBygger = new TilbakekrevingvalgHistorikkinnslagBygger(historikkinnslag2Repository);
+    private final HistorikkinnslagRepository historikkinnslagRepository = mock(HistorikkinnslagRepository.class);
+    private final TilbakekrevingvalgHistorikkinnslagBygger historikkInnslagBygger = new TilbakekrevingvalgHistorikkinnslagBygger(historikkinnslagRepository);
     private final BehandlingRepository behandlingRepository = mock(BehandlingRepository.class);
     private final VurderFeilutbetalingOppdaterer oppdaterer = new VurderFeilutbetalingOppdaterer(repository, historikkInnslagBygger, behandlingRepository);
 

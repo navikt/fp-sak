@@ -13,8 +13,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
@@ -31,10 +31,10 @@ import no.nav.fpsak.tidsserie.LocalDateTimeline;
 @ApplicationScoped
 public class FaktaUttakHistorikkinnslagTjeneste {
 
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     @Inject
-    public FaktaUttakHistorikkinnslagTjeneste(Historikkinnslag2Repository historikkinnslagRepository) {
+    public FaktaUttakHistorikkinnslagTjeneste(HistorikkinnslagRepository historikkinnslagRepository) {
         this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
@@ -48,7 +48,7 @@ public class FaktaUttakHistorikkinnslagTjeneste {
                                         boolean overstyring,
                                         String begrunnelse) {
         var perioderMedEndringer = lagTekstForPerioderSomErEndret(eksisterendePerioder, oppdatertePerioder);
-        var historikkinnslagBuilder = new Historikkinnslag2.Builder()
+        var historikkinnslagBuilder = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(fagsakId)
             .medBehandlingId(behandlingId)

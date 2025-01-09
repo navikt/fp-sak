@@ -12,8 +12,8 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
@@ -22,10 +22,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 @ApplicationScoped
 public class VurderUttakDokumentasjonHistorikkinnslagTjeneste {
 
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     @Inject
-    public VurderUttakDokumentasjonHistorikkinnslagTjeneste(Historikkinnslag2Repository historikkinnslagRepository) {
+    public VurderUttakDokumentasjonHistorikkinnslagTjeneste(HistorikkinnslagRepository historikkinnslagRepository) {
         this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
@@ -41,7 +41,7 @@ public class VurderUttakDokumentasjonHistorikkinnslagTjeneste {
         for (var periode : nyFordeling) {
             opprettAvklaring(eksisterendePerioder, periode).ifPresent(linjer::add);
         }
-        var historikkinnslag = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
+        var historikkinnslag = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())
             .medTittel(SkjermlenkeType.FAKTA_OM_UTTAK_DOKUMENTASJON)

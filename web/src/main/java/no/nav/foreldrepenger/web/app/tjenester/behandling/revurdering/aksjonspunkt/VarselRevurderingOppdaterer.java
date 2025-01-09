@@ -9,8 +9,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.VarselRevurderingAksjonspunktDto;
@@ -22,11 +22,11 @@ public class VarselRevurderingOppdaterer implements AksjonspunktOppdaterer<Varse
 
     private VarselRevurderingTjeneste dokumentTjeneste;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     @Inject
     public VarselRevurderingOppdaterer(VarselRevurderingTjeneste dokumentTjeneste,
-                                       Historikkinnslag2Repository historikkinnslagRepository,
+                                       HistorikkinnslagRepository historikkinnslagRepository,
                                        DokumentBehandlingTjeneste dokumentBehandlingTjeneste) {
         this.dokumentTjeneste = dokumentTjeneste;
         this.historikkinnslagRepository = historikkinnslagRepository;
@@ -50,13 +50,13 @@ public class VarselRevurderingOppdaterer implements AksjonspunktOppdaterer<Varse
     }
 
     private void opprettHistorikkinnslagOmIkkeSendtVarselOmRevurdering(BehandlingReferanse ref, VarselRevurderingDto varselRevurderingDto) {
-        var historikkinnslag2 = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
+        var historikkinnslag = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medBehandlingId(ref.behandlingId())
             .medFagsakId(ref.fagsakId())
             .medTittel("Varsel om revurdering er ikke sendt")
             .addLinje(varselRevurderingDto.getBegrunnelse())
             .build();
-        historikkinnslagRepository.lagre(historikkinnslag2);
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
     private boolean harSendtVarselOmRevurdering(BehandlingReferanse behandlingReferanse) {

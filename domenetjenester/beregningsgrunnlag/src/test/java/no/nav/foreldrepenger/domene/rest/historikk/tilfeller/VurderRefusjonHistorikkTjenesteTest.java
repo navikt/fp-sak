@@ -14,7 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagOld;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -48,7 +48,7 @@ class VurderRefusjonHistorikkTjenesteTest {
     private final String NY_REFUSJONSFRIST = "Utvidelse av frist for fremsatt refusjonskrav for ";
 
     private VurderRefusjonHistorikkTjeneste vurderRefusjonHistorikkTjeneste;
-    private final Historikkinnslag historikkinnslag = new Historikkinnslag();
+    private final HistorikkinnslagOld historikkinnslag = new HistorikkinnslagOld();
 
     @BeforeEach
     public void setUp() {

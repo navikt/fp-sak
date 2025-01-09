@@ -40,7 +40,7 @@ public class HistorikkinnslagDel extends BaseEntitet {
     @ManyToOne(optional = false)
     @JoinColumn(name = "historikkinnslag_id", nullable = false, updatable = false)
     @JsonBackReference
-    private Historikkinnslag historikkinnslag;
+    private HistorikkinnslagOld historikkinnslag;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "historikkinnslagDel")
     private List<HistorikkinnslagFelt> historikkinnslagFelt = new ArrayList<>();
@@ -49,7 +49,7 @@ public class HistorikkinnslagDel extends BaseEntitet {
         return id;
     }
 
-    public Historikkinnslag getHistorikkinnslag() {
+    public HistorikkinnslagOld getHistorikkinnslag() {
         return historikkinnslag;
     }
 
@@ -191,7 +191,7 @@ public class HistorikkinnslagDel extends BaseEntitet {
             return this;
         }
 
-        public Builder medHistorikkinnslag(Historikkinnslag historikkinnslag) {
+        public Builder medHistorikkinnslag(HistorikkinnslagOld historikkinnslag) {
             kladd.historikkinnslag = historikkinnslag;
             return this;
         }

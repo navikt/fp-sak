@@ -9,22 +9,22 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = KontrollerRevurderingsBehandlingDto.class, adapter = AksjonspunktOppdaterer.class)
 class KontrollerRevurderingsBehandlingOppdaterer implements AksjonspunktOppdaterer<KontrollerRevurderingsBehandlingDto> {
 
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     KontrollerRevurderingsBehandlingOppdaterer() {
         // for CDI proxy
     }
 
     @Inject
-    public KontrollerRevurderingsBehandlingOppdaterer(Historikkinnslag2Repository historikkinnslagRepository) {
+    public KontrollerRevurderingsBehandlingOppdaterer(HistorikkinnslagRepository historikkinnslagRepository) {
         this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
@@ -35,7 +35,7 @@ class KontrollerRevurderingsBehandlingOppdaterer implements AksjonspunktOppdater
     }
 
     private void lagHistorikkinnslag(BehandlingReferanse ref) {
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())

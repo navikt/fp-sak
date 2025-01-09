@@ -75,7 +75,7 @@ class RevurderingTjenesteImplTest {
         var behandling = opprettRevurderingsKandidat();
         tjeneste().opprettHistorikkinnslagForFødsler(behandling, barn);
 
-        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getSaksnummer()).getFirst();
+        var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
 
         assertThat(historikkinnslag.getTittel()).isEqualTo("Opplysning om fødsel");
         assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).contains("Fødselsdato: 04.09.2017");
@@ -83,7 +83,7 @@ class RevurderingTjenesteImplTest {
     }
 
     private RevurderingHistorikk tjeneste() {
-        return new RevurderingHistorikk(repositoryProvider.getHistorikkinnslag2Repository());
+        return new RevurderingHistorikk(repositoryProvider.getHistorikkinnslagRepository());
     }
 
     @Test
@@ -98,7 +98,7 @@ class RevurderingTjenesteImplTest {
         var behandling = opprettRevurderingsKandidat();
         tjeneste().opprettHistorikkinnslagForFødsler(behandling, barn);
 
-        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getSaksnummer()).getFirst();
+        var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
 
         assertThat(historikkinnslag.getTittel()).isEqualTo("Opplysning om fødsel");
         assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).contains("Fødselsdato: 04.09.2017, 05.09.2017");

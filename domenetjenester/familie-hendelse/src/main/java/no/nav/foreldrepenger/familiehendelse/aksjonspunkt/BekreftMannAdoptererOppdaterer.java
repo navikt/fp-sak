@@ -14,8 +14,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
@@ -26,13 +26,13 @@ import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftMannAdopter
 public class BekreftMannAdoptererOppdaterer implements AksjonspunktOppdaterer<BekreftMannAdoptererAksjonspunktDto> {
 
     private FamilieHendelseTjeneste familieHendelseTjeneste;
-    private Historikkinnslag2Repository historikkinnslag2Repository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     @Inject
     public BekreftMannAdoptererOppdaterer(FamilieHendelseTjeneste familieHendelseTjeneste,
-                                          Historikkinnslag2Repository historikkinnslag2Repository) {
+                                          HistorikkinnslagRepository historikkinnslagRepository) {
         this.familieHendelseTjeneste = familieHendelseTjeneste;
-        this.historikkinnslag2Repository = historikkinnslag2Repository;
+        this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     BekreftMannAdoptererOppdaterer() {
@@ -59,7 +59,7 @@ public class BekreftMannAdoptererOppdaterer implements AksjonspunktOppdaterer<Be
 
     private void lagreHistorikkinnslag(AksjonspunktOppdaterParameter param, BekreftMannAdoptererAksjonspunktDto dto, Boolean eksisterende) {
         //TODO TFP-5554 5004, 5005, 5006 løses samtidig. Tidligere vært ett historikkinnslag, nå 3. FIX
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medTittel(SkjermlenkeType.FAKTA_OM_ADOPSJON)
             .medBehandlingId(param.getBehandlingId())
             .medFagsakId(param.getFagsakId())
@@ -67,7 +67,7 @@ public class BekreftMannAdoptererOppdaterer implements AksjonspunktOppdaterer<Be
             .addLinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Mann adopterer", eksisterende, dto.getMannAdoptererAlene()))
             .addLinje(dto.getBegrunnelse())
             .build();
-        historikkinnslag2Repository.lagre(historikkinnslag);
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
     private Optional<Boolean> finnEksisterendeMannAdoptererAlene(BehandlingReferanse ref) {

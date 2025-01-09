@@ -95,7 +95,7 @@ class OpptjeningsvilkåretOverstyringshåndtererTest {
         aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling.getId());
 
         // Assert
-        var historikkinnslagene = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId());
+        var historikkinnslagene = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer());
         var linjer = historikkinnslagene.getFirst().getLinjer();
         assertThat(linjer).hasSize(2);
         assertThat(linjer.getFirst().getTekst()).contains("Overstyrt vurdering", "ikke oppfylt");

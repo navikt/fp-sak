@@ -25,8 +25,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
@@ -57,7 +57,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
     private Behandling behandling;
     ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
     private BehandlingRepositoryProvider repositoryProvider;
-    private Historikkinnslag2Repository historikkinnslag2Repository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     @BeforeEach
     public void setup() {
@@ -66,13 +66,13 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         klageRepository = new KlageRepository(getEntityManager());
         KlageVurderingTjeneste klageVurderingTjeneste = new KlageVurderingTjeneste(null, null, null, behandlingRepository, klageRepository, null,
             repositoryProvider.getBehandlingsresultatRepository(), mock(BehandlingEventPubliserer.class));
-        var formHistorikk = new KlageHistorikkinnslag(repositoryProvider.getHistorikkinnslag2Repository(), behandlingRepository,
+        var formHistorikk = new KlageHistorikkinnslag(repositoryProvider.getHistorikkinnslagRepository(), behandlingRepository,
             repositoryProvider.getBehandlingVedtakRepository(), mockFptilbakeRestKlient);
         klageFormkravOppdaterer = new KlageFormkravOppdaterer(klageVurderingTjeneste, behandlingRepository, mock(BehandlingskontrollTjeneste.class),
             formHistorikk);
 
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP, BehandlingStegType.KLAGE_NFP);
-        historikkinnslag2Repository = repositoryProvider.getHistorikkinnslag2Repository();
+        historikkinnslagRepository = repositoryProvider.getHistorikkinnslagRepository();
     }
 
     private void initKlage() {
@@ -119,9 +119,9 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         assertThat(klageResultatEntitet.getPåKlagdBehandlingId()).isEmpty();
         assertThat(klageResultatEntitet.getPåKlagdEksternBehandlingUuid()).isEqualTo(Optional.of(TILBAKEKREVING_BEHANDLING_UUID));
 
-        var historikk = historikkinnslag2Repository.hent(behandling.getSaksnummer())
+        var historikk = historikkinnslagRepository.hent(behandling.getSaksnummer())
             .stream()
-            .sorted(Comparator.comparing(Historikkinnslag2::getOpprettetTidspunkt))
+            .sorted(Comparator.comparing(Historikkinnslag::getOpprettetTidspunkt))
             .toList();
         assertThat(historikk).hasSize(2);
         var historikkinnslag = historikk.getFirst();
@@ -171,9 +171,9 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         assertThat(klageResultatEntitet.getPåKlagdBehandlingId()).isEmpty();
         assertThat(klageResultatEntitet.getPåKlagdEksternBehandlingUuid()).isEqualTo(Optional.of(nyTilbakekrevingUUID));
 
-        var historikk = historikkinnslag2Repository.hent(behandling.getSaksnummer())
+        var historikk = historikkinnslagRepository.hent(behandling.getSaksnummer())
             .stream()
-            .sorted(Comparator.comparing(Historikkinnslag2::getOpprettetTidspunkt))
+            .sorted(Comparator.comparing(Historikkinnslag::getOpprettetTidspunkt))
             .toList();
         assertThat(historikk).hasSize(2);
         var historikkinnslag = historikk.get(0);
@@ -213,9 +213,9 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         klageFormkravAksjonspunktDto = new KlageFormkravAksjonspunktDto(true, true, true, true, null, "test", false, null, null);
         klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
 
-        var historikk = historikkinnslag2Repository.hent(behandling.getSaksnummer())
+        var historikk = historikkinnslagRepository.hent(behandling.getSaksnummer())
             .stream()
-            .sorted(Comparator.comparing(Historikkinnslag2::getOpprettetTidspunkt))
+            .sorted(Comparator.comparing(Historikkinnslag::getOpprettetTidspunkt))
             .toList();
         assertThat(historikk).hasSize(2);
         var historikkinnslag = historikk.get(0);
@@ -255,9 +255,9 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         klageFormkravAksjonspunktDto = new KlageFormkravAksjonspunktDto(true, true, true, true, behandling.getUuid(), "test", false, null, null);
         klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
 
-        var historikk = historikkinnslag2Repository.hent(behandling.getSaksnummer())
+        var historikk = historikkinnslagRepository.hent(behandling.getSaksnummer())
             .stream()
-            .sorted(Comparator.comparing(Historikkinnslag2::getOpprettetTidspunkt))
+            .sorted(Comparator.comparing(Historikkinnslag::getOpprettetTidspunkt))
             .toList();
         assertThat(historikk).hasSize(2);
         var historikkinnslag = historikk.get(0);
@@ -322,7 +322,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
     }
 
     private void fellesKlageHistoriskAssert() {
-        var historikk = historikkinnslag2Repository.hent(behandling.getSaksnummer());
+        var historikk = historikkinnslagRepository.hent(behandling.getSaksnummer());
         assertThat(historikk).hasSize(1);
         var historikkinnslagDto = historikk.get(0);
         assertThat(historikkinnslagDto.getSkjermlenke()).isEqualByComparingTo(SkjermlenkeType.FORMKRAV_KLAGE_NFP);

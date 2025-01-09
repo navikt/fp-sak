@@ -12,8 +12,8 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.inngangsvilkaar.InngangsvilkårTjeneste;
@@ -24,7 +24,7 @@ import no.nav.vedtak.exception.FunksjonellException;
 @DtoTilServiceAdapter(dto = OverstyringSokersOpplysingspliktDto.class, adapter = Overstyringshåndterer.class)
 public class SøkersOpplysningspliktOverstyringshåndterer implements Overstyringshåndterer<OverstyringSokersOpplysingspliktDto> {
 
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private InngangsvilkårTjeneste inngangsvilkårTjeneste;
 
     SøkersOpplysningspliktOverstyringshåndterer() {
@@ -32,7 +32,7 @@ public class SøkersOpplysningspliktOverstyringshåndterer implements Overstyrin
     }
 
     @Inject
-    public SøkersOpplysningspliktOverstyringshåndterer(Historikkinnslag2Repository historikkinnslagRepository,
+    public SøkersOpplysningspliktOverstyringshåndterer(HistorikkinnslagRepository historikkinnslagRepository,
                                                        InngangsvilkårTjeneste inngangsvilkårTjeneste) {
         this.historikkinnslagRepository = historikkinnslagRepository;
         this.inngangsvilkårTjeneste = inngangsvilkårTjeneste;
@@ -64,7 +64,7 @@ public class SøkersOpplysningspliktOverstyringshåndterer implements Overstyrin
     }
 
     private void leggTilEndretFeltIHistorikkInnslag(Long fagsakId, Long behandlingId, OverstyringSokersOpplysingspliktDto dto) {
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(fagsakId)
             .medBehandlingId(behandlingId)

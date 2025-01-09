@@ -24,8 +24,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
@@ -46,7 +46,7 @@ public class ForvaltningStegRestTjeneste {
     private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste;
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private FamilieHendelseRepository familieHendelseRepository;
     private BehandlingRepository behandlingRepository;
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
@@ -60,7 +60,7 @@ public class ForvaltningStegRestTjeneste {
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.arbeidsforholdAdministrasjonTjeneste = arbeidsforholdAdministrasjonTjeneste;
-        this.historikkinnslagRepository = repositoryProvider.getHistorikkinnslag2Repository();
+        this.historikkinnslagRepository = repositoryProvider.getHistorikkinnslagRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
@@ -149,7 +149,7 @@ public class ForvaltningStegRestTjeneste {
 
     private void lagHistorikkinnslag(Behandling behandling, String tilStegNavn) {
         var fraStegNavn = behandling.getAktivtBehandlingSteg() != null ? behandling.getAktivtBehandlingSteg().getNavn() : null;
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())

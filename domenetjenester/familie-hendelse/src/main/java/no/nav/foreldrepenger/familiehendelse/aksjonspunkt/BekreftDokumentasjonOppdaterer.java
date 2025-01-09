@@ -21,8 +21,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarnEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftDokumentertDatoAksjonspunktDto;
@@ -34,7 +34,7 @@ public class BekreftDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Be
 
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
-    private Historikkinnslag2Repository historikkinnslag2Repository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     BekreftDokumentasjonOppdaterer() {
         // for CDI proxy
@@ -43,10 +43,10 @@ public class BekreftDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Be
     @Inject
     public BekreftDokumentasjonOppdaterer(FamilieHendelseTjeneste familieHendelseTjeneste,
                                           OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
-                                          Historikkinnslag2Repository historikkinnslag2Repository) {
+                                          HistorikkinnslagRepository historikkinnslagRepository) {
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
-        this.historikkinnslag2Repository = historikkinnslag2Repository;
+        this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     @Override
@@ -87,7 +87,7 @@ public class BekreftDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Be
                                 Map<Integer, LocalDate> originaleFødselsdatoer) {
 
 
-        var builder = new Historikkinnslag2.Builder().medFagsakId(param.getFagsakId())
+        var builder = new Historikkinnslag.Builder().medFagsakId(param.getFagsakId())
             .medBehandlingId(param.getBehandlingId())
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medTittel(SkjermlenkeType.FAKTA_OM_ADOPSJON)
@@ -100,7 +100,7 @@ public class BekreftDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Be
         }
 
         var historikkinnslag = builder.addLinje(dto.getBegrunnelse()).build();
-        historikkinnslag2Repository.lagre(historikkinnslag);
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
     private LocalDate getOmsorgsovertakelsesdatoForAdopsjon(AdopsjonEntitet adopsjon) {

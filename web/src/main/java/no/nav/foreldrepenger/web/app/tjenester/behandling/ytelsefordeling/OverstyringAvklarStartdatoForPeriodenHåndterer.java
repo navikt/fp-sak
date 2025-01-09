@@ -11,8 +11,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 
@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 public class OverstyringAvklarStartdatoForPeriodenHåndterer implements Overstyringshåndterer<OverstyringAvklarStartdatoForPeriodenDto> {
 
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
-    private Historikkinnslag2Repository historikkinnslag2Repository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     OverstyringAvklarStartdatoForPeriodenHåndterer() {
         // for CDI proxy
@@ -29,9 +29,9 @@ public class OverstyringAvklarStartdatoForPeriodenHåndterer implements Overstyr
 
     @Inject
     public OverstyringAvklarStartdatoForPeriodenHåndterer(YtelseFordelingTjeneste ytelseFordelingTjeneste,
-                                                          Historikkinnslag2Repository historikkinnslag2Repository) {
+                                                          HistorikkinnslagRepository historikkinnslagRepository) {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
-        this.historikkinnslag2Repository = historikkinnslag2Repository;
+        this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     @Override
@@ -45,14 +45,14 @@ public class OverstyringAvklarStartdatoForPeriodenHåndterer implements Overstyr
         var opprinneligDato = dto.getOpprinneligDato();
         var startdatoFraSoknad = dto.getStartdatoFraSoknad();
         if (!startdatoFraSoknad.isEqual(opprinneligDato)) {
-            var historikkinnslag = new Historikkinnslag2.Builder().medTittel(SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER)
+            var historikkinnslag = new Historikkinnslag.Builder().medTittel(SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER)
                 .medAktør(HistorikkAktør.SAKSBEHANDLER)
                 .medBehandlingId(behandling.getId())
                 .medFagsakId(behandling.getFagsakId())
                 .addLinje(fraTilEquals("Startdato for foreldrepengeperioden", opprinneligDato, startdatoFraSoknad))
                 .addLinje(dto.getBegrunnelse())
                 .build();
-            historikkinnslag2Repository.lagre(historikkinnslag);
+            historikkinnslagRepository.lagre(historikkinnslag);
         }
     }
 }

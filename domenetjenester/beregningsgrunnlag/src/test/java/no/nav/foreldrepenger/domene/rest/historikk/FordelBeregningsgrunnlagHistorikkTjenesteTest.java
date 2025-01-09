@@ -22,9 +22,9 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Linje;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinje;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -48,7 +48,7 @@ public class FordelBeregningsgrunnlagHistorikkTjenesteTest {
 
     private final HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste = mock(HentOgLagreBeregningsgrunnlagTjeneste.class);
     private final ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste = mock(ArbeidsgiverHistorikkinnslag.class);
-    private final Historikkinnslag2Repository historikkRepository = mock(Historikkinnslag2Repository.class);
+    private final HistorikkinnslagRepository historikkRepository = mock(HistorikkinnslagRepository.class);
     private final InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = mock(InntektArbeidYtelseTjeneste.class);
 
     private FordelBeregningsgrunnlagHistorikkTjeneste fordelBeregningsgrunnlagHistorikkTjeneste;
@@ -75,14 +75,14 @@ public class FordelBeregningsgrunnlagHistorikkTjenesteTest {
         var dto = lagFordelBeregningsgrunnlagDto();
         var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto);
         var resultat = fordelBeregningsgrunnlagHistorikkTjeneste.lagHistorikk(dto, param);
-        var captor = ArgumentCaptor.forClass(Historikkinnslag2.class);
+        var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
 
         assertThat(resultat).isNotNull();
         verify(historikkRepository, times(1)).lagre(captor.capture());
-        List<Historikkinnslag2> historikkCaptor = captor.getAllValues();
+        List<Historikkinnslag> historikkCaptor = captor.getAllValues();
         assertThat(historikkCaptor).hasSize(1);
 
-        var linjer = historikkCaptor.getFirst().getLinjer().stream().map(Historikkinnslag2Linje::getTekst);
+        var linjer = historikkCaptor.getFirst().getLinjer().stream().map(HistorikkinnslagLinje::getTekst);
         var faktiskelinjer = List.of(
                 new HistorikkinnslagLinjeBuilder().tekst("Det er lagt til ny aktivitet for __" + ARBEIDSFORHOLDINFO + "__ Gjeldende fra __01.02.2024__.").tilTekst(),
                 new HistorikkinnslagLinjeBuilder().tekst("__Inntekt__ er satt til __2231__.").tilTekst(),

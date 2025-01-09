@@ -15,8 +15,8 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -39,7 +39,7 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkKalkulusTjeneste {
     private static final BigDecimal MÅNEDER_I_ÅR = BigDecimal.valueOf(12);
     private ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
 
     VurderRefusjonBeregningsgrunnlagHistorikkKalkulusTjeneste() {
@@ -49,7 +49,7 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkKalkulusTjeneste {
     @Inject
     public VurderRefusjonBeregningsgrunnlagHistorikkKalkulusTjeneste(ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste,
                                                                      InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                                                     Historikkinnslag2Repository historikkinnslagRepository) {
+                                                                     HistorikkinnslagRepository historikkinnslagRepository) {
         this.arbeidsgiverHistorikkinnslagTjeneste = arbeidsgiverHistorikkinnslagTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.historikkinnslagRepository = historikkinnslagRepository;
@@ -60,7 +60,7 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkKalkulusTjeneste {
                              OppdaterBeregningsgrunnlagResultat endringsaggregat) {
         var behandlingId = param.getBehandlingId();
         var arbeidsforholdOverstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId).getArbeidsforholdOverstyringer();
-        var historikkinnslagBuilder = new Historikkinnslag2.Builder();
+        var historikkinnslagBuilder = new Historikkinnslag.Builder();
         List<HistorikkinnslagLinjeBuilder> linjeBuilder = new ArrayList<>();
         for (var fastsattAndel : dto.getFastsatteAndeler()) {
             var forrigeOverstyringer = endringsaggregat.getRefusjonoverstyringEndring()

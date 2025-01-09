@@ -12,17 +12,17 @@ import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 
 /**
  * Lag historikk innslag ved revurdering.
  */
 public class RevurderingHistorikk {
-    private final Historikkinnslag2Repository historikkRepository;
+    private final HistorikkinnslagRepository historikkRepository;
 
-    public RevurderingHistorikk(Historikkinnslag2Repository historikkRepository) {
+    public RevurderingHistorikk(HistorikkinnslagRepository historikkRepository) {
         this.historikkRepository = historikkRepository;
     }
 
@@ -31,7 +31,7 @@ public class RevurderingHistorikk {
             return;
         }
         var historikkAktør = manueltOpprettet ? HistorikkAktør.SAKSBEHANDLER : HistorikkAktør.VEDTAKSLØSNINGEN;
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())
             .medAktør(historikkAktør)
@@ -43,7 +43,7 @@ public class RevurderingHistorikk {
 
     public void opprettHistorikkinnslagForFødsler(Behandling behandling, List<FødtBarnInfo> barnFødtIPeriode) {
         var fødselsdatoVerdi = getFødselsdatoVerdi(barnFødtIPeriode);
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medTittel("Opplysning om fødsel")
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
@@ -65,7 +65,7 @@ public class RevurderingHistorikk {
     }
 
     public void opprettHistorikkinnslagForVenteFristRelaterteInnslag(Long behandlingId, Long fagsakId) {
-        var historikkinnslag1 = new Historikkinnslag2.Builder()
+        var historikkinnslag1 = new Historikkinnslag.Builder()
             .medFagsakId(fagsakId)
             .medBehandlingId(behandlingId)
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)

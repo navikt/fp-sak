@@ -10,7 +10,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
@@ -27,14 +27,14 @@ class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
-    private Historikkinnslag2Repository historikkRepository;
+    private HistorikkinnslagRepository historikkRepository;
 
     @BeforeEach
     void setUp() {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         ytelseFordelingTjeneste = new YtelseFordelingTjeneste(new YtelsesFordelingRepository(entityManager));
-        historikkRepository = repositoryProvider.getHistorikkinnslag2Repository();
+        historikkRepository = repositoryProvider.getHistorikkinnslagRepository();
     }
 
     @Test
@@ -59,12 +59,13 @@ class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
         dto.setAnnenforelderHarRett(true);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
-        var oppdateringresultat = new BekreftAleneomsorgOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, mock(FagsakEgenskapRepository.class)), historikkRepository).oppdater(dto,
+        var oppdateringresultat = new BekreftAleneomsorgOppdaterer(
+            new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, mock(FagsakEgenskapRepository.class)), historikkRepository).oppdater(dto,
             new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
 
         // Assert
         assertThat(oppdateringresultat.kreverTotrinnsKontroll()).isFalse();
-        var historikkinnslag = historikkRepository.hent(behandling.getId()).getFirst();
+        var historikkinnslag = historikkRepository.hent(behandling.getSaksnummer()).getFirst();
         assertThat(historikkinnslag.getLinjer()).hasSize(2);
         assertThat(historikkinnslag.getLinjer().get(0).getTekst()).contains("Søker har aleneomsorg for barnet");
         assertThat(historikkinnslag.getLinjer().get(1).getTekst()).isEqualTo(dto.getBegrunnelse());
@@ -92,13 +93,14 @@ class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
         dto.setAnnenforelderHarRett(true);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
-        var oppdateringresultat = new BekreftAleneomsorgOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, mock(FagsakEgenskapRepository.class)),
-            repositoryProvider.getHistorikkinnslag2Repository()).oppdater(dto,
+        var oppdateringresultat = new BekreftAleneomsorgOppdaterer(
+            new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, mock(FagsakEgenskapRepository.class)),
+            repositoryProvider.getHistorikkinnslagRepository()).oppdater(dto,
             new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
 
         // Assert
         assertThat(oppdateringresultat.kreverTotrinnsKontroll()).isTrue();
-        var historikk = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getId()).getFirst();
+        var historikk = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
         assertThat(historikk.getLinjer()).hasSize(3);
         assertThat(historikk.getLinjer().getFirst().getTekst()).contains("Søker har ikke aleneomsorg for barnet");
         assertThat(historikk.getLinjer().get(1).getTekst()).contains("Annen forelder har rett");
@@ -127,14 +129,15 @@ class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
         dto.setAnnenforelderHarRett(true);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
-        var oppdateringresultat = new BekreftAleneomsorgOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, mock(FagsakEgenskapRepository.class)),
-            repositoryProvider.getHistorikkinnslag2Repository()).oppdater(dto,
+        var oppdateringresultat = new BekreftAleneomsorgOppdaterer(
+            new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, mock(FagsakEgenskapRepository.class)),
+            repositoryProvider.getHistorikkinnslagRepository()).oppdater(dto,
             new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
 
         // Assert
         assertThat(oppdateringresultat.kreverTotrinnsKontroll()).isTrue();
 
-        var historikk = historikkRepository.hent(behandling.getId()).getFirst();
+        var historikk = historikkRepository.hent(behandling.getSaksnummer()).getFirst();
         assertThat(historikk.getLinjer()).hasSize(3);
         assertThat(historikk.getLinjer().get(0).getTekst()).contains("Søker har ikke aleneomsorg for barnet");
         assertThat(historikk.getLinjer().get(1).getTekst()).contains("Annen forelder har rett");
@@ -166,11 +169,12 @@ class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
         dto.setAnnenforelderMottarUføretrygd(true);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
-        var oppdateringresultat = new BekreftAleneomsorgOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, mock(FagsakEgenskapRepository.class)),
-            repositoryProvider.getHistorikkinnslag2Repository()).oppdater(dto,
+        var oppdateringresultat = new BekreftAleneomsorgOppdaterer(
+            new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, mock(FagsakEgenskapRepository.class)),
+            repositoryProvider.getHistorikkinnslagRepository()).oppdater(dto,
             new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
 
-        var historikkinnslag = historikkRepository.hent(behandling.getId());
+        var historikkinnslag = historikkRepository.hent(behandling.getSaksnummer());
 
         // Assert
         assertThat(oppdateringresultat.kreverTotrinnsKontroll()).isTrue();

@@ -7,8 +7,8 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingValg;
@@ -22,7 +22,7 @@ public class SimulerInntrekkSjekkeTjeneste {
     private SimuleringIntegrasjonTjeneste simuleringIntegrasjonTjeneste;
     private SimulerOppdragTjeneste simulerOppdragTjeneste;
     private TilbakekrevingRepository tilbakekrevingRepository;
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     SimulerInntrekkSjekkeTjeneste() {
         // for CDI proxy
@@ -32,7 +32,7 @@ public class SimulerInntrekkSjekkeTjeneste {
     public SimulerInntrekkSjekkeTjeneste(SimuleringIntegrasjonTjeneste simuleringIntegrasjonTjeneste,
                                          SimulerOppdragTjeneste simulerOppdragTjeneste,
                                          TilbakekrevingRepository tilbakekrevingRepository,
-                                         Historikkinnslag2Repository historikkinnslagRepository) {
+                                         HistorikkinnslagRepository historikkinnslagRepository) {
         this.simuleringIntegrasjonTjeneste = simuleringIntegrasjonTjeneste;
         this.simulerOppdragTjeneste = simulerOppdragTjeneste;
         this.tilbakekrevingRepository = tilbakekrevingRepository;
@@ -63,7 +63,7 @@ public class SimulerInntrekkSjekkeTjeneste {
     }
 
     private void opprettHistorikkInnslag(Long behandlingId, Long fagsakId) {
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medBehandlingId(behandlingId)
             .medFagsakId(fagsakId)

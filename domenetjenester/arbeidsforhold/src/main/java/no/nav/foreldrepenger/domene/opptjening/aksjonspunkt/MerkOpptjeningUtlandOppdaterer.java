@@ -13,8 +13,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandDokumentasjonStatus;
 import no.nav.foreldrepenger.domene.opptjening.dto.MerkOpptjeningUtlandDto;
@@ -24,11 +24,11 @@ import no.nav.foreldrepenger.domene.opptjening.dto.MerkOpptjeningUtlandDto;
 public class MerkOpptjeningUtlandOppdaterer implements AksjonspunktOppdaterer<MerkOpptjeningUtlandDto> {
 
     private FagsakEgenskapRepository fagsakEgenskapRepository;
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     @Inject
     public MerkOpptjeningUtlandOppdaterer(FagsakEgenskapRepository fagsakEgenskapRepository,
-                                          Historikkinnslag2Repository historikkinnslagRepository) {
+                                          HistorikkinnslagRepository historikkinnslagRepository) {
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
         this.historikkinnslagRepository = historikkinnslagRepository;
     }
@@ -50,7 +50,7 @@ public class MerkOpptjeningUtlandOppdaterer implements AksjonspunktOppdaterer<Me
     }
 
     private void lagHistorikkinnslag(BehandlingReferanse ref, MerkOpptjeningUtlandDto dto, UtlandDokumentasjonStatus eksisterende) {
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())

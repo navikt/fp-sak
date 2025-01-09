@@ -10,7 +10,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderTjeneste;
@@ -27,7 +27,7 @@ public class UttakOverstyringshåndterer implements Overstyringshåndterer<Overs
     private UttakInputTjeneste uttakInputTjeneste;
 
     private ForeldrepengerUttak forrigeUttak;
-    private Historikkinnslag2Repository historikkinnslag2Repository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     UttakOverstyringshåndterer() {
         // for CDI proxy
@@ -37,11 +37,11 @@ public class UttakOverstyringshåndterer implements Overstyringshåndterer<Overs
     public UttakOverstyringshåndterer(FastsettePerioderTjeneste tjeneste,
                                       ForeldrepengerUttakTjeneste uttakTjeneste,
                                       UttakInputTjeneste uttakInputTjeneste,
-                                      Historikkinnslag2Repository historikkinnslag2Repository) {
+                                      HistorikkinnslagRepository historikkinnslagRepository) {
         this.tjeneste = tjeneste;
         this.uttakTjeneste = uttakTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
-        this.historikkinnslag2Repository = historikkinnslag2Repository;
+        this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     @Override
@@ -57,6 +57,6 @@ public class UttakOverstyringshåndterer implements Overstyringshåndterer<Overs
     public void lagHistorikkInnslag(OverstyringUttakDto dto, Behandling behandling) {
         var historikkinnslag = UttakHistorikkUtil.forOverstyring()
             .lagHistorikkinnslag(BehandlingReferanse.fra(behandling), dto.getPerioder(), forrigeUttak.getGjeldendePerioder());
-        historikkinnslag.ifPresent(innslag -> historikkinnslag2Repository.lagre(innslag));
+        historikkinnslag.ifPresent(innslag -> historikkinnslagRepository.lagre(innslag));
     }
 }

@@ -62,7 +62,7 @@ class VurderInnsynOppdatererTest {
     public void konfigurerMocker() {
         var enhet = new OrganisasjonsEnhet("enhetId", "enhetNavn");
         when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
-        var oppretter = new BehandlingOpprettingTjeneste(behandlingskontrollTjeneste, behandlendeEnhetTjeneste, repositoryProvider.getHistorikkinnslag2Repository(),
+        var oppretter = new BehandlingOpprettingTjeneste(behandlingskontrollTjeneste, behandlendeEnhetTjeneste, repositoryProvider.getHistorikkinnslagRepository(),
                 mock(ProsessTaskTjeneste.class));
         innsynTjeneste = new InnsynTjeneste(oppretter, fagsakRepository, behandlingRepository, behandlingsresultatRepository, innsynRepository);
         oppdaterer = new VurderInnsynOppdaterer(behandlingskontrollTjeneste, innsynTjeneste, behandlingRepository);

@@ -35,8 +35,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
@@ -93,7 +93,7 @@ public class FagsakRestTjeneste {
     private FagsakTjeneste fagsakTjeneste;
     private FagsakFullTjeneste fagsakFullTjeneste;
     private FagsakEgenskapRepository fagsakEgenskapRepository;
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private ProsessTaskTjeneste taskTjeneste;
 
     public FagsakRestTjeneste() {
@@ -101,7 +101,7 @@ public class FagsakRestTjeneste {
     }
 
     @Inject
-    public FagsakRestTjeneste(FagsakTjeneste fagsakTjeneste, Historikkinnslag2Repository historikkinnslagRepository,
+    public FagsakRestTjeneste(FagsakTjeneste fagsakTjeneste, HistorikkinnslagRepository historikkinnslagRepository,
                               FagsakFullTjeneste fagsakFullTjeneste, FagsakEgenskapRepository fagsakEgenskapRepository,
                               ProsessTaskTjeneste taskTjeneste) {
         this.fagsakTjeneste = fagsakTjeneste;
@@ -285,7 +285,7 @@ public class FagsakRestTjeneste {
     private void lagHistorikkInnslag(Fagsak fagsak, Collection<FagsakMarkering> eksisterende, Collection<FagsakMarkering> ny) {
         var fraVerdi = eksisterende.stream().map(FagsakMarkering::getNavn).collect(Collectors.joining(","));
         var tilVerdi = ny.stream().map(FagsakMarkering::getNavn).collect(Collectors.joining(","));
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(fagsak.getId())
             .medTittel("Fakta er endret")

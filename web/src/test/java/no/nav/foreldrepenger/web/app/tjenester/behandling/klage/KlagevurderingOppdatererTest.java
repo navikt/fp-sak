@@ -93,7 +93,7 @@ class KlagevurderingOppdatererTest {
         assertThat(dokumentBestilling.fritekst()).isNull();
 
         // Verifiserer HistorikkinnslagDto
-        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getSaksnummer()).getFirst();
+        var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
         assertThat(historikkinnslag.getSkjermlenke()).isEqualTo(SkjermlenkeType.KLAGE_BEH_NFP);
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         var tekstlinje = historikkinnslag.getLinjer().get(0).getTekst();
@@ -116,7 +116,7 @@ class KlagevurderingOppdatererTest {
         var klageVurderingTjeneste = new KlageVurderingTjeneste(dokumentBestillerTjeneste, Mockito.mock(DokumentBehandlingTjeneste.class),
             prosesseringAsynkTjeneste, behandlingRepository, klageRepository, behandlingskontrollTjeneste,
             repositoryProvider.getBehandlingsresultatRepository(), mock(BehandlingEventPubliserer.class));
-        var klageHistorikk = new KlageHistorikkinnslag(repositoryProvider.getHistorikkinnslag2Repository(),
+        var klageHistorikk = new KlageHistorikkinnslag(repositoryProvider.getHistorikkinnslagRepository(),
             behandlingRepository, repositoryProvider.getBehandlingVedtakRepository(), mock(FptilbakeRestKlient.class));
         return new KlagevurderingOppdaterer(klageHistorikk, behandlingsutredningTjeneste, mock(BehandlingskontrollTjeneste.class), klageVurderingTjeneste,
             behandlingRepository);

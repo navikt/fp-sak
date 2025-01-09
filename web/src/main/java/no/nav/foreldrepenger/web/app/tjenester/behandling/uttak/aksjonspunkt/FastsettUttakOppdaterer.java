@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -31,19 +31,19 @@ public class FastsettUttakOppdaterer implements AksjonspunktOppdaterer<Fastsette
     private ForeldrepengerUttakTjeneste uttakTjeneste;
     private UttakInputTjeneste uttakInputTjeneste;
     private BehandlingRepository behandlingRepository;
-    private Historikkinnslag2Repository historikkinnslag2Repository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     @Inject
     public FastsettUttakOppdaterer(FastsettePerioderTjeneste tjeneste,
                                    ForeldrepengerUttakTjeneste uttakTjeneste,
                                    UttakInputTjeneste uttakInputTjeneste,
                                    BehandlingRepository behandlingRepository,
-                                   Historikkinnslag2Repository historikkinnslag2Repository) {
+                                   HistorikkinnslagRepository historikkinnslagRepository) {
         this.tjeneste = tjeneste;
         this.uttakTjeneste = uttakTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.behandlingRepository = behandlingRepository;
-        this.historikkinnslag2Repository = historikkinnslag2Repository;
+        this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     FastsettUttakOppdaterer() {
@@ -75,7 +75,7 @@ public class FastsettUttakOppdaterer implements AksjonspunktOppdaterer<Fastsette
     private void lagHistorikkInnslag(BehandlingReferanse behandling, FastsetteUttakDto dto, ForeldrepengerUttak forrigeResultat) {
         var historikkinnslag = UttakHistorikkUtil.forFastsetting().lagHistorikkinnslag(
             behandling, dto.getPerioder(), forrigeResultat.getGjeldendePerioder());
-        historikkinnslag.ifPresent(innslag -> historikkinnslag2Repository.lagre(innslag));
+        historikkinnslag.ifPresent(innslag -> historikkinnslagRepository.lagre(innslag));
     }
 
     private Optional<Aksjonspunkt> avbrytOverflødigOverstyrAksjonpunkt(BehandlingReferanse referanse) {

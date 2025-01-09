@@ -19,8 +19,8 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingValg;
@@ -37,17 +37,17 @@ class SimulerInntrekkSjekkeTjenesteTest {
     private SimulerInntrekkSjekkeTjeneste simulerInntrekkSjekkeTjeneste;
     private Behandling behandling;
     private TilbakekrevingRepository tilbakekrevingRepository;
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private SimulerOppdragTjeneste simulerOppdragTjeneste;
     private SimuleringIntegrasjonTjeneste simuleringIntegrasjonTjeneste;
-    private ArgumentCaptor<Historikkinnslag2> historikkInnslagCaptor = ArgumentCaptor.forClass(Historikkinnslag2.class);
+    private ArgumentCaptor<Historikkinnslag> historikkInnslagCaptor = ArgumentCaptor.forClass(Historikkinnslag.class);
 
     @BeforeEach
     public void setUp() {
         simuleringIntegrasjonTjeneste = mock(SimuleringIntegrasjonTjeneste.class);
         simulerOppdragTjeneste = mock(SimulerOppdragTjeneste.class);
         tilbakekrevingRepository = mock(TilbakekrevingRepository.class);
-        historikkinnslagRepository = mock(Historikkinnslag2Repository.class);
+        historikkinnslagRepository = mock(HistorikkinnslagRepository.class);
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), new Saksnummer("123456789"));
         behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
         behandling.setId(123L);

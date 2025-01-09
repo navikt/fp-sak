@@ -9,7 +9,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 
@@ -20,7 +20,7 @@ public class ForeslåVedtakAksjonspunktOppdaterer extends AbstractVedtaksbrevOve
     @Inject
     public ForeslåVedtakAksjonspunktOppdaterer(BehandlingRepository behandlingRepository,
                                                BehandlingsresultatRepository behandlingsresultatRepository,
-                                               Historikkinnslag2Repository historikkinnslagRepository,
+                                               HistorikkinnslagRepository historikkinnslagRepository,
                                                VedtakTjeneste vedtakTjeneste,
                                                BehandlingDokumentRepository behandlingDokumentRepository) {
         super(behandlingRepository, behandlingsresultatRepository, historikkinnslagRepository, vedtakTjeneste, behandlingDokumentRepository);

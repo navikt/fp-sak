@@ -10,8 +10,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.familiehendelse.rest.BekreftFaktaForOmsorgVurdering
 public class BekreftOmsorgOppdaterer implements AksjonspunktOppdaterer<BekreftFaktaForOmsorgVurderingDto> {
 
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
-    private Historikkinnslag2Repository historikkinnslag2Repository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
 
     BekreftOmsorgOppdaterer() {
@@ -31,9 +31,9 @@ public class BekreftOmsorgOppdaterer implements AksjonspunktOppdaterer<BekreftFa
 
     @Inject
     public BekreftOmsorgOppdaterer(YtelseFordelingTjeneste ytelseFordelingTjeneste,
-                                   Historikkinnslag2Repository historikkinnslag2Repository) {
+                                   HistorikkinnslagRepository historikkinnslagRepository) {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
-        this.historikkinnslag2Repository = historikkinnslag2Repository;
+        this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     @Override
@@ -60,7 +60,7 @@ public class BekreftOmsorgOppdaterer implements AksjonspunktOppdaterer<BekreftFa
                            AksjonspunktOppdaterParameter param,
                            Long behandlingId,
                            Boolean harOmsorgForBarnetBekreftetVersjon) {
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medBehandlingId(behandlingId)
             .medFagsakId(param.getFagsakId())
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
@@ -70,7 +70,7 @@ public class BekreftOmsorgOppdaterer implements AksjonspunktOppdaterer<BekreftFa
                 konverterBooleanTilVerdiForOmsorgForBarnet(dto.getOmsorg())))
             .addLinje(dto.getBegrunnelse())
             .build();
-        historikkinnslag2Repository.lagre(historikkinnslag);
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
     private boolean setToTrinns(boolean erEndret, boolean ikkeOmsorg) {

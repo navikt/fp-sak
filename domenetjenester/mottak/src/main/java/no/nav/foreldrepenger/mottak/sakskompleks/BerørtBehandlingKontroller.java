@@ -21,8 +21,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -49,7 +49,7 @@ public class BerørtBehandlingKontroller {
     private BehandlingRepository behandlingRepository;
     private BerørtBehandlingTjeneste berørtBehandlingTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private BeregnFeriepenger beregnFeriepenger;
     private FagsakLåsRepository fagsakLåsRepository;
     private Behandlingsoppretter behandlingsoppretter;
@@ -72,7 +72,7 @@ public class BerørtBehandlingKontroller {
         this.berørtBehandlingTjeneste = berørtBehandlingTjeneste;
         this.behandlingsresultatRepository = behandlingRepositoryProvider.getBehandlingsresultatRepository();
         this.behandlingsoppretter = behandlingsoppretter;
-        this.historikkinnslagRepository = behandlingRepositoryProvider.getHistorikkinnslag2Repository();
+        this.historikkinnslagRepository = behandlingRepositoryProvider.getHistorikkinnslagRepository();
         this.beregnFeriepenger = beregnFeriepenger;
         this.køKontroller = køKontroller;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
@@ -249,7 +249,7 @@ public class BerørtBehandlingKontroller {
     }
 
     private void opprettHistorikkinnslag(Behandling behandling, String begrunnelse) {
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())

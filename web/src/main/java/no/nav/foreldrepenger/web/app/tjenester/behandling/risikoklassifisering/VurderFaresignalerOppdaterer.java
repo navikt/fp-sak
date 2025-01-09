@@ -11,8 +11,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.Risikovurderin
 @DtoTilServiceAdapter(dto = VurderFaresignalerDto.class, adapter = AksjonspunktOppdaterer.class)
 public class VurderFaresignalerOppdaterer implements AksjonspunktOppdaterer<VurderFaresignalerDto> {
 
-    private Historikkinnslag2Repository historikkinnslag2Repository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private RisikovurderingTjeneste risikovurderingTjeneste;
     private BehandlingRepository behandlingRepository;
 
@@ -34,10 +34,10 @@ public class VurderFaresignalerOppdaterer implements AksjonspunktOppdaterer<Vurd
 
     @Inject
     public VurderFaresignalerOppdaterer(RisikovurderingTjeneste risikovurderingTjeneste,
-                                        Historikkinnslag2Repository historikkinnslag2Repository,
+                                        HistorikkinnslagRepository historikkinnslagRepository,
                                         BehandlingRepository behandlingRepository) {
         this.risikovurderingTjeneste = risikovurderingTjeneste;
-        this.historikkinnslag2Repository = historikkinnslag2Repository;
+        this.historikkinnslagRepository = historikkinnslagRepository;
         this.behandlingRepository = behandlingRepository;
     }
 
@@ -65,14 +65,14 @@ public class VurderFaresignalerOppdaterer implements AksjonspunktOppdaterer<Vurd
         var fraVerdi = finnTekstForFaresignalVurdering(originalFaresignalVurdering);
         var tilVerdi = finnTekstForFaresignalVurdering(dto.getFaresignalVurdering());
         if (param.erBegrunnelseEndret() || !Objects.equals(fraVerdi, tilVerdi)) {
-            var historikkinnslag = new Historikkinnslag2.Builder().medBehandlingId(param.getBehandlingId())
+            var historikkinnslag = new Historikkinnslag.Builder().medBehandlingId(param.getBehandlingId())
                 .medFagsakId(param.getFagsakId())
                 .medAktør(HistorikkAktør.SAKSBEHANDLER)
                 .medTittel(SkjermlenkeType.VURDER_FARESIGNALER)
                 .addLinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Faresignaler", fraVerdi, tilVerdi))
                 .addLinje(dto.getBegrunnelse())
                 .build();
-            historikkinnslag2Repository.lagre(historikkinnslag);
+            historikkinnslagRepository.lagre(historikkinnslag);
         }
     }
 

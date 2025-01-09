@@ -62,7 +62,7 @@ class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
         when(arbeidsgiverTjeneste.hent(any())).thenReturn(new ArbeidsgiverOpplysninger(NAV_ORGNR, ARBEIDSGIVER_NAVN));
         var inntektArbeidYtelseTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         var fastsettBeregningsgrunnlagATFLHistorikkTjeneste = new FastsettBeregningsgrunnlagATFLHistorikkTjeneste(
-            new ArbeidsgiverHistorikkinnslag(arbeidsgiverTjeneste), inntektArbeidYtelseTjeneste, repositoryProvider.getHistorikkinnslag2Repository());
+            new ArbeidsgiverHistorikkinnslag(arbeidsgiverTjeneste), inntektArbeidYtelseTjeneste, repositoryProvider.getHistorikkinnslagRepository());
 
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagre(repositoryProvider);
@@ -80,7 +80,7 @@ class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
         fastsettBeregningsgrunnlagATFLHistorikkTjeneste.lagHistorikk(new AksjonspunktOppdaterParameter(ref, dto), dto, bg);
 
         // Assert
-        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getSaksnummer()).getFirst();
+        var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
         assertThat(historikkinnslag.getSkjermlenke()).isEqualTo(SkjermlenkeType.BEREGNING_FORELDREPENGER);
         assertThat(historikkinnslag.getLinjer()).hasSize(3);
         assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).isEqualTo("Grunnlag for beregnet årsinntekt:");
@@ -92,7 +92,7 @@ class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
     void skal_generere_historikkinnslag_ved_fastsettelse_av_brutto_beregningsgrunnlag_FL() {
         var inntektArbeidYtelseTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         var fastsettBeregningsgrunnlagATFLHistorikkTjeneste = new FastsettBeregningsgrunnlagATFLHistorikkTjeneste(
-            new ArbeidsgiverHistorikkinnslag(mock(ArbeidsgiverTjeneste.class)), inntektArbeidYtelseTjeneste, repositoryProvider.getHistorikkinnslag2Repository());
+            new ArbeidsgiverHistorikkinnslag(mock(ArbeidsgiverTjeneste.class)), inntektArbeidYtelseTjeneste, repositoryProvider.getHistorikkinnslagRepository());
 
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagre(repositoryProvider);
@@ -110,7 +110,7 @@ class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
         fastsettBeregningsgrunnlagATFLHistorikkTjeneste.lagHistorikk(new AksjonspunktOppdaterParameter(ref, dto), dto, bg);
 
         // Assert
-        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getSaksnummer()).getFirst();
+        var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
         assertThat(historikkinnslag.getSkjermlenke()).isEqualTo(SkjermlenkeType.BEREGNING_FORELDREPENGER);
         assertThat(historikkinnslag.getLinjer()).hasSize(3);
         assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).isEqualTo("Grunnlag for beregnet årsinntekt:");

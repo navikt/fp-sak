@@ -17,8 +17,8 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
@@ -37,14 +37,14 @@ public class DekningsgradSteg implements BehandlingSteg {
     private final FamilieHendelseTjeneste familieHendelseTjeneste;
     private final YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private final BehandlingRepository behandlingRepository;
-    private final Historikkinnslag2Repository historikkinnslagRepository;
+    private final HistorikkinnslagRepository historikkinnslagRepository;
 
     @Inject
     public DekningsgradSteg(FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
                             FamilieHendelseTjeneste familieHendelseTjeneste,
                             YtelseFordelingTjeneste ytelseFordelingTjeneste,
                             BehandlingRepository behandlingRepository,
-                            Historikkinnslag2Repository historikkinnslagRepository) {
+                            HistorikkinnslagRepository historikkinnslagRepository) {
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
@@ -78,7 +78,7 @@ public class DekningsgradSteg implements BehandlingSteg {
                 case DØDSFALL -> "opplysninger om død";
                 case OPPGITT, ALLEREDE_FASTSATT -> throw new IllegalStateException("Unexpected value: " + nyUtleding.kilde());
             });
-        historikkinnslagRepository.lagre(new Historikkinnslag2.Builder()
+        historikkinnslagRepository.lagre(new Historikkinnslag.Builder()
                 .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
                 .medBehandlingId(kontekst.getBehandlingId())
                 .medFagsakId(kontekst.getFagsakId())

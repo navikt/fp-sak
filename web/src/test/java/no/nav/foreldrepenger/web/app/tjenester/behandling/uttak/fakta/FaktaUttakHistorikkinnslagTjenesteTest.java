@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
@@ -30,14 +30,14 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
     private static final String BEGRUNNELSE_TEKST = "Begrunnelse";
 
     private FaktaUttakHistorikkinnslagTjeneste tjeneste;
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private Behandling behandling;
 
     @BeforeEach
     public void setup() {
         var scenarioFarSøkerForeldrepenger = ScenarioFarSøkerForeldrepenger.forFødsel();
         behandling = scenarioFarSøkerForeldrepenger.lagMocked();
-        historikkinnslagRepository = scenarioFarSøkerForeldrepenger.mockBehandlingRepositoryProvider().getHistorikkinnslag2Repository();
+        historikkinnslagRepository = scenarioFarSøkerForeldrepenger.mockBehandlingRepositoryProvider().getHistorikkinnslagRepository();
         tjeneste = new FaktaUttakHistorikkinnslagTjeneste(historikkinnslagRepository);
     }
 
@@ -50,7 +50,7 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
         // dto
         tjeneste.opprettHistorikkinnslag(behandling.getId(), behandling.getFagsakId(), List.of(før), List.of(etter), false, BEGRUNNELSE_TEKST);
 
-        var historikkinnslag = historikkinnslagRepository.hent(behandling.getId());
+        var historikkinnslag = historikkinnslagRepository.hent(behandling.getSaksnummer());
         assertThat(historikkinnslag).hasSize(1);
         assertThat(historikkinnslag.getFirst().getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         assertThat(historikkinnslag.getFirst().getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_UTTAK);
@@ -67,7 +67,7 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
         // dto
         tjeneste.opprettHistorikkinnslag(behandling.getId(), behandling.getFagsakId(), List.of(før), List.of(etter), true, BEGRUNNELSE_TEKST);
 
-        var historikkinnslag = historikkinnslagRepository.hent(behandling.getId());
+        var historikkinnslag = historikkinnslagRepository.hent(behandling.getSaksnummer());
         assertThat(historikkinnslag).hasSize(1);
         assertThat(historikkinnslag.getFirst().getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         assertThat(historikkinnslag.getFirst().getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_UTTAK);
@@ -87,7 +87,7 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
         // dto
         tjeneste.opprettHistorikkinnslag(behandling.getId(), behandling.getFagsakId(), List.of(før), List.of(etter), false, BEGRUNNELSE_TEKST);
 
-        var historikkinnslag = historikkinnslagRepository.hent(behandling.getId());
+        var historikkinnslag = historikkinnslagRepository.hent(behandling.getSaksnummer());
         assertThat(historikkinnslag).hasSize(1);
         assertThat(historikkinnslag.getFirst().getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         assertThat(historikkinnslag.getFirst().getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_UTTAK);
@@ -107,7 +107,7 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
         // dto
         tjeneste.opprettHistorikkinnslag(behandling.getId(), behandling.getFagsakId(), List.of(før), List.of(etter), false, BEGRUNNELSE_TEKST);
 
-        var historikkinnslag = historikkinnslagRepository.hent(behandling.getId());
+        var historikkinnslag = historikkinnslagRepository.hent(behandling.getSaksnummer());
         assertThat(historikkinnslag).hasSize(1);
         assertThat(historikkinnslag.getFirst().getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         assertThat(historikkinnslag.getFirst().getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_UTTAK);
@@ -128,7 +128,7 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
         // dto
         tjeneste.opprettHistorikkinnslag(behandling.getId(), behandling.getFagsakId(), List.of(før), List.of(etter), false, BEGRUNNELSE_TEKST);
 
-        var historikkinnslag = historikkinnslagRepository.hent(behandling.getId());
+        var historikkinnslag = historikkinnslagRepository.hent(behandling.getSaksnummer());
         assertThat(historikkinnslag).hasSize(1);
         assertThat(historikkinnslag.getFirst().getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         assertThat(historikkinnslag.getFirst().getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_UTTAK);
@@ -176,7 +176,7 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
         tjeneste.opprettHistorikkinnslag(behandling.getId(), behandling.getFagsakId(), List.of(før),
             List.of(etter1, etter2, etter3, etter4, etter5, etter6), false, BEGRUNNELSE_TEKST);
 
-        var historikkinnslag = historikkinnslagRepository.hent(behandling.getId());
+        var historikkinnslag = historikkinnslagRepository.hent(behandling.getSaksnummer());
         assertThat(historikkinnslag).hasSize(1);
         assertThat(historikkinnslag.getFirst().getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         assertThat(historikkinnslag.getFirst().getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_UTTAK);

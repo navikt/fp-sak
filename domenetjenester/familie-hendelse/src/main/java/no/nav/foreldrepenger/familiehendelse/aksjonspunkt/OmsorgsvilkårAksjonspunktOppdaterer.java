@@ -18,8 +18,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
@@ -35,14 +35,14 @@ import no.nav.vedtak.exception.FunksjonellException;
 public abstract class OmsorgsvilkårAksjonspunktOppdaterer implements AksjonspunktOppdaterer<AvslagbartAksjonspunktDto> {
 
     private VilkårType vilkårType;
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private BehandlingRepository bRepo;
 
     protected OmsorgsvilkårAksjonspunktOppdaterer() {
         // for CDI proxy
     }
 
-    public OmsorgsvilkårAksjonspunktOppdaterer(Historikkinnslag2Repository historikkinnslagRepository, VilkårType vilkårType,
+    public OmsorgsvilkårAksjonspunktOppdaterer(HistorikkinnslagRepository historikkinnslagRepository, VilkårType vilkårType,
                                                BehandlingRepository behandlingRepository) {
         this.historikkinnslagRepository = historikkinnslagRepository;
         this.vilkårType = vilkårType;
@@ -82,7 +82,7 @@ public abstract class OmsorgsvilkårAksjonspunktOppdaterer implements Aksjonspun
             case OMSORGSVILKÅRET -> "Omsorgsvilkåret";
             default -> throw new IllegalStateException("Oppdaterer skal ikke være brukt av andre vilkårtyper, men ble brukt av " + vilkårType);
         };
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())
@@ -102,7 +102,7 @@ public abstract class OmsorgsvilkårAksjonspunktOppdaterer implements Aksjonspun
         }
 
         @Inject
-        public Foreldreansvarsvilkår1Oppdaterer(Historikkinnslag2Repository historikkinnslagRepository, BehandlingRepository behandlingRepository) {
+        public Foreldreansvarsvilkår1Oppdaterer(HistorikkinnslagRepository historikkinnslagRepository, BehandlingRepository behandlingRepository) {
             super(historikkinnslagRepository, VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, behandlingRepository);
         }
     }
@@ -116,7 +116,7 @@ public abstract class OmsorgsvilkårAksjonspunktOppdaterer implements Aksjonspun
         }
 
         @Inject
-        public Foreldreansvarsvilkår2Oppdaterer(Historikkinnslag2Repository historikkinnslagRepository, BehandlingRepository behandlingRepository) {
+        public Foreldreansvarsvilkår2Oppdaterer(HistorikkinnslagRepository historikkinnslagRepository, BehandlingRepository behandlingRepository) {
             super(historikkinnslagRepository, VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD, behandlingRepository);
         }
     }
@@ -130,7 +130,7 @@ public abstract class OmsorgsvilkårAksjonspunktOppdaterer implements Aksjonspun
         }
 
         @Inject
-        public OmsorgsvilkårOppdaterer(Historikkinnslag2Repository historikkinnslagRepository, BehandlingRepository behandlingRepository) {
+        public OmsorgsvilkårOppdaterer(HistorikkinnslagRepository historikkinnslagRepository, BehandlingRepository behandlingRepository) {
             super(historikkinnslagRepository, VilkårType.OMSORGSVILKÅRET, behandlingRepository);
         }
 

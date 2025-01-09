@@ -15,8 +15,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaOmsorgRettTjeneste;
@@ -30,14 +30,14 @@ public class BekreftAleneomsorgOppdaterer implements AksjonspunktOppdaterer<Avkl
     private static final Logger LOG = LoggerFactory.getLogger(BekreftAleneomsorgOppdaterer.class);
 
     private FaktaOmsorgRettTjeneste faktaOmsorgRettTjeneste;
-    private Historikkinnslag2Repository historikkRepository;
+    private HistorikkinnslagRepository historikkRepository;
 
     BekreftAleneomsorgOppdaterer() {
         // for CDI proxy
     }
 
     @Inject
-    public BekreftAleneomsorgOppdaterer(FaktaOmsorgRettTjeneste faktaOmsorgRettTjeneste, Historikkinnslag2Repository historikkRepository) {
+    public BekreftAleneomsorgOppdaterer(FaktaOmsorgRettTjeneste faktaOmsorgRettTjeneste, HistorikkinnslagRepository historikkRepository) {
         this.faktaOmsorgRettTjeneste = faktaOmsorgRettTjeneste;
         this.historikkRepository = historikkRepository;
     }
@@ -70,7 +70,7 @@ public class BekreftAleneomsorgOppdaterer implements AksjonspunktOppdaterer<Avkl
         var omsorgRettLinje = faktaOmsorgRettTjeneste.omsorgRettHistorikkLinje(param, dto.getBegrunnelse());
         omsorgRettLinje.ifPresent(historikkinnslagLinjer::add);
 
-        historikkRepository.lagre(new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
+        historikkRepository.lagre(new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(param.getFagsakId())
             .medBehandlingId(param.getRef().behandlingId())
             .medTittel(SkjermlenkeType.FAKTA_OMSORG_OG_RETT)

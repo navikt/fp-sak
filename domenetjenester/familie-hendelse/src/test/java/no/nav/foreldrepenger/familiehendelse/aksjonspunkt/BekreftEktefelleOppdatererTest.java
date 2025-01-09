@@ -29,7 +29,7 @@ class BekreftEktefelleOppdatererTest {
 
     @Test
     void skal_generere_historikkinnslag_ved_avklaring_av_ektefelle() {
-        var oppdaterer = new BekreftEktefelleOppdaterer(repositoryProvider.getHistorikkinnslag2Repository(), familieHendelseTjeneste);
+        var oppdaterer = new BekreftEktefelleOppdaterer(repositoryProvider.getHistorikkinnslagRepository(), familieHendelseTjeneste);
 
         // Arrange
         var oppdatertEktefellesBarn = true;
@@ -58,7 +58,7 @@ class BekreftEktefelleOppdatererTest {
         // Act
         var oppdateringResultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
         assertThat(oppdateringResultat.kreverTotrinnsKontroll()).isTrue();
-        var historikkinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getSaksnummer()).getFirst();
+        var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
 
         // Assert
         assertThat(historikkinnslag.getLinjer()).hasSize(2);

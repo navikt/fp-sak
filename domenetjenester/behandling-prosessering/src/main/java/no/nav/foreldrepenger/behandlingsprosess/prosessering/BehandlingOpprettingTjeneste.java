@@ -13,8 +13,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.StartBehandlingTask;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
@@ -28,13 +28,13 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 public class BehandlingOpprettingTjeneste {
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlendeEnhetTjeneste enhetTjeneste;
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private ProsessTaskTjeneste taskTjeneste;
 
     @Inject
     public BehandlingOpprettingTjeneste(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
             BehandlendeEnhetTjeneste enhetTjeneste,
-            Historikkinnslag2Repository historikkinnslagRepository,
+            HistorikkinnslagRepository historikkinnslagRepository,
             ProsessTaskTjeneste taskTjeneste) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.enhetTjeneste = enhetTjeneste;
@@ -108,7 +108,7 @@ public class BehandlingOpprettingTjeneste {
             case KLAGE -> "Klage er mottatt";
             default -> throw new IllegalStateException("Skal ikke lage historikkinnslag for type " + behandlingType);
         };
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())

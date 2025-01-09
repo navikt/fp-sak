@@ -10,7 +10,7 @@ import java.util.Optional;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -24,11 +24,11 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public final class FordelBeregningsgrunnlagHistorikkUtil {
 
-    public static Optional<Historikkinnslag2.Builder> lagHistorikkInnslag(AksjonspunktOppdaterParameter param,
-                                                                          List<HistorikkinnslagLinjeBuilder> linjeBuilder) {
-        Historikkinnslag2.Builder historikkinnslagBuilder = null;
+    public static Optional<Historikkinnslag.Builder> lagHistorikkInnslag(AksjonspunktOppdaterParameter param,
+                                                                         List<HistorikkinnslagLinjeBuilder> linjeBuilder) {
+        Historikkinnslag.Builder historikkinnslagBuilder = null;
         if (!linjeBuilder.isEmpty()) {
-            historikkinnslagBuilder = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
+            historikkinnslagBuilder = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
                 .medBehandlingId(param.getBehandlingId())
                 .medFagsakId(param.getFagsakId())
                 .medTittel(SkjermlenkeType.FAKTA_OM_FORDELING)

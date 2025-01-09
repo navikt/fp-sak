@@ -8,7 +8,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagOld;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFeltType;
@@ -22,7 +22,7 @@ class HistorikkV2AdapterTest {
 
     @Test
     void malType5MappingTest() {
-        var historikkinnslag = new Historikkinnslag();
+        var historikkinnslag = new HistorikkinnslagOld();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
         historikkinnslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
         historikkinnslag.setOpprettetAv("KLARA");
@@ -65,7 +65,7 @@ class HistorikkV2AdapterTest {
 
     @Test
     void malType10TrekkDagerTest() {
-        var historikkinnslag = new Historikkinnslag();
+        var historikkinnslag = new HistorikkinnslagOld();
         historikkinnslag.setType(HistorikkinnslagType.FASTSATT_UTTAK);
         historikkinnslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
         historikkinnslag.setOpprettetAv("ELISE");

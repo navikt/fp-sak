@@ -19,8 +19,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Adopsjo
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.OmsorgsovertakelseVilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -46,7 +46,7 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BehandlingRepository behandlingRepository;
     private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
-    private Historikkinnslag2Repository historikkinnslag2Repository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     AvklarOmsorgOgForeldreansvarOppdaterer() {
         // for CDI proxy
@@ -60,7 +60,7 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
-        this.historikkinnslag2Repository = repositoryProvider.getHistorikkinnslag2Repository();
+        this.historikkinnslagRepository = repositoryProvider.getHistorikkinnslagRepository();
     }
 
     @Override
@@ -104,7 +104,7 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
         var erEndret =
             nyttVilkårType || param.erBegrunnelseEndret() || !Objects.equals(originalOmsorgsovertakelseDato, dto.getOmsorgsovertakelseDato());
         if (erEndret) {
-            var historikkBuilder = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
+            var historikkBuilder = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
                 .medTittel(getSkjermlenkeType(param.getRef().fagsakYtelseType()))
                 .medBehandlingId(param.getBehandlingId())
                 .medFagsakId(param.getFagsakId())
@@ -115,7 +115,7 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
                 historikkBuilder.addLinje(new HistorikkinnslagLinjeBuilder().til("Vilkår som anvendes", finnTekstBasertPåOmsorgsvilkår(
                     vilkårType)));
             }
-            historikkinnslag2Repository.lagre(historikkBuilder.addLinje(dto.getBegrunnelse()).build());
+            historikkinnslagRepository.lagre(historikkBuilder.addLinje(dto.getBegrunnelse()).build());
         }
         return erEndret;
     }

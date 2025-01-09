@@ -13,16 +13,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.Skjermlenke
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
-public class Historikkinnslag2RepositoryTest extends EntityManagerAwareTest {
+public class HistorikkinnslagRepositoryTest extends EntityManagerAwareTest {
     private BasicBehandlingBuilder basicBehandlingBuilder;
-    private Historikkinnslag2Repository repository;
-    private Historikkinnslag2 historikkinnslag;
+    private HistorikkinnslagRepository repository;
+    private Historikkinnslag historikkinnslag;
 
     @BeforeEach
     public void setup() {
         var entityManager = getEntityManager();
         basicBehandlingBuilder = new BasicBehandlingBuilder(entityManager);
-        repository = new Historikkinnslag2Repository(entityManager);
+        repository = new HistorikkinnslagRepository(entityManager);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class Historikkinnslag2RepositoryTest extends EntityManagerAwareTest {
 
         var tekstlinje = HistorikkinnslagLinjeBuilder.fraTilEquals("Startdato for refusjon til " + arbeidsforholdInfo, null, idag);
 
-        var historikkinnslag = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
+        var historikkinnslag = new Historikkinnslag.Builder().medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandlingId)
             .medTittel(SkjermlenkeType.FAKTA_OM_FORDELING)
@@ -84,7 +84,7 @@ public class Historikkinnslag2RepositoryTest extends EntityManagerAwareTest {
         var punktum = ".";
         var tekstlinje = "Er dette riktig?";
 
-        var historikkinnslag = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
+        var historikkinnslag = new Historikkinnslag.Builder().medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandlingId)
             .medTittel(SkjermlenkeType.FAKTA_OM_FOEDSEL)
@@ -99,8 +99,8 @@ public class Historikkinnslag2RepositoryTest extends EntityManagerAwareTest {
             .isEqualTo(tekstlinje);
     }
 
-    private Historikkinnslag2 lagHistorikkinnslag(long behandlingId, long fagsakId) {
-        return new Historikkinnslag2.Builder().medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
+    private Historikkinnslag lagHistorikkinnslag(long behandlingId, long fagsakId) {
+        return new Historikkinnslag.Builder().medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medFagsakId(fagsakId)
             .medBehandlingId(behandlingId)
             .medTittel("Fakta er endret")

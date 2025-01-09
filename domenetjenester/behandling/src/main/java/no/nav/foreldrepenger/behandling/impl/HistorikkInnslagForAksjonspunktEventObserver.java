@@ -12,8 +12,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
@@ -26,11 +26,11 @@ import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 @ApplicationScoped
 public class HistorikkInnslagForAksjonspunktEventObserver {
 
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private BehandlingRepository behandlingRepository;
 
     @Inject
-    public HistorikkInnslagForAksjonspunktEventObserver(Historikkinnslag2Repository historikkinnslagRepository,
+    public HistorikkInnslagForAksjonspunktEventObserver(HistorikkinnslagRepository historikkinnslagRepository,
                                                         BehandlingRepository behandlingRepository) {
         this.historikkinnslagRepository = historikkinnslagRepository;
         this.behandlingRepository = behandlingRepository;
@@ -59,7 +59,7 @@ public class HistorikkInnslagForAksjonspunktEventObserver {
                                                                       String tittel,
                                                                       LocalDateTime fristTid,
                                                                       Venteårsak venteårsak) {
-        var historikkinnslagBuilder = new Historikkinnslag2.Builder();
+        var historikkinnslagBuilder = new Historikkinnslag.Builder();
         if (fristTid != null) {
             historikkinnslagBuilder.medTittel(tittel + " til " + HistorikkinnslagLinjeBuilder.format(fristTid.toLocalDate()));
         } else {

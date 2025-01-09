@@ -11,8 +11,8 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
@@ -30,7 +30,7 @@ public class ForvaltningUttakTjeneste {
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private FagsakRepository fagsakRepository;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     @Inject
     public ForvaltningUttakTjeneste(BehandlingRepository behandlingRepository,
@@ -39,7 +39,7 @@ public class ForvaltningUttakTjeneste {
                                     FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
                                     FagsakRepository fagsakRepository,
                                     YtelseFordelingTjeneste ytelseFordelingTjeneste,
-                                    Historikkinnslag2Repository historikkinnslagRepository) {
+                                    HistorikkinnslagRepository historikkinnslagRepository) {
         this.behandlingRepository = behandlingRepository;
         this.beregnStønadskontoerTjeneste = beregnStønadskontoerTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
@@ -65,7 +65,7 @@ public class ForvaltningUttakTjeneste {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         ytelseFordelingTjeneste.aksjonspunktAvklarStartdatoForPerioden(behandling.getId(), startdato);
 
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
@@ -115,7 +115,7 @@ public class ForvaltningUttakTjeneste {
         var behandling = behandlingRepository.hentBehandling(behandlingUuid);
         ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForAleneomsorg(behandling.getId(), aleneomsorg);
 
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
@@ -151,7 +151,7 @@ public class ForvaltningUttakTjeneste {
     }
 
     private void lagHistorikkinnslagRett(Long behandlingId, Long fagsakId, String begrunnelse) {
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medFagsakId(fagsakId)
             .medBehandlingId(behandlingId)

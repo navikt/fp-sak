@@ -17,8 +17,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
@@ -35,13 +35,13 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
-    private Historikkinnslag2Repository historikkRepository;
+    private HistorikkinnslagRepository historikkRepository;
 
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
-        historikkRepository = mock(Historikkinnslag2Repository.class);
+        historikkRepository = mock(HistorikkinnslagRepository.class);
     }
 
     @Test
@@ -75,7 +75,7 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
         oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
 
         // Assert
-        var captor = ArgumentCaptor.forClass(Historikkinnslag2.class);
+        var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
         verify(historikkRepository, times(1)).lagre(captor.capture());
         var historikkinnslag = captor.getValue();
         assertThat(historikkinnslag.getLinjer()).hasSize(4);
@@ -113,7 +113,7 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
         oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
 
         // Assert
-        var captor = ArgumentCaptor.forClass(Historikkinnslag2.class);
+        var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
         verify(historikkRepository, times(1)).lagre(captor.capture());
         var historikkinnslag = captor.getValue();
         assertThat(historikkinnslag.getLinjer()).hasSize(2);

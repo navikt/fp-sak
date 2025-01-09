@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
@@ -65,7 +65,7 @@ class FastsettUttakOppdatererTest {
     @BeforeEach
     public void setup() {
         oppdaterer = new FastsettUttakOppdaterer(fastettePerioderTjeneste, uttakTjeneste, uttakInputTjeneste,
-            repositoryProvider.getBehandlingRepository(), mock(Historikkinnslag2Repository.class));
+            repositoryProvider.getBehandlingRepository(), mock(HistorikkinnslagRepository.class));
     }
 
     @Test

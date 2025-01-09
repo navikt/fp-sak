@@ -9,8 +9,8 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
@@ -22,7 +22,7 @@ public abstract class InngangsvilkårOverstyringshåndterer<T extends Overstyrin
 
     private VilkårType vilkårType;
     private InngangsvilkårTjeneste inngangsvilkårTjeneste;
-    private Historikkinnslag2Repository historikkinnslag2Repository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     protected InngangsvilkårOverstyringshåndterer() {
         // for CDI proxy
@@ -30,10 +30,10 @@ public abstract class InngangsvilkårOverstyringshåndterer<T extends Overstyrin
 
     public InngangsvilkårOverstyringshåndterer(VilkårType vilkårType,
                                                InngangsvilkårTjeneste inngangsvilkårTjeneste,
-                                               Historikkinnslag2Repository historikkinnslag2Repository) {
+                                               HistorikkinnslagRepository historikkinnslagRepository) {
         this.vilkårType = vilkårType;
         this.inngangsvilkårTjeneste = inngangsvilkårTjeneste;
-        this.historikkinnslag2Repository = historikkinnslag2Repository;
+        this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     @Override
@@ -57,13 +57,13 @@ public abstract class InngangsvilkårOverstyringshåndterer<T extends Overstyrin
                                                          SkjermlenkeType skjermlenkeType) {
         var tilVerdi = vilkårOppfylt ? "Vilkåret er oppfylt" : "Vilkåret er ikke oppfylt";
         var fraVerdi = vilkårOppfylt ? "Vilkåret er ikke oppfylt" : "Vilkåret er oppfylt";
-        var historikkinnslag = new Historikkinnslag2.Builder().medTittel(skjermlenkeType)
+        var historikkinnslag = new Historikkinnslag.Builder().medTittel(skjermlenkeType)
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())
             .addLinje(fraTilEquals("Overstyrt vurdering: Utfallet", fraVerdi, tilVerdi))
             .addLinje(begrunnelse)
             .build();
-        historikkinnslag2Repository.lagre(historikkinnslag);
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 }

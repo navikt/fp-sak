@@ -9,8 +9,8 @@ import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.revurdering.flytkontroll.TilbakeførTilDekningsgradStegTask;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
@@ -24,17 +24,17 @@ public class AvklarDekningsgradFellesTjeneste {
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private ProsessTaskTjeneste prosessTaskTjeneste;
-    private Historikkinnslag2Repository historikkinnslag2Repository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     @Inject
     public AvklarDekningsgradFellesTjeneste(YtelseFordelingTjeneste ytelseFordelingTjeneste,
                                             FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
                                             ProsessTaskTjeneste prosessTaskTjeneste,
-                                            Historikkinnslag2Repository historikkinnslag2Repository) {
+                                            HistorikkinnslagRepository historikkinnslagRepository) {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
-        this.historikkinnslag2Repository = historikkinnslag2Repository;
+        this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     AvklarDekningsgradFellesTjeneste() {
@@ -57,7 +57,7 @@ public class AvklarDekningsgradFellesTjeneste {
     }
 
     private void opprettHistorikkinnslag(String begrunnelse, Dekningsgrad avklartDekningsgrad, Long fagsakId, Long behandlingId) {
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medTittel(SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER)
             .medFagsakId(fagsakId)
             .medBehandlingId(behandlingId)
@@ -65,7 +65,7 @@ public class AvklarDekningsgradFellesTjeneste {
             .addLinje(new HistorikkinnslagLinjeBuilder().til("Dekningsgrad", avklartDekningsgrad.getVerdi()))
             .addLinje(begrunnelse)
             .build();
-        historikkinnslag2Repository.lagre(historikkinnslag);
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
     private void tilbakeførAnnenpartsSak(Long fagsakId) {

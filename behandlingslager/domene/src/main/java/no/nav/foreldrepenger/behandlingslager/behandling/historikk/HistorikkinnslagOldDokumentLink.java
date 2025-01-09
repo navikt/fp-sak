@@ -13,30 +13,30 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
+import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
-@Entity(name = "Historikkinnslag2DokumentLink")
-@Table(name = "HISTORIKKINNSLAG2_DOK_LINK")
-public class Historikkinnslag2DokumentLink extends BaseCreateableEntitet implements IndexKey {
+@Entity(name = "HistorikkinnslagOldDokumentLink")
+@Table(name = "HISTORIKKINNSLAG_DOK_LINK")
+public class HistorikkinnslagOldDokumentLink extends BaseEntitet implements IndexKey {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_HISTORIKKINNSLAG2_DOK_LINK")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_HISTORIKKINNSLAG_DOK_LINK")
     private Long id;
 
     @Column(name = "link_tekst", updatable=false, nullable = false)
     private String linkTekst;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "historikkinnslag_id", nullable = false)
-    private Historikkinnslag2 historikkinnslag;
+    @JoinColumn(name = "historikkinnslag_id", nullable = false, updatable=false)
+    private HistorikkinnslagOld historikkinnslag;
 
     @Embedded
-    @AttributeOverride(name = "journalpostId", column = @Column(name = "journalpost_id"))
+    @AttributeOverride(name = "journalpostId", column = @Column(name = "journalpost_id", updatable=false))
     private JournalpostId journalpostId;
 
-    @Column(name = "dokument_id")
+    @Column(name = "dokument_id", updatable=false)
     private String dokumentId;
 
     @Override
@@ -52,7 +52,7 @@ public class Historikkinnslag2DokumentLink extends BaseCreateableEntitet impleme
         this.linkTekst = tag;
     }
 
-    public void setHistorikkinnslag(Historikkinnslag2 historikkinnslag) {
+    public void setHistorikkinnslag(HistorikkinnslagOld historikkinnslag) {
         this.historikkinnslag = historikkinnslag;
     }
 
@@ -73,10 +73,10 @@ public class Historikkinnslag2DokumentLink extends BaseCreateableEntitet impleme
     }
 
     public static class Builder {
-        private Historikkinnslag2DokumentLink historikkinnslagDokumentLink;
+        private HistorikkinnslagOldDokumentLink historikkinnslagDokumentLink;
 
         public Builder() {
-            historikkinnslagDokumentLink = new Historikkinnslag2DokumentLink();
+            historikkinnslagDokumentLink = new HistorikkinnslagOldDokumentLink();
         }
 
         public Builder medLinkTekst(String linkTekst) {
@@ -84,7 +84,7 @@ public class Historikkinnslag2DokumentLink extends BaseCreateableEntitet impleme
             return this;
         }
 
-        public Builder medHistorikkinnslag(Historikkinnslag2 historikkinnslag) {
+        public Builder medHistorikkinnslag(HistorikkinnslagOld historikkinnslag) {
             historikkinnslagDokumentLink.historikkinnslag = historikkinnslag;
             return this;
         }
@@ -99,7 +99,7 @@ public class Historikkinnslag2DokumentLink extends BaseCreateableEntitet impleme
             return this;
         }
 
-        public Historikkinnslag2DokumentLink build() {
+        public HistorikkinnslagOldDokumentLink build() {
             return historikkinnslagDokumentLink;
         }
     }
@@ -109,7 +109,7 @@ public class Historikkinnslag2DokumentLink extends BaseCreateableEntitet impleme
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Historikkinnslag2DokumentLink that)) {
+        if (!(o instanceof HistorikkinnslagOldDokumentLink that)) {
             return false;
         }
         return

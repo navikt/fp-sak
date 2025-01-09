@@ -64,7 +64,7 @@ class IverksetteVedtakStegYtelseTest {
         assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.STARTET);
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
 
-        var historikinnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getSaksnummer()).getFirst();
+        var historikinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
         assertThat(historikinnslag.getTittel()).isEqualTo("Behandlingen venter på iverksettelse");
         assertThat(historikinnslag.getLinjer().getFirst().getTekst()).isEqualTo("Venter på iverksettelse av en tidligere behandling i denne saken.");
     }

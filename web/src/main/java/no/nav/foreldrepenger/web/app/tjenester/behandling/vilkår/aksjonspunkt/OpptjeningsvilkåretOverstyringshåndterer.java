@@ -8,7 +8,7 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
@@ -31,8 +31,8 @@ public class OpptjeningsvilkåretOverstyringshåndterer extends InngangsvilkårO
     @Inject
     public OpptjeningsvilkåretOverstyringshåndterer(OpptjeningRepository opptjeningRepository,
                                                     InngangsvilkårTjeneste inngangsvilkårTjeneste,
-                                                    Historikkinnslag2Repository historikkinnslag2Repository) {
-        super(VilkårType.OPPTJENINGSVILKÅRET, inngangsvilkårTjeneste, historikkinnslag2Repository);
+                                                    HistorikkinnslagRepository historikkinnslagRepository) {
+        super(VilkårType.OPPTJENINGSVILKÅRET, inngangsvilkårTjeneste, historikkinnslagRepository);
         this.opptjeningRepository = opptjeningRepository;
     }
 

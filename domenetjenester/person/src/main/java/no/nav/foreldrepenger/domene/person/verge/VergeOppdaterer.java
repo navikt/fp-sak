@@ -12,8 +12,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.aktør.Aktør;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeEntitet;
@@ -31,7 +31,7 @@ import no.nav.vedtak.exception.IntegrasjonException;
 @DtoTilServiceAdapter(dto = AvklarVergeDto.class, adapter = AksjonspunktOppdaterer.class)
 public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
 
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private VergeRepository vergeRepository;
     private PersoninfoAdapter personinfoAdapter;
     private NavBrukerTjeneste brukerTjeneste;
@@ -41,7 +41,7 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
     }
 
     @Inject
-    public VergeOppdaterer(Historikkinnslag2Repository historikkinnslagRepository,
+    public VergeOppdaterer(HistorikkinnslagRepository historikkinnslagRepository,
                            PersoninfoAdapter personinfoAdapter,
                            VergeRepository vergeRepository,
                            NavBrukerTjeneste brukerTjeneste) {
@@ -87,11 +87,11 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
         historikkinnslagRepository.lagre(historikkBuilder.build());
     }
 
-    private Historikkinnslag2.Builder opprettHistorikkinnslag(AvklarVergeDto dto, AksjonspunktOppdaterParameter parameter) {
+    private Historikkinnslag.Builder opprettHistorikkinnslag(AvklarVergeDto dto, AksjonspunktOppdaterParameter parameter) {
         var behandlingId = parameter.getBehandlingId();
         var vergeAggregatOpt = vergeRepository.hentAggregat(behandlingId);
 
-        var historikkBuilder = new Historikkinnslag2.Builder().medFagsakId(parameter.getRef().fagsakId())
+        var historikkBuilder = new Historikkinnslag.Builder().medFagsakId(parameter.getRef().fagsakId())
             .medBehandlingId(parameter.getRef().behandlingId())
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medTittel(SkjermlenkeType.FAKTA_OM_VERGE);

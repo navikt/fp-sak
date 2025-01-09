@@ -21,8 +21,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
@@ -47,7 +47,7 @@ public class KabalTjeneste {
     private KabalDokumenter kabalDokumenter;
     private VergeRepository vergeRepository;
     private PersoninfoAdapter personinfoAdapter;
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private KabalKlient kabalKlient;
 
@@ -64,7 +64,7 @@ public class KabalTjeneste {
                          AnkeVurderingTjeneste ankeVurderingTjeneste,
                          KlageVurderingTjeneste klageVurderingTjeneste,
                          BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
-                         Historikkinnslag2Repository historikkinnslagRepository) {
+                         HistorikkinnslagRepository historikkinnslagRepository) {
         this.personinfoAdapter = personinfoAdapter;
         this.ankeVurderingTjeneste = ankeVurderingTjeneste;
         this.klageVurderingTjeneste = klageVurderingTjeneste;
@@ -225,7 +225,7 @@ public class KabalTjeneste {
         var klageVurderingOmgjør = klageVurderingOmgjørFraUtfall(utfall);
         var resultat = KlageVurderingTjeneste.historikkResultatForKlageVurdering(klageVurdering, KlageVurdertAv.NK, klageVurderingOmgjør);
 
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())
@@ -240,7 +240,7 @@ public class KabalTjeneste {
         var ankeVurderingOmgjør = ankeVurderingOmgjørFraUtfall(utfall);
         var resultat = AnkeVurderingTjeneste.konverterAnkeVurderingTilResultatTekst(ankeVurdering, ankeVurderingOmgjør);
 
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())
@@ -289,7 +289,7 @@ public class KabalTjeneste {
     }
 
     public void lagHistorikkinnslagForHenleggelse(Behandling behandling, BehandlingResultatType aarsak) {
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())

@@ -13,7 +13,7 @@ import java.util.Optional;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
@@ -39,9 +39,9 @@ public final class UttakHistorikkUtil {
         return new UttakHistorikkUtil(false);
     }
 
-    public Optional<Historikkinnslag2> lagHistorikkinnslag(BehandlingReferanse behandling,
-                                                           List<UttakResultatPeriodeLagreDto> uttakResultat,
-                                                           List<ForeldrepengerUttakPeriode> gjeldende) {
+    public Optional<Historikkinnslag> lagHistorikkinnslag(BehandlingReferanse behandling,
+                                                          List<UttakResultatPeriodeLagreDto> uttakResultat,
+                                                          List<ForeldrepengerUttakPeriode> gjeldende) {
         var tekstlinjer = uttakResultat.stream()
             .map(periode -> lagHistorikkinnslagForPeriode(periode, gjeldende))
             .flatMap(Collection::stream)
@@ -51,7 +51,7 @@ public final class UttakHistorikkUtil {
             return Optional.empty();
         }
 
-        return Optional.of(new Historikkinnslag2.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
+        return Optional.of(new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medBehandlingId(behandling.behandlingId())
             .medFagsakId(behandling.fagsakId())
             .medTittel(SkjermlenkeType.UTTAK)

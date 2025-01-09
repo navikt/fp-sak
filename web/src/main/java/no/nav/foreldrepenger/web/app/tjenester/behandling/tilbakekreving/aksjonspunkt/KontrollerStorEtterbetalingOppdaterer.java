@@ -10,8 +10,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 
 
@@ -19,21 +19,21 @@ import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.Skjermlenke
 @DtoTilServiceAdapter(dto = KontrollerStorEtterbetalingSøkerDto.class, adapter = AksjonspunktOppdaterer.class)
 class KontrollerStorEtterbetalingOppdaterer implements AksjonspunktOppdaterer<KontrollerStorEtterbetalingSøkerDto> {
 
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     public KontrollerStorEtterbetalingOppdaterer() {
         //CDI
     }
 
     @Inject
-    public KontrollerStorEtterbetalingOppdaterer(Historikkinnslag2Repository historikkinnslagRepository) {
+    public KontrollerStorEtterbetalingOppdaterer(HistorikkinnslagRepository historikkinnslagRepository) {
         this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     @Override
     public OppdateringResultat oppdater(KontrollerStorEtterbetalingSøkerDto dto, AksjonspunktOppdaterParameter param) {
         var ref = param.getRef();
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())

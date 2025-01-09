@@ -8,8 +8,8 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
@@ -24,12 +24,12 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 class FeilPraksisSaksmerkingSingleTask implements ProsessTaskHandler {
     static final String FAGSAK_ID = "fagsakId";
-    private final Historikkinnslag2Repository historikkinnslagRepository;
+    private final HistorikkinnslagRepository historikkinnslagRepository;
     private final FagsakRepository fagsakRepository;
     private final FagsakEgenskapRepository fagsakEgenskapRepository;
 
     @Inject
-    public FeilPraksisSaksmerkingSingleTask(Historikkinnslag2Repository historikkinnslagRepository,
+    public FeilPraksisSaksmerkingSingleTask(HistorikkinnslagRepository historikkinnslagRepository,
                                             FagsakRepository fagsakRepository,
                                             FagsakEgenskapRepository fagsakEgenskapRepository) {
         this.historikkinnslagRepository = historikkinnslagRepository;
@@ -53,7 +53,7 @@ class FeilPraksisSaksmerkingSingleTask implements ProsessTaskHandler {
     }
 
     private void lagHistorikkInnslag(Fagsak fagsak, FagsakMarkering eksisterende, FagsakMarkering ny) {
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(fagsak.getId())
             .medTittel("Fakta er endret")

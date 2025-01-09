@@ -12,7 +12,7 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagP
 public class FordelBeregningsgrunnlagHistorikkTjeneste {
 
     private ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste;
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
@@ -36,7 +36,7 @@ public class FordelBeregningsgrunnlagHistorikkTjeneste {
     public FordelBeregningsgrunnlagHistorikkTjeneste(HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
                                                      ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste,
                                                      InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                                     Historikkinnslag2Repository historikkinnslagRepository) {
+                                                     HistorikkinnslagRepository historikkinnslagRepository) {
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.arbeidsgiverHistorikkinnslagTjeneste = arbeidsgiverHistorikkinnslagTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;

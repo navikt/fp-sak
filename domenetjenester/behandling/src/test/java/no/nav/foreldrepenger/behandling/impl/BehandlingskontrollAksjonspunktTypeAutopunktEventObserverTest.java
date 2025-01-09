@@ -26,8 +26,8 @@ import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -44,7 +44,7 @@ class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
     @Mock
     private Aksjonspunkt manuellpunkt;
     @Mock
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     @Mock
     private BehandlingRepository behandlingRepository;
     @Mock
@@ -74,7 +74,7 @@ class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
 
         observer.oppretteHistorikkForBehandlingPåVent(event);
 
-        verify(historikkinnslagRepository).lagre(any(Historikkinnslag2.class));
+        verify(historikkinnslagRepository).lagre(any(Historikkinnslag.class));
     }
 
     @Test
@@ -106,7 +106,7 @@ class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
 
         var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(manuellpunkt, autopunkt), null);
 
-        var captor = ArgumentCaptor.forClass(Historikkinnslag2.class);
+        var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
 
         observer.oppretteHistorikkForBehandlingPåVent(event);
 

@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsa
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
@@ -49,14 +49,14 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     }
 
     @Inject
-    public EtterkontrollTjenesteImpl(Historikkinnslag2Repository historikkinnslag2Repository,
+    public EtterkontrollTjenesteImpl(HistorikkinnslagRepository historikkinnslagRepository,
                                      BehandlingRevurderingTjeneste behandlingRevurderingTjeneste,
                                      ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
                                      BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                      @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) RevurderingTjeneste revurderingTjeneste,
                                      BehandlingProsesseringTjeneste behandlingProsesseringTjeneste) {
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
-        this.revurderingHistorikk = new RevurderingHistorikk(historikkinnslag2Repository);
+        this.revurderingHistorikk = new RevurderingHistorikk(historikkinnslagRepository);
         this.revurderingTjeneste = revurderingTjeneste;
         this.behandlingRevurderingTjeneste = behandlingRevurderingTjeneste;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;

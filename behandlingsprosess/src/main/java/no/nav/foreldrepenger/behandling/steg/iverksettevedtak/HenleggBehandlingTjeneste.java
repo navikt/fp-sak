@@ -8,8 +8,8 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
@@ -29,7 +29,7 @@ public class HenleggBehandlingTjeneste {
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
     private ProsessTaskTjeneste taskTjeneste;
     private SøknadRepository søknadRepository;
-    private Historikkinnslag2Repository historikkRepository;
+    private HistorikkinnslagRepository historikkRepository;
 
 
     public HenleggBehandlingTjeneste() {
@@ -46,7 +46,7 @@ public class HenleggBehandlingTjeneste {
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.taskTjeneste = taskTjeneste;
         this.søknadRepository = repositoryProvider.getSøknadRepository();
-        this.historikkRepository = repositoryProvider.getHistorikkinnslag2Repository();
+        this.historikkRepository = repositoryProvider.getHistorikkinnslagRepository();
     }
 
     public void henleggBehandling(Long behandlingId, BehandlingResultatType årsakKode, String begrunnelse) {
@@ -108,7 +108,7 @@ public class HenleggBehandlingTjeneste {
     }
 
     private void lagHistorikkinnslagForHenleggelse(Behandling behandling, BehandlingResultatType aarsak, String begrunnelse, HistorikkAktør aktør) {
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(aktør)
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())

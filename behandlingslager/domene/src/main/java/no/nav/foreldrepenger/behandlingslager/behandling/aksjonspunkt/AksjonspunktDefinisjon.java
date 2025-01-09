@@ -29,6 +29,7 @@ import jakarta.persistence.Converter;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -617,7 +618,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
 
     /**
      * @deprecated Bruk heller
-     *             {@link no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2.Builder#medTittel(SkjermlenkeType)}
+     *             {@link Historikkinnslag.Builder#medTittel(SkjermlenkeType)}
      *             direkte og unngå å slå opp fra aksjonspunktdefinisjon
      */
     @Deprecated

@@ -11,8 +11,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.rest.dto.KontrollerBesteberegningDto;
 
@@ -20,14 +20,14 @@ import no.nav.foreldrepenger.domene.rest.dto.KontrollerBesteberegningDto;
 @DtoTilServiceAdapter(dto = KontrollerBesteberegningDto.class, adapter = AksjonspunktOppdaterer.class)
 public class KontrollerBesteberegningOppdaterer implements AksjonspunktOppdaterer<KontrollerBesteberegningDto> {
 
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     protected KontrollerBesteberegningOppdaterer() {
         // CDI
     }
 
     @Inject
-    public KontrollerBesteberegningOppdaterer(Historikkinnslag2Repository historikkinnslagRepository) {
+    public KontrollerBesteberegningOppdaterer(HistorikkinnslagRepository historikkinnslagRepository) {
         this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
@@ -41,7 +41,7 @@ public class KontrollerBesteberegningOppdaterer implements AksjonspunktOppdatere
     }
 
     private void lagHistorikk(BehandlingReferanse ref, KontrollerBesteberegningDto dto) {
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())

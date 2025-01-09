@@ -5,8 +5,8 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
@@ -28,7 +28,7 @@ import static org.mockito.Mockito.verify;
 class FastsettBruttoBeregningsgrunnlagSNNyIArbeidslivetHistorikkTjenesteTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
-    private final Historikkinnslag2Repository historikkRepo = mock(Historikkinnslag2Repository.class);
+    private final HistorikkinnslagRepository historikkRepo = mock(HistorikkinnslagRepository.class);
 
 
     @BeforeEach
@@ -49,7 +49,7 @@ class FastsettBruttoBeregningsgrunnlagSNNyIArbeidslivetHistorikkTjenesteTest ext
         new FastsettBruttoBeregningsgrunnlagSNNyIArbeidslivetHistorikkTjeneste(historikkRepo).lagHistorikk(dto, new AksjonspunktOppdaterParameter(ref, dto));
 
         // Assert
-        var captor = ArgumentCaptor.forClass(Historikkinnslag2.class);
+        var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
         verify(historikkRepo).lagre(captor.capture());
 
         var historikkinnslag = captor.getValue();

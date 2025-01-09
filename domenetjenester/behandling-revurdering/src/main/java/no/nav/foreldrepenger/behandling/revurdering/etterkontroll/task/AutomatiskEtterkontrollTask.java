@@ -54,7 +54,7 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.personinfoAdapter = personinfoAdapter;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.revurderingHistorikk = new RevurderingHistorikk(repositoryProvider.getHistorikkinnslag2Repository());
+        this.revurderingHistorikk = new RevurderingHistorikk(repositoryProvider.getHistorikkinnslagRepository());
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.etterkontrollRepository = etterkontrollRepository;
     }

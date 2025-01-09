@@ -6,11 +6,11 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 
-class Historikkinnslag2Test {
+class HistorikkinnslagTest {
 
     @Test
     void fjernerLeadingLinjeskift() {
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medTittel(SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER)
             .medFagsakId(1L)
             .medBehandlingId(1L)
@@ -24,7 +24,7 @@ class Historikkinnslag2Test {
 
     @Test
     void fjernerTrailingLinjeskift() {
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medTittel(SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER)
             .medFagsakId(1L)
             .medBehandlingId(1L)
@@ -38,7 +38,7 @@ class Historikkinnslag2Test {
 
     @Test
     void fjernerIkkeLinjeskiftIMellomTekstlinjer() {
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medTittel(SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER)
             .medFagsakId(1L)
             .medBehandlingId(1L)

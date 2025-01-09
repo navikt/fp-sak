@@ -15,9 +15,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2DokumentLink;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDokumentLink;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
@@ -33,7 +33,7 @@ public class HistorikkinnslagTjeneste {
     private static final String SØKNAD = "Søknad";
     private static final String INNTEKTSMELDING = "Inntektsmelding";
     private static final String ETTERSENDELSE = "Ettersendelse";
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private DokumentArkivTjeneste dokumentArkivTjeneste;
 
     HistorikkinnslagTjeneste() {
@@ -41,7 +41,7 @@ public class HistorikkinnslagTjeneste {
     }
 
     @Inject
-    public HistorikkinnslagTjeneste(Historikkinnslag2Repository historikkinnslagRepository, DokumentArkivTjeneste dokumentArkivTjeneste) {
+    public HistorikkinnslagTjeneste(HistorikkinnslagRepository historikkinnslagRepository, DokumentArkivTjeneste dokumentArkivTjeneste) {
         this.historikkinnslagRepository = historikkinnslagRepository;
         this.dokumentArkivTjeneste = dokumentArkivTjeneste;
     }
@@ -52,7 +52,7 @@ public class HistorikkinnslagTjeneste {
                                         boolean erIM) {
         var dokumenter = lagDokumenterLenker(behandling.getType(), journalpostId, elektronisk, erIM);
         var tittel = BehandlingType.KLAGE.equals(behandling.getType()) ? "Klage er mottatt" : "Behandling er startet";
-        var h = new Historikkinnslag2.Builder().medTittel(tittel)
+        var h = new Historikkinnslag.Builder().medTittel(tittel)
             .medAktør(HistorikkAktør.SØKER)
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())
@@ -62,11 +62,11 @@ public class HistorikkinnslagTjeneste {
         historikkinnslagRepository.lagre(h);
     }
 
-    private List<Historikkinnslag2DokumentLink> lagDokumenterLenker(BehandlingType behandlingType,
-                                                                    JournalpostId journalpostId,
-                                                                    boolean elektronisk,
-                                                                    boolean erIM) {
-        List<Historikkinnslag2DokumentLink> dokumentLinker = new ArrayList<>();
+    private List<HistorikkinnslagDokumentLink> lagDokumenterLenker(BehandlingType behandlingType,
+                                                                   JournalpostId journalpostId,
+                                                                   boolean elektronisk,
+                                                                   boolean erIM) {
+        List<HistorikkinnslagDokumentLink> dokumentLinker = new ArrayList<>();
         if (journalpostId != null) {
             dokumentArkivTjeneste.hentJournalpostForSak(journalpostId).ifPresent(jp -> {
                 leggTilSøknadDokumentLenke(behandlingType, journalpostId, dokumentLinker, jp.getHovedDokument(), elektronisk, erIM);
@@ -79,7 +79,7 @@ public class HistorikkinnslagTjeneste {
 
     private void leggTilSøknadDokumentLenke(BehandlingType behandlingType,
                                             JournalpostId journalpostId,
-                                            List<Historikkinnslag2DokumentLink> dokumentLinker,
+                                            List<HistorikkinnslagDokumentLink> dokumentLinker,
                                             ArkivDokument arkivDokument,
                                             boolean elektronisk,
                                             boolean erIM) {
@@ -95,10 +95,10 @@ public class HistorikkinnslagTjeneste {
         }
     }
 
-    private Historikkinnslag2DokumentLink lagHistorikkInnslagDokumentLink(ArkivDokument arkivDokument,
-                                                                          JournalpostId journalpostId,
-                                                                          String linkTekst) {
-        var historikkinnslagDokumentLink = new Historikkinnslag2DokumentLink();
+    private HistorikkinnslagDokumentLink lagHistorikkInnslagDokumentLink(ArkivDokument arkivDokument,
+                                                                         JournalpostId journalpostId,
+                                                                         String linkTekst) {
+        var historikkinnslagDokumentLink = new HistorikkinnslagDokumentLink();
         historikkinnslagDokumentLink.setDokumentId(arkivDokument.getDokumentId());
         historikkinnslagDokumentLink.setJournalpostId(journalpostId);
         historikkinnslagDokumentLink.setLinkTekst(linkTekst);
@@ -106,7 +106,7 @@ public class HistorikkinnslagTjeneste {
     }
 
     public void opprettHistorikkinnslagForAutomatiskHenlegelsePgaNySøknad(Behandling behandling) {
-        var historikk = new Historikkinnslag2.Builder().medTittel("Behandlingen er henlagt")
+        var historikk = new Historikkinnslag.Builder().medTittel("Behandlingen er henlagt")
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
@@ -119,7 +119,7 @@ public class HistorikkinnslagTjeneste {
     public void opprettHistorikkinnslagForVedlegg(Fagsak fagsak, JournalpostId journalpostId, DokumentTypeId dokumentTypeId, boolean elektronisk) {
         var dokumenter = lagDokumenterLenker(BehandlingType.UDEFINERT, journalpostId, elektronisk,
             DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId));
-        historikkinnslagRepository.lagre(new Historikkinnslag2.Builder().medTittel("Vedlegg er mottatt")
+        historikkinnslagRepository.lagre(new Historikkinnslag.Builder().medTittel("Vedlegg er mottatt")
             .medFagsakId(fagsak.getId())
             .medAktør(DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId) ? HistorikkAktør.ARBEIDSGIVER : HistorikkAktør.SØKER)
             .medDokumenter(dokumenter)
@@ -132,7 +132,7 @@ public class HistorikkinnslagTjeneste {
                                                                      Venteårsak venteårsak) {
         var tittel = frist == null ? historikkinnslagType.getNavn() :
             historikkinnslagType.getNavn() + " til " + format(frist.toLocalDate());
-        var build = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
+        var build = new Historikkinnslag.Builder().medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medTittel(tittel)
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId());
@@ -143,7 +143,7 @@ public class HistorikkinnslagTjeneste {
     }
 
     public void opprettHistorikkinnslagForBehandlingOppdatertMedNyeOpplysninger(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
-        var historikkinnslag = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
+        var historikkinnslag = new Historikkinnslag.Builder().medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medTittel("Behandlingen oppdatert med nye opplysninger")
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())
@@ -154,7 +154,7 @@ public class HistorikkinnslagTjeneste {
     }
 
     public void opprettHistorikkinnslagForEndringshendelse(Fagsak fagsak, String begrunnelse) {
-        var historikkinnslag = new Historikkinnslag2.Builder().medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
+        var historikkinnslag = new Historikkinnslag.Builder().medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medTittel("Behandlingen oppdatert med nye opplysninger")
             .medFagsakId(fagsak.getId())
             .addLinje(begrunnelse)

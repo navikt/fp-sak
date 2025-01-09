@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 
 @Entity(name = "Historikkinnslag2Linje")
 @Table(name = "HISTORIKKINNSLAG2_LINJE")
-public class Historikkinnslag2Linje extends BaseCreateableEntitet implements IndexKey {
+public class HistorikkinnslagLinje extends BaseCreateableEntitet implements IndexKey {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_HISTORIKKINNSLAG2_LINJE")
@@ -36,7 +36,7 @@ public class Historikkinnslag2Linje extends BaseCreateableEntitet implements Ind
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "historikkinnslag_id", nullable = false)
-    private Historikkinnslag2 historikkinnslag;
+    private Historikkinnslag historikkinnslag;
 
 
     @Override
@@ -45,13 +45,13 @@ public class Historikkinnslag2Linje extends BaseCreateableEntitet implements Ind
     }
 
     private void validerBoldMarkering(String tekst) {
-        var antallBoldMarkører = tekst.split(Historikkinnslag2.BOLD_MARKØR, -1).length -1;
+        var antallBoldMarkører = tekst.split(Historikkinnslag.BOLD_MARKØR, -1).length -1;
         if (antallBoldMarkører % 2 == 1) {
             throw new IllegalArgumentException("Ugyldig bold markering av tekst for tekstlinje");
         }
     }
 
-    private Historikkinnslag2Linje(String tekst, int sekvensNr, HistorikkinnslagLinjeType type) {
+    private HistorikkinnslagLinje(String tekst, int sekvensNr, HistorikkinnslagLinjeType type) {
         Objects.requireNonNull(type);
 
         if (HistorikkinnslagLinjeType.TEKST.equals(type)) {
@@ -70,15 +70,15 @@ public class Historikkinnslag2Linje extends BaseCreateableEntitet implements Ind
         this.type = type;
     }
 
-    public static Historikkinnslag2Linje tekst(String tekst, int sekvensNr) {
-        return new Historikkinnslag2Linje(tekst, sekvensNr, HistorikkinnslagLinjeType.TEKST);
+    public static HistorikkinnslagLinje tekst(String tekst, int sekvensNr) {
+        return new HistorikkinnslagLinje(tekst, sekvensNr, HistorikkinnslagLinjeType.TEKST);
     }
 
-    public static Historikkinnslag2Linje linjeskift(int sekvensNr) {
-        return new Historikkinnslag2Linje(null, sekvensNr, HistorikkinnslagLinjeType.LINJESKIFT);
+    public static HistorikkinnslagLinje linjeskift(int sekvensNr) {
+        return new HistorikkinnslagLinje(null, sekvensNr, HistorikkinnslagLinjeType.LINJESKIFT);
     }
 
-    protected Historikkinnslag2Linje() {
+    protected HistorikkinnslagLinje() {
     }
 
     public String getTekst() {
@@ -93,7 +93,7 @@ public class Historikkinnslag2Linje extends BaseCreateableEntitet implements Ind
         return sekvensNr;
     }
 
-    void setHistorikkinnslag(Historikkinnslag2 historikkinnslag) {
+    void setHistorikkinnslag(Historikkinnslag historikkinnslag) {
         this.historikkinnslag = historikkinnslag;
     }
 
@@ -102,7 +102,7 @@ public class Historikkinnslag2Linje extends BaseCreateableEntitet implements Ind
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Historikkinnslag2Linje that)) {
+        if (!(o instanceof HistorikkinnslagLinje that)) {
             return false;
         }
         return sekvensNr == that.sekvensNr && Objects.equals(tekst, that.tekst) && type == that.type;
@@ -116,6 +116,6 @@ public class Historikkinnslag2Linje extends BaseCreateableEntitet implements Ind
     @Override
     public String toString() {
         //tekst kan være fritekst fra saksbehandler
-        return "Historikkinnslag2Linje{" + "tekst='***" + '\'' + ", sekvensNr=" + sekvensNr + ", type=" + type + '}';
+        return "HistorikkinnslagLinje{" + "tekst='***" + '\'' + ", sekvensNr=" + sekvensNr + ", type=" + type + '}';
     }
 }

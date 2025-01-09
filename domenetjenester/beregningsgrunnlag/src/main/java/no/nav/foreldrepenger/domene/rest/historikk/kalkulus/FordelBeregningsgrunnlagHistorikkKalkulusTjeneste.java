@@ -13,7 +13,7 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningsgrunnlagEndring;
 import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.domene.rest.historikk.FordelBeregningsgrunnlagHisto
 public class FordelBeregningsgrunnlagHistorikkKalkulusTjeneste {
 
     private ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste;
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
 
@@ -38,7 +38,7 @@ public class FordelBeregningsgrunnlagHistorikkKalkulusTjeneste {
 
     @Inject
     public FordelBeregningsgrunnlagHistorikkKalkulusTjeneste(ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste,
-                                                             Historikkinnslag2Repository historikkinnslagRepository,
+                                                             HistorikkinnslagRepository historikkinnslagRepository,
                                                              InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
         this.arbeidsgiverHistorikkinnslagTjeneste = arbeidsgiverHistorikkinnslagTjeneste;
         this.historikkinnslagRepository = historikkinnslagRepository;

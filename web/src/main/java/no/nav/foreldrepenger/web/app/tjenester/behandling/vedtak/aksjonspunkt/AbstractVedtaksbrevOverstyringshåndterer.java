@@ -14,8 +14,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 
 public abstract class AbstractVedtaksbrevOverstyringshåndterer {
 
-    private Historikkinnslag2Repository historikkinnslagRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private VedtakTjeneste vedtakTjeneste;
     private BehandlingDokumentRepository behandlingDokumentRepository;
@@ -31,7 +31,7 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
 
     AbstractVedtaksbrevOverstyringshåndterer(BehandlingRepository behandlingRepository,
                                              BehandlingsresultatRepository behandlingsresultatRepository,
-                                             Historikkinnslag2Repository historikkinnslagRepository,
+                                             HistorikkinnslagRepository historikkinnslagRepository,
                                              VedtakTjeneste vedtakTjeneste,
                                              BehandlingDokumentRepository behandlingDokumentRepository) {
         this.historikkinnslagRepository = historikkinnslagRepository;
@@ -150,7 +150,7 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
             ? "Vedtak er foreslått"
             : "Vedtak er foreslått og sendt til beslutter";
         var vedtakResultatType = vedtakTjeneste.utledVedtakResultatType(behandling);
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())

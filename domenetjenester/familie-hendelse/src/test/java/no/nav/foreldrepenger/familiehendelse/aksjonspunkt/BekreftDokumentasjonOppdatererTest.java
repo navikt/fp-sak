@@ -64,9 +64,9 @@ class BekreftDokumentasjonOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
         new BekreftDokumentasjonOppdaterer(familieHendelseTjeneste, mock(OpplysningsPeriodeTjeneste.class),
-            repositoryProvider.getHistorikkinnslag2Repository()).oppdater(dto,
+            repositoryProvider.getHistorikkinnslagRepository()).oppdater(dto,
             new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
-        var historikkInnslag = repositoryProvider.getHistorikkinnslag2Repository().hent(behandling.getSaksnummer());
+        var historikkInnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer());
 
         // Assert
         assertThat(historikkInnslag).hasSize(1);

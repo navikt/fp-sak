@@ -19,8 +19,8 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag2Repository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
@@ -41,7 +41,7 @@ public class FpInntektsmeldingTjeneste {
     private FpinntektsmeldingKlient klient;
     private ProsessTaskTjeneste prosessTaskTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private Historikkinnslag2Repository historikkRepo;
+    private HistorikkinnslagRepository historikkRepo;
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
     private InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste;
 
@@ -55,7 +55,7 @@ public class FpInntektsmeldingTjeneste {
     public FpInntektsmeldingTjeneste(FpinntektsmeldingKlient klient,
                                      ProsessTaskTjeneste prosessTaskTjeneste,
                                      SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                     Historikkinnslag2Repository historikkRepo,
+                                     HistorikkinnslagRepository historikkRepo,
                                      ArbeidsgiverTjeneste arbeidsgiverTjeneste,
                                      InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste) {
         this.klient = klient;
@@ -146,7 +146,7 @@ public class FpInntektsmeldingTjeneste {
     }
 
     private void lagHistorikkForForespørsel(BehandlingReferanse ref, String tekst) {
-        var historikkinnslag = new Historikkinnslag2.Builder()
+        var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medTittel("Min side - arbeidsgiver")
             .medBehandlingId(ref.behandlingId())
