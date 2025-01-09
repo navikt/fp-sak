@@ -28,6 +28,9 @@ public class HistorikkinnslagLinjeBuilder {
 
     public HistorikkinnslagLinjeBuilder bold(String b) {
         Objects.requireNonNull(b);
+        if (b.isEmpty()) {
+            throw new IllegalArgumentException("Tekst kan ikke være tom");
+        }
         stringBuilder.append(" ").append(BOLD_MARKØR).append(b).append(BOLD_MARKØR);
         return this;
     }
@@ -42,6 +45,9 @@ public class HistorikkinnslagLinjeBuilder {
 
     public HistorikkinnslagLinjeBuilder tekst(String t) {
         Objects.requireNonNull(t);
+        if (t.isEmpty()) {
+            throw new IllegalArgumentException("Tekst kan ikke være tom");
+        }
         stringBuilder.append(" ").append(t);
         return this;
     }
