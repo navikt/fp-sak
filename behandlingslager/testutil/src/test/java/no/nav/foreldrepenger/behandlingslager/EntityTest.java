@@ -42,15 +42,6 @@ class EntityTest {
 
     private static final EntityManagerFactory entityManagerFactory;
     static {
-        // Kan ikke skrus på nå - trigger på CHAR kolonner som kunne vært VARCHAR. Må
-        // fikses først
-        // System.setProperty("hibernate.hbm2ddl.auto", "validate");
-        try {
-            // trenger å konfigurere opp jndi etc.
-            //TestDatabaseInit.settJdniOppslag();
-        } catch (Exception e) {
-            throw new ExceptionInInitializerError(e);
-        }
         entityManagerFactory = Persistence.createEntityManagerFactory("pu-default");
     }
 
