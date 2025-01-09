@@ -118,15 +118,15 @@ public class ArbeidInntektHistorikkinnslagTjeneste {
 
     private String fraArbeidsforholdKomplettVurderingType(ArbeidsforholdKomplettVurderingType type) {
         return switch (type) {
-            case KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING -> "Arbeidsgiver kontaktes";
+            case KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING, KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_ARBEIDSFORHOLD -> "Arbeidsgiver kontaktes";
             case FORTSETT_UTEN_INNTEKTSMELDING -> "Gå videre uten inntektsmelding";
-            case KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_ARBEIDSFORHOLD -> "Arbeidsgiver kontaktes";
             case IKKE_OPPRETT_BASERT_PÅ_INNTEKTSMELDING -> "Ikke opprett arbeidsforhold";
             case OPPRETT_BASERT_PÅ_INNTEKTSMELDING -> "Opprettet basert på inntektsmeldingen";
             case MANUELT_OPPRETTET_AV_SAKSBEHANDLER -> "Opprettet av saksbehandler";
             case FJERN_FRA_BEHANDLINGEN -> "Fjernet fra behandlingen";
             case NYTT_ARBEIDSFORHOLD -> "Arbeidsforholdet er ansett som nytt";
-            default -> throw new IllegalStateException("Unexpected value ArbeidsforholdKomplettVurderingType: " + type);
+            case MELDING_TIL_ARBEIDSGIVER_NAV_NO -> "Ny melding sendes til arbeidsgiver med beskjed om å sende inntektsmelding på Min side - arbeidsgiver";
+            case UDEFINERT, SLÅTT_SAMMEN_MED_ANNET, BRUK_MED_OVERSTYRT_PERIODE, INNTEKT_IKKE_MED_I_BG, BRUK -> throw new IllegalStateException("Unexpected value ArbeidsforholdKomplettVurderingType: " + type);
         };
     }
 }
