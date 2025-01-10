@@ -4,6 +4,7 @@ import static no.nav.foreldrepenger.domene.rest.historikk.FordelBeregningsgrunnl
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -30,21 +31,31 @@ public class InntektHistorikkTjeneste {
     public List<HistorikkinnslagLinjeBuilder> lagHistorikk(List<Lønnsendring> lønnsendringList,
                                                            InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
         var arbeidsforholdOverstyringer = inntektArbeidYtelseGrunnlag.getArbeidsforholdOverstyringer();
-        List<HistorikkinnslagLinjeBuilder> linjeBuilder = new ArrayList<>();
+        List<HistorikkinnslagLinjeBuilder> alleLinjer = new ArrayList<>();
         lønnsendringList.forEach(lønnsendring -> {
-            linjeBuilder.add(lagHistorikkForInntektEndring(lønnsendring, arbeidsforholdOverstyringer));
-            linjeBuilder.add(lagInntektskategoriInnslagHvisEndret(lønnsendring));
-            linjeBuilder.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
+            var linjer = linjerForLønnsendring(lønnsendring, arbeidsforholdOverstyringer);
+            alleLinjer.addAll(linjer);
         });
-        return linjeBuilder;
+        return alleLinjer;
     }
 
-    private HistorikkinnslagLinjeBuilder lagHistorikkForInntektEndring(Lønnsendring lønnsendring,
-                                                                       List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
+    private List<HistorikkinnslagLinjeBuilder> linjerForLønnsendring(Lønnsendring lønnsendring,
+                                                                     List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
+        var linjer = new ArrayList<HistorikkinnslagLinjeBuilder>();
+        lagHistorikkForInntektEndring(lønnsendring, arbeidsforholdOverstyringer).ifPresent(linjer::add);
+        lagInntektskategoriInnslagHvisEndret(lønnsendring).ifPresent(linjer::add);
+        if (!linjer.isEmpty()) {
+            linjer.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
+        }
+        return linjer;
+    }
+
+    private Optional<HistorikkinnslagLinjeBuilder> lagHistorikkForInntektEndring(Lønnsendring lønnsendring,
+                                                                                 List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
         var nyArbeidsinntekt = lønnsendring.getNyArbeidsinntekt();
         var gammelArbeidsinntekt = lønnsendring.getGammelArbeidsinntekt();
-        HistorikkinnslagLinjeBuilder linjeBuilder = new HistorikkinnslagLinjeBuilder();
         if (nyArbeidsinntekt != null && !nyArbeidsinntekt.equals(gammelArbeidsinntekt)) {
+            var linjeBuilder = new HistorikkinnslagLinjeBuilder();
             if (AktivitetStatus.FRILANSER.equals(lønnsendring.getAktivitetStatus())) {
                 linjeBuilder.fraTil("Frilansinntekt", gammelArbeidsinntekt, nyArbeidsinntekt);
             } else {
@@ -53,16 +64,17 @@ public class InntektHistorikkTjeneste {
                     arbeidsforholdOverstyringer);
                 linjeBuilder.fraTil("Inntekt fra " + arbeidsforholdInfo, gammelArbeidsinntekt, nyArbeidsinntekt);
             }
+            return Optional.of(linjeBuilder);
         }
-        return linjeBuilder;
+        return Optional.empty();
     }
 
-    private HistorikkinnslagLinjeBuilder lagInntektskategoriInnslagHvisEndret(Lønnsendring endring) {
+    private Optional<HistorikkinnslagLinjeBuilder> lagInntektskategoriInnslagHvisEndret(Lønnsendring endring) {
         var nyInntektskategori = endring.getNyInntektskategori();
         if (nyInntektskategori != null && !nyInntektskategori.equals(endring.getGammelInntektskategori())) {
-            return new HistorikkinnslagLinjeBuilder().fraTil("Inntektskategori", null, fraInntektskategori(nyInntektskategori));
+            return Optional.of(new HistorikkinnslagLinjeBuilder().fraTil("Inntektskategori", null, fraInntektskategori(nyInntektskategori)));
         }
-        return null;
+        return Optional.empty();
     }
 
 

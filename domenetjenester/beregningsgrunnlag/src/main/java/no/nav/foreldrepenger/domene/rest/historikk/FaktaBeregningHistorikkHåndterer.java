@@ -111,14 +111,12 @@ public class FaktaBeregningHistorikkHåndterer {
                                      List<HistorikkinnslagLinjeBuilder> linjeBuilder,
                                      String begrunnelse) {
         linjeBuilder.add(new HistorikkinnslagLinjeBuilder().tekst(begrunnelse));
-        if (!linjeBuilder.isEmpty()) {
-            var historikkinnslag = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
-                .medBehandlingId(behandlingRef.behandlingId())
-                .medFagsakId(behandlingRef.fagsakId())
-                .medTittel(SkjermlenkeType.FAKTA_OM_BEREGNING)
-                .medLinjer(linjeBuilder)
-                .build();
-            historikkinnslagRepository.lagre(historikkinnslag);
-        }
+        var historikkinnslag = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medBehandlingId(behandlingRef.behandlingId())
+            .medFagsakId(behandlingRef.fagsakId())
+            .medTittel(SkjermlenkeType.FAKTA_OM_BEREGNING)
+            .medLinjer(linjeBuilder)
+            .build();
+        historikkinnslagRepository.lagre(historikkinnslag);
     }
 }
