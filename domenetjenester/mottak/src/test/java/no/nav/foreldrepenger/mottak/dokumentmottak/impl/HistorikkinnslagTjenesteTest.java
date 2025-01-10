@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
@@ -63,7 +62,7 @@ class HistorikkinnslagTjenesteTest {
         verify(historikkRepository, times(1)).lagre(captor.capture());
         var historikkinnslag = captor.getValue();
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SØKER);
-        assertThat(historikkinnslag.getTittel()).isEqualTo(HistorikkinnslagType.BEH_STARTET.getNavn());
+        assertThat(historikkinnslag.getTittel()).isEqualTo("Behandling er startet");
 
         var dokumentLinker = historikkinnslag.getDokumentLinker();
         assertThat(dokumentLinker).hasSize(2);
