@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.rest.historikk.tilfeller;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,10 +50,13 @@ public class VurderRefusjonHistorikkTjeneste extends FaktaOmBeregningHistorikkTj
         for (var vurderingDto : dto.getRefusjonskravGyldighet()) {
             var arbeidsgiver = finnArbeidsgiver(vurderingDto.getArbeidsgiverId());
             var frist = nyttBeregningsgrunnlag.getSkjæringstidspunkt();
+            var arbeidsgivernavn = arbeidsgiverHistorikkinnslag.lagTekstForArbeidsgiver(arbeidsgiver, iayGrunnlag.getArbeidsforholdOverstyringer());
             var forrige = finnForrigeVerdi(forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getRefusjonOverstyringer), arbeidsgiver, frist);
-            linjerBuilder.add(lagHistorikkInnslag(Boolean.TRUE.equals(vurderingDto.isSkalUtvideGyldighet()), forrige,
-                arbeidsgiverHistorikkinnslag.lagTekstForArbeidsgiver(arbeidsgiver, iayGrunnlag.getArbeidsforholdOverstyringer())));
-            linjerBuilder.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
+            var nyVerdi = Boolean.TRUE.equals(vurderingDto.isSkalUtvideGyldighet());
+            if (!Objects.equals(forrige, nyVerdi)) {
+                linjerBuilder.add(fraTilEquals("Utvidelse av frist for fremsatt refusjonskrav for " + arbeidsgivernavn, forrige, nyVerdi));
+                linjerBuilder.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
+            }
         }
         return linjerBuilder;
     }
@@ -74,10 +79,4 @@ public class VurderRefusjonHistorikkTjeneste extends FaktaOmBeregningHistorikkTj
         }
         return Arbeidsgiver.fra(new AktørId(identifikator));
     }
-
-    private HistorikkinnslagLinjeBuilder lagHistorikkInnslag(Boolean nyVerdi, Boolean forrige, String arbeidsgivernavn) {
-        return new HistorikkinnslagLinjeBuilder().fraTil("Utvidelse av frist for fremsatt refusjonskrav for " + arbeidsgivernavn, forrige,
-            nyVerdi);
-    }
-
 }

@@ -225,14 +225,14 @@ public class BehandlendeEnhetTjeneste {
                                                             HistorikkAktør aktør) {
         var eksisterende = behandling.getBehandlendeOrganisasjonsEnhet();
         var fraMessage = eksisterende != null ? eksisterende.enhetId() + " " + eksisterende.enhetNavn() : "ukjent";
-        var historikkinnslag = new Historikkinnslag.Builder()
-            .medAktør(aktør)
+        var builder = new Historikkinnslag.Builder().medAktør(aktør)
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())
             .medTittel("Bytt enhet")
-            .addLinje(fraTilEquals("Behandlende enhet", fraMessage, nyEnhet.enhetId() + " " + nyEnhet.enhetNavn()))
-            .addLinje(begrunnelse)
-            .build();
-        historikkinnslagRepository.lagre(historikkinnslag);
+            .addLinje(fraTilEquals("Behandlende enhet", fraMessage, nyEnhet.enhetId() + " " + nyEnhet.enhetNavn()));
+        if (begrunnelse != null && !begrunnelse.isEmpty()) {
+            builder.addLinje(begrunnelse);
+        }
+        historikkinnslagRepository.lagre(builder.build());
     }
 }
