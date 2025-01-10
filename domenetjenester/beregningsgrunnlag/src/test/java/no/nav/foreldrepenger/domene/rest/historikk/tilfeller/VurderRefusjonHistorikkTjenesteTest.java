@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.domene.rest.historikk.tilfeller;
 
 import static no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori.ARBEIDSTAKER;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -14,8 +14,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagOld;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagOld;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
@@ -108,15 +108,18 @@ class VurderRefusjonHistorikkTjenesteTest {
     }
 
     @Test
-    void kast_exception_når_fra_og_til_verdier_er_like() {
+    void ved_like_verdier_så_skal_ingen_historikkinnslaglinjer_generes() {
         //Arrange
         var forrige = lagBeregningsgrunnlagMedOverstyring(SKJÆRINGSTIDSPUNKT);
         var grunnlag = lagBeregningsgrunnlag();
         var dto = lagDto(true);
 
+        // Act
+        var linjer = vurderRefusjonHistorikkTjeneste.lagHistorikk(dto, grunnlag.getBeregningsgrunnlag().orElseThrow(),
+            Optional.of(forrige), InntektArbeidYtelseGrunnlagBuilder.nytt().build());
+
         //Assert
-        assertThrows(IllegalArgumentException.class, () -> vurderRefusjonHistorikkTjeneste.lagHistorikk(dto, grunnlag.getBeregningsgrunnlag().orElseThrow(),
-            Optional.of(forrige), InntektArbeidYtelseGrunnlagBuilder.nytt().build()));
+        assertThat(linjer).isEmpty();
     }
 
     @Test
