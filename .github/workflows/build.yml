@@ -29,6 +29,7 @@ jobs:
       t-2c: '-T 2C' # default:
       build-image: ${{ github.ref_name == 'master' }} # default: true
       push-image: ${{ github.ref_name == 'master' }} # default: false
+      use-reader: 'true'
     secrets: inherit
 
   fpsak-tester:
