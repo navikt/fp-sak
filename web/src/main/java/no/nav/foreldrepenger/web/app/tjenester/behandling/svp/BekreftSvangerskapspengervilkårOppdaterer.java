@@ -52,12 +52,14 @@ public class BekreftSvangerskapspengervilkårOppdaterer implements AksjonspunktO
 
     private void lagHistorikkinnslag(AksjonspunktOppdaterParameter param, String begrunnelse, boolean vilkårOppfylt) {
         var tilVerdi = vilkårOppfylt ? "Vilkåret er oppfylt" : "Vilkåret er ikke oppfylt";
-        historikkinnslagRepository.lagre(new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
+        var builder = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medBehandlingId(param.getBehandlingId())
             .medFagsakId(param.getFagsakId())
             .medTittel(SkjermlenkeType.PUNKT_FOR_SVANGERSKAPSPENGER)
-            .addLinje(new HistorikkinnslagLinjeBuilder().til("Svangerskapsvilkåret", tilVerdi))
-            .addLinje(begrunnelse)
-            .build());
+            .addLinje(new HistorikkinnslagLinjeBuilder().til("Svangerskapsvilkåret", tilVerdi));
+        if (begrunnelse != null && !begrunnelse.isEmpty()) {
+            builder.addLinje(begrunnelse);
+        }
+        historikkinnslagRepository.lagre(builder.build());
     }
 }
