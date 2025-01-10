@@ -12,12 +12,13 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 import org.hibernate.annotations.NaturalId;
 
 @Entity(name = "BehandlingDvh")
-@Table(name = "BEHANDLING_DVH")
+@Table(name = "BEHANDLING_DVH", schema = "FPSAK_HIST")
 public class BehandlingDvh implements Serializable {
 
     private static final String PAPIR_SØKNAD = "1";

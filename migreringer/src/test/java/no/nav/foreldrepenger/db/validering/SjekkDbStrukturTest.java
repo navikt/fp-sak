@@ -9,8 +9,11 @@ import javax.sql.DataSource;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.oracle.OracleContainer;
+import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.utility.MountableFile;
 
-import no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering;
+import no.nav.foreldrepenger.dbstoette.TestDatabaseInit;
 
 /**
  * Tester at alle migreringer følger standarder for navn og god praksis.
@@ -29,9 +32,12 @@ class SjekkDbStrukturTest {
 
     @BeforeAll
     public static void setup() {
-        Databaseskjemainitialisering.migrerUnittestSkjemaer();
-        ds = Databaseskjemainitialisering.initUnitTestDataSource();
-        schema = Databaseskjemainitialisering.DEFAULTDS_USER;
+        schema = TestDatabaseInit.DEFAULT_DS_SCHEMA;
+        var testDatabase = new OracleContainer(DockerImageName.parse(TestDatabaseInit.TEST_DB_CONTAINER))
+            .withCopyFileToContainer(MountableFile.forHostPath(TestDatabaseInit.DB_SETUP_SCRIPT_PATH), "/docker-entrypoint-initdb.d/init.sql")
+            .withReuse(true);
+        testDatabase.start();
+        ds = TestDatabaseInit.settOppDatasourceOgMigrer(testDatabase.getJdbcUrl(), "fpsak", "fpsak", schema);
     }
 
     @Test
@@ -48,7 +54,8 @@ class SjekkDbStrukturTest {
         try (var conn = ds.getConnection(); var stmt = conn.prepareStatement(sql); var rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                avvik.add(rs.getString(1));
+                if (!"flyway_schema_history".equals(rs.getString(1)))
+                    avvik.add(rs.getString(1));
             }
 
         }
@@ -81,7 +88,8 @@ class SjekkDbStrukturTest {
         try (var conn = ds.getConnection(); var stmt = conn.prepareStatement(sql); var rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                avvik.add("\n" + rs.getString(1));
+                if (!rs.getString(1).startsWith("flyway_schema_history"))
+                    avvik.add("\n" + rs.getString(1));
             }
 
         }

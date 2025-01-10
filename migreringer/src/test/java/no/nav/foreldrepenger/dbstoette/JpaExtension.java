@@ -1,24 +1,22 @@
 package no.nav.foreldrepenger.dbstoette;
 
-import static no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering.initUnitTestDataSource;
-import static no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering.migrerUnittestSkjemaer;
+import org.testcontainers.oracle.OracleContainer;
+import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.utility.MountableFile;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareExtension;
 
 public class JpaExtension extends EntityManagerAwareExtension {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JpaExtension.class);
-    static {
-        if (Environment.current().getProperty("maven.cmd.line.args") == null) {
-            LOG.info("Kjører IKKE under maven");
-            // prøver alltid migrering hvis endring, ellers funker det dårlig i IDE.
-            migrerUnittestSkjemaer();
-        }
-        initUnitTestDataSource();
-    }
+    private static final OracleContainer TEST_DATABASE;
 
+    static {
+        TEST_DATABASE = new OracleContainer(DockerImageName.parse(TestDatabaseInit.TEST_DB_CONTAINER))
+            .withCopyFileToContainer(MountableFile.forHostPath(TestDatabaseInit.DB_SETUP_SCRIPT_PATH), "/docker-entrypoint-initdb.d/init.sql")
+            .withReuse(true);
+        TEST_DATABASE.start();
+        var ds = TestDatabaseInit.settOppDatasourceOgMigrer(TEST_DATABASE.getJdbcUrl(), "fpsak", "fpsak", TestDatabaseInit.DEFAULT_DS_SCHEMA);
+        TestDatabaseInit.settOppDatasourceOgMigrer(TEST_DATABASE.getJdbcUrl(), "fpsak_hist", "fpsak_hist", "dvhDS");
+        TestDatabaseInit.settJdniOppslag(ds);
+    }
 }
