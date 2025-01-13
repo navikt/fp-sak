@@ -50,6 +50,7 @@ public class Historikkinnslag extends BaseCreateableEntitet {
     private String tittel;
 
     //TODO: Temp kolonne til bruk i migrering. Kan fjernes etter migrering fra tidligere tabell er utført
+    // Thao test
     @Column(name = "migrert_fra_id")
     private Long migrertFraId;
 
