@@ -48,7 +48,7 @@ public class HistorikkinnslagLinjeBuilder {
         if (t.isEmpty()) {
             throw new IllegalArgumentException("Tekst kan ikke være tom");
         }
-        stringBuilder.append(" ").append(t);
+        stringBuilder.append(" ").append(t.replaceAll("_{3,}", "---")); //Saksbehandler bruker ofte ___ som for å lage skillelinje i begrunnelsen når de løser AP. Kræsjer litt med vår __ bold syntaks
         return this;
     }
 

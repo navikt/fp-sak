@@ -112,7 +112,7 @@ public class HistorikkinnslagMigreringTask implements ProsessTaskHandler {
             if (linje.type() == HistorikkinnslagDtoV2.Linje.Type.LINJESKIFT) {
                 return HistorikkinnslagLinjeBuilder.LINJESKIFT;
             } else {
-                return new HistorikkinnslagLinjeBuilder().tekst(linje.tekst().replaceAll("_{3,}", "---"));
+                return new HistorikkinnslagLinjeBuilder().tekst(linje.tekst());
             }
         }).toList();
 
