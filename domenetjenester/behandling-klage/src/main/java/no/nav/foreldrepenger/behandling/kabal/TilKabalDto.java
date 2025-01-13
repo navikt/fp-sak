@@ -47,24 +47,7 @@ public record TilKabalDto(@NotNull Klager klager,
             hjemler, kommentar);
     }
 
-    public static TilKabalDto anke(Behandling behandling,
-                                   String kildereferanse,
-                                   @NotNull Klager klager,
-                                   @NotNull String forrigeBehandlendeEnhet, // Førsteinstans
-                                   @NotNull List<DokumentReferanse> tilknyttedeJournalposter,
-                                   @NotNull LocalDate brukersHenvendelseMottattNavDato, // Required Mottattdato?
-                                   @NotNull LocalDate innsendtTilNav, // Innsendingsdato?
-                                   @NotNull LocalDateTime sakMottattKaTidspunkt, // Tidspunkt KA skal ha fått vite om behandlingen
-                                   List<String> hjemler) {
-        return new TilKabalDto(klager, forrigeBehandlendeEnhet, tilknyttedeJournalposter,
-            brukersHenvendelseMottattNavDato, innsendtTilNav,
-            Fagsystem.FPSAK.getOffisiellKode(), kildereferanse, kildereferanse,
-            KlageAnke.ANKE, mapYtelseType(behandling), sakMottattKaTidspunkt, sakMottattKaTidspunkt.toLocalDate(),
-            new Sak(behandling.getSaksnummer().getVerdi(), Fagsystem.FPSAK.getOffisiellKode()),
-            hjemler, "");
-    }
-
-    public static record Sak(@NotNull String fagsakId, @NotNull String fagsystem) {}
+    public record Sak(@NotNull String fagsakId, @NotNull String fagsystem) {}
 
     public record Part(@NotNull PartsType type, @NotNull String verdi) {}
 
