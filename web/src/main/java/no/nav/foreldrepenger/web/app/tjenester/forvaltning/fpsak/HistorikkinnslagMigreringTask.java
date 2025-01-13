@@ -11,12 +11,13 @@ import jakarta.persistence.EntityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagOld;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDokumentLink;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagOldDokumentLink;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagOld;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagOldDokumentLink;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkV2Adapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkinnslagDtoV2;
@@ -115,12 +116,13 @@ public class HistorikkinnslagMigreringTask implements ProsessTaskHandler {
             }
         }).toList();
 
+        var bareLinjeskift = !linjer.isEmpty() && linjer.stream().allMatch(l -> l.getType() == HistorikkinnslagLinjeType.LINJESKIFT);
         var historikkinnslag2 = new Historikkinnslag.Builder().medAktør(hDtoV2.aktør().type())
             .medFagsakId(h.getFagsakId())
             .medBehandlingId(h.getBehandlingId())
             .medTittel(hDtoV2.tittel())
             .medTittel(hDtoV2.skjermlenke())
-            .medLinjer(linjer)
+            .medLinjer(bareLinjeskift ? List.of() : linjer)
             .medMigrertFraId(h.getId())
             .medDokumenter(dokumentLinker)
             .build();
