@@ -181,6 +181,9 @@ public class Historikkinnslag extends BaseCreateableEntitet {
             if (kladd.tittel == null && kladd.skjermlenke == null) {
                 throw new NullPointerException("Forventer å enten ha tittel eller skjermlenke");
             }
+            if (bareLinjeskift(internLinjer)) {
+                throw new IllegalStateException("Historikkinnslag inneholder bare linjeskift");
+            }
             fjernLeadingOgTrailingLinjeskift();
 
             for (var i = 0; i < internLinjer.size(); i++) {
@@ -194,6 +197,10 @@ public class Historikkinnslag extends BaseCreateableEntitet {
             var t = kladd;
             kladd = null;
             return t;
+        }
+
+        private static boolean bareLinjeskift(List<HistorikkinnslagLinjeBuilder> linjer) {
+            return !linjer.isEmpty() && linjer.stream().allMatch(l -> l.getType() == HistorikkinnslagLinjeType.LINJESKIFT);
         }
 
         private void fjernLeadingOgTrailingLinjeskift() {
