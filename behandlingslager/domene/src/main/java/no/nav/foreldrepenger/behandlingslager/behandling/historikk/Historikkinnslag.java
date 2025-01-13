@@ -147,7 +147,6 @@ public class Historikkinnslag extends BaseCreateableEntitet {
             return this;
         }
 
-
         public Builder medLinjer(List<HistorikkinnslagLinjeBuilder> linjer) {
             internLinjer = new ArrayList<>(linjer.stream().filter(Objects::nonNull).toList()); // fraTilEquals kan legger til null objekter
             return this;
