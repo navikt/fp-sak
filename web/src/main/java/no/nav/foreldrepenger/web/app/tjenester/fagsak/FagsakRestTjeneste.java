@@ -220,17 +220,17 @@ public class FagsakRestTjeneste {
         var fagsak = fagsakTjeneste.hentFagsakForSaksnummer(new Saksnummer(endreUtland.saksnummer())).orElse(null);
         if (fagsak != null) {
             var eksisterende = fagsakEgenskapRepository.finnFagsakMarkeringer(fagsak.getId());
-            var markeringerFraDto = getMarkeringer(endreUtland);
+            var nyeMarkeringer = getMarkeringer(endreUtland);
             // Sjekk om uendret merking (nasjonal er default)
-            if (eksisterende.size() == markeringerFraDto.size() && markeringerFraDto.containsAll(eksisterende)) {
+            if (eksisterende.size() == nyeMarkeringer.size() && nyeMarkeringer.containsAll(eksisterende)) {
                 return Response.ok().build();
             }
-            fagsakEgenskapRepository.lagreAlleFagsakMarkeringer(fagsak.getId(), getMarkeringer(endreUtland));
-            lagHistorikkInnslag(fagsak, eksisterende, getMarkeringer(endreUtland));
+            fagsakEgenskapRepository.lagreAlleFagsakMarkeringer(fagsak.getId(), nyeMarkeringer);
+            lagHistorikkInnslag(fagsak, eksisterende, nyeMarkeringer);
             var taskGruppe = new ProsessTaskGruppe();
             // Bytt enhet ved behov for åpne behandlinger - vil sørge for å oppdatere LOS
             var behandlingerSomBytterEnhet = fagsakTjeneste.hentÅpneBehandlinger(fagsak).stream()
-                .filter(b -> BehandlendeEnhetTjeneste.sjekkSkalOppdatereEnhet(b, getMarkeringer(endreUtland)).isPresent())
+                .filter(b -> BehandlendeEnhetTjeneste.sjekkSkalOppdatereEnhet(b, nyeMarkeringer).isPresent())
                 .toList();
             behandlingerSomBytterEnhet.stream().map(this::opprettOppdaterEnhetTask).forEach(taskGruppe::addNesteSekvensiell);
             // Oppdater LOS-oppgaver for andre tilfelle av endre saksmerking
@@ -289,7 +289,7 @@ public class FagsakRestTjeneste {
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(fagsak.getId())
             .medTittel("Fakta er endret")
-            .addLinje(fraTilEquals("Saksmarkering", fraVerdi, tilVerdi))
+            .addLinje(fraTilEquals("Saksmarkering", fraVerdi.isEmpty() ? null : fraVerdi, tilVerdi.isEmpty() ? null : tilVerdi))
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }
