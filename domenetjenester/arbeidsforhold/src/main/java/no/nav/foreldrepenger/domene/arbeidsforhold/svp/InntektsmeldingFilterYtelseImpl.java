@@ -67,9 +67,8 @@ public class InntektsmeldingFilterYtelseImpl implements InntektsmeldingFilterYte
     public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> aktiveArbeidsforholdFilter(BehandlingReferanse referanse,
                                                                                       Skjæringstidspunkt stp,
                                                                                       Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
-                                                                                      Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevde,
-                                                                                      boolean taHensynTilPermisjon) {
-        var kunAktive = InaktiveArbeidsforholdUtleder.finnKunAktive(påkrevde, inntektArbeidYtelseGrunnlag, referanse, stp, true);
+                                                                                      Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevde) {
+        var kunAktive = InaktiveArbeidsforholdUtleder.finnKunAktive(påkrevde, inntektArbeidYtelseGrunnlag, referanse, stp);
 
         // Legger inn alle arbeidsforhold det er søkt tilrettelegging i
         var arbeidsforholdFraSøknad = getArbeidsforholdSøktTilretteleggingI(referanse);
