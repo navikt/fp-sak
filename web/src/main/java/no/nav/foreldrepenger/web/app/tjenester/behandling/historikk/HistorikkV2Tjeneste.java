@@ -57,10 +57,22 @@ public class HistorikkV2Tjeneste {
             .stream()
             .map(ArkivJournalPost::getJournalpostId)
             .toList();
-        var historikkV1 = historikkRepositoryOld.hentHistorikkForSaksnummer(saksnummer).stream().map(h -> map(dokumentPath, h, journalPosterForSak));
-        var historikkV2 = historikkinnslagRepository.hent(saksnummer).stream().map(h -> map(dokumentPath, h, journalPosterForSak));
 
-        return Stream.concat(historikkV1, historikkV2).sorted(Comparator.comparing(HistorikkinnslagDtoV2::opprettetTidspunkt)).toList();
+        return hentIkkeDupliserteOgSorterHistorikkinnslag(saksnummer, dokumentPath, journalPosterForSak);
+    }
+
+    private List<HistorikkinnslagDtoV2> hentIkkeDupliserteOgSorterHistorikkinnslag(Saksnummer saksnummer,
+                                                                                   URI dokumentPath,
+                                                                                   List<JournalpostId> journalPosterForSak) {
+        var historikkV1FraRepo = historikkRepositoryOld.hentHistorikkForSaksnummer(saksnummer);
+                var historikkV2FraRepo = historikkinnslagRepository.hent(saksnummer);
+
+        var unikeHistorikkV1 = historikkV1FraRepo.stream()
+            .filter(h -> historikkV2FraRepo.stream().noneMatch(v2 -> Objects.equals(v2.getMigrertFraId(), h.getId())))
+            .map(h -> map(dokumentPath, h, journalPosterForSak));
+        var historikkV2 = historikkV2FraRepo.stream().map(h -> map(dokumentPath, h, journalPosterForSak));
+
+        return Stream.concat(unikeHistorikkV1, historikkV2).sorted(Comparator.comparing(HistorikkinnslagDtoV2::opprettetTidspunkt)).toList();
     }
 
     private HistorikkinnslagDtoV2 map(URI dokumentPath, HistorikkinnslagOld h, List<JournalpostId> journalPosterForSak) {
