@@ -1,10 +1,12 @@
 package no.nav.foreldrepenger.behandling.kabal;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -43,10 +45,10 @@ public class SendTilKabalTask extends BehandlingProsessTask {
             .map(KlageHjemmel::fraKode).orElse(null);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
-        switch (behandling.getType()) {
-            case KLAGE -> kabalTjeneste.sendKlageTilKabal(behandling, klagehjemmel);
-            case ANKE -> kabalTjeneste.sendAnkeTilKabal(behandling, klagehjemmel);
-            default -> throw new IllegalArgumentException("Utviklerfeil: Forsøker sende annen behandlingtype til KABAL");
+        if (BehandlingType.KLAGE.equals(behandling.getType())) {
+            kabalTjeneste.sendKlageTilKabal(behandling, klagehjemmel);
+        } else {
+            throw new IllegalArgumentException("Utviklerfeil: Forsøker sende annen behandlingtype til KABAL");
         }
     }
 }
