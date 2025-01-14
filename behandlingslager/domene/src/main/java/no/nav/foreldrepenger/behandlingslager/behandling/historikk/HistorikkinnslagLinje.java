@@ -13,12 +13,18 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 
 @Entity(name = "Historikkinnslag2Linje")
 @Table(name = "HISTORIKKINNSLAG2_LINJE")
 public class HistorikkinnslagLinje extends BaseCreateableEntitet implements IndexKey {
+
+
+    private static final Logger SECURE_LOG = LoggerFactory.getLogger("secureLogger");
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_HISTORIKKINNSLAG2_LINJE")
@@ -47,6 +53,7 @@ public class HistorikkinnslagLinje extends BaseCreateableEntitet implements Inde
     private void validerBoldMarkering(String tekst) {
         var antallBoldMarkører = tekst.split(Historikkinnslag.BOLD_MARKØR, -1).length -1;
         if (antallBoldMarkører % 2 == 1) {
+            SECURE_LOG.info("Ugyldig bold markering av tekst for tekstlinje: {}", tekst);
             throw new IllegalArgumentException("Ugyldig bold markering av tekst for tekstlinje");
         }
     }
