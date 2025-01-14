@@ -60,6 +60,9 @@ public class HistorikkinnslagLinjeBuilder {
         if (Objects.equals(fra, til)) {
             throw new IllegalArgumentException("Like verdier " + fra);
         }
+        if (hva.contains(BOLD_MARKØR)) {
+            throw new IllegalArgumentException("Hva verdi støtter ikke bold markør");
+        }
         if (fra == null) {
             return bold(hva).tekst("er satt til").bold(til);
         }
