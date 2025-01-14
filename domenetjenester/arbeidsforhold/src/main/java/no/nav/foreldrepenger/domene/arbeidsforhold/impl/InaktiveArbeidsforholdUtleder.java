@@ -46,23 +46,18 @@ public class InaktiveArbeidsforholdUtleder {
 
     public static Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> finnKunAktive(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger,
                                                                                 Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
-                                                                                BehandlingReferanse referanse, Skjæringstidspunkt stp,
-                                                                                boolean taHensynTilPermisjon) {
+                                                                                BehandlingReferanse referanse, Skjæringstidspunkt stp) {
         Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> kunAktiveArbeidsforhold = new HashMap<>();
 
+        var utledetStp = stp.getUtledetSkjæringstidspunkt();
         påkrevdeInntektsmeldinger.forEach((key, value) -> {
-            var erInaktivt = erInaktivt(key, inntektArbeidYtelseGrunnlag, referanse.aktørId(), stp.getUtledetSkjæringstidspunkt(),
+            var erInaktivt = erInaktivt(key, inntektArbeidYtelseGrunnlag, referanse.aktørId(), utledetStp,
                 referanse.saksnummer());
             if (!erInaktivt) {
                 List<InternArbeidsforholdRef> aktiveArbeidsforholdsRef = new ArrayList<>();
                 //Sjekker om hvert arbeidsforhold under virksomheten har registrert permisjon som overlapper skjæringstidspunkt. Fjerne de som har det
-                value.forEach(internArbeidsforholdRef -> {
-                    if (taHensynTilPermisjon) {
-                        if (!erIPermisjonPåStp(key, internArbeidsforholdRef, inntektArbeidYtelseGrunnlag, referanse.aktørId(),
-                            stp.getUtledetSkjæringstidspunkt())) {
-                            aktiveArbeidsforholdsRef.add(internArbeidsforholdRef);
-                        }
-                    } else {
+                value.forEach(internArbeidsforholdRef-> {
+                    if (!erIPermisjonPåStp(key, internArbeidsforholdRef, inntektArbeidYtelseGrunnlag, referanse.aktørId(), utledetStp)) {
                         aktiveArbeidsforholdsRef.add(internArbeidsforholdRef);
                     }
                 });
