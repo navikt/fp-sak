@@ -38,8 +38,8 @@ public class HistorikkinnslagLinjeBuilderTest {
 
     @Test
     void skal_lage_fra_til_med_beløp() {
-        var fra = HistorikkBelop.ofNullable(20000);
-        var til = HistorikkBelop.ofNullable(35000);
+        var fra = HistorikkBeløp.ofNullable(20000);
+        var til = HistorikkBeløp.ofNullable(35000);
         var hva = "Frilansinntekt";
         var linje = new HistorikkinnslagLinjeBuilder().fraTil(hva, fra, til).tilTekst();
 

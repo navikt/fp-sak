@@ -8,7 +8,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkBelop;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkBeløp;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningsgrunnlagPrStatusOgAndelEndring;
@@ -45,13 +45,13 @@ public class RefusjonHistorikkKalkulusTjeneste {
     private HistorikkinnslagLinjeBuilder opprettRefusjonHistorikkForArbeidstakerInntekt(List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer, BeregningsgrunnlagPrStatusOgAndelEndring andelEndring, RefusjonEndring refusjonEndring) {
         if (OpptjeningAktivitetType.ETTERLØNN_SLUTTPAKKE.equals(andelEndring.getArbeidsforholdType())) {
             return fraTilEquals("Fastsett søkers månedsinntekt fra etterlønn eller sluttpakke",
-                HistorikkBelop.ofNullable(refusjonEndring.fraRefusjon()), HistorikkBelop.ofNullable(refusjonEndring.tilRefusjon()));
+                HistorikkBeløp.ofNullable(refusjonEndring.fraRefusjon()), HistorikkBeløp.ofNullable(refusjonEndring.tilRefusjon()));
         }
 
         var arbeidsforholdInfo = andelEndring.getArbeidsgiver()
             .map(arbeidsgiver -> arbeidsgiverHistorikkinnslag.lagTekstForArbeidsgiver(arbeidsgiver, arbeidsforholdOverstyringer))
             .orElse(andelEndring.getAktivitetStatus().getNavn());
-        return fraTilEquals(String.format("Inntekt fra %s", arbeidsforholdInfo), HistorikkBelop.ofNullable(refusjonEndring.fraRefusjon()),
-            HistorikkBelop.ofNullable(refusjonEndring.tilRefusjon()));
+        return fraTilEquals(String.format("Inntekt fra %s", arbeidsforholdInfo), HistorikkBeløp.ofNullable(refusjonEndring.fraRefusjon()),
+            HistorikkBeløp.ofNullable(refusjonEndring.tilRefusjon()));
     }
 }

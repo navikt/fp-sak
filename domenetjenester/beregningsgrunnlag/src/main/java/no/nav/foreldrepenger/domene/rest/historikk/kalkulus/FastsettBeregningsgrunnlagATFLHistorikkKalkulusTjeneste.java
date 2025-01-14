@@ -10,7 +10,7 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkBelop;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkBeløp;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
@@ -85,7 +85,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkKalkulusTjeneste {
         }
 
         if (inntektFrilanser != null && !flAndeler.isEmpty()) {
-            historikkBuilder.addLinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Frilansinntekt", null, HistorikkBelop.ofNullable(inntektFrilanser)));
+            historikkBuilder.addLinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Frilansinntekt", null, HistorikkBeløp.ofNullable(inntektFrilanser)));
         }
 
         if (inntektPrAndelList != null) {
@@ -128,7 +128,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkKalkulusTjeneste {
                     var til = inntektEndring.tilBeløp();
                     if (fra == null || fra.compareTo(til) != 0) {
                         var textBuilder = new HistorikkinnslagLinjeBuilder();
-                        historikkBuilder.addLinje(textBuilder.fraTil(String.format("Inntekt fra %s", visningsNavn), HistorikkBelop.ofNullable(fra), HistorikkBelop.ofNullable(til)));
+                        historikkBuilder.addLinje(textBuilder.fraTil(String.format("Inntekt fra %s", visningsNavn), HistorikkBeløp.ofNullable(fra), HistorikkBeløp.ofNullable(til)));
                     }
                 });
             }
