@@ -118,8 +118,7 @@ public class FpInntektsmeldingTjeneste {
             .map(arbeidsgiver -> new OrganisasjonsnummerDto(arbeidsgiver.getOrgnr()))
             .toList();
         if (arbeidsgivereViManglerInntektsmeldingFra.isEmpty()) {
-            //Burde ikke skje - men kan skje om inntektsmeldinger kommer fra LPS eller altinn før vi rekker å opprette oppgave - logger warn inntil vi vet om dette er feil eller ok
-            LOG.warn("FpInntektsmeldingTjeneste:lagForespørsel: Ingen inntektsmeldinger mangler for sak {} og behandlingId {}", ref.saksnummer(), ref.behandlingId());
+            LOG.info("FpInntektsmeldingTjeneste:lagForespørsel: Ingen inntektsmeldinger mangler for sak {} og behandlingId {}", ref.saksnummer(), ref.behandlingId());
             return;
         }
         var skjæringstidspunkt = stp.getUtledetSkjæringstidspunkt();

@@ -21,6 +21,5 @@ public interface InntektsmeldingFilterYtelse {
     Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> aktiveArbeidsforholdFilter(BehandlingReferanse referanse,
                                                                                Skjæringstidspunkt stp,
                                                                                Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
-                                                                               Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevde,
-                                                                               boolean taHensynTilPermisjon);
+                                                                               Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevde);
 }

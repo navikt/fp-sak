@@ -11,11 +11,14 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
@@ -29,6 +32,8 @@ import no.nav.foreldrepenger.domene.rest.dto.FastsettBGTidsbegrensetArbeidsforho
 
 @ApplicationScoped
 public class FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste {
+
+    private final static Logger LOG = LoggerFactory.getLogger(FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste.class);
 
     private ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
@@ -131,7 +136,10 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste {
                                      BigDecimal forrigeFrilansInntekt) {
         List<HistorikkinnslagLinjeBuilder> linjeBuilderList = new ArrayList<>(oppdaterVedEndretVerdi(tilHistorikkInnslag));
         linjeBuilderList.addAll(oppdaterFrilansInntektVedEndretVerdi(forrigeFrilansInntekt, dto));
-        linjeBuilderList.add(new HistorikkinnslagLinjeBuilder().tekst(dto.getBegrunnelse()));
+        if (dto.getBegrunnelse().contains("__")) {
+            LOG.info("Historikk bold feil i begrunnelse");
+        }
+        linjeBuilderList.add(new HistorikkinnslagLinjeBuilder().tekst(dto.getBegrunnelse().replaceAll("__", "--")));
 
         var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
@@ -149,8 +157,11 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste {
         for (var entry : tilHistorikkInnslag.entrySet()) {
             var arbeidsforholdInfo = entry.getKey();
             var inntekter = entry.getValue();
+            if (arbeidsforholdInfo.contains("__")) {
+                LOG.info("Historikk bold feil i arbeidsforholdInfo");
+            }
             linjeBuilderList.add(
-                linjeBuilder.fraTil(String.format("Inntekt fra %s", arbeidsforholdInfo), null, formaterInntekter(inntekter)));
+                linjeBuilder.fraTil(String.format("Inntekt fra %s", arbeidsforholdInfo.replaceAll("__", "--")), null, formaterInntekter(inntekter)));
             linjeBuilderList.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
         }
         return linjeBuilderList;

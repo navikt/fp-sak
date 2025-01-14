@@ -95,27 +95,6 @@ public class KabalTjeneste {
         kabalKlient.sendTilKabal(request);
     }
 
-    public void sendAnkeTilKabal(Behandling ankeBehandling, KlageHjemmel hjemmel) {
-        if (!BehandlingType.ANKE.equals(ankeBehandling.getType())) {
-            throw new IllegalArgumentException("Utviklerfeil: Prøver sende noe annet enn klage/anke til Kabal!");
-        }
-        var ankeResultat = ankeVurderingTjeneste.hentAnkeResultat(ankeBehandling);
-        var klageBehandling = ankeResultat.getPåAnketKlageBehandlingId().map(behandlingRepository::hentBehandling);
-        var klageResultat = klageBehandling.flatMap(kb -> klageVurderingTjeneste.hentKlageResultatHvisEksisterer(kb));
-        var brukHjemmel = Optional.ofNullable(hjemmel)
-            .orElseGet(() -> KlageHjemmel.standardHjemmelForYtelse(ankeBehandling.getFagsakYtelseType()));
-        var enhet = utledEnhet(ankeBehandling.getFagsak());
-        var ankeMottattDato  = kabalDokumenter.utledDokumentMottattDato(ankeBehandling);
-        var klager = utledKlager(ankeBehandling, klageResultat);
-        var bleKlageBehandletKabal = klageResultat.filter(KlageResultatEntitet::erBehandletAvKabal).isPresent();
-        var kildereferanse = klageBehandling.filter(k -> bleKlageBehandletKabal).orElse(ankeBehandling).getUuid().toString();
-        var sakMottattKaDato = ankeBehandling.getOpprettetTidspunkt();
-        var dokumentReferanser = kabalDokumenter.finnDokumentReferanserForAnke(ankeBehandling.getId(), ankeResultat, bleKlageBehandletKabal);
-        var request = TilKabalDto.anke(ankeBehandling, kildereferanse, klager, enhet, dokumentReferanser,
-            ankeMottattDato, ankeMottattDato, sakMottattKaDato, List.of(brukHjemmel.getKabal()));
-        kabalKlient.sendTilKabal(request);
-    }
-
     public void lagreKlageUtfallFraKabal(Behandling behandling, KabalUtfall utfall) {
         var builder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(behandling, KlageVurdertAv.NK)
             .medKlageVurdering(klageVurderingFraUtfall(utfall))
