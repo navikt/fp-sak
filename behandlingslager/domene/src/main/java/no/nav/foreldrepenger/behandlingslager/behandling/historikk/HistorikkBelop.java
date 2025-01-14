@@ -1,24 +1,27 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.historikk;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-public record HistorikkBelop(BigDecimal beløp) {
-    public static HistorikkBelop valueOf(BigDecimal beløp) {
-        return new HistorikkBelop(beløp);
+public record HistorikkBelop(BigDecimal belop) {
+
+    public static HistorikkBelop ofNullable(BigDecimal belop) {
+        if (belop == null) {
+            return null;
+        }
+        return new HistorikkBelop(belop);
     }
 
-    public static HistorikkBelop valueOf(Integer beløp) {
-        return new HistorikkBelop(BigDecimal.valueOf(beløp));
+    public static HistorikkBelop ofNullable(Integer belop) {
+        if (belop == null) {
+            return null;
+        }
+        return new HistorikkBelop(BigDecimal.valueOf(belop));
     }
 
     @Override
     public String toString() {
-        var numberFormatter = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("nb-NO"));
-        numberFormatter.setRoundingMode(RoundingMode.HALF_UP);
-        numberFormatter.setMaximumFractionDigits(0);
-        return numberFormatter.format(beløp);
+        return NumberFormat.getIntegerInstance(new Locale("nb", "NO")).format(belop).concat(" kr");
     }
 }

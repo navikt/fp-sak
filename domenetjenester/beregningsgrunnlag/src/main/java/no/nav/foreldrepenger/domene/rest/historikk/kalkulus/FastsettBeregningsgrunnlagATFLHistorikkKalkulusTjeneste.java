@@ -85,7 +85,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkKalkulusTjeneste {
         }
 
         if (inntektFrilanser != null && !flAndeler.isEmpty()) {
-            historikkBuilder.addLinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Frilansinntekt", null, HistorikkBelop.valueOf(inntektFrilanser)));
+            historikkBuilder.addLinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Frilansinntekt", null, HistorikkBelop.ofNullable(inntektFrilanser)));
         }
 
         if (inntektPrAndelList != null) {
@@ -128,7 +128,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkKalkulusTjeneste {
                     var til = inntektEndring.tilBeløp();
                     if (fra == null || fra.compareTo(til) != 0) {
                         var textBuilder = new HistorikkinnslagLinjeBuilder();
-                        historikkBuilder.addLinje(textBuilder.fraTil(String.format("Inntekt fra %s", visningsNavn), HistorikkBelop.valueOf(fra), HistorikkBelop.valueOf(til)));
+                        historikkBuilder.addLinje(textBuilder.fraTil(String.format("Inntekt fra %s", visningsNavn), HistorikkBelop.ofNullable(fra), HistorikkBelop.ofNullable(til)));
                     }
                 });
             }

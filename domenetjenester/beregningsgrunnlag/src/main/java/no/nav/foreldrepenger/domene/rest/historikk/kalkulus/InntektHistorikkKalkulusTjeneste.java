@@ -41,13 +41,13 @@ public class InntektHistorikkKalkulusTjeneste {
     private HistorikkinnslagLinjeBuilder opprettInntektHistorikk(List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer, BeregningsgrunnlagPrStatusOgAndelEndring andelEndring, BeløpEndring beløpEndring) {
         if (andelEndring.getAktivitetStatus().erArbeidstaker() && OpptjeningAktivitetType.ETTERLØNN_SLUTTPAKKE.equals(andelEndring.getArbeidsforholdType())) {
             return fraTilEquals("Fastsett søkers månedsinntekt fra etterlønn eller sluttpakke",
-                HistorikkBelop.valueOf(beløpEndring.getFraMånedsbeløp()), HistorikkBelop.valueOf(beløpEndring.getTilMånedsbeløp()));
+                HistorikkBelop.ofNullable(beløpEndring.getFraMånedsbeløp()), HistorikkBelop.ofNullable(beløpEndring.getTilMånedsbeløp()));
         } else {
             var arbeidsforholdInfo = andelEndring.getArbeidsgiver()
                 .map(ag -> arbeidsgiverHistorikkinnslag.lagTekstForArbeidsgiver(ag, arbeidsforholdOverstyringer))
                 .orElse(andelEndring.getAktivitetStatus().getNavn());
-            return fraTilEquals(String.format("Inntekt fra %s", arbeidsforholdInfo), HistorikkBelop.valueOf(beløpEndring.getFraMånedsbeløp()),
-                HistorikkBelop.valueOf(beløpEndring.getTilMånedsbeløp()));
+            return fraTilEquals(String.format("Inntekt fra %s", arbeidsforholdInfo), HistorikkBelop.ofNullable(beløpEndring.getFraMånedsbeløp()),
+                HistorikkBelop.ofNullable(beløpEndring.getTilMånedsbeløp()));
         }
     }
 }

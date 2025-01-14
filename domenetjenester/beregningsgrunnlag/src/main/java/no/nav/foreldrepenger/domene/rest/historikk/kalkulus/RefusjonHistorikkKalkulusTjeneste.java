@@ -45,13 +45,13 @@ public class RefusjonHistorikkKalkulusTjeneste {
     private HistorikkinnslagLinjeBuilder opprettRefusjonHistorikkForArbeidstakerInntekt(List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer, BeregningsgrunnlagPrStatusOgAndelEndring andelEndring, RefusjonEndring refusjonEndring) {
         if (OpptjeningAktivitetType.ETTERLØNN_SLUTTPAKKE.equals(andelEndring.getArbeidsforholdType())) {
             return fraTilEquals("Fastsett søkers månedsinntekt fra etterlønn eller sluttpakke",
-                HistorikkBelop.valueOf(refusjonEndring.fraRefusjon()), HistorikkBelop.valueOf(refusjonEndring.tilRefusjon()));
+                HistorikkBelop.ofNullable(refusjonEndring.fraRefusjon()), HistorikkBelop.ofNullable(refusjonEndring.tilRefusjon()));
         }
 
         var arbeidsforholdInfo = andelEndring.getArbeidsgiver()
             .map(arbeidsgiver -> arbeidsgiverHistorikkinnslag.lagTekstForArbeidsgiver(arbeidsgiver, arbeidsforholdOverstyringer))
             .orElse(andelEndring.getAktivitetStatus().getNavn());
-        return fraTilEquals(String.format("Inntekt fra %s", arbeidsforholdInfo), HistorikkBelop.valueOf(refusjonEndring.fraRefusjon()),
-            HistorikkBelop.valueOf(refusjonEndring.tilRefusjon()));
+        return fraTilEquals(String.format("Inntekt fra %s", arbeidsforholdInfo), HistorikkBelop.ofNullable(refusjonEndring.fraRefusjon()),
+            HistorikkBelop.ofNullable(refusjonEndring.tilRefusjon()));
     }
 }

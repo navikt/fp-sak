@@ -163,8 +163,8 @@ public class HistorikkinnslagLinjeBuilder {
             case LocalDate localDate -> DATE_FORMATTER.format(localDate);
             case LocalDateInterval interval -> DATE_FORMATTER.format(interval.getFomDato()) + " - " + DATE_FORMATTER.format(interval.getTomDato());
             case AbstractLocalDateInterval interval -> DATE_FORMATTER.format(interval.getFomDato()) + " - " + DATE_FORMATTER.format(interval.getTomDato());
-            case BigDecimal bd -> bd.toString();
             case HistorikkBelop belop -> belop.toString();
+            case BigDecimal bd -> bd.toString();
             case Number n -> n.toString();
             case Boolean b -> b ? "Ja" : "Nei";
             case Kodeverdi k -> k.getNavn();

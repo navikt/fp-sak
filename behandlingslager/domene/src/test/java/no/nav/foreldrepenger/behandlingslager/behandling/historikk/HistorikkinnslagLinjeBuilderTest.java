@@ -38,12 +38,12 @@ public class HistorikkinnslagLinjeBuilderTest {
 
     @Test
     void skal_lage_fra_til_med_beløp() {
-        var fra = HistorikkBelop.valueOf(20000);
-        var til = HistorikkBelop.valueOf(35000);
+        var fra = HistorikkBelop.ofNullable(20000);
+        var til = HistorikkBelop.ofNullable(35000);
         var hva = "Frilansinntekt";
         var linje = new HistorikkinnslagLinjeBuilder().fraTil(hva, fra, til).tilTekst();
 
-        assertThat(linje).isEqualTo("__" + hva + "__ er endret fra 20 000 kr til __35 000 kr__");
+        assertThat(linje).isEqualTo("__" + hva + "__ er endret fra 20 000 kr til __35 000 kr__");
     }
 
     @Test
