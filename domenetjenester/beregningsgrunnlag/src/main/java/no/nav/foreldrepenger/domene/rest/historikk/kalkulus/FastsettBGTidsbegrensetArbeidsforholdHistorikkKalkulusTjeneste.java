@@ -132,10 +132,10 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste {
         historikkinnslagRepository.lagre(historikkinnslag);
     }
 
-    private List<HistorikkinnslagLinjeBuilder> oppdaterVedEndretVerdi(Map<String, List<Integer>> tilHistorikkInnslag) {
+    private static List<HistorikkinnslagLinjeBuilder> oppdaterVedEndretVerdi(Map<String, List<Integer>> tilHistorikkInnslag) {
         List<HistorikkinnslagLinjeBuilder> linjeBuilderList = new ArrayList<>();
-        HistorikkinnslagLinjeBuilder linjeBuilder = new HistorikkinnslagLinjeBuilder();
         for (var entry : tilHistorikkInnslag.entrySet()) {
+            var linjeBuilder = new HistorikkinnslagLinjeBuilder();
             var arbeidsforholdInfo = entry.getKey();
             var inntekter = entry.getValue();
             linjeBuilderList.add(
@@ -160,7 +160,7 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste {
         return linjeBuilderList;
     }
 
-    private String formaterInntekter(List<Integer> inntekter) {
+    private static String formaterInntekter(List<Integer> inntekter) {
         if (inntekter.size() > 1) {
             var inntekterString = inntekter.stream().map(String::valueOf).collect(Collectors.joining(", "));
             return inntekterString.substring(0, inntekterString.lastIndexOf(',')) + " og " + inntekterString.substring(

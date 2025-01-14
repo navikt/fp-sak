@@ -136,13 +136,9 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste {
                                      BigDecimal forrigeFrilansInntekt) {
         List<HistorikkinnslagLinjeBuilder> linjeBuilderList = new ArrayList<>(oppdaterVedEndretVerdi(tilHistorikkInnslag));
         linjeBuilderList.addAll(oppdaterFrilansInntektVedEndretVerdi(forrigeFrilansInntekt, dto));
-        if (dto.getBegrunnelse().contains("__")) {
-            LOG.info("Historikk bold feil i begrunnelse");
-        }
-        linjeBuilderList.add(new HistorikkinnslagLinjeBuilder().tekst(dto.getBegrunnelse().replaceAll("__", "--")));
+        linjeBuilderList.add(new HistorikkinnslagLinjeBuilder().tekst(dto.getBegrunnelse()));
 
-        var historikkinnslag = new Historikkinnslag.Builder()
-            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+        var historikkinnslag = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medBehandlingId(param.getBehandlingId())
             .medFagsakId(param.getRef().fagsakId())
             .medTittel(SkjermlenkeType.BEREGNING_FORELDREPENGER)
@@ -151,17 +147,14 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste {
         historikkinnslagRepository.lagre(historikkinnslag);
     }
 
-    private List<HistorikkinnslagLinjeBuilder> oppdaterVedEndretVerdi(Map<String, List<Integer>> tilHistorikkInnslag) {
-        HistorikkinnslagLinjeBuilder linjeBuilder = new HistorikkinnslagLinjeBuilder();
+    private static List<HistorikkinnslagLinjeBuilder> oppdaterVedEndretVerdi(Map<String, List<Integer>> tilHistorikkInnslag) {
         List<HistorikkinnslagLinjeBuilder> linjeBuilderList = new ArrayList<>();
         for (var entry : tilHistorikkInnslag.entrySet()) {
+            var linjeBuilder = new HistorikkinnslagLinjeBuilder();
             var arbeidsforholdInfo = entry.getKey();
             var inntekter = entry.getValue();
-            if (arbeidsforholdInfo.contains("__")) {
-                LOG.info("Historikk bold feil i arbeidsforholdInfo");
-            }
-            linjeBuilderList.add(
-                linjeBuilder.fraTil(String.format("Inntekt fra %s", arbeidsforholdInfo.replaceAll("__", "--")), null, formaterInntekter(inntekter)));
+            var hva = String.format("Inntekt fra %s", arbeidsforholdInfo);
+            linjeBuilderList.add(linjeBuilder.fraTil(hva, null, formaterInntekter(inntekter)));
             linjeBuilderList.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
         }
         return linjeBuilderList;
@@ -182,7 +175,7 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste {
         return linjeBuilderList;
     }
 
-    private String formaterInntekter(List<Integer> inntekter) {
+    private static String formaterInntekter(List<Integer> inntekter) {
         if (inntekter.size() > 1) {
             var inntekterString = inntekter.stream().map(String::valueOf).collect(Collectors.joining(", "));
             return inntekterString.substring(0, inntekterString.lastIndexOf(',')) + " og " + inntekterString.substring(
