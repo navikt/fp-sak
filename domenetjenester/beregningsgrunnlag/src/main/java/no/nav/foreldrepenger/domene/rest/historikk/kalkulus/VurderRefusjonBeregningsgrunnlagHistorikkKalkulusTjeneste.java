@@ -90,12 +90,9 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkKalkulusTjeneste {
     private Optional<BigDecimal> finnForrigeDelvisRefusjon(Optional<RefusjonoverstyringPeriodeEndring> forrigeMatchendeAndel) {
         // Hvis saksbehandletRefusjonPrÅr var > 0 i denne andelen som ligger i en periode før forrige startdato for refusjon
         // betyr det at det var tidligere innvilget delvis refusjon
-        var forrigeSaksbehandletRefusjonPrÅr = forrigeMatchendeAndel.map(RefusjonoverstyringPeriodeEndring::getFastsattDelvisRefusjonFørDatoEndring)
-            .flatMap(BeløpEndring::getFraBeløp);
-        if (forrigeSaksbehandletRefusjonPrÅr.isPresent() && forrigeSaksbehandletRefusjonPrÅr.get().compareTo(BigDecimal.ZERO) > 0) {
-            return forrigeSaksbehandletRefusjonPrÅr;
-        }
-        return Optional.empty();
+        return forrigeMatchendeAndel.map(RefusjonoverstyringPeriodeEndring::getFastsattDelvisRefusjonFørDatoEndring)
+            .map(BeløpEndring::fraBeløp)
+            .filter(forrigeSaksbehandletRefusjonPrÅr -> forrigeSaksbehandletRefusjonPrÅr.compareTo(BigDecimal.ZERO) > 0);
     }
 
     private Optional<LocalDate> finnForrigeRefusjonsstartForArbeidsforhold(Optional<RefusjonoverstyringPeriodeEndring> refusjonoverstyringEndring) {

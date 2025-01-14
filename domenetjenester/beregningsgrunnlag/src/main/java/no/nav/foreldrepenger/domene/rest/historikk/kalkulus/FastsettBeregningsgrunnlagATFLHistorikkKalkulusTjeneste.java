@@ -10,6 +10,7 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkBelop;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
@@ -84,7 +85,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkKalkulusTjeneste {
         }
 
         if (inntektFrilanser != null && !flAndeler.isEmpty()) {
-            historikkBuilder.addLinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Frilansinntekt", null, inntektFrilanser));
+            historikkBuilder.addLinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Frilansinntekt", null, HistorikkBelop.valueOf(inntektFrilanser)));
         }
 
         if (inntektPrAndelList != null) {
@@ -118,18 +119,18 @@ public class FastsettBeregningsgrunnlagATFLHistorikkKalkulusTjeneste {
         var arbeidsforholOverstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId)
             .getArbeidsforholdOverstyringer();
         for (var endretAndel : arbeidstakerList) {
-            if (endretAndel != null && endretAndel.getInntektEndring().isPresent()) {
-                var visningsNavn = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(
-                    endretAndel.getAktivitetStatus(),
-                    endretAndel.getArbeidsgiver(),
-                    Optional.ofNullable(endretAndel.getArbeidsforholdRef()),
-                    arbeidsforholOverstyringer);
-                var fra = endretAndel.getInntektEndring().get().getFraBeløp();
-                var til = endretAndel.getInntektEndring().get().getTilBeløp();
-                if (fra.isEmpty() || fra.get().compareTo(til) != 0) {
-                    var textBuilder = new HistorikkinnslagLinjeBuilder();
-                    historikkBuilder.addLinje(textBuilder.fraTil(String.format("Inntekt fra %s", visningsNavn), fra.orElse(null), til));
-                }
+            if (endretAndel != null) {
+                endretAndel.getInntektEndring().ifPresent(inntektEndring -> {
+                    var visningsNavn = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(
+                        endretAndel.getAktivitetStatus(), endretAndel.getArbeidsgiver(), Optional.ofNullable(endretAndel.getArbeidsforholdRef()),
+                        arbeidsforholOverstyringer);
+                    var fra = inntektEndring.fraBeløp();
+                    var til = inntektEndring.tilBeløp();
+                    if (fra == null || fra.compareTo(til) != 0) {
+                        var textBuilder = new HistorikkinnslagLinjeBuilder();
+                        historikkBuilder.addLinje(textBuilder.fraTil(String.format("Inntekt fra %s", visningsNavn), HistorikkBelop.valueOf(fra), HistorikkBelop.valueOf(til)));
+                    }
+                });
             }
         }
     }
