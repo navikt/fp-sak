@@ -35,8 +35,7 @@ public class InntektsmeldingFilterYtelseImpl implements InntektsmeldingFilterYte
     public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> aktiveArbeidsforholdFilter(BehandlingReferanse referanse,
                                                                                       Skjæringstidspunkt skjæringstidspunkt,
                                                                                       Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
-                                                                                      Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevde,
-                                                                                      boolean taHensynTilPermisjon) {
-        return InaktiveArbeidsforholdUtleder.finnKunAktive(påkrevde, inntektArbeidYtelseGrunnlag, referanse, skjæringstidspunkt, taHensynTilPermisjon);
+                                                                                      Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevde) {
+        return InaktiveArbeidsforholdUtleder.finnKunAktive(påkrevde, inntektArbeidYtelseGrunnlag, referanse, skjæringstidspunkt);
     }
 }
