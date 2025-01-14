@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkBeløp;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
@@ -59,7 +60,7 @@ public class BeregningOverstyringshåndterer implements Overstyringshåndterer<O
                 .medFagsakId(behandling.getFagsakId())
                 .medBehandlingId(behandlingId)
                 .medTittel(SkjermlenkeType.BEREGNING_ENGANGSSTOENAD)
-                .addLinje(fraTilEquals("__Overstyrt beregning:__ Beløpet", fraBeregning, tilBeregning))
+                .addLinje(fraTilEquals("Overstyrt beregning: Beløpet", HistorikkBeløp.ofNullable(fraBeregning), HistorikkBeløp.of(tilBeregning)) )
                 .addLinje(begrunnelse)
                 .build();
             historikkinnslagRepository.lagre(historikkinnslag);
