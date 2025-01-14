@@ -16,18 +16,17 @@ import java.util.UUID;
 
 import jakarta.ws.rs.core.UriBuilder;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagOld;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagOldDokumentLink;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagOld;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagOldDokumentLink;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTotrinnsvurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageAvvistÅrsak;
@@ -319,19 +318,22 @@ public class HistorikkV2Adapter {
     }
 
     private static String byggEndretFeltTekstForAktivitetskravMal(HistorikkinnslagDel del) {
-        var felt = del.getEndredeFelt().stream()
+        var avklaringOpt = del.getEndredeFelt().stream()
             .filter(e -> FeltNavnType.AKTIVITETSKRAV_AVKLARING.getKey().equals(e.getKlTilVerdi()))
-            .findFirst()
-            .orElseThrow();
+            .findFirst();
 
-        var tilVerdiNavn = endretVerdiTilTekst(felt.getTilVerdiKode(), felt.getKlTilVerdi());
         var periodeFom = periodeFraDel(del, "UTTAK_PERIODE_FOM");
         var periodeTom = periodeFraDel(del, "UTTAK_PERIODE_TOM");
 
-        if (felt.getFraVerdi() == null) {
+        if (avklaringOpt.isEmpty()) {
+            return String.format("Perioden __%s - %s__ er avklart", periodeFom, periodeTom);
+        }
+        var avklaring = avklaringOpt.get();
+        var tilVerdiNavn = endretVerdiTilTekst(avklaring.getTilVerdiKode(), avklaring.getKlTilVerdi());
+        if (avklaring.getFraVerdi() == null) {
             return String.format("Perioden __%s - %s__ er avklart til __%s__", periodeFom, periodeTom, tilVerdiNavn);
         } else {
-            var fraVerdi = endretVerdiTilTekst(felt.getFraVerdiKode(), felt.getKlFraVerdi());
+            var fraVerdi = endretVerdiTilTekst(avklaring.getFraVerdiKode(), avklaring.getKlFraVerdi());
             return String.format("Perioden __%s - %s__ er endret fra %s til __%s__", periodeFom, periodeTom, fraVerdi, tilVerdiNavn);
         }
     }
