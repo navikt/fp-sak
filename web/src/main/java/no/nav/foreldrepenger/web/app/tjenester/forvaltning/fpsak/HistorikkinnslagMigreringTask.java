@@ -59,8 +59,7 @@ public class HistorikkinnslagMigreringTask implements ProsessTaskHandler {
             try {
                 migrer(h);
             } catch (Exception e) {
-                LOG.info("Historikkinnslag som feilet er {}", h.getId());
-                throw e;
+                LOG.info("Historikkinnslag som feilet er {}", h.getId(), e);
             }
         });
 
