@@ -83,6 +83,8 @@ class InntektsmeldingTjenesteTest {
     private final AtomicLong journalpostIdInc = new AtomicLong(123);
     private final ArbeidsforholdTjenesteMock arbeidsforholdTjenesteMock = new ArbeidsforholdTjenesteMock(false);
 
+    private final
+
     @BeforeEach
     void setUp(EntityManager entityManager) {
         behandlingRepository = new BehandlingRepository(entityManager);
@@ -133,6 +135,47 @@ class InntektsmeldingTjenesteTest {
 
         var inntektsmeldingArkivTjenesteSvp = new InntektsmeldingRegisterTjeneste(iayTjeneste,
                 inntektsmeldingTjeneste, arbeidsforholdTjenesteMock.getMock(), new UnitTestLookupInstanceImpl<>(svpengerFilter));
+        // Act+Assert
+        assertThat(inntektsmeldingArkivTjenesteSvp.utledManglendeInntektsmeldingerFraAAreg(behandlingReferanse, skjæringstidspunkt)).isNotEmpty();
+
+        lagreInntektsmelding(I_DAG.minusDays(2), behandling, arbId1Intern, ARBEIDSFORHOLD_ID_EKSTERN);
+
+        // Act+Assert
+        assertThat(inntektsmeldingArkivTjenesteSvp.utledManglendeInntektsmeldingerFraAAreg(behandlingReferanse, skjæringstidspunkt)).isEmpty();
+    }
+
+    @Test
+    void skal_ikke_ta_med_arbeidsforhold_det_ikke_er_søkt_for_når_manglende_im_utledes_for_svp_nytt_endepunkt() {
+        // Arrange
+        var arbId1Intern = ARBEIDSFORHOLD_ID;
+
+        var ARBEIDSFORHOLD_ID_2 = InternArbeidsforholdRef.ref("a6ea6724-868f-11e9-bc42-526af7764f64");
+
+        var virksomhet1 = lagVirksomhet();
+
+        this.arbeidsgiver = Arbeidsgiver.virksomhet(virksomhet1.getOrgnr());
+
+        var virksomhetTjeneste = mock(VirksomhetTjeneste.class);
+        when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(virksomhet1);
+
+        var behandling = opprettBehandling();
+        opprettOppgittOpptjening(behandling);
+        opprettInntektArbeidYtelseAggregatForYrkesaktivitet(behandling, AKTØRID,
+            DatoIntervallEntitet.fraOgMedTilOgMed(ARBEIDSFORHOLD_FRA, ARBEIDSFORHOLD_TIL),
+            arbId1Intern, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN);
+        opprettInntektArbeidYtelseAggregatForYrkesaktivitet(behandling, AKTØRID,
+            DatoIntervallEntitet.fraOgMedTilOgMed(ARBEIDSFORHOLD_FRA, ARBEIDSFORHOLD_TIL), ARBEIDSFORHOLD_ID_2, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN);
+
+        var behandlingReferanse = lagReferanse(behandling);
+
+        var svangerskapspengerRepositoryMock = mock(SvangerskapspengerRepository.class);
+        var svpGrunnlag = byggSvpGrunnlag(behandling, virksomhet1.getOrgnr());
+        when(svangerskapspengerRepositoryMock.hentGrunnlag(behandling.getId())).thenReturn(Optional.ofNullable(svpGrunnlag));
+
+        var svpengerFilter = new InntektsmeldingFilterYtelseImpl(svangerskapspengerRepositoryMock);
+
+        var inntektsmeldingArkivTjenesteSvp = new InntektsmeldingRegisterTjeneste(iayTjeneste,
+            inntektsmeldingTjeneste, arbeidsforholdTjenesteMock.getMock(), new UnitTestLookupInstanceImpl<>(svpengerFilter));
         // Act+Assert
         assertThat(inntektsmeldingArkivTjenesteSvp.utledManglendeInntektsmeldingerFraAAreg(behandlingReferanse, skjæringstidspunkt)).isNotEmpty();
 
