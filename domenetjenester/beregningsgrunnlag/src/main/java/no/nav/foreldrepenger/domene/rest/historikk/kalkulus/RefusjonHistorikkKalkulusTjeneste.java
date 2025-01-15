@@ -2,13 +2,13 @@ package no.nav.foreldrepenger.domene.rest.historikk.kalkulus;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkBeløp;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningsgrunnlagPrStatusOgAndelEndring;
@@ -33,7 +33,8 @@ public class RefusjonHistorikkKalkulusTjeneste {
         this.arbeidsgiverHistorikkinnslag = arbeidsgiverHistorikkinnslag;
     }
 
-    public Optional<HistorikkinnslagLinjeBuilder> lagHistorikkOmEndret(List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer, BeregningsgrunnlagPrStatusOgAndelEndring andelEndring) {
+    public Optional<HistorikkinnslagLinjeBuilder> lagHistorikkOmEndret(List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer,
+                                                                       BeregningsgrunnlagPrStatusOgAndelEndring andelEndring) {
         if (!andelEndring.getAktivitetStatus().erArbeidstaker()) {
             return Optional.empty();
         }
@@ -43,20 +44,14 @@ public class RefusjonHistorikkKalkulusTjeneste {
 
     private HistorikkinnslagLinjeBuilder opprettRefusjonHistorikkForArbeidstakerInntekt(List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer, BeregningsgrunnlagPrStatusOgAndelEndring andelEndring, RefusjonEndring refusjonEndring) {
         if (OpptjeningAktivitetType.ETTERLØNN_SLUTTPAKKE.equals(andelEndring.getArbeidsforholdType())) {
-            return fraTilEquals("Fastsett søkers månedsinntekt fra etterlønn eller sluttpakke", refusjonEndring.getFraRefusjon(), refusjonEndring.getTilRefusjon());
+            return fraTilEquals("Fastsett søkers månedsinntekt fra etterlønn eller sluttpakke",
+                HistorikkBeløp.ofNullable(refusjonEndring.fraRefusjon()), HistorikkBeløp.ofNullable(refusjonEndring.tilRefusjon()));
         }
 
-        var arbeidsforholdInfo = andelEndring.getArbeidsgiver().isPresent()
-            ? arbeidsgiverHistorikkinnslag.lagTekstForArbeidsgiver(andelEndring.getArbeidsgiver().get(), arbeidsforholdOverstyringer)
-            : andelEndring.getAktivitetStatus().getNavn();
-        return fraTilEquals(
-            String.format("Inntekt fra %s", arbeidsforholdInfo),
-            tilInt(refusjonEndring.getFraRefusjon()),
-            tilInt(refusjonEndring.getTilRefusjon()));
+        var arbeidsforholdInfo = andelEndring.getArbeidsgiver()
+            .map(arbeidsgiver -> arbeidsgiverHistorikkinnslag.lagTekstForArbeidsgiver(arbeidsgiver, arbeidsforholdOverstyringer))
+            .orElse(andelEndring.getAktivitetStatus().getNavn());
+        return fraTilEquals(String.format("Inntekt fra %s", arbeidsforholdInfo), HistorikkBeløp.ofNullable(refusjonEndring.fraRefusjon()),
+            HistorikkBeløp.ofNullable(refusjonEndring.tilRefusjon()));
     }
-
-    private Integer tilInt(BigDecimal bdBeløp) {
-        return bdBeløp == null ? null : bdBeløp.intValue();
-    }
-
 }

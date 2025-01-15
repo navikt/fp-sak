@@ -84,6 +84,10 @@ public class HistorikkinnslagLinjeBuilder {
         return fraTil(hva, format(fra), format(til));
     }
 
+    public HistorikkinnslagLinjeBuilder fraTil(String hva, HistorikkBeløp fra, HistorikkBeløp til) {
+        return fraTil(hva, format(fra), format(til));
+    }
+
     public HistorikkinnslagLinjeBuilder fraTil(String hva, LocalDate fra, LocalDate til) {
         return fraTil(hva, format(fra), format(til));
     }
@@ -127,6 +131,10 @@ public class HistorikkinnslagLinjeBuilder {
         return fraTilEquals(hva, format(fra), format(til));
     }
 
+    public static HistorikkinnslagLinjeBuilder fraTilEquals(String hva, HistorikkBeløp fra, HistorikkBeløp til) {
+        return fraTilEquals(hva, format(fra), format(til));
+    }
+
     public static HistorikkinnslagLinjeBuilder fraTilEquals(String hva, Boolean fra, boolean til) {
         return fraTilEquals(hva, format(fra), format(til));
     }
@@ -155,6 +163,7 @@ public class HistorikkinnslagLinjeBuilder {
             case LocalDate localDate -> DATE_FORMATTER.format(localDate);
             case LocalDateInterval interval -> DATE_FORMATTER.format(interval.getFomDato()) + " - " + DATE_FORMATTER.format(interval.getTomDato());
             case AbstractLocalDateInterval interval -> DATE_FORMATTER.format(interval.getFomDato()) + " - " + DATE_FORMATTER.format(interval.getTomDato());
+            case HistorikkBeløp beløp -> beløp.toString();
             case BigDecimal bd -> bd.toString();
             case Number n -> n.toString();
             case Boolean b -> b ? "Ja" : "Nei";

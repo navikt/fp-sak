@@ -2,19 +2,18 @@ package no.nav.foreldrepenger.domene.rest.historikk.kalkulus;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkBeløp;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeløpEndring;
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningsgrunnlagPrStatusOgAndelEndring;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
-import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.rest.historikk.ArbeidsgiverHistorikkinnslag;
 
 /**
@@ -34,31 +33,21 @@ public class InntektHistorikkKalkulusTjeneste {
         this.arbeidsgiverHistorikkinnslag = arbeidsgiverHistorikkinnslag;
     }
 
-    public Optional<HistorikkinnslagLinjeBuilder> lagHistorikkOmEndret(List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer, BeregningsgrunnlagPrStatusOgAndelEndring andelEndring) {
-        return andelEndring.getInntektEndring()
-            .map(endring -> opprettInntektHistorikk(arbeidsforholdOverstyringer, andelEndring, endring));
+    public Optional<HistorikkinnslagLinjeBuilder> lagHistorikkOmEndret(List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer,
+                                                                       BeregningsgrunnlagPrStatusOgAndelEndring andelEndring) {
+        return andelEndring.getInntektEndring().map(endring -> opprettInntektHistorikk(arbeidsforholdOverstyringer, andelEndring, endring));
     }
 
     private HistorikkinnslagLinjeBuilder opprettInntektHistorikk(List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer, BeregningsgrunnlagPrStatusOgAndelEndring andelEndring, BeløpEndring beløpEndring) {
         if (andelEndring.getAktivitetStatus().erArbeidstaker() && OpptjeningAktivitetType.ETTERLØNN_SLUTTPAKKE.equals(andelEndring.getArbeidsforholdType())) {
-            return fraTilEquals("Fastsett søkers månedsinntekt fra etterlønn eller sluttpakke", beløpEndring.getFraMånedsbeløp(), beløpEndring.getTilMånedsbeløp());
-        } else if (andelEndring.getAktivitetStatus().erFrilanser()) {
-            return fraTilEquals("Frilans inntekt", beløpEndring.getFraMånedsbeløp(), beløpEndring.getTilMånedsbeløp());
-        } else if (AktivitetStatus.DAGPENGER.equals(andelEndring.getAktivitetStatus())) {
-            return fraTilEquals("Dagpenger", beløpEndring.getFraMånedsbeløp(), beløpEndring.getTilMånedsbeløp());
+            return fraTilEquals("Fastsett søkers månedsinntekt fra etterlønn eller sluttpakke",
+                HistorikkBeløp.ofNullable(beløpEndring.getFraMånedsbeløp()), HistorikkBeløp.ofNullable(beløpEndring.getTilMånedsbeløp()));
         } else {
-            var arbeidsforholdInfo = andelEndring.getArbeidsgiver().isPresent()
-                ? arbeidsgiverHistorikkinnslag.lagTekstForArbeidsgiver(andelEndring.getArbeidsgiver().get(), arbeidsforholdOverstyringer)
-                : andelEndring.getAktivitetStatus().getNavn();
-            return fraTilEquals(
-                String.format("Inntekt fra arbeidsforhold %s", arbeidsforholdInfo),
-                tilInt(beløpEndring.getFraMånedsbeløp()),
-                tilInt(beløpEndring.getTilMånedsbeløp())
-            );
+            var arbeidsforholdInfo = andelEndring.getArbeidsgiver()
+                .map(ag -> arbeidsgiverHistorikkinnslag.lagTekstForArbeidsgiver(ag, arbeidsforholdOverstyringer))
+                .orElse(andelEndring.getAktivitetStatus().getNavn());
+            return fraTilEquals(String.format("Inntekt fra %s", arbeidsforholdInfo), HistorikkBeløp.ofNullable(beløpEndring.getFraMånedsbeløp()),
+                HistorikkBeløp.ofNullable(beløpEndring.getTilMånedsbeløp()));
         }
-    }
-
-    private static Integer tilInt(BigDecimal bdBeløp) {
-        return bdBeløp == null ? null : bdBeløp.intValue();
     }
 }

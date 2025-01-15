@@ -78,7 +78,7 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste {
             .filter(a -> a.getAktivitetStatus().erFrilanser())
             .findFirst()
             .flatMap(BeregningsgrunnlagPrStatusOgAndelEndring::getInntektEndring)
-            .flatMap(BeløpEndring::getFraBeløp)
+            .map(BeløpEndring::fraBeløp)
             .orElse(null);
 
         lagHistorikkInnslag(dto, param, arbeidsforholdInntekterMap, forrigeOverstyrtFrilansinntekt);

@@ -27,27 +27,37 @@ public class HistorikkinnslagLinjeBuilderTest {
     }
 
     @Test
-    void skal_lage_beløp_fra_til() {
-        var fra = 20000;
-        var til = 35000;
-        var hva = "Frilansinntekt";
-        var tall = new HistorikkinnslagLinjeBuilder().fraTil(hva, fra, til).tilTekst();
+    void skal_lage_fra_til_med_tall() {
+        var fra = 2;
+        var til = 3;
+        var hva = "Antall barn";
+        var linje = new HistorikkinnslagLinjeBuilder().fraTil(hva, fra, til).tilTekst();
 
-        assertThat(tall).isEqualTo("__" + hva + "__ er endret fra " + fra + " til __" + til + "__");
+        assertThat(linje).isEqualTo("__" + hva + "__ er endret fra 2 til __3__");
     }
 
     @Test
-    void skal_lage_kodeverdi_fra_til() {
+    void skal_lage_fra_til_med_beløp() {
+        var fra = HistorikkBeløp.ofNullable(20000);
+        var til = HistorikkBeløp.ofNullable(35000);
+        var hva = "Frilansinntekt";
+        var linje = new HistorikkinnslagLinjeBuilder().fraTil(hva, fra, til).tilTekst();
+
+        assertThat(linje).isEqualTo("__" + hva + "__ er endret fra 20 000 kr til __35 000 kr__");
+    }
+
+    @Test
+    void skal_lage_fra_til_med_kodeverdi() {
         var fra = OppholdÅrsak.MØDREKVOTE_ANNEN_FORELDER;
         var til = OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER;
         var hva = "Stønadskontotype";
-        var forventet = new HistorikkinnslagLinjeBuilder().fraTil(hva, fra, til).tilTekst();
+        var linje = new HistorikkinnslagLinjeBuilder().fraTil(hva, fra, til).tilTekst();
 
-        assertThat(forventet).isEqualTo("__" + hva + "__ er endret fra " + fra.getNavn() + " til __" + til.getNavn() + "__");
+        assertThat(linje).isEqualTo("__" + hva + "__ er endret fra " + fra.getNavn() + " til __" + til.getNavn() + "__");
     }
 
     @Test
-    void skal_lage_boolean_fra_til() {
+    void skal_lage_fra_til_med_boolean() {
         var hva = "Mor mottar uføretrygd";
         var forventet = new HistorikkinnslagLinjeBuilder().fraTil(hva, true, false).tilTekst();
 
@@ -55,12 +65,12 @@ public class HistorikkinnslagLinjeBuilderTest {
     }
 
     @Test
-    void skal_lage_dato_til() {
+    void skal_lage_til_med_dato() {
         var hva = "Innflyttingsdato";
         var til = LocalDate.now();
-        var forventet = new HistorikkinnslagLinjeBuilder().fraTil(hva, null, til).tilTekst();
+        var linje = new HistorikkinnslagLinjeBuilder().fraTil(hva, null, til).tilTekst();
 
-        assertThat(forventet).isEqualTo("__" + hva + "__ er satt til __" + DATE_FORMATTER.format(til) + "__");
+        assertThat(linje).isEqualTo("__" + hva + "__ er satt til __" + DATE_FORMATTER.format(til) + "__");
     }
 
     @Test
