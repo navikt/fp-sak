@@ -48,7 +48,7 @@ public class FpinntektsmeldingKlient {
             var rrequest = RestRequest.newPOSTJson(request, uriOpprettForesporsel, restConfig);
            return restClient.send(rrequest, OpprettForespørselResponsNy.class);
         } catch (Exception e) {
-            LOG.warn("Feil ved overstyring av inntektsmelding med request: {}", request);
+            LOG.warn("Feil ved opprettelse av inntektsmelding med request: {}", request);
             throw feilVedKallTilFpinntektsmelding(e.getMessage());
         }
     }
