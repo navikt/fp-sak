@@ -1,11 +1,10 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.historikk;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.assertThatNoException;
 
 class HistorikkinnslagLinjeTest {
 
@@ -20,7 +19,7 @@ class HistorikkinnslagLinjeTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"en_tekst__", "Overstyrt vurdering fra __0,5__ til __1,7_.", "Endret adresse type til __Bostedsadresse"})
-    void kast_feil_for_ugyldig_bold_syntax(String tekst) {
-        assertThatIllegalArgumentException().isThrownBy(() -> HistorikkinnslagLinje.tekst(tekst, 1));
+    void ikke_kast_feil_for_ugyldig_bold_syntax(String tekst) {
+        assertThatNoException().isThrownBy(() -> HistorikkinnslagLinje.tekst(tekst, 1));
     }
 }
