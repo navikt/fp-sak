@@ -6,6 +6,12 @@ import java.util.Locale;
 
 public record HistorikkBeløp(BigDecimal beløp) {
 
+    public HistorikkBeløp {
+        if (beløp == null) {
+            throw new IllegalArgumentException("Beløp cannot be null");
+        }
+    }
+
     public static HistorikkBeløp ofNullable(BigDecimal beløp) {
         if (beløp == null) {
             return null;
@@ -17,6 +23,25 @@ public record HistorikkBeløp(BigDecimal beløp) {
         if (beløp == null) {
             return null;
         }
+        return new HistorikkBeløp(BigDecimal.valueOf(beløp));
+    }
+
+    public static HistorikkBeløp ofNullable(Long beløp) {
+        if (beløp == null) {
+            return null;
+        }
+        return new HistorikkBeløp(BigDecimal.valueOf(beløp));
+    }
+
+    public static HistorikkBeløp of(BigDecimal beløp) {
+        return new HistorikkBeløp(beløp);
+    }
+
+    public static HistorikkBeløp of(Integer beløp) {
+        return new HistorikkBeløp(BigDecimal.valueOf(beløp));
+    }
+
+    public static HistorikkBeløp of(Long beløp) {
         return new HistorikkBeløp(BigDecimal.valueOf(beløp));
     }
 

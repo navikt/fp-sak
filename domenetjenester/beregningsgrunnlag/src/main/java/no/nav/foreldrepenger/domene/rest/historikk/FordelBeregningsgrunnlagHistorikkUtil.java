@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.rest.historikk;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +9,7 @@ import java.util.Optional;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkBeløp;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
@@ -63,8 +63,8 @@ public final class FordelBeregningsgrunnlagHistorikkUtil {
         List<HistorikkinnslagLinjeBuilder> linjeBuilder = new ArrayList<>();
         linjeBuilder.add(gjeldendeFraLinje(endring, arbeidsforholdInfo, korrektPeriodeFom));
         linjeBuilder.add(refusjonLinje(endring));
-        linjeBuilder.add(
-            fraTilEquals("Inntekt", endring.getGammelArbeidsinntektPrÅr(), endring.getNyArbeidsinntektPrÅr()));
+        linjeBuilder.add(fraTilEquals("Inntekt", HistorikkBeløp.ofNullable(endring.getGammelArbeidsinntektPrÅr()),
+            HistorikkBeløp.ofNullable(endring.getNyArbeidsinntektPrÅr())));
         linjeBuilder.add(inntektskategoriLinje(endring));
 
         linjeBuilder.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
@@ -101,22 +101,18 @@ public final class FordelBeregningsgrunnlagHistorikkUtil {
             var forrigeRefusjon = endring.getGammelRefusjonPrÅr();
             if (!endring.getNyTotalRefusjonPrÅr().equals(forrigeRefusjon)) {
 
-                return new HistorikkinnslagLinjeBuilder().bold("Nytt refusjonskrav")
-                    .tekst("endret fra " + BigDecimal.valueOf(forrigeRefusjon) + " til ")
-                    .bold(endring.getNyTotalRefusjonPrÅr());
+                return fraTilEquals("Nytt refusjonskrav", HistorikkBeløp.ofNullable(forrigeRefusjon),
+                    HistorikkBeløp.of(endring.getNyTotalRefusjonPrÅr()));
             }
         }
         return null;
     }
 
-    private static HistorikkinnslagLinjeBuilder gjeldendeFraLinje(Lønnsendring endring,
-                                                                  String arbeidsforholdInfo,
-                                                                  LocalDate dato) {
-        var tekstNyFordeling = new HistorikkinnslagLinjeBuilder().tekst("Ny fordeling").bold(arbeidsforholdInfo);
-        var tekstNyAktivitet = new HistorikkinnslagLinjeBuilder().tekst("Det er lagt til ny aktivitet for").bold(arbeidsforholdInfo);
-        var endretFeltTekst = endring.isNyAndel() ? tekstNyAktivitet : tekstNyFordeling;
+    private static HistorikkinnslagLinjeBuilder gjeldendeFraLinje(Lønnsendring endring, String arbeidsforholdInfo, LocalDate dato) {
+        var endretFeltTekst = new HistorikkinnslagLinjeBuilder().tekst(endring.isNyAndel() ? "Det er lagt til ny aktivitet for" : "Ny fordeling")
+            .bold(arbeidsforholdInfo);
 
-        return endretFeltTekst.tekst("Gjeldende fra").bold(dato);
+        return endretFeltTekst.tekst("gjeldende fra").bold(dato);
     }
 
     private static boolean harEndringSomGirHistorikk(Lønnsendring endring) {

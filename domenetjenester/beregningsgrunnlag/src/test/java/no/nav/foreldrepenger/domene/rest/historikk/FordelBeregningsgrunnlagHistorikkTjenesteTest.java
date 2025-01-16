@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinje;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -41,7 +40,7 @@ import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelFastsatteVerdierDto
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 
-public class FordelBeregningsgrunnlagHistorikkTjenesteTest {
+class FordelBeregningsgrunnlagHistorikkTjenesteTest {
     private static final String ARBEIDSFORHOLDINFO = "DYNAMISK OPPSTEMT HAMSTER KF (311343483)";
     private final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
     private final Beløp GRUNNBELØP = new Beløp(600000);
@@ -79,17 +78,13 @@ public class FordelBeregningsgrunnlagHistorikkTjenesteTest {
 
         assertThat(resultat).isNotNull();
         verify(historikkRepository, times(1)).lagre(captor.capture());
-        List<Historikkinnslag> historikkCaptor = captor.getAllValues();
-        assertThat(historikkCaptor).hasSize(1);
+        var historikkinnslag = captor.getValue();
 
-        var linjer = historikkCaptor.getFirst().getLinjer().stream().map(HistorikkinnslagLinje::getTekst);
-        var faktiskelinjer = List.of(
-                new HistorikkinnslagLinjeBuilder().tekst("Det er lagt til ny aktivitet for __" + ARBEIDSFORHOLDINFO + "__ Gjeldende fra __01.02.2024__.").tilTekst(),
-                new HistorikkinnslagLinjeBuilder().tekst("__Inntekt__ er satt til __2231__.").tilTekst(),
-                new HistorikkinnslagLinjeBuilder().tekst("__Inntektskategori__ er satt til __Arbeidstaker__.").tilTekst(),
-                new HistorikkinnslagLinjeBuilder().tekst("linjeskift.").tilTekst()
-        );
-        assertThat(linjer).containsAnyElementsOf(faktiskelinjer);
+        assertThat(historikkinnslag.getLinjer().stream().map(HistorikkinnslagLinje::getTekst)).satisfies(l -> {
+            assertThat(l.get(0)).isEqualTo("Det er lagt til ny aktivitet for __" + ARBEIDSFORHOLDINFO + "__ gjeldende fra __01.02.2024__.");
+            assertThat(l.get(1)).isEqualTo("__Inntekt__ er satt til __2 231 kr__.");
+            assertThat(l.get(2)).isEqualTo("__Inntektskategori__ er satt til __Arbeidstaker__.");
+        });
     }
 
     private FordelBeregningsgrunnlagDto lagFordelBeregningsgrunnlagDto() {

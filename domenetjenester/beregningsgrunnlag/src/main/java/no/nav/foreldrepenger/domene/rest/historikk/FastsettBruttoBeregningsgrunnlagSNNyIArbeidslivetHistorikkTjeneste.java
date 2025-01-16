@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkBeløp;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
@@ -30,7 +31,7 @@ public class FastsettBruttoBeregningsgrunnlagSNNyIArbeidslivetHistorikkTjeneste 
             .medBehandlingId(param.getBehandlingId())
             .medFagsakId(param.getRef().fagsakId())
             .medTittel(SkjermlenkeType.BEREGNING_FORELDREPENGER)
-            .addLinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Brutto næringsinntekt", null, dto.getBruttoBeregningsgrunnlag()))
+            .addLinje(HistorikkinnslagLinjeBuilder.fraTilEquals("Brutto næringsinntekt", null, HistorikkBeløp.of(dto.getBruttoBeregningsgrunnlag())))
             .addLinje(HistorikkinnslagLinjeBuilder.LINJESKIFT)
             .addLinje(dto.getBegrunnelse())
             .build();

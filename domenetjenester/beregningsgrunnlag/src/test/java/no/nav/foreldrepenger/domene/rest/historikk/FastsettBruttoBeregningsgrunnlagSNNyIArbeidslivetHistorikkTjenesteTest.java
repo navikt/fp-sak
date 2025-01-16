@@ -61,7 +61,7 @@ class FastsettBruttoBeregningsgrunnlagSNNyIArbeidslivetHistorikkTjenesteTest ext
         assertThat(historikkinnslag.getSkjermlenke()).isEqualTo(SkjermlenkeType.BEREGNING_FORELDREPENGER);
         assertThat(historikkinnslag.getLinjer()).satisfies(l -> {
             assertThat(l).hasSize(3);
-            assertThat(l.get(0).getTekst()).isEqualTo("__Brutto næringsinntekt__ er satt til __20000__.");
+            assertThat(l.get(0).getTekst()).isEqualTo("__Brutto næringsinntekt__ er satt til __20 000 kr__.");
             assertThat(l.get(1).getType()).isEqualTo(HistorikkinnslagLinjeType.LINJESKIFT);
             assertThat(l.get(2).getTekst()).isEqualTo("en begrunnelse.");
         });
