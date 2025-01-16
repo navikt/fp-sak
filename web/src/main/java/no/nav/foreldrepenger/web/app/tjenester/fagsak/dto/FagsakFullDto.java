@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOpprettingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.AnnenPartBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.FagsakBehandlingDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkinnslagDtoV2;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkinnslagDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.kontroll.dto.KontrollresultatDto;
 
 public record FagsakFullDto(String saksnummer,
@@ -29,7 +29,7 @@ public record FagsakFullDto(String saksnummer,
                             List<FagsakMarkeringDto> fagsakMarkeringer,
                             List<BehandlingOpprettingDto> behandlingTypeKanOpprettes,
                             List<FagsakBehandlingDto> behandlinger,
-                            List<HistorikkinnslagDtoV2> historikkinnslag,
+                            List<HistorikkinnslagDto> historikkinnslag,
                             List<FagsakNotatDto> notater,
                             KontrollresultatDto kontrollResultat) {
 
@@ -41,7 +41,7 @@ public record FagsakFullDto(String saksnummer,
                          Collection<FagsakMarkering> fagsakMarkeringer,
                          List<BehandlingOpprettingDto> behandlingTypeKanOpprettes,
                          List<FagsakBehandlingDto> behandlinger,
-                         List<HistorikkinnslagDtoV2> historikkinnslag,
+                         List<HistorikkinnslagDto> historikkinnslag,
                          List<FagsakNotatDto> notater,
                          KontrollresultatDto kontrollResultat) {
         this(fagsak.getSaksnummer().getVerdi(), fagsak.getYtelseType(), fagsak.getRelasjonsRolleType(), fagsak.getStatus(),
