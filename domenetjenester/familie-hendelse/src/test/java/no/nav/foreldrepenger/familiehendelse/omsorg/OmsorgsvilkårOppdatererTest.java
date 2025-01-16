@@ -10,9 +10,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagOld;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
@@ -51,8 +49,6 @@ class OmsorgsvilkårOppdatererTest extends EntityManagerAwareTest {
         var omsorgsvilkarOppdaterer = new OmsorgsvilkårAksjonspunktOppdaterer.OmsorgsvilkårOppdaterer(historikkinnslagRepository, repositoryProvider.getBehandlingRepository());
         var resultat = omsorgsvilkarOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto,
             aksjonspunkt));
-        var historikkinnslag = new HistorikkinnslagOld();
-        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
 
         // Assert
         assertThat(aksjonspunkt.isToTrinnsBehandling()).isTrue();
@@ -81,8 +77,6 @@ class OmsorgsvilkårOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         var oppdaterer = new OmsorgsvilkårAksjonspunktOppdaterer.Foreldreansvarsvilkår1Oppdaterer(historikkinnslagRepository, repositoryProvider.getBehandlingRepository());
         var resultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
-        var historikkinnslag = new HistorikkinnslagOld();
-        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
 
         // Assert
         assertThat(resultat.getVilkårUtfallSomSkalLeggesTil()).hasSize(1);
@@ -110,8 +104,6 @@ class OmsorgsvilkårOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         var oppdaterer = new OmsorgsvilkårAksjonspunktOppdaterer.Foreldreansvarsvilkår2Oppdaterer(historikkinnslagRepository, repositoryProvider.getBehandlingRepository());
         var resultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
-        var historikkinnslag = new HistorikkinnslagOld();
-        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
 
         // Assert
         assertThat(resultat.kreverTotrinnsKontroll()).isFalse();

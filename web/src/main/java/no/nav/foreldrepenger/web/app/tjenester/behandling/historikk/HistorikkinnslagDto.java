@@ -8,13 +8,13 @@ import java.util.UUID;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 
-public record HistorikkinnslagDtoV2(UUID behandlingUuid,
-                                    HistorikkAktørDto aktør,
-                                    SkjermlenkeType skjermlenke,
-                                    LocalDateTime opprettetTidspunkt,
-                                    List<HistorikkInnslagDokumentLinkDto> dokumenter,
-                                    String tittel,
-                                    List<Linje> linjer) {
+public record HistorikkinnslagDto(UUID behandlingUuid,
+                                  HistorikkAktørDto aktør,
+                                  SkjermlenkeType skjermlenke,
+                                  LocalDateTime opprettetTidspunkt,
+                                  List<HistorikkInnslagDokumentLinkDto> dokumenter,
+                                  String tittel,
+                                  List<Linje> linjer) {
 
     public record HistorikkAktørDto(HistorikkAktør type, String ident) {
         public static HistorikkAktørDto fra(HistorikkAktør aktør, String opprettetAv) {

@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskateg
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.OmsorgsovertakelseVilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageAvvistÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
@@ -126,7 +125,6 @@ public class HentKodeverkTjeneste {
         map.put(GraderingAvslagÅrsak.class.getSimpleName(), GraderingAvslagÅrsak.kodeMap().values());
         map.put(SkjermlenkeType.class.getSimpleName(), SkjermlenkeType.kodeMap().values());
         map.put(ArbeidsforholdHandlingType.class.getSimpleName(), ArbeidsforholdHandlingType.kodeMap().values());
-        map.put(HistorikkinnslagType.class.getSimpleName(), HistorikkinnslagType.kodeMap().values());
         map.put(HistorikkAktør.class.getSimpleName(), HistorikkAktør.kodeMap().values());
         map.put(BehandlingStatus.class.getSimpleName(), BehandlingStatus.kodeMap().values());
         map.put(FarSøkerType.class.getSimpleName(), FarSøkerType.kodeMap().values());
