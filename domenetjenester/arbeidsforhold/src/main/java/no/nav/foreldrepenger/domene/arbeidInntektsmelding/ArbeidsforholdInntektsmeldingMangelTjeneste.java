@@ -71,8 +71,8 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
 
         // Hvis det må sendes melding til arbeidsgiver
         if (ArbeidsforholdKomplettVurderingType.MELDING_TIL_ARBEIDSGIVER_NAV_NO.equals(dto.getVurdering())) {
-            var sendBeskjedTilArbeidsgiverResonse = sendBeskjedTilArbeidsgiver(behandlingReferanse, dto);
-            if (sendBeskjedTilArbeidsgiverResonse.nyBeskjedResultat() == SendNyBeskjedResponse.NyBeskjedResultat.FORESPØRSEL_FINNES_IKKE) {
+            var sendBeskjedTilArbeidsgiverResponse = sendBeskjedTilArbeidsgiver(behandlingReferanse, dto);
+            if (SendNyBeskjedResponse.NyBeskjedResultat.FORESPØRSEL_FINNES_IKKE == sendBeskjedTilArbeidsgiverResponse.nyBeskjedResultat()) {
                 fpInntektsmeldingTjeneste.lagForespørsel(behandlingReferanse, skjæringstidspunkt);
             }
         }
