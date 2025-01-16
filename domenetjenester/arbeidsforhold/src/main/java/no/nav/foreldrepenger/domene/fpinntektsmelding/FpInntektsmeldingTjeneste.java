@@ -195,9 +195,9 @@ public class FpInntektsmeldingTjeneste {
         klient.settForespørselTilUtgått(request);
     }
 
-    public void sendNyBeskjedTilArbeidsgiver(BehandlingReferanse ref, String orgnummer) {
+    public SendNyBeskjedResponse sendNyBeskjedTilArbeidsgiver(BehandlingReferanse ref, String orgnummer) {
         var request = new NyBeskjedRequest(new OrganisasjonsnummerDto(orgnummer), new SaksnummerDto(ref.saksnummer().getVerdi()));
-        klient.sendNyBeskjedPåForespørsel(request);
+        return klient.sendNyBeskjedPåForespørsel(request);
     }
 
     private String hentArbeidsgivernavn(String ag) {

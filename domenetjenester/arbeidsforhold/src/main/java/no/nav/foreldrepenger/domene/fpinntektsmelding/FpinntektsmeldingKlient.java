@@ -48,7 +48,7 @@ public class FpinntektsmeldingKlient {
             var rrequest = RestRequest.newPOSTJson(request, uriOpprettForesporsel, restConfig);
            return restClient.send(rrequest, OpprettForespørselResponsNy.class);
         } catch (Exception e) {
-            LOG.warn("Feil ved overstyring av inntektsmelding med request: {}", request);
+            LOG.warn("Feil ved opprettelse av inntektsmelding med request: {}", request);
             throw feilVedKallTilFpinntektsmelding(e.getMessage());
         }
     }
@@ -89,12 +89,12 @@ public class FpinntektsmeldingKlient {
         }
     }
 
-    public void sendNyBeskjedPåForespørsel(NyBeskjedRequest request) {
+    public SendNyBeskjedResponse sendNyBeskjedPåForespørsel(NyBeskjedRequest request) {
         Objects.requireNonNull(request, "request");
         try {
             LOG.info("Sender ny beskjed request til fpinntektsmelding for å legge til ny beskjed på eksisterende forespørsel for saksnummer {} ", request.fagsakSaksnummer().saksnr());
             var restRequest = RestRequest.newPOSTJson(request, uriSendNyBeskjedPåForespørsel, restConfig);
-            restClient.send(restRequest, String.class);
+            return restClient.send(restRequest, SendNyBeskjedResponse.class);
         } catch (Exception e) {
             throw feilVedKallTilFpinntektsmelding(e.getMessage());
         }

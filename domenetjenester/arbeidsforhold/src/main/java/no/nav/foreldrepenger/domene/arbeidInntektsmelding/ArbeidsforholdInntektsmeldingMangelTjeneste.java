@@ -7,9 +7,6 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
-import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,10 +15,13 @@ import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValgRepository;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk.ArbeidInntektHistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
+import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
+import no.nav.foreldrepenger.domene.fpinntektsmelding.SendNyBeskjedResponse;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -71,7 +71,10 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
 
         // Hvis det må sendes melding til arbeidsgiver
         if (ArbeidsforholdKomplettVurderingType.MELDING_TIL_ARBEIDSGIVER_NAV_NO.equals(dto.getVurdering())) {
-            sendBeskjedTilArbeidsgiver(behandlingReferanse, dto);
+            var sendBeskjedTilArbeidsgiverResponse = sendBeskjedTilArbeidsgiver(behandlingReferanse, dto);
+            if (SendNyBeskjedResponse.NyBeskjedResultat.FORESPØRSEL_FINNES_IKKE == sendBeskjedTilArbeidsgiverResponse.nyBeskjedResultat()) {
+                fpInntektsmeldingTjeneste.lagForespørsel(behandlingReferanse, skjæringstidspunkt);
+            }
         }
 
         // Historikk
@@ -82,11 +85,11 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
         ryddBortManuelleArbeidsforholdVedBehov(behandlingReferanse, dto);
     }
 
-    private void sendBeskjedTilArbeidsgiver(BehandlingReferanse behandlingReferanse, ManglendeOpplysningerVurderingDto dto) {
+    private SendNyBeskjedResponse sendBeskjedTilArbeidsgiver(BehandlingReferanse behandlingReferanse, ManglendeOpplysningerVurderingDto dto) {
         if (!OrganisasjonsNummerValidator.erGyldig(dto.getArbeidsgiverIdent())) {
             throw new IllegalArgumentException("Forsøk på å sende beskjed til ugyldig organisasjonsnummer, ulovlig tilstand");
         }
-        fpInntektsmeldingTjeneste.sendNyBeskjedTilArbeidsgiver(behandlingReferanse, dto.getArbeidsgiverIdent());
+        return fpInntektsmeldingTjeneste.sendNyBeskjedTilArbeidsgiver(behandlingReferanse, dto.getArbeidsgiverIdent());
     }
 
     private void sjekkUnikeReferanser(List<ArbeidsforholdValg> entiteter) {
