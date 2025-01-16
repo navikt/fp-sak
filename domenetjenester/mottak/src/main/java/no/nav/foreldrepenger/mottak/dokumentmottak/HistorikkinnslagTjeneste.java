@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt�
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDokumentLink;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
@@ -127,11 +126,11 @@ public class HistorikkinnslagTjeneste {
     }
 
     public void opprettHistorikkinnslagForVenteFristRelaterteInnslag(Behandling behandling,
-                                                                     HistorikkinnslagType historikkinnslagType,
                                                                      LocalDateTime frist,
                                                                      Venteårsak venteårsak) {
-        var tittel = frist == null ? historikkinnslagType.getNavn() :
-            historikkinnslagType.getNavn() + " til " + format(frist.toLocalDate());
+        var historikkinnslagType = "Behandlingen er satt på vent";
+        var tittel = frist == null ? historikkinnslagType :
+            historikkinnslagType + " til " + format(frist.toLocalDate());
         var build = new Historikkinnslag.Builder().medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medTittel(tittel)
             .medBehandlingId(behandling.getId())

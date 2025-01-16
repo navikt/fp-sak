@@ -32,7 +32,7 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @ApplicationScoped
 @Transactional
 public class HistorikkRestTjeneste {
-    private HistorikkV2Tjeneste historikkTjeneste;
+    private HistorikkTjeneste historikkTjeneste;
 
     public static final String HISTORIKK_PATH = "/historikk";
 
@@ -41,7 +41,7 @@ public class HistorikkRestTjeneste {
     }
 
     @Inject
-    public HistorikkRestTjeneste(HistorikkV2Tjeneste historikkTjeneste) {
+    public HistorikkRestTjeneste(HistorikkTjeneste historikkTjeneste) {
         this.historikkTjeneste = historikkTjeneste;
     }
 
