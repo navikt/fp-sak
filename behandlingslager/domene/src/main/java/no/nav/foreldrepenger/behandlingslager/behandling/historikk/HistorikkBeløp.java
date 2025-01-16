@@ -1,12 +1,16 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.historikk;
 
-import jakarta.validation.constraints.NotNull;
-
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-public record HistorikkBeløp(@NotNull BigDecimal beløp) {
+public record HistorikkBeløp(BigDecimal beløp) {
+
+    public HistorikkBeløp {
+        if (beløp == null) {
+            throw new IllegalArgumentException("Beløp cannot be null");
+        }
+    }
 
     public static HistorikkBeløp ofNullable(BigDecimal beløp) {
         if (beløp == null) {
