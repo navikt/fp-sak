@@ -63,7 +63,7 @@ public class InntektHistorikkTjeneste {
                 var arbeidsforholdInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(
                     lønnsendring.getAktivitetStatus(), lønnsendring.getArbeidsgiver(), lønnsendring.getArbeidsforholdRef(),
                     arbeidsforholdOverstyringer);
-                linjeBuilder.fraTil("Inntekt fra " + arbeidsforholdInfo, HistorikkBeløp.of(gammelArbeidsinntekt), HistorikkBeløp.of(nyArbeidsinntekt));
+                linjeBuilder.fraTil("Inntekt fra " + arbeidsforholdInfo, HistorikkBeløp.ofNullable(gammelArbeidsinntekt), HistorikkBeløp.of(nyArbeidsinntekt));
             }
             return Optional.of(linjeBuilder);
         }
