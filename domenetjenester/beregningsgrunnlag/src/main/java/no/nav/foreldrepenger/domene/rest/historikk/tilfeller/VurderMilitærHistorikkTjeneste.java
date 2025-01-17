@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.rest.historikk.tilfeller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -34,7 +35,11 @@ public class VurderMilitærHistorikkTjeneste extends FaktaOmBeregningHistorikkTj
     }
 
     private HistorikkinnslagLinjeBuilder lagHistorikkInnslag(Boolean harMilitærEllerSivil, Boolean forrigeVerdi) {
-        return new HistorikkinnslagLinjeBuilder().fraTil("Har søker militær- eller siviltjeneste i opptjeningsperioden", forrigeVerdi,
+        var hva = "Har søker militær- eller siviltjeneste i opptjeningsperioden";
+        if (Objects.equals(harMilitærEllerSivil, forrigeVerdi)) {
+            return new HistorikkinnslagLinjeBuilder().til(hva, harMilitærEllerSivil);
+        }
+        return new HistorikkinnslagLinjeBuilder().fraTil(hva, forrigeVerdi,
             harMilitærEllerSivil);
     }
 
