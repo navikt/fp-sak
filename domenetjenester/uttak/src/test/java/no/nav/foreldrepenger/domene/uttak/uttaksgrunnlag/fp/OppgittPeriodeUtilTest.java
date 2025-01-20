@@ -179,4 +179,80 @@ class OppgittPeriodeUtilTest {
 
         assertThat(slåttSammen).hasSize(2);
     }
+
+    @Test
+    void skal_slå_sammen_like_perioder_hvis_to_perioder_i_helg() {
+        var p1 = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medPeriode(LocalDate.of(2025, 1, 25), LocalDate.of(2025, 1, 25))
+            .build();
+
+        var p2 = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medPeriode(LocalDate.of(2025, 1, 26), LocalDate.of(2025, 1, 26))
+            .build();
+
+        var slåttSammen = OppgittPeriodeUtil.slåSammenLikePerioder(List.of(p1, p2));
+
+        assertThat(slåttSammen).hasSize(1);
+        assertThat(slåttSammen.getFirst().getFom()).isEqualTo(p1.getFom());
+        assertThat(slåttSammen.getFirst().getTom()).isEqualTo(p2.getTom());
+    }
+
+    @Test
+    void fjerner_første_like_periode_hvis_siste_periode_i_helg() {
+        var p1 = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medPeriode(LocalDate.of(2025, 1, 25), LocalDate.of(2025, 1, 25))
+            .build();
+
+        var p2 = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medPeriode(LocalDate.of(2025, 1, 26), LocalDate.of(2025, 1, 29))
+            .build();
+
+        var slåttSammen = OppgittPeriodeUtil.slåSammenLikePerioder(List.of(p1, p2));
+
+        assertThat(slåttSammen).hasSize(1);
+        assertThat(slåttSammen.getFirst().getFom()).isEqualTo(p2.getFom().plusDays(1));
+        assertThat(slåttSammen.getFirst().getTom()).isEqualTo(p2.getTom());
+    }
+
+    @Test
+    void fjerner_siste_like_periode_hvis_siste_periode_i_helg() {
+        var p1 = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medPeriode(LocalDate.of(2025, 1, 23), LocalDate.of(2025, 1, 24))
+            .build();
+
+        var p2 = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medPeriode(LocalDate.of(2025, 1, 25), LocalDate.of(2025, 1, 25))
+            .build();
+
+        var slåttSammen = OppgittPeriodeUtil.slåSammenLikePerioder(List.of(p1, p2));
+
+        assertThat(slåttSammen).hasSize(1);
+        assertThat(slåttSammen.getFirst().getFom()).isEqualTo(p1.getFom());
+        assertThat(slåttSammen.getFirst().getTom()).isEqualTo(p1.getTom());
+    }
+
+    @Test
+    void fjerner_siste_like_periode_hvis_siste_periode_i_helg_2() {
+        var p1 = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medPeriode(LocalDate.of(2025, 1, 23), LocalDate.of(2025, 1, 25))
+            .build();
+
+        var p2 = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medPeriode(LocalDate.of(2025, 1, 26), LocalDate.of(2025, 1, 26))
+            .build();
+
+        var slåttSammen = OppgittPeriodeUtil.slåSammenLikePerioder(List.of(p1, p2));
+
+        assertThat(slåttSammen).hasSize(1);
+        assertThat(slåttSammen.getFirst().getFom()).isEqualTo(p1.getFom());
+        assertThat(slåttSammen.getFirst().getTom()).isEqualTo(p1.getTom().minusDays(1));
+    }
 }

@@ -13,6 +13,7 @@ import java.util.Optional;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 
@@ -117,8 +118,10 @@ public class OppgittPeriodeUtil {
     }
 
     static OppgittPeriodeEntitet kopier(OppgittPeriodeEntitet oppgittPeriode, LocalDate nyFom, LocalDate nyTom) {
+        var nyTidsperiode = DatoIntervallEntitet.fraOgMedTilOgMed(nyFom, nyTom);
+        nyTidsperiode = nyTidsperiode.erHelg() ? nyTidsperiode : DatoIntervallEntitet.fraOgMedTilOgMed(flyttFraHelgTilMandag(nyFom), flyttFraHelgTilFredag(nyTom));
         return OppgittPeriodeBuilder.fraEksisterende(oppgittPeriode)
-            .medPeriode(flyttFraHelgTilMandag(nyFom), flyttFraHelgTilFredag(nyTom))
+            .medPeriode(nyTidsperiode)
             .build();
     }
 }
