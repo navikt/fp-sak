@@ -32,7 +32,7 @@ public class DatoIntervallEntitet extends AbstractLocalDateInterval {
             throw new IllegalArgumentException("Til og med dato må være satt.");
         }
         if (tomDato.isBefore(fomDato)) {
-            throw new IllegalArgumentException("Til og med dato før fra og med dato.");
+            throw new IllegalArgumentException("Til og med dato før fra og med dato. Fom: " + fomDato + ", Tom: " + tomDato);
         }
         this.fomDato = fomDato;
         this.tomDato = tomDato;
