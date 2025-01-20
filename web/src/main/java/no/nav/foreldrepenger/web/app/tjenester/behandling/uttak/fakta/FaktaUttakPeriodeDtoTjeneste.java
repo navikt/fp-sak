@@ -84,10 +84,11 @@ public class FaktaUttakPeriodeDtoTjeneste {
                 var vedtaksperioder = VedtaksperioderHelper.opprettOppgittePerioder(uttakOriginalBehandling.get(), perioder, fraDato, false);
                 try {
                     validerOverlapp(vedtaksperioder);
+                    perioder = slåSammenLikePerioder(vedtaksperioder);
                 } catch (Exception e) {
-                    LOG.info("Overlapper exception {} {} {} {}", fraDato, uttakOriginalBehandling.get(), perioder, vedtaksperioder, e);
+                    LOG.info("Overlapper exception {} {} {} {}", fraDato, uttakOriginalBehandling.get(), perioder, vedtaksperioder);
+                    throw e;
                 }
-                perioder = slåSammenLikePerioder(vedtaksperioder);
             }
         }
         return perioder.stream().sorted(Comparator.comparing(OppgittPeriodeEntitet::getTom));
