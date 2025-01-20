@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta;
 
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeUtil.slåSammenLikePerioder;
+import static no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste.validerOverlapp;
 
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -9,6 +10,9 @@ import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -31,6 +35,8 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.Arbeidsforho
 
 @ApplicationScoped
 public class FaktaUttakPeriodeDtoTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FaktaUttakPeriodeDtoTjeneste.class);
 
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private BehandlingRepository behandlingRepository;
@@ -75,8 +81,13 @@ public class FaktaUttakPeriodeDtoTjeneste {
             if (uttakOriginalBehandling.isPresent()) {
                 var fraDato = behandlingSomJusteresFarsUttakVedFødsel(behandling, yfa) ?
                     skjæringstidspunktEllerMIN(behandlingId) : LocalDate.MIN;
-                perioder = slåSammenLikePerioder(VedtaksperioderHelper.opprettOppgittePerioder(uttakOriginalBehandling.get(), perioder,
-                    fraDato, false));
+                var vedtaksperioder = VedtaksperioderHelper.opprettOppgittePerioder(uttakOriginalBehandling.get(), perioder, fraDato, false);
+                try {
+                    validerOverlapp(vedtaksperioder);
+                } catch (Exception e) {
+                    LOG.info("Overlapper exception {} {} {} {}", fraDato, uttakOriginalBehandling.get(), perioder, vedtaksperioder, e);
+                }
+                perioder = slåSammenLikePerioder(vedtaksperioder);
             }
         }
         return perioder.stream().sorted(Comparator.comparing(OppgittPeriodeEntitet::getTom));
