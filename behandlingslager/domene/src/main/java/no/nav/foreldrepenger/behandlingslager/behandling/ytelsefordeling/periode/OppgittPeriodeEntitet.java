@@ -167,7 +167,11 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
     }
 
     void setPeriode(LocalDate fom, LocalDate tom) {
-        this.periode = DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom);
+        setPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
+    }
+
+    void setPeriode(DatoIntervallEntitet tidsperiode) {
+        this.periode = tidsperiode;
     }
 
     public BigDecimal getArbeidsprosent() {
@@ -324,7 +328,6 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
     public boolean isVedtaksperiode() {
         return getPeriodeKilde().equals(FordelingPeriodeKilde.TIDLIGERE_VEDTAK);
     }
-
 
     @Override
     public boolean equals(Object o) {
