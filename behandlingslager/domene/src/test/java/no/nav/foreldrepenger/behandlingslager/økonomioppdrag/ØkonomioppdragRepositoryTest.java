@@ -7,7 +7,6 @@ import java.time.LocalDate;
 
 import jakarta.persistence.EntityManager;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,7 +39,7 @@ class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
 
         // Assert
         var id = oppdrkontroll.getId();
-        Assertions.assertThat(id).isNotNull();
+        assertThat(id).isNotNull();
 
         var oppdrkontrollLest = økonomioppdragRepository.hentOppdragskontroll(id);
 
@@ -189,8 +188,9 @@ class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
 
 
         var oppdragListe = økonomioppdragRepository.finnAlleOppdragForSak(saksnr);
-        assertThat(oppdragListe).hasSize(2);
-        assertThat(oppdragListe).containsExactlyInAnyOrder(oppdragskontroll, nyesteOppdragskontroll);
+        assertThat(oppdragListe)
+            .hasSize(2)
+            .containsExactlyInAnyOrder(oppdragskontroll, nyesteOppdragskontroll);
 
     }
 
@@ -206,7 +206,7 @@ class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
 
         // Assert
         var id = oppdrLinje150.getId();
-        Assertions.assertThat(id).isNotNull();
+        assertThat(id).isNotNull();
 
         var oppdrLinje150Lest = entityManager.find(Oppdragslinje150.class, id);
         assertThat(oppdrLinje150Lest).isNotNull();
@@ -226,7 +226,7 @@ class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
 
         // Assert
         var id = oppdrLinje150.getId();
-        Assertions.assertThat(id).isNotNull();
+        assertThat(id).isNotNull();
 
         var oppdrLinje150Lest = entityManager.find(Oppdragslinje150.class, id);
         assertThat(oppdrLinje150Lest).isNotNull();

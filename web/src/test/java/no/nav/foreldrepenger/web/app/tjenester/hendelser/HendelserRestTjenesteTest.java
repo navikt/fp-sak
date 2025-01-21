@@ -132,8 +132,9 @@ class HendelserRestTjenesteTest {
 
         var resultat = hendelserRestTjeneste.grovSorter(sorter);
 
-        assertThat(resultat).hasSameSizeAs(harSak);
-        assertThat(resultat).isEqualTo(harSak.stream().map(AktørId::getId).toList());
+        assertThat(resultat)
+            .hasSameSizeAs(harSak)
+            .isEqualTo(harSak.stream().map(AktørId::getId).toList());
     }
 
     private FødselHendelseDto lagFødselHendelse(List<AktørId> aktørIdForeldre, LocalDate fødselsdato) {

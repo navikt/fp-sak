@@ -644,15 +644,15 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(2);
-        assertThat(resultat).anySatisfy(andel -> {
-            assertThat(andel.getDagsats()).isEqualTo(1400);
-            assertThat(andel.erBrukerMottaker()).isTrue();
-        });
-        assertThat(resultat).anySatisfy(andel -> {
-            assertThat(andel.getDagsats()).isZero();
-            assertThat(andel.erBrukerMottaker()).isFalse();
-        });
+        assertThat(resultat)
+            .hasSize(2)
+            .anySatisfy(andel -> {
+                assertThat(andel.getDagsats()).isEqualTo(1400);
+                assertThat(andel.erBrukerMottaker()).isTrue();
+            }).anySatisfy(andel -> {
+                assertThat(andel.getDagsats()).isZero();
+                assertThat(andel.erBrukerMottaker()).isFalse();
+            });
     }
 
     /**
@@ -752,15 +752,15 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(2);
-        assertThat(resultat).anySatisfy(andel -> {
-            assertThat(andel.getDagsats()).isEqualTo(1400);
-            assertThat(andel.erBrukerMottaker()).isTrue();
-        });
-        assertThat(resultat).anySatisfy(andel -> {
-            assertThat(andel.getDagsats()).isZero();
-            assertThat(andel.erBrukerMottaker()).isFalse();
-        });
+        assertThat(resultat)
+            .hasSize(2)
+            .anySatisfy(andel -> {
+                assertThat(andel.getDagsats()).isEqualTo(1400);
+                assertThat(andel.erBrukerMottaker()).isTrue();
+            }).anySatisfy(andel -> {
+                assertThat(andel.getDagsats()).isZero();
+                assertThat(andel.erBrukerMottaker()).isFalse();
+            });
     }
 
     /**
@@ -894,15 +894,15 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(2);
-        assertThat(resultat).anySatisfy(andel -> {
-            assertThat(andel.getDagsats()).isEqualTo(2100);
-            assertThat(andel.erBrukerMottaker()).isTrue();
-        });
-        assertThat(resultat).anySatisfy(andel -> {
-            assertThat(andel.getDagsats()).isZero();
-            assertThat(andel.erBrukerMottaker()).isFalse();
-        });
+        assertThat(resultat)
+            .hasSize(2)
+            .anySatisfy(andel -> {
+                assertThat(andel.getDagsats()).isEqualTo(2100);
+                assertThat(andel.erBrukerMottaker()).isTrue();
+            }).anySatisfy(andel -> {
+                assertThat(andel.getDagsats()).isZero();
+                assertThat(andel.erBrukerMottaker()).isFalse();
+            });
     }
 
     /**

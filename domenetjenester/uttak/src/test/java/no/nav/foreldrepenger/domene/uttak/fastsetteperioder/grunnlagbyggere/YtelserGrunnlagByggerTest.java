@@ -71,8 +71,9 @@ class YtelserGrunnlagByggerTest {
 
         assertThat(ytelser.pleiepenger()).isPresent();
         var perioder = ytelser.pleiepenger().orElseThrow().perioder();
-        assertThat(perioder).hasSize(2);
-        assertThat(perioder).containsExactlyInAnyOrder(new PleiepengerPeriode(innleggelseFom, innleggelseTom, true),
+        assertThat(perioder)
+            .hasSize(2)
+            .containsExactlyInAnyOrder(new PleiepengerPeriode(innleggelseFom, innleggelseTom, true),
             new PleiepengerPeriode(innleggelseTom.plusDays(1), innleggelseTom.plusWeeks(2), false));
     }
 
@@ -100,8 +101,9 @@ class YtelserGrunnlagByggerTest {
 
         assertThat(ytelser.pleiepenger()).isPresent();
         var perioder = ytelser.pleiepenger().orElseThrow().perioder();
-        assertThat(perioder).hasSize(1);
-        assertThat(perioder).containsExactly(new PleiepengerPeriode(fom, tom, false));
+        assertThat(perioder)
+            .hasSize(1)
+            .containsExactly(new PleiepengerPeriode(fom, tom, false));
     }
 
     private InntektArbeidYtelseGrunnlag iay() {

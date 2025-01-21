@@ -247,8 +247,9 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
         var resultat = behandlingRepository.hentBehandlingHvisFinnes(behandling.getUuid());
 
         // Assert
-        assertThat(resultat).isPresent();
-        assertThat(resultat).contains(behandling);
+        assertThat(resultat)
+            .isPresent()
+            .contains(behandling);
     }
 
     @Test
@@ -287,8 +288,9 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
         var brKonsekvenser = behandlingsresultatRepository.hent(behandling.getId())
             .getKonsekvenserForYtelsen();
-        assertThat(brKonsekvenser).hasSize(1);
-        assertThat(brKonsekvenser).containsExactlyInAnyOrder(KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN);
+        assertThat(brKonsekvenser)
+            .hasSize(1)
+            .containsExactlyInAnyOrder(KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN);
     }
 
     private void setKonsekvensForYtelsen(Behandlingsresultat behandlingsresultat, List<KonsekvensForYtelsen> konsekvenserForYtelsen) {
@@ -366,10 +368,11 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
         var liste = behandlingKandidaterRepository.finnBehandlingerForAutomatiskGjenopptagelse();
 
         // Assert
-        assertThat(liste).hasSize(3);
-        assertThat(liste).contains(behandling1);
-        assertThat(liste).contains(behandling2);
-        assertThat(liste).contains(behandling3);
+        assertThat(liste)
+            .hasSize(3)
+            .contains(behandling1)
+            .contains(behandling2)
+            .contains(behandling3);
     }
 
     @Test
@@ -565,8 +568,9 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
         assertThat(resultatBehandling).isNotEmpty();
         var avsluttetDatoResultat = resultatBehandling.get().getAvsluttetDato();
 
-        assertThat(avsluttetDatoResultat).isEqualTo(avsluttetDato.withNano(0)); // Oracle is not returning milliseconds.
-        assertThat(avsluttetDatoResultat).isNotEqualTo(avsluttetDato);
+        assertThat(avsluttetDatoResultat)
+            .isEqualTo(avsluttetDato.withNano(0))// Oracle is not returning milliseconds.
+            .isNotEqualTo(avsluttetDato);
     }
 
     @Test

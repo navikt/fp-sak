@@ -83,8 +83,9 @@ class GrensesnittavstemmingMapperTest {
         // Act
         var melding = grensesnittavstemmingMapper.lagStartmelding();
         // Assert
-        assertThat(melding).isNotNull();
-        assertThat(melding).startsWith("<?xml");
+        assertThat(melding)
+            .isNotNull()
+            .startsWith("<?xml");
         assertThat(melding.length()).isLessThan(MAKS_AVSTEMMING_MELDING_BYTES);
     }
 
@@ -96,8 +97,9 @@ class GrensesnittavstemmingMapperTest {
         // Assert
         assertThat(meldinger).hasSize(1);
         for (var melding : meldinger) {
-            assertThat(melding).isNotNull();
-            assertThat(melding).startsWith("<?xml");
+            assertThat(melding)
+                .isNotNull()
+                .startsWith("<?xml");
             assertThat(melding.length()).isLessThan(MAKS_AVSTEMMING_MELDING_BYTES);
         }
     }
@@ -162,8 +164,9 @@ class GrensesnittavstemmingMapperTest {
         // Assert
         assertThat(meldinger).hasSize(3);
         for (var melding : meldinger) {
-            assertThat(melding).isNotNull();
-            assertThat(melding).startsWith("<?xml");
+            assertThat(melding)
+                .isNotNull()
+                .startsWith("<?xml");
             assertThat(melding.length()).isLessThan(MAKS_AVSTEMMING_MELDING_BYTES);
         }
     }
@@ -174,8 +177,9 @@ class GrensesnittavstemmingMapperTest {
         // Act
         var melding = grensesnittavstemmingMapper.lagSluttmelding();
         // Assert
-        assertThat(melding).isNotNull();
-        assertThat(melding).startsWith("<?xml");
+        assertThat(melding)
+            .isNotNull()
+            .startsWith("<?xml");
         assertThat(melding.length()).isLessThan(MAKS_AVSTEMMING_MELDING_BYTES);
     }
 
@@ -264,8 +268,9 @@ class GrensesnittavstemmingMapperTest {
         var avstemmingsdata = grensesnittavstemmingMapper.lagAvstemmingsdataListe();
 
         //Assert
-        assertThat(avstemmingsdata).isNotNull();
-        assertThat(avstemmingsdata).hasSize(1);
+        assertThat(avstemmingsdata)
+            .isNotNull()
+            .hasSize(1);
         sjekkAksjonsInnhold(forventetFom, forventetTom, avstemmingsdata.get(0), AksjonType.DATA, true, kodeFagområde);
     }
 

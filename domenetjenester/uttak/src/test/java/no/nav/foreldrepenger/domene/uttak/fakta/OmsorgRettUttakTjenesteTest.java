@@ -55,8 +55,9 @@ class OmsorgRettUttakTjenesteTest {
         var perioderAnnenforelderHarRett = repositoryProvider.getYtelsesFordelingRepository()
             .hentAggregat(behandling.getId())
             .getAnnenForelderRettAvklaring();
-        assertThat(perioderAnnenforelderHarRett).isNotNull();
-        assertThat(perioderAnnenforelderHarRett).isFalse();
+        assertThat(perioderAnnenforelderHarRett)
+            .isNotNull()
+            .isFalse();
     }
 
     @Test

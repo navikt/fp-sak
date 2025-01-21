@@ -360,11 +360,12 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
         assertThat(oppdrag110ForBruker.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
         //Oppdragslinje150 for Bruker
         var opp150ListeForBruker = oppdrag110ForBruker.getOppdragslinje150Liste();
-        assertThat(opp150ListeForBruker).hasSize(1);
-        assertThat(opp150ListeForBruker).allSatisfy(opp150 -> {
-            assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_ARBEIDSTAKER);
-            assertThat(opp150.gjelderOpphør()).isFalse();
-        });
+        assertThat(opp150ListeForBruker)
+            .hasSize(1)
+            .allSatisfy(opp150 -> {
+                assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_ARBEIDSTAKER);
+                assertThat(opp150.gjelderOpphør()).isFalse();
+            });
     }
 
     /**
@@ -502,12 +503,13 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
 
         // Assert : Revurdering#2
         var oppdrag110Liste = oppdragRevurdering2.getOppdrag110Liste();
-        assertThat(oppdrag110Liste).hasSize(1);
-        //Oppdrag110 for Arbeidsgivere
-        assertThat(oppdrag110Liste).allSatisfy(oppdrag110ForArbeidsgiver -> {
-            assertThat(oppdrag110ForArbeidsgiver.getKodeFagomrade()).isEqualTo(KodeFagområde.FPREF);
-            assertThat(oppdrag110ForArbeidsgiver.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
-        });
+        assertThat(oppdrag110Liste)
+            .hasSize(1)
+            //Oppdrag110 for Arbeidsgivere
+            .allSatisfy(oppdrag110ForArbeidsgiver -> {
+                assertThat(oppdrag110ForArbeidsgiver.getKodeFagomrade()).isEqualTo(KodeFagområde.FPREF);
+                assertThat(oppdrag110ForArbeidsgiver.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
+            });
         //Oppdragslinje150 for Arbeidsgiver#1
         var oppdrag110ForArbeidsgiver_1 = OppdragskontrollTestVerktøy.getOppdrag110ForArbeidsgiver(oppdrag110Liste, virksomhet);
         var opp150ListeForArbeidsgiver_1_List = oppdrag110ForArbeidsgiver_1.getOppdragslinje150Liste();
@@ -704,11 +706,12 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
         assertThat(førsteRevurdOpp110Liste).hasSize(1);
         //Førsterevurdering: Oppdragslinjne150
         var førsteRevurdOpp150Liste = OppdragskontrollTestVerktøy.getOpp150ListeForBruker(førsteRevurdOpp110Liste);
-        assertThat(førsteRevurdOpp150Liste).hasSize(2);
-        assertThat(førsteRevurdOpp150Liste).allSatisfy(opp150 -> {
-            assertThat(opp150.gjelderOpphør()).isTrue();
-            assertThat(opp150.getDatoStatusFom()).isEqualTo(førsteEndringsdato);
-        });
+        assertThat(førsteRevurdOpp150Liste)
+            .hasSize(2)
+            .allSatisfy(opp150 -> {
+                assertThat(opp150.gjelderOpphør()).isTrue();
+                assertThat(opp150.getDatoStatusFom()).isEqualTo(førsteEndringsdato);
+            });
         var opp150ForOpphPåATIFørsteRevurderingListe = OppdragskontrollTestVerktøy.getOppdragslinje150MedKlassekode(førsteRevurdOpp150Liste,
             KodeKlassifik.FPF_ARBEIDSTAKER);
         assertThat(opp150ForOpphPåATIFørsteRevurderingListe).hasSize(1);
@@ -721,11 +724,12 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
         assertThat(andreRevurdOpp110Liste).hasSize(1);
         //Andre revurdering: Oppdragslinjne150
         var andreRevurdOpp150Liste = OppdragskontrollTestVerktøy.getOpp150ListeForBruker(andreRevurdOpp110Liste);
-        assertThat(andreRevurdOpp150Liste).hasSize(2);
-        assertThat(andreRevurdOpp150Liste).allSatisfy(opp150 -> {
-            assertThat(opp150.gjelderOpphør()).isTrue();
-            assertThat(opp150.getDatoStatusFom()).isEqualTo(andreEndringsdato);
-        });
+        assertThat(andreRevurdOpp150Liste)
+            .hasSize(2)
+            .allSatisfy(opp150 -> {
+                assertThat(opp150.gjelderOpphør()).isTrue();
+                assertThat(opp150.getDatoStatusFom()).isEqualTo(andreEndringsdato);
+            });
         var opp150ForOpphPåATIAndreRevurderingListe = OppdragskontrollTestVerktøy.getOppdragslinje150MedKlassekode(andreRevurdOpp150Liste,
             KodeKlassifik.FPF_ARBEIDSTAKER);
         assertThat(opp150ForOpphPåATIAndreRevurderingListe).hasSize(1);
@@ -1018,8 +1022,9 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
         var opp150ForOpphPåATIFørsteRevurderingListe = OppdragskontrollTestVerktøy.getOppdragslinje150MedKlassekode(førsteRevurdOpp150Liste,
             KodeKlassifik.FPF_ARBEIDSTAKER);
 
-        assertThat(opp150ForOpphPåATIFørsteRevurderingListe).hasSize(1);
-        assertThat(opp150ForOpphPåATIFørsteRevurderingListe).allSatisfy(opp150 -> assertThat(opp150.gjelderOpphør()).isTrue());
+        assertThat(opp150ForOpphPåATIFørsteRevurderingListe)
+            .hasSize(1)
+            .allSatisfy(opp150 -> assertThat(opp150.gjelderOpphør()).isTrue());
 
         var opp150ForOpphPåFLIFørsteRevurderingListe = OppdragskontrollTestVerktøy.getOppdragslinje150MedKlassekode(førsteRevurdOpp150Liste,
             KodeKlassifik.FPF_DAGPENGER);
@@ -1035,8 +1040,9 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
 
         var opp150ForOpphPåATIAndreRevurderingListe = OppdragskontrollTestVerktøy.getOppdragslinje150MedKlassekode(andreRevurdOpp150Liste,
             KodeKlassifik.FPF_ARBEIDSTAKER);
-        assertThat(opp150ForOpphPåATIAndreRevurderingListe).hasSize(1);
-        assertThat(opp150ForOpphPåATIAndreRevurderingListe).allSatisfy(opp150 -> assertThat(opp150.gjelderOpphør()).isFalse());
+        assertThat(opp150ForOpphPåATIAndreRevurderingListe)
+            .hasSize(1)
+            .allSatisfy(opp150 -> assertThat(opp150.gjelderOpphør()).isFalse());
 
         var opp150ForOpphPåFLIAndreRevurderingListe = OppdragskontrollTestVerktøy.getOppdragslinje150MedKlassekode(andreRevurdOpp150Liste,
             KodeKlassifik.FPF_DAGPENGER);

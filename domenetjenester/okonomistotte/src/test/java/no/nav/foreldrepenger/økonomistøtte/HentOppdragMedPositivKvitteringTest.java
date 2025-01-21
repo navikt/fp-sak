@@ -191,9 +191,10 @@ class HentOppdragMedPositivKvitteringTest {
 
         var resultater = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvittering(saksnummer);
 
-        assertThat(resultater).hasSize(2);
-        assertThat(resultater).anySatisfy(oppdrag110 -> assertThat(oppdrag110.getFagsystemId()).isEqualTo(1L));
-        assertThat(resultater).anySatisfy(oppdrag110 -> assertThat(oppdrag110.getFagsystemId()).isEqualTo(3L));
+        assertThat(resultater)
+            .hasSize(2)
+                .anySatisfy(oppdrag110 -> assertThat(oppdrag110.getFagsystemId()).isEqualTo(1L))
+                .anySatisfy(oppdrag110 -> assertThat(oppdrag110.getFagsystemId()).isEqualTo(3L));
     }
 
     private void lagToOppdrag110MedPositivOgNegativKvittering() {

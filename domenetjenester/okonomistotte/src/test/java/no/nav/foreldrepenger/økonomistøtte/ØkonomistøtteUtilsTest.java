@@ -17,8 +17,9 @@ class ØkonomistøtteUtilsTest {
         // Act
         var datoOgKlokkeslett = ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(time);
         // Assert
-        assertThat(datoOgKlokkeslett).isNotEmpty();
-        assertThat(datoOgKlokkeslett).isEqualTo(EXPECTED_DATETIME_STR);
+        assertThat(datoOgKlokkeslett)
+            .isNotEmpty()
+            .isEqualTo(EXPECTED_DATETIME_STR);
     }
 
     @Test
@@ -28,9 +29,9 @@ class ØkonomistøtteUtilsTest {
         // Act
         var datoOgKlokkeslett = ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(time);
         // Assert
-        assertThat(datoOgKlokkeslett).isNotEmpty();
-
-        assertThat(datoOgKlokkeslett).isEqualTo(EXPECTED_DATETIME_STR);
+        assertThat(datoOgKlokkeslett)
+            .isNotEmpty()
+            .isEqualTo(EXPECTED_DATETIME_STR);
     }
 
 }

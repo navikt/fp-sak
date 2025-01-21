@@ -91,8 +91,9 @@ class BehandlendeEnhetTjenesteTest {
 
         var oppdatertEnhet = behandlendeEnhetTjeneste.endretBehandlendeEnhetEtterFagsakKobling(behandlingMor);
 
-        assertThat(oppdatertEnhet).isPresent();
-        assertThat(oppdatertEnhet).hasValueSatisfying(it -> assertThat(it.enhetId()).isEqualTo(ENHET_KODE_6.enhetId()));
+        assertThat(oppdatertEnhet)
+            .isPresent()
+            .hasValueSatisfying(it -> assertThat(it.enhetId()).isEqualTo(ENHET_KODE_6.enhetId()));
     }
 
 

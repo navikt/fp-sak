@@ -381,10 +381,8 @@ class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrollTjenes
             .anySatisfy(opp150 -> assertThat(opp150.getSats()).isEqualTo(Sats.på(7000L)));
         OppdragskontrollFeriepengerTestUtil.verifiserRefDelytelseId(forrigeOpp150FeriepengerListe, opp150RevurderingFeriepengerListe, true);
         verifiserFeriepengeår(opp150RevurderingFeriepengerListe);
-        assertThat(opp150RevurderingFeriepengerListe).anySatisfy(oppdragslinje150 -> {
-            assertThat(oppdragslinje150.getRefDelytelseId()).isNull();
-            assertThat(oppdragslinje150.getRefDelytelseId()).isNull();
-        });
+        assertThat(opp150RevurderingFeriepengerListe).anySatisfy(oppdragslinje150 ->
+            assertThat(oppdragslinje150.getRefDelytelseId()).isNull());
     }
 
     /**
@@ -874,9 +872,9 @@ class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrollTjenes
             .findFirst()
             .get();
         var opp150FeriepengerBruker = getOppdragslinje150Feriepenger(oppdrag110Bruker);
-        assertThat(opp150FeriepengerBruker).isNotEmpty()
-            .satisfiesOnlyOnce(opp150 -> assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FERIEPENGER_BRUKER)); // Gammel konvensjon for opptjeningsår 2022
-        assertThat(opp150FeriepengerBruker).isNotEmpty()
+        assertThat(opp150FeriepengerBruker)
+            .isNotEmpty()
+            .satisfiesOnlyOnce(opp150 -> assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FERIEPENGER_BRUKER)) // Gammel konvensjon for opptjeningsår 2022
             .satisfiesOnlyOnce(opp150 -> assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPA_FERIEPENGER_BRUKER)); // Ny konvensjon for opptjeningsår 2023
         // Arbeidsgiver
         var oppdrag110Arbeidsgiver = oppdrag.getOppdrag110Liste()

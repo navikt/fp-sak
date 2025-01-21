@@ -95,10 +95,12 @@ class AktivitetGraderingTjenesteTest {
         var andelGraderingArbeidsgiver1 = forArbeidsgiver(andelGraderingList, arbeidsgiver1, AktivitetStatus.ARBEIDSTAKER);
         assertThat(andelGraderingArbeidsgiver1).hasSize(1);
         var graderingerArbeidsgiver1 = andelGraderingArbeidsgiver1.get(0).getGraderinger();
-        assertThat(graderingerArbeidsgiver1).hasSize(2);
-        assertThat(graderingerArbeidsgiver1).anySatisfy(gradering -> assertThat(gradering.getPeriode()).isEqualTo(
-            Intervall.fraOgMedTilOgMed(gradering1.getFom(), gradering1.getTom())));
-        assertThat(graderingerArbeidsgiver1).anySatisfy(gradering -> assertThat(gradering.getPeriode()).isEqualTo(Intervall.fraOgMedTilOgMed(gradering2.getFom(), gradering2.getTom())));
+        assertThat(graderingerArbeidsgiver1)
+            .hasSize(2)
+            .anySatisfy(
+                gradering -> assertThat(gradering.getPeriode()).isEqualTo(Intervall.fraOgMedTilOgMed(gradering1.getFom(), gradering1.getTom())))
+            .anySatisfy(
+                gradering -> assertThat(gradering.getPeriode()).isEqualTo(Intervall.fraOgMedTilOgMed(gradering2.getFom(), gradering2.getTom())));
         assertThat(andelGraderingArbeidsgiver1.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(arbeidsgiver1.getIdentifikator());
         assertThat(graderingerArbeidsgiver1.get(0).getArbeidstidProsent().verdi()).isIn(gradering1.getArbeidsprosent(), gradering2.getArbeidsprosent());
         assertThat(graderingerArbeidsgiver1.get(1).getArbeidstidProsent().verdi()).isIn(gradering1.getArbeidsprosent(), gradering2.getArbeidsprosent());
@@ -173,14 +175,15 @@ class AktivitetGraderingTjenesteTest {
         var andelGraderingArbeidsgiver = forArbeidsgiver(andelGraderingList, arbeidsgiver, AktivitetStatus.ARBEIDSTAKER);
         assertThat(andelGraderingArbeidsgiver).hasSize(1);
         var graderinger = andelGraderingArbeidsgiver.get(0).getGraderinger();
-        assertThat(graderinger).hasSize(2);
-        // Andre periode kuttes av oppgittfordeling
-        assertThat(graderinger).anySatisfy(gradering -> {
-            var forventet = Intervall.fraOgMedTilOgMed(uttaksperiodeMedGradering.getFom(), oppgittPeriodeUtenGradering.getFom().minusDays(1));
-            assertThat(gradering.getPeriode()).isEqualTo(forventet);
-        });
-        assertThat(graderinger).anySatisfy(gradering -> assertThat(gradering.getPeriode()).isEqualTo(
-            Intervall.fraOgMedTilOgMed(oppgittPeriodeMedGradering.getFom(), oppgittPeriodeMedGradering.getTom())));
+        assertThat(graderinger)
+            .hasSize(2)
+            // Andre periode kuttes av oppgittfordeling
+            .anySatisfy(gradering -> {
+                var forventet = Intervall.fraOgMedTilOgMed(uttaksperiodeMedGradering.getFom(), oppgittPeriodeUtenGradering.getFom().minusDays(1));
+                assertThat(gradering.getPeriode()).isEqualTo(forventet);
+            })
+            .anySatisfy(gradering -> assertThat(gradering.getPeriode()).isEqualTo(
+                Intervall.fraOgMedTilOgMed(oppgittPeriodeMedGradering.getFom(), oppgittPeriodeMedGradering.getTom())));
         assertThat(andelGraderingArbeidsgiver.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(arbeidsgiver.getIdentifikator());
     }
 
@@ -255,11 +258,12 @@ class AktivitetGraderingTjenesteTest {
         var andelGraderingArbeidsgiver = forArbeidsgiver(andelGraderingList, null, AktivitetStatus.FRILANSER);
         assertThat(andelGraderingArbeidsgiver).hasSize(1);
         var graderinger = andelGraderingArbeidsgiver.get(0).getGraderinger();
-        assertThat(graderinger).hasSize(2);
-        assertThat(graderinger).anySatisfy(gradering -> assertThat(gradering.getPeriode()).isEqualTo(
-            Intervall.fraOgMedTilOgMed(uttaksperiodeMedGradering.getFom(), uttaksperiodeMedGradering.getTom())));
-        assertThat(graderinger).anySatisfy(gradering -> assertThat(gradering.getPeriode()).isEqualTo(
-            Intervall.fraOgMedTilOgMed(oppgittPeriodeMedGradering.getFom(), oppgittPeriodeMedGradering.getTom())));
+        assertThat(graderinger)
+            .hasSize(2)
+            .anySatisfy(gradering -> assertThat(gradering.getPeriode()).isEqualTo(
+                Intervall.fraOgMedTilOgMed(uttaksperiodeMedGradering.getFom(), uttaksperiodeMedGradering.getTom())))
+            .anySatisfy(gradering -> assertThat(gradering.getPeriode()).isEqualTo(
+                Intervall.fraOgMedTilOgMed(oppgittPeriodeMedGradering.getFom(), oppgittPeriodeMedGradering.getTom())));
     }
 
     @Test
@@ -292,11 +296,12 @@ class AktivitetGraderingTjenesteTest {
         var andelGraderingArbeidsgiver = forArbeidsgiver(andelGraderingList, null, AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE);
         assertThat(andelGraderingArbeidsgiver).hasSize(1);
         var graderinger = andelGraderingArbeidsgiver.get(0).getGraderinger();
-        assertThat(graderinger).hasSize(2);
-        assertThat(graderinger).anySatisfy(gradering -> assertThat(gradering.getPeriode()).isEqualTo(
-            Intervall.fraOgMedTilOgMed(uttaksperiodeMedGradering.getFom(), uttaksperiodeMedGradering.getTom())));
-        assertThat(graderinger).anySatisfy(gradering -> assertThat(gradering.getPeriode()).isEqualTo(
-            Intervall.fraOgMedTilOgMed(oppgittPeriodeMedGradering.getFom(), oppgittPeriodeMedGradering.getTom())));
+        assertThat(graderinger)
+            .hasSize(2)
+            .anySatisfy(gradering -> assertThat(gradering.getPeriode()).isEqualTo(
+                Intervall.fraOgMedTilOgMed(uttaksperiodeMedGradering.getFom(), uttaksperiodeMedGradering.getTom())))
+            .anySatisfy(gradering -> assertThat(gradering.getPeriode()).isEqualTo(
+                Intervall.fraOgMedTilOgMed(oppgittPeriodeMedGradering.getFom(), oppgittPeriodeMedGradering.getTom())));
     }
 
     private ForeldrepengerUttakPeriode gradertUttaksperiode(Arbeidsgiver arbeidsgiver,

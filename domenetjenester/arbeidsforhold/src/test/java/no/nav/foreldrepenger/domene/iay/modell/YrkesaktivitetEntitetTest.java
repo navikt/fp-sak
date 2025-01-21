@@ -100,24 +100,21 @@ class YrkesaktivitetEntitetTest {
 
         // Arrange
         var ansettelsesPerioder = getAnsettelsesPerioder(yrkesaktivitet);
-        assertThat(ansettelsesPerioder).hasSize(4);
-        assertThat(ansettelsesPerioder).anySatisfy(p -> {
-            assertThat(p.getPeriode().getFomDato()).isEqualTo(fom1);
-            assertThat(p.getPeriode().getTomDato()).isEqualTo(tom1);
-        });
-        assertThat(ansettelsesPerioder).anySatisfy(p -> {
-            assertThat(p.getPeriode().getFomDato()).isEqualTo(fom2);
-            assertThat(p.getPeriode().getTomDato()).isEqualTo(tom2);
-        });
-        assertThat(ansettelsesPerioder).anySatisfy(p -> {
-            assertThat(p.getPeriode().getFomDato()).isEqualTo(fom3);
-            assertThat(p.getPeriode().getTomDato()).isEqualTo(tom3);
-        });
-        assertThat(ansettelsesPerioder).anySatisfy(p -> {
-            assertThat(p.getPeriode().getFomDato()).isEqualTo(fom4);
-            assertThat(p.getPeriode().getTomDato()).isEqualTo(overstyrtTom);
-        });
-
+        assertThat(ansettelsesPerioder)
+            .hasSize(4)
+            .anySatisfy(p -> {
+                assertThat(p.getPeriode().getFomDato()).isEqualTo(fom1);
+                assertThat(p.getPeriode().getTomDato()).isEqualTo(tom1);
+            }).anySatisfy(p -> {
+                assertThat(p.getPeriode().getFomDato()).isEqualTo(fom2);
+                assertThat(p.getPeriode().getTomDato()).isEqualTo(tom2);
+            }).anySatisfy(p -> {
+                assertThat(p.getPeriode().getFomDato()).isEqualTo(fom3);
+                assertThat(p.getPeriode().getTomDato()).isEqualTo(tom3);
+            }).anySatisfy(p -> {
+                assertThat(p.getPeriode().getFomDato()).isEqualTo(fom4);
+                assertThat(p.getPeriode().getTomDato()).isEqualTo(overstyrtTom);
+            });
     }
 
     @Test

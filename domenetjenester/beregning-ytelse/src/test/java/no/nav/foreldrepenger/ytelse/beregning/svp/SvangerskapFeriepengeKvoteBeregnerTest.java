@@ -34,8 +34,9 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         var resultat = beregner.beregn(bgr, Collections.emptyList());
 
         // Assert
-        assertThat(resultat).isPresent();
-        assertThat(resultat).contains(64);
+        assertThat(resultat)
+            .isPresent()
+            .contains(64);
     }
 
     @Test
@@ -51,8 +52,9 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         var resultat = beregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse)));
 
         // Assert
-        assertThat(resultat).isPresent();
-        assertThat(resultat).contains(64);
+        assertThat(resultat)
+            .isPresent()
+            .contains(64);
     }
 
     @Test
@@ -69,8 +71,9 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         var resultat = beregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse, ferie)));
 
         // Assert
-        assertThat(resultat).isPresent();
-        assertThat(resultat).contains(64);
+        assertThat(resultat)
+            .isPresent()
+            .contains(64);
     }
 
     @Test
@@ -87,8 +90,9 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         var resultat = beregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse, ferie)));
 
         // Assert
-        assertThat(resultat).isPresent();
-        assertThat(resultat).contains(57);
+        assertThat(resultat)
+            .isPresent()
+            .contains(57);
     }
 
     @Test
@@ -108,8 +112,9 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         var resultat = beregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse1, ferie1), lagBrR(tidligereYtelse2, ferie2)));
 
         // Assert
-        assertThat(resultat).isPresent();
-        assertThat(resultat).contains(49);
+        assertThat(resultat)
+            .isPresent()
+            .contains(49);
     }
 
     @Test
@@ -132,8 +137,9 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         var resultat = beregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse1, ferie1), lagBrR(tidligereYtelse2, ferie2), lagBrR(tidligereYtelse3, ferie3)));
 
         // Assert
-        assertThat(resultat).isPresent();
-        assertThat(resultat).contains(45);
+        assertThat(resultat)
+            .isPresent()
+            .contains(45);
     }
 
     @Test
@@ -173,8 +179,9 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         var resultat = beregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse1, ferie1), lagBrR(tidligereYtelse2, ferie2), lagBrR(tidligereYtelse3, ferie3)));
 
         // Assert
-        assertThat(resultat).isPresent();
-        assertThat(resultat).contains(53);
+        assertThat(resultat)
+            .isPresent()
+            .contains(53);
     }
 
     @Test
@@ -192,8 +199,9 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         var resultat = beregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse, ferie)));
 
         // Assert
-        assertThat(resultat).isPresent();
-        assertThat(resultat).contains(49);
+        assertThat(resultat)
+            .isPresent()
+            .contains(49);
     }
 
     /**

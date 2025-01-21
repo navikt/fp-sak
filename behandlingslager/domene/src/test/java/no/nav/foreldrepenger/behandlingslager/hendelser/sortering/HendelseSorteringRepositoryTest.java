@@ -52,8 +52,9 @@ class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
         var finnAktørIder = List.of(aktørId);
         var resultat = sorteringRepository.hentEksisterendeAktørIderMedSak(finnAktørIder);
 
-        assertThat(resultat).isNotEmpty();
-        assertThat(resultat).containsExactly(aktørId);
+        assertThat(resultat)
+            .isNotEmpty()
+            .containsExactly(aktørId);
     }
 
     @Test
@@ -109,9 +110,10 @@ class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
         List<AktørId> aktørList = new ArrayList<>(personinfoList);
         var resultat = sorteringRepository.hentEksisterendeAktørIderMedSak(aktørList);
 
-        assertThat(resultat).hasSize(2);
-        assertThat(resultat).contains(navBrukerMedÅpenSak.getAktørId());
-        assertThat(resultat).contains(navBrukerMedÅpenOgAvsluttetSak.getAktørId());
+        assertThat(resultat)
+            .hasSize(2)
+            .contains(navBrukerMedÅpenSak.getAktørId())
+            .contains(navBrukerMedÅpenOgAvsluttetSak.getAktørId());
     }
 
     @Test
@@ -196,14 +198,16 @@ class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
         var resultat2 = sorteringRepository.hentEksisterendeAktørIderMedSak(singletonList(barnAktørId));
 
         // Assert
-        assertThat(resultat1).hasSize(1);
-        assertThat(resultat1).contains(morAktørId);
-        assertThat(resultat2).hasSize(1);
-        assertThat(resultat2).contains(barnAktørId);
+        assertThat(resultat1)
+            .hasSize(1)
+            .contains(morAktørId);
+        assertThat(resultat2)
+            .hasSize(1)
+            .contains(barnAktørId);
     }
 
-    private Long lagreBehandling(Behandling behandling) {
-        return behandlingRepository.lagre(behandling, new BehandlingLåsRepository(getEntityManager()).taLås(behandling.getId()));
+    private void lagreBehandling(Behandling behandling) {
+        behandlingRepository.lagre(behandling, new BehandlingLåsRepository(getEntityManager()).taLås(behandling.getId()));
     }
 
     @Test
@@ -245,8 +249,9 @@ class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
         var resultat2 = sorteringRepository.hentEksisterendeAktørIderMedSak(singletonList(barnAktørId));
 
         // Assert
-        assertThat(resultat1).hasSize(1);
-        assertThat(resultat1).contains(morAktørId);
+        assertThat(resultat1)
+            .hasSize(1)
+            .contains(morAktørId);
         assertThat(resultat2).isEmpty();
     }
 
