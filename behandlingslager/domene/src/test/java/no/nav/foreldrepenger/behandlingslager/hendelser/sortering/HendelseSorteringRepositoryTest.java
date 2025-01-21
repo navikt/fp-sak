@@ -206,8 +206,8 @@ class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
             .contains(barnAktørId);
     }
 
-    private void lagreBehandling(Behandling behandling) {
-        behandlingRepository.lagre(behandling, new BehandlingLåsRepository(getEntityManager()).taLås(behandling.getId()));
+    private Long lagreBehandling(Behandling behandling) {
+        return behandlingRepository.lagre(behandling, new BehandlingLåsRepository(getEntityManager()).taLås(behandling.getId()));
     }
 
     @Test
