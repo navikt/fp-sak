@@ -465,11 +465,12 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
         var opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste().stream()
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
             .toList();
-        assertThat(opp150RevurderingListe).hasSize(1);
-        assertThat(opp150RevurderingListe).allSatisfy(oppdragslinje150 -> {
-            assertThat(oppdragslinje150.gjelderOpphør()).isTrue();
-            assertThat(oppdragslinje150.getDatoStatusFom()).isEqualTo(forrigeYtelseStartDato);
-        });
+        assertThat(opp150RevurderingListe)
+            .hasSize(1)
+            .allSatisfy(oppdragslinje150 -> {
+                assertThat(oppdragslinje150.gjelderOpphør()).isTrue();
+                assertThat(oppdragslinje150.getDatoStatusFom()).isEqualTo(forrigeYtelseStartDato);
+            });
     }
 
     @Test
