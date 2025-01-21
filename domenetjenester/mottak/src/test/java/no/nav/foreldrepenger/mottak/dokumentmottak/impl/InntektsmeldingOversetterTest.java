@@ -193,7 +193,8 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
         assertThat(innsendingstidspunkt)
             .isPresent()
             .hasValue(nyereDato);
-        assertThat(grunnlag.getInntektsmeldinger().map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
+        assertThat(grunnlag.getInntektsmeldinger()
+            .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
             .get()).hasSize(1);
 
     }
@@ -236,7 +237,8 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
         assertThat(innsendingstidspunkt)
             .isPresent()
             .hasValue(nyereDato);
-        assertThat(grunnlag.getInntektsmeldinger().map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
+        assertThat(grunnlag.getInntektsmeldinger()
+            .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
             .get()).hasSize(1);
     }
 
