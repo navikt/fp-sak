@@ -58,7 +58,7 @@ public class InntektHistorikkTjeneste {
         if (nyArbeidsinntekt != null && !nyArbeidsinntekt.equals(gammelArbeidsinntekt)) {
             var linjeBuilder = new HistorikkinnslagLinjeBuilder();
             if (AktivitetStatus.FRILANSER.equals(lønnsendring.getAktivitetStatus())) {
-                linjeBuilder.fraTil("Frilansinntekt", HistorikkBeløp.of(gammelArbeidsinntekt), HistorikkBeløp.of(nyArbeidsinntekt));
+                linjeBuilder.fraTil("Frilansinntekt", HistorikkBeløp.ofNullable(gammelArbeidsinntekt), HistorikkBeløp.of(nyArbeidsinntekt));
             } else {
                 var arbeidsforholdInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(
                     lønnsendring.getAktivitetStatus(), lønnsendring.getArbeidsgiver(), lønnsendring.getArbeidsforholdRef(),
