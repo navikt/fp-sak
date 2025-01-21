@@ -73,7 +73,7 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
         if (ArbeidsforholdKomplettVurderingType.MELDING_TIL_ARBEIDSGIVER_NAV_NO.equals(dto.getVurdering())) {
             var sendBeskjedTilArbeidsgiverResponse = sendBeskjedTilArbeidsgiver(behandlingReferanse, dto);
             if (SendNyBeskjedResponse.NyBeskjedResultat.FORESPØRSEL_FINNES_IKKE == sendBeskjedTilArbeidsgiverResponse.nyBeskjedResultat()) {
-                fpInntektsmeldingTjeneste.lagForespørsel(behandlingReferanse, skjæringstidspunkt);
+                fpInntektsmeldingTjeneste.lagForespørselTask(behandlingReferanse);
             }
         }
 
