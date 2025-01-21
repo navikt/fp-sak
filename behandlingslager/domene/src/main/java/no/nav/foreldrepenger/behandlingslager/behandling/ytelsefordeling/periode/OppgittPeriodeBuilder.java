@@ -8,6 +8,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAkt
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 public class OppgittPeriodeBuilder {
     private final OppgittPeriodeEntitet kladd;
@@ -52,6 +53,11 @@ public class OppgittPeriodeBuilder {
 
     public OppgittPeriodeBuilder medPeriode(LocalDate fom, LocalDate tom) {
         kladd.setPeriode(fom, tom);
+        return this;
+    }
+
+    public OppgittPeriodeBuilder medPeriode(DatoIntervallEntitet tidsperiode) {
+        kladd.setPeriode(tidsperiode);
         return this;
     }
 

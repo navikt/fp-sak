@@ -15,8 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagOld;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
@@ -48,11 +46,9 @@ class VurderRefusjonHistorikkTjenesteTest {
     private final String NY_REFUSJONSFRIST = "Utvidelse av frist for fremsatt refusjonskrav for ";
 
     private VurderRefusjonHistorikkTjeneste vurderRefusjonHistorikkTjeneste;
-    private final HistorikkinnslagOld historikkinnslag = new HistorikkinnslagOld();
 
     @BeforeEach
     public void setUp() {
-        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
         var virksomhetTjeneste = mock(VirksomhetTjeneste.class);
         when(virksomhetTjeneste.hentOrganisasjon(VIRKSOMHET.getIdentifikator())).thenReturn(
             new Virksomhet.Builder().medOrgnr(VIRKSOMHET.getOrgnr()).build());

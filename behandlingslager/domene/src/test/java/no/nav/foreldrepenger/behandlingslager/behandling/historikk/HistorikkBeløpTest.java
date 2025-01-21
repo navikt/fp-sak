@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 class HistorikkBeløpTest {
 
@@ -25,6 +26,11 @@ class HistorikkBeløpTest {
     @Test
     void skal_håndtere_nullable_input() {
         assertThat(HistorikkBeløp.ofNullable((BigDecimal) null)).isNull();
+    }
+
+    @Test
+    void skal_feile_for_null_beløp_ved_forventet_beløp() {
+        assertThatIllegalArgumentException().isThrownBy(() -> HistorikkBeløp.of((BigDecimal) null)).withMessage("Beløp cannot be null");
     }
 
 }

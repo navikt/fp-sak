@@ -10,6 +10,9 @@ import java.util.stream.Stream;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
@@ -75,8 +78,8 @@ public class FaktaUttakPeriodeDtoTjeneste {
             if (uttakOriginalBehandling.isPresent()) {
                 var fraDato = behandlingSomJusteresFarsUttakVedFødsel(behandling, yfa) ?
                     skjæringstidspunktEllerMIN(behandlingId) : LocalDate.MIN;
-                perioder = slåSammenLikePerioder(VedtaksperioderHelper.opprettOppgittePerioder(uttakOriginalBehandling.get(), perioder,
-                    fraDato, false));
+                perioder = slåSammenLikePerioder(
+                    VedtaksperioderHelper.opprettOppgittePerioder(uttakOriginalBehandling.get(), perioder, fraDato, false));
             }
         }
         return perioder.stream().sorted(Comparator.comparing(OppgittPeriodeEntitet::getTom));

@@ -5,19 +5,9 @@
                  https://jakarta.ee/xml/ns/persistence/orm/orm_3_0.xsd"
                  version="3.0">
 
-	<sequence-generator name="SEQ_HISTORIKKINNSLAG" allocation-size="50" sequence-name="SEQ_HISTORIKKINNSLAG" />
-	<sequence-generator name="SEQ_HISTORIKKINNSLAG_DOK_LINK" allocation-size="50" sequence-name="SEQ_HISTORIKKINNSLAG_DOK_LINK" />
-	<sequence-generator name="SEQ_HISTORIKKINNSLAG_DEL" allocation-size="50" sequence-name="SEQ_HISTORIKKINNSLAG_DEL" />
-	<sequence-generator name="SEQ_HISTORIKKINNSLAG_FELT" allocation-size="50" sequence-name="SEQ_HISTORIKKINNSLAG_FELT" />
-
     <sequence-generator name="SEQ_HISTORIKKINNSLAG2" allocation-size="50" sequence-name="SEQ_HISTORIKKINNSLAG2" />
     <sequence-generator name="SEQ_HISTORIKKINNSLAG2_LINJE" allocation-size="50" sequence-name="SEQ_HISTORIKKINNSLAG2_LINJE" />
     <sequence-generator name="SEQ_HISTORIKKINNSLAG2_DOK_LINK" allocation-size="50" sequence-name="SEQ_HISTORIKKINNSLAG2_DOK_LINK" />
-
-	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagOld" />
-	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel" />
-	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagOldDokumentLink" />
-	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt" />
 
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag" />
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinje" />

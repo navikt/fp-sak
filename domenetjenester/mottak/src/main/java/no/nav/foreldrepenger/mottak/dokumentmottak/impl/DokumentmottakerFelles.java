@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -101,12 +100,12 @@ public class DokumentmottakerFelles {
 
     public void opprettKøetHistorikk(Behandling køetBehandling, boolean fantesFraFør) {
         if (!fantesFraFør) {
-            opprettHistorikkinnslagForVenteFristRelaterteInnslag(køetBehandling, HistorikkinnslagType.BEH_KØET, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
+            opprettHistorikkinnslagForVenteFristRelaterteInnslag(køetBehandling, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
         }
     }
 
-    public void opprettHistorikkinnslagForVenteFristRelaterteInnslag(Behandling behandling, HistorikkinnslagType historikkinnslagType, LocalDateTime frist, Venteårsak venteårsak) {
-        historikkinnslagTjeneste.opprettHistorikkinnslagForVenteFristRelaterteInnslag(behandling, historikkinnslagType, frist, venteårsak);
+    public void opprettHistorikkinnslagForVenteFristRelaterteInnslag(Behandling behandling, LocalDateTime frist, Venteårsak venteårsak) {
+        historikkinnslagTjeneste.opprettHistorikkinnslagForVenteFristRelaterteInnslag(behandling, frist, venteårsak);
     }
 
     void opprettHistorikkinnslagForAutomatiskHenlegelsePgaNySøknad(Behandling behandling, Behandling nyBehandling, MottattDokument mottattDokument) {

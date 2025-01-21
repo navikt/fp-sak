@@ -49,10 +49,6 @@ public class Historikkinnslag extends BaseCreateableEntitet {
     @Column(name = "tittel")
     private String tittel;
 
-    //TODO: Temp kolonne til bruk i migrering. Kan fjernes etter migrering fra tidligere tabell er utført
-    @Column(name = "migrert_fra_id")
-    private Long migrertFraId;
-
     protected Historikkinnslag() {
     }
 
@@ -82,10 +78,6 @@ public class Historikkinnslag extends BaseCreateableEntitet {
 
     public String getTittel() {
         return tittel;
-    }
-
-    public Long getMigrertFraId() {
-        return migrertFraId;
     }
 
     @Override
@@ -139,11 +131,6 @@ public class Historikkinnslag extends BaseCreateableEntitet {
 
         public Builder medTittel(String tittel) {
             kladd.tittel = tittel;
-            return this;
-        }
-
-        public Builder medMigrertFraId(Long migrertFraId) {
-            kladd.migrertFraId = migrertFraId;
             return this;
         }
 

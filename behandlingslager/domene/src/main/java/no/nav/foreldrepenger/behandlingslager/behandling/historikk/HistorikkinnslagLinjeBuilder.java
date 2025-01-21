@@ -104,6 +104,10 @@ public class HistorikkinnslagLinjeBuilder {
         return fraTil(hva, null, til);
     }
 
+    public HistorikkinnslagLinjeBuilder til(String hva, HistorikkBeløp til) {
+        return fraTil(hva, null, format(til));
+    }
+
     public HistorikkinnslagLinjeBuilder til(String hva, Kodeverdi til) {
         return fraTil(hva, null, til);
     }

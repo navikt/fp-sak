@@ -9,6 +9,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkBeløp;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -57,12 +58,12 @@ public class InntektHistorikkTjeneste {
         if (nyArbeidsinntekt != null && !nyArbeidsinntekt.equals(gammelArbeidsinntekt)) {
             var linjeBuilder = new HistorikkinnslagLinjeBuilder();
             if (AktivitetStatus.FRILANSER.equals(lønnsendring.getAktivitetStatus())) {
-                linjeBuilder.fraTil("Frilansinntekt", gammelArbeidsinntekt, nyArbeidsinntekt);
+                linjeBuilder.fraTil("Frilansinntekt", HistorikkBeløp.of(gammelArbeidsinntekt), HistorikkBeløp.of(nyArbeidsinntekt));
             } else {
                 var arbeidsforholdInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(
                     lønnsendring.getAktivitetStatus(), lønnsendring.getArbeidsgiver(), lønnsendring.getArbeidsforholdRef(),
                     arbeidsforholdOverstyringer);
-                linjeBuilder.fraTil("Inntekt fra " + arbeidsforholdInfo, gammelArbeidsinntekt, nyArbeidsinntekt);
+                linjeBuilder.fraTil("Inntekt fra " + arbeidsforholdInfo, HistorikkBeløp.ofNullable(gammelArbeidsinntekt), HistorikkBeløp.of(nyArbeidsinntekt));
             }
             return Optional.of(linjeBuilder);
         }

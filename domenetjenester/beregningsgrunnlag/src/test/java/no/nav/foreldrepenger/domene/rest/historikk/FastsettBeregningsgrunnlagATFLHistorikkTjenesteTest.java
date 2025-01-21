@@ -84,7 +84,7 @@ class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
         assertThat(historikkinnslag.getSkjermlenke()).isEqualTo(SkjermlenkeType.BEREGNING_FORELDREPENGER);
         assertThat(historikkinnslag.getLinjer()).hasSize(3);
         assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).isEqualTo("Grunnlag for beregnet årsinntekt:");
-        assertThat(historikkinnslag.getLinjer().get(1).getTekst()).isEqualTo("__Inntekt fra AF1 (889640782) ...050d__ er satt til __200000__.");
+        assertThat(historikkinnslag.getLinjer().get(1).getTekst()).isEqualTo("__Inntekt fra AF1 (889640782) ...050d__ er satt til __200 000 kr__.");
         assertThat(historikkinnslag.getLinjer().get(2).getTekst()).contains(dto.getBegrunnelse());
     }
 
@@ -114,7 +114,7 @@ class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
         assertThat(historikkinnslag.getSkjermlenke()).isEqualTo(SkjermlenkeType.BEREGNING_FORELDREPENGER);
         assertThat(historikkinnslag.getLinjer()).hasSize(3);
         assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).isEqualTo("Grunnlag for beregnet årsinntekt:");
-        assertThat(historikkinnslag.getLinjer().get(1).getTekst()).isEqualTo("__Frilansinntekt__ er satt til __4000__.");
+        assertThat(historikkinnslag.getLinjer().get(1).getTekst()).isEqualTo("__Frilansinntekt__ er satt til __4 000 kr__.");
         assertThat(historikkinnslag.getLinjer().get(2).getTekst()).contains(dto.getBegrunnelse());
 
     }

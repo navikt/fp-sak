@@ -73,7 +73,7 @@ public class YtelseFordelingTjeneste {
         ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
     }
 
-    private void validerOverlapp(List<OppgittPeriodeEntitet> perioder) {
+    private static void validerOverlapp(List<OppgittPeriodeEntitet> perioder) {
         for (var i = 0; i < perioder.size(); i++) {
             for (var j = i + 1; j < perioder.size(); j++) {
                 var per1 = new LocalDateInterval(perioder.get(i).getFom(), perioder.get(i).getTom());
