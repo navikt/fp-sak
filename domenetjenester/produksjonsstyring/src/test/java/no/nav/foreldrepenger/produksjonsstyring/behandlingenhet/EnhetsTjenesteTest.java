@@ -105,9 +105,8 @@ class EnhetsTjenesteTest {
         var enhet1 = enhetsTjeneste
                 .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), FagsakYtelseType.ENGANGSTØNAD, MOR_AKTØR_ID, FAMILIE, Set.of()).orElse(enhet);
 
-        assertThat(enhet)
-            .isNotNull()
-            .isEqualTo(enhetKode6);
+        assertThat(enhet).isNotNull();
+        assertThat(enhet1).isEqualTo(enhetKode6);
     }
 
     @Test
@@ -119,9 +118,8 @@ class EnhetsTjenesteTest {
         var enhet1 = enhetsTjeneste
                 .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), FagsakYtelseType.ENGANGSTØNAD, MOR_AKTØR_ID, FAMILIE, Set.of()).orElse(enhet);
 
-        assertThat(enhet)
-            .isNotNull()
-            .isEqualTo(enhetKode6);
+        assertThat(enhet).isNotNull();
+        assertThat(enhet1).isEqualTo(enhetKode6);
     }
 
     @Test
