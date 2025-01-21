@@ -349,9 +349,9 @@ class StønadsstatistikkTjenesteTest {
 
         assertThat(vedtak.getFamilieHendelse().hendelseType()).isEqualTo(HendelseType.FØDSEL);
         assertThat(vedtak.getFamilieHendelse().adopsjonsdato()).isNull();
-        assertThat(vedtak.getFamilieHendelse().antallBarn()).isEqualTo(0);
+        assertThat(vedtak.getFamilieHendelse().antallBarn()).isZero();
         assertThat(vedtak.getFamilieHendelse().termindato()).isEqualTo(LocalDate.now().plusDays(40));
-        assertThat(vedtak.getFamilieHendelse().barn()).hasSize(0);
+        assertThat(vedtak.getFamilieHendelse().barn()).isEmpty();
 
         assertThat(vedtak.getBeregning().årsbeløp().brutto()).isEqualByComparingTo(bruttoPrÅr);
         assertThat(vedtak.getBeregning().årsbeløp().avkortet()).isEqualByComparingTo(avkortetPrÅr);

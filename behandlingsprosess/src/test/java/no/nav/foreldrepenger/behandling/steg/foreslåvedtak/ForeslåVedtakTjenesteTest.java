@@ -241,8 +241,8 @@ class ForeslåVedtakTjenesteTest {
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
-        assertThat(stegResultat.getAksjonspunktListe().contains(AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK)).isTrue();
-        assertThat(stegResultat.getAksjonspunktListe().contains(AksjonspunktDefinisjon.VURDERE_DOKUMENT_FØR_VEDTAK)).isTrue();
+        assertThat(stegResultat.getAksjonspunktListe()).contains(AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK);
+        assertThat(stegResultat.getAksjonspunktListe()).contains(AksjonspunktDefinisjon.VURDERE_DOKUMENT_FØR_VEDTAK);
     }
 
     @Test

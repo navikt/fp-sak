@@ -147,7 +147,7 @@ class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
         assertThat(oppdrkontrollLest.getOppdrag110Liste()).hasSize(1);
         var oppdr110Lest = oppdrkontrollLest.getOppdrag110Liste().get(0);
         assertThat(oppdr110Lest).isNotNull();
-        assertThat(oppdr110Lest.getId()).isNotEqualTo(0);
+        assertThat(oppdr110Lest.getId()).isNotZero();
     }
 
     @Test
@@ -168,10 +168,10 @@ class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
         assertThat(oppdrkontrollLest.getOppdrag110Liste()).hasSize(1);
         var oppdr110Lest = oppdrkontrollLest.getOppdrag110Liste().get(0);
         assertThat(oppdr110Lest).isNotNull();
-        assertThat(oppdr110Lest.getId()).isNotEqualTo(0);
+        assertThat(oppdr110Lest.getId()).isNotZero();
         var oppdrKvittering = oppdr110Lest.getOppdragKvittering();
         assertThat(oppdrKvittering).isNotNull();
-        assertThat(oppdrKvittering.getId()).isNotEqualTo(0);
+        assertThat(oppdrKvittering.getId()).isNotZero();
     }
 
     @Test
@@ -232,6 +232,6 @@ class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
         assertThat(oppdrLinje150Lest).isNotNull();
         var refusjonsinfo156Lest = oppdrLinje150Lest.getRefusjonsinfo156();
         assertThat(refusjonsinfo156Lest).isNotNull();
-        assertThat(refusjonsinfo156Lest.getId()).isNotEqualTo(0);
+        assertThat(refusjonsinfo156Lest.getId()).isNotZero();
     }
 }

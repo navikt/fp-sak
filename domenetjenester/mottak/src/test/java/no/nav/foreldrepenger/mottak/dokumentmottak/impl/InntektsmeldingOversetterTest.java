@@ -88,8 +88,8 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
             .map(i -> i.stream().flatMap(im -> im.getEndringerRefusjon().stream()).toList())
             .orElse(Collections.emptyList());
 
-        assertThat(endringerIRefusjon.size()).as(
-            "Forventer at vi har en endring i refusjon lagret fra inntektsmeldingen.").isEqualTo(1);
+        assertThat(endringerIRefusjon).as(
+            "Forventer at vi har en endring i refusjon lagret fra inntektsmeldingen.").hasSize(1);
     }
 
     @Test
@@ -104,8 +104,8 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
             .map(e -> e.stream().flatMap(im -> im.getNaturalYtelser().stream()).toList())
             .orElse(Collections.emptyList());
 
-        assertThat(naturalYtelser.size()).as("Forventet fire naturalytelser, to opphørt og to gjenopptatt.")
-            .isEqualTo(4);
+        assertThat(naturalYtelser).as("Forventet fire naturalytelser, to opphørt og to gjenopptatt.")
+            .hasSize(4);
 
         assertThat(naturalYtelser.stream().map(NaturalYtelse::getType).toList()).containsOnly(
             AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS, ELEKTRISK_KOMMUNIKASJON);

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.dokument;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.util.UUID;
 
@@ -13,6 +12,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class BehandlingDokumentRepositoryTest extends EntityManagerAwareTest {
 
@@ -34,7 +35,7 @@ class BehandlingDokumentRepositoryTest extends EntityManagerAwareTest {
         var behandlingDokumenter = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
 
         assertThat(behandlingDokumenter).isPresent();
-        assertThat(behandlingDokumenter.get().getBestilteDokumenter().size()).isEqualTo(1);
+        assertThat(behandlingDokumenter.get().getBestilteDokumenter()).hasSize(1);
 
         var lagretBestilling = behandlingDokumentRepository.hentHvisEksisterer(bestillingUuid);
 

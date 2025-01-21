@@ -828,7 +828,7 @@ public class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest exte
             .filter(o150 -> o150.getDatoVedtakFom().isAfter(baseDato.withDayOfYear(1).plusYears(2)))
             .forEach(o150 -> o150.setKodeKlassifik(KodeKlassifik.FERIEPENGER_BRUKER));
         assertThat(original150L.stream().filter(o150 -> KodeKlassifik.FERIEPENGER_BRUKER.equals(o150.getKodeKlassifik()))).hasSize(2);
-        assertThat(original150L.stream().filter(o150 -> KodeKlassifik.FPA_FERIEPENGER_BRUKER.equals(o150.getKodeKlassifik()))).hasSize(0);
+        assertThat(original150L.stream().filter(o150 -> KodeKlassifik.FPA_FERIEPENGER_BRUKER.equals(o150.getKodeKlassifik()))).isEmpty();
 
         //Revurdering #1
         var beregningsresultatRevurderingFP = buildBeregningsresultatFPForVerifiseringAvOpp150MedFeriepenger(true, 6000L, 7000L, baseDato);

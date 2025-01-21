@@ -166,7 +166,7 @@ public class OppdragskontrollTjenesteImplSVPTest extends NyOppdragskontrollTjene
         original150L.stream().filter(o150 -> KodeKlassifik.SVP_FERIEPENGER_BRUKER.equals(o150.getKodeKlassifik()))
             .forEach(o150 -> o150.setKodeKlassifik(KodeKlassifik.FERIEPENGER_BRUKER));
         assertThat(original150L.stream().filter(o150 -> KodeKlassifik.FERIEPENGER_BRUKER.equals(o150.getKodeKlassifik()))).hasSize(1);
-        assertThat(original150L.stream().filter(o150 -> KodeKlassifik.SVP_FERIEPENGER_BRUKER.equals(o150.getKodeKlassifik()))).hasSize(0);
+        assertThat(original150L.stream().filter(o150 -> KodeKlassifik.SVP_FERIEPENGER_BRUKER.equals(o150.getKodeKlassifik()))).isEmpty();
 
         //Revurdering #1
         var rberegningsresultat = buildEmptyBeregningsresultatFP();

@@ -44,8 +44,8 @@ class AvstemmingTest {
         var avstemming1 = Avstemming.fra(testDato);
         var avstemming2 =  Avstemming.fra(testDato);
 
-        assertEquals(avstemming1, avstemming2);
-        assertEquals(avstemming2.hashCode(), avstemming1.hashCode());
+        assertThat(avstemming2).isEqualByComparingTo(avstemming1);
+        assertThat(avstemming2.hashCode()).isEqualTo(avstemming1.hashCode());
     }
 
     @Test
@@ -54,8 +54,8 @@ class AvstemmingTest {
         var avstemming1 = Avstemming.fra(testDato);
         var avstemming2 =  Avstemming.fra(testDato.plusDays(1));
 
-        assertNotEquals(avstemming1, avstemming2);
-        assertNotEquals(avstemming2.hashCode(), avstemming1.hashCode());
+        assertThat(avstemming2).isNotEqualByComparingTo(avstemming1);
+        assertThat(avstemming2.hashCode()).isNotEqualTo(avstemming1.hashCode());
     }
 
     @Test
