@@ -2200,6 +2200,31 @@ class JusterFordelingTjenesteTest {
         assertThat(justertePerioder.get(3).getTom()).isEqualTo(fp2.getTom());
     }
 
+    @Test
+    void FAGSYSTEM_365456_fikser_bug_ved_avkorting_av_fellesperiode_ved_høyrejustering_hvor_det_ble_overlapp_av_fellesperiode() {
+        var termindato = LocalDate.of(2024, 12, 3);
+        var mødrekvote = lagPeriode(MØDREKVOTE, termindato.minusWeeks(4), termindato.plusWeeks(2).minusDays(1));
+        var fellesperiode = lagPeriode(FELLESPERIODE, termindato.plusWeeks(2), termindato.plusWeeks(15).minusDays(1));
+        var oppgittePerioder = List.of(mødrekvote, fellesperiode);
+
+        var fødtDagerSenere = 1;
+        var fødselsdato = termindato.plusDays(fødtDagerSenere);
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
+
+        assertThat(justertePerioder).hasSize(3);
+        assertThat(justertePerioder.get(0).getFom()).isEqualTo(mødrekvote.getFom());
+        assertThat(justertePerioder.get(0).getTom()).isEqualTo(mødrekvote.getFom()); // Skal fylle hull før fødsel med gyldig kvote som er fellesperiode i dette tilfellet
+        assertThat(justertePerioder.get(0).getPeriodeType()).isEqualTo(FELLESPERIODE);
+
+        assertThat(justertePerioder.get(fødtDagerSenere).getFom()).isEqualTo(mødrekvote.getFom().plusDays(fødtDagerSenere));
+        assertThat(justertePerioder.get(fødtDagerSenere).getTom()).isEqualTo(mødrekvote.getTom().plusDays(fødtDagerSenere));
+        assertThat(justertePerioder.get(fødtDagerSenere).getPeriodeType()).isEqualTo(MØDREKVOTE);
+
+        assertThat(justertePerioder.get(2).getFom()).isEqualTo(fellesperiode.getFom().plusDays(fødtDagerSenere));
+        assertThat(justertePerioder.get(2).getTom()).isEqualTo(fellesperiode.getTom());
+        assertThat(justertePerioder.get(2).getPeriodeType()).isEqualTo(FELLESPERIODE);
+    }
+
     private static List<OppgittPeriodeEntitet> juster(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate familehendelse1, LocalDate familehendelse2) {
         var justert = JusterFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, familehendelse1, familehendelse2, RelasjonsRolleType.MORA, false);
         return slåSammenLikePerioder(justert);
