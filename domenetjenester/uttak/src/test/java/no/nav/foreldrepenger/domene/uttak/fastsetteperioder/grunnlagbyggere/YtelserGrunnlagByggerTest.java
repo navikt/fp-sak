@@ -74,7 +74,7 @@ class YtelserGrunnlagByggerTest {
         assertThat(perioder)
             .hasSize(2)
             .containsExactlyInAnyOrder(new PleiepengerPeriode(innleggelseFom, innleggelseTom, true),
-            new PleiepengerPeriode(innleggelseTom.plusDays(1), innleggelseTom.plusWeeks(2), false));
+                new PleiepengerPeriode(innleggelseTom.plusDays(1), innleggelseTom.plusWeeks(2), false));
     }
 
     @Test
