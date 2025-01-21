@@ -97,10 +97,10 @@ class AktivitetGraderingTjenesteTest {
         var graderingerArbeidsgiver1 = andelGraderingArbeidsgiver1.get(0).getGraderinger();
         assertThat(graderingerArbeidsgiver1)
             .hasSize(2)
-            .anySatisfy(
-                gradering -> assertThat(gradering.getPeriode()).isEqualTo(Intervall.fraOgMedTilOgMed(gradering1.getFom(), gradering1.getTom())))
-            .anySatisfy(
-                gradering -> assertThat(gradering.getPeriode()).isEqualTo(Intervall.fraOgMedTilOgMed(gradering2.getFom(), gradering2.getTom())));
+            .anySatisfy(gradering ->
+                assertThat(gradering.getPeriode()).isEqualTo(Intervall.fraOgMedTilOgMed(gradering1.getFom(), gradering1.getTom())))
+            .anySatisfy(gradering ->
+                assertThat(gradering.getPeriode()).isEqualTo(Intervall.fraOgMedTilOgMed(gradering2.getFom(), gradering2.getTom())));
         assertThat(andelGraderingArbeidsgiver1.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(arbeidsgiver1.getIdentifikator());
         assertThat(graderingerArbeidsgiver1.get(0).getArbeidstidProsent().verdi()).isIn(gradering1.getArbeidsprosent(), gradering2.getArbeidsprosent());
         assertThat(graderingerArbeidsgiver1.get(1).getArbeidstidProsent().verdi()).isIn(gradering1.getArbeidsprosent(), gradering2.getArbeidsprosent());
@@ -182,8 +182,8 @@ class AktivitetGraderingTjenesteTest {
                 var forventet = Intervall.fraOgMedTilOgMed(uttaksperiodeMedGradering.getFom(), oppgittPeriodeUtenGradering.getFom().minusDays(1));
                 assertThat(gradering.getPeriode()).isEqualTo(forventet);
             })
-            .anySatisfy(gradering -> assertThat(gradering.getPeriode()).isEqualTo(
-                Intervall.fraOgMedTilOgMed(oppgittPeriodeMedGradering.getFom(), oppgittPeriodeMedGradering.getTom())));
+            .anySatisfy(gradering ->
+                assertThat(gradering.getPeriode()).isEqualTo(Intervall.fraOgMedTilOgMed(oppgittPeriodeMedGradering.getFom(), oppgittPeriodeMedGradering.getTom())));
         assertThat(andelGraderingArbeidsgiver.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(arbeidsgiver.getIdentifikator());
     }
 
