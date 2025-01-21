@@ -182,8 +182,8 @@ class AktivitetGraderingTjenesteTest {
                 var forventet = Intervall.fraOgMedTilOgMed(uttaksperiodeMedGradering.getFom(), oppgittPeriodeUtenGradering.getFom().minusDays(1));
                 assertThat(gradering.getPeriode()).isEqualTo(forventet);
             })
-            .anySatisfy(gradering ->
-                assertThat(gradering.getPeriode()).isEqualTo(Intervall.fraOgMedTilOgMed(oppgittPeriodeMedGradering.getFom(), oppgittPeriodeMedGradering.getTom())));
+            .anySatisfy(gradering -> assertThat(gradering.getPeriode())
+                .isEqualTo(Intervall.fraOgMedTilOgMed(oppgittPeriodeMedGradering.getFom(), oppgittPeriodeMedGradering.getTom())));
         assertThat(andelGraderingArbeidsgiver.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(arbeidsgiver.getIdentifikator());
     }
 
