@@ -60,9 +60,9 @@ class OppdragKvitteringEntityTest {
     void skal_håndtere_null_this_feilKlasse_i_equals() {
         oppdragKvittering = lagOppdragKvitteringMedPaakrevdeFelter().build();
 
-        assertThat(oppdragKvittering).isNotNull();
-        assertThat(oppdragKvittering).isNotEqualTo("blabla");
-        assertThat(oppdragKvittering).isEqualTo(oppdragKvittering);
+        assertThat(oppdragKvittering)
+            .isNotNull()
+            .isNotEqualTo("blabla");
     }
 
     @Test

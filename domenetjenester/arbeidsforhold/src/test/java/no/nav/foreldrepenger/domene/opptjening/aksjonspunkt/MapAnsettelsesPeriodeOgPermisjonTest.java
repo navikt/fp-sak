@@ -82,17 +82,17 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
         var resultat = MapAnsettelsesPeriodeOgPermisjon.ansettelsesPerioderUtenomFullPermisjon(grunnlag, yrkesaktivitet);
 
         // Assert
-        assertThat(resultat).hasSize(2);
-        assertThat(resultat).anySatisfy(ansettelsesperiode -> {
-            assertThat(ansettelsesperiode.getPeriode().getFomDato()).isEqualTo(A);
-            assertThat(ansettelsesperiode.getPeriode().getTomDato()).isEqualTo(B);
-            assertThat(ansettelsesperiode.getBeskrivelse()).isEqualTo(BESKRIVELSE_1);
-        });
-        assertThat(resultat).anySatisfy(ansettelsesperiode -> {
-            assertThat(ansettelsesperiode.getPeriode().getFomDato()).isEqualTo(E);
-            assertThat(ansettelsesperiode.getPeriode().getTomDato()).isEqualTo(Tid.TIDENES_ENDE);
-            assertThat(ansettelsesperiode.getBeskrivelse()).isEqualTo(BESKRIVELSE_1);
-        });
+        assertThat(resultat)
+            .hasSize(2)
+            .anySatisfy(ansettelsesperiode -> {
+                assertThat(ansettelsesperiode.getPeriode().getFomDato()).isEqualTo(A);
+                assertThat(ansettelsesperiode.getPeriode().getTomDato()).isEqualTo(B);
+                assertThat(ansettelsesperiode.getBeskrivelse()).isEqualTo(BESKRIVELSE_1);
+            }).anySatisfy(ansettelsesperiode -> {
+                assertThat(ansettelsesperiode.getPeriode().getFomDato()).isEqualTo(E);
+                assertThat(ansettelsesperiode.getPeriode().getTomDato()).isEqualTo(Tid.TIDENES_ENDE);
+                assertThat(ansettelsesperiode.getBeskrivelse()).isEqualTo(BESKRIVELSE_1);
+            });
     }
 
     @Test
@@ -118,12 +118,13 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
         var resultat = MapAnsettelsesPeriodeOgPermisjon.ansettelsesPerioderUtenomFullPermisjon(grunnlag, yrkesaktivitet);
 
         // Assert
-        assertThat(resultat).hasSize(1);
-        assertThat(resultat).anySatisfy(ansettelsesperiode -> {
-            assertThat(ansettelsesperiode.getPeriode().getFomDato()).isEqualTo(C);
-            assertThat(ansettelsesperiode.getPeriode().getTomDato()).isEqualTo(Tid.TIDENES_ENDE);
-            assertThat(ansettelsesperiode.getBeskrivelse()).isEqualTo(BESKRIVELSE_1);
-        });
+        assertThat(resultat)
+            .hasSize(1)
+            .anySatisfy(ansettelsesperiode -> {
+                assertThat(ansettelsesperiode.getPeriode().getFomDato()).isEqualTo(C);
+                assertThat(ansettelsesperiode.getPeriode().getTomDato()).isEqualTo(Tid.TIDENES_ENDE);
+                assertThat(ansettelsesperiode.getBeskrivelse()).isEqualTo(BESKRIVELSE_1);
+            });
     }
 
     @Test
@@ -149,12 +150,13 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
         var resultat = MapAnsettelsesPeriodeOgPermisjon.ansettelsesPerioderUtenomFullPermisjon(grunnlag, yrkesaktivitet);
 
         // Assert
-        assertThat(resultat).hasSize(1);
-        assertThat(resultat).anySatisfy(ansettelsesperiode -> {
-            assertThat(ansettelsesperiode.getPeriode().getFomDato()).isEqualTo(A);
-            assertThat(ansettelsesperiode.getPeriode().getTomDato()).isEqualTo(D);
-            assertThat(ansettelsesperiode.getBeskrivelse()).isEqualTo(BESKRIVELSE_1);
-        });
+        assertThat(resultat)
+            .hasSize(1)
+            .anySatisfy(ansettelsesperiode -> {
+                assertThat(ansettelsesperiode.getPeriode().getFomDato()).isEqualTo(A);
+                assertThat(ansettelsesperiode.getPeriode().getTomDato()).isEqualTo(D);
+                assertThat(ansettelsesperiode.getBeskrivelse()).isEqualTo(BESKRIVELSE_1);
+            });
     }
 
     @Test
@@ -235,17 +237,17 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
         var resultat = MapAnsettelsesPeriodeOgPermisjon.ansettelsesPerioderUtenomFullPermisjon(grunnlag, yrkesaktivitet);
 
         // Assert
-        assertThat(resultat).hasSize(2);
-        assertThat(resultat).anySatisfy(ansettelsesperiode -> {
-            assertThat(ansettelsesperiode.getPeriode().getFomDato()).isEqualTo(A);
-            assertThat(ansettelsesperiode.getPeriode().getTomDato()).isEqualTo(LocalDate.of(2019, FEBRUARY, 4));
-            assertThat(ansettelsesperiode.getBeskrivelse()).isEqualTo(BESKRIVELSE_1);
-        });
-        assertThat(resultat).anySatisfy(ansettelsesperiode -> {
-            assertThat(ansettelsesperiode.getPeriode().getFomDato()).isEqualTo(E);
-            assertThat(ansettelsesperiode.getPeriode().getTomDato()).isEqualTo(Tid.TIDENES_ENDE);
-            assertThat(ansettelsesperiode.getBeskrivelse()).isEqualTo(BESKRIVELSE_2);
-        });
+        assertThat(resultat)
+            .hasSize(2)
+            .anySatisfy(ansettelsesperiode -> {
+                assertThat(ansettelsesperiode.getPeriode().getFomDato()).isEqualTo(A);
+                assertThat(ansettelsesperiode.getPeriode().getTomDato()).isEqualTo(LocalDate.of(2019, FEBRUARY, 4));
+                assertThat(ansettelsesperiode.getBeskrivelse()).isEqualTo(BESKRIVELSE_1);
+            }).anySatisfy(ansettelsesperiode -> {
+                assertThat(ansettelsesperiode.getPeriode().getFomDato()).isEqualTo(E);
+                assertThat(ansettelsesperiode.getPeriode().getTomDato()).isEqualTo(Tid.TIDENES_ENDE);
+                assertThat(ansettelsesperiode.getBeskrivelse()).isEqualTo(BESKRIVELSE_2);
+            });
     }
 
     @Test
@@ -281,27 +283,25 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
         var resultat = MapAnsettelsesPeriodeOgPermisjon.ansettelsesPerioderUtenomFullPermisjon(grunnlag, yrkesaktivitet);
 
         // Assert
-        assertThat(resultat).hasSize(4);
-        assertThat(resultat).anySatisfy(ansettelsesperiode -> {
-            assertThat(ansettelsesperiode.getPeriode().getFomDato()).isEqualTo(A);
-            assertThat(ansettelsesperiode.getPeriode().getTomDato()).isEqualTo(B);
-            assertThat(ansettelsesperiode.getBeskrivelse()).isEqualTo(BESKRIVELSE_1);
-        });
-        assertThat(resultat).anySatisfy(ansettelsesperiode -> {
-            assertThat(ansettelsesperiode.getPeriode().getFomDato()).isEqualTo(C);
-            assertThat(ansettelsesperiode.getPeriode().getTomDato()).isEqualTo(LocalDate.of(2019, FEBRUARY, 28));
-            assertThat(ansettelsesperiode.getBeskrivelse()).isEqualTo(BESKRIVELSE_2);
-        });
-        assertThat(resultat).anySatisfy(ansettelsesperiode -> {
-            assertThat(ansettelsesperiode.getPeriode().getFomDato()).isEqualTo(LocalDate.of(2019, APRIL, 1));
-            assertThat(ansettelsesperiode.getPeriode().getTomDato()).isEqualTo(D);
-            assertThat(ansettelsesperiode.getBeskrivelse()).isEqualTo(BESKRIVELSE_2);
-        });
-        assertThat(resultat).anySatisfy(ansettelsesperiode -> {
-            assertThat(ansettelsesperiode.getPeriode().getFomDato()).isEqualTo(E);
-            assertThat(ansettelsesperiode.getPeriode().getTomDato()).isEqualTo(Tid.TIDENES_ENDE);
-            assertThat(ansettelsesperiode.getBeskrivelse()).isEqualTo(BESKRIVELSE_3);
-        });
+        assertThat(resultat)
+            .hasSize(4)
+            .anySatisfy(ansettelsesperiode -> {
+                assertThat(ansettelsesperiode.getPeriode().getFomDato()).isEqualTo(A);
+                assertThat(ansettelsesperiode.getPeriode().getTomDato()).isEqualTo(B);
+                assertThat(ansettelsesperiode.getBeskrivelse()).isEqualTo(BESKRIVELSE_1);
+            }).anySatisfy(ansettelsesperiode -> {
+                assertThat(ansettelsesperiode.getPeriode().getFomDato()).isEqualTo(C);
+                assertThat(ansettelsesperiode.getPeriode().getTomDato()).isEqualTo(LocalDate.of(2019, FEBRUARY, 28));
+                assertThat(ansettelsesperiode.getBeskrivelse()).isEqualTo(BESKRIVELSE_2);
+            }).anySatisfy(ansettelsesperiode -> {
+                assertThat(ansettelsesperiode.getPeriode().getFomDato()).isEqualTo(LocalDate.of(2019, APRIL, 1));
+                assertThat(ansettelsesperiode.getPeriode().getTomDato()).isEqualTo(D);
+                assertThat(ansettelsesperiode.getBeskrivelse()).isEqualTo(BESKRIVELSE_2);
+            }).anySatisfy(ansettelsesperiode -> {
+                assertThat(ansettelsesperiode.getPeriode().getFomDato()).isEqualTo(E);
+                assertThat(ansettelsesperiode.getPeriode().getTomDato()).isEqualTo(Tid.TIDENES_ENDE);
+                assertThat(ansettelsesperiode.getBeskrivelse()).isEqualTo(BESKRIVELSE_3);
+            });
     }
 
     @Test
@@ -331,12 +331,13 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
         var resultat = MapAnsettelsesPeriodeOgPermisjon.ansettelsesPerioderUtenomFullPermisjon(grunnlag, yrkesaktivitet);
 
         // Assert
-        assertThat(resultat).hasSize(1);
-        assertThat(resultat).anySatisfy(ansettelsesperiode -> {
-            assertThat(ansettelsesperiode.getPeriode().getFomDato()).isEqualTo(E);
-            assertThat(ansettelsesperiode.getPeriode().getTomDato()).isEqualTo(Tid.TIDENES_ENDE);
-            assertThat(ansettelsesperiode.getBeskrivelse()).isEqualTo(BESKRIVELSE_2);
-        });
+        assertThat(resultat)
+            .hasSize(1)
+            .anySatisfy(ansettelsesperiode -> {
+                assertThat(ansettelsesperiode.getPeriode().getFomDato()).isEqualTo(E);
+                assertThat(ansettelsesperiode.getPeriode().getTomDato()).isEqualTo(Tid.TIDENES_ENDE);
+                assertThat(ansettelsesperiode.getBeskrivelse()).isEqualTo(BESKRIVELSE_2);
+            });
     }
 
     @Test
@@ -366,17 +367,17 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
         var resultat = MapAnsettelsesPeriodeOgPermisjon.ansettelsesPerioderUtenomFullPermisjon(grunnlag, yrkesaktivitet);
 
         // Assert
-        assertThat(resultat).hasSize(2);
-        assertThat(resultat).anySatisfy(ansettelsesperiode -> {
-            assertThat(ansettelsesperiode.getPeriode().getFomDato()).isEqualTo(A);
-            assertThat(ansettelsesperiode.getPeriode().getTomDato()).isEqualTo(B);
-            assertThat(ansettelsesperiode.getBeskrivelse()).isEqualTo(BESKRIVELSE_1);
-        });
-        assertThat(resultat).anySatisfy(ansettelsesperiode -> {
-            assertThat(ansettelsesperiode.getPeriode().getFomDato()).isEqualTo(C);
-            assertThat(ansettelsesperiode.getPeriode().getTomDato()).isEqualTo(D);
-            assertThat(ansettelsesperiode.getBeskrivelse()).isEqualTo(BESKRIVELSE_2);
-        });
+        assertThat(resultat)
+            .hasSize(2)
+            .anySatisfy(ansettelsesperiode -> {
+                assertThat(ansettelsesperiode.getPeriode().getFomDato()).isEqualTo(A);
+                assertThat(ansettelsesperiode.getPeriode().getTomDato()).isEqualTo(B);
+                assertThat(ansettelsesperiode.getBeskrivelse()).isEqualTo(BESKRIVELSE_1);
+            }).anySatisfy(ansettelsesperiode -> {
+                assertThat(ansettelsesperiode.getPeriode().getFomDato()).isEqualTo(C);
+                assertThat(ansettelsesperiode.getPeriode().getTomDato()).isEqualTo(D);
+                assertThat(ansettelsesperiode.getBeskrivelse()).isEqualTo(BESKRIVELSE_2);
+            });
     }
 
     @Test

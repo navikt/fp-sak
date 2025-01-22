@@ -82,7 +82,8 @@ class HendelseHåndteringRepositoryTest extends EntityManagerAwareTest {
         var resultat = hendelseHåndteringRepository.hentFagsakerSomHarAktørIdSomBarn(barnAktørId);
 
         // Assert
-        assertThat(resultat).hasSize(1);
-        assertThat(resultat).contains(fagsak);
+        assertThat(resultat)
+            .hasSize(1)
+            .contains(fagsak);
     }
 }

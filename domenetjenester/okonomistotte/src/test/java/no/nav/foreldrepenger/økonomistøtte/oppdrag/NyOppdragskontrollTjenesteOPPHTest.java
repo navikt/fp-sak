@@ -465,12 +465,12 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
         var opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste().stream()
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
             .toList();
-        assertThat(opp150RevurderingListe).hasSize(1);
-        assertThat(opp150RevurderingListe).allSatisfy(oppdragslinje150 -> {
+        assertThat(opp150RevurderingListe)
+            .hasSize(1)
+            .allSatisfy(oppdragslinje150 -> {
                 assertThat(oppdragslinje150.gjelderOpphør()).isTrue();
                 assertThat(oppdragslinje150.getDatoStatusFom()).isEqualTo(forrigeYtelseStartDato);
-            }
-        );
+            });
     }
 
     @Test
@@ -533,14 +533,14 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
             .stream()
             .filter(this::gjelderFagområdeBruker)
             .findFirst();
-        assertThat(nyOppdr110Bruker).isPresent();
-        assertThat(nyOppdr110Bruker).hasValueSatisfying(opp110 ->
-        {
-            assertThat(opp110.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
-            assertThat(opp110.getOppdragslinje150Liste()).isNotEmpty();
-            assertThat(originaltOpp110Liste).anySatisfy(oppdrag110 ->
-                assertThat(oppdrag110.getFagsystemId()).isEqualTo(nyOppdr110Bruker.get().getFagsystemId()));
-        });
+        assertThat(nyOppdr110Bruker)
+            .isPresent()
+            .hasValueSatisfying(opp110 -> {
+                assertThat(opp110.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
+                assertThat(opp110.getOppdragslinje150Liste()).isNotEmpty();
+                assertThat(originaltOpp110Liste).anySatisfy(oppdrag110 ->
+                    assertThat(oppdrag110.getFagsystemId()).isEqualTo(nyOppdr110Bruker.get().getFagsystemId()));
+            });
         verifiserOppdragslinje150_OPPH_Bruker_I_ENDR(originaltOpp110Liste, nyOppdr110Bruker.get(), endringsdato);
     }
 

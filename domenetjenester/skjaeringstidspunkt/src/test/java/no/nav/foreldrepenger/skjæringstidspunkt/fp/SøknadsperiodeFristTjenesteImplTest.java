@@ -73,8 +73,9 @@ class SøknadsperiodeFristTjenesteImplTest extends EntityManagerAwareTest {
         var tjeneste = tjeneste(repositoryProvider);
         var resultat = tjeneste.finnSøknadsfrist(behandling.getId());
         System.out.println(resultat);
-        assertThat(resultat).isPresent();
-        assertThat(resultat).hasValueSatisfying(r -> assertThat(r.getSøknadGjelderPeriode()).isNull());
+        assertThat(resultat)
+            .isPresent()
+            .hasValueSatisfying(r -> assertThat(r.getSøknadGjelderPeriode()).isNull());
     }
 
     private SøknadsperiodeFristTjeneste tjeneste(BehandlingRepositoryProvider repositoryProvider) {

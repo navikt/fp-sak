@@ -106,9 +106,9 @@ class Oppdragslinje150EntityTest {
     void skal_håndtere_null_this_feilKlasse_i_equals() {
         oppdragslinje150 = lagBuilderMedPaakrevdeFelter().build();
 
-        assertThat(oppdragslinje150).isNotNull();
-        assertThat(oppdragslinje150).isNotEqualTo("blabla");
-        assertThat(oppdragslinje150).isEqualTo(oppdragslinje150);
+        assertThat(oppdragslinje150)
+            .isNotNull()
+            .isNotEqualTo("blabla");
     }
 
     @Test

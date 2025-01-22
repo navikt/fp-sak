@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioF
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 
 @ExtendWith(JpaExtension.class)
-class AnkeRepositoryTest  {
+class AnkeRepositoryTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private AnkeRepository ankeRepository;
@@ -69,8 +69,9 @@ class AnkeRepositoryTest  {
         ankeRepository.settPåAnketKlageBehandling(ankeBehandling.getId(), påAnketKlageBehandling.getId());
 
         var påanketBehandlingId = ankeRepository.hentAnkeResultat(ankeBehandling.getId()).flatMap(AnkeResultatEntitet::getPåAnketKlageBehandlingId);
-        assertThat(påanketBehandlingId).isPresent();
-        assertThat(påanketBehandlingId).contains(påAnketKlageBehandling.getId());
+        assertThat(påanketBehandlingId)
+            .isPresent()
+            .contains(påAnketKlageBehandling.getId());
     }
 
     private AnkeVurderingResultatEntitet.Builder opprettVurderingResultat(AnkeResultatEntitet ankeResultat) {

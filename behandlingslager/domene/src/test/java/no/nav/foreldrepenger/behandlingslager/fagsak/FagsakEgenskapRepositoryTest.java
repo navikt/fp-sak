@@ -37,8 +37,9 @@ class FagsakEgenskapRepositoryTest extends EntityManagerAwareTest {
         fagsakEgenskapRepository.lagreUtlandDokumentasjonStatus(fagsak.getId(), UtlandDokumentasjonStatus.DOKUMENTASJON_VIL_IKKE_BLI_INNHENTET);
 
         var resultat = fagsakEgenskapRepository.finnUtlandDokumentasjonStatus(fagsak.getId());
-        assertThat(resultat).isPresent();
-        assertThat(resultat).hasValueSatisfying(v -> assertThat(EgenskapNøkkel.UTLAND_DOKUMENTASJON).isEqualTo(v.getNøkkel()));
+        assertThat(resultat)
+            .isPresent()
+            .hasValueSatisfying(v -> assertThat(EgenskapNøkkel.UTLAND_DOKUMENTASJON).isEqualTo(v.getNøkkel()));
 
         var markering = fagsakEgenskapRepository.finnFagsakMarkeringer(fagsak.getId());
         assertThat(markering).contains(FagsakMarkering.BOSATT_UTLAND);

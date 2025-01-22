@@ -660,7 +660,7 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         var personopplysninger = hentSøkerPersonopplysninger(behandlingId);
         var personInformasjon = personopplysninger.getGjeldendeVersjon();
         assertThat(personopplysninger).isNotNull();
-        assertThat(personopplysninger).isNotNull();
+        assertThat(personInformasjon).isNotNull();
 
         assertThat(personInformasjon.getPersonopplysninger()).hasSize(1);
         assertThat(personInformasjon.getAdresser()).hasSize(2);
@@ -760,8 +760,9 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
 
         // Assert
         var medlemskapPerioders = medlemskapRepository.hentMedlemskap(behandlingId).get().getRegistrertMedlemskapPerioder();
-        assertThat(medlemskapPerioders).hasSize(2);
-        assertThat(medlemskapPerioders).containsExactlyInAnyOrder(medlemskapPerioder1, medlemskapPerioder2);
+        assertThat(medlemskapPerioders)
+            .hasSize(2)
+            .containsExactlyInAnyOrder(medlemskapPerioder1, medlemskapPerioder2);
     }
 
     private Behandling lagBehandling() {

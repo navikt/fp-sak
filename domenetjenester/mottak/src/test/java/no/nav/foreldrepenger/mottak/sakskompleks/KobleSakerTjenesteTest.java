@@ -70,8 +70,9 @@ class KobleSakerTjenesteTest extends EntityManagerAwareTest {
 
         var morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
 
-        assertThat(morsSak).isPresent();
-        assertThat(morsSak).hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor.getFagsak()));
+        assertThat(morsSak)
+            .isPresent()
+            .hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor.getFagsak()));
     }
 
     @Test
@@ -84,8 +85,9 @@ class KobleSakerTjenesteTest extends EntityManagerAwareTest {
 
         var morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
 
-        assertThat(morsSak).isPresent();
-        assertThat(morsSak).hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor.getFagsak()));
+        assertThat(morsSak)
+            .isPresent()
+            .hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor.getFagsak()));
     }
 
     @Test
@@ -98,8 +100,9 @@ class KobleSakerTjenesteTest extends EntityManagerAwareTest {
 
         var morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
 
-        assertThat(morsSak).isPresent();
-        assertThat(morsSak).hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor.getFagsak()));
+        assertThat(morsSak)
+            .isPresent()
+            .hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor.getFagsak()));
     }
 
     @Test
@@ -139,8 +142,9 @@ class KobleSakerTjenesteTest extends EntityManagerAwareTest {
 
         var morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
 
-        assertThat(morsSak).isPresent();
-        assertThat(morsSak).hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor.getFagsak()));
+        assertThat(morsSak)
+            .isPresent()
+            .hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor.getFagsak()));
     }
 
     @Test
@@ -154,8 +158,9 @@ class KobleSakerTjenesteTest extends EntityManagerAwareTest {
 
         var morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
 
-        assertThat(morsSak).isPresent();
-        assertThat(morsSak).hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor2.getFagsak()));
+        assertThat(morsSak)
+            .isPresent()
+            .hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor2.getFagsak()));
     }
 
     @Test
@@ -168,8 +173,9 @@ class KobleSakerTjenesteTest extends EntityManagerAwareTest {
 
         var morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
 
-        assertThat(morsSak).isPresent();
-        assertThat(morsSak).hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor.getFagsak()));
+        assertThat(morsSak)
+            .isPresent()
+            .hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor.getFagsak()));
     }
 
     @Test
@@ -195,8 +201,9 @@ class KobleSakerTjenesteTest extends EntityManagerAwareTest {
 
         var morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
 
-        assertThat(morsSak).isPresent();
-        assertThat(morsSak).hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor.getFagsak()));
+        assertThat(morsSak)
+            .isPresent()
+            .hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor.getFagsak()));
     }
 
     @Test
@@ -222,8 +229,9 @@ class KobleSakerTjenesteTest extends EntityManagerAwareTest {
 
         var morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
 
-        assertThat(morsSak).isPresent();
-        assertThat(morsSak).hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor.getFagsak()));
+        assertThat(morsSak)
+            .isPresent()
+            .hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor.getFagsak()));
     }
 
     @Test
@@ -236,8 +244,9 @@ class KobleSakerTjenesteTest extends EntityManagerAwareTest {
 
         var morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
 
-        assertThat(morsSak).isPresent();
-        assertThat(morsSak).hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor.getFagsak()));
+        assertThat(morsSak)
+            .isPresent()
+            .hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor.getFagsak()));
     }
 
     @Test

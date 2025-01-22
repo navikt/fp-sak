@@ -78,9 +78,9 @@ class OppdragskontrollEntityTest {
     void skal_håndtere_null_this_feilKlasse_i_equals() {
         oppdragskontroll = lagBuilderMedPaakrevdeFelter().build();
 
-        assertThat(oppdragskontroll).isNotNull();
-        assertThat(oppdragskontroll).isNotEqualTo("blabla");
-        assertThat(oppdragskontroll).isEqualTo(oppdragskontroll);
+        assertThat(oppdragskontroll)
+            .isNotNull()
+            .isNotEqualTo("blabla");
     }
 
     @Test
