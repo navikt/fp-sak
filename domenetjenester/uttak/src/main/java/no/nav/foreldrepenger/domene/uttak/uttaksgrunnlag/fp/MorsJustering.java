@@ -189,7 +189,7 @@ class MorsJustering implements ForelderFødselJustering {
             if (virkedagerSomSkalSkyves > 0 && erPeriodeFlyttbar(oppgittPeriode)) {
                 var justert = flyttPeriodeHøyre(oppgittPeriode, virkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
                 if (oppgittPeriode.getPeriodeType().equals(FELLESPERIODE) && kanFellesperiodenReduseres(justert)) {
-                    var justertFellesperiode = reduserJusterteFellesperioder(justert, virkedagerSomSkalSkyves);
+                    var justertFellesperiode = beholdForskyvningMenAvkortSluttdatoTilsvarendeForskyvningen(justert, virkedagerSomSkalSkyves);
                     virkedagerSomSkalSkyves -= antallDagerFellesperiodeErRedusert(justert, justertFellesperiode);
                     justert = justertFellesperiode;
                 }
@@ -251,11 +251,11 @@ class MorsJustering implements ForelderFødselJustering {
      *  output: xxx
      *  antallDagerSomKanReduseres_rest: 4
      */
-    private List<OppgittPeriodeEntitet> reduserJusterteFellesperioder(List<OppgittPeriodeEntitet> justerteFellesperioder, int antallDagerSomKanReduseres) {
-        var periodeSomKanReduseres = new LocalDateInterval(TidsperiodeForbeholdtMor.tilOgMed(nyFamiliehendelse).plusDays(1), Tid.TIDENES_ENDE);
-        var fellesperiodene = tilLocalDateTimeLine(justerteFellesperioder);
-        var justertFellsperiodeSomKanReduseres = fellesperiodene.intersection(periodeSomKanReduseres).stream()
-            .map(LocalDateSegment::getValue)
+    private List<OppgittPeriodeEntitet> beholdForskyvningMenAvkortSluttdatoTilsvarendeForskyvningen(List<OppgittPeriodeEntitet> justerteFellesperioder, int antallDagerSomKanReduseres) {
+        var periodeSomKanReduseres = new LocalDateInterval(TidsperiodeForbeholdtMor.tilOgMed(nyFamiliehendelse), Tid.TIDENES_ENDE);
+        var justerteFellesperioderTimeline = tilLocalDateTimeLine(justerteFellesperioder);
+        var justertFellsperiodeSomKanReduseres = justerteFellesperioderTimeline.intersection(periodeSomKanReduseres).stream()
+            .map(MorsJustering::nyPeriodeFra)
             .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
             .toList();
 
@@ -263,12 +263,23 @@ class MorsJustering implements ForelderFødselJustering {
             return justerteFellesperioder;
         }
 
+        var delAvFellesperiodeSomIkkeKanReduseres = justerteFellesperioderTimeline.disjoint(periodeSomKanReduseres).stream()
+            .map(MorsJustering::nyPeriodeFra)
+            .toList();
+
+        return avkortFellesperiodeAntallDager(justertFellsperiodeSomKanReduseres, delAvFellesperiodeSomIkkeKanReduseres, antallDagerSomKanReduseres);
+    }
+
+
+    private static List<OppgittPeriodeEntitet> avkortFellesperiodeAntallDager(List<OppgittPeriodeEntitet> fellesperiodeSomKanAvkortes,
+                                                                              List<OppgittPeriodeEntitet> ikkeAvkortbarFellesperiode,
+                                                                              int antallDagerSomKanReduseres) {
         // Starter fra siste til første periode. Reduseringen skjer fra høyre til venstre og har 3 utfall:
         //  1) Antall dager som kan reduseres er 0 (behold perioden slik det var)
         //  2) Deler av perioden forsvinner pga redusering (ny tom dato)
         //  3) Hele perioden forsvinner pga redusering (fjerne hele)
         List<OppgittPeriodeEntitet> justertFellesperiode = new ArrayList<>();
-        for (var periode : justertFellsperiodeSomKanReduseres.reversed()) {
+        for (var periode : fellesperiodeSomKanAvkortes.reversed()) {
             var antallVirkedagerForPeriode = beregnAntallVirkedager(periode.getFom(), periode.getTom());
             if (antallDagerSomKanReduseres == 0) {  // 1) Antall dager som kan reduseres er 0 (behold perioden slik det var)
                 justertFellesperiode.add(periode);
@@ -281,10 +292,7 @@ class MorsJustering implements ForelderFødselJustering {
             }
         }
 
-        var restenAvPeriodene = fellesperiodene.disjoint(periodeSomKanReduseres).stream()
-            .map(LocalDateSegment::getValue)
-            .toList();
-        justertFellesperiode.addAll(restenAvPeriodene);
+        justertFellesperiode.addAll(ikkeAvkortbarFellesperiode);
         justertFellesperiode.sort(Comparator.comparing(OppgittPeriodeEntitet::getFom));
         return justertFellesperiode;
     }
