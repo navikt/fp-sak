@@ -50,7 +50,7 @@ class UtbetalingsgradTest {
         var grad2 = Utbetalingsgrad.prosent(testProsent);
 
         assertThat(grad1).isEqualTo(grad2);
-        assertThat(grad2.hashCode()).isEqualTo(grad1.hashCode());
+        assertThat(grad2).hasSameHashCodeAs(grad1);
     }
 
     @Test

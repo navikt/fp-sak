@@ -80,8 +80,8 @@ class BeregnStønadskontoerTjenesteDekning80Test {
 
         assertThat(stønadskontoer)
             .hasSize(5)
-            .containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, MØDREKVOTE, FEDREKVOTE, FELLESPERIODE, FAR_RUNDT_FØDSEL);
-        assertThat(stønadskontoer).containsEntry(FELLESPERIODE, 101);
+            .containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, MØDREKVOTE, FEDREKVOTE, FELLESPERIODE, FAR_RUNDT_FØDSEL)
+            .containsEntry(FELLESPERIODE, 101);
     }
 
     private ForeldrepengerGrunnlag fpGrunnlag(FamilieHendelser familieHendelser) {
@@ -120,8 +120,8 @@ class BeregnStønadskontoerTjenesteDekning80Test {
 
         assertThat(stønadskontoer)
             .hasSize(5)
-            .containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, MØDREKVOTE, FEDREKVOTE, FELLESPERIODE, FAR_RUNDT_FØDSEL);
-        assertThat(stønadskontoer).containsEntry(FELLESPERIODE, 101);
+            .containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, MØDREKVOTE, FEDREKVOTE, FELLESPERIODE, FAR_RUNDT_FØDSEL)
+            .containsEntry(FELLESPERIODE, 101);
     }
 
     private UttakInput input(Behandling behandling, ForeldrepengerGrunnlag fpGrunnlag) {
@@ -159,8 +159,8 @@ class BeregnStønadskontoerTjenesteDekning80Test {
 
         assertThat(stønadskontoer)
             .hasSize(2)
-            .containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, FORELDREPENGER);
-        assertThat(stønadskontoer).containsEntry(FORELDREPENGER, 291);
+            .containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, FORELDREPENGER)
+            .containsEntry(FORELDREPENGER, 291);
     }
 
     @Test
@@ -195,8 +195,8 @@ class BeregnStønadskontoerTjenesteDekning80Test {
 
         assertThat(stønadskontoer)
             .hasSize(2)
-            .containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, FORELDREPENGER);
-        assertThat(stønadskontoer).containsEntry(FORELDREPENGER, 291);
+            .containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, FORELDREPENGER)
+            .containsEntry(FORELDREPENGER, 291);
     }
 
     @Test
@@ -231,9 +231,9 @@ class BeregnStønadskontoerTjenesteDekning80Test {
 
         assertThat(stønadskontoer)
             .hasSize(3)
-            .containsOnlyKeys(BARE_FAR_RETT, FAR_RUNDT_FØDSEL, FORELDREPENGER);
-        assertThat(stønadskontoer).containsEntry(FORELDREPENGER, 261);
-        assertThat(stønadskontoer).containsEntry(BARE_FAR_RETT, 50);
+            .containsOnlyKeys(BARE_FAR_RETT, FAR_RUNDT_FØDSEL, FORELDREPENGER)
+            .containsEntry(FORELDREPENGER, 261)
+            .containsEntry(BARE_FAR_RETT, 50);
     }
 
     @Test
@@ -268,9 +268,9 @@ class BeregnStønadskontoerTjenesteDekning80Test {
 
         assertThat(stønadskontoer)
             .hasSize(3)
-            .containsOnlyKeys(BARE_FAR_RETT, FAR_RUNDT_FØDSEL, FORELDREPENGER);
-        assertThat(stønadskontoer).containsEntry(FORELDREPENGER, 250);
-        assertThat(stønadskontoer).containsEntry(BARE_FAR_RETT, 40);
+            .containsOnlyKeys(BARE_FAR_RETT, FAR_RUNDT_FØDSEL, FORELDREPENGER)
+            .containsEntry(FORELDREPENGER, 250)
+            .containsEntry(BARE_FAR_RETT, 40);
     }
 
 

@@ -29,14 +29,14 @@ class SatsTest {
             () -> Sats.på(null)
         );
 
-        assertThat(thrown.getMessage().contains("sats")).isTrue();
+        assertThat(thrown.getMessage()).contains("sats");
     }
 
     @Test
     void skal_feile_hvis_sats_er_mindre_en_0() {
         var verdi = -100;
         Exception thrown = assertThrows(IllegalArgumentException.class, () -> Sats.på(verdi));
-        assertThat(thrown.getMessage().contains("Sats er utenfor lovlig intervall")).isTrue();
+        assertThat(thrown.getMessage()).contains("Sats er utenfor lovlig intervall");
     }
 
     @Test
@@ -52,7 +52,7 @@ class SatsTest {
         var sats2 = Sats.på(testSats);
 
         assertThat(sats).isEqualTo(sats2);
-        assertThat(sats2.hashCode()).isEqualTo(sats.hashCode());
+        assertThat(sats2).hasSameHashCodeAs(sats);
     }
 
     @Test
@@ -62,7 +62,7 @@ class SatsTest {
         var grad2 = Sats.på(testSats + 10);
 
         assertThat(grad1).isNotEqualTo(grad2);
-        assertThat(grad2.hashCode()).isNotEqualTo(grad1.hashCode());
+        assertThat(grad2).doesNotHaveSameHashCodeAs(grad1);
     }
 
     @Test
