@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.math.BigDecimal;
@@ -641,7 +640,7 @@ class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenesteTestB
             var avstemming = oppdrag110.getAvstemming();
             assertThat(avstemming).isNotNull();
             assertThat(avstemming.getNøkkel()).isNotNull();
-            assertEquals(avstemming.getNøkkel(), avstemming.getTidspunkt());
+            assertThat(avstemming.getNøkkel()).isEqualTo(avstemming.getTidspunkt());
         });
     }
 

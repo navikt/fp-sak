@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
 
@@ -33,7 +32,7 @@ class AvstemmingTest {
             () -> Avstemming.fra(null)
         );
 
-        assertTrue(thrown.getMessage().contains("avstemmingTidspunkt"));
+        assertThat(thrown.getMessage()).contains("avstemmingTidspunkt");
     }
 
     @Test

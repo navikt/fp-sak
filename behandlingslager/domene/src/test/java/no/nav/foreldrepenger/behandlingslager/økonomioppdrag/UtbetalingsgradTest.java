@@ -1,10 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -29,21 +26,21 @@ class UtbetalingsgradTest {
             () -> Utbetalingsgrad.prosent(null)
         );
 
-        assertTrue(thrown.getMessage().contains("utbetalingsgrad"));
+        assertThat(thrown.getMessage()).contains("utbetalingsgrad");
     }
 
     @Test
     void skal_feile_hvis_utbetalingsgrad_er_mindre_en_0() {
         var verdi = -100;
         Exception thrown = assertThrows(IllegalArgumentException.class, () -> Utbetalingsgrad.prosent(verdi));
-        assertTrue(thrown.getMessage().contains("Utbetalingsgrad er utenfor lovlig intervall [0,100]: " + verdi));
+        assertThat(thrown.getMessage()).contains("Utbetalingsgrad er utenfor lovlig intervall [0,100]: " + verdi);
     }
 
     @Test
     void skal_feile_hvis_utbetalingsgrad_er_storre_en_100() {
         var verdi = 110;
         Exception thrown = assertThrows(IllegalArgumentException.class, () -> Utbetalingsgrad.prosent(verdi));
-        assertTrue(thrown.getMessage().contains("Utbetalingsgrad er utenfor lovlig intervall [0,100]: " + verdi));
+        assertThat(thrown.getMessage()).contains("Utbetalingsgrad er utenfor lovlig intervall [0,100]: " + verdi);
     }
 
     @Test
@@ -52,8 +49,8 @@ class UtbetalingsgradTest {
         var grad1 = Utbetalingsgrad.prosent(testProsent);
         var grad2 = Utbetalingsgrad.prosent(testProsent);
 
-        assertEquals(grad1, grad2);
-        assertEquals(grad2.hashCode(), grad1.hashCode());
+        assertThat(grad1).isEqualTo(grad2);
+        assertThat(grad2.hashCode()).isEqualTo(grad1.hashCode());
     }
 
     @Test
@@ -62,8 +59,8 @@ class UtbetalingsgradTest {
         var grad1 = Utbetalingsgrad.prosent(testProsent);
         var grad2 = Utbetalingsgrad.prosent(testProsent + 10);
 
-        assertNotEquals(grad1, grad2);
-        assertNotEquals(grad2.hashCode(), grad1.hashCode());
+        assertThat(grad1).isNotEqualTo(grad2);
+        assertThat(grad2.hashCode()).isNotEqualTo(grad1.hashCode());
     }
 
     private void validerObjekt(Utbetalingsgrad utbetalingsgrad, Integer expectedGrad) {

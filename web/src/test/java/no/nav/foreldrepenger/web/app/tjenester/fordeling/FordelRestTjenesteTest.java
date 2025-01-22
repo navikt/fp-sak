@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.fordeling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -185,6 +184,6 @@ class FordelRestTjenesteTest {
         var expectedMessage = "Oppgitt aktørId er ikke en gyldig ident.";
         var actualMessage = exception.getMessage();
 
-        assertTrue(actualMessage.contains(expectedMessage));
+        assertThat(actualMessage).contains(expectedMessage);
     }
 }

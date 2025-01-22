@@ -1,10 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 
@@ -32,14 +29,14 @@ class SatsTest {
             () -> Sats.på(null)
         );
 
-        assertTrue(thrown.getMessage().contains("sats"));
+        assertThat(thrown.getMessage().contains("sats")).isTrue();
     }
 
     @Test
     void skal_feile_hvis_sats_er_mindre_en_0() {
         var verdi = -100;
         Exception thrown = assertThrows(IllegalArgumentException.class, () -> Sats.på(verdi));
-        assertTrue(thrown.getMessage().contains("Sats er utenfor lovlig intervall"));
+        assertThat(thrown.getMessage().contains("Sats er utenfor lovlig intervall")).isTrue();
     }
 
     @Test
@@ -54,8 +51,8 @@ class SatsTest {
         var sats = Sats.på(testSats);
         var sats2 = Sats.på(testSats);
 
-        assertEquals(sats, sats2);
-        assertEquals(sats2.hashCode(), sats.hashCode());
+        assertThat(sats).isEqualTo(sats2);
+        assertThat(sats2.hashCode()).isEqualTo(sats.hashCode());
     }
 
     @Test
@@ -64,8 +61,8 @@ class SatsTest {
         var grad1 = Sats.på(testSats);
         var grad2 = Sats.på(testSats + 10);
 
-        assertNotEquals(grad1, grad2);
-        assertNotEquals(grad2.hashCode(), grad1.hashCode());
+        assertThat(grad1).isNotEqualTo(grad2);
+        assertThat(grad2.hashCode()).isNotEqualTo(grad1.hashCode());
     }
 
     @Test

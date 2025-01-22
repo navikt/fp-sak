@@ -1,10 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +20,7 @@ class KodeKlassifikTest {
             () -> KodeKlassifik.fraKode("UKJENT_KODE")
         );
 
-        assertTrue(thrown.getMessage().contains("Ukjent KodeKlassifik"));
+        assertThat(thrown.getMessage()).contains("Ukjent KodeKlassifik");
     }
 
     @Test
@@ -43,9 +40,9 @@ class KodeKlassifikTest {
 
     @Test
     void equals() {
-        assertEquals(KodeKlassifik.FERIEPENGER_BRUKER, KodeKlassifik.FERIEPENGER_BRUKER);
-        assertEquals(KodeKlassifik.fraKode("FPSVSNDFI"), KodeKlassifik.fraKode("FPSVSNDFI"));
-        assertNotEquals(KodeKlassifik.SVP_FERIEPENGER_AG, KodeKlassifik.FERIEPENGER_BRUKER);
-        assertNotEquals(KodeKlassifik.fraKode("FPATORD"), KodeKlassifik.fraKode("FPSVSNDFI"));
+        assertThat(KodeKlassifik.FERIEPENGER_BRUKER).isEqualTo(KodeKlassifik.FERIEPENGER_BRUKER);
+        assertThat(KodeKlassifik.fraKode("FPSVSNDFI")).isEqualTo(KodeKlassifik.fraKode("FPSVSNDFI"));
+        assertThat(KodeKlassifik.SVP_FERIEPENGER_AG).isNotEqualTo(KodeKlassifik.FERIEPENGER_BRUKER);
+        assertThat(KodeKlassifik.fraKode("FPATORD")).isNotEqualTo(KodeKlassifik.fraKode("FPSVSNDFI"));
     }
 }

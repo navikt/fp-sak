@@ -53,7 +53,7 @@ class BehandleNegativeKvitteringTjenesteTest {
             IllegalStateException.class,
             () -> tjeneste.nullstilleØkonomioppdragTask(0L));
 
-        Assertions.assertTrue(thrown.getMessage().contains("Prosess task med prossess task id = 0 finnes ikke"));
+        assertThat(thrown.getMessage()).contains("Prosess task med prossess task id = 0 finnes ikke");
     }
 
     private ProsessTaskData lagØkonomioppragTaskPåVent() {
