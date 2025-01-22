@@ -80,8 +80,8 @@ class BeregnStønadskontoerTjenesteTest {
 
         assertThat(stønadskontoer)
             .hasSize(5)
-            .containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, MØDREKVOTE, FEDREKVOTE, FELLESPERIODE, FAR_RUNDT_FØDSEL);
-        assertThat(stønadskontoer.get(FELLESPERIODE)).isEqualTo(80);
+            .containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, MØDREKVOTE, FEDREKVOTE, FELLESPERIODE, FAR_RUNDT_FØDSEL)
+            .containsEntry(FELLESPERIODE, 80);
     }
 
     private ForeldrepengerGrunnlag fpGrunnlag(FamilieHendelser familieHendelser) {
@@ -120,8 +120,8 @@ class BeregnStønadskontoerTjenesteTest {
 
         assertThat(stønadskontoer)
             .hasSize(5)
-            .containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, MØDREKVOTE, FEDREKVOTE, FELLESPERIODE, FAR_RUNDT_FØDSEL);
-        assertThat(stønadskontoer.get(FELLESPERIODE)).isEqualTo(80);
+            .containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, MØDREKVOTE, FEDREKVOTE, FELLESPERIODE, FAR_RUNDT_FØDSEL)
+            .containsEntry(FELLESPERIODE, 80);
     }
 
     private UttakInput input(Behandling behandling, ForeldrepengerGrunnlag fpGrunnlag) {
@@ -159,8 +159,8 @@ class BeregnStønadskontoerTjenesteTest {
 
         assertThat(stønadskontoer)
             .hasSize(2)
-            .containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, FORELDREPENGER);
-        assertThat(stønadskontoer.get(FORELDREPENGER)).isEqualTo(230);
+            .containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, FORELDREPENGER)
+            .containsEntry(FORELDREPENGER, 230);
     }
 
     @Test
@@ -195,8 +195,8 @@ class BeregnStønadskontoerTjenesteTest {
 
         assertThat(stønadskontoer)
             .hasSize(2)
-            .containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, FORELDREPENGER);
-        assertThat(stønadskontoer.get(FORELDREPENGER)).isEqualTo(230);
+            .containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, FORELDREPENGER)
+            .containsEntry(FORELDREPENGER, 230);
     }
 
     @Test
@@ -231,9 +231,9 @@ class BeregnStønadskontoerTjenesteTest {
 
         assertThat(stønadskontoer)
             .hasSize(3)
-            .containsOnlyKeys(BARE_FAR_RETT, FAR_RUNDT_FØDSEL, FORELDREPENGER);
-        assertThat(stønadskontoer.get(FORELDREPENGER)).isEqualTo(200);
-        assertThat(stønadskontoer.get(BARE_FAR_RETT)).isEqualTo(50);
+            .containsOnlyKeys(BARE_FAR_RETT, FAR_RUNDT_FØDSEL, FORELDREPENGER)
+            .containsEntry(FORELDREPENGER, 200)
+            .containsEntry(BARE_FAR_RETT, 50);
     }
 
     @Test
@@ -268,9 +268,9 @@ class BeregnStønadskontoerTjenesteTest {
 
         assertThat(stønadskontoer)
             .hasSize(3)
-            .containsOnlyKeys(BARE_FAR_RETT, FAR_RUNDT_FØDSEL, FORELDREPENGER);
-        assertThat(stønadskontoer.get(FORELDREPENGER)).isEqualTo(200);
-        assertThat(stønadskontoer.get(BARE_FAR_RETT)).isEqualTo(40);
+            .containsOnlyKeys(BARE_FAR_RETT, FAR_RUNDT_FØDSEL, FORELDREPENGER)
+            .containsEntry(FORELDREPENGER, 200)
+            .containsEntry(BARE_FAR_RETT, 40);
     }
 
     private Behandling opprettBehandlingForMor(AktørId aktørId) {

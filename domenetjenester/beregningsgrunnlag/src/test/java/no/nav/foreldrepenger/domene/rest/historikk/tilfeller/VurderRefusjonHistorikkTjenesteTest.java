@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.rest.historikk.tilfeller;
 
 import static no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori.ARBEIDSTAKER;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -135,8 +134,8 @@ class VurderRefusjonHistorikkTjenesteTest {
     }
 
     private void assertHistorikk(List<String> tekstListe, String forventetTekststreng) {
-        assertTrue(inneholderSubstring(tekstListe, forventetTekststreng));
-        assertTrue(inneholderSubstring(tekstListe, NY_REFUSJONSFRIST));
+        assertThat(inneholderSubstring(tekstListe, forventetTekststreng)).isTrue();
+        assertThat(inneholderSubstring(tekstListe, NY_REFUSJONSFRIST)).isTrue();
     }
 
     private FaktaBeregningLagreDto lagDto(boolean skalUtvideGyldighet) {

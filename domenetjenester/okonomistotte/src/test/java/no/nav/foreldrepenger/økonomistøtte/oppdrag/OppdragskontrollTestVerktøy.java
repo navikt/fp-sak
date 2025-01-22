@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.økonomistøtte.oppdrag;
 
 import static no.nav.foreldrepenger.økonomistøtte.oppdrag.NyOppdragskontrollTjenesteTestBase.I_ÅR;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -149,7 +148,7 @@ public class OppdragskontrollTestVerktøy {
         for (var avstemmingRevurd : avstemmingRevurdList) {
             assertThat(avstemmingRevurd.getNøkkel()).isNotEmpty();
             assertThat(avstemmingRevurd.getTidspunkt()).isNotEmpty();
-            assertEquals(avstemmingRevurd.getNøkkel(), avstemmingRevurd.getTidspunkt());
+            assertThat(avstemmingRevurd.getNøkkel()).isEqualTo(avstemmingRevurd.getTidspunkt());
         }
     }
 

@@ -108,7 +108,7 @@ class ArbeidsforholdInntektsmeldingMangelMapperTest {
         var resultat = ArbeidsforholdInntektsmeldingMangelMapper.mapManueltArbeidsforhold(dto, mangler, informasjonBuilder).build();
 
         // Assert
-        assertThat(resultat.getOverstyringer().size()).isEqualTo(1);
+        assertThat(resultat.getOverstyringer()).hasSize(1);
         var overstyring = finnOverstyringFor(resultat, orgnr);
         assertThat(overstyring).isNotNull();
         assertThat(overstyring.getArbeidsgiver().getOrgnr()).isEqualTo(orgnr);
@@ -138,7 +138,7 @@ class ArbeidsforholdInntektsmeldingMangelMapperTest {
         var resultat = ArbeidsforholdInntektsmeldingMangelMapper.mapManueltArbeidsforhold(dto, mangler, informasjonBuilder).build();
 
         // Assert
-        assertThat(resultat.getOverstyringer().size()).isEqualTo(1);
+        assertThat(resultat.getOverstyringer()).hasSize(1);
         var overstyring = finnOverstyringFor(resultat, orgnr);
         assertThat(overstyring).isNotNull();
         assertThat(overstyring.getArbeidsgiver().getOrgnr()).isEqualTo(orgnr);
@@ -175,7 +175,7 @@ class ArbeidsforholdInntektsmeldingMangelMapperTest {
         var resultat = ArbeidsforholdInntektsmeldingMangelMapper.mapManueltArbeidsforhold(dto, mangler, nyInformasjonBuilder).build();
 
         // Assert
-        assertThat(resultat.getOverstyringer().size()).isEqualTo(2);
+        assertThat(resultat.getOverstyringer()).hasSize(2);
         var overstyringEksisterende = finnOverstyringFor(resultat, eksisterendeOrgnr);
         assertThat(overstyringEksisterende).isNotNull();
 
@@ -234,7 +234,7 @@ class ArbeidsforholdInntektsmeldingMangelMapperTest {
         var resultat = ArbeidsforholdInntektsmeldingMangelMapper.mapManueltArbeidsforhold(dto, mangler, nyInformasjonBuilder).build();
 
         // Assert
-        assertThat(resultat.getOverstyringer().size()).isEqualTo(1);
+        assertThat(resultat.getOverstyringer()).hasSize(1);
         var overstyringEksisterende = finnOverstyringFor(resultat, orgNrSomIkkeSkalSlettes);
         assertThat(overstyringEksisterende).isNotNull();
     }

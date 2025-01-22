@@ -86,37 +86,34 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         // Assert
         var beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
         assertThat(beregningsresultatPerioder).hasSize(1);
-        var p0 = beregningsresultatPerioder.get(0);
+        var p0 = beregningsresultatPerioder.getFirst();
         assertThat(p0.getBeregningsresultatPeriodeFom()).isEqualTo(PERIODE_FOM);
         var p0andeler = p0.getBeregningsresultatAndelList();
-        assertThat(p0andeler).hasSize(5);
-        assertThat(p0andeler).anySatisfy(andel -> {
-            assertThat(andel.getAktivitetStatus()).isEqualByComparingTo(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE);
-            assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
-            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(1010);
-        });
-        assertThat(p0andeler).anySatisfy(andel -> {
-            assertThat(andel.getArbeidsgiver().orElse(null)).isSameAs(GAMMELT_ARBEID);
-            assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
-            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(gammeltArbeidDagsats);
-        });
-        assertThat(p0andeler).anySatisfy(andel -> {
-            assertThat(andel.getArbeidsgiver().orElse(null)).isSameAs(TILKOMMET2);
-            assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
-            assertThat(andel.getDagsats()).as("dagsats").isZero();
-            assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isEqualTo(1400);
-        });
-        assertThat(p0andeler).anySatisfy(andel -> {
-            assertThat(andel.getArbeidsgiver().orElse(null)).isSameAs(TILKOMMET2);
-            assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
-            assertThat(andel.getDagsats()).as("dagsats").isZero();
-            assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isZero();
-        });
-        assertThat(p0andeler).anySatisfy(andel -> {
-            assertThat(andel.getArbeidsgiver().orElse(null)).isSameAs(TILKOMMET1);
-            assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
-            assertThat(andel.getDagsats()).as("dagsats").isZero();
-        });
+        assertThat(p0andeler)
+            .hasSize(5)
+            .anySatisfy(andel -> {
+                assertThat(andel.getAktivitetStatus()).isEqualByComparingTo(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE);
+                assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
+                assertThat(andel.getDagsats()).as("dagsats").isEqualTo(1010);
+            }).anySatisfy(andel -> {
+                assertThat(andel.getArbeidsgiver()).containsSame(GAMMELT_ARBEID);
+                assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
+                assertThat(andel.getDagsats()).as("dagsats").isEqualTo(gammeltArbeidDagsats);
+            }).anySatisfy(andel -> {
+                assertThat(andel.getArbeidsgiver()).containsSame(TILKOMMET2);
+                assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
+                assertThat(andel.getDagsats()).as("dagsats").isZero();
+                assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isEqualTo(1400);
+            }).anySatisfy(andel -> {
+                assertThat(andel.getArbeidsgiver()).containsSame(TILKOMMET2);
+                assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
+                assertThat(andel.getDagsats()).as("dagsats").isZero();
+                assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isZero();
+            }).anySatisfy(andel -> {
+                assertThat(andel.getArbeidsgiver()).containsSame(TILKOMMET1);
+                assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
+                assertThat(andel.getDagsats()).as("dagsats").isZero();
+            });
     }
 
     @Test
@@ -156,28 +153,27 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         // Assert
         var beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
         assertThat(beregningsresultatPerioder).hasSize(2);
-        var p0 = beregningsresultatPerioder.get(0);
+        var p0 = beregningsresultatPerioder.getFirst();
         assertThat(p0.getBeregningsresultatPeriodeFom()).isEqualTo(SKJÆRINGSTIDSPUNKT);
         assertThat(p0.getBeregningsresultatPeriodeTom()).isEqualTo(LocalDate.of(2019, Month.JANUARY, 31));
         var p0andeler = p0.getBeregningsresultatAndelList();
-        assertThat(p0andeler).hasSize(3);
-        assertThat(p0andeler).anySatisfy(andel -> {
-            assertThat(andel.getArbeidsgiver().orElse(null)).isSameAs(ARBEIDSGIVER2);
-            assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
-            assertThat(andel.getDagsats()).as("dagsats").isZero();
-            assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isZero();
-        });
-        assertThat(p0andeler).anySatisfy(andel -> {
-            assertThat(andel.getArbeidsgiver().orElse(null)).isSameAs(ARBEIDSGIVER2);
-            assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
-            assertThat(andel.getDagsats()).as("dagsats").isZero();
-            assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isEqualTo(1500);
-        });
-        assertThat(p0andeler).anySatisfy(andel -> {
-            assertThat(andel.getArbeidsgiver().orElse(null)).isSameAs(ARBEIDSGIVER1);
-            assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
-            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(1500);
-        });
+        assertThat(p0andeler)
+            .hasSize(3)
+            .anySatisfy(andel -> {
+                assertThat(andel.getArbeidsgiver()).containsSame(ARBEIDSGIVER2);
+                assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
+                assertThat(andel.getDagsats()).as("dagsats").isZero();
+                assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isZero();
+            }).anySatisfy(andel -> {
+                assertThat(andel.getArbeidsgiver()).containsSame(ARBEIDSGIVER2);
+                assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
+                assertThat(andel.getDagsats()).as("dagsats").isZero();
+                assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isEqualTo(1500);
+            }).anySatisfy(andel -> {
+                assertThat(andel.getArbeidsgiver()).containsSame(ARBEIDSGIVER1);
+                assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
+                assertThat(andel.getDagsats()).as("dagsats").isEqualTo(1500);
+            });
     }
 
     /**
@@ -212,37 +208,37 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         // Assert
         var beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
         assertThat(beregningsresultatPerioder).hasSize(2);
-        var p0 = beregningsresultatPerioder.get(0);
+        var p0 = beregningsresultatPerioder.getFirst();
         assertThat(p0.getBeregningsresultatPeriodeFom()).isEqualTo(SKJÆRINGSTIDSPUNKT);
         assertThat(p0.getBeregningsresultatPeriodeTom()).isEqualTo(LocalDate.of(2019, Month.JANUARY, 31));
         var p0andeler = p0.getBeregningsresultatAndelList();
-        assertThat(p0andeler).hasSize(2);
-        assertThat(p0andeler).anySatisfy(andel -> {
-            assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
-            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(forventetDagsats);
-            assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isZero();
-        });
-        assertThat(p0andeler).anySatisfy(andel -> {
-            assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
-            assertThat(andel.getDagsats()).as("dagsats").isZero();
-            assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isEqualTo(forventetDagsats);
-        });
+        assertThat(p0andeler)
+            .hasSize(2)
+            .anySatisfy(andel -> {
+                assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
+                assertThat(andel.getDagsats()).as("dagsats").isEqualTo(forventetDagsats);
+                assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isZero();
+            }).anySatisfy(andel -> {
+                assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
+                assertThat(andel.getDagsats()).as("dagsats").isZero();
+                assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isEqualTo(forventetDagsats);
+            });
 
         var p1 = beregningsresultatPerioder.get(1);
         assertThat(p1.getBeregningsresultatPeriodeFom()).isEqualTo(LocalDate.of(2019, Month.FEBRUARY, 1));
         assertThat(p1.getBeregningsresultatPeriodeTom()).isEqualTo(SISTE_UTTAKSDAG);
         var p1andeler = p1.getBeregningsresultatAndelList();
-        assertThat(p1andeler).hasSize(2);
-        assertThat(p1andeler).anySatisfy(andel -> {
-            assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
-            assertThat(andel.getDagsats()).as("dagsats").isZero();
-            assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isZero();
-        });
-        assertThat(p1andeler).anySatisfy(andel -> {
-            assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
-            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(forventetDagsats);
-            assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isEqualTo(forventetDagsats);
-        });
+        assertThat(p1andeler)
+            .hasSize(2)
+            .anySatisfy(andel -> {
+                assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
+                assertThat(andel.getDagsats()).as("dagsats").isZero();
+                assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isZero();
+            }).anySatisfy(andel -> {
+                assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
+                assertThat(andel.getDagsats()).as("dagsats").isEqualTo(forventetDagsats);
+                assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isEqualTo(forventetDagsats);
+            });
     }
 
     /**
@@ -287,57 +283,53 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         // Assert
         var beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
         assertThat(beregningsresultatPerioder).hasSize(2);
-        var p0 = beregningsresultatPerioder.get(0);
+        var p0 = beregningsresultatPerioder.getFirst();
         assertThat(p0.getBeregningsresultatPeriodeFom()).isEqualTo(SKJÆRINGSTIDSPUNKT);
         assertThat(p0.getBeregningsresultatPeriodeTom()).isEqualTo(LocalDate.of(2019, Month.JANUARY, 31));
         var p0andeler = p0.getBeregningsresultatAndelList();
-        assertThat(p0andeler).hasSize(4);
-        assertThat(p0andeler).anySatisfy(andel -> {
-            assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
-            assertThat(andel.getArbeidsgiver().get()).isSameAs(ARBEIDSGIVER1);
-            assertThat(andel.getDagsats()).as("dagsats").isZero();
-        });
-        assertThat(p0andeler).anySatisfy(andel -> {
-            assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
-            assertThat(andel.getArbeidsgiver().get()).isSameAs(ARBEIDSGIVER1);
-            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(1050);
-        });
-        assertThat(p0andeler).anySatisfy(andel -> {
-            assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
-            assertThat(andel.getArbeidsgiver().get()).isSameAs(ARBEIDSGIVER2);
-            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(600);
-        });
-        assertThat(p0andeler).anySatisfy(andel -> {
-            assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
-            assertThat(andel.getArbeidsgiver().get()).isSameAs(ARBEIDSGIVER2);
-            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(450);
-        });
+        assertThat(p0andeler)
+            .hasSize(4)
+            .anySatisfy(andel -> {
+                assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
+                assertThat(andel.getArbeidsgiver()).containsSame(ARBEIDSGIVER1);
+                assertThat(andel.getDagsats()).as("dagsats").isZero();
+            }).anySatisfy(andel -> {
+                assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
+                assertThat(andel.getArbeidsgiver()).containsSame(ARBEIDSGIVER1);
+                assertThat(andel.getDagsats()).as("dagsats").isEqualTo(1050);
+            }).anySatisfy(andel -> {
+                assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
+                assertThat(andel.getArbeidsgiver()).containsSame(ARBEIDSGIVER2);
+                assertThat(andel.getDagsats()).as("dagsats").isEqualTo(600);
+            }).anySatisfy(andel -> {
+                assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
+                assertThat(andel.getArbeidsgiver()).containsSame(ARBEIDSGIVER2);
+                assertThat(andel.getDagsats()).as("dagsats").isEqualTo(450);
+            });
 
         var p1 = beregningsresultatPerioder.get(1);
         assertThat(p1.getBeregningsresultatPeriodeFom()).isEqualTo(LocalDate.of(2019, Month.FEBRUARY, 1));
         assertThat(p1.getBeregningsresultatPeriodeTom()).isEqualTo(SISTE_UTTAKSDAG);
         var p1andeler = p1.getBeregningsresultatAndelList();
-        assertThat(p1andeler).hasSize(4);
-        assertThat(p1andeler).anySatisfy(andel -> {
-            assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
-            assertThat(andel.getArbeidsgiver().get()).isSameAs(ARBEIDSGIVER1);
-            assertThat(andel.getDagsats()).as("dagsats").isZero();
-        });
-        assertThat(p1andeler).anySatisfy(andel -> {
-            assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
-            assertThat(andel.getArbeidsgiver().get()).isSameAs(ARBEIDSGIVER1);
-            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(1050);
-        });
-        assertThat(p1andeler).anySatisfy(andel -> {
-            assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
-            assertThat(andel.getArbeidsgiver().get()).isSameAs(ARBEIDSGIVER2);
-            assertThat(andel.getDagsats()).as("dagsats").isZero();
-        });
-        assertThat(p1andeler).anySatisfy(andel -> {
-            assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
-            assertThat(andel.getArbeidsgiver().get()).isSameAs(ARBEIDSGIVER2);
-            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(1050);
-        });
+        assertThat(p1andeler)
+            .hasSize(4)
+            .anySatisfy(andel -> {
+                assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
+                assertThat(andel.getArbeidsgiver()).containsSame(ARBEIDSGIVER1);
+                assertThat(andel.getDagsats()).as("dagsats").isZero();
+            }).anySatisfy(andel -> {
+                assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
+                assertThat(andel.getArbeidsgiver()).containsSame(ARBEIDSGIVER1);
+                assertThat(andel.getDagsats()).as("dagsats").isEqualTo(1050);
+            }).anySatisfy(andel -> {
+                assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
+                assertThat(andel.getArbeidsgiver()).containsSame(ARBEIDSGIVER2);
+                assertThat(andel.getDagsats()).as("dagsats").isZero();
+            }).anySatisfy(andel -> {
+                assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
+                assertThat(andel.getArbeidsgiver()).containsSame(ARBEIDSGIVER2);
+                assertThat(andel.getDagsats()).as("dagsats").isEqualTo(1050);
+            });
     }
 
     /**
@@ -387,7 +379,7 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         // Assert
         var beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
         assertThat(beregningsresultatPerioder).hasSize(2);
-        var p0 = beregningsresultatPerioder.get(0);
+        var p0 = beregningsresultatPerioder.getFirst();
         assertThat(p0.getBeregningsresultatPeriodeFom()).isEqualTo(SKJÆRINGSTIDSPUNKT);
         assertThat(p0.getBeregningsresultatPeriodeTom()).isEqualTo(LocalDate.of(2019, Month.JANUARY, 31));
         var p0andeler = p0.getBeregningsresultatAndelList();
@@ -395,27 +387,27 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
             .hasSize(6)
             .anySatisfy(andel -> {
                 assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
-                assertThat(andel.getArbeidsgiver().get()).isSameAs(ARBEIDSGIVER1);
+                assertThat(andel.getArbeidsgiver()).containsSame(ARBEIDSGIVER1);
                 assertThat(andel.getDagsats()).as("dagsats").isZero();
             }).anySatisfy(andel -> {
                 assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
-                assertThat(andel.getArbeidsgiver().get()).isSameAs(ARBEIDSGIVER1);
+                assertThat(andel.getArbeidsgiver()).containsSame(ARBEIDSGIVER1);
                 assertThat(andel.getDagsats()).as("dagsats").isEqualTo(600);
             }).anySatisfy(andel -> {
                 assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
-                assertThat(andel.getArbeidsgiver().get()).isSameAs(ARBEIDSGIVER2);
+                assertThat(andel.getArbeidsgiver()).containsSame(ARBEIDSGIVER2);
                 assertThat(andel.getDagsats()).as("dagsats").isEqualTo(240);
             }).anySatisfy(andel -> {
                 assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
-                assertThat(andel.getArbeidsgiver().get()).isSameAs(ARBEIDSGIVER2);
+                assertThat(andel.getArbeidsgiver()).containsSame(ARBEIDSGIVER2);
                 assertThat(andel.getDagsats()).as("dagsats").isEqualTo(360);
             }).anySatisfy(andel -> {
                 assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
-                assertThat(andel.getArbeidsgiver().get()).isSameAs(ARBEIDSGIVER3);
+                assertThat(andel.getArbeidsgiver()).containsSame(ARBEIDSGIVER3);
                 assertThat(andel.getDagsats()).as("dagsats").isEqualTo(360);
             }).anySatisfy(andel -> {
                 assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
-                assertThat(andel.getArbeidsgiver().get()).isSameAs(ARBEIDSGIVER3);
+                assertThat(andel.getArbeidsgiver()).containsSame(ARBEIDSGIVER3);
                 assertThat(andel.getDagsats()).as("dagsats").isEqualTo(540);
             });
 
@@ -427,27 +419,27 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
             .hasSize(6)
             .anySatisfy(andel -> {
                 assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
-                assertThat(andel.getArbeidsgiver().get()).isSameAs(ARBEIDSGIVER1);
+                assertThat(andel.getArbeidsgiver()).containsSame(ARBEIDSGIVER1);
                 assertThat(andel.getDagsats()).as("dagsats").isZero();
             }).anySatisfy(andel -> {
                 assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
-                assertThat(andel.getArbeidsgiver().get()).isSameAs(ARBEIDSGIVER1);
+                assertThat(andel.getArbeidsgiver()).containsSame(ARBEIDSGIVER1);
                 assertThat(andel.getDagsats()).as("dagsats").isEqualTo(600);
             }).anySatisfy(andel -> {
                 assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
-                assertThat(andel.getArbeidsgiver().get()).isSameAs(ARBEIDSGIVER2);
+                assertThat(andel.getArbeidsgiver()).containsSame(ARBEIDSGIVER2);
                 assertThat(andel.getDagsats()).as("dagsats").isZero();
             }).anySatisfy(andel -> {
                 assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
-                assertThat(andel.getArbeidsgiver().get()).isSameAs(ARBEIDSGIVER2);
+                assertThat(andel.getArbeidsgiver()).containsSame(ARBEIDSGIVER2);
                 assertThat(andel.getDagsats()).as("dagsats").isEqualTo(600);
             }).anySatisfy(andel -> {
                 assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
-                assertThat(andel.getArbeidsgiver().get()).isSameAs(ARBEIDSGIVER3);
+                assertThat(andel.getArbeidsgiver()).containsSame(ARBEIDSGIVER3);
                 assertThat(andel.getDagsats()).as("dagsats").isZero();
             }).anySatisfy(andel -> {
                 assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
-                assertThat(andel.getArbeidsgiver().get()).isSameAs(ARBEIDSGIVER3);
+                assertThat(andel.getArbeidsgiver()).containsSame(ARBEIDSGIVER3);
                 assertThat(andel.getDagsats()).as("dagsats").isEqualTo(900);
             });
     }
@@ -492,7 +484,7 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         // Assert
         var beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
         assertThat(beregningsresultatPerioder).hasSize(1);
-        var p0 = beregningsresultatPerioder.get(0);
+        var p0 = beregningsresultatPerioder.getFirst();
 
         var p0andeler = p0.getBeregningsresultatAndelList();
         assertThat(p0andeler)

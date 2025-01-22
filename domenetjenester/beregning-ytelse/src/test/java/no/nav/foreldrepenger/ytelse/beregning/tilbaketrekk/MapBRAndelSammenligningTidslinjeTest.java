@@ -124,10 +124,8 @@ class MapBRAndelSammenligningTidslinjeTest {
         var forrigeAndeler = segment.getValue().getForrigeAndeler();
 
         // Listene skal inneholde de samme elementene (rekkefølge er ikke viktig)
-        assertThat(nyeAndeler.containsAll(nyeForventedeAndeler)).isTrue();
-        assertThat(nyeForventedeAndeler.containsAll(nyeAndeler)).isTrue();
-        assertThat(forrigeAndeler.containsAll(forrigeForventedeAndeler)).isTrue();
-        assertThat(forrigeForventedeAndeler.containsAll(forrigeAndeler)).isTrue();
+        assertThat(nyeAndeler).containsExactlyInAnyOrderElementsOf(nyeForventedeAndeler);
+        assertThat(forrigeAndeler).containsExactlyInAnyOrderElementsOf(forrigeForventedeAndeler);
     }
 
     private BeregningsresultatAndel lagAndelForPeriode(BeregningsresultatPeriode periode, Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef ref) {

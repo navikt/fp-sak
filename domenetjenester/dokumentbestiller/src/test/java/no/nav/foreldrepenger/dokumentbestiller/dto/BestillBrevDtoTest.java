@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.dokumentbestiller.dto;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.UUID;
 
@@ -26,14 +25,14 @@ class BestillBrevDtoTest {
 
         var etterRoundtrip = DefaultJsonMapper.fromJson(json, BestillDokumentDto.class);
 
-        assertEquals(brev.brevmalkode(), etterRoundtrip.brevmalkode());
-        assertEquals(dokumentMal, brev.brevmalkode());
-        assertEquals(brev.arsakskode(), etterRoundtrip.arsakskode());
-        assertEquals(arsak, etterRoundtrip.arsakskode());
-        assertEquals(brev.fritekst(), etterRoundtrip.fritekst());
-        assertNull(etterRoundtrip.fritekst());
-        assertEquals(brev.behandlingUuid(), etterRoundtrip.behandlingUuid());
-        assertEquals(uuid, etterRoundtrip.behandlingUuid().toString());
+        assertThat(brev.brevmalkode()).isEqualTo(etterRoundtrip.brevmalkode());
+        assertThat(dokumentMal).isEqualTo(brev.brevmalkode());
+        assertThat(brev.arsakskode()).isEqualTo(etterRoundtrip.arsakskode());
+        assertThat(arsak).isEqualTo(etterRoundtrip.arsakskode());
+        assertThat(brev.fritekst()).isEqualTo(etterRoundtrip.fritekst());
+        assertThat(etterRoundtrip.fritekst()).isNull();
+        assertThat(brev.behandlingUuid()).isEqualTo(etterRoundtrip.behandlingUuid());
+        assertThat(uuid).isEqualTo(etterRoundtrip.behandlingUuid().toString());
     }
 
 }

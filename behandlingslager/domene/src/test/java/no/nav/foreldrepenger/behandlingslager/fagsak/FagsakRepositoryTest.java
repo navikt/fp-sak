@@ -89,7 +89,7 @@ class FagsakRepositoryTest extends EntityManagerAwareTest {
         opprettFagsakMedJournalpost(journalpostId, saksnummer, aktørId);
 
         var journalpost = fagsakRepository.hentJournalpost(journalpostId);
-        assertThat(journalpost.isPresent()).isTrue();
+        assertThat(journalpost).isPresent();
 
     }
 

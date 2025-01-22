@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.vedtak.observer;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -20,6 +18,8 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdReferanse;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class VedtattYtelseForeldrepengerMapperTest {
 
@@ -58,8 +58,8 @@ class VedtattYtelseForeldrepengerMapperTest {
         var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
             .mapForeldrepenger(resultat);
 
-        assertThat(anvisninger.size()).isEqualTo(1);
-        assertThat(anvisninger.get(0).getAndeler().size()).isEqualTo(1);
+        assertThat(anvisninger).hasSize(1);
+        assertThat(anvisninger.get(0).getAndeler()).hasSize(1);
         assertThat(anvisninger.get(0).getAndeler().get(0).getArbeidsgiverIdent().erOrganisasjon()).isTrue();
         assertThat(anvisninger.get(0).getAndeler().get(0).getArbeidsgiverIdent().ident()).isEqualTo(arbeidsgiver.getIdentifikator());
         assertThat(anvisninger.get(0).getAndeler().get(0).getArbeidsforholdId()).isEqualTo(eksternReferanse);
@@ -98,8 +98,8 @@ class VedtattYtelseForeldrepengerMapperTest {
         var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
             .mapForeldrepenger(resultat);
 
-        assertThat(anvisninger.size()).isEqualTo(1);
-        assertThat(anvisninger.get(0).getAndeler().size()).isEqualTo(2);
+        assertThat(anvisninger).hasSize(1);
+        assertThat(anvisninger.get(0).getAndeler()).hasSize(2);
         assertThat(anvisninger.get(0).getAndeler().get(0).getArbeidsgiverIdent().erOrganisasjon()).isTrue();
         assertThat(anvisninger.get(0).getAndeler().get(0).getArbeidsgiverIdent().ident()).isEqualTo(arbeidsgiver1.getIdentifikator());
         assertThat(anvisninger.get(0).getAndeler().get(0).getArbeidsforholdId()).isEqualTo(eksternReferanse1);
@@ -143,8 +143,8 @@ class VedtattYtelseForeldrepengerMapperTest {
         var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
             .mapForeldrepenger(resultat);
 
-        assertThat(anvisninger.size()).isEqualTo(1);
-        assertThat(anvisninger.get(0).getAndeler().size()).isEqualTo(1);
+        assertThat(anvisninger).hasSize(1);
+        assertThat(anvisninger.get(0).getAndeler()).hasSize(1);
         assertThat(anvisninger.get(0).getAndeler().get(0).getArbeidsgiverIdent().erOrganisasjon()).isTrue();
         assertThat(anvisninger.get(0).getAndeler().get(0).getArbeidsgiverIdent().ident()).isEqualTo(arbeidsgiver.getIdentifikator());
         assertThat(anvisninger.get(0).getAndeler().get(0).getArbeidsforholdId()).isEqualTo(eksternReferanse);
@@ -175,11 +175,11 @@ class VedtattYtelseForeldrepengerMapperTest {
         var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
             .mapForeldrepenger(resultat);
 
-        assertThat(anvisninger.size()).isEqualTo(1);
-        assertThat(anvisninger.get(0).getAndeler().size()).isEqualTo(1);
+        assertThat(anvisninger).hasSize(1);
+        assertThat(anvisninger.get(0).getAndeler()).hasSize(1);
         assertThat(anvisninger.get(0).getAndeler().get(0).getArbeidsgiverIdent().erOrganisasjon()).isTrue();
         assertThat(anvisninger.get(0).getAndeler().get(0).getArbeidsgiverIdent().ident()).isEqualTo(arbeidsgiver.getIdentifikator());
-        assertThat(anvisninger.get(0).getAndeler().get(0).getArbeidsforholdId()).isEqualTo(null);
+        assertThat(anvisninger.get(0).getAndeler().get(0).getArbeidsforholdId()).isNull();
         assertThat(anvisninger.get(0).getAndeler().get(0).getInntektklasse()).isEqualTo(Inntektklasse.ARBEIDSTAKER);
         assertThat(anvisninger.get(0).getAndeler().get(0).getUtbetalingsgrad().getVerdi()).isEqualByComparingTo(BigDecimal.valueOf(100));
         assertThat(anvisninger.get(0).getAndeler().get(0).getDagsats().getVerdi()).isEqualByComparingTo(BigDecimal.valueOf(dagsats));
@@ -215,8 +215,8 @@ class VedtattYtelseForeldrepengerMapperTest {
         var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
             .mapForeldrepenger(resultat);
 
-        assertThat(anvisninger.size()).isEqualTo(1);
-        assertThat(anvisninger.get(0).getAndeler().size()).isEqualTo(1);
+        assertThat(anvisninger).hasSize(1);
+        assertThat(anvisninger.get(0).getAndeler()).hasSize(1);
         assertThat(anvisninger.get(0).getAndeler().get(0).getInntektklasse()).isEqualTo(Inntektklasse.DAGPENGER);
         assertThat(anvisninger.get(0).getAndeler().get(0).getUtbetalingsgrad().getVerdi()).isEqualByComparingTo(BigDecimal.valueOf(100));
         assertThat(anvisninger.get(0).getAndeler().get(0).getDagsats().getVerdi()).isEqualByComparingTo(BigDecimal.valueOf(dagsats));

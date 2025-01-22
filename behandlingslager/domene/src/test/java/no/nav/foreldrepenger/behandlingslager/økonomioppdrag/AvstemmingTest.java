@@ -1,10 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
 
@@ -35,7 +32,7 @@ class AvstemmingTest {
             () -> Avstemming.fra(null)
         );
 
-        assertTrue(thrown.getMessage().contains("avstemmingTidspunkt"));
+        assertThat(thrown.getMessage()).contains("avstemmingTidspunkt");
     }
 
     @Test
@@ -44,8 +41,9 @@ class AvstemmingTest {
         var avstemming1 = Avstemming.fra(testDato);
         var avstemming2 =  Avstemming.fra(testDato);
 
-        assertEquals(avstemming1, avstemming2);
-        assertEquals(avstemming2.hashCode(), avstemming1.hashCode());
+        assertThat(avstemming2)
+            .isEqualTo(avstemming1)
+            .hasSameHashCodeAs(avstemming1);
     }
 
     @Test
@@ -54,8 +52,9 @@ class AvstemmingTest {
         var avstemming1 = Avstemming.fra(testDato);
         var avstemming2 =  Avstemming.fra(testDato.plusDays(1));
 
-        assertNotEquals(avstemming1, avstemming2);
-        assertNotEquals(avstemming2.hashCode(), avstemming1.hashCode());
+        assertThat(avstemming2)
+            .isNotEqualTo(avstemming1)
+            .doesNotHaveSameHashCodeAs(avstemming1);
     }
 
     @Test

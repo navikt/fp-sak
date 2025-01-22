@@ -46,7 +46,7 @@ class NøkkeltallBehandlingRepositoryTest {
         var forventetNøkkeltallBehandlingVentestatus = forventet(søknad);
         var nøkkeltall = nøkkeltallBehandlingRepository.hentNøkkeltallSøknadFørsteUttakPrMånedForeldrepenger();
         var resultat = antallTreff(nøkkeltall, forventetNøkkeltallBehandlingVentestatus);
-        assertThat(resultat).isGreaterThanOrEqualTo(1);
+        assertThat(resultat).isPositive();
     }
 
     private NøkkeltallBehandlingFørsteUttak forventet(ScenarioMorSøkerForeldrepenger søknad) {
@@ -67,7 +67,7 @@ class NøkkeltallBehandlingRepositoryTest {
         var forventetNøkkeltallBehandlingVentestatus = forventetFrist(søknad);
         var nøkkeltall = nøkkeltallBehandlingRepository.hentNøkkeltallVentefristUtløper();
         var resultat = antallTreff(nøkkeltall, forventetNøkkeltallBehandlingVentestatus);
-        assertThat(resultat).isGreaterThanOrEqualTo(1);
+        assertThat(resultat).isPositive();
     }
 
     private NøkkeltallBehandlingVentefristUtløper forventetFrist(ScenarioMorSøkerForeldrepenger søknad) {

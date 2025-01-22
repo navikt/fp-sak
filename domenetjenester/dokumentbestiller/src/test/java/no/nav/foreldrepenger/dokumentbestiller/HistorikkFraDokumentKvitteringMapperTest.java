@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.dokumentbestiller;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -19,15 +18,15 @@ class HistorikkFraDokumentKvitteringMapperTest {
         var fagsakId = 34L;
         var historikkinnslag = HistorikkFraDokumentKvitteringMapper.opprettHistorikkInnslag(dokumentMal, journalpostId, dokumentId, behandlingId, fagsakId);
 
-        assertEquals(behandlingId, historikkinnslag.getBehandlingId());
-        assertEquals(fagsakId, historikkinnslag.getFagsakId());
-        assertEquals(HistorikkAktør.VEDTAKSLØSNINGEN, historikkinnslag.getAktør());
+        assertThat(behandlingId).isEqualTo(historikkinnslag.getBehandlingId());
+        assertThat(fagsakId).isEqualTo(historikkinnslag.getFagsakId());
+        assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.VEDTAKSLØSNINGEN);
 
-        assertNotNull(historikkinnslag.getDokumentLinker());
+        assertThat(historikkinnslag.getDokumentLinker()).isNotNull();
         var dokumentLink = historikkinnslag.getDokumentLinker().getFirst();
-        assertEquals(journalpostId, dokumentLink.getJournalpostId().getVerdi());
-        assertEquals(dokumentId, dokumentLink.getDokumentId());
-        assertEquals(dokumentMal.getNavn(), dokumentLink.getLinkTekst());
+        assertThat(journalpostId).isEqualTo(dokumentLink.getJournalpostId().getVerdi());
+        assertThat(dokumentId).isEqualTo(dokumentLink.getDokumentId());
+        assertThat(dokumentMal.getNavn()).isEqualTo(dokumentLink.getLinkTekst());
     }
 
 }

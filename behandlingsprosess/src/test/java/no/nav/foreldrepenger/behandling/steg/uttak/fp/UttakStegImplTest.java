@@ -384,7 +384,7 @@ class UttakStegImplTest {
 
         var førstegangBeregning = fpUttakRepository.hentUttakResultat(førstegangsBehandling.getId()).getStønadskontoberegning();
         var fellesperiode = førstegangBeregning.getStønadskontoutregning().getOrDefault(StønadskontoType.FELLESPERIODE,0 );
-        assertThat(fellesperiode).isGreaterThan(0);
+        assertThat(fellesperiode).isPositive();
 
         var revurdering = opprettRevurdering(førstegangsBehandling, fødselsdato);
         var gjeldendeVersjon = familieHendelseRepository.hentAggregat(revurdering.getId()).getGjeldendeVersjon();
@@ -397,7 +397,7 @@ class UttakStegImplTest {
         var resultat = fpUttakRepository.hentUttakResultatHvisEksisterer(revurdering.getId());
         assertThat(resultat).isPresent();
         assertThat(resultat.orElseThrow().getStønadskontoberegning().getId()).isNotEqualTo(førstegangBeregning.getId());
-        assertThat(resultat.orElseThrow().getStønadskontoberegning().getStønadskontoutregning().getOrDefault(StønadskontoType.TILLEGG_PREMATUR,0 )).isGreaterThan(0);
+        assertThat(resultat.orElseThrow().getStønadskontoberegning().getStønadskontoutregning().getOrDefault(StønadskontoType.TILLEGG_PREMATUR,0 )).isPositive();
         assertThat(resultat.orElseThrow().getStønadskontoberegning().getStønadskontoutregning().getOrDefault(StønadskontoType.FELLESPERIODE,0 )).isGreaterThan(fellesperiode);
     }
 
@@ -487,7 +487,7 @@ class UttakStegImplTest {
 
         // assert
         var resultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
-        assertThat(resultat.isPresent()).isFalse();
+        assertThat(resultat).isEmpty();
     }
 
     @Test
@@ -504,7 +504,7 @@ class UttakStegImplTest {
 
         // assert
         var resultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
-        assertThat(resultat.isPresent()).isFalse();
+        assertThat(resultat).isEmpty();
     }
 
     @Test

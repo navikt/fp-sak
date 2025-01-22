@@ -89,12 +89,12 @@ class IAYDtoMapperRoundtripTest {
         var fpsakGrunnlag = fraDtoMapper.mapTilGrunnlagInklusivRegisterdata(dto, true);
 
         // Assert
-        assertThat(fpsakGrunnlag.getEksternReferanse().toString()).isEqualTo(dto.getGrunnlagReferanse());
+        assertThat(fpsakGrunnlag.getEksternReferanse()).hasToString(dto.getGrunnlagReferanse());
 
         // Assert oppgitt opptjening
         var fpsakOO = fpsakGrunnlag.getGjeldendeOppgittOpptjening().orElseThrow();
         var dtoOO = dto.getOppgittOpptjening();
-        assertThat(fpsakOO.getEksternReferanse().toString()).isEqualTo(dtoOO.getEksternReferanse().getReferanse());
+        assertThat(fpsakOO.getEksternReferanse()).hasToString(dtoOO.getEksternReferanse().getReferanse());
 
         assertThat(fpsakOO.getEgenNæring().getFirst().getOrgnr()).isEqualTo(dtoOO.getEgenNæring().getFirst().getVirksomhet().getIdent());
         assertThat(fpsakOO.getEgenNæring().getFirst().getBegrunnelse()).isEqualTo(dtoOO.getEgenNæring().getFirst().getBegrunnelse());
