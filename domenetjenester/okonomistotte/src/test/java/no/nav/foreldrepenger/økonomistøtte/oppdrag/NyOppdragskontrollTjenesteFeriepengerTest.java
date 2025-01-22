@@ -58,9 +58,10 @@ class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrollTjenes
         assertThat(oppdragRevurdering).isNotPresent();
     }
 
-    private BehandlingBeregningsresultatEntitet oppsettBeregningsresultatForFeriepenger(boolean erOpptjentOverFlereÅr, Long årsbeløp1, Long årsbeløp2) {
-        return buildBeregningsresultatFPForVerifiseringAvOpp150MedFeriepenger(erOpptjentOverFlereÅr, årsbeløp1,
-            årsbeløp2, DAGENS_DATO);
+    private BehandlingBeregningsresultatEntitet oppsettBeregningsresultatForFeriepenger(boolean erOpptjentOverFlereÅr,
+                                                                                        Long årsbeløp1,
+                                                                                        Long årsbeløp2) {
+        return buildBeregningsresultatFPForVerifiseringAvOpp150MedFeriepenger(erOpptjentOverFlereÅr, årsbeløp1, årsbeløp2, DAGENS_DATO);
     }
 
     /**
@@ -84,7 +85,7 @@ class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrollTjenes
         var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
-        int førsteFeriepengeår = FERIEPENGEÅR_LISTE.get(0);
+        int førsteFeriepengeår = FERIEPENGEÅR_LISTE.getFirst();
         int andreFeriepengeår = FERIEPENGEÅR_LISTE.get(1);
         //Original behandling
         assertThat(originaltOppdrag.getOppdrag110Liste()).hasSize(2);
@@ -115,11 +116,11 @@ class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrollTjenes
         //Arbeidsgiver revurdering
         var opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
         assertThat(opp150RevurderingFeriepengerArbgvrList).hasSize(1);
-        assertThat(opp150RevurderingFeriepengerArbgvrList.get(0).getSats()).isEqualTo(Sats.på(11000L));
+        assertThat(opp150RevurderingFeriepengerArbgvrList.getFirst().getSats()).isEqualTo(Sats.på(11000L));
         //Bruker revurdering
         var opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
         assertThat(opp150RevurderingFeriepengerBrukerList).hasSize(1);
-        assertThat(opp150RevurderingFeriepengerBrukerList.get(0).getSats()).isEqualTo(Sats.på(11000L));
+        assertThat(opp150RevurderingFeriepengerBrukerList.getFirst().getSats()).isEqualTo(Sats.på(11000L));
         verifiserOpp150NårEndringGjelderEttFeriepengeår(forrigeOpp150FeriepengerListe, opp150RevurderingFeriepengerListe, false);
     }
 
@@ -156,11 +157,11 @@ class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrollTjenes
         //Arbeidsgiver revurdering
         var opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
         assertThat(opp150RevurderingFeriepengerArbgvrList).hasSize(1);
-        assertThat(opp150RevurderingFeriepengerArbgvrList.get(0).getSats()).isEqualTo(Sats.på(7000L));
+        assertThat(opp150RevurderingFeriepengerArbgvrList.getFirst().getSats()).isEqualTo(Sats.på(7000L));
         //Bruker revurdering
         var opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
         assertThat(opp150RevurderingFeriepengerBrukerList).hasSize(1);
-        assertThat(opp150RevurderingFeriepengerBrukerList.get(0).getSats()).isEqualTo(Sats.på(7000L));
+        assertThat(opp150RevurderingFeriepengerBrukerList.getFirst().getSats()).isEqualTo(Sats.på(7000L));
         verifiserOpp150NårEndringGjelderEttFeriepengeår(forrigeOpp150FeriepengerListe, opp150RevurderingFeriepengerListe, true);
     }
 
@@ -353,20 +354,20 @@ class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrollTjenes
         //Assert
         var forrigeOpp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
         var opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
-        int førsteFeriepengeår = FERIEPENGEÅR_LISTE.get(0);
+        int førsteFeriepengeår = FERIEPENGEÅR_LISTE.getFirst();
         //Original  behandling
         assertThat(originaltOppdrag.getOppdrag110Liste()).hasSize(2);
         assertThat(forrigeOpp150FeriepengerListe).hasSize(2);
         //Arbeidsgiver forrige behandling
         var forrigeopp150FeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(forrigeOpp150FeriepengerListe, false);
         assertThat(forrigeopp150FeriepengerArbgvrList).hasSize(1);
-        assertThat(forrigeopp150FeriepengerArbgvrList.get(0).getDatoVedtakFom().getYear()).isEqualTo(førsteFeriepengeår);
-        assertThat(forrigeopp150FeriepengerArbgvrList.get(0).getSats()).isEqualTo(Sats.på(6500L));
+        assertThat(forrigeopp150FeriepengerArbgvrList.getFirst().getDatoVedtakFom().getYear()).isEqualTo(førsteFeriepengeår);
+        assertThat(forrigeopp150FeriepengerArbgvrList.getFirst().getSats()).isEqualTo(Sats.på(6500L));
         //Bruker forrige behandling
         var forrigeopp150FeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(forrigeOpp150FeriepengerListe, true);
         assertThat(forrigeopp150FeriepengerBrukerList).hasSize(1);
-        assertThat(forrigeopp150FeriepengerBrukerList.get(0).getDatoVedtakFom().getYear()).isEqualTo(førsteFeriepengeår);
-        assertThat(forrigeopp150FeriepengerBrukerList.get(0).getSats()).isEqualTo(Sats.på(6500L));
+        assertThat(forrigeopp150FeriepengerBrukerList.getFirst().getDatoVedtakFom().getYear()).isEqualTo(førsteFeriepengeår);
+        assertThat(forrigeopp150FeriepengerBrukerList.getFirst().getSats()).isEqualTo(Sats.på(6500L));
         //Revurdering
         assertThat(oppdragRevurdering.getOppdrag110Liste()).hasSize(2);
         //Bruker
@@ -381,9 +382,10 @@ class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrollTjenes
             .anySatisfy(opp150 -> assertThat(opp150.getSats()).isEqualTo(Sats.på(7000L)));
         OppdragskontrollFeriepengerTestUtil.verifiserRefDelytelseId(forrigeOpp150FeriepengerListe, opp150RevurderingFeriepengerListe, true);
         verifiserFeriepengeår(opp150RevurderingFeriepengerListe);
+
         assertThat(opp150RevurderingFeriepengerListe).anySatisfy(oppdragslinje150 -> {
             assertThat(oppdragslinje150.getRefDelytelseId()).isNull();
-            assertThat(oppdragslinje150.getRefDelytelseId()).isNull();
+            assertThat(oppdragslinje150.getRefFagsystemId()).isNull();
         });
     }
 
@@ -421,13 +423,13 @@ class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrollTjenes
         //Arbeidsgiver revurdering
         var opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
         assertThat(opp150RevurderingFeriepengerArbgvrList).hasSize(1);
-        assertThat(opp150RevurderingFeriepengerArbgvrList.get(0).getDatoVedtakFom().getYear()).isEqualTo(andreFeriepengeår);
-        assertThat(opp150RevurderingFeriepengerArbgvrList.get(0).getSats()).isEqualTo(Sats.på(7000L));
+        assertThat(opp150RevurderingFeriepengerArbgvrList.getFirst().getDatoVedtakFom().getYear()).isEqualTo(andreFeriepengeår);
+        assertThat(opp150RevurderingFeriepengerArbgvrList.getFirst().getSats()).isEqualTo(Sats.på(7000L));
         //Bruker revurdering
         var opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
         assertThat(opp150RevurderingFeriepengerBrukerList).hasSize(1);
-        assertThat(opp150RevurderingFeriepengerBrukerList.get(0).getDatoVedtakFom().getYear()).isEqualTo(andreFeriepengeår);
-        assertThat(opp150RevurderingFeriepengerBrukerList.get(0).getSats()).isEqualTo(Sats.på(7000L));
+        assertThat(opp150RevurderingFeriepengerBrukerList.getFirst().getDatoVedtakFom().getYear()).isEqualTo(andreFeriepengeår);
+        assertThat(opp150RevurderingFeriepengerBrukerList.getFirst().getSats()).isEqualTo(Sats.på(7000L));
     }
 
     /**
@@ -460,13 +462,13 @@ class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrollTjenes
         //Arbeidsgiver forrige behandling
         var forrigeopp150FeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(forrigeOpp150FeriepengerListe, false);
         assertThat(forrigeopp150FeriepengerArbgvrList).hasSize(1);
-        assertThat(forrigeopp150FeriepengerArbgvrList.get(0).getDatoVedtakFom().getYear()).isEqualTo(andreFeriepengeår);
-        assertThat(forrigeopp150FeriepengerArbgvrList.get(0).getSats()).isEqualTo(Sats.på(7500L));
+        assertThat(forrigeopp150FeriepengerArbgvrList.getFirst().getDatoVedtakFom().getYear()).isEqualTo(andreFeriepengeår);
+        assertThat(forrigeopp150FeriepengerArbgvrList.getFirst().getSats()).isEqualTo(Sats.på(7500L));
         //Bruker forrige behandling
         var forrigeopp150FeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(forrigeOpp150FeriepengerListe, true);
         assertThat(forrigeopp150FeriepengerBrukerList).hasSize(1);
-        assertThat(forrigeopp150FeriepengerBrukerList.get(0).getDatoVedtakFom().getYear()).isEqualTo(andreFeriepengeår);
-        assertThat(forrigeopp150FeriepengerBrukerList.get(0).getSats()).isEqualTo(Sats.på(7500L));
+        assertThat(forrigeopp150FeriepengerBrukerList.getFirst().getDatoVedtakFom().getYear()).isEqualTo(andreFeriepengeår);
+        assertThat(forrigeopp150FeriepengerBrukerList.getFirst().getSats()).isEqualTo(Sats.på(7500L));
         var opp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
         //Revurdering
         assertThat(oppdragRevurdering.getOppdrag110Liste()).hasSize(2);
@@ -509,7 +511,7 @@ class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrollTjenes
         var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
-        int førsteFeriepengeår = FERIEPENGEÅR_LISTE.get(0);
+        int førsteFeriepengeår = FERIEPENGEÅR_LISTE.getFirst();
         var forrigeOpp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
         var opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
         //Original  behandling
@@ -522,13 +524,13 @@ class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrollTjenes
         //Arbeidsgiver revurdering
         var opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
         assertThat(opp150RevurderingFeriepengerArbgvrList).hasSize(1);
-        assertThat(opp150RevurderingFeriepengerArbgvrList.get(0).getDatoVedtakFom().getYear()).isEqualTo(førsteFeriepengeår);
-        assertThat(opp150RevurderingFeriepengerArbgvrList.get(0).getSats()).isEqualTo(Sats.på(6500L));
+        assertThat(opp150RevurderingFeriepengerArbgvrList.getFirst().getDatoVedtakFom().getYear()).isEqualTo(førsteFeriepengeår);
+        assertThat(opp150RevurderingFeriepengerArbgvrList.getFirst().getSats()).isEqualTo(Sats.på(6500L));
         //Bruker revurdering
         var opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
         assertThat(opp150RevurderingFeriepengerBrukerList).hasSize(1);
-        assertThat(opp150RevurderingFeriepengerBrukerList.get(0).getDatoVedtakFom().getYear()).isEqualTo(førsteFeriepengeår);
-        assertThat(opp150RevurderingFeriepengerBrukerList.get(0).getSats()).isEqualTo(Sats.på(6500L));
+        assertThat(opp150RevurderingFeriepengerBrukerList.getFirst().getDatoVedtakFom().getYear()).isEqualTo(førsteFeriepengeår);
+        assertThat(opp150RevurderingFeriepengerBrukerList.getFirst().getSats()).isEqualTo(Sats.på(6500L));
     }
 
     /**
@@ -563,19 +565,15 @@ class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrollTjenes
         assertThat(opp150RevurderingFeriepengerListe).hasSize(4);
         //Arbeidsgiver revurdering
         var opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
-        var opp150RevurdArbgvrUtenOpph = opp150RevurderingFeriepengerArbgvrList.stream()
-            .filter(opp150 -> !opp150.gjelderOpphør())
-            .toList();
+        var opp150RevurdArbgvrUtenOpph = opp150RevurderingFeriepengerArbgvrList.stream().filter(opp150 -> !opp150.gjelderOpphør()).toList();
         assertThat(opp150RevurdArbgvrUtenOpph).hasSize(1);
-        assertThat(opp150RevurdArbgvrUtenOpph.get(0).getSats()).isEqualTo(Sats.på(13000L));
+        assertThat(opp150RevurdArbgvrUtenOpph.getFirst().getSats()).isEqualTo(Sats.på(13000L));
         //Bruker revurdering
         assertThat(oppdragRevurdering.getOppdrag110Liste()).hasSize(2);
         var opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
-        var opp150RevurdBrukerUtenOpph = opp150RevurderingFeriepengerBrukerList.stream()
-            .filter(opp150 -> !opp150.gjelderOpphør())
-            .toList();
+        var opp150RevurdBrukerUtenOpph = opp150RevurderingFeriepengerBrukerList.stream().filter(opp150 -> !opp150.gjelderOpphør()).toList();
         assertThat(opp150RevurdBrukerUtenOpph).hasSize(1);
-        assertThat(opp150RevurdBrukerUtenOpph.get(0).getSats()).isEqualTo(Sats.på(13000L));
+        assertThat(opp150RevurdBrukerUtenOpph.getFirst().getSats()).isEqualTo(Sats.på(13000L));
         //Opphør
         var opp150ForOpphListe = opp150RevurderingFeriepengerListe.stream().filter(Oppdragslinje150::gjelderOpphør).toList();
         assertThat(opp150ForOpphListe).hasSize(2).allSatisfy(opp150 -> assertThat(opp150.getDatoVedtakFom().getYear()).isEqualTo(andreFeriepengeår));
@@ -643,24 +641,20 @@ class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrollTjenes
         var forrigeOpp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
         assertThat(originaltOppdrag.getOppdrag110Liste()).hasSize(2);
         var opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
-        int førsteFeriepengeår = FERIEPENGEÅR_LISTE.get(0);
+        int førsteFeriepengeår = FERIEPENGEÅR_LISTE.getFirst();
 
         //Revurdering
         assertThat(oppdragRevurdering.getOppdrag110Liste()).hasSize(2);
         //Arbeidsgiver revurdering
         var opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
-        var opp150RevurdArbgvrUtenOpph = opp150RevurderingFeriepengerArbgvrList.stream()
-            .filter(opp150 -> !opp150.gjelderOpphør())
-            .toList();
+        var opp150RevurdArbgvrUtenOpph = opp150RevurderingFeriepengerArbgvrList.stream().filter(opp150 -> !opp150.gjelderOpphør()).toList();
         assertThat(opp150RevurdArbgvrUtenOpph).hasSize(1);
-        assertThat(opp150RevurdArbgvrUtenOpph.get(0).getSats()).isEqualTo(Sats.på(11000L));
+        assertThat(opp150RevurdArbgvrUtenOpph.getFirst().getSats()).isEqualTo(Sats.på(11000L));
         //Bruker revurdering
         var opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
-        var opp150RevurdBrukerUtenOpph = opp150RevurderingFeriepengerBrukerList.stream()
-            .filter(opp150 -> !opp150.gjelderOpphør())
-            .toList();
+        var opp150RevurdBrukerUtenOpph = opp150RevurderingFeriepengerBrukerList.stream().filter(opp150 -> !opp150.gjelderOpphør()).toList();
         assertThat(opp150RevurdBrukerUtenOpph).hasSize(1);
-        assertThat(opp150RevurdBrukerUtenOpph.get(0).getSats()).isEqualTo(Sats.på(11000L));
+        assertThat(opp150RevurdBrukerUtenOpph.getFirst().getSats()).isEqualTo(Sats.på(11000L));
         //Opphør
         var opp150ForOpphListe = opp150RevurderingFeriepengerListe.stream().filter(Oppdragslinje150::gjelderOpphør).toList();
         assertThat(opp150ForOpphListe).hasSize(2).allSatisfy(opp150 -> assertThat(opp150.getDatoVedtakFom().getYear()).isEqualTo(førsteFeriepengeår));
@@ -862,7 +856,7 @@ class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrollTjenes
         //Arrange
         //Act
         //Førstegangsbehandling
-        var baseDato = LocalDate.of(2022, 7,1);
+        var baseDato = LocalDate.of(2022, 7, 1);
         var oppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, false, 11000L, 6000L, baseDato);
 
         //Assert
@@ -875,9 +869,10 @@ class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrollTjenes
             .get();
         var opp150FeriepengerBruker = getOppdragslinje150Feriepenger(oppdrag110Bruker);
         assertThat(opp150FeriepengerBruker).isNotEmpty()
-            .satisfiesOnlyOnce(opp150 -> assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FERIEPENGER_BRUKER)); // Gammel konvensjon for opptjeningsår 2022
-        assertThat(opp150FeriepengerBruker).isNotEmpty()
-            .satisfiesOnlyOnce(opp150 -> assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPA_FERIEPENGER_BRUKER)); // Ny konvensjon for opptjeningsår 2023
+            .satisfiesOnlyOnce(opp150 -> assertThat(opp150.getKodeKlassifik()).isEqualTo(
+                KodeKlassifik.FERIEPENGER_BRUKER)) // Gammel konvensjon for opptjeningsår 2022
+            .satisfiesOnlyOnce(opp150 -> assertThat(opp150.getKodeKlassifik()).isEqualTo(
+                KodeKlassifik.FPA_FERIEPENGER_BRUKER)); // Ny konvensjon for opptjeningsår 2023
         // Arbeidsgiver
         var oppdrag110Arbeidsgiver = oppdrag.getOppdrag110Liste()
             .stream()

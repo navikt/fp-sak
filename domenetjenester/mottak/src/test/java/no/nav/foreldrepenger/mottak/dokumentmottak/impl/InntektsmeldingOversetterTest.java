@@ -88,8 +88,7 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
             .map(i -> i.stream().flatMap(im -> im.getEndringerRefusjon().stream()).toList())
             .orElse(Collections.emptyList());
 
-        assertThat(endringerIRefusjon).as(
-            "Forventer at vi har en endring i refusjon lagret fra inntektsmeldingen.").hasSize(1);
+        assertThat(endringerIRefusjon).as("Forventer at vi har en endring i refusjon lagret fra inntektsmeldingen.").hasSize(1);
     }
 
     @Test
@@ -104,8 +103,7 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
             .map(e -> e.stream().flatMap(im -> im.getNaturalYtelser().stream()).toList())
             .orElse(Collections.emptyList());
 
-        assertThat(naturalYtelser).as("Forventet fire naturalytelser, to opphørt og to gjenopptatt.")
-            .hasSize(4);
+        assertThat(naturalYtelser).as("Forventet fire naturalytelser, to opphørt og to gjenopptatt.").hasSize(4);
 
         assertThat(naturalYtelser.stream().map(NaturalYtelse::getType).toList()).containsOnly(
             AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS, ELEKTRISK_KOMMUNIKASJON);
@@ -136,8 +134,9 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
             .stream()
             .findFirst();
 
-        assertThat(innsendingstidspunkt).isPresent();
-        assertThat(innsendingstidspunkt).hasValue(wrapper.getInnsendingstidspunkt().get());
+        assertThat(innsendingstidspunkt)
+            .isPresent()
+            .hasValue(wrapper.getInnsendingstidspunkt().get());
 
     }
 
@@ -191,8 +190,9 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
             .stream()
             .findFirst();
 
-        assertThat(innsendingstidspunkt).isPresent();
-        assertThat(innsendingstidspunkt).hasValue(nyereDato);
+        assertThat(innsendingstidspunkt)
+            .isPresent()
+            .hasValue(nyereDato);
         assertThat(grunnlag.getInntektsmeldinger()
             .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
             .get()).hasSize(1);
@@ -234,8 +234,9 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
             .stream()
             .findFirst();
 
-        assertThat(innsendingstidspunkt).isPresent();
-        assertThat(innsendingstidspunkt).hasValue(nyereDato);
+        assertThat(innsendingstidspunkt)
+            .isPresent()
+            .hasValue(nyereDato);
         assertThat(grunnlag.getInntektsmeldinger()
             .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
             .get()).hasSize(1);

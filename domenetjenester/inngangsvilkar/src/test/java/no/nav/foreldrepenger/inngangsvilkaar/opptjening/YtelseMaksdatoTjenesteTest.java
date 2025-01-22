@@ -131,8 +131,9 @@ class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
         var morsMaksdato = ytelseMaksdatoTjeneste.beregnMorsMaksdato(farsBehandling.getSaksnummer(), farsBehandling.getRelasjonsRolleType());
 
         // Assert
-        assertThat(morsMaksdato).isPresent();
-        assertThat(morsMaksdato).contains(LocalDate.of(2018, 9, 28));
+        assertThat(morsMaksdato)
+            .isPresent()
+            .contains(LocalDate.of(2018, 9, 28));
 
     }
 
@@ -194,8 +195,9 @@ class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
         var morsMaksdato = ytelseMaksdatoTjeneste.beregnMorsMaksdato(farsBehandling.getSaksnummer(), farsBehandling.getRelasjonsRolleType());
 
         // Assert
-        assertThat(morsMaksdato).isPresent();
-        assertThat(morsMaksdato).contains(LocalDate.of(2018, 10, 19));
+        assertThat(morsMaksdato)
+            .isPresent()
+            .contains(LocalDate.of(2018, 10, 19));
     }
 
     private Behandlingsresultat getBehandlingsresultat(Behandling morsBehandling) {

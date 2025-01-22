@@ -253,12 +253,14 @@ class SøknadMapperFellesTest {
         assertThat(medlemskap.isBorINorgeNeste12Mnd()).isFalse();
 
         var oppholdNorgeListe = medlemskap.getOppholdNorge();
-        assertThat(oppholdNorgeListe).isNotNull();
-        assertThat(oppholdNorgeListe).isEmpty();
+        assertThat(oppholdNorgeListe)
+            .isNotNull()
+            .isEmpty();
 
         var alleOppholdUtlandet = medlemskap.getOppholdUtlandet();
-        assertThat(alleOppholdUtlandet).isNotNull();
-        assertThat(alleOppholdUtlandet).hasSize(1);
+        assertThat(alleOppholdUtlandet)
+            .isNotNull()
+            .hasSize(1);
 
         var oppholdUtlandet = alleOppholdUtlandet.get(0);
         assertThat(oppholdUtlandet.getLand()).isNotNull();
@@ -294,12 +296,14 @@ class SøknadMapperFellesTest {
         assertThat(medlemskap.isBorINorgeNeste12Mnd()).isTrue();
 
         var oppholdNorgeListe = medlemskap.getOppholdNorge();
-        assertThat(oppholdNorgeListe).isNotNull();
-        assertThat(oppholdNorgeListe).isEmpty();
+        assertThat(oppholdNorgeListe)
+            .isNotNull()
+            .isEmpty();
 
         var oppholdUtenlandsListe = medlemskap.getOppholdUtlandet();
-        assertThat(oppholdUtenlandsListe).isNotNull();
-        assertThat(oppholdUtenlandsListe).hasSize(1);
+        assertThat(oppholdUtenlandsListe)
+            .isNotNull()
+            .hasSize(1);
         var utenlandsopphold = oppholdUtenlandsListe.get(0);
         assertThat(utenlandsopphold.getLand()).isNotNull();
         assertThat(utenlandsopphold.getLand().getKode()).isEqualTo(land);
@@ -324,8 +328,9 @@ class SøknadMapperFellesTest {
     void test_mapEgenNæring() {
         var virksomhetDto = opprettNorskVirksomhetMedEndringUtenRegnskapsfører();
         var egenNaering = SøknadMapperFelles.mapEgenNæring(virksomhetDto, virksomhetTjeneste);
-        assertThat(egenNaering).isNotNull();
-        assertThat(egenNaering).isInstanceOf(NorskOrganisasjon.class);
+        assertThat(egenNaering)
+            .isNotNull()
+            .isInstanceOf(NorskOrganisasjon.class);
         assertThat(egenNaering.getVirksomhetstype().get(0).getKode()).isEqualTo(VirksomhetType.ANNEN.getKode());
     }
 
@@ -333,14 +338,17 @@ class SøknadMapperFellesTest {
     void test_mapUtenlandskOrgEgenNæring() {
         var virksomhetDto = opprettUtenlandskVirksomhetMedEndringUtenRegnskapsfører();
         var egenNaering = SøknadMapperFelles.mapEgenNæring(virksomhetDto, virksomhetTjeneste);
-        assertThat(egenNaering).isNotNull();
-        assertThat(egenNaering).isInstanceOf(UtenlandskOrganisasjon.class);
+        assertThat(egenNaering)
+            .isNotNull()
+            .isInstanceOf(UtenlandskOrganisasjon.class);
         assertThat(egenNaering.getVirksomhetstype().get(0).getKode()).isEqualTo(VirksomhetType.ANNEN.getKode());
         assertThat(((UtenlandskOrganisasjon) egenNaering).getRegistrertILand()).isNotNull();
-        assertThat(egenNaering.getPeriode().getFom()).isNotNull();
-        assertThat(egenNaering.getPeriode().getFom()).isEqualTo(LocalDate.now());
-        assertThat(egenNaering.getPeriode().getTom()).isNotNull();
-        assertThat(egenNaering.getPeriode().getTom()).isEqualTo(Tid.TIDENES_ENDE);
+        assertThat(egenNaering.getPeriode().getFom())
+            .isNotNull()
+            .isEqualTo(LocalDate.now());
+        assertThat(egenNaering.getPeriode().getTom())
+            .isNotNull()
+            .isEqualTo(Tid.TIDENES_ENDE);
     }
 
     @Test
@@ -351,10 +359,11 @@ class SøknadMapperFellesTest {
         var arbeidsforholdDto = opprettUtenlandskArbeidsforholdDto("arbg. navn", "FIN", periodeFom, periodeTom);
         var arbeidsforhold = SøknadMapperFelles
                 .mapAlleUtenlandskeArbeidsforhold(Collections.singletonList(arbeidsforholdDto));
-        assertThat(arbeidsforhold).isNotNull();
-        assertThat(arbeidsforhold).anySatisfy(arbForhold -> assertThat(arbForhold).isInstanceOf(UtenlandskArbeidsforhold.class));
-        assertThat(arbeidsforhold).anySatisfy(arbForhold -> assertThat(arbForhold.getArbeidsgiversnavn()).isEqualTo("arbg. navn"));
-        assertThat(arbeidsforhold).anySatisfy(arbForhold -> assertThat(arbForhold.getArbeidsland().getKode()).isEqualTo("FIN"));
+        assertThat(arbeidsforhold)
+            .isNotNull()
+            .anySatisfy(arbForhold -> assertThat(arbForhold).isInstanceOf(UtenlandskArbeidsforhold.class))
+            .anySatisfy(arbForhold -> assertThat(arbForhold.getArbeidsgiversnavn()).isEqualTo("arbg. navn"))
+            .anySatisfy(arbForhold -> assertThat(arbForhold.getArbeidsland().getKode()).isEqualTo("FIN"));
     }
 
     @Test

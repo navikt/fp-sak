@@ -150,8 +150,9 @@ class BeregningsresultatRepositoryTest {
 
         var beregningsresultatFPLest = beregningsresultatRepository.hentBeregningsresultat(
             behandling.getId());
-        assertThat(beregningsresultatFPLest).isEqualTo(Optional.of(beregningsresultat));
-        assertThat(beregningsresultatFPLest).isPresent();
+        assertThat(beregningsresultatFPLest)
+            .isPresent()
+            .isEqualTo(Optional.of(beregningsresultat));
         var arbeidsgiver = beregningsresultatFPLest.get()
             .getBeregningsresultatPerioder()
             .get(0)
@@ -249,9 +250,10 @@ class BeregningsresultatRepositoryTest {
 
         // Assert
         var hentetResultat = beregningsresultatRepository.hentFeriepenger(behandling.getId());
-        assertThat(hentetResultat).isNotNull();
-        assertThat(hentetResultat).isPresent();
-        assertThat(hentetResultat).hasValueSatisfying(this::assertFeriepenger);
+        assertThat(hentetResultat)
+            .isNotNull()
+            .isPresent()
+            .hasValueSatisfying(this::assertFeriepenger);
     }
 
     private void assertFeriepenger(BeregningsresultatFeriepenger hentetFeriepenger) {

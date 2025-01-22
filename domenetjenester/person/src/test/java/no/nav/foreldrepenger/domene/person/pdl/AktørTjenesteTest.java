@@ -37,8 +37,9 @@ class AktørTjenesteTest {
                 .thenReturn(new Identliste(List.of(new IdentInformasjon(aktørId.getId(), IdentGruppe.AKTORID, false))));
 
         var optAktørId = aktørTjeneste.hentAktørIdForPersonIdent(fnr);
-        assertThat(optAktørId).isPresent();
-        assertThat(optAktørId).hasValueSatisfying(v -> assertThat(v).isEqualTo(aktørId));
+        assertThat(optAktørId)
+            .isPresent()
+            .hasValueSatisfying(v -> assertThat(v).isEqualTo(aktørId));
     }
 
     @Test
@@ -47,8 +48,9 @@ class AktørTjenesteTest {
                 .thenReturn(new Identliste(List.of(new IdentInformasjon(fnr.getIdent(), IdentGruppe.FOLKEREGISTERIDENT, false))));
 
         var optFnr = aktørTjeneste.hentPersonIdentForAktørId(aktørId);
-        assertThat(optFnr).isPresent();
-        assertThat(optFnr).hasValueSatisfying(v -> assertThat(v).isEqualTo(fnr));
+        assertThat(optFnr)
+            .isPresent()
+            .hasValueSatisfying(v -> assertThat(v).isEqualTo(fnr));
     }
 
 }

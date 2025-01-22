@@ -78,8 +78,9 @@ class BeregnStønadskontoerTjenesteDekning80Test {
 
         var stønadskontoer = stønadskontoberegning.get().getStønadskontoutregning();
 
-        assertThat(stønadskontoer).hasSize(5);
-        assertThat(stønadskontoer).containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, MØDREKVOTE, FEDREKVOTE, FELLESPERIODE, FAR_RUNDT_FØDSEL);
+        assertThat(stønadskontoer)
+            .hasSize(5)
+            .containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, MØDREKVOTE, FEDREKVOTE, FELLESPERIODE, FAR_RUNDT_FØDSEL);
         assertThat(stønadskontoer).containsEntry(FELLESPERIODE, 101);
     }
 
@@ -117,8 +118,9 @@ class BeregnStønadskontoerTjenesteDekning80Test {
         assertThat(stønadskontoberegning).isPresent();
         var stønadskontoer = stønadskontoberegning.get().getStønadskontoutregning();
 
-        assertThat(stønadskontoer).hasSize(5);
-        assertThat(stønadskontoer).containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, MØDREKVOTE, FEDREKVOTE, FELLESPERIODE, FAR_RUNDT_FØDSEL);
+        assertThat(stønadskontoer)
+            .hasSize(5)
+            .containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, MØDREKVOTE, FEDREKVOTE, FELLESPERIODE, FAR_RUNDT_FØDSEL);
         assertThat(stønadskontoer).containsEntry(FELLESPERIODE, 101);
     }
 
@@ -155,8 +157,9 @@ class BeregnStønadskontoerTjenesteDekning80Test {
         assertThat(stønadskontoberegning).isPresent();
         var stønadskontoer = stønadskontoberegning.get().getStønadskontoutregning();
 
-        assertThat(stønadskontoer).hasSize(2);
-        assertThat(stønadskontoer).containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, FORELDREPENGER);
+        assertThat(stønadskontoer)
+            .hasSize(2)
+            .containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, FORELDREPENGER);
         assertThat(stønadskontoer).containsEntry(FORELDREPENGER, 291);
     }
 
@@ -190,8 +193,9 @@ class BeregnStønadskontoerTjenesteDekning80Test {
         assertThat(stønadskontoberegning).isPresent();
         var stønadskontoer = stønadskontoberegning.get().getStønadskontoutregning();
 
-        assertThat(stønadskontoer).hasSize(2);
-        assertThat(stønadskontoer).containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, FORELDREPENGER);
+        assertThat(stønadskontoer)
+            .hasSize(2)
+            .containsOnlyKeys(FORELDREPENGER_FØR_FØDSEL, FORELDREPENGER);
         assertThat(stønadskontoer).containsEntry(FORELDREPENGER, 291);
     }
 
@@ -225,8 +229,9 @@ class BeregnStønadskontoerTjenesteDekning80Test {
         assertThat(stønadskontoberegning).isPresent();
         var stønadskontoer = stønadskontoberegning.get().getStønadskontoutregning();
 
-        assertThat(stønadskontoer).hasSize(3);
-        assertThat(stønadskontoer).containsOnlyKeys(BARE_FAR_RETT, FAR_RUNDT_FØDSEL, FORELDREPENGER);
+        assertThat(stønadskontoer)
+            .hasSize(3)
+            .containsOnlyKeys(BARE_FAR_RETT, FAR_RUNDT_FØDSEL, FORELDREPENGER);
         assertThat(stønadskontoer).containsEntry(FORELDREPENGER, 261);
         assertThat(stønadskontoer).containsEntry(BARE_FAR_RETT, 50);
     }
@@ -261,8 +266,9 @@ class BeregnStønadskontoerTjenesteDekning80Test {
         assertThat(stønadskontoberegning).isPresent();
         var stønadskontoer = stønadskontoberegning.get().getStønadskontoutregning();
 
-        assertThat(stønadskontoer).hasSize(3);
-        assertThat(stønadskontoer).containsOnlyKeys(BARE_FAR_RETT, FAR_RUNDT_FØDSEL, FORELDREPENGER);
+        assertThat(stønadskontoer)
+            .hasSize(3)
+            .containsOnlyKeys(BARE_FAR_RETT, FAR_RUNDT_FØDSEL, FORELDREPENGER);
         assertThat(stønadskontoer).containsEntry(FORELDREPENGER, 250);
         assertThat(stønadskontoer).containsEntry(BARE_FAR_RETT, 40);
     }

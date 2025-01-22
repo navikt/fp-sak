@@ -82,19 +82,19 @@ class FinnEndringerIResultatForTilkommetArbeidsforholdTest {
         var endringer = finnEndringer(originaleAndeler, revurderingAndeler, yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
 
         // Assert
-        assertThat(endringer).hasSize(2);
-        assertThat(endringer).anySatisfy(endring -> {
-            assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER1);
-            assertThat(endring.erBrukerMottaker()).isTrue();
-            assertThat(endring.getDagsats()).isEqualTo(DAGSATS);
-            assertThat(endring.getDagsatsFraBg()).isZero();
-        });
-        assertThat(endringer).anySatisfy(endring -> {
-            assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER2);
-            assertThat(endring.erBrukerMottaker()).isFalse();
-            assertThat(endring.getDagsats()).isZero();
-            assertThat(endring.getDagsatsFraBg()).isEqualTo(DAGSATS);
-        });
+        assertThat(endringer)
+            .hasSize(2)
+            .anySatisfy(endring -> {
+                assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER1);
+                assertThat(endring.erBrukerMottaker()).isTrue();
+                assertThat(endring.getDagsats()).isEqualTo(DAGSATS);
+                assertThat(endring.getDagsatsFraBg()).isZero();
+            }).anySatisfy(endring -> {
+                assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER2);
+                assertThat(endring.erBrukerMottaker()).isFalse();
+                assertThat(endring.getDagsats()).isZero();
+                assertThat(endring.getDagsatsFraBg()).isEqualTo(DAGSATS);
+            });
     }
 
     @Test
@@ -121,21 +121,21 @@ class FinnEndringerIResultatForTilkommetArbeidsforholdTest {
         var endringer = finnEndringer(originaleAndeler, revurderingAndeler, yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
 
         // Assert
-        assertThat(endringer).hasSize(2);
-        assertThat(endringer).anySatisfy(endring -> {
-            // Det er tilfeldig kva for ein andel som får hindret tilbaketrekk her, kan vere
-            // enten ARBEIDSGIVER1 eller ARBEIDSGIVER3
-            assertThat(endring.getArbeidsgiver().equals(ARBEIDSGIVER1) || endring.getArbeidsgiver().equals(ARBEIDSGIVER3)).isTrue();
-            assertThat(endring.erBrukerMottaker()).isTrue();
-            assertThat(endring.getDagsats()).isEqualTo(DAGSATS);
-            assertThat(endring.getDagsatsFraBg()).isZero();
-        });
-        assertThat(endringer).anySatisfy(endring -> {
-            assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER2);
-            assertThat(endring.erBrukerMottaker()).isFalse();
-            assertThat(endring.getDagsats()).isZero();
-            assertThat(endring.getDagsatsFraBg()).isEqualTo(DAGSATS);
-        });
+        assertThat(endringer)
+            .hasSize(2)
+            .anySatisfy(endring -> {
+                // Det er tilfeldig kva for ein andel som får hindret tilbaketrekk her, kan vere
+                // enten ARBEIDSGIVER1 eller ARBEIDSGIVER3
+                assertThat(endring.getArbeidsgiver().equals(ARBEIDSGIVER1) || endring.getArbeidsgiver().equals(ARBEIDSGIVER3)).isTrue();
+                assertThat(endring.erBrukerMottaker()).isTrue();
+                assertThat(endring.getDagsats()).isEqualTo(DAGSATS);
+                assertThat(endring.getDagsatsFraBg()).isZero();
+            }).anySatisfy(endring -> {
+                assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER2);
+                assertThat(endring.erBrukerMottaker()).isFalse();
+                assertThat(endring.getDagsats()).isZero();
+                assertThat(endring.getDagsatsFraBg()).isEqualTo(DAGSATS);
+            });
     }
 
     @Test
@@ -168,31 +168,29 @@ class FinnEndringerIResultatForTilkommetArbeidsforholdTest {
         var endringer = finnEndringer(originaleAndeler, revurderingAndeler, yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
 
         // Assert
-        assertThat(endringer).hasSize(4);
-        assertThat(endringer).anySatisfy(endring -> {
-            assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER1);
-            assertThat(endring.erBrukerMottaker()).isTrue();
-            assertThat(endring.getDagsats()).isEqualTo(DAGSATS);
-            assertThat(endring.getDagsatsFraBg()).isZero();
-        });
-        assertThat(endringer).anySatisfy(endring -> {
-            assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER3);
-            assertThat(endring.erBrukerMottaker()).isTrue();
-            assertThat(endring.getDagsats()).isEqualTo(DAGSATS);
-            assertThat(endring.getDagsatsFraBg()).isZero();
-        });
-        assertThat(endringer).anySatisfy(endring -> {
-            assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER4);
-            assertThat(endring.erBrukerMottaker()).isTrue();
-            assertThat(endring.getDagsats()).isEqualTo(DAGSATS / 2);
-            assertThat(endring.getDagsatsFraBg()).isZero();
-        });
-        assertThat(endringer).anySatisfy(endring -> {
-            assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER2);
-            assertThat(endring.erBrukerMottaker()).isFalse();
-            assertThat(endring.getDagsats()).isEqualTo(DAGSATS / 2);
-            assertThat(endring.getDagsatsFraBg()).isEqualTo(3 * DAGSATS);
-        });
+        assertThat(endringer)
+            .hasSize(4)
+            .anySatisfy(endring -> {
+                assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER1);
+                assertThat(endring.erBrukerMottaker()).isTrue();
+                assertThat(endring.getDagsats()).isEqualTo(DAGSATS);
+                assertThat(endring.getDagsatsFraBg()).isZero();
+            }).anySatisfy(endring -> {
+                assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER3);
+                assertThat(endring.erBrukerMottaker()).isTrue();
+                assertThat(endring.getDagsats()).isEqualTo(DAGSATS);
+                assertThat(endring.getDagsatsFraBg()).isZero();
+            }).anySatisfy(endring -> {
+                assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER4);
+                assertThat(endring.erBrukerMottaker()).isTrue();
+                assertThat(endring.getDagsats()).isEqualTo(DAGSATS / 2);
+                assertThat(endring.getDagsatsFraBg()).isZero();
+            }).anySatisfy(endring -> {
+                assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER2);
+                assertThat(endring.erBrukerMottaker()).isFalse();
+                assertThat(endring.getDagsats()).isEqualTo(DAGSATS / 2);
+                assertThat(endring.getDagsatsFraBg()).isEqualTo(3 * DAGSATS);
+            });
     }
 
     @Test
@@ -230,37 +228,34 @@ class FinnEndringerIResultatForTilkommetArbeidsforholdTest {
         var endringer = finnEndringer(originaleAndeler, revurderingAndeler, yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
 
         // Assert
-        assertThat(endringer).hasSize(5);
-        assertThat(endringer).anySatisfy(endring -> {
-            assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER1);
-            assertThat(endring.erBrukerMottaker()).isTrue();
-            assertThat(endring.getDagsats()).isEqualTo(50);
-            assertThat(endring.getDagsatsFraBg()).isZero();
-        });
-        assertThat(endringer).anySatisfy(endring -> {
-            assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER3);
-            assertThat(endring.erBrukerMottaker()).isTrue();
-            assertThat(endring.getDagsats()).isEqualTo(30);
-            assertThat(endring.getDagsatsFraBg()).isZero();
-        });
-        assertThat(endringer).anySatisfy(endring -> {
-            assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER4);
-            assertThat(endring.erBrukerMottaker()).isTrue();
-            assertThat(endring.getDagsats()).isEqualTo(100);
-            assertThat(endring.getDagsatsFraBg()).isZero();
-        });
-        assertThat(endringer).anySatisfy(endring -> {
-            assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER5);
-            assertThat(endring.erBrukerMottaker()).isFalse();
-            assertThat(endring.getDagsats()).isZero();
-            assertThat(endring.getDagsatsFraBg()).isEqualTo(60);
-        });
-        assertThat(endringer).anySatisfy(endring -> {
-            assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER6);
-            assertThat(endring.erBrukerMottaker()).isFalse();
-            assertThat(endring.getDagsats()).isZero();
-            assertThat(endring.getDagsatsFraBg()).isEqualTo(120);
-        });
+        assertThat(endringer)
+            .hasSize(5)
+            .anySatisfy(endring -> {
+                assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER1);
+                assertThat(endring.erBrukerMottaker()).isTrue();
+                assertThat(endring.getDagsats()).isEqualTo(50);
+                assertThat(endring.getDagsatsFraBg()).isZero();
+            }).anySatisfy(endring -> {
+                assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER3);
+                assertThat(endring.erBrukerMottaker()).isTrue();
+                assertThat(endring.getDagsats()).isEqualTo(30);
+                assertThat(endring.getDagsatsFraBg()).isZero();
+            }).anySatisfy(endring -> {
+                assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER4);
+                assertThat(endring.erBrukerMottaker()).isTrue();
+                assertThat(endring.getDagsats()).isEqualTo(100);
+                assertThat(endring.getDagsatsFraBg()).isZero();
+            }).anySatisfy(endring -> {
+                assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER5);
+                assertThat(endring.erBrukerMottaker()).isFalse();
+                assertThat(endring.getDagsats()).isZero();
+                assertThat(endring.getDagsatsFraBg()).isEqualTo(60);
+            }).anySatisfy(endring -> {
+                assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER6);
+                assertThat(endring.erBrukerMottaker()).isFalse();
+                assertThat(endring.getDagsats()).isZero();
+                assertThat(endring.getDagsatsFraBg()).isEqualTo(120);
+            });
     }
 
     private Yrkesaktivitet lagYrkesaktivitet(DatoIntervallEntitet periode, Arbeidsgiver arbeidsgiver) {

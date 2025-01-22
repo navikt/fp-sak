@@ -166,8 +166,9 @@ class VedtakXmlTest {
         var xml = fpSakVedtakXmlTjeneste.opprettVedtakXml(behandling.getId());
 
         // Assert
-        assertThat(xml).isNotNull();
-        assertThat(xml).contains(avkortetXmlElement);
+        assertThat(xml)
+            .isNotNull()
+            .contains(avkortetXmlElement);
     }
 
     private Behandling byggBehandlingMedVedtak(EntityManager em) {

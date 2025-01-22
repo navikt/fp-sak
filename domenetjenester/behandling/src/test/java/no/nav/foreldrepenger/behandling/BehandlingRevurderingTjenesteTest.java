@@ -76,8 +76,9 @@ class BehandlingRevurderingTjenesteTest extends EntityManagerAwareTest {
         var result = behandlingRevurderingTjeneste.finnHenlagteBehandlingerEtterSisteInnvilgedeIkkeHenlagteBehandling(fagsakId);
         assertThat(result).isNotEmpty();
         result.forEach(r -> assertThat(getBehandlingsresultat(r).getBehandlingResultatType()).isEqualTo(BehandlingResultatType.HENLAGT_FEILOPPRETTET));
-        assertThat(result).anyMatch(r -> r.getId().equals(revurderingsBehandlingId));
-        assertThat(result).hasSize(2);
+        assertThat(result)
+            .anyMatch(r -> r.getId().equals(revurderingsBehandlingId))
+            .hasSize(2);
     }
 
     @Test
@@ -101,8 +102,9 @@ class BehandlingRevurderingTjenesteTest extends EntityManagerAwareTest {
         var result = behandlingRepository.finnAlleAvsluttedeIkkeHenlagteBehandlinger(fagsakId);
         assertThat(result).isNotEmpty();
         result.forEach(r -> assertThat(getBehandlingsresultat(r).getBehandlingResultatType()).isEqualTo(BehandlingResultatType.INNVILGET));
-        assertThat(result).anyMatch(r -> r.getId().equals(behandling.getId()));
-        assertThat(result).hasSize(1);
+        assertThat(result)
+            .anyMatch(r -> r.getId().equals(behandling.getId()))
+            .hasSize(1);
     }
 
     private Behandling opprettOgLagreRevurderingMedBehandlingÅrsak(Behandling behandling) {

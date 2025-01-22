@@ -170,8 +170,9 @@ class DokumentArkivTjenesteTest {
 
         var arkivDokumentTypeIds = dokumentApplikasjonTjeneste.hentDokumentTypeIdForSak(SAF_SAK, NOW.toLocalDate());
 
-        assertThat(arkivDokumentTypeIds).contains(DokumentTypeId.LEGEERKLÆRING);
-        assertThat(arkivDokumentTypeIds).doesNotContain(DokumentTypeId.BEKREFTELSE_FRA_ARBEIDSGIVER);
+        assertThat(arkivDokumentTypeIds)
+            .contains(DokumentTypeId.LEGEERKLÆRING)
+            .doesNotContain(DokumentTypeId.BEKREFTELSE_FRA_ARBEIDSGIVER);
     }
 
     @Test

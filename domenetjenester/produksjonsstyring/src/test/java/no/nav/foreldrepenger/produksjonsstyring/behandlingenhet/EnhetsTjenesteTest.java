@@ -67,8 +67,9 @@ class EnhetsTjenesteTest {
 
         var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD);
 
-        assertThat(enhet).isNotNull();
-        assertThat(enhet).isEqualTo(enhetNormal);
+        assertThat(enhet)
+            .isNotNull()
+            .isEqualTo(enhetNormal);
     }
 
     @Test
@@ -78,8 +79,9 @@ class EnhetsTjenesteTest {
 
         var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD);
 
-        assertThat(enhet).isNotNull();
-        assertThat(enhet).isEqualTo(enhetKode6);
+        assertThat(enhet)
+            .isNotNull()
+            .isEqualTo(enhetKode6);
     }
 
     @Test
@@ -89,8 +91,9 @@ class EnhetsTjenesteTest {
 
         var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD);
 
-        assertThat(enhet).isNotNull();
-        assertThat(enhet).isEqualTo(enhetSkjermet);
+        assertThat(enhet)
+            .isNotNull()
+            .isEqualTo(enhetSkjermet);
     }
 
     @Test
@@ -127,8 +130,9 @@ class EnhetsTjenesteTest {
         var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), FagsakYtelseType.ENGANGSTØNAD,
             MOR_AKTØR_ID, FAMILIE, Set.of());
 
-        assertThat(enhet).isPresent();
-        assertThat(enhet).hasValueSatisfying(enhetObj -> assertThat(enhetObj).isEqualTo(enhetKode6));
+        assertThat(enhet)
+            .isPresent()
+            .hasValueSatisfying(enhetObj -> assertThat(enhetObj).isEqualTo(enhetKode6));
     }
 
     @Test
@@ -140,8 +144,9 @@ class EnhetsTjenesteTest {
         var enhet1 = enhetsTjeneste
             .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), FagsakYtelseType.ENGANGSTØNAD, MOR_AKTØR_ID, FAMILIE, Set.of());
 
-        assertThat(enhet).isNotNull();
-        assertThat(enhet).isEqualTo(enhetNormal);
+        assertThat(enhet)
+            .isNotNull()
+            .isEqualTo(enhetNormal);
         assertThat(enhet1).hasValueSatisfying(enhetObj -> assertThat(enhetObj).isEqualTo(enhetSkjermet));
     }
 
@@ -175,8 +180,9 @@ class EnhetsTjenesteTest {
         var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), FagsakYtelseType.ENGANGSTØNAD,
                 MOR_AKTØR_ID, FAMILIE, Set.of());
 
-        assertThat(enhet).isPresent();
-        assertThat(enhet).hasValueSatisfying(enhetObj -> assertThat(enhetObj).isEqualTo(enhetKode6));
+        assertThat(enhet)
+            .isPresent()
+            .hasValueSatisfying(enhetObj -> assertThat(enhetObj).isEqualTo(enhetKode6));
     }
 
     @Test
@@ -187,8 +193,9 @@ class EnhetsTjenesteTest {
         var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), FagsakYtelseType.ENGANGSTØNAD,
                 MOR_AKTØR_ID, FAMILIE, Set.of());
 
-        assertThat(enhet).isPresent();
-        assertThat(enhet).hasValueSatisfying(enhetObj -> assertThat(enhetObj).isEqualTo(enhetKode6));
+        assertThat(enhet)
+            .isPresent()
+            .hasValueSatisfying(enhetObj -> assertThat(enhetObj).isEqualTo(enhetKode6));
     }
 
     @Test
@@ -199,8 +206,9 @@ class EnhetsTjenesteTest {
         var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), FagsakYtelseType.ENGANGSTØNAD,
             MOR_AKTØR_ID, FAMILIE, Set.of());
 
-        assertThat(enhet).isPresent();
-        assertThat(enhet).hasValueSatisfying(enhetObj -> assertThat(enhetObj).isEqualTo(enhetSkjermet));
+        assertThat(enhet)
+            .isPresent()
+            .hasValueSatisfying(enhetObj -> assertThat(enhetObj).isEqualTo(enhetSkjermet));
     }
 
     private void settOppPDLStrukturer(boolean morKode6, boolean barnKode6, boolean annenPartKode6) {
