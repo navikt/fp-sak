@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -13,10 +14,13 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusIntervall;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -31,6 +35,7 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.MedlemskapsvilkårGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.Personopplysninger;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.RevurderingÅrsak;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
@@ -43,6 +48,7 @@ class MedlemRegelGrunnlagBygger {
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private SatsRepository satsRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private BehandlingRepository behandlingRepository;
 
     @Inject
     MedlemRegelGrunnlagBygger(MedlemTjeneste medlemTjeneste,
@@ -50,13 +56,15 @@ class MedlemRegelGrunnlagBygger {
                               MedlemskapVurderingPeriodeTjeneste vurderingPeriodeTjeneste,
                               InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
                               SatsRepository satsRepository,
-                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                              BehandlingRepository behandlingRepository) {
         this.medlemTjeneste = medlemTjeneste;
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.vurderingPeriodeTjeneste = vurderingPeriodeTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.satsRepository = satsRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.behandlingRepository = behandlingRepository;
     }
 
     MedlemRegelGrunnlagBygger() {
@@ -81,8 +89,18 @@ class MedlemRegelGrunnlagBygger {
         var grunnbeløp = new MedlemskapsvilkårGrunnlag.Beløp(
             BigDecimal.valueOf(satsRepository.finnGjeldendeSats(BeregningSatsType.GRUNNBELØP).getVerdi()));
 
+        var revurderingÅrsak = map(behandlingRepository.hentBehandling(behandlingRef.behandlingId())).orElse(null);
         return new MedlemskapsvilkårGrunnlag(vurderingsperiodeBosatt, vurderingsperiodeLovligOpphold, registrertMedlemskapPerioder,
-            personopplysningGrunnlag, søknad, arbeid, utledetSkjæringstidspunkt, behandlingsdato, grunnbeløp);
+            personopplysningGrunnlag, søknad, arbeid, utledetSkjæringstidspunkt, behandlingsdato, grunnbeløp, revurderingÅrsak);
+    }
+
+    private static Optional<RevurderingÅrsak> map(Behandling behandling) {
+        if (behandling.erRevurdering()) {
+            return Optional.of(behandling.erRevurdering() && behandling.getBehandlingÅrsaker()
+                .stream()
+                .anyMatch(BehandlingÅrsak::erManueltOpprettet) ? RevurderingÅrsak.MANUELL : RevurderingÅrsak.ANNEN);
+        }
+        return Optional.empty();
     }
 
     private static Set<LocalDateInterval> hentAnsettelsePerioder(InntektArbeidYtelseGrunnlag iay, BehandlingReferanse referanse) {
