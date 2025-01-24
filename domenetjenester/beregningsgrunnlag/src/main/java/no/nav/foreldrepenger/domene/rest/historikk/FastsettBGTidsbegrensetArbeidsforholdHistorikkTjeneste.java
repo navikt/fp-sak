@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.rest.historikk;
 
+import static no.nav.foreldrepenger.domene.rest.historikk.kalkulus.FastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste.oppdaterFrilansInntektVedEndretVerdi;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -135,7 +137,7 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste {
                                      Map<String, List<Integer>> tilHistorikkInnslag,
                                      BigDecimal forrigeFrilansInntekt) {
         List<HistorikkinnslagLinjeBuilder> linjeBuilderList = new ArrayList<>(oppdaterVedEndretVerdi(tilHistorikkInnslag));
-        linjeBuilderList.addAll(oppdaterFrilansInntektVedEndretVerdi(forrigeFrilansInntekt, dto));
+        linjeBuilderList.addAll(oppdaterFrilansInntektVedEndretVerdi(forrigeFrilansInntekt, dto.getFrilansInntekt()));
         linjeBuilderList.add(new HistorikkinnslagLinjeBuilder().tekst(dto.getBegrunnelse()));
 
         var historikkinnslag = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
@@ -155,21 +157,6 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste {
             var inntekter = entry.getValue();
             var hva = String.format("Inntekt fra %s", arbeidsforholdInfo);
             linjeBuilderList.add(linjeBuilder.fraTil(hva, null, formaterInntekter(inntekter)));
-            linjeBuilderList.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
-        }
-        return linjeBuilderList;
-    }
-
-    private List<HistorikkinnslagLinjeBuilder> oppdaterFrilansInntektVedEndretVerdi(BigDecimal forrigeFrilansInntekt,
-                                                                                    FastsettBGTidsbegrensetArbeidsforholdDto dto) {
-        List<HistorikkinnslagLinjeBuilder> linjeBuilderList = new ArrayList<>();
-        HistorikkinnslagLinjeBuilder linjeBuilder = new HistorikkinnslagLinjeBuilder();
-        if (forrigeFrilansInntekt != null && dto.getFrilansInntekt() != null) {
-            var fraInntekt = (int) Math.round(forrigeFrilansInntekt.doubleValue());
-            linjeBuilderList.add(linjeBuilder.fraTil("Frilansinntekt", fraInntekt, dto.getFrilansInntekt()));
-            linjeBuilderList.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
-        } else if (dto.getFrilansInntekt() != null) {
-            linjeBuilderList.add(linjeBuilder.fraTil("Frilansinntekt", null, dto.getFrilansInntekt()));
             linjeBuilderList.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
         }
         return linjeBuilderList;

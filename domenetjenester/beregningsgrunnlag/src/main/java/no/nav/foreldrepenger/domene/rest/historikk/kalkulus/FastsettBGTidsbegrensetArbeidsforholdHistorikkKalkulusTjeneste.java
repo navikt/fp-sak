@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -120,7 +121,7 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste {
                                      Map<String, List<Integer>> tilHistorikkInnslag,
                                      BigDecimal forrigeFrilansInntekt) {
         List<HistorikkinnslagLinjeBuilder> linjeBuilderList = new ArrayList<>(oppdaterVedEndretVerdi(tilHistorikkInnslag));
-        linjeBuilderList.addAll(oppdaterFrilansInntektVedEndretVerdi(forrigeFrilansInntekt, dto));
+        linjeBuilderList.addAll(oppdaterFrilansInntektVedEndretVerdi(forrigeFrilansInntekt, dto.getFrilansInntekt()));
         linjeBuilderList.add(new HistorikkinnslagLinjeBuilder().tekst(dto.getBegrunnelse()));
 
         var historikkinnslag = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
@@ -138,23 +139,26 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste {
             var linjeBuilder = new HistorikkinnslagLinjeBuilder();
             var arbeidsforholdInfo = entry.getKey();
             var inntekter = entry.getValue();
-            linjeBuilderList.add(
-                linjeBuilder.fraTil(String.format("Inntekt fra %s", arbeidsforholdInfo), null, formaterInntekter(inntekter)));
+            linjeBuilderList.add(linjeBuilder.fraTil(String.format("Inntekt fra %s", arbeidsforholdInfo), null, formaterInntekter(inntekter)));
             linjeBuilderList.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
         }
         return linjeBuilderList;
     }
 
-    private List<HistorikkinnslagLinjeBuilder> oppdaterFrilansInntektVedEndretVerdi(BigDecimal forrigeFrilansInntekt,
-                                                                                    FastsettBGTidsbegrensetArbeidsforholdDto dto) {
+    public static List<HistorikkinnslagLinjeBuilder> oppdaterFrilansInntektVedEndretVerdi(BigDecimal forrigeFrilansInntekt,
+                                                                                          Integer nyFrilansInntekt) {
         List<HistorikkinnslagLinjeBuilder> linjeBuilderList = new ArrayList<>();
         HistorikkinnslagLinjeBuilder linjeBuilder = new HistorikkinnslagLinjeBuilder();
-        if (forrigeFrilansInntekt != null && dto.getFrilansInntekt() != null) {
+        if (forrigeFrilansInntekt != null && nyFrilansInntekt != null) {
             var fraInntekt = (int) Math.round(forrigeFrilansInntekt.doubleValue());
-            linjeBuilderList.add(linjeBuilder.fraTil("Frilansinntekt", fraInntekt, dto.getFrilansInntekt()));
+            if (Objects.equals(fraInntekt, nyFrilansInntekt)) {
+                linjeBuilderList.add(linjeBuilder.til("Frilansinntekt", nyFrilansInntekt));
+            } else {
+                linjeBuilderList.add(linjeBuilder.fraTil("Frilansinntekt", fraInntekt, nyFrilansInntekt));
+            }
             linjeBuilderList.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
-        } else if (dto.getFrilansInntekt() != null) {
-            linjeBuilderList.add(linjeBuilder.fraTil("Frilansinntekt", null, dto.getFrilansInntekt()));
+        } else if (nyFrilansInntekt != null) {
+            linjeBuilderList.add(linjeBuilder.til("Frilansinntekt", nyFrilansInntekt));
             linjeBuilderList.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
         }
         return linjeBuilderList;
