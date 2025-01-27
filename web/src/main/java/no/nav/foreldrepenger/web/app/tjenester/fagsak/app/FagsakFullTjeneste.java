@@ -10,6 +10,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +58,7 @@ public class FagsakFullTjeneste {
 
     private PersoninfoAdapter personinfoAdapter;
     private BehandlingRepository behandlingRepository;
+    private VergeRepository vergeRepository;
 
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
@@ -83,10 +86,12 @@ public class FagsakFullTjeneste {
                               PersonopplysningTjeneste personopplysningTjeneste,
                               BehandlingsoppretterTjeneste behandlingsoppretterTjeneste,
                               FagsakBehandlingDtoTjeneste behandlingDtoTjeneste,
-                              HistorikkTjeneste historikkTjeneste) {
+                              HistorikkTjeneste historikkTjeneste,
+                              VergeRepository vergeRepository) {
         this.fagsakRepository = fagsakRepository;
         this.personinfoAdapter = personinfoAdapter;
         this.behandlingRepository = behandlingRepository;
+        this.vergeRepository = vergeRepository;
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
@@ -112,7 +117,8 @@ public class FagsakFullTjeneste {
             .map(bt -> new BehandlingOpprettingDto(bt, behandlingsoppretterTjeneste.kanOppretteNyBehandlingAvType(fagsak.getId(), bt)))
             .toList();
         var fagsakMarkeringer = fagsakEgenskapRepository.finnFagsakMarkeringer(fagsak.getId());
-        var behandlinger = behandlingDtoTjeneste.lagBehandlingDtoer(behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId()));
+        var alleBehandlinger = behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId());
+        var behandlingDtoer = behandlingDtoTjeneste.lagBehandlingDtoer(alleBehandlinger);
         var dokumentPath = HistorikkRequestPath.getRequestPath(request);
         List<HistorikkinnslagDto> historikk;
         try {
@@ -124,10 +130,14 @@ public class FagsakFullTjeneste {
         var notater = fagsakRepository.hentFagsakNotater(fagsak.getId()).stream().map(FagsakNotatDto::fraNotat).toList();
         var ferskesteKontrollresultatBehandling = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsak.getId(),
                 BehandlingType.FØRSTEGANGSSØKNAD)
-            .flatMap(førsteBeh -> behandlinger.stream().filter(beh -> beh.getUuid().equals(førsteBeh.getUuid())).findFirst())
+            .flatMap(førsteBeh -> behandlingDtoer.stream().filter(beh -> beh.getUuid().equals(førsteBeh.getUuid())).findFirst())
             .map(FagsakBehandlingDto::getKontrollResultat);
+        var harVergeIÅpenBehandling = alleBehandlinger.stream()
+            .filter(behandling -> !behandling.erAvsluttet())
+            .anyMatch((behandling) -> vergeRepository.hentAggregat(behandling.getId()).isPresent());
+
         var dto = new FagsakFullDto(fagsak, dekningsgrad, bruker, manglerAdresse, annenpart, annenpartSak, familiehendelse, fagsakMarkeringer,
-            oppretting, behandlinger, historikk, notater, ferskesteKontrollresultatBehandling.orElse(null));
+            oppretting, behandlingDtoer, historikk, notater, ferskesteKontrollresultatBehandling.orElse(null), harVergeIÅpenBehandling);
         return Optional.of(dto);
     }
 
