@@ -19,6 +19,8 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -94,17 +96,19 @@ class BehandlingDtoTjenesteTest {
     @Inject
     private UttakTjeneste uttakTjeneste;
 
+    @Inject
+    private VergeRepository vergeRepository;
+
     private BehandlingDtoTjeneste tjeneste;
 
     private final LocalDate now = LocalDate.now();
 
     @BeforeEach
     public void setUp() {
-        tjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste, uttakTjeneste,
-            tilbakekrevingRepository,
-                skjæringstidspunktTjeneste, behandlingDokumentRepository, mock(TotrinnTjeneste.class),
-            dokumentasjonVurderingBehovDtoTjeneste, faktaUttakPeriodeDtoTjeneste, fagsakRelasjonTjeneste,
-            new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, foreldrepengerUttakTjeneste), dekningsgradTjeneste);
+        tjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste, uttakTjeneste, tilbakekrevingRepository,
+            skjæringstidspunktTjeneste, behandlingDokumentRepository, mock(TotrinnTjeneste.class), dokumentasjonVurderingBehovDtoTjeneste,
+            faktaUttakPeriodeDtoTjeneste, fagsakRelasjonTjeneste,
+            new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, foreldrepengerUttakTjeneste), dekningsgradTjeneste, vergeRepository);
     }
 
     @Test

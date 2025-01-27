@@ -34,6 +34,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
@@ -99,6 +100,7 @@ import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRe
 @ApplicationScoped
 public class BehandlingDtoTjeneste {
 
+    private VergeRepository vergeRepository;
     private BeregningTjeneste beregningTjeneste;
     private UttakTjeneste uttakTjeneste;
     private TilbakekrevingRepository tilbakekrevingRepository;
@@ -124,12 +126,14 @@ public class BehandlingDtoTjeneste {
                                  UttakTjeneste uttakTjeneste,
                                  TilbakekrevingRepository tilbakekrevingRepository,
                                  SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                 BehandlingDokumentRepository behandlingDokumentRepository, TotrinnTjeneste totrinnTjeneste,
+                                 BehandlingDokumentRepository behandlingDokumentRepository,
+                                 TotrinnTjeneste totrinnTjeneste,
                                  DokumentasjonVurderingBehovDtoTjeneste dokumentasjonVurderingBehovDtoTjeneste,
                                  FaktaUttakPeriodeDtoTjeneste faktaUttakPeriodeDtoTjeneste,
                                  FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
                                  UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste,
-                                 DekningsgradTjeneste dekningsgradTjeneste) {
+                                 DekningsgradTjeneste dekningsgradTjeneste,
+                                 VergeRepository vergeRepository) {
         this.beregningTjeneste = beregningTjeneste;
         this.uttakTjeneste = uttakTjeneste;
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
@@ -147,6 +151,7 @@ public class BehandlingDtoTjeneste {
         this.faktaUttakPeriodeDtoTjeneste = faktaUttakPeriodeDtoTjeneste;
         this.utregnetStønadskontoTjeneste = utregnetStønadskontoTjeneste;
         this.dekningsgradTjeneste = dekningsgradTjeneste;
+        this.vergeRepository = vergeRepository;
     }
 
     BehandlingDtoTjeneste() {
@@ -343,7 +348,7 @@ public class BehandlingDtoTjeneste {
         dto.leggTil(get(PersonRestTjeneste.PERSONOVERSIKT_PATH, "behandling-personoversikt", uuidDto));
         dto.leggTil(get(PersonRestTjeneste.MEDLEMSKAP_V3_PATH, "soeker-medlemskap-v3", uuidDto));
 
-        if (behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE)) {
+        if (behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE) || vergeRepository.hentAggregat(behandling.getId()).isPresent()) {
             dto.leggTil(get(PersonRestTjeneste.VERGE_PATH, "soeker-verge", uuidDto));
             dto.leggTil(get(PersonRestTjeneste.VERGE_BACKEND_PATH, "verge-backend", uuidDto));
         }
