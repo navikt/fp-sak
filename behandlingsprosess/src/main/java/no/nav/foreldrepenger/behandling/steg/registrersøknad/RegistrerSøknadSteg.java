@@ -13,6 +13,7 @@ import java.time.Month;
 import java.time.Period;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -49,7 +50,7 @@ import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.RegistrerFagsakE
 @ApplicationScoped
 public class RegistrerSøknadSteg implements BehandlingSteg {
     private static final Period VENT_PÅ_SØKNAD_PERIODE = Period.parse("P4W");
-    private static final LocalDate FRIST_PRAKSIS_UTSETTELSE = LocalDate.of(2024, Month.AUGUST, 25);
+    private static final LocalDate FRIST_PRAKSIS_UTSETTELSE = LocalDate.of(2024, Month.AUGUST, 25); // TODO: Sett på vent til når?
     private BehandlingRepository behandlingRepository;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
     private RegistrerFagsakEgenskaper registrerFagsakEgenskaper;
@@ -93,8 +94,7 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
             return evaluerSøknadMottattUoppfylt(behandling, søknadMottatt, VENT_PÅ_SØKNAD);
         }
 
-        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE) &&
-            !behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
+        if (behandling.harNoenBehandlingÅrsaker(Set.of(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE, BehandlingÅrsakType.FEIL_IVERKSETTELSE_FRI_UTSETTELSE)) && !behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
             if (henleggBehandling(behandling)) {
                 henleggBehandlingTjeneste.lagHistorikkInnslagForHenleggelseFraSteg(behandling, BehandlingResultatType.HENLAGT_SØKNAD_MANGLER,
                     null);

@@ -520,7 +520,7 @@ public class StønadsstatistikkTjeneste {
             return null;
         }
         // MIdlertidig
-        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE) || fagsakMarkering.contains(FagsakMarkering.PRAKSIS_UTSETTELSE)) {
+        if (behandling.harNoenBehandlingÅrsaker(Set.of(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE, BehandlingÅrsakType.FEIL_IVERKSETTELSE_FRI_UTSETTELSE)) || fagsakMarkering.contains(FagsakMarkering.PRAKSIS_UTSETTELSE)) {
             return StønadsstatistikkVedtak.RevurderingÅrsak.PRAKSIS_UTSETTELSE;
         }
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {

@@ -34,7 +34,7 @@ class FeilPraksisUtsettelseAlleTask implements ProsessTaskHandler {
         var fagsakIdProperty = prosessTaskData.getPropertyValue(FRA_FAGSAK_ID);
         var fraFagsakId = fagsakIdProperty == null ? null : Long.valueOf(fagsakIdProperty);
 
-        var saker = utvalgRepository.finnNesteHundreSakerSomErMerketPraksisUtsettelse(fraFagsakId);
+        var saker = utvalgRepository.finnNesteHundreSakerSomErMerketFeilIverksettelseFriUtsettelse(fraFagsakId);
 
         saker.stream().map(FeilPraksisUtsettelseAlleTask::opprettTaskForEnkeltSak).forEach(prosessTaskTjeneste::lagre);
 

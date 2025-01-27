@@ -1,21 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.praksisutsettelse;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
@@ -50,6 +36,17 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  *  Opprette revurderinger der det er oppdaget feil praksis
@@ -57,9 +54,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 @ApplicationScoped
 public class FeilPraksisOpprettBehandlingTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(FeilPraksisOpprettBehandlingTjeneste.class);
-
-    private static final Set<PeriodeResultatÅrsak> FEIL_UTSETTELSE = Set.of(PeriodeResultatÅrsak.HULL_MELLOM_FORELDRENES_PERIODER,
-        PeriodeResultatÅrsak.AVSLAG_UTSETTELSE_PGA_FERIE_TILBAKE_I_TID, PeriodeResultatÅrsak.AVSLAG_UTSETTELSE_PGA_ARBEID_TILBAKE_I_TID);
 
     private BehandlingRepository behandlingRepository;
     private FagsakLåsRepository fagsakLåsRepository;
@@ -98,7 +92,7 @@ public class FeilPraksisOpprettBehandlingTjeneste {
         // CDI
     }
 
-    public void opprettBehandling(Fagsak fagsak) {
+    public void opprettBehandling(Fagsak fagsak, boolean dryrun) {
         if (harÅpenBehandling(fagsak)) {
             LOG.info("FeilPraksisUtsettelse: Har åpen behandling saksnummer {}", fagsak.getSaksnummer());
             return;
@@ -113,12 +107,16 @@ public class FeilPraksisOpprettBehandlingTjeneste {
         var tapteDager = tapteDager(uttak.getGjeldendePerioder().getPerioder());
         if (tapteDager.compareTo(Trekkdager.ZERO) == 0) {
             LOG.info("FeilPraksisUtsettelse: Sak gir ikke utslag saksnummer {}", fagsak.getSaksnummer());
-            fagsakEgenskapRepository.fjernFagsakMarkering(fagsak.getId(), FagsakMarkering.PRAKSIS_UTSETTELSE);
+            if (!dryrun) {
+                fagsakEgenskapRepository.fjernFagsakMarkering(fagsak.getId(), FagsakMarkering.PRAKSIS_UTSETTELSE);
+            }
             return;
         }
         if (tapteDager.compareTo(new Trekkdager(1)) < 0) {
             LOG.info("FeilPraksisUtsettelse: Sak gir for lite utslag saksnummer {} tap {}", fagsak.getSaksnummer(), tapteDager);
-            fagsakEgenskapRepository.fjernFagsakMarkering(fagsak.getId(), FagsakMarkering.PRAKSIS_UTSETTELSE);
+            if (!dryrun) {
+                fagsakEgenskapRepository.fjernFagsakMarkering(fagsak.getId(), FagsakMarkering.PRAKSIS_UTSETTELSE);
+            }
             return;
         }
         if (harDødsfall(sisteVedtatte)) {
@@ -127,31 +125,48 @@ public class FeilPraksisOpprettBehandlingTjeneste {
         }
         if (famileHendelseEtterPraksisendring(sisteVedtatte)) {
             LOG.info("FeilPraksisUtsettelse: Barn født etter lovendring saksnummer {} tap {}", fagsak.getSaksnummer(), tapteDager);
-            fagsakEgenskapRepository.fjernFagsakMarkering(fagsak.getId(), FagsakMarkering.PRAKSIS_UTSETTELSE);
+            if (!dryrun) {
+                fagsakEgenskapRepository.fjernFagsakMarkering(fagsak.getId(), FagsakMarkering.PRAKSIS_UTSETTELSE);
+            }
             return;
         }
 
-        var enhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFra(sisteVedtatte);
-        fagsakLåsRepository.taLås(fagsak.getId());
-        var revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE, enhet);
-        behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurdering);
-        LOG.info("FeilPraksisUtsettelse: Opprettet revurdering med behandlingId {} saksnummer {}", revurdering.getId(), fagsak.getSaksnummer());
+        if (behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId()).stream()
+                .anyMatch(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE))) {
+            LOG.info("FeilPraksisUtsettelse: Har allerede hatt feil praksis revurdering for sak {}", fagsak.getSaksnummer());
+        }
+
+        if (!dryrun) {
+            var enhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFra(sisteVedtatte);
+            fagsakLåsRepository.taLås(fagsak.getId());
+            var revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, BehandlingÅrsakType.FEIL_IVERKSETTELSE_FRI_UTSETTELSE, enhet);
+            behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurdering);
+        }
+
+        LOG.info("FeilPraksisUtsettelse: Opprettet revurdering med saksnummer {}", fagsak.getSaksnummer());
 
     }
 
     private static Trekkdager tapteDager(List<UttakResultatPeriodeEntitet> perioder) {
-        Map<UttakAktivitetGruppering, Trekkdager> trekkdagerPrAktivitet = new LinkedHashMap<>(tapteDagerUtsettelse(perioder));
+        var trekkdagerPrAktivitet = new LinkedHashMap<>(tapteDagerUtsettelse(perioder));
         tapteDagerGradering(perioder).forEach((k,v) -> trekkdagerPrAktivitet.put(k, trekkdagerPrAktivitet.getOrDefault(k, Trekkdager.ZERO).add(v)));
         return trekkdagerPrAktivitet.values().stream().max(Comparator.naturalOrder()).orElse(Trekkdager.ZERO);
     }
 
     private static Map<UttakAktivitetGruppering, Trekkdager> tapteDagerUtsettelse(List<UttakResultatPeriodeEntitet> perioder) {
         return perioder.stream()
-            .filter(p -> FEIL_UTSETTELSE.contains(p.getResultatÅrsak()))
+            .filter(FeilPraksisOpprettBehandlingTjeneste::erAvslåttUtsettelse)
             .map(FeilPraksisOpprettBehandlingTjeneste::tapteDagerUtsettelsePeriode)
             .flatMap(Collection::stream)
             .collect(Collectors.groupingBy(UttakAktivitetTapteDager::grupperingsnøkkel,
                 Collectors.reducing(Trekkdager.ZERO, UttakAktivitetTapteDager::taptedager, Trekkdager::add)));
+    }
+
+    private static boolean erAvslåttUtsettelse(UttakResultatPeriodeEntitet p) {
+        if (p.getTom().isBefore(UtsettelseCore2021.IKRAFT_FRA_DATO)) {
+            return false;
+        }
+        return p.isUtsettelse() && PeriodeResultatÅrsak.UtfallType.AVSLÅTT.equals(p.getResultatÅrsak().getUtfallType());
     }
 
     private static List<UttakAktivitetTapteDager> tapteDagerUtsettelsePeriode(UttakResultatPeriodeEntitet periode) {
