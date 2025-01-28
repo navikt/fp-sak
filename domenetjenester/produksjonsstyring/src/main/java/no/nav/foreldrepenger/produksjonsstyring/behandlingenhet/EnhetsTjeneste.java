@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -88,6 +89,7 @@ public class EnhetsTjeneste {
     private PersoninfoAdapter personinfoAdapter;
     private Arbeidsfordeling norgRest;
     private SkjermetPersonKlient skjermetPersonKlient;
+    private RutingKlient rutingKlient;
 
     public EnhetsTjeneste() {
         // For CDI proxy
@@ -96,10 +98,12 @@ public class EnhetsTjeneste {
     @Inject
     public EnhetsTjeneste(PersoninfoAdapter personinfoAdapter,
                           Arbeidsfordeling arbeidsfordelingRestKlient,
-                          SkjermetPersonKlient skjermetPersonKlient) {
+                          SkjermetPersonKlient skjermetPersonKlient,
+                          RutingKlient rutingKlient) {
         this.personinfoAdapter = personinfoAdapter;
         this.norgRest = arbeidsfordelingRestKlient;
         this.skjermetPersonKlient = skjermetPersonKlient;
+        this.rutingKlient = rutingKlient;
     }
 
     static OrganisasjonsEnhet velgEnhet(OrganisasjonsEnhet enhet, Collection<FagsakMarkering> markering) {
@@ -130,13 +134,22 @@ public class EnhetsTjeneste {
     }
 
     OrganisasjonsEnhet hentEnhetSjekkKunAktør(AktørId aktørId, FagsakYtelseType ytelseType) {
+        var rutingResultater = finnRuting(Set.of(aktørId));
         if (harNoenDiskresjonskode6(ytelseType, Set.of(aktørId))) {
+            LOG.info("RUTING {}", rutingResultater.contains(RutingResultat.STRENGTFORTROLIG) ? "ok" : "diff sf");
             return KODE6_ENHET;
         } else if (erNoenSkjermetPerson(Set.of(aktørId))) {
+            LOG.info("RUTING {}", rutingResultater.contains(RutingResultat.SKJERMING) ? "ok" : "diff skjerm");
             return SKJERMET_ENHET;
+        } else if (personinfoAdapter.hentGeografiskTilknytning(ytelseType, aktørId) == null) {
+            LOG.info("RUTING {}", rutingResultater.contains(RutingResultat.UTLAND) ? "ok" : "diff utland");
+            return UTLAND_ENHET;
         } else {
-            return personinfoAdapter.hentGeografiskTilknytning(ytelseType, aktørId) == null ? UTLAND_ENHET : NASJONAL_ENHET;
-            // Beholde ut 2023
+            if (!rutingResultater.isEmpty()) {
+                LOG.info("RUTING diff nasjonal vs resultat {}", rutingResultater);
+            }
+            return NASJONAL_ENHET;
+            // Beholde ut 2025
             // var enheter = hentEnheterFor(geografiskTilknytning, behandlingTema);
             // return enheter.isEmpty() ? NASJONAL_ENHET : velgEnhet(enheter.get(0), null);
         }
@@ -147,11 +160,13 @@ public class EnhetsTjeneste {
         if (SPESIALENHETER.contains(enhetId)) {
             return Optional.empty();
         }
+        var rutingResultater = finnRuting(alleAktører);
         if (harNoenDiskresjonskode6(ytelseType, alleAktører)) {
+            LOG.info("RUTING {}", rutingResultater.contains(RutingResultat.STRENGTFORTROLIG) ? "ok" : "diff sf");
             return Optional.of(KODE6_ENHET);
         }
         if (erNoenSkjermetPerson(alleAktører)) {
-            LOG.info("FPSAK enhettjeneste skjermet person funnet");
+            LOG.info("RUTING {}", rutingResultater.contains(RutingResultat.SKJERMING) ? "ok" : "diff skjerm");
             return Optional.of(SKJERMET_ENHET);
         }
         if (saksmarkering.contains(FagsakMarkering.SAMMENSATT_KONTROLL)) {
@@ -167,6 +182,15 @@ public class EnhetsTjeneste {
             return Optional.of(hentEnhetSjekkKunAktør(hovedAktør, ytelseType));
         }
         return Optional.of(FLYTTE_MAP.get(enhetId)).filter(ny -> !ny.enhetId().equals(enhetId));
+    }
+
+    public Set<RutingResultat> finnRuting(Set<AktørId> aktørIds) {
+        try {
+            return rutingKlient.finnRutingEgenskaper(aktørIds.stream().map(AktørId::getId).collect(Collectors.toSet()));
+        } catch (Exception e) {
+            LOG.info("RUTING feil", e);
+            return Set.of();
+        }
     }
 
     private boolean harNoenDiskresjonskode6(FagsakYtelseType ytelseType, Set<AktørId> aktører) {
@@ -202,7 +226,7 @@ public class EnhetsTjeneste {
         return NASJONAL_ENHET;
     }
 
-    // Behold ut 2023
+    // Behold ut 2025
     private List<OrganisasjonsEnhet> hentEnheterFor(String geografi, FagsakYtelseType ytelseType) {
         var brukBTema = ytelseType == null || FagsakYtelseType.UDEFINERT.equals(ytelseType) ?
             BehandlingTema.FORELDREPENGER : BehandlingTema.fraFagsak(ytelseType, null);

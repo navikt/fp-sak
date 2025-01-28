@@ -219,6 +219,10 @@ public class BehandlendeEnhetTjeneste {
         behandlingEventPubliserer.publiserBehandlingEvent(new BehandlingEnhetEvent(behandling));
     }
 
+    public Set<RutingResultat> finnRuting(Set<AktørId> aktørIds) {
+        return enhetsTjeneste.finnRuting(aktørIds);
+    }
+
     private void lagHistorikkInnslagForByttBehandlendeEnhet(Behandling behandling,
                                                             OrganisasjonsEnhet nyEnhet,
                                                             String begrunnelse,
