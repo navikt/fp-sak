@@ -53,11 +53,14 @@ class EnhetsTjenesteTest {
     private Arbeidsfordeling arbeidsfordelingTjeneste;
     @Mock
     private SkjermetPersonKlient skjermetPersonKlient;
+    @Mock
+    private RutingKlient rutingKlient;
+
     private EnhetsTjeneste enhetsTjeneste;
 
     @BeforeEach
     public void oppsett() {
-        enhetsTjeneste = new EnhetsTjeneste(personinfoAdapter, arbeidsfordelingTjeneste, skjermetPersonKlient);
+        enhetsTjeneste = new EnhetsTjeneste(personinfoAdapter, arbeidsfordelingTjeneste, skjermetPersonKlient, rutingKlient);
     }
 
     @Test

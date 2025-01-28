@@ -10,6 +10,9 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
@@ -32,6 +35,8 @@ import no.nav.fpsak.tidsserie.StandardCombinators;
 
 @Dependent
 public class RegistrerFagsakEgenskaper {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RegistrerFagsakEgenskaper.class);
 
     private final BehandlendeEnhetTjeneste enhetTjeneste;
     private final PersoninfoAdapter personinfo;
@@ -63,11 +68,16 @@ public class RegistrerFagsakEgenskaper {
             return;
         }
 
+        var rutingResultat = enhetTjeneste.finnRuting(Set.of(behandling.getAktørId()));
+
         // Har registrert en tilknytning og ikke utflyttet
         if (personinfo.hentGeografiskTilknytning(behandling.getFagsakYtelseType(), behandling.getAktørId()) == null) {
+            LOG.info("RUTING {}", rutingResultat.contains(RutingResultat.UTLAND) ? "ok" : "diff utland fra hentGT");
             fagsakEgenskapRepository.leggTilFagsakMarkering(behandling.getFagsakId(), FagsakMarkering.BOSATT_UTLAND);
             BehandlendeEnhetTjeneste.sjekkSkalOppdatereEnhet(behandling, fagsakEgenskapRepository.finnFagsakMarkeringer(behandling.getFagsakId()))
                 .ifPresent(e -> enhetTjeneste.oppdaterBehandlendeEnhet(behandling, e, HistorikkAktør.VEDTAKSLØSNINGEN, "Personopplysning"));
+        } else {
+            LOG.info("RUTING {}", rutingResultat.contains(RutingResultat.UTLAND) ? "diff utland fra tilgang" : "ok");
         }
     }
 
