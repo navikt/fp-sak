@@ -1,15 +1,13 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-
-import com.fasterxml.jackson.annotation.JsonValue;
-
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum VurderÅrsak implements Kodeverdi {
 
@@ -18,9 +16,12 @@ public enum VurderÅrsak implements Kodeverdi {
     FEIL_REGEL("FEIL_REGEL", "Feil regelforståelse"), // UTGÅTT, beholdes pga historikk
     SKJØNN("SKJØNN", "Skjønn"),
     UTREDNING("UTREDNING", "Utredning"),
-    ANNET("ANNET", "Annet"),
+    SAKSFLYT("SAKSFLYT", "Saksflyt"),
+    BEGRUNNELSE("BEGRUNNELSE", "Begrunnelse"),
     UDEFINERT("-", "Ikke definert"),
 
+    @Deprecated(forRemoval = true) // Må migrere eksisterende til SAKSFLYT for å fjernes
+    ANNET("ANNET", "Annet"),
     ;
 
     private static final Map<String, VurderÅrsak> KODER = new LinkedHashMap<>();
