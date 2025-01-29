@@ -237,8 +237,13 @@ public class InntektArbeidYtelseRestTjeneste {
         });
 
         if (behandling.erAvsluttet() || behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.SIMULER_OPPDRAG)) {
-            var simuleringResultatDto = fpOppdragRestKlient.hentSimuleringResultatMedOgUtenInntrekk(behandling.getId());
-            arbeidsgivere.addAll(simuleringResultatDto.map(this::finnArbeidsgivereFraSimulering).orElse(Collections.emptySet()));
+            try {
+                var simuleringResultatDto = fpOppdragRestKlient.hentSimuleringResultatMedOgUtenInntrekk(behandling.getId());
+                arbeidsgivere.addAll(simuleringResultatDto.map(this::finnArbeidsgivereFraSimulering).orElse(Collections.emptySet()));
+            } catch (Exception e) {
+                // Do nothing
+            }
+
         }
 
         if (!overstyrtNavn.isEmpty()) {
