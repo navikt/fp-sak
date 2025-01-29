@@ -13,15 +13,16 @@ public enum VurderÅrsak implements Kodeverdi {
 
     FEIL_FAKTA("FEIL_FAKTA", "Fakta"),
     FEIL_LOV("FEIL_LOV", "Regel-/lovanvendelse"),
-    FEIL_REGEL("FEIL_REGEL", "Feil regelforståelse"), // UTGÅTT, beholdes pga historikk
     SKJØNN("SKJØNN", "Skjønn"),
     UTREDNING("UTREDNING", "Utredning"),
     SAKSFLYT("SAKSFLYT", "Saksflyt"),
     BEGRUNNELSE("BEGRUNNELSE", "Begrunnelse"),
     UDEFINERT("-", "Ikke definert"),
 
-    @Deprecated(forRemoval = true) // Må migrere eksisterende til SAKSFLYT for å fjernes
-    ANNET("ANNET", "Annet"),
+    @Deprecated
+    ANNET("ANNET", "Annet"), // UTGÅTT, beholdes pga historikk
+    @Deprecated
+    FEIL_REGEL("FEIL_REGEL", "Feil regelforståelse"), // UTGÅTT, beholdes pga historikk
     ;
 
     private static final Map<String, VurderÅrsak> KODER = new LinkedHashMap<>();
