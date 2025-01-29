@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 @Table(name = "HISTORIKKINNSLAG2_LINJE")
 public class HistorikkinnslagLinje extends BaseCreateableEntitet implements IndexKey {
     private static final Logger LOG = LoggerFactory.getLogger(HistorikkinnslagLinje.class);
-    private static final Logger SECURE_LOG = LoggerFactory.getLogger("secureLogger");
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_HISTORIKKINNSLAG2_LINJE")
@@ -52,8 +51,7 @@ public class HistorikkinnslagLinje extends BaseCreateableEntitet implements Inde
     private void validerBoldMarkering(String tekst) {
         var antallBoldMarkører = tekst.split(Historikkinnslag.BOLD_MARKØR, -1).length -1;
         if (antallBoldMarkører % 2 == 1) {
-            LOG.info("Ugyldig bold markering av tekst for tekstlinje. Se secure logg for mer informasjon");
-            SECURE_LOG.info("Ugyldig bold markering av tekst for tekstlinje: {}", tekst);
+            LOG.warn("Ugyldig bold markering av tekst for tekstlinje. Kan skape rar visning av historikkinnslag");
         }
     }
 
