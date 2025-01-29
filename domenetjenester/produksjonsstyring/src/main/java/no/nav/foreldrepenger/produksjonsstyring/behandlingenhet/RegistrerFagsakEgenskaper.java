@@ -72,12 +72,14 @@ public class RegistrerFagsakEgenskaper {
 
         // Har registrert en tilknytning og ikke utflyttet
         if (personinfo.hentGeografiskTilknytning(behandling.getFagsakYtelseType(), behandling.getAktørId()) == null) {
-            LOG.info("RUTING {}", rutingResultat.contains(RutingResultat.UTLAND) ? "ok" : "diff utland fra hentGT");
+            LOG.info("RUTING rfe {}", rutingResultat.contains(RutingResultat.UTLAND) ? "utland ok" : "diff utland fra hentGT");
             fagsakEgenskapRepository.leggTilFagsakMarkering(behandling.getFagsakId(), FagsakMarkering.BOSATT_UTLAND);
             BehandlendeEnhetTjeneste.sjekkSkalOppdatereEnhet(behandling, fagsakEgenskapRepository.finnFagsakMarkeringer(behandling.getFagsakId()))
                 .ifPresent(e -> enhetTjeneste.oppdaterBehandlendeEnhet(behandling, e, HistorikkAktør.VEDTAKSLØSNINGEN, "Personopplysning"));
         } else {
-            LOG.info("RUTING {}", rutingResultat.contains(RutingResultat.UTLAND) ? "diff utland fra tilgang" : "ok");
+            if (rutingResultat.contains(RutingResultat.UTLAND)) {
+                LOG.info("RUTING rfe {}", "diff har utland fra tilgang");
+            }
         }
     }
 
