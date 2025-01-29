@@ -136,13 +136,13 @@ public class EnhetsTjeneste {
     OrganisasjonsEnhet hentEnhetSjekkKunAktør(AktørId aktørId, FagsakYtelseType ytelseType) {
         var rutingResultater = finnRuting(Set.of(aktørId));
         if (harNoenDiskresjonskode6(ytelseType, Set.of(aktørId))) {
-            LOG.info("RUTING {}", rutingResultater.contains(RutingResultat.STRENGTFORTROLIG) ? "ok" : "diff sf");
+            LOG.info("RUTING {}", rutingResultater.contains(RutingResultat.STRENGTFORTROLIG) ? "ok1" : "diff sf");
             return KODE6_ENHET;
         } else if (erNoenSkjermetPerson(Set.of(aktørId))) {
-            LOG.info("RUTING {}", rutingResultater.contains(RutingResultat.SKJERMING) ? "ok" : "diff skjerm");
+            LOG.info("RUTING {}", rutingResultater.contains(RutingResultat.SKJERMING) ? "ok skjerm" : "diff skjerm");
             return SKJERMET_ENHET;
         } else if (personinfoAdapter.hentGeografiskTilknytning(ytelseType, aktørId) == null) {
-            LOG.info("RUTING {}", rutingResultater.contains(RutingResultat.UTLAND) ? "ok" : "diff utland");
+            LOG.info("RUTING {}", rutingResultater.contains(RutingResultat.UTLAND) ? "ok utland" : "diff utland");
             return UTLAND_ENHET;
         } else {
             if (!rutingResultater.isEmpty()) {
@@ -162,11 +162,11 @@ public class EnhetsTjeneste {
         }
         var rutingResultater = finnRuting(alleAktører);
         if (harNoenDiskresjonskode6(ytelseType, alleAktører)) {
-            LOG.info("RUTING {}", rutingResultater.contains(RutingResultat.STRENGTFORTROLIG) ? "ok" : "diff sf");
+            LOG.info("RUTING {}", rutingResultater.contains(RutingResultat.STRENGTFORTROLIG) ? "ok1" : "diff sf");
             return Optional.of(KODE6_ENHET);
         }
         if (erNoenSkjermetPerson(alleAktører)) {
-            LOG.info("RUTING {}", rutingResultater.contains(RutingResultat.SKJERMING) ? "ok" : "diff skjerm");
+            LOG.info("RUTING {}", rutingResultater.contains(RutingResultat.SKJERMING) ? "ok skjerm" : "diff skjerm");
             return Optional.of(SKJERMET_ENHET);
         }
         if (saksmarkering.contains(FagsakMarkering.SAMMENSATT_KONTROLL)) {
