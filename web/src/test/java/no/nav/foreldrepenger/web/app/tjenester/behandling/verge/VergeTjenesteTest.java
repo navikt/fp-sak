@@ -93,10 +93,10 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
         when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.FORESLÅ_VEDTAK)).thenReturn(true);
 
         // Act
-        var resultat = vergeTjeneste.utledBehandlingsmeny(behandling.getId());
+        var behandlingOperasjon = vergeTjeneste.utledBehandlingOperasjon(behandling.getId());
 
         // Assert
-        assertThat(resultat.getVergeBehandlingsmeny()).isEqualTo(VergeBehandlingsmenyEnum.SKJUL);
+        assertThat(behandlingOperasjon).isEqualTo(VergeBehandlingsmenyEnum.SKJUL);
     }
 
     @Test
@@ -113,10 +113,10 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
         lenient().when(personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(any())).thenReturn(Optional.of(personopplysningerAggregat));
 
         // Act
-        var resultat = vergeTjeneste.utledBehandlingsmeny(behandling.getId());
+        var behandlingOperasjon = vergeTjeneste.utledBehandlingOperasjon(behandling.getId());
 
         // Assert
-        assertThat(resultat.getVergeBehandlingsmeny()).isEqualTo(VergeBehandlingsmenyEnum.OPPRETT);
+        assertThat(behandlingOperasjon).isEqualTo(VergeBehandlingsmenyEnum.OPPRETT);
     }
 
     @Test
@@ -128,10 +128,10 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
         // Act
-        var resultat = vergeTjeneste.utledBehandlingsmeny(behandling.getId());
+        var behandlingOperasjon = vergeTjeneste.utledBehandlingOperasjon(behandling.getId());
 
         // Assert
-        assertThat(resultat.getVergeBehandlingsmeny()).isEqualTo(VergeBehandlingsmenyEnum.OPPRETT);
+        assertThat(behandlingOperasjon).isEqualTo(VergeBehandlingsmenyEnum.OPPRETT);
     }
 
     @Test
@@ -144,10 +144,10 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
         AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AVKLAR_VERGE);
 
         // Act
-        var resultat = vergeTjeneste.utledBehandlingsmeny(behandling.getId());
+        var behandlingOperasjon = vergeTjeneste.utledBehandlingOperasjon(behandling.getId());
 
         // Assert
-        assertThat(resultat.getVergeBehandlingsmeny()).isEqualTo(VergeBehandlingsmenyEnum.FJERN);
+        assertThat(behandlingOperasjon).isEqualTo(VergeBehandlingsmenyEnum.FJERN);
     }
 
     @Test
@@ -162,10 +162,10 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
         vergeRepository.lagreOgFlush(behandling.getId(), vergeBuilder);
 
         // Act
-        var resultat = vergeTjeneste.utledBehandlingsmeny(behandling.getId());
+        var behandlingOperasjon = vergeTjeneste.utledBehandlingOperasjon(behandling.getId());
 
         // Assert
-        assertThat(resultat.getVergeBehandlingsmeny()).isEqualTo(VergeBehandlingsmenyEnum.FJERN);
+        assertThat(behandlingOperasjon).isEqualTo(VergeBehandlingsmenyEnum.FJERN);
     }
 
     @Test
