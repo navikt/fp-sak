@@ -8,12 +8,8 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.pdl.Adressebeskyttelse;
-import no.nav.pdl.AdressebeskyttelseGradering;
-import no.nav.pdl.AdressebeskyttelseResponseProjection;
 import no.nav.pdl.Folkeregisterpersonstatus;
 import no.nav.pdl.FolkeregisterpersonstatusResponseProjection;
 import no.nav.pdl.GeografiskTilknytningResponseProjection;
@@ -39,6 +35,7 @@ public class TilknytningTjeneste {
         this.pdlKlient = pdlKlient;
     }
 
+    // Behold ut 2025 pga prosjekt nasjonal kø. Dersom lokale enheter gjeninnføres - kall via fptilgang / ruting-enhet
     public String hentGeografiskTilknytning(FagsakYtelseType ytelseType, AktørId aktørId) {
 
         var queryGT = new HentGeografiskTilknytningQueryRequest();
@@ -70,23 +67,6 @@ public class TilknytningTjeneste {
             .map(Folkeregisterpersonstatus::getForenkletStatus)
             .anyMatch(IKKE_BOSATT::contains);
         return statusIkkeBosatt;
-    }
-
-    public Diskresjonskode hentDiskresjonskode(FagsakYtelseType ytelseType, AktørId aktørId) {
-        var query = new HentPersonQueryRequest();
-        query.setIdent(aktørId.getId());
-        var projection = new PersonResponseProjection()
-                .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
-
-        var person = pdlKlient.hentPerson(ytelseType, query, projection);
-
-        var kode = person.getAdressebeskyttelse().stream()
-            .map(Adressebeskyttelse::getGradering)
-            .filter(g -> !AdressebeskyttelseGradering.UGRADERT.equals(g))
-            .findFirst().orElse(null);
-        if (AdressebeskyttelseGradering.STRENGT_FORTROLIG.equals(kode) || AdressebeskyttelseGradering.STRENGT_FORTROLIG_UTLAND.equals(kode))
-            return Diskresjonskode.KODE6;
-        return AdressebeskyttelseGradering.FORTROLIG.equals(kode) ? Diskresjonskode.KODE7 : Diskresjonskode.UDEFINERT;
     }
 
 }
