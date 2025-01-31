@@ -22,6 +22,8 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 public class FpinntektsmeldingKlient {
     private static final Logger LOG = LoggerFactory.getLogger(FpinntektsmeldingKlient.class);
 
+    private static final String REQUEST = "request";
+
     private final RestClient restClient;
     private final RestConfig restConfig;
     private final URI uriOpprettForesporsel;
@@ -42,7 +44,7 @@ public class FpinntektsmeldingKlient {
     }
 
     public OpprettForespørselResponsNy opprettForespørsel(OpprettForespørselRequest request) {
-        Objects.requireNonNull(request, "request");
+        Objects.requireNonNull(request, REQUEST);
         try {
             LOG.info("Sender request til fpinntektsmelding for saksnummer {} ", request.fagsakSaksnummer().saksnr());
             var rrequest = RestRequest.newPOSTJson(request, uriOpprettForesporsel, restConfig);
@@ -54,7 +56,7 @@ public class FpinntektsmeldingKlient {
     }
 
     public void overstyrInntektsmelding(OverstyrInntektsmeldingRequest request) {
-        Objects.requireNonNull(request, "request");
+        Objects.requireNonNull(request, REQUEST);
         try {
             LOG.info("Overstyrer inntektsmelding for arbeidsgiver {}", request.arbeidsgiverIdent().ident());
             var rrequest = RestRequest.newPOSTJson(request, uriOverstyrInntektsmelding, restConfig);
@@ -66,7 +68,7 @@ public class FpinntektsmeldingKlient {
     }
 
     public void lukkForespørsel(LukkForespørselRequest request) {
-        Objects.requireNonNull(request, "request");
+        Objects.requireNonNull(request, REQUEST);
         try {
             LOG.info("Sender lukk forespørsel request til fpinntektsmelding for saksnummer {} med organisasjonsnummer {}", request.fagsakSaksnummer().saksnr(), request.orgnummer());
             var restRequest = RestRequest.newPOSTJson(request, uriLukkForesporsel, restConfig);
@@ -78,7 +80,7 @@ public class FpinntektsmeldingKlient {
     }
 
     public void settForespørselTilUtgått(LukkForespørselRequest request) {
-        Objects.requireNonNull(request, "request");
+        Objects.requireNonNull(request, REQUEST);
         try {
             LOG.info("Sender Lukk forespørsel request til fpinntektsmelding for å sette forespørsel til utgått for saksnummer {} ", request.fagsakSaksnummer().saksnr());
             var restRequest = RestRequest.newPOSTJson(request, uriSettForesporselTilUtgaatt, restConfig);
@@ -90,7 +92,7 @@ public class FpinntektsmeldingKlient {
     }
 
     public SendNyBeskjedResponse sendNyBeskjedPåForespørsel(NyBeskjedRequest request) {
-        Objects.requireNonNull(request, "request");
+        Objects.requireNonNull(request, REQUEST);
         try {
             LOG.info("Sender ny beskjed request til fpinntektsmelding for å legge til ny beskjed på eksisterende forespørsel for saksnummer {} ", request.fagsakSaksnummer().saksnr());
             var restRequest = RestRequest.newPOSTJson(request, uriSendNyBeskjedPåForespørsel, restConfig);

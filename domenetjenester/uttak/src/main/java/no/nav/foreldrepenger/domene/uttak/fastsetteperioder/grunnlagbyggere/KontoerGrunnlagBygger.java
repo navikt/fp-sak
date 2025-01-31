@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Kontoer;
 public class KontoerGrunnlagBygger {
 
     public KontoerGrunnlagBygger() {
+        // tom konstruktør
     }
 
     /*

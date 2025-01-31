@@ -100,6 +100,9 @@ import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRe
 @ApplicationScoped
 public class BehandlingDtoTjeneste {
 
+    private static final String SOEKER_VERGE = "soeker-verge";
+    private static final String VERGE_BACKEND = "verge-backend";
+
     private VergeRepository vergeRepository;
     private BeregningTjeneste beregningTjeneste;
     private UttakTjeneste uttakTjeneste;
@@ -306,8 +309,8 @@ public class BehandlingDtoTjeneste {
         dto.leggTil(get(KlageRestTjeneste.KLAGE_V2_PATH, "klage-vurdering", uuidDto));
         dto.leggTil(get(KlageRestTjeneste.MOTTATT_KLAGEDOKUMENT_V2_PATH, "mottatt-klagedokument", uuidDto));
         if (behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE) || vergeRepository.hentAggregat(behandling.getId()).isPresent()) {
-            dto.leggTil(get(PersonRestTjeneste.VERGE_PATH, "soeker-verge", uuidDto));
-            dto.leggTil(get(PersonRestTjeneste.VERGE_BACKEND_PATH, "verge-backend", uuidDto));
+            dto.leggTil(get(PersonRestTjeneste.VERGE_PATH, SOEKER_VERGE, uuidDto));
+            dto.leggTil(get(PersonRestTjeneste.VERGE_BACKEND_PATH, VERGE_BACKEND, uuidDto));
         }
         return dto;
     }
@@ -316,8 +319,8 @@ public class BehandlingDtoTjeneste {
         var uuidDto = new UuidDto(behandling.getUuid());
         dto.leggTil(get(AnkeRestTjeneste.ANKEVURDERING_V2_PATH, "anke-vurdering", uuidDto));
         if (behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE) || vergeRepository.hentAggregat(behandling.getId()).isPresent()) {
-            dto.leggTil(get(PersonRestTjeneste.VERGE_PATH, "soeker-verge", uuidDto));
-            dto.leggTil(get(PersonRestTjeneste.VERGE_BACKEND_PATH, "verge-backend", uuidDto));
+            dto.leggTil(get(PersonRestTjeneste.VERGE_PATH, SOEKER_VERGE, uuidDto));
+            dto.leggTil(get(PersonRestTjeneste.VERGE_BACKEND_PATH, VERGE_BACKEND, uuidDto));
         }
         return dto;
     }
@@ -349,8 +352,8 @@ public class BehandlingDtoTjeneste {
         dto.leggTil(get(PersonRestTjeneste.MEDLEMSKAP_V3_PATH, "soeker-medlemskap-v3", uuidDto));
 
         if (behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE) || vergeRepository.hentAggregat(behandling.getId()).isPresent()) {
-            dto.leggTil(get(PersonRestTjeneste.VERGE_PATH, "soeker-verge", uuidDto));
-            dto.leggTil(get(PersonRestTjeneste.VERGE_BACKEND_PATH, "verge-backend", uuidDto));
+            dto.leggTil(get(PersonRestTjeneste.VERGE_PATH, SOEKER_VERGE, uuidDto));
+            dto.leggTil(get(PersonRestTjeneste.VERGE_BACKEND_PATH, VERGE_BACKEND, uuidDto));
         }
 
         dto.leggTil(get(InntektArbeidYtelseRestTjeneste.INNTEKT_ARBEID_YTELSE_PATH, "inntekt-arbeid-ytelse", uuidDto));

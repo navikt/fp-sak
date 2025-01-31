@@ -122,7 +122,7 @@ public class FamilieHendelseRepository {
     }
 
     public void lagreRegisterHendelse(Long behandlingId, FamilieHendelseBuilder hendelse) {
-        Objects.requireNonNull(behandlingId, "behandlingId");
+        Objects.requireNonNull(behandlingId, BEHANDLING_ID);
         Objects.requireNonNull(hendelse, "hendelse");
 
         var aggregatBuilder = opprettAggregatBuilderFor(behandlingId);

@@ -18,8 +18,10 @@ public class MedlemskapVurderingPeriodeTjeneste {
 
     private static final Period BOSATT_TILBAKE_TID = Period.ofMonths(12);
     private static final Period MEDLEMSKAP_ES = BotidCore2024.FORUTGÅENDE_MEDLEMSKAP_TIDSPERIODE;
+    private static final String MANGLER_YTELSE = "Mangler ytelse";
 
     private BotidCore2024 botidCore2024;
+
     MedlemskapVurderingPeriodeTjeneste() {
         // CDI
     }
@@ -35,7 +37,7 @@ public class MedlemskapVurderingPeriodeTjeneste {
         var intervallSluttdato = switch (ref.fagsakYtelseType()) {
             case ENGANGSTØNAD -> referansedato;
             case FORELDREPENGER, SVANGERSKAPSPENGER -> stp.getUttaksintervall().map(LocalDateInterval::getTomDato).orElse(referansedato);
-            case null, default -> throw new IllegalArgumentException("Mangler ytelse");
+            case null, default -> throw new IllegalArgumentException(MANGLER_YTELSE);
         };
         var baseForStartdato = minDato(referansedato, LocalDate.now());
         var intervallStartdato = startBosatt(ref.fagsakYtelseType(), stp, baseForStartdato);
@@ -47,7 +49,7 @@ public class MedlemskapVurderingPeriodeTjeneste {
         var intervallSluttdato = switch (ref.fagsakYtelseType()) {
             case ENGANGSTØNAD -> referansedato;
             case FORELDREPENGER, SVANGERSKAPSPENGER -> stp.getUttaksintervall().map(LocalDateInterval::getTomDato).orElse(referansedato);
-            case null, default -> throw new IllegalArgumentException("Mangler ytelse");
+            case null, default -> throw new IllegalArgumentException(MANGLER_YTELSE);
         };
         var intervallStartdato = startLovligOpphold(ref.fagsakYtelseType(), stp, referansedato);
         return new LocalDateInterval(intervallStartdato, intervallSluttdato);
@@ -57,7 +59,7 @@ public class MedlemskapVurderingPeriodeTjeneste {
         return switch (ref.fagsakYtelseType()) {
             case ENGANGSTØNAD -> referansedatoES(stp);
             case FORELDREPENGER, SVANGERSKAPSPENGER -> stp.getUtledetSkjæringstidspunkt();
-            case null, default -> throw new IllegalArgumentException("Mangler ytelse");
+            case null, default -> throw new IllegalArgumentException(MANGLER_YTELSE);
         };
     }
 

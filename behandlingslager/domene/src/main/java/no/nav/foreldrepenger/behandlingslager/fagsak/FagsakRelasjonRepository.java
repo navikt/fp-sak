@@ -26,6 +26,7 @@ import no.nav.vedtak.exception.TekniskException;
 public class FagsakRelasjonRepository {
 
     private static final String FAGSAK_QP = "fagsak";
+    private static final String STØNADSKONTOBEREGNING = "stønadskontoberegning";
 
     private EntityManager entityManager;
     private FagsakLåsRepository fagsakLåsRepository;
@@ -98,7 +99,7 @@ public class FagsakRelasjonRepository {
     }
 
     public void lagre(Fagsak fagsak, Stønadskontoberegning stønadskontoberegning) {
-        Objects.requireNonNull(stønadskontoberegning, "stønadskontoberegning");
+        Objects.requireNonNull(stønadskontoberegning, STØNADSKONTOBEREGNING);
 
         var fagsak1Lås = fagsakLåsRepository.taLås(fagsak.getId());
         FagsakLås fagsak2Lås = null;
@@ -300,7 +301,7 @@ public class FagsakRelasjonRepository {
     }
 
     private void persisterStønadskontoberegning(Stønadskontoberegning stønadskontoberegning) {
-        Objects.requireNonNull(stønadskontoberegning, "stønadskontoberegning");
+        Objects.requireNonNull(stønadskontoberegning, STØNADSKONTOBEREGNING);
 
         entityManager.persist(stønadskontoberegning);
         for (var stønadskonto : stønadskontoberegning.getStønadskontoer()) {
@@ -309,7 +310,7 @@ public class FagsakRelasjonRepository {
     }
 
     public void persisterFlushStønadskontoberegning(Stønadskontoberegning stønadskontoberegning) {
-        Objects.requireNonNull(stønadskontoberegning, "stønadskontoberegning");
+        Objects.requireNonNull(stønadskontoberegning, STØNADSKONTOBEREGNING);
         persisterStønadskontoberegning(stønadskontoberegning);
         entityManager.flush();
     }

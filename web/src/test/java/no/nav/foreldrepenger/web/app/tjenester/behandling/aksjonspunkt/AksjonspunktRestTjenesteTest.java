@@ -41,8 +41,8 @@ class AksjonspunktRestTjenesteTest {
     // skal_håndtere_overlappende_perioder data
     private static final LocalDate now = LocalDate.now();
     private static final UUID behandlingUuid = UUID.randomUUID();
-    private static final Long behandlingVersjon = 2L;
-    private static final String begrunnelse = "skal_håndtere_overlappende_perioder";
+    private static final Long BEHANDLING_VERSJON = 2L;
+    private static final String BEGRUNNELSE = "skal_håndtere_overlappende_perioder";
     private static final LocalDate fødselsdato = now.plusDays(40);
     private static final LocalDate termindato = now.plusDays(30);
     private static final LocalDate utstedtdato = now.minusDays(10);
@@ -69,10 +69,10 @@ class AksjonspunktRestTjenesteTest {
     @Test
     void skal_bekrefte_terminbekreftelse() throws Exception {
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
-        aksjonspunkt.add(new BekreftTerminbekreftelseAksjonspunktDto(begrunnelse, termindato, utstedtdato, 1));
+        aksjonspunkt.add(new BekreftTerminbekreftelseAksjonspunktDto(BEGRUNNELSE, termindato, utstedtdato, 1));
 
         aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class),
-            BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt));
+            BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, BEHANDLING_VERSJON, aksjonspunkt));
 
         verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
     }
@@ -81,10 +81,10 @@ class AksjonspunktRestTjenesteTest {
     void skal_bekrefte_fødsel() throws Exception {
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
         var uidentifiserteBarn = new UidentifisertBarnDto[]{new UidentifisertBarnDto(fødselsdato, null)};
-        aksjonspunkt.add(new SjekkManglendeFodselDto(begrunnelse, true, false, List.of(uidentifiserteBarn)));
+        aksjonspunkt.add(new SjekkManglendeFodselDto(BEGRUNNELSE, true, false, List.of(uidentifiserteBarn)));
 
         aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class),
-            BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt));
+            BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, BEHANDLING_VERSJON, aksjonspunkt));
 
         verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
     }
@@ -92,10 +92,10 @@ class AksjonspunktRestTjenesteTest {
     @Test
     void skal_bekrefte_antall_barn() throws Exception {
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
-        aksjonspunkt.add(new SjekkManglendeFodselDto(begrunnelse, false, false, new ArrayList<>()));
+        aksjonspunkt.add(new SjekkManglendeFodselDto(BEGRUNNELSE, false, false, new ArrayList<>()));
 
         aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class),
-            BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt));
+            BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, BEHANDLING_VERSJON, aksjonspunkt));
 
         verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
 
@@ -108,10 +108,10 @@ class AksjonspunktRestTjenesteTest {
         Collection<AksjonspunktGodkjenningDto> aksjonspunktGodkjenningDtos = new ArrayList<>();
         var godkjentAksjonspunkt = opprettetGodkjentAksjonspunkt();
         aksjonspunktGodkjenningDtos.add(godkjentAksjonspunkt);
-        aksjonspunkt.add(new FatterVedtakAksjonspunktDto(begrunnelse, aksjonspunktGodkjenningDtos));
+        aksjonspunkt.add(new FatterVedtakAksjonspunktDto(BEGRUNNELSE, aksjonspunktGodkjenningDtos));
 
         aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class),
-            BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt));
+            BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, BEHANDLING_VERSJON, aksjonspunkt));
 
         verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
     }
@@ -120,16 +120,16 @@ class AksjonspunktRestTjenesteTest {
     void skal_ikke_kunne_bekrefte_andre_aksjonspunkt_ved_status_fatter_vedtak() {
         when(behandling.getStatus()).thenReturn(BehandlingStatus.FATTER_VEDTAK);
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
-        aksjonspunkt.add(new SjekkManglendeFodselDto(begrunnelse, false, false, new ArrayList<>()));
-        var dto = BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt);
+        aksjonspunkt.add(new SjekkManglendeFodselDto(BEGRUNNELSE, false, false, new ArrayList<>()));
+        var dto = BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, BEHANDLING_VERSJON, aksjonspunkt);
         var request = mock(HttpServletRequest.class);
         assertThrows(FunksjonellException.class, () -> aksjonspunktRestTjeneste.bekreft(request, dto));
     }
 
     @Test
     void skal_kunne_sende_fatte_vedtak_til_beslutter_endepunkt() throws URISyntaxException {
-        aksjonspunktRestTjeneste.beslutt(mock(HttpServletRequest.class), BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon,
-            List.of(new FatterVedtakAksjonspunktDto(begrunnelse, List.of(new AksjonspunktGodkjenningDto())))));
+        aksjonspunktRestTjeneste.beslutt(mock(HttpServletRequest.class), BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, BEHANDLING_VERSJON,
+            List.of(new FatterVedtakAksjonspunktDto(BEGRUNNELSE, List.of(new AksjonspunktGodkjenningDto())))));
 
         verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
     }
@@ -137,7 +137,7 @@ class AksjonspunktRestTjenesteTest {
     @Test
     void skal_ikke_kunne_sende_fatte_vedtak_til_beslutter_endepunkt() {
         assertThatThrownBy(() -> aksjonspunktRestTjeneste.beslutt(mock(HttpServletRequest.class),
-            BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon,
+            BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, BEHANDLING_VERSJON,
                 List.of(new FastsetteUttakDto.FastsetteUttakPerioderDto(List.of()))))).isExactlyInstanceOf(IllegalArgumentException.class);
     }
 

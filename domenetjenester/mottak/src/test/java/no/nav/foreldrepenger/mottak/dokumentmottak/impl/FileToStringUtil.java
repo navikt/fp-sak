@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 
 public class FileToStringUtil {
     public FileToStringUtil() {
+        // Tom konstruktør
     }
 
     public String readFile(String filename) throws URISyntaxException, IOException {

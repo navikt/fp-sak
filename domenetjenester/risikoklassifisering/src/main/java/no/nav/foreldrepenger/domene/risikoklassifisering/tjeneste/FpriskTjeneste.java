@@ -26,6 +26,8 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 public class FpriskTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(FpriskTjeneste.class);
 
+    private static final String REQUEST = "request";
+
     private final URI sendOppdragEndpoint;
     private final URI lagreVurderingEndpoint;
     private final URI hentRisikoklassifiseringEndpoint;
@@ -46,7 +48,7 @@ public class FpriskTjeneste {
      * @return RisikovurderingResultatDto som inneholder både risikoklasse, vurdering og faresignaler
      */
     public Optional<RisikovurderingResultatDto> hentFaresignalerForBehandling(HentRisikovurderingDto request) {
-        Objects.requireNonNull(request, "request");
+        Objects.requireNonNull(request, REQUEST);
         try {
             var rrequest = RestRequest.newPOSTJson(request, hentRisikoklassifiseringEndpoint, restConfig);
             return restClient.sendReturnOptional(rrequest, RisikovurderingResultatDto.class);
@@ -61,7 +63,7 @@ public class FpriskTjeneste {
      * @param request
      */
     protected void sendRisikovurderingTilFprisk(LagreFaresignalVurderingDto request) {
-        Objects.requireNonNull(request, "request");
+        Objects.requireNonNull(request, REQUEST);
         try {
             var rrequest = RestRequest.newPOSTJson(request, lagreVurderingEndpoint, restConfig);
             restClient.sendReturnOptional(rrequest, String.class);
@@ -76,7 +78,7 @@ public class FpriskTjeneste {
      * @param request
      */
     protected void sendRisikoklassifiseringsoppdrag(RisikovurderingRequestDto request) {
-        Objects.requireNonNull(request, "request");
+        Objects.requireNonNull(request, REQUEST);
         try {
             var rrequest = RestRequest.newPOSTJson(request, sendOppdragEndpoint, restConfig);
             restClient.sendReturnOptional(rrequest, String.class);

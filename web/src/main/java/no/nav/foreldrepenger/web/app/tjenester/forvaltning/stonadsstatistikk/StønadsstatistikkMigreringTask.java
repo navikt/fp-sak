@@ -94,7 +94,7 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
     }
 
     private Stream<BehandlingVedtak> finnVedtakOpprettetFomDato(LocalDate fomDato, Long fraId) {
-        var sql ="""
+        var sql = """
             select * from (
             select bv.* from BEHANDLING_VEDTAK bv
             join BEHANDLING_RESULTAT br on br.id = bv.BEHANDLING_RESULTAT_ID
@@ -108,7 +108,7 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
 
         var query = entityManager.createNativeQuery(sql, BehandlingVedtak.class)
             .setParameter("fomDato", fomDato)
-            .setParameter("fraId", fraId == null ? 0 : fraId)
+            .setParameter(FRA_ID, fraId == null ? 0 : fraId)
             .setHint(HibernateHints.HINT_READ_ONLY, "true");
         return query.getResultStream();
     }

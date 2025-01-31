@@ -74,7 +74,6 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
 
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
-
         var hendelsetype = Optional.ofNullable(prosessTaskData.getPropertyValue(HENDELSETYPE_KEY))
             .map(KabalHendelse.BehandlingEventType::valueOf)
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Mottatt ikke-støtte kabalisme"));
@@ -86,6 +85,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
             case ANKE_I_TRYGDERETTENBEHANDLING_OPPRETTET -> ankeTrygdrett(prosessTaskData, behandlingId, ref);
             case ANKEBEHANDLING_AVSLUTTET, BEHANDLING_ETTER_TRYGDERETTEN_OPPHEVET_AVSLUTTET -> ankeAvsluttet(prosessTaskData, behandlingId, ref);
             case BEHANDLING_FEILREGISTRERT -> henleggFeilopprettet(prosessTaskData, behandlingId, ref);
+            case OMGJOERINGSKRAVBEHANDLING_AVSLUTTET -> throw new IllegalArgumentException("Utviklerfeil: hvorfor kom vi hit");
         }
     }
 

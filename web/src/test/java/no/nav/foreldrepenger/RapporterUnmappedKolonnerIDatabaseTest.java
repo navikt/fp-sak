@@ -49,6 +49,7 @@ class RapporterUnmappedKolonnerIDatabaseTest {
     private static EntityManagerFactory entityManagerFactory;
 
     public RapporterUnmappedKolonnerIDatabaseTest() {
+        // Tom konstruktør
     }
 
     @BeforeAll
@@ -172,9 +173,8 @@ class RapporterUnmappedKolonnerIDatabaseTest {
         }
 
         @Override
-        public void disintegrate(
-                SessionFactoryImplementor sessionFactory,
-                SessionFactoryServiceRegistry serviceRegistry) {
+        public void disintegrate(SessionFactoryImplementor sessionFactory, SessionFactoryServiceRegistry serviceRegistry) {
+            // NOSONAR
         }
     }
 

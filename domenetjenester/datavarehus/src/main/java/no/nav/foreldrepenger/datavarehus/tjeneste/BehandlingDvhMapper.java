@@ -9,6 +9,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
+import jakarta.annotation.Nullable;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -156,6 +158,7 @@ public class BehandlingDvhMapper {
             .orElse(null);
     }
 
+    @Nullable
     private static Boolean finnPapirSøknad(Behandling behandling, List<MottattDokument> mottatteDokumenter) {
         if (!behandling.erYtelseBehandling() || mottatteDokumenter.isEmpty()) {
             return null;

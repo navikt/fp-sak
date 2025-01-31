@@ -17,8 +17,8 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeløpEndring;
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningsgrunnlagEndring;
@@ -34,6 +34,8 @@ import no.nav.foreldrepenger.domene.rest.historikk.ArbeidsgiverHistorikkinnslag;
 
 @ApplicationScoped
 public class FastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste {
+
+    private static final String FRILANSINNTEKT = "Frilansinntekt";
 
     private ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
@@ -152,13 +154,13 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste {
         if (forrigeFrilansInntekt != null && nyFrilansInntekt != null) {
             var fraInntekt = (int) Math.round(forrigeFrilansInntekt.doubleValue());
             if (Objects.equals(fraInntekt, nyFrilansInntekt)) {
-                linjeBuilderList.add(linjeBuilder.til("Frilansinntekt", nyFrilansInntekt));
+                linjeBuilderList.add(linjeBuilder.til(FRILANSINNTEKT, nyFrilansInntekt));
             } else {
-                linjeBuilderList.add(linjeBuilder.fraTil("Frilansinntekt", fraInntekt, nyFrilansInntekt));
+                linjeBuilderList.add(linjeBuilder.fraTil(FRILANSINNTEKT, fraInntekt, nyFrilansInntekt));
             }
             linjeBuilderList.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
         } else if (nyFrilansInntekt != null) {
-            linjeBuilderList.add(linjeBuilder.til("Frilansinntekt", nyFrilansInntekt));
+            linjeBuilderList.add(linjeBuilder.til(FRILANSINNTEKT, nyFrilansInntekt));
             linjeBuilderList.add(HistorikkinnslagLinjeBuilder.LINJESKIFT);
         }
         return linjeBuilderList;

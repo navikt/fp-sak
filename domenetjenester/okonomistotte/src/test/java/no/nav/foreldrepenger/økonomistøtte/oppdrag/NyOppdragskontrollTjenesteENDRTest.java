@@ -334,6 +334,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
     }
 
     @Test
+    @Disabled(value = "Midlertidig slått av Ompostering siden økonomi klarer å utlede selv den beste datoen for ompostering.")
     void skalSendeOppdragMedOmpostering116OgSetteDatoOmposterFomTilFørsteUttaksdatoFraForrigeBehandlingForBrukerNårEndringsdatoErTidligere() {
         // Arrange
         var beregningsresultat = buildEmptyBeregningsresultatFP();
