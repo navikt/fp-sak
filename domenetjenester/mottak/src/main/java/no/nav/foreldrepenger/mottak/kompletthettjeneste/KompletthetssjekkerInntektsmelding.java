@@ -40,10 +40,17 @@ public class KompletthetssjekkerInntektsmelding {
             .map(it -> new ManglendeVedlegg(DokumentTypeId.INNTEKTSMELDING, it.getIdentifikator()))
             .toList();
 
-        if (!manglendeInntektsmeldingerUtenRelevantPermisjon.isEmpty() && !manglendeInntektsmeldingerUtenRelevantPermisjon.stream().sorted().toList().equals(manglendeInntektsmeldinger.stream().sorted().toList())) {
+        if (!manglendeInntektsmeldingerUtenRelevantPermisjon.isEmpty() && erManglendeIMListerUlike(manglendeInntektsmeldingerUtenRelevantPermisjon,
+            manglendeInntektsmeldinger)) {
             LOG.info("Det er forskjell i manglende inntektsmeldinger for ny og gammel tjeneste for saksnummer: {}. Ny uten relevant permisjon: {}, Gammel: {} ", ref.saksnummer(), manglendeInntektsmeldingerUtenRelevantPermisjon, manglendeInntektsmeldinger);
         }
         return manglendeInntektsmeldinger;
+    }
+
+    private static boolean erManglendeIMListerUlike(List<ManglendeVedlegg> manglendeInntektsmeldingerUtenRelevantPermisjon,
+                                                    List<ManglendeVedlegg> manglendeInntektsmeldinger) {
+        return manglendeInntektsmeldingerUtenRelevantPermisjon.size() != manglendeInntektsmeldinger.size()
+            && !manglendeInntektsmeldingerUtenRelevantPermisjon.containsAll(manglendeInntektsmeldinger);
     }
 
     private List<ManglendeVedlegg> finnManglendeInntektsmeldingerUtenRelevantPermisjon(BehandlingReferanse ref, Skjæringstidspunkt stp) {
