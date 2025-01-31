@@ -94,7 +94,7 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
     }
 
     private Stream<BehandlingVedtak> finnVedtakOpprettetFomDato(LocalDate fomDato, Long fraId) {
-        var sql = """
+        var sql ="""
             select * from (
             select bv.* from BEHANDLING_VEDTAK bv
             join BEHANDLING_RESULTAT br on br.id = bv.BEHANDLING_RESULTAT_ID
