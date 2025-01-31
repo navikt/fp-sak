@@ -41,6 +41,7 @@ public class PdlKlientLogCause {
         this.pdlKlient = pdlKlient;
     }
 
+    // Behold ut 2025 pga nasjonal kø
     public GeografiskTilknytning hentGT(FagsakYtelseType ytelseType, HentGeografiskTilknytningQueryRequest q, GeografiskTilknytningResponseProjection p) {
         try {
             var ytelse = utledYtelse(ytelseType);
