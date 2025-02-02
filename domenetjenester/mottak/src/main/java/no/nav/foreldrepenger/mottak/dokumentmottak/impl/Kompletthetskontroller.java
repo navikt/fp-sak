@@ -79,8 +79,13 @@ public class Kompletthetskontroller {
         }
         if (kompletthetResultat.erOppfylt() && (kompletthetModell.erKompletthetssjekkEllerPassert(behandlingId)
             || behandling.isBehandlingPåVent() || mottattDokument.getDokumentType().erSøknadType() || mottattDokument.getDokumentType().erEndringsSøknadType())) {
-            spolKomplettBehandlingTilStartpunkt(behandling, grunnlagSnapshot);
-            if (kompletthetModell.erKompletthetssjekkPassert(behandlingId)) {
+            if (behandling.isBehandlingPåVent()) {
+                behandlingProsesseringTjeneste.taBehandlingAvVent(behandling);
+            }
+            if (kompletthetModell.erKompletthetssjekkPassert(behandling.getId())) {
+                // Reposisjoner basert på grunnlagsendring i nylig mottatt dokument. Videre reposisjonering gjøres i task etter registeroppdatering
+                behandlingProsesseringTjeneste.utledDiffOgReposisjonerBehandlingVedEndringer(behandling, grunnlagSnapshot);
+                behandlingProsesseringTjeneste.tvingInnhentingRegisteropplysninger(behandling);
                 behandlingProsesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, LocalDateTime.now());
             } else {
                 behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
@@ -122,17 +127,6 @@ public class Kompletthetskontroller {
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
         } else if (BehandlingÅrsakType.RE_HENDELSE_FØDSEL.equals(behandlingÅrsakType) && behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD)) {
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
-        }
-    }
-
-    void spolKomplettBehandlingTilStartpunkt(Behandling behandling, EndringsresultatSnapshot grunnlagSnapshot) {
-        // Behandling er komplett - nullstill venting
-        if (behandling.isBehandlingPåVent()) {
-            behandlingProsesseringTjeneste.taBehandlingAvVent(behandling);
-        }
-        if (kompletthetModell.erKompletthetssjekkPassert(behandling.getId())) {
-            // Reposisjoner basert på grunnlagsendring i nylig mottatt dokument. Videre reposisjonering gjøres i task etter registeroppdatering
-            behandlingProsesseringTjeneste.utledDiffOgReposisjonerBehandlingVedEndringer(behandling, grunnlagSnapshot);
         }
     }
 
