@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -22,6 +23,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.StatsborgerskapEntitet;
+import no.nav.foreldrepenger.behandlingslager.diff.Node;
+import no.nav.foreldrepenger.behandlingslager.diff.Pair;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
@@ -32,6 +35,8 @@ public class PersonopplysningGrunnlagDiff {
 
     private static final Comparator<PersonAdresseEntitet> COMP_ADRESSE = Comparator.comparing(PersonAdresseEntitet::getAktørId).
         thenComparing(PersonAdresseEntitet::getAdresseType).thenComparing(PersonAdresseEntitet::getFom, Comparator.nullsFirst(Comparator.naturalOrder()));
+
+    private static final Set<PersonstatusType> BOSATT_TYPER = Set.of(PersonstatusType.BOSA, PersonstatusType.DØD, PersonstatusType.ADNR);
 
     private final AktørId søkerAktørId;
     private final Optional<AktørId> annenPartAktørId;
@@ -104,10 +109,6 @@ public class PersonopplysningGrunnlagDiff {
             .toList();
     }
 
-    public boolean erPersonstatusEndretForSøkerPeriode(DatoIntervallEntitet periode) {
-        return !Objects.equals(hentPersonstatusForPeriode(grunnlag1, søkerAktørId, periode), hentPersonstatusForPeriode(grunnlag2, søkerAktørId, periode));
-    }
-
     public boolean erPersonstatusIkkeBosattEndretForSøkerPeriode(DatoIntervallEntitet periode) {
         var differ = new RegisterdataDiffsjekker(true);
         return differ.erForskjellPå(
@@ -120,22 +121,22 @@ public class PersonopplysningGrunnlagDiff {
             hentRangertRegion(grunnlag2, søkerAktørId, periode, skjæringstidspunkt));
     }
 
-    public boolean harRegionNorden(DatoIntervallEntitet periode, PersonopplysningGrunnlagEntitet grunnlag, LocalDate skjæringstidspunkt) {
-        return Region.NORDEN.equals(hentRangertRegion(grunnlag, søkerAktørId, periode, skjæringstidspunkt));
-    }
-
-    public boolean erAdresserEndretIPeriode(DatoIntervallEntitet periode) {
-        var differ = new RegisterdataDiffsjekker(true);
-        return differ.erForskjellPå(
-            hentAdresserForPeriode(grunnlag1, personerSnitt, periode),
-            hentAdresserForPeriode(grunnlag2, personerSnitt, periode));
-    }
-
     public boolean erSøkersUtlandsAdresserEndretIPeriode(DatoIntervallEntitet periode) {
         var differ = new RegisterdataDiffsjekker(true);
-        return differ.erForskjellPå(
+        return differ.erForskjellPåFiltrert(
             hentUtlandAdresserForPeriode(grunnlag1, Set.of(søkerAktørId), periode),
-            hentUtlandAdresserForPeriode(grunnlag2, Set.of(søkerAktørId), periode));
+            hentUtlandAdresserForPeriode(grunnlag2, Set.of(søkerAktørId), periode),
+            PersonopplysningGrunnlagDiff::beholdeUtlandsadresseUtenomEndringLandLinje3);
+    }
+
+    // Kompensere for endret konvensjon med landkode i adresselinje3 bortfalt høst 2024. TODO forenkle vår 2026 - endre til normal diff
+    private static boolean beholdeUtlandsadresseUtenomEndringLandLinje3(Map.Entry<Node, Pair> entry) {
+        if (Optional.ofNullable(entry.getKey().getLocalName()).orElse("").contains("adresselinje3")) {
+            var al3 = entry.getValue();
+            return al3 != null && al3.getElement1() != null && al3.getElement2() != null;
+        } else {
+            return true;
+        }
     }
 
     public boolean erSivilstandEndretForBruker() {
@@ -154,28 +155,12 @@ public class PersonopplysningGrunnlagDiff {
         return !Objects.equals(hentDødsdatoer(grunnlag1, søkersBarnUnion), hentDødsdatoer(grunnlag2, søkersBarnUnion));
     }
 
-    private Set<PersonstatusType> hentPersonstatusForPeriode(PersonopplysningGrunnlagEntitet grunnlag, AktørId person, DatoIntervallEntitet periode) {
-        return registerVersjon(grunnlag).map(PersonInformasjonEntitet::getPersonstatus).orElse(Collections.emptyList()).stream()
-            .filter(ps -> person.equals(ps.getAktørId()))
-            .filter(ps -> ps.getPeriode().overlapper(periode))
-            .map(PersonstatusEntitet::getPersonstatus)
-            .collect(Collectors.toSet());
-    }
-
     private Set<PersonstatusEntitet> hentIkkeBosattPersonstatusForPeriode(PersonopplysningGrunnlagEntitet grunnlag, AktørId person, DatoIntervallEntitet periode) {
         return registerVersjon(grunnlag).map(PersonInformasjonEntitet::getPersonstatus).orElse(Collections.emptyList()).stream()
             .filter(ps -> person.equals(ps.getAktørId()))
             .filter(ps -> ps.getPeriode().overlapper(periode))
-            .filter(ps -> !PersonstatusType.DØD.equals(ps.getPersonstatus()) && !PersonstatusType.BOSA.equals(ps.getPersonstatus()))
+            .filter(ps -> !BOSATT_TYPER.contains(ps.getPersonstatus()))
             .collect(Collectors.toSet());
-    }
-
-    private List<PersonAdresseEntitet> hentAdresserForPeriode(PersonopplysningGrunnlagEntitet grunnlag, Set<AktørId> personer, DatoIntervallEntitet periode) {
-        return registerVersjon(grunnlag).map(PersonInformasjonEntitet::getAdresser).orElse(Collections.emptyList()).stream()
-            .filter(adr -> personer.contains(adr.getAktørId()))
-            .filter(adr -> adr.getPeriode().overlapper(periode))
-            .sorted(COMP_ADRESSE)
-            .toList();
     }
 
     private List<PersonAdresseEntitet> hentUtlandAdresserForPeriode(PersonopplysningGrunnlagEntitet grunnlag, Set<AktørId> personer, DatoIntervallEntitet periode) {
