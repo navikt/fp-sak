@@ -134,6 +134,9 @@ public class PersonopplysningGrunnlagDiff {
         if (Optional.ofNullable(entry.getKey().getLocalName()).orElse("").contains("adresselinje3")) {
             var al3 = entry.getValue();
             return al3 != null && al3.getElement1() != null && al3.getElement2() != null;
+        } else if (Optional.ofNullable(entry.getKey().getLocalName()).orElse("").contains("adresselinje4")) {
+            var al4 = entry.getValue();
+            return al4 != null && al4.getElement1() != null && al4.getElement2() != null;
         } else {
             return true;
         }
