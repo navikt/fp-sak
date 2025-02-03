@@ -110,7 +110,7 @@ class AksjonspunktRestTjenesteTest {
         aksjonspunktGodkjenningDtos.add(godkjentAksjonspunkt);
         aksjonspunkt.add(new FatterVedtakAksjonspunktDto(begrunnelse, aksjonspunktGodkjenningDtos));
 
-        aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class),
+        aksjonspunktRestTjeneste.beslutt(mock(HttpServletRequest.class),
             BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt));
 
         verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
@@ -135,10 +135,18 @@ class AksjonspunktRestTjenesteTest {
     }
 
     @Test
-    void skal_ikke_kunne_sende_fatte_vedtak_til_beslutter_endepunkt() {
-        assertThatThrownBy(() -> aksjonspunktRestTjeneste.beslutt(mock(HttpServletRequest.class),
-            BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon,
-                List.of(new FastsetteUttakDto.FastsetteUttakPerioderDto(List.of()))))).isExactlyInstanceOf(IllegalArgumentException.class);
+    void skal_ikke_kunne_sende_andre_ap_til_beslutter_endepunkt() {
+        var dto = BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon,
+            List.of(new FastsetteUttakDto.FastsetteUttakPerioderDto(List.of())));
+        assertThatThrownBy(() -> aksjonspunktRestTjeneste.beslutt(mock(HttpServletRequest.class), dto)).isExactlyInstanceOf(
+            IllegalArgumentException.class);
+    }
+
+    @Test
+    void skal_ikke_kunne_sende_fatter_vedtak_ap_til_aksjonspunkt_endepunkt() {
+        var dto = BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, List.of(new FatterVedtakAksjonspunktDto()));
+        assertThatThrownBy(() -> aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class), dto)).isExactlyInstanceOf(
+            IllegalArgumentException.class);
     }
 
     private AksjonspunktGodkjenningDto opprettetGodkjentAksjonspunkt() {
