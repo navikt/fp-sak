@@ -7,13 +7,11 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef
@@ -47,7 +45,7 @@ class DokumentmottakerVedlegg implements Dokumentmottaker {
         if (åpenAnnenBehandling.isPresent()) { // Klage, anke, etc
             dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, åpenAnnenBehandling.get(), mottattDokument);
         } else if (åpenBehandling.isPresent()) {
-            håndterÅpenBehandling(fagsak, åpenBehandling.get(), mottattDokument);
+            kompletthetskontroller.persisterDokumentOgVurderKompletthet(åpenBehandling.get(), mottattDokument);
         } else if (skalOppretteNyFørstegangsBehandlingSomFølgerAvVedlegget(mottattDokument, fagsak)) { //#V3
             dokumentmottakerFelles.opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak, behandlingÅrsakType);
         } else {
@@ -80,13 +78,5 @@ class DokumentmottakerVedlegg implements Dokumentmottaker {
     private boolean mottattDokumentHarTypeAnnetEllerUdefinert(MottattDokument mottattDokument) {
         var fraDokument = mottattDokument.getDokumentType();
         return fraDokument.erAnnenDokType() || DokumentTypeId.UDEFINERT.equals(fraDokument);
-    }
-
-    private void håndterÅpenBehandling(Fagsak fagsak, Behandling behandling, MottattDokument mottattDokument) { //#V2
-        if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
-            dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, behandling, mottattDokument);
-        } else {
-            kompletthetskontroller.persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
-        }
     }
 }
