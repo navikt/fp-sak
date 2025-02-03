@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.person.pdl;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -66,12 +65,7 @@ public class AnnetPeriodisertMapper {
     private static PersonstatusPeriode mapPersonstatus(Folkeregisterpersonstatus status) {
         var ajourFom = status.getFolkeregistermetadata().getAjourholdstidspunkt();
         var gyldigFom = status.getFolkeregistermetadata().getGyldighetstidspunkt();
-        Date brukFom;
-        if (ajourFom != null && gyldigFom != null) {
-            brukFom = ajourFom.before(gyldigFom) ? ajourFom : gyldigFom;
-        } else {
-            brukFom = gyldigFom != null ? gyldigFom : ajourFom;
-        }
+        var brukFom = gyldigFom != null ? gyldigFom : ajourFom;
         var periode = Gyldighetsperiode.fraDates(brukFom, status.getFolkeregistermetadata().getOpphoerstidspunkt());
         return new PersonstatusPeriode(periode, PersonstatusType.fraFregPersonstatus(status.getStatus()));
     }
