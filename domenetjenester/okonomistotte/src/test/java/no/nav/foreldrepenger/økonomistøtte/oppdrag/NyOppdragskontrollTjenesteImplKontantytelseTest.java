@@ -31,7 +31,6 @@ import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.YtelsePeriode;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.GruppertYtelse;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.OverordnetOppdragKjedeOversikt;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.EksisterendeOppdragMapper;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.LagOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.OppdragInput;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.tjeneste.OppdragskontrollTjenesteImpl;
 
@@ -49,7 +48,7 @@ class NyOppdragskontrollTjenesteImplKontantytelseTest {
 
     @BeforeEach
     public void setUp() {
-        oppdragskontrollTjeneste = new OppdragskontrollTjenesteImpl(new LagOppdragTjeneste(), mock(ØkonomioppdragRepository.class));
+        oppdragskontrollTjeneste = new OppdragskontrollTjenesteImpl(mock(ØkonomioppdragRepository.class));
     }
 
     @Test
@@ -83,12 +82,12 @@ class NyOppdragskontrollTjenesteImplKontantytelseTest {
         assertThat(oppdragskontroll).isPresent();
         assertThat(oppdragskontroll.get().getOppdrag110Liste()).hasSize(1);
 
-        var oppdrag110 = oppdragskontroll.get().getOppdrag110Liste().get(0);
+        var oppdrag110 = oppdragskontroll.get().getOppdrag110Liste().getFirst();
         assertThat(oppdrag110).isNotNull();
         assertThat(oppdrag110.getOppdragslinje150Liste()).hasSize(1);
         assertThat(oppdrag110.getAvstemming()).isNotNull();
 
-        var oppdrlinje150 = oppdrag110.getOppdragslinje150Liste().get(0);
+        var oppdrlinje150 = oppdrag110.getOppdragslinje150Liste().getFirst();
         assertThat(oppdrlinje150).isNotNull();
         assertThat(oppdrlinje150.getOppdrag110()).isNotNull();
     }
@@ -104,7 +103,7 @@ class NyOppdragskontrollTjenesteImplKontantytelseTest {
         var originaltOppdrag = oppdragskontrollTjeneste.opprettOppdrag(inputBuilder.build());
 
         assertThat(originaltOppdrag).isPresent();
-        var originaltOppdrag110 = originaltOppdrag.get().getOppdrag110Liste().get(0);
+        var originaltOppdrag110 = originaltOppdrag.get().getOppdrag110Liste().getFirst();
 
         // Arrange 2: Revurdering
         var gruppertYtelseBuilder2 = getGruppertYtelseBuilder(KodeKlassifik.ES_FØDSEL, VEDTAKSDATO, SATS_ES * 2);
@@ -114,7 +113,7 @@ class NyOppdragskontrollTjenesteImplKontantytelseTest {
 
         // Assert 2: Revurdering
         assertThat(oppdragRevurdering).isPresent();
-        var originalOppdragslinje150 = originaltOppdrag110.getOppdragslinje150Liste().get(0);
+        var originalOppdragslinje150 = originaltOppdrag110.getOppdragslinje150Liste().getFirst();
         var oppdragslinje150 = verifiserOppdrag110(oppdragRevurdering.get(), KodeEndring.ENDR,
             originaltOppdrag110.getFagsystemId());
         verifiserOppdragslinje150(oppdragslinje150, KodeEndringLinje.NY, null,
@@ -133,7 +132,7 @@ class NyOppdragskontrollTjenesteImplKontantytelseTest {
         var originaltOppdrag = oppdragskontrollTjeneste.opprettOppdrag(inputBuilder.build());
 
         assertThat(originaltOppdrag).isPresent();
-        var originaltOppdrag110 = originaltOppdrag.get().getOppdrag110Liste().get(0);
+        var originaltOppdrag110 = originaltOppdrag.get().getOppdrag110Liste().getFirst();
 
         // Arrange 2: Revurdering
         var inputBuilder2 = getInputStandardBuilder(GruppertYtelse.TOM).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag.get())));
@@ -142,7 +141,7 @@ class NyOppdragskontrollTjenesteImplKontantytelseTest {
 
         // Assert 2: Revurdering
         assertThat(oppdragRevurdering).isPresent();
-        var originalOppdragslinje150 = originaltOppdrag110.getOppdragslinje150Liste().get(0);
+        var originalOppdragslinje150 = originaltOppdrag110.getOppdragslinje150Liste().getFirst();
         var oppdragslinje150 = verifiserOppdrag110(oppdragRevurdering.get(), KodeEndring.ENDR,
             originaltOppdrag110.getFagsystemId());
         verifiserOppdragslinje150(oppdragslinje150, KodeEndringLinje.ENDR, KodeStatusLinje.OPPH,
@@ -175,9 +174,9 @@ class NyOppdragskontrollTjenesteImplKontantytelseTest {
 
         // Assert 3: Revurdering
         assertThat(oppdragAndreRevurdering).isPresent();
-        var oppdrag110 = førsteOppdrag.getOppdrag110Liste().get(0);
+        var oppdrag110 = førsteOppdrag.getOppdrag110Liste().getFirst();
         assertThat(oppdrag110.getOppdragslinje150Liste()).hasSize(1);
-        var førstegangsOpp150 = oppdrag110.getOppdragslinje150Liste().get(0);
+        var førstegangsOpp150 = oppdrag110.getOppdragslinje150Liste().getFirst();
         var andreRevurderingopp150 = verifiserOppdrag110(oppdragAndreRevurdering.get(), KodeEndring.ENDR,
             oppdrag110.getFagsystemId());
         assertThat(andreRevurderingopp150.getDatoVedtakFom()).isEqualTo(førstegangsOpp150.getDatoVedtakFom());
@@ -192,11 +191,11 @@ class NyOppdragskontrollTjenesteImplKontantytelseTest {
                                                  KodeEndring kodeEndring,
                                                  Long fagsystemId) {
         assertThat(oppdragskontroll.getOppdrag110Liste()).hasSize(1);
-        var oppdrag110 = oppdragskontroll.getOppdrag110Liste().get(0);
+        var oppdrag110 = oppdragskontroll.getOppdrag110Liste().getFirst();
         assertThat(oppdrag110.getKodeEndring()).isEqualTo(kodeEndring);
         assertThat(oppdrag110.getFagsystemId()).isEqualTo(fagsystemId);
         assertThat(oppdrag110.getOppdragslinje150Liste()).hasSize(1);
-        return oppdrag110.getOppdragslinje150Liste().get(0);
+        return oppdrag110.getOppdragslinje150Liste().getFirst();
     }
 
     private void verifiserOppdragslinje150(Oppdragslinje150 oppdragslinje150,
@@ -226,7 +225,7 @@ class NyOppdragskontrollTjenesteImplKontantytelseTest {
         var løpenummer = 100L;
         for (var oppdrag110 : oppdrag110Liste) {
             assertThat(oppdrag110.getOppdragslinje150Liste()).hasSize(1);
-            var oppdragslinje150 = oppdragslinje150List.get(0);
+            var oppdragslinje150 = oppdragslinje150List.getFirst();
             assertThat(oppdragslinje150.getKodeEndringLinje()).isEqualTo(KodeEndringLinje.NY);
             assertThat(oppdragslinje150.getVedtakId()).isEqualTo(VEDTAKSDATO.toString());
             assertThat(oppdragslinje150.getDelytelseId()).isEqualTo(

@@ -12,6 +12,8 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
 
+import jakarta.persistence.TypedQuery;
+
 import org.hibernate.jpa.HibernateHints;
 import org.hibernate.query.NativeQuery;
 
@@ -27,10 +29,6 @@ import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 
 @ApplicationScoped
 public class FagsakRepository {
-
-    private static final String FAGSAK_ID = "fagsakId";
-    private static final String SAKSNUMMER = "saksnummer";
-    private static final String WHERE_SAKSNUMMER_QUERY = "from Fagsak where saksnummer=:saksnummer";
 
     public EntityManager getEntityManager() {
         return entityManager;
@@ -53,23 +51,21 @@ public class FagsakRepository {
     }
 
     public Fagsak finnEksaktFagsak(long fagsakId) {
-        var query = entityManager.createQuery("from Fagsak where id=:fagsakId", Fagsak.class);
-        query.setParameter(FAGSAK_ID, fagsakId);
+        var query = getFagsakQuery(fagsakId);
         var fagsak = HibernateVerktøy.hentEksaktResultat(query);
         entityManager.refresh(fagsak); // hent alltid på nytt
         return fagsak;
     }
 
     public Fagsak finnEksaktFagsak(Saksnummer saksnummer) {
-        var query = entityManager.createQuery(WHERE_SAKSNUMMER_QUERY, Fagsak.class).setParameter(SAKSNUMMER, saksnummer);
+        var query = getFagsakWhereSaksnummerQuery(saksnummer);
         var fagsak = HibernateVerktøy.hentEksaktResultat(query);
         entityManager.refresh(fagsak); // hent alltid på nytt
         return fagsak;
     }
 
     public Fagsak finnEksaktFagsakReadOnly(long fagsakId) {
-        var query = entityManager.createQuery("from Fagsak where id=:fagsakId", Fagsak.class)
-            .setParameter(FAGSAK_ID, fagsakId)
+        var query = getFagsakQuery(fagsakId)
             .setHint(HibernateHints.HINT_READ_ONLY, "true");
         var fagsak = HibernateVerktøy.hentEksaktResultat(query);
         entityManager.refresh(fagsak); // hent alltid på nytt
@@ -77,8 +73,7 @@ public class FagsakRepository {
     }
 
     public Fagsak finnEksaktFagsakReadOnly(Saksnummer saksnummer) {
-        var query = entityManager.createQuery(WHERE_SAKSNUMMER_QUERY, Fagsak.class)
-            .setParameter(SAKSNUMMER, saksnummer)
+        var query = getFagsakWhereSaksnummerQuery(saksnummer)
             .setHint(HibernateHints.HINT_READ_ONLY, "true");
         var fagsak = HibernateVerktøy.hentEksaktResultat(query);
         entityManager.refresh(fagsak); // hent alltid på nytt
@@ -86,8 +81,7 @@ public class FagsakRepository {
     }
 
     public Optional<Fagsak> finnUnikFagsak(long fagsakId) {
-        var query = entityManager.createQuery("from Fagsak where id=:fagsakId", Fagsak.class);
-        query.setParameter(FAGSAK_ID, fagsakId);
+        var query = getFagsakQuery(fagsakId);
         var opt = HibernateVerktøy.hentUniktResultat(query);
         if (opt.isPresent()) {
             entityManager.refresh(opt.get());
@@ -120,8 +114,7 @@ public class FagsakRepository {
     }
 
     public Optional<Fagsak> hentSakGittSaksnummer(Saksnummer saksnummer) {
-        var query = entityManager.createQuery(WHERE_SAKSNUMMER_QUERY, Fagsak.class);
-        query.setParameter(SAKSNUMMER, saksnummer);
+        var query = getFagsakWhereSaksnummerQuery(saksnummer);
 
         var fagsaker = query.getResultList();
         if (fagsaker.size() > 1) {
@@ -177,8 +170,7 @@ public class FagsakRepository {
     }
 
     public Optional<Fagsak> hentSakGittSaksnummer(Saksnummer saksnummer, boolean taSkriveLås) {
-        var query = entityManager.createQuery(WHERE_SAKSNUMMER_QUERY, Fagsak.class);
-        query.setParameter(SAKSNUMMER, saksnummer);
+        var query = getFagsakWhereSaksnummerQuery(saksnummer);
         if (taSkriveLås) {
             query.setLockMode(LockModeType.PESSIMISTIC_WRITE);
         }
@@ -277,7 +269,7 @@ public class FagsakRepository {
 
     public List<FagsakNotat> hentFagsakNotater(Long fagsakId) {
         var query = entityManager.createQuery("from FagsakNotat where fagsakId=:fagsakId AND aktiv = true order by opprettetTidspunkt asc", FagsakNotat.class)
-            .setParameter(FAGSAK_ID, fagsakId);
+            .setParameter("fagsakId", fagsakId);
         return query.getResultList();
     }
 
@@ -295,4 +287,13 @@ public class FagsakRepository {
         return query.getResultList();
     }
 
+    private TypedQuery<Fagsak> getFagsakQuery(long fagsakId) {
+        var query = entityManager.createQuery("from Fagsak where id=:fagsakId", Fagsak.class);
+        query.setParameter("fagsakId", fagsakId);
+        return query;
+    }
+
+    private TypedQuery<Fagsak> getFagsakWhereSaksnummerQuery(Saksnummer saksnummer) {
+        return entityManager.createQuery("from Fagsak where saksnummer=:saksnummer", Fagsak.class).setParameter( "saksnummer", saksnummer);
+    }
 }

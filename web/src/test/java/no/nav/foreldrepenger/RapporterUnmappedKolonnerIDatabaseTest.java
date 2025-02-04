@@ -48,10 +48,6 @@ class RapporterUnmappedKolonnerIDatabaseTest {
 
     private static EntityManagerFactory entityManagerFactory;
 
-    public RapporterUnmappedKolonnerIDatabaseTest() {
-        // Tom konstruktør
-    }
-
     @BeforeAll
     public static void setup() {
 

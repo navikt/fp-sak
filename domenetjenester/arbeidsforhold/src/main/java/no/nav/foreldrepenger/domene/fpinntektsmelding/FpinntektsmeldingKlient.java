@@ -43,14 +43,14 @@ public class FpinntektsmeldingKlient {
         this.uriSendNyBeskjedPåForespørsel = toUri(restConfig.fpContextPath(), "/api/foresporsel/ny-beskjed");
     }
 
-    public OpprettForespørselResponsNy opprettForespørsel(OpprettForespørselRequest request) {
-        Objects.requireNonNull(request, REQUEST);
+    public OpprettForespørselResponsNy opprettForespørsel(OpprettForespørselRequest opprettForespørselRequest) {
+        Objects.requireNonNull(opprettForespørselRequest, REQUEST);
         try {
-            LOG.info("Sender request til fpinntektsmelding for saksnummer {} ", request.fagsakSaksnummer().saksnr());
-            var rrequest = RestRequest.newPOSTJson(request, uriOpprettForesporsel, restConfig);
+            LOG.info("Sender request til fpinntektsmelding for saksnummer {} ", opprettForespørselRequest.fagsakSaksnummer().saksnr());
+            var rrequest = RestRequest.newPOSTJson(opprettForespørselRequest, uriOpprettForesporsel, restConfig);
            return restClient.send(rrequest, OpprettForespørselResponsNy.class);
         } catch (Exception e) {
-            LOG.warn("Feil ved opprettelse av inntektsmelding med request: {}", request);
+            LOG.warn("Feil ved opprettelse av inntektsmelding med request: {}", opprettForespørselRequest);
             throw feilVedKallTilFpinntektsmelding(e.getMessage());
         }
     }

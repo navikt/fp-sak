@@ -16,17 +16,14 @@ import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.OppdragInput;
 public class OppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste {
 
     private ØkonomioppdragRepository økonomioppdragRepository;
-    private LagOppdragTjeneste lagOppdragTjeneste;
 
     OppdragskontrollTjenesteImpl() {
         //for cdi proxy
     }
 
     @Inject
-    public OppdragskontrollTjenesteImpl(LagOppdragTjeneste lagOppdragTjeneste,
-                                        ØkonomioppdragRepository økonomioppdragRepository) {
+    public OppdragskontrollTjenesteImpl(ØkonomioppdragRepository økonomioppdragRepository) {
         this.økonomioppdragRepository = økonomioppdragRepository;
-        this.lagOppdragTjeneste = lagOppdragTjeneste;
     }
 
     /**
@@ -53,7 +50,7 @@ public class OppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste {
 
     private Optional<Oppdragskontroll> opprettOppdrag(OppdragInput input, boolean brukFellesEndringstidspunkt) {
         var oppdragFraFør = økonomioppdragRepository.finnOppdragForBehandling(input.getBehandlingId());
-        var oppdragskontroll = lagOppdragTjeneste.lagOppdrag(input, brukFellesEndringstidspunkt, oppdragFraFør.orElse(null));
+        var oppdragskontroll = LagOppdragTjeneste.lagOppdrag(input, brukFellesEndringstidspunkt, oppdragFraFør.orElse(null));
         oppdragskontroll.ifPresent(OppdragskontrollPostConditionCheck::valider);
         return oppdragskontroll;
     }

@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Kontoer;
 @ApplicationScoped
 public class KontoerGrunnlagBygger {
 
-    public KontoerGrunnlagBygger() {
+    private KontoerGrunnlagBygger() {
         // tom konstruktør
     }
 
@@ -32,7 +32,7 @@ public class KontoerGrunnlagBygger {
      * - kan utsettes og  utvide stønadsperioden
      * - Brukes framfor utenAktivitetskravDager fom FAB
      */
-    public Kontoer.Builder byggGrunnlag(UttakInput uttakInput, Map<StønadskontoType, Integer> stønadskontoutregning) {
+    public static Kontoer.Builder byggGrunnlag(UttakInput uttakInput, Map<StønadskontoType, Integer> stønadskontoutregning) {
         var kontoer = stønadskontoutregning.entrySet().stream()
             .filter(k -> k.getKey().erStønadsdager())
             .map(k -> new Konto.Builder().trekkdager(k.getValue()).type(UttakEnumMapper.map(k.getKey())))
@@ -40,7 +40,7 @@ public class KontoerGrunnlagBygger {
         return getBuilder(uttakInput, stønadskontoutregning).kontoList(kontoer);
     }
 
-    private Kontoer.Builder getBuilder(UttakInput uttakInput, Map<StønadskontoType, Integer> stønadskontoer) {
+    private static Kontoer.Builder getBuilder(UttakInput uttakInput, Map<StønadskontoType, Integer> stønadskontoer) {
         var erMor = RelasjonsRolleType.MORA.equals(uttakInput.getBehandlingReferanse().relasjonRolle());
         int toTette = erMor ? finnKontoVerdi(stønadskontoer, StønadskontoType.TETTE_SAKER_MOR) : finnKontoVerdi(stønadskontoer, StønadskontoType.TETTE_SAKER_FAR);
         return new Kontoer.Builder()
@@ -51,7 +51,7 @@ public class KontoerGrunnlagBygger {
             .etterNesteStønadsperiodeDager(toTette);
     }
 
-    private Integer finnKontoVerdi(Map<StønadskontoType, Integer> konti, StønadskontoType stønadskontoType) {
+    private static Integer finnKontoVerdi(Map<StønadskontoType, Integer> konti, StønadskontoType stønadskontoType) {
         return konti.getOrDefault(stønadskontoType, 0);
     }
 }
