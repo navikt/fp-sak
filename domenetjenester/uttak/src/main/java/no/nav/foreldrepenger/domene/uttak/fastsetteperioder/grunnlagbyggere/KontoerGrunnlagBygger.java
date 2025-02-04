@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Kontoer;
 public class KontoerGrunnlagBygger {
 
     private KontoerGrunnlagBygger() {
-        // tom konstruktør
+        // Skjuler default konstruktør
     }
 
     /*

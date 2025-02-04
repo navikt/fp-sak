@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.økonomistøtte.oppdrag.tjeneste.OppdragFactory;
 public class LagOppdragTjeneste {
 
     private LagOppdragTjeneste() {
-        // tom konstruktør
+        // Skjuler default konstruktør
     }
 
     public static Optional<Oppdragskontroll> lagOppdrag(OppdragInput input, boolean brukFellesEndringstidspunkt, final Oppdragskontroll eksisterendeOppdragskontroll) {
