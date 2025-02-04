@@ -1,4 +1,4 @@
-FROM ghcr.io/navikt/fp-baseimages/java:21-alpine
+FROM ghcr.io/navikt/fp-baseimages/java:21
 
 LABEL org.opencontainers.image.source=https://github.com/navikt/fp-sak
 ENV TZ=Europe/Oslo
