@@ -340,6 +340,7 @@ class BehandlingskontrollTjenesteImplTest {
 
         @Override
         protected void doFireEvent(BehandlingEvent event) {
+            // NOSONAR
         }
     }
 

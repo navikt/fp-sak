@@ -78,7 +78,7 @@ class StønadskontoMigreringTask implements ProsessTaskHandler {
             """;
 
         var query = entityManager.createNativeQuery(sql, Stønadskontoberegning.class)
-            .setParameter("fraId", fraId == null ? 0 : fraId);
+            .setParameter(FRA_ID, fraId == null ? 0 : fraId);
         return query.getResultStream();
     }
 

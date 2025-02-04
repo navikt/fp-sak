@@ -41,6 +41,8 @@ import no.nav.fpsak.tidsserie.StandardCombinators;
 @GrunnlagRef(PersonInformasjonEntitet.ENTITY_NAME)
 class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
 
+    private static final String BARNETS_DØDSDATO = "barnets dødsdato";
+
     private PersonopplysningRepository personopplysningRepository;
     private BehandlingRepository behandlingRepository;
 
@@ -108,14 +110,14 @@ class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
         if (poDiff.erBarnDødsdatoEndret()) {
             if (ref.fagsakYtelseType() == FagsakYtelseType.FORELDREPENGER) {
                 if (har80Dekningsgrad(ref)) {
-                    FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.DEKNINGSGRAD, "barnets dødsdato", grunnlag1.getId(), grunnlag2.getId());
+                    FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.DEKNINGSGRAD, BARNETS_DØDSDATO, grunnlag1.getId(), grunnlag2.getId());
                     startpunkter.add(StartpunktType.DEKNINGSGRAD);
                 } else {
-                    FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR, "barnets dødsdato", grunnlag1.getId(), grunnlag2.getId());
+                    FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR, BARNETS_DØDSDATO, grunnlag1.getId(), grunnlag2.getId());
                     startpunkter.add(StartpunktType.UTTAKSVILKÅR);
                 }
             } else {
-                FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.BEREGNING, "barnets dødsdato", grunnlag1.getId(), grunnlag2.getId());
+                FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.BEREGNING, BARNETS_DØDSDATO, grunnlag1.getId(), grunnlag2.getId());
                 startpunkter.add(StartpunktType.BEREGNING);
             }
         }

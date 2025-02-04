@@ -66,7 +66,6 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.TapteDagerFpffTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
-import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.KontoerGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.input.Annenpart;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
@@ -102,8 +101,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         var uttakTjeneste = new ForeldrepengerUttakTjeneste(fpUttakRepository);
         var utregnetKontoTjeneste = new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, uttakTjeneste);
-        var stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(uttakRepositoryProvider, new KontoerGrunnlagBygger(),
-            utregnetKontoTjeneste);
+        var stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(uttakRepositoryProvider, utregnetKontoTjeneste);
         var tapteDagerFpffTjeneste = new TapteDagerFpffTjeneste(uttakRepositoryProvider,
             new YtelseFordelingTjeneste(new YtelsesFordelingRepository(entityManager)));
         tjeneste = new SaldoerDtoTjeneste(stønadskontoSaldoTjeneste, uttakTjeneste, tapteDagerFpffTjeneste, utregnetKontoTjeneste);
@@ -543,13 +541,13 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var fpffDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FORELDREPENGER_FØR_FØDSEL);
         assertThat(fpffDto.maxDager()).isEqualTo(maxDagerFPFF);
         assertThat(fpffDto.aktivitetSaldoDtoList()).hasSize(2);
-        assertThat(fpffDto.aktivitetSaldoDtoList().get(0).saldo()).isZero();
+        assertThat(fpffDto.aktivitetSaldoDtoList().getFirst().saldo()).isZero();
         assertThat(fpffDto.aktivitetSaldoDtoList().get(1).saldo()).isZero();
 
         var mkDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.MØDREKVOTE);
         assertThat(mkDto.maxDager()).isEqualTo(maxDagerMK);
         assertThat(mkDto.aktivitetSaldoDtoList()).hasSize(2);
-        assertThat(mkDto.aktivitetSaldoDtoList().get(0).saldo()).isEqualTo(maxDagerMK - 6 * 5);
+        assertThat(mkDto.aktivitetSaldoDtoList().getFirst().saldo()).isEqualTo(maxDagerMK - 6 * 5);
         assertThat(mkDto.aktivitetSaldoDtoList().get(1).saldo()).isEqualTo(maxDagerMK - 6 * 5);
 
         var fpDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FELLESPERIODE);
@@ -1040,7 +1038,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(stønadskontoDto.maxDager()).isEqualTo(maxDager);
         assertThat(stønadskontoDto.aktivitetSaldoDtoList()).hasSize(1);
         assertThat(stønadskontoDto.saldo()).isEqualTo(saldo);
-        assertThat(stønadskontoDto.aktivitetSaldoDtoList().get(0).saldo()).isEqualTo(saldo);
+        assertThat(stønadskontoDto.aktivitetSaldoDtoList().getFirst().saldo()).isEqualTo(saldo);
 
     }
 

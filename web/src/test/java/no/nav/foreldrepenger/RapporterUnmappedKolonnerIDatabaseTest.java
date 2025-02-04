@@ -48,9 +48,6 @@ class RapporterUnmappedKolonnerIDatabaseTest {
 
     private static EntityManagerFactory entityManagerFactory;
 
-    public RapporterUnmappedKolonnerIDatabaseTest() {
-    }
-
     @BeforeAll
     public static void setup() {
 
@@ -172,9 +169,8 @@ class RapporterUnmappedKolonnerIDatabaseTest {
         }
 
         @Override
-        public void disintegrate(
-                SessionFactoryImplementor sessionFactory,
-                SessionFactoryServiceRegistry serviceRegistry) {
+        public void disintegrate(SessionFactoryImplementor sessionFactory, SessionFactoryServiceRegistry serviceRegistry) {
+            // NOSONAR
         }
     }
 

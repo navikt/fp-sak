@@ -1,12 +1,9 @@
 package no.nav.foreldrepenger.mottak.hendelser;
 
-import java.util.Collection;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Alternative;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
 
@@ -21,12 +18,11 @@ public class DummyDatavarehustjeneste implements DatavarehusTjeneste {
 
     @Override
     public void lagreNedBehandling(Long behandlingId) {
-
+        // NOSONAR
     }
 
     @Override
     public void lagreNedBehandling(Behandling behandling, BehandlingVedtak vedtak) {
-
+        // NOSONAR
     }
-
 }

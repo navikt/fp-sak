@@ -35,7 +35,6 @@ public class FastsettePerioderRegelGrunnlagBygger {
     private InngangsvilkårGrunnlagBygger inngangsvilkårGrunnlagBygger;
     private OpptjeningGrunnlagBygger opptjeningGrunnlagBygger;
     private AdopsjonGrunnlagBygger adopsjonGrunnlagBygger;
-    private KontoerGrunnlagBygger kontoerGrunnlagBygger;
     private YtelserGrunnlagBygger ytelserGrunnlagBygger;
 
     public FastsettePerioderRegelGrunnlagBygger() {
@@ -54,7 +53,6 @@ public class FastsettePerioderRegelGrunnlagBygger {
                                                 InngangsvilkårGrunnlagBygger inngangsvilkårGrunnlagBygger,
                                                 OpptjeningGrunnlagBygger opptjeningGrunnlagBygger,
                                                 AdopsjonGrunnlagBygger adopsjonGrunnlagBygger,
-                                                KontoerGrunnlagBygger kontoerGrunnlagBygger,
                                                 YtelserGrunnlagBygger ytelserGrunnlagBygger) {
         this.annenPartGrunnlagBygger = annenPartGrunnlagBygger;
         this.arbeidGrunnlagBygger = arbeidGrunnlagBygger;
@@ -67,7 +65,6 @@ public class FastsettePerioderRegelGrunnlagBygger {
         this.inngangsvilkårGrunnlagBygger = inngangsvilkårGrunnlagBygger;
         this.opptjeningGrunnlagBygger = opptjeningGrunnlagBygger;
         this.adopsjonGrunnlagBygger = adopsjonGrunnlagBygger;
-        this.kontoerGrunnlagBygger = kontoerGrunnlagBygger;
         this.ytelserGrunnlagBygger = ytelserGrunnlagBygger;
     }
 
@@ -85,7 +82,7 @@ public class FastsettePerioderRegelGrunnlagBygger {
             .inngangsvilkår(inngangsvilkårGrunnlagBygger.byggGrunnlag(input))
             .opptjening(opptjeningGrunnlagBygger.byggGrunnlag(input))
             .adopsjon(adopsjonGrunnlagBygger.byggGrunnlag(foreldrepengerGrunnlag).orElse(null))
-            .kontoer(kontoerGrunnlagBygger.byggGrunnlag(input, stønadskontoberegning.getStønadskontoutregning()))
+            .kontoer(KontoerGrunnlagBygger.byggGrunnlag(input, stønadskontoberegning.getStønadskontoutregning()))
             .ytelser(ytelserGrunnlagBygger.byggGrunnlag(input))
             .build();
     }

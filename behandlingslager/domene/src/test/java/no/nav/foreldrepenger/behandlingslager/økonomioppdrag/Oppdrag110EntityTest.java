@@ -110,7 +110,7 @@ class Oppdrag110EntityTest {
         assertThat(oppdrag110).isEqualTo(oppdrag110_2);
         assertThat(oppdrag110_2).isEqualTo(oppdrag110);
 
-        oppdrag110_2 = oppdrag110Builder.medKodeEndring(KodeEndring.UEND).build();
+        oppdrag110_2 = oppdrag110Builder.medKodeEndring(KodeEndring.NY).build();
         assertThat(oppdrag110).isNotEqualTo(oppdrag110_2);
         assertThat(oppdrag110_2).isNotEqualTo(oppdrag110);
     }
@@ -119,7 +119,7 @@ class Oppdrag110EntityTest {
     void skal_bruke_KodeEndring_i_equalsOgHashCode() {
         oppdrag110Builder = lagBuilderMedPaakrevdeFelter();
         oppdrag110 = oppdrag110Builder.build();
-        oppdrag110Builder.medKodeEndring(KodeEndring.UEND);
+        oppdrag110Builder.medKodeEndring(KodeEndring.NY);
         oppdrag110_2 = oppdrag110Builder.build();
 
         assertThat(oppdrag110).isNotEqualTo(oppdrag110_2);

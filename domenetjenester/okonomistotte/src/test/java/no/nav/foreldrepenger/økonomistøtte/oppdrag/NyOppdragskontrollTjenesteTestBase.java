@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -41,7 +40,6 @@ import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.YtelsePeriode;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.GruppertYtelse;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.OverordnetOppdragKjedeOversikt;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.EksisterendeOppdragMapper;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.LagOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.OppdragInput;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.TilkjentYtelseMapper;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.tjeneste.OppdragskontrollTjenesteImpl;
@@ -94,7 +92,7 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
     }
 
     public void setUp() {
-        nyOppdragskontrollTjeneste = new OppdragskontrollTjenesteImpl(new LagOppdragTjeneste(), mock(ØkonomioppdragRepository.class));
+        nyOppdragskontrollTjeneste = new OppdragskontrollTjenesteImpl(mock(ØkonomioppdragRepository.class));
     }
 
    protected GruppertYtelse buildTilkjentYtelseFP() {
@@ -412,9 +410,7 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
                 var opp110 = refusjonsinfo156.get().getOppdragslinje150().getOppdrag110();
                 assertThat(opp110.getKodeEndring()).isEqualTo(KodeEndring.NY);
             } else {
-                assertThat(oppdr110Revurd.getKodeEndring()).isEqualTo(KodeFagområde.FP
-                    .equals(
-                        oppdr110Revurd.getKodeFagomrade()) ? KodeEndring.ENDR : KodeEndring.ENDR);
+                assertThat(oppdr110Revurd.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
             }
             assertThat(oppdr110Revurd.getOppdragslinje150Liste()).isNotEmpty();
             var nyMottaker = erMottakerNy(oppdr110Revurd);

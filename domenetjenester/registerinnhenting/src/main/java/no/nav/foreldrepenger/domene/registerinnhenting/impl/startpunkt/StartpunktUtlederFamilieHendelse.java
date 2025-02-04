@@ -23,6 +23,8 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @GrunnlagRef(FamilieHendelseGrunnlagEntitet.ENTITY_NAME)
 class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
 
+    private static final String ANTALL_BARN = "antall barn";
+
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private DekningsgradTjeneste dekningsgradTjeneste;
@@ -50,15 +52,15 @@ class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
             return StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
         }
         if (erAntallBekreftedeBarnEndret(grunnlag1, grunnlag2)) {
-            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.SØKERS_RELASJON_TIL_BARNET, "antall barn", grunnlag1, grunnlag2);
+            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.SØKERS_RELASJON_TIL_BARNET, ANTALL_BARN, grunnlag1, grunnlag2);
             return StartpunktType.SØKERS_RELASJON_TIL_BARNET;
         }
         if (erTilkommetRegisterDødfødselMedDekningsgrad80(ref, grunnlag1, grunnlag2)) {
             if (ref.fagsakYtelseType() == FagsakYtelseType.FORELDREPENGER) {
-                FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.DEKNINGSGRAD, "antall barn", grunnlag1, grunnlag2);
+                FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.DEKNINGSGRAD, ANTALL_BARN, grunnlag1, grunnlag2);
                 return StartpunktType.DEKNINGSGRAD;
             } else {
-                FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.BEREGNING, "antall barn", grunnlag1, grunnlag2);
+                FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.BEREGNING, ANTALL_BARN, grunnlag1, grunnlag2);
                 return StartpunktType.BEREGNING;
             }
         }

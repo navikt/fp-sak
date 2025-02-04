@@ -45,7 +45,7 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 @ExtendWith(JpaExtension.class)
 class AutomatiskEtterkontrollBatchTjenesteTest {
 
-    private final static int revurderingDagerTilbake = 60;
+    private static final int REVURDERING_DAGER_TILBAKE = 60;
 
     @Mock
     private ProsessTaskTjeneste taskTjeneste;
@@ -66,10 +66,10 @@ class AutomatiskEtterkontrollBatchTjenesteTest {
 
     @Test
     void skal_finne_kandidat_til_revurdering() {
-        var behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
+        var behandling = opprettRevurderingsKandidat(REVURDERING_DAGER_TILBAKE + 2);
 
         var etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false)
-                .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(revurderingDagerTilbake))
+                .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(REVURDERING_DAGER_TILBAKE))
                 .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
                 .build();
         etterkontrollRepository.lagre(etterkontroll);
@@ -81,12 +81,12 @@ class AutomatiskEtterkontrollBatchTjenesteTest {
 
     @Test
     void sjekk_at_behandlingen_blir_etterkontrollert_og_ikke_klagen() {
-        var behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
+        var behandling = opprettRevurderingsKandidat(REVURDERING_DAGER_TILBAKE + 2);
         var klage = Behandling.forKlage(behandling.getFagsak()).build();
         behandlingRepository.lagre(klage, behandlingRepository.taSkriveLås(klage));
 
         var etterkontroll = new Etterkontroll.Builder(klage.getFagsakId()).medErBehandlet(false)
-                .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(revurderingDagerTilbake))
+                .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(REVURDERING_DAGER_TILBAKE))
                 .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
                 .build();
         etterkontrollRepository.lagre(etterkontroll);
@@ -99,10 +99,10 @@ class AutomatiskEtterkontrollBatchTjenesteTest {
 
     @Test
     void behandling_som_har_vært_etterkontrollert_skal_ikke_være_kandidat_til_revurdering() {
-        var behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
+        var behandling = opprettRevurderingsKandidat(REVURDERING_DAGER_TILBAKE + 2);
 
         var etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false)
-                .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(revurderingDagerTilbake))
+                .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(REVURDERING_DAGER_TILBAKE))
                 .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
                 .build();
         etterkontrollRepository.lagre(etterkontroll);
@@ -115,7 +115,7 @@ class AutomatiskEtterkontrollBatchTjenesteTest {
 
     @Test
     void skal_ikke_velge_henlagt_behandling() {
-        var behandling = opprettRevurderingsKandidat(revurderingDagerTilbake);
+        var behandling = opprettRevurderingsKandidat(REVURDERING_DAGER_TILBAKE);
 
         var innvilget = new Behandlingsresultat.Builder().medBehandlingResultatType(
                 BehandlingResultatType.INNVILGET).buildFor(behandling);
@@ -124,7 +124,7 @@ class AutomatiskEtterkontrollBatchTjenesteTest {
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
         var etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false)
-                .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(revurderingDagerTilbake))
+                .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(REVURDERING_DAGER_TILBAKE))
                 .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
                 .build();
         etterkontrollRepository.lagre(etterkontroll);
@@ -144,10 +144,10 @@ class AutomatiskEtterkontrollBatchTjenesteTest {
 
     @Test
     void fagsak_som_har_eksisterende_etterkontrollsbehandling_skal_ikke_være_kandidat_til_revurdering() {
-        var behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
+        var behandling = opprettRevurderingsKandidat(REVURDERING_DAGER_TILBAKE + 2);
 
         var etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false)
-                .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(revurderingDagerTilbake))
+                .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(REVURDERING_DAGER_TILBAKE))
                 .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
                 .build();
         etterkontrollRepository.lagre(etterkontroll);
@@ -190,8 +190,8 @@ class AutomatiskEtterkontrollBatchTjenesteTest {
     @Test
     void skal_hente_ut_siste_vedtak_til_revurdering(EntityManager entityManager) {
         var grunnlagRepository = new FamilieHendelseRepository(entityManager);
-        var behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
-        var terminDato = LocalDate.now().minusDays(revurderingDagerTilbake + 2);
+        var behandling = opprettRevurderingsKandidat(REVURDERING_DAGER_TILBAKE + 2);
+        var terminDato = LocalDate.now().minusDays(REVURDERING_DAGER_TILBAKE + 2);
 
         var revurderingBuilder = Behandling.fraTidligereBehandling(behandling,
                 BehandlingType.REVURDERING).medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ANNET));
@@ -219,7 +219,7 @@ class AutomatiskEtterkontrollBatchTjenesteTest {
 
         var etterkontroll = new Etterkontroll.Builder(revurderingsBehandling.getFagsakId()).medErBehandlet(
                 false)
-                .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(revurderingDagerTilbake))
+                .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(REVURDERING_DAGER_TILBAKE))
                 .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
                 .build();
         etterkontrollRepository.lagre(etterkontroll);
@@ -235,7 +235,7 @@ class AutomatiskEtterkontrollBatchTjenesteTest {
         var behandling = opprettRevurderingsKandidat(0);
 
         var etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false)
-                .medKontrollTidspunkt(LocalDate.now().plusDays(revurderingDagerTilbake).atStartOfDay())
+                .medKontrollTidspunkt(LocalDate.now().plusDays(REVURDERING_DAGER_TILBAKE).atStartOfDay())
                 .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
                 .build();
         etterkontrollRepository.lagre(etterkontroll);
@@ -279,7 +279,7 @@ class AutomatiskEtterkontrollBatchTjenesteTest {
 
     @Test
     void skal_finne_nyeste_innvilgete_avsluttede_behandling_som_ikke_er_henlagt() {
-        var behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
+        var behandling = opprettRevurderingsKandidat(REVURDERING_DAGER_TILBAKE + 2);
 
         var innvilget = new Behandlingsresultat.Builder().medBehandlingResultatType(
                 BehandlingResultatType.INNVILGET).buildFor(behandling);

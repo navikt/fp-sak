@@ -1,11 +1,12 @@
 package no.nav.foreldrepenger.økonomistøtte.queue.config;
 
+import static com.ibm.msg.client.jakarta.wmq.common.CommonConstants.WMQ_MESSAGE_BODY_MQ;
+
 import jakarta.jms.JMSException;
 
 import com.ibm.mq.jakarta.jms.MQConnectionFactory;
 import com.ibm.mq.jakarta.jms.MQQueue;
 import com.ibm.msg.client.jakarta.jms.JmsConstants;
-import com.ibm.msg.client.jakarta.wmq.WMQConstants;
 import com.ibm.msg.client.jakarta.wmq.compat.jms.internal.JMSC;
 
 import no.nav.foreldrepenger.felles.jms.JmsKonfig;
@@ -16,7 +17,7 @@ public class FellesJmsKonfig {
     protected MQConnectionFactory mqConnectionFactory;
     protected MQQueue mqQueue;
 
-    private static final int MQ_TARGET_CLIENT = WMQConstants.WMQ_MESSAGE_BODY_MQ;
+    private static final int MQ_TARGET_CLIENT = WMQ_MESSAGE_BODY_MQ;
 
     protected static MQQueue settOppMessageQueue(String queueName) throws JMSException {
         return settOppMessageQueue(queueName, false);

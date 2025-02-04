@@ -34,7 +34,6 @@ import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.LagOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.tjeneste.OppdragskontrollTjenesteImpl;
 import no.nav.foreldrepenger.økonomistøtte.simulering.klient.OppdragsKontrollDtoMapper;
 
@@ -85,7 +84,7 @@ class SimulerOppdragTjenesteESTest {
         var oppdragInputTjeneste = new OppdragInputTjeneste(behandlingRepository, null, behandlingVedtakRepository, familieHendelseRepository,
             tilbakekrevingRepository, personinfoAdapter, økonomioppdragRepository, beregningRepository);
 
-        simulerOppdragTjeneste = new SimulerOppdragTjeneste(new OppdragskontrollTjenesteImpl(new LagOppdragTjeneste(), økonomioppdragRepository),
+        simulerOppdragTjeneste = new SimulerOppdragTjeneste(new OppdragskontrollTjenesteImpl(økonomioppdragRepository),
             oppdragInputTjeneste);
     }
 

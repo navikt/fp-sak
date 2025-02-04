@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
@@ -73,7 +72,6 @@ import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.Arbe
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.BehandlingGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.DatoerGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.InngangsvilkårGrunnlagBygger;
-import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.KontoerGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.MedlemskapGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.OpptjeningGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.RettOgOmsorgGrunnlagBygger;
@@ -99,8 +97,6 @@ class FastsettePerioderTjenesteTest {
 
     private final YtelsesFordelingRepository ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
 
-    private final FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
-
     private final FpUttakRepository fpUttakRepository = repositoryProvider.getFpUttakRepository();
 
     private final UttaksperiodegrenseRepository uttaksperiodegrenseRepository = repositoryProvider.getUttaksperiodegrenseRepository();
@@ -110,7 +106,6 @@ class FastsettePerioderTjenesteTest {
     {
         var rettOgOmsorgGrunnlagBygger = new RettOgOmsorgGrunnlagBygger(repositoryProvider,
             new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
-        fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRepository(), repositoryProvider.getFagsakRelasjonRepository());
         regelAdapter = new FastsettePerioderRegelAdapter(
             new FastsettePerioderRegelGrunnlagBygger(new AnnenPartGrunnlagBygger(repositoryProvider.getFpUttakRepository()),
                 new ArbeidGrunnlagBygger(repositoryProvider), new BehandlingGrunnlagBygger(),
@@ -119,8 +114,7 @@ class FastsettePerioderTjenesteTest {
                     repositoryProvider.getFpUttakRepository()),
                 new SøknadGrunnlagBygger(repositoryProvider.getYtelsesFordelingRepository()),
                 new InngangsvilkårGrunnlagBygger(repositoryProvider), new OpptjeningGrunnlagBygger(),
-                new AdopsjonGrunnlagBygger(), new KontoerGrunnlagBygger(),
-                new YtelserGrunnlagBygger()),
+                new AdopsjonGrunnlagBygger(), new YtelserGrunnlagBygger()),
             new FastsettePerioderRegelResultatKonverterer(fpUttakRepository, ytelsesFordelingRepository));
     }
 
@@ -173,8 +167,8 @@ class FastsettePerioderTjenesteTest {
             .getPerioder();
         assertThat(uttakResultatPerioder).hasSize(1);
 
-        var resultatPeriode = uttakResultatPerioder.iterator().next();
-        assertThat(resultatPeriode.getAktiviteter().get(0).getTrekkonto()).isEqualTo(UttakPeriodeType.FEDREKVOTE);
+        var resultatPeriode = uttakResultatPerioder.getFirst();
+        assertThat(resultatPeriode.getAktiviteter().getFirst().getTrekkonto()).isEqualTo(UttakPeriodeType.FEDREKVOTE);
         assertThat(resultatPeriode.getResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
     }
 
@@ -292,8 +286,8 @@ class FastsettePerioderTjenesteTest {
         var uttakResultatPerioder = uttakResultat.get()
             .getOpprinneligPerioder()
             .getPerioder();
-        assertThat(uttakResultatPerioder.get(3).getAktiviteter().get(0).getArbeidsprosent()).isEqualTo(arbeidsprosent);
-        assertThat(uttakResultatPerioder.get(3).getAktiviteter().get(0).getUtbetalingsgrad()).isEqualTo(
+        assertThat(uttakResultatPerioder.get(3).getAktiviteter().getFirst().getArbeidsprosent()).isEqualTo(arbeidsprosent);
+        assertThat(uttakResultatPerioder.get(3).getAktiviteter().getFirst().getUtbetalingsgrad()).isEqualTo(
             new Utbetalingsgrad(49.45));
     }
 
@@ -328,7 +322,7 @@ class FastsettePerioderTjenesteTest {
         var resultat = fpUttakRepository.hentUttakResultat(input.getBehandlingReferanse().behandlingId());
 
         assertThat(resultat.getGjeldendePerioder().getPerioder()).hasSize(2);
-        assertThat(resultat.getGjeldendePerioder().getPerioder().get(0).isUtsettelse()).isFalse();
+        assertThat(resultat.getGjeldendePerioder().getPerioder().getFirst().isUtsettelse()).isFalse();
         assertThat(resultat.getGjeldendePerioder().getPerioder().get(1).isUtsettelse()).isFalse();
     }
 
@@ -371,9 +365,9 @@ class FastsettePerioderTjenesteTest {
         var resultat = fpUttakRepository.hentUttakResultat(input.getBehandlingReferanse().behandlingId());
 
         assertThat(resultat.getGjeldendePerioder().getPerioder()).hasSize(4);
-        assertThat(resultat.getGjeldendePerioder().getPerioder().get(0).isUtsettelse()).isTrue();
+        assertThat(resultat.getGjeldendePerioder().getPerioder().getFirst().isUtsettelse()).isTrue();
         //Innvilget pga oppfylt aktkrav
-        assertThat(resultat.getGjeldendePerioder().getPerioder().get(0).isInnvilget()).isTrue();
+        assertThat(resultat.getGjeldendePerioder().getPerioder().getFirst().isInnvilget()).isTrue();
         assertThat(resultat.getGjeldendePerioder().getPerioder().get(2).isUtsettelse()).isTrue();
         //Avslag pga ikke oppfylt aktkrav
         assertThat(resultat.getGjeldendePerioder().getPerioder().get(2).isInnvilget()).isFalse();
@@ -419,7 +413,7 @@ class FastsettePerioderTjenesteTest {
 
         var mødrekvote = uttakResultatPerioder.stream()
             .filter(
-                p -> StønadskontoType.MØDREKVOTE.getKode().equals(p.getAktiviteter().get(0).getTrekkonto().getKode()))
+                p -> StønadskontoType.MØDREKVOTE.getKode().equals(p.getAktiviteter().getFirst().getTrekkonto().getKode()))
             .findFirst();
         assertThat(mødrekvote).isPresent();
 
@@ -441,7 +435,7 @@ class FastsettePerioderTjenesteTest {
 
         var foreldrepengerPeriode = resultat.stream()
             .filter(p -> StønadskontoType.FORELDREPENGER.getKode()
-                .equals(p.getAktiviteter().get(0).getTrekkonto().getKode()))
+                .equals(p.getAktiviteter().getFirst().getTrekkonto().getKode()))
             .findFirst();
         assertThat(foreldrepengerPeriode).isPresent();
     }
@@ -558,9 +552,9 @@ class FastsettePerioderTjenesteTest {
         var uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(
             behandling.getId());
         var uttakAktivitetVirksomhet = aktivitetMedArbeidsgiverIPeriode(virksomhet,
-            uttakResultat.get().getGjeldendePerioder().getPerioder().get(0));
+            uttakResultat.get().getGjeldendePerioder().getPerioder().getFirst());
         var uttakAktivitetPerson = aktivitetMedArbeidsgiverIPeriode(person,
-            uttakResultat.get().getGjeldendePerioder().getPerioder().get(0));
+            uttakResultat.get().getGjeldendePerioder().getPerioder().getFirst());
         assertThat(uttakAktivitetVirksomhet).isPresent();
         assertThat(uttakAktivitetPerson).isPresent();
         assertThat(uttakAktivitetVirksomhet.get()).isNotEqualTo(uttakAktivitetPerson.get());
@@ -612,7 +606,7 @@ class FastsettePerioderTjenesteTest {
         var resultat = fpUttakRepository.hentUttakResultat(input.getBehandlingReferanse().behandlingId());
 
         assertThat(resultat.getGjeldendePerioder().getPerioder()).hasSize(3);
-        var aktiviteterPeriode1 = resultat.getGjeldendePerioder().getPerioder().get(0).getAktiviteter();
+        var aktiviteterPeriode1 = resultat.getGjeldendePerioder().getPerioder().getFirst().getAktiviteter();
         var aktiviteterPeriode2 = resultat.getGjeldendePerioder().getPerioder().get(1).getAktiviteter();
         //Knekker mødrekvote på startdato på arbeidsforholdet
         var aktiviteterPeriode3 = resultat.getGjeldendePerioder().getPerioder().get(2).getAktiviteter();
@@ -730,8 +724,8 @@ class FastsettePerioderTjenesteTest {
             .sorted(Comparator.comparing(UttakResultatPeriodeEntitet::getTom))
             .toList();
         assertThat(overstyrtePerioder).hasSize(3);
-        assertThat(overstyrtePerioder.get(0).getFom()).isEqualTo(fødselsdato);
-        assertThat(overstyrtePerioder.get(0).getTom()).isEqualTo(opprinneligMødreKvoteSlutt);
+        assertThat(overstyrtePerioder.getFirst().getFom()).isEqualTo(fødselsdato);
+        assertThat(overstyrtePerioder.getFirst().getTom()).isEqualTo(opprinneligMødreKvoteSlutt);
         assertThat(overstyrtePerioder.get(1).getFom()).isEqualTo(opprinneligMødreKvoteSlutt.plusDays(1));
         assertThat(overstyrtePerioder.get(1).getTom()).isEqualTo(opprinneligFellesPeriodeSlutt.minusWeeks(2));
         assertThat(overstyrtePerioder.get(2).getFom()).isEqualTo(

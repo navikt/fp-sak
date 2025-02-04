@@ -40,17 +40,15 @@ public class StønadskontoSaldoTjeneste {
 
     private UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste;
     private FpUttakRepository fpUttakRepository;
-    private KontoerGrunnlagBygger kontoerGrunnlagBygger;
 
     StønadskontoSaldoTjeneste() {
         //For CDI
     }
 
     @Inject
-    public StønadskontoSaldoTjeneste(UttakRepositoryProvider repositoryProvider, KontoerGrunnlagBygger kontoerGrunnlagBygger, UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste) {
+    public StønadskontoSaldoTjeneste(UttakRepositoryProvider repositoryProvider, UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste) {
         this.utregnetStønadskontoTjeneste = utregnetStønadskontoTjeneste;
         this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
-        this.kontoerGrunnlagBygger = kontoerGrunnlagBygger;
     }
 
     public SaldoUtregning finnSaldoUtregning(UttakInput uttakInput) {
@@ -77,7 +75,7 @@ public class StønadskontoSaldoTjeneste {
             .orElse(null);
         if (!stønadskontoer.isEmpty() && !perioderSøker.isEmpty()) {
             var perioderAnnenpart = perioderAnnenpart(fpGrunnlag);
-            var kontoer  = kontoerGrunnlagBygger.byggGrunnlag(uttakInput, stønadskontoer).build();
+            var kontoer  = KontoerGrunnlagBygger.byggGrunnlag(uttakInput, stønadskontoer).build();
             return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(perioderSøker,
                 berørtBehandling, perioderAnnenpart, kontoer, søknadOpprettetTidspunkt,
                 sisteSøknadOpprettetTidspunktAnnenpart, UtsettelseCore2021.kreverSammenhengendeUttakTilOgMed());

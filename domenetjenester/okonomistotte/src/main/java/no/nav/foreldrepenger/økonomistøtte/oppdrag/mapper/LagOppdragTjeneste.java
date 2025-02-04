@@ -3,19 +3,18 @@ package no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper;
 import java.util.List;
 import java.util.Optional;
 
-import jakarta.enterprise.context.Dependent;
-
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Oppdrag;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.tjeneste.EndringsdatoTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.tjeneste.OppdragFactory;
 
-@Dependent
 public class LagOppdragTjeneste {
 
-    public LagOppdragTjeneste() { }
+    private LagOppdragTjeneste() {
+        // Skjuler default konstruktør
+    }
 
-    public Optional<Oppdragskontroll> lagOppdrag(OppdragInput input, boolean brukFellesEndringstidspunkt, final Oppdragskontroll eksisterendeOppdragskontroll) {
+    public static Optional<Oppdragskontroll> lagOppdrag(OppdragInput input, boolean brukFellesEndringstidspunkt, final Oppdragskontroll eksisterendeOppdragskontroll) {
         var målbilde = input.getTilkjentYtelse();
         var tidligereOppdrag = input.getTidligereOppdrag();
 

@@ -56,7 +56,6 @@ import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.Arbe
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.BehandlingGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.DatoerGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.InngangsvilkårGrunnlagBygger;
-import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.KontoerGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.MedlemskapGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.OpptjeningGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.RettOgOmsorgGrunnlagBygger;
@@ -103,8 +102,7 @@ class FastsettePerioderRegelGrunnlagByggerTest {
                 repositoryProvider.getFpUttakRepository()),
             new SøknadGrunnlagBygger(repositoryProvider.getYtelsesFordelingRepository()),
             new InngangsvilkårGrunnlagBygger(repositoryProvider), new OpptjeningGrunnlagBygger(),
-            new AdopsjonGrunnlagBygger(), new KontoerGrunnlagBygger(),
-            new YtelserGrunnlagBygger());
+            new AdopsjonGrunnlagBygger(), new YtelserGrunnlagBygger());
     }
 
     private Behandling lagre(AbstractTestScenario<?> scenario) {
@@ -139,7 +137,7 @@ class FastsettePerioderRegelGrunnlagByggerTest {
         var grunnlag = grunnlagBygger.byggGrunnlag(input, lagStønadskontoer());
 
         assertThat(grunnlag.getSøknad().getOppgittePerioder()).hasSize(1);
-        var oppgittPeriodeIGrunnlag = grunnlag.getSøknad().getOppgittePerioder().get(0);
+        var oppgittPeriodeIGrunnlag = grunnlag.getSøknad().getOppgittePerioder().getFirst();
         assertThat(oppgittPeriodeIGrunnlag.getArbeidsprosent()).isEqualTo(arbeidsprosentFraSøknad);
     }
 
@@ -239,10 +237,10 @@ class FastsettePerioderRegelGrunnlagByggerTest {
         var grunnlag = grunnlagBygger.byggGrunnlag(input, lagStønadskontoer());
 
         assertThat(grunnlag.getSøknad().getOppgittePerioder()).hasSize(1);
-        assertThat(grunnlag.getSøknad().getOppgittePerioder().get(0).getArbeidsprosent()).isEqualTo(arbeidsprosent);
+        assertThat(grunnlag.getSøknad().getOppgittePerioder().getFirst().getArbeidsprosent()).isEqualTo(arbeidsprosent);
         assertThat(grunnlag.getSøknad()
             .getOppgittePerioder()
-            .get(0)
+            .getFirst()
             .getGradertAktiviteter()
             .stream()
             .findFirst()
@@ -289,11 +287,11 @@ class FastsettePerioderRegelGrunnlagByggerTest {
         var grunnlag = grunnlagBygger.byggGrunnlag(input, lagStønadskontoer());
 
         assertThat(grunnlag.getSøknad().getOppgittePerioder()).hasSize(1);
-        assertThat(grunnlag.getSøknad().getOppgittePerioder().get(0).getArbeidsprosent()).isEqualTo(arbeidsprosent);
-        assertThat(grunnlag.getSøknad().getOppgittePerioder().get(0).getGradertAktiviteter()).hasSize(1);
+        assertThat(grunnlag.getSøknad().getOppgittePerioder().getFirst().getArbeidsprosent()).isEqualTo(arbeidsprosent);
+        assertThat(grunnlag.getSøknad().getOppgittePerioder().getFirst().getGradertAktiviteter()).hasSize(1);
         var aktivitetIdentifikator1 = grunnlag.getSøknad()
             .getOppgittePerioder()
-            .get(0)
+            .getFirst()
             .getGradertAktiviteter()
             .stream()
             .findFirst()
@@ -414,7 +412,7 @@ class FastsettePerioderRegelGrunnlagByggerTest {
         var uttakPerioderAnnenPart = grunnlag.getAnnenPart().getUttaksperioder();
         assertThat(uttakPerioderAnnenPart).hasSize(3);
 
-        var annenPartGrunnlag = uttakPerioderAnnenPart.get(0);
+        var annenPartGrunnlag = uttakPerioderAnnenPart.getFirst();
         assertThat(annenPartGrunnlag.getFom()).isEqualTo(uttakMødrekvote.getFom());
         assertThat(annenPartGrunnlag.getTom()).isEqualTo(uttakMødrekvote.getTom());
         assertThat(annenPartGrunnlag.getAktiviteter()).hasSize(1);
@@ -423,7 +421,7 @@ class FastsettePerioderRegelGrunnlagByggerTest {
         assertThat(aktivitetMødrekvote.getAktivitetIdentifikator()).isEqualTo(forventetAktivitetIdentifikator);
         assertThat(aktivitetMødrekvote.getStønadskontotype()).isEqualTo(Stønadskontotype.MØDREKVOTE);
         assertThat(new Trekkdager(aktivitetMødrekvote.getTrekkdager().decimalValue())).isEqualTo(
-            uttakMødrekvote.getAktiviteter().get(0).getTrekkdager());
+            uttakMødrekvote.getAktiviteter().getFirst().getTrekkdager());
 
         var mappedFellesperiode = uttakPerioderAnnenPart.get(1);
         assertThat(mappedFellesperiode.getFom()).isEqualTo(uttakFellesperiode.getFom());
@@ -434,7 +432,7 @@ class FastsettePerioderRegelGrunnlagByggerTest {
         assertThat(aktivitetFellesperiode.getAktivitetIdentifikator()).isEqualTo(forventetAktivitetIdentifikator);
         assertThat(aktivitetFellesperiode.getStønadskontotype()).isEqualTo(Stønadskontotype.FELLESPERIODE);
         assertThat(new Trekkdager(aktivitetFellesperiode.getTrekkdager().decimalValue())).isEqualTo(
-            uttakFellesperiode.getAktiviteter().get(0).getTrekkdager());
+            uttakFellesperiode.getAktiviteter().getFirst().getTrekkdager());
     }
 
     @Test
@@ -471,7 +469,7 @@ class FastsettePerioderRegelGrunnlagByggerTest {
         var oppittePerioder = grunnlag.getSøknad().getOppgittePerioder();
 
         assertThat(oppittePerioder).isNotEmpty();
-        assertThat(oppittePerioder.get(0).getSamtidigUttaksprosent().decimalValue()).isEqualTo(
+        assertThat(oppittePerioder.getFirst().getSamtidigUttaksprosent().decimalValue()).isEqualTo(
             SamtidigUttaksprosent.TEN.decimalValue());
     }
 

@@ -108,7 +108,7 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
 
         var query = entityManager.createNativeQuery(sql, BehandlingVedtak.class)
             .setParameter("fomDato", fomDato)
-            .setParameter("fraId", fraId == null ? 0 : fraId)
+            .setParameter(FRA_ID, fraId == null ? 0 : fraId)
             .setHint(HibernateHints.HINT_READ_ONLY, "true");
         return query.getResultStream();
     }

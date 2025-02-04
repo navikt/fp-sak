@@ -18,6 +18,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 @ApplicationScoped
 public class FeilPraksisUtsettelseRepository {
 
+    private static final String FRA_FAGSAK_ID = "fraFagsakId";
+
     private EntityManager entityManager;
 
     FeilPraksisUtsettelseRepository() {
@@ -76,7 +78,7 @@ public class FeilPraksisUtsettelseRepository {
          * levende barn - Begrenset til at det er oppgitt annen part
          */
         var query = entityManager.createNativeQuery(QUERY_MERKING_MOR)
-            .setParameter("fraFagsakId", fraFagsakId == null ? 0 : fraFagsakId)
+            .setParameter(FRA_FAGSAK_ID, fraFagsakId == null ? 0 : fraFagsakId)
             .setHint(HibernateHints.HINT_READ_ONLY, "true");
         @SuppressWarnings("unchecked")
         var resultat = query.getResultList();
@@ -136,7 +138,7 @@ public class FeilPraksisUtsettelseRepository {
 
     public List<Long> finnNesteHundreSakerForMerkingFarBeggeEllerAlene(Long fraFagsakId) {
         var query = entityManager.createNativeQuery(QUERY_MERKING_FAR_BEGGE_ALENE)
-            .setParameter("fraFagsakId", fraFagsakId == null ? 0 : fraFagsakId)
+            .setParameter(FRA_FAGSAK_ID, fraFagsakId == null ? 0 : fraFagsakId)
             .setHint(HibernateHints.HINT_READ_ONLY, "true");
         @SuppressWarnings("unchecked")
         var resultat = query.getResultList();
@@ -157,7 +159,7 @@ public class FeilPraksisUtsettelseRepository {
 
     public List<Long> finnNesteHundreSakerSomErMerketPraksisUtsettelse(Long fraFagsakId) {
         var query = entityManager.createNativeQuery(QUERY_MERKET)
-            .setParameter("fraFagsakId", fraFagsakId == null ? 0 : fraFagsakId)
+            .setParameter(FRA_FAGSAK_ID, fraFagsakId == null ? 0 : fraFagsakId)
             .setParameter("feilp", BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE.getKode())
             .setHint(HibernateHints.HINT_READ_ONLY, "true");
         @SuppressWarnings("unchecked")
