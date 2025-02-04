@@ -10,6 +10,10 @@ import no.nav.foreldrepenger.økonomistøtte.oppdrag.tjeneste.OppdragFactory;
 
 public class LagOppdragTjeneste {
 
+    private LagOppdragTjeneste() {
+        // tom konstruktør
+    }
+
     public static Optional<Oppdragskontroll> lagOppdrag(OppdragInput input, boolean brukFellesEndringstidspunkt, final Oppdragskontroll eksisterendeOppdragskontroll) {
         var målbilde = input.getTilkjentYtelse();
         var tidligereOppdrag = input.getTidligereOppdrag();
