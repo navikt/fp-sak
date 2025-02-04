@@ -6,19 +6,14 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
-import no.nav.foreldrepenger.domene.iay.modell.YtelseBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class InntektArbeidYtelseScenario {
 
@@ -63,28 +58,12 @@ public class InntektArbeidYtelseScenario {
         private final ArbeidType yrkesaktivitetArbeidType = ArbeidType.ORDINÆRT_ARBEIDSFORHOLD;
         private final InternArbeidsforholdRef yrkesaktivitetArbeidsforholdId = DEFAULT_REF;
 
-        // RelaterteYtelser
-        private final RelatertYtelseType ytelseType = null;
-        private final LocalDate iverksettelsesDato = LocalDate.now().minusYears(5L);
-        private final RelatertYtelseTilstand relatertYtelseTilstand = RelatertYtelseTilstand.AVSLUTTET;
-        private final Saksnummer saksnummer = new Saksnummer("00001");
-        private final Fagsystem ytelseKilde = Fagsystem.INFOTRYGD;
-
         private InntektArbeidYtelseScenarioTestBuilder(InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder) {
             this.inntektArbeidYtelseAggregatBuilder = inntektArbeidYtelseAggregatBuilder;
         }
 
         public static InntektArbeidYtelseScenarioTestBuilder ny(InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder) {
             return new InntektArbeidYtelseScenarioTestBuilder(inntektArbeidYtelseAggregatBuilder);
-        }
-
-        private YtelseBuilder buildRelaterteYtelserGrunnlag(RelatertYtelseType ytelseType) {
-            return YtelseBuilder.oppdatere(Optional.empty())
-                .medKilde(ytelseKilde)
-                .medSaksnummer(saksnummer)
-                .medPeriode(DatoIntervallEntitet.fraOgMed(iverksettelsesDato))
-                .medStatus(relatertYtelseTilstand)
-                .medYtelseType(ytelseType);
         }
 
         public InntektArbeidYtelseAggregatBuilder build() {
@@ -94,8 +73,6 @@ public class InntektArbeidYtelseScenario {
             var yrkesaktivitetBuilder = aktørArbeidBuilder.getYrkesaktivitetBuilderForNøkkelAvType(opptjeningsnøkkel,
                 ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
             var aktivitetsAvtaleBuilder = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder();
-
-            var aktørYtelseBuilder = inntektArbeidYtelseAggregatBuilder.getAktørYtelseBuilder(aktørId);
 
             var aktivitetsAvtale = aktivitetsAvtaleBuilder
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(aktivitetsAvtaleFom, aktivitetsAvtaleTom))

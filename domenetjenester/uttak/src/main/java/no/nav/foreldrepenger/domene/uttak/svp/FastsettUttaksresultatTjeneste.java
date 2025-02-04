@@ -24,7 +24,6 @@ public class FastsettUttaksresultatTjeneste {
     private AvklarteDatoerTjeneste avklarteDatoerTjeneste;
     private UttaksresultatMapper uttaksresultatMapper;
     private RegelmodellSøknaderMapper regelmodellSøknaderMapper;
-    private InngangsvilkårSvpBygger inngangsvilkårSvpBygger;
     private OppholdTjeneste oppholdTjeneste;
     private final FastsettPerioderTjeneste fastsettPerioderTjeneste = new FastsettPerioderTjeneste();
 
@@ -37,14 +36,12 @@ public class FastsettUttaksresultatTjeneste {
                                           AvklarteDatoerTjeneste avklarteDatoerTjeneste,
                                           UttaksresultatMapper uttaksresultatMapper,
                                           RegelmodellSøknaderMapper regelmodellSøknaderMapper,
-                                          InngangsvilkårSvpBygger inngangsvilkårSvpBygger,
                                           OppholdTjeneste oppholdTjeneste) {
         this.behandlingsresultatRepository = behandlingRepositoryProvider.getBehandlingsresultatRepository();
         this.svangerskapspengerUttakResultatRepository = behandlingRepositoryProvider.getSvangerskapspengerUttakResultatRepository();
         this.avklarteDatoerTjeneste = avklarteDatoerTjeneste;
         this.uttaksresultatMapper = uttaksresultatMapper;
         this.regelmodellSøknaderMapper = regelmodellSøknaderMapper;
-        this.inngangsvilkårSvpBygger = inngangsvilkårSvpBygger;
         this.oppholdTjeneste = oppholdTjeneste;
     }
 
@@ -53,7 +50,7 @@ public class FastsettUttaksresultatTjeneste {
         var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
         var nyeSøknader = regelmodellSøknaderMapper.hentSøknader(input);
         var avklarteDatoer = avklarteDatoerTjeneste.finn(input);
-        var inngangsvilkår = inngangsvilkårSvpBygger.byggInngangsvilårSvp(behandlingsresultat.getVilkårResultat());
+        var inngangsvilkår = InngangsvilkårSvpBygger.byggInngangsvilårSvp(behandlingsresultat.getVilkårResultat());
         Map<Arbeidsforhold, List<Opphold>> oppholdListePerArbeidsforholdMap = new HashMap<>();
         avklarteDatoer.getFørsteLovligeUttaksdato()
             .ifPresent(dato -> oppholdListePerArbeidsforholdMap.putAll(oppholdTjeneste.finnOppholdFraTilretteleggingOgInntektsmelding(input.getBehandlingReferanse(),

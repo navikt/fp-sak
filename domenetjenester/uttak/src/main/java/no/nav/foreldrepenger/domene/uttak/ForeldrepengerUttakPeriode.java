@@ -209,10 +209,6 @@ public class ForeldrepengerUttakPeriode {
         return getOverføringÅrsak() != null && !OverføringÅrsak.UDEFINERT.equals(getOverføringÅrsak());
     }
 
-    public boolean isSøktGradering() {
-        return getAktiviteter().stream().anyMatch(ForeldrepengerUttakPeriodeAktivitet::isSøktGraderingForAktivitetIPeriode);
-    }
-
     public boolean isOpphold() {
         return !OppholdÅrsak.UDEFINERT.equals(getOppholdÅrsak());
     }

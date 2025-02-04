@@ -52,10 +52,6 @@ public class YtelsesFordelingRepository {
         return YtelseFordelingAggregat.Builder.oppdatere(ytelseFordelingAggregat);
     }
 
-    public YtelseFordelingAggregat hentYtelsesFordelingPåId(Long aggregatId) {
-        return hentGrunnlagPåId(aggregatId).map(this::mapEntitetTilAggregat).orElseThrow();
-    }
-
     private YtelseFordelingAggregat mapEntitetTilAggregat(YtelseFordelingGrunnlagEntitet ytelseFordelingGrunnlagEntitet) {
         return YtelseFordelingAggregat.Builder.nytt()
             .medOppgittDekningsgrad(ytelseFordelingGrunnlagEntitet.getOppgittDekningsgrad() == null ? null : Dekningsgrad.grad(

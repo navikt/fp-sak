@@ -41,10 +41,6 @@ public class ForeldrepengerUttakTjeneste {
         return hentHvisEksisterer(behandlingId).orElseThrow();
     }
 
-    public static ForeldrepengerUttak map(UttakResultatEntitet entitet) {
-        return map(entitet, false);
-    }
-
     private static ForeldrepengerUttak map(UttakResultatEntitet entitet, boolean ignoreDok) {
         var opprinneligPerioder = entitet.getOpprinneligPerioder().getPerioder().stream()
             .map(p -> map(p, ignoreDok))
