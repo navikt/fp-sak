@@ -184,17 +184,6 @@ public final class UttakEnumMapper {
             .build();
     }
 
-    private static KodeMapper<StønadskontoType, UttakPeriodeType> initPeriodeTypeMapper() {
-        return KodeMapper
-            .medMapping(StønadskontoType.FEDREKVOTE, UttakPeriodeType.FEDREKVOTE)
-            .medMapping(StønadskontoType.FELLESPERIODE, UttakPeriodeType.FELLESPERIODE)
-            .medMapping(StønadskontoType.FORELDREPENGER_FØR_FØDSEL, UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
-            .medMapping(StønadskontoType.MØDREKVOTE, UttakPeriodeType.MØDREKVOTE)
-            .medMapping(StønadskontoType.FORELDREPENGER, UttakPeriodeType.FORELDREPENGER)
-            .medMapping(StønadskontoType.UDEFINERT, UttakPeriodeType.UDEFINERT)
-            .build();
-    }
-
     public static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OverføringÅrsak map(OverføringÅrsak overføringÅrsak) {
         return OVERFØRING_ÅRSAK_MAPPER
             .map(overføringÅrsak)

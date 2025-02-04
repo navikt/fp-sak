@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -90,10 +89,6 @@ class EndringsdatoBerørtUtlederTest {
     private static UttakInput getUttakInput(Behandling behandling, LocalDate fødselsdato) {
         return new UttakInput(BehandlingReferanse.fra(behandling), null, null, new ForeldrepengerGrunnlag().medFamilieHendelser(
             new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(null, fødselsdato, List.of(), 1))));
-    }
-
-    private Behandlingsresultat lagBehandlingsresultat() {
-        return Behandlingsresultat.builder().build();
     }
 
     private static YtelseFordelingAggregat lagYtelseFordelingAggregat(LocalDate endringsdato) {

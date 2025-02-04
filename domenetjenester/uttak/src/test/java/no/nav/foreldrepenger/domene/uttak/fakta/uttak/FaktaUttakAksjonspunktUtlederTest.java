@@ -22,14 +22,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.input.BeregningsgrunnlagStatus;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -60,7 +58,7 @@ class FaktaUttakAksjonspunktUtlederTest {
         var ap = utleder.utledAksjonspunkterFor(input);
 
         assertThat(ap).hasSize(1);
-        assertThat(ap.get(0)).isEqualTo(AksjonspunktDefinisjon.FAKTA_UTTAK_MANUELT_SATT_STARTDATO_ULIK_SØKNAD_STARTDATO);
+        assertThat(ap.getFirst()).isEqualTo(AksjonspunktDefinisjon.FAKTA_UTTAK_MANUELT_SATT_STARTDATO_ULIK_SØKNAD_STARTDATO);
     }
 
     @Test
@@ -73,7 +71,7 @@ class FaktaUttakAksjonspunktUtlederTest {
         var ap = utleder.utledAksjonspunkterFor(input);
 
         assertThat(ap).hasSize(1);
-        assertThat(ap.get(0)).isEqualTo(AksjonspunktDefinisjon.FAKTA_UTTAK_INGEN_PERIODER);
+        assertThat(ap.getFirst()).isEqualTo(AksjonspunktDefinisjon.FAKTA_UTTAK_INGEN_PERIODER);
     }
 
     @Test
@@ -94,7 +92,7 @@ class FaktaUttakAksjonspunktUtlederTest {
         var ap = utleder.utledAksjonspunkterFor(input);
 
         assertThat(ap).hasSize(1);
-        assertThat(ap.get(0)).isEqualTo(AksjonspunktDefinisjon.FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET);
+        assertThat(ap.getFirst()).isEqualTo(AksjonspunktDefinisjon.FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET);
     }
 
     @Test
@@ -116,7 +114,7 @@ class FaktaUttakAksjonspunktUtlederTest {
         var ap = utleder.utledAksjonspunkterFor(input);
 
         assertThat(ap).hasSize(1);
-        assertThat(ap.get(0)).isEqualTo(AksjonspunktDefinisjon.FAKTA_UTTAK_GRADERING_AKTIVITET_UTEN_BEREGNINGSGRUNNLAG);
+        assertThat(ap.getFirst()).isEqualTo(AksjonspunktDefinisjon.FAKTA_UTTAK_GRADERING_AKTIVITET_UTEN_BEREGNINGSGRUNNLAG);
     }
 
     @Test
@@ -152,7 +150,7 @@ class FaktaUttakAksjonspunktUtlederTest {
         var ap = utleder.utledAksjonspunkterFor(input);
 
         assertThat(ap).hasSize(1);
-        assertThat(ap.get(0)).isEqualTo(AksjonspunktDefinisjon.FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET);
+        assertThat(ap.getFirst()).isEqualTo(AksjonspunktDefinisjon.FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET);
     }
 
     private Yrkesaktivitet lagYrkesAkiviteter(Arbeidsgiver arbeidsgiver) {
@@ -170,23 +168,6 @@ class FaktaUttakAksjonspunktUtlederTest {
             .leggTilAktivitetsAvtale(aa1_2)
             .medArbeidsforholdId(InternArbeidsforholdRef.nyRef());
         return ya1.build();
-
-    }
-
-    private InntektArbeidYtelseGrunnlagBuilder opprettGrunnlag(List<YrkesaktivitetBuilder> yrkesaktivitetList,
-                                                               AktørId aktørId,
-                                                               ArbeidsforholdInformasjon arbeidsforholdInformasjon) {
-        var aggregat = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
-        var aktørArbeidBuilder = aggregat.getAktørArbeidBuilder(aktørId);
-        for (var yrkesaktivitet : yrkesaktivitetList) {
-            aktørArbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitet);
-        }
-        aggregat.leggTilAktørArbeid(aktørArbeidBuilder);
-
-        var inntektArbeidYtelseGrunnlagBuilder = InntektArbeidYtelseGrunnlagBuilder.oppdatere(Optional.empty());
-        inntektArbeidYtelseGrunnlagBuilder.medInformasjon(arbeidsforholdInformasjon);
-        inntektArbeidYtelseGrunnlagBuilder.medData(aggregat);
-        return inntektArbeidYtelseGrunnlagBuilder;
     }
 
 }

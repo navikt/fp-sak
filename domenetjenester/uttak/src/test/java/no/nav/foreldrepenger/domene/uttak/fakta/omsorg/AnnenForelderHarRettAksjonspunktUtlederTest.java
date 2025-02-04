@@ -100,8 +100,7 @@ class AnnenForelderHarRettAksjonspunktUtlederTest {
     void ingen_aksjonspunkt_dersom_far_søker_førstegangssøknad_og_annenforelder_har_ikke_rett_men_har_ES() {
         var fødselsdato = LocalDate.now().minusMonths(1);
         var mores = ScenarioMorSøkerEngangsstønad.forFødsel(AKTØR_ID_MOR);
-
-        var morEngang = mores.lagre(repositoryProvider);
+        mores.lagre(repositoryProvider);
         var scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_FAR);
         scenario.medAvklarteUttakDatoer(
             new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
@@ -125,7 +124,7 @@ class AnnenForelderHarRettAksjonspunktUtlederTest {
         var fødselsdato = LocalDate.now().minusMonths(1);
         var mores = ScenarioMorSøkerEngangsstønad.forFødsel(AKTØR_ID_MOR);
 
-        var morEngang = mores.lagre(repositoryProvider);
+        mores.lagre(repositoryProvider);
         var scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_FAR);
         scenario.medAvklarteUttakDatoer(
             new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
@@ -179,7 +178,7 @@ class AnnenForelderHarRettAksjonspunktUtlederTest {
         var fødselsdato = LocalDate.now().minusMonths(1);
         var mores = ScenarioMorSøkerEngangsstønad.forFødsel(AKTØR_ID_MOR);
 
-        var morEngang = mores.lagre(repositoryProvider);
+        mores.lagre(repositoryProvider);
         var scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_FAR);
         scenario.medAvklarteUttakDatoer(
             new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
