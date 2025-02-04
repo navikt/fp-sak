@@ -44,14 +44,14 @@ public class FpriskTjeneste {
 
     /**
      * Henter resultat av risikoklassifisering og evt vurdering og faresignaler fra fprisk
-     * @param request
+     * @param hentRisikovurderingDto
      * @return RisikovurderingResultatDto som inneholder både risikoklasse, vurdering og faresignaler
      */
-    public Optional<RisikovurderingResultatDto> hentFaresignalerForBehandling(HentRisikovurderingDto request) {
-        Objects.requireNonNull(request, REQUEST);
+    public Optional<RisikovurderingResultatDto> hentFaresignalerForBehandling(HentRisikovurderingDto hentRisikovurderingDto) {
+        Objects.requireNonNull(hentRisikovurderingDto, REQUEST);
         try {
-            var rrequest = RestRequest.newPOSTJson(request, hentRisikoklassifiseringEndpoint, restConfig);
-            return restClient.sendReturnOptional(rrequest, RisikovurderingResultatDto.class);
+            var request = RestRequest.newPOSTJson(hentRisikovurderingDto, hentRisikoklassifiseringEndpoint, restConfig);
+            return restClient.sendReturnOptional(request, RisikovurderingResultatDto.class);
         } catch (Exception e) {
             LOG.warn("Klarte ikke hente faresignaler fra fprisk", e);
             return Optional.empty();
@@ -60,13 +60,13 @@ public class FpriskTjeneste {
 
     /**
      * Sender risikovurdering til fprisk
-     * @param request
+     * @param lagreFaresignalVurderingDto
      */
-    protected void sendRisikovurderingTilFprisk(LagreFaresignalVurderingDto request) {
-        Objects.requireNonNull(request, REQUEST);
+    protected void sendRisikovurderingTilFprisk(LagreFaresignalVurderingDto lagreFaresignalVurderingDto) {
+        Objects.requireNonNull(lagreFaresignalVurderingDto, REQUEST);
         try {
-            var rrequest = RestRequest.newPOSTJson(request, lagreVurderingEndpoint, restConfig);
-            restClient.sendReturnOptional(rrequest, String.class);
+            var request = RestRequest.newPOSTJson(lagreFaresignalVurderingDto, lagreVurderingEndpoint, restConfig);
+            restClient.sendReturnOptional(request, String.class);
         } catch (Exception e) {
             LOG.warn("Klarte ikke lagre risikovurdering i fprisk", e);
             throw e;
@@ -75,13 +75,13 @@ public class FpriskTjeneste {
 
     /**
      * Sender oppdrag om risikoklassifisering til fprisk
-     * @param request
+     * @param risikovurderingRequestDto
      */
-    protected void sendRisikoklassifiseringsoppdrag(RisikovurderingRequestDto request) {
-        Objects.requireNonNull(request, REQUEST);
+    protected void sendRisikoklassifiseringsoppdrag(RisikovurderingRequestDto risikovurderingRequestDto) {
+        Objects.requireNonNull(risikovurderingRequestDto, REQUEST);
         try {
-            var rrequest = RestRequest.newPOSTJson(request, sendOppdragEndpoint, restConfig);
-            restClient.sendReturnOptional(rrequest, String.class);
+            var request = RestRequest.newPOSTJson(risikovurderingRequestDto, sendOppdragEndpoint, restConfig);
+            restClient.sendReturnOptional(request, String.class);
         } catch (Exception e) {
             LOG.warn("Klarte ikke sende risikovurdering til fprisk", e);
             throw e;

@@ -29,11 +29,11 @@ public class KabalKlient {
         this.restConfig = RestConfig.forClient(KabalKlient.class);
     }
 
-    public void sendTilKabal(TilKabalDto request) {
+    public void sendTilKabal(TilKabalDto tilKabalDto) {
         if (IS_LOCAL) return; // Har ikke laget kabal-mock i VTP
         try {
-            var rrequest = RestRequest.newPOSTJson(request, restConfig.endpoint(), restConfig);
-            restClient.sendExpectConflict(rrequest, String.class);
+            var request = RestRequest.newPOSTJson(tilKabalDto, restConfig.endpoint(), restConfig);
+            restClient.sendExpectConflict(request, String.class);
         } catch (Exception e) {
             LOG.warn("KABAL oversend: feil ved sending til KABAL {}", restConfig.endpoint(), e);
             throw new TekniskException( "FP-180127", String.format("KABAL %s gir feil, ta opp med team klage.", restConfig.endpoint()), e);

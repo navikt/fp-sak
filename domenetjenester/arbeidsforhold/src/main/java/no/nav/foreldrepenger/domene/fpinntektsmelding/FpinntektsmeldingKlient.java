@@ -47,56 +47,56 @@ public class FpinntektsmeldingKlient {
         Objects.requireNonNull(opprettForespørselRequest, REQUEST);
         try {
             LOG.info("Sender request til fpinntektsmelding for saksnummer {} ", opprettForespørselRequest.fagsakSaksnummer().saksnr());
-            var rrequest = RestRequest.newPOSTJson(opprettForespørselRequest, uriOpprettForesporsel, restConfig);
-           return restClient.send(rrequest, OpprettForespørselResponsNy.class);
+            var request = RestRequest.newPOSTJson(opprettForespørselRequest, uriOpprettForesporsel, restConfig);
+           return restClient.send(request, OpprettForespørselResponsNy.class);
         } catch (Exception e) {
             LOG.warn("Feil ved opprettelse av inntektsmelding med request: {}", opprettForespørselRequest);
             throw feilVedKallTilFpinntektsmelding(e.getMessage());
         }
     }
 
-    public void overstyrInntektsmelding(OverstyrInntektsmeldingRequest request) {
-        Objects.requireNonNull(request, REQUEST);
+    public void overstyrInntektsmelding(OverstyrInntektsmeldingRequest overstyrInntektsmeldingRequest) {
+        Objects.requireNonNull(overstyrInntektsmeldingRequest, REQUEST);
         try {
-            LOG.info("Overstyrer inntektsmelding for arbeidsgiver {}", request.arbeidsgiverIdent().ident());
-            var rrequest = RestRequest.newPOSTJson(request, uriOverstyrInntektsmelding, restConfig);
-            restClient.send(rrequest, String.class);
+            LOG.info("Overstyrer inntektsmelding for arbeidsgiver {}", overstyrInntektsmeldingRequest.arbeidsgiverIdent().ident());
+            var request = RestRequest.newPOSTJson(overstyrInntektsmeldingRequest, uriOverstyrInntektsmelding, restConfig);
+            restClient.send(request, String.class);
         } catch (Exception e) {
-            LOG.warn("Feil ved overstyring av inntektsmelding med request: {}", request);
+            LOG.warn("Feil ved overstyring av inntektsmelding med request: {}", overstyrInntektsmeldingRequest);
             throw feilVedKallTilFpinntektsmelding(e.getMessage());
         }
     }
 
-    public void lukkForespørsel(LukkForespørselRequest request) {
-        Objects.requireNonNull(request, REQUEST);
+    public void lukkForespørsel(LukkForespørselRequest lukkForespørselRequest) {
+        Objects.requireNonNull(lukkForespørselRequest, REQUEST);
         try {
-            LOG.info("Sender lukk forespørsel request til fpinntektsmelding for saksnummer {} med organisasjonsnummer {}", request.fagsakSaksnummer().saksnr(), request.orgnummer());
-            var restRequest = RestRequest.newPOSTJson(request, uriLukkForesporsel, restConfig);
-            restClient.send(restRequest, String.class);
+            LOG.info("Sender lukk forespørsel request til fpinntektsmelding for saksnummer {} med organisasjonsnummer {}", lukkForespørselRequest.fagsakSaksnummer().saksnr(), lukkForespørselRequest.orgnummer());
+            var request = RestRequest.newPOSTJson(lukkForespørselRequest, uriLukkForesporsel, restConfig);
+            restClient.send(request, String.class);
         } catch (Exception e) {
-            skrivTilLogg(request);
+            skrivTilLogg(lukkForespørselRequest);
             throw feilVedKallTilFpinntektsmelding(e.getMessage());
         }
     }
 
-    public void settForespørselTilUtgått(LukkForespørselRequest request) {
-        Objects.requireNonNull(request, REQUEST);
+    public void settForespørselTilUtgått(LukkForespørselRequest lukkForespørselRequest) {
+        Objects.requireNonNull(lukkForespørselRequest, REQUEST);
         try {
-            LOG.info("Sender Lukk forespørsel request til fpinntektsmelding for å sette forespørsel til utgått for saksnummer {} ", request.fagsakSaksnummer().saksnr());
-            var restRequest = RestRequest.newPOSTJson(request, uriSettForesporselTilUtgaatt, restConfig);
-            restClient.send(restRequest, String.class);
+            LOG.info("Sender Lukk forespørsel request til fpinntektsmelding for å sette forespørsel til utgått for saksnummer {} ", lukkForespørselRequest.fagsakSaksnummer().saksnr());
+            var request = RestRequest.newPOSTJson(lukkForespørselRequest, uriSettForesporselTilUtgaatt, restConfig);
+            restClient.send(request, String.class);
         } catch (Exception e) {
-            skrivTilLogg(request);
+            skrivTilLogg(lukkForespørselRequest);
             throw feilVedKallTilFpinntektsmelding(e.getMessage());
         }
     }
 
-    public SendNyBeskjedResponse sendNyBeskjedPåForespørsel(NyBeskjedRequest request) {
-        Objects.requireNonNull(request, REQUEST);
+    public SendNyBeskjedResponse sendNyBeskjedPåForespørsel(NyBeskjedRequest nyBeskjedRequest) {
+        Objects.requireNonNull(nyBeskjedRequest, REQUEST);
         try {
-            LOG.info("Sender ny beskjed request til fpinntektsmelding for å legge til ny beskjed på eksisterende forespørsel for saksnummer {} ", request.fagsakSaksnummer().saksnr());
-            var restRequest = RestRequest.newPOSTJson(request, uriSendNyBeskjedPåForespørsel, restConfig);
-            return restClient.send(restRequest, SendNyBeskjedResponse.class);
+            LOG.info("Sender ny beskjed request til fpinntektsmelding for å legge til ny beskjed på eksisterende forespørsel for saksnummer {} ", nyBeskjedRequest.fagsakSaksnummer().saksnr());
+            var request = RestRequest.newPOSTJson(nyBeskjedRequest, uriSendNyBeskjedPåForespørsel, restConfig);
+            return restClient.send(request, SendNyBeskjedResponse.class);
         } catch (Exception e) {
             throw feilVedKallTilFpinntektsmelding(e.getMessage());
         }
@@ -114,8 +114,8 @@ public class FpinntektsmeldingKlient {
         }
     }
 
-    private static void skrivTilLogg(LukkForespørselRequest request) {
-        LOG.warn("Feil ved oversending til fpinntektsmelding med lukk forespørsel request: {}", request);
+    private static void skrivTilLogg(LukkForespørselRequest lukkForespørselRequest) {
+        LOG.warn("Feil ved oversending til fpinntektsmelding med lukk forespørsel request: {}", lukkForespørselRequest);
     }
 }
 
