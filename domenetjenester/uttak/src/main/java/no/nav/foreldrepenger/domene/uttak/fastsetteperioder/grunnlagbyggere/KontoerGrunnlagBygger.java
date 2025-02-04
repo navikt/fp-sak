@@ -2,8 +2,6 @@ package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere;
 
 import java.util.Map;
 
-import jakarta.enterprise.context.ApplicationScoped;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
@@ -11,7 +9,6 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Konto;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Kontoer;
 
-@ApplicationScoped
 public class KontoerGrunnlagBygger {
 
     private KontoerGrunnlagBygger() {
