@@ -2,13 +2,11 @@ package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -19,13 +17,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
-import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.nom.SkjermetPersonKlient;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.Arbeidsfordeling;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingRequest;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingResponse;
@@ -38,9 +31,6 @@ class EnhetsTjenesteTest {
     private static AktørId BARN_AKTØR_ID = AktørId.dummy();
     private static final Set<AktørId> FAMILIE = Set.of(MOR_AKTØR_ID, FAR_AKTØR_ID, BARN_AKTØR_ID);
 
-    private static PersonIdent MOR_PID = new PersonIdent(new FiktiveFnr().nesteKvinneFnr());
-    private static PersonIdent FAR_PID = new PersonIdent(new FiktiveFnr().nesteMannFnr());
-
     private static OrganisasjonsEnhet enhetNormal = new OrganisasjonsEnhet("4867", "Nav foreldrepenger");
     private static OrganisasjonsEnhet enhetKode6 = new OrganisasjonsEnhet("2103", "Nav Vikafossen");
     private static OrganisasjonsEnhet enhetSkjermet = new OrganisasjonsEnhet("4883", "Nav skjermet");
@@ -48,11 +38,7 @@ class EnhetsTjenesteTest {
     private static ArbeidsfordelingResponse respKode6 = new ArbeidsfordelingResponse("2103", "Nav Vikafossen", "Aktiv", "KO");
 
     @Mock
-    private PersoninfoAdapter personinfoAdapter;
-    @Mock
     private Arbeidsfordeling arbeidsfordelingTjeneste;
-    @Mock
-    private SkjermetPersonKlient skjermetPersonKlient;
     @Mock
     private RutingKlient rutingKlient;
 
@@ -60,7 +46,7 @@ class EnhetsTjenesteTest {
 
     @BeforeEach
     public void oppsett() {
-        enhetsTjeneste = new EnhetsTjeneste(personinfoAdapter, arbeidsfordelingTjeneste, skjermetPersonKlient, rutingKlient);
+        enhetsTjeneste = new EnhetsTjeneste(arbeidsfordelingTjeneste, rutingKlient);
     }
 
     @Test
@@ -142,7 +128,7 @@ class EnhetsTjenesteTest {
     void finn_enhet_utvidet_annenpart_skjermet_fordeling() {
         // Oppsett
         settOppSkjermetStrukturer(false, true);
-        when(skjermetPersonKlient.erNoenSkjermet(List.of(MOR_PID.getIdent()))).thenReturn(false);
+        when(rutingKlient.finnRutingEgenskaper(Set.of(MOR_AKTØR_ID.getId()))).thenReturn(Set.of());
         var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD);
         var enhet1 = enhetsTjeneste
             .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), FagsakYtelseType.ENGANGSTØNAD, MOR_AKTØR_ID, FAMILIE, Set.of());
@@ -216,15 +202,7 @@ class EnhetsTjenesteTest {
 
     private void settOppPDLStrukturer(boolean morKode6, boolean barnKode6, boolean annenPartKode6) {
 
-        lenient().when(personinfoAdapter.hentGeografiskTilknytning(any(), any())).thenReturn("0219");
-
-        lenient().when(personinfoAdapter.hentDiskresjonskode(any(), eq(MOR_AKTØR_ID))).thenReturn(morKode6 ? Diskresjonskode.KODE6 : Diskresjonskode.UDEFINERT);
-        lenient().when(personinfoAdapter.hentDiskresjonskode(any(), eq(FAR_AKTØR_ID))).thenReturn(annenPartKode6 ? Diskresjonskode.KODE6 : Diskresjonskode.UDEFINERT);
-        lenient().when(personinfoAdapter.hentDiskresjonskode(any(), eq(BARN_AKTØR_ID))).thenReturn(barnKode6 ? Diskresjonskode.KODE6 : Diskresjonskode.UDEFINERT);
-
-        lenient().when(personinfoAdapter.hentFnr(MOR_AKTØR_ID)).thenReturn(Optional.of(MOR_PID));
-        lenient().when(personinfoAdapter.hentFnr(FAR_AKTØR_ID)).thenReturn(Optional.of(FAR_PID));
-        lenient().when(skjermetPersonKlient.erSkjermet(any())).thenReturn(false);
+        lenient().when(rutingKlient.finnRutingEgenskaper(any())).thenReturn(morKode6 || annenPartKode6 || barnKode6? Set.of(RutingResultat.STRENGTFORTROLIG) : Set.of());
 
         lenient().doAnswer((Answer<List<ArbeidsfordelingResponse>>) invocation -> {
             var data = (ArbeidsfordelingRequest) invocation.getArguments()[0];
@@ -235,14 +213,7 @@ class EnhetsTjenesteTest {
 
     private void settOppSkjermetStrukturer(boolean morSkjermet, boolean annenPartSkjermet) {
 
-        lenient().when(personinfoAdapter.hentGeografiskTilknytning(any(), any())).thenReturn("0219");
-
-        lenient().when(personinfoAdapter.hentDiskresjonskode(any(), any())).thenReturn(Diskresjonskode.UDEFINERT);
-
-        lenient().when(personinfoAdapter.hentFnr(MOR_AKTØR_ID)).thenReturn(Optional.of(MOR_PID));
-        lenient().when(personinfoAdapter.hentFnr(FAR_AKTØR_ID)).thenReturn(Optional.of(FAR_PID));
-
-        lenient().when(skjermetPersonKlient.erNoenSkjermet(any())).thenReturn(morSkjermet || annenPartSkjermet);
+        lenient().when(rutingKlient.finnRutingEgenskaper(any())).thenReturn(morSkjermet || annenPartSkjermet ? Set.of(RutingResultat.SKJERMING) : Set.of());
 
         lenient().doAnswer((Answer<List<ArbeidsfordelingResponse>>) invocation -> List.of(respNormal)).when(arbeidsfordelingTjeneste).finnEnhet(any(ArbeidsfordelingRequest.class));
     }

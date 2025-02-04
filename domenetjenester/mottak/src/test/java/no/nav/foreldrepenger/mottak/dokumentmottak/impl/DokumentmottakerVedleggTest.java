@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 import static java.time.LocalDate.now;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -152,47 +151,11 @@ class DokumentmottakerVedleggTest {
         dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), null);
 
         // Assert
-        verify(dokumentmottakerFelles).opprettTaskForÅVurdereDokument(behandling.getFagsak(), behandling, mottattDokument);
+        verify(dokumentmottakerFelles, times(0)).opprettTaskForÅVurdereDokument(behandling.getFagsak(), behandling, mottattDokument);
 
         // Verifiser at korrekt prosesstask for vurder dokument blir opprettet
-        verify(kompletthetskontroller, times(0)).persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
-        verify(taskTjeneste).lagre(captor.capture());
-        var prosessTaskData = captor.getValue();
-        assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(OpprettOppgaveVurderDokumentTask.class));
-        // Lik enheten som ble satt på behandlingen
-        assertThat(prosessTaskData.getPropertyValue(OpprettOppgaveVurderDokumentTask.KEY_BEHANDLENDE_ENHET)).isEqualTo(ENHET.enhetId());
-    }
-
-    @Test
-    void skal_opprette_task_for_å_vurdere_dokument_når_klageinstans_har_sendt_brev_til_scanning() {
-        // Arrange
-        var dokumentTypeId = DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE;
-
-        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
-                .medBehandlendeEnhet(ENHET.enhetId())
-                .medBehandlingStegStart(BehandlingStegType.FORESLÅ_VEDTAK);
-        var behandling = scenario.lagre(repositoryProvider);
-
-        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, null);
-        mottattDokument.setJournalEnhet(BehandlendeEnhetTjeneste.getKlageInstans().enhetId());
-        lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(), any(String.class))).thenReturn(ENHET);
-        lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(), eq(BehandlendeEnhetTjeneste.getKlageInstans().enhetId()))).thenReturn(BehandlendeEnhetTjeneste.getKlageInstans());
-
-        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
-
-        // Act
-        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), null);
-
-        // Assert
-        verify(dokumentmottakerFelles).opprettTaskForÅVurdereDokument(behandling.getFagsak(), behandling, mottattDokument);
-
-        // Verifiser at korrekt prosesstask for vurder dokument blir opprettet
-        verify(kompletthetskontroller, times(0)).persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
-        verify(taskTjeneste).lagre(captor.capture());
-        var prosessTaskData = captor.getValue();
-        assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(OpprettOppgaveVurderDokumentTask.class));
-        assertThat(prosessTaskData.getPropertyValue(OpprettOppgaveVurderDokumentTask.KEY_BEHANDLENDE_ENHET))
-                .isEqualTo(BehandlendeEnhetTjeneste.getKlageInstans().enhetId()); // Lik enheten som ble satt på behandlingen
+        verify(kompletthetskontroller).persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
+        verifyNoInteractions(taskTjeneste);
     }
 
     /**
