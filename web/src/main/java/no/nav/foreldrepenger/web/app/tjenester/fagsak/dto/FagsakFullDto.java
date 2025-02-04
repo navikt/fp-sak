@@ -31,7 +31,8 @@ public record FagsakFullDto(String saksnummer,
                             List<FagsakBehandlingDto> behandlinger,
                             List<HistorikkinnslagDto> historikkinnslag,
                             List<FagsakNotatDto> notater,
-                            KontrollresultatDto kontrollResultat) {
+                            KontrollresultatDto kontrollResultat,
+                            boolean harVergeIÅpenBehandling) {
 
     public FagsakFullDto(Fagsak fagsak, Integer dekningsgrad, PersonDto bruker,
                          boolean brukerManglerAdresse,
@@ -43,10 +44,11 @@ public record FagsakFullDto(String saksnummer,
                          List<FagsakBehandlingDto> behandlinger,
                          List<HistorikkinnslagDto> historikkinnslag,
                          List<FagsakNotatDto> notater,
-                         KontrollresultatDto kontrollResultat) {
+                         KontrollresultatDto kontrollResultat,
+                         boolean harVergeIÅpenBehandling) {
         this(fagsak.getSaksnummer().getVerdi(), fagsak.getYtelseType(), fagsak.getRelasjonsRolleType(), fagsak.getStatus(),
             fagsak.getAktørId().getId(), fagsak.erStengt(), dekningsgrad, bruker, brukerManglerAdresse, annenPart, annenpartBehandling,
             familiehendelse, fagsakMarkeringer.stream().map(fm -> new FagsakMarkeringDto(fm, fm.getKortNavn())).toList(),
-            behandlingTypeKanOpprettes, behandlinger, historikkinnslag, notater, kontrollResultat);
+            behandlingTypeKanOpprettes, behandlinger, historikkinnslag, notater, kontrollResultat, harVergeIÅpenBehandling);
     }
 }

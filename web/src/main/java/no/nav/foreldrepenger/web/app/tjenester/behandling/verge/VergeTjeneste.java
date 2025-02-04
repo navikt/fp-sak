@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
-import no.nav.foreldrepenger.domene.person.verge.dto.VergeBehandlingsmenyDto;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBehandlingsmenyEnum;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -53,7 +52,7 @@ public class VergeTjeneste {
         //CDI
     }
 
-    public VergeBehandlingsmenyDto utledBehandlingsmeny(Long behandlingId) {
+    public VergeBehandlingsmenyEnum utledBehandlingOperasjon(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var vergeAggregat = vergeRepository.hentAggregat(behandlingId);
         var harRegistrertVerge = vergeAggregat.isPresent() && vergeAggregat.get().getVerge().isPresent();
@@ -63,14 +62,15 @@ public class VergeTjeneste {
         var under18År = erSøkerUnder18ar(behandlingId, behandling.getAktørId());
 
         if (harRegistrertVerge && under18År && iForeslåVedtakllerSenereSteg || SpesialBehandling.erSpesialBehandling(behandling)
-            || iFatteVedtakEllerSenereSteg) {
-            return new VergeBehandlingsmenyDto(behandlingId, VergeBehandlingsmenyEnum.SKJUL);
+                || iFatteVedtakEllerSenereSteg) {
+            return VergeBehandlingsmenyEnum.SKJUL;
         }
         if (!harRegistrertVerge && !harVergeAksjonspunkt) {
-            return new VergeBehandlingsmenyDto(behandlingId, VergeBehandlingsmenyEnum.OPPRETT);
+            return VergeBehandlingsmenyEnum.OPPRETT;
         }
-        return new VergeBehandlingsmenyDto(behandlingId, VergeBehandlingsmenyEnum.FJERN);
+        return VergeBehandlingsmenyEnum.FJERN;
     }
+
 
     void opprettVergeAksjonspunktOgHoppTilbakeTilFORVEDSTEGHvisSenereSteg(Behandling behandling) {
         if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE)) {

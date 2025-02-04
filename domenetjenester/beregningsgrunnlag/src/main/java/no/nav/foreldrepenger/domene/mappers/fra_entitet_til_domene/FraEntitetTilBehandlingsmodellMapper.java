@@ -96,7 +96,7 @@ public class FraEntitetTilBehandlingsmodellMapper {
     private static no.nav.foreldrepenger.domene.modell.BeregningAktivitetOverstyring mapAktivitetOverstyring(BeregningAktivitetOverstyringEntitet beregningAktivitetOverstyringEntitet) {
         return no.nav.foreldrepenger.domene.modell.BeregningAktivitetOverstyring.builder()
             .medArbeidsgiver(beregningAktivitetOverstyringEntitet.getArbeidsgiver().orElse(null))
-            .medArbeidsforholdRef(beregningAktivitetOverstyringEntitet.getArbeidsforholdRef())
+            .medArbeidsforholdRef(beregningAktivitetOverstyringEntitet.getArbeidsforholdRef() == null ? InternArbeidsforholdRef.nullRef() : beregningAktivitetOverstyringEntitet.getArbeidsforholdRef())
             .medHandling(beregningAktivitetOverstyringEntitet.getHandling())
             .medOpptjeningAktivitetType(beregningAktivitetOverstyringEntitet.getOpptjeningAktivitetType())
             .medPeriode(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(beregningAktivitetOverstyringEntitet.getPeriode().getFomDato(),

@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -8,6 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,6 +32,7 @@ import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkManglendeFodselDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.UidentifisertBarnDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.FastsetteUttakDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.AksjonspunktGodkjenningDto;
 import no.nav.vedtak.exception.FunksjonellException;
 
@@ -107,7 +110,7 @@ class AksjonspunktRestTjenesteTest {
         aksjonspunktGodkjenningDtos.add(godkjentAksjonspunkt);
         aksjonspunkt.add(new FatterVedtakAksjonspunktDto(begrunnelse, aksjonspunktGodkjenningDtos));
 
-        aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class),
+        aksjonspunktRestTjeneste.beslutt(mock(HttpServletRequest.class),
             BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt));
 
         verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
@@ -121,6 +124,29 @@ class AksjonspunktRestTjenesteTest {
         var dto = BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt);
         var request = mock(HttpServletRequest.class);
         assertThrows(FunksjonellException.class, () -> aksjonspunktRestTjeneste.bekreft(request, dto));
+    }
+
+    @Test
+    void skal_kunne_sende_fatte_vedtak_til_beslutter_endepunkt() throws URISyntaxException {
+        aksjonspunktRestTjeneste.beslutt(mock(HttpServletRequest.class), BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon,
+            List.of(new FatterVedtakAksjonspunktDto(begrunnelse, List.of(new AksjonspunktGodkjenningDto())))));
+
+        verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
+    }
+
+    @Test
+    void skal_ikke_kunne_sende_andre_ap_til_beslutter_endepunkt() {
+        var dto = BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon,
+            List.of(new FastsetteUttakDto.FastsetteUttakPerioderDto(List.of())));
+        assertThatThrownBy(() -> aksjonspunktRestTjeneste.beslutt(mock(HttpServletRequest.class), dto)).isExactlyInstanceOf(
+            IllegalArgumentException.class);
+    }
+
+    @Test
+    void skal_ikke_kunne_sende_fatter_vedtak_ap_til_aksjonspunkt_endepunkt() {
+        var dto = BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, List.of(new FatterVedtakAksjonspunktDto()));
+        assertThatThrownBy(() -> aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class), dto)).isExactlyInstanceOf(
+            IllegalArgumentException.class);
     }
 
     private AksjonspunktGodkjenningDto opprettetGodkjentAksjonspunkt() {

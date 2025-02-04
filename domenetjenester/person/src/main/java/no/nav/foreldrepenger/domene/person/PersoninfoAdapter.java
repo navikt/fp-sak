@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoSpråk;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoVisning;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.person.krr.KrrSpråkKlient;
@@ -128,16 +127,8 @@ public class PersoninfoAdapter {
         return basisTjeneste.hentKjønnPersoninfo(ytelseType, aktørId);
     }
 
-    public String hentGeografiskTilknytning(FagsakYtelseType ytelseType, AktørId aktørId) {
-        var tilknytning = tilknytningTjeneste.hentGeografiskTilknytning(ytelseType, aktørId);
-        if (tilknytning != null && tilknytningTjeneste.erIkkeBosattFreg(ytelseType, aktørId)) {
-            return null;
-        }
-        return tilknytning;
-    }
-
-    public Diskresjonskode hentDiskresjonskode(FagsakYtelseType ytelseType, AktørId aktørId) {
-        return tilknytningTjeneste.hentDiskresjonskode(ytelseType, aktørId);
+    public boolean erIkkeBosattFreg(FagsakYtelseType ytelseType, AktørId aktørId) {
+        return tilknytningTjeneste.erIkkeBosattFreg(ytelseType, aktørId);
     }
 
     public Optional<PersoninfoVisning> hentPersoninfoForVisning(FagsakYtelseType ytelseType, AktørId aktørId) {

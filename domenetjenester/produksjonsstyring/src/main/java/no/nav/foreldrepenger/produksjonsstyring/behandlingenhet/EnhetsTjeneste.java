@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -17,13 +18,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Tema;
 import no.nav.foreldrepenger.behandlingslager.behandling.Temagrupper;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
-import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.nom.SkjermetPersonKlient;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.Arbeidsfordeling;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingRequest;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingResponse;
@@ -85,21 +82,17 @@ public class EnhetsTjeneste {
 
     private static final Set<OrganisasjonsEnhet> IKKE_MENY = Set.of(KLAGE_ENHET, DRAMMEN, BERGEN, STEINKJER, OSLO, STORD, TROMSØ, MIDLERTIDIG_ENHET);
 
-    private PersoninfoAdapter personinfoAdapter;
     private Arbeidsfordeling norgRest;
-    private SkjermetPersonKlient skjermetPersonKlient;
+    private RutingKlient rutingKlient;
 
     public EnhetsTjeneste() {
         // For CDI proxy
     }
 
     @Inject
-    public EnhetsTjeneste(PersoninfoAdapter personinfoAdapter,
-                          Arbeidsfordeling arbeidsfordelingRestKlient,
-                          SkjermetPersonKlient skjermetPersonKlient) {
-        this.personinfoAdapter = personinfoAdapter;
+    public EnhetsTjeneste(Arbeidsfordeling arbeidsfordelingRestKlient, RutingKlient rutingKlient) {
         this.norgRest = arbeidsfordelingRestKlient;
-        this.skjermetPersonKlient = skjermetPersonKlient;
+        this.rutingKlient = rutingKlient;
     }
 
     static OrganisasjonsEnhet velgEnhet(OrganisasjonsEnhet enhet, Collection<FagsakMarkering> markering) {
@@ -130,13 +123,17 @@ public class EnhetsTjeneste {
     }
 
     OrganisasjonsEnhet hentEnhetSjekkKunAktør(AktørId aktørId, FagsakYtelseType ytelseType) {
-        if (harNoenDiskresjonskode6(ytelseType, Set.of(aktørId))) {
+        var rutingResultater = finnRuting(Set.of(aktørId));
+        if (rutingResultater.contains(RutingResultat.STRENGTFORTROLIG) ) {
             return KODE6_ENHET;
-        } else if (erNoenSkjermetPerson(Set.of(aktørId))) {
+        } else if (rutingResultater.contains(RutingResultat.SKJERMING)) {
             return SKJERMET_ENHET;
+        } else if (rutingResultater.contains(RutingResultat.UTLAND) ) {
+            return UTLAND_ENHET;
         } else {
-            return personinfoAdapter.hentGeografiskTilknytning(ytelseType, aktørId) == null ? UTLAND_ENHET : NASJONAL_ENHET;
-            // Beholde ut 2023
+            return NASJONAL_ENHET;
+            // Beholde ut 2025
+            // gjeninnfør PersoninfoAdapter eller lag ny rutingtjeneste for å hente input til norg-enhetsvalg
             // var enheter = hentEnheterFor(geografiskTilknytning, behandlingTema);
             // return enheter.isEmpty() ? NASJONAL_ENHET : velgEnhet(enheter.get(0), null);
         }
@@ -147,11 +144,11 @@ public class EnhetsTjeneste {
         if (SPESIALENHETER.contains(enhetId)) {
             return Optional.empty();
         }
-        if (harNoenDiskresjonskode6(ytelseType, alleAktører)) {
+        var rutingResultater = finnRuting(alleAktører);
+        if (rutingResultater.contains(RutingResultat.STRENGTFORTROLIG)) {
             return Optional.of(KODE6_ENHET);
         }
-        if (erNoenSkjermetPerson(alleAktører)) {
-            LOG.info("FPSAK enhettjeneste skjermet person funnet");
+        if (rutingResultater.contains(RutingResultat.SKJERMING)) {
             return Optional.of(SKJERMET_ENHET);
         }
         if (saksmarkering.contains(FagsakMarkering.SAMMENSATT_KONTROLL)) {
@@ -169,19 +166,8 @@ public class EnhetsTjeneste {
         return Optional.of(FLYTTE_MAP.get(enhetId)).filter(ny -> !ny.enhetId().equals(enhetId));
     }
 
-    private boolean harNoenDiskresjonskode6(FagsakYtelseType ytelseType, Set<AktørId> aktører) {
-        return aktører.stream()
-            .map(a -> personinfoAdapter.hentDiskresjonskode(ytelseType, a))
-            .anyMatch(Diskresjonskode.KODE6::equals);
-    }
-
-    private boolean erNoenSkjermetPerson(Set<AktørId> aktører) {
-        var identer = aktører.stream()
-            .map(a -> personinfoAdapter.hentFnr(a))
-            .flatMap(Optional::stream)
-            .map(PersonIdent::getIdent)
-            .toList();
-        return skjermetPersonKlient.erNoenSkjermet(identer);
+    public Set<RutingResultat> finnRuting(Set<AktørId> aktørIds) {
+        return rutingKlient.finnRutingEgenskaper(aktørIds.stream().map(AktørId::getId).collect(Collectors.toSet()));
     }
 
     static OrganisasjonsEnhet enhetsPresedens(OrganisasjonsEnhet enhetSak1, OrganisasjonsEnhet enhetSak2) {
@@ -202,7 +188,7 @@ public class EnhetsTjeneste {
         return NASJONAL_ENHET;
     }
 
-    // Behold ut 2023
+    // Behold ut 2025 pga prosjekt nasjonal kø
     private List<OrganisasjonsEnhet> hentEnheterFor(String geografi, FagsakYtelseType ytelseType) {
         var brukBTema = ytelseType == null || FagsakYtelseType.UDEFINERT.equals(ytelseType) ?
             BehandlingTema.FORELDREPENGER : BehandlingTema.fraFagsak(ytelseType, null);

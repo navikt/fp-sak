@@ -9,6 +9,8 @@ import java.time.LocalDate;
 
 import jakarta.persistence.EntityManager;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -61,6 +63,8 @@ class BehandlingRestTjenesteESTest {
     private HenleggBehandlingTjeneste henleggBehandlingTjeneste;
     @Mock
     private BeregningTjeneste beregningTjeneste;
+    @Mock
+    private VergeRepository vergeRepository;
 
     private BehandlingRepositoryProvider repositoryProvider;
 
@@ -76,7 +80,7 @@ class BehandlingRestTjenesteESTest {
         var uttakTjeneste = new UttakTjeneste(repositoryProvider.getBehandlingRepository(), null, null);
         var behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste, uttakTjeneste, tilbakekrevingRepository,
             skjæringstidspunktTjeneste, behandlingDokumentRepository, mock(TotrinnTjeneste.class), null, null, fagsakRelasjonTjeneste,
-            new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, mock(ForeldrepengerUttakTjeneste.class)), mock(DekningsgradTjeneste.class));
+            new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, mock(ForeldrepengerUttakTjeneste.class)), mock(DekningsgradTjeneste.class), vergeRepository);
 
         henleggBehandlingTjeneste = mock(HenleggBehandlingTjeneste.class);
         behandlingRestTjeneste = new BehandlingRestTjeneste(behandlingsutredningTjeneste, behandlingsoppretterTjeneste,

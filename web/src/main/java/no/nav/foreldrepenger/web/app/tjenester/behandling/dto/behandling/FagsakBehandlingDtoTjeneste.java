@@ -152,7 +152,7 @@ public class FagsakBehandlingDtoTjeneste {
             if (BehandlingStatus.FATTER_VEDTAK.equals(behandling.getStatus())) {
                 dto.setTotrinnskontrollÅrsaker(totrinnskontrollTjeneste.hentTotrinnsSkjermlenkeContext(behandling, behandlingsresultat));
                 dto.setTotrinnskontrollReadonly(false);
-                dto.leggTil(post(AksjonspunktRestTjeneste.AKSJONSPUNKT_PATH, "bekreft-totrinnsaksjonspunkt", uuidDto));
+                dto.leggTil(post(AksjonspunktRestTjeneste.AKSJONSPUNKT_BESLUTT_PATH, "bekreft-totrinnsaksjonspunkt", uuidDto));
             } else if (BehandlingStatus.UTREDES.equals(behandling.getStatus())) {
                 dto.setTotrinnskontrollÅrsaker(totrinnskontrollTjeneste.hentTotrinnsvurderingSkjermlenkeContext(behandling, behandlingsresultat));
             }
@@ -251,7 +251,7 @@ public class FagsakBehandlingDtoTjeneste {
             !b.isBehandlingPåVent(), // Sende melding
             !b.isBehandlingPåVent() && totrinnRetur, // Fra beslutter
             false, // Til godkjenning
-            vergeTjeneste.utledBehandlingsmeny(b.getId()).getVergeBehandlingsmeny());
+            vergeTjeneste.utledBehandlingOperasjon(b.getId()));
     }
 
 }

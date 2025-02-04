@@ -32,6 +32,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktKode;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
@@ -62,6 +63,8 @@ public class AksjonspunktRestTjeneste {
     static final String BASE_PATH = "/behandling";
     private static final String AKSJONSPUNKT_OVERSTYR_PART_PATH = "/aksjonspunkt/overstyr";
     public static final String AKSJONSPUNKT_OVERSTYR_PATH = BASE_PATH + AKSJONSPUNKT_OVERSTYR_PART_PATH;
+    private static final String AKSJONSPUNKT_BESLUTT_PART_PATH = "/aksjonspunkt/beslutt";
+    public static final String AKSJONSPUNKT_BESLUTT_PATH = BASE_PATH + AKSJONSPUNKT_BESLUTT_PART_PATH;
     private static final String AKSJONSPUNKT_PART_PATH = "/aksjonspunkt";
     public static final String AKSJONSPUNKT_PATH = BASE_PATH + AKSJONSPUNKT_PART_PATH;
     private static final String AKSJONSPUNKT_V2_PART_PATH = "/aksjonspunkt-v2";
@@ -129,6 +132,13 @@ public class AksjonspunktRestTjeneste {
             @Parameter(description = "Liste over aksjonspunkt som skal bekreftes, inklusiv data som trengs for å løse de.") @Valid BekreftedeAksjonspunkterDto apDto)
         throws URISyntaxException {
 
+        if (fatterVedtak(apDto.getBekreftedeAksjonspunktDtoer())) {
+            throw new IllegalArgumentException("Fatter vedtak aksjonspunkt løses i eget endepunkt");
+        }
+        return bekreftAksjonspunkt(request, apDto);
+    }
+
+    private Response bekreftAksjonspunkt(HttpServletRequest request, BekreftedeAksjonspunkterDto apDto) throws URISyntaxException {
         var bekreftedeAksjonspunktDtoer = apDto.getBekreftedeAksjonspunktDtoer();
 
         var behandling = behandlingRepository.hentBehandling(apDto.getBehandlingUuid());
@@ -176,6 +186,30 @@ public class AksjonspunktRestTjeneste {
         applikasjonstjeneste.overstyrAksjonspunkter(overstyrteAksjonspunktDtoer, behandling.getId());
 
         return Redirect.tilBehandlingPollStatus(request, behandling.getUuid());
+    }
+
+    @POST
+    @Path(AKSJONSPUNKT_BESLUTT_PART_PATH)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "Lagre totrinnsvurdering aksjonspunkt", tags = "aksjonspunkt")
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
+    public Response beslutt(@Context HttpServletRequest request,
+                            @TilpassetAbacAttributt(supplierClass = BekreftetAbacDataSupplier.class)
+                            @Parameter(description = "Liste over aksjonspunkt som skal bekreftes, inklusiv data som trengs for å løse de.") @Valid BekreftedeAksjonspunkterDto apDto)
+        throws URISyntaxException {
+
+        var bekreftedeAksjonspunktDtoer = apDto.getBekreftedeAksjonspunktDtoer();
+        if (bekreftedeAksjonspunktDtoer.size() > 1) {
+            throw new IllegalArgumentException("Forventer kun ett aksjonspunkt");
+        }
+        if (!fatterVedtak(bekreftedeAksjonspunktDtoer)) {
+            throw new IllegalArgumentException("Forventer aksjonspunkt FATTER_VEDTAK");
+        }
+        return bekreftAksjonspunkt(request, apDto);
+    }
+
+    private static boolean fatterVedtak(Collection<BekreftetAksjonspunktDto> bekreftedeAksjonspunktDtoer) {
+        return bekreftedeAksjonspunktDtoer.stream().anyMatch(dto -> dto.getAksjonspunktDefinisjon() == AksjonspunktDefinisjon.FATTER_VEDTAK);
     }
 
     private static void validerBetingelserForAksjonspunkt(Behandling behandling, Collection<? extends AksjonspunktKode> aksjonspunktDtoer) {
