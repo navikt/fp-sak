@@ -134,6 +134,7 @@ public class FeilPraksisOpprettBehandlingTjeneste {
         if (behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId()).stream()
                 .anyMatch(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE))) {
             LOG.info("FeilPraksisUtsettelse: Har allerede hatt feil praksis revurdering for sak {}", fagsak.getSaksnummer());
+            return;
         }
 
         if (!dryrun) {
@@ -144,12 +145,10 @@ public class FeilPraksisOpprettBehandlingTjeneste {
         }
 
         LOG.info("FeilPraksisUtsettelse: Opprettet revurdering med saksnummer {}", fagsak.getSaksnummer());
-
     }
 
     private static Trekkdager tapteDager(List<UttakResultatPeriodeEntitet> perioder) {
         var trekkdagerPrAktivitet = new LinkedHashMap<>(tapteDagerUtsettelse(perioder));
-        tapteDagerGradering(perioder).forEach((k,v) -> trekkdagerPrAktivitet.put(k, trekkdagerPrAktivitet.getOrDefault(k, Trekkdager.ZERO).add(v)));
         return trekkdagerPrAktivitet.values().stream().max(Comparator.naturalOrder()).orElse(Trekkdager.ZERO);
     }
 
