@@ -130,10 +130,6 @@ public class YtelseFordelingTjeneste {
         ytelsesFordelingRepository.lagre(behandlingId, ytelseFordelingAggregatBuilder.build());
     }
 
-    public YtelseFordelingAggregat hentAggregatForGrunnlagId(Long grunnlagId) {
-        return ytelsesFordelingRepository.hentYtelsesFordelingPåId(grunnlagId);
-    }
-
     public Optional<YtelseFordelingGrunnlagEntitet> hentGrunnlagPåId(Long grunnlagId) {
         return ytelsesFordelingRepository.hentGrunnlagPåId(grunnlagId);
     }

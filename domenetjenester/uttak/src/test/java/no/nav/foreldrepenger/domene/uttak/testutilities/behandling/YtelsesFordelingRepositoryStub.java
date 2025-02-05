@@ -18,11 +18,6 @@ class YtelsesFordelingRepositoryStub extends YtelsesFordelingRepository {
     }
 
     @Override
-    public YtelseFordelingAggregat hentYtelsesFordelingPåId(Long aggregatId) {
-        throw new IkkeImplementertForTestException();
-    }
-
-    @Override
     public Optional<YtelseFordelingAggregat> hentAggregatHvisEksisterer(Long behandlingId) {
         return Optional.ofNullable(ytelseFordelingAggregatMap.get(behandlingId));
     }

@@ -43,8 +43,6 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 
 class VedtaksperioderHelperTest {
 
-    private static final KodeMapper<StønadskontoType, UttakPeriodeType> stønadskontoTypeMapper = initStønadskontoTypeMapper();
-
     private final LocalDate fødselsdato = LocalDate.of(2018, 1, 1);
 
     @Test

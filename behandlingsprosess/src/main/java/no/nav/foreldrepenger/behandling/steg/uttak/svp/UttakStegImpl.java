@@ -20,8 +20,8 @@ import no.nav.foreldrepenger.domene.uttak.svp.FastsettUttaksresultatTjeneste;
 @ApplicationScoped
 public class UttakStegImpl implements UttakSteg {
 
-    private FastsettUttaksresultatTjeneste fastsettUttaksresultatTjeneste;
-    private UttakInputTjeneste uttakInputTjeneste;
+    private final FastsettUttaksresultatTjeneste fastsettUttaksresultatTjeneste;
+    private final UttakInputTjeneste uttakInputTjeneste;
 
     @Inject
     public UttakStegImpl(UttakInputTjeneste uttakInputTjeneste,

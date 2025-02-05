@@ -162,7 +162,7 @@ public class BehandlingDvhMapper {
     }
 
     private static boolean erYtelsesbehandlingMedDokumenter(Behandling behandling, List<MottattDokument> mottatteDokumenter) {
-        return !behandling.erYtelseBehandling() || mottatteDokumenter.isEmpty();
+        return behandling.erYtelseBehandling() && !mottatteDokumenter.isEmpty();
     }
 
     private static LocalDateTime finnMottattTidspunkt(List<MottattDokument> mottatteDokumenter) {
