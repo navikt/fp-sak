@@ -46,6 +46,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -54,6 +55,22 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class FeilPraksisOpprettBehandlingTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(FeilPraksisOpprettBehandlingTjeneste.class);
+
+    private static final Set<PeriodeResultatÅrsak> IKKE_RELEVANTE_UTSETTELSE_ÅRSAKER = Set.of(
+            PeriodeResultatÅrsak.UTSETTELSE_FØR_TERMIN_FØDSEL, // 4030
+            PeriodeResultatÅrsak.UTSETTELSE_INNENFOR_DE_FØRSTE_6_UKENE, // 4031
+            PeriodeResultatÅrsak.SØKER_ER_DØD, // 4071
+            PeriodeResultatÅrsak.BARNET_ER_DØD, // 4072
+            PeriodeResultatÅrsak.FRATREKK_PLEIEPENGER, // 4077
+            PeriodeResultatÅrsak.MOR_FØRSTE_SEKS_UKER_IKKE_SØKT, // 4103
+            PeriodeResultatÅrsak.STØNADSPERIODE_NYTT_BARN, // 4104
+            PeriodeResultatÅrsak.SØKERS_SYKDOM_SKADE_SEKS_UKER_IKKE_OPPFYLT, // 4110
+            PeriodeResultatÅrsak.SØKERS_INNLEGGELSE_SEKS_UKER_IKKE_OPPFYLT, // 4111
+            PeriodeResultatÅrsak.BARNETS_INNLEGGELSE_SEKS_UKER_IKKE_OPPFYLT, // 4112
+            PeriodeResultatÅrsak.SØKERS_SYKDOM_ELLER_SKADE_SEKS_UKER_IKKE_DOKUMENTERT, // 4115
+            PeriodeResultatÅrsak.SØKERS_INNLEGGELSE_SEKS_UKER_IKKE_DOKUMENTERT, // 4116
+            PeriodeResultatÅrsak.BARNETS_INNLEGGELSE_SEKS_UKER_IKKE_DOKUMENTERT // 4117
+    );
 
     private BehandlingRepository behandlingRepository;
     private FagsakLåsRepository fagsakLåsRepository;
@@ -154,18 +171,23 @@ public class FeilPraksisOpprettBehandlingTjeneste {
 
     private static Map<UttakAktivitetGruppering, Trekkdager> tapteDagerUtsettelse(List<UttakResultatPeriodeEntitet> perioder) {
         return perioder.stream()
-            .filter(FeilPraksisOpprettBehandlingTjeneste::erAvslåttUtsettelse)
+            .filter(FeilPraksisOpprettBehandlingTjeneste::erRelevantUtsettelse)
             .map(FeilPraksisOpprettBehandlingTjeneste::tapteDagerUtsettelsePeriode)
             .flatMap(Collection::stream)
             .collect(Collectors.groupingBy(UttakAktivitetTapteDager::grupperingsnøkkel,
                 Collectors.reducing(Trekkdager.ZERO, UttakAktivitetTapteDager::taptedager, Trekkdager::add)));
     }
 
-    private static boolean erAvslåttUtsettelse(UttakResultatPeriodeEntitet p) {
+    private static boolean erRelevantUtsettelse(UttakResultatPeriodeEntitet p) {
         if (p.getTom().isBefore(UtsettelseCore2021.IKRAFT_FRA_DATO)) {
             return false;
         }
-        return p.isUtsettelse() && PeriodeResultatÅrsak.UtfallType.AVSLÅTT.equals(p.getResultatÅrsak().getUtfallType());
+
+        if (IKKE_RELEVANTE_UTSETTELSE_ÅRSAKER.contains(p.getResultatÅrsak())) {
+            return false;
+        }
+
+        return p.isUtsettelse();
     }
 
     private static List<UttakAktivitetTapteDager> tapteDagerUtsettelsePeriode(UttakResultatPeriodeEntitet periode) {
