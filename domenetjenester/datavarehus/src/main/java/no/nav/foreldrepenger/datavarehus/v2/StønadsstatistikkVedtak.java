@@ -276,7 +276,7 @@ public class StønadsstatistikkVedtak {
 
         // minsterett - kun for far har rett, uføre (mors aktivitet er ikke et krav i disse tilfeller)
 
-        record Trekkdager(@JsonValue @Min(0) @Max(530) @NotNull BigDecimal antall) {
+        record Trekkdager(@JsonValue @Min(0) @Max(720) @NotNull BigDecimal antall) {
             public Trekkdager(int antall) {
                 this(BigDecimal.valueOf(antall).setScale(1, RoundingMode.DOWN));
             }
