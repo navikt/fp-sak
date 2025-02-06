@@ -117,13 +117,11 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
         var brukAntallBarnISøknad = dto.getDokumentasjonForeligger() && !dto.isBrukAntallBarnITps();
         var barn = brukAntallBarnISøknad ? konverterBarn(dto.getUidentifiserteBarn()) : bekreftetVersjon.map(FamilieHendelseEntitet::getBarna)
             .orElse(List.of());
-        if (barn.isEmpty()) {
-            throw new FunksjonellException("FP-076346", "Ingen barn funnet", "Legg inn fødselsdato og overstyr fødselsvilkåret for å avslå");
-        }
         if (barn.stream().anyMatch(b -> null == b.getFødselsdato())) {
             throw kanIkkeUtledeGjeldendeFødselsdato();
         }
-        var fødselsdato = barn.stream().map(UidentifisertBarn::getFødselsdato).min(Comparator.naturalOrder()).orElseThrow();
+        var fødselsdato = barn.stream().map(UidentifisertBarn::getFødselsdato).min(Comparator.naturalOrder())
+            .orElseGet(() -> grunnlag.getGjeldendeVersjon().getSkjæringstidspunkt());
         if (termindato.isPresent()) {
             var fødselsintervall = FamilieHendelseTjeneste.intervallForTermindato(termindato.get());
             if (!fødselsintervall.encloses(fødselsdato)) {
