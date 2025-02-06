@@ -136,7 +136,7 @@ public class FeilPraksisUtsettelseRepository {
 
     public List<Long> finnNesteHundreSakerSomErMerketFeilIverksettelseFriUtsettelse(Long fraFagsakId) {
         var query = entityManager.createNativeQuery(QUERY_MERKET)
-            .setParameter(FRA_FAGSAK_ID, fraFagsakId == null ? 0 : fraFagsakId)
+            .setParameter("fraFagsakId", fraFagsakId == null ? 0 : fraFagsakId)
             .setParameter("feilp", BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE.getKode())
             .setHint(HibernateHints.HINT_READ_ONLY, "true");
         @SuppressWarnings("unchecked")
