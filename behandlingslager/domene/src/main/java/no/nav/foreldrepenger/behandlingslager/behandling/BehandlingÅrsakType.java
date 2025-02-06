@@ -1,16 +1,14 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-
-import com.fasterxml.jackson.annotation.JsonValue;
-
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum BehandlingÅrsakType implements Kodeverdi {
 
@@ -74,7 +72,7 @@ public enum BehandlingÅrsakType implements Kodeverdi {
 
     // Håndtering av diverse feilsituaqsjoner
     FEIL_PRAKSIS_UTSETTELSE("FEIL_PRAKSIS_UTSETTELSE", "Feil praksis utsettelse"),
-    FEIL_IVERKSETTELSE_FRI_UTSETTELSE("FEIL_IVERKSETTELSE_FRI_UTSETTELSE", "Feil iverksettelse fri utsettelse"),
+    FEIL_PRAKSIS_IVERKS_UTSET("FEIL_PRAKSIS_IVERKS_UTSET", "Feil iverksettelse fri utsettelse"),
 
     // Skille klageområder
     KLAGE_TILBAKEBETALING("KLAGE_TILBAKE", "Tilbakebetaling"),
