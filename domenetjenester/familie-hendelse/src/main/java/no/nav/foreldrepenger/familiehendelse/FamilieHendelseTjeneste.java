@@ -88,9 +88,9 @@ public class FamilieHendelseTjeneste {
         }
         List<LocalDateSegment<Boolean>> søknadSegmenter = new ArrayList<>();
         if (termindato != null)
-            søknadSegmenter.add(intervallForFødselsdato(termindato)); // Holder med ett utvidet intervall - det fra grunnlaget
+            søknadSegmenter.add(segmentForFødselsdato(termindato)); // Holder med ett utvidet intervall - det fra grunnlaget
         if (fødselsdato != null)
-            søknadSegmenter.add(intervallForFødselsdato(fødselsdato));
+            søknadSegmenter.add(segmentForFødselsdato(fødselsdato));
         var tidslineSøknad = new LocalDateTimeline<>(søknadSegmenter, StandardCombinators::alwaysTrueForMatch).compress();
         return utledTidslineFraGrunnlag(grunnlag).intersects(tidslineSøknad);
     }
@@ -101,7 +101,7 @@ public class FamilieHendelseTjeneste {
             return false;
         }
         var omsorgdatoGrunnlag = grunnlag.getGjeldendeVersjon().getSkjæringstidspunkt();
-        if (omsorgdatoGrunnlag == null || !intervallForFødselsdato(omsorgDato).overlapper(intervallForFødselsdato(omsorgdatoGrunnlag)))
+        if (omsorgdatoGrunnlag == null || !segmentForFødselsdato(omsorgDato).overlapper(segmentForFødselsdato(omsorgdatoGrunnlag)))
             return false;
         var intervallerGrunnlag =  utledPerioderForRegisterinnhenting(grunnlag);
         var antallGrunnlag = grunnlag.getGjeldendeAntallBarn();
@@ -115,8 +115,8 @@ public class FamilieHendelseTjeneste {
             return false;
         }
         if (grunnlag1.getGjeldendeVersjon().getGjelderAdopsjon() && grunnlag2.getGjeldendeVersjon().getGjelderAdopsjon()) {
-            var omsorgIntervall1 = intervallForFødselsdato(grunnlag1.getGjeldendeVersjon().getSkjæringstidspunkt());
-            var omsorgIntervall2 = intervallForFødselsdato(grunnlag2.getGjeldendeVersjon().getSkjæringstidspunkt());
+            var omsorgIntervall1 = segmentForFødselsdato(grunnlag1.getGjeldendeVersjon().getSkjæringstidspunkt());
+            var omsorgIntervall2 = segmentForFødselsdato(grunnlag2.getGjeldendeVersjon().getSkjæringstidspunkt());
             if (!omsorgIntervall1.overlapper(omsorgIntervall2))
                 return false;
         }
@@ -292,12 +292,12 @@ public class FamilieHendelseTjeneste {
         }
         if (FamilieHendelseType.TERMIN.equals(søknadVersjon.getType())) {
             var termindato = søknadVersjon.getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).orElseThrow();
-            intervaller.add(intervallForTermindato(termindato));
+            intervaller.add(segmentForTermindato(termindato));
             // Tar med bekreftet termindato hvis finnes - men både den og søknadsdato kan ha feil (sic)
             familieHendelseGrunnlag.getGjeldendeTerminbekreftelse()
                 .map(TerminbekreftelseEntitet::getTermindato)
                 .filter(t -> !termindato.equals(t))
-                .ifPresent(t -> intervaller.add(intervallForTermindato(t)));
+                .ifPresent(t -> intervaller.add(segmentForTermindato(t)));
         }
         if (FamilieHendelseType.ADOPSJON.equals(søknadVersjon.getType()) || FamilieHendelseType.OMSORG.equals(søknadVersjon.getType())) {
             intervaller.addAll(intervallerForUidentifisertBarn(søknadVersjon));
@@ -313,11 +313,15 @@ public class FamilieHendelseTjeneste {
             .toList();
     }
 
-    private static LocalDateSegment<Boolean> intervallForFødselsdato(LocalDate fødselsdato) {
+    private static LocalDateSegment<Boolean> segmentForFødselsdato(LocalDate fødselsdato) {
         return new LocalDateSegment<>(fødselsdato.minus(MATCH_INTERVAlL_FØDSEL), fødselsdato.plus(MATCH_INTERVAlL_FØDSEL), Boolean.TRUE);
     }
 
-    private static LocalDateSegment<Boolean> intervallForTermindato(LocalDate termindato) {
-        return new LocalDateSegment<>(termindato.minus(MATCH_INTERVAlL_TERMIN), termindato.plus(MATCH_INTERVAlL_FØDSEL), Boolean.TRUE);
+    private static LocalDateSegment<Boolean> segmentForTermindato(LocalDate termindato) {
+        return new LocalDateSegment<>(intervallForTermindato(termindato), Boolean.TRUE);
+    }
+
+    public static LocalDateInterval intervallForTermindato(LocalDate termindato) {
+        return new LocalDateInterval(termindato.minus(MATCH_INTERVAlL_TERMIN), termindato.plus(MATCH_INTERVAlL_FØDSEL));
     }
 }
