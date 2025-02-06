@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
@@ -66,6 +67,8 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     @Mock
     private FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste;
+    @Mock
+    private SvangerskapspengerRepository svangerskapspengerRepository;
 
     private KompletthetsjekkerImpl kompletthetsjekkerImpl;
     private final Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder()
@@ -85,7 +88,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         KompletthetssjekkerSøknadImpl kompletthetssjekkerSøknadImpl = new KompletthetssjekkerSøknadFørstegangsbehandlingImpl(
             dokumentArkivTjeneste, repositoryProvider, Period.parse("P4W"));
         var kompletthetssjekkerInntektsmelding = new KompletthetssjekkerInntektsmelding(
-            inntektsmeldingArkivTjeneste);
+            inntektsmeldingArkivTjeneste, svangerskapspengerRepository);
         var kompletthetsjekkerFelles = new KompletthetsjekkerFelles(repositoryProvider,
             dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock, kompletthetssjekkerInntektsmelding, inntektsmeldingTjeneste,
             fpInntektsmeldingTjeneste);

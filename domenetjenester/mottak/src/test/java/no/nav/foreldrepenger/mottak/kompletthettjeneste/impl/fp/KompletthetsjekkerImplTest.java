@@ -36,6 +36,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadVedleggEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
@@ -80,6 +81,8 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     @Mock
     private FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste;
+    @Mock
+    private SvangerskapspengerRepository svangerskapspengerRepository;
 
     private KompletthetsjekkerImpl kompletthetsjekkerImpl;
     private final Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder()
@@ -102,7 +105,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         KompletthetssjekkerSøknadImpl kompletthetssjekkerSøknadImpl = new KompletthetssjekkerSøknadFørstegangsbehandlingImpl(
                 dokumentArkivTjeneste, repositoryProvider, Period.parse("P4W"));
         var kompletthetssjekkerInntektsmelding = new KompletthetssjekkerInntektsmelding(
-                inntektsmeldingArkivTjeneste);
+                inntektsmeldingArkivTjeneste, svangerskapspengerRepository);
         var kompletthetsjekkerFelles = new KompletthetsjekkerFelles(repositoryProvider,
                 dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock, kompletthetssjekkerInntektsmelding, inntektsmeldingTjeneste,
             fpInntektsmeldingTjeneste);
@@ -341,10 +344,10 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     }
 
     private void mockManglendeInntektsmelding() {
-        var manglendeInntektsmeldinger = new HashMap<Arbeidsgiver, Set<EksternArbeidsforholdRef>>();
-        manglendeInntektsmeldinger.put(Arbeidsgiver.virksomhet("1"), new HashSet<>());
+        var manglendeInntektsmeldingerMock = new HashMap<Arbeidsgiver, Set<EksternArbeidsforholdRef>>();
+        manglendeInntektsmeldingerMock.put(Arbeidsgiver.virksomhet("1"), new HashSet<>());
         when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(any(), any())).thenReturn(
-                manglendeInntektsmeldinger);
+                manglendeInntektsmeldingerMock);
     }
 
     private void mockManglendeInntektsmeldingKompletthet(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> manglendeIM) {
