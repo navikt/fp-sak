@@ -1,37 +1,7 @@
 package no.nav.foreldrepenger.datavarehus.v2;
 
-import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.AnnenForelder;
-import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.Beregning;
-import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.Builder;
-import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.FamilieHendelse;
-import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.ForeldrepengerRettigheter;
-import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.HendelseType;
-import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.LovVersjon;
-import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.LovVersjon.FORELDREPENGER_MINSTERETT_2022_08_02;
-import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.LovVersjon.FORELDREPENGER_MINSTERETT_2024_08_02;
-import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.LovVersjon.FORELDREPENGER_UTJEVNE80_2024_07_01;
-import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.RettighetType;
-import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.UtlandsTilsnitt;
-import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.VedtakResultat;
-import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.YtelseType;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Period;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.FamilieHendelseDato;
@@ -87,6 +57,35 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregning;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.AnnenForelder;
+import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.Beregning;
+import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.Builder;
+import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.FamilieHendelse;
+import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.ForeldrepengerRettigheter;
+import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.HendelseType;
+import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.LovVersjon;
+import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.LovVersjon.FORELDREPENGER_MINSTERETT_2022_08_02;
+import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.LovVersjon.FORELDREPENGER_MINSTERETT_2024_08_02;
+import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.LovVersjon.FORELDREPENGER_UTJEVNE80_2024_07_01;
+import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.RettighetType;
+import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.UtlandsTilsnitt;
+import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.VedtakResultat;
+import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.YtelseType;
 
 @ApplicationScoped
 public class StønadsstatistikkTjeneste {
@@ -520,7 +519,7 @@ public class StønadsstatistikkTjeneste {
             return null;
         }
         // MIdlertidig
-        if (behandling.harNoenBehandlingÅrsaker(Set.of(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE, BehandlingÅrsakType.FEIL_IVERKSETTELSE_FRI_UTSETTELSE)) || fagsakMarkering.contains(FagsakMarkering.PRAKSIS_UTSETTELSE)) {
+        if (behandling.harNoenBehandlingÅrsaker(Set.of(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE, BehandlingÅrsakType.FEIL_PRAKSIS_IVERKS_UTSET)) || fagsakMarkering.contains(FagsakMarkering.PRAKSIS_UTSETTELSE)) {
             return StønadsstatistikkVedtak.RevurderingÅrsak.PRAKSIS_UTSETTELSE;
         }
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
