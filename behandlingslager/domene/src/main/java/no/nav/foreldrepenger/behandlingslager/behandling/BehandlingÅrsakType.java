@@ -74,6 +74,7 @@ public enum BehandlingÅrsakType implements Kodeverdi {
 
     // Håndtering av diverse feilsituaqsjoner
     FEIL_PRAKSIS_UTSETTELSE("FEIL_PRAKSIS_UTSETTELSE", "Feil praksis utsettelse"),
+    FEIL_IVERKSETTELSE_FRI_UTSETTELSE("FEIL_IVERKSETTELSE_FRI_UTSETTELSE", "Feil iverksettelse fri utsettelse"),
 
     // Skille klageområder
     KLAGE_TILBAKEBETALING("KLAGE_TILBAKE", "Tilbakebetaling"),

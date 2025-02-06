@@ -202,7 +202,8 @@ public class EndringsdatoRevurderingUtleder {
         var ref = input.getBehandlingReferanse();
         var fpGrunnlag = (ForeldrepengerGrunnlag) input.getYtelsespesifiktGrunnlag();
         if (input.isBehandlingManueltOpprettet() || fpGrunnlag.isDødsfall() || arbeidsforholdRelevantForUttakErEndret(input) ||
-            endretDekningsgrad(ref) || input.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE)) {
+            endretDekningsgrad(ref) || input.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE) ||
+            input.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_IVERKSETTELSE_FRI_UTSETTELSE)) {
 
             return Optional.of(EndringsdatoType.FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK);
         }

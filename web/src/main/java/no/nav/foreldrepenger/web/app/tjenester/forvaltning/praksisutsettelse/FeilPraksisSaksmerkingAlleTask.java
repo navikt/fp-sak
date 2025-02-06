@@ -1,18 +1,15 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.praksisutsettelse;
 
-import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.Optional;
-
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.dokumentbestiller.infobrev.FeilPraksisUtsettelseRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+
+import java.time.LocalDateTime;
 
 @Dependent
 @ProsessTask(value = "behandling.saksmerkepraksisutsettelse.alle", prioritet = 4, maxFailedRuns = 1)
@@ -35,20 +32,19 @@ class FeilPraksisSaksmerkingAlleTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        var fagsakIdProperty = prosessTaskData.getPropertyValue(FRA_FAGSAK_ID);
-        var fraFagsakId = fagsakIdProperty == null ? null : Long.valueOf(fagsakIdProperty);
-        var utvalg = Optional.ofNullable(prosessTaskData.getPropertyValue(UTVALG))
-            .map(Utvalg::valueOf).orElseThrow();
-
-        var saker = switch (utvalg) {
-            case MOR -> utvalgRepository.finnNesteHundreSakerForMerkingMor(fraFagsakId);
-            case FAR_BEGGE_RETT -> utvalgRepository.finnNesteHundreSakerForMerkingFarBeggeEllerAlene(fraFagsakId);
-        };
-        saker.stream().map(FeilPraksisSaksmerkingAlleTask::opprettTaskForEnkeltSak).forEach(prosessTaskTjeneste::lagre);
-
-        saker.stream().max(Comparator.naturalOrder())
-            .map(maxfid -> opprettTaskForNesteUtvalg(maxfid, utvalg))
-            .ifPresent(prosessTaskTjeneste::lagre);
+//        var fagsakIdProperty = prosessTaskData.getPropertyValue(FRA_FAGSAK_ID);
+//        var fraFagsakId = fagsakIdProperty == null ? null : Long.valueOf(fagsakIdProperty);
+//        var utvalg = Optional.ofNullable(prosessTaskData.getPropertyValue(UTVALG))
+//            .map(Utvalg::valueOf).orElseThrow();
+//        var saker = switch (utvalg) {
+//            case MOR -> utvalgRepository.finnNesteHundreSakerForMerkingMor(fraFagsakId);
+//            case FAR_BEGGE_RETT -> utvalgRepository.finnNesteHundreSakerForMerkingFarBeggeEllerAlene(fraFagsakId);
+//        };
+//        saker.stream().map(FeilPraksisSaksmerkingAlleTask::opprettTaskForEnkeltSak).forEach(prosessTaskTjeneste::lagre);
+//
+//        saker.stream().max(Comparator.naturalOrder())
+//            .map(maxfid -> opprettTaskForNesteUtvalg(maxfid, utvalg))
+//            .ifPresent(prosessTaskTjeneste::lagre);
 
     }
 
