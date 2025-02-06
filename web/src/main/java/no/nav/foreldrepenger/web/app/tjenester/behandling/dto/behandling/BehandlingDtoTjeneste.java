@@ -285,7 +285,7 @@ public class BehandlingDtoTjeneste {
         dto.setAksjonspunkt(aksjonspunkt);
 
         // FIXME hvorfor ytelsspesifikk url her?  Bør kun ha en tilrettelegging url
-        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
+        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType()) && behandlingRepository.hentSistOppdatertTidspunkt(behandling.getId()).isPresent()) {
             dto.leggTil(get(SvangerskapspengerRestTjeneste.TILRETTELEGGING_V2_PATH, "svangerskapspenger-tilrettelegging", uuidDto));
         }
 
