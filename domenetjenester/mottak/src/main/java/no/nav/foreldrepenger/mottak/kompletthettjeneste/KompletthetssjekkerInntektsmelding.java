@@ -77,10 +77,10 @@ public class KompletthetssjekkerInntektsmelding {
 
             var arbeidsforholdDetErSøktSvpForOgIkkeIMangelListen = finnArbeidsforholdSomMåHaIm(manglendeInntektsmeldinger, ref.behandlingId());
 
-            var arbeidsgivereSomMaHaInntektsmelding = new ArrayList<>(manglendeInntektsmeldinger);
-            arbeidsgivereSomMaHaInntektsmelding.addAll(arbeidsforholdDetErSøktSvpForOgIkkeIMangelListen);
+            var arbeidsgivereSomMåHaInntektsmelding = new ArrayList<>(manglendeInntektsmeldinger);
+            arbeidsgivereSomMåHaInntektsmelding.addAll(arbeidsforholdDetErSøktSvpForOgIkkeIMangelListen);
 
-            return arbeidsgivereSomMaHaInntektsmelding;
+            return arbeidsgivereSomMåHaInntektsmelding;
 
         } catch (Exception e) {
             LOG.error("Feil ved henting av manglende inntektsmeldinger fra ny tjeneste for saksnummer: {}", ref.saksnummer(), e);
