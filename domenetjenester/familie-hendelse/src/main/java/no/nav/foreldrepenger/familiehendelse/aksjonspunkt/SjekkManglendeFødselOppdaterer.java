@@ -120,11 +120,10 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
         if (barn.stream().anyMatch(b -> null == b.getFødselsdato())) {
             throw kanIkkeUtledeGjeldendeFødselsdato();
         }
-        var fødselsdato = barn.stream().map(UidentifisertBarn::getFødselsdato).min(Comparator.naturalOrder())
-            .orElseGet(() -> grunnlag.getGjeldendeVersjon().getSkjæringstidspunkt());
-        if (termindato.isPresent()) {
+        var fødselsdato = barn.stream().map(UidentifisertBarn::getFødselsdato).min(Comparator.naturalOrder());
+        if (termindato.isPresent() && fødselsdato.isPresent()) {
             var fødselsintervall = FamilieHendelseTjeneste.intervallForTermindato(termindato.get());
-            if (!fødselsintervall.encloses(fødselsdato)) {
+            if (!fødselsintervall.encloses(fødselsdato.get())) {
                 throw new FunksjonellException("FP-076346", "For stort avvik termin/fødsel", "Sjekk datoer eller meld sak i Porten");
             }
         }
