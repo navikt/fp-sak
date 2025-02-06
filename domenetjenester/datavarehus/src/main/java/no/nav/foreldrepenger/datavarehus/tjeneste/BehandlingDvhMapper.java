@@ -1,15 +1,5 @@
 package no.nav.foreldrepenger.datavarehus.tjeneste;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.Function;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -32,6 +22,16 @@ import no.nav.foreldrepenger.datavarehus.domene.BehandlingMetode;
 import no.nav.foreldrepenger.datavarehus.domene.RevurderingÅrsak;
 import no.nav.foreldrepenger.datavarehus.domene.VilkårIkkeOppfylt;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Function;
 
 public class BehandlingDvhMapper {
 
@@ -203,7 +203,7 @@ public class BehandlingDvhMapper {
             return null;
         }
         // Midlertidig
-        if (behandling.harNoenBehandlingÅrsaker(Set.of(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE, BehandlingÅrsakType.FEIL_IVERKSETTELSE_FRI_UTSETTELSE)) || fagsakMarkering.contains(FagsakMarkering.PRAKSIS_UTSETTELSE)) {
+        if (behandling.harNoenBehandlingÅrsaker(Set.of(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE, BehandlingÅrsakType.FEIL_PRAKSIS_IVERKS_UTSET)) || fagsakMarkering.contains(FagsakMarkering.PRAKSIS_UTSETTELSE)) {
             return RevurderingÅrsak.PRAKSISUTSETTELSE;
         }
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {

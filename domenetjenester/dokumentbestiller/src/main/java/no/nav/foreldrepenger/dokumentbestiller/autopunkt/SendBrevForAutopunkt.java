@@ -42,7 +42,7 @@ public class SendBrevForAutopunkt {
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.INFOBREV_BEHANDLING)
             || behandling.harBehandlingÅrsak(INFOBREV_OPPHOLD) || behandling.harBehandlingÅrsak(INFOBREV_PÅMINNELSE)) {
             dokumentMal = DokumentMalType.FORELDREPENGER_INFO_TIL_ANNEN_FORELDER;
-        } else if (behandling.harNoenBehandlingÅrsaker(Set.of(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE, BehandlingÅrsakType.FEIL_IVERKSETTELSE_FRI_UTSETTELSE))) {
+        } else if (behandling.harNoenBehandlingÅrsaker(Set.of(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE, BehandlingÅrsakType.FEIL_PRAKSIS_IVERKS_UTSET))) {
             dokumentMal = DokumentMalType.FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_INFOBREV;
             // Akkurat denne skal ikke sendes flere ganger for en sak.
             if (dokumentBehandlingTjeneste.erDokumentBestiltForFagsak(behandling.getFagsakId(), dokumentMal)) {

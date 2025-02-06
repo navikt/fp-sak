@@ -1,31 +1,5 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.BERØRT_BEHANDLING;
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.FEIL_IVERKSETTELSE_FRI_UTSETTELSE;
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE;
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN;
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING;
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER;
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_HENDELSE_FØDSEL;
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_OPPLYSNINGER_OM_DØD;
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FORDELING;
-import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.AKTØR_ID_FAR;
-import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.AKTØR_ID_MOR;
-import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.FØDSELSDATO;
-import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK;
-import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.FØRSTE_UTTAKSDATO_SØKNAD_MOR_FPFF;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.junit.jupiter.api.Test;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -80,6 +54,31 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorS�
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
+import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.BERØRT_BEHANDLING;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.FEIL_PRAKSIS_IVERKS_UTSET;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_HENDELSE_FØDSEL;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_OPPLYSNINGER_OM_DØD;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FORDELING;
+import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.AKTØR_ID_FAR;
+import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.AKTØR_ID_MOR;
+import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.FØDSELSDATO;
+import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK;
+import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.FØRSTE_UTTAKSDATO_SØKNAD_MOR_FPFF;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 class EndringsdatoRevurderingUtlederTest {
 
@@ -812,8 +811,8 @@ class EndringsdatoRevurderingUtlederTest {
 
     @Test
     void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_vedtak_når_revurdering_er_pga_feil_iverksettelse_fri_utsettelse() {
-        var revurdering = testUtil.opprettRevurdering(FEIL_IVERKSETTELSE_FRI_UTSETTELSE);
-        var input = lagInput(revurdering).medBehandlingÅrsaker(Set.of(FEIL_IVERKSETTELSE_FRI_UTSETTELSE));
+        var revurdering = testUtil.opprettRevurdering(FEIL_PRAKSIS_IVERKS_UTSET);
+        var input = lagInput(revurdering).medBehandlingÅrsaker(Set.of(FEIL_PRAKSIS_IVERKS_UTSET));
 
         var endringsdato = utleder.utledEndringsdato(input);
 
@@ -822,8 +821,8 @@ class EndringsdatoRevurderingUtlederTest {
 
     @Test
     void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_vedtak_når_revurdering_er_pga_feil_iverksettelse_fri_utsettelse_og_endringssøknad_mottatt() {
-        var revurdering = testUtil.opprettRevurdering(FEIL_IVERKSETTELSE_FRI_UTSETTELSE);
-        var input = lagInput(revurdering).medBehandlingÅrsaker(Set.of(FEIL_IVERKSETTELSE_FRI_UTSETTELSE, RE_ENDRING_FRA_BRUKER));
+        var revurdering = testUtil.opprettRevurdering(FEIL_PRAKSIS_IVERKS_UTSET);
+        var input = lagInput(revurdering).medBehandlingÅrsaker(Set.of(FEIL_PRAKSIS_IVERKS_UTSET, RE_ENDRING_FRA_BRUKER));
 
         var endringsdato = utleder.utledEndringsdato(input);
 

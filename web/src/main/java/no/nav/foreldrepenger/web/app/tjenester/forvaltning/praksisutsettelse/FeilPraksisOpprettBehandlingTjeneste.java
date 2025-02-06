@@ -157,7 +157,7 @@ public class FeilPraksisOpprettBehandlingTjeneste {
         if (!dryrun) {
             var enhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFra(sisteVedtatte);
             fagsakLåsRepository.taLås(fagsak.getId());
-            var revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, BehandlingÅrsakType.FEIL_IVERKSETTELSE_FRI_UTSETTELSE, enhet);
+            var revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, BehandlingÅrsakType.FEIL_PRAKSIS_IVERKS_UTSET, enhet);
             behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurdering);
         }
 
