@@ -44,7 +44,7 @@ class MedlemskapVurderingPeriodeTjenesteTest {
 
         // Act/Assert
         assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).bosattVurderingsintervall(ref, stp))
-            .isEqualTo(new LocalDateInterval(LocalDate.now().minus(BOSATT_TILBAKE), termindato));
+            .isEqualTo(new LocalDateInterval(termindato.minus(BOSATT_TILBAKE), termindato));
         assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(termindato, termindato));
     }
