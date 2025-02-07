@@ -37,7 +37,7 @@ public class VergeRepository {
         lagreOgFlush(behandlingId, grunnlag);
     }
 
-    public void fjernVergeFraEksisterendeGrunnlag(Long behandlingId) {
+    public boolean fjernVergeFraEksisterendeGrunnlagHvisFinnes(Long behandlingId) {
         Objects.requireNonNull(behandlingId);
         var vergeAggregat = hentAggregat(behandlingId);
         if (vergeAggregat.isPresent()) {
@@ -47,6 +47,7 @@ public class VergeRepository {
             verifiserBehandlingLås(lås);
             entityManager.flush();
         }
+        return vergeAggregat.isPresent();
     }
 
     /**

@@ -81,6 +81,8 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.UttakRestTjenest
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon.DokumentasjonVurderingBehovDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BehandlingMedUttaksperioderDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta.FaktaUttakPeriodeDtoTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.BehandlingsUuidParam;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.NyVergeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.YtelsefordelingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
@@ -89,6 +91,7 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.FagsakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRestTjeneste;
 
+import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.delete;
 import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.get;
 import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.post;
 
@@ -251,6 +254,11 @@ public class BehandlingDtoTjeneste {
         dto.leggTil(post(BehandlingRestTjeneste.SETT_PA_VENT_PATH, "sett-behandling-pa-vent", new SettBehandlingPaVentDto()));
         dto.leggTil(post(BehandlingRestTjeneste.ENDRE_VENTEFRIST_PATH, "endre-pa-vent", new SettBehandlingPaVentDto()));
         dto.leggTil(post(AksjonspunktRestTjeneste.AKSJONSPUNKT_PATH, "lagre-aksjonspunkter", new BekreftedeAksjonspunkterDto()));
+
+        dto.leggTil(get(VergeRestTjeneste.BASE_PATH, "verge-hent", new BehandlingsUuidParam(behandling.getUuid())));
+        dto.leggTil(post(VergeRestTjeneste.BASE_PATH, "verge-opprett", new BehandlingsUuidParam(behandling.getUuid()), new NyVergeDto()));
+        dto.leggTil(delete(VergeRestTjeneste.BASE_PATH, "verge-fjern", new BehandlingsUuidParam(behandling.getUuid())));
+
         dto.leggTil(post(VergeRestTjeneste.VERGE_OPPRETT_PATH, "opprett-verge", new BehandlingIdVersjonDto()));
         dto.leggTil(post(VergeRestTjeneste.VERGE_FJERN_PATH, "fjern-verge", new BehandlingIdVersjonDto()));
 
@@ -394,7 +402,8 @@ public class BehandlingDtoTjeneste {
                 .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
                 .anyMatch(p -> p.getDagsats() > 0);
             if (tilkjentYtelse) {
-                dto.leggTil(get(BeregningsresultatRestTjeneste.DAGYTELSE_PATH, "beregningsresultat-dagytelse", uuidDto));
+                dto.leggTil(
+                    get(BeregningsresultatRestTjeneste.DAGYTELSE_PATH, "beregningsresultat-dagytelse", uuidDto));
             }
 
             if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
@@ -444,7 +453,8 @@ public class BehandlingDtoTjeneste {
             } else if (FagsakYtelseType.FORELDREPENGER.equals(originalBehandling.getFagsakYtelseType())) { //Burde også ta med svp?
                 var uttak = uttakTjeneste.hentHvisEksisterer(originalBehandling.getId());
                 if (uttak.isPresent()) {
-                    dto.leggTil(get(BeregningsresultatRestTjeneste.DAGYTELSE_PATH, "beregningsresultat-dagytelse-original-behandling", originalUuidDto));
+                    dto.leggTil(
+                        get(BeregningsresultatRestTjeneste.DAGYTELSE_PATH, "beregningsresultat-dagytelse-original-behandling", originalUuidDto));
                 }
             }
         });

@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.verge;
 
 import java.net.URISyntaxException;
-import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -9,9 +8,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
@@ -22,12 +24,15 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.domene.person.verge.dto.VergeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdVersjonDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.BehandlingsUuidParam;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.NyVergeDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
@@ -39,7 +44,8 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @Produces(MediaType.APPLICATION_JSON)
 public class VergeRestTjeneste {
 
-    static final String BASE_PATH = "/verge";
+    public static final String BASE_PATH = "/verge";
+
     private static final String VERGE_OPPRETT_PART_PATH = "/opprett";
     public static final String VERGE_OPPRETT_PATH = BASE_PATH + VERGE_OPPRETT_PART_PATH;
     private static final String VERGE_FJERN_PART_PATH = "/fjern";
@@ -62,11 +68,47 @@ public class VergeRestTjeneste {
         this.vergeTjeneste = vergeTjeneste;
     }
 
+    @GET
+    @Operation(description = "Henter verge/fullmektig på behandlingen", tags = "verge", responses = {@ApiResponse(responseCode = "200", description = "Verge/fullmektig funnet"), @ApiResponse(responseCode = "204", description = "Ingen verge/fullmektig")})
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    public VergeDto hentVerge(@QueryParam(BehandlingsUuidParam.NAME) BehandlingsUuidParam queryParam) {
+
+        var behandling = behandlingsprosessTjeneste.hentBehandling(queryParam.getBehandlingUuid());
+        return vergeTjeneste.hentVerge(behandling);
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "Oppretter verge/fullmektig på behandlingen", tags = "verge", responses = {@ApiResponse(responseCode = "202", description = "Verge/fullmektig opprettes", headers = @Header(name = HttpHeaders.LOCATION))})
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
+    public Response opprettVerge(@Context HttpServletRequest request,
+                                 @QueryParam(BehandlingsUuidParam.NAME) BehandlingsUuidParam queryParam,
+                                 @Valid NyVergeDto body) throws URISyntaxException {
+
+        var behandling = behandlingsprosessTjeneste.hentBehandling(queryParam.getBehandlingUuid());
+        vergeTjeneste.opprettVerge(behandling, body);
+
+        return Redirect.tilBehandlingPollStatus(request, queryParam.getBehandlingUuid());
+    }
+
+    @DELETE
+    @Operation(tags = "verge", description = "Fjerner verge/fullmektig på behandlingen", responses = {@ApiResponse(responseCode = "202", description = "Verge/fullmektig fjernet", headers = @Header(name = HttpHeaders.LOCATION))})
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
+    public Response fjernVerge(@Context HttpServletRequest request, @QueryParam(BehandlingsUuidParam.NAME) BehandlingsUuidParam queryParam) throws URISyntaxException {
+
+        var behandling = behandlingsprosessTjeneste.hentBehandling(queryParam.getBehandlingUuid());
+        vergeTjeneste.fjernVerge(behandling);
+
+        return Redirect.tilBehandlingPollStatus(request, queryParam.getBehandlingUuid());
+    }
+
+
+    @Deprecated(forRemoval = true)
     @POST
     @Path(VERGE_OPPRETT_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Oppretter aksjonspunkt for verge/fullmektig på behandlingen", tags = "verge", responses = {
-            @ApiResponse(responseCode = "200", description = "Aksjonspunkt for verge/fullmektig opprettes", headers = @Header(name = HttpHeaders.LOCATION))
+        @ApiResponse(responseCode = "200", description = "Aksjonspunkt for verge/fullmektig opprettes", headers = @Header(name = HttpHeaders.LOCATION))
     })
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
     public Response opprettVerge(@Context HttpServletRequest request,
@@ -81,14 +123,15 @@ public class VergeRestTjeneste {
         vergeTjeneste.opprettVergeAksjonspunktOgHoppTilbakeTilFORVEDSTEGHvisSenereSteg(behandling);
 
         behandling = behandlingsprosessTjeneste.hentBehandling(behandling.getUuid());
-        return Redirect.tilBehandlingPollStatus(request, behandling.getUuid(), Optional.empty());
+        return Redirect.tilBehandlingPollStatus(request, behandling.getUuid());
     }
 
+    @Deprecated(forRemoval = true)
     @POST
     @Path(VERGE_FJERN_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Fjerner aksjonspunkt og evt. registrert informasjon om verge/fullmektig fra behandlingen", tags = "verge", responses = {
-            @ApiResponse(responseCode = "200", description = "Fjerning av verge/fullmektig er gjennomført", headers = @Header(name = HttpHeaders.LOCATION))
+        @ApiResponse(responseCode = "200", description = "Fjerning av verge/fullmektig er gjennomført", headers = @Header(name = HttpHeaders.LOCATION))
     })
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
     public Response fjernVerge(@Context HttpServletRequest request,
@@ -103,7 +146,7 @@ public class VergeRestTjeneste {
         vergeTjeneste.fjernVergeGrunnlagOgAksjonspunkt(behandling);
 
         behandling = behandlingsprosessTjeneste.hentBehandling(behandling.getUuid());
-        return Redirect.tilBehandlingPollStatus(request, behandling.getUuid(), Optional.empty());
+        return Redirect.tilBehandlingPollStatus(request, behandling.getUuid());
     }
 
     private Behandling getBehandling(BehandlingIdDto behandlingIdDto) {
