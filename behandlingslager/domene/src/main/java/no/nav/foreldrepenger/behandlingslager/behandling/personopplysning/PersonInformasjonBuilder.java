@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.personopplysning;
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
@@ -74,6 +75,10 @@ public class PersonInformasjonBuilder {
             kladd.leggTilPersonopplysning(builder.build());
         }
         return this;
+    }
+
+    public PersonInformasjonBuilder leggTil(Function<PersonInformasjonBuilder, PersonopplysningBuilder> function) {
+        return leggTil(function.apply(this));
     }
 
     public PersonInformasjonBuilder leggTil(RelasjonBuilder builder) {

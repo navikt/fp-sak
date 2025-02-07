@@ -23,6 +23,10 @@ public final class ResourceLinks {
         return ResourceLink.get(href + query, rel);
     }
 
+    public static ResourceLink get(Path path, String rel) {
+        return get(path.build(), rel);
+    }
+
     public static ResourceLink post(String path, String rel) {
         return post(path, rel, null);
     }
@@ -30,6 +34,15 @@ public final class ResourceLinks {
     public static ResourceLink post(String path, String rel, Object requestPayload) {
         var href = addPathPrefix(path);
         return ResourceLink.post(href, rel, requestPayload);
+    }
+
+    public static ResourceLink post(Path path, String rel, Object requestPayload) {
+        return post(path.build(), rel, requestPayload);
+    }
+
+    public static ResourceLink delete(Path path, String rel) {
+        var href = addPathPrefix(path.build());
+        return ResourceLink.delete(href, rel);
     }
 
     public static String addPathPrefix(String path) {
