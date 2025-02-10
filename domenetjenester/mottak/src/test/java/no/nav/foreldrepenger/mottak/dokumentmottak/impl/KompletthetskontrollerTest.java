@@ -128,8 +128,8 @@ class KompletthetskontrollerTest {
     @Test
     void skal_gjenoppta_behandling_dersom_behandling_er_komplett_og_kompletthet_ikke_passert() {
         // Arrange
-        when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.VURDER_KOMPLETT_BEH)).thenReturn(false);
-        when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.VURDER_KOMPLETT_BEH)).thenReturn(true);
+        when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.VURDER_KOMPLETT_TIDLIG)).thenReturn(false);
+        when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.VURDER_KOMPLETT_TIDLIG)).thenReturn(true);
 
         kompletthetskontroller.persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
 
@@ -139,8 +139,8 @@ class KompletthetskontrollerTest {
     @Test
     void skal_ikke_gjenoppta_behandling_dersom_behandling_er_komplett_og_regsok_ikke_passert() {
         // Arrange
-        when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.VURDER_KOMPLETT_BEH)).thenReturn(false);
-        when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.VURDER_KOMPLETT_BEH)).thenReturn(false);
+        when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.VURDER_KOMPLETT_TIDLIG)).thenReturn(false);
+        when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.VURDER_KOMPLETT_TIDLIG)).thenReturn(false);
 
         kompletthetskontroller.persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
 
@@ -151,7 +151,7 @@ class KompletthetskontrollerTest {
     @Test
     void skal_gjenoppta_behandling_ved_mottak_av_ny_forretningshendelse() {
         // Arrange
-        when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.VURDER_KOMPLETT_BEH)).thenReturn(true);
+        when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.INNHENT_REGISTEROPP)).thenReturn(true);
 
         kompletthetskontroller.vurderNyForretningshendelse(behandling, BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
 
@@ -162,9 +162,9 @@ class KompletthetskontrollerTest {
     void skal_fortsette_behandling_i_kompletthet_ved_mottak_av_ny_forretningshendelse() {
         // Arrange
         var scenario2 = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .leggTilAksjonspunkt(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD, BehandlingStegType.VURDER_KOMPLETT_BEH);
+            .leggTilAksjonspunkt(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD, BehandlingStegType.VURDER_KOMPLETT_TIDLIG);
         var behandling2 = scenario2.lagMocked();
-        when(behandlingskontrollTjeneste.erStegPassert(behandling2.getId(), BehandlingStegType.VURDER_KOMPLETT_BEH)).thenReturn(false);
+        when(behandlingskontrollTjeneste.erStegPassert(behandling2.getId(), BehandlingStegType.INNHENT_REGISTEROPP)).thenReturn(false);
 
         kompletthetskontroller.vurderNyForretningshendelse(behandling2, BehandlingÅrsakType.RE_HENDELSE_DØD_FORELDER);
 
@@ -174,8 +174,9 @@ class KompletthetskontrollerTest {
     @Test
     void skal_spole_til_startpunkt_dersom_komplett_og_vurder_kompletthet_er_passert() {
         // Arrange
-        when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.VURDER_KOMPLETT_BEH)).thenReturn(true);
-        when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.VURDER_KOMPLETT_BEH)).thenReturn(true);
+        when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.VURDER_KOMPLETT_TIDLIG)).thenReturn(true);
+        when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.INNHENT_REGISTEROPP)).thenReturn(true);
+        when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.VURDER_KOMPLETT_TIDLIG)).thenReturn(true);
 
         var endringsresultatSnapshot = EndringsresultatSnapshot.opprett();
         when(behandlingProsesseringTjeneste.taSnapshotAvBehandlingsgrunnlag(behandling)).thenReturn(endringsresultatSnapshot);
