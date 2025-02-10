@@ -94,15 +94,8 @@ class RestApiAbacTest {
         var annotation = metode.getAnnotation(BeskyttetRessurs.class);
         if (annotation != null && annotation.actionType() == ActionType.DUMMY) {
             fail(klasse.getSimpleName() + "." + metode.getName() + " Ikke bruk DUMMY-verdi for " + ActionType.class.getSimpleName());
-        } else if (annotation != null && annotation.resource().isEmpty() && annotation.resourceType() == ResourceType.DUMMY && annotation.property()
-            .isEmpty()) {
+        } else if (annotation != null && annotation.resourceType() == ResourceType.DUMMY) {
             fail(klasse.getSimpleName() + "." + metode.getName() + " En verdi for resource må være satt!");
-        } else if (annotation != null && !annotation.property().isEmpty()) {
-            if (annotation.property().equals("abac.attributt.drift")) {
-                return;
-            }
-            fail(klasse.getSimpleName() + "." + metode.getName() + " @" + annotation.getClass().getSimpleName() + " bruker ikke-støttet property: "
-                + annotation.property());
         }
     }
 
