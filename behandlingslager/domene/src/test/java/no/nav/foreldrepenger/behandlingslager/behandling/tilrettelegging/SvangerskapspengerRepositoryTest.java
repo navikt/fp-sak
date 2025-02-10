@@ -47,7 +47,7 @@ class SvangerskapspengerRepositoryTest extends EntityManagerAwareTest {
         repository.lagreOgFlush(svpGrunnlag);
 
         // Act
-        repository.kopierSvpGrunnlagFraEksisterendeBehandling(gammelBehandling.getId(), nyBehandling);
+        repository.kopierSvpGrunnlagFraEksisterendeBehandling(gammelBehandling.getId(), nyBehandling, false);
 
         // Assert
         var kopiertGrunnlag = repository.hentGrunnlag(nyBehandling.getId());
@@ -56,6 +56,37 @@ class SvangerskapspengerRepositoryTest extends EntityManagerAwareTest {
         assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getKopiertFraTidligereBehandling()).isTrue();
         assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getMottattTidspunkt()).isEqualTo(I_GÅR);
         assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getBehovForTilretteleggingFom()).isEqualTo(OM_TRE_DAGER);
+        assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getTilretteleggingFOMListe().get(0).getKilde()).isEqualTo(SvpTilretteleggingFomKilde.TIDLIGERE_VEDTAK);
+        assertThat(kopiertGrunnlag.get().getOverstyrteTilrettelegginger()).isNull();
+    }
+
+    @Test
+    void skal_kopiere_fra_opprinnelig_grunnlag() {
+        // Arrange
+        var fagsak = basicBehandlingBuilder.opprettFagsak(FagsakYtelseType.SVANGERSKAPSPENGER);
+        var gammelBehandling = basicBehandlingBuilder.opprettOgLagreFørstegangssøknad(fagsak);
+        var nyBehandling = basicBehandlingBuilder.opprettOgLagreFørstegangssøknad(fagsak);
+
+        var opprTilrettelegging = opprettTilrettelegging(OM_TO_DAGER);
+        var ovstTilrettelegging = opprettTilrettelegging(OM_TRE_DAGER);
+
+        var svpGrunnlag = new SvpGrunnlagEntitet.Builder()
+            .medBehandlingId(gammelBehandling.getId())
+            .medOpprinneligeTilrettelegginger(List.of(opprTilrettelegging))
+            .medOverstyrteTilrettelegginger(List.of(ovstTilrettelegging))
+            .build();
+        repository.lagreOgFlush(svpGrunnlag);
+
+        // Act
+        repository.kopierSvpGrunnlagFraEksisterendeBehandling(gammelBehandling.getId(), nyBehandling, true);
+
+        // Assert
+        var kopiertGrunnlag = repository.hentGrunnlag(nyBehandling.getId());
+        assertThat(kopiertGrunnlag).isPresent();
+        assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe()).hasSize(1);
+        assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getKopiertFraTidligereBehandling()).isTrue();
+        assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getMottattTidspunkt()).isEqualTo(I_GÅR);
+        assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getBehovForTilretteleggingFom()).isEqualTo(OM_TO_DAGER);
         assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getTilretteleggingFOMListe().get(0).getKilde()).isEqualTo(SvpTilretteleggingFomKilde.TIDLIGERE_VEDTAK);
         assertThat(kopiertGrunnlag.get().getOverstyrteTilrettelegginger()).isNull();
     }

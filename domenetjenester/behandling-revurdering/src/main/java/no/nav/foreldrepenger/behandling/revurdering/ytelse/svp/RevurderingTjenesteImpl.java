@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValgRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -44,6 +45,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
     private VergeRepository vergeRepository;
     private NesteSakRepository nesteSakRepository;
     private ArbeidsforholdValgRepository arbeidsforholdValgRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
 
     public RevurderingTjenesteImpl() {
         // for CDI proxy
@@ -56,7 +58,8 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
                                    InntektArbeidYtelseTjeneste iayTjeneste,
                                    @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) RevurderingEndring revurderingEndring,
                                    RevurderingTjenesteFelles revurderingTjenesteFelles,
-                                   VergeRepository vergeRepository) {
+                                   VergeRepository vergeRepository,
+                                   BehandlingsresultatRepository behandlingsresultatRepository) {
         this.iayTjeneste = iayTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
@@ -69,6 +72,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         this.revurderingTjenesteFelles = revurderingTjenesteFelles;
         this.vergeRepository = vergeRepository;
         this.arbeidsforholdValgRepository = grunnlagRepositoryProvider.getArbeidsforholdValgRepository();
+        this.behandlingsresultatRepository = behandlingsresultatRepository;
     }
 
     @Override
@@ -114,7 +118,8 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
     public void kopierAlleGrunnlagFraTidligereBehandling(Behandling original, Behandling ny) {
         var originalBehandlingId = original.getId();
         var nyBehandlingId = ny.getId();
-        svangerskapspengerRepository.kopierSvpGrunnlagFraEksisterendeBehandling(originalBehandlingId, ny);
+        var erOrginalBehandlingHenlagt = erBehandlingHenlagt(original);
+        svangerskapspengerRepository.kopierSvpGrunnlagFraEksisterendeBehandling(originalBehandlingId, ny, erOrginalBehandlingHenlagt);
         familieHendelseRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
         personopplysningRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
         medlemskapRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
@@ -124,6 +129,10 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
 
         // gjør til slutt, innebærer kall til abakus
         iayTjeneste.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
+    }
+
+    private boolean erBehandlingHenlagt(Behandling behandling) {
+        return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).map(br -> br.getBehandlingResultatType().erHenlagt()).orElse(false);
     }
 
     @Override
