@@ -17,10 +17,9 @@ import org.jboss.weld.exceptions.IllegalStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.folketrygdloven.fpkalkulus.kontrakt.FpkalkulusYtelser;
-import no.nav.folketrygdloven.fpkalkulus.kontrakt.migrering.BeregningsgrunnlagGrunnlagMigreringDto;
-import no.nav.folketrygdloven.fpkalkulus.kontrakt.migrering.MigrerBeregningsgrunnlagRequest;
-import no.nav.folketrygdloven.fpkalkulus.kontrakt.migrering.MigrerBeregningsgrunnlagResponse;
+import no.nav.folketrygdloven.kalkulus.migrering.BeregningsgrunnlagGrunnlagMigreringDto;
+import no.nav.folketrygdloven.kalkulus.migrering.MigrerBeregningsgrunnlagRequest;
+import no.nav.folketrygdloven.kalkulus.migrering.MigrerBeregningsgrunnlagResponse;
 import no.nav.folketrygdloven.kalkulus.felles.v1.AktørIdPersonident;
 import no.nav.folketrygdloven.kalkulus.felles.v1.Saksnummer;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -154,10 +153,10 @@ public class BeregningMigreringTjeneste {
         return new MigrerBeregningsgrunnlagRequest(saksnummer, kobling.getKoblingUuid(), personIdent, ytelse, originalKobling.map(BeregningsgrunnlagKobling::getKoblingUuid).orElse(null), migreringsDto);
     }
 
-    private FpkalkulusYtelser mapYtelseSomSkalBeregnes(FagsakYtelseType fagsakYtelseType) {
+    private no.nav.folketrygdloven.kalkulus.kodeverk.FagsakYtelseType mapYtelseSomSkalBeregnes(FagsakYtelseType fagsakYtelseType) {
         return switch (fagsakYtelseType) {
-            case FORELDREPENGER -> FpkalkulusYtelser.FORELDREPENGER;
-            case SVANGERSKAPSPENGER -> FpkalkulusYtelser.SVANGERSKAPSPENGER;
+            case FORELDREPENGER -> no.nav.folketrygdloven.kalkulus.kodeverk.FagsakYtelseType.FORELDREPENGER;
+            case SVANGERSKAPSPENGER -> no.nav.folketrygdloven.kalkulus.kodeverk.FagsakYtelseType.SVANGERSKAPSPENGER;
             case ENGANGSTØNAD, UDEFINERT -> throw new IllegalStateException("Ukjent ytelse som skal beregnes " + fagsakYtelseType);
         };
     }

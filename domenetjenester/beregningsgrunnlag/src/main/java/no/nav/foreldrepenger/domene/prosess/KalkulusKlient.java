@@ -7,19 +7,19 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.UriBuilder;
 
-import no.nav.folketrygdloven.fpkalkulus.kontrakt.besteberegning.BesteberegningGrunnlagDto;
-import no.nav.folketrygdloven.fpkalkulus.kontrakt.migrering.MigrerBeregningsgrunnlagRequest;
-import no.nav.folketrygdloven.fpkalkulus.kontrakt.migrering.MigrerBeregningsgrunnlagResponse;
+import no.nav.folketrygdloven.kalkulus.migrering.MigrerBeregningsgrunnlagRequest;
+import no.nav.folketrygdloven.kalkulus.migrering.MigrerBeregningsgrunnlagResponse;
+import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelBeregnRequestDto;
+import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelFpkalkulusRequestDto;
+import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelHentBeregningsgrunnlagGUIRequest;
+import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelHåndterBeregningRequestDto;
+import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelKopierBeregningsgrunnlagRequestDto;
+import no.nav.folketrygdloven.kalkulus.response.v1.besteberegning.BesteberegningGrunnlagDto;
 import no.nav.vedtak.exception.TekniskException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.folketrygdloven.fpkalkulus.kontrakt.BeregnRequestDto;
-import no.nav.folketrygdloven.fpkalkulus.kontrakt.EnkelFpkalkulusRequestDto;
-import no.nav.folketrygdloven.fpkalkulus.kontrakt.HentBeregningsgrunnlagGUIRequest;
-import no.nav.folketrygdloven.fpkalkulus.kontrakt.HåndterBeregningRequestDto;
-import no.nav.folketrygdloven.fpkalkulus.kontrakt.KopierBeregningsgrunnlagRequestDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.TilstandResponse;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagGrunnlagDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
@@ -63,7 +63,7 @@ public class KalkulusKlient {
         this.migrer = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/migrer");
     }
 
-    public KalkulusRespons beregn(BeregnRequestDto request) {
+    public KalkulusRespons beregn(EnkelBeregnRequestDto request) {
         var restRequest = RestRequest.newPOSTJson(request, beregn, restConfig);
         try {
             var respons = restClient.sendReturnOptional(restRequest, TilstandResponse.class).orElseThrow(() -> new IllegalStateException("Ugyldig tilstand, tomt svar fra kalkulus"));
@@ -82,7 +82,7 @@ public class KalkulusKlient {
         return restClient.sendReturnOptional(restRequest, BeregningsgrunnlagGrunnlagDto.class);
     }
 
-    public Optional<BeregningsgrunnlagDto> hentGrunnlagGUI(HentBeregningsgrunnlagGUIRequest request) {
+    public Optional<BeregningsgrunnlagDto> hentGrunnlagGUI(EnkelHentBeregningsgrunnlagGUIRequest request) {
         var restRequest = RestRequest.newPOSTJson(request, hentGrunnlagGui, restConfig);
         return restClient.sendReturnOptional(restRequest, BeregningsgrunnlagDto.class);
     }
@@ -92,7 +92,7 @@ public class KalkulusKlient {
         return restClient.sendReturnOptional(restRequest, BesteberegningGrunnlagDto.class);
     }
 
-    public void kopierGrunnlag(KopierBeregningsgrunnlagRequestDto request) {
+    public void kopierGrunnlag(EnkelKopierBeregningsgrunnlagRequestDto request) {
         var restRequest = RestRequest.newPOSTJson(request, kopierGrunnlag, restConfig);
         var respons = restClient.sendReturnUnhandled(restRequest);
         if (respons.statusCode() != HttpURLConnection.HTTP_OK) {
@@ -100,7 +100,7 @@ public class KalkulusKlient {
         }
     }
 
-    public OppdateringRespons løsAvklaringsbehov(HåndterBeregningRequestDto request) {
+    public OppdateringRespons løsAvklaringsbehov(EnkelHåndterBeregningRequestDto request) {
         var restRequest = RestRequest.newPOSTJson(request, avklaringsbehov, restConfig);
         try {
             return restClient.sendReturnOptional(restRequest, OppdateringRespons.class).orElseThrow(() -> new IllegalStateException("Klarte ikke sende avklaringsbehov til fpkalkulus"));
