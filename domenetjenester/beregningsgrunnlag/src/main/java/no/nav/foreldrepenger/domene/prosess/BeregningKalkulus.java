@@ -6,17 +6,18 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelBeregnRequestDto;
+import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelFpkalkulusRequestDto;
+
+import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelHentBeregningsgrunnlagGUIRequest;
+import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelHåndterBeregningRequestDto;
+import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelKopierBeregningsgrunnlagRequestDto;
+import no.nav.folketrygdloven.kalkulus.response.v1.besteberegning.BesteberegningGrunnlagDto;
+
 import org.jboss.weld.exceptions.IllegalStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.folketrygdloven.fpkalkulus.kontrakt.BeregnRequestDto;
-import no.nav.folketrygdloven.fpkalkulus.kontrakt.EnkelFpkalkulusRequestDto;
-import no.nav.folketrygdloven.fpkalkulus.kontrakt.FpkalkulusYtelser;
-import no.nav.folketrygdloven.fpkalkulus.kontrakt.HentBeregningsgrunnlagGUIRequest;
-import no.nav.folketrygdloven.fpkalkulus.kontrakt.HåndterBeregningRequestDto;
-import no.nav.folketrygdloven.fpkalkulus.kontrakt.KopierBeregningsgrunnlagRequestDto;
-import no.nav.folketrygdloven.fpkalkulus.kontrakt.besteberegning.BesteberegningGrunnlagDto;
 import no.nav.folketrygdloven.kalkulus.felles.v1.AktørIdPersonident;
 import no.nav.folketrygdloven.kalkulus.felles.v1.Saksnummer;
 import no.nav.folketrygdloven.kalkulus.håndtering.v1.HåndterBeregningDto;
@@ -115,7 +116,7 @@ public class BeregningKalkulus implements BeregningAPI {
         var kobling = koblingRepository.hentKobling(referanse.behandlingId());
         return kobling.flatMap(k -> {
             var kalkulusInput = kalkulusInputTjeneste.lagKalkulusInput(referanse);
-            var hentGuiDtoRequest = new HentBeregningsgrunnlagGUIRequest(k.getKoblingUuid(),
+            var hentGuiDtoRequest = new EnkelHentBeregningsgrunnlagGUIRequest(k.getKoblingUuid(),
                 new Saksnummer(referanse.saksnummer().getVerdi()), kalkulusInput);
             return klient.hentGrunnlagGUI(hentGuiDtoRequest);
         });
@@ -168,21 +169,21 @@ public class BeregningKalkulus implements BeregningAPI {
                                                                           HåndterBeregningDto kalkulusDtoer) {
         var kobling = koblingRepository.hentKobling(referanse.behandlingId())
             .orElseThrow(() -> new IllegalStateException("Kan ikke løse aksjonspunkter i beregning uten først å ha opprettet kobling!"));
-        var request = new HåndterBeregningRequestDto(kobling.getKoblingUuid(), new Saksnummer(referanse.saksnummer().getVerdi()),
+        var request = new EnkelHåndterBeregningRequestDto(kobling.getKoblingUuid(), new Saksnummer(referanse.saksnummer().getVerdi()),
             kalkulusInputTjeneste.lagKalkulusInput(referanse), Collections.singletonList(kalkulusDtoer));
         var respons = klient.løsAvklaringsbehov(request);
         return Optional.of(MapEndringsresultat.mapFraOppdateringRespons(respons));
     }
 
-    private KopierBeregningsgrunnlagRequestDto lagKopierRequest(String verdi, BeregningsgrunnlagKobling kobling, BeregningsgrunnlagKobling originalKobling) {
-        return new KopierBeregningsgrunnlagRequestDto(new Saksnummer(verdi), kobling.getKoblingUuid(),
+    private EnkelKopierBeregningsgrunnlagRequestDto lagKopierRequest(String verdi, BeregningsgrunnlagKobling kobling, BeregningsgrunnlagKobling originalKobling) {
+        return new EnkelKopierBeregningsgrunnlagRequestDto(new Saksnummer(verdi), kobling.getKoblingUuid(),
             originalKobling.getKoblingUuid(), BeregningSteg.FAST_BERGRUNN);
     }
 
-    private FpkalkulusYtelser mapYtelseSomSkalBeregnes(FagsakYtelseType fagsakYtelseType) {
+    private no.nav.folketrygdloven.kalkulus.kodeverk.FagsakYtelseType mapYtelseSomSkalBeregnes(FagsakYtelseType fagsakYtelseType) {
         return switch (fagsakYtelseType) {
-            case FORELDREPENGER -> FpkalkulusYtelser.FORELDREPENGER;
-            case SVANGERSKAPSPENGER -> FpkalkulusYtelser.SVANGERSKAPSPENGER;
+            case FORELDREPENGER -> no.nav.folketrygdloven.kalkulus.kodeverk.FagsakYtelseType.FORELDREPENGER;
+            case SVANGERSKAPSPENGER -> no.nav.folketrygdloven.kalkulus.kodeverk.FagsakYtelseType.SVANGERSKAPSPENGER;
             case ENGANGSTØNAD, UDEFINERT -> throw new IllegalStateException("Ukjent ytelse som skal beregnes " + fagsakYtelseType);
         };
     }
@@ -202,12 +203,12 @@ public class BeregningKalkulus implements BeregningAPI {
         };
     }
 
-    private BeregnRequestDto lagBeregningRequest(BehandlingReferanse behandlingReferanse, BeregningsgrunnlagKobling kobling, BeregningSteg beregningSteg,
-                                                 Optional<BeregningsgrunnlagKobling> originalKobling) {
+    private EnkelBeregnRequestDto lagBeregningRequest(BehandlingReferanse behandlingReferanse, BeregningsgrunnlagKobling kobling, BeregningSteg beregningSteg,
+                                                      Optional<BeregningsgrunnlagKobling> originalKobling) {
         var saksnummer = new Saksnummer(behandlingReferanse.saksnummer().getVerdi());
         var personIdent = new AktørIdPersonident(behandlingReferanse.aktørId().getId());
         var ytelse = mapYtelseSomSkalBeregnes(behandlingReferanse.fagsakYtelseType());
         var input = kalkulusInputTjeneste.lagKalkulusInput(behandlingReferanse);
-        return new BeregnRequestDto(saksnummer, kobling.getKoblingUuid(), personIdent, ytelse, beregningSteg, input, originalKobling.map(BeregningsgrunnlagKobling::getKoblingUuid).orElse(null));
+        return new EnkelBeregnRequestDto(saksnummer, kobling.getKoblingUuid(), personIdent, ytelse, beregningSteg, input, originalKobling.map(BeregningsgrunnlagKobling::getKoblingUuid).orElse(null));
     }
 }

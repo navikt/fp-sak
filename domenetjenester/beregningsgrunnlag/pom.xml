@@ -28,8 +28,8 @@
             <artifactId>beregning-kalkulator</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.foreldrepenger.kalkulus</groupId>
-            <artifactId>kontrakt</artifactId>
+            <groupId>no.nav.folketrygdloven.kalkulus</groupId>
+            <artifactId>beregning-kontrakt</artifactId>
         </dependency>
 
 
