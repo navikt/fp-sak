@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
-@BehandlingStegRef(BehandlingStegType.VURDER_KOMPLETTHET)
+@BehandlingStegRef(BehandlingStegType.VURDER_KOMPLETT_BEH)
 @BehandlingTypeRef
 @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD)
 @ApplicationScoped

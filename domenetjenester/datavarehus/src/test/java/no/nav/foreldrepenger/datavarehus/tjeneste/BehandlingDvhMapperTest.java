@@ -157,7 +157,7 @@ class BehandlingDvhMapperTest {
     void skal_mappe_ventestatus() {
         var mottattTidspunkt = lagMottattDokument(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
         var scenario = opprettFørstegangssøknadScenario();
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD, BehandlingStegType.VURDER_KOMPLETTHET);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD, BehandlingStegType.VURDER_KOMPLETT_BEH);
         var behandling = byggBehandling(scenario, BehandlingResultatType.OPPHØR, false);
 
         var behandlingsresultat = scenario.mockBehandlingRepositoryProvider()

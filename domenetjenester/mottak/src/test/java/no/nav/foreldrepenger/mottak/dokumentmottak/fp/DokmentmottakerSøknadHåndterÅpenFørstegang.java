@@ -71,8 +71,8 @@ class DokmentmottakerSøknadHåndterÅpenFørstegang extends DokumentmottakerTes
 
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusDays(6)).medAntallBarn(1);
-        scenario.medBehandlingStegStart(BehandlingStegType.VURDER_KOMPLETTHET);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD, BehandlingStegType.VURDER_KOMPLETTHET);
+        scenario.medBehandlingStegStart(BehandlingStegType.VURDER_KOMPLETT_BEH);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD, BehandlingStegType.VURDER_KOMPLETT_BEH);
         var behandling = scenario.lagre(repositoryProvider);
 
         behandling = repositoryProvider.getBehandlingRepository().hentBehandling(behandling.getId());
