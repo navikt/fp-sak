@@ -249,7 +249,9 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
             .orElse(skjæringstidspunkt)
             .plus(MAX_STØNADSPERIODE);
-        return new LocalDateInterval(skjæringstidspunkt, max);
+        var fom = skjæringstidspunkt.isBefore(max) ? skjæringstidspunkt : max;
+        var tom = max.isAfter(skjæringstidspunkt) ? max : skjæringstidspunkt;
+        return new LocalDateInterval(fom, tom);
     }
 
     private LocalDate sisteØnskedeUttaksdag(Behandling behandling, Optional<YtelseFordelingAggregat> ytelseFordelingAggregat,
