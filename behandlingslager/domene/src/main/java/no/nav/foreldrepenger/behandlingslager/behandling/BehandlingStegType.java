@@ -22,8 +22,9 @@ public enum BehandlingStegType implements Kodeverdi {
     // Steg koder som deles av alle ytelser
     REGISTRER_SØKNAD("REGSØK", "Registrer søknad", UTREDES),
     INNHENT_SØKNADOPP("INSØK", "Innhent søknadsopplysninger", UTREDES),
-    VURDER_KOMPLETTHET("VURDERKOMPLETT", "Vurder kompletthet", UTREDES),
+    VURDER_KOMPLETT_TIDLIG("VURDERKOMPLETT", "Vurder kompletthet søkt for tidlig", UTREDES),
     INNHENT_REGISTEROPP("INREG", "Innhent registeropplysninger - innledende oppgaver", UTREDES),
+    VURDER_KOMPLETT_BEH("VURDERKOMPLETTBEH", "Vurder kompletthet av vedlegg", UTREDES),
     INREG_AVSL("INREG_AVSL", "Innhent registeropplysninger - resterende oppgaver", UTREDES),
     KONTROLLER_FAKTA("KOFAK", "Kontroller Fakta", UTREDES),
     KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT("VURDEROP", "Kontrollerer søkers opplysningsplikt", UTREDES),

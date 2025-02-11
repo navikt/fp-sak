@@ -73,7 +73,7 @@ class EsDtoTjenesteTest {
     void henter_aksjonspunkt() {
         var apDef = AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT;
         var behandling = ScenarioMorSøkerEngangsstønad.forFødsel()
-            .leggTilAksjonspunkt(apDef, BehandlingStegType.VURDER_KOMPLETTHET)
+            .leggTilAksjonspunkt(apDef, BehandlingStegType.VURDER_KOMPLETT_BEH)
             .lagre(repositoryProvider);
 
         var dto = (EsSak) tjeneste.hentSak(behandling.getFagsak());

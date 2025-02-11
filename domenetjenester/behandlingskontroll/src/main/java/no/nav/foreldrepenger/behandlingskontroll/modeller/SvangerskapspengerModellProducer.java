@@ -25,8 +25,9 @@ public class SvangerskapspengerModellProducer {
         modellBuilder.medSteg(
                 BehandlingStegType.REGISTRER_SØKNAD,
                 BehandlingStegType.INNHENT_SØKNADOPP,
-                BehandlingStegType.VURDER_KOMPLETTHET,
+                BehandlingStegType.VURDER_KOMPLETT_TIDLIG,
                 BehandlingStegType.INNHENT_REGISTEROPP,
+                BehandlingStegType.VURDER_KOMPLETT_BEH,
                 BehandlingStegType.INREG_AVSL,
                 BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING,
                 BehandlingStegType.VURDER_ARB_FORHOLD_PERMISJON,
@@ -70,8 +71,9 @@ public class SvangerskapspengerModellProducer {
                 BehandlingStegType.VARSEL_REVURDERING, // Kun for feriepengeomregningsformål
                 BehandlingStegType.REGISTRER_SØKNAD,
                 BehandlingStegType.INNHENT_SØKNADOPP,
-                BehandlingStegType.VURDER_KOMPLETTHET,
+                BehandlingStegType.VURDER_KOMPLETT_TIDLIG,
                 BehandlingStegType.INNHENT_REGISTEROPP,
+                BehandlingStegType.VURDER_KOMPLETT_BEH,
                 BehandlingStegType.INREG_AVSL,
                 BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING,
                 BehandlingStegType.VURDER_ARB_FORHOLD_PERMISJON,

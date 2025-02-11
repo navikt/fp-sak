@@ -25,8 +25,9 @@ public class EngangsstønadModellProducer {
         modellBuilder.medSteg(
                 BehandlingStegType.REGISTRER_SØKNAD,
                 BehandlingStegType.INNHENT_SØKNADOPP,
-                BehandlingStegType.VURDER_KOMPLETTHET,
+                BehandlingStegType.VURDER_KOMPLETT_TIDLIG,
                 BehandlingStegType.INNHENT_REGISTEROPP,
+                BehandlingStegType.VURDER_KOMPLETT_BEH,
                 BehandlingStegType.INREG_AVSL,
                 BehandlingStegType.KONTROLLER_FAKTA,
                 BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT,
@@ -54,8 +55,9 @@ public class EngangsstønadModellProducer {
         // Ny søknad ES gir førstegangsbehandling. Derfor er ikke REGISTRER_SØKNAD og INNHENT_SØKNADOPP med (p.t.)
         modellBuilder.medSteg(
                 BehandlingStegType.VARSEL_REVURDERING,
-                BehandlingStegType.VURDER_KOMPLETTHET,
+                BehandlingStegType.VURDER_KOMPLETT_TIDLIG,
                 BehandlingStegType.INNHENT_REGISTEROPP,
+                BehandlingStegType.VURDER_KOMPLETT_BEH,
                 BehandlingStegType.INREG_AVSL,
                 BehandlingStegType.KONTROLLER_FAKTA,
                 BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT,

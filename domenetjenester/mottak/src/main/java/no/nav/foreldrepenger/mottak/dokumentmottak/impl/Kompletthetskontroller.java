@@ -82,7 +82,7 @@ public class Kompletthetskontroller {
             if (behandling.isBehandlingPåVent()) {
                 behandlingProsesseringTjeneste.taBehandlingAvVent(behandling);
             }
-            if (kompletthetModell.erKompletthetssjekkPassert(behandling.getId())) {
+            if (kompletthetModell.erRegisterinnhentingPassert(behandling.getId())) {
                 // Reposisjoner basert på grunnlagsendring i nylig mottatt dokument. Videre reposisjonering gjøres i task etter registeroppdatering
                 behandlingProsesseringTjeneste.utledDiffOgReposisjonerBehandlingVedEndringer(behandling, grunnlagSnapshot);
                 behandlingProsesseringTjeneste.tvingInnhentingRegisteropplysninger(behandling);
@@ -118,7 +118,7 @@ public class Kompletthetskontroller {
     public void vurderNyForretningshendelse(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
         // Forbi kompletthet: Sikre oppdatering dersom behandling står i FatteVedtak eller registerdata er innhentet samme dag.
         // Venter i kompletthet: Prøv på nytt i utvalgte tilfelle
-        if (kompletthetModell.erKompletthetssjekkPassert(behandling.getId())) {
+        if (kompletthetModell.erRegisterinnhentingPassert(behandling.getId())) {
             behandlingProsesseringTjeneste.tvingInnhentingRegisteropplysninger(behandling);
             behandlingProsesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, LocalDateTime.now());
         } else if (BehandlingÅrsakType.årsakerRelatertTilDød().contains(behandlingÅrsakType) && behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD)) {

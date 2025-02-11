@@ -86,12 +86,16 @@ public class KompletthetModell {
             .collect(toList());
     }
 
-    public boolean erKompletthetssjekkPassert(Long behandlingId) {
-        return behandlingskontrollTjeneste.erStegPassert(behandlingId, BehandlingStegType.VURDER_KOMPLETTHET);
+    public boolean erTidligKompletthetssjekkPassert(Long behandlingId) {
+        return behandlingskontrollTjeneste.erStegPassert(behandlingId, BehandlingStegType.VURDER_KOMPLETT_TIDLIG);
+    }
+
+    public boolean erRegisterinnhentingPassert(Long behandlingId) {
+        return behandlingskontrollTjeneste.erStegPassert(behandlingId, BehandlingStegType.INNHENT_REGISTEROPP);
     }
 
     public boolean erKompletthetssjekkEllerPassert(Long behandlingId) {
-        return behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandlingId, BehandlingStegType.VURDER_KOMPLETTHET);
+        return behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandlingId, BehandlingStegType.VURDER_KOMPLETT_TIDLIG);
     }
 
     public KompletthetResultat vurderKompletthet(BehandlingReferanse ref, Skjæringstidspunkt stp, List<AksjonspunktDefinisjon> åpneAksjonspunkter) {
@@ -100,7 +104,7 @@ public class KompletthetModell {
         if (åpentAutopunkt.isPresent() && erAutopunktTilknyttetKompletthetssjekk(åpentAutopunkt)) {
             return vurderKompletthet(ref, stp, åpentAutopunkt.get());
         }
-        if (!erKompletthetssjekkPassert(ref.behandlingId())) {
+        if (!erTidligKompletthetssjekkPassert(ref.behandlingId())) {
             // Kompletthetssjekk er ikke passert, men står heller ikke på autopunkt tilknyttet kompletthet som skal sjekkes
             return KompletthetResultat.oppfylt();
         }

@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.kompletthet.svp;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -20,7 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
-@BehandlingStegRef(BehandlingStegType.VURDER_KOMPLETTHET)
+@BehandlingStegRef(BehandlingStegType.VURDER_KOMPLETT_BEH)
 @BehandlingTypeRef
 @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
 @ApplicationScoped
@@ -50,11 +49,6 @@ public class VurderKompletthetStegImpl implements VurderKompletthetSteg {
 
         if (skalPassereKompletthet(behandling) || kanPassereKompletthet(behandling)) {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
-        }
-
-        var søknadMottatt = kompletthetsjekker.vurderSøknadMottattForTidlig(skjæringstidspunkter);
-        if (!søknadMottatt.erOppfylt()) {
-            return VurderKompletthetStegFelles.evaluerUoppfylt(søknadMottatt, VENT_PGA_FOR_TIDLIG_SØKNAD);
         }
 
         var forsendelseMottatt = kompletthetsjekker.vurderForsendelseKomplett(ref, skjæringstidspunkter);
