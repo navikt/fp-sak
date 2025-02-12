@@ -43,7 +43,7 @@ public final class ResourceLinks {
             var mapper = new ObjectMapper();
             var mappedQueryParams = mapper.convertValue(queryParams, UriFormat.class).toString();
             if (!mappedQueryParams.isEmpty()) {
-                return String.join("?", mappedQueryParams);
+                return "?" + mappedQueryParams;
             }
         }
         return "";
