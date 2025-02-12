@@ -3,7 +3,9 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.verge;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -123,8 +125,7 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
             behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
             var pa = opprettPersonopplysningAggregatForPersonUnder18(behandling.getAktørId());
-            when(personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(any(), any()))
-                .thenReturn(Optional.of(pa));
+            when(personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(any(), any())).thenReturn(Optional.of(pa));
 
             // Act
             var behandlingOperasjon = vergeTjeneste.utledBehandlingOperasjon(behandling);
@@ -308,10 +309,10 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
     }
 
     private PersonopplysningerAggregat opprettPersonopplysningAggregatForPersonUnder18(AktørId aktørId) {
-        var personInformasjonBuilder = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT)
-            .leggTil(pib-> pib.getPersonopplysningBuilder(aktørId)
-                .medFødselsdato(LocalDate.now().minusYears(15)));
-        var entitet = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty()).medRegistrertVersjon(personInformasjonBuilder).build();
+        var builder = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
+        builder.leggTil(
+            builder.getPersonopplysningBuilder(aktørId).medFødselsdato(LocalDate.now().minusYears(15)));
+        var entitet = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty()).medRegistrertVersjon(builder).build();
 
         return new PersonopplysningerAggregat(entitet, aktørId);
     }

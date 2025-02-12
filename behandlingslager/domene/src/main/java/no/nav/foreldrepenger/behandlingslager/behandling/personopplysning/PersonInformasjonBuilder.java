@@ -77,10 +77,6 @@ public class PersonInformasjonBuilder {
         return this;
     }
 
-    public PersonInformasjonBuilder leggTil(Function<PersonInformasjonBuilder, PersonopplysningBuilder> function) {
-        return leggTil(function.apply(this));
-    }
-
     public PersonInformasjonBuilder leggTil(RelasjonBuilder builder) {
         if (!builder.getErOppdatering()) {
             kladd.leggTilPersonrelasjon(builder.build());
