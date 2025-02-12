@@ -77,8 +77,7 @@ class InntektsmeldingRegisterTjenesteFpTest {
     @BeforeEach
     void setUp() {
         var foreldrepengerFilter = new InntektsmeldingFilterYtelseImpl();
-        inntektsmeldingRegisterTjeneste = new InntektsmeldingRegisterTjeneste(inntektArbeidYtelseTjeneste, inntektsmeldingTjeneste, abakusArbeidsforholdTjeneste,
-            new UnitTestLookupInstanceImpl<>(foreldrepengerFilter));
+        inntektsmeldingRegisterTjeneste = new InntektsmeldingRegisterTjeneste(inntektArbeidYtelseTjeneste, inntektsmeldingTjeneste, new UnitTestLookupInstanceImpl<>(foreldrepengerFilter));
         behandlingReferanse = new BehandlingReferanse(new Saksnummer("123"), 321L, FagsakYtelseType.FORELDREPENGER, 123L,
             UUID.randomUUID(), BehandlingStatus.UTREDES, BehandlingType.FØRSTEGANGSSØKNAD, null, aktørId, RelasjonsRolleType.MORA);
     }

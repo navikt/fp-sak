@@ -12,8 +12,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -27,30 +25,22 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.abakus.ArbeidsforholdTjenesteMock;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYRepositoryProvider;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittAnnenAktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
@@ -104,32 +94,12 @@ class InntektsmeldingTjenesteTest {
 
         var virksomhetTjeneste = mock(VirksomhetTjeneste.class);
         when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(virksomhet1);
-        var arbeidsforholdTjenesteMock = new ArbeidsforholdTjenesteMock(false);
         arbeidsgiver2 = Arbeidsgiver.virksomhet(virksomhet2.getOrgnr());
         var foreldrepengerFilter = new InntektsmeldingFilterYtelseImpl();
         this.inntektsmeldingArkivTjeneste = new InntektsmeldingRegisterTjeneste(iayTjeneste,
-                inntektsmeldingTjeneste, arbeidsforholdTjenesteMock.getMock(), new UnitTestLookupInstanceImpl<>(foreldrepengerFilter));
+                inntektsmeldingTjeneste, new UnitTestLookupInstanceImpl<>(foreldrepengerFilter));
     }
 
-    @Test
-    void skal_vurdere_om_inntektsmeldinger_er_komplett() {
-        // Arrange
-        var behandling = opprettBehandling();
-        opprettOppgittOpptjening(behandling);
-        opprettInntektArbeidYtelseAggregatForYrkesaktivitet(behandling, AKTØRID,
-                DatoIntervallEntitet.fraOgMedTilOgMed(ARBEIDSFORHOLD_FRA, ARBEIDSFORHOLD_TIL),
-                ARBEIDSFORHOLD_ID, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN);
-
-        var behandlingReferanse = lagReferanse(behandling);
-
-        // Act+Assert
-        assertThat(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(behandlingReferanse, skjæringstidspunkt)).isNotEmpty();
-
-        lagreInntektsmelding(I_DAG.minusDays(2), behandling, ARBEIDSFORHOLD_ID, ARBEIDSFORHOLD_ID_EKSTERN);
-
-        // Act+Assert
-        assertThat(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(behandlingReferanse, skjæringstidspunkt)).isEmpty();
-    }
 
     @Test
     void skal_ta_hensyn_til_arbeidsforhold_med_inntekt() {
@@ -313,12 +283,6 @@ class InntektsmeldingTjenesteTest {
 
     }
 
-    private boolean erDisjonkteListerAvInntektsmeldinger(List<Inntektsmelding> imsA, List<Inntektsmelding> imsB) {
-        return Collections.disjoint(
-                imsA.stream().map(Inntektsmelding::getJournalpostId).toList(),
-                imsB.stream().map(Inntektsmelding::getJournalpostId).toList());
-    }
-
     private void lagreInntektsmelding(LocalDate mottattDato, Behandling behandling, InternArbeidsforholdRef arbeidsforholdIdIntern,
             EksternArbeidsforholdRef arbeidsforholdId) {
         lagreInntektsmelding(mottattDato, behandling, arbeidsforholdIdIntern, arbeidsforholdId, BigDecimal.TEN, arbeidsgiver);
@@ -348,7 +312,6 @@ class InntektsmeldingTjenesteTest {
         }
 
         inntektsmeldingTjeneste.lagreInntektsmelding(inntektsmelding,behandling );
-
     }
 
     private void opprettOppgittOpptjening(Behandling behandling) {
@@ -461,24 +424,5 @@ class InntektsmeldingTjenesteTest {
             new Saksnummer("9999"));
         fagsakRepository.opprettNy(fagsak);
         return fagsak;
-    }
-
-    private void avsluttBehandlingOgFagsak(Behandling behandling) {
-        var lås = behandlingRepository.taSkriveLås(behandling);
-        Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(behandling);
-        behandling.avsluttBehandling();
-        behandlingRepository.lagre(behandling, lås);
-        var fagsakRepository = repositoryProvider.getFagsakRepository();
-        fagsakRepository.oppdaterFagsakStatus(behandling.getFagsakId(), FagsakStatus.LØPENDE);
-    }
-
-    private Behandling opprettRevurderingsbehandling(Behandling opprinneligBehandling) {
-        var behandlingType = BehandlingType.REVURDERING;
-        var revurderingÅrsak = BehandlingÅrsak.builder(BehandlingÅrsakType.RE_HENDELSE_FØDSEL)
-                .medOriginalBehandlingId(opprinneligBehandling.getId());
-        var revurdering = Behandling.fraTidligereBehandling(opprinneligBehandling, behandlingType)
-                .medBehandlingÅrsak(revurderingÅrsak).build();
-        behandlingRepository.lagre(revurdering, behandlingRepository.taSkriveLås(revurdering));
-        return revurdering;
     }
 }

@@ -111,7 +111,7 @@ public class FpInntektsmeldingTjeneste {
     }
 
     public void lagForespørsel(BehandlingReferanse ref, Skjæringstidspunkt stp) {
-        var arbeidsgivereViManglerInntektsmeldingFra = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraAAreg(ref, stp)
+        var arbeidsgivereViManglerInntektsmeldingFra = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(ref, stp)
             .keySet()
             .stream()
             .filter(arbeidsgiver -> OrganisasjonsNummerValidator.erGyldig(arbeidsgiver.getOrgnr()))

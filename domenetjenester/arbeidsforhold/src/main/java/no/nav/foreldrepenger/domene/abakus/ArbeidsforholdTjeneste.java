@@ -1,14 +1,8 @@
 package no.nav.foreldrepenger.domene.abakus;
 
-import static java.util.stream.Collectors.flatMapping;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -41,20 +35,6 @@ public class ArbeidsforholdTjeneste {
     @Inject
     public ArbeidsforholdTjeneste(AbakusTjeneste abakusTjeneste) {
         this.abakusTjeneste = abakusTjeneste;
-    }
-
-    public Map<Arbeidsgiver, Set<EksternArbeidsforholdRef>> finnArbeidsforholdForIdentPåDag(AktørId ident, LocalDate dato,
-            FagsakYtelseType ytelseType) {
-        var ytelse = FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelseType) ? YtelseType.SVANGERSKAPSPENGER : YtelseType.FORELDREPENGER;
-        var request = new AktørDatoRequest(new AktørIdPersonident(ident.getId()), new Periode(dato, dato), ytelse);
-
-        return abakusTjeneste.hentArbeidsforholdIPerioden(request).stream()
-                .filter(af -> !ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER.equals(af.getType()))
-                .collect(Collectors.groupingBy(ArbeidsforholdTjeneste::mapTilArbeidsgiver,
-                        flatMapping(
-                                im -> Stream.of(EksternArbeidsforholdRef
-                                        .ref(im.getArbeidsforholdId() != null ? im.getArbeidsforholdId().getEksternReferanse() : null)),
-                                Collectors.toSet())));
     }
 
     public List<ArbeidsforholdMedPermisjon> hentArbeidsforholdInfoForEnPeriode(AktørId ident, LocalDate fradato, LocalDate tildato, FagsakYtelseType ytelseType) {
