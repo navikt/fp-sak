@@ -66,7 +66,6 @@ public class AbakusTjeneste {
     private final URI innhentRegisterdata;
     private final RestClient restClient;
     private final RestConfig restConfig;
-    private final URI endpointArbeidsforholdIPeriode;
     private final URI endpointGrunnlag;
     private final URI endpointMottaInntektsmeldinger;
     private final URI endpointMottaOppgittOpptjening;
@@ -83,7 +82,6 @@ public class AbakusTjeneste {
     public AbakusTjeneste() {
         this.restClient = RestClient.client();
         this.restConfig = RestConfig.forClient(AbakusTjeneste.class);
-        this.endpointArbeidsforholdIPeriode = toUri("/api/arbeidsforhold/v1/arbeidstaker");
         this.endpointArbeidsforholdMedPermisjonerIPeriode = toUri("/api/arbeidsforhold/v1/arbeidstakerMedPermisjoner");
         this.endpointGrunnlag = toUri("/api/iay/grunnlag/v1/");
         this.endpointMottaInntektsmeldinger = toUri("/api/iay/inntektsmeldinger/v1/motta");
@@ -132,10 +130,6 @@ public class AbakusTjeneste {
 
     public List<ArbeidsforholdDto> hentArbeidsforholdIPeriodenMedAvtalerOgPermisjoner(AktørDatoRequest request) {
         return hentArbeidsforholdFraEndepunkt(request, endpointArbeidsforholdMedPermisjonerIPeriode);
-    }
-
-    public List<ArbeidsforholdDto> hentArbeidsforholdIPerioden(AktørDatoRequest request) {
-        return hentArbeidsforholdFraEndepunkt(request, endpointArbeidsforholdIPeriode);
     }
 
     private List<ArbeidsforholdDto> hentArbeidsforholdFraEndepunkt(AktørDatoRequest request, URI endpoint) {
