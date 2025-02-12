@@ -6,11 +6,9 @@ import java.util.Objects;
 
 import jakarta.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Representerer en link til en resource/action i en HATEOAS response.
@@ -87,41 +85,8 @@ public class ResourceLink {
         return new ResourceLink(href, rel, HttpMethod.GET, null);
     }
 
-    public static ResourceLink get(String href, String rel, Object queryParams) {
-        var uri = new StringBuilder();
-        uri.append(href);
-        if (queryParams != null) {
-            uri.append("?");
-            uri.append(convertObjectToQueryString(queryParams));
-        }
-        return new ResourceLink(uri.toString(), rel, HttpMethod.GET, null);
-    }
-
     public static ResourceLink post(String href, String rel, Object requestPayload) {
         return new ResourceLink(href, rel, HttpMethod.POST, requestPayload);
-    }
-
-    private static String convertObjectToQueryString(Object object) {
-        var mapper = new ObjectMapper();
-        return mapper.convertValue(object, UriFormat.class).toString();
-    }
-
-    private static class UriFormat {
-
-        private final StringBuilder builder = new StringBuilder();
-
-        @JsonAnySetter
-        public void addToUri(String name, Object property) {
-            if (builder.length() > 0) {
-                builder.append("&");
-            }
-            builder.append(name).append("=").append(property);
-        }
-
-        @Override
-        public String toString() {
-            return builder.toString();
-        }
     }
 
     @Override
