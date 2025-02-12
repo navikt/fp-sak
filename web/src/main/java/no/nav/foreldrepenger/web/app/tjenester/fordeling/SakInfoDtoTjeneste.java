@@ -54,11 +54,9 @@ public class SakInfoDtoTjeneste {
     private LocalDate finnFørsteUttaksdato(Behandling behandling) {
         try {
             var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-            try {
-                return stp.getFørsteUttaksdato();
-            } catch (Exception e) {
-                return stp.getSkjæringstidspunktHvisUtledet().orElse(null);
-            }
+            return stp.getFørsteUttaksdatoHvisFinnes()
+                .or(stp::getSkjæringstidspunktHvisUtledet)
+                .orElse(null);
         } catch (Exception e) {
             return null;
         }

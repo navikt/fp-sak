@@ -80,7 +80,7 @@ public class UtsettelseCore2021 {
         var fødselsdato = gjeldendeFH.getFødselsdato()
             .filter(f -> termindatoMinusPeriode.isEmpty() || f.isBefore(termindatoMinusPeriode.get()))
             .or(() -> termindatoMinusPeriode);
-        var senesteStartdatoMor = fødselsdato.filter(førsteUttaksdato::isAfter).orElse(førsteUttaksdato);
+        var senesteStartdatoMor = førsteUttaksdato != null ? fødselsdato.filter(førsteUttaksdato::isAfter).orElse(førsteUttaksdato) : fødselsdato.orElseThrow();
         return VirkedagUtil.fomVirkedag(senesteStartdatoMor);
     }
 

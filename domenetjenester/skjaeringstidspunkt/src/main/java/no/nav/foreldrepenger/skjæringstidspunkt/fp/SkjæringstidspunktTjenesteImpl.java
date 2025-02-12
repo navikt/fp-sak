@@ -85,6 +85,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
 
         var utenMinsterett = minsterett2022.utenMinsterett(behandling);
         var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId);
+        // Finn første uttaksdag, men bruk dagens dato dersom søknad mangler (vent på søknad, papirsøknad)
         var førsteUttaksdato = førsteUttaksdag(behandling, familieHendelseGrunnlag, utenMinsterett);
 
         var førsteUttaksdatoFødselsjustert = førsteDatoHensyntattTidligFødsel(behandling, familieHendelseGrunnlag, førsteUttaksdato, utenMinsterett);
@@ -185,7 +186,9 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             // Forutsetning: at man ikke oppretter revurdering uten søknad (manuell/im) på sak uten innvilget uttaksperioder.
             var førsteUttaksdagIForrigeVedtak = finnFørsteDatoIUttakResultat(originalBehandling(behandling));
             if (førsteUttaksdagIForrigeVedtak.isEmpty() && førsteØnskedeUttaksdagIBehandling.isEmpty()) {
-                return finnFørsteDatoFraForrigeFordeling(behandling).orElse(null);
+                return finnFørsteDatoFraForrigeFordeling(behandling)
+                    .or(() -> unntaksTilfellerFriUtsettelse(behandling))
+                    .orElse(null);
             }
             // Sjekk utsettelse av startdato og returner da første uttaksdato i ny søknad
             var utsattStartdato = getUtsattStartdato(førsteUttaksdagIForrigeVedtak, oppgittFordeling);
@@ -195,15 +198,14 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             var skjæringstidspunkt = utledTidligste(førsteØnskedeUttaksdagIBehandling.orElse(Tid.TIDENES_ENDE),
                 førsteUttaksdagIForrigeVedtak.orElse(Tid.TIDENES_ENDE));
             if (skjæringstidspunkt.equals(Tid.TIDENES_ENDE)) {
-                // Fant da ikke noe skjæringstidspunkt i tidligere vedtak heller.
-                // throw finnerIkkeStpException(behandling.getId());
-                return null;
+                // Fant da ikke noe skjæringstidspunkt i tidligere vedtak heller. Skal ikke komme hit pga sjekk ovenfor.
+                throw finnerIkkeStpException(behandling.getId());
             }
             return skjæringstidspunkt;
         }
         if (manglerSøknadIFørstegangsbehandling(behandling)) {
             // Har ikke grunnlag for å avgjøre skjæringstidspunkt enda
-            return førsteØnskedeUttaksdagIBehandling.orElse(null);
+            return førsteØnskedeUttaksdagIBehandling.orElseGet(LocalDate::now);
         }
         return førsteØnskedeUttaksdagIBehandling
             .or(() -> unntaksTilfellerFriUtsettelse(behandling))
@@ -217,9 +219,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     private Optional<LocalDate> unntaksTilfellerFriUtsettelse(Behandling behandling) {
         if (RelasjonsRolleType.MORA.equals(behandling.getRelasjonsRolleType())) {
             return familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId())
-                .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-                .filter(FamilieHendelseEntitet::getGjelderFødsel)
-                .map(FamilieHendelseEntitet::getSkjæringstidspunkt);
+                .map(g -> UtsettelseCore2021.førsteUttaksDatoForBeregning(RelasjonsRolleType.MORA, g, null));
         }
         return Optional.empty();
     }

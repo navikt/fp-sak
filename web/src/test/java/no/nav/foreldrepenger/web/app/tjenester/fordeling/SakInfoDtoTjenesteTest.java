@@ -68,7 +68,7 @@ class SakInfoDtoTjenesteTest {
 
         when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(any())).thenReturn(Optional.of(behandling));
         when(skjæringstidspunktTjenesteMock.getSkjæringstidspunkter(behandling.getId())).thenReturn(skjæringstidspunktMock);
-        when(skjæringstidspunktMock.getFørsteUttaksdato()).thenReturn(førsteuttaksdato);
+        when(skjæringstidspunktMock.getFørsteUttaksdatoHvisFinnes()).thenReturn(Optional.of(førsteuttaksdato));
         when(familieHendelseRepositoryMock.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(familieHendelseGrunnlagEntitetMock));
         when(familieHendelseGrunnlagEntitetMock.getGjeldendeVersjon()).thenReturn(familieHendelseEntitetMock);
         when(familieHendelseEntitetMock.getSkjæringstidspunkt()).thenReturn(skjæringstidspunkt);
@@ -105,7 +105,7 @@ class SakInfoDtoTjenesteTest {
         when(familieHendelseEntitetMock.getType()).thenReturn(FamilieHendelseType.FØDSEL);
 
         when(skjæringstidspunktTjenesteMock.getSkjæringstidspunkter(behandling.getId())).thenReturn(skjæringstidspunktMock);
-        when(skjæringstidspunktMock.getFørsteUttaksdato()).thenThrow(new NullPointerException());
+        when(skjæringstidspunktMock.getFørsteUttaksdatoHvisFinnes()).thenReturn(Optional.empty());
         when(skjæringstidspunktMock.getSkjæringstidspunktHvisUtledet()).thenReturn(Optional.of(førsteuttaksdato));
 
         var sakInfoDto = sakInfoDtoTjeneste.mapSakInfoV2Dto(fagsak);
