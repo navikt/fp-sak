@@ -235,7 +235,7 @@ public class ForvaltningBehandlingRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Fjerner overstyrt grunnlag for svp behandling", tags = "FORVALTNING-behandling", responses = {
         @ApiResponse(responseCode = "200", description = "Overstyrt grunnlag for behandling er fjernet.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
-        @ApiResponse(responseCode = "400", description = "Oppgitt behandlinguuid er ukjent, ikke under behandling, eller engangsstønad."),
+        @ApiResponse(responseCode = "400", description = "Oppgitt behandlinguuid er ukjent, ikke under behandling, svangerskapspenger eller avsluttet."),
         @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
