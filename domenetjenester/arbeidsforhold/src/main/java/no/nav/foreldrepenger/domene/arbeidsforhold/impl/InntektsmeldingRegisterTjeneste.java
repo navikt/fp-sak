@@ -1,13 +1,8 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.impl;
 
-import static java.util.stream.Collectors.flatMapping;
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.tilMaskertNummer;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -17,7 +12,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Any;
@@ -32,18 +26,13 @@ import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.abakus.ArbeidsforholdTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdMedPermisjon;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
-import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 @ApplicationScoped
@@ -56,7 +45,6 @@ public class InntektsmeldingRegisterTjeneste {
 
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
-    private ArbeidsforholdTjeneste abakusArbeidsforholdTjeneste;
     private Instance<InntektsmeldingFilterYtelse> inntektsmeldingFiltere;
 
     InntektsmeldingRegisterTjeneste() {
@@ -65,120 +53,10 @@ public class InntektsmeldingRegisterTjeneste {
 
     @Inject
     public InntektsmeldingRegisterTjeneste(InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-            InntektsmeldingTjeneste inntektsmeldingTjeneste,
-            ArbeidsforholdTjeneste abakusArbeidsforholdTjeneste,
-            @Any Instance<InntektsmeldingFilterYtelse> inntektsmeldingFiltere) {
+            InntektsmeldingTjeneste inntektsmeldingTjeneste, @Any Instance<InntektsmeldingFilterYtelse> inntektsmeldingFiltere) {
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
-        this.abakusArbeidsforholdTjeneste = abakusArbeidsforholdTjeneste;
         this.inntektsmeldingFiltere = inntektsmeldingFiltere;
-    }
-
-    public Map<Arbeidsgiver, Set<EksternArbeidsforholdRef>> utledManglendeInntektsmeldingerFraAAreg(BehandlingReferanse referanse,
-                                                                                                    Skjæringstidspunkt skjæringstidspunkt) {
-        Objects.requireNonNull(referanse, VALID_REF);
-
-        var dato = skjæringstidspunkt.getUtledetSkjæringstidspunkt();
-        var påkrevdeInntektsmeldinger = abakusArbeidsforholdTjeneste.finnArbeidsforholdForIdentPåDag(referanse.aktørId(), dato, referanse.fagsakYtelseType());
-
-        if (påkrevdeInntektsmeldinger.isEmpty()) {
-            return Collections.emptyMap();
-        }
-
-        return utledManglendeInntektsmeldinger(referanse, skjæringstidspunkt, påkrevdeInntektsmeldinger);
-
-    }
-
-    public Map<Arbeidsgiver, Set<EksternArbeidsforholdRef>> utledManglendeInntektsmeldingerFraAAregVurderPermisjon(BehandlingReferanse referanse,
-                                                                                                                   Skjæringstidspunkt skjæringstidspunkt) {
-        Objects.requireNonNull(referanse, VALID_REF);
-
-        var stp = skjæringstidspunkt.getUtledetSkjæringstidspunkt();
-        var arbeidsforholdInfo = abakusArbeidsforholdTjeneste.hentArbeidsforholdInfoForEnPeriode(referanse.aktørId(), stp, stp,
-            referanse.fagsakYtelseType());
-
-        if (arbeidsforholdInfo.isEmpty()) {
-            return Collections.emptyMap();
-        }
-
-        List<ArbeidsforholdMedPermisjon> påkrevdeArbeidsgivere = new ArrayList<>();
-        var mapAvOrgnrOgAvtaler = arbeidsforholdInfo.stream().collect(Collectors.groupingBy(this::arbeidsgiverNøkkel));
-
-        mapAvOrgnrOgAvtaler.forEach((orgnummerOgArbeidsfoholdsId, arbeidsforholdListe) -> {
-            var harPermisjon = harHundreProsentPermisjonOgDenErRelevant(arbeidsforholdListe, stp);
-            if (!harPermisjon) {
-                påkrevdeArbeidsgivere.addAll(arbeidsforholdListe);
-            }
-        });
-
-        var påkrevdeInntektsmeldinger = påkrevdeArbeidsgivere.stream()
-            .collect(Collectors.groupingBy(InntektsmeldingRegisterTjeneste::mapTilArbeidsgiver, flatMapping(arbeidsforholdMedPermisjon -> Stream.of(
-                    EksternArbeidsforholdRef.ref(
-                        arbeidsforholdMedPermisjon.arbeidsforholdId() != null ? arbeidsforholdMedPermisjon.arbeidsforholdId().getReferanse() : null)),
-                Collectors.toSet())));
-
-        return utledManglendeInntektsmeldinger(referanse, skjæringstidspunkt, påkrevdeInntektsmeldinger);
-    }
-
-    private static Arbeidsgiver mapTilArbeidsgiver(ArbeidsforholdMedPermisjon arbeidsforholdMedPermisjon) {
-        var arbeidsgiver = arbeidsforholdMedPermisjon.arbeidsgiver();
-        if (arbeidsgiver.getErVirksomhet()) {
-            return Arbeidsgiver.virksomhet(arbeidsgiver.getOrgnr());
-        }
-        if (arbeidsgiver.erAktørId()) {
-            return Arbeidsgiver.person(new AktørId(arbeidsgiver.getIdentifikator()));
-        }
-        throw new IllegalArgumentException("Arbeidsgiver er verken person eller organisasjon");
-    }
-
-    private boolean harHundreProsentPermisjonOgDenErRelevant(List<ArbeidsforholdMedPermisjon> arbeidsforholdListe, LocalDate stp) {
-        var stillingsprosentPåStp = arbeidsforholdListe.stream()
-            .map(ArbeidsforholdMedPermisjon::aktivitetsavtaler)
-            .flatMap(Collection::stream)
-            .filter(aktivitetAvtale -> aktivitetAvtale.periode().inkluderer(stp))
-            .map(ArbeidsforholdTjeneste.AktivitetAvtale::stillingsprosent)
-            .reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
-
-        var relevantPermisjonsprosentPåStp = arbeidsforholdListe.stream().map(ArbeidsforholdMedPermisjon::permisjoner)
-            .flatMap(Collection::stream)
-            .filter(this::erPermisjonRelevant)
-            .filter(permisjon -> permisjon.periode().inkluderer(stp))
-            .map(ArbeidsforholdTjeneste.Permisjon::prosent)
-            .reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
-
-        return stillingsprosentPåStp.compareTo(BigDecimal.ZERO) > 0 && relevantPermisjonsprosentPåStp.compareTo(BigDecimal.valueOf(100)) == 0;
-    }
-
-    private boolean erPermisjonRelevant(ArbeidsforholdTjeneste.Permisjon permisjon) {
-        return permisjon.type().erRelevantForBeregningEllerArbeidsforhold();
-    }
-
-    private String arbeidsgiverNøkkel(ArbeidsforholdMedPermisjon arbeidsforholdInfo) {
-        return arbeidsforholdInfo.arbeidsforholdId() != null
-            ? arbeidsforholdInfo.arbeidsgiver().getOrgnr() + "-" + arbeidsforholdInfo.arbeidsforholdId().getReferanse()
-            : arbeidsforholdInfo.arbeidsgiver().getOrgnr();
-    }
-
-    private Map<Arbeidsgiver, Set<EksternArbeidsforholdRef>> utledManglendeInntektsmeldinger(BehandlingReferanse referanse, Skjæringstidspunkt stp,
-            Map<Arbeidsgiver, Set<EksternArbeidsforholdRef>> påkrevdeInntektsmeldinger) {
-        class FinnEksternReferanse implements BiFunction<Arbeidsgiver, InternArbeidsforholdRef, EksternArbeidsforholdRef> {
-            ArbeidsforholdInformasjon arbInfo;
-
-            @Override
-            public EksternArbeidsforholdRef apply(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef internReferanse) {
-                if (arbInfo == null) {
-                    var grunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(referanse.behandlingId());
-                    arbInfo = grunnlag.getArbeidsforholdInformasjon().orElseThrow(
-                            () -> new IllegalStateException(
-                                    "Utvikler-feil: mangler IAYG.ArbeidsforholdInformasjon, kan ikke slå opp ekstern referanse"));
-                }
-                return arbInfo.finnEkstern(arbeidsgiver, internReferanse);
-            }
-        }
-
-        filtrerUtMottatteInntektsmeldinger(referanse, stp, påkrevdeInntektsmeldinger, new FinnEksternReferanse());
-
-        return søknadsFilter(referanse, påkrevdeInntektsmeldinger);
     }
 
     private void logInntektsmeldinger(BehandlingReferanse referanse, Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger,

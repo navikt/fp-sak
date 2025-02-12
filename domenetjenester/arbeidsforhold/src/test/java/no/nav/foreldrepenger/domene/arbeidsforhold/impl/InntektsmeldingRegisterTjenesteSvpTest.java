@@ -84,8 +84,8 @@ class InntektsmeldingRegisterTjenesteSvpTest {
     @BeforeEach
     void setUp() {
         var svangerskapspengerFilter = new InntektsmeldingFilterYtelseImpl(svangerskapspengerRepository);
-        inntektsmeldingRegisterTjeneste = new InntektsmeldingRegisterTjeneste(inntektArbeidYtelseTjeneste, inntektsmeldingTjeneste, abakusArbeidsforholdTjeneste,
-            new UnitTestLookupInstanceImpl<>(svangerskapspengerFilter));
+        inntektsmeldingRegisterTjeneste = new InntektsmeldingRegisterTjeneste(inntektArbeidYtelseTjeneste, inntektsmeldingTjeneste,
+                new UnitTestLookupInstanceImpl<>(svangerskapspengerFilter));
         behandlingReferanse = new BehandlingReferanse(new Saksnummer("123"), 321L, FagsakYtelseType.SVANGERSKAPSPENGER, 123L,
             UUID.randomUUID(), BehandlingStatus.UTREDES, BehandlingType.FØRSTEGANGSSØKNAD, null, aktørId, RelasjonsRolleType.MORA);
     }

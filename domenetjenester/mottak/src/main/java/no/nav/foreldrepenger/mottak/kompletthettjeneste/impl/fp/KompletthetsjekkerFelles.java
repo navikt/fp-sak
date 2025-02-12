@@ -106,7 +106,7 @@ public class KompletthetsjekkerFelles {
     }
 
     public Optional<KompletthetResultat> getInntektsmeldingKomplett(BehandlingReferanse ref, Skjæringstidspunkt stp) {
-        var manglendeInntektsmeldinger = kompletthetssjekkerInntektsmelding.utledManglendeInntektsmeldinger(ref, stp);
+        var manglendeInntektsmeldinger = kompletthetssjekkerInntektsmelding.utledManglendeInntektsmeldingerFraGrunnlag(ref, stp);
         if (!manglendeInntektsmeldinger.isEmpty()) {
             fpInntektsmeldingTjeneste.lagForespørselTask(ref);
             loggManglendeInntektsmeldinger(ref.behandlingId(), manglendeInntektsmeldinger);

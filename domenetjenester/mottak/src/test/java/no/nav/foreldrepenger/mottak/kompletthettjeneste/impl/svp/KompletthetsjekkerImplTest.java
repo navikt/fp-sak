@@ -76,8 +76,6 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     public void before() {
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.anyLong()))
             .thenReturn(skjæringstidspunkt);
-        lenient().when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(any(), any()))
-            .thenReturn(new HashMap<>());
         lenient().when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(any(), any()))
             .thenReturn(new HashMap<>());
 
