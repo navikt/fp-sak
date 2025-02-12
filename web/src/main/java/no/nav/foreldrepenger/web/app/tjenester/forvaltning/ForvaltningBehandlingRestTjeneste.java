@@ -22,8 +22,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.HenleggFlyttFagsakTask;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
@@ -31,6 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -38,6 +41,7 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.HåndterMottattDokumentTask;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
@@ -62,18 +66,24 @@ public class ForvaltningBehandlingRestTjeneste {
     private MottatteDokumentRepository mottatteDokumentRepository;
     private ProsessTaskTjeneste taskTjeneste;
     private ForvaltningBerørtBehandlingTjeneste berørtBehandlingTjeneste;
+    private SvangerskapspengerRepository svangerskapspengerRepository;
+    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
 
     @Inject
     public ForvaltningBehandlingRestTjeneste(ForvaltningBerørtBehandlingTjeneste forvaltningBerørtBehandlingTjeneste,
                                              BehandlingsoppretterTjeneste behandlingsoppretterTjeneste,
                                              ProsessTaskTjeneste taskTjeneste,
-                                             BehandlingRepositoryProvider repositoryProvider) {
+                                             BehandlingRepositoryProvider repositoryProvider,
+                                             SvangerskapspengerRepository svangerskapspengerRepository,
+                                             BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.mottatteDokumentRepository = repositoryProvider.getMottatteDokumentRepository();
         this.taskTjeneste = taskTjeneste;
         this.berørtBehandlingTjeneste = forvaltningBerørtBehandlingTjeneste;
         this.behandlingsoppretterTjeneste = behandlingsoppretterTjeneste;
+        this.svangerskapspengerRepository = svangerskapspengerRepository;
+        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
     }
 
     public ForvaltningBehandlingRestTjeneste() {
@@ -216,6 +226,35 @@ public class ForvaltningBehandlingRestTjeneste {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         berørtBehandlingTjeneste.opprettNyBerørtBehandling(fagsak);
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/fjernOverstyrtGrunnlagSvpBehandling")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Fjerner overstyrt grunnlag for svp behandling", tags = "FORVALTNING-behandling", responses = {
+        @ApiResponse(responseCode = "200", description = "Overstyrt grunnlag for behandling er fjernet.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
+        @ApiResponse(responseCode = "400", description = "Oppgitt behandlinguuid er ukjent, ikke under behandling, eller engangsstønad."),
+        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
+    })
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
+    public Response fjernOverstyrtGrunnlagSvpBehandling(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
+                                                         @NotNull @QueryParam("behandlingUuid") @Valid BehandlingIdDto behandlingIdDto) {
+        var behandlingUuid = behandlingIdDto.getBehandlingUuid();
+        var behandling = behandlingRepository.hentBehandlingHvisFinnes(behandlingUuid).orElse(null);
+        if (behandling == null || !FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType()) || !behandling.erYtelseBehandling() || behandling.erAvsluttet()) {
+            LOG.info("Oppgitt behandlingUui {} er ukjent, annen ytelse enn Svangerskapspenger, ikke ytelsesbehandling eller behandling er avsluttet", behandlingUuid);
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        if (behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.VURDER_TILRETTELEGGING)) {
+            LOG.info("Behandling med uuid: {} har passert vurder tilretteleggingssteg og kan ikke fjerne overstyrt grunnlag", behandlingUuid);
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        LOG.info("Fjerner overstyrt svangerskapspenger-grunnlag for behandling med uuid: {}", behandlingUuid);
+        svangerskapspengerRepository.fjernOverstyrtGrunnlag(behandling.getId());
         return Response.ok().build();
     }
 

@@ -88,4 +88,11 @@ public class SvangerskapspengerRepository {
                 .build())
             .toList();
     }
+
+    public void fjernOverstyrtGrunnlag(Long behandlingId) {
+        var overstyrteTilrettelegginger = hentGrunnlag(behandlingId)
+            .map(SvpGrunnlagEntitet::getOverstyrteTilrettelegginger);
+        overstyrteTilrettelegginger.ifPresent(
+            svpTilretteleggingerEntitet -> svpTilretteleggingerEntitet.getTilretteleggingListe().forEach(entityManager::remove));
+    }
 }
