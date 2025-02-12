@@ -41,9 +41,16 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
     }
 
     public Optional<BeregningsgrunnlagGUIInput> lagInput(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId());
         var aksjonspunkter = behandlingRepository.hentBehandling(ref.behandlingId()).getAksjonspunkter();
-        return lagInput(ref, skjæringstidspunkt, iayGrunnlag, aksjonspunkter);
+        return finnSkjæringstidspunkt(ref).flatMap(stp -> lagInput(ref, stp, iayGrunnlag, aksjonspunkter));
+    }
+
+    private Optional<Skjæringstidspunkt> finnSkjæringstidspunkt(BehandlingReferanse ref) {
+        try {
+            return Optional.of(skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId()));
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
     /**
