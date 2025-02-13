@@ -22,9 +22,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.HenleggFlyttFagsakTask;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -41,6 +41,7 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.HåndterMottattDokumentTask;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
@@ -67,15 +68,13 @@ public class ForvaltningBehandlingRestTjeneste {
     private ProsessTaskTjeneste taskTjeneste;
     private ForvaltningBerørtBehandlingTjeneste berørtBehandlingTjeneste;
     private SvangerskapspengerRepository svangerskapspengerRepository;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
 
     @Inject
     public ForvaltningBehandlingRestTjeneste(ForvaltningBerørtBehandlingTjeneste forvaltningBerørtBehandlingTjeneste,
                                              BehandlingsoppretterTjeneste behandlingsoppretterTjeneste,
                                              ProsessTaskTjeneste taskTjeneste,
                                              BehandlingRepositoryProvider repositoryProvider,
-                                             SvangerskapspengerRepository svangerskapspengerRepository,
-                                             BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
+                                             SvangerskapspengerRepository svangerskapspengerRepository) {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.mottatteDokumentRepository = repositoryProvider.getMottatteDokumentRepository();
@@ -83,7 +82,6 @@ public class ForvaltningBehandlingRestTjeneste {
         this.berørtBehandlingTjeneste = forvaltningBerørtBehandlingTjeneste;
         this.behandlingsoppretterTjeneste = behandlingsoppretterTjeneste;
         this.svangerskapspengerRepository = svangerskapspengerRepository;
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
     }
 
     public ForvaltningBehandlingRestTjeneste() {
@@ -238,23 +236,29 @@ public class ForvaltningBehandlingRestTjeneste {
         @ApiResponse(responseCode = "400", description = "Oppgitt behandlinguuid er ukjent, ikke under behandling, svangerskapspenger eller avsluttet."),
         @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
-    public Response fjernOverstyrtGrunnlagSvpBehandling(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    public Response fjernOverstyrtGrunnlagSvpBehandling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
                                                          @NotNull @QueryParam("behandlingUuid") @Valid BehandlingIdDto behandlingIdDto) {
-        var behandlingUuid = behandlingIdDto.getBehandlingUuid();
-        var behandling = behandlingRepository.hentBehandlingHvisFinnes(behandlingUuid).orElse(null);
-        if (behandling == null || !FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType()) || !behandling.erYtelseBehandling() || behandling.erAvsluttet()) {
-            LOG.info("Oppgitt behandlingUui {} er ukjent, annen ytelse enn Svangerskapspenger, ikke ytelsesbehandling eller behandling er avsluttet", behandlingUuid);
+        var behandling = behandlingRepository.hentBehandlingHvisFinnes(behandlingIdDto.getBehandlingUuid()).orElse(null);
+        if (behandling == null) {
+            LOG.info("Oppgitt behandlingUui {} er ukjent", behandlingIdDto.getBehandlingUuid());
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
-        if (behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.VURDER_TILRETTELEGGING)) {
+        var behandlingUuid = behandling.getUuid();
+        if (!FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType()) || !behandling.erYtelseBehandling() || behandling.erAvsluttet()) {
+            LOG.info("Oppgitt behandlingUuid {} har annen ytelse enn svangerskapspenger, er ikke en ytelsesbehandling eller behandlingen er avsluttet", behandlingUuid);
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        var behandlingTilstand = behandling.getSisteBehandlingStegTilstand().orElse(null);
+        if ((behandlingTilstand == null || !(behandlingTilstand.getBehandlingSteg().equals(BehandlingStegType.VURDER_SVANGERSKAPSPENGERVILKÅR) && behandlingTilstand.getBehandlingStegStatus().equals(BehandlingStegStatus.INNGANG)))) {
             LOG.info("Behandling med uuid: {} har passert vurder tilretteleggingssteg og kan ikke fjerne overstyrt grunnlag", behandlingUuid);
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
         LOG.info("Fjerner overstyrt svangerskapspenger-grunnlag for behandling med uuid: {}", behandlingUuid);
-        svangerskapspengerRepository.fjernOverstyrtGrunnlag(behandling.getId());
+        svangerskapspengerRepository.tømmeOverstyrtGrunnlag(behandling.getId());
         return Response.ok().build();
     }
 
