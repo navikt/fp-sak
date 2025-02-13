@@ -104,7 +104,7 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
     @Nested
     class UtledBehandlingmenyOperasjon {
         @Test
-        void skal_utlede_SKJUL_når_erUnder18år_erIForelsåVedtak_ogHarRegistrertVerge() {
+        void skal_utlede_SKJUL_når_erUnder18år_erIForeslåVedtak_ogHarRegistrertVerge() {
             // Arrange
 
             behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));

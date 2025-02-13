@@ -47,7 +47,8 @@ public class VergeTjeneste {
                          HistorikkinnslagRepository historikkinnslagRepository,
                          BehandlingRepository behandlingRepository,
                          PersonopplysningTjeneste personopplysningTjeneste,
-                         OpprettVergeTjeneste opprettVergeTjeneste, VergeDtoTjeneste vergeDtoTjeneste) {
+                         OpprettVergeTjeneste opprettVergeTjeneste,
+                         VergeDtoTjeneste vergeDtoTjeneste) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.vergeRepository = vergeRepository;
@@ -91,7 +92,7 @@ public class VergeTjeneste {
         var under18År = erSøkerUnder18ar(behandlingId, behandling.getAktørId());
 
         if (harRegistrertVerge && under18År && iForeslåVedtakllerSenereSteg || SpesialBehandling.erSpesialBehandling(behandling)
-                || iFatteVedtakEllerSenereSteg) {
+            || iFatteVedtakEllerSenereSteg) {
             return VergeBehandlingsmenyEnum.SKJUL;
         }
         // TODO(Siri): Fjern harVergeAksjonspunkt når verge-modal er deployert
@@ -104,8 +105,7 @@ public class VergeTjeneste {
 
     void opprettVergeAksjonspunktOgHoppTilbakeTilFORVEDSTEGHvisSenereSteg(Behandling behandling) {
         if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE)) {
-            var msg = String.format("Behandling %s har allerede aksjonspunkt 5030 for verge/fullmektig",
-                    behandling.getId());
+            var msg = String.format("Behandling %s har allerede aksjonspunkt 5030 for verge/fullmektig", behandling.getId());
             throw new TekniskException("FP-185321", msg);
         }
 
@@ -121,44 +121,39 @@ public class VergeTjeneste {
 
     void fjernVergeGrunnlagOgAksjonspunkt(Behandling behandling) {
         avbrytVergeAksjonspunktHvisFinnes(behandling);
-        vergeRepository.fjernVergeFraEksisterendeGrunnlagHvisFinnes(behandling.getId());
-        opprettHistorikkinnslagForFjernetVerge(behandling);
+        var erFjernet = vergeRepository.fjernVergeFraEksisterendeGrunnlagHvisFinnes(behandling.getId());
+        if (erFjernet) {
+            opprettHistorikkinnslagForFjernetVerge(behandling);
+        }
         behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
     }
 
     private void avbrytVergeAksjonspunktHvisFinnes(Behandling behandling) {
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-        behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AVKLAR_VERGE).
-                ifPresent(aksjonspunkt -> behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst,
-                        behandling.getAktivtBehandlingSteg(), List.of(aksjonspunkt)));
+        behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AVKLAR_VERGE)
+            .ifPresent(aksjonspunkt -> behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(),
+                List.of(aksjonspunkt)));
     }
 
     private void opprettHistorikkinnslagForFjernetVerge(Behandling behandling) {
-        var historikkinnslag = new Historikkinnslag.Builder()
-                .medAktør(HistorikkAktør.SAKSBEHANDLER)
-                .medFagsakId(behandling.getFagsakId())
-                .medBehandlingId(behandling.getId())
-                .medTittel("Opplysninger om verge/fullmektig er fjernet")
-                .build();
+        var historikkinnslag = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medFagsakId(behandling.getFagsakId())
+            .medBehandlingId(behandling.getId())
+            .medTittel("Opplysninger om verge/fullmektig er fjernet")
+            .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }
 
     private boolean erSøkerUnder18ar(Long behandlingId, AktørId aktørId) {
         return personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(behandlingId, aktørId)
-                .map(PersonopplysningerAggregat::getSøker)
-                .map(PersonopplysningEntitet::getFødselsdato)
-                .filter(d -> d.isAfter(LocalDate.now().minusYears(18))).isPresent();
+            .map(PersonopplysningerAggregat::getSøker)
+            .map(PersonopplysningEntitet::getFødselsdato)
+            .filter(d -> d.isAfter(LocalDate.now().minusYears(18)))
+            .isPresent();
     }
 
     private OpprettVergeDto map(NyVergeDto dto) {
-        return new OpprettVergeDto(
-                dto.getNavn(),
-                dto.getFnr(),
-                dto.getGyldigFom(),
-                dto.getGyldigTom(),
-                dto.getVergeType(),
-                dto.getOrganisasjonsnummer(),
-                null
-        );
+        return new OpprettVergeDto(dto.getNavn(), dto.getFnr(), dto.getGyldigFom(), dto.getGyldigTom(), dto.getVergeType(),
+            dto.getOrganisasjonsnummer(), null);
     }
 }

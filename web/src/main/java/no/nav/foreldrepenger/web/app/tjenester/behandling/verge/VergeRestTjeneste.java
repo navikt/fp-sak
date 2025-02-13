@@ -13,6 +13,7 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
@@ -69,7 +70,7 @@ public class VergeRestTjeneste {
     @GET
     @Operation(description = "Henter verge/fullmektig på behandlingen", tags = "verge", responses = {@ApiResponse(responseCode = "200", description = "Verge/fullmektig funnet"), @ApiResponse(responseCode = "204", description = "Ingen verge/fullmektig")})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public VergeDto hentVerge(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class) @Parameter(description = "Behandling") @Valid BehandlingIdVersjonDto dto) {
+    public VergeDto hentVerge(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class) @Parameter(description = "Behandling") @QueryParam("behandlingUuid") @Valid BehandlingIdDto dto) {
 
         var behandling = getBehandling(dto);
         return vergeTjeneste.hentVerge(behandling);
@@ -79,13 +80,11 @@ public class VergeRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Oppretter verge/fullmektig på behandlingen", tags = "verge", responses = {@ApiResponse(responseCode = "202", description = "Verge/fullmektig opprettes", headers = @Header(name = HttpHeaders.LOCATION))})
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
-    public Response opprettVerge(@Context HttpServletRequest request,
-                                 @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class) @Parameter(description = "Behandling som skal få verge/fullmektig") @Valid BehandlingIdVersjonDto dto,
-                                 @Parameter(description = "Informasjon om ny verge") @Valid NyVergeDto body) throws URISyntaxException {
+    public Response opprettVerge(@Context HttpServletRequest request, @Valid NyVergeDto dto) throws URISyntaxException {
 
         var behandling = behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUuid());
         behandlingsutredningTjeneste.kanEndreBehandling(behandling, dto.getBehandlingVersjon());
-        vergeTjeneste.opprettVerge(behandling, body);
+        vergeTjeneste.opprettVerge(behandling, dto);
 
         return Redirect.tilBehandlingPollStatus(request, dto.getBehandlingUuid());
     }

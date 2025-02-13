@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.person.verge;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoArbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -8,12 +9,18 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt�
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.person.verge.dto.OpprettVergeDto;
+
+import no.nav.foreldrepenger.domene.typer.AktørId;
+
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,6 +34,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,6 +50,8 @@ class OpprettVergeTjenesteTest {
     private PersoninfoAdapter personinfoAdapter;
     @Mock
     private NavBrukerTjeneste brukerTjeneste;
+    @Mock
+    VergeRepository vergeRepository;
 
     private Behandling behandling;
 
@@ -49,8 +59,8 @@ class OpprettVergeTjenesteTest {
     public void oppsett() {
         behandling = opprettBehandling();
         var vergeBruker = NavBruker.opprettNyNB(behandling.getAktørId());
-        when(personinfoAdapter.hentAktørForFnr(Mockito.any())).thenReturn(Optional.of(behandling.getAktørId()));
-        when(brukerTjeneste.hentEllerOpprettFraAktørId(Mockito.any())).thenReturn(vergeBruker);
+        when(personinfoAdapter.hentAktørForFnr(any())).thenReturn(Optional.of(behandling.getAktørId()));
+        when(brukerTjeneste.hentEllerOpprettFraAktørId(any())).thenReturn(vergeBruker);
 
     }
 
@@ -58,9 +68,9 @@ class OpprettVergeTjenesteTest {
     void skal_generere_historikkinnslag_for_ny_verge() {
         // Behandling
         var dto = opprettDtoVerge();
-
-        new OpprettVergeTjeneste(personinfoAdapter, brukerTjeneste, mock(VergeRepository.class), historikkReposistory)
-                .opprettVerge(behandling.getId(), behandling.getFagsakId(), dto);
+        when(vergeRepository.hentAggregat(any())).thenReturn(Optional.empty());
+        new OpprettVergeTjeneste(personinfoAdapter, brukerTjeneste, vergeRepository, historikkReposistory).opprettVerge(behandling.getId(),
+            behandling.getFagsakId(), dto);
 
         // Verifiserer HistorikkinnslagDto
         var historikkCapture = ArgumentCaptor.forClass(Historikkinnslag.class);
@@ -71,19 +81,29 @@ class OpprettVergeTjenesteTest {
             assertThat(h.getFagsakId()).isEqualTo(behandling.getFagsakId());
             assertThat(h.getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_OM_VERGE);
             assertThat(h.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
-            assertThat(h.getTekstLinjer())
-                    .hasSize(2)
-                    .containsExactly("Registrering av opplysninger om verge/fullmektig.", "Begrunnelse.");
+            assertThat(h.getTekstLinjer()).hasSize(2).containsExactly("Registrering av opplysninger om verge/fullmektig.", "Begrunnelse.");
         });
     }
 
     @Test
     void skal_generere_historikkinnslag_for_oppdatering_av_verge() {
-        // Behandling
         var dto = opprettDtoVerge();
+        var aktørId = AktørId.dummy();
 
-        new OpprettVergeTjeneste(personinfoAdapter, brukerTjeneste, mock(VergeRepository.class), historikkReposistory)
-                .opprettVerge(behandling.getId(), behandling.getFagsakId(), dto);
+        when(vergeRepository.hentAggregat(any())).thenReturn(Optional.of(new VergeAggregat(new VergeEntitet.Builder().medVergeType(VergeType.BARN)
+            .gyldigPeriode(LocalDate.now(), LocalDate.now().plusDays(20))
+            .medBruker(NavBruker.opprettNyNB(aktørId))
+            .build())));
+
+        when(personinfoAdapter.hentBrukerArbeidsgiverForAktør(any())).thenReturn(Optional.of(new PersoninfoArbeidsgiver.Builder().medAktørId(aktørId)
+            .medFødselsdato(LocalDate.now())
+            .medPersonIdent(PersonIdent.fra("12345678910"))
+            .medNavn("Harald Hårfagre")
+            .build()));
+
+
+        new OpprettVergeTjeneste(personinfoAdapter, brukerTjeneste, vergeRepository, historikkReposistory).opprettVerge(behandling.getId(),
+            behandling.getFagsakId(), dto);
 
         // Verifiserer HistorikkinnslagDto
         var historikkCapture = ArgumentCaptor.forClass(Historikkinnslag.class);
@@ -94,22 +114,17 @@ class OpprettVergeTjenesteTest {
             assertThat(h.getFagsakId()).isEqualTo(behandling.getFagsakId());
             assertThat(h.getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_OM_VERGE);
             assertThat(h.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
-            assertThat(h.getTekstLinjer())
-                    .hasSize(2)
-                    .containsExactly("Registrering av opplysninger om verge/fullmektig.", "Begrunnelse.");
+            assertThat(h.getTekstLinjer()).hasSize(5)
+                .containsExactly("__Navn__ er endret fra Navn Navnesen til __Navn__.",
+                    "__Fødselsnummer__ er endret fra 12345678910 til __12345678901__.",
+                    "__Periode f.o.m.__ er endret fra 13.02.2025 til __03.02.2025__.",
+                    "__Periode t.o.m.__ er endret fra 05.03.2025 til __23.02.2025__.", "Begrunnelse.");
         });
     }
 
     private OpprettVergeDto opprettDtoVerge() {
-        return new OpprettVergeDto(
-                "Navn",
-                "12345678901",
-                LocalDate.now().minusDays(10),
-                LocalDate.now().plusDays(10),
-                VergeType.BARN,
-                null,
-                "Begrunnelse"
-        );
+        return new OpprettVergeDto("Harald", "12345678901", LocalDate.now().minusDays(10), LocalDate.now().plusDays(10), VergeType.BARN, null,
+            "Begrunnelse");
     }
 
     private Behandling opprettBehandling() {
