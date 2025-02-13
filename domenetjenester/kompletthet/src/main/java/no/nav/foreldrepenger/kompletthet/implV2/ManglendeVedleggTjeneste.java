@@ -173,6 +173,6 @@ public class ManglendeVedleggTjeneste {
     }
 
     private String lagDokumentTypeString(List<ManglendeVedlegg> manglendeVedlegg) {
-        return manglendeVedlegg.stream().map(mv -> mv.getDokumentType().getKode()).toList().toString();
+        return manglendeVedlegg.stream().map(mv -> mv.dokumentType().getKode()).toList().toString();
     }
 }

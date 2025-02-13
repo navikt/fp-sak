@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.kompletthet.impl.svp;
 
-import static no.nav.foreldrepenger.kompletthet.impl.fp.KompletthetsjekkerFelles.VENTEFRIST_FOR_MANGLENDE_SØKNAD;
+import static no.nav.foreldrepenger.kompletthet.implV2.KompletthetsjekkerFelles.VENTEFRIST_FOR_MANGLENDE_SØKNAD;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 import no.nav.foreldrepenger.kompletthet.impl.KompletthetsjekkerOld;
 import no.nav.foreldrepenger.kompletthet.impl.KompletthetssjekkerSøknad;
-import no.nav.foreldrepenger.kompletthet.impl.fp.KompletthetsjekkerFelles;
+import no.nav.foreldrepenger.kompletthet.implV2.KompletthetsjekkerFelles;
 
 @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
 @BehandlingTypeRef

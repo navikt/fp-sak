@@ -177,17 +177,17 @@ public class SøknadDtoTjeneste {
         var vedleggSomIkkeKommer = kompletthetsjekker.utledAlleManglendeVedleggSomIkkeKommer(ref);
 
         // Fjerner slik at det ikke blir dobbelt opp, og for å markere korrekt hvilke som ikke vil komme
-        alleManglendeVedlegg.removeIf(e -> vedleggSomIkkeKommer.stream().anyMatch(it -> it.getArbeidsgiver().equals(e.getArbeidsgiver())));
+        alleManglendeVedlegg.removeIf(e -> vedleggSomIkkeKommer.stream().anyMatch(it -> it.arbeidsgiver().equals(e.arbeidsgiver())));
         alleManglendeVedlegg.addAll(vedleggSomIkkeKommer);
 
         return alleManglendeVedlegg.stream().map(this::mapTilManglendeVedleggDto).toList();
     }
 
     private ManglendeVedleggDto mapTilManglendeVedleggDto(ManglendeVedlegg mv) {
-        if (mv.getDokumentType().equals(DokumentTypeId.INNTEKTSMELDING)) {
-            return new ManglendeVedleggDto(mv.getDokumentType(), mv.getArbeidsgiver(), mv.getBrukerHarSagtAtIkkeKommer());
+        if (mv.dokumentType().equals(DokumentTypeId.INNTEKTSMELDING)) {
+            return new ManglendeVedleggDto(mv.dokumentType(), mv.arbeidsgiver(), mv.brukerHarSagtAtIkkeKommer());
         } else {
-            return new ManglendeVedleggDto(mv.getDokumentType());
+            return new ManglendeVedleggDto(mv.dokumentType());
         }
     }
 

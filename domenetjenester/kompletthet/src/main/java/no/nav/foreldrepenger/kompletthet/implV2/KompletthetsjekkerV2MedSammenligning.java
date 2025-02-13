@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 import no.nav.foreldrepenger.kompletthet.impl.KompletthetsjekkerOld;
+import no.nav.foreldrepenger.kompletthet.impl.KompletthetsjekkerProvider;
 
 @ApplicationScoped
 public class KompletthetsjekkerV2MedSammenligning implements Kompletthetsjekker {

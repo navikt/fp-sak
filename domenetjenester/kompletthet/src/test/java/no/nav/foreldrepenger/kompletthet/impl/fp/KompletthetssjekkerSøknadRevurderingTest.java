@@ -90,7 +90,7 @@ class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(manglendeVedlegg).hasSize(1);
-        assertThat(manglendeVedlegg.get(0).getDokumentType().getOffisiellKode()).isEqualTo(TERMINBEKREFTELSE);
+        assertThat(manglendeVedlegg.get(0).dokumentType().getOffisiellKode()).isEqualTo(TERMINBEKREFTELSE);
     }
 
     @Test
@@ -114,7 +114,7 @@ class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(manglendeVedlegg).hasSize(1);
-        assertThat(manglendeVedlegg.get(0).getDokumentType().getOffisiellKode()).isEqualTo(TERMINBEKREFTELSE);
+        assertThat(manglendeVedlegg.get(0).dokumentType().getOffisiellKode()).isEqualTo(TERMINBEKREFTELSE);
     }
 
     @Test
@@ -166,7 +166,7 @@ class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(manglendeVedlegg).hasSize(1);
-        assertThat(manglendeVedlegg.get(0).getDokumentType().getOffisiellKode()).isEqualTo(TERMINBEKREFTELSE);
+        assertThat(manglendeVedlegg.get(0).dokumentType().getOffisiellKode()).isEqualTo(TERMINBEKREFTELSE);
     }
 
     @Test
@@ -186,7 +186,7 @@ class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(manglendeVedlegg).hasSize(1);
-        assertThat(manglendeVedlegg.get(0).getDokumentType().getOffisiellKode()).isEqualTo(DOK_INNLEGGELSE);
+        assertThat(manglendeVedlegg.get(0).dokumentType().getOffisiellKode()).isEqualTo(DOK_INNLEGGELSE);
     }
 
     @Test

@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.kompletthet.impl.fp;
+package no.nav.foreldrepenger.kompletthet.implV2;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -33,10 +33,9 @@ import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingSomIkkeKommer;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
-import no.nav.foreldrepenger.kompletthet.impl.KompletthetssjekkerInntektsmelding;
 
 /**
- * Fellesklasse for gjenbrukte metode av subklasser for {@link KompletthetsjekkerImpl}.
+ * Fellesklasse for gjenbrukte metode av subklasser for {@link KompletthetsjekkerTjeneste}.
  * <p>
  * Favor composition over inheritance
  */
@@ -140,7 +139,7 @@ public class KompletthetsjekkerFelles {
         }
 
         //Brevet er ikke tilpasset private arbeidsgivere enn så lenge
-        var kunPrivateArbeidsgivere = manglendeInntektsmeldinger.stream().noneMatch(mv -> OrgNummer.erGyldigOrgnr(mv.getArbeidsgiver()));
+        var kunPrivateArbeidsgivere = manglendeInntektsmeldinger.stream().noneMatch(mv -> OrgNummer.erGyldigOrgnr(mv.arbeidsgiver()));
         if (!manglendeInntektsmeldinger.isEmpty() && kunPrivateArbeidsgivere) {
             return Optional.empty();
         }
@@ -214,7 +213,7 @@ public class KompletthetsjekkerFelles {
     }
 
     private void loggManglendeInntektsmeldinger(Long behandlingId, List<ManglendeVedlegg> manglendeInntektsmeldinger) {
-        var arbgivere = manglendeInntektsmeldinger.stream().map(v -> OrgNummer.tilMaskertNummer(v.getArbeidsgiver())).toList().toString();
+        var arbgivere = manglendeInntektsmeldinger.stream().map(v -> OrgNummer.tilMaskertNummer(v.arbeidsgiver())).toList().toString();
         LOG.info("Behandling {} er ikke komplett - mangler IM fra arbeidsgivere: {}", behandlingId, arbgivere);
     }
 

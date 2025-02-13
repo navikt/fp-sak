@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.kompletthet.impl;
+package no.nav.foreldrepenger.kompletthet.implV2;
 
 import java.util.List;
 

@@ -32,7 +32,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
-import no.nav.foreldrepenger.kompletthet.impl.KompletthetModell;
+import no.nav.foreldrepenger.kompletthet.implV2.KompletthetModell;
 import no.nav.foreldrepenger.kompletthet.implV2.KompletthetsjekkerV2MedSammenligning;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;

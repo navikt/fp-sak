@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 import no.nav.foreldrepenger.kompletthet.impl.KompletthetsjekkerOld;
 import no.nav.foreldrepenger.kompletthet.impl.KompletthetssjekkerSøknad;
+import no.nav.foreldrepenger.kompletthet.implV2.KompletthetsjekkerFelles;
 
 @ApplicationScoped
 @BehandlingTypeRef(BehandlingType.REVURDERING)

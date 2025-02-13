@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.kompletthet.implV2;
+package no.nav.foreldrepenger.kompletthet.impl;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
@@ -8,7 +8,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.kompletthet.impl.KompletthetsjekkerOld;
 import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped

@@ -31,6 +31,7 @@ import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 import no.nav.foreldrepenger.kompletthet.impl.KompletthetssjekkerSøknad;
 import no.nav.foreldrepenger.kompletthet.impl.KompletthetssjekkerTestUtil;
+import no.nav.foreldrepenger.kompletthet.implV2.KompletthetsjekkerFelles;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 class KompletthetsjekkerRevurderingImplTest extends EntityManagerAwareTest {

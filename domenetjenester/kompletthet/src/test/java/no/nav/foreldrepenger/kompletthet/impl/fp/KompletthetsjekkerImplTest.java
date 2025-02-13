@@ -50,8 +50,9 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
-import no.nav.foreldrepenger.kompletthet.impl.KompletthetssjekkerInntektsmelding;
 import no.nav.foreldrepenger.kompletthet.impl.KompletthetssjekkerTestUtil;
+import no.nav.foreldrepenger.kompletthet.implV2.KompletthetsjekkerFelles;
+import no.nav.foreldrepenger.kompletthet.implV2.KompletthetssjekkerInntektsmelding;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ExtendWith(MockitoExtension.class)
@@ -321,7 +322,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Assert
         assertThat(manglendeVedlegg).hasSize(1);
         var koder = manglendeVedlegg.stream()
-                .map(ManglendeVedlegg::getDokumentType)
+                .map(ManglendeVedlegg::dokumentType)
                 .toList();
         assertThat(koder).containsExactlyInAnyOrder(DokumentTypeId.DOK_INNLEGGELSE);
     }

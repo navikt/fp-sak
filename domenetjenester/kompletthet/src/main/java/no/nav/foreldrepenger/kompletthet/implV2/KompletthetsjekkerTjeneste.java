@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.kompletthet.implV2;
 
 import static java.util.Collections.emptyList;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD;
-import static no.nav.foreldrepenger.kompletthet.impl.fp.KompletthetsjekkerFelles.VENTEFRIST_FOR_MANGLENDE_SØKNAD;
+import static no.nav.foreldrepenger.kompletthet.implV2.KompletthetsjekkerFelles.VENTEFRIST_FOR_MANGLENDE_SØKNAD;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
-import no.nav.foreldrepenger.kompletthet.impl.fp.KompletthetsjekkerFelles;
 
 @ApplicationScoped
 public class KompletthetsjekkerTjeneste {

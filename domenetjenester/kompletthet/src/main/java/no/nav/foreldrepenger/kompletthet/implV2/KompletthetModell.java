@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.kompletthet.impl;
+package no.nav.foreldrepenger.kompletthet.implV2;
 
 import static java.util.stream.Collectors.toList;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING;
@@ -27,7 +27,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
-import no.nav.foreldrepenger.kompletthet.implV2.KompletthetsjekkerV2MedSammenligning;
 
 @ApplicationScoped
 public class KompletthetModell {
