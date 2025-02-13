@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.abakus.ArbeidsforholdTjeneste;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.InntektsmeldingStatusMapper;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -62,8 +61,6 @@ class InntektsmeldingRegisterTjenesteFpTest {
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     @Mock
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
-    @Mock
-    private ArbeidsforholdTjeneste abakusArbeidsforholdTjeneste;
     @Mock
     private ArbeidsforholdValgRepository arbeidsforholdValgRepository;
 
@@ -296,6 +293,56 @@ class InntektsmeldingRegisterTjenesteFpTest {
         assertThat(statusPerArbeidsgiver.stream().filter(status -> status.ref().equals(ref2))
             .map(ArbeidsforholdInntektsmeldingStatus::inntektsmeldingStatus)).containsAll(
             Collections.singleton(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT));
+    }
+
+    @Test
+    void to_arbeidsforhold_ulik_arbeidsgiver_mottar_to_inntektmeldinger_men_begge_har_feil_id() {
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
+        var arbeidsgiver1 = Arbeidsgiver.virksomhet("123456789");
+        var arbeidsgiver2 = Arbeidsgiver.virksomhet("987654321");
+        var ref1Gyldig = InternArbeidsforholdRef.nyRef();
+        var ref2Gyldig = InternArbeidsforholdRef.nyRef();
+        var ref1UGyldig = InternArbeidsforholdRef.nyRef();
+        var ref2UGyldig = InternArbeidsforholdRef.nyRef();
+        var aktivitetsAvtaleBuilder = lagAktivitetsAvtaleBuilder(SKJÆRINGSTIDSPUNKT.minusYears(1), null);
+        var yrkesaktivitet1 = lagYrkesaktivitetBuilder(List.of(aktivitetsAvtaleBuilder), arbeidsgiver1, ref1Gyldig, List.of());
+        var yrkesaktivitet2 = lagYrkesaktivitetBuilder(List.of(aktivitetsAvtaleBuilder), arbeidsgiver2, ref2Gyldig, List.of());
+
+        lagArbeid(List.of(yrkesaktivitet1, yrkesaktivitet2));
+        lagInntekt(arbeidsgiver1, SKJÆRINGSTIDSPUNKT.minusMonths(12), 12 );
+        lagInntekt(arbeidsgiver2, SKJÆRINGSTIDSPUNKT.minusMonths(12), 12 );
+        var inntektsmeldingMedArbId1 = lagInntektsmelding(arbeidsgiver1, BigDecimal.valueOf(55000), EksternArbeidsforholdRef.ref("1"), ref1UGyldig);
+        var inntektsmeldingMedArbId2 = lagInntektsmelding(arbeidsgiver2, BigDecimal.valueOf(55000), EksternArbeidsforholdRef.ref("1"), ref2UGyldig);
+        var grunnlag = byggIAY(inntektArbeidYtelseAggregatBuilder, List.of(inntektsmeldingMedArbId1, inntektsmeldingMedArbId2), arbeidBuilder, inntektBuilder, ytelseBuilder);
+
+        when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingReferanse.behandlingId())).thenReturn(Optional.of(grunnlag));
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingReferanse, skjæringstidspunkt.getUtledetSkjæringstidspunkt())).thenReturn(
+            List.of(inntektsmeldingMedArbId1, inntektsmeldingMedArbId2));
+
+        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
+        var statusPerArbeidsgiver = finnStatusForInntektsmeldingArbeidsforhold(behandlingReferanse, skjæringstidspunkt);
+
+
+        assertThat(manglendeInntektsmeldinger).hasSize(2);
+        assertThat(manglendeInntektsmeldinger.get(arbeidsgiver1)).containsExactly(ref1Gyldig);
+        assertThat(manglendeInntektsmeldinger.get(arbeidsgiver2)).containsExactly(ref2Gyldig);
+
+        assertThat(statusPerArbeidsgiver).hasSize(2);
+        var ag1Status = statusPerArbeidsgiver.stream()
+            .filter(s -> s.arbeidsgiver().equals(arbeidsgiver1))
+            .findFirst()
+            .orElse(null);
+        assertThat(ag1Status).isNotNull();
+        assertThat(ag1Status.ref()).isEqualTo(ref1Gyldig);
+        assertThat(ag1Status.inntektsmeldingStatus()).isEqualTo(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT);
+
+        var ag2tatus = statusPerArbeidsgiver.stream()
+            .filter(s -> s.arbeidsgiver().equals(arbeidsgiver2))
+            .findFirst()
+            .orElse(null);
+        assertThat(ag2tatus).isNotNull();
+        assertThat(ag2tatus.ref()).isEqualTo(ref2Gyldig);
+        assertThat(ag2tatus.inntektsmeldingStatus()).isEqualTo(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT);
     }
 
     @Test
