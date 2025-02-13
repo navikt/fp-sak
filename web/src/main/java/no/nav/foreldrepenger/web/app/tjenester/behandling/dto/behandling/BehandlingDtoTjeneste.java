@@ -49,9 +49,7 @@ import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.web.app.rest.Path;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
-import no.nav.foreldrepenger.web.app.rest.ResourceLinks;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktDtoMapper;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktRestTjeneste;
@@ -83,7 +81,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.UttakRestTjenest
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon.DokumentasjonVurderingBehovDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BehandlingMedUttaksperioderDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta.FaktaUttakPeriodeDtoTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.NyVergeDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.NyVergeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.YtelsefordelingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
@@ -256,10 +254,9 @@ public class BehandlingDtoTjeneste {
         dto.leggTil(post(BehandlingRestTjeneste.ENDRE_VENTEFRIST_PATH, "endre-pa-vent", new SettBehandlingPaVentDto()));
         dto.leggTil(post(AksjonspunktRestTjeneste.AKSJONSPUNKT_PATH, "lagre-aksjonspunkter", new BekreftedeAksjonspunkterDto()));
 
-        var vergePathParams = VergeRestTjeneste.getPathParams(behandling.getUuid(), behandling.getVersjon());
-        dto.leggTil(get(Path.of(VergeRestTjeneste.VERGE_BEHANDLING_PATH, vergePathParams), "verge-hent"));
-        dto.leggTil(post(Path.of(VergeRestTjeneste.VERGE_BEHANDLING_VERSJON_PATH, vergePathParams), "verge-opprett", new NyVergeDto()));
-        dto.leggTil(delete(Path.of(VergeRestTjeneste.VERGE_BEHANDLING_VERSJON_PATH, vergePathParams), "verge-fjern"));
+        dto.leggTil(get(VergeRestTjeneste.BASE_PATH, "verge-hent"));
+        dto.leggTil(post(VergeRestTjeneste.BASE_PATH, "verge-opprett", new NyVergeDto()));
+        dto.leggTil(delete(VergeRestTjeneste.BASE_PATH, "verge-fjern"));
 
         dto.leggTil(post(VergeRestTjeneste.VERGE_OPPRETT_PATH, "opprett-verge", new BehandlingIdVersjonDto()));
         dto.leggTil(post(VergeRestTjeneste.VERGE_FJERN_PATH, "fjern-verge", new BehandlingIdVersjonDto()));

@@ -154,6 +154,9 @@ class BehandlingDtoTjenesteTest {
         var routes = getRoutes();
         for (var behandling : behandlinger) {
             for (var dtoLink : tjeneste.lagUtvidetBehandlingDto(behandling, null).getLinks()) {
+                if(dtoLink.getRel().equals("verge-fjern")){
+                    System.out.println("verge-fjern");
+                }
                 assertThat(dtoLink).isNotNull();
                 assertThat(routes.stream().anyMatch(route -> route.hasSameHttpMethod(dtoLink) && route.matchesUrlTemplate(dtoLink))).withFailMessage(
                     "Route " + dtoLink + " does not exist.").isTrue();

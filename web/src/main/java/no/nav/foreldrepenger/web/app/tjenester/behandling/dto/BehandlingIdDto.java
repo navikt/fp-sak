@@ -16,7 +16,6 @@ public class BehandlingIdDto  {
     private UUID behandlingUuid;
 
     BehandlingIdDto() {
-
     }
 
     public BehandlingIdDto(UUID behandlingUuid) {

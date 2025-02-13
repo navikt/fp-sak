@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.behandling.verge;
+package no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto;
 
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
@@ -6,11 +6,13 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeType;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
+import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
+import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.util.InputValideringRegex;
 
 import java.time.LocalDate;
 
-public class NyVergeDto {
+public class NyVergeDto implements AbacDto {
     @Size(max = 100)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String navn;
@@ -63,4 +65,8 @@ public class NyVergeDto {
         return organisasjonsnummer;
     }
 
+    @Override
+    public AbacDataAttributter abacAttributter() {
+        return AbacDataAttributter.opprett();
+    }
 }

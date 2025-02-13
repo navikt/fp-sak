@@ -7,9 +7,7 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
-import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ResourceLinksTest {
@@ -29,26 +27,7 @@ class ResourceLinksTest {
     }
 
     @Test
-    void skal_erstatte_pathparmeters_for_path_template() {
-        var path = "/api/{string}/{long}/{uuid}";
-        var parameters = new PathParamMap().add("string", "test-string")
-            .add("long", 123L)
-            .add("uuid", UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
-        var result = Path.of(path, parameters).build();
-        assertThat("/api/test-string/123/123e4567-e89b-12d3-a456-426614174000").isEqualTo(result);
-    }
-
-    @Test
     void addPathPrefix() {
         assertThat(ResourceLinks.addPathPrefix("/behandling")).isEqualTo("/fpsak/api/behandling");
-    }
-
-    @Test
-    void skal_feile_ved_manglende_path_param() {
-        var path = "/api/behandling/{behandlingId}";
-        var parameters = new PathParamMap();
-
-        assertThatIllegalArgumentException().isThrownBy(() -> Path.of(path, parameters).build())
-            .withMessage("The template variable 'behandlingId' has no value");
     }
 }

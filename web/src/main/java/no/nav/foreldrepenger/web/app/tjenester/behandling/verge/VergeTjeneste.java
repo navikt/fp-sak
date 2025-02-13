@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.domene.person.verge.dto.VergeBehandlingsmenyEnum;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeDto;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.NyVergeDto;
 import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped

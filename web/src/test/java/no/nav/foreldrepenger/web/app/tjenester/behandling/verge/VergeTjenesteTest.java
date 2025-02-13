@@ -17,6 +17,8 @@ import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.person.verge.OpprettVergeTjeneste;
 import no.nav.foreldrepenger.domene.person.verge.VergeDtoTjeneste;
 
+import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.NyVergeDto;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
