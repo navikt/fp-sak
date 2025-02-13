@@ -88,6 +88,10 @@ public class AksjonspunktDtoMapper {
         if (AksjonspunktDefinisjon.AVKLAR_VERGE.equals(def) && !AksjonspunktStatus.UTFØRT.equals(status)) {
             return true;
         }
+        //Spesialbehandling av EØS-sjekk fordi det oppstår tidlig og underliggende prosess bør kunne gå videre (inntektsmelding, mm)
+        if (AksjonspunktDefinisjon.AUTOMATISK_MARKERING_AV_UTENLANDSSAK.equals(def) && AksjonspunktStatus.OPPRETTET.equals(status)) {
+            return true;
+        }
         if (def.erAutopunkt()) {
             return false;
         }
