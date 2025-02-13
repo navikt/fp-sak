@@ -186,7 +186,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     AUTOMATISK_MARKERING_AV_UTENLANDSSAK(
             AksjonspunktKodeDefinisjon.AUTOMATISK_MARKERING_AV_UTENLANDSSAK_KODE, AksjonspunktType.MANUELL,
             "Innhent dokumentasjon fra utenlandsk trygdemyndighet",
-            BehandlingStegType.INREG_AVSL, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP, SVP)),
+            BehandlingStegType.VURDER_KOMPLETT_TIDLIG, VurderingspunktType.INN, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP, SVP)),
     FAKTA_UTTAK_INGEN_PERIODER(AksjonspunktKodeDefinisjon.FAKTA_UTTAK_INGEN_PERIODER_KODE,
         AksjonspunktType.MANUELL, "Ingen perioder å vurdere. Vurder om behandlingen er feilopprettet og kan henlegges", BehandlingStegType.FAKTA_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR,
         SkjermlenkeType.FAKTA_UTTAK, TOTRINN, EnumSet.of(FP)),
