@@ -60,8 +60,8 @@ public class OpprettVergeTjeneste {
                 .orElseThrow(() -> new IllegalArgumentException("Ugyldig FNR for Verge"));
     }
 
-    private VergeOrganisasjonEntitet opprettVergeOrganisasjon(OpprettVergeDto adapter) {
-        return new VergeOrganisasjonEntitet.Builder().medOrganisasjonsnummer(adapter.organisasjonsnummer()).medNavn(adapter.navn()).build();
+    private VergeOrganisasjonEntitet opprettVergeOrganisasjon(OpprettVergeDto dto) {
+        return new VergeOrganisasjonEntitet.Builder().medOrganisasjonsnummer(dto.organisasjonsnummer()).medNavn(dto.navn()).build();
     }
 
     private void lagreHistorikkinnslag(Long behandlingId, Long fagsakId, OpprettVergeDto dto) {

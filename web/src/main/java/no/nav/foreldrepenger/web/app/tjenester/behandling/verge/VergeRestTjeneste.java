@@ -31,6 +31,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSupp
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdVersjonDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.BehandlingsUuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.NyVergeDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -80,26 +81,26 @@ public class VergeRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Oppretter verge/fullmektig på behandlingen", tags = "verge", responses = {@ApiResponse(responseCode = "202", description = "Verge/fullmektig opprettes", headers = @Header(name = HttpHeaders.LOCATION))})
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
-    public Response opprettVerge(@Context HttpServletRequest request, @Valid NyVergeDto dto) throws URISyntaxException {
+    public Response opprettVerge(@Context HttpServletRequest request,
+                                 @QueryParam("behandlingUuid") BehandlingsUuidDto behandlingUuidDto,
+                                 @Valid NyVergeDto body) throws URISyntaxException {
 
-        var behandling = behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUuid());
-        behandlingsutredningTjeneste.kanEndreBehandling(behandling, dto.getBehandlingVersjon());
-        vergeTjeneste.opprettVerge(behandling, dto);
+        var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingUuidDto.getBehandlingUuid());
+        vergeTjeneste.opprettVerge(behandling, body);
 
-        return Redirect.tilBehandlingPollStatus(request, dto.getBehandlingUuid());
+        return Redirect.tilBehandlingPollStatus(request, behandlingUuidDto.getBehandlingUuid());
     }
 
     @DELETE
     @Operation(tags = "verge", description = "Fjerner verge/fullmektig på behandlingen", responses = {@ApiResponse(responseCode = "202", description = "Verge/fullmektig fjernet", headers = @Header(name = HttpHeaders.LOCATION))})
-    @BeskyttetRessurs(actionType = ActionType.DELETE, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
     public Response fjernVerge(@Context HttpServletRequest request,
-                               @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class) @Parameter(description = "Behandling hvor verge/fullmektig skal fjernes") @Valid BehandlingIdVersjonDto dto) throws URISyntaxException {
+                               @QueryParam("behandlingUuid") BehandlingsUuidDto behandlingUuidDto) throws URISyntaxException {
 
-        var behandling = behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUuid());
-        behandlingsutredningTjeneste.kanEndreBehandling(behandling, dto.getBehandlingVersjon());
+        var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingUuidDto.getBehandlingUuid());
         vergeTjeneste.fjernVerge(behandling);
 
-        return Redirect.tilBehandlingPollStatus(request, dto.getBehandlingUuid());
+        return Redirect.tilBehandlingPollStatus(request, behandlingUuidDto.getBehandlingUuid());
     }
 
 

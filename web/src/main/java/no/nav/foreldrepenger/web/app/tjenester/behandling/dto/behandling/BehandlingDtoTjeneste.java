@@ -265,9 +265,8 @@ public class BehandlingDtoTjeneste {
 
 
         dto.leggTil(get(VergeRestTjeneste.BASE_PATH, "verge-hent", new BehandlingIdDto(behandling.getUuid())));
-        dto.leggTil(post(VergeRestTjeneste.BASE_PATH, "verge-opprett", new BehandlingIdVersjonDto(behandling.getUuid(), behandling.getVersjon()),
-            new NyVergeDto()));
-        dto.leggTil(delete(VergeRestTjeneste.BASE_PATH, "verge-fjern", new BehandlingIdVersjonDto(behandling.getUuid(), behandling.getVersjon())));
+        dto.leggTil(post(VergeRestTjeneste.BASE_PATH, "verge-opprett", new BehandlingIdDto(behandling.getUuid()), new NyVergeDto()));
+        dto.leggTil(delete(VergeRestTjeneste.BASE_PATH, "verge-fjern", new BehandlingIdDto(behandling.getUuid())));
 
         dto.leggTil(post(VergeRestTjeneste.VERGE_OPPRETT_PATH, "opprett-verge", new BehandlingIdVersjonDto()));
         dto.leggTil(post(VergeRestTjeneste.VERGE_FJERN_PATH, "fjern-verge", new BehandlingIdVersjonDto()));

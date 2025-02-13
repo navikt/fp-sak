@@ -312,8 +312,7 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
 
     private PersonopplysningerAggregat opprettPersonopplysningAggregatForPersonUnder18(AktørId aktørId) {
         var builder = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
-        builder.leggTil(
-            builder.getPersonopplysningBuilder(aktørId).medFødselsdato(LocalDate.now().minusYears(15)));
+        builder.leggTil(builder.getPersonopplysningBuilder(aktørId).medFødselsdato(LocalDate.now().minusYears(15)));
         var entitet = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty()).medRegistrertVersjon(builder).build();
 
         return new PersonopplysningerAggregat(entitet, aktørId);
