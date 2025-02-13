@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsa
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.OmsorgsovertakelseVilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
@@ -129,6 +130,8 @@ public class HentKodeverkTjeneste {
         map.put(FordelingPeriodeKilde.class.getSimpleName(), FordelingPeriodeKilde.kodeMap().values());
         map.put(AdresseType.class.getSimpleName(), AdresseType.kodeMap().values());
         map.put(NaturalYtelseType.class.getSimpleName(), NaturalYtelseType.kodeMap().values());
+
+        map.put(Inntektskategori.class.getSimpleName(), Inntektskategori.kodeMap().values()); //Brukes i ft-frontend-saksbehandling prosjektet
 
         Map<String, Collection<? extends Kodeverdi>> mapFiltered = new LinkedHashMap<>();
 
