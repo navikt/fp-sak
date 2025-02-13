@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.kompletthet.implV2;
+package no.nav.foreldrepenger.kompletthet;
 
 import java.util.List;
 import java.util.Objects;
@@ -13,11 +13,9 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
-import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
-import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
-import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 import no.nav.foreldrepenger.kompletthet.impl.KompletthetsjekkerOld;
 import no.nav.foreldrepenger.kompletthet.impl.KompletthetsjekkerProvider;
+import no.nav.foreldrepenger.kompletthet.implV2.KompletthetsjekkerTjeneste;
 
 @ApplicationScoped
 public class KompletthetsjekkerV2MedSammenligning implements Kompletthetsjekker {
