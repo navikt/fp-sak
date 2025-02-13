@@ -6,11 +6,15 @@ import static org.mockito.Mockito.mock;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.DELETE;
@@ -19,8 +23,14 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.QueryParam;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 
+import no.nav.foreldrepenger.web.app.rest.ResourceLinks;
+
+import org.glassfish.jersey.uri.UriTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -46,9 +56,7 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.web.app.konfig.ApiConfig;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
@@ -60,8 +68,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta.FaktaUttak
 
 @CdiDbAwareTest
 class BehandlingDtoTjenesteTest {
-
-    private static final Environment ENV = Environment.current();
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -116,24 +122,21 @@ class BehandlingDtoTjenesteTest {
         var behandling = lagBehandling();
 
         tilbakekrevingRepository.lagre(behandling,
-                TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING, "varsel"));
+            TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING, "varsel"));
 
         var dto = tjeneste.lagUtvidetBehandlingDto(behandling, null);
-        var link = ResourceLink.get(href(TilbakekrevingRestTjeneste.VALG_PATH), "", new UuidDto(dto.getUuid()));
+        var link = ResourceLinks.get(TilbakekrevingRestTjeneste.VALG_PATH, "", new UuidDto(dto.getUuid()));
         assertThat(getLinkRel(dto)).contains("tilbakekrevingvalg");
         assertThat(getLinkHref(dto)).contains(link.getHref());
     }
 
-    private String href(String path) {
-        return ENV.getProperty("context.path", "/fpsak") + ApiConfig.API_URI + path;
-    }
 
     @Test
     void skal_ikke_ha_med_tilbakekrevings_link_når_det_ikke_finnes_et_resultat() {
         var behandling = lagBehandling();
 
         var dto = tjeneste.lagUtvidetBehandlingDto(behandling, null);
-        var link = ResourceLink.get(href(TilbakekrevingRestTjeneste.VALG_PATH), "", new UuidDto(dto.getUuid()));
+        var link = ResourceLinks.get(TilbakekrevingRestTjeneste.VALG_PATH, "", new UuidDto(dto.getUuid()));
         assertThat(getLinkRel(dto)).doesNotContain("tilbakekrevingvalg");
         assertThat(getLinkHref(dto)).doesNotContain(link.getHref());
     }
@@ -147,25 +150,17 @@ class BehandlingDtoTjenesteTest {
         behandlinger.add(lagBehandling(BehandlingType.INNSYN));
         behandlinger.add(lagBehandling(FagsakYtelseType.ENGANGSTØNAD));
         behandlinger.add(lagBehandling(FagsakYtelseType.SVANGERSKAPSPENGER));
+
         var routes = getRoutes();
         for (var behandling : behandlinger) {
             for (var dtoLink : tjeneste.lagUtvidetBehandlingDto(behandling, null).getLinks()) {
-                assertThat(routeExists(dtoLink, routes)).withFailMessage("Route " + dtoLink + " does not exist.").isTrue();
+                assertThat(dtoLink).isNotNull();
+                assertThat(routes.stream().anyMatch(route -> route.hasSameHttpMethod(dtoLink) && route.matchesUrlTemplate(dtoLink))).withFailMessage(
+                    "Route " + dtoLink + " does not exist.").isTrue();
             }
         }
     }
 
-    private Boolean routeExists(ResourceLink dtoLink, Collection<ResourceLink> routes) {
-        if (dtoLink.getRel().equals("simuleringResultat")) {
-            return true;
-        }
-        for (var routeLink : routes) {
-            if (dtoLink.getHref().getPath().equals(routeLink.getHref().getPath()) && dtoLink.getType().equals(routeLink.getType())) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     private Behandling lagBehandling() {
         return ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -210,8 +205,8 @@ class BehandlingDtoTjenesteTest {
         return dto.getLinks().stream().map(ResourceLink::getRel).toList();
     }
 
-    public Collection<ResourceLink> getRoutes() {
-        Set<ResourceLink> routes = new HashSet<>();
+    public Collection<AnnotatedRoute> getRoutes() {
+        Set<AnnotatedRoute> routes = new HashSet<>();
         var restClasses = RestImplementationClasses.getImplementationClasses();
         for (var aClass : restClasses) {
             var pathFromClass = getClassAnnotationValue(aClass, Path.class, "value");
@@ -235,8 +230,21 @@ class BehandlingDtoTjenesteTest {
                     if (aMethod.getAnnotation(Path.class) != null) {
                         pathFromMethod = aMethod.getAnnotation(Path.class).value();
                     }
-                    var resourceLink = new ResourceLink(href(pathFromClass) + pathFromMethod, aMethod.getName(), method);
-                    routes.add(resourceLink);
+
+                    List<String> queryParameters = Arrays.stream(aMethod.getParameters())
+                        .map(p -> p.getDeclaredAnnotation(QueryParam.class))
+                        .filter(Objects::nonNull)
+                        .map(QueryParam::value)
+                        .toList();
+
+                    List<String> pathParameters = Arrays.stream(aMethod.getParameters())
+                        .map(p -> p.getDeclaredAnnotation(PathParam.class))
+                        .filter(Objects::nonNull)
+                        .map(PathParam::value)
+                        .toList();
+
+                    var path = pathFromClass + pathFromMethod;
+                    routes.add(new AnnotatedRoute(method, path, pathParameters, queryParameters));
                 }
             }
         }
@@ -259,5 +267,23 @@ class BehandlingDtoTjenesteTest {
             }
         }
         return null;
+    }
+
+    public record AnnotatedRoute(ResourceLink.HttpMethod method, String path, List<String> pathParameters, List<String> queryParameters) {
+        public String getUri() {
+            var q = queryParameters.isEmpty() ? null : queryParameters.stream().collect(Collectors.toMap(v -> v, v -> String.format("{%s}", v)));
+            return ResourceLinks.addPathPrefix(path) + ResourceLinks.toQuery(q);
+        }
+
+        public boolean hasSameHttpMethod(ResourceLink resource) {
+            return method().equals(resource.getType());
+        }
+
+        public boolean matchesUrlTemplate(ResourceLink resource) {
+            UriTemplate uriTemplate = new UriTemplate(getUri());
+            var extractedTemplateValues = new HashMap<String, String>();
+            return uriTemplate.match(resource.getHref().toString(), extractedTemplateValues) && extractedTemplateValues.keySet()
+                .containsAll(pathParameters()) && extractedTemplateValues.keySet().containsAll(queryParameters());
+        }
     }
 }

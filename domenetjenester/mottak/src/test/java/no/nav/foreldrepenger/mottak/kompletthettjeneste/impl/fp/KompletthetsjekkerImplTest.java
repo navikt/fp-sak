@@ -48,7 +48,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterT
 import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetssjekkerInntektsmelding;
@@ -93,8 +92,6 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         manglendeInntektsmeldinger.put(Arbeidsgiver.virksomhet(KUNSTIG_ORG), new HashSet<>());
 
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.anyLong())).thenReturn(skjæringstidspunkt);
-        lenient().when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(any(), any())).thenReturn(
-                new HashMap<>());
         lenient().when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(any(), any())).thenReturn(
                 new HashMap<>());
 
@@ -341,9 +338,9 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     }
 
     private void mockManglendeInntektsmelding() {
-        var manglendeInntektsmeldinger = new HashMap<Arbeidsgiver, Set<EksternArbeidsforholdRef>>();
+        var manglendeInntektsmeldinger = new HashMap<Arbeidsgiver, Set<InternArbeidsforholdRef>>();
         manglendeInntektsmeldinger.put(Arbeidsgiver.virksomhet("1"), new HashSet<>());
-        when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(any(), any())).thenReturn(
+        when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(any(), any())).thenReturn(
                 manglendeInntektsmeldinger);
     }
 

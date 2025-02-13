@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -103,7 +103,8 @@ class FpInntektsmeldingTjenesteTest {
 
         when(klient.opprettForespørsel(any())).thenReturn(new OpprettForespørselResponsNy(List.of(new OpprettForespørselResponsNy.OrganisasjonsnummerMedStatus(new OrganisasjonsnummerDto(virksomhet.getOrgnr()), OpprettForespørselResponsNy.ForespørselResultat.FORESPØRSEL_OPPRETTET))));
         when(arbeidsgiverTjeneste.hentVirksomhet(virksomhet.getIdentifikator())).thenReturn(Virksomhet.getBuilder().medOrgnr(virksomhet.getIdentifikator()).medNavn("Testbedrift").build());
-        when(inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraAAreg(behandlingRef, stpp)).thenReturn(Map.of(Arbeidsgiver.virksomhet(virksomhet.getOrgnr()), Set.of(EksternArbeidsforholdRef.ref("123"))));
+        when(inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingRef, stpp)).thenReturn(Map.of(Arbeidsgiver.virksomhet(virksomhet.getOrgnr()), Set.of(
+            InternArbeidsforholdRef.nyRef())));
         // Act
         fpInntektsmeldingTjeneste.lagForespørsel(behandlingRef, stpp);
 
@@ -118,7 +119,7 @@ class FpInntektsmeldingTjenesteTest {
         var virksomhet = Arbeidsgiver.virksomhet("999999999");
         var virksomhet2 = Arbeidsgiver.virksomhet("123456789");
 
-        var imer = Map.of(Arbeidsgiver.virksomhet(virksomhet.getOrgnr()), Set.of(EksternArbeidsforholdRef.nullRef()), Arbeidsgiver.virksomhet(virksomhet2.getOrgnr()), Set.of(EksternArbeidsforholdRef.nullRef()));
+        var imer = Map.of(Arbeidsgiver.virksomhet(virksomhet.getOrgnr()), Set.of(InternArbeidsforholdRef.nullRef()), Arbeidsgiver.virksomhet(virksomhet2.getOrgnr()), Set.of(InternArbeidsforholdRef.nullRef()));
 
         var behandlingRef = new BehandlingReferanse(new Saksnummer("1234"), 1234L, FagsakYtelseType.FORELDREPENGER, 4321L, UUID.randomUUID(),
             BehandlingStatus.UTREDES, BehandlingType.FØRSTEGANGSSØKNAD, 5432L, new AktørId("9999999999999"), RelasjonsRolleType.MORA);
@@ -128,7 +129,7 @@ class FpInntektsmeldingTjenesteTest {
                     new OpprettForespørselResponsNy.OrganisasjonsnummerMedStatus(new OrganisasjonsnummerDto(virksomhet2.getOrgnr()), OpprettForespørselResponsNy.ForespørselResultat.FORESPØRSEL_OPPRETTET))));
         when(arbeidsgiverTjeneste.hentVirksomhet(virksomhet.getIdentifikator())).thenReturn(Virksomhet.getBuilder().medOrgnr(virksomhet.getIdentifikator()).medNavn("Testbedrift").build());
         when(arbeidsgiverTjeneste.hentVirksomhet(virksomhet2.getIdentifikator())).thenReturn(Virksomhet.getBuilder().medOrgnr(virksomhet2.getIdentifikator()).medNavn("Testbedrift 2").build());
-        when(inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraAAreg(behandlingRef, stpp)).thenReturn(imer);
+        when(inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingRef, stpp)).thenReturn(imer);
         // Act
         fpInntektsmeldingTjeneste.lagForespørsel(behandlingRef, stpp);
 
@@ -146,7 +147,7 @@ class FpInntektsmeldingTjenesteTest {
             BehandlingStatus.UTREDES, BehandlingType.FØRSTEGANGSSØKNAD, 5432L, new AktørId("9999999999999"), RelasjonsRolleType.MORA);
         var stpp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).medFørsteUttaksdato(stp.plusDays(1)).build();
         when(klient.opprettForespørsel(any())).thenReturn(new OpprettForespørselResponsNy(List.of(new OpprettForespørselResponsNy.OrganisasjonsnummerMedStatus(new OrganisasjonsnummerDto(virksomhet.getOrgnr()), OpprettForespørselResponsNy.ForespørselResultat.IKKE_OPPRETTET_FINNES_ALLEREDE))));
-        when(inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraAAreg(behandlingRef, stpp)).thenReturn(Map.of(Arbeidsgiver.virksomhet(virksomhet.getOrgnr()), Set.of(EksternArbeidsforholdRef.nullRef())));
+        when(inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingRef, stpp)).thenReturn(Map.of(Arbeidsgiver.virksomhet(virksomhet.getOrgnr()), Set.of(InternArbeidsforholdRef.nullRef())));
         // Act
         fpInntektsmeldingTjeneste.lagForespørsel(behandlingRef, stpp);
 

@@ -1,8 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
-import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.get;
-import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.post;
-
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -91,6 +88,9 @@ import no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.FagsakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRestTjeneste;
+
+import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.get;
+import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.post;
 
 /**
  * Bygger et sammensatt resultat av BehandlingDto ved å samle data fra ulike tjenester, for å kunne levere dette ut på en REST tjeneste.
@@ -317,9 +317,8 @@ public class BehandlingDtoTjeneste {
     }
 
     private UtvidetBehandlingDto utvideBehandlingDtoForInnsyn(Behandling behandling, UtvidetBehandlingDto dto) {
-        var uuidDto = new UuidDto(behandling.getUuid());
-        dto.leggTil(get(InnsynRestTjeneste.INNSYN_PATH, "innsyn", uuidDto));
-        dto.leggTil(get(DokumentRestTjeneste.DOKUMENTER_PATH, "dokumenter", uuidDto));
+        dto.leggTil(get(InnsynRestTjeneste.INNSYN_PATH, "innsyn", new UuidDto(behandling.getUuid())));
+        dto.leggTil(get(DokumentRestTjeneste.DOKUMENTER_PATH, "dokumenter", new SaksnummerDto(behandling.getSaksnummer())));
         return dto;
     }
 
