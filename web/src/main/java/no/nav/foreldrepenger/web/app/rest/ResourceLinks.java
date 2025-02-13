@@ -32,11 +32,6 @@ public final class ResourceLinks {
         return ResourceLink.post(href, rel, requestPayload);
     }
 
-    public static ResourceLink delete(String path, String rel) {
-        var href = addPathPrefix(path);
-        return ResourceLink.delete(href, rel);
-    }
-
     public static ResourceLink post(String path, String rel, Object queryParams, Object requestPayload) {
         var href = addPathPrefix(path);
         var query = toQuery(queryParams);

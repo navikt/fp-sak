@@ -5,8 +5,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
-import jakarta.ws.rs.QueryParam;
-
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
@@ -16,8 +14,9 @@ import static no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType.BEHANDL
 
 public class BehandlingsUuidParam implements AbacDto {
 
-    @Parameter(description = "Behandling uuid")
-    @QueryParam("behandlingUuid")
+    public static final String NAME = "behandlingUuid";
+
+    @Parameter(description = "Behandlingens uuid")
     @Valid
     @NotNull
     private UUID behandlingUuid;
@@ -26,7 +25,7 @@ public class BehandlingsUuidParam implements AbacDto {
         this.behandlingUuid = behandlingUuid;
     }
 
-    BehandlingsUuidParam(String uuid) {
+    public BehandlingsUuidParam(String uuid) {
         this(UUID.fromString(uuid));
     }
 

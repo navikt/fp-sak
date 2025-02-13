@@ -86,17 +86,16 @@ public class VergeTjeneste {
         var behandlingId = behandling.getId();
         var vergeAggregat = vergeRepository.hentAggregat(behandlingId);
         var harRegistrertVerge = vergeAggregat.isPresent() && vergeAggregat.get().getVerge().isPresent();
-        var harVergeAksjonspunkt = behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE);
+        var harÅpentVergeAP = behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE);
         var iForeslåVedtakllerSenereSteg = behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandlingId, BehandlingStegType.FORESLÅ_VEDTAK);
         var iFatteVedtakEllerSenereSteg = behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandlingId, BehandlingStegType.FATTE_VEDTAK);
         var under18År = erSøkerUnder18ar(behandlingId, behandling.getAktørId());
 
         if (harRegistrertVerge && under18År && iForeslåVedtakllerSenereSteg || SpesialBehandling.erSpesialBehandling(behandling)
-            || iFatteVedtakEllerSenereSteg) {
+            || iFatteVedtakEllerSenereSteg || harÅpentVergeAP) {
             return VergeBehandlingsmenyEnum.SKJUL;
         }
-        // TODO(Siri): Fjern harVergeAksjonspunkt når verge-modal er deployert
-        if (!harRegistrertVerge && !harVergeAksjonspunkt) {
+        if (!harRegistrertVerge) {
             return VergeBehandlingsmenyEnum.OPPRETT;
         }
         return VergeBehandlingsmenyEnum.FJERN;

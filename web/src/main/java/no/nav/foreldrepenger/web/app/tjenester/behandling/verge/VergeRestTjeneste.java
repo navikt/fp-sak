@@ -13,6 +13,7 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
@@ -70,7 +71,7 @@ public class VergeRestTjeneste {
     @GET
     @Operation(description = "Henter verge/fullmektig på behandlingen", tags = "verge", responses = {@ApiResponse(responseCode = "200", description = "Verge/fullmektig funnet"), @ApiResponse(responseCode = "204", description = "Ingen verge/fullmektig")})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public VergeDto hentVerge(@Parameter(description = "Behandling") @Valid BehandlingsUuidParam queryParam) {
+    public VergeDto hentVerge(@QueryParam(BehandlingsUuidParam.NAME) BehandlingsUuidParam queryParam) {
 
         var behandling = behandlingsprosessTjeneste.hentBehandling(queryParam.getBehandlingUuid());
         return vergeTjeneste.hentVerge(behandling);
@@ -81,8 +82,8 @@ public class VergeRestTjeneste {
     @Operation(description = "Oppretter verge/fullmektig på behandlingen", tags = "verge", responses = {@ApiResponse(responseCode = "202", description = "Verge/fullmektig opprettes", headers = @Header(name = HttpHeaders.LOCATION))})
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
     public Response opprettVerge(@Context HttpServletRequest request,
-                                 BehandlingsUuidParam queryParam,
-                                 NyVergeDto body) throws URISyntaxException {
+                                 @QueryParam(BehandlingsUuidParam.NAME) BehandlingsUuidParam queryParam,
+                                 @Valid NyVergeDto body) throws URISyntaxException {
 
         var behandling = behandlingsprosessTjeneste.hentBehandling(queryParam.getBehandlingUuid());
         vergeTjeneste.opprettVerge(behandling, body);
@@ -93,7 +94,7 @@ public class VergeRestTjeneste {
     @DELETE
     @Operation(tags = "verge", description = "Fjerner verge/fullmektig på behandlingen", responses = {@ApiResponse(responseCode = "202", description = "Verge/fullmektig fjernet", headers = @Header(name = HttpHeaders.LOCATION))})
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
-    public Response fjernVerge(@Context HttpServletRequest request, BehandlingsUuidParam queryParam) throws URISyntaxException {
+    public Response fjernVerge(@Context HttpServletRequest request, @QueryParam(BehandlingsUuidParam.NAME) BehandlingsUuidParam queryParam) throws URISyntaxException {
 
         var behandling = behandlingsprosessTjeneste.hentBehandling(queryParam.getBehandlingUuid());
         vergeTjeneste.fjernVerge(behandling);
@@ -106,11 +107,13 @@ public class VergeRestTjeneste {
     @POST
     @Path(VERGE_OPPRETT_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces
-    @Operation(description = "Oppretter aksjonspunkt for verge/fullmektig på behandlingen", tags = "verge", responses = {@ApiResponse(responseCode = "200", description = "Aksjonspunkt for verge/fullmektig opprettes", headers = @Header(name = HttpHeaders.LOCATION))})
+    @Operation(description = "Oppretter aksjonspunkt for verge/fullmektig på behandlingen", tags = "verge", responses = {
+        @ApiResponse(responseCode = "200", description = "Aksjonspunkt for verge/fullmektig opprettes", headers = @Header(name = HttpHeaders.LOCATION))
+    })
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
     public Response opprettVerge(@Context HttpServletRequest request,
-                                 @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class) @Parameter(description = "Behandling som skal få verge/fullmektig") @Valid BehandlingIdVersjonDto dto) throws URISyntaxException {
+                                 @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
+        @Parameter(description = "Behandling som skal få verge/fullmektig") @Valid BehandlingIdVersjonDto dto) throws URISyntaxException {
         var behandling = getBehandling(dto);
         var behandlingVersjon = dto.getBehandlingVersjon();
 
@@ -127,10 +130,13 @@ public class VergeRestTjeneste {
     @POST
     @Path(VERGE_FJERN_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Fjerner aksjonspunkt og evt. registrert informasjon om verge/fullmektig fra behandlingen", tags = "verge", responses = {@ApiResponse(responseCode = "200", description = "Fjerning av verge/fullmektig er gjennomført", headers = @Header(name = HttpHeaders.LOCATION))})
+    @Operation(description = "Fjerner aksjonspunkt og evt. registrert informasjon om verge/fullmektig fra behandlingen", tags = "verge", responses = {
+        @ApiResponse(responseCode = "200", description = "Fjerning av verge/fullmektig er gjennomført", headers = @Header(name = HttpHeaders.LOCATION))
+    })
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
-    public Response fjernVergeGammel(@Context HttpServletRequest request,
-                                     @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class) @Parameter(description = "Behandling som skal få fjernet verge/fullmektig") @Valid BehandlingIdVersjonDto dto) throws URISyntaxException {
+    public Response fjernVerge(@Context HttpServletRequest request,
+                               @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
+        @Parameter(description = "Behandling som skal få fjernet verge/fullmektig") @Valid BehandlingIdVersjonDto dto) throws URISyntaxException {
         var behandling = getBehandling(dto);
         var behandlingVersjon = dto.getBehandlingVersjon();
 
