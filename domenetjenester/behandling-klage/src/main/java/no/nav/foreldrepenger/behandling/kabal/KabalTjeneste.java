@@ -193,7 +193,7 @@ public class KabalTjeneste {
             .flatMap(VergeAggregat::getVerge)
             .map(v -> v.getVergeOrganisasjon().isPresent() ?
                 new TilKabalDto.Part(TilKabalDto.PartsType.VIRKSOMHET, v.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getOrganisasjonsnummer).orElseThrow()) :
-                new TilKabalDto.Part(TilKabalDto.PartsType.PERSON, personinfoAdapter.hentFnr(v.getBruker().getAktørId()).map(PersonIdent::getIdent).orElseThrow()))
+                new TilKabalDto.Part(TilKabalDto.PartsType.PERSON, personinfoAdapter.hentFnr(v.getBruker().get().getAktørId()).map(PersonIdent::getIdent).orElseThrow()))
             .map(p -> new TilKabalDto.Fullmektig(p, true));
         var klagerPart = new TilKabalDto.Part(TilKabalDto.PartsType.PERSON, personinfoAdapter.hentFnr(behandling.getAktørId()).map(PersonIdent::getIdent).orElseThrow());
         return new TilKabalDto.Klager(klagerPart, verge.orElse(null));

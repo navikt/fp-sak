@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.verge;
 
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandlingslager.aktør.Aktør;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class VergeAggregat {
@@ -17,6 +18,6 @@ public class VergeAggregat {
     }
 
     public Optional<AktørId> getAktørId() {
-        return verge.getBruker() != null ? Optional.ofNullable(verge.getBruker().getAktørId()) : Optional.empty();
+        return verge.getBruker().map(Aktør::getAktørId);
     }
 }
