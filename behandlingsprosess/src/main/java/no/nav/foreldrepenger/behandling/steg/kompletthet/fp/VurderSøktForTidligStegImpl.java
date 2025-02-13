@@ -47,7 +47,7 @@ public class VurderSøktForTidligStegImpl implements VurderKompletthetSteg {
     }
 
     @Inject
-    public VurderSøktForTidligStegImpl(@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) @BehandlingTypeRef(BehandlingType.FØRSTEGANGSSØKNAD) Kompletthetsjekker kompletthetsjekker,
+    public VurderSøktForTidligStegImpl(Kompletthetsjekker kompletthetsjekker,
                                        BehandlingRepositoryProvider provider,
                                        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.kompletthetsjekker = kompletthetsjekker;
@@ -67,7 +67,7 @@ public class VurderSøktForTidligStegImpl implements VurderKompletthetSteg {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
 
-        var søknadMottatt = kompletthetsjekker.vurderSøknadMottattForTidlig(skjæringstidspunkter);
+        var søknadMottatt = kompletthetsjekker.vurderSøknadMottattForTidlig(ref, skjæringstidspunkter);
         if (!søknadMottatt.erOppfylt() && skalVenteDersomSøktForTidlig(behandling, skjæringstidspunkter)) {
             return VurderKompletthetStegFelles.evaluerUoppfylt(søknadMottatt, VENT_PGA_FOR_TIDLIG_SØKNAD);
         }

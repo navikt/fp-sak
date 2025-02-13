@@ -1,13 +1,5 @@
 package no.nav.foreldrepenger.inngangsvilkaar.søknad;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -16,25 +8,28 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
-import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerProvider;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class InngangsvilkårSøkersOpplysningspliktTest {
 
     InngangsvilkårSøkersOpplysningsplikt testObjekt;
-    private KompletthetsjekkerProvider kompletthetssjekkerProvider = mock(KompletthetsjekkerProvider.class);
-    private Kompletthetsjekker kompletthetssjekker = mock(Kompletthetsjekker.class);
+    private Kompletthetsjekker kompletthetsjekker = mock(Kompletthetsjekker.class);
 
     @BeforeEach
     public void setup() {
-        kompletthetssjekkerProvider = mock(KompletthetsjekkerProvider.class);
-        testObjekt = new InngangsvilkårSøkersOpplysningsplikt(kompletthetssjekkerProvider);
+        kompletthetsjekker = mock(Kompletthetsjekker.class);
+        testObjekt = new InngangsvilkårSøkersOpplysningsplikt(kompletthetsjekker);
     }
 
     @Test
     void komplett_søknad_skal_medføre_oppfylt() {
-        when(kompletthetssjekkerProvider.finnKompletthetsjekkerFor(any(), any())).thenReturn(kompletthetssjekker);
-        when(kompletthetssjekker.erForsendelsesgrunnlagKomplett(any()))
-            .thenReturn(true);
+        when(kompletthetsjekker.erForsendelsesgrunnlagKomplett(any())).thenReturn(true);
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
 
         var vilkårData = testObjekt.vurderVilkår(lagRef(behandling));
@@ -47,9 +42,7 @@ class InngangsvilkårSøkersOpplysningspliktTest {
 
     @Test
     void ikke_komplett_søknad_skal_medføre_manuell_vurdering() {
-        when(kompletthetssjekkerProvider.finnKompletthetsjekkerFor(any(), any())).thenReturn(kompletthetssjekker);
-        when(kompletthetssjekker.erForsendelsesgrunnlagKomplett(any()))
-            .thenReturn(false);
+        when(kompletthetsjekker.erForsendelsesgrunnlagKomplett(any())).thenReturn(false);
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
 
         var vilkårData = testObjekt.vurderVilkår(lagRef(behandling));
@@ -63,9 +56,7 @@ class InngangsvilkårSøkersOpplysningspliktTest {
 
     @Test
     void revurdering_for_foreldrepenger_skal_alltid_medføre_oppfylt() {
-        when(kompletthetssjekkerProvider.finnKompletthetsjekkerFor(any(), any())).thenReturn(kompletthetssjekker);
-        when(kompletthetssjekker.erForsendelsesgrunnlagKomplett(any()))
-            .thenReturn(false);
+        when(kompletthetsjekker.erForsendelsesgrunnlagKomplett(any())).thenReturn(false);
         var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.REVURDERING)
             .lagMocked();

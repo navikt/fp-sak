@@ -13,21 +13,21 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.inngangsvilkaar.Inngangsvilkår;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårTypeRef;
-import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerProvider;
+import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 
 @ApplicationScoped
 @VilkårTypeRef(VilkårType.SØKERSOPPLYSNINGSPLIKT)
 public class InngangsvilkårSøkersOpplysningsplikt implements Inngangsvilkår {
 
-    private KompletthetsjekkerProvider kompletthetsjekkerProvider;
+    private Kompletthetsjekker kompletthetsjekker;
 
     public InngangsvilkårSøkersOpplysningsplikt() {
         // for CDI proxy
     }
 
     @Inject
-    public InngangsvilkårSøkersOpplysningsplikt(KompletthetsjekkerProvider kompletthetsjekkerProvider) {
-        this.kompletthetsjekkerProvider = kompletthetsjekkerProvider;
+    public InngangsvilkårSøkersOpplysningsplikt(Kompletthetsjekker kompletthetsjekker) {
+        this.kompletthetsjekker = kompletthetsjekker;
     }
 
     @Override
@@ -48,7 +48,7 @@ public class InngangsvilkårSøkersOpplysningsplikt implements Inngangsvilkår {
             return oppfylt;
         }
 
-        var søknadKomplett = this.kompletthetsjekkerProvider.finnKompletthetsjekkerFor(ytelseType, behandlingType).erForsendelsesgrunnlagKomplett(ref);
+        var søknadKomplett = this.kompletthetsjekker.erForsendelsesgrunnlagKomplett(ref);
         if (søknadKomplett) {
             return oppfylt;
         }

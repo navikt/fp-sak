@@ -38,6 +38,7 @@
         <module>risikoklassifisering</module>
         <module>tilbakekreving</module>
         <module>beregningsgrunnlag</module>
+        <module>kompletthet</module>
     </modules>
 
 </project>

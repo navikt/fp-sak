@@ -27,7 +27,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @ApplicationScoped
 public class VurderKompletthetRevurderingStegImpl implements VurderKompletthetSteg {
 
-
     private Kompletthetsjekker kompletthetsjekker;
     private BehandlingRepository behandlingRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -36,9 +35,9 @@ public class VurderKompletthetRevurderingStegImpl implements VurderKompletthetSt
     }
 
     @Inject
-    public VurderKompletthetRevurderingStegImpl(@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) @BehandlingTypeRef(BehandlingType.REVURDERING) Kompletthetsjekker kompletthetsjekker,
-            BehandlingRepositoryProvider provider,
-            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+    public VurderKompletthetRevurderingStegImpl(Kompletthetsjekker kompletthetsjekker,
+                                                BehandlingRepositoryProvider provider,
+                                                SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.kompletthetsjekker = kompletthetsjekker;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = provider.getBehandlingRepository();

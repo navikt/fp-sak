@@ -1,7 +1,23 @@
 package no.nav.foreldrepenger.behandling.steg.registrersøknad;
 
+import static java.util.Collections.singletonList;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_FORELDREPENGER;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_SVANGERSKAPSPENGER;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.VENT_PÅ_SØKNAD;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.Period;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.HenleggBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
@@ -28,21 +44,6 @@ import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.RegistrerFagsakEgenskaper;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.time.Period;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-
-import static java.util.Collections.singletonList;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_FORELDREPENGER;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_SVANGERSKAPSPENGER;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.VENT_PÅ_SØKNAD;
-
 @BehandlingStegRef(BehandlingStegType.REGISTRER_SØKNAD)
 @BehandlingTypeRef
 @FagsakYtelseTypeRef
@@ -54,6 +55,7 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
     private RegistrerFagsakEgenskaper registrerFagsakEgenskaper;
     private HenleggBehandlingTjeneste henleggBehandlingTjeneste;
+    private Kompletthetsjekker kompletthetsjekker;
 
     RegistrerSøknadSteg() {
         // for CDI proxy
@@ -63,11 +65,13 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
     public RegistrerSøknadSteg(BehandlingRepository behandlingRepository,
                                MottatteDokumentTjeneste mottatteDokumentTjeneste,
                                RegistrerFagsakEgenskaper registrerFagsakEgenskaper,
-                               HenleggBehandlingTjeneste henleggBehandlingTjeneste) {
+                               HenleggBehandlingTjeneste henleggBehandlingTjeneste,
+                               Kompletthetsjekker kompletthetsjekker) {
         this.behandlingRepository = behandlingRepository;
         this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
         this.registrerFagsakEgenskaper = registrerFagsakEgenskaper;
         this.henleggBehandlingTjeneste = henleggBehandlingTjeneste;
+        this.kompletthetsjekker = kompletthetsjekker;
     }
 
     @Override
@@ -85,9 +89,6 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
         }
 
         var ref = BehandlingReferanse.fra(behandling);
-
-        var kompletthetsjekker = BehandlingTypeRef.Lookup
-                .find(Kompletthetsjekker.class, behandling.getFagsakYtelseType(), behandling.getType()).orElseThrow();
         var søknadMottatt = kompletthetsjekker.vurderSøknadMottatt(ref);
         if (!søknadMottatt.erOppfylt()) {
             return evaluerSøknadMottattUoppfylt(behandling, søknadMottatt, VENT_PÅ_SØKNAD);
