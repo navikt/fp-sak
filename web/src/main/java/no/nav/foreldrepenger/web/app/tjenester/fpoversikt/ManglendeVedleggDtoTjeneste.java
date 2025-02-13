@@ -12,21 +12,21 @@ import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerProvider;
+import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 
 @ApplicationScoped
 class ManglendeVedleggDtoTjeneste {
 
-    private KompletthetsjekkerProvider kompletthetsjekkerProvider;
+    private Kompletthetsjekker kompletthetsjekker;
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
 
     @Inject
-    ManglendeVedleggDtoTjeneste(KompletthetsjekkerProvider kompletthetsjekkerProvider,
+    ManglendeVedleggDtoTjeneste(Kompletthetsjekker kompletthetsjekker,
                                 FagsakRepository fagsakRepository,
                                 BehandlingRepository behandlingRepository) {
-        this.kompletthetsjekkerProvider = kompletthetsjekkerProvider;
+        this.kompletthetsjekker = kompletthetsjekker;
         this.fagsakRepository = fagsakRepository;
         this.behandlingRepository = behandlingRepository;
     }
@@ -45,7 +45,6 @@ class ManglendeVedleggDtoTjeneste {
             return List.of();
         }
         var behandling = behandlingOpt.get();
-        var kompletthetsjekker = kompletthetsjekkerProvider.finnKompletthetsjekkerFor(fagsak.getYtelseType(), behandling.getType());
         return tilDto(kompletthetsjekker.utledAlleManglendeVedleggForForsendelse(BehandlingReferanse.fra(behandling)));
     }
 
