@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.skjæringstidspunkt.overganger;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.Period;
+import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -48,18 +49,22 @@ public class MinsterettCore2022 {
         // // 14-10 første ledd (far+medmor) med uttak ifm fødsel iht P15L 2021/22. Øvrige tilfelle sendes videre.
         var gjeldendeFH = familieHendelseGrunnlag.getGjeldendeVersjon();
         if (!utenMinsterett && gjeldendeFH.getGjelderFødsel() && !RelasjonsRolleType.MORA.equals(rolle)) {
-            // Juster førsteUttaksdato som er før fødsel eller T-2 til tidligste lovlige dato
-            var termindatoMinusPeriode = familieHendelseGrunnlag.getGjeldendeTerminbekreftelse()
-                .map(TerminbekreftelseEntitet::getTermindato)
+            // Juster førsteUttaksdato som er mer enn 2 uker før fødsel / termin til tidligste lovlige dato
+            var tidligsteFamilieHendelseDato = tidligsteFamilieHendelseDato(familieHendelseGrunnlag)
                 .map(t -> t.minus(FAR_TIDLIGSTE_UTTAK_FØR_TERMIN));
-            var tidligstedato = gjeldendeFH.getFødselsdato()
-                .filter(f -> termindatoMinusPeriode.isEmpty() || f.isBefore(termindatoMinusPeriode.get()))
-                .or(() -> termindatoMinusPeriode);
-            var uttaksdato = tidligstedato.filter(førsteUttaksdato::isBefore).orElse(førsteUttaksdato);
+            var uttaksdato = tidligsteFamilieHendelseDato.filter(førsteUttaksdato::isBefore).orElse(førsteUttaksdato);
             return VirkedagUtil.fomVirkedag(uttaksdato);
         }
         // 14-10 første ledd (mor), andre ledd. Eldre tilfelle
         return UtsettelseCore2021.førsteUttaksDatoForBeregning(rolle, familieHendelseGrunnlag, førsteUttaksdato);
+    }
+
+    private static Optional<LocalDate> tidligsteFamilieHendelseDato(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
+        var termindato = familieHendelseGrunnlag.getGjeldendeTerminbekreftelse()
+            .map(TerminbekreftelseEntitet::getTermindato);
+        return familieHendelseGrunnlag.getGjeldendeVersjon().getFødselsdato()
+            .filter(f -> termindato.isEmpty() || f.isBefore(termindato.get()))
+            .or(() -> termindato);
     }
 
 }
