@@ -98,7 +98,7 @@ class OpprettVergeTjenesteTest {
         when(personinfoAdapter.hentBrukerArbeidsgiverForAktør(any())).thenReturn(Optional.of(new PersoninfoArbeidsgiver.Builder().medAktørId(aktørId)
             .medFødselsdato(LocalDate.now())
             .medPersonIdent(PersonIdent.fra("12345678910"))
-            .medNavn("Harald Hårfagre")
+            .medNavn("Harald")
             .build()));
 
 
@@ -115,7 +115,7 @@ class OpprettVergeTjenesteTest {
             assertThat(h.getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_OM_VERGE);
             assertThat(h.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
             assertThat(h.getTekstLinjer()).hasSize(5)
-                .containsExactly("__Navn__ er endret fra Navn Navnesen til __Navn__.",
+                .containsExactly("__Navn__ er endret fra Harald til __Harald Hårfagre__.",
                     "__Fødselsnummer__ er endret fra 12345678910 til __12345678901__.",
                     "__Periode f.o.m.__ er endret fra 13.02.2025 til __03.02.2025__.",
                     "__Periode t.o.m.__ er endret fra 05.03.2025 til __23.02.2025__.", "Begrunnelse.");
@@ -123,7 +123,7 @@ class OpprettVergeTjenesteTest {
     }
 
     private OpprettVergeDto opprettDtoVerge() {
-        return new OpprettVergeDto("Harald", "12345678901", LocalDate.now().minusDays(10), LocalDate.now().plusDays(10), VergeType.BARN, null,
+        return new OpprettVergeDto("Harald Hårfagre", "12345678901", LocalDate.now().minusDays(10), LocalDate.now().plusDays(10), VergeType.BARN, null,
             "Begrunnelse");
     }
 
