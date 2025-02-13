@@ -4,22 +4,12 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.UUID;
-
 public class BehandlingIdVersjonDto extends BehandlingIdDto {
 
     @NotNull
     @Min(0)
     @Max(Long.MAX_VALUE)
     private Long behandlingVersjon;
-
-    public BehandlingIdVersjonDto() {
-    }
-
-    public BehandlingIdVersjonDto(UUID behandlingUuid, Long behandlingVersjon) {
-        super(behandlingUuid);
-        this.behandlingVersjon = behandlingVersjon;
-    }
 
     public Long getBehandlingVersjon() {
         return behandlingVersjon;
@@ -31,7 +21,9 @@ public class BehandlingIdVersjonDto extends BehandlingIdDto {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + '<' + (getBehandlingVersjon() != null ? "behandlingVersjon=" + getBehandlingVersjon() + ", " : "") + (
-            getBehandlingUuid() != null ? "behandlingUuid=" + getBehandlingUuid() : "") + '>';
+        return getClass().getSimpleName() + '<' +
+            (getBehandlingVersjon() != null ? "behandlingVersjon=" + getBehandlingVersjon() + ", " : "") +
+            (getBehandlingUuid() != null ? "behandlingUuid=" + getBehandlingUuid() : "") +
+            '>';
     }
 }

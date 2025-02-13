@@ -14,6 +14,7 @@ import no.nav.vedtak.util.InputValideringRegex;
 import java.time.LocalDate;
 
 public class NyVergeDto implements AbacDto {
+
     @Size(max = 100)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String navn;

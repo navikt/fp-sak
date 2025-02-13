@@ -13,7 +13,6 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
@@ -31,7 +30,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSupp
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdVersjonDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.BehandlingsUuidDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.BehandlingsUuidParam;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.NyVergeDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -71,9 +70,9 @@ public class VergeRestTjeneste {
     @GET
     @Operation(description = "Henter verge/fullmektig på behandlingen", tags = "verge", responses = {@ApiResponse(responseCode = "200", description = "Verge/fullmektig funnet"), @ApiResponse(responseCode = "204", description = "Ingen verge/fullmektig")})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public VergeDto hentVerge(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class) @Parameter(description = "Behandling") @QueryParam("behandlingUuid") @Valid BehandlingIdDto dto) {
+    public VergeDto hentVerge(@Parameter(description = "Behandling") @Valid BehandlingsUuidParam queryParam) {
 
-        var behandling = getBehandling(dto);
+        var behandling = behandlingsprosessTjeneste.hentBehandling(queryParam.getBehandlingUuid());
         return vergeTjeneste.hentVerge(behandling);
     }
 
@@ -82,25 +81,24 @@ public class VergeRestTjeneste {
     @Operation(description = "Oppretter verge/fullmektig på behandlingen", tags = "verge", responses = {@ApiResponse(responseCode = "202", description = "Verge/fullmektig opprettes", headers = @Header(name = HttpHeaders.LOCATION))})
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
     public Response opprettVerge(@Context HttpServletRequest request,
-                                 @QueryParam("behandlingUuid") BehandlingsUuidDto behandlingUuidDto,
-                                 @Valid NyVergeDto body) throws URISyntaxException {
+                                 BehandlingsUuidParam queryParam,
+                                 NyVergeDto body) throws URISyntaxException {
 
-        var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingUuidDto.getBehandlingUuid());
+        var behandling = behandlingsprosessTjeneste.hentBehandling(queryParam.getBehandlingUuid());
         vergeTjeneste.opprettVerge(behandling, body);
 
-        return Redirect.tilBehandlingPollStatus(request, behandlingUuidDto.getBehandlingUuid());
+        return Redirect.tilBehandlingPollStatus(request, queryParam.getBehandlingUuid());
     }
 
     @DELETE
     @Operation(tags = "verge", description = "Fjerner verge/fullmektig på behandlingen", responses = {@ApiResponse(responseCode = "202", description = "Verge/fullmektig fjernet", headers = @Header(name = HttpHeaders.LOCATION))})
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
-    public Response fjernVerge(@Context HttpServletRequest request,
-                               @QueryParam("behandlingUuid") BehandlingsUuidDto behandlingUuidDto) throws URISyntaxException {
+    public Response fjernVerge(@Context HttpServletRequest request, BehandlingsUuidParam queryParam) throws URISyntaxException {
 
-        var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingUuidDto.getBehandlingUuid());
+        var behandling = behandlingsprosessTjeneste.hentBehandling(queryParam.getBehandlingUuid());
         vergeTjeneste.fjernVerge(behandling);
 
-        return Redirect.tilBehandlingPollStatus(request, behandlingUuidDto.getBehandlingUuid());
+        return Redirect.tilBehandlingPollStatus(request, queryParam.getBehandlingUuid());
     }
 
 
