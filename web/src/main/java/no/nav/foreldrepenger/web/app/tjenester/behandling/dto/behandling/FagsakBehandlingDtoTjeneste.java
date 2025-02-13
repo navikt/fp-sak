@@ -248,7 +248,7 @@ public class FagsakBehandlingDtoTjeneste {
             b.isBehandlingPåVent() && !b.erKøet(), // Gjenopptas
             kanÅpnesForEndring, // Åpnes for endring
             !b.isBehandlingPåVent(), // Settes på vent
-            !b.isBehandlingPåVent(), // Sende melding
+            true, // Sende melding
             !b.isBehandlingPåVent() && totrinnRetur, // Fra beslutter
             false, // Til godkjenning
             vergeTjeneste.utledBehandlingOperasjon(b.getId()));

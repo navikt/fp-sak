@@ -107,8 +107,10 @@ public class DokumentBehandlingTjeneste {
 
     public void settBehandlingPåVent(Long behandlingId, Venteårsak venteårsak) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        behandlingskontrollTjeneste.settBehandlingPåVentUtenSteg(behandling, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT,
-            LocalDateTime.now().plus(MANUELT_VENT_FRIST), venteårsak);
+        if (!behandling.isBehandlingPåVent() || behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT)) {
+            behandlingskontrollTjeneste.settBehandlingPåVentUtenSteg(behandling, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT,
+                LocalDateTime.now().plus(MANUELT_VENT_FRIST), venteårsak);
+        }
     }
 
     public void utvidBehandlingsfristManuelt(Long behandlingId) {
