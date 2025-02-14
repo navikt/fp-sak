@@ -159,15 +159,14 @@ public class KompletthetsjekkerTjeneste {
         }
 
         if (FagsakYtelseType.ENGANGSTØNAD.equals(ref.fagsakYtelseType())) {
-            // TODO: Henter søknad 3+ ganger
-            if (!kompletthetssjekkerSøknad.erSøknadMottatt(ref)) {
+            var søknadOpt = fellesUtil.hentSøknadHvisEksisterer(ref.behandlingId());
+            if (søknadOpt.isEmpty()) {
                 // Uten søknad må det antas at den heller ikke er komplett. Sjekker nedenfor forutsetter at søknad finnes.
                 return false;
             }
-
-            if (!kompletthetssjekkerSøknad.erSøknadMottattElektronisk(ref)) {
+            if (!søknadOpt.get().getElektroniskRegistrert()) {
                 // Søknad manuelt registrert av saksbehandlier - dermed er opplysningsplikt allerede vurdert av han/henne
-                return false;
+                return true;
             }
             if (kompletthetssjekkerSøknad.utledManglendeVedleggForSøknad(ref).isEmpty()) {
                 return true;

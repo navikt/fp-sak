@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
@@ -59,13 +58,6 @@ public class KompletthetsjekkerSøknad {
         }
         return Optional.empty();
     }
-
-    public boolean erSøknadMottattElektronisk(BehandlingReferanse ref) {
-        return søknadRepository.hentSøknadHvisEksisterer(ref.behandlingId())
-                .map(SøknadEntitet::getElektroniskRegistrert)
-                .orElse(false);
-    }
-
 
     public boolean erSøknadMottatt(BehandlingReferanse ref) {
         var søknad = søknadRepository.hentSøknadHvisEksisterer(ref.behandlingId());

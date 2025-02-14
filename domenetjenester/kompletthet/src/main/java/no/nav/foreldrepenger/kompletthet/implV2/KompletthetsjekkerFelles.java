@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
@@ -81,6 +82,10 @@ public class KompletthetsjekkerFelles {
         this.kompletthetssjekkerInntektsmelding = kompletthetssjekkerInntektsmelding;
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.fpInntektsmeldingTjeneste = fpInntektsmeldingTjeneste;
+    }
+
+    public Optional<SøknadEntitet> hentSøknadHvisEksisterer(Long behandlingId) {
+        return søknadRepository.hentSøknadHvisEksisterer(behandlingId);
     }
 
     public Behandling hentBehandling(Long behandlingId) {

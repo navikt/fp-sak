@@ -94,7 +94,7 @@ public class KompletthetsjekkerV2MedSammenligning implements Kompletthetsjekker 
         try {
             var resultatNy = metode.apply(ref);
             if (!Objects.equals(resultat, resultatNy)) {
-                LOG.info("KompletthetV2: Ulikt resultat for {}(). GAMMEL: {}, NY: {}", metodeNavn, resultatNy, resultat);
+                LOG.info("KompletthetV2: Ulikt resultat for {}(). GAMMEL: {}, NY: {}", metodeNavn, resultat, resultatNy);
             } else {
                 LOG.info("KompletthetV2: Likt resultat for {}()", metodeNavn);
             }
@@ -108,7 +108,7 @@ public class KompletthetsjekkerV2MedSammenligning implements Kompletthetsjekker 
         try {
             var resultatNy = metode.apply(ref, stp);
             if (!Objects.equals(resultat, resultatNy)) {
-                LOG.info("KompletthetV2: Ulikt resultat for {}. GAMMEL: {}, NY: {}", metodeNavn, resultatNy, resultat);
+                LOG.info("KompletthetV2: Ulikt resultat for {}. GAMMEL: {}, NY: {}", metodeNavn, resultat, resultatNy);
             } else {
                 LOG.info("KompletthetV2: Likt resultat for {}", metodeNavn);
             }
