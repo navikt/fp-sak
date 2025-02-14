@@ -175,6 +175,7 @@ public class KompletthetsjekkerTjeneste {
             if (familieHendelseRepository.hentAggregat(ref.behandlingId()).getSøknadVersjon().getGjelderFødsel()) {
                 return finnesBarnet(ref);
             }
+            return false;
         }
 
         // Fpsak
