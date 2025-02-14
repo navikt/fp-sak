@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
-import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerProvider;
+import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.vedtak.felles.xml.vedtak.v2.Vilkaar;
 import no.nav.vedtak.felles.xml.vedtak.vilkaarsgrunnlag.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.vilkaarsgrunnlag.v2.Vilkaarsgrunnlag;
@@ -24,15 +24,15 @@ public abstract class VilkårsgrunnlagXmlTjeneste {
 
     private ObjectFactory vilkårObjectFactory = new ObjectFactory();
     private SøknadRepository søknadRepository;
+    private Kompletthetsjekker kompletthetsjekker;
     protected FamilieHendelseRepository familieHendelseRepository;
-    private KompletthetsjekkerProvider kompletthetsjekkerProvider;
 
     public VilkårsgrunnlagXmlTjeneste() {
         // For CDI
     }
 
-    public VilkårsgrunnlagXmlTjeneste(BehandlingRepositoryProvider repositoryProvider, KompletthetsjekkerProvider kompletthetsjekkerProvider) {
-        this.kompletthetsjekkerProvider = kompletthetsjekkerProvider;
+    public VilkårsgrunnlagXmlTjeneste(BehandlingRepositoryProvider repositoryProvider, Kompletthetsjekker kompletthetsjekker) {
+        this.kompletthetsjekker = kompletthetsjekker;
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
     }
@@ -65,7 +65,7 @@ public abstract class VilkårsgrunnlagXmlTjeneste {
     }
 
     protected boolean erKomplettSøknad(BehandlingReferanse ref) {
-        return kompletthetsjekkerProvider.finnKompletthetsjekkerFor(ref.fagsakYtelseType(), ref.behandlingType()).erForsendelsesgrunnlagKomplett(ref);
+        return kompletthetsjekker.erForsendelsesgrunnlagKomplett(ref);
     }
 
     protected LocalDate getMottattDato(Behandling behandling) {

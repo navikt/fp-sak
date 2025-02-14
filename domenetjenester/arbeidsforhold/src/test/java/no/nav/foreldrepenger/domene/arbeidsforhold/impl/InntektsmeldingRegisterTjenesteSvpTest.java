@@ -33,7 +33,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.Tilrett
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.abakus.ArbeidsforholdTjeneste;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.InntektsmeldingStatusMapper;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -67,8 +66,6 @@ class InntektsmeldingRegisterTjenesteSvpTest {
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     @Mock
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
-    @Mock
-    private ArbeidsforholdTjeneste abakusArbeidsforholdTjeneste;
     @Mock
     private SvangerskapspengerRepository svangerskapspengerRepository;
     @Mock

@@ -108,12 +108,14 @@ public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
     RESULTATREGNSKAP("RESULTATREGNSKAP", "I000032", "Resultatregnskap"),
     DOK_MILITÆR_SIVIL_TJENESTE("DOK_MILITÆR_SIVIL_TJENESTE", "I000039", "Dokumentasjon av militær- eller siviltjeneste"),
     DOK_ETTERLØNN("DOK_ETTERLØNN", "I000044", "Dokumentasjon av etterlønn/sluttvederlag"),
+    DOKUMENTASJON_INNTEKT("I000146", "Dokumentasjon på inntekt"),
     INNTEKTSOPPLYSNINGSSKJEMA("I000052", "Inntektsopplysningsskjema"),
     KOPI_SKATTEMELDING("KOPI_SKATTEMELDING", "I000066", "Kopi av likningsattest eller selvangivelse"),
     SKATTEMELDING("I000140", "Skattemelding"),
 
     // Medlemskap
     BEKREFTELSE_OPPHOLDSTILLATELSE("BEKREFTELSE_OPPHOLDSTILLATELSE", "I000055", "Bekreftelse på oppholdstillatelse"),
+    DOK_OPPHOLD("I000143", "Dokumentasjon på oppholdstillatelse"),
     OPPHOLDSOPPLYSNINGER("OPPHOLDSOPPLYSNINGER", "I001000", "Oppholdsopplysninger"),
 
     // Rettighet, søknadsfrist + opplysningplikt mm
@@ -142,6 +144,8 @@ public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
     BREV_UTLAND("BREV_UTLAND", "I000028", "Brev - utland"),
     ANNET_SKJEMA_UTLAND_IKKE_NAV("ANNET_SKJEMA_UTLAND_IKKE_NAV", "I000029", "Annet skjema (ikke NAV-skjema) - utland"),
     BREV("BREV", "I000048", "Brev"),
+    DOK_OPPFØLGING("I000145", "Dokumentasjon på oppfølging i svangerskapet"),
+    DOK_REISE("I000144", "Dokumentasjon på reiser til og fra Norge"),
     ANNET_SKJEMA_IKKE_NAV("ANNET_SKJEMA_IKKE_NAV", "I000049", "Annet skjema (ikke NAV-skjema)"),
     ANNET("ANNET", "I000060", "Annet"),
 
