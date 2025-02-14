@@ -31,11 +31,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsa
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
+import no.nav.foreldrepenger.kompletthet.KompletthetModell;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
-import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
-import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerProvider;
+import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerV2MedSammenligning;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
-import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetModell;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,14 +42,12 @@ class KompletthetskontrollerTest {
 
     @Mock
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-    @Mock
-    private KompletthetsjekkerProvider kompletthetsjekkerProvider;
 
     @Mock
     private DokumentmottakerFelles dokumentmottakerFelles;
 
     @Mock
-    private Kompletthetsjekker kompletthetsjekker;
+    private KompletthetsjekkerV2MedSammenligning kompletthetsjekker;
 
     @Mock
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
@@ -67,10 +64,7 @@ class KompletthetskontrollerTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenario.lagMocked();
 
-        // Simuler at provider alltid gir kompletthetssjekker
-        lenient().when(kompletthetsjekkerProvider.finnKompletthetsjekkerFor(any(), any())).thenReturn(kompletthetsjekker);
-
-        var modell = new KompletthetModell(behandlingskontrollTjeneste, kompletthetsjekkerProvider);
+        var modell = new KompletthetModell(behandlingskontrollTjeneste, kompletthetsjekker);
         var skjæringstidspunktTjeneste = Mockito.mock(SkjæringstidspunktTjeneste.class);
 
         kompletthetskontroller = new Kompletthetskontroller(dokumentmottakerFelles, mottatteDokumentTjeneste, modell, behandlingProsesseringTjeneste,
@@ -88,7 +82,6 @@ class KompletthetskontrollerTest {
         var behandling = scenario.lagMocked();
         var ventefrist = LocalDateTime.now().plusDays(1);
 
-        when(kompletthetsjekkerProvider.finnKompletthetsjekkerFor(any(), any())).thenReturn(kompletthetsjekker);
         when(kompletthetsjekker.vurderForsendelseKomplett(any(), any())).thenReturn(KompletthetResultat.ikkeOppfylt(ventefrist, Venteårsak.AVV_FODSEL));
 
         kompletthetskontroller.persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
@@ -104,7 +97,6 @@ class KompletthetskontrollerTest {
         var behandling = scenario.lagMocked();
         var ventefrist = LocalDateTime.now().plusDays(1);
 
-        when(kompletthetsjekkerProvider.finnKompletthetsjekkerFor(any(), any())).thenReturn(kompletthetsjekker);
         when(kompletthetsjekker.vurderEtterlysningInntektsmelding(any(), any())).thenReturn(
             KompletthetResultat.ikkeOppfylt(ventefrist, Venteårsak.AVV_FODSEL));
         lenient().when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.REGISTRER_SØKNAD)).thenReturn(true);
@@ -195,7 +187,7 @@ class KompletthetskontrollerTest {
     void skal_opprette_historikkinnslag_for_tidlig_mottatt_søknad() {
         // Arrange
         var frist = LocalDateTime.now().minusSeconds(30);
-        when(kompletthetsjekker.vurderSøknadMottattForTidlig(any())).thenReturn(KompletthetResultat.ikkeOppfylt(frist, Venteårsak.FOR_TIDLIG_SOKNAD));
+        when(kompletthetsjekker.vurderSøknadMottattForTidlig(any(), any())).thenReturn(KompletthetResultat.ikkeOppfylt(frist, Venteårsak.FOR_TIDLIG_SOKNAD));
 
         // Act
         kompletthetskontroller.persisterKøetDokumentOgVurderKompletthet(behandling, mottattDokument, Optional.empty());
@@ -210,7 +202,7 @@ class KompletthetskontrollerTest {
         // Arrange
         var frist = LocalDateTime.now();
         when(kompletthetsjekker.vurderSøknadMottatt(any())).thenReturn(KompletthetResultat.oppfylt());
-        when(kompletthetsjekker.vurderSøknadMottattForTidlig(any())).thenReturn(KompletthetResultat.oppfylt());
+        when(kompletthetsjekker.vurderSøknadMottattForTidlig(any(), any())).thenReturn(KompletthetResultat.oppfylt());
         when(kompletthetsjekker.vurderForsendelseKomplett(any(), any())).thenReturn(KompletthetResultat.ikkeOppfylt(frist, Venteårsak.AVV_DOK));
         when(kompletthetsjekker.vurderEtterlysningInntektsmelding(any(), any())).thenReturn(KompletthetResultat.oppfylt());
 

@@ -52,6 +52,14 @@
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>behandlingslager-domene</artifactId>
         </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger</groupId>
+            <artifactId>behandlingskontroll</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger</groupId>
+            <artifactId>kompletthet</artifactId>
+        </dependency>
 
         <!-- NARE: Java regelmodell -->
         <dependency>
@@ -73,10 +81,6 @@
             <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-testutilities</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger</groupId>
-            <artifactId>behandlingskontroll</artifactId>
         </dependency>
     </dependencies>
 

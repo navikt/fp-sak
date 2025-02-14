@@ -74,6 +74,10 @@ public class Skjæringstidspunkt {
         return førsteUttaksdato;
     }
 
+    public Optional<LocalDate> getFørsteUttaksdatoHvisFinnes() {
+        return Optional.ofNullable(førsteUttaksdato);
+    }
+
     /** Grunnbeløpdato er første dag med innvilget uttak/utsettelse/overføring. */
     public LocalDate getFørsteUttaksdatoGrunnbeløp() {
         Objects.requireNonNull(førsteUttaksdatoGrunnbeløp, "Utvikler-feil: grunnbeløpdato er ikke satt. Sørg for at det er satt ifht. anvendelse");
