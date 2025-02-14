@@ -11,7 +11,6 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.Søknadsfristdatoer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
@@ -214,7 +213,7 @@ public class SøknadDtoTjeneste {
     private Optional<LocalDate> hentOppgittStartdatoForPermisjon(Long behandlingId, RelasjonsRolleType rolleType) {
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
 
-        var oppgittStartdato = getFørsteUttaksdagHvisOppgitt(skjæringstidspunkter)
+        var oppgittStartdato = skjæringstidspunkter.getFørsteUttaksdatoHvisFinnes()
             .or(skjæringstidspunkter::getSkjæringstidspunktHvisUtledet);
         if (RelasjonsRolleType.MORA.equals(rolleType) && skjæringstidspunkter.gjelderFødsel()) {
             var evFødselFørOppgittStartdato = familieHendelseRepository.hentAggregat(behandlingId)
@@ -223,14 +222,6 @@ public class SøknadDtoTjeneste {
             return evFødselFørOppgittStartdato.or(() -> oppgittStartdato);
         }
         return oppgittStartdato;
-    }
-
-    private Optional<LocalDate> getFørsteUttaksdagHvisOppgitt(Skjæringstidspunkt skjæringstidspunkter) {
-        try {
-            return Optional.of(skjæringstidspunkter.getFørsteUttaksdato());
-        } catch (NullPointerException npe) {
-            return Optional.empty();
-        }
     }
 
 }
