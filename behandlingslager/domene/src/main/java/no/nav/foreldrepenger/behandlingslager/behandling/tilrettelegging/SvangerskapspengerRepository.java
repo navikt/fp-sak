@@ -64,6 +64,17 @@ public class SvangerskapspengerRepository {
         lagreOgFlush(nyBuilder.build());
     }
 
+    public void tømmeOverstyrtGrunnlag(Long behandlingId) {
+        var grunnlagOpt = hentGrunnlag(behandlingId);
+        SvpGrunnlagEntitet.Builder nyBuilder;
+
+        if (grunnlagOpt.isPresent()) {
+            nyBuilder = new SvpGrunnlagEntitet.Builder(grunnlagOpt.get())
+                .medOverstyrteTilrettelegginger(null);
+            lagreOgFlush(nyBuilder.build());
+        }
+    }
+
     public void kopierSvpGrunnlagFraEksisterendeBehandling(Long orginalBehandlingId, Behandling nyBehandling) {
         var kopiGjeldendeGrunnlag = hentGrunnlag(orginalBehandlingId)
             .map(SvpGrunnlagEntitet::getGjeldendeVersjon)
