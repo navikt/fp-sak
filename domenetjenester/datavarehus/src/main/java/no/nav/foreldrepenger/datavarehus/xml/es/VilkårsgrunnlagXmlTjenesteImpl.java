@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adopsjon.Adopsjonsvilk�
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel.FødselsvilkårGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel.FødselsvilkårGrunnlagLegacy;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v1.MedlemskapsvilkårGrunnlagV1;
-import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerProvider;
+import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.es.v2.Adopsjon;
 import no.nav.vedtak.felles.xml.vedtak.vilkaarsgrunnlag.es.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.vilkaarsgrunnlag.v2.Vilkaarsgrunnlag;
@@ -38,9 +38,8 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
     }
 
     @Inject
-    public VilkårsgrunnlagXmlTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
-                                                   KompletthetsjekkerProvider kompletthetsjekkerProvider) {
-        super(repositoryProvider, kompletthetsjekkerProvider);
+    public VilkårsgrunnlagXmlTjenesteImpl(BehandlingRepositoryProvider repositoryProvider, Kompletthetsjekker kompletthetsjekker) {
+        super(repositoryProvider, kompletthetsjekker);
 
     }
 

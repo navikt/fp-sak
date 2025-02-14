@@ -33,8 +33,8 @@ public class VurderKompletthetStegImpl implements VurderKompletthetSteg {
     }
 
     @Inject
-    public VurderKompletthetStegImpl(@FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) Kompletthetsjekker kompletthetsjekker, BehandlingRepository behandlingRepository,
-            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+    public VurderKompletthetStegImpl(Kompletthetsjekker kompletthetsjekker, BehandlingRepository behandlingRepository,
+                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.kompletthetsjekker = kompletthetsjekker;
         this.behandlingRepository = behandlingRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;

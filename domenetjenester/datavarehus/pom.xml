@@ -18,6 +18,10 @@
 			<groupId>no.nav.foreldrepenger</groupId>
 			<artifactId>behandlingslager-domene</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger</groupId>
+            <artifactId>kompletthet</artifactId>
+        </dependency>
 
 		<!-- Domenetjenester avhengigheter -->
 		<dependency>
@@ -78,6 +82,5 @@
             <artifactId>felles-testutilities</artifactId>
             <scope>test</scope>
         </dependency>
-
-	</dependencies>
+    </dependencies>
 </project>

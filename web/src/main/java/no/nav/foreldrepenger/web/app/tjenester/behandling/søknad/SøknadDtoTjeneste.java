@@ -34,7 +34,7 @@ import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.familiehendelse.rest.SøknadType;
-import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerProvider;
+import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SøknadsperiodeFristTjeneste;
@@ -45,7 +45,7 @@ public class SøknadDtoTjeneste {
 
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private SøknadsperiodeFristTjeneste fristTjeneste;
-    private KompletthetsjekkerProvider kompletthetsjekkerProvider;
+    private Kompletthetsjekker kompletthetsjekker;
     private FamilieHendelseRepository familieHendelseRepository;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
@@ -62,13 +62,13 @@ public class SøknadDtoTjeneste {
     public SøknadDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                              SøknadsperiodeFristTjeneste fristTjeneste,
-                             KompletthetsjekkerProvider kompletthetsjekkerProvider,
+                             Kompletthetsjekker kompletthetsjekker,
                              YtelseFordelingTjeneste ytelseFordelingTjeneste,
                              MedlemTjeneste medlemTjeneste,
                              FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.fristTjeneste = fristTjeneste;
-        this.kompletthetsjekkerProvider = kompletthetsjekkerProvider;
+        this.kompletthetsjekker = kompletthetsjekker;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.medlemTjeneste = medlemTjeneste;
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
@@ -173,22 +173,21 @@ public class SøknadDtoTjeneste {
     }
 
     private List<ManglendeVedleggDto> genererManglendeVedlegg(BehandlingReferanse ref) {
-        var kompletthetsjekker = kompletthetsjekkerProvider.finnKompletthetsjekkerFor(ref.fagsakYtelseType(), ref.behandlingType());
         var alleManglendeVedlegg = new ArrayList<>(kompletthetsjekker.utledAlleManglendeVedleggForForsendelse(ref));
         var vedleggSomIkkeKommer = kompletthetsjekker.utledAlleManglendeVedleggSomIkkeKommer(ref);
 
         // Fjerner slik at det ikke blir dobbelt opp, og for å markere korrekt hvilke som ikke vil komme
-        alleManglendeVedlegg.removeIf(e -> vedleggSomIkkeKommer.stream().anyMatch(it -> it.getArbeidsgiver().equals(e.getArbeidsgiver())));
+        alleManglendeVedlegg.removeIf(e -> vedleggSomIkkeKommer.stream().anyMatch(it -> it.arbeidsgiver().equals(e.arbeidsgiver())));
         alleManglendeVedlegg.addAll(vedleggSomIkkeKommer);
 
         return alleManglendeVedlegg.stream().map(this::mapTilManglendeVedleggDto).toList();
     }
 
     private ManglendeVedleggDto mapTilManglendeVedleggDto(ManglendeVedlegg mv) {
-        if (mv.getDokumentType().equals(DokumentTypeId.INNTEKTSMELDING)) {
-            return new ManglendeVedleggDto(mv.getDokumentType(), mv.getArbeidsgiver(), mv.getBrukerHarSagtAtIkkeKommer());
+        if (mv.dokumentType().equals(DokumentTypeId.INNTEKTSMELDING)) {
+            return new ManglendeVedleggDto(mv.dokumentType(), mv.arbeidsgiver(), mv.brukerHarSagtAtIkkeKommer());
         } else {
-            return new ManglendeVedleggDto(mv.getDokumentType());
+            return new ManglendeVedleggDto(mv.dokumentType());
         }
     }
 
