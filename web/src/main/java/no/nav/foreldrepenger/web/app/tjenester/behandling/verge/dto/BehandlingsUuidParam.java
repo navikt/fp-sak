@@ -17,7 +17,6 @@ public class BehandlingsUuidParam implements AbacDto {
     public static final String NAME = "behandlingUuid";
 
     @Parameter(description = "Behandlingens uuid")
-    @Valid
     @NotNull
     private UUID behandlingUuid;
 
