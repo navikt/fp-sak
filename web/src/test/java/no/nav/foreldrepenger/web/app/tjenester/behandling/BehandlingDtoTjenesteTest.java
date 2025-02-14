@@ -23,7 +23,6 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 
-import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
@@ -237,14 +236,8 @@ class BehandlingDtoTjenesteTest {
                         .map(QueryParam::value)
                         .toList();
 
-                    List<String> pathParameters = Arrays.stream(aMethod.getParameters())
-                        .map(p -> p.getDeclaredAnnotation(PathParam.class))
-                        .filter(Objects::nonNull)
-                        .map(PathParam::value)
-                        .toList();
-
                     var path = pathFromClass + pathFromMethod;
-                    routes.add(new AnnotatedRoute(method, path, pathParameters, queryParameters));
+                    routes.add(new AnnotatedRoute(method, path, queryParameters));
                 }
             }
         }
@@ -269,7 +262,7 @@ class BehandlingDtoTjenesteTest {
         return null;
     }
 
-    public record AnnotatedRoute(ResourceLink.HttpMethod method, String path, List<String> pathParameters, List<String> queryParameters) {
+    public record AnnotatedRoute(ResourceLink.HttpMethod method, String path, List<String> queryParameters) {
         public String getUri() {
             var q = queryParameters.isEmpty() ? null : queryParameters.stream().collect(Collectors.toMap(v -> v, v -> String.format("{%s}", v)));
             return ResourceLinks.addPathPrefix(path) + ResourceLinks.toQuery(q);
@@ -282,8 +275,7 @@ class BehandlingDtoTjenesteTest {
         public boolean matchesUrlTemplate(ResourceLink resource) {
             UriTemplate uriTemplate = new UriTemplate(getUri());
             var extractedTemplateValues = new HashMap<String, String>();
-            return uriTemplate.match(resource.getHref().toString(), extractedTemplateValues) && extractedTemplateValues.keySet()
-                .containsAll(pathParameters()) && extractedTemplateValues.keySet().containsAll(queryParameters());
+            return uriTemplate.match(resource.getHref().toString(), extractedTemplateValues) && extractedTemplateValues.keySet().containsAll(queryParameters());
         }
     }
 }

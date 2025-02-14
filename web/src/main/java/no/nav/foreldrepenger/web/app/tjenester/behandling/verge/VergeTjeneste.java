@@ -19,9 +19,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
+import no.nav.foreldrepenger.domene.person.verge.OpprettVergeTjeneste;
+import no.nav.foreldrepenger.domene.person.verge.VergeDtoTjeneste;
+import no.nav.foreldrepenger.domene.person.verge.dto.OpprettVergeDto;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBehandlingsmenyEnum;
+import no.nav.foreldrepenger.domene.person.verge.dto.VergeDto;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.NyVergeDto;
 import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
@@ -31,41 +36,66 @@ public class VergeTjeneste {
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private VergeRepository vergeRepository;
     private HistorikkinnslagRepository historikkinnslagRepository;
-    private BehandlingRepository behandlingRepository;
     private PersonopplysningTjeneste personopplysningTjeneste;
+    private OpprettVergeTjeneste opprettVergeTjeneste;
+    private VergeDtoTjeneste vergeDtoTjeneste;
 
     @Inject
     public VergeTjeneste(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                          BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                          VergeRepository vergeRepository,
                          HistorikkinnslagRepository historikkinnslagRepository,
-                         BehandlingRepository behandlingRepository, PersonopplysningTjeneste personopplysningTjeneste) {
+                         BehandlingRepository behandlingRepository,
+                         PersonopplysningTjeneste personopplysningTjeneste,
+                         OpprettVergeTjeneste opprettVergeTjeneste,
+                         VergeDtoTjeneste vergeDtoTjeneste) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.vergeRepository = vergeRepository;
         this.historikkinnslagRepository = historikkinnslagRepository;
-        this.behandlingRepository = behandlingRepository;
         this.personopplysningTjeneste = personopplysningTjeneste;
+        this.opprettVergeTjeneste = opprettVergeTjeneste;
+        this.vergeDtoTjeneste = vergeDtoTjeneste;
     }
 
     VergeTjeneste() {
         //CDI
     }
 
-    public VergeBehandlingsmenyEnum utledBehandlingOperasjon(Long behandlingId) {
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
+    public VergeDto hentVerge(Behandling behandling) {
+        return vergeRepository.hentAggregat(behandling.getId()).flatMap(vergeDtoTjeneste::lagVergeDto).orElse(null);
+    }
+
+    public void opprettVerge(Behandling behandling, NyVergeDto param) {
+        opprettVergeTjeneste.opprettVerge(behandling.getId(), behandling.getFagsakId(), map(param));
+        avbrytVergeAksjonspunktHvisFinnes(behandling);
+        behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
+    }
+
+    public void fjernVerge(Behandling behandling) {
+        var erFjernet = vergeRepository.fjernVergeFraEksisterendeGrunnlagHvisFinnes(behandling.getId());
+        if (erFjernet) {
+            opprettHistorikkinnslagForFjernetVerge(behandling);
+        }
+        avbrytVergeAksjonspunktHvisFinnes(behandling);
+        behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
+    }
+
+
+    public VergeBehandlingsmenyEnum utledBehandlingOperasjon(Behandling behandling) {
+        var behandlingId = behandling.getId();
         var vergeAggregat = vergeRepository.hentAggregat(behandlingId);
         var harRegistrertVerge = vergeAggregat.isPresent() && vergeAggregat.get().getVerge().isPresent();
-        var harVergeAksjonspunkt = behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE);
+        var harÅpentVergeAP = behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE);
         var iForeslåVedtakllerSenereSteg = behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandlingId, BehandlingStegType.FORESLÅ_VEDTAK);
         var iFatteVedtakEllerSenereSteg = behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandlingId, BehandlingStegType.FATTE_VEDTAK);
         var under18År = erSøkerUnder18ar(behandlingId, behandling.getAktørId());
 
         if (harRegistrertVerge && under18År && iForeslåVedtakllerSenereSteg || SpesialBehandling.erSpesialBehandling(behandling)
-                || iFatteVedtakEllerSenereSteg) {
+            || iFatteVedtakEllerSenereSteg || harÅpentVergeAP) {
             return VergeBehandlingsmenyEnum.SKJUL;
         }
-        if (!harRegistrertVerge && !harVergeAksjonspunkt) {
+        if (!harRegistrertVerge) {
             return VergeBehandlingsmenyEnum.OPPRETT;
         }
         return VergeBehandlingsmenyEnum.FJERN;
@@ -74,8 +104,7 @@ public class VergeTjeneste {
 
     void opprettVergeAksjonspunktOgHoppTilbakeTilFORVEDSTEGHvisSenereSteg(Behandling behandling) {
         if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE)) {
-            var msg = String.format("Behandling %s har allerede aksjonspunkt 5030 for verge/fullmektig",
-                behandling.getId());
+            var msg = String.format("Behandling %s har allerede aksjonspunkt 5030 for verge/fullmektig", behandling.getId());
             throw new TekniskException("FP-185321", msg);
         }
 
@@ -90,22 +119,23 @@ public class VergeTjeneste {
     }
 
     void fjernVergeGrunnlagOgAksjonspunkt(Behandling behandling) {
-        fjernVergeAksjonspunkt(behandling);
-        vergeRepository.fjernVergeFraEksisterendeGrunnlag(behandling.getId());
-        opprettHistorikkinnslagForFjernetVerge(behandling);
+        avbrytVergeAksjonspunktHvisFinnes(behandling);
+        var erFjernet = vergeRepository.fjernVergeFraEksisterendeGrunnlagHvisFinnes(behandling.getId());
+        if (erFjernet) {
+            opprettHistorikkinnslagForFjernetVerge(behandling);
+        }
         behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
     }
 
-    private void fjernVergeAksjonspunkt(Behandling behandling) {
+    private void avbrytVergeAksjonspunktHvisFinnes(Behandling behandling) {
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-        behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AVKLAR_VERGE).
-            ifPresent(aksjonspunkt -> behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst,
-                behandling.getAktivtBehandlingSteg(), List.of(aksjonspunkt)));
+        behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AVKLAR_VERGE)
+            .ifPresent(aksjonspunkt -> behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(),
+                List.of(aksjonspunkt)));
     }
 
     private void opprettHistorikkinnslagForFjernetVerge(Behandling behandling) {
-        var historikkinnslag = new Historikkinnslag.Builder()
-            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+        var historikkinnslag = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(behandling.getFagsakId())
             .medBehandlingId(behandling.getId())
             .medTittel("Opplysninger om verge/fullmektig er fjernet")
@@ -117,6 +147,12 @@ public class VergeTjeneste {
         return personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(behandlingId, aktørId)
             .map(PersonopplysningerAggregat::getSøker)
             .map(PersonopplysningEntitet::getFødselsdato)
-            .filter(d -> d.isAfter(LocalDate.now().minusYears(18))).isPresent();
+            .filter(d -> d.isAfter(LocalDate.now().minusYears(18)))
+            .isPresent();
+    }
+
+    private OpprettVergeDto map(NyVergeDto dto) {
+        return new OpprettVergeDto(dto.getNavn(), dto.getFnr(), dto.getGyldigFom(), dto.getGyldigTom(), dto.getVergeType(),
+            dto.getOrganisasjonsnummer(), null);
     }
 }

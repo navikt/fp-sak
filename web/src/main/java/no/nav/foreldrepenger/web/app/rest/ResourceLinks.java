@@ -32,6 +32,18 @@ public final class ResourceLinks {
         return ResourceLink.post(href, rel, requestPayload);
     }
 
+    public static ResourceLink post(String path, String rel, Object queryParams, Object requestPayload) {
+        var href = addPathPrefix(path);
+        var query = toQuery(queryParams);
+        return ResourceLink.post(href + query, rel, requestPayload);
+    }
+
+    public static ResourceLink delete(String path, String rel, Object queryParams) {
+        var href = addPathPrefix(path);
+        var query = toQuery(queryParams);
+        return ResourceLink.delete(href + query, rel);
+    }
+
     public static String addPathPrefix(String path) {
         var contextPath = ENV.getProperty("context.path", "/fpsak");
         var apiUri = ApiConfig.API_URI;
