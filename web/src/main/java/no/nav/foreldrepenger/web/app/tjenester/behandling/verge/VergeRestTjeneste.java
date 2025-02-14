@@ -71,7 +71,7 @@ public class VergeRestTjeneste {
     @GET
     @Operation(description = "Henter verge/fullmektig på behandlingen", tags = "verge", responses = {@ApiResponse(responseCode = "200", description = "Verge/fullmektig funnet"), @ApiResponse(responseCode = "204", description = "Ingen verge/fullmektig")})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public VergeDto hentVerge(@QueryParam(BehandlingsUuidParam.NAME) BehandlingsUuidParam queryParam) {
+    public VergeDto hentVerge(@QueryParam(BehandlingsUuidParam.NAME) @Valid BehandlingsUuidParam queryParam) {
 
         var behandling = behandlingsprosessTjeneste.hentBehandling(queryParam.getBehandlingUuid());
         return vergeTjeneste.hentVerge(behandling);
@@ -82,7 +82,7 @@ public class VergeRestTjeneste {
     @Operation(description = "Oppretter verge/fullmektig på behandlingen", tags = "verge", responses = {@ApiResponse(responseCode = "202", description = "Verge/fullmektig opprettes", headers = @Header(name = HttpHeaders.LOCATION))})
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
     public Response opprettVerge(@Context HttpServletRequest request,
-                                 @QueryParam(BehandlingsUuidParam.NAME) BehandlingsUuidParam queryParam,
+                                 @QueryParam(BehandlingsUuidParam.NAME) @Valid BehandlingsUuidParam queryParam,
                                  @Valid NyVergeDto body) throws URISyntaxException {
 
         var behandling = behandlingsprosessTjeneste.hentBehandling(queryParam.getBehandlingUuid());
@@ -94,7 +94,7 @@ public class VergeRestTjeneste {
     @DELETE
     @Operation(tags = "verge", description = "Fjerner verge/fullmektig på behandlingen", responses = {@ApiResponse(responseCode = "202", description = "Verge/fullmektig fjernet", headers = @Header(name = HttpHeaders.LOCATION))})
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
-    public Response fjernVerge(@Context HttpServletRequest request, @QueryParam(BehandlingsUuidParam.NAME) BehandlingsUuidParam queryParam) throws URISyntaxException {
+    public Response fjernVerge(@Context HttpServletRequest request, @QueryParam(BehandlingsUuidParam.NAME) @Valid BehandlingsUuidParam queryParam) throws URISyntaxException {
 
         var behandling = behandlingsprosessTjeneste.hentBehandling(queryParam.getBehandlingUuid());
         vergeTjeneste.fjernVerge(behandling);
