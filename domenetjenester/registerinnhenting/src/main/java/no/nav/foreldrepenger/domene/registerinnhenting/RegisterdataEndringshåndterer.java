@@ -10,6 +10,8 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -142,9 +144,8 @@ public class RegisterdataEndringshåndterer {
 
     private boolean erAvslag(Behandling behandling) {
         return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())
-            .map(Behandlingsresultat::getVilkårResultat)
-            .map(VilkårResultat::getVilkårene).orElse(Collections.emptyList()).stream()
-            .map(Vilkår::getGjeldendeVilkårUtfall)
-            .anyMatch(VilkårUtfallType.IKKE_OPPFYLT::equals);
+            .map(Behandlingsresultat::getBehandlingResultatType)
+            .filter(BehandlingResultatType.AVSLÅTT::equals)
+            .isPresent();
     }
 }
