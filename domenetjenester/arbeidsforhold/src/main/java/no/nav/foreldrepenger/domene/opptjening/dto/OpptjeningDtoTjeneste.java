@@ -10,7 +10,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
@@ -24,11 +23,13 @@ import no.nav.foreldrepenger.domene.opptjening.VurderingsStatus;
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.MapYrkesaktivitetTilOpptjeningsperiodeTjeneste;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
 public class OpptjeningDtoTjeneste {
     private OpptjeningsperioderTjeneste forSaksbehandlingTjeneste;
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     OpptjeningDtoTjeneste() {
         // CDI
@@ -36,12 +37,14 @@ public class OpptjeningDtoTjeneste {
 
     @Inject
     public OpptjeningDtoTjeneste(OpptjeningsperioderTjeneste forSaksbehandlingTjeneste,
-            ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
+                                 ArbeidsgiverTjeneste arbeidsgiverTjeneste,
+                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.forSaksbehandlingTjeneste = forSaksbehandlingTjeneste;
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
-    public Optional<OpptjeningDto> mapFra(BehandlingReferanse ref, Skjæringstidspunkt stp) {
+    public Optional<OpptjeningDto> mapFra(BehandlingReferanse ref) {
         var behandlingId = ref.behandlingId();
         var fastsattOpptjening = forSaksbehandlingTjeneste.hentOpptjeningHvisFinnes(behandlingId);
 
@@ -51,6 +54,7 @@ public class OpptjeningDtoTjeneste {
                 mapFastsattOpptjening(fastsatt), MergeOverlappendePeriodeHjelp.mergeOverlappenePerioder(fastsatt.getOpptjeningAktivitet()))));
 
         if (fastsattOpptjening.isPresent()) {
+            var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId());
 
             resultat.setOpptjeningAktivitetList(
                     forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref, stp)

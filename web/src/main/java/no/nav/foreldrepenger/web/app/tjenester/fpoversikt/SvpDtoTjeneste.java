@@ -242,7 +242,7 @@ public class SvpDtoTjeneste {
     private Optional<Inntektsmelding> finnIMForArbforhold(Behandling behandling, no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef internArbeidsforholdRef) {
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         var ref = BehandlingReferanse.fra(behandling);
-        return inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunkter.getSkjæringstidspunktOpptjening()).stream()
+        return inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunkter.getUtledetSkjæringstidspunkt()).stream()
             .filter(inntektsmelding -> inntektsmelding.getArbeidsgiver().equals(arbeidsgiver) && (internArbeidsforholdRef == null || inntektsmelding.getArbeidsforholdRef().gjelderFor(internArbeidsforholdRef)))
             .findFirst();
     }

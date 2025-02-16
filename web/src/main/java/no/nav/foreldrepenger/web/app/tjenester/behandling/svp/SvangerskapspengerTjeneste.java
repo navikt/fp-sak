@@ -113,7 +113,7 @@ public class SvangerskapspengerTjeneste {
             finnSaksbehandletHvisEksisterer(aktørId, iay)));
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
         var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(BehandlingReferanse.fra(behandling),
-                stp.getSkjæringstidspunktOpptjening());
+                stp.getUtledetSkjæringstidspunkt());
         var iayOverstyringer = iayGrunnlag.map(InntektArbeidYtelseGrunnlag::getArbeidsforholdOverstyringer).orElseGet(List::of);
 
         gjeldendeTilrettelegginger.forEach(tilr -> {
