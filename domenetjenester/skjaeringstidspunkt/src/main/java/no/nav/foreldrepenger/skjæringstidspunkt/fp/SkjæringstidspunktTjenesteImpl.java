@@ -132,9 +132,8 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             .map(valg -> valg && !utenMinsterett)
             .ifPresent(builder::medUttakSkalJusteresTilFødselsdato);
 
-        var opptjening = opptjeningRepository.finnOpptjening(behandling.getId()).filter(Opptjening::erOpptjeningPeriodeVilkårOppfylt);
-        if (opptjening.isPresent()) {
-            var skjæringstidspunktOpptjening = opptjening.get().getTom().plusDays(1);
+        var skjæringstidspunktOpptjening = getFastsattSkjæringstidspunkt(behandling.getId());
+        if (skjæringstidspunktOpptjening != null) {
             return builder.medSkjæringstidspunktOpptjening(skjæringstidspunktOpptjening)
                 .medUtledetSkjæringstidspunkt(skjæringstidspunktOpptjening)
                 .medUttaksintervall(intervallUtleder.apply(behandling, maxstønadsperiode(skjæringstidspunktOpptjening, familieHendelseGrunnlag)))
@@ -154,6 +153,14 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         } else {
             throw finnerIkkeStpException(behandling.getId());
         }
+    }
+
+    private LocalDate getFastsattSkjæringstidspunkt(Long behandlingId) {
+        return opptjeningRepository.finnOpptjening(behandlingId)
+            .filter(Opptjening::erOpptjeningPeriodeVilkårOppfylt)
+            .map(Opptjening::getTom)
+            .map(d -> d.plusDays(1))
+            .orElse(null);
     }
 
     private LocalDate førsteUttaksdag(Behandling behandling, Optional<FamilieHendelseGrunnlagEntitet> fhGrunnlag, boolean utenMinsterett) {
@@ -200,7 +207,9 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             var førsteUttaksdagIForrigeVedtak = finnFørsteDatoIUttakResultat(originalBehandlingId);
             if (førsteUttaksdagIForrigeVedtak.isEmpty() && førsteØnskedeUttaksdagIBehandling.isEmpty()) {
                 // Rekursjon til forrige behandling
-                return førsteUttaksdag(originalBehandling, familieGrunnlagRepository.hentAggregatHvisEksisterer(originalBehandling.getId()), utenMinsterett);
+                var fastsattSkjæringstidspunkt = getFastsattSkjæringstidspunkt(originalBehandlingId);
+                return fastsattSkjæringstidspunkt != null ? fastsattSkjæringstidspunkt :
+                    førsteUttaksdag(originalBehandling, familieGrunnlagRepository.hentAggregatHvisEksisterer(originalBehandling.getId()), utenMinsterett);
             } else {
                 // Sjekk utsettelse av startdato og returner da første uttaksdato i ny søknad - eller tidligste dato
                 return getUtsattStartdato(førsteUttaksdagIForrigeVedtak, oppgittFordeling).orElseGet(
@@ -212,7 +221,10 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
                 // Har ikke grunnlag for å avgjøre skjæringstidspunkt enda - heller ikke familiehendelse
                 return førsteØnskedeUttaksdagIBehandling.orElse(null);
             } else {
-                return førsteØnskedeUttaksdagIBehandling.or(() -> unntaksTilfellerFriUtsettelse(behandling)).orElse(null);
+                return førsteØnskedeUttaksdagIBehandling
+                    .or(() -> unntaksTilfellerFriUtsettelse(behandling))
+                    .or(() -> Optional.ofNullable(getFastsattSkjæringstidspunkt(behandling.getId())))
+                    .orElse(null);
             }
         } else {
             throw new IllegalArgumentException("Ikke gyldig behandlingstype: " + behandling.getType());
