@@ -254,11 +254,12 @@ public class BehandlingDtoTjeneste {
         dto.leggTil(post(BehandlingRestTjeneste.ENDRE_VENTEFRIST_PATH, "endre-pa-vent", new SettBehandlingPaVentDto()));
         dto.leggTil(post(AksjonspunktRestTjeneste.AKSJONSPUNKT_PATH, "lagre-aksjonspunkter", new BekreftedeAksjonspunkterDto()));
 
-        dto.leggTil(get(VergeRestTjeneste.BASE_PATH, "verge-hent", new BehandlingIdDto(behandling.getUuid())));
+        var uuidDto = new UuidDto(behandling.getUuid());
+        dto.leggTil(get(VergeRestTjeneste.BASE_PATH, "verge-hent", uuidDto));
         if (vergeRepository.hentAggregat(behandling.getId()).isPresent()) {
-            dto.leggTil(post(VergeRestTjeneste.VERGE_FJERN_PATH, "verge-fjern", new BehandlingIdDto(behandling.getUuid())));
+            dto.leggTil(post(VergeRestTjeneste.VERGE_FJERN_PATH, "verge-fjern", uuidDto));
         } else {
-            dto.leggTil(post(VergeRestTjeneste.VERGE_OPPRETT_PATH, "verge-opprett", new BehandlingIdDto(behandling.getUuid()), new NyVergeDto()));
+            dto.leggTil(post(VergeRestTjeneste.VERGE_OPPRETT_PATH, "verge-opprett", uuidDto, new NyVergeDto()));
         }
 
         dto.leggTil(post(VergeRestTjeneste.VERGE_OPPRETT_PATH_DEPRECATED, "opprett-verge", new BehandlingIdVersjonDto()));
