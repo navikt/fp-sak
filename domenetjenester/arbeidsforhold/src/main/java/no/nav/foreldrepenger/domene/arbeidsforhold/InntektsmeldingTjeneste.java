@@ -75,6 +75,7 @@ public class InntektsmeldingTjeneste {
                                                        InntektArbeidYtelseGrunnlag iayGrunnlag, boolean filtrerForStartdato) {
         var skalIkkeFiltrereStartdato = !filtrerForStartdato ||
             !FagsakYtelseType.FORELDREPENGER.equals(ref.fagsakYtelseType()) ||
+            skjæringstidspunktForOpptjening == null ||
             UtsettelseCore2021.kreverSammenhengendeUttak(skjæringstidspunktForOpptjening);
         var datoFilterDato = Optional.ofNullable(skjæringstidspunktForOpptjening).orElseGet(LocalDate::now);
         var inntektsmeldinger = iayGrunnlag.getInntektsmeldinger()
