@@ -11,8 +11,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_NULL)
 public class BehandlingIdDto  {
 
-    public static final String NAME = "behandlingUuid";
-
     @Valid
     @NotNull
     private UUID behandlingUuid;
