@@ -81,7 +81,6 @@ public class VergeTjeneste {
         behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
     }
 
-
     public VergeBehandlingsmenyEnum utledBehandlingOperasjon(Behandling behandling) {
         var behandlingId = behandling.getId();
         var vergeAggregat = vergeRepository.hentAggregat(behandlingId);

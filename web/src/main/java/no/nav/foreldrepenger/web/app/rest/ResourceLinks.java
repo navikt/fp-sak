@@ -32,7 +32,7 @@ public final class ResourceLinks {
         return ResourceLink.post(href, rel, requestPayload);
     }
 
-    public static ResourceLink post(String path, String rel, Object queryParams, Object requestPayload) {
+    public static ResourceLink post(String path, String rel, Object requestPayload, Object queryParams) {
         var href = addPathPrefix(path);
         var query = toQuery(queryParams);
         return ResourceLink.post(href + query, rel, requestPayload);

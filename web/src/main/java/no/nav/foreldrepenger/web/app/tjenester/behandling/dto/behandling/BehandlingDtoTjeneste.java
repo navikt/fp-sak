@@ -31,6 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
@@ -255,10 +256,10 @@ public class BehandlingDtoTjeneste {
 
         var uuidDto = new UuidDto(behandling.getUuid());
         dto.leggTil(get(VergeRestTjeneste.BASE_PATH, "verge-hent", uuidDto));
-        if (vergeRepository.hentAggregat(behandling.getId()).isPresent()) {
-            dto.leggTil(post(VergeRestTjeneste.VERGE_FJERN_PATH, "verge-fjern", uuidDto));
+        if (vergeRepository.hentAggregat(behandling.getId()).flatMap(VergeAggregat::getVerge).isPresent()) {
+            dto.leggTil(post(VergeRestTjeneste.VERGE_FJERN_PATH, "verge-fjern", null, uuidDto));
         } else {
-            dto.leggTil(post(VergeRestTjeneste.VERGE_OPPRETT_PATH, "verge-opprett", uuidDto, new NyVergeDto()));
+            dto.leggTil(post(VergeRestTjeneste.VERGE_OPPRETT_PATH, "verge-opprett", new NyVergeDto(), uuidDto));
         }
 
         dto.leggTil(post(VergeRestTjeneste.VERGE_OPPRETT_PATH_DEPRECATED, "opprett-verge", new BehandlingIdVersjonDto()));
@@ -522,7 +523,10 @@ public class BehandlingDtoTjeneste {
     }
 
     private void leggTilVergeHvisAksjonspunkt(Behandling behandling, UtvidetBehandlingDto dto, UuidDto uuidDto) {
-        if (behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE) || vergeRepository.hentAggregat(behandling.getId()).isPresent()) {
+        var vergeFinnes = vergeRepository.hentAggregat(behandling.getId())
+            .flatMap(VergeAggregat::getVerge)
+            .isPresent();
+        if (behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE) || vergeFinnes ) {
             dto.leggTil(get(PersonRestTjeneste.VERGE_PATH, "soeker-verge", uuidDto));
             dto.leggTil(get(PersonRestTjeneste.VERGE_BACKEND_PATH, "verge-backend", uuidDto));
         }
