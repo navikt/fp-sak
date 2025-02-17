@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.kompletthet.KompletthetModell;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
-import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerV2MedSammenligning;
+import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -47,7 +47,7 @@ class KompletthetskontrollerTest {
     private DokumentmottakerFelles dokumentmottakerFelles;
 
     @Mock
-    private KompletthetsjekkerV2MedSammenligning kompletthetsjekker;
+    private Kompletthetsjekker kompletthetsjekker;
 
     @Mock
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;

@@ -25,6 +25,10 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
+import no.nav.foreldrepenger.kompletthet.impl.KompletthetsjekkerImpl;
+import no.nav.foreldrepenger.kompletthet.impl.KompletthetsjekkerSøknadTjeneste;
+import no.nav.foreldrepenger.kompletthet.impl.ManglendeVedleggTjeneste;
 
 class KompletthetssjekkerManglendeVedleggTest {
 
@@ -32,17 +36,19 @@ class KompletthetssjekkerManglendeVedleggTest {
 
     private final DokumentArkivTjeneste dokumentArkivTjeneste = mock(DokumentArkivTjeneste.class);
     private final SøknadRepository søknadRepository = mock(SøknadRepository.class);
-    private final KompletthetsjekkerImpl kompletthetssjekker = lagKompletthetssjekkerEngangsstønad(dokumentArkivTjeneste, søknadRepository);
+    private final Kompletthetsjekker kompletthetssjekker = lagKompletthetssjekkerEngangsstønad(dokumentArkivTjeneste, søknadRepository);
 
     private final DokumentTypeId dokumentTypeIdDokumentasjonAvTerminEllerFødsel = DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL;
     private final DokumentTypeId dokumentTypeIdDokumentasjonAvOmsorgsovertakelse = DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE;
     private final DokumentTypeId dokumentTypeIdUdefinert = DokumentTypeId.UDEFINERT;
 
-    private static KompletthetsjekkerImpl lagKompletthetssjekkerEngangsstønad(DokumentArkivTjeneste dokumentArkivTjeneste, SøknadRepository søknadRepository) {
+    private static Kompletthetsjekker lagKompletthetssjekkerEngangsstønad(DokumentArkivTjeneste dokumentArkivTjeneste, SøknadRepository søknadRepository) {
         var repositoryProvider = mock(BehandlingRepositoryProvider.class);
         var personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
         when(repositoryProvider.getSøknadRepository()).thenReturn(søknadRepository);
-        return new KompletthetsjekkerImpl(repositoryProvider, dokumentArkivTjeneste, personopplysningTjeneste);
+        var manglendeVedleggTjeneste = new ManglendeVedleggTjeneste(repositoryProvider, dokumentArkivTjeneste);
+        var kompletthetsjekkerSøknad = new KompletthetsjekkerSøknadTjeneste(repositoryProvider, manglendeVedleggTjeneste);
+        return new KompletthetsjekkerImpl(repositoryProvider, kompletthetsjekkerSøknad, personopplysningTjeneste, null);
     }
 
     @Test

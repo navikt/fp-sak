@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.kompletthet.implV2;
+package no.nav.foreldrepenger.kompletthet.impl;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -17,11 +16,8 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
@@ -29,115 +25,61 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
 import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingSomIkkeKommer;
-import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 
-/**
- * Fellesklasse for gjenbrukte metode av subklasser for {@link KompletthetsjekkerTjeneste}.
- * <p>
- * Favor composition over inheritance
- */
 @ApplicationScoped
-public class KompletthetsjekkerFelles {
-
-    private static final Logger LOG = LoggerFactory.getLogger(KompletthetsjekkerFelles.class);
+public class ManglendeInntektsmeldingTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(ManglendeInntektsmeldingTjeneste.class);
     /**
      * Disse konstantene ligger hardkodet (og ikke i KonfigVerdi), da endring i en eller flere av disse vil
      * sannsynnlig kreve kodeendring
      */
-    public static final Integer VENTEFRIST_ETTERSENDELSE_FRA_MOTATT_DATO_UKER = 1;
-    public static final Integer VENTEFRIST_FOR_MANGLENDE_SØKNAD = 4;
-
     private static final Integer TIDLIGST_VENTEFRIST_FØR_UTTAKSDATO_UKER = 3;
     private static final Integer VENTEFRIST_ETTER_MOTATT_DATO_UKER = 1;
     private static final Integer VENTEFRIST_ETTER_ETTERLYSNING_UKER = 3;
     private static final Period MAX_VENT_ETTER_STP = Period.ofWeeks(4);
 
-    private SøknadRepository søknadRepository;
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
-    private KompletthetssjekkerInntektsmelding kompletthetssjekkerInntektsmelding;
-    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
-    private BehandlingRepository behandlingRepository;
+    private InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste;
     private FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste;
+    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
+    private SøknadRepository søknadRepository;
 
-    KompletthetsjekkerFelles() {
-        // CDI
+    public ManglendeInntektsmeldingTjeneste() {
+        //DCI
     }
 
     @Inject
-    public KompletthetsjekkerFelles(BehandlingRepositoryProvider provider,
-                                    DokumentBestillerTjeneste dokumentBestillerTjeneste,
-                                    DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
-                                    KompletthetssjekkerInntektsmelding kompletthetssjekkerInntektsmelding,
-                                    InntektsmeldingTjeneste inntektsmeldingTjeneste,
-                                    FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste) {
-        this.søknadRepository = provider.getSøknadRepository();
-        this.behandlingRepository = provider.getBehandlingRepository();
+    public ManglendeInntektsmeldingTjeneste(BehandlingRepositoryProvider provider,
+                                            DokumentBestillerTjeneste dokumentBestillerTjeneste,
+                                            DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
+                                            InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste,
+                                            FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste,
+                                            InntektsmeldingTjeneste inntektsmeldingTjeneste) {
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
-        this.kompletthetssjekkerInntektsmelding = kompletthetssjekkerInntektsmelding;
-        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
+        this.inntektsmeldingRegisterTjeneste = inntektsmeldingRegisterTjeneste;
         this.fpInntektsmeldingTjeneste = fpInntektsmeldingTjeneste;
+        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
+        this.søknadRepository = provider.getSøknadRepository();
     }
 
-    public Optional<SøknadEntitet> hentSøknadHvisEksisterer(Long behandlingId) {
-        return søknadRepository.hentSøknadHvisEksisterer(behandlingId);
-    }
-
-    public Behandling hentBehandling(Long behandlingId) {
-        return behandlingRepository.hentBehandling(behandlingId);
-    }
-
-    public Optional<LocalDateTime> finnVentefristForManglendeVedlegg(Long behandlingId) {
-        Objects.requireNonNull(behandlingId, "behandlingId må være satt");
-        var søknad = søknadRepository.hentSøknad(behandlingId);
-        Objects.requireNonNull(søknad, "søknad kan ikke være null");
-
-        var ønsketFrist = søknad.getMottattDato().plusWeeks(VENTEFRIST_ETTERSENDELSE_FRA_MOTATT_DATO_UKER);
-        return finnVentefrist(ønsketFrist);
-    }
-
-    public LocalDateTime finnVentefristTilManglendeSøknad() {
-        return LocalDateTime.now().plusWeeks(VENTEFRIST_FOR_MANGLENDE_SØKNAD);
+    public void lagForespørselTask(BehandlingReferanse ref) {
+        fpInntektsmeldingTjeneste.lagForespørselTask(ref);
     }
 
     public List<InntektsmeldingSomIkkeKommer> hentAlleInntektsmeldingerSomIkkeKommer(BehandlingReferanse ref) {
         return inntektsmeldingTjeneste.hentAlleInntektsmeldingerSomIkkeKommer(ref.behandlingId());
     }
 
-    public Optional<KompletthetResultat> getInntektsmeldingKomplett(BehandlingReferanse ref, Skjæringstidspunkt stp) {
-        var manglendeInntektsmeldinger = kompletthetssjekkerInntektsmelding.utledManglendeInntektsmeldingerFraGrunnlag(ref, stp);
-        if (!manglendeInntektsmeldinger.isEmpty()) {
-            fpInntektsmeldingTjeneste.lagForespørselTask(ref);
-            loggManglendeInntektsmeldinger(ref.behandlingId(), manglendeInntektsmeldinger);
-            var resultat = finnVentefristTilManglendeInntektsmelding(ref, stp).map(
-                frist -> KompletthetResultat.ikkeOppfylt(frist, Venteårsak.VENT_OPDT_INNTEKTSMELDING)).orElse(KompletthetResultat.fristUtløpt());
-            return Optional.of(resultat);
-        }
-        return Optional.empty();
-    }
-
-    public KompletthetResultat vurderEtterlysningInntektsmelding(BehandlingReferanse ref, Skjæringstidspunkt stp) {
-        var behandlingId = ref.behandlingId();
-        if (finnVentefristForEtterlysning(ref, stp).isEmpty()) {
-            return KompletthetResultat.oppfylt();
-        }
-        // Kalles fra KOARB (flere ganger) som setter autopunkt 7030 + fra KompletthetsKontroller (dokument på åpen behandling, hendelser)
-        var manglendeInntektsmeldinger = kompletthetssjekkerInntektsmelding.utledManglendeInntektsmeldingerFraGrunnlag(ref, stp);
-        if (!manglendeInntektsmeldinger.isEmpty()) {
-            loggManglendeInntektsmeldinger(behandlingId, manglendeInntektsmeldinger);
-            var ventefristManglendeIM = vurderSkalInntektsmeldingEtterlyses(ref, stp, manglendeInntektsmeldinger);
-            return ventefristManglendeIM.map(frist -> KompletthetResultat.ikkeOppfylt(frist, Venteårsak.VENT_OPDT_INNTEKTSMELDING))
-                .orElse(KompletthetResultat.oppfylt()); // Konvensjon for å sikre framdrift i prosessen
-        }
-        return KompletthetResultat.oppfylt();
-    }
-
-    private Optional<LocalDateTime> vurderSkalInntektsmeldingEtterlyses(BehandlingReferanse ref, Skjæringstidspunkt stp, List<ManglendeVedlegg> manglendeInntektsmeldinger) {
+    public Optional<LocalDateTime> vurderSkalInntektsmeldingEtterlyses(BehandlingReferanse ref,
+                                                                       Skjæringstidspunkt stp,
+                                                                       List<ManglendeVedlegg> manglendeInntektsmeldinger) {
         var ventefristEtterlysning = finnVentefristForEtterlysning(ref, stp);
         if (ventefristEtterlysning.isEmpty()) {
             return Optional.empty();
@@ -187,7 +129,15 @@ public class KompletthetsjekkerFelles {
         return finnVentefrist(fristBasertPåSendtBrev.isAfter(basertPåMottattIM) ? fristBasertPåSendtBrev : basertPåMottattIM);
     }
 
-    private Optional<LocalDateTime> finnVentefristTilManglendeInntektsmelding(BehandlingReferanse ref, Skjæringstidspunkt skjæringstidspunkt) {
+    public List<ManglendeVedlegg> utledManglendeInntektsmeldingerFraGrunnlag(BehandlingReferanse ref, Skjæringstidspunkt stp) {
+        return inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(ref, stp)
+            .keySet()
+            .stream()
+            .map(it -> new ManglendeVedlegg(DokumentTypeId.INNTEKTSMELDING, it.getIdentifikator()))
+            .toList();
+    }
+
+    public Optional<LocalDateTime> finnVentefristTilManglendeInntektsmelding(BehandlingReferanse ref, Skjæringstidspunkt skjæringstidspunkt) {
         var behandlingId = ref.behandlingId();
         var permisjonsstart = skjæringstidspunkt.getUtledetSkjæringstidspunkt();
         var muligFrist = permisjonsstart.minusWeeks(TIDLIGST_VENTEFRIST_FØR_UTTAKSDATO_UKER);
@@ -197,7 +147,7 @@ public class KompletthetsjekkerFelles {
         return finnVentefrist(ønsketFrist);
     }
 
-    private Optional<LocalDateTime> finnVentefristForEtterlysning(BehandlingReferanse ref, Skjæringstidspunkt stp) {
+    public Optional<LocalDateTime> finnVentefristForEtterlysning(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var behandlingId = ref.behandlingId();
         var permisjonsstart = stp.getUtledetSkjæringstidspunkt();
         var muligFrist = LocalDate.now().isBefore(permisjonsstart.minusWeeks(TIDLIGST_VENTEFRIST_FØR_UTTAKSDATO_UKER)) ?
@@ -217,11 +167,6 @@ public class KompletthetsjekkerFelles {
         return Optional.empty();
     }
 
-    private void loggManglendeInntektsmeldinger(Long behandlingId, List<ManglendeVedlegg> manglendeInntektsmeldinger) {
-        var arbgivere = manglendeInntektsmeldinger.stream().map(v -> OrgNummer.tilMaskertNummer(v.arbeidsgiver())).toList().toString();
-        LOG.info("Behandling {} er ikke komplett - mangler IM fra arbeidsgivere: {}", behandlingId, arbgivere);
-    }
-
     private void sendEtterlysInntektsmeldingBrev(BehandlingReferanse ref) {
         if (!erEtterlysInntektsmeldingBrevSendt(ref.behandlingId())) {
             var dokumentBestilling = DokumentBestilling.builder()
@@ -236,4 +181,5 @@ public class KompletthetsjekkerFelles {
     private boolean erEtterlysInntektsmeldingBrevSendt(Long behandlingId) {
         return dokumentBehandlingTjeneste.erDokumentBestilt(behandlingId, DokumentMalType.ETTERLYS_INNTEKTSMELDING);
     }
+
 }

@@ -8,7 +8,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,11 +35,14 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
 import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
+import no.nav.foreldrepenger.kompletthet.impl.KompletthetsjekkerImpl;
+import no.nav.foreldrepenger.kompletthet.impl.KompletthetsjekkerSøknadTjeneste;
 import no.nav.foreldrepenger.kompletthet.impl.KompletthetssjekkerTestUtil;
-import no.nav.foreldrepenger.kompletthet.impl.fp.KompletthetssjekkerSøknadFørstegangsbehandlingImpl;
-import no.nav.foreldrepenger.kompletthet.implV2.KompletthetsjekkerFelles;
-import no.nav.foreldrepenger.kompletthet.implV2.KompletthetssjekkerInntektsmelding;
+import no.nav.foreldrepenger.kompletthet.impl.ManglendeInntektsmeldingTjeneste;
+import no.nav.foreldrepenger.kompletthet.impl.ManglendeVedleggTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ExtendWith(MockitoExtension.class)
@@ -65,8 +67,10 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     @Mock
     private FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste;
+    @Mock
+    private PersonopplysningTjeneste personopplysningTjeneste;
 
-    private KompletthetsjekkerImpl kompletthetsjekkerImpl;
+    private Kompletthetsjekker kompletthetsjekker;
     private final Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder()
         .medUtledetSkjæringstidspunkt(STARTDATO_PERMISJON)
         .build();
@@ -79,14 +83,19 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
             .thenReturn(new HashMap<>());
 
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        var kompletthetssjekkerSøknadImpl = new KompletthetssjekkerSøknadFørstegangsbehandlingImpl(
-            dokumentArkivTjeneste, repositoryProvider, Period.parse("P4W"));
-        var kompletthetssjekkerInntektsmelding = new KompletthetssjekkerInntektsmelding(
-            inntektsmeldingArkivTjeneste);
-        var kompletthetsjekkerFelles = new KompletthetsjekkerFelles(repositoryProvider,
-            dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock, kompletthetssjekkerInntektsmelding, inntektsmeldingTjeneste,
-            fpInntektsmeldingTjeneste);
-        kompletthetsjekkerImpl = new KompletthetsjekkerImpl(kompletthetssjekkerSøknadImpl, kompletthetsjekkerFelles);
+
+        var manglendeVedleggTjeneste = new ManglendeVedleggTjeneste(repositoryProvider, dokumentArkivTjeneste);
+        var kompletthetsjekkerSøknad = new KompletthetsjekkerSøknadTjeneste(repositoryProvider, manglendeVedleggTjeneste);
+        var manglendeInntektsmeldingTjeneste = new ManglendeInntektsmeldingTjeneste(
+            repositoryProvider,
+            dokumentBestillerTjenesteMock,
+            dokumentBehandlingTjenesteMock,
+            inntektsmeldingArkivTjeneste,
+            fpInntektsmeldingTjeneste,
+            inntektsmeldingTjeneste
+        );
+        kompletthetsjekker = new KompletthetsjekkerImpl(repositoryProvider, kompletthetsjekkerSøknad, personopplysningTjeneste, manglendeInntektsmeldingTjeneste);
+
         testUtil = new KompletthetssjekkerTestUtil(repositoryProvider);
     }
 
@@ -100,7 +109,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(Collections.emptyList());
 
         // Act
-        var kompletthetResultat = kompletthetsjekkerImpl.vurderEtterlysningInntektsmelding(
+        var kompletthetResultat = kompletthetsjekker.vurderEtterlysningInntektsmelding(
             lagRef(behandling), Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(STARTDATO_PERMISJON).build());
 
         // Assert
