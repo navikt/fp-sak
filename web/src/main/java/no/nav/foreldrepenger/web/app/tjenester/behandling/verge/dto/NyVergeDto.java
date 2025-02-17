@@ -13,6 +13,8 @@ import no.nav.vedtak.util.InputValideringRegex;
 
 import java.time.LocalDate;
 
+import static no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType.FNR;
+
 public class NyVergeDto implements AbacDto {
 
     @Size(max = 100)
@@ -74,6 +76,10 @@ public class NyVergeDto implements AbacDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        return AbacDataAttributter.opprett();
+        var attributter = AbacDataAttributter.opprett();
+        if (fnr != null) {
+            attributter.leggTil(FNR, fnr);
+        }
+        return attributter;
     }
 }

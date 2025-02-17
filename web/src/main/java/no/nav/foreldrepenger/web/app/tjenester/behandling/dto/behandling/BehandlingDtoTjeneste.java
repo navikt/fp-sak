@@ -61,6 +61,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsgrunnlag.Ber
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.BeregningsresultatRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.FeriepengegrunnlagRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdVersjonDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.ByttBehandlendeEnhetDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.GjenopptaBehandlingDto;
@@ -81,7 +82,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.UttakRestTjenest
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon.DokumentasjonVurderingBehovDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BehandlingMedUttaksperioderDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta.FaktaUttakPeriodeDtoTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.BehandlingsUuidParam;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.NyVergeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.YtelsefordelingRestTjeneste;
@@ -91,7 +91,6 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.FagsakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRestTjeneste;
 
-import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.delete;
 import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.get;
 import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.post;
 
@@ -255,12 +254,15 @@ public class BehandlingDtoTjeneste {
         dto.leggTil(post(BehandlingRestTjeneste.ENDRE_VENTEFRIST_PATH, "endre-pa-vent", new SettBehandlingPaVentDto()));
         dto.leggTil(post(AksjonspunktRestTjeneste.AKSJONSPUNKT_PATH, "lagre-aksjonspunkter", new BekreftedeAksjonspunkterDto()));
 
-        dto.leggTil(get(VergeRestTjeneste.BASE_PATH, "verge-hent", new BehandlingsUuidParam(behandling.getUuid())));
-        dto.leggTil(post(VergeRestTjeneste.BASE_PATH, "verge-opprett", new BehandlingsUuidParam(behandling.getUuid()), new NyVergeDto()));
-        dto.leggTil(delete(VergeRestTjeneste.BASE_PATH, "verge-fjern", new BehandlingsUuidParam(behandling.getUuid())));
+        dto.leggTil(get(VergeRestTjeneste.BASE_PATH, "verge-hent", new BehandlingIdDto(behandling.getUuid())));
+        if (vergeRepository.hentAggregat(behandling.getId()).isPresent()) {
+            dto.leggTil(post(VergeRestTjeneste.VERGE_FJERN_PATH, "verge-fjern", new BehandlingIdDto(behandling.getUuid())));
+        } else {
+            dto.leggTil(post(VergeRestTjeneste.VERGE_OPPRETT_PATH, "verge-opprett", new BehandlingIdDto(behandling.getUuid()), new NyVergeDto()));
+        }
 
-        dto.leggTil(post(VergeRestTjeneste.VERGE_OPPRETT_PATH, "opprett-verge", new BehandlingIdVersjonDto()));
-        dto.leggTil(post(VergeRestTjeneste.VERGE_FJERN_PATH, "fjern-verge", new BehandlingIdVersjonDto()));
+        dto.leggTil(post(VergeRestTjeneste.VERGE_OPPRETT_PATH_DEPRECATED, "opprett-verge", new BehandlingIdVersjonDto()));
+        dto.leggTil(post(VergeRestTjeneste.VERGE_FJERN_PATH_DEPRECATED, "fjern-verge", new BehandlingIdVersjonDto()));
 
         if (behandling.erYtelseBehandling()) {
             dto.leggTil(post(BehandlingRestTjeneste.OPNE_FOR_ENDRINGER_PATH, "opne-for-endringer", new ReåpneBehandlingDto()));

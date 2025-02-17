@@ -89,10 +89,6 @@ public class ResourceLink {
         return new ResourceLink(href, rel, HttpMethod.POST, requestPayload);
     }
 
-    public static ResourceLink delete(String href, String rel) {
-        return new ResourceLink(href, rel, HttpMethod.DELETE);
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {
