@@ -153,7 +153,7 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
     }
 
     private boolean sjekkOmMåVurderePermisjonerUtenSluttdato(BehandlingReferanse ref, Skjæringstidspunkt stp, InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
-        return !HåndterePermisjoner.finnArbForholdMedPermisjonUtenSluttdatoMangel(ref, stp, inntektArbeidYtelseGrunnlag).isEmpty();
+        return !HåndterePermisjoner.finnArbForholdMedPermisjonUtenSluttdatoMangel(ref, stp.getUtledetSkjæringstidspunkt(), inntektArbeidYtelseGrunnlag).isEmpty();
     }
 
     /*

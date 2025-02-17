@@ -134,9 +134,9 @@ class MedlemskapVurderingPeriodeTjenesteTest {
 
         // Act/Assert
         assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).bosattVurderingsintervall(ref, stp))
-            .isEqualTo(new LocalDateInterval(LocalDate.now().minus(ES_MEDLEMSKAP), termindato));
+            .isEqualTo(new LocalDateInterval(termindato.minus(ES_MEDLEMSKAP), termindato));
         assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref, stp))
-            .isEqualTo(new LocalDateInterval(LocalDate.now().minus(ES_MEDLEMSKAP), termindato));
+            .isEqualTo(new LocalDateInterval(termindato.minus(ES_MEDLEMSKAP), termindato));
     }
 
     @Test
@@ -157,9 +157,9 @@ class MedlemskapVurderingPeriodeTjenesteTest {
 
         // Act/Assert
         assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).bosattVurderingsintervall(ref, stp))
-            .isEqualTo(new LocalDateInterval(LocalDate.now().minus(ES_MEDLEMSKAP), termindato));
+            .isEqualTo(new LocalDateInterval(termindato.minus(ES_MEDLEMSKAP), termindato));
         assertThat(new MedlemskapVurderingPeriodeTjeneste(BOTID_CORE).lovligOppholdVurderingsintervall(ref, stp))
-            .isEqualTo(new LocalDateInterval(LocalDate.now().minus(ES_MEDLEMSKAP), termindato));
+            .isEqualTo(new LocalDateInterval(termindato.minus(ES_MEDLEMSKAP), termindato));
     }
 
     @Test

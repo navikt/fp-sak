@@ -36,6 +36,6 @@ public class SykemeldingVentTjeneste {
 
         var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(referanse.behandlingUuid());
         var filter = new YtelseFilter(iayGrunnlag.getAktørYtelseFraRegister(referanse.aktørId()));
-        return VentPåSykemelding.utledVenteFrist(filter, stp.getSkjæringstidspunktOpptjening(), LocalDate.now());
+        return VentPåSykemelding.utledVenteFrist(filter, stp.getUtledetSkjæringstidspunkt(), LocalDate.now());
     }
 }

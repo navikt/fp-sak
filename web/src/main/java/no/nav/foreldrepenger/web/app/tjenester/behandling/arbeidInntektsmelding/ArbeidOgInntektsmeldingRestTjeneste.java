@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidInntektsmelding;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -26,6 +27,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -104,8 +106,8 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
                                                           @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         var ref = BehandlingReferanse.fra(behandling);
-        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-        return arbeidOgInntektsmeldingDtoTjeneste.lagDto(ref, stp).orElse(null);
+        var stp = safeSkjæringstidspunktOpptjening(behandling.getId());
+        return arbeidOgInntektsmeldingDtoTjeneste.lagDto(ref, stp).orElse(null) ;
     }
 
     @GET
@@ -116,9 +118,17 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
                                                                    @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         var ref = BehandlingReferanse.fra(behandling);
-        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+        var stp = Optional.ofNullable(safeSkjæringstidspunktOpptjening(behandling.getId())).map(Skjæringstidspunkt::getUtledetSkjæringstidspunkt).orElse(null);
 
         return arbeidOgInntektsmeldingDtoTjeneste.hentAlleInntektsmeldingerForFagsak(ref, stp);
+    }
+
+    private Skjæringstidspunkt safeSkjæringstidspunktOpptjening(Long behandlingId) {
+        try {
+            return skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 

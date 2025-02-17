@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.domene.opptjening.dto.OpptjeningDto;
 import no.nav.foreldrepenger.domene.opptjening.dto.OpptjeningDtoTjeneste;
 import no.nav.foreldrepenger.domene.opptjening.dto.OpptjeningIUtlandDokStatusDto;
 import no.nav.foreldrepenger.domene.opptjening.dto.OpptjeningIUtlandDokStatusDtoTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -45,7 +44,7 @@ public class OpptjeningRestTjeneste {
 
     private BehandlingRepository behandlingRepository;
     private OpptjeningDtoTjeneste dtoMapper;
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+
     private OpptjeningIUtlandDokStatusDtoTjeneste opptjeningIUtlandDokStatusDtoTjeneste;
 
     public OpptjeningRestTjeneste() {
@@ -54,10 +53,9 @@ public class OpptjeningRestTjeneste {
 
     @Inject
     public OpptjeningRestTjeneste(BehandlingRepository behandlingRepository,
-            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-            OpptjeningDtoTjeneste dtoMapper, OpptjeningIUtlandDokStatusDtoTjeneste opptjeningIUtlandDokStatusDtoTjeneste) {
+                                  OpptjeningDtoTjeneste dtoMapper,
+                                  OpptjeningIUtlandDokStatusDtoTjeneste opptjeningIUtlandDokStatusDtoTjeneste) {
         this.behandlingRepository = behandlingRepository;
-        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.dtoMapper = dtoMapper;
         this.opptjeningIUtlandDokStatusDtoTjeneste = opptjeningIUtlandDokStatusDtoTjeneste;
     }
@@ -89,7 +87,6 @@ public class OpptjeningRestTjeneste {
 
     private OpptjeningDto getOpptjeningFraBehandling(Behandling behandling) {
         var behandlingReferanse = BehandlingReferanse.fra(behandling);
-        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-        return dtoMapper.mapFra(behandlingReferanse, skjæringstidspunkt).orElse(null);
+        return dtoMapper.mapFra(behandlingReferanse).orElse(null);
     }
 }

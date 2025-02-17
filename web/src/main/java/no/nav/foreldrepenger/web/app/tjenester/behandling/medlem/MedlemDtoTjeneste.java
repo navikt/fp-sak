@@ -16,7 +16,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -92,11 +91,11 @@ public class MedlemDtoTjeneste {
         var forPeriode = SimpleLocalDateInterval.fraOgMedTomNotNull(Tid.TIDENES_BEGYNNELSE, Tid.TIDENES_ENDE);
 
         var manuellBehandling = manuellBehandling(behandling);
-        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+        var stp = failsoftSkjæringstidspunkt(behandling.getId()).orElseGet(LocalDate::now);
         var legacyManuellBehandling = manuellBehandling.isEmpty() ? legacyManuellBehandling(ref, stp).orElse(null) : null;
 
         var aktørId = ref.aktørId();
-        var regioner = personopplysningerAggregat.getStatsborgerskapRegionIInterval(aktørId, forPeriode, stp.getUtledetSkjæringstidspunkt())
+        var regioner = personopplysningerAggregat.getStatsborgerskapRegionIInterval(aktørId, forPeriode, stp)
             .stream()
             .map(s -> new MedlemskapDto.Region(s.getFom(), s.getTom(), s.getValue()))
             .collect(Collectors.toSet());
@@ -137,6 +136,14 @@ public class MedlemDtoTjeneste {
             oppholdstillatelser, medlemskapsperioder, avvik, annenpart));
     }
 
+    private Optional<LocalDate> failsoftSkjæringstidspunkt(Long behandlingId) {
+        try {
+            return skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId).getSkjæringstidspunktHvisUtledet();
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
     private Set<MedlemskapAvvik> utledAvvik(Behandling behandling) {
         if (behandlingLiggerEtterMedlemskapsvilkårssteg(behandling) && !aksjonspunktErOpprettetEllerLøst(behandling)) {
             return Set.of();
@@ -144,7 +151,7 @@ public class MedlemDtoTjeneste {
         return medlemskapUtleder.utledAvvik(BehandlingReferanse.fra(behandling));
     }
 
-    private Optional<MedlemskapDto.LegacyManuellBehandling> legacyManuellBehandling(BehandlingReferanse ref, Skjæringstidspunkt stp) {
+    private Optional<MedlemskapDto.LegacyManuellBehandling> legacyManuellBehandling(BehandlingReferanse ref, LocalDate stp) {
         var vurdertMedlemskapEntitet = medlemskapRepository.hentLegacyVurderingMedlemskapSkjæringstidspunktet(ref.behandlingId());
         if (vurdertMedlemskapEntitet.isEmpty()) {
             return Optional.empty();
@@ -152,7 +159,7 @@ public class MedlemDtoTjeneste {
 
         var medlemskapVurdering = vurdertMedlemskapEntitet.get();
         var perioder = new HashSet<MedlemskapDto.LegacyManuellBehandling.MedlemPeriode>();
-        perioder.add(tilLegacyManuellBehandligPeriode(medlemskapVurdering, stp.getUtledetSkjæringstidspunkt()));
+        perioder.add(tilLegacyManuellBehandligPeriode(medlemskapVurdering, stp));
 
         var løpendeVurdering = medlemskapRepository.hentLegacyVurderingLøpendeMedlemskap(ref.behandlingId());
         if (løpendeVurdering.isPresent()) {
@@ -205,7 +212,7 @@ public class MedlemDtoTjeneste {
 
     private static Optional<MedlemskapDto.Annenpart> annenpart(PersonopplysningerAggregat personopplysningerAggregat,
                                                                AbstractLocalDateInterval forPeriode,
-                                                               Skjæringstidspunkt stp) {
+                                                               LocalDate stp) {
         var annenpartOpt = personopplysningerAggregat.getOppgittAnnenPart()
             .map(OppgittAnnenPartEntitet::getAktørId)
             .or(() -> personopplysningerAggregat.getAnnenPartEllerEktefelle().map(PersonopplysningEntitet::getAktørId));
@@ -219,8 +226,7 @@ public class MedlemDtoTjeneste {
             .map(MedlemskapDto.Adresse::map)
             .collect(Collectors.toSet());
 
-        var regioner = personopplysningerAggregat.getStatsborgerskapRegionIInterval(annenpartOpt.get(), forPeriode,
-                stp.getUtledetSkjæringstidspunkt())
+        var regioner = personopplysningerAggregat.getStatsborgerskapRegionIInterval(annenpartOpt.get(), forPeriode, stp)
             .stream()
             .map(s -> new MedlemskapDto.Region(s.getFom(), s.getTom(), s.getValue()))
             .collect(Collectors.toSet());

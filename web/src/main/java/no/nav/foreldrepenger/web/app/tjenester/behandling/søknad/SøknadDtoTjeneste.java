@@ -211,17 +211,21 @@ public class SøknadDtoTjeneste {
     }
 
     private Optional<LocalDate> hentOppgittStartdatoForPermisjon(Long behandlingId, RelasjonsRolleType rolleType) {
-        var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
+        try {
+            var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
 
-        var oppgittStartdato = skjæringstidspunkter.getFørsteUttaksdatoHvisFinnes()
-            .or(skjæringstidspunkter::getSkjæringstidspunktHvisUtledet);
-        if (RelasjonsRolleType.MORA.equals(rolleType) && skjæringstidspunkter.gjelderFødsel()) {
-            var evFødselFørOppgittStartdato = familieHendelseRepository.hentAggregat(behandlingId)
-                .getGjeldendeBekreftetVersjon().flatMap(FamilieHendelseEntitet::getFødselsdato).map(VirkedagUtil::fomVirkedag)
-                .filter(fødselsdatoUkedag -> fødselsdatoUkedag.isBefore(oppgittStartdato.orElse(LocalDate.MAX)));
-            return evFødselFørOppgittStartdato.or(() -> oppgittStartdato);
+            var oppgittStartdato = skjæringstidspunkter.getFørsteUttaksdatoHvisFinnes()
+                .or(skjæringstidspunkter::getSkjæringstidspunktHvisUtledet);
+            if (RelasjonsRolleType.MORA.equals(rolleType) && skjæringstidspunkter.gjelderFødsel()) {
+                var evFødselFørOppgittStartdato = familieHendelseRepository.hentAggregat(behandlingId)
+                    .getGjeldendeBekreftetVersjon().flatMap(FamilieHendelseEntitet::getFødselsdato).map(VirkedagUtil::fomVirkedag)
+                    .filter(fødselsdatoUkedag -> fødselsdatoUkedag.isBefore(oppgittStartdato.orElse(LocalDate.MAX)));
+                return evFødselFørOppgittStartdato.or(() -> oppgittStartdato);
+            }
+            return oppgittStartdato;
+        } catch (Exception e) {
+            return Optional.empty();
         }
-        return oppgittStartdato;
     }
 
 }

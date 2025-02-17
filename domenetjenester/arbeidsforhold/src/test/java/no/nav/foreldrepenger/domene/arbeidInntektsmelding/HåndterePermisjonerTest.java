@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
@@ -268,10 +267,7 @@ class HåndterePermisjonerTest {
         return BehandlingReferanse.fra(behandling);
     }
 
-    private Skjæringstidspunkt lagStp(Behandling behandling) {
-        return Skjæringstidspunkt.builder()
-                .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
-                .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT)
-                .build();
+    private LocalDate lagStp(Behandling behandling) {
+        return SKJÆRINGSTIDSPUNKT;
     }
 }

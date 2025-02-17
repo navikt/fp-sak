@@ -233,6 +233,9 @@ public class InntektsmeldingTjeneste {
     }
 
     private boolean kanInntektsmeldingBrukesForSkjæringstidspunkt(Inntektsmelding inntektsmelding, LocalDate skjæringstidspunkt) {
+        if (skjæringstidspunkt == null) {
+            return true; // Ikke definert skjæringstidspunkt så alle inntektsmeldinger er kandidater inntil videre
+        }
         var tidligsteDato = skjæringstidspunkt.minusWeeks(4).minusDays(1);
         var sisteBeregningMåned = YearMonth.from(skjæringstidspunkt.minusMonths(1));
         var imdato = inntektsmelding.getInnsendingstidspunkt().toLocalDate();

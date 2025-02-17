@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.PermisjonOgMangelDto;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -29,11 +28,10 @@ public class HåndterePermisjoner {
     }
 
     public static List<ArbeidsforholdMangel> finnArbForholdMedPermisjonUtenSluttdatoMangel(BehandlingReferanse behandlingReferanse,
-                                                                                           Skjæringstidspunkt skjæringstidspunkt,
+                                                                                           LocalDate stp,
                                                                                            InntektArbeidYtelseGrunnlag iayGrunnlag) {
         List<ArbeidsforholdMangel> arbForholdMedPermUtenSluttdato = new ArrayList<>();
 
-        var stp = skjæringstidspunkt.getUtledetSkjæringstidspunkt();
         var aktørId = behandlingReferanse.aktørId();
         var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(aktørId)).før(stp);
 
