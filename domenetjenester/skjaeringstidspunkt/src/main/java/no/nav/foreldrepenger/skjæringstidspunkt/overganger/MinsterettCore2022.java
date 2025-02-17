@@ -48,7 +48,7 @@ public class MinsterettCore2022 {
                                                          LocalDate førsteUttaksdato, boolean utenMinsterett) {
         // // 14-10 første ledd (far+medmor) med uttak ifm fødsel iht P15L 2021/22. Øvrige tilfelle sendes videre.
         var gjeldendeFH = familieHendelseGrunnlag.getGjeldendeVersjon();
-        if (!utenMinsterett && gjeldendeFH.getGjelderFødsel() && !RelasjonsRolleType.MORA.equals(rolle)) {
+        if (!utenMinsterett && gjeldendeFH.getGjelderFødsel() && !RelasjonsRolleType.MORA.equals(rolle) && førsteUttaksdato != null) {
             // Juster førsteUttaksdato som er mer enn 2 uker før fødsel / termin til tidligste lovlige dato
             var tidligsteFamilieHendelseDato = tidligsteFamilieHendelseDato(familieHendelseGrunnlag)
                 .map(t -> t.minus(FAR_TIDLIGSTE_UTTAK_FØR_TERMIN));
