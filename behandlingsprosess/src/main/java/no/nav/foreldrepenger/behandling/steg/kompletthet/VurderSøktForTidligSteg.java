@@ -64,10 +64,11 @@ public class VurderSøktForTidligSteg implements BehandlingSteg {
         if (søknadMottatt.erOppfylt()) {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
-        if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) && skalVenteDersomSøktForTidlig(behandling, skjæringstidspunkter)) {
-            return VurderKompletthetStegFelles.evaluerUoppfylt(søknadMottatt, VENT_PGA_FOR_TIDLIG_SØKNAD);
+
+        if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) && !skalVenteDersomSøktForTidlig(behandling, skjæringstidspunkter)) {
+            return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
-        return BehandleStegResultat.utførtUtenAksjonspunkter();
+        return VurderKompletthetStegFelles.evaluerUoppfylt(søknadMottatt, VENT_PGA_FOR_TIDLIG_SØKNAD);
     }
 
     private boolean skalVenteDersomSøktForTidlig(Behandling behandling, Skjæringstidspunkt stp) {

@@ -15,9 +15,11 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -52,8 +54,8 @@ public class VurderKompletthetSteg implements BehandlingSteg {
         }
 
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(kontekst.getBehandlingId());
-        var forsendelseMottatt = kompletthetsjekker.vurderForsendelseKomplett(BehandlingReferanse.fra(behandling), skjæringstidspunkter);
-        if (forsendelseMottatt.erOppfylt()) {
+        var forsendelseKomplett = kompletthetsjekker.vurderForsendelseKomplett(BehandlingReferanse.fra(behandling), skjæringstidspunkter);
+        if (forsendelseKomplett.erOppfylt()) {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
 
@@ -61,16 +63,25 @@ public class VurderKompletthetSteg implements BehandlingSteg {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
 
-        if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) && !behandling.erRevurdering()) {
-            // kompletthetsresultat kan være langt fram i tid dersom tidlig fødsel
-            var brukfrist = kanPassereKompletthet(behandling) && !forsendelseMottatt.erFristUtløpt()
-                && forsendelseMottatt.ventefrist().isAfter(LocalDateTime.now().plusWeeks(1)) ?
-                LocalDate.now().plusWeeks(1).atStartOfDay() : forsendelseMottatt.ventefrist();
-            return VurderKompletthetStegFelles.evaluerUoppfylt(forsendelseMottatt, brukfrist, AUTO_VENTER_PÅ_KOMPLETT_SØKNAD);
+        var ventefrist = utledVentefrist(forsendelseKomplett, behandling);
+        return VurderKompletthetStegFelles.evaluerUoppfylt(forsendelseKomplett, ventefrist, AUTO_VENTER_PÅ_KOMPLETT_SØKNAD);
+
+
+    }
+
+    private static LocalDateTime utledVentefrist(KompletthetResultat forsendelseKomplett, Behandling behandling) {
+        if (behandling.erRevurdering()) {
+            return forsendelseKomplett.ventefrist();
+        }
+        if (!FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
+            return forsendelseKomplett.ventefrist();
         }
 
-        return VurderKompletthetStegFelles.evaluerUoppfylt(forsendelseMottatt, AUTO_VENTER_PÅ_KOMPLETT_SØKNAD);
+        // TODO: Flytt logikk til kompletthetsjekker.vurderForsendelseKomplett?
+        if (kanPassereKompletthet(behandling) && !forsendelseKomplett.erFristUtløpt() && forsendelseKomplett.ventefrist().isAfter(LocalDateTime.now().plusWeeks(1))) {
+            return LocalDate.now().plusWeeks(1).atStartOfDay();
+        }
 
-
+        return forsendelseKomplett.ventefrist();
     }
 }
