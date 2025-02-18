@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.kompletthet.impl.es;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -22,15 +22,17 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
-import no.nav.foreldrepenger.kompletthet.impl.KompletthetsjekkerOld;
+import no.nav.foreldrepenger.kompletthet.impl.KompletthetsjekkerImpl;
+import no.nav.foreldrepenger.kompletthet.impl.KompletthetsjekkerSøknadTjeneste;
 
 /**
  * Test for kompletthetssjekk for engangsstønad
  */
 class KompletthetssjekkerSøknadKomplettTest {
 
-    private KompletthetsjekkerOld testObjekt;
+    private Kompletthetsjekker testObjekt;
 
     @Test
     void ikke_elektronisk_reg_søknad_skal_behandles_som_komplett_ved_adopsjon_og_mangler_vedlegg() {
@@ -134,15 +136,14 @@ class KompletthetssjekkerSøknadKomplettTest {
 
         var personopplysningTjeneste = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
 
-        testObjekt = spy(new KompletthetsjekkerImpl(repositoryProvider, null, personopplysningTjeneste));
-
+        var kompletthetsjekkerSøknad = mock(KompletthetsjekkerSøknadTjeneste.class);
         if (!manglerVedlegg) {
-            Mockito.doReturn(emptyList())
-                .when(testObjekt).utledAlleManglendeVedleggForForsendelse(any());
+            Mockito.doReturn(emptyList()).when(kompletthetsjekkerSøknad).utledManglendeVedleggForSøknad(any());
         } else {
             Mockito.doReturn(Collections.singletonList(new ManglendeVedlegg(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL)))
-                .when(testObjekt).utledAlleManglendeVedleggForForsendelse(any());
+                .when(kompletthetsjekkerSøknad).utledManglendeVedleggForSøknad(any());
         }
+        testObjekt = new KompletthetsjekkerImpl(repositoryProvider, kompletthetsjekkerSøknad, personopplysningTjeneste, null);
         return behandling;
     }
 

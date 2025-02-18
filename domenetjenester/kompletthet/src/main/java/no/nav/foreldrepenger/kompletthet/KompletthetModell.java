@@ -45,20 +45,20 @@ public class KompletthetModell {
     }
 
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-    private KompletthetsjekkerV2MedSammenligning kompletthetsjekkerV2;
+    private Kompletthetsjekker kompletthetsjekker;
 
     public KompletthetModell() {
         // For CDI proxy
     }
 
     @Inject
-    public KompletthetModell(BehandlingskontrollTjeneste behandlingskontrollTjeneste, KompletthetsjekkerV2MedSammenligning kompletthetsjekkerV2) {
+    public KompletthetModell(BehandlingskontrollTjeneste behandlingskontrollTjeneste, Kompletthetsjekker kompletthetsjekker) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
-        this.kompletthetsjekkerV2 = kompletthetsjekkerV2;
+        this.kompletthetsjekker = kompletthetsjekker;
     }
 
     private static Kompletthetsjekker finnKompletthetssjekker(KompletthetModell kompletthetModell) {
-        return kompletthetModell.kompletthetsjekkerV2;
+        return kompletthetModell.kompletthetsjekker;
     }
 
     /**

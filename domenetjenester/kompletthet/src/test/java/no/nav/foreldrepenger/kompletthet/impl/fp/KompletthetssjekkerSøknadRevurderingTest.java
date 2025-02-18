@@ -9,7 +9,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,8 +25,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadVedleggE
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
+import no.nav.foreldrepenger.kompletthet.impl.KompletthetsjekkerImpl;
+import no.nav.foreldrepenger.kompletthet.impl.KompletthetsjekkerSøknadTjeneste;
 import no.nav.foreldrepenger.kompletthet.impl.KompletthetssjekkerTestUtil;
+import no.nav.foreldrepenger.kompletthet.impl.ManglendeInntektsmeldingTjeneste;
+import no.nav.foreldrepenger.kompletthet.impl.ManglendeVedleggTjeneste;
 
 class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwareTest {
 
@@ -39,13 +44,16 @@ class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwareTest {
     private KompletthetssjekkerTestUtil testUtil;
 
     private final DokumentArkivTjeneste dokumentArkivTjeneste = mock(DokumentArkivTjeneste.class);
-    private KompletthetssjekkerSøknadRevurderingImpl kompletthetssjekker;
+    private Kompletthetsjekker kompletthetssjekker;
 
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         testUtil = new KompletthetssjekkerTestUtil(repositoryProvider);
-        kompletthetssjekker = new KompletthetssjekkerSøknadRevurderingImpl(dokumentArkivTjeneste, repositoryProvider, Period.parse("P4W"));
+        var personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
+        var manglendeVedleggTjeneste = new ManglendeVedleggTjeneste(repositoryProvider, dokumentArkivTjeneste);
+        var kompletthetsjekkerSøknad = new KompletthetsjekkerSøknadTjeneste(repositoryProvider, manglendeVedleggTjeneste);
+        kompletthetssjekker = new KompletthetsjekkerImpl(repositoryProvider, kompletthetsjekkerSøknad, personopplysningTjeneste, mock(ManglendeInntektsmeldingTjeneste.class));
     }
 
     @Test
@@ -64,7 +72,7 @@ class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwareTest {
         when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any())).thenReturn(dokumentListe);
 
         // Act
-        var manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(behandling));
+        var manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));
 
         // Assert
         assertThat(manglendeVedlegg).isEmpty();
@@ -86,7 +94,7 @@ class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwareTest {
         when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any())).thenReturn(dokumentListe);
 
         // Act
-        var manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(behandling));
+        var manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));
 
         // Assert
         assertThat(manglendeVedlegg).hasSize(1);
@@ -110,7 +118,7 @@ class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwareTest {
         when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any())).thenReturn(dokumentListe);
 
         // Act
-        var manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(revurdering));
+        var manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(revurdering));
 
         // Assert
         assertThat(manglendeVedlegg).hasSize(1);
@@ -141,7 +149,7 @@ class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwareTest {
         repositoryProvider.getMottatteDokumentRepository().lagre(mottattDokument);
 
         // Act
-        var manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(revurdering));
+        var manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(revurdering));
 
         // Assert
         assertThat(manglendeVedlegg).isEmpty();
@@ -162,7 +170,7 @@ class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwareTest {
         when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any())).thenReturn(Collections.emptySet());
 
         // Act
-        var manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(revurdering));
+        var manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(revurdering));
 
         // Assert
         assertThat(manglendeVedlegg).hasSize(1);
@@ -182,7 +190,7 @@ class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwareTest {
         when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any())).thenReturn(dokumentListe);
 
         // Act
-        var manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(behandling));
+        var manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));
 
         // Assert
         assertThat(manglendeVedlegg).hasSize(1);
@@ -202,7 +210,7 @@ class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwareTest {
         when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any())).thenReturn(dokumentListe);
 
         // Act
-        var manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(behandling));
+        var manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));
 
         // Assert
         assertThat(manglendeVedlegg).isEmpty();
@@ -222,7 +230,7 @@ class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwareTest {
         when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(eq(behandling.getSaksnummer()), eq(søknadsDato))).thenReturn(dokumentListe);
 
         // Act
-        var manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(behandling));
+        var manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));
 
         // Assert
         assertThat(manglendeVedlegg).isEmpty();
