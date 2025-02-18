@@ -1,9 +1,10 @@
-package no.nav.foreldrepenger.kompletthet.impl.fp;
+package no.nav.foreldrepenger.kompletthet.impl;
 
 import static java.util.Collections.emptyList;
 
-import java.time.Period;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -11,14 +12,12 @@ import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.NoResultException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
-import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -26,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadVedleggEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
@@ -35,63 +35,70 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 @ApplicationScoped
-@BehandlingTypeRef(BehandlingType.REVURDERING)
-@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
-public class KompletthetssjekkerSøknadRevurderingImpl extends KompletthetssjekkerSøknadImpl {
-    private static final Logger LOG = LoggerFactory.getLogger(KompletthetssjekkerSøknadRevurderingImpl.class);
+public class ManglendeVedleggTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(ManglendeVedleggTjeneste.class);
 
-    private SøknadRepository søknadRepository;
     private DokumentArkivTjeneste dokumentArkivTjeneste;
+    private SøknadRepository søknadRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private MottatteDokumentRepository mottatteDokumentRepository;
-
     private BehandlingRepository behandlingRepository;
-
     private YtelsesFordelingRepository ytelsesFordelingRepository;
 
-    KompletthetssjekkerSøknadRevurderingImpl() {
+    public ManglendeVedleggTjeneste() {
+        // CDI
     }
 
     @Inject
-    public KompletthetssjekkerSøknadRevurderingImpl(DokumentArkivTjeneste dokumentArkivTjeneste,
-                                                    BehandlingRepositoryProvider repositoryProvider,
-                                                    @KonfigVerdi(value = "fp.ventefrist.tidlig.soeknad", defaultVerdi = "P4W") Period ventefristForTidligSøknad) {
-        super(ventefristForTidligSøknad,
-            repositoryProvider.getSøknadRepository(), repositoryProvider.getMottatteDokumentRepository());
-        this.søknadRepository = repositoryProvider.getSøknadRepository();
+    public ManglendeVedleggTjeneste(BehandlingRepositoryProvider provider, DokumentArkivTjeneste dokumentArkivTjeneste) {
         this.dokumentArkivTjeneste = dokumentArkivTjeneste;
-        this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
-        this.mottatteDokumentRepository = repositoryProvider.getMottatteDokumentRepository();
-        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        this.søknadRepository = provider.getSøknadRepository();
+        this.behandlingVedtakRepository = provider.getBehandlingVedtakRepository();
+        this.mottatteDokumentRepository = provider.getMottatteDokumentRepository();
+        this.behandlingRepository = provider.getBehandlingRepository();
+        this.ytelsesFordelingRepository = provider.getYtelsesFordelingRepository();
     }
 
-    /**
-     * Spør Joark om dokumentliste og sjekker det som finnes i vedleggslisten på søknaden mot det som ligger i Joark.
-     * I tillegg sjekkes endringssøknaden for påkrevde vedlegg som følger av utsettelse.
-     * Alle dokumenter må være mottatt etter vedtaksdatoen på gjeldende innvilgede vedtak.
-     *
-     * @param behandling
-     * @return Liste over manglende vedlegg
-     */
-    @Override
     public List<ManglendeVedlegg> utledManglendeVedleggForSøknad(BehandlingReferanse ref) {
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(ref.fagsakYtelseType())) {
+            var søknad = søknadRepository.hentSøknadHvisEksisterer(ref.behandlingId());
+
+            // Manuelt registrerte søknader har foreløpig ikke vedleggsliste og kan derfor ikke kompletthetssjekkes
+            if (søknad.isEmpty() || !søknad.get().getElektroniskRegistrert() || søknad.get().getSøknadVedlegg() == null
+                    || søknad.get().getSøknadVedlegg().isEmpty()) {
+                return emptyList();
+            }
+        }
+
+        return ref.erRevurdering() ? utledManglendeVedleggForRevurdering(ref) : utledManglendeVedleggForFørstegangssøknad(ref);
+    }
+
+    private List<ManglendeVedlegg> utledManglendeVedleggForFørstegangssøknad(BehandlingReferanse ref) {
+        var søknad = søknadRepository.hentSøknadHvisEksisterer(ref.behandlingId());
+        var dokumentTypeIds = dokumentArkivTjeneste.hentDokumentTypeIdForSak(ref.saksnummer(), LocalDate.MIN);
+        var manglendeVedlegg = identifiserManglendeVedlegg(søknad, dokumentTypeIds);
+
+        if (!manglendeVedlegg.isEmpty()) {
+            LOG.info("Behandling {} er ikke komplett - mangler følgende vedlegg til søknad: {}", ref.behandlingId(), lagDokumentTypeString(manglendeVedlegg));
+        }
+
+        return manglendeVedlegg;
+    }
+
+    private List<ManglendeVedlegg> utledManglendeVedleggForRevurdering(BehandlingReferanse ref) {
         var behandlingId = ref.behandlingId();
-
         var søknad = søknadRepository.hentSøknadHvisEksisterer(behandlingId);
-
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var vedtaksdato = behandlingVedtakRepository.hentBehandlingVedtakFraRevurderingensOriginaleBehandling(behandling).getVedtaksdato();
         var sammenligningsdato = søknad.map(SøknadEntitet::getSøknadsdato).filter(vedtaksdato::isAfter).orElse(vedtaksdato);
 
         Set<DokumentTypeId> arkivDokumentTypeIds = new HashSet<>(dokumentArkivTjeneste.hentDokumentTypeIdForSak(ref.saksnummer(), sammenligningsdato));
         mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(ref.fagsakId()).stream()
-            .filter(m -> !m.getMottattDato().isBefore(sammenligningsdato))
-            .map(MottattDokument::getDokumentType)
-            .forEach(arkivDokumentTypeIds::add);
+                .filter(m -> !m.getMottattDato().isBefore(sammenligningsdato))
+                .map(MottattDokument::getDokumentType)
+                .forEach(arkivDokumentTypeIds::add);
         arkivDokumentTypeIds.addAll(DokumentTypeId.ekvivalenter(arkivDokumentTypeIds));
 
         var manglendeVedlegg = new ArrayList<>(identifiserManglendeVedlegg(søknad, arkivDokumentTypeIds));
@@ -101,9 +108,39 @@ public class KompletthetssjekkerSøknadRevurderingImpl extends Kompletthetssjekk
 
         if (!manglendeVedlegg.isEmpty()) {
             LOG.info("Revurdering {} er ikke komplett - mangler følgende vedlegg til søknad: {}", behandlingId,
-                lagDokumentTypeString(manglendeVedlegg));
+                    lagDokumentTypeString(manglendeVedlegg));
         }
         return manglendeVedlegg;
+    }
+
+    private List<ManglendeVedlegg> identifiserManglendeVedlegg(Optional<SøknadEntitet> søknad, Set<DokumentTypeId> dokumentTypeIds) {
+        return getSøknadVedleggListe(søknad)
+                .stream()
+                .filter(SøknadVedleggEntitet::isErPåkrevdISøknadsdialog)
+                .map(SøknadVedleggEntitet::getSkjemanummer)
+                .map(this::finnDokumentTypeId)
+                .filter(doc -> !dokumentTypeIds.contains(doc))
+                .map(ManglendeVedlegg::new)
+                .toList();
+    }
+
+    private Set<SøknadVedleggEntitet> getSøknadVedleggListe(Optional<SøknadEntitet> søknad) {
+        if (søknad.map(SøknadEntitet::getElektroniskRegistrert).orElse(false)) {
+            return søknad.map(SøknadEntitet::getSøknadVedlegg)
+                    .orElse(Collections.emptySet());
+        }
+        return Collections.emptySet();
+    }
+
+    private DokumentTypeId finnDokumentTypeId(String dokumentTypeIdKode) {
+        DokumentTypeId dokumentTypeId;
+        try {
+            dokumentTypeId = DokumentTypeId.finnForKodeverkEiersKode(dokumentTypeIdKode);
+        } catch (NoResultException e) {
+            // skal tåle dette
+            dokumentTypeId = DokumentTypeId.UDEFINERT;
+        }
+        return dokumentTypeId;
     }
 
     private List<ManglendeVedlegg> identifiserManglendeVedleggSomFølgerAvUtsettelse(Optional<OppgittFordelingEntitet> oppgittFordeling,
@@ -119,7 +156,7 @@ public class KompletthetssjekkerSøknadRevurderingImpl extends Kompletthetssjekk
             if (UtsettelseÅrsak.SYKDOM.equals(årsak) && !dokumentTypeIdSet.contains(DokumentTypeId.LEGEERKLÆRING)) {
                 manglendeVedlegg.add(new ManglendeVedlegg(DokumentTypeId.LEGEERKLÆRING));
             } else if ((UtsettelseÅrsak.INSTITUSJON_SØKER.equals(årsak) || UtsettelseÅrsak.INSTITUSJON_BARN.equals(årsak))
-                && !dokumentTypeIdSet.contains(DokumentTypeId.DOK_INNLEGGELSE)) {
+                    && !dokumentTypeIdSet.contains(DokumentTypeId.DOK_INNLEGGELSE)) {
                 manglendeVedlegg.add(new ManglendeVedlegg(DokumentTypeId.DOK_INNLEGGELSE));
             }  else if (UtsettelseÅrsak.HV_OVELSE.equals(årsak) && !dokumentTypeIdSet.contains(DokumentTypeId.DOK_HV)) {
                 manglendeVedlegg.add(new ManglendeVedlegg(DokumentTypeId.DOK_HV));
