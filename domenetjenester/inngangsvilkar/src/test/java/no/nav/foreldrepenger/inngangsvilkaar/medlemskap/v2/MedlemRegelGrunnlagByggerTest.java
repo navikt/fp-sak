@@ -14,6 +14,7 @@ import java.util.Optional;
 import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
@@ -24,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.AdressePeriode;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Gyldighetsperiode;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittLandOppholdEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
@@ -41,16 +43,18 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektspostBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
+import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
+import no.nav.foreldrepenger.domene.medlem.MedlemskapVurderingPeriodeTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.MedlemskapsvilkårGrunnlag;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.Personopplysninger;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.konfig.Tid;
 
 @CdiDbAwareTest
 class MedlemRegelGrunnlagByggerTest {
-
-    @Inject
-    private MedlemRegelGrunnlagBygger regelGrunnlagBygger;
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -61,6 +65,19 @@ class MedlemRegelGrunnlagByggerTest {
 
     @Inject
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
+
+    @Mock
+    private PersoninfoAdapter personinfoAdapter;
+    @Inject
+    private MedlemTjeneste medlemTjeneste;
+    @Inject
+    private PersonopplysningTjeneste personopplysningTjeneste;
+    @Inject
+    private MedlemskapVurderingPeriodeTjeneste medlemskapVurderingPeriodeTjeneste;
+    @Inject
+    private SatsRepository satsRepo;
+    @Inject
+    private SkjæringstidspunktTjeneste stpTjeneste;
 
     @Test
     void bygger_inngangsvilkår_grunnlag() {
@@ -114,8 +131,10 @@ class MedlemRegelGrunnlagByggerTest {
                         .leggTilAktivitetsAvtale(nyAktivitetsAvtaleBuilder().medPeriode(yrkesAktivitetPeriode))))
                 .leggTilAktørInntekt(aktørInntektBuilder));
 
-        var resultat = regelGrunnlagBygger.lagRegelGrunnlag(
-            BehandlingReferanse.fra(behandling));
+        var regelGrunnlagBygger = new MedlemRegelGrunnlagBygger(medlemTjeneste, personopplysningTjeneste, medlemskapVurderingPeriodeTjeneste,
+            inntektArbeidYtelseTjeneste, satsRepo, stpTjeneste, personinfoAdapter);
+
+        var resultat = regelGrunnlagBygger.lagRegelGrunnlag(BehandlingReferanse.fra(behandling));
 
         assertThat(resultat.personopplysninger().adresser()).hasSize(1);
         var adresse1 = resultat.personopplysninger().adresser().stream().findFirst().orElseThrow();
@@ -129,7 +148,7 @@ class MedlemRegelGrunnlagByggerTest {
         assertThat(personstatus1.interval().getFomDato()).isEqualTo(personstatusFom);
         assertThat(personstatus1.interval().getTomDato()).isEqualTo(personstatusTom);
         assertThat(personstatus1.type()).isEqualTo(PersonstatusPeriode.Type.BOSATT_ETTER_FOLKEREGISTERLOVEN);
-
+        assertThat(resultat.personopplysninger().personIdentType()).isEqualTo(Personopplysninger.PersonIdentType.DNR);
 
         assertThat(resultat.personopplysninger().regioner()).hasSize(1);
         var regionPeriode1 = resultat.personopplysninger().regioner().stream().findFirst().orElseThrow();
@@ -165,6 +184,7 @@ class MedlemRegelGrunnlagByggerTest {
         assertThat(inntekt1.interval().getFomDato()).isEqualTo(inntektFom);
         assertThat(inntekt1.interval().getTomDato()).isEqualTo(inntektTom);
         assertThat(inntekt1.beløp()).isEqualTo(new MedlemskapsvilkårGrunnlag.Beløp(inntekt));
+
     }
 
 }

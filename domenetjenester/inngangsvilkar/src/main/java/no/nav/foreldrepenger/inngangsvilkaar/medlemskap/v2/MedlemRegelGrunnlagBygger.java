@@ -25,17 +25,20 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemskapVurderingPeriodeTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.MedlemskapsvilkårGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v2.Personopplysninger;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ApplicationScoped
-class MedlemRegelGrunnlagBygger {
+public class MedlemRegelGrunnlagBygger {
 
     private MedlemTjeneste medlemTjeneste;
     private PersonopplysningTjeneste personopplysningTjeneste;
@@ -43,20 +46,23 @@ class MedlemRegelGrunnlagBygger {
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private SatsRepository satsRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
 
     @Inject
-    MedlemRegelGrunnlagBygger(MedlemTjeneste medlemTjeneste,
+    public MedlemRegelGrunnlagBygger(MedlemTjeneste medlemTjeneste,
                               PersonopplysningTjeneste personopplysningTjeneste,
                               MedlemskapVurderingPeriodeTjeneste vurderingPeriodeTjeneste,
                               InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
                               SatsRepository satsRepository,
-                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                              PersoninfoAdapter personinfoAdapter) {
         this.medlemTjeneste = medlemTjeneste;
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.vurderingPeriodeTjeneste = vurderingPeriodeTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.satsRepository = satsRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.personinfoAdapter = personinfoAdapter;
     }
 
     MedlemRegelGrunnlagBygger() {
@@ -71,7 +77,7 @@ class MedlemRegelGrunnlagBygger {
         var opplysningsperiode = SimpleLocalDateInterval.fraOgMedTomNotNull(
             LocalDateInterval.min(vurderingsperiodeBosatt.getFomDato(), vurderingsperiodeLovligOpphold.getFomDato()),
             LocalDateInterval.max(vurderingsperiodeBosatt.getTomDato(), vurderingsperiodeLovligOpphold.getTomDato()));
-        var personopplysningGrunnlag = hentPersonopplysningerV2(behandlingRef, skjæringstidspunkt, opplysningsperiode);
+        var personopplysningGrunnlag = hentPersonopplysninger(behandlingRef, skjæringstidspunkt, opplysningsperiode);
         var søknad = hentSøknad(behandlingRef);
         var arbeid = inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingRef.behandlingId())
             .map(iay -> new MedlemskapsvilkårGrunnlag.Arbeid(hentAnsettelsePerioder(iay, behandlingRef), hentInntekt(iay, behandlingRef)))
@@ -124,14 +130,14 @@ class MedlemRegelGrunnlagBygger {
             .collect(Collectors.toSet());
     }
 
-    private Personopplysninger hentPersonopplysningerV2(BehandlingReferanse behandlingRef,
-                                                        Skjæringstidspunkt stp,
-                                                        AbstractLocalDateInterval opplysningsperiode) {
+    private Personopplysninger hentPersonopplysninger(BehandlingReferanse behandlingRef,
+                                                      Skjæringstidspunkt stp,
+                                                      AbstractLocalDateInterval opplysningsperiode) {
         var personopplysningerAggregat = personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(behandlingRef).orElseThrow();
         var aktørId = behandlingRef.aktørId();
         var regioner = personopplysningerAggregat.getStatsborgerskapRegionIInterval(aktørId, opplysningsperiode, stp.getUtledetSkjæringstidspunkt())
             .stream()
-            .map(s -> new Personopplysninger.RegionPeriode(s.getLocalDateInterval(), mapV2(s.getValue())))
+            .map(s -> new Personopplysninger.RegionPeriode(s.getLocalDateInterval(), map(s.getValue())))
             .collect(Collectors.toSet());
         var oppholdstillatelser = personopplysningerAggregat.getOppholdstillatelseFor(aktørId, opplysningsperiode)
             .stream()
@@ -140,16 +146,24 @@ class MedlemRegelGrunnlagBygger {
             .collect(Collectors.toSet());
         var personstatus = personopplysningerAggregat.getPersonstatuserFor(aktørId, opplysningsperiode)
             .stream()
-            .map(this::mapV2)
+            .map(this::map)
             .collect(Collectors.toSet());
         var adresser = personopplysningerAggregat.getAdresserFor(behandlingRef.aktørId(), opplysningsperiode)
             .stream()
-            .map(a -> new Personopplysninger.Adresse(map(a.getPeriode()), mapV2(a.getAdresseType()), a.erUtlandskAdresse()))
+            .map(a -> new Personopplysninger.Adresse(map(a.getPeriode()), map(a.getAdresseType()), a.erUtlandskAdresse()))
             .collect(Collectors.toSet());
-        return new Personopplysninger(regioner, oppholdstillatelser, personstatus, adresser);
+        var personIdentType = finnPersonIdentType(aktørId);
+        return new Personopplysninger(regioner, oppholdstillatelser, personstatus, adresser, personIdentType);
     }
 
-    private Personopplysninger.Region mapV2(Region region) {
+    private Personopplysninger.PersonIdentType finnPersonIdentType(AktørId aktørId) {
+        return personinfoAdapter.hentFnr(aktørId)
+            .filter(p -> PersonIdent.erGyldigFnr(p.getIdent()) && !p.erDnr())
+            .map(p -> Personopplysninger.PersonIdentType.FNR)
+            .orElse(Personopplysninger.PersonIdentType.DNR);
+    }
+
+    private Personopplysninger.Region map(Region region) {
         return switch (region) {
             case NORDEN -> Personopplysninger.Region.NORDEN;
             case EOS -> Personopplysninger.Region.EØS;
@@ -157,7 +171,7 @@ class MedlemRegelGrunnlagBygger {
         };
     }
 
-    private static Personopplysninger.Adresse.Type mapV2(AdresseType adresseType) {
+    private static Personopplysninger.Adresse.Type map(AdresseType adresseType) {
         return switch (adresseType) {
             case BOSTEDSADRESSE, BOSTEDSADRESSE_UTLAND -> Personopplysninger.Adresse.Type.BOSTEDSADRESSE;
             case POSTADRESSE -> Personopplysninger.Adresse.Type.KONTAKTADRESSE;
@@ -168,7 +182,7 @@ class MedlemRegelGrunnlagBygger {
         };
     }
 
-    private Personopplysninger.PersonstatusPeriode mapV2(PersonstatusIntervall personstatus) {
+    private Personopplysninger.PersonstatusPeriode map(PersonstatusIntervall personstatus) {
         return new Personopplysninger.PersonstatusPeriode(personstatus.intervall(), switch (personstatus.personstatus()) {
             case ADNR -> Personopplysninger.PersonstatusPeriode.Type.D_NUMMER;
             case BOSA -> Personopplysninger.PersonstatusPeriode.Type.BOSATT_ETTER_FOLKEREGISTERLOVEN;
