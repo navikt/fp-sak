@@ -69,9 +69,16 @@ public class UtsettelseCore2021 {
         var gjeldendeFH = familieHendelseGrunnlag.getGjeldendeVersjon();
         if (!gjeldendeFH.getGjelderFødsel() || !RelasjonsRolleType.MORA.equals(rolle)) {
             // 14-10 første ledd (far+medmor), andre ledd
-            var uttaksdato = gjeldendeFH.getSkjæringstidspunkt() != null && førsteUttaksdato.isBefore(gjeldendeFH.getSkjæringstidspunkt()) ?
-                gjeldendeFH.getSkjæringstidspunkt() : førsteUttaksdato;
-            return VirkedagUtil.fomVirkedag(uttaksdato);
+            var familieHendelseDato = gjeldendeFH.getSkjæringstidspunkt();
+            if (familieHendelseDato != null && førsteUttaksdato != null) {
+                var uttaksdato = førsteUttaksdato.isBefore(familieHendelseDato) ? familieHendelseDato : førsteUttaksdato;
+                return VirkedagUtil.fomVirkedag(uttaksdato);
+            } else if (familieHendelseDato != null) {
+                return VirkedagUtil.fomVirkedag(familieHendelseDato);
+            } else {
+                var uttaksdato = førsteUttaksdato != null ? førsteUttaksdato : LocalDate.now();
+                return VirkedagUtil.fomVirkedag(uttaksdato);
+            }
         }
         // 14-10 første ledd (mor) - settes til tidligst av (førstuttaksdato, termin-3, fødsel). Ingen sjekk på før T-12uker.
         var termindatoMinusPeriode = familieHendelseGrunnlag.getGjeldendeTerminbekreftelse()
@@ -80,8 +87,15 @@ public class UtsettelseCore2021 {
         var fødselsdato = gjeldendeFH.getFødselsdato()
             .filter(f -> termindatoMinusPeriode.isEmpty() || f.isBefore(termindatoMinusPeriode.get()))
             .or(() -> termindatoMinusPeriode);
-        var senesteStartdatoMor = førsteUttaksdato != null ? fødselsdato.filter(førsteUttaksdato::isAfter).orElse(førsteUttaksdato) : fødselsdato.orElseThrow();
-        return VirkedagUtil.fomVirkedag(senesteStartdatoMor);
+        if (fødselsdato.isPresent() && førsteUttaksdato != null) {
+            var uttaksdato = fødselsdato.filter(førsteUttaksdato::isAfter).orElse(førsteUttaksdato);
+            return VirkedagUtil.fomVirkedag(uttaksdato);
+        } else if (fødselsdato.isPresent()) {
+            return VirkedagUtil.fomVirkedag(fødselsdato.get());
+        } else {
+            var uttaksdato = førsteUttaksdato != null ? førsteUttaksdato : LocalDate.now();
+            return VirkedagUtil.fomVirkedag(uttaksdato);
+        }
     }
 
     public static Optional<LocalDate> finnFørsteDatoFraUttakResultat(List<UttakResultatPeriodeEntitet> perioder) {
