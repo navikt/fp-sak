@@ -171,7 +171,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
 
         var førsteUttaksdato = avklartStartDato
             .or(() -> stpForFlyttbareFedreOgMedmødre(behandling, ytelseFordelingAggregat, fhGrunnlag, utenMinsterett))
-            .orElseGet(() -> førsteØnskedeUttaksdag(behandling, ytelseFordelingAggregat, utenMinsterett));
+            .orElseGet(() -> førsteØnskedeUttaksdag(behandling, ytelseFordelingAggregat));
         if (førsteUttaksdato != null) {
             return førsteUttaksdato;
         } else if (fhGrunnlag.isPresent()) {
@@ -195,7 +195,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         return ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId);
     }
 
-    private LocalDate førsteØnskedeUttaksdag(Behandling behandling, Optional<YtelseFordelingAggregat> ytelseFordelingAggregat, boolean utenMinsterett) {
+    private LocalDate førsteØnskedeUttaksdag(Behandling behandling, Optional<YtelseFordelingAggregat> ytelseFordelingAggregat) {
         var oppgittFordeling = ytelseFordelingAggregat.map(YtelseFordelingAggregat::getOppgittFordeling);
 
         var førsteØnskedeUttaksdagIBehandling = UtsettelseCore2021.finnFørsteDatoFraSøknad(oppgittFordeling);
@@ -209,7 +209,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
                 // Rekursjon til forrige behandling
                 var fastsattSkjæringstidspunkt = getFastsattSkjæringstidspunkt(originalBehandlingId);
                 return fastsattSkjæringstidspunkt != null ? fastsattSkjæringstidspunkt :
-                    førsteUttaksdag(originalBehandling, familieGrunnlagRepository.hentAggregatHvisEksisterer(originalBehandling.getId()), utenMinsterett);
+                    førsteØnskedeUttaksdag(originalBehandling, hentYtelseFordelingAggregatFor(originalBehandlingId));
             } else {
                 // Sjekk utsettelse av startdato og returner da første uttaksdato i ny søknad - eller tidligste dato
                 return getUtsattStartdato(førsteUttaksdagIForrigeVedtak, oppgittFordeling).orElseGet(
