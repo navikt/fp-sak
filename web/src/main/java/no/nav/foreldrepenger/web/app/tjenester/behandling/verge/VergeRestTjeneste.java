@@ -83,29 +83,27 @@ public class VergeRestTjeneste {
     @POST
     @Path(VERGE_OPPRETT_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Oppretter verge/fullmektig på behandlingen", tags = "verge", responses = {@ApiResponse(responseCode = "202", description = "Verge/fullmektig opprettes", headers = @Header(name = HttpHeaders.LOCATION))})
+    @Operation(description = "Oppretter verge/fullmektig på behandlingen", tags = "verge", responses = {@ApiResponse(responseCode = "200", description = "Verge/fullmektig opprettes", headers = @Header(name = HttpHeaders.LOCATION))})
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
-    public Response opprettVerge(@Context HttpServletRequest request,
-                                 @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @QueryParam(UuidDto.NAME) @Parameter(description = "Behandling uuid") @Valid UuidDto queryParam,
-                                 @Valid NyVergeDto body) throws URISyntaxException {
+    public Response opprettVerge(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @QueryParam(UuidDto.NAME) @Parameter(description = "Behandling uuid") @Valid UuidDto queryParam,
+                                 @Valid NyVergeDto body) {
 
         var behandling = behandlingsprosessTjeneste.hentBehandling(queryParam.getBehandlingUuid());
         vergeTjeneste.opprettVerge(behandling, body);
 
-        return Redirect.tilBehandlingPollStatus(request, queryParam.getBehandlingUuid());
+        return Response.ok().build();
     }
 
     @POST
     @Path(VERGE_FJERN_PART_PATH)
-    @Operation(tags = "verge", description = "Fjerner verge/fullmektig på behandlingen", responses = {@ApiResponse(responseCode = "202", description = "Verge/fullmektig fjernet", headers = @Header(name = HttpHeaders.LOCATION))})
+    @Operation(tags = "verge", description = "Fjerner verge/fullmektig på behandlingen", responses = {@ApiResponse(responseCode = "200", description = "Verge/fullmektig fjernet", headers = @Header(name = HttpHeaders.LOCATION))})
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
-    public Response fjernVerge(@Context HttpServletRequest request,
-                               @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @QueryParam(UuidDto.NAME) @Parameter(description = "Behandling uuid") @Valid UuidDto queryParam) throws URISyntaxException {
+    public Response fjernVerge(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @QueryParam(UuidDto.NAME) @Parameter(description = "Behandling uuid") @Valid UuidDto queryParam) {
 
         var behandling = behandlingsprosessTjeneste.hentBehandling(queryParam.getBehandlingUuid());
         vergeTjeneste.fjernVerge(behandling);
 
-        return Redirect.tilBehandlingPollStatus(request, queryParam.getBehandlingUuid());
+        return Response.ok().build();
     }
 
 

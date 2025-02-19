@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.verge;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -18,6 +18,8 @@ import no.nav.foreldrepenger.domene.person.verge.OpprettVergeTjeneste;
 import no.nav.foreldrepenger.domene.person.verge.VergeDtoTjeneste;
 
 import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.NyVergeDto;
+
+import no.nav.vedtak.exception.TekniskException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -39,7 +41,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningVersjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
@@ -86,7 +87,7 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
         var entityManager = getEntityManager();
         behandlingRepository = new BehandlingRepository(entityManager);
         var fagsakRepository = new FagsakRepository(entityManager);
-        vergeRepository = new VergeRepository(entityManager, mock(BehandlingLåsRepository.class));
+        vergeRepository = new VergeRepository(entityManager);
         historikkRepository = new HistorikkinnslagRepository(entityManager);
 
         var nyVergeTjeneste = new OpprettVergeTjeneste(personinfoAdapter, brukerTjeneste, vergeRepository, historikkRepository);
@@ -98,7 +99,6 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
         fagsakRepository.opprettNy(fagsak);
         behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-
     }
 
     @Nested
@@ -204,7 +204,7 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
         vergeTjeneste.fjernVergeGrunnlagOgAksjonspunkt(behandling);
 
         // Assert
-        assertThat(vergeRepository.hentAggregat(behandling.getId()).get().getVerge()).isNotPresent();
+        assertThat(vergeRepository.hentAggregat(behandling.getId())).isNotPresent();
         var ap = behandling.getAksjonspunktFor(AksjonspunktDefinisjon.AVKLAR_VERGE);
         verify(behandlingskontrollTjeneste).lagreAksjonspunkterAvbrutt(any(), any(), eq(List.of(ap)));
         verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandling(behandling);
@@ -219,32 +219,8 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
         @Test
         void skal_opprette_verge() {
             // Arrange
-            var opprettVergeDto = new NyVergeDto("Jenny", "12346678901", LocalDate.parse("2022-01-01"), LocalDate.parse("2024-01-01"), VergeType.BARN,
-                null);
-            behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-
-            var vergeAktørId = AktørId.dummy();
-            when(personinfoAdapter.hentAktørForFnr(any())).thenReturn(Optional.of(vergeAktørId));
-            when(brukerTjeneste.hentEllerOpprettFraAktørId(any())).thenReturn(NavBruker.opprettNyNB(vergeAktørId));
-
-            // Act
-            vergeTjeneste.opprettVerge(behandling, opprettVergeDto);
-
-            // Assert
-            assertThat(vergeRepository.hentAggregat(behandling.getId()).flatMap(VergeAggregat::getVerge)).isPresent();
-            verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandling(behandling);
-            var historikkinnslag = historikkRepository.hent(behandling.getSaksnummer());
-            assertThat(historikkinnslag).hasSize(1);
-            assertThat(historikkinnslag.getFirst().getTekstLinjer().getLast()).contains("Registrering av opplysninger om verge/fullmektig.");
-        }
-
-        @Test
-        void skal_opprette_verge_og_avbryte_åpent_verge_aksjonpunkt() {
-            // Arrange
             var opprettVergeDto = new NyVergeDto("Jenny", "12345678901", LocalDate.parse("2022-01-01"), LocalDate.parse("2024-01-01"), VergeType.BARN,
                 null);
-            behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-            AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AVKLAR_VERGE);
 
             var vergeAktørId = AktørId.dummy();
             when(personinfoAdapter.hentAktørForFnr(any())).thenReturn(Optional.of(vergeAktørId));
@@ -255,9 +231,6 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
 
             // Assert
             assertThat(vergeRepository.hentAggregat(behandling.getId()).flatMap(VergeAggregat::getVerge)).isPresent();
-            var ap = behandling.getAksjonspunktFor(AksjonspunktDefinisjon.AVKLAR_VERGE);
-            verify(behandlingskontrollTjeneste).lagreAksjonspunkterAvbrutt(any(), any(), eq(List.of(ap)));
-            verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandling(behandling);
             var historikkinnslag = historikkRepository.hent(behandling.getSaksnummer());
             assertThat(historikkinnslag).hasSize(1);
             assertThat(historikkinnslag.getFirst().getTekstLinjer().getLast()).isEqualTo("Registrering av opplysninger om verge/fullmektig.");
@@ -267,27 +240,37 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
     @Nested
     class FjernVerge {
         @Test
-        void skal_avbryte_åpent_verge_aksjonspunkt_når_det_ikke_finnes_verge() {
+        void skal_feile_når_det_ikke_finnes_verge() {
             // Arrange
             behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-            AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AVKLAR_VERGE);
-
-            // Act
-            vergeTjeneste.fjernVerge(behandling);
 
             // Assert
+            assertThatExceptionOfType(TekniskException.class).isThrownBy(() -> vergeTjeneste.fjernVerge(behandling))
+                .withMessage("FP-199772:Kan ikke fjerne verge fra eksisterende grunnlag som ikke finnes");
+
             assertThat(vergeRepository.hentAggregat(behandling.getId()).flatMap(VergeAggregat::getVerge)).isEmpty();
-            var ap = behandling.getAksjonspunktFor(AksjonspunktDefinisjon.AVKLAR_VERGE);
-            verify(behandlingskontrollTjeneste).lagreAksjonspunkterAvbrutt(any(), any(), eq(List.of(ap)));
-            verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandling(behandling);
             var historikkinnslag = historikkRepository.hent(behandling.getSaksnummer());
             assertThat(historikkinnslag).isEmpty();
         }
 
         @Test
-        void skal_fjerne_verge_og_avbryte_åpent_verge_aksjonspunkt() {
+        void skal_fjerne_verge() {
             // Arrange
-            behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
+            vergeRepository.lagreOgFlush(behandling.getId(), opprettVergeBuilder());
+
+            // Act
+            vergeTjeneste.fjernVerge(behandling);
+
+            // Assert
+            assertThat(vergeRepository.hentAggregat(behandling.getId())).isEmpty();
+            var historikkinnslag = historikkRepository.hent(behandling.getSaksnummer());
+            assertThat(historikkinnslag).hasSize(1);
+            assertThat(historikkinnslag.getFirst().getTittel()).contains("verge", "fjernet");
+        }
+
+        @Test
+        void skal_fjerne_verge_med_AP() {
+            // Arrange
             AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AVKLAR_VERGE);
             vergeRepository.lagreOgFlush(behandling.getId(), opprettVergeBuilder());
 
@@ -295,10 +278,9 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
             vergeTjeneste.fjernVerge(behandling);
 
             // Assert
-            assertThat(vergeRepository.hentAggregat(behandling.getId()).flatMap(VergeAggregat::getVerge)).isEmpty();
+            assertThat(vergeRepository.hentAggregat(behandling.getId())).isEmpty();
             var ap = behandling.getAksjonspunktFor(AksjonspunktDefinisjon.AVKLAR_VERGE);
             verify(behandlingskontrollTjeneste).lagreAksjonspunkterAvbrutt(any(), any(), eq(List.of(ap)));
-            verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandling(behandling);
             var historikkinnslag = historikkRepository.hent(behandling.getSaksnummer());
             assertThat(historikkinnslag).hasSize(1);
             assertThat(historikkinnslag.getFirst().getTittel()).contains("verge", "fjernet");

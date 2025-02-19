@@ -68,17 +68,12 @@ public class VergeTjeneste {
 
     public void opprettVerge(Behandling behandling, NyVergeDto param) {
         opprettVergeTjeneste.opprettVerge(behandling.getId(), behandling.getFagsakId(), map(param));
-        avbrytVergeAksjonspunktHvisFinnes(behandling);
-        behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
     }
 
     public void fjernVerge(Behandling behandling) {
-        var erFjernet = vergeRepository.fjernVergeFraEksisterendeGrunnlagHvisFinnes(behandling.getId());
-        if (erFjernet) {
-            opprettHistorikkinnslagForFjernetVerge(behandling);
-        }
+        vergeRepository.fjernVergeFraEksisterendeGrunnlagHvisFinnes(behandling.getId());
+        opprettHistorikkinnslagForFjernetVerge(behandling);
         avbrytVergeAksjonspunktHvisFinnes(behandling);
-        behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
     }
 
     public VergeBehandlingsmenyEnum utledBehandlingOperasjon(Behandling behandling) {
@@ -119,10 +114,8 @@ public class VergeTjeneste {
 
     void fjernVergeGrunnlagOgAksjonspunkt(Behandling behandling) {
         avbrytVergeAksjonspunktHvisFinnes(behandling);
-        var erFjernet = vergeRepository.fjernVergeFraEksisterendeGrunnlagHvisFinnes(behandling.getId());
-        if (erFjernet) {
-            opprettHistorikkinnslagForFjernetVerge(behandling);
-        }
+        vergeRepository.fjernVergeFraEksisterendeGrunnlagHvisFinnes(behandling.getId());
+        opprettHistorikkinnslagForFjernetVerge(behandling);
         behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
     }
 

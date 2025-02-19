@@ -7,27 +7,25 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 
 @ApplicationScoped
 public class VergeRepository {
     private EntityManager entityManager;
-    private BehandlingLåsRepository behandlingLåsRepository;
 
     VergeRepository() {
         // for CDI proxy
     }
 
     @Inject
-    public VergeRepository( EntityManager entityManager, BehandlingLåsRepository behandlingLåsRepository) {
+    public VergeRepository(EntityManager entityManager) {
         this.entityManager = entityManager;
-        this.behandlingLåsRepository = behandlingLåsRepository;
     }
 
     public Optional<VergeAggregat> hentAggregat(Long behandlingId) {
-        return hentVerge(getAktivtBehandlingsgrunnlag(behandlingId));
+        return hentVerge(getAktivtBehandlingsgrunnlag(behandlingId)).flatMap(
+            vergeAggregat -> vergeAggregat.getVerge().isPresent() ? Optional.of(vergeAggregat) : Optional.empty());
     }
 
     public void lagreOgFlush(Long behandlingId, VergeEntitet.Builder vergeBuilder) {
@@ -37,17 +35,15 @@ public class VergeRepository {
         lagreOgFlush(behandlingId, grunnlag);
     }
 
-    public boolean fjernVergeFraEksisterendeGrunnlagHvisFinnes(Long behandlingId) {
+    public void fjernVergeFraEksisterendeGrunnlagHvisFinnes(Long behandlingId) {
         Objects.requireNonNull(behandlingId);
         var vergeAggregat = hentAggregat(behandlingId);
         if (vergeAggregat.isPresent()) {
-            var lås = behandlingLåsRepository.taLås(behandlingId);
             settAktivFalseOgPersisterTidligereGrunnlag(behandlingId);
-            lagreGrunnlag(behandlingId, new VergeGrunnlagEntitet(behandlingId, null));
-            verifiserBehandlingLås(lås);
             entityManager.flush();
+        } else {
+            throw new TekniskException("FP-199772", "Kan ikke fjerne verge fra eksisterende grunnlag som ikke finnes");
         }
-        return vergeAggregat.isPresent();
     }
 
     /**
@@ -66,13 +62,11 @@ public class VergeRepository {
         if (nyttGrunnlag == null) {
             return;
         }
-        var lås = behandlingLåsRepository.taLås(behandlingId);
 
         settAktivFalseOgPersisterTidligereGrunnlag(behandlingId);
         lagreVerge(nyttGrunnlag.getVerge());
         lagreGrunnlag(behandlingId, nyttGrunnlag);
 
-        verifiserBehandlingLås(lås);
         entityManager.flush();
     }
 
@@ -96,10 +90,6 @@ public class VergeRepository {
         entityManager.persist(nyttGrunnlag);
     }
 
-    private void verifiserBehandlingLås(BehandlingLås lås) {
-        behandlingLåsRepository.oppdaterLåsVersjon(lås);
-    }
-
     private Optional<VergeAggregat> hentVerge(Optional<VergeGrunnlagEntitet> optGrunnlag) {
         if (optGrunnlag.isPresent()) {
             var grunnlag = optGrunnlag.get();
@@ -110,8 +100,7 @@ public class VergeRepository {
     }
 
     private Optional<VergeGrunnlagEntitet> getAktivtBehandlingsgrunnlag(Long behandlingId) {
-        var query = entityManager.createQuery(
-            "SELECT vg FROM VergeGrunnlag vg WHERE vg.behandlingId = :behandling_id AND vg.aktiv = true",
+        var query = entityManager.createQuery("SELECT vg FROM VergeGrunnlag vg WHERE vg.behandlingId = :behandling_id AND vg.aktiv = true",
             VergeGrunnlagEntitet.class);
 
         query.setParameter("behandling_id", behandlingId);
