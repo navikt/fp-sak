@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -33,6 +34,7 @@ public class VurderKompletthetSteg implements BehandlingSteg {
     private Kompletthetsjekker kompletthetsjekker;
     private BehandlingRepository behandlingRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste;
 
     public VurderKompletthetSteg() {
         // CDI
@@ -40,10 +42,12 @@ public class VurderKompletthetSteg implements BehandlingSteg {
 
     @Inject
     public VurderKompletthetSteg(Kompletthetsjekker kompletthetsjekker, BehandlingRepository behandlingRepository,
-                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                 FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste) {
         this.kompletthetsjekker = kompletthetsjekker;
         this.behandlingRepository = behandlingRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.fpInntektsmeldingTjeneste = fpInntektsmeldingTjeneste;
     }
 
     @Override
@@ -56,6 +60,9 @@ public class VurderKompletthetSteg implements BehandlingSteg {
         if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType()) && kanPassereKompletthet(behandling)) {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
+
+        // Bestill inntektsmeldingforespørsler ved behov
+        fpInntektsmeldingTjeneste.lagForespørslerTask(BehandlingReferanse.fra(behandling));
 
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(kontekst.getBehandlingId());
         var forsendelseKomplett = kompletthetsjekker.vurderForsendelseKomplett(BehandlingReferanse.fra(behandling), skjæringstidspunkter);
