@@ -20,7 +20,7 @@ public class AvklarMedlemskapUtleder {
     private MedlemRegelGrunnlagBygger grunnlagBygger;
 
     @Inject
-    AvklarMedlemskapUtleder(MedlemRegelGrunnlagBygger grunnlagBygger) {
+    public AvklarMedlemskapUtleder(MedlemRegelGrunnlagBygger grunnlagBygger) {
         this.grunnlagBygger = grunnlagBygger;
     }
 
