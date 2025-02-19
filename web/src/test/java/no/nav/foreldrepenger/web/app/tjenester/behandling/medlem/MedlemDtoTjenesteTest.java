@@ -1,14 +1,18 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.medlem;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
@@ -18,26 +22,50 @@ import no.nav.foreldrepenger.behandlingslager.aktør.historikk.AdressePeriode;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Gyldighetsperiode;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittLandOppholdEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
+import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
+import no.nav.foreldrepenger.domene.medlem.MedlemskapVurderingPeriodeTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.MedlemskapAvvik;
+import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.AvklarMedlemskapUtleder;
+import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemRegelGrunnlagBygger;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.konfig.Tid;
 
 @CdiDbAwareTest
 class MedlemDtoTjenesteTest {
 
     @Inject
-    private MedlemDtoTjeneste medlemDtoTjeneste;
-    @Inject
     private BehandlingRepositoryProvider repositoryProvider;
+    @Inject
+    private SkjæringstidspunktTjeneste stpTjeneste;
+    @Inject
+    private MedlemTjeneste medlemTjeneste;
+    @Inject
+    private PersonopplysningTjeneste poTjeneste;
+    @Inject
+    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    @Inject
+    private MedlemskapVurderingPeriodeTjeneste medlemVurderingPeriodeTjeneste;
+    @Inject
+    private InntektArbeidYtelseTjeneste iayTjeneste;
+    @Inject
+    private SatsRepository satsRepository;
 
     @Test
     void skal_lage_medlemskap_dto() {
@@ -91,6 +119,7 @@ class MedlemDtoTjenesteTest {
             .leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET, BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR)
             .lagre(repositoryProvider);
 
+        var medlemDtoTjeneste = dtoTjeneste(behandling.getAktørId());
         var dto = medlemDtoTjeneste.lagMedlemskap(behandling.getUuid()).orElseThrow();
 
         assertThat(dto.avvik()).containsExactlyInAnyOrder(MedlemskapAvvik.MEDL_PERIODER,
@@ -151,5 +180,14 @@ class MedlemDtoTjenesteTest {
         assertThat(personstatusAP1.fom()).isEqualTo(personstatusFom);
         assertThat(personstatusAP1.tom()).isEqualTo(personstatusTom);
         assertThat(personstatusAP1.type()).isEqualTo(PersonstatusType.BOSA);
+    }
+
+    private MedlemDtoTjeneste dtoTjeneste(AktørId aktørId) {
+        var personinfoAdapter = mock(PersoninfoAdapter.class);
+        when(personinfoAdapter.hentFnr(aktørId)).thenReturn(Optional.of(new PersonIdent(new FiktiveFnr().nesteKvinneFnr())));
+        var utleder = new AvklarMedlemskapUtleder(new MedlemRegelGrunnlagBygger(medlemTjeneste, poTjeneste, medlemVurderingPeriodeTjeneste,
+            iayTjeneste, satsRepository, stpTjeneste, personinfoAdapter));
+        return new MedlemDtoTjeneste(repositoryProvider, stpTjeneste, medlemTjeneste, poTjeneste, utleder,
+            new VilkårResultatRepository(repositoryProvider.getEntityManager()), behandlingskontrollTjeneste);
     }
 }

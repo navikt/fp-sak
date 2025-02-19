@@ -145,7 +145,7 @@ public class MedlemDtoTjeneste {
     }
 
     private Set<MedlemskapAvvik> utledAvvik(Behandling behandling) {
-        if (behandlingLiggerEtterMedlemskapsvilkårssteg(behandling) && !aksjonspunktErOpprettetEllerLøst(behandling)) {
+        if (behandling.erAvsluttet() || (behandlingLiggerEtterMedlemskapsvilkårssteg(behandling) && !aksjonspunktErOpprettetEllerLøst(behandling))) {
             return Set.of();
         }
         return medlemskapUtleder.utledAvvik(BehandlingReferanse.fra(behandling));
