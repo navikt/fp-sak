@@ -83,6 +83,7 @@ public class VurderKompletthetSteg implements BehandlingSteg {
 
         // TODO: Flytt logikk til kompletthetsjekker.vurderForsendelseKomplett?
         if (kanPassereKompletthet(behandling) && !forsendelseKomplett.erFristUtløpt() && forsendelseKomplett.ventefrist().isAfter(LocalDateTime.now().plusWeeks(1))) {
+            // kompletthetsresultat kan være langt fram i tid dersom tidlig fødsel
             return LocalDate.now().plusWeeks(1).atStartOfDay();
         }
 
