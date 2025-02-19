@@ -209,7 +209,8 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
 
     private YtelseFordelingDtoTjeneste tjeneste() {
         var dekningsgradTjeneste = new DekningsgradTjeneste(repositoryProvider.getYtelsesFordelingRepository());
-        return new YtelseFordelingDtoTjeneste(ytelseFordelingTjeneste, dekningsgradTjeneste, uføretrygdRepository, uttakTjeneste);
+        return new YtelseFordelingDtoTjeneste(ytelseFordelingTjeneste, dekningsgradTjeneste, uføretrygdRepository, uttakTjeneste, null,
+            repositoryProvider.getBehandlingRepository(), null);
     }
 
     private Behandling opprettBehandling() {
