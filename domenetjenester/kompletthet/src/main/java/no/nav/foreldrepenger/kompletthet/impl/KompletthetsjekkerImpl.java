@@ -98,7 +98,8 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
             return KompletthetResultat.oppfylt();
         }
 
-        // TODO: Hvorfor er denne her?
+        // OPPRETTET har du i perioden mellom behandlingen er lagret og første kall til behandlingskontroll.
+        // Det skal normalt ta sekunder, men pga KØ kan det ta dager og uker.
         if (FagsakYtelseType.FORELDREPENGER.equals(ref.fagsakYtelseType()) && BehandlingStatus.OPPRETTET.equals(ref.behandlingStatus())) {
             return KompletthetResultat.oppfylt();
         }

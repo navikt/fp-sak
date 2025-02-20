@@ -115,8 +115,7 @@ public class ManglendeVedleggTjeneste {
     }
 
     private List<ManglendeVedlegg> identifiserManglendeVedlegg(Optional<SøknadEntitet> søknad, Set<DokumentTypeId> dokumentTypeIds) {
-        return getSøknadVedleggListe(søknad)
-                .stream()
+        return getSøknadVedleggListe(søknad).stream()
                 .filter(SøknadVedleggEntitet::isErPåkrevdISøknadsdialog)
                 .map(SøknadVedleggEntitet::getSkjemanummer)
                 .map(this::finnDokumentTypeId)
@@ -127,8 +126,7 @@ public class ManglendeVedleggTjeneste {
 
     private Set<SøknadVedleggEntitet> getSøknadVedleggListe(Optional<SøknadEntitet> søknad) {
         if (søknad.map(SøknadEntitet::getElektroniskRegistrert).orElse(false)) {
-            return søknad.map(SøknadEntitet::getSøknadVedlegg)
-                    .orElse(Collections.emptySet());
+            return søknad.map(SøknadEntitet::getSøknadVedlegg).orElse(Collections.emptySet());
         }
         return Collections.emptySet();
     }
