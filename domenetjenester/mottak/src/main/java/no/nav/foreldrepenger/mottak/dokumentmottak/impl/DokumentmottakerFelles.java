@@ -4,7 +4,6 @@ import static java.time.temporal.TemporalAdjusters.next;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.Optional;
 import java.util.Set;
@@ -98,14 +97,8 @@ public class DokumentmottakerFelles {
         taskTjeneste.lagre(prosessTaskData);
     }
 
-    public void opprettKøetHistorikk(Behandling køetBehandling, boolean fantesFraFør) {
-        if (!fantesFraFør) {
-            opprettHistorikkinnslagForVenteFristRelaterteInnslag(køetBehandling, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
-        }
-    }
-
-    public void opprettHistorikkinnslagForVenteFristRelaterteInnslag(Behandling behandling, LocalDateTime frist, Venteårsak venteårsak) {
-        historikkinnslagTjeneste.opprettHistorikkinnslagForVenteFristRelaterteInnslag(behandling, frist, venteårsak);
+    public void opprettKøetHistorikk(Behandling køetBehandling) {
+        historikkinnslagTjeneste.opprettHistorikkinnslagForVenteFristRelaterteInnslag(køetBehandling, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
     }
 
     void opprettHistorikkinnslagForAutomatiskHenlegelsePgaNySøknad(Behandling behandling, Behandling nyBehandling, MottattDokument mottattDokument) {
@@ -283,7 +276,7 @@ public class DokumentmottakerFelles {
     }
 
     private void leggNyBehandlingPåKøOgOpprettHistorikkinnslag(Behandling nyBehandling) {
-        opprettKøetHistorikk(nyBehandling, false);
+        opprettKøetHistorikk(nyBehandling);
         behandlingsoppretter.settSomKøet(nyBehandling);
     }
 

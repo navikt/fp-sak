@@ -30,7 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
-import no.nav.foreldrepenger.kompletthet.KompletthetModell;
+import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -45,7 +45,7 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
     private PersonopplysningTjeneste personopplysningTjeneste;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private KompletthetModell kompletthetModell;
+    private Kompletthetsjekker kompletthetsjekker;
     private BehandlendeEnhetTjeneste enhetTjeneste;
     private FagsakEgenskapRepository fagsakEgenskapRepository;
 
@@ -59,7 +59,7 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
             PersonopplysningTjeneste personopplysningTjeneste,
             FamilieHendelseTjeneste familieHendelseTjeneste,
             BehandlendeEnhetTjeneste enhetTjeneste,
-            KompletthetModell kompletthetModell,
+            Kompletthetsjekker kompletthetsjekker,
             FagsakEgenskapRepository fagsakEgenskapRepository,
             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.behandlingRepository = behandlingRepository;
@@ -67,7 +67,7 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
-        this.kompletthetModell = kompletthetModell;
+        this.kompletthetsjekker = kompletthetsjekker;
         this.enhetTjeneste = enhetTjeneste;
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
     }
@@ -82,7 +82,7 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
         oppdaterFagsakEgenskaper(behandling);
 
         if (!skalPassereUtenBrevEtterlysInntektsmelding(behandling)) {
-            var etterlysIM = kompletthetModell.vurderKompletthet(ref, skjæringstidspunkter, List.of(AUTO_VENT_ETTERLYST_INNTEKTSMELDING));
+            var etterlysIM = kompletthetsjekker.vurderEtterlysningInntektsmelding(ref, skjæringstidspunkter);
             // Dette autopunktet har tilbakehopp/gjenopptak. Går ut av steget hvis auto utført før frist (manuelt av vent).
             // Utført på/etter frist antas automatisk gjenopptak.
             if (!etterlysIM.erOppfylt() && !etterlysIM.erFristUtløpt() &&
