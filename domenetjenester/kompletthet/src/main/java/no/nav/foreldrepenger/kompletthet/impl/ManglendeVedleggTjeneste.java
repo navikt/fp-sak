@@ -32,7 +32,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 
@@ -62,17 +61,20 @@ public class ManglendeVedleggTjeneste {
     }
 
     public List<ManglendeVedlegg> utledManglendeVedleggForSøknad(BehandlingReferanse ref) {
-        if (FagsakYtelseType.ENGANGSTØNAD.equals(ref.fagsakYtelseType())) {
-            var søknad = søknadRepository.hentSøknadHvisEksisterer(ref.behandlingId());
-
-            // Manuelt registrerte søknader har foreløpig ikke vedleggsliste og kan derfor ikke kompletthetssjekkes
-            if (søknad.isEmpty() || !søknad.get().getElektroniskRegistrert() || søknad.get().getSøknadVedlegg() == null
-                    || søknad.get().getSøknadVedlegg().isEmpty()) {
-                return emptyList();
-            }
+        if (ref.erRevurdering()) {
+            return utledManglendeVedleggForRevurdering(ref);
         }
 
-        return ref.erRevurdering() ? utledManglendeVedleggForRevurdering(ref) : utledManglendeVedleggForFørstegangssøknad(ref);
+        var søknadOpt = søknadRepository.hentSøknadHvisEksisterer(ref.behandlingId());
+        if (søknadOpt.isEmpty()) {
+            return emptyList();
+        }
+
+        var søknad = søknadOpt.get();
+        if (!søknad.getElektroniskRegistrert() || søknad.getSøknadVedlegg() == null || søknad.getSøknadVedlegg().isEmpty()) {
+            return emptyList();
+        }
+        return utledManglendeVedleggForFørstegangssøknad(ref);
     }
 
     private List<ManglendeVedlegg> utledManglendeVedleggForFørstegangssøknad(BehandlingReferanse ref) {
@@ -107,8 +109,7 @@ public class ManglendeVedleggTjeneste {
         manglendeVedlegg.addAll(manglendeVedleggUtsettelse);
 
         if (!manglendeVedlegg.isEmpty()) {
-            LOG.info("Revurdering {} er ikke komplett - mangler følgende vedlegg til søknad: {}", behandlingId,
-                    lagDokumentTypeString(manglendeVedlegg));
+            LOG.info("Revurdering {} er ikke komplett - mangler følgende vedlegg til søknad: {}", behandlingId, lagDokumentTypeString(manglendeVedlegg));
         }
         return manglendeVedlegg;
     }
