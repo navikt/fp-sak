@@ -95,15 +95,15 @@ class YtelseFordelingDtoTjenesteTest {
         var behandling = scenario.lagre(repositoryProvider);
 
         var rettOgOmsorgDto = ytelseFordelingDtoTjeneste.mapFra(behandling.getUuid()).orElseThrow();
-        var annenpartDto = rettOgOmsorgDto.oppgittAnnenpart();
-        assertThat(annenpartDto.harAleneomsorg()).isFalse();
-        assertThat(annenpartDto.ident()).isEqualTo(utenlandskFnr);
-        assertThat(annenpartDto.bostedsland()).isEqualTo(utenlandskFnrLand);
-        assertThat(annenpartDto.navn()).isEqualTo(annenpartNavn);
-        assertThat(annenpartDto.rettighet().harRettNorge()).isFalse();
-        assertThat(annenpartDto.rettighet().harRettEØS()).isTrue();
-        assertThat(annenpartDto.rettighet().harUføretrygd()).isFalse();
-        assertThat(annenpartDto.rettighet().harOppholdEØS()).isTrue();
+        var annenpartDto = rettOgOmsorgDto.søknad();
+        assertThat(annenpartDto.søkerHarAleneomsorg()).isFalse();
+        assertThat(annenpartDto.annenpartIdent()).isEqualTo(utenlandskFnr);
+        assertThat(annenpartDto.annenpartBostedsland()).isEqualTo(utenlandskFnrLand);
+        assertThat(annenpartDto.annenpartNavn()).isEqualTo(annenpartNavn);
+        assertThat(annenpartDto.annenpartRettighet().harRettNorge()).isFalse();
+        assertThat(annenpartDto.annenpartRettighet().harRettEØS()).isTrue();
+        assertThat(annenpartDto.annenpartRettighet().harUføretrygd()).isFalse();
+        assertThat(annenpartDto.annenpartRettighet().harOppholdEØS()).isTrue();
 
         var manuellBehandlingResultat = rettOgOmsorgDto.manuellBehandlingResultat();
         assertThat(manuellBehandlingResultat.harAleneomsorg()).isFalse();

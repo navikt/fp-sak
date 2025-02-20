@@ -177,13 +177,13 @@ public class YtelseFordelingDtoTjeneste {
         return uttakInput.getYtelsespesifiktGrunnlag();
     }
 
-    private static Optional<RettOgOmsorgDto.OppgittAnnenpart> mapAnnenpart(OppgittAnnenPartEntitet ap, OppgittRettighetEntitet oppgittRettighet) {
+    private static Optional<RettOgOmsorgDto.Søknad> mapAnnenpart(OppgittAnnenPartEntitet ap, OppgittRettighetEntitet oppgittRettighet) {
         var ident = utledAnnenpartIdent(ap);
         return ident.map(s -> {
             var harAleneomsorg = oppgittRettighet.getHarAleneomsorgForBarnet();
-            var rettighet = harAleneomsorg ? null : new RettOgOmsorgDto.OppgittAnnenpart.Rettighet(oppgittRettighet.getHarAnnenForeldreRett(),
+            var rettighet = harAleneomsorg ? null : new RettOgOmsorgDto.Søknad.Rettighet(oppgittRettighet.getHarAnnenForeldreRett(),
                 oppgittRettighet.getAnnenForelderOppholdEØS(), oppgittRettighet.getAnnenForelderRettEØS(), oppgittRettighet.getMorMottarUføretrygd());
-            return new RettOgOmsorgDto.OppgittAnnenpart(ap.getNavn(), s, ap.getUtenlandskFnrLand(), harAleneomsorg, rettighet);
+            return new RettOgOmsorgDto.Søknad(harAleneomsorg, ap.getNavn(), s, ap.getUtenlandskFnrLand(), rettighet);
         });
     }
 
