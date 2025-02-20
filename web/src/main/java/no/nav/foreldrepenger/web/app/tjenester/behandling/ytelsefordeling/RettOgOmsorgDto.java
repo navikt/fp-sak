@@ -6,9 +6,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Sivils
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonadresseDto;
 
-public record RettOgOmsorgDto(OppgittAnnenpart oppgittAnnenpart, RegisterData registerdata, ManuellBehandlingResultat manuellBehandlingResultat) {
+public record RettOgOmsorgDto(Søknad søknad, RegisterData registerdata, ManuellBehandlingResultat manuellBehandlingResultat) {
 
-    public record OppgittAnnenpart(String navn, String ident, Landkoder bostedsland, Boolean harAleneomsorg, Rettighet rettighet) {
+    public record Søknad(Boolean søkerHarAleneomsorg, String annenpartNavn, String annenpartIdent, Landkoder annenpartBostedsland,
+                         Rettighet annenpartRettighet) {
 
         public record Rettighet(boolean harRettNorge, Boolean harOppholdEØS, Boolean harRettEØS, Boolean harUføretrygd) {
         }
