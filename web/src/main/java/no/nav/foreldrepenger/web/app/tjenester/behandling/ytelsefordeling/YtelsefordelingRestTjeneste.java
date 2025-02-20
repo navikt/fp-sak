@@ -34,6 +34,8 @@ public class YtelsefordelingRestTjeneste {
     static final String BASE_PATH = "/behandling";
     private static final String YTELSESFORDELING_PART_PATH = "/ytelsefordeling";
     public static final String YTELSESFORDELING_PATH = BASE_PATH + YTELSESFORDELING_PART_PATH;
+    private static final String OMSORG_OG_RETT_PART_PATH = "/omsorg-og-rett";
+    public static final String OMSORG_OG_RETT_PATH = BASE_PATH + OMSORG_OG_RETT_PART_PATH;
 
     private BehandlingRepository behandlingRepository;
     private YtelseFordelingDtoTjeneste dtoMapper;
@@ -61,7 +63,7 @@ public class YtelsefordelingRestTjeneste {
     }
 
     @GET
-    @Path("fakta-omsorg-rett")
+    @Path(OMSORG_OG_RETT_PART_PATH)
     @Operation(description = "Hent informasjon om omsorg og rett", responses = {@ApiResponse(responseCode = "200", description = "Returnerer informasjon fra søknad og registerdata som omhandler brukers og annen parts rett og omsorg i behandlingen", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = OmsorgOgRettDto.class)))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public OmsorgOgRettDto hentRettOgOmsorg(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
