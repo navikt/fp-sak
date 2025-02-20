@@ -116,7 +116,7 @@ public class YtelseFordelingDtoTjeneste {
     }
 
 
-    Optional<RettOgOmsorgDto> mapFra(UUID behandlingUuid) {
+    Optional<OmsorgOgRettDto> mapFra(UUID behandlingUuid) {
         var behandling = behandlingRepository.hentBehandling(behandlingUuid);
         if (!behandling.getFagsakYtelseType().equals(FagsakYtelseType.FORELDREPENGER)) {
             return Optional.empty();
@@ -136,7 +136,7 @@ public class YtelseFordelingDtoTjeneste {
             ytelsespesifiktGrunnlag.getAnnenpart().map(Annenpart::gjeldendeVedtakBehandlingId).flatMap(b -> uttakTjeneste.hentHvisEksisterer(b)));
     }
 
-    private static Optional<RettOgOmsorgDto> mapTilDto(AktørId aktørId,
+    private static Optional<OmsorgOgRettDto> mapTilDto(AktørId aktørId,
                                                        YtelseFordelingAggregat ytelseFordelingAggregat,
                                                        PersonopplysningerAggregat personopplysningerAggregat,
                                                        Optional<UføretrygdGrunnlagEntitet> uføretrygdGrunnlagEntitet,
@@ -151,17 +151,17 @@ public class YtelseFordelingDtoTjeneste {
             .flatMap(ap -> mapAnnenpart(ap, ytelseFordelingAggregat.getOppgittRettighet()));
 
         var manuellBehandlingResultat = ytelseFordelingAggregat.getOverstyrtRettighet()
-            .map(or -> new RettOgOmsorgDto.ManuellBehandlingResultat(or.getHarAleneomsorgForBarnet(), or.getHarAnnenForeldreRett(),
+            .map(or -> new OmsorgOgRettDto.ManuellBehandlingResultat(or.getHarAleneomsorgForBarnet(), or.getHarAnnenForeldreRett(),
                 or.getAnnenForelderOppholdEØS(), or.getAnnenForelderRettEØSNullable(), or.getMorMottarUføretrygd()));
         var adresserSøker = adresserForPerson(personopplysningerAggregat, aktørId);
         var adresserAnnenpart = personopplysningerAggregat.getOppgittAnnenPart()
             .map(a -> adresserForPerson(personopplysningerAggregat, a.getAktørId()))
             .orElse(Set.of());
-        var registerdata = new RettOgOmsorgDto.RegisterData(adresserSøker, adresserAnnenpart, sivilstand,
+        var registerdata = new OmsorgOgRettDto.RegisterData(adresserSøker, adresserAnnenpart, sivilstand,
             uføretrygdGrunnlagEntitet.map(UføretrygdGrunnlagEntitet::annenForelderMottarUføretrygd).orElse(null), harAnnenpartForeldrepenger,
             harAnnenpartEngangsstønad);
 
-        return Optional.of(new RettOgOmsorgDto(oppgittAnnenpart.orElse(null), registerdata, manuellBehandlingResultat.orElse(null)));
+        return Optional.of(new OmsorgOgRettDto(oppgittAnnenpart.orElse(null), registerdata, manuellBehandlingResultat.orElse(null)));
     }
 
     private static Set<PersonadresseDto> adresserForPerson(PersonopplysningerAggregat personopplysningerAggregat, AktørId aktørId) {
@@ -177,13 +177,13 @@ public class YtelseFordelingDtoTjeneste {
         return uttakInput.getYtelsespesifiktGrunnlag();
     }
 
-    private static Optional<RettOgOmsorgDto.Søknad> mapAnnenpart(OppgittAnnenPartEntitet ap, OppgittRettighetEntitet oppgittRettighet) {
+    private static Optional<OmsorgOgRettDto.Søknad> mapAnnenpart(OppgittAnnenPartEntitet ap, OppgittRettighetEntitet oppgittRettighet) {
         var ident = utledAnnenpartIdent(ap);
         return ident.map(s -> {
             var harAleneomsorg = oppgittRettighet.getHarAleneomsorgForBarnet();
-            var rettighet = harAleneomsorg ? null : new RettOgOmsorgDto.Søknad.Rettighet(oppgittRettighet.getHarAnnenForeldreRett(),
+            var rettighet = harAleneomsorg ? null : new OmsorgOgRettDto.Søknad.Rettighet(oppgittRettighet.getHarAnnenForeldreRett(),
                 oppgittRettighet.getAnnenForelderOppholdEØS(), oppgittRettighet.getAnnenForelderRettEØS(), oppgittRettighet.getMorMottarUføretrygd());
-            return new RettOgOmsorgDto.Søknad(harAleneomsorg, ap.getNavn(), s, ap.getUtenlandskFnrLand(), rettighet);
+            return new OmsorgOgRettDto.Søknad(harAleneomsorg, ap.getNavn(), s, ap.getUtenlandskFnrLand(), rettighet);
         });
     }
 
