@@ -66,7 +66,7 @@ public class FpInntektsmeldingTjeneste {
         this.inntektsmeldingRegisterTjeneste = inntektsmeldingRegisterTjeneste;
     }
 
-    public void lagForespørselTask(BehandlingReferanse ref) {
+    public void lagForespørslerTask(BehandlingReferanse ref) {
         var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(FpinntektsmeldingTask.class));
         taskdata.setBehandling(ref.saksnummer().getVerdi(), ref.fagsakId(), ref.behandlingId());
         var gruppeId = String.format(GRUPPE_ID, ref.saksnummer().getVerdi());

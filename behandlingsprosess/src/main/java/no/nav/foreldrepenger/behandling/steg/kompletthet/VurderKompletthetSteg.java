@@ -6,6 +6,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -21,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -33,6 +35,7 @@ public class VurderKompletthetSteg implements BehandlingSteg {
     private Kompletthetsjekker kompletthetsjekker;
     private BehandlingRepository behandlingRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste;
 
     public VurderKompletthetSteg() {
         // CDI
@@ -40,10 +43,12 @@ public class VurderKompletthetSteg implements BehandlingSteg {
 
     @Inject
     public VurderKompletthetSteg(Kompletthetsjekker kompletthetsjekker, BehandlingRepository behandlingRepository,
-                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                 FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste) {
         this.kompletthetsjekker = kompletthetsjekker;
         this.behandlingRepository = behandlingRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.fpInntektsmeldingTjeneste = fpInntektsmeldingTjeneste;
     }
 
     @Override
@@ -65,6 +70,11 @@ public class VurderKompletthetSteg implements BehandlingSteg {
 
         if (VurderKompletthetStegFelles.autopunktAlleredeUtført(AUTO_VENTER_PÅ_KOMPLETT_SØKNAD, behandling)) {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
+        }
+
+        if (Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.SVANGERSKAPSPENGER).contains(behandling.getFagsakYtelseType())) {
+            // Bestill inntektsmeldingforespørsler ved behov
+            fpInntektsmeldingTjeneste.lagForespørslerTask(BehandlingReferanse.fra(behandling));
         }
 
         var ventefrist = utledVentefrist(forsendelseKomplett, behandling);

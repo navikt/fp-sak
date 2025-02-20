@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
-import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingSomIkkeKommer;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
@@ -46,7 +45,6 @@ public class ManglendeInntektsmeldingTjeneste {
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
     private InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste;
-    private FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private SøknadRepository søknadRepository;
 
@@ -59,18 +57,12 @@ public class ManglendeInntektsmeldingTjeneste {
                                             DokumentBestillerTjeneste dokumentBestillerTjeneste,
                                             DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
                                             InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste,
-                                            FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste,
                                             InntektsmeldingTjeneste inntektsmeldingTjeneste) {
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
         this.inntektsmeldingRegisterTjeneste = inntektsmeldingRegisterTjeneste;
-        this.fpInntektsmeldingTjeneste = fpInntektsmeldingTjeneste;
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.søknadRepository = provider.getSøknadRepository();
-    }
-
-    public void lagForespørselTask(BehandlingReferanse ref) {
-        fpInntektsmeldingTjeneste.lagForespørselTask(ref);
     }
 
     public List<InntektsmeldingSomIkkeKommer> hentAlleInntektsmeldingerSomIkkeKommer(BehandlingReferanse ref) {

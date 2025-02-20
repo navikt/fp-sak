@@ -216,7 +216,6 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
     private KompletthetResultat håndterManglendeIM(BehandlingReferanse ref,
                                                    Skjæringstidspunkt stp,
                                                    List<ManglendeVedlegg> manglendeInntektsmeldingerFraGrunnlag) {
-        manglendeInntektsmeldingTjeneste.lagForespørselTask(ref); // TODO: Rart at denne er inne i kompletthet?
         loggManglendeInntektsmeldinger(ref, manglendeInntektsmeldingerFraGrunnlag);
         return manglendeInntektsmeldingTjeneste.finnVentefristTilManglendeInntektsmelding(ref, stp)
             .map(frist -> KompletthetResultat.ikkeOppfylt(frist, Venteårsak.VENT_OPDT_INNTEKTSMELDING))
