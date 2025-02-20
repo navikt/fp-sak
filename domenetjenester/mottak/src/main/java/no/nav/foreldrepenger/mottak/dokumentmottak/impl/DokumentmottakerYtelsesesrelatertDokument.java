@@ -5,13 +5,13 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
@@ -108,7 +108,6 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
         } else if (eksisterendeKøetBehandling.isPresent()) {
             var køetBehandling = eksisterendeKøetBehandling.get();
             dokumentmottakerFelles.opprettHistorikk(køetBehandling, mottattDokument);
-            dokumentmottakerFelles.opprettKøetHistorikk(køetBehandling, true);
             håndterKøetBehandling(mottattDokument, køetBehandling, behandlingÅrsakType);
         } else if (!skalOppretteKøetBehandling(fagsak)) {
             dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, null, mottattDokument); // Skal ikke være mulig for #Sx og #Ix som alltid oppretter køet, men #E12 vil treffe denne
