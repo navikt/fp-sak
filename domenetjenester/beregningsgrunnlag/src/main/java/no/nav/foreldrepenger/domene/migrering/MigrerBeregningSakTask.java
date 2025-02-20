@@ -29,8 +29,8 @@ public class MigrerBeregningSakTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        LOG.info("Starter task migrer beregningsgrunnlag enkeltsak");
+        LOG.info("Starter task migrer beregningsgrunnlag enkeltsak.");
         beregningMigreringTjeneste.migrerSak(new Saksnummer(prosessTaskData.getSaksnummer()));
-        LOG.info("Avslutter task migrer beregningsgrunnlag enkeltsak");
+        LOG.info("Avslutter task migrer beregningsgrunnlag enkeltsak.");
     }
 }
