@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.verge;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -11,7 +11,18 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
+import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
+import no.nav.foreldrepenger.domene.person.verge.OpprettVergeTjeneste;
+import no.nav.foreldrepenger.domene.person.verge.VergeDtoTjeneste;
+
+import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.NyVergeDto;
+
+import no.nav.vedtak.exception.TekniskException;
+
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -27,11 +38,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningVersjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
@@ -56,123 +65,122 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
     private BehandlingRepository behandlingRepository;
-    private FagsakRepository fagsakRepository;
     private VergeRepository vergeRepository;
     private HistorikkinnslagRepository historikkRepository;
     @Mock
     private PersonopplysningTjeneste personopplysningTjeneste;
 
+    @Mock
+    private PersoninfoAdapter personinfoAdapter;
+    @Mock
+    private NavBrukerTjeneste brukerTjeneste;
+
     private VergeTjeneste vergeTjeneste;
+
+    @Mock
+    private VergeDtoTjeneste vergeDtoTjeneste;
+
+    private Behandling behandling;
 
     @BeforeEach
     public void setUp() {
         var entityManager = getEntityManager();
         behandlingRepository = new BehandlingRepository(entityManager);
-        fagsakRepository = new FagsakRepository(entityManager);
-        vergeRepository = new VergeRepository(entityManager, new BehandlingLåsRepository(entityManager));
+        var fagsakRepository = new FagsakRepository(entityManager);
+        vergeRepository = new VergeRepository(entityManager);
         historikkRepository = new HistorikkinnslagRepository(entityManager);
-        vergeTjeneste = new VergeTjeneste(behandlingskontrollTjeneste, behandlingProsesseringTjeneste, vergeRepository,
-            historikkRepository, behandlingRepository, personopplysningTjeneste);
+
+        var nyVergeTjeneste = new OpprettVergeTjeneste(personinfoAdapter, brukerTjeneste, vergeRepository, historikkRepository);
+        vergeTjeneste = new VergeTjeneste(behandlingskontrollTjeneste, behandlingProsesseringTjeneste, vergeRepository, historikkRepository,
+            behandlingRepository, personopplysningTjeneste, nyVergeTjeneste, vergeDtoTjeneste);
+
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), RelasjonsRolleType.MORA,
+            new Saksnummer("0123"));
+        fagsakRepository.opprettNy(fagsak);
+        behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
+        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
     }
 
-    @Test
-    void skal_utlede_behandlingsmeny_skjul_når_erUnder18år_erIForelsåVedtak_ogHarRegistrertVerge() {
-        // Arrange
-        var fagsak = opprettFagsak();
-        var behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
+    @Nested
+    class UtledBehandlingmenyOperasjon {
+        @Test
+        void skal_utlede_SKJUL_når_erUnder18år_erIForeslåVedtak_og_harRegistrertVerge() {
+            // Arrange
 
-        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-        var vergeBuilder = new VergeEntitet.Builder().medVergeType(VergeType.BARN)
-            .gyldigPeriode(LocalDate.now().minusYears(1), LocalDate.now().plusYears(1));
-        vergeRepository.lagreOgFlush(behandling.getId(), vergeBuilder);
+            behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
+            vergeRepository.lagreOgFlush(behandling.getId(), opprettVergeBuilder());
 
-        var personopplysningGrunnlagEntitet = opprettPersonopplysningGrunnlag(behandling.getAktørId(),
-            LocalDate.now().minusYears(15));
-        var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagEntitet, behandling.getAktørId());
-        when(personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(any(), any())).thenReturn(Optional.of(personopplysningerAggregat));
-        when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.FORESLÅ_VEDTAK)).thenReturn(true);
+            var pa = opprettPersonopplysningAggregatForPersonUnder18(behandling.getAktørId());
+            when(personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(any(), any())).thenReturn(Optional.of(pa));
+            when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.FORESLÅ_VEDTAK)).thenReturn(true);
 
-        // Act
-        var behandlingOperasjon = vergeTjeneste.utledBehandlingOperasjon(behandling.getId());
+            // Act
+            var behandlingOperasjon = vergeTjeneste.utledBehandlingOperasjon(behandling);
 
-        // Assert
-        assertThat(behandlingOperasjon).isEqualTo(VergeBehandlingsmenyEnum.SKJUL);
-    }
+            // Assert
+            assertThat(behandlingOperasjon).isEqualTo(VergeBehandlingsmenyEnum.SKJUL);
+        }
 
-    @Test
-    void skal_utlede_behandlingsmeny_opprett_når_erUnder18år() {
-        // Arrange
-        var fagsak = opprettFagsak();
-        var behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
+        @Test
+        void skal_utlede_OPPRETT_når_erUnder18år() {
+            // Arrange
+            behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
-        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
+            var pa = opprettPersonopplysningAggregatForPersonUnder18(behandling.getAktørId());
+            when(personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(any(), any())).thenReturn(Optional.of(pa));
 
-        var personopplysningGrunnlagEntitet = opprettPersonopplysningGrunnlag(behandling.getAktørId(),
-            LocalDate.now().minusYears(15));
-        var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagEntitet, behandling.getAktørId());
-        lenient().when(personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(any())).thenReturn(Optional.of(personopplysningerAggregat));
+            // Act
+            var behandlingOperasjon = vergeTjeneste.utledBehandlingOperasjon(behandling);
 
-        // Act
-        var behandlingOperasjon = vergeTjeneste.utledBehandlingOperasjon(behandling.getId());
+            // Assert
+            assertThat(behandlingOperasjon).isEqualTo(VergeBehandlingsmenyEnum.OPPRETT);
+        }
 
-        // Assert
-        assertThat(behandlingOperasjon).isEqualTo(VergeBehandlingsmenyEnum.OPPRETT);
-    }
+        @Test
+        void skal_utlede_OPPRETT_når_behandlingen_ikke_har_registrert_verge_og_ikke_har_verge_aksjonspunkt() {
+            // Arrange
+            behandling.setStartpunkt(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
+            behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
-    @Test
-    void skal_utlede_behandlingsmeny_opprett_når_behandlingen_ikke_har_registrert_verge_og_ikke_har_verge_aksjonspunkt() {
-        // Arrange
-        var fagsak = opprettFagsak();
-        var behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
-        behandling.setStartpunkt(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
-        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
+            // Act
+            var behandlingOperasjon = vergeTjeneste.utledBehandlingOperasjon(behandling);
 
-        // Act
-        var behandlingOperasjon = vergeTjeneste.utledBehandlingOperasjon(behandling.getId());
+            // Assert
+            assertThat(behandlingOperasjon).isEqualTo(VergeBehandlingsmenyEnum.OPPRETT);
+        }
 
-        // Assert
-        assertThat(behandlingOperasjon).isEqualTo(VergeBehandlingsmenyEnum.OPPRETT);
-    }
+        @Test
+        void skal_utlede_SKJUL_når_behandlingen_har_verge_aksjonspunkt() {
+            // Arrange
+            behandling.setStartpunkt(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
+            behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
+            AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AVKLAR_VERGE);
 
-    @Test
-    void skal_utlede_behandlingsmeny_fjern_når_behandlingen_har_verge_aksjonspunkt() {
-        // Arrange
-        var fagsak = opprettFagsak();
-        var behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
-        behandling.setStartpunkt(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
-        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-        AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AVKLAR_VERGE);
+            // Act
+            var behandlingOperasjon = vergeTjeneste.utledBehandlingOperasjon(behandling);
 
-        // Act
-        var behandlingOperasjon = vergeTjeneste.utledBehandlingOperasjon(behandling.getId());
+            // Assert
+            assertThat(behandlingOperasjon).isEqualTo(VergeBehandlingsmenyEnum.SKJUL);
+        }
 
-        // Assert
-        assertThat(behandlingOperasjon).isEqualTo(VergeBehandlingsmenyEnum.FJERN);
-    }
+        @Test
+        void skal_utlede_FJERN_når_behandlingen_har_registrert_verge() {
+            // Arrange
+            behandling.setStartpunkt(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
+            behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
+            vergeRepository.lagreOgFlush(behandling.getId(), opprettVergeBuilder());
 
-    @Test
-    void skal_utlede_behandlingsmeny_fjern_når_behandlingen_har_registrert_verge() {
-        // Arrange
-        var fagsak = opprettFagsak();
-        var behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
-        behandling.setStartpunkt(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
-        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-        var vergeBuilder = new VergeEntitet.Builder().medVergeType(VergeType.BARN)
-            .gyldigPeriode(LocalDate.now().minusYears(1), LocalDate.now().plusYears(1));
-        vergeRepository.lagreOgFlush(behandling.getId(), vergeBuilder);
+            // Act
+            var behandlingOperasjon = vergeTjeneste.utledBehandlingOperasjon(behandling);
 
-        // Act
-        var behandlingOperasjon = vergeTjeneste.utledBehandlingOperasjon(behandling.getId());
-
-        // Assert
-        assertThat(behandlingOperasjon).isEqualTo(VergeBehandlingsmenyEnum.FJERN);
+            // Assert
+            assertThat(behandlingOperasjon).isEqualTo(VergeBehandlingsmenyEnum.FJERN);
+        }
     }
 
     @Test
     void skal_opprette_verge_aksjonspunkt() {
         // Arrange
-        var fagsak = opprettFagsak();
-        var behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.FORESLÅ_VEDTAK)).thenReturn(true);
 
@@ -180,29 +188,23 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
         vergeTjeneste.opprettVergeAksjonspunktOgHoppTilbakeTilFORVEDSTEGHvisSenereSteg(behandling);
 
         // Assert
-        verify(behandlingskontrollTjeneste).lagreAksjonspunkterFunnet(any(),
-            eq(List.of(AksjonspunktDefinisjon.AVKLAR_VERGE)));
-        verify(behandlingProsesseringTjeneste).reposisjonerBehandlingTilbakeTil(behandling,
-            BehandlingStegType.FORESLÅ_VEDTAK);
+        verify(behandlingskontrollTjeneste).lagreAksjonspunkterFunnet(any(), eq(List.of(AksjonspunktDefinisjon.AVKLAR_VERGE)));
+        verify(behandlingProsesseringTjeneste).reposisjonerBehandlingTilbakeTil(behandling, BehandlingStegType.FORESLÅ_VEDTAK);
         verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandling(behandling);
     }
 
     @Test
     void skal_fjerne_verge_grunnlag_og_aksjonspunkt() {
         // Arrange
-        var fagsak = opprettFagsak();
-        var behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AVKLAR_VERGE);
-        var vergeBuilder = new VergeEntitet.Builder().medVergeType(VergeType.BARN)
-            .gyldigPeriode(LocalDate.now().minusYears(1), LocalDate.now().plusYears(1));
-        vergeRepository.lagreOgFlush(behandling.getId(), vergeBuilder);
+        vergeRepository.lagreOgFlush(behandling.getId(), opprettVergeBuilder());
 
         // Act
         vergeTjeneste.fjernVergeGrunnlagOgAksjonspunkt(behandling);
 
         // Assert
-        assertThat(vergeRepository.hentAggregat(behandling.getId()).get().getVerge()).isNotPresent();
+        assertThat(vergeRepository.hentAggregat(behandling.getId())).isNotPresent();
         var ap = behandling.getAksjonspunktFor(AksjonspunktDefinisjon.AVKLAR_VERGE);
         verify(behandlingskontrollTjeneste).lagreAksjonspunkterAvbrutt(any(), any(), eq(List.of(ap)));
         verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandling(behandling);
@@ -211,15 +213,90 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
         assertThat(historikkinnslag.getFirst().getTittel()).contains("verge", "fjernet");
     }
 
-    private Fagsak opprettFagsak() {
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()),
-            RelasjonsRolleType.MORA, new Saksnummer("0123"));
-        fagsakRepository.opprettNy(fagsak);
-        return fagsak;
+    @Nested
+    class OpprettVerge {
+
+        @Test
+        void skal_opprette_verge() {
+            // Arrange
+            var opprettVergeDto = new NyVergeDto("Jenny", "12345678901", LocalDate.parse("2022-01-01"), LocalDate.parse("2024-01-01"), VergeType.BARN,
+                null);
+
+            var vergeAktørId = AktørId.dummy();
+            when(personinfoAdapter.hentAktørForFnr(any())).thenReturn(Optional.of(vergeAktørId));
+            when(brukerTjeneste.hentEllerOpprettFraAktørId(any())).thenReturn(NavBruker.opprettNyNB(vergeAktørId));
+
+            // Act
+            vergeTjeneste.opprettVerge(behandling, opprettVergeDto);
+
+            // Assert
+            assertThat(vergeRepository.hentAggregat(behandling.getId()).flatMap(VergeAggregat::getVerge)).isPresent();
+            var historikkinnslag = historikkRepository.hent(behandling.getSaksnummer());
+            assertThat(historikkinnslag).hasSize(1);
+            assertThat(historikkinnslag.getFirst().getTekstLinjer().getLast()).isEqualTo("Registrering av opplysninger om verge/fullmektig.");
+        }
     }
-    private PersonopplysningGrunnlagEntitet opprettPersonopplysningGrunnlag(AktørId aktørId, LocalDate fødselsdato) {
-        var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
-        builder1.leggTil(builder1.getPersonopplysningBuilder(aktørId).medFødselsdato(fødselsdato));
-        return PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty()).medRegistrertVersjon(builder1).build();
+
+    @Nested
+    class FjernVerge {
+        @Test
+        void skal_feile_når_det_ikke_finnes_verge() {
+            // Arrange
+            behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
+
+            // Assert
+            assertThatExceptionOfType(TekniskException.class).isThrownBy(() -> vergeTjeneste.fjernVerge(behandling))
+                .withMessage("FP-199772:Kan ikke fjerne verge fra eksisterende grunnlag som ikke finnes");
+
+            assertThat(vergeRepository.hentAggregat(behandling.getId()).flatMap(VergeAggregat::getVerge)).isEmpty();
+            var historikkinnslag = historikkRepository.hent(behandling.getSaksnummer());
+            assertThat(historikkinnslag).isEmpty();
+        }
+
+        @Test
+        void skal_fjerne_verge() {
+            // Arrange
+            vergeRepository.lagreOgFlush(behandling.getId(), opprettVergeBuilder());
+
+            // Act
+            vergeTjeneste.fjernVerge(behandling);
+
+            // Assert
+            assertThat(vergeRepository.hentAggregat(behandling.getId())).isEmpty();
+            var historikkinnslag = historikkRepository.hent(behandling.getSaksnummer());
+            assertThat(historikkinnslag).hasSize(1);
+            assertThat(historikkinnslag.getFirst().getTittel()).contains("verge", "fjernet");
+        }
+
+        @Test
+        void skal_fjerne_verge_med_AP() {
+            // Arrange
+            AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AVKLAR_VERGE);
+            vergeRepository.lagreOgFlush(behandling.getId(), opprettVergeBuilder());
+
+            // Act
+            vergeTjeneste.fjernVerge(behandling);
+
+            // Assert
+            assertThat(vergeRepository.hentAggregat(behandling.getId())).isEmpty();
+            var ap = behandling.getAksjonspunktFor(AksjonspunktDefinisjon.AVKLAR_VERGE);
+            verify(behandlingskontrollTjeneste).lagreAksjonspunkterAvbrutt(any(), any(), eq(List.of(ap)));
+            var historikkinnslag = historikkRepository.hent(behandling.getSaksnummer());
+            assertThat(historikkinnslag).hasSize(1);
+            assertThat(historikkinnslag.getFirst().getTittel()).contains("verge", "fjernet");
+        }
+    }
+
+
+    private VergeEntitet.Builder opprettVergeBuilder() {
+        return new VergeEntitet.Builder().medVergeType(VergeType.BARN).gyldigPeriode(LocalDate.now().minusYears(1), LocalDate.now().plusYears(1));
+    }
+
+    private PersonopplysningerAggregat opprettPersonopplysningAggregatForPersonUnder18(AktørId aktørId) {
+        var builder = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
+        builder.leggTil(builder.getPersonopplysningBuilder(aktørId).medFødselsdato(LocalDate.now().minusYears(15)));
+        var entitet = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty()).medRegistrertVersjon(builder).build();
+
+        return new PersonopplysningerAggregat(entitet, aktørId);
     }
 }
