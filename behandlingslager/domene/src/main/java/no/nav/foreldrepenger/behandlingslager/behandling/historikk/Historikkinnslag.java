@@ -72,6 +72,10 @@ public class Historikkinnslag extends BaseCreateableEntitet {
         return linjer;
     }
 
+    public List<String> getTekstLinjer() {
+        return linjer.stream().map(HistorikkinnslagLinje::getTekst).toList();
+    }
+
     public List<HistorikkinnslagDokumentLink> getDokumentLinker() {
         return dokumentLinker;
     }

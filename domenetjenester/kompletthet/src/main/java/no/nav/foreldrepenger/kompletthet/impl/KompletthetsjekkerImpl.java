@@ -1,17 +1,7 @@
 package no.nav.foreldrepenger.kompletthet.impl;
 
-import static java.util.Collections.emptyList;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD;
-
-import java.time.LocalDateTime;
-import java.util.List;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
@@ -29,6 +19,14 @@ import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static java.util.Collections.emptyList;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD;
 
 @ApplicationScoped
 public class KompletthetsjekkerImpl implements Kompletthetsjekker {
@@ -74,10 +72,7 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
 
     @Override
     public KompletthetResultat vurderSøknadMottattForTidlig(BehandlingReferanse ref, Skjæringstidspunkt stp) {
-        if (FagsakYtelseType.ENGANGSTØNAD.equals(ref.fagsakYtelseType())) {
-            throw new UnsupportedOperationException("Metode brukes ikke i ES");
-        }
-        if (ref.erRevurdering()) {
+        if (ref.erRevurdering() || FagsakYtelseType.ENGANGSTØNAD.equals(ref.fagsakYtelseType())) {
             return KompletthetResultat.oppfylt();
         }
         return kompletthetssjekkerSøknad.erSøknadMottattForTidlig(stp)
@@ -221,7 +216,6 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
     private KompletthetResultat håndterManglendeIM(BehandlingReferanse ref,
                                                    Skjæringstidspunkt stp,
                                                    List<ManglendeVedlegg> manglendeInntektsmeldingerFraGrunnlag) {
-        manglendeInntektsmeldingTjeneste.lagForespørselTask(ref); // TODO: Rart at denne er inne i kompletthet?
         loggManglendeInntektsmeldinger(ref, manglendeInntektsmeldingerFraGrunnlag);
         return manglendeInntektsmeldingTjeneste.finnVentefristTilManglendeInntektsmelding(ref, stp)
             .map(frist -> KompletthetResultat.ikkeOppfylt(frist, Venteårsak.VENT_OPDT_INNTEKTSMELDING))

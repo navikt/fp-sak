@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 
 import static java.time.LocalDate.now;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -9,13 +10,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.Arrays;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
@@ -27,11 +27,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
-import no.nav.foreldrepenger.kompletthet.KompletthetModell;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
@@ -46,6 +46,8 @@ class KompletthetskontrollerTest {
     @Mock
     private DokumentmottakerFelles dokumentmottakerFelles;
 
+    @Mock
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     @Mock
     private Kompletthetsjekker kompletthetsjekker;
 
@@ -63,13 +65,7 @@ class KompletthetskontrollerTest {
     public void oppsett() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenario.lagMocked();
-
-        var modell = new KompletthetModell(behandlingskontrollTjeneste, kompletthetsjekker);
-        var skjæringstidspunktTjeneste = Mockito.mock(SkjæringstidspunktTjeneste.class);
-
-        kompletthetskontroller = new Kompletthetskontroller(dokumentmottakerFelles, mottatteDokumentTjeneste, modell, behandlingProsesseringTjeneste,
-            skjæringstidspunktTjeneste);
-
+        kompletthetskontroller = new Kompletthetskontroller(dokumentmottakerFelles, mottatteDokumentTjeneste, behandlingskontrollTjeneste, behandlingProsesseringTjeneste, skjæringstidspunktTjeneste, kompletthetsjekker);
         mottattDokument = DokumentmottakTestUtil.byggMottattDokument(DokumentTypeId.INNTEKTSMELDING, behandling.getFagsakId(), "", now(), true, null);
 
     }
@@ -120,7 +116,7 @@ class KompletthetskontrollerTest {
     @Test
     void skal_gjenoppta_behandling_dersom_behandling_er_komplett_og_kompletthet_ikke_passert() {
         // Arrange
-        when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.VURDER_KOMPLETT_TIDLIG)).thenReturn(false);
+        when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.INNHENT_REGISTEROPP)).thenReturn(false);
         when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.VURDER_KOMPLETT_TIDLIG)).thenReturn(true);
 
         kompletthetskontroller.persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
@@ -131,7 +127,6 @@ class KompletthetskontrollerTest {
     @Test
     void skal_ikke_gjenoppta_behandling_dersom_behandling_er_komplett_og_regsok_ikke_passert() {
         // Arrange
-        when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.VURDER_KOMPLETT_TIDLIG)).thenReturn(false);
         when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.VURDER_KOMPLETT_TIDLIG)).thenReturn(false);
 
         kompletthetskontroller.persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
@@ -166,7 +161,6 @@ class KompletthetskontrollerTest {
     @Test
     void skal_spole_til_startpunkt_dersom_komplett_og_vurder_kompletthet_er_passert() {
         // Arrange
-        when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.VURDER_KOMPLETT_TIDLIG)).thenReturn(true);
         when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.INNHENT_REGISTEROPP)).thenReturn(true);
         when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.VURDER_KOMPLETT_TIDLIG)).thenReturn(true);
 
@@ -183,34 +177,38 @@ class KompletthetskontrollerTest {
         verify(behandlingProsesseringTjeneste).opprettTasksForGjenopptaOppdaterFortsett(eq(behandling), any());
     }
 
+    /**
+     * Test at det ikke legges inn flere autopunkter i samme behandlingssteg for kompletthet.
+     * Hvis du skal legge inn flere autopunkter i samme steg så må du gjennomgå kompletthetskontrolleren
+     */
     @Test
-    void skal_opprette_historikkinnslag_for_tidlig_mottatt_søknad() {
-        // Arrange
-        var frist = LocalDateTime.now().minusSeconds(30);
-        when(kompletthetsjekker.vurderSøknadMottattForTidlig(any(), any())).thenReturn(KompletthetResultat.ikkeOppfylt(frist, Venteårsak.FOR_TIDLIG_SOKNAD));
+    void ikke_legg_inn_flere_autopunkter_i_samme_behandlingset_for_kompletthet() {
+        assertThat(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD.getBehandlingSteg()).isEqualTo(BehandlingStegType.REGISTRER_SØKNAD);
+        assertThat(Arrays.stream(AksjonspunktDefinisjon.values())
+            .filter(a -> AksjonspunktType.AUTOPUNKT.equals(a.getAksjonspunktType()))
+            .filter(a -> BehandlingStegType.REGISTRER_SØKNAD.equals(a.getBehandlingSteg()))
+            .toList())
+            .hasSize(1);
 
-        // Act
-        kompletthetskontroller.persisterKøetDokumentOgVurderKompletthet(behandling, mottattDokument, Optional.empty());
+        assertThat(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD.getBehandlingSteg()).isEqualTo(BehandlingStegType.VURDER_KOMPLETT_TIDLIG);
+        assertThat(Arrays.stream(AksjonspunktDefinisjon.values())
+            .filter(a -> AksjonspunktType.AUTOPUNKT.equals(a.getAksjonspunktType()))
+            .filter(a -> BehandlingStegType.VURDER_KOMPLETT_TIDLIG.equals(a.getBehandlingSteg()))
+            .toList())
+            .hasSize(1);
 
-        // Assert
-        verify(mottatteDokumentTjeneste).persisterDokumentinnhold(behandling, mottattDokument, Optional.empty());
-        verify(dokumentmottakerFelles).opprettHistorikkinnslagForVenteFristRelaterteInnslag(behandling, frist, Venteårsak.FOR_TIDLIG_SOKNAD);
-    }
+        assertThat(AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD.getBehandlingSteg()).isEqualTo(BehandlingStegType.VURDER_KOMPLETT_BEH);
+        assertThat(Arrays.stream(AksjonspunktDefinisjon.values())
+            .filter(a -> AksjonspunktType.AUTOPUNKT.equals(a.getAksjonspunktType()))
+            .filter(a -> BehandlingStegType.VURDER_KOMPLETT_BEH.equals(a.getBehandlingSteg()))
+            .toList())
+            .hasSize(1);
 
-    @Test
-    void skal_opprette_historikkinnslag_ikke_komplett() {
-        // Arrange
-        var frist = LocalDateTime.now();
-        when(kompletthetsjekker.vurderSøknadMottatt(any())).thenReturn(KompletthetResultat.oppfylt());
-        when(kompletthetsjekker.vurderSøknadMottattForTidlig(any(), any())).thenReturn(KompletthetResultat.oppfylt());
-        when(kompletthetsjekker.vurderForsendelseKomplett(any(), any())).thenReturn(KompletthetResultat.ikkeOppfylt(frist, Venteårsak.AVV_DOK));
-        when(kompletthetsjekker.vurderEtterlysningInntektsmelding(any(), any())).thenReturn(KompletthetResultat.oppfylt());
-
-        // Act
-        kompletthetskontroller.persisterKøetDokumentOgVurderKompletthet(behandling, mottattDokument, Optional.empty());
-
-        // Assert
-        verify(mottatteDokumentTjeneste).persisterDokumentinnhold(behandling, mottattDokument, Optional.empty());
-        verify(dokumentmottakerFelles).opprettHistorikkinnslagForVenteFristRelaterteInnslag(behandling, frist, Venteårsak.AVV_DOK);
+        assertThat(AksjonspunktDefinisjon.AUTO_VENT_ETTERLYST_INNTEKTSMELDING.getBehandlingSteg()).isEqualTo(BehandlingStegType.INREG_AVSL);
+        assertThat(Arrays.stream(AksjonspunktDefinisjon.values())
+            .filter(a -> AksjonspunktType.AUTOPUNKT.equals(a.getAksjonspunktType()))
+            .filter(a -> BehandlingStegType.INREG_AVSL.equals(a.getBehandlingSteg()))
+            .toList())
+            .hasSize(1);
     }
 }

@@ -29,7 +29,7 @@ class VergeGrunnlagEntitetTest extends EntityManagerAwareTest {
     public void init(EntityManager entityManager) {
         this.entityManager = entityManager;
         var repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        vergeRepository = new VergeRepository(getEntityManager(), repositoryProvider.getBehandlingLåsRepository());
+        vergeRepository = new VergeRepository(getEntityManager());
         behandlingRepository = repositoryProvider.getBehandlingRepository();
     }
 

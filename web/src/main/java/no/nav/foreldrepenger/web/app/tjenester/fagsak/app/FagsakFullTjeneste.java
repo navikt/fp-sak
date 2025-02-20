@@ -10,6 +10,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 
 import org.slf4j.Logger;
@@ -134,7 +135,7 @@ public class FagsakFullTjeneste {
             .map(FagsakBehandlingDto::getKontrollResultat);
         var harVergeIÅpenBehandling = alleBehandlinger.stream()
             .filter(behandling -> !behandling.erAvsluttet())
-            .anyMatch((behandling) -> vergeRepository.hentAggregat(behandling.getId()).isPresent());
+            .anyMatch((behandling) -> vergeRepository.hentAggregat(behandling.getId()).flatMap(VergeAggregat::getVerge).isPresent());
 
         var dto = new FagsakFullDto(fagsak, dekningsgrad, bruker, manglerAdresse, annenpart, annenpartSak, familiehendelse, fagsakMarkeringer,
             oppretting, behandlingDtoer, historikk, notater, ferskesteKontrollresultatBehandling.orElse(null), harVergeIÅpenBehandling);

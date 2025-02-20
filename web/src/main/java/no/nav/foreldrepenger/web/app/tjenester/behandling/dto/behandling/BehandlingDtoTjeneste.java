@@ -31,6 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
@@ -81,6 +82,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.UttakRestTjenest
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon.DokumentasjonVurderingBehovDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BehandlingMedUttaksperioderDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta.FaktaUttakPeriodeDtoTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.NyVergeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.YtelsefordelingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
@@ -167,10 +169,12 @@ public class BehandlingDtoTjeneste {
 
     private BehandlingDto lagBehandlingDto(Behandling behandling,
                                            Optional<BehandlingsresultatDto> behandlingsresultatDto,
-                                           boolean erBehandlingMedGjeldendeVedtak, LocalDate vedtaksdato) {
+                                           boolean erBehandlingMedGjeldendeVedtak,
+                                           LocalDate vedtaksdato) {
         var dto = new BehandlingDto();
         var uuidDto = new UuidDto(behandling.getUuid());
-        BehandlingDtoUtil.setStandardfelterMedGjeldendeVedtak(behandling, getBehandlingsresultat(behandling.getId()), dto, erBehandlingMedGjeldendeVedtak, vedtaksdato);
+        BehandlingDtoUtil.setStandardfelterMedGjeldendeVedtak(behandling, getBehandlingsresultat(behandling.getId()), dto,
+            erBehandlingMedGjeldendeVedtak, vedtaksdato);
         dto.setSpråkkode(getSpråkkode(behandling));
         dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
 
@@ -200,9 +204,11 @@ public class BehandlingDtoTjeneste {
             return behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(behandling.getFagsakId())
                 .flatMap(s -> søknadRepository.hentSøknadHvisEksisterer(s.getId()))
                 .map(SøknadEntitet::getSpråkkode)
-                .orElseGet(()-> behandling.getFagsak().getNavBruker().getSpråkkode());
+                .orElseGet(() -> behandling.getFagsak().getNavBruker().getSpråkkode());
         }
-        return søknadRepository.hentSøknadHvisEksisterer(behandling.getId()).map(SøknadEntitet::getSpråkkode).orElseGet(() -> behandling.getFagsak().getNavBruker().getSpråkkode());
+        return søknadRepository.hentSøknadHvisEksisterer(behandling.getId())
+            .map(SøknadEntitet::getSpråkkode)
+            .orElseGet(() -> behandling.getFagsak().getNavBruker().getSpråkkode());
     }
 
     public List<BehandlingDto> lagBehandlingDtoer(List<Behandling> behandlinger) {
@@ -210,12 +216,15 @@ public class BehandlingDtoTjeneste {
             return Collections.emptyList();
         }
         var gjeldendeVedtak = behandlingVedtakRepository.hentGjeldendeVedtak(behandlinger.get(0).getFagsak());
-        var behandlingMedGjeldendeVedtak = gjeldendeVedtak.map(BehandlingVedtak::getBehandlingsresultat).map(Behandlingsresultat::getBehandlingId).map(behandlingRepository::hentBehandling);
+        var behandlingMedGjeldendeVedtak = gjeldendeVedtak.map(BehandlingVedtak::getBehandlingsresultat)
+            .map(Behandlingsresultat::getBehandlingId)
+            .map(behandlingRepository::hentBehandling);
         return behandlinger.stream().map(behandling -> {
             var erBehandlingMedGjeldendeVedtak = erBehandlingMedGjeldendeVedtak(behandling, behandlingMedGjeldendeVedtak);
             var behandlingsresultatDto = lagBehandlingsresultatDto(behandling);
             var vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
-                .map(BehandlingVedtak::getVedtaksdato).orElse(null);
+                .map(BehandlingVedtak::getVedtaksdato)
+                .orElse(null);
             return lagBehandlingDto(behandling, behandlingsresultatDto, erBehandlingMedGjeldendeVedtak, vedtaksdato);
         }).toList();
     }
@@ -237,7 +246,8 @@ public class BehandlingDtoTjeneste {
         var vedtaksDato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
             .map(BehandlingVedtak::getVedtaksdato)
             .orElse(null);
-        BehandlingDtoUtil.settStandardfelterUtvidet(behandling, getBehandlingsresultat(behandling.getId()), dto, erBehandlingMedGjeldendeVedtak, vedtaksDato);
+        BehandlingDtoUtil.settStandardfelterUtvidet(behandling, getBehandlingsresultat(behandling.getId()), dto, erBehandlingMedGjeldendeVedtak,
+            vedtaksDato);
         dto.setSpråkkode(getSpråkkode(behandling));
         var behandlingsresultatDto = lagBehandlingsresultatDto(behandling);
         dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
@@ -251,13 +261,22 @@ public class BehandlingDtoTjeneste {
         dto.leggTil(post(BehandlingRestTjeneste.SETT_PA_VENT_PATH, "sett-behandling-pa-vent", new SettBehandlingPaVentDto()));
         dto.leggTil(post(BehandlingRestTjeneste.ENDRE_VENTEFRIST_PATH, "endre-pa-vent", new SettBehandlingPaVentDto()));
         dto.leggTil(post(AksjonspunktRestTjeneste.AKSJONSPUNKT_PATH, "lagre-aksjonspunkter", new BekreftedeAksjonspunkterDto()));
-        dto.leggTil(post(VergeRestTjeneste.VERGE_OPPRETT_PATH, "opprett-verge", new BehandlingIdVersjonDto()));
-        dto.leggTil(post(VergeRestTjeneste.VERGE_FJERN_PATH, "fjern-verge", new BehandlingIdVersjonDto()));
+
+        var uuidDto = new UuidDto(behandling.getUuid());
+        if (vergeRepository.hentAggregat(behandling.getId()).isPresent()) {
+            dto.leggTil(get(VergeRestTjeneste.BASE_PATH, "verge-hent", uuidDto));
+            dto.leggTil(post(VergeRestTjeneste.VERGE_FJERN_PATH, "verge-fjern", null, uuidDto));
+        } else {
+            dto.leggTil(post(VergeRestTjeneste.VERGE_OPPRETT_PATH, "verge-opprett", new NyVergeDto(), uuidDto));
+        }
+
+        dto.leggTil(post(VergeRestTjeneste.VERGE_OPPRETT_PATH_DEPRECATED, "opprett-verge", new BehandlingIdVersjonDto()));
+        dto.leggTil(post(VergeRestTjeneste.VERGE_FJERN_PATH_DEPRECATED, "fjern-verge", new BehandlingIdVersjonDto()));
 
         if (behandling.erYtelseBehandling()) {
             dto.leggTil(post(BehandlingRestTjeneste.OPNE_FOR_ENDRINGER_PATH, "opne-for-endringer", new ReåpneBehandlingDto()));
-            dto.leggTil(post(AksjonspunktRestTjeneste.AKSJONSPUNKT_OVERSTYR_PATH, "lagre-overstyr-aksjonspunkter",
-                new BekreftedeAksjonspunkterDto()));
+            dto.leggTil(
+                post(AksjonspunktRestTjeneste.AKSJONSPUNKT_OVERSTYR_PATH, "lagre-overstyr-aksjonspunkter", new BekreftedeAksjonspunkterDto()));
             if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
                 dto.leggTil(post(UttakRestTjeneste.STONADSKONTOER_GITT_UTTAKSPERIODER_PATH, "lagre-stonadskontoer-gitt-uttaksperioder",
                     new BehandlingMedUttaksperioderDto()));
@@ -265,7 +284,8 @@ public class BehandlingDtoTjeneste {
         }
         if (BehandlingType.KLAGE.equals(behandling.getType())) {
             dto.leggTil(post(KlageRestTjeneste.MELLOMLAGRE_PATH, "mellomlagre-klage", new KlageVurderingResultatAksjonspunktMellomlagringDto()));
-            dto.leggTil(post(KlageRestTjeneste.MELLOMLAGRE_FORMKRAV_KLAGE_PATH, "mellomlagre-formkrav-klage", new KlageFormKravAksjonspunktMellomlagringDto()));
+            dto.leggTil(post(KlageRestTjeneste.MELLOMLAGRE_FORMKRAV_KLAGE_PATH, "mellomlagre-formkrav-klage",
+                new KlageFormKravAksjonspunktMellomlagringDto()));
         }
     }
 
@@ -351,7 +371,7 @@ public class BehandlingDtoTjeneste {
 
         var harSimuleringAksjonspunkt = behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_FEILUTBETALING);
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
-            var beregning =  Optional.ofNullable(getBehandlingsresultat(behandling.getId()))
+            var beregning = Optional.ofNullable(getBehandlingsresultat(behandling.getId()))
                 .map(Behandlingsresultat::getBeregningResultat)
                 .flatMap(LegacyESBeregningsresultat::getSisteBeregning)
                 .isPresent();
@@ -370,7 +390,7 @@ public class BehandlingDtoTjeneste {
             dto.leggTil(get(FeriepengegrunnlagRestTjeneste.FERIEPENGER_PATH, "feriepengegrunnlag", uuidDto));
 
             var beregningsgrunnlag = beregningTjeneste.hent(BehandlingReferanse.fra(behandling))
-                    .flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
+                .flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
             if (beregningsgrunnlag.isPresent()) {
                 dto.leggTil(get(BeregningsgrunnlagRestTjeneste.BEREGNINGSGRUNNLAG_PATH, "beregningsgrunnlag", uuidDto));
                 dto.leggTil(get(UttakRestTjeneste.FAKTA_ARBEIDSFORHOLD_PATH, "fakta-arbeidsforhold", uuidDto));
@@ -383,15 +403,19 @@ public class BehandlingDtoTjeneste {
                 dto.leggTil(get(ArbeidOgInntektsmeldingRestTjeneste.ARBEID_OG_INNTEKTSMELDING_PATH, "arbeidsforhold-inntektsmelding", uuidDto));
                 dto.leggTil(post(ArbeidOgInntektsmeldingRestTjeneste.REGISTRER_ARBEIDSFORHOLD_PATH, "arbeidsforhold-inntektsmelding-registrer",
                     new ManueltArbeidsforholdDto()));
-                dto.leggTil(post(ArbeidOgInntektsmeldingRestTjeneste.LAGRE_VURDERING_PATH, "arbeidsforhold-inntektsmelding-vurder", new ManglendeOpplysningerVurderingDto()));
+                dto.leggTil(post(ArbeidOgInntektsmeldingRestTjeneste.LAGRE_VURDERING_PATH, "arbeidsforhold-inntektsmelding-vurder",
+                    new ManglendeOpplysningerVurderingDto()));
                 dto.leggTil(
-                    post(ArbeidOgInntektsmeldingRestTjeneste.ÅPNE_FOR_NY_VURDERING_PATH, "arbeidsforhold-inntektsmelding-apne-for-ny-vurdering", new BehandlingIdVersjonDto()));
+                    post(ArbeidOgInntektsmeldingRestTjeneste.ÅPNE_FOR_NY_VURDERING_PATH, "arbeidsforhold-inntektsmelding-apne-for-ny-vurdering",
+                        new BehandlingIdVersjonDto()));
             } else if (SpesialBehandling.erSpesialBehandling(behandling)) {
                 dto.leggTil(get(ArbeidOgInntektsmeldingRestTjeneste.ARBEID_OG_INNTEKTSMELDING_PATH, "arbeidsforhold-inntektsmelding", uuidDto));
             }
 
             var tilkjentYtelse = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId())
-                .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
+                .map(BeregningsresultatEntitet::getBeregningsresultatPerioder)
+                .orElse(List.of())
+                .stream()
                 .anyMatch(p -> p.getDagsats() > 0);
             if (tilkjentYtelse) {
                 dto.leggTil(get(BeregningsresultatRestTjeneste.DAGYTELSE_PATH, "beregningsresultat-dagytelse", uuidDto));
@@ -404,14 +428,16 @@ public class BehandlingDtoTjeneste {
                 }
             } else {
                 var yfAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId());
-                var harSattEndringsdato = yfAggregat
-                    .flatMap(YtelseFordelingAggregat::getAvklarteDatoer).map(AvklarteUttakDatoerEntitet::getGjeldendeEndringsdato).isPresent();
+                var harSattEndringsdato = yfAggregat.flatMap(YtelseFordelingAggregat::getAvklarteDatoer)
+                    .map(AvklarteUttakDatoerEntitet::getGjeldendeEndringsdato)
+                    .isPresent();
                 dto.setHarSattEndringsdato(harSattEndringsdato);
                 if (yfAggregat.isPresent()) {
                     if (!dokumentasjonVurderingBehovDtoTjeneste.lagDtos(uuidDto).isEmpty()) {
                         dto.leggTil(get(UttakRestTjeneste.VURDER_DOKUMENTASJON_PATH, "uttak-vurder-dokumentasjon", uuidDto));
                     }
-                    if (!faktaUttakPeriodeDtoTjeneste.lagDtos(uuidDto).isEmpty() || behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.FAKTA_UTTAK_INGEN_PERIODER)) {
+                    if (!faktaUttakPeriodeDtoTjeneste.lagDtos(uuidDto).isEmpty() || behandling.harÅpentAksjonspunktMedType(
+                        AksjonspunktDefinisjon.FAKTA_UTTAK_INGEN_PERIODER)) {
                         dto.leggTil(get(UttakRestTjeneste.FAKTA_UTTAK_PATH, "uttak-kontroller-fakta-perioder-v2", uuidDto));
                     }
                 }
@@ -439,12 +465,12 @@ public class BehandlingDtoTjeneste {
 
             if (FagsakYtelseType.ENGANGSTØNAD.equals(originalBehandling.getFagsakYtelseType())) {
                 dto.leggTil(
-                    get(BeregningsresultatRestTjeneste.ENGANGSTONAD_PATH, "beregningsresultat-engangsstonad-original-behandling",
-                        originalUuidDto));
+                    get(BeregningsresultatRestTjeneste.ENGANGSTONAD_PATH, "beregningsresultat-engangsstonad-original-behandling", originalUuidDto));
             } else if (FagsakYtelseType.FORELDREPENGER.equals(originalBehandling.getFagsakYtelseType())) { //Burde også ta med svp?
                 var uttak = uttakTjeneste.hentHvisEksisterer(originalBehandling.getId());
                 if (uttak.isPresent()) {
-                    dto.leggTil(get(BeregningsresultatRestTjeneste.DAGYTELSE_PATH, "beregningsresultat-dagytelse-original-behandling", originalUuidDto));
+                    dto.leggTil(
+                        get(BeregningsresultatRestTjeneste.DAGYTELSE_PATH, "beregningsresultat-dagytelse-original-behandling", originalUuidDto));
                 }
             }
         });
@@ -483,7 +509,9 @@ public class BehandlingDtoTjeneste {
     }
 
     private boolean erRevurderingMedUendretUtfall(Behandling behandling) {
-        return FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, behandling.getFagsakYtelseType()).orElseThrow().erRevurderingMedUendretUtfall(behandling);
+        return FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, behandling.getFagsakYtelseType())
+            .orElseThrow()
+            .erRevurderingMedUendretUtfall(behandling);
     }
 
     private Optional<SkjæringstidspunktDto> finnSkjæringstidspunktForBehandling(Behandling behandling, Behandlingsresultat behandlingsresultat) {
@@ -500,9 +528,8 @@ public class BehandlingDtoTjeneste {
 
     private Optional<ResourceLink> lagTilbakekrevingValgLink(Behandling behandling) {
         var uuidDto = new UuidDto(behandling.getUuid());
-        return tilbakekrevingRepository.hent(behandling.getId()).isPresent()
-            ? Optional.of(get(TilbakekrevingRestTjeneste.VALG_PATH, "tilbakekrevingvalg", uuidDto))
-            : Optional.empty();
+        return tilbakekrevingRepository.hent(behandling.getId()).isPresent() ? Optional.of(
+            get(TilbakekrevingRestTjeneste.VALG_PATH, "tilbakekrevingvalg", uuidDto)) : Optional.empty();
     }
 
     private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {
@@ -510,7 +537,8 @@ public class BehandlingDtoTjeneste {
     }
 
     private void leggTilVergeHvisAksjonspunkt(Behandling behandling, UtvidetBehandlingDto dto, UuidDto uuidDto) {
-        if (behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE) || vergeRepository.hentAggregat(behandling.getId()).isPresent()) {
+        var vergeFinnes = vergeRepository.hentAggregat(behandling.getId()).isPresent();
+        if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE) || vergeFinnes) {
             dto.leggTil(get(PersonRestTjeneste.VERGE_PATH, "soeker-verge", uuidDto));
             dto.leggTil(get(PersonRestTjeneste.VERGE_BACKEND_PATH, "verge-backend", uuidDto));
         }

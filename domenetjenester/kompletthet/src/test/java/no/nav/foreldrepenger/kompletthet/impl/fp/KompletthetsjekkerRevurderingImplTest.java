@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
-import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 import no.nav.foreldrepenger.kompletthet.impl.KompletthetsjekkerImpl;
@@ -43,7 +42,6 @@ class KompletthetsjekkerRevurderingImplTest extends EntityManagerAwareTest {
     private ManglendeVedleggTjeneste manglendeVedleggTjeneste = mock(ManglendeVedleggTjeneste.class);
 
     private KompletthetsjekkerImpl kompletthetsjekker;
-    private final FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste = new FpInntektsmeldingTjeneste();
 
     @BeforeEach
     void setUp() {
@@ -59,8 +57,7 @@ class KompletthetsjekkerRevurderingImplTest extends EntityManagerAwareTest {
             dokumentBestillerApplikasjonTjeneste,
             dokumentBehandlingTjeneste,
             null,
-            fpInntektsmeldingTjeneste,
-            new InntektsmeldingTjeneste(new AbakusInMemoryInntektArbeidYtelseTjeneste())
+                new InntektsmeldingTjeneste(new AbakusInMemoryInntektArbeidYtelseTjeneste())
         );
         kompletthetsjekker = new KompletthetsjekkerImpl(repositoryProvider, kompletthetsjekkerSøknad, personopplysningTjeneste, manglendeInntektsmeldingTjeneste);
 

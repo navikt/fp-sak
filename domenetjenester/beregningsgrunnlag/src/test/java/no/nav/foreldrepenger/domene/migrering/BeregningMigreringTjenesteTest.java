@@ -1,0 +1,136 @@
+package no.nav.foreldrepenger.domene.migrering;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
+import org.jboss.weld.exceptions.IllegalStateException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import no.nav.folketrygdloven.kalkulus.felles.v1.Periode;
+import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagPeriodeRegelType;
+import no.nav.folketrygdloven.kalkulus.migrering.MigrerBeregningsgrunnlagResponse;
+import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagAktivitetStatusDto;
+import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagDto;
+import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagGrunnlagDto;
+import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagPeriodeDto;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagBuilder;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKobling;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKoblingRepository;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel;
+import no.nav.foreldrepenger.domene.prosess.KalkulusKlient;
+import no.nav.foreldrepenger.domene.typer.Beløp;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.vedtak.konfig.Tid;
+
+@ExtendWith(MockitoExtension.class)
+class BeregningMigreringTjenesteTest {
+
+    @Mock
+    private KalkulusKlient klient;
+    @Mock
+    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
+    @Mock
+    private BeregningsgrunnlagKoblingRepository koblingRepository;
+    @Mock
+    private BehandlingRepository behandlingRepository;
+
+    private BeregningMigreringTjeneste beregningMigreringTjeneste;
+
+    @BeforeEach
+    void setup() {
+        beregningMigreringTjeneste = new BeregningMigreringTjeneste(klient, beregningsgrunnlagRepository, koblingRepository, behandlingRepository);
+    }
+
+    @Test
+    void happycase_migrering() {
+        // Arrange
+        var saksnummer = new Saksnummer("123");
+        var behandling = lagBehandling();
+        var ref = BehandlingReferanse.fra(behandling);
+        when(beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(any())).thenReturn(Optional.of(lagGrunnlagEntitet()));
+        when(behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(saksnummer)).thenReturn(List.of(behandling));
+        when(koblingRepository.hentKobling(any())).thenReturn(Optional.empty());
+        when(koblingRepository.opprettKobling(any())).thenReturn(new BeregningsgrunnlagKobling(ref.behandlingId(), ref.behandlingUuid()));
+        when(klient.migrerGrunnlag(any())).thenReturn(new MigrerBeregningsgrunnlagResponse(lagGrunnlagDto(), null, List.of(), List.of()));
+
+        // Act
+        beregningMigreringTjeneste.migrerSak(saksnummer);
+
+        // Assert
+        verify(klient).migrerGrunnlag(any());
+    }
+
+    @Test
+    void skal_kaste_feil_ved_feilende_sammenligning() {
+        // Arrange
+        var saksnummer = new Saksnummer("123");
+        var behandling = lagBehandling();
+        var ref = BehandlingReferanse.fra(behandling);
+        when(beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(any())).thenReturn(Optional.of(lagGrunnlagEntitet()));
+        when(behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(saksnummer)).thenReturn(List.of(behandling));
+        when(koblingRepository.hentKobling(any())).thenReturn(Optional.empty());
+        when(koblingRepository.opprettKobling(any())).thenReturn(new BeregningsgrunnlagKobling(ref.behandlingId(), ref.behandlingUuid()));
+        when(klient.migrerGrunnlag(any())).thenReturn(new MigrerBeregningsgrunnlagResponse(lagGrunnlagDto(), null, List.of(new MigrerBeregningsgrunnlagResponse.RegelsporingPeriode(
+            BeregningsgrunnlagPeriodeRegelType.FASTSETT, "eval", "input", "1.0", new Periode(LocalDate.now(), LocalDate.now()))), List.of()));
+
+        // Act
+        // Assert
+        assertThrows(IllegalStateException.class, () -> beregningMigreringTjeneste.migrerSak(saksnummer));
+    }
+
+    private Behandling lagBehandling() {
+        return ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
+    }
+
+    private BeregningsgrunnlagGrunnlagEntitet lagGrunnlagEntitet() {
+        var beregningsgrunnlagPeriode = new BeregningsgrunnlagPeriode.Builder().medBeregningsgrunnlagPeriode(LocalDate.now(), Tid.TIDENES_ENDE).medBruttoPrÅr(
+            BigDecimal.valueOf(100_000)).medAvkortetPrÅr(BigDecimal.valueOf(100_000)).medRedusertPrÅr(BigDecimal.valueOf(100_000));
+        var grunnbeløp = Beløp.av(100000);
+        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
+            .medSkjæringstidspunkt(LocalDate.now())
+            .medGrunnbeløp(grunnbeløp)
+            .leggTilBeregningsgrunnlagPeriode(beregningsgrunnlagPeriode)
+            .leggTilAktivitetStatus(new BeregningsgrunnlagAktivitetStatus.Builder().medAktivitetStatus(AktivitetStatus.KOMBINERT_AT_FL).medHjemmel(
+                Hjemmel.F_14_7_8_40))
+            .build();
+        var gr = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(1L, BeregningsgrunnlagTilstand.FASTSATT);
+        return gr;
+    }
+
+    private BeregningsgrunnlagGrunnlagDto lagGrunnlagDto() {
+        var beregningsgrunnlagPeriodeDto = new BeregningsgrunnlagPeriodeDto(List.of(), new Periode(LocalDate.now(), Tid.TIDENES_ENDE),
+            new no.nav.folketrygdloven.kalkulus.felles.v1.Beløp(BigDecimal.valueOf(100_000)),
+            new no.nav.folketrygdloven.kalkulus.felles.v1.Beløp(BigDecimal.valueOf(100_000)),
+            new no.nav.folketrygdloven.kalkulus.felles.v1.Beløp(BigDecimal.valueOf(100_000)), null, List.of(), null, null, null);
+        var status = new BeregningsgrunnlagAktivitetStatusDto(
+            no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus.KOMBINERT_AT_FL, no.nav.folketrygdloven.kalkulus.kodeverk.Hjemmel.F_14_7_8_40);
+        var bgDto = new BeregningsgrunnlagDto(LocalDate.now(), List.of(), List.of(beregningsgrunnlagPeriodeDto), List.of(), List.of(),
+            false, new no.nav.folketrygdloven.kalkulus.felles.v1.Beløp(BigDecimal.valueOf(100_000)), List.of(status));
+        var grDto = new BeregningsgrunnlagGrunnlagDto(bgDto, null, null, null, null, null,
+            no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand.FASTSATT);
+        return grDto;
+    }
+
+}

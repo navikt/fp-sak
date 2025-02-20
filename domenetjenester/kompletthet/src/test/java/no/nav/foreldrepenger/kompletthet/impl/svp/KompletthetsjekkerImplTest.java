@@ -34,7 +34,6 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
-import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
@@ -66,8 +65,6 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     @Mock
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     @Mock
-    private FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste;
-    @Mock
     private PersonopplysningTjeneste personopplysningTjeneste;
 
     private Kompletthetsjekker kompletthetsjekker;
@@ -91,8 +88,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
             dokumentBestillerTjenesteMock,
             dokumentBehandlingTjenesteMock,
             inntektsmeldingArkivTjeneste,
-            fpInntektsmeldingTjeneste,
-            inntektsmeldingTjeneste
+                inntektsmeldingTjeneste
         );
         kompletthetsjekker = new KompletthetsjekkerImpl(repositoryProvider, kompletthetsjekkerSøknad, personopplysningTjeneste, manglendeInntektsmeldingTjeneste);
 
