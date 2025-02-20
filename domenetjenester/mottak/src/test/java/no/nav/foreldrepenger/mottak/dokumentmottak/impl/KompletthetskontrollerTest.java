@@ -9,11 +9,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
@@ -29,6 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsa
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
+import no.nav.foreldrepenger.kompletthet.KompletthetModell;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
@@ -43,8 +46,6 @@ class KompletthetskontrollerTest {
     @Mock
     private DokumentmottakerFelles dokumentmottakerFelles;
 
-    @Mock
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     @Mock
     private Kompletthetsjekker kompletthetsjekker;
 
@@ -62,7 +63,13 @@ class KompletthetskontrollerTest {
     public void oppsett() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenario.lagMocked();
-        kompletthetskontroller = new Kompletthetskontroller(dokumentmottakerFelles, mottatteDokumentTjeneste, behandlingskontrollTjeneste, behandlingProsesseringTjeneste, skjæringstidspunktTjeneste, kompletthetsjekker);
+
+        var modell = new KompletthetModell(behandlingskontrollTjeneste, kompletthetsjekker);
+        var skjæringstidspunktTjeneste = Mockito.mock(SkjæringstidspunktTjeneste.class);
+
+        kompletthetskontroller = new Kompletthetskontroller(dokumentmottakerFelles, mottatteDokumentTjeneste, modell, behandlingProsesseringTjeneste,
+            skjæringstidspunktTjeneste);
+
         mottattDokument = DokumentmottakTestUtil.byggMottattDokument(DokumentTypeId.INNTEKTSMELDING, behandling.getFagsakId(), "", now(), true, null);
 
     }
@@ -113,7 +120,7 @@ class KompletthetskontrollerTest {
     @Test
     void skal_gjenoppta_behandling_dersom_behandling_er_komplett_og_kompletthet_ikke_passert() {
         // Arrange
-        when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.INNHENT_REGISTEROPP)).thenReturn(false);
+        when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.VURDER_KOMPLETT_TIDLIG)).thenReturn(false);
         when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.VURDER_KOMPLETT_TIDLIG)).thenReturn(true);
 
         kompletthetskontroller.persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
@@ -124,6 +131,7 @@ class KompletthetskontrollerTest {
     @Test
     void skal_ikke_gjenoppta_behandling_dersom_behandling_er_komplett_og_regsok_ikke_passert() {
         // Arrange
+        when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.VURDER_KOMPLETT_TIDLIG)).thenReturn(false);
         when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.VURDER_KOMPLETT_TIDLIG)).thenReturn(false);
 
         kompletthetskontroller.persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
@@ -158,6 +166,7 @@ class KompletthetskontrollerTest {
     @Test
     void skal_spole_til_startpunkt_dersom_komplett_og_vurder_kompletthet_er_passert() {
         // Arrange
+        when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.VURDER_KOMPLETT_TIDLIG)).thenReturn(true);
         when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.INNHENT_REGISTEROPP)).thenReturn(true);
         when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.VURDER_KOMPLETT_TIDLIG)).thenReturn(true);
 
@@ -172,5 +181,36 @@ class KompletthetskontrollerTest {
 
         // Assert
         verify(behandlingProsesseringTjeneste).opprettTasksForGjenopptaOppdaterFortsett(eq(behandling), any());
+    }
+
+    @Test
+    void skal_opprette_historikkinnslag_for_tidlig_mottatt_søknad() {
+        // Arrange
+        var frist = LocalDateTime.now().minusSeconds(30);
+        when(kompletthetsjekker.vurderSøknadMottattForTidlig(any(), any())).thenReturn(KompletthetResultat.ikkeOppfylt(frist, Venteårsak.FOR_TIDLIG_SOKNAD));
+
+        // Act
+        kompletthetskontroller.persisterKøetDokumentOgVurderKompletthet(behandling, mottattDokument, Optional.empty());
+
+        // Assert
+        verify(mottatteDokumentTjeneste).persisterDokumentinnhold(behandling, mottattDokument, Optional.empty());
+        verify(dokumentmottakerFelles).opprettHistorikkinnslagForVenteFristRelaterteInnslag(behandling, frist, Venteårsak.FOR_TIDLIG_SOKNAD);
+    }
+
+    @Test
+    void skal_opprette_historikkinnslag_ikke_komplett() {
+        // Arrange
+        var frist = LocalDateTime.now();
+        when(kompletthetsjekker.vurderSøknadMottatt(any())).thenReturn(KompletthetResultat.oppfylt());
+        when(kompletthetsjekker.vurderSøknadMottattForTidlig(any(), any())).thenReturn(KompletthetResultat.oppfylt());
+        when(kompletthetsjekker.vurderForsendelseKomplett(any(), any())).thenReturn(KompletthetResultat.ikkeOppfylt(frist, Venteårsak.AVV_DOK));
+        when(kompletthetsjekker.vurderEtterlysningInntektsmelding(any(), any())).thenReturn(KompletthetResultat.oppfylt());
+
+        // Act
+        kompletthetskontroller.persisterKøetDokumentOgVurderKompletthet(behandling, mottattDokument, Optional.empty());
+
+        // Assert
+        verify(mottatteDokumentTjeneste).persisterDokumentinnhold(behandling, mottattDokument, Optional.empty());
+        verify(dokumentmottakerFelles).opprettHistorikkinnslagForVenteFristRelaterteInnslag(behandling, frist, Venteårsak.AVV_DOK);
     }
 }
