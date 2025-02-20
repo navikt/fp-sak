@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 
 import static java.time.LocalDate.now;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -9,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -172,5 +175,40 @@ class KompletthetskontrollerTest {
 
         // Assert
         verify(behandlingProsesseringTjeneste).opprettTasksForGjenopptaOppdaterFortsett(eq(behandling), any());
+    }
+
+    /**
+     * Test at det ikke legges inn flere autopunkter i samme behandlingssteg for kompletthet.
+     * Hvis du skal legge inn flere autopunkter i samme steg så må du gjennomgå kompletthetskontrolleren
+     */
+    @Test
+    void ikke_legg_inn_flere_autopunkter_i_samme_behandlingset_for_kompletthet() {
+        assertThat(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD.getBehandlingSteg()).isEqualTo(BehandlingStegType.REGISTRER_SØKNAD);
+        assertThat(Arrays.stream(AksjonspunktDefinisjon.values())
+            .filter(a -> AksjonspunktType.AUTOPUNKT.equals(a.getAksjonspunktType()))
+            .filter(a -> BehandlingStegType.REGISTRER_SØKNAD.equals(a.getBehandlingSteg()))
+            .toList())
+            .hasSize(1);
+
+        assertThat(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD.getBehandlingSteg()).isEqualTo(BehandlingStegType.VURDER_KOMPLETT_TIDLIG);
+        assertThat(Arrays.stream(AksjonspunktDefinisjon.values())
+            .filter(a -> AksjonspunktType.AUTOPUNKT.equals(a.getAksjonspunktType()))
+            .filter(a -> BehandlingStegType.VURDER_KOMPLETT_TIDLIG.equals(a.getBehandlingSteg()))
+            .toList())
+            .hasSize(1);
+
+        assertThat(AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD.getBehandlingSteg()).isEqualTo(BehandlingStegType.VURDER_KOMPLETT_BEH);
+        assertThat(Arrays.stream(AksjonspunktDefinisjon.values())
+            .filter(a -> AksjonspunktType.AUTOPUNKT.equals(a.getAksjonspunktType()))
+            .filter(a -> BehandlingStegType.VURDER_KOMPLETT_BEH.equals(a.getBehandlingSteg()))
+            .toList())
+            .hasSize(1);
+
+        assertThat(AksjonspunktDefinisjon.AUTO_VENT_ETTERLYST_INNTEKTSMELDING.getBehandlingSteg()).isEqualTo(BehandlingStegType.INREG_AVSL);
+        assertThat(Arrays.stream(AksjonspunktDefinisjon.values())
+            .filter(a -> AksjonspunktType.AUTOPUNKT.equals(a.getAksjonspunktType()))
+            .filter(a -> BehandlingStegType.INREG_AVSL.equals(a.getBehandlingSteg()))
+            .toList())
+            .hasSize(1);
     }
 }
