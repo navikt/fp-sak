@@ -61,7 +61,7 @@ public class YtelsefordelingRestTjeneste {
     }
 
     @GET
-    @Path("fakta-rett-omgsorg")
+    @Path("fakta-rett-omsorg")
     @Operation(description = "Hent informasjon om rett og omsorg", responses = {@ApiResponse(responseCode = "200", description = "Returnerer informasjon fra søknad og registerdata som omhandler brukers og annen parts rett og omsorg i behandlingen", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = RettOgOmsorgDto.class)))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public RettOgOmsorgDto hentRettOgOmsorg(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
