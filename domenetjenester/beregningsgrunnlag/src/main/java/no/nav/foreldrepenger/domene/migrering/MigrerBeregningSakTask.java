@@ -14,7 +14,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
-@ProsessTask(value = "beregningsgrunnlag.migrer.enkeltsak", prioritet = 2)
+@ProsessTask(value = "beregningsgrunnlag.migrer.enkeltsak", prioritet = 4)
 public class MigrerBeregningSakTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(MigrerBeregningSakTask.class);
 
