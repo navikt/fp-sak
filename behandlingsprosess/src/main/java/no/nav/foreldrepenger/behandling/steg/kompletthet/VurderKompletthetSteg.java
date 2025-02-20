@@ -6,6 +6,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -61,9 +62,6 @@ public class VurderKompletthetSteg implements BehandlingSteg {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
 
-        // Bestill inntektsmeldingforespørsler ved behov
-        fpInntektsmeldingTjeneste.lagForespørslerTask(BehandlingReferanse.fra(behandling));
-
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(kontekst.getBehandlingId());
         var forsendelseKomplett = kompletthetsjekker.vurderForsendelseKomplett(BehandlingReferanse.fra(behandling), skjæringstidspunkter);
         if (forsendelseKomplett.erOppfylt()) {
@@ -72,6 +70,11 @@ public class VurderKompletthetSteg implements BehandlingSteg {
 
         if (VurderKompletthetStegFelles.autopunktAlleredeUtført(AUTO_VENTER_PÅ_KOMPLETT_SØKNAD, behandling)) {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
+        }
+
+        if (Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.SVANGERSKAPSPENGER).contains(behandling.getFagsakYtelseType())) {
+            // Bestill inntektsmeldingforespørsler ved behov
+            fpInntektsmeldingTjeneste.lagForespørslerTask(BehandlingReferanse.fra(behandling));
         }
 
         var ventefrist = utledVentefrist(forsendelseKomplett, behandling);
