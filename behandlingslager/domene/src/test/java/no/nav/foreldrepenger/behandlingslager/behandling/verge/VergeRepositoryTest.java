@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -33,7 +32,7 @@ class VergeRepositoryTest extends EntityManagerAwareTest {
     @BeforeEach
     void setUp() {
         var entityManager = getEntityManager();
-        vergeRepository = new VergeRepository(entityManager, new BehandlingLåsRepository(entityManager));
+        vergeRepository = new VergeRepository(entityManager);
         fagsakRepository = new FagsakRepository(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
     }

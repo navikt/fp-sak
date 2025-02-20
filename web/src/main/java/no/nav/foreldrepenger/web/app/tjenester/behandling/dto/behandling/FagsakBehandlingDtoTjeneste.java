@@ -251,7 +251,7 @@ public class FagsakBehandlingDtoTjeneste {
             true, // Sende melding
             !b.isBehandlingPåVent() && totrinnRetur, // Fra beslutter
             false, // Til godkjenning
-            vergeTjeneste.utledBehandlingOperasjon(b.getId()));
+            vergeTjeneste.utledBehandlingOperasjon(b));
     }
 
 }
