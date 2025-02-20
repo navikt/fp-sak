@@ -272,7 +272,7 @@ public class ForvaltningBeregningRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response migrerSak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto dto) {
         var migreringstask = ProsessTaskData.forProsessTask(MigrerBeregningSakTask.class);
-        migreringstask.setProperty(MigrerBeregningSakTask.SAKSNUMMER_TASK_KEY, dto.getVerdi());
+        migreringstask.setSaksnummer(dto.getVerdi());
         taskTjeneste.lagre(migreringstask);
         return Response.ok().build();
     }

@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.migrering;
 
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -18,8 +16,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 public class MigrerBeregningSakTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(MigrerBeregningSakTask.class);
 
-    public static final String SAKSNUMMER_TASK_KEY = "saksnummer";
-
     private BeregningMigreringTjeneste beregningMigreringTjeneste;
 
     MigrerBeregningSakTask() {
@@ -34,11 +30,7 @@ public class MigrerBeregningSakTask implements ProsessTaskHandler {
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         LOG.info("Starter task migrer beregningsgrunnlag enkeltsak");
-
-        var saksnummer = Optional.ofNullable(prosessTaskData.getPropertyValue(SAKSNUMMER_TASK_KEY)).map(Saksnummer::new)
-            .orElseThrow(() -> new IllegalStateException("Mangler saksnummer"));
-        beregningMigreringTjeneste.migrerSak(saksnummer);
-
+        beregningMigreringTjeneste.migrerSak(new Saksnummer(prosessTaskData.getSaksnummer()));
         LOG.info("Avslutter task migrer beregningsgrunnlag enkeltsak");
     }
 }
