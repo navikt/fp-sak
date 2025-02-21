@@ -16,8 +16,9 @@ public record OmsorgOgRettDto(Søknad søknad, RegisterData registerdata, Manuel
 
     }
 
-    public record RegisterData(Set<PersonadresseDto> adresser, Set<PersonadresseDto> annenpartAdresser, SivilstandType sivilstand,
-                               Boolean harAnnenpartUføretrygd, Boolean harAnnenpartForeldrepenger, Boolean harAnnenpartEngangsstønad) {
+    public record RegisterData(Set<PersonadresseDto> søkersAdresser, Set<PersonadresseDto> annenpartAdresser, Set<PersonadresseDto> barnasAdresser,
+                               SivilstandType sivilstand, Boolean harAnnenpartUføretrygd, Boolean harAnnenpartForeldrepenger,
+                               Boolean harAnnenpartEngangsstønad) {
 
     }
 

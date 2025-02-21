@@ -157,7 +157,11 @@ public class YtelseFordelingDtoTjeneste {
         var adresserAnnenpart = personopplysningerAggregat.getOppgittAnnenPart()
             .map(a -> adresserForPerson(personopplysningerAggregat, a.getAktørId()))
             .orElse(Set.of());
-        var registerdata = new OmsorgOgRettDto.RegisterData(adresserSøker, adresserAnnenpart, sivilstand,
+        var barnasAdresser = personopplysningerAggregat.getBarna()
+            .stream()
+            .flatMap(b -> adresserForPerson(personopplysningerAggregat, b.getAktørId()).stream())
+            .collect(Collectors.toSet());
+        var registerdata = new OmsorgOgRettDto.RegisterData(adresserSøker, adresserAnnenpart, barnasAdresser, sivilstand,
             uføretrygdGrunnlagEntitet.map(UføretrygdGrunnlagEntitet::annenForelderMottarUføretrygd).orElse(null), harAnnenpartForeldrepenger,
             harAnnenpartEngangsstønad);
 

@@ -114,12 +114,12 @@ class YtelseFordelingDtoTjenesteTest {
 
         var registerdata = rettOgOmsorgDto.registerdata();
         assertThat(registerdata.sivilstand()).isEqualTo(SivilstandType.GIFT);
-        assertThat(registerdata.adresser()).hasSize(1);
-        var adresse1 = registerdata.adresser().stream().findFirst().orElseThrow();
-        assertThat(adresse1.getAdresseType()).isEqualTo(AdresseType.BOSTEDSADRESSE);
-        assertThat(adresse1.getLand()).isEqualToIgnoringCase(Landkoder.NOR.getNavn());
-        assertThat(adresse1.getAdresselinje1()).isEqualTo(adresselinje);
-        assertThat(adresse1.getPostNummer()).isEqualTo(poststed);
+        assertThat(registerdata.søkersAdresser()).hasSize(1);
+        var adresse1 = registerdata.søkersAdresser().stream().findFirst().orElseThrow();
+        assertThat(adresse1.adresseType()).isEqualTo(AdresseType.BOSTEDSADRESSE);
+        assertThat(adresse1.land()).isEqualToIgnoringCase(Landkoder.NOR.getNavn());
+        assertThat(adresse1.adresselinje1()).isEqualTo(adresselinje);
+        assertThat(adresse1.postNummer()).isEqualTo(poststed);
     }
 
     @Test
