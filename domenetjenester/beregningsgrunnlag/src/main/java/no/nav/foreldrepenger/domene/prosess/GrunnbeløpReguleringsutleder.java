@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.prosess;
 
 import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 
@@ -18,8 +17,7 @@ public class GrunnbeløpReguleringsutleder {
     private GrunnbeløpReguleringsutleder() {
         // Skjuler default konstruktør
     }
-    public static boolean kanPåvirkesAvGrunnbeløpRegulering(BeregningsgrunnlagGrunnlag grunnlag) {
-        var bg = grunnlag.getBeregningsgrunnlag().orElseThrow();
+    public static boolean kanPåvirkesAvGrunnbeløpRegulering(Beregningsgrunnlag bg) {
         return harGrunnlagSomBleAvkortet(bg)
             || erMilitærMedMinstekrav(bg)
             || erBeregnetSomNæringsdrivende(bg);

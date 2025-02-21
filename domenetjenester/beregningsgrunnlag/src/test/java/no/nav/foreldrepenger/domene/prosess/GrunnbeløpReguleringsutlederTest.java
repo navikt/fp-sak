@@ -4,11 +4,9 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
-import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.vedtak.konfig.Tid;
 
 import org.junit.jupiter.api.Test;
@@ -41,10 +39,9 @@ class GrunnbeløpReguleringsutlederTest {
             .medGrunnbeløp(BigDecimal.valueOf(100000))
             .leggTilBeregningsgrunnlagPeriode(periode)
             .build();
-        var gr = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(bg).build(BeregningsgrunnlagTilstand.FASTSATT);
 
         // Act
-        var kanTrengeGregulering = GrunnbeløpReguleringsutleder.kanPåvirkesAvGrunnbeløpRegulering(gr);
+        var kanTrengeGregulering = GrunnbeløpReguleringsutleder.kanPåvirkesAvGrunnbeløpRegulering(bg);
 
         // Assert
         assertThat(kanTrengeGregulering).isFalse();
@@ -71,10 +68,9 @@ class GrunnbeløpReguleringsutlederTest {
             .medGrunnbeløp(BigDecimal.valueOf(100000))
             .leggTilBeregningsgrunnlagPeriode(periode)
             .build();
-        var gr = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(bg).build(BeregningsgrunnlagTilstand.FASTSATT);
 
         // Act
-        var kanTrengeGregulering = GrunnbeløpReguleringsutleder.kanPåvirkesAvGrunnbeløpRegulering(gr);
+        var kanTrengeGregulering = GrunnbeløpReguleringsutleder.kanPåvirkesAvGrunnbeløpRegulering(bg);
 
         // Assert
         assertThat(kanTrengeGregulering).isTrue();
@@ -99,10 +95,9 @@ class GrunnbeløpReguleringsutlederTest {
             .medGrunnbeløp(BigDecimal.valueOf(100000))
             .leggTilBeregningsgrunnlagPeriode(periode)
             .build();
-        var gr = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(bg).build(BeregningsgrunnlagTilstand.FASTSATT);
 
         // Act
-        var kanTrengeGregulering = GrunnbeløpReguleringsutleder.kanPåvirkesAvGrunnbeløpRegulering(gr);
+        var kanTrengeGregulering = GrunnbeløpReguleringsutleder.kanPåvirkesAvGrunnbeløpRegulering(bg);
 
         // Assert
         assertThat(kanTrengeGregulering).isTrue();
@@ -127,10 +122,9 @@ class GrunnbeløpReguleringsutlederTest {
             .medGrunnbeløp(BigDecimal.valueOf(100000))
             .leggTilBeregningsgrunnlagPeriode(periode)
             .build();
-        var gr = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(bg).build(BeregningsgrunnlagTilstand.FASTSATT);
 
         // Act
-        var kanTrengeGregulering = GrunnbeløpReguleringsutleder.kanPåvirkesAvGrunnbeløpRegulering(gr);
+        var kanTrengeGregulering = GrunnbeløpReguleringsutleder.kanPåvirkesAvGrunnbeløpRegulering(bg);
 
         // Assert
         assertThat(kanTrengeGregulering).isTrue();
