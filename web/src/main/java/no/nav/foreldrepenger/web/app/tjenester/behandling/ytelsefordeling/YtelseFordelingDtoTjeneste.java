@@ -122,7 +122,10 @@ public class YtelseFordelingDtoTjeneste {
             return Optional.empty();
         }
         var behandlingId = behandling.getId();
-        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandlingId);
+        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandlingId);
+        if (ytelseFordelingAggregat.isEmpty()) {
+            return Optional.empty();
+        }
         var personopplysningerAggregat = personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(behandlingId, behandling.getAktørId());
         if (personopplysningerAggregat.isEmpty()) {
             return Optional.empty();
@@ -131,7 +134,7 @@ public class YtelseFordelingDtoTjeneste {
 
         var ytelsespesifiktGrunnlag = hentForeldrepengerGrunnlag(behandlingId);
 
-        return mapTilDto(behandling.getAktørId(), ytelseFordelingAggregat, personopplysningerAggregat.get(), uføretrygdGrunnlagEntitet,
+        return mapTilDto(behandling.getAktørId(), ytelseFordelingAggregat.get(), personopplysningerAggregat.get(), uføretrygdGrunnlagEntitet,
             ytelsespesifiktGrunnlag,
             ytelsespesifiktGrunnlag.getAnnenpart().map(Annenpart::gjeldendeVedtakBehandlingId).flatMap(b -> uttakTjeneste.hentHvisEksisterer(b)));
     }
