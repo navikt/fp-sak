@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
@@ -27,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
@@ -75,6 +75,7 @@ public class BehandlingFormidlingDtoTjeneste {
     private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
     private DekningsgradTjeneste dekningsgradTjeneste;
     private MedlemTjeneste medlemTjeneste;
+    private VergeRepository vergeRepository;
 
     @Inject
     public BehandlingFormidlingDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
@@ -85,7 +86,8 @@ public class BehandlingFormidlingDtoTjeneste {
                                            UttakTjeneste uttakTjeneste,
                                            DekningsgradTjeneste dekningsgradTjeneste,
                                            UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste,
-                                           MedlemTjeneste medlemTjeneste) {
+                                           MedlemTjeneste medlemTjeneste,
+                                           VergeRepository vergeRepository) {
         this.beregningTjeneste = beregningTjeneste;
         this.uttakTjeneste = uttakTjeneste;
         this.utregnetStønadskontoTjeneste = utregnetStønadskontoTjeneste;
@@ -98,6 +100,7 @@ public class BehandlingFormidlingDtoTjeneste {
         this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
         this.dekningsgradTjeneste = dekningsgradTjeneste;
         this.medlemTjeneste = medlemTjeneste;
+        this.vergeRepository = vergeRepository;
     }
 
     BehandlingFormidlingDtoTjeneste() {
@@ -113,9 +116,11 @@ public class BehandlingFormidlingDtoTjeneste {
             return behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(behandling.getFagsakId())
                 .flatMap(s -> søknadRepository.hentSøknadHvisEksisterer(s.getId()))
                 .map(SøknadEntitet::getSpråkkode)
-                .orElseGet(()-> behandling.getFagsak().getNavBruker().getSpråkkode());
+                .orElseGet(() -> behandling.getFagsak().getNavBruker().getSpråkkode());
         }
-        return søknadRepository.hentSøknadHvisEksisterer(behandling.getId()).map(SøknadEntitet::getSpråkkode).orElseGet(() -> behandling.getFagsak().getNavBruker().getSpråkkode());
+        return søknadRepository.hentSøknadHvisEksisterer(behandling.getId())
+            .map(SøknadEntitet::getSpråkkode)
+            .orElseGet(() -> behandling.getFagsak().getNavBruker().getSpråkkode());
     }
 
     private void settStandardfelterForBrev(Behandling behandling, BehandlingFormidlingDto dto) {
@@ -138,9 +143,7 @@ public class BehandlingFormidlingDtoTjeneste {
         var uuidDto = new UuidDto(behandling.getUuid());
         dto.leggTil(get(AksjonspunktRestTjeneste.AKSJONSPUNKT_V2_PATH, "aksjonspunkter", uuidDto));
 
-        if (behandlingHarVergeAksjonspunkt(behandling)) {
-            dto.leggTil(get(PersonRestTjeneste.VERGE_BACKEND_PATH, "verge-backend", uuidDto));
-        }
+        leggTilVergeHvisFinnes(dto, behandling, uuidDto);
 
         if (BehandlingType.INNSYN.equals(behandling.getType())) {
             return utvideBehandlingDtoForInnsyn(behandling, dto);
@@ -183,26 +186,31 @@ public class BehandlingFormidlingDtoTjeneste {
         dto.leggTil(get(InntektArbeidYtelseRestTjeneste.ALLE_INNTEKTSMELDINGER_PATH, "inntektsmeldinger", uuidDto));
 
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
-            dto.leggTilFormidlingRessurs(get(TilkjentYtelseFormidlingRestTjeneste.TILKJENT_YTELSE_ENGAGSSTØNAD_PATH, "tilkjentytelse-engangsstonad", uuidDto));
+            dto.leggTilFormidlingRessurs(
+                get(TilkjentYtelseFormidlingRestTjeneste.TILKJENT_YTELSE_ENGAGSSTØNAD_PATH, "tilkjentytelse-engangsstonad", uuidDto));
             dto.leggTil(get(BeregningsresultatRestTjeneste.ENGANGSTONAD_PATH, "beregningsresultat-engangsstonad", uuidDto));
             dto.setMedlemskapFom(medlemTjeneste.hentMedlemFomDato(behandling.getId()).orElse(null));
         } else {
             var beregningsgrunnlag = beregningTjeneste.hent(BehandlingReferanse.fra(behandling))
-                    .flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
+                .flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
             if (beregningsgrunnlag.isPresent()) {
-                dto.leggTilFormidlingRessurs(get(BeregningsgrunnlagFormidlingRestTjeneste.BEREGNINGSGRUNNLAG_PATH, "beregningsgrunnlag-formidling", uuidDto));
+                dto.leggTilFormidlingRessurs(
+                    get(BeregningsgrunnlagFormidlingRestTjeneste.BEREGNINGSGRUNNLAG_PATH, "beregningsgrunnlag-formidling", uuidDto));
             }
-            dto.leggTilFormidlingRessurs(get(ArbeidsforholdInntektsmeldingFormidlingRestTjeneste.INNTEKTSMELDING_STATUS_PATH, "inntektsmelding-status", uuidDto));
+            dto.leggTilFormidlingRessurs(
+                get(ArbeidsforholdInntektsmeldingFormidlingRestTjeneste.INNTEKTSMELDING_STATUS_PATH, "inntektsmelding-status", uuidDto));
             if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
                 var uttak = uttakTjeneste.hentHvisEksisterer(behandling.getId());
 
                 if (uttak.isPresent()) {
                     dto.leggTil(get(UttakRestTjeneste.RESULTAT_SVANGERSKAPSPENGER_PATH, "uttaksresultat-svangerskapspenger", uuidDto));
-                    dto.leggTilFormidlingRessurs(get(TilkjentYtelseFormidlingRestTjeneste.TILKJENT_YTELSE_DAGYTELSE_PATH, "tilkjentytelse-dagytelse", uuidDto));
+                    dto.leggTilFormidlingRessurs(
+                        get(TilkjentYtelseFormidlingRestTjeneste.TILKJENT_YTELSE_DAGYTELSE_PATH, "tilkjentytelse-dagytelse", uuidDto));
                     dto.leggTil(get(FormidlingRestTjeneste.MOTTATT_DATO_SØKNADSFRIST_PATH, "motattdato-søknad", uuidDto));
                 }
             } else {
-                var harAvklartAnnenForelderRett = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT)
+                var harAvklartAnnenForelderRett = behandling.getAksjonspunktMedDefinisjonOptional(
+                        AksjonspunktDefinisjon.AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT)
                     .filter(ap -> AksjonspunktStatus.UTFØRT.equals(ap.getStatus()))
                     .isPresent();
                 dto.setHarAvklartAnnenForelderRett(harAvklartAnnenForelderRett);
@@ -220,7 +228,8 @@ public class BehandlingFormidlingDtoTjeneste {
                     dto.leggTil(get(UttakRestTjeneste.RESULTAT_PERIODER_PATH, "uttaksresultat-perioder-formidling", uuidDto));
                 }
                 if (uttak.isPresent()) {
-                    dto.leggTilFormidlingRessurs(get(TilkjentYtelseFormidlingRestTjeneste.TILKJENT_YTELSE_DAGYTELSE_PATH, "tilkjentytelse-dagytelse", uuidDto));
+                    dto.leggTilFormidlingRessurs(
+                        get(TilkjentYtelseFormidlingRestTjeneste.TILKJENT_YTELSE_DAGYTELSE_PATH, "tilkjentytelse-dagytelse", uuidDto));
                     uttak.filter(Uttak::harAvslagPgaMedlemskap).ifPresent(u -> {
                         var avslagsårsak = medlemTjeneste.hentAvslagsårsak(behandling.getId());
                         dto.setMedlemskapOpphørsårsak(avslagsårsak.orElse(null));
@@ -232,7 +241,9 @@ public class BehandlingFormidlingDtoTjeneste {
             }
         }
 
-        behandling.getOriginalBehandlingId().map(behandlingRepository::hentBehandling).map(Behandling::getUuid)
+        behandling.getOriginalBehandlingId()
+            .map(behandlingRepository::hentBehandling)
+            .map(Behandling::getUuid)
             .ifPresent(dto::setOriginalBehandlingUuid);
 
         return dto;
@@ -274,7 +285,9 @@ public class BehandlingFormidlingDtoTjeneste {
     }
 
     private boolean erRevurderingMedUendretUtfall(Behandling behandling) {
-        return FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, behandling.getFagsakYtelseType()).orElseThrow().erRevurderingMedUendretUtfall(behandling);
+        return FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, behandling.getFagsakYtelseType())
+            .orElseThrow()
+            .erRevurderingMedUendretUtfall(behandling);
     }
 
     private Optional<SkjæringstidspunktDto> finnSkjæringstidspunktForBehandling(Behandling behandling, Behandlingsresultat behandlingsresultat) {
@@ -288,10 +301,9 @@ public class BehandlingFormidlingDtoTjeneste {
         }
     }
 
-    private boolean behandlingHarVergeAksjonspunkt(Behandling behandling) {
-        return behandling.getAksjonspunkter().stream()
-            .map(Aksjonspunkt::getAksjonspunktDefinisjon)
-            .anyMatch(AksjonspunktDefinisjon.AVKLAR_VERGE::equals);
+    private void leggTilVergeHvisFinnes(BehandlingFormidlingDto dto, Behandling behandling, UuidDto uuidDto) {
+        vergeRepository.hentAggregat(behandling.getId())
+            .ifPresent(v -> dto.leggTil(get(PersonRestTjeneste.VERGE_BACKEND_PATH, "verge-backend", uuidDto)));
     }
 
     private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {

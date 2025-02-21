@@ -31,7 +31,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
@@ -325,14 +324,14 @@ public class BehandlingDtoTjeneste {
         var uuidDto = new UuidDto(behandling.getUuid());
         dto.leggTil(get(KlageRestTjeneste.KLAGE_V2_PATH, "klage-vurdering", uuidDto));
         dto.leggTil(get(KlageRestTjeneste.MOTTATT_KLAGEDOKUMENT_V2_PATH, "mottatt-klagedokument", uuidDto));
-        leggTilVergeHvisAksjonspunkt(behandling, dto, uuidDto);
+        leggTilVergeHvisFinnes(behandling, dto, uuidDto);
         return dto;
     }
 
     private UtvidetBehandlingDto utvideBehandlingDtoAnke(Behandling behandling, UtvidetBehandlingDto dto) {
         var uuidDto = new UuidDto(behandling.getUuid());
         dto.leggTil(get(AnkeRestTjeneste.ANKEVURDERING_V2_PATH, "anke-vurdering", uuidDto));
-        leggTilVergeHvisAksjonspunkt(behandling, dto, uuidDto);
+        leggTilVergeHvisFinnes(behandling, dto, uuidDto);
         return dto;
     }
 
@@ -360,7 +359,7 @@ public class BehandlingDtoTjeneste {
         dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V2_PATH, "familiehendelse-v2", uuidDto));
         dto.leggTil(get(PersonRestTjeneste.PERSONOVERSIKT_PATH, "behandling-personoversikt", uuidDto));
         dto.leggTil(get(PersonRestTjeneste.MEDLEMSKAP_V3_PATH, "soeker-medlemskap-v3", uuidDto));
-        leggTilVergeHvisAksjonspunkt(behandling, dto, uuidDto);
+        leggTilVergeHvisFinnes(behandling, dto, uuidDto);
         dto.leggTil(get(InntektArbeidYtelseRestTjeneste.INNTEKT_ARBEID_YTELSE_PATH, "inntekt-arbeid-ytelse", uuidDto));
         dto.leggTil(get(InntektArbeidYtelseRestTjeneste.ARBEIDSGIVERE_OPPLYSNINGER_PATH, "arbeidsgivere-oversikt", uuidDto));
         dto.leggTil(get(ArbeidOgInntektsmeldingRestTjeneste.HENT_ALLE_INNTEKTSMELDINGER_PATH, "inntektsmeldinger", uuidDto));
@@ -536,11 +535,10 @@ public class BehandlingDtoTjeneste {
         return behandlingsresultatRepository.hentHvisEksisterer(behandlingId).orElse(null);
     }
 
-    private void leggTilVergeHvisAksjonspunkt(Behandling behandling, UtvidetBehandlingDto dto, UuidDto uuidDto) {
+    private void leggTilVergeHvisFinnes(Behandling behandling, UtvidetBehandlingDto dto, UuidDto uuidDto) {
         var vergeFinnes = vergeRepository.hentAggregat(behandling.getId()).isPresent();
         if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE) || vergeFinnes) {
             dto.leggTil(get(PersonRestTjeneste.VERGE_PATH, "soeker-verge", uuidDto));
-            dto.leggTil(get(PersonRestTjeneste.VERGE_BACKEND_PATH, "verge-backend", uuidDto));
         }
     }
 }
