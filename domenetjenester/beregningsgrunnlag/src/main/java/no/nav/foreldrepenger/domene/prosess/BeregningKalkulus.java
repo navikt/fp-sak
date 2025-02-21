@@ -106,7 +106,7 @@ public class BeregningKalkulus implements BeregningAPI {
             koblingRepository.oppdaterKoblingMedStpOgGrunnbeløp(kobling, Beløp.fra(bg.getGrunnbeløp().getVerdi()), bg.getSkjæringstidspunkt());
         } else if (stegType.equals(BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG)) {
             var gr = hent(behandlingReferanse).orElseThrow();
-            var kanVærePåvirketAvRegulering = GrunnbeløpReguleringsutleder.kanPåvirkesAvGrunnbeløpRegulering(gr);
+            var kanVærePåvirketAvRegulering = gr.getBeregningsgrunnlag().map(GrunnbeløpReguleringsutleder::kanPåvirkesAvGrunnbeløpRegulering).orElse(false);
             koblingRepository.oppdaterKoblingMedReguleringsbehov(kobling, kanVærePåvirketAvRegulering);
         }
     }
