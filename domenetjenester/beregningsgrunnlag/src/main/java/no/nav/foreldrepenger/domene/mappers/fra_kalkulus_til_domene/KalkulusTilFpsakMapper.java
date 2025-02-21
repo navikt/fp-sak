@@ -189,7 +189,7 @@ public final class KalkulusTilFpsakMapper {
             .build();
     }
 
-    private static Beregningsgrunnlag mapGrunnlag(BeregningsgrunnlagDto beregningsgrunnlagDto,
+    public static Beregningsgrunnlag mapGrunnlag(BeregningsgrunnlagDto beregningsgrunnlagDto,
                                                   Optional<BesteberegningGrunnlagDto> besteberegningGrunnlagDto) {
         var builder = Beregningsgrunnlag.builder()
             .medSkjæringstidspunkt(beregningsgrunnlagDto.getSkjæringstidspunkt())
