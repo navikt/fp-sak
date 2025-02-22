@@ -137,7 +137,7 @@ public class PipRestTjeneste {
 
     public record SaksnummerPlainDto(@JsonValue @NotNull @Size(max = 20) @Pattern(regexp = "^[a-zA-Z0-9_\\-]*$") String saksnummer) { }
 
-    public record SaksnummerSetDto(@Valid Set<SaksnummerPlainDto> saksnummer) {}
+    public record SaksnummerSetDto(@Valid @Size(max = 500) Set<SaksnummerPlainDto> saksnummer) {}
 
     // Trengs ikke her - PIP-tjenester skal bare kalles av system/client_credentials
     public static class SakSetSupplier implements Function<Object, AbacDataAttributter> {
