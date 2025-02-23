@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -162,9 +163,16 @@ public class ForretningshendelseMottak {
         taskData.setProperty(MottaHendelseFagsakTask.PROPERTY_HENDELSE_TYPE, hendelseType.getKode());
         taskData.setProperty(MottaHendelseFagsakTask.PROPERTY_ÅRSAK_TYPE, behandlingÅrsakType.getKode());
         taskData.setFagsak(fagsak.getSaksnummer().getVerdi(), fagsak.getId());
-        if (IS_PROD && LocalTime.now().isBefore(OPPDRAG_VÅKNER)) {
-            // Porsjoner utover neste 7 min
-            taskData.setNesteKjøringEtter(LocalDateTime.of(LocalDate.now(), OPPDRAG_VÅKNER.plusSeconds(LocalDateTime.now().getNano() % 1739)));
+        if (IS_PROD) {
+            // Unngå samtidighetsproblemer dersom begge foreldres saker revurderes pga hendelse
+            var tidstillegg = !RelasjonsRolleType.erMor(fagsak.getRelasjonsRolleType()) ? 45 : 0;
+            if (LocalTime.now().isBefore(OPPDRAG_VÅKNER)) {
+                // Porsjoner utover neste 29 min
+                var tidspunkt = OPPDRAG_VÅKNER.plusSeconds(LocalDateTime.now().getNano() % 1739).plusSeconds(tidstillegg);
+                taskData.setNesteKjøringEtter(LocalDateTime.of(LocalDate.now(), tidspunkt));
+            } else {
+                taskData.setNesteKjøringEtter(LocalDateTime.now().plusSeconds(tidstillegg));
+            }
         }
         return taskData;
     }
