@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.los;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,6 +45,7 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
+import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 import no.nav.foreldrepenger.domene.typer.Beløp;
@@ -106,7 +108,7 @@ public class LosBehandlingDtoTjeneste {
     public LosBehandlingDto lagLosBehandlingDto(Behandling behandling, boolean harInnhentetRegisterData) {
 
         var faresignaler = harInnhentetRegisterData && mapFaresignaler(behandling);
-        var refusjonskrav = harRefusjonskravAlleIM(behandling);
+        var refusjonskrav = harNærFullRefusjonAlleIM(behandling);
         var refusjonegenskap = refusjonskrav ? BehandlingEgenskap.REFUSJONSKRAV : BehandlingEgenskap.DIREKTE_UTBETALING;
         List<String> behandlingsegenskaper = new ArrayList<>(List.of(refusjonegenskap.name()));
         if (faresignaler) behandlingsegenskaper.add(BehandlingEgenskap.FARESIGNALER.name());
@@ -311,14 +313,25 @@ public class LosBehandlingDtoTjeneste {
         return annenpart.isEmpty() || annenpartBosattRAV;
     }
 
-    private boolean harRefusjonskravAlleIM(Behandling behandling) {
+    private boolean harNærFullRefusjonAlleIM(Behandling behandling) {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) || !behandling.erYtelseBehandling() || behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING)) {
             return false;
         }
         var inntektsmeldinger = inntektsmeldingTjeneste.hentAlleInntektsmeldingerForAngitteBehandlinger(Set.of(behandling.getId()));
-        return !inntektsmeldinger.isEmpty() && inntektsmeldinger.stream()
-            .map(Inntektsmelding::getRefusjonBeløpPerMnd)
-            .allMatch(beløp -> beløp != null && beløp.compareTo(Beløp.ZERO) > 0);
+        return !inntektsmeldinger.isEmpty() && inntektsmeldinger.stream().allMatch(LosBehandlingDtoTjeneste::harNærFullRefusjon);
+    }
+
+    // Regner refusjonsandel over 90% som full refusjon, ellers som direkte utbetaling
+    private static boolean harNærFullRefusjon(Inntektsmelding inntektsmelding) {
+        var inntekt = Optional.ofNullable(inntektsmelding.getInntektBeløp()).map(Beløp::getVerdi).orElse(BigDecimal.ZERO);
+        var refusjon = Optional.ofNullable(inntektsmelding.getRefusjonBeløpPerMnd()).map(Beløp::getVerdi).orElse(BigDecimal.ZERO);
+        var refusjoner = Optional.ofNullable(inntektsmelding.getEndringerRefusjon()).orElseGet(List::of).stream()
+            .map(Refusjon::getRefusjonsbeløp)
+            .map(Beløp::getVerdi)
+            .max(Comparator.naturalOrder()).orElse(BigDecimal.ZERO);
+        var maxrefusjon = refusjon.compareTo(refusjoner) > 0 ? refusjon : refusjoner;
+        return inntekt.compareTo(BigDecimal.ZERO) > 0
+            && maxrefusjon.multiply(BigDecimal.TEN).compareTo(inntekt.multiply(new BigDecimal(9))) > 0;
     }
 
     public List<String> lagFagsakEgenskaperString(Fagsak fagsak) {
