@@ -8,32 +8,33 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-
-import no.nav.foreldrepenger.domene.mappers.fra_kalkulator_til_entitet.KodeverkFraKalkulusMapper;
-import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagPeriodeRegelType;
-
 import org.jboss.weld.exceptions.IllegalStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.folketrygdloven.kalkulus.felles.v1.AktørIdPersonident;
+import no.nav.folketrygdloven.kalkulus.felles.v1.Saksnummer;
 import no.nav.folketrygdloven.kalkulus.migrering.BeregningsgrunnlagGrunnlagMigreringDto;
 import no.nav.folketrygdloven.kalkulus.migrering.MigrerBeregningsgrunnlagRequest;
 import no.nav.folketrygdloven.kalkulus.migrering.MigrerBeregningsgrunnlagResponse;
-import no.nav.folketrygdloven.kalkulus.felles.v1.AktørIdPersonident;
-import no.nav.folketrygdloven.kalkulus.felles.v1.Saksnummer;
+import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKobling;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKoblingRepository;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.mappers.fra_entitet_til_domene.FraEntitetTilBehandlingsmodellMapper;
+import no.nav.foreldrepenger.domene.mappers.fra_kalkulator_til_entitet.KodeverkFraKalkulusMapper;
 import no.nav.foreldrepenger.domene.mappers.fra_kalkulus_til_domene.KalkulusTilFpsakMapper;
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagPeriodeRegelType;
+import no.nav.foreldrepenger.domene.prosess.GrunnbeløpReguleringsutleder;
 import no.nav.foreldrepenger.domene.prosess.KalkulusKlient;
+import no.nav.foreldrepenger.domene.typer.Beløp;
 
 @ApplicationScoped
 public class BeregningMigreringTjeneste {
@@ -69,22 +70,27 @@ public class BeregningMigreringTjeneste {
     }
 
     private void migrerBehandling(BehandlingReferanse referanse) {
-        if (erAlleredeMigrert(referanse)) {
-            LOG.info(String.format("Behandling %s er allerede migrert.", referanse.behandlingId()));
-            return;
-        }
         var grunnlag = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(referanse.behandlingId());
         if (grunnlag.isEmpty()) {
             LOG.info(String.format("Finner ikke beregningsgrunnlag på behandling %s, ingenting å migrere", referanse.behandlingId()));
             return;
         }
         try {
+            // Map og migrer
             var originalKobling = referanse.getOriginalBehandlingId().flatMap(oid -> koblingRepository.hentKobling(oid));
             var migreringsDto = BeregningMigreringMapper.map(grunnlag.get());
-            var kobling = koblingRepository.opprettKobling(referanse);
+            var kobling = koblingRepository.hentKobling(referanse.behandlingId()).orElseGet(() -> koblingRepository.opprettKobling(referanse));
             var request = lagMigreringRequest(referanse, kobling, originalKobling, migreringsDto);
             var response = klient.migrerGrunnlag(request);
+
+            // Sammenlign grunnlag fra kalkulus og fpsak
             sammenlignGrunnlag(response, referanse);
+
+            // Oppdater kobling med data fra grunnlag
+            if (response.grunnlag() != null && response.grunnlag().getBeregningsgrunnlag() != null) {
+                oppdaterKoblingMedStpGrunnbeløpOgReguleringsbehov(kobling, response.grunnlag().getBeregningsgrunnlag());
+            }
+
             LOG.info(String.format("Vellykket migrering og verifisering av beregningsgrunnlag på sak %s, behandlingId %s og grunnlag %s.", referanse.saksnummer(),
                 referanse.behandlingId(), grunnlag.map(BeregningsgrunnlagGrunnlagEntitet::getId)));
         } catch (Exception e) {
@@ -92,6 +98,14 @@ public class BeregningMigreringTjeneste {
                 referanse.behandlingId(), grunnlag.map(BeregningsgrunnlagGrunnlagEntitet::getId), e);
             throw new IllegalStateException(msg);
         }
+    }
+
+    private void oppdaterKoblingMedStpGrunnbeløpOgReguleringsbehov(BeregningsgrunnlagKobling kobling, BeregningsgrunnlagDto grunnlag) {
+        var stp = grunnlag.getSkjæringstidspunkt();
+        var grunnbeløp = grunnlag.getGrunnbeløp() == null ? null : Beløp.fra(grunnlag.getGrunnbeløp().verdi());
+        var harBehovForGRegulering = GrunnbeløpReguleringsutleder.kanPåvirkesAvGrunnbeløpRegulering(KalkulusTilFpsakMapper.mapGrunnlag(grunnlag, Optional.empty()));
+        koblingRepository.oppdaterKoblingMedStpOgGrunnbeløp(kobling, grunnbeløp, stp);
+        koblingRepository.oppdaterKoblingMedReguleringsbehov(kobling, harBehovForGRegulering);
     }
 
     private void sammenlignGrunnlag(MigrerBeregningsgrunnlagResponse response, BehandlingReferanse referanse) {
@@ -138,10 +152,6 @@ public class BeregningMigreringTjeneste {
         if (!allePeriodeSporingerMatcher) {
             throw new IllegalStateException("Feil med matching av regelsporing på periodenivå");
         }
-    }
-
-    private boolean erAlleredeMigrert(BehandlingReferanse referanse) {
-        return koblingRepository.hentKobling(referanse.behandlingId()).isPresent();
     }
 
     private MigrerBeregningsgrunnlagRequest lagMigreringRequest(BehandlingReferanse behandlingReferanse, BeregningsgrunnlagKobling kobling,

@@ -94,14 +94,14 @@ final class BehandlingDtoUtil {
         dto.setGjeldendeVedtak(erBehandlingMedGjeldendeVedtak);
     }
 
-    static Optional<BehandlingÅrsakDto> førsteÅrsak(Behandling behandling) {
+    private static Optional<BehandlingÅrsakDto> førsteÅrsak(Behandling behandling) {
         return behandling.getBehandlingÅrsaker().stream()
             .sorted(Comparator.comparing(BaseEntitet::getOpprettetTidspunkt))
             .map(BehandlingDtoUtil::map)
             .findFirst();
     }
 
-    static boolean erAktivPapirsøknad(Behandling behandling) {
+    private static boolean erAktivPapirsøknad(Behandling behandling) {
         var kriterier = Arrays.asList(
             AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD,
             AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_FORELDREPENGER,
