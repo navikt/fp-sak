@@ -106,20 +106,11 @@ class YtelseFordelingDtoTjenesteTest {
         assertThat(annenpartDto.annenpartRettighet().harOppholdEØS()).isTrue();
 
         var manuellBehandlingResultat = rettOgOmsorgDto.manuellBehandlingResultat();
-        assertThat(manuellBehandlingResultat.harAleneomsorg()).isFalse();
-        assertThat(manuellBehandlingResultat.harAnnenpartOppholdEØS()).isFalse();
-        assertThat(manuellBehandlingResultat.harAnnenpartRettEØS()).isFalse();
-        assertThat(manuellBehandlingResultat.harAnnenpartUføretrygd()).isFalse();
-        assertThat(manuellBehandlingResultat.harAnnenpartRettNorge()).isTrue();
-
-        var registerdata = rettOgOmsorgDto.registerdata();
-        assertThat(registerdata.sivilstand()).isEqualTo(SivilstandType.GIFT);
-        assertThat(registerdata.søkerAdresser()).hasSize(1);
-        var adresse1 = registerdata.søkerAdresser().stream().findFirst().orElseThrow();
-        assertThat(adresse1.adresseType()).isEqualTo(AdresseType.BOSTEDSADRESSE);
-        assertThat(adresse1.land()).isEqualToIgnoringCase(Landkoder.NOR.getNavn());
-        assertThat(adresse1.adresselinje1()).isEqualTo(adresselinje);
-        assertThat(adresse1.postNummer()).isEqualTo(poststed);
+        assertThat(manuellBehandlingResultat.søkerHarAleneomsorg()).isFalse();
+        assertThat(manuellBehandlingResultat.annenpartRettighet().harOppholdEØS()).isFalse();
+        assertThat(manuellBehandlingResultat.annenpartRettighet().harRettEØS()).isFalse();
+        assertThat(manuellBehandlingResultat.annenpartRettighet().harUføretrygd()).isFalse();
+        assertThat(manuellBehandlingResultat.annenpartRettighet().harRettNorge()).isTrue();
     }
 
     @Test

@@ -2,9 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling;
 
 import java.time.LocalDate;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -14,7 +12,6 @@ import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
@@ -23,14 +20,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Oppgitt
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
-import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.Annenpart;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonadresseDto;
 import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
@@ -137,16 +131,14 @@ public class YtelseFordelingDtoTjeneste {
         var oppgittAnnenpart = personopplysningerAggregat.getOppgittAnnenPart()
             .flatMap(ap -> mapAnnenpart(ap, ytelseFordelingAggregat.getOppgittRettighet()));
         var oppgittAleneomsorg = Boolean.TRUE.equals(ytelseFordelingAggregat.getOppgittRettighet().getHarAleneomsorgForBarnet());
-        var registerdata = opprettRegisterdata(behandlingId, aktørId, oppgittAleneomsorg, personopplysningerAggregat);
+        var registerdata = opprettRegisterdata(behandlingId, oppgittAleneomsorg);
         var manuellBehandlingResultat = opprettManuellBehandlingResultat(ytelseFordelingAggregat);
 
         return Optional.of(new OmsorgOgRettDto(oppgittAnnenpart.orElse(null), registerdata, manuellBehandlingResultat.orElse(null)));
     }
 
     private OmsorgOgRettDto.RegisterData opprettRegisterdata(Long behandlingId,
-                                                             AktørId aktørId,
-                                                             boolean oppgittAleneomsorg,
-                                                             PersonopplysningerAggregat personopplysningerAggregat) {
+                                                             boolean oppgittAleneomsorg) {
         var ytelsespesifiktGrunnlag = hentForeldrepengerGrunnlag(behandlingId);
         var harAnnenpartForeldrepenger = oppgittAleneomsorg ? null : ytelsespesifiktGrunnlag.getAnnenpart()
             .map(Annenpart::gjeldendeVedtakBehandlingId)
@@ -154,33 +146,20 @@ public class YtelseFordelingDtoTjeneste {
             .filter(ForeldrepengerUttak::harUtbetaling)
             .isPresent();
         var harAnnenpartEngangsstønad = oppgittAleneomsorg ? null : ytelsespesifiktGrunnlag.isOppgittAnnenForelderHarEngangsstønadForSammeBarn();
-        var adresserSøker = adresserForPerson(personopplysningerAggregat, aktørId);
-        var adresserAnnenpart = personopplysningerAggregat.getOppgittAnnenPart()
-            .map(a -> adresserForPerson(personopplysningerAggregat, a.getAktørId()))
-            .orElse(Set.of());
-        var adresserBarn = personopplysningerAggregat.getBarna()
-            .stream()
-            .flatMap(barn -> adresserForPerson(personopplysningerAggregat, barn.getAktørId()).stream())
-            .collect(Collectors.toSet());
         var annenForelderMottarUføretrygd = uføretrygdRepository.hentGrunnlag(behandlingId)
             .map(UføretrygdGrunnlagEntitet::annenForelderMottarUføretrygd)
             .orElse(null);
-        return new OmsorgOgRettDto.RegisterData(adresserSøker, adresserAnnenpart, adresserBarn, personopplysningerAggregat.getSøker().getSivilstand(),
-            annenForelderMottarUføretrygd, harAnnenpartForeldrepenger, harAnnenpartEngangsstønad);
+        return new OmsorgOgRettDto.RegisterData(annenForelderMottarUføretrygd, harAnnenpartForeldrepenger, harAnnenpartEngangsstønad);
     }
 
     private static Optional<OmsorgOgRettDto.ManuellBehandlingResultat> opprettManuellBehandlingResultat(YtelseFordelingAggregat ytelseFordelingAggregat) {
         return ytelseFordelingAggregat.getOverstyrtRettighet()
-            .map(or -> new OmsorgOgRettDto.ManuellBehandlingResultat(or.getHarAleneomsorgForBarnet(), or.getHarAnnenForeldreRett(),
-                or.getAnnenForelderOppholdEØS(), or.getAnnenForelderRettEØSNullable(), or.getMorMottarUføretrygd()));
-    }
-
-    private static Set<PersonadresseDto> adresserForPerson(PersonopplysningerAggregat personopplysningerAggregat, AktørId aktørId) {
-        return personopplysningerAggregat.getAdresserFor(aktørId,
-                SimpleLocalDateInterval.fraOgMedTomNotNull(Tid.TIDENES_BEGYNNELSE, Tid.TIDENES_ENDE))
-            .stream()
-            .map(PersonadresseDto::tilDto)
-            .collect(Collectors.toSet());
+            .map(or -> {
+                var søkerHarAleneomsorg = or.getHarAleneomsorgForBarnet();
+                var annenpartRettighet = søkerHarAleneomsorg ? null : new OmsorgOgRettDto.Rettighet(or.getHarAnnenForeldreRett(), or.getAnnenForelderOppholdEØS(),
+                    or.getAnnenForelderRettEØSNullable(), or.getMorMottarUføretrygd());
+                return new OmsorgOgRettDto.ManuellBehandlingResultat(søkerHarAleneomsorg, annenpartRettighet);
+            });
     }
 
     private ForeldrepengerGrunnlag hentForeldrepengerGrunnlag(Long behandlingId) {
@@ -192,7 +171,7 @@ public class YtelseFordelingDtoTjeneste {
         var ident = utledAnnenpartIdent(ap);
         return ident.map(s -> {
             var harAleneomsorg = oppgittRettighet.getHarAleneomsorgForBarnet();
-            var rettighet = harAleneomsorg ? null : new OmsorgOgRettDto.Søknad.Rettighet(oppgittRettighet.getHarAnnenForeldreRett(),
+            var rettighet = harAleneomsorg ? null : new OmsorgOgRettDto.Rettighet(oppgittRettighet.getHarAnnenForeldreRett(),
                 oppgittRettighet.getAnnenForelderOppholdEØS(), oppgittRettighet.getAnnenForelderRettEØS(), oppgittRettighet.getMorMottarUføretrygd());
             return new OmsorgOgRettDto.Søknad(harAleneomsorg, ap.getNavn(), s, ap.getUtenlandskFnrLand(), rettighet);
         });
