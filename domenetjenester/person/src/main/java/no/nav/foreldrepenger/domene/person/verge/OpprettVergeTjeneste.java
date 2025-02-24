@@ -8,7 +8,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt√
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
-import no.nav.foreldrepenger.behandlingslager.behandling.verge.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeOrganisasjonEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeType;
 import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.person.verge.dto.OpprettVergeDto;
