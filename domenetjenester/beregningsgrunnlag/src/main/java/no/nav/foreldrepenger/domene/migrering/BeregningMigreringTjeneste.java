@@ -64,6 +64,7 @@ public class BeregningMigreringTjeneste {
         var behandlinger = behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(saksnummer)
             .stream()
             .filter(Behandling::erYtelseBehandling)
+            .filter(Behandling::erAvsluttet)
             .sorted(Comparator.comparing(Behandling::getOpprettetDato))
             .toList();
         behandlinger.forEach(b -> migrerBehandling(BehandlingReferanse.fra(b)));
