@@ -1,7 +1,16 @@
 package no.nav.foreldrepenger.kompletthet.impl;
 
+import static java.util.Collections.emptyList;
+
+import java.util.List;
+import java.util.Set;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
@@ -19,14 +28,6 @@ import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.time.LocalDateTime;
-import java.util.List;
-
-import static java.util.Collections.emptyList;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD;
 
 @ApplicationScoped
 public class KompletthetsjekkerImpl implements Kompletthetsjekker {
@@ -82,82 +83,57 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
 
     @Override
     public KompletthetResultat vurderForsendelseKomplett(BehandlingReferanse ref, Skjæringstidspunkt stp) {
-        if (FagsakYtelseType.ENGANGSTØNAD.equals(ref.fagsakYtelseType())) {
-            if (utledAlleManglendeVedleggForForsendelse(ref).isEmpty()) {
+        if (ref.erRevurdering()) {
+            var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
+            if (SpesialBehandling.skalGrunnlagBeholdes(behandling)) {
                 return KompletthetResultat.oppfylt();
             }
-            var ønsketFrist = LocalDateTime.now().plus(AUTO_VENTER_PÅ_KOMPLETT_SØKNAD.getFristPeriod());
-            return KompletthetResultat.ikkeOppfylt(ønsketFrist, Venteårsak.AVV_DOK);
-        }
 
-        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ref.fagsakYtelseType())) {
-            // Kalles fra VurderKompletthetSteg (en ganger) som setter autopunkt 7003 + fra KompletthetsKontroller (dokument på åpen behandling, hendelser)
-            if (ref.erRevurdering()) {
-                return KompletthetResultat.oppfylt();
-            } else {
-                var manglendeInntektsmeldingerFraGrunnlag = manglendeInntektsmeldingTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(ref, stp);
-                if (!manglendeInntektsmeldingerFraGrunnlag.isEmpty()) {
-                    return håndterManglendeIM(ref, stp, manglendeInntektsmeldingerFraGrunnlag);
-                }
-                return KompletthetResultat.oppfylt();
+            if (kompletthetssjekkerSøknad.endringssøknadErMottatt(behandling) && !kompletthetssjekkerSøknad.utledManglendeVedleggForSøknad(ref).isEmpty()) {
+                return ikkeOppfyltManglerVedlegg(ref);
             }
+
+            // Når endringssøknad ikke er mottatt har vi ikke noe å sjekke kompletthet mot
+            // og behandlingen slippes igjennom. Dette gjelder ved fødselshendelse og inntektsmelding.
+            return KompletthetResultat.oppfylt();
         }
 
-        if (FagsakYtelseType.FORELDREPENGER.equals(ref.fagsakYtelseType())) {
-            if (ref.erRevurdering()) {
-                var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
-                if (SpesialBehandling.skalGrunnlagBeholdes(behandling)) {
-                    return KompletthetResultat.oppfylt();
-                }
+        // OPPRETTET har du i perioden mellom behandlingen er lagret og første kall til behandlingskontroll.
+        // Det skal normalt ta sekunder, men pga KØ kan det ta dager og uker.
+        if (FagsakYtelseType.FORELDREPENGER.equals(ref.fagsakYtelseType()) && BehandlingStatus.OPPRETTET.equals(ref.behandlingStatus())) {
+            return KompletthetResultat.oppfylt();
+        }
 
-                if (kompletthetssjekkerSøknad.endringssøknadErMottatt(behandling) &&
-                        !kompletthetssjekkerSøknad.utledManglendeVedleggForSøknad(ref).isEmpty()) {
-                    return opprettKompletthetResultatMedVentefrist(ref);
-                }
-
-                // Når endringssøknad ikke er mottatt har vi ikke noe å sjekke kompletthet mot
-                // og behandlingen slippes igjennom. Dette gjelder ved fødselshendelse og inntektsmelding.
-                return KompletthetResultat.oppfylt();
-            } else {
-                if (BehandlingStatus.OPPRETTET.equals(ref.behandlingStatus())) {
-                    return KompletthetResultat.oppfylt();
-                }
-                // Kalles fra VurderKompletthetSteg (en gang) som setter autopunkt 7003 + fra KompletthetsKontroller (dokument på åpen behandling, hendelser)
-                var manglendeInntektsmeldingerFraGrunnlag = manglendeInntektsmeldingTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(ref, stp);
-                if (!manglendeInntektsmeldingerFraGrunnlag.isEmpty()) {
-                    return håndterManglendeIM(ref, stp, manglendeInntektsmeldingerFraGrunnlag);
-                }
-                // Denne fristen skulle egentlig vært samordnet med frist over - men man ønsket få opp IM-mangler uavhengig
-                if (!kompletthetssjekkerSøknad.utledManglendeVedleggForSøknad(ref).isEmpty()) {
-                    var ventefristTidligMottattSøknad = kompletthetssjekkerSøknad.finnVentefristForManglendeVedlegg(ref);
-                    return ventefristTidligMottattSøknad
-                            .map(frist -> KompletthetResultat.ikkeOppfylt(frist, Venteårsak.AVV_DOK))
-                            .orElse(KompletthetResultat.fristUtløpt());
-                }
-                return KompletthetResultat.oppfylt();
+        if (Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.SVANGERSKAPSPENGER).contains(ref.fagsakYtelseType())) {
+            // Kalles fra VurderKompletthetSteg (en gang) som setter autopunkt 7003 + fra KompletthetsKontroller (dokument på åpen behandling, hendelser)
+            var manglendeInntektsmeldingerFraGrunnlag = manglendeInntektsmeldingTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(ref, stp);
+            if (!manglendeInntektsmeldingerFraGrunnlag.isEmpty()) {
+                loggManglendeInntektsmeldinger(ref, manglendeInntektsmeldingerFraGrunnlag);
+                return manglendeInntektsmeldingTjeneste.finnVentefristTilManglendeInntektsmelding(ref, stp)
+                    .map(frist -> KompletthetResultat.ikkeOppfylt(frist, Venteårsak.VENT_OPDT_INNTEKTSMELDING))
+                    .orElse(KompletthetResultat.fristUtløpt());
             }
         }
 
-        // TODO: Default oppførsel? Skal ikke kunne havne her
+        if (!kompletthetssjekkerSøknad.utledManglendeVedleggForSøknad(ref).isEmpty()) {
+            return ikkeOppfyltManglerVedlegg(ref);
+        }
+
         return KompletthetResultat.oppfylt();
     }
 
     @Override
     public List<ManglendeVedlegg> utledAlleManglendeVedleggForForsendelse(BehandlingReferanse ref) {
-        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ref.fagsakYtelseType())) {
-            return emptyList(); //Påkrevde vedlegg håndheves i søknadsdialogen
-        }
         return kompletthetssjekkerSøknad.utledManglendeVedleggForSøknad(ref);
     }
 
     @Override
-    public List<ManglendeVedlegg> utledAlleManglendeVedleggSomIkkeKommer(BehandlingReferanse ref) {
+    public List<ManglendeVedlegg> utledAlleManglendeInntektsmeldingerSomIkkeKommer(BehandlingReferanse ref) {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(ref.fagsakYtelseType()) || FagsakYtelseType.SVANGERSKAPSPENGER.equals(ref.fagsakYtelseType())) {
             return emptyList();
         }
 
-        return manglendeInntektsmeldingTjeneste.hentAlleInntektsmeldingerSomIkkeKommer(ref)
-                .stream()
+        return manglendeInntektsmeldingTjeneste.hentAlleInntektsmeldingerSomIkkeKommer(ref).stream()
                 .map(e -> new ManglendeVedlegg(DokumentTypeId.INNTEKTSMELDING, e.getArbeidsgiver().getIdentifikator(), true))
                 .toList();
     }
@@ -213,15 +189,6 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
         return KompletthetResultat.oppfylt();
     }
 
-    private KompletthetResultat håndterManglendeIM(BehandlingReferanse ref,
-                                                   Skjæringstidspunkt stp,
-                                                   List<ManglendeVedlegg> manglendeInntektsmeldingerFraGrunnlag) {
-        loggManglendeInntektsmeldinger(ref, manglendeInntektsmeldingerFraGrunnlag);
-        return manglendeInntektsmeldingTjeneste.finnVentefristTilManglendeInntektsmelding(ref, stp)
-            .map(frist -> KompletthetResultat.ikkeOppfylt(frist, Venteårsak.VENT_OPDT_INNTEKTSMELDING))
-            .orElse(KompletthetResultat.fristUtløpt());
-    }
-
     private void loggManglendeInntektsmeldinger(BehandlingReferanse ref, List<ManglendeVedlegg> manglendeInntektsmeldinger) {
         var arbgivere = manglendeInntektsmeldinger.stream().map(v -> OrgNummer.tilMaskertNummer(v.arbeidsgiver())).toList().toString();
         LOG.info("Behandling {} er ikke komplett - mangler IM fra arbeidsgivere: {}", ref.behandlingId(), arbgivere);
@@ -243,7 +210,8 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
         return false;
     }
 
-    private KompletthetResultat opprettKompletthetResultatMedVentefrist(BehandlingReferanse ref) {
+    private KompletthetResultat ikkeOppfyltManglerVedlegg(BehandlingReferanse ref) {
+        // Denne fristen skulle egentlig vært samordnet med frist over - men man ønsket få opp IM-mangler uavhengig
         var ventefristTidligMottattSøknad = kompletthetssjekkerSøknad.finnVentefristForManglendeVedlegg(ref);
         return ventefristTidligMottattSøknad
                 .map(frist -> KompletthetResultat.ikkeOppfylt(frist, Venteårsak.AVV_DOK))
