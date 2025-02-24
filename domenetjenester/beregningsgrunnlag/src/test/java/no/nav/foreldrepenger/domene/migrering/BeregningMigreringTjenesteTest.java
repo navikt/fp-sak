@@ -101,7 +101,9 @@ class BeregningMigreringTjenesteTest {
     }
 
     private Behandling lagBehandling() {
-        return ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
+        behandling.avsluttBehandling();
+        return behandling;
     }
 
     private BeregningsgrunnlagGrunnlagEntitet lagGrunnlagEntitet() {

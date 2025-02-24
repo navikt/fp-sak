@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.behandling;
+package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoForBackendTjeneste;
 
 class BehandlingDtoForBackendTjenesteTest extends EntityManagerAwareTest {
 
@@ -110,7 +109,8 @@ class BehandlingDtoForBackendTjenesteTest extends EntityManagerAwareTest {
         lagBehandligVedtak(innsyn);
         avsluttBehandling(innsyn);
 
-        var utvidetBehandlingDto = behandlingDtoForBackendTjeneste.lagBehandlingDto(innsyn, null, Optional.of(new OrganisasjonsEnhet("9000", "Spesifikk")));
+        var utvidetBehandlingDto = behandlingDtoForBackendTjeneste.lagBehandlingDto(innsyn, null,
+            Optional.of(new OrganisasjonsEnhet("9000", "Spesifikk")));
 
         assertThat(utvidetBehandlingDto.getAnsvarligSaksbehandler()).isEqualTo(ANSVARLIG_SAKSBEHANDLER);
         assertThat(utvidetBehandlingDto.getBehandlingÅrsaker()).isNotEmpty();
@@ -120,6 +120,21 @@ class BehandlingDtoForBackendTjenesteTest extends EntityManagerAwareTest {
         assertThat(utvidetBehandlingDto.getLinks()).isNotEmpty();
     }
 
+    @Test
+    void alle_ressurslenker_skal_matche_annotert_restmetode() {
+        var behandlinger = BehandlingDtoLenkeTestUtils.lagOgLagreBehandlinger(repositoryProvider);
+
+        var routes = BehandlingDtoLenkeTestUtils.getRoutes();
+        for (var behandling : behandlinger) {
+            for (var dtoLink : behandlingDtoForBackendTjeneste.lagBehandlingDto(behandling, null, Optional.empty()).getLinks()) {
+                assertThat(dtoLink).isNotNull();
+                assertThat(routes.stream().anyMatch(route -> route.hasSameHttpMethod(dtoLink) && route.matchesUrlTemplate(dtoLink))).withFailMessage(
+                    "Route " + dtoLink + " does not exist.").isTrue();
+            }
+        }
+    }
+
+
     private Fagsak byggFagsak(AktørId aktørId, Saksnummer saksnummer) {
         var navBruker = NavBruker.opprettNyNB(aktørId);
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker, RelasjonsRolleType.MORA, saksnummer);
@@ -128,13 +143,11 @@ class BehandlingDtoForBackendTjenesteTest extends EntityManagerAwareTest {
     }
 
     private SøknadEntitet lagSøknadMedNynorskSpråk() {
-        return new SøknadEntitet.Builder()
-            .medSøknadsdato(LocalDate.now())
+        return new SøknadEntitet.Builder().medSøknadsdato(LocalDate.now())
             .medMottattDato(LocalDate.now().minusWeeks(3))
             .medElektroniskRegistrert(true)
             .medSpråkkode(Språkkode.NN)
             .build();
-
     }
 
     private Behandling lagBehandling(Fagsak fagsak, BehandlingType behandlingType) {
@@ -143,9 +156,7 @@ class BehandlingDtoForBackendTjenesteTest extends EntityManagerAwareTest {
             .medBehandlendeEnhet(new OrganisasjonsEnhet("9999", "Generisk"))
             .medBehandlingÅrsak(BehandlingÅrsak.builder(BEHANDLING_ÅRSAK_TYPE))
             .build();
-        var behandlingsresultat = Behandlingsresultat.builder()
-            .medBehandlingResultatType(BEHANDLING_RESULTAT_TYPE)
-            .build();
+        var behandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BEHANDLING_RESULTAT_TYPE).build();
 
         behandling.setBehandlingresultat(behandlingsresultat);
         behandling.setAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER);
@@ -157,12 +168,14 @@ class BehandlingDtoForBackendTjenesteTest extends EntityManagerAwareTest {
     }
 
     private void lagBehandligVedtak(Behandling behandling) {
-        var behandlingVedtak = BehandlingVedtak.builder().medVedtakResultatType(VedtakResultatType.INNVILGET)
+        var behandlingVedtak = BehandlingVedtak.builder()
+            .medVedtakResultatType(VedtakResultatType.INNVILGET)
             .medAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER)
             .medBehandlingsresultat(behandling.getBehandlingsresultat())
             .medIverksettingStatus(IverksettingStatus.IVERKSATT)
             .medVedtakstidspunkt(now)
-            .medBeslutning(true).build();
+            .medBeslutning(true)
+            .build();
         var behandlingLås = behandlingRepository.taSkriveLås(behandling);
         repositoryProvider.getBehandlingVedtakRepository().lagre(behandlingVedtak, behandlingLås);
     }
