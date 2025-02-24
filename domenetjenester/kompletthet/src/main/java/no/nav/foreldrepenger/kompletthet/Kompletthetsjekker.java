@@ -14,7 +14,7 @@ public interface Kompletthetsjekker {
 
     List<ManglendeVedlegg> utledAlleManglendeVedleggForForsendelse(BehandlingReferanse ref);
 
-    List<ManglendeVedlegg> utledAlleManglendeInntektsmeldingerSomIkkeKommer(BehandlingReferanse ref);
+    List<ManglendeVedlegg> utledAlleManglendeVedleggSomIkkeKommer(BehandlingReferanse ref);
 
     boolean erForsendelsesgrunnlagKomplett(BehandlingReferanse ref);
 
