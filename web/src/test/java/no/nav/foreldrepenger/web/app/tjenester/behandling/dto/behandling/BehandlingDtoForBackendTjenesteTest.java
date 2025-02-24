@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.behandling;
+package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoForBackendTjeneste;
 
 class BehandlingDtoForBackendTjenesteTest extends EntityManagerAwareTest {
 
