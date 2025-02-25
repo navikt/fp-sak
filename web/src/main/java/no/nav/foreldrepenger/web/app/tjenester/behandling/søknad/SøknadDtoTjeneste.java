@@ -173,7 +173,7 @@ public class SøknadDtoTjeneste {
 
     private List<ManglendeVedleggDto> genererManglendeVedlegg(BehandlingReferanse ref) {
         var alleManglendeVedlegg = new ArrayList<>(kompletthetsjekker.utledAlleManglendeVedleggForForsendelse(ref));
-        var vedleggSomIkkeKommer = kompletthetsjekker.utledAlleManglendeVedleggSomIkkeKommer(ref);
+        var vedleggSomIkkeKommer = kompletthetsjekker.utledAlleManglendeInntektsmeldingerSomIkkeKommer(ref);
 
         // Fjerner slik at det ikke blir dobbelt opp, og for å markere korrekt hvilke som ikke vil komme
         alleManglendeVedlegg.removeIf(e -> vedleggSomIkkeKommer.stream().anyMatch(it -> it.arbeidsgiver().equals(e.arbeidsgiver())));
