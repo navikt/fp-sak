@@ -71,6 +71,7 @@ public class VurderKompletthetVedForTidligSøktSingleTask implements ProsessTask
         var resultat = utførSteg(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
+
         if (resultat.getAksjonspunktListe().contains(VENT_PGA_FOR_TIDLIG_SØKNAD) && !behandling.harÅpentAksjonspunktMedType(VENT_PGA_FOR_TIDLIG_SØKNAD)) {
             LOG.info("KOMPLETTHET_TIDLIG: Saksnummer {} skulle vært satt på vent pga for tidlig søknad men er i steg {} med følgende aksjonspunkt {}",
                 behandling.getSaksnummer(),
@@ -81,6 +82,9 @@ public class VurderKompletthetVedForTidligSøktSingleTask implements ProsessTask
                 var fagsak = behandling.getFagsak();
                 var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås);
 
+                if (!behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.VURDER_KOMPLETT_TIDLIG)) {
+                    return;
+                }
                 if (behandling.isBehandlingPåVent()) {
                     behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT));
                 }
