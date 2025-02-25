@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.uttak.TidsperiodeFarRundtFødsel;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -48,6 +49,7 @@ public class VurderKompletthetVedForTidligSøktSingleTask implements ProsessTask
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
 
     VurderKompletthetVedForTidligSøktSingleTask() {
@@ -55,12 +57,14 @@ public class VurderKompletthetVedForTidligSøktSingleTask implements ProsessTask
     }
 
     @Inject
-    public VurderKompletthetVedForTidligSøktSingleTask(Kompletthetsjekker kompletthetsjekker, BehandlingRepository behandlingRepository, YtelsesFordelingRepository ytelsesFordelingRepository, SkjæringstidspunktTjeneste skjæringstidspunktTjeneste, BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
+    public VurderKompletthetVedForTidligSøktSingleTask(Kompletthetsjekker kompletthetsjekker, BehandlingRepository behandlingRepository, YtelsesFordelingRepository ytelsesFordelingRepository, SkjæringstidspunktTjeneste skjæringstidspunktTjeneste, BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                                       BehandlingProsesseringTjeneste behandlingProsesseringTjeneste) {
         this.kompletthetsjekker = kompletthetsjekker;
         this.behandlingRepository = behandlingRepository;
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
     }
 
     @Override
@@ -79,7 +83,10 @@ public class VurderKompletthetVedForTidligSøktSingleTask implements ProsessTask
                 var lås = behandlingRepository.taSkriveLås(behandling);
                 var fagsak = behandling.getFagsak();
                 var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås);
+
+                behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), behandling.getÅpneAksjonspunkter());
                 behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, BehandlingStegType.VURDER_KOMPLETT_TIDLIG);
+                behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
 
                 LOG.info("KOMPLETTHET_TIDLIG: Saksnummer {} flyttes fra steg {} til {}",
                     behandling.getSaksnummer(), behandling.getAktivtBehandlingSteg().getKode(), BehandlingStegType.VURDER_KOMPLETT_TIDLIG);
