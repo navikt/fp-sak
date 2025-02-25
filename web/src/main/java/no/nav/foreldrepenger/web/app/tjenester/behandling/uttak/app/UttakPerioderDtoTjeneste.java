@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
@@ -92,9 +93,10 @@ public class UttakPerioderDtoTjeneste {
         var aleneomsorg = ytelseFordeling.map(a -> a.robustHarAleneomsorg(behandling.getRelasjonsRolleType())).orElse(false);
         var annenForelderRettEØS = ytelseFordeling.map(YtelseFordelingAggregat::avklartAnnenForelderHarRettEØS).orElse(false);
         var oppgittAnnenForelderRettEØS = ytelseFordeling.map(YtelseFordelingAggregat::oppgittAnnenForelderRettEØS).orElse(false);
-        return new UttakResultatPerioderDto(perioderSøker,
-            annenpartUttaksperioder, annenForelderHarRett, aleneomsorg,
-            annenForelderRettEØS, oppgittAnnenForelderRettEØS, filter);
+        var endringsdato = ytelseFordeling.flatMap(YtelseFordelingAggregat::getAvklarteDatoer).map(
+            AvklarteUttakDatoerEntitet::getGjeldendeEndringsdato).orElse(null);
+        return new UttakResultatPerioderDto(perioderSøker, annenpartUttaksperioder, annenForelderHarRett, aleneomsorg, annenForelderRettEØS,
+            oppgittAnnenForelderRettEØS, filter, endringsdato);
     }
 
     private Optional<Behandling> annenpartBehandling(Behandling søkersBehandling) {
