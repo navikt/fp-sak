@@ -39,6 +39,7 @@ import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.MedlemskapAvvik;
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.AvklarMedlemskapUtleder;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonadresseDto;
 import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
@@ -115,7 +116,7 @@ public class MedlemDtoTjeneste {
 
         var adresser = personopplysningerAggregat.getAdresserFor(aktørId, forPeriode)
             .stream()
-            .map(MedlemskapDto.Adresse::map)
+            .map(PersonadresseDto::tilDto)
             .collect(Collectors.toSet());
 
         var oppholdstillatelser = personopplysningerAggregat.getOppholdstillatelseFor(aktørId, forPeriode)
@@ -223,7 +224,7 @@ public class MedlemDtoTjeneste {
 
         var adresser = personopplysningerAggregat.getAdresserFor(annenpartOpt.get(), forPeriode)
             .stream()
-            .map(MedlemskapDto.Adresse::map)
+            .map(PersonadresseDto::tilDto)
             .collect(Collectors.toSet());
 
         var regioner = personopplysningerAggregat.getStatsborgerskapRegionIInterval(annenpartOpt.get(), forPeriode, stp)
