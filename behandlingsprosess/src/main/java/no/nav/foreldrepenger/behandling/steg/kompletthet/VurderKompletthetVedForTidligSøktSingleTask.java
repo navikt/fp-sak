@@ -21,12 +21,12 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
-import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.uttak.TidsperiodeFarRundtFødsel;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -49,7 +49,6 @@ public class VurderKompletthetVedForTidligSøktSingleTask implements ProsessTask
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
 
     VurderKompletthetVedForTidligSøktSingleTask() {
@@ -57,14 +56,12 @@ public class VurderKompletthetVedForTidligSøktSingleTask implements ProsessTask
     }
 
     @Inject
-    public VurderKompletthetVedForTidligSøktSingleTask(Kompletthetsjekker kompletthetsjekker, BehandlingRepository behandlingRepository, YtelsesFordelingRepository ytelsesFordelingRepository, SkjæringstidspunktTjeneste skjæringstidspunktTjeneste, BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                                       BehandlingProsesseringTjeneste behandlingProsesseringTjeneste) {
+    public VurderKompletthetVedForTidligSøktSingleTask(Kompletthetsjekker kompletthetsjekker, BehandlingRepository behandlingRepository, YtelsesFordelingRepository ytelsesFordelingRepository, SkjæringstidspunktTjeneste skjæringstidspunktTjeneste, BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         this.kompletthetsjekker = kompletthetsjekker;
         this.behandlingRepository = behandlingRepository;
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
-        this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
     }
 
     @Override
@@ -84,9 +81,15 @@ public class VurderKompletthetVedForTidligSøktSingleTask implements ProsessTask
                 var fagsak = behandling.getFagsak();
                 var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås);
 
-                behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), behandling.getÅpneAksjonspunkter());
+                if (behandling.isBehandlingPåVent()) {
+                    behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT));
+                }
                 behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, BehandlingStegType.VURDER_KOMPLETT_TIDLIG);
-                behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
+
+                if (behandling.isBehandlingPåVent()) {
+                    behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT));
+                }
+                behandlingskontrollTjeneste.prosesserBehandling(kontekst);
 
                 LOG.info("KOMPLETTHET_TIDLIG: Saksnummer {} flyttes fra steg {} til {}",
                     behandling.getSaksnummer(), behandling.getAktivtBehandlingSteg().getKode(), BehandlingStegType.VURDER_KOMPLETT_TIDLIG);
