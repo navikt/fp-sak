@@ -47,7 +47,7 @@ public class VurderKompletthetVedForTidligSøktAlleTask implements ProsessTaskHa
                 where b.opprettet_tid >= '19.02.2025'
                 and ytelse_type <> 'ES'
                 and behandling_type = 'BT-002'
-                and behandling_status <> 'AVSLU'
+                and behandling_status = 'UTRED'
                 and b.id not in (select behandling_id from fpsak.aksjonspunkt where aksjonspunkt_def in (7008, 7013) and aksjonspunkt_status = 'OPPR')
             """)
             .setHint(HibernateHints.HINT_READ_ONLY, "true");

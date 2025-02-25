@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
@@ -70,6 +71,7 @@ public class VurderKompletthetVedForTidligSøktSingleTask implements ProsessTask
         var resultat = utførSteg(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
+
         if (resultat.getAksjonspunktListe().contains(VENT_PGA_FOR_TIDLIG_SØKNAD) && !behandling.harÅpentAksjonspunktMedType(VENT_PGA_FOR_TIDLIG_SØKNAD)) {
             LOG.info("KOMPLETTHET_TIDLIG: Saksnummer {} skulle vært satt på vent pga for tidlig søknad men er i steg {} med følgende aksjonspunkt {}",
                 behandling.getSaksnummer(),
@@ -79,7 +81,19 @@ public class VurderKompletthetVedForTidligSøktSingleTask implements ProsessTask
                 var lås = behandlingRepository.taSkriveLås(behandling);
                 var fagsak = behandling.getFagsak();
                 var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås);
+
+                if (!behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.VURDER_KOMPLETT_TIDLIG)) {
+                    return;
+                }
+                if (behandling.isBehandlingPåVent()) {
+                    behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT));
+                }
                 behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, BehandlingStegType.VURDER_KOMPLETT_TIDLIG);
+
+                if (behandling.isBehandlingPåVent()) {
+                    behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT));
+                }
+                behandlingskontrollTjeneste.prosesserBehandling(kontekst);
 
                 LOG.info("KOMPLETTHET_TIDLIG: Saksnummer {} flyttes fra steg {} til {}",
                     behandling.getSaksnummer(), behandling.getAktivtBehandlingSteg().getKode(), BehandlingStegType.VURDER_KOMPLETT_TIDLIG);
