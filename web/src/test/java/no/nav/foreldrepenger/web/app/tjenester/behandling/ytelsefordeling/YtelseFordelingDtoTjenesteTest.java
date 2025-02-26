@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Gyldighetsperiode
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningVersjonType;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
@@ -111,6 +112,8 @@ class YtelseFordelingDtoTjenesteTest {
         assertThat(manuellBehandlingResultat.annenpartRettighet().harRettEØS()).isFalse();
         assertThat(manuellBehandlingResultat.annenpartRettighet().harUføretrygd()).isFalse();
         assertThat(manuellBehandlingResultat.annenpartRettighet().harRettNorge()).isTrue();
+
+        assertThat(rettOgOmsorgDto.relasjonsRolleType()).isEqualTo(RelasjonsRolleType.MORA);
     }
 
     @Test
