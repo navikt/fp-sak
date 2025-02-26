@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -156,7 +157,7 @@ public class YtelseFordelingDtoTjeneste {
         return ytelseFordelingAggregat.getOverstyrtRettighet()
             .map(or -> {
                 var søkerHarAleneomsorg = or.getHarAleneomsorgForBarnet();
-                var annenpartRettighet = søkerHarAleneomsorg ? null : new OmsorgOgRettDto.Rettighet(or.getHarAnnenForeldreRett(), or.getAnnenForelderOppholdEØS(),
+                var annenpartRettighet = Objects.equals(søkerHarAleneomsorg, Boolean.TRUE) ? null : new OmsorgOgRettDto.Rettighet(or.getHarAnnenForeldreRett(), or.getAnnenForelderOppholdEØS(),
                     or.getAnnenForelderRettEØSNullable(), or.getMorMottarUføretrygd());
                 return new OmsorgOgRettDto.ManuellBehandlingResultat(søkerHarAleneomsorg, annenpartRettighet);
             });
