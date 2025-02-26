@@ -135,7 +135,7 @@ public class YtelseFordelingDtoTjeneste {
         var manuellBehandlingResultat = opprettManuellBehandlingResultat(ytelseFordelingAggregat);
 
         var søknad = mapSøknad(oppgittAnnenpart.orElse(null), ytelseFordelingAggregat.getOppgittRettighet());
-        return Optional.of(new OmsorgOgRettDto(søknad, registerdata.orElse(null), manuellBehandlingResultat.orElse(null)));
+        return Optional.of(new OmsorgOgRettDto(søknad, registerdata.orElse(null), manuellBehandlingResultat.orElse(null), behandling.getRelasjonsRolleType()));
     }
 
     private Optional<OmsorgOgRettDto.RegisterData> opprettRegisterdata(Long behandlingId, boolean oppgittAleneomsorg) {
