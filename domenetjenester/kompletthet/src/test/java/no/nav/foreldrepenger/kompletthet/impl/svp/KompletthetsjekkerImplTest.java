@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.kompletthet.impl.svp;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -85,10 +85,9 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         var kompletthetsjekkerSøknad = new KompletthetsjekkerSøknadTjeneste(repositoryProvider, manglendeVedleggTjeneste);
         var manglendeInntektsmeldingTjeneste = new ManglendeInntektsmeldingTjeneste(
             repositoryProvider,
-            dokumentBestillerTjenesteMock,
             dokumentBehandlingTjenesteMock,
             inntektsmeldingArkivTjeneste,
-                inntektsmeldingTjeneste
+            inntektsmeldingTjeneste
         );
         kompletthetsjekker = new KompletthetsjekkerImpl(repositoryProvider, kompletthetsjekkerSøknad, personopplysningTjeneste, manglendeInntektsmeldingTjeneste);
 
@@ -96,7 +95,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     }
 
     @Test
-    void skal_sende_brev_når_inntektsmelding_mangler() {
+    void skal_ikke_sende_brev_når_inntektsmelding_mangler_i_kompletthet() {
         // Arrange
         var behandling =  ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger().lagre(repositoryProvider);
         mockManglendeInntektsmeldingGrunnlag();
@@ -112,7 +111,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
         assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(2));
-        verify(dokumentBestillerTjenesteMock, times(1)).bestillDokument(any(DokumentBestilling.class));
+        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(DokumentBestilling.class));
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {

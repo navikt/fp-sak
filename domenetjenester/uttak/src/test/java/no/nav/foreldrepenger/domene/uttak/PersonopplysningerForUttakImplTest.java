@@ -150,6 +150,7 @@ class PersonopplysningerForUttakImplTest {
         var ref = BehandlingReferanse.fra(behandling);
 
         var personopplysningGrunnlagBuilder = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty())
+
             //Ukjent forelder lagres slik i db
             .medOppgittAnnenPart(new OppgittAnnenPartBuilder().medAktørId(null).medUtenlandskFnrLand(null).medUtenlandskFnr(null).build());
         var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagBuilder.build(),

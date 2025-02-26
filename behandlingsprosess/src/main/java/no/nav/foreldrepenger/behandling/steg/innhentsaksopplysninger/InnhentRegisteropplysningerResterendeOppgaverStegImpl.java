@@ -31,6 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
+import no.nav.foreldrepenger.kompletthet.impl.EtterlysInntektsmeldingTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -48,6 +49,7 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
     private Kompletthetsjekker kompletthetsjekker;
     private BehandlendeEnhetTjeneste enhetTjeneste;
     private FagsakEgenskapRepository fagsakEgenskapRepository;
+    private EtterlysInntektsmeldingTjeneste etterlysInntektsmeldingTjeneste;
 
     InnhentRegisteropplysningerResterendeOppgaverStegImpl() {
         // for CDI proxy
@@ -55,13 +57,14 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
 
     @Inject
     public InnhentRegisteropplysningerResterendeOppgaverStegImpl(BehandlingRepository behandlingRepository,
-            FagsakTjeneste fagsakTjeneste,
-            PersonopplysningTjeneste personopplysningTjeneste,
-            FamilieHendelseTjeneste familieHendelseTjeneste,
-            BehandlendeEnhetTjeneste enhetTjeneste,
-            Kompletthetsjekker kompletthetsjekker,
-            FagsakEgenskapRepository fagsakEgenskapRepository,
-            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                                                 FagsakTjeneste fagsakTjeneste,
+                                                                 PersonopplysningTjeneste personopplysningTjeneste,
+                                                                 FamilieHendelseTjeneste familieHendelseTjeneste,
+                                                                 BehandlendeEnhetTjeneste enhetTjeneste,
+                                                                 Kompletthetsjekker kompletthetsjekker,
+                                                                 FagsakEgenskapRepository fagsakEgenskapRepository,
+                                                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                                                 EtterlysInntektsmeldingTjeneste etterlysInntektsmeldingTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.fagsakTjeneste = fagsakTjeneste;
         this.personopplysningTjeneste = personopplysningTjeneste;
@@ -70,6 +73,7 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
         this.kompletthetsjekker = kompletthetsjekker;
         this.enhetTjeneste = enhetTjeneste;
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
+        this.etterlysInntektsmeldingTjeneste = etterlysInntektsmeldingTjeneste;
     }
 
     @Override
@@ -81,12 +85,12 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
 
         oppdaterFagsakEgenskaper(behandling);
 
-        if (!skalPassereUtenBrevEtterlysInntektsmelding(behandling)) {
-            var etterlysIM = kompletthetsjekker.vurderEtterlysningInntektsmelding(ref, skjæringstidspunkter);
+        var etterlysIM = kompletthetsjekker.vurderEtterlysningInntektsmelding(ref, skjæringstidspunkter);
+        if (!etterlysIM.erOppfylt() && !skalPassereUtenBrevEtterlysInntektsmelding(behandling)) {
             // Dette autopunktet har tilbakehopp/gjenopptak. Går ut av steget hvis auto utført før frist (manuelt av vent).
             // Utført på/etter frist antas automatisk gjenopptak.
-            if (!etterlysIM.erOppfylt() && !etterlysIM.erFristUtløpt() &&
-                !VurderKompletthetStegFelles.autopunktAlleredeUtført(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, behandling)) {
+            etterlysInntektsmeldingTjeneste.etterlysInntektsmeldingHvisIkkeAlleredeSendt(ref); // Etterlys inntektsmelding alltid ved mangler!
+            if (!etterlysIM.erFristUtløpt() && !VurderKompletthetStegFelles.autopunktAlleredeUtført(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, behandling)) {
                 var ar = opprettForAksjonspunktMedFrist(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, Venteårsak.VENT_OPDT_INNTEKTSMELDING, etterlysIM.ventefrist());
                 return BehandleStegResultat.utførtMedAksjonspunktResultat(ar);
             }

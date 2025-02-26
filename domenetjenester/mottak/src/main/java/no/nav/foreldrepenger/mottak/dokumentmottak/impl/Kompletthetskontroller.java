@@ -150,7 +150,11 @@ public class Kompletthetskontroller {
             return kompletthetsjekker.vurderForsendelseKomplett(ref, stp);
         }
         if (aksjonspunkter.contains(AUTO_VENT_ETTERLYST_INNTEKTSMELDING)) {
-            return kompletthetsjekker.vurderEtterlysningInntektsmelding(ref, stp);
+            var kompletthetResultat = kompletthetsjekker.vurderEtterlysningInntektsmelding(ref, stp);
+            if (!kompletthetResultat.erOppfylt() && kompletthetResultat.erFristUtløpt()) {
+                return KompletthetResultat.oppfylt(); // Konvensjon for å sikre framdrift i prosessen
+            }
+            return kompletthetResultat;
         }
         return KompletthetResultat.oppfylt(); // Enten AUTO_KØET_BEHANDLING eller ikke aktuelt å sjekke kompletthet => oppfylt
     }

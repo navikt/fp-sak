@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
@@ -48,13 +47,11 @@ class KompletthetsjekkerRevurderingImplTest extends EntityManagerAwareTest {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         testUtil = new KompletthetssjekkerTestUtil(repositoryProvider);
-        var dokumentBestillerApplikasjonTjeneste = mock(DokumentBestillerTjeneste.class);
         var dokumentBehandlingTjeneste = mock(DokumentBehandlingTjeneste.class);
         var personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
         var kompletthetsjekkerSøknad = new KompletthetsjekkerSøknadTjeneste(repositoryProvider, manglendeVedleggTjeneste);
         var manglendeInntektsmeldingTjeneste = new ManglendeInntektsmeldingTjeneste(
             repositoryProvider,
-            dokumentBestillerApplikasjonTjeneste,
             dokumentBehandlingTjeneste,
             null,
                 new InntektsmeldingTjeneste(new AbakusInMemoryInntektArbeidYtelseTjeneste())
