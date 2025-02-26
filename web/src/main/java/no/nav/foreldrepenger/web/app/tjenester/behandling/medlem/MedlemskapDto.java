@@ -27,7 +27,7 @@ public record MedlemskapDto(ManuellBehandlingResultat manuellBehandlingResultat,
                             Set<Region> regioner,
                             Set<Personstatus> personstatuser,
                             Set<Utenlandsopphold> utenlandsopphold,
-                            Set<Adresse> adresser,
+                            Set<PersonadresseDto> adresser,
                             Set<Oppholdstillatelse> oppholdstillatelser,
                             Set<MedlemskapPeriode> medlemskapsperioder,
                             Set<MedlemskapAvvik> avvik,
@@ -73,13 +73,6 @@ public record MedlemskapDto(ManuellBehandlingResultat manuellBehandlingResultat,
         }
     }
 
-    record Adresse(LocalDate fom, LocalDate tom, PersonadresseDto adresse) {
-        public static Adresse map(PersonAdresseEntitet personAdresseEntitet) {
-            return new Adresse(personAdresseEntitet.getPeriode().getFomDato(), personAdresseEntitet.getPeriode().getTomDato(),
-                PersonadresseDto.tilDto(personAdresseEntitet));
-        }
-    }
-
     record Oppholdstillatelse(LocalDate fom, LocalDate tom, OppholdstillatelseType type) {
         public static Oppholdstillatelse map(OppholdstillatelseEntitet oe) {
             var fom = oe.getPeriode().getFomDato().isBefore(OPPHOLD_CUTOFF) ? null : oe.getPeriode().getFomDato();
@@ -95,7 +88,7 @@ public record MedlemskapDto(ManuellBehandlingResultat manuellBehandlingResultat,
         }
     }
 
-    record Annenpart(Set<Adresse> adresser, Set<Region> regioner, Set<Personstatus> personstatuser) {
+    record Annenpart(Set<PersonadresseDto> adresser, Set<Region> regioner, Set<Personstatus> personstatuser) {
     }
 }
 
