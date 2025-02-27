@@ -6,8 +6,6 @@ public class YtelseFordelingDto {
     private Boolean overstyrtOmsorg;
     private Boolean bekreftetAleneomsorg;
     private RettigheterAnnenforelderDto rettigheterAnnenforelder;
-    private LocalDate endringsdato;
-    private int gjeldendeDekningsgrad;
     private LocalDate førsteUttaksdato;
     private boolean ønskerJustertVedFødsel;
 
@@ -22,16 +20,8 @@ public class YtelseFordelingDto {
         return bekreftetAleneomsorg;
     }
 
-    public LocalDate getEndringsdato() {
-        return endringsdato;
-    }
-
     public RettigheterAnnenforelderDto getRettigheterAnnenforelder() {
         return rettigheterAnnenforelder;
-    }
-
-    public int getGjeldendeDekningsgrad() {
-        return gjeldendeDekningsgrad;
     }
 
     public LocalDate getFørsteUttaksdato() {
@@ -57,18 +47,8 @@ public class YtelseFordelingDto {
             return this;
         }
 
-        public Builder medEndringsdato(LocalDate endringsDato) {
-            kladd.endringsdato = endringsDato;
-            return this;
-        }
-
         public Builder medRettigheterAnnenforelder(RettigheterAnnenforelderDto rettighetAnnenforelder) {
             kladd.rettigheterAnnenforelder = rettighetAnnenforelder;
-            return this;
-        }
-
-        public Builder medGjeldendeDekningsgrad(int gjeldendeDekningsgrad){
-            kladd.gjeldendeDekningsgrad = gjeldendeDekningsgrad;
             return this;
         }
 
