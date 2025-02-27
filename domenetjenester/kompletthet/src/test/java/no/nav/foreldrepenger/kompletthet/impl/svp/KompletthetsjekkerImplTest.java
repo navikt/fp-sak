@@ -3,8 +3,6 @@ package no.nav.foreldrepenger.kompletthet.impl.svp;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -30,8 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
@@ -56,8 +52,6 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     private DokumentArkivTjeneste dokumentArkivTjeneste;
     @Mock
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    @Mock
-    private DokumentBestillerTjeneste dokumentBestillerTjenesteMock;
     @Mock
     private DokumentBehandlingTjeneste dokumentBehandlingTjenesteMock;
     @Mock
@@ -95,7 +89,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     }
 
     @Test
-    void skal_ikke_sende_brev_når_inntektsmelding_mangler_i_kompletthet() {
+    void kompletthet_skal_ikke_være_oppfylt_hvis_behandling_mangler_inntektsmelding() {
         // Arrange
         var behandling =  ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger().lagre(repositoryProvider);
         mockManglendeInntektsmeldingGrunnlag();
@@ -111,7 +105,6 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
         assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(2));
-        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(DokumentBestilling.class));
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {
