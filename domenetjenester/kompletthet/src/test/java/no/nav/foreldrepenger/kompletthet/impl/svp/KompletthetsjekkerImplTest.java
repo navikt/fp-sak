@@ -100,7 +100,8 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Arrange
         var behandling =  ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger().lagre(repositoryProvider);
         mockManglendeInntektsmeldingGrunnlag();
-        testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(1),
+        // Har ventet 10 dager fra søknad = forespørsel om inntektsmelding
+        testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusDays(10),
             STARTDATO_PERMISJON);
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(Collections.emptyList());
 
@@ -110,7 +111,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
-        assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(3));
+        assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(2));
         verify(dokumentBestillerTjenesteMock, times(1)).bestillDokument(any(DokumentBestilling.class));
     }
 
