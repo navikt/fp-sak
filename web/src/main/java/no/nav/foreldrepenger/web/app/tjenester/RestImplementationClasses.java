@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjeneste
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.anke.AnkeRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidInntektsmelding.ArbeidOgInntektsmeldingRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidInntektsmelding.FpinntektsmeldingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidsforhold.InntektArbeidYtelseRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsgrunnlag.BeregningsgrunnlagRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.BeregningsresultatRestTjeneste;
@@ -97,6 +98,7 @@ public class RestImplementationClasses {
         classes.add(OpptjeningRestTjeneste.class);
         classes.add(InntektArbeidYtelseRestTjeneste.class);
         classes.add(ArbeidOgInntektsmeldingRestTjeneste.class);
+        classes.add(FpinntektsmeldingRestTjeneste.class);
         classes.add(FamiliehendelseRestTjeneste.class);
         classes.add(KlageRestTjeneste.class);
         classes.add(AnkeRestTjeneste.class);
