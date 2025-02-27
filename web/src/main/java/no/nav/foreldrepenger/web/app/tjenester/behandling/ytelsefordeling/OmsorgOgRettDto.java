@@ -6,8 +6,7 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 public record OmsorgOgRettDto(Søknad søknad, RegisterData registerdata, ManuellBehandlingResultat manuellBehandlingResultat,
                               RelasjonsRolleType relasjonsRolleType) {
 
-    public record Søknad(Boolean søkerHarAleneomsorg, String annenpartNavn, String annenpartIdent, Landkoder annenpartBostedsland,
-                         Rettighet annenpartRettighet) {
+    public record Søknad(Boolean søkerHarAleneomsorg, String annenpartIdent, Landkoder annenpartBostedsland, Rettighet annenpartRettighet) {
     }
 
     public record Rettighet(boolean harRettNorge, Boolean harOppholdEØS, Boolean harRettEØS, Boolean harUføretrygd) {
