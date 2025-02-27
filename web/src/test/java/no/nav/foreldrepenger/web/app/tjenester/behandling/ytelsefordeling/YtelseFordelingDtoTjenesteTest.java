@@ -88,10 +88,9 @@ class YtelseFordelingDtoTjenesteTest {
                 .medPersonas().voksenPerson(scenario.getDefaultBrukerAktørId(), SivilstandType.GIFT, NavBrukerKjønn.KVINNE)
             .build());
 
-        var annenpartNavn = "navn";
         var utenlandskFnr = "123";
         var utenlandskFnrLand = Landkoder.DNK;
-        scenario.medSøknadAnnenPart().medNavn(annenpartNavn).medUtenlandskFnr(utenlandskFnr).medUtenlandskFnrLand(utenlandskFnrLand);
+        scenario.medSøknadAnnenPart().medUtenlandskFnr(utenlandskFnr).medUtenlandskFnrLand(utenlandskFnrLand);
         var behandling = scenario.lagre(repositoryProvider);
 
         var rettOgOmsorgDto = ytelseFordelingDtoTjeneste.mapFra(behandling.getUuid()).orElseThrow();
@@ -99,7 +98,6 @@ class YtelseFordelingDtoTjenesteTest {
         assertThat(annenpartDto.søkerHarAleneomsorg()).isFalse();
         assertThat(annenpartDto.annenpartIdent()).isEqualTo(utenlandskFnr);
         assertThat(annenpartDto.annenpartBostedsland()).isEqualTo(utenlandskFnrLand);
-        assertThat(annenpartDto.annenpartNavn()).isEqualTo(annenpartNavn);
         assertThat(annenpartDto.annenpartRettighet().harRettNorge()).isFalse();
         assertThat(annenpartDto.annenpartRettighet().harRettEØS()).isTrue();
         assertThat(annenpartDto.annenpartRettighet().harUføretrygd()).isFalse();
