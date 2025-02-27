@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.uttak.TidsperiodeFarRundtFødsel;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -59,23 +58,30 @@ public class VurderSøktForTidligSteg implements BehandlingSteg {
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        if (skalPassereKompletthet(behandling) || behandling.erRevurdering() || kanPassereKompletthet(behandling)) {
+        if (skalPassereKompletthet(behandling) || behandling.erRevurdering()) {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
 
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(kontekst.getBehandlingId());
+
+        if (!skalVenteDersomSøktForTidlig(behandling, skjæringstidspunkter)) {
+            return BehandleStegResultat.utførtUtenAksjonspunkter();
+        }
+
         var søknadMottatt = kompletthetsjekker.vurderSøknadMottattForTidlig(BehandlingReferanse.fra(behandling), skjæringstidspunkter);
         if (søknadMottatt.erOppfylt()) {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
 
-        if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) && !skalVenteDersomSøktForTidlig(behandling, skjæringstidspunkter)) {
-            return BehandleStegResultat.utførtUtenAksjonspunkter();
-        }
         return VurderKompletthetStegFelles.evaluerUoppfylt(søknadMottatt, VENT_PGA_FOR_TIDLIG_SØKNAD);
     }
 
     private boolean skalVenteDersomSøktForTidlig(Behandling behandling, Skjæringstidspunkt stp) {
+        //Hvis vi ikke kan passere kompletthet må vi uansett vente
+        if (!kanPassereKompletthet(behandling)) {
+            return true;
+        }
+
         if (RelasjonsRolleType.erMor(behandling.getRelasjonsRolleType())) {
             return false;
         }

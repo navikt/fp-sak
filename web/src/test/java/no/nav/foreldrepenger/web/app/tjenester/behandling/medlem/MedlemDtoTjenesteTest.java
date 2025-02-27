@@ -135,7 +135,7 @@ class MedlemDtoTjenesteTest {
         var adresse1 = dto.adresser().stream().findFirst().orElseThrow();
         assertThat(adresse1.fom()).isEqualTo(adresse.gyldighetsperiode().fom());
         assertThat(adresse1.tom()).isEqualTo(adresse.gyldighetsperiode().tom());
-        assertThat(adresse1.adresse().getAdresseType()).isEqualTo(AdresseType.BOSTEDSADRESSE);
+        assertThat(adresse1.adresseType()).isEqualTo(AdresseType.BOSTEDSADRESSE);
 
         assertThat(dto.regioner()).hasSize(1);
         var regionPeriode1 = dto.regioner().stream().findFirst().orElseThrow();
@@ -166,7 +166,7 @@ class MedlemDtoTjenesteTest {
         var adresseAP1 = dto.adresser().stream().findFirst().orElseThrow();
         assertThat(adresseAP1.fom()).isEqualTo(adresse.gyldighetsperiode().fom());
         assertThat(adresseAP1.tom()).isEqualTo(adresse.gyldighetsperiode().tom());
-        assertThat(adresseAP1.adresse().getAdresseType()).isEqualTo(AdresseType.BOSTEDSADRESSE);
+        assertThat(adresseAP1.adresseType()).isEqualTo(AdresseType.BOSTEDSADRESSE);
 
         assertThat(dto.annenpart().regioner()).hasSize(1);
         var regionPeriodeAP1 = dto.annenpart().regioner().stream().findFirst().orElseThrow();

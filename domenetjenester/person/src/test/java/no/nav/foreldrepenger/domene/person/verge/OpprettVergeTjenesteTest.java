@@ -18,10 +18,6 @@ import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.person.verge.dto.OpprettVergeDto;
 
-import no.nav.foreldrepenger.domene.typer.AktørId;
-
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -55,7 +51,8 @@ class OpprettVergeTjenesteTest {
 
     @BeforeEach
     public void oppsett() {
-        behandling = opprettBehandling();
+        behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
+
         var vergeBruker = NavBruker.opprettNyNB(behandling.getAktørId());
         when(personinfoAdapter.hentAktørForFnr(any())).thenReturn(Optional.of(behandling.getAktørId()));
         when(brukerTjeneste.hentEllerOpprettFraAktørId(any())).thenReturn(vergeBruker);
@@ -79,25 +76,16 @@ class OpprettVergeTjenesteTest {
             assertThat(h.getFagsakId()).isEqualTo(behandling.getFagsakId());
             assertThat(h.getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_OM_VERGE);
             assertThat(h.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
-            assertThat(h.getTekstLinjer()).hasSize(2).containsExactly("Registrering av opplysninger om verge/fullmektig.", "Begrunnelse.");
+            assertThat(h.getTekstLinjer()).hasSize(2).containsExactly("Opplysninger om verge/fullmektig er registrert.", "Begrunnelse.");
         });
     }
 
     @Test
-    void skal_generere_historikkinnslag_for_oppdatering_av_verge() {
+    void skal_generere_historikkinnslag_for_endring_av_verge() {
         var dto = opprettDtoVerge();
-        var aktørId = AktørId.dummy();
 
-        when(vergeRepository.hentAggregat(any())).thenReturn(Optional.of(new VergeAggregat(new VergeEntitet.Builder().medVergeType(VergeType.BARN)
-            .gyldigPeriode(LocalDate.of(2024, 1, 1), LocalDate.of(2024,12,31))
-            .medBruker(NavBruker.opprettNyNB(aktørId))
-            .build())));
-
-        when(personinfoAdapter.hentBrukerArbeidsgiverForAktør(any())).thenReturn(Optional.of(new PersoninfoArbeidsgiver.Builder().medAktørId(aktørId)
-            .medFødselsdato(LocalDate.of(2000, 1, 1))
-            .medPersonIdent(PersonIdent.fra("12345678910"))
-            .medNavn("Harald")
-            .build()));
+        when(vergeRepository.hentAggregat(any())).thenReturn(
+            Optional.of(new VergeAggregat(new VergeEntitet.Builder().medVergeType(VergeType.BARN).build())));
 
 
         new OpprettVergeTjeneste(personinfoAdapter, brukerTjeneste, vergeRepository, historikkReposistory).opprettVerge(behandling.getId(),
@@ -112,27 +100,13 @@ class OpprettVergeTjenesteTest {
             assertThat(h.getFagsakId()).isEqualTo(behandling.getFagsakId());
             assertThat(h.getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_OM_VERGE);
             assertThat(h.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
-            assertThat(h.getTekstLinjer()).hasSize(5)
-                .containsExactly("__Navn__ er endret fra Harald til __Harald Hårfagre__.",
-                    "__Fødselsnummer__ er endret fra 12345678910 til __12345678901__.",
-                    "__Periode f.o.m.__ er endret fra 01.01.2024 til __01.01.2025__.",
-                    "__Periode t.o.m.__ er endret fra 31.12.2024 til __31.12.2025__.", "Begrunnelse.");
+            assertThat(h.getTekstLinjer()).hasSize(2).containsExactly("Opplysninger om verge/fullmektig er endret.", "Begrunnelse.");
         });
     }
 
     private OpprettVergeDto opprettDtoVerge() {
-        return new OpprettVergeDto("Harald Hårfagre", "12345678901", LocalDate.of(2025,1,1), LocalDate.of(2025,12,31), VergeType.BARN, null,
+        return new OpprettVergeDto("Harald Hårfagre", "12345678901", LocalDate.of(2025, 1, 1), LocalDate.of(2025, 12, 31), VergeType.BARN, null,
             "Begrunnelse");
     }
-
-    private Behandling opprettBehandling() {
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.medSøknad();
-        scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.KONTROLLER_FAKTA);
-        scenario.lagMocked();
-
-        return scenario.getBehandling();
-    }
-
 }
 

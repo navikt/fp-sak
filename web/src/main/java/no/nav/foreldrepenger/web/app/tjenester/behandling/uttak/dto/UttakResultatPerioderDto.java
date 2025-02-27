@@ -9,7 +9,8 @@ public record UttakResultatPerioderDto(List<UttakResultatPeriodeDto> perioderSø
                                        boolean aleneomsorg,
                                        boolean annenForelderRettEØS,
                                        boolean oppgittAnnenForelderRettEØS,
-                                       FilterDto årsakFilter) {
+                                       FilterDto årsakFilter,
+                                       LocalDate endringsdato) {
 
     public record FilterDto(LocalDate kreverSammenhengendeUttakTom, boolean utenMinsterett, boolean søkerErMor) {}
 }
