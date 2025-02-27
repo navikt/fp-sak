@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
@@ -126,8 +125,6 @@ class YtelseFordelingDtoTjenesteTest {
         }.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
         var ytelseFordelingDtoOpt = tjeneste().mapFra(behandling);
         assertThat(ytelseFordelingDtoOpt).isNotNull().isNotEmpty();
-        assertThat(ytelseFordelingDtoOpt.get().getEndringsdato()).isEqualTo(now().minusDays(20));
-        assertThat(ytelseFordelingDtoOpt.get().getGjeldendeDekningsgrad()).isEqualTo(100);
     }
 
     @Test
@@ -147,8 +144,6 @@ class YtelseFordelingDtoTjenesteTest {
         assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().bekreftetAnnenForelderRettEØS()).isNull();
         assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().skalAvklareAnnenforelderUføretrygd()).isFalse();
         assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().skalAvklareAnnenForelderRettEØS()).isFalse();
-        assertThat(ytelseFordelingDtoOpt.get().getEndringsdato()).isEqualTo(now().minusDays(20));
-        assertThat(ytelseFordelingDtoOpt.get().getGjeldendeDekningsgrad()).isEqualTo(100);
     }
 
     @Test
@@ -259,8 +254,7 @@ class YtelseFordelingDtoTjenesteTest {
     }
 
     private YtelseFordelingDtoTjeneste tjeneste() {
-        var dekningsgradTjeneste = new DekningsgradTjeneste(repositoryProvider.getYtelsesFordelingRepository());
-        return new YtelseFordelingDtoTjeneste(ytelseFordelingTjeneste, dekningsgradTjeneste, uføretrygdRepository, uttakTjeneste, null,
+        return new YtelseFordelingDtoTjeneste(ytelseFordelingTjeneste, uføretrygdRepository, uttakTjeneste, null,
             repositoryProvider.getBehandlingRepository(), null);
     }
 

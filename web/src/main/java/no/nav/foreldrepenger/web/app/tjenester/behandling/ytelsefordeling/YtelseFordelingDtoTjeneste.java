@@ -8,8 +8,6 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
@@ -32,7 +30,6 @@ import no.nav.vedtak.konfig.Tid;
 public class YtelseFordelingDtoTjeneste {
 
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
-    private DekningsgradTjeneste dekningsgradTjeneste;
     private UføretrygdRepository uføretrygdRepository;
     private ForeldrepengerUttakTjeneste uttakTjeneste;
     private PersonopplysningTjeneste personopplysningTjeneste;
@@ -45,14 +42,12 @@ public class YtelseFordelingDtoTjeneste {
 
     @Inject
     public YtelseFordelingDtoTjeneste(YtelseFordelingTjeneste ytelseFordelingTjeneste,
-                                      DekningsgradTjeneste dekningsgradTjeneste,
                                       UføretrygdRepository uføretrygdRepository,
                                       ForeldrepengerUttakTjeneste uttakTjeneste,
                                       PersonopplysningTjeneste personopplysningTjeneste,
                                       BehandlingRepository behandlingRepository,
                                       UttakInputTjeneste uttakInputTjeneste) {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
-        this.dekningsgradTjeneste = dekningsgradTjeneste;
         this.uføretrygdRepository = uføretrygdRepository;
         this.uttakTjeneste = uttakTjeneste;
         this.personopplysningTjeneste = personopplysningTjeneste;
@@ -66,13 +61,10 @@ public class YtelseFordelingDtoTjeneste {
         ytelseFordelingAggregat.ifPresent(yfa -> {
             dtoBuilder.medBekreftetAleneomsorg(yfa.getAleneomsorgAvklaring());
             dtoBuilder.medOverstyrtOmsorg(yfa.getOverstyrtOmsorg());
-            yfa.getAvklarteDatoer().ifPresent(avklarteUttakDatoer -> dtoBuilder.medEndringsdato(avklarteUttakDatoer.getGjeldendeEndringsdato()));
             dtoBuilder.medFørsteUttaksdato(finnFørsteUttaksdato(behandling));
             dtoBuilder.medØnskerJustertVedFødsel(yfa.getGjeldendeFordeling().ønskerJustertVedFødsel());
             dtoBuilder.medRettigheterAnnenforelder(lagAnnenforelderRettDto(behandling, yfa));
         });
-        var fagsdekningsgradkRelasjon = dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(BehandlingReferanse.fra(behandling));
-        fagsdekningsgradkRelasjon.ifPresent(d -> dtoBuilder.medGjeldendeDekningsgrad(d.getVerdi()));
         return Optional.of(dtoBuilder.build());
     }
 
