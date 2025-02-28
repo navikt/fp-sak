@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -58,6 +59,8 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
     @Mock
     private PersonopplysningTjeneste personopplysningTjeneste;
     @Mock
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    @Mock
     private Kompletthetsjekker kompletthetsjekker;
 
     private BehandlingRepositoryProvider repositoryProvider;
@@ -78,11 +81,10 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
             mock(BehandlendeEnhetTjeneste.class),
             kompletthetsjekker,
             mock(FagsakEgenskapRepository.class),
-            mock(SkjæringstidspunktTjeneste.class),
+            skjæringstidspunktTjeneste,
             etterlysInntektsmeldingTjeneste
         );
     }
-
 
     @Test
     void skal_ikke_etterlyse_IM_hvis_kompletthetsjekk_er_oppfylt() {
@@ -91,6 +93,7 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
         var behandling = scenario.lagre(repositoryProvider);
         when(kompletthetsjekker.vurderEtterlysningInntektsmelding(any(), any())).thenReturn(KompletthetResultat.oppfylt());
         mockPersonopplysningKall(behandling);
+        mockSkjæringstidspunkt(LocalDate.now().plusWeeks(2));
 
         // Act
         var resultat = steg.utførSteg(new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(), new BehandlingLås(behandling.getId())));
@@ -108,8 +111,8 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
         var behandling = scenario.lagre(repositoryProvider);
         var revudering = lagRevurdering(behandling, BehandlingÅrsakType.RE_HENDELSE_DØD_BARN);
 
-        when(kompletthetsjekker.vurderEtterlysningInntektsmelding(any(), any())).thenReturn(KompletthetResultat.ikkeOppfylt(LocalDateTime.now().plusWeeks(1), Venteårsak.VENT_OPDT_INNTEKTSMELDING));
         mockPersonopplysningKall(revudering);
+        mockSkjæringstidspunkt(LocalDate.now().plusWeeks(2));
 
         // Act
         var resultat = steg.utførSteg(new BehandlingskontrollKontekst(revudering.getSaksnummer(), revudering.getFagsakId(), new BehandlingLås(revudering.getId())));
@@ -121,6 +124,25 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
     }
 
     @Test
+    void skal_ikke_etterlyse_IM_hvis_stp_er_mer_enn_6_uker_siden() {
+        // Arrange
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagre(repositoryProvider);
+        mockPersonopplysningKall(behandling);
+        mockSkjæringstidspunkt(LocalDate.now().minusWeeks(6).minusDays(1));
+
+        // Act
+        var resultat = steg.utførSteg(new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(), new BehandlingLås(behandling.getId())));
+
+        // Assert
+        assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(resultat.getAksjonspunktResultater()).isEmpty();
+        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(DokumentBestilling.class));
+        verify(kompletthetsjekker, never()).vurderEtterlysningInntektsmelding(any(), any());
+    }
+
+
+    @Test
     void skal_ikke_sende_brev_når_etterlysning_sendt() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
@@ -128,6 +150,7 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
         when(kompletthetsjekker.vurderEtterlysningInntektsmelding(any(), any())).thenReturn(KompletthetResultat.fristUtløpt());
         when(dokumentBehandlingTjeneste.erDokumentBestilt(any(), any())).thenReturn(true);
         mockPersonopplysningKall(behandling);
+        mockSkjæringstidspunkt(LocalDate.now().plusWeeks(2));
 
         // Act
         var resultat = steg.utførSteg(new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(), new BehandlingLås(behandling.getId())));
@@ -147,6 +170,7 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
         var ventefrist = LocalDateTime.now().plusWeeks(1);
         when(kompletthetsjekker.vurderEtterlysningInntektsmelding(any(), any())).thenReturn(KompletthetResultat.ikkeOppfylt(ventefrist, Venteårsak.VENT_OPDT_INNTEKTSMELDING));
         when(dokumentBehandlingTjeneste.erDokumentBestilt(any(), any())).thenReturn(false);
+        mockSkjæringstidspunkt(LocalDate.now().plusWeeks(2));
 
         // Act
         var resultat = steg.utførSteg(new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(), new BehandlingLås(behandling.getId())));
@@ -164,6 +188,7 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
         when(kompletthetsjekker.vurderEtterlysningInntektsmelding(any(), any())).thenReturn(KompletthetResultat.fristUtløpt());
         when(dokumentBehandlingTjeneste.erDokumentBestilt(any(), any())).thenReturn(false);
         mockPersonopplysningKall(behandling);
+        mockSkjæringstidspunkt(LocalDate.now().plusWeeks(2));
 
         // Act
         var resultat = steg.utførSteg(new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(), new BehandlingLås(behandling.getId())));
@@ -179,6 +204,9 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
         when(personopplysningTjeneste.hentPersonopplysninger(any())).thenReturn(opprettPersonopplysningAggregatForPerson(behandling.getAktørId()));
     }
 
+    private void mockSkjæringstidspunkt(LocalDate utledetSkjæringstidspunkt) {
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(utledetSkjæringstidspunkt).build());
+    }
 
     private PersonopplysningerAggregat opprettPersonopplysningAggregatForPerson(AktørId aktørId) {
         var builder = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
