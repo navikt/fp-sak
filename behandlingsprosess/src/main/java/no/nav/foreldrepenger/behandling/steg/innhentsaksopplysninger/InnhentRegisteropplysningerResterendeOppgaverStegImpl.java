@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.innhentsaksopplysninger;
 
+import static no.nav.foreldrepenger.behandling.steg.kompletthet.VurderKompletthetStegFelles.autopunktAlleredeUtført;
 import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettForAksjonspunktMedFrist;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_VENT_ETTERLYST_INNTEKTSMELDING;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_VERGE;
@@ -14,7 +15,6 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
-import no.nav.foreldrepenger.behandling.steg.kompletthet.VurderKompletthetStegFelles;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
@@ -89,13 +89,16 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
 
         oppdaterFagsakEgenskaper(behandling);
 
-        if (!erMaksimalVentetidPassert(skjæringstidspunkter) && !skalPassereUtenBrevEtterlysInntektsmelding(behandling)) {
+        // Dette autopunktet har tilbakehopp/gjenopptak. Går ut av steget hvis auto utført før frist (manuelt av vent).
+        if (!autopunktAlleredeUtført(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, behandling) &&
+            !erMaksimalVentetidPassert(skjæringstidspunkter) &&
+            !skalPassereUtenBrevEtterlysInntektsmelding(behandling)) {
+
             var etterlysIM = kompletthetsjekker.vurderEtterlysningInntektsmelding(ref, skjæringstidspunkter);
-            // Dette autopunktet har tilbakehopp/gjenopptak. Går ut av steget hvis auto utført før frist (manuelt av vent).
-            // Utført på/etter frist antas automatisk gjenopptak.
             if (!etterlysIM.erOppfylt()) {
                 etterlysInntektsmeldingTjeneste.etterlysInntektsmeldingHvisIkkeAlleredeSendt(ref); // Etterlys inntektsmelding alltid ved mangler!
-                if (!etterlysIM.erFristUtløpt() && !VurderKompletthetStegFelles.autopunktAlleredeUtført(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, behandling)) {
+                // Utført på/etter frist antas automatisk gjenopptak.
+                if (!etterlysIM.erFristUtløpt()) {
                     var ar = opprettForAksjonspunktMedFrist(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, Venteårsak.VENT_OPDT_INNTEKTSMELDING, etterlysIM.ventefrist());
                     return BehandleStegResultat.utførtMedAksjonspunktResultat(ar);
                 }
