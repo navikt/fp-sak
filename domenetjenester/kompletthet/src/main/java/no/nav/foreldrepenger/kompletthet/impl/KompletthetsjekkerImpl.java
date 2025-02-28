@@ -182,8 +182,8 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
         }
 
         loggManglendeInntektsmeldinger(ref, manglendeInntektsmeldinger);
-        var nyFristVedEttersendelseAvBrev = manglendeInntektsmeldingTjeneste.finnVentefristForEtterlysning(ref, stp, manglendeInntektsmeldinger.size());
-        return ikkeOppfylt(nyFristVedEttersendelseAvBrev, Venteårsak.VENT_OPDT_INNTEKTSMELDING);
+        var ventefristForEtterlysning = manglendeInntektsmeldingTjeneste.finnVentefristForEtterlysning(ref, stp, manglendeInntektsmeldinger.size());
+        return ikkeOppfylt(ventefristForEtterlysning, Venteårsak.VENT_OPDT_INNTEKTSMELDING);
     }
 
     private void loggManglendeInntektsmeldinger(BehandlingReferanse ref, List<ManglendeVedlegg> manglendeInntektsmeldinger) {
