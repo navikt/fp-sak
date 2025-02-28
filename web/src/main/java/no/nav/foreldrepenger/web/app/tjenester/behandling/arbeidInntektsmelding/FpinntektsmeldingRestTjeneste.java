@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -92,7 +93,7 @@ public class FpinntektsmeldingRestTjeneste {
         return Response.ok(new KontrollForespørselResponseDto(erFortsattKravOmInntektsmelding)).build();
     }
 
-    public record KontrollerForespørselRequestDto(@NotNull String saksnummer, @NotNull String orgnr){}
+    public record KontrollerForespørselRequestDto(@NotNull @Digits(integer = 18, fraction = 0) String saksnummer, @NotNull @Digits(integer = 9, fraction = 0) String orgnr){}
 
     public record KontrollForespørselResponseDto(@NotNull Boolean erInntektsmeldingPåkrevd){}
 
