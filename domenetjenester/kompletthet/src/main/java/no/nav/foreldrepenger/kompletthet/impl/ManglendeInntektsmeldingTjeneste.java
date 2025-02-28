@@ -59,7 +59,7 @@ public class ManglendeInntektsmeldingTjeneste {
         this.søknadRepository = provider.getSøknadRepository();
     }
 
-    public List<InntektsmeldingSomIkkeKommer> hentAlleInntektsmeldingerSomIkkeKommer(BehandlingReferanse ref) {
+    protected List<InntektsmeldingSomIkkeKommer> hentAlleInntektsmeldingerSomIkkeKommer(BehandlingReferanse ref) {
         return inntektsmeldingTjeneste.hentAlleInntektsmeldingerSomIkkeKommer(ref.behandlingId());
     }
 
@@ -76,9 +76,9 @@ public class ManglendeInntektsmeldingTjeneste {
         return manglendeInntektsmeldinger.stream().noneMatch(mv -> OrgNummer.erGyldigOrgnr(mv.arbeidsgiver()));
     }
 
-    protected LocalDate justerVentefristBasertPåEtterlysningstidspunktEllerAlleredeMottattInntektsmeldinger(BehandlingReferanse ref, Skjæringstidspunkt stp,
-                                                                                                         LocalDate ordinærVentefristEtterlysning,
-                                                                                                         List<ManglendeVedlegg> manglendeInntektsmeldinger) {
+    protected LocalDate ventefristNårSendtEtterlysningEllerDelvisMottattInntektsmelding(BehandlingReferanse ref, Skjæringstidspunkt stp,
+                                                                                        LocalDate ordinærVentefristEtterlysning,
+                                                                                        List<ManglendeVedlegg> manglendeInntektsmeldinger) {
         var sendtEtterlysningsDato = dokumentBehandlingTjeneste.dokumentSistBestiltTidspunkt(ref.behandlingId(), DokumentMalType.ETTERLYS_INNTEKTSMELDING)
             .map(LocalDateTime::toLocalDate)
             .orElse(LocalDate.now());
@@ -114,27 +114,29 @@ public class ManglendeInntektsmeldingTjeneste {
         var behandlingId = ref.behandlingId();
         var permisjonsstart = skjæringstidspunkt.getUtledetSkjæringstidspunkt();
         // Blir brukt dersom søkt tidligere enn 4u før start ytelse
-        var muligFrist = permisjonsstart.minus(TIDLIGST_VENTEFRIST_IM_FØR_UTTAKSDATO);
-        return søknadRepository.hentSøknadHvisEksisterer(behandlingId)
+        var fristFraSkjæringstidspunkt = permisjonsstart.minus(TIDLIGST_VENTEFRIST_IM_FØR_UTTAKSDATO);
+        // Brukes dersom søkt senere enn 4u før start ytelse
+        var fristFraSøknadMottatt = søknadRepository.hentSøknadHvisEksisterer(behandlingId)
             .map(s -> s.getMottattDato().plus(VENTEFRIST_IM_ETTER_SØKNAD_MOTTATT_DATO))
-            .filter(muligFrist::isBefore)
-            .orElse(muligFrist);
+            .orElse(fristFraSkjæringstidspunkt);
+        // Velg seneste frist av de to mulige
+        return fristFraSøknadMottatt.isAfter(fristFraSkjæringstidspunkt) ? fristFraSøknadMottatt : fristFraSkjæringstidspunkt;
     }
 
     protected LocalDate finnVentefristForEtterlysning(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var behandlingId = ref.behandlingId();
         var permisjonsstart = stp.getUtledetSkjæringstidspunkt();
         // Blir brukt dersom søkt tidligere enn 4u før start ytelse
-        var muligFrist = LocalDate.now().isBefore(permisjonsstart.minus(TIDLIGST_VENTEFRIST_IM_FØR_UTTAKSDATO))
-            ? LocalDate.now()
-            : permisjonsstart.minus(TIDLIGST_VENTEFRIST_IM_FØR_UTTAKSDATO);
+        var fristFraSkjæringstidspunkt = LocalDate.now().isBefore(permisjonsstart.minus(TIDLIGST_VENTEFRIST_IM_FØR_UTTAKSDATO)) ?
+            LocalDate.now() : permisjonsstart.minus(TIDLIGST_VENTEFRIST_IM_FØR_UTTAKSDATO);
         // Brukes dersom søkt senere enn 4u før start ytelse - men avkortet til STP+4u
-        var frist = søknadRepository.hentSøknadHvisEksisterer(behandlingId)
+        var fristFraSøknadMottatt = søknadRepository.hentSøknadHvisEksisterer(behandlingId)
             .map(s -> s.getMottattDato().plus(VENTEFRIST_IM_ETTER_SØKNAD_MOTTATT_DATO))
-            .filter(d -> d.isBefore(permisjonsstart.plus(MAX_VENT_ETTER_STP))) // Brukes dersom søkt senere enn 4u før start ytelse
-            .filter(muligFrist::isBefore)
-            .orElse(muligFrist);
+            .map(d -> d.isBefore(permisjonsstart.plus(MAX_VENT_ETTER_STP)) ? d : permisjonsstart.plus(MAX_VENT_ETTER_STP))
+            .orElse(fristFraSkjæringstidspunkt);
+        // Velg seneste frist av de to mulige
+        var ønsketFrist = fristFraSøknadMottatt.isAfter(fristFraSkjæringstidspunkt) ? fristFraSøknadMottatt : fristFraSkjæringstidspunkt;
         // Legg på en reaksjonstid etter utsendt brev
-        return frist.plus(VENTEFRIST_IM_ETTER_ETTERLYSNING);
+        return ønsketFrist.plus(VENTEFRIST_IM_ETTER_ETTERLYSNING);
     }
 }

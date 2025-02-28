@@ -1,7 +1,18 @@
 package no.nav.foreldrepenger.kompletthet.impl;
 
+import static java.util.Collections.emptyList;
+import static no.nav.foreldrepenger.kompletthet.impl.ManglendeInntektsmeldingTjeneste.gjelderBarePrivateArbeidsgivere;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
@@ -19,15 +30,6 @@ import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Set;
-
-import static java.util.Collections.emptyList;
-import static no.nav.foreldrepenger.kompletthet.impl.ManglendeInntektsmeldingTjeneste.gjelderBarePrivateArbeidsgivere;
 
 @ApplicationScoped
 public class KompletthetsjekkerImpl implements Kompletthetsjekker {
@@ -187,7 +189,7 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
         }
 
         loggManglendeInntektsmeldinger(ref, manglendeInntektsmeldinger);
-        var nyFristVedEttersendelseAvBrev = manglendeInntektsmeldingTjeneste.justerVentefristBasertPåEtterlysningstidspunktEllerAlleredeMottattInntektsmeldinger(ref, stp, ordinærVentefristForEtterlysning, manglendeInntektsmeldinger);
+        var nyFristVedEttersendelseAvBrev = manglendeInntektsmeldingTjeneste.ventefristNårSendtEtterlysningEllerDelvisMottattInntektsmelding(ref, stp, ordinærVentefristForEtterlysning, manglendeInntektsmeldinger);
         return ikkeOppfylt(nyFristVedEttersendelseAvBrev, Venteårsak.VENT_OPDT_INNTEKTSMELDING);
     }
 
