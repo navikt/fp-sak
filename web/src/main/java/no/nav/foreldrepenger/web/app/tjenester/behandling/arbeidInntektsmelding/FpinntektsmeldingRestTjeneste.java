@@ -8,7 +8,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
@@ -69,11 +69,11 @@ public class FpinntektsmeldingRestTjeneste {
      * @param kontrollDto - spesifiserer et orgnr som har en åpen forespørsel, og hvilket saksnummer denne forespørselen tilhører
      * @return om det fortsatt er krav om inntektsmelding fra arbeidsgiveren
      */
-    @GET
+    @POST
     @Path(KONTROLLER_FORESPØRSEL_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Åpner behandling for endring av vurdering i arbeid og inntektsmelding, hvis dette er mulig.", summary = "Åpner behandling for endring ved å rulle saken tilbake til korrekt steg", tags = "arbeid-intektsmelding")
-    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
+    @Operation(description = "Sjekker om en sak fortsatt trenger inntektsmelding fra gitt orgnr.", summary = "Sjekker om en sak fortsatt trenger inntektsmelding fra gitt orgnr", tags = "arbeid-intektsmelding")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public Response kontrollerForespørselForSaksnummer(@TilpassetAbacAttributt(supplierClass = KontrollerForespørselDtoAbacDataSupplier.class)
                                    @NotNull @Parameter(description = "Saksnummer og orgnr der behov for inntektsmelding skal kontrolleres.") @Valid FpinntektsmeldingRestTjeneste.KontrollerForespørselRequestDto kontrollDto) {
         var virksomhet = Arbeidsgiver.virksomhet(kontrollDto.orgnr());
