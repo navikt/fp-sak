@@ -107,10 +107,6 @@ public class BehandlingFormidlingDtoTjeneste {
         // for CDI proxy
     }
 
-    public BehandlingFormidlingDto lagDtoForFormidling(Behandling behandling) {
-        return lagDto(behandling);
-    }
-
     private Språkkode getSpråkkode(Behandling behandling) {
         if (!behandling.erYtelseBehandling()) {
             return behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(behandling.getFagsakId())
@@ -133,7 +129,7 @@ public class BehandlingFormidlingDtoTjeneste {
         dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
     }
 
-    private BehandlingFormidlingDto lagDto(Behandling behandling) {
+    public BehandlingFormidlingDto lagDtoForFormidling(Behandling behandling) {
         var dto = new BehandlingFormidlingDto();
         settStandardfelterForBrev(behandling, dto);
 

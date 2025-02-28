@@ -97,6 +97,25 @@ class PipRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
+    void skal_finne_aktoerId_for_saksnummer() {
+        var aktørId1 = AktørId.dummy();
+        var fagsak = behandlingBuilder.opprettFagsak(FagsakYtelseType.FORELDREPENGER, aktørId1);
+
+        var aktørIder = pipRepository.hentAktørIdKnyttetTilSaksnummer(fagsak.getSaksnummer().getVerdi());
+        assertThat(aktørIder).containsOnly(aktørId1);
+    }
+
+    @Test
+    void skal_finne_saksnummer_for_behandling_id() {
+        var aktørId1 = AktørId.dummy();
+        var fagsak = behandlingBuilder.opprettFagsak(FagsakYtelseType.FORELDREPENGER, aktørId1);
+        var behandling = behandlingBuilder.opprettOgLagreFørstegangssøknad(fagsak);
+
+        var fagsakId = pipRepository.hentFagsakIdForBehandlingUuid(behandling.getUuid());
+        assertThat(fagsakId).containsOnly(fagsak.getId());
+    }
+
+    @Test
     void skal_finne_fagsakId_knyttet_til_journalpostId() {
         var fagsak1 = behandlingBuilder.opprettFagsak(FagsakYtelseType.FORELDREPENGER);
         @SuppressWarnings("unused") var fagsak2 = behandlingBuilder.opprettFagsak(FagsakYtelseType.FORELDREPENGER);

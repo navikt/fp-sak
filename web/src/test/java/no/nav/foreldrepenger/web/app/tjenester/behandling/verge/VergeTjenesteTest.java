@@ -233,7 +233,7 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
             assertThat(vergeRepository.hentAggregat(behandling.getId()).flatMap(VergeAggregat::getVerge)).isPresent();
             var historikkinnslag = historikkRepository.hent(behandling.getSaksnummer());
             assertThat(historikkinnslag).hasSize(1);
-            assertThat(historikkinnslag.getFirst().getTekstLinjer().getLast()).isEqualTo("Registrering av opplysninger om verge/fullmektig.");
+            assertThat(historikkinnslag.getFirst().getTekstLinjer().getLast()).isEqualTo("Opplysninger om verge/fullmektig er registrert.");
         }
     }
 

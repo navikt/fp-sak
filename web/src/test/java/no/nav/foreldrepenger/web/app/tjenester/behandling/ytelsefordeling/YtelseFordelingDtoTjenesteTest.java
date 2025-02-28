@@ -10,36 +10,45 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
+import jakarta.inject.Inject;
+
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
+import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
+import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.AdressePeriode;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Gyldighetsperiode;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningVersjonType;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonAdresse;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
@@ -49,21 +58,59 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.AvklarFaktaT
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaOmsorgRettTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AvklarAleneomsorgVurderingDto;
 
-class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
+@CdiDbAwareTest
+class YtelseFordelingDtoTjenesteTest {
 
-    private final InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = mock(InntektArbeidYtelseTjeneste.class);
+    @Inject
     private BehandlingRepositoryProvider repositoryProvider;
+    @Inject
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
+    @Inject
     private ForeldrepengerUttakTjeneste uttakTjeneste;
+    @Mock
     private final UføretrygdRepository uføretrygdRepository = mock(UføretrygdRepository.class);
+    @Inject
+    private YtelseFordelingDtoTjeneste ytelseFordelingDtoTjeneste;
 
-    @BeforeEach
-    public void setUp() {
-        var entityManager = getEntityManager();
-        ytelseFordelingTjeneste = new YtelseFordelingTjeneste(new YtelsesFordelingRepository(entityManager));
-        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        uttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
-        when(inntektArbeidYtelseTjeneste.hentGrunnlag(anyLong())).thenReturn(InntektArbeidYtelseGrunnlagBuilder.nytt().build());
+    @Test
+    void skal_lage_dto() {
+        var fødselsdato = of(2025, 2, 20);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medFødselAdopsjonsdato(fødselsdato)
+            .medOppgittRettighet(new OppgittRettighetEntitet(false, false, false, true, true))
+            .medOverstyrtRettighet(new OppgittRettighetEntitet(true, false, false, false, false));
+        var adresselinje = "Linje1";
+        var poststed = "1234";
+        scenario.medRegisterOpplysninger(PersonInformasjon.builder(PersonopplysningVersjonType.REGISTRERT)
+            .leggTilAdresser(new PersonAdresse(scenario.getDefaultBrukerAktørId(),
+                new AdressePeriode(new Gyldighetsperiode(fødselsdato.minusYears(1), fødselsdato.plusYears(10)),
+                    Adresseinfo.builder(AdresseType.BOSTEDSADRESSE).medLand(Landkoder.NOR).medAdresselinje1(adresselinje).medPostnummer(poststed).build())))
+                .medPersonas().voksenPerson(scenario.getDefaultBrukerAktørId(), SivilstandType.GIFT, NavBrukerKjønn.KVINNE)
+            .build());
+
+        var utenlandskFnr = "123";
+        var utenlandskFnrLand = Landkoder.DNK;
+        scenario.medSøknadAnnenPart().medUtenlandskFnr(utenlandskFnr).medUtenlandskFnrLand(utenlandskFnrLand);
+        var behandling = scenario.lagre(repositoryProvider);
+
+        var rettOgOmsorgDto = ytelseFordelingDtoTjeneste.mapFra(behandling.getUuid()).orElseThrow();
+        var annenpartDto = rettOgOmsorgDto.søknad();
+        assertThat(annenpartDto.søkerHarAleneomsorg()).isFalse();
+        assertThat(annenpartDto.annenpartIdent()).isEqualTo(utenlandskFnr);
+        assertThat(annenpartDto.annenpartBostedsland()).isEqualTo(utenlandskFnrLand);
+        assertThat(annenpartDto.annenpartRettighet().harRettNorge()).isFalse();
+        assertThat(annenpartDto.annenpartRettighet().harRettEØS()).isTrue();
+        assertThat(annenpartDto.annenpartRettighet().harUføretrygd()).isFalse();
+        assertThat(annenpartDto.annenpartRettighet().harOppholdEØS()).isTrue();
+
+        var manuellBehandlingResultat = rettOgOmsorgDto.manuellBehandlingResultat();
+        assertThat(manuellBehandlingResultat.søkerHarAleneomsorg()).isFalse();
+        assertThat(manuellBehandlingResultat.annenpartRettighet().harOppholdEØS()).isFalse();
+        assertThat(manuellBehandlingResultat.annenpartRettighet().harRettEØS()).isFalse();
+        assertThat(manuellBehandlingResultat.annenpartRettighet().harUføretrygd()).isFalse();
+        assertThat(manuellBehandlingResultat.annenpartRettighet().harRettNorge()).isTrue();
+
+        assertThat(rettOgOmsorgDto.relasjonsRolleType()).isEqualTo(RelasjonsRolleType.MORA);
     }
 
     @Test
@@ -76,8 +123,6 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         }.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
         var ytelseFordelingDtoOpt = tjeneste().mapFra(behandling);
         assertThat(ytelseFordelingDtoOpt).isNotNull().isNotEmpty();
-        assertThat(ytelseFordelingDtoOpt.get().getEndringsdato()).isEqualTo(now().minusDays(20));
-        assertThat(ytelseFordelingDtoOpt.get().getGjeldendeDekningsgrad()).isEqualTo(100);
     }
 
     @Test
@@ -97,8 +142,6 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().bekreftetAnnenForelderRettEØS()).isNull();
         assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().skalAvklareAnnenforelderUføretrygd()).isFalse();
         assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().skalAvklareAnnenForelderRettEØS()).isFalse();
-        assertThat(ytelseFordelingDtoOpt.get().getEndringsdato()).isEqualTo(now().minusDays(20));
-        assertThat(ytelseFordelingDtoOpt.get().getGjeldendeDekningsgrad()).isEqualTo(100);
     }
 
     @Test
@@ -114,6 +157,7 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
             .medAktørIdUføretrygdet(AktørId.dummy())
             .medRegisterUføretrygd(true, now(), now())
             .build()));
+
         var ytelseFordelingDtoOpt = tjeneste().mapFra(behandling);
         assertThat(ytelseFordelingDtoOpt).isNotNull().isNotEmpty();
         assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder()).isNotNull();
@@ -208,8 +252,8 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     private YtelseFordelingDtoTjeneste tjeneste() {
-        var dekningsgradTjeneste = new DekningsgradTjeneste(repositoryProvider.getYtelsesFordelingRepository());
-        return new YtelseFordelingDtoTjeneste(ytelseFordelingTjeneste, dekningsgradTjeneste, uføretrygdRepository, uttakTjeneste);
+        return new YtelseFordelingDtoTjeneste(ytelseFordelingTjeneste, uføretrygdRepository, uttakTjeneste, null,
+            repositoryProvider.getBehandlingRepository(), null);
     }
 
     private Behandling opprettBehandling() {

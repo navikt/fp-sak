@@ -60,6 +60,15 @@ public class PipRepository {
         throw new IllegalStateException("Forventet 0 eller 1 treff etter søk på behandlingId, fikk flere for behandlingId " + behandlingId);
     }
 
+    public Set<Long> hentFagsakIdForBehandlingUuid(UUID behandlingUuid) {
+        Objects.requireNonNull(behandlingUuid, "behandlingUuid");
+
+        var sql = "SELECT b.fagsak_id FROM BEHANDLING b WHERE b.uuid = :behandlingUuid";
+        var query = entityManager.createNativeQuery(sql);
+        query.setParameter("behandlingUuid", behandlingUuid);
+        return new LinkedHashSet<>((List<Long>) query.getResultList());
+    }
+
     public Optional<PipBehandlingsData> hentDataForBehandlingUuid(UUID behandlingUuid) {
         Objects.requireNonNull(behandlingUuid, "behandlingUuid");
 
