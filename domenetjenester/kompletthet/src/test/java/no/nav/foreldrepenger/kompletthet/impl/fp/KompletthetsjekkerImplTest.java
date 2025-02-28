@@ -4,7 +4,6 @@ import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTI
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,7 +15,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -104,10 +102,9 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         var kompletthetsjekkerSøknad = new KompletthetsjekkerSøknadTjeneste(repositoryProvider, manglendeVedleggTjeneste);
         var manglendeInntektsmeldingTjeneste = new ManglendeInntektsmeldingTjeneste(
             repositoryProvider,
-            dokumentBestillerTjenesteMock,
             dokumentBehandlingTjenesteMock,
             inntektsmeldingArkivTjeneste,
-                inntektsmeldingTjeneste
+            inntektsmeldingTjeneste
         );
         kompletthetsjekker = new KompletthetsjekkerImpl(repositoryProvider, kompletthetsjekkerSøknad, personopplysningTjeneste, manglendeInntektsmeldingTjeneste);
         testUtil = new KompletthetssjekkerTestUtil(repositoryProvider);
@@ -144,7 +141,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     }
 
     @Test
-    void skal_ikke_sende_brev_når_inntektsmelding_finnes() {
+    void kompletthet_skal_være_oppfylt_når_det_ikke_mangler_noen_inntektsmelding() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         mockManglendeInntektsmeldingKompletthet(Collections.emptyMap());
@@ -160,11 +157,10 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isTrue();
         assertThat(kompletthetResultat.ventefrist()).isNull();
-        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(DokumentBestilling.class));
     }
 
     @Test
-    void skal_sende_brev_med_kort_frist_når_opprinnelig_frist_passert() {
+    void skal_justere_frist_hvis_allerede_motttatt_inntektsmelding() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         mockManglendeInntektsmeldingKompletthet(manglendeInntektsmeldinger);
@@ -179,31 +175,10 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
         assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(1));
-        verify(dokumentBestillerTjenesteMock, times(1)).bestillDokument(any(DokumentBestilling.class));
     }
 
     @Test
-    void skal_ikke_sende_brev_når_etterlysning_sendt() {
-        // Arrange
-        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
-        mockManglendeInntektsmeldingKompletthet(manglendeInntektsmeldinger);
-        testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(4),
-                STARTDATO_PERMISJON);
-        when(dokumentBehandlingTjenesteMock.erDokumentBestilt(any(), any())).thenReturn(true);
-        when(dokumentBehandlingTjenesteMock.dokumentSistBestiltTidspunkt(any(), any())).thenReturn(Optional.of(LocalDateTime.now().minusWeeks(3)));
-
-        // Act
-        var kompletthetResultat = kompletthetsjekker.vurderEtterlysningInntektsmelding(
-                lagRef(behandling), lagStp(STARTDATO_PERMISJON));
-
-        // Assert
-        assertThat(kompletthetResultat.erOppfylt()).isFalse();
-        assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(STARTDATO_PERMISJON.minusDays(4)); // 28 - 10 - 14
-        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(DokumentBestilling.class));
-    }
-
-    @Test
-    void skal_etterlyse_mer_enn_3ukerfør() {
+    void skal_justere_ventefrist_ved_endret_skjæringstidspunkt() {
         // Arrange
         var stp = LocalDate.now().plusDays(2).plusWeeks(3);
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
@@ -218,7 +193,6 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
         assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(2));
-        verify(dokumentBestillerTjenesteMock, times(1)).bestillDokument(any(DokumentBestilling.class));
 
         // Act 2
         stp = LocalDate.now().plusWeeks(2);
@@ -228,11 +202,10 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Assert
         assertThat(kompletthetResultat2.erOppfylt()).isFalse();
         assertThat(kompletthetResultat2.ventefrist().toLocalDate()).isEqualTo(stp);
-        verify(dokumentBestillerTjenesteMock, times(2)).bestillDokument(any(DokumentBestilling.class));
     }
 
     @Test
-    void skal_sende_brev_når_inntektsmelding_mangler() {
+    void kompletthet_ikke_oppflyt_med_frist_utledet_fra_mottattdato() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         mockManglendeInntektsmeldingKompletthet(manglendeInntektsmeldinger);
@@ -247,11 +220,10 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
         assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(2));
-        verify(dokumentBestillerTjenesteMock, times(1)).bestillDokument(any(DokumentBestilling.class));
     }
 
     @Test
-    void skal_ikke_sende_brev_når_inntektsmelding_mangler_for_privat_arbeidsgivere() {
+    void skal_føre_til_oppflyt_kompletthet_når_inntektsmelding_mangler_for_privat_arbeidsgivere() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         HashMap<Arbeidsgiver, Set<InternArbeidsforholdRef>>  manglendeImPrivatArbGiver = new HashMap<>();

@@ -1,10 +1,12 @@
 package no.nav.foreldrepenger.behandling.steg.innhentsaksopplysninger;
 
+import static no.nav.foreldrepenger.behandling.steg.kompletthet.VurderKompletthetStegFelles.autopunktAlleredeUtført;
 import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettForAksjonspunktMedFrist;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_VENT_ETTERLYST_INNTEKTSMELDING;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_VERGE;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -12,7 +14,7 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
-import no.nav.foreldrepenger.behandling.steg.kompletthet.VurderKompletthetStegFelles;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
@@ -31,6 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
+import no.nav.foreldrepenger.kompletthet.impl.EtterlysInntektsmeldingTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -40,6 +43,8 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @ApplicationScoped
 public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements BehandlingSteg {
 
+    private static final Period HVOR_SENT_KAN_VI_SENDE_ETTERLYSNING_BREV = Period.ofWeeks(6);
+
     private BehandlingRepository behandlingRepository;
     private FagsakTjeneste fagsakTjeneste;
     private PersonopplysningTjeneste personopplysningTjeneste;
@@ -48,6 +53,7 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
     private Kompletthetsjekker kompletthetsjekker;
     private BehandlendeEnhetTjeneste enhetTjeneste;
     private FagsakEgenskapRepository fagsakEgenskapRepository;
+    private EtterlysInntektsmeldingTjeneste etterlysInntektsmeldingTjeneste;
 
     InnhentRegisteropplysningerResterendeOppgaverStegImpl() {
         // for CDI proxy
@@ -55,13 +61,14 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
 
     @Inject
     public InnhentRegisteropplysningerResterendeOppgaverStegImpl(BehandlingRepository behandlingRepository,
-            FagsakTjeneste fagsakTjeneste,
-            PersonopplysningTjeneste personopplysningTjeneste,
-            FamilieHendelseTjeneste familieHendelseTjeneste,
-            BehandlendeEnhetTjeneste enhetTjeneste,
-            Kompletthetsjekker kompletthetsjekker,
-            FagsakEgenskapRepository fagsakEgenskapRepository,
-            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                                                 FagsakTjeneste fagsakTjeneste,
+                                                                 PersonopplysningTjeneste personopplysningTjeneste,
+                                                                 FamilieHendelseTjeneste familieHendelseTjeneste,
+                                                                 BehandlendeEnhetTjeneste enhetTjeneste,
+                                                                 Kompletthetsjekker kompletthetsjekker,
+                                                                 FagsakEgenskapRepository fagsakEgenskapRepository,
+                                                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                                                 EtterlysInntektsmeldingTjeneste etterlysInntektsmeldingTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.fagsakTjeneste = fagsakTjeneste;
         this.personopplysningTjeneste = personopplysningTjeneste;
@@ -70,6 +77,7 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
         this.kompletthetsjekker = kompletthetsjekker;
         this.enhetTjeneste = enhetTjeneste;
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
+        this.etterlysInntektsmeldingTjeneste = etterlysInntektsmeldingTjeneste;
     }
 
     @Override
@@ -81,14 +89,19 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
 
         oppdaterFagsakEgenskaper(behandling);
 
-        if (!skalPassereUtenBrevEtterlysInntektsmelding(behandling)) {
+        // Dette autopunktet har tilbakehopp/gjenopptak. Går ut av steget hvis auto utført før frist (manuelt av vent).
+        if (!autopunktAlleredeUtført(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, behandling) &&
+            !erMaksimalVentetidPassert(skjæringstidspunkter) &&
+            !skalPassereUtenBrevEtterlysInntektsmelding(behandling)) {
+
             var etterlysIM = kompletthetsjekker.vurderEtterlysningInntektsmelding(ref, skjæringstidspunkter);
-            // Dette autopunktet har tilbakehopp/gjenopptak. Går ut av steget hvis auto utført før frist (manuelt av vent).
-            // Utført på/etter frist antas automatisk gjenopptak.
-            if (!etterlysIM.erOppfylt() && !etterlysIM.erFristUtløpt() &&
-                !VurderKompletthetStegFelles.autopunktAlleredeUtført(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, behandling)) {
-                var ar = opprettForAksjonspunktMedFrist(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, Venteårsak.VENT_OPDT_INNTEKTSMELDING, etterlysIM.ventefrist());
-                return BehandleStegResultat.utførtMedAksjonspunktResultat(ar);
+            if (!etterlysIM.erOppfylt()) {
+                etterlysInntektsmeldingTjeneste.etterlysInntektsmeldingHvisIkkeAlleredeSendt(ref); // Etterlys inntektsmelding alltid ved mangler!
+                // Utført på/etter frist antas automatisk gjenopptak.
+                if (!etterlysIM.erFristUtløpt()) {
+                    var ar = opprettForAksjonspunktMedFrist(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, Venteårsak.VENT_OPDT_INNTEKTSMELDING, etterlysIM.ventefrist());
+                    return BehandleStegResultat.utførtMedAksjonspunktResultat(ar);
+                }
             }
         }
 
@@ -102,6 +115,10 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
 
         return erSøkerUnder18ar(ref) ? BehandleStegResultat.utførtMedAksjonspunkter(List.of(AVKLAR_VERGE)) : BehandleStegResultat.utførtUtenAksjonspunkter();
 
+    }
+
+    private static boolean erMaksimalVentetidPassert(Skjæringstidspunkt stp) {
+        return stp.getUtledetSkjæringstidspunkt().plus(HVOR_SENT_KAN_VI_SENDE_ETTERLYSNING_BREV).isBefore(LocalDate.now());
     }
 
     private boolean erSøkerUnder18ar(BehandlingReferanse ref) {
