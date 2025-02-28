@@ -383,6 +383,10 @@ public class AbakusTjeneste {
         var rawResponse = restClient.sendReturnUnhandled(request);
         var responseCode = rawResponse.statusCode();
         if (responseCode != HttpURLConnection.HTTP_OK) {
+            if (responseCode == HttpURLConnection.HTTP_NO_CONTENT) {
+                LOG.info("Fant ikke kobling for referanse: {} i Abakus", dto.getReferanse());
+                return;
+            }
             var responseBody = rawResponse.body();
             var feilmelding = String.format("Kunne ikke avslutte kobling for behandling: %s til abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
                 dto.getReferanse(), endpointAvsluttKobling, responseCode, responseBody);
