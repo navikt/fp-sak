@@ -34,10 +34,10 @@ public class ManglendeInntektsmeldingTjeneste {
      * Disse konstantene ligger hardkodet (og ikke i KonfigVerdi), da endring i en eller flere av disse vil
      * sannsynnlig kreve kodeendring
      */
-    private static final Period MAX_VENT_ETTER_STP = Period.ofWeeks(4);
-    private static final Period VENTEFRIST_IM_ETTER_SØKNAD_MOTTATT_DATO = Period.ofDays(10);
-    private static final Period TIDLIGST_VENTEFRIST_IM_FØR_UTTAKSDATO = Period.ofWeeks(4).minus(VENTEFRIST_IM_ETTER_SØKNAD_MOTTATT_DATO);
-    private static final Period VENTEFRIST_IM_ETTER_ETTERLYSNING = Period.ofWeeks(2);
+    protected static final Period MAX_VENT_ETTER_STP = Period.ofWeeks(4);
+    protected static final Period VENTEFRIST_IM_ETTER_SØKNAD_MOTTATT_DATO = Period.ofDays(10);
+    protected static final Period TIDLIGST_VENTEFRIST_IM_FØR_UTTAKSDATO = Period.ofWeeks(4).minus(VENTEFRIST_IM_ETTER_SØKNAD_MOTTATT_DATO);
+    protected static final Period VENTEFRIST_IM_ETTER_ETTERLYSNING = Period.ofWeeks(2);
 
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
     private InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste;
@@ -59,11 +59,11 @@ public class ManglendeInntektsmeldingTjeneste {
         this.søknadRepository = provider.getSøknadRepository();
     }
 
-    protected List<InntektsmeldingSomIkkeKommer> hentAlleInntektsmeldingerSomIkkeKommer(BehandlingReferanse ref) {
+    List<InntektsmeldingSomIkkeKommer> hentAlleInntektsmeldingerSomIkkeKommer(BehandlingReferanse ref) {
         return inntektsmeldingTjeneste.hentAlleInntektsmeldingerSomIkkeKommer(ref.behandlingId());
     }
 
-    protected List<ManglendeVedlegg> utledManglendeInntektsmeldingerFraGrunnlag(BehandlingReferanse ref, Skjæringstidspunkt stp) {
+    List<ManglendeVedlegg> utledManglendeInntektsmeldingerFraGrunnlag(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         return inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(ref, stp)
             .keySet()
             .stream()
@@ -71,46 +71,11 @@ public class ManglendeInntektsmeldingTjeneste {
             .toList();
     }
 
-
-    protected static boolean gjelderBarePrivateArbeidsgivere(List<ManglendeVedlegg> manglendeInntektsmeldinger) {
+    static boolean gjelderBarePrivateArbeidsgivere(List<ManglendeVedlegg> manglendeInntektsmeldinger) {
         return manglendeInntektsmeldinger.stream().noneMatch(mv -> OrgNummer.erGyldigOrgnr(mv.arbeidsgiver()));
     }
 
-    protected LocalDate ventefristNårSendtEtterlysningEllerDelvisMottattInntektsmelding(BehandlingReferanse ref, Skjæringstidspunkt stp,
-                                                                                        LocalDate ordinærVentefristEtterlysning,
-                                                                                        List<ManglendeVedlegg> manglendeInntektsmeldinger) {
-        var sendtEtterlysningsDato = dokumentBehandlingTjeneste.dokumentSistBestiltTidspunkt(ref.behandlingId(), DokumentMalType.ETTERLYS_INNTEKTSMELDING)
-            .map(LocalDateTime::toLocalDate)
-            .orElse(LocalDate.now());
-        var fristBasertPåSendtBrev = sendtEtterlysningsDato.plusWeeks(1); // Sikre noen dager etter sendt brev
-        var inntektsmeldingerEtterAktuellSøknad = inntektsmeldingerMottattSenereEnn4UkerFørFrist(ref, stp, ordinærVentefristEtterlysning);
-        if (inntektsmeldingerEtterAktuellSøknad.isEmpty()) {
-            LOG.info("ETTERLYS behandlingId {} mottattImEtterSøknad {} manglerIm {}", ref.behandlingId(), 0, manglendeInntektsmeldinger.size());
-            return fristBasertPåSendtBrev.isAfter(ordinærVentefristEtterlysning) ? fristBasertPåSendtBrev : ordinærVentefristEtterlysning;
-        }
-
-        var tidligstMottatt = inntektsmeldingerEtterAktuellSøknad.stream()
-            .map(Inntektsmelding::getInnsendingstidspunkt)
-            .min(Comparator.naturalOrder())
-            .orElseThrow()
-            .toLocalDate();
-        LOG.info("ETTERLYS behandlingId {} mottattImEtterSøknad {} manglerIm {}", ref.behandlingId(), inntektsmeldingerEtterAktuellSøknad.size(),
-            manglendeInntektsmeldinger.size());
-
-        // Vent N=3 døgn etter første mottatte IM. Bruk N+1 pga startofday.
-        var basertPåMottattIM = tidligstMottatt.plusDays(tidligstMottatt.getDayOfWeek().getValue() > DayOfWeek.TUESDAY.getValue() ? 5 : 3);
-        return fristBasertPåSendtBrev.isAfter(basertPåMottattIM) ? fristBasertPåSendtBrev : basertPåMottattIM;
-    }
-
-    private List<Inntektsmelding> inntektsmeldingerMottattSenereEnn4UkerFørFrist(BehandlingReferanse ref, Skjæringstidspunkt stp, LocalDate ventefristForEtterlysning) {
-        var baseline = ventefristForEtterlysning.minus(VENTEFRIST_IM_ETTER_ETTERLYSNING).minus(VENTEFRIST_IM_ETTER_SØKNAD_MOTTATT_DATO).atStartOfDay();
-        return inntektsmeldingTjeneste.hentInntektsmeldinger(ref, stp.getUtledetSkjæringstidspunkt()).stream()
-            .filter(im -> baseline.isBefore(im.getInnsendingstidspunkt()))  // Filtrer ut IM sendt før søknad
-            .toList();
-    }
-
-
-    protected LocalDate finnVentefristTilManglendeInntektsmelding(BehandlingReferanse ref, Skjæringstidspunkt skjæringstidspunkt) {
+    LocalDate finnVentefristTilManglendeInntektsmelding(BehandlingReferanse ref, Skjæringstidspunkt skjæringstidspunkt) {
         var behandlingId = ref.behandlingId();
         var permisjonsstart = skjæringstidspunkt.getUtledetSkjæringstidspunkt();
         // Blir brukt dersom søkt tidligere enn 4u før start ytelse
@@ -123,7 +88,31 @@ public class ManglendeInntektsmeldingTjeneste {
         return fristFraSøknadMottatt.isAfter(fristFraSkjæringstidspunkt) ? fristFraSøknadMottatt : fristFraSkjæringstidspunkt;
     }
 
-    protected LocalDate finnVentefristForEtterlysning(BehandlingReferanse ref, Skjæringstidspunkt stp) {
+    LocalDate finnVentefristForEtterlysning(BehandlingReferanse ref, Skjæringstidspunkt stp, int antallManglendeInntekstmeldinger) {
+        var datoEtterlysInntektsmeldingBrevBleSendt = dokumentBehandlingTjeneste.dokumentSistBestiltTidspunkt(ref.behandlingId(), DokumentMalType.ETTERLYS_INNTEKTSMELDING)
+            .map(LocalDateTime::toLocalDate)
+            .orElse(LocalDate.now());
+        var fristBasertPåSendtBrev = datoEtterlysInntektsmeldingBrevBleSendt.plusWeeks(1); // Sikre noen dager etter sendt brev
+        var inntektsmeldingerMottattEtterEtterlysningsbrev = inntektsmeldingerMottattEtterEtterlysningsbrev(ref, stp, datoEtterlysInntektsmeldingBrevBleSendt);
+        if (inntektsmeldingerMottattEtterEtterlysningsbrev.isEmpty()) {
+            LOG.info("ETTERLYS behandlingId {} mottattImEtterSøknad {} manglerIm {}", ref.behandlingId(), 0, antallManglendeInntekstmeldinger);
+            var ordinærVentefristEtterlysning = ordinærVentefristEtterlysning(ref, stp);
+            return fristBasertPåSendtBrev.isAfter(ordinærVentefristEtterlysning) ? fristBasertPåSendtBrev : ordinærVentefristEtterlysning;
+        }
+
+        var tidligstMottatt = inntektsmeldingerMottattEtterEtterlysningsbrev.stream()
+            .map(Inntektsmelding::getInnsendingstidspunkt)
+            .min(Comparator.naturalOrder())
+            .orElseThrow()
+            .toLocalDate();
+        LOG.info("ETTERLYS behandlingId {} mottattImEtterSøknad {} manglerIm {}", ref.behandlingId(), inntektsmeldingerMottattEtterEtterlysningsbrev.size(), antallManglendeInntekstmeldinger);
+
+        // Vent N=3 døgn etter første mottatte IM. Bruk N+1 pga startofday.
+        var basertPåMottattIM = tidligstMottatt.plusDays(tidligstMottatt.getDayOfWeek().getValue() > DayOfWeek.TUESDAY.getValue() ? 5 : 3);
+        return fristBasertPåSendtBrev.isAfter(basertPåMottattIM) ? fristBasertPåSendtBrev : basertPåMottattIM;
+    }
+
+    private LocalDate ordinærVentefristEtterlysning(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var behandlingId = ref.behandlingId();
         var permisjonsstart = stp.getUtledetSkjæringstidspunkt();
         // Blir brukt dersom søkt tidligere enn 4u før start ytelse
@@ -138,5 +127,11 @@ public class ManglendeInntektsmeldingTjeneste {
         var ønsketFrist = fristFraSøknadMottatt.isAfter(fristFraSkjæringstidspunkt) ? fristFraSøknadMottatt : fristFraSkjæringstidspunkt;
         // Legg på en reaksjonstid etter utsendt brev
         return ønsketFrist.plus(VENTEFRIST_IM_ETTER_ETTERLYSNING);
+    }
+
+    private List<Inntektsmelding> inntektsmeldingerMottattEtterEtterlysningsbrev(BehandlingReferanse ref, Skjæringstidspunkt stp, LocalDate datoEtterlysInntektsmeldingBrevBleSendt) {
+        return inntektsmeldingTjeneste.hentInntektsmeldinger(ref, stp.getUtledetSkjæringstidspunkt()).stream()
+            .filter(im -> datoEtterlysInntektsmeldingBrevBleSendt.atStartOfDay().isBefore(im.getInnsendingstidspunkt()))
+            .toList();
     }
 }

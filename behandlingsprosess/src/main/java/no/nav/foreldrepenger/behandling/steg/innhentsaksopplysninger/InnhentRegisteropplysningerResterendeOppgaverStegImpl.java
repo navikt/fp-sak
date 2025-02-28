@@ -5,6 +5,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_VERGE;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -12,6 +13,7 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.steg.kompletthet.VurderKompletthetStegFelles;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
@@ -40,6 +42,8 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @FagsakYtelseTypeRef
 @ApplicationScoped
 public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements BehandlingSteg {
+
+    private static final Period HVOR_SENT_KAN_VI_SENDE_ETTERLYSNING_BREV = Period.ofWeeks(6);
 
     private BehandlingRepository behandlingRepository;
     private FagsakTjeneste fagsakTjeneste;
@@ -85,14 +89,16 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
 
         oppdaterFagsakEgenskaper(behandling);
 
-        var etterlysIM = kompletthetsjekker.vurderEtterlysningInntektsmelding(ref, skjæringstidspunkter);
-        if (!etterlysIM.erOppfylt() && !skalPassereUtenBrevEtterlysInntektsmelding(behandling)) {
+        if (!erMaksimalVentetidPassert(skjæringstidspunkter) && !skalPassereUtenBrevEtterlysInntektsmelding(behandling)) {
+            var etterlysIM = kompletthetsjekker.vurderEtterlysningInntektsmelding(ref, skjæringstidspunkter);
             // Dette autopunktet har tilbakehopp/gjenopptak. Går ut av steget hvis auto utført før frist (manuelt av vent).
             // Utført på/etter frist antas automatisk gjenopptak.
-            etterlysInntektsmeldingTjeneste.etterlysInntektsmeldingHvisIkkeAlleredeSendt(ref); // Etterlys inntektsmelding alltid ved mangler!
-            if (!etterlysIM.erFristUtløpt() && !VurderKompletthetStegFelles.autopunktAlleredeUtført(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, behandling)) {
-                var ar = opprettForAksjonspunktMedFrist(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, Venteårsak.VENT_OPDT_INNTEKTSMELDING, etterlysIM.ventefrist());
-                return BehandleStegResultat.utførtMedAksjonspunktResultat(ar);
+            if (!etterlysIM.erOppfylt()) {
+                etterlysInntektsmeldingTjeneste.etterlysInntektsmeldingHvisIkkeAlleredeSendt(ref); // Etterlys inntektsmelding alltid ved mangler!
+                if (!etterlysIM.erFristUtløpt() && !VurderKompletthetStegFelles.autopunktAlleredeUtført(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, behandling)) {
+                    var ar = opprettForAksjonspunktMedFrist(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, Venteårsak.VENT_OPDT_INNTEKTSMELDING, etterlysIM.ventefrist());
+                    return BehandleStegResultat.utførtMedAksjonspunktResultat(ar);
+                }
             }
         }
 
@@ -106,6 +112,10 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
 
         return erSøkerUnder18ar(ref) ? BehandleStegResultat.utførtMedAksjonspunkter(List.of(AVKLAR_VERGE)) : BehandleStegResultat.utførtUtenAksjonspunkter();
 
+    }
+
+    private static boolean erMaksimalVentetidPassert(Skjæringstidspunkt stp) {
+        return stp.getUtledetSkjæringstidspunkt().plus(HVOR_SENT_KAN_VI_SENDE_ETTERLYSNING_BREV).isBefore(LocalDate.now());
     }
 
     private boolean erSøkerUnder18ar(BehandlingReferanse ref) {

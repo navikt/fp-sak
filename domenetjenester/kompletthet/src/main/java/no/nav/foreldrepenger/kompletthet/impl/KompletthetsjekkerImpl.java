@@ -123,8 +123,6 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
         return KompletthetResultat.oppfylt();
     }
 
-
-
     @Override
     public List<ManglendeVedlegg> utledAlleManglendeVedleggForForsendelse(BehandlingReferanse ref) {
         return kompletthetssjekkerSøknad.utledManglendeVedleggForSøknad(ref);
@@ -178,18 +176,13 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
             return KompletthetResultat.oppfylt();
         }
 
-        var ordinærVentefristForEtterlysning = manglendeInntektsmeldingTjeneste.finnVentefristForEtterlysning(ref, stp);
-        if (erVentefristUtløpt(ordinærVentefristForEtterlysning)) {
-            return KompletthetResultat.oppfylt();
-        }
-
         var manglendeInntektsmeldinger = manglendeInntektsmeldingTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(ref, stp);
         if (manglendeInntektsmeldinger.isEmpty() || gjelderBarePrivateArbeidsgivere(manglendeInntektsmeldinger)) {
             return KompletthetResultat.oppfylt();
         }
 
         loggManglendeInntektsmeldinger(ref, manglendeInntektsmeldinger);
-        var nyFristVedEttersendelseAvBrev = manglendeInntektsmeldingTjeneste.ventefristNårSendtEtterlysningEllerDelvisMottattInntektsmelding(ref, stp, ordinærVentefristForEtterlysning, manglendeInntektsmeldinger);
+        var nyFristVedEttersendelseAvBrev = manglendeInntektsmeldingTjeneste.finnVentefristForEtterlysning(ref, stp, manglendeInntektsmeldinger.size());
         return ikkeOppfylt(nyFristVedEttersendelseAvBrev, Venteårsak.VENT_OPDT_INNTEKTSMELDING);
     }
 

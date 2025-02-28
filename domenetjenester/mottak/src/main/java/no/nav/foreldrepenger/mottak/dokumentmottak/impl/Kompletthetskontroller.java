@@ -7,7 +7,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -76,10 +75,7 @@ public class Kompletthetskontroller {
         mottatteDokumentTjeneste.persisterDokumentinnhold(behandling, mottattDokument, Optional.empty());
 
         // Vurder kompletthet etter at dokument knyttet til behandling - med mindre man venter på registrering av papirsøknad
-        var åpneAksjonspunkter = behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT).stream()
-            .map(Aksjonspunkt::getAksjonspunktDefinisjon)
-            .toList();
-        var kompletthetResultat = vurderKompletthet(ref, stp, åpneAksjonspunkter);
+        var kompletthetResultat = vurderKompletthet(ref, stp, behandling);
 
         if (!kompletthetResultat.erOppfylt() && behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD)) {
             var åpenKompletthet = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD).orElseThrow();
@@ -139,17 +135,21 @@ public class Kompletthetskontroller {
      * Vurderer kompletthet for en behandling basert på hvilke aksjonspunkter som er åpne.
      * Skal i praksis aldri kunne være flere av disse, men er teoretisk mulig ved endringer i steg eller aksjonspunktdefinisjoner.
      */
-    private KompletthetResultat vurderKompletthet(BehandlingReferanse ref, Skjæringstidspunkt stp, List<AksjonspunktDefinisjon> aksjonspunkter) {
-        if (aksjonspunkter.contains(VENT_PÅ_SØKNAD)) {
+    private KompletthetResultat vurderKompletthet(BehandlingReferanse ref, Skjæringstidspunkt stp, Behandling behandling) {
+        var åpneAksjonspunkter = behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT).stream()
+            .map(Aksjonspunkt::getAksjonspunktDefinisjon)
+            .toList();
+
+        if (åpneAksjonspunkter.contains(VENT_PÅ_SØKNAD)) {
             return kompletthetsjekker.vurderSøknadMottatt(ref);
         }
-        if (aksjonspunkter.contains(VENT_PGA_FOR_TIDLIG_SØKNAD)) {
+        if (åpneAksjonspunkter.contains(VENT_PGA_FOR_TIDLIG_SØKNAD)) {
             return kompletthetsjekker.vurderSøknadMottattForTidlig(ref, stp);
         }
-        if (aksjonspunkter.contains(AUTO_VENTER_PÅ_KOMPLETT_SØKNAD)) {
+        if (åpneAksjonspunkter.contains(AUTO_VENTER_PÅ_KOMPLETT_SØKNAD)) {
             return kompletthetsjekker.vurderForsendelseKomplett(ref, stp);
         }
-        if (aksjonspunkter.contains(AUTO_VENT_ETTERLYST_INNTEKTSMELDING)) {
+        if (åpneAksjonspunkter.contains(AUTO_VENT_ETTERLYST_INNTEKTSMELDING)) {
             var kompletthetResultat = kompletthetsjekker.vurderEtterlysningInntektsmelding(ref, stp);
             if (!kompletthetResultat.erOppfylt() && kompletthetResultat.erFristUtløpt()) {
                 return KompletthetResultat.oppfylt(); // Konvensjon for å sikre framdrift i prosessen
