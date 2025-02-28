@@ -96,8 +96,8 @@ public class ManglendeInntektsmeldingTjeneste {
         var inntektsmeldingerMottattEtterEtterlysningsbrev = inntektsmeldingerMottattEtterEtterlysningsbrev(ref, stp, datoEtterlysInntektsmeldingBrevBleSendt);
         if (inntektsmeldingerMottattEtterEtterlysningsbrev.isEmpty()) {
             LOG.info("ETTERLYS behandlingId {} mottattImEtterSøknad {} manglerIm {}", ref.behandlingId(), 0, antallManglendeInntekstmeldinger);
-            var ordinærVentefristEtterlysning = ordinærVentefristEtterlysning(ref, stp);
-            return fristBasertPåSendtBrev.isAfter(ordinærVentefristEtterlysning) ? fristBasertPåSendtBrev : ordinærVentefristEtterlysning;
+            var ventefristUtenAtDetForeliggerIMEtterEtterlysning = finnVentefristForEtterlysningUtenEksisterendeIMEtterEtterlysning(ref, stp);
+            return fristBasertPåSendtBrev.isAfter(ventefristUtenAtDetForeliggerIMEtterEtterlysning) ? fristBasertPåSendtBrev : ventefristUtenAtDetForeliggerIMEtterEtterlysning;
         }
 
         var tidligstMottatt = inntektsmeldingerMottattEtterEtterlysningsbrev.stream()
@@ -112,7 +112,7 @@ public class ManglendeInntektsmeldingTjeneste {
         return fristBasertPåSendtBrev.isAfter(basertPåMottattIM) ? fristBasertPåSendtBrev : basertPåMottattIM;
     }
 
-    private LocalDate ordinærVentefristEtterlysning(BehandlingReferanse ref, Skjæringstidspunkt stp) {
+    private LocalDate finnVentefristForEtterlysningUtenEksisterendeIMEtterEtterlysning(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var behandlingId = ref.behandlingId();
         var permisjonsstart = stp.getUtledetSkjæringstidspunkt();
         // Blir brukt dersom søkt tidligere enn 4u før start ytelse
