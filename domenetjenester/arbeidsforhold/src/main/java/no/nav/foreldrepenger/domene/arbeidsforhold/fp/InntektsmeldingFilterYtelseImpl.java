@@ -27,7 +27,7 @@ public class InntektsmeldingFilterYtelseImpl implements InntektsmeldingFilterYte
     }
 
     @Override
-    public <V> Map<Arbeidsgiver, Set<V>> søknadsFilter(BehandlingReferanse referanse, Map<Arbeidsgiver, Set<V>> påkrevde) {
+    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> søknadsFilter(BehandlingReferanse referanse, Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevde) {
         return påkrevde;
     }
 
