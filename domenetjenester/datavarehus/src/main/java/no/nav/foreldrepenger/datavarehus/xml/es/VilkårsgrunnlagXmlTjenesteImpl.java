@@ -6,7 +6,6 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -22,7 +21,6 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adopsjon.Adopsjonsvilk�
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel.FødselsvilkårGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel.FødselsvilkårGrunnlagLegacy;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v1.MedlemskapsvilkårGrunnlagV1;
-import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.es.v2.Adopsjon;
 import no.nav.vedtak.felles.xml.vedtak.vilkaarsgrunnlag.es.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.vilkaarsgrunnlag.v2.Vilkaarsgrunnlag;
@@ -38,8 +36,8 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
     }
 
     @Inject
-    public VilkårsgrunnlagXmlTjenesteImpl(BehandlingRepositoryProvider repositoryProvider, Kompletthetsjekker kompletthetsjekker) {
-        super(repositoryProvider, kompletthetsjekker);
+    public VilkårsgrunnlagXmlTjenesteImpl(BehandlingRepositoryProvider repositoryProvider) {
+        super(repositoryProvider);
 
     }
 
@@ -179,22 +177,17 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
     private Vilkaarsgrunnlag lagVilkaarsgrunnlagForSøkersopplysningsplikt(Behandling behandling, Optional<SøknadEntitet> optionalSøknad) {
         boolean komplettSøknad;
         boolean elektroniskSøknad;
-        boolean erBarnetFødt;
         if (optionalSøknad.isEmpty()) {
             komplettSøknad = false;
             elektroniskSøknad = false;
-            erBarnetFødt = false;
         } else {
-            var ref = BehandlingReferanse.fra(behandling);
             var søknad = optionalSøknad.get();
-            komplettSøknad = erKomplettSøknad(ref);
+            komplettSøknad = true;
             elektroniskSøknad = søknad.getElektroniskRegistrert();
-            erBarnetFødt = erBarnetFødt(behandling);
         }
         var vilkårgrunnlag = vilkårObjectFactory.createVilkaarsgrunnlagSoekersopplysningsplikt();
         vilkårgrunnlag.setErSoeknadenKomplett(VedtakXmlUtil.lagBooleanOpplysning(komplettSøknad)); //Denne er unødvendig fo dvh.
         vilkårgrunnlag.setElektroniskSoeknad(VedtakXmlUtil.lagBooleanOpplysning(elektroniskSøknad));
-        vilkårgrunnlag.setErBarnetFoedt(VedtakXmlUtil.lagBooleanOpplysning(erBarnetFødt));
         return vilkårgrunnlag;
     }
 }
