@@ -122,7 +122,7 @@ public class ForvaltningTekniskRestTjeneste {
             @ApiResponse(responseCode = "400", description = "Fant ikke aktuelt aksjonspunkt."),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response setAksjonspunktAvbrutt(@BeanParam @Valid BehandlingAksjonspunktDto dto) {
         var behandlingId = dto.getBehandlingUuid();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
@@ -159,22 +159,10 @@ public class ForvaltningTekniskRestTjeneste {
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     @Operation(description = "Fjern fagsakprosesstask for avsluttede behandlinger", tags = "FORVALTNING-teknisk")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response fjernFagsakProsesstaskAvsluttetBehandling() {
         fagsakProsessTaskRepository.fjernForAvsluttedeBehandlinger();
-        return Response.ok().build();
-    }
-
-    @POST
-    @Path("/fjern-nasjonal-markering")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(description = "Fjern nasjonal markering", tags = "FORVALTNING-teknisk")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response fjernNasjonalMarkering() {
-        fagsakEgenskapRepository.slettNasjonal();
         return Response.ok().build();
     }
 

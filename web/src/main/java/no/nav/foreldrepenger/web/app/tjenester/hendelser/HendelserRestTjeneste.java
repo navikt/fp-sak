@@ -72,7 +72,7 @@ public class HendelserRestTjeneste {
     @POST
     @Path("/motta")
     @Operation(description = "Mottak av hendelser", tags = "hendelser")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public EnkelRespons mottaHendelse(@Parameter(description = "Hendelse fra Fpabonnent") @Valid AbacHendelseWrapperDto wrapperDto) {
         var hendelseDto = wrapperDto.getHendelse();
         var beskrivelse = String.format("Hendelse mottatt fra %s av typen %s med hendelseId: %s.",

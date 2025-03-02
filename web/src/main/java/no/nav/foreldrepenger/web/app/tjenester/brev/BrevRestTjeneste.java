@@ -96,7 +96,7 @@ public class BrevRestTjeneste {
     @Path(BREV_BESTILL_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Bestiller generering og sending av brevet", tags = "brev")
-    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public void bestillDokument(@TilpassetAbacAttributt(supplierClass = BrevAbacDataSupplier.class) @Parameter(description = "Inneholder kode til brevmal og data som skal flettes inn i brevet") @Valid BestillDokumentDto bestillBrevDto) {
         var behandling = behandlingRepository.hentBehandling(bestillBrevDto.behandlingUuid());
         LOG.info("Brev med brevmalkode={} bestilt på behandlingId={}", bestillBrevDto.brevmalkode(), behandling.getId());
@@ -153,7 +153,7 @@ public class BrevRestTjeneste {
     @Path(BREV_VIS_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Returnerer en pdf som er en forhåndsvisning av brevet", tags = "brev")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response forhåndsvisDokument(@Parameter(description = "Inneholder kode til brevmal og bestillingsdetaljer.") @TilpassetAbacAttributt(supplierClass = ForhåndsvisSupplier.class) @Valid ForhåndsvisDokumentDto forhåndsvisDto) { // NOSONAR
         var behandling = behandlingRepository.hentBehandling(forhåndsvisDto.behandlingUuid());

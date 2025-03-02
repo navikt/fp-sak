@@ -118,7 +118,7 @@ public class FagsakRestTjeneste {
             @ApiResponse(responseCode = "303", description = "Pågående prosesstasks avsluttet", headers = @Header(name = HttpHeaders.LOCATION)),
             @ApiResponse(responseCode = "418", description = "ProsessTasks har feilet", headers = @Header(name = HttpHeaders.LOCATION), content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = AsyncPollingStatus.class)))
     })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public Response hentFagsakMidlertidigStatus(@Context HttpServletRequest request,
                                                 @TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto idDto,
                                                 @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.TaskgruppeAbacDataSupplier.class) @QueryParam("gruppe") @Valid ProsessTaskGruppeIdDto gruppeDto)
@@ -136,7 +136,7 @@ public class FagsakRestTjeneste {
         @ApiResponse(responseCode = "200", description = "Returnerer fagsak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FagsakFullDto.class))),
         @ApiResponse(responseCode = "404", description = "Fagsak ikke tilgjengelig")
     })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response hentFullFagsak(@Context HttpServletRequest request,
                                    @TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
         var saksnummer = new Saksnummer(s.getVerdi());
@@ -152,7 +152,7 @@ public class FagsakRestTjeneste {
             @ApiResponse(responseCode = "200", description = "Returnerer fagsak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FagsakBackendDto.class))),
             @ApiResponse(responseCode = "404", description = "Fagsak ikke tilgjengelig")
     })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public Response hentFagsak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
         @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
 
@@ -167,7 +167,7 @@ public class FagsakRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Søk etter saker på saksnummer eller fødselsnummer", tags = "fagsak", summary =
         "Spesifikke saker kan søkes via saksnummer. " + "Oversikt over saker knyttet til en bruker kan søkes via fødselsnummer eller d-nummer.")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public List<FagsakSøkDto> sokFagsaker(@TilpassetAbacAttributt(supplierClass = SøkeFeltAbacDataSupplier.class)
         @Parameter(description = "Søkestreng kan være saksnummer, fødselsnummer eller D-nummer.") @Valid SokefeltDto søkestreng) {
         return fagsakTjeneste.søkFagsakDto(søkestreng.getSearchString().trim());
@@ -196,7 +196,7 @@ public class FagsakRestTjeneste {
     @Path(NOTAT_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Lagre nytt notat for sak", tags = "fagsak", summary = "Lagre nytt notat.")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response lagreFagsakNotat(@TilpassetAbacAttributt(supplierClass = LagreFagsakNotatAbacSupplier.class)
                                      @Parameter(description = "Saksnummer og nytt notat") @Valid LagreFagsakNotatDto notatDto) {
         var fagsak = fagsakTjeneste.hentFagsakForSaksnummer(new Saksnummer(notatDto.saksnummer())).orElse(null);

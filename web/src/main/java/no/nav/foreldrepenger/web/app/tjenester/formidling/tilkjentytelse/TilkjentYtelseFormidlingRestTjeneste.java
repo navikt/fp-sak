@@ -62,7 +62,7 @@ public class TilkjentYtelseFormidlingRestTjeneste {
 
     @GET
     @Operation(description = "Hent tilkjent ytelse (dagytelse) for angitt behandling for formidlingsbruk", summary = "Returnerer tilkjent ytelse (dagytelse) for behandling for formidlingsbruk.", tags = "formidling")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     @Path(TILKJENT_YTELSE_DAGYTELSE_PART_PATH)
     public Response hentTilkjentYtelseDagytelseFormidling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                      @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
@@ -80,7 +80,7 @@ public class TilkjentYtelseFormidlingRestTjeneste {
 
     @GET
     @Operation(description = "Hent tilkjent ytelse (engangsstønad) for angitt behandling for formidlingsbruk", summary = "Returnerer tilkjent ytelse (engangsstønad) for behandling for formidlingsbruk.", tags = "formidling")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     @Path(TILKJENT_YTELSE_ENGANGSSTØNAD_PART_PATH)
     public Response hentTilkjentYtelseEngangsstonadFormidling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                           @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {

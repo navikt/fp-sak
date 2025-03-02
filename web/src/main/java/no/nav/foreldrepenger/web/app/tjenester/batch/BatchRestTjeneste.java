@@ -41,7 +41,7 @@ public class BatchRestTjeneste {
             @ApiResponse(responseCode = "200", description = "Starter batch-scheduler"),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil")
     })
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response autoRunBatch() {
         batchSupportTjeneste.startBatchSchedulerTask();
         return Response.ok().build();

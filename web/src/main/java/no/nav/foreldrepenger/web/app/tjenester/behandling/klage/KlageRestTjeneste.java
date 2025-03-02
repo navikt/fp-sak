@@ -126,7 +126,7 @@ public class KlageRestTjeneste {
     @Path(MELLOMLAGRE_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Mellomlagring av vurderingstekst for klagebehandling", tags = "klage")
-    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response mellomlagreKlage(@TilpassetAbacAttributt(supplierClass = MellomlagreKlageAbacSupplier.class)
             @Parameter(description = "KlageVurderingAdapter tilpasset til mellomlagring.") @Valid KlageVurderingResultatAksjonspunktMellomlagringDto apDto) {
 
@@ -167,7 +167,7 @@ public class KlageRestTjeneste {
     @Path(MELLOMLAGRE_FORMKRAV_KLAGE_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Mellomlagring av fritekst til brev for avvist formkrav", tags = "klage")
-    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response mellomlagreAvvistFormKrav(@TilpassetAbacAttributt(supplierClass = MellomlagreFormKravAbacSupplier.class)
                                      @Parameter(description = "KlageVurderingAdapter tilpasset til mellomlagring.") @Valid KlageFormKravAksjonspunktMellomlagringDto apDto) {
 

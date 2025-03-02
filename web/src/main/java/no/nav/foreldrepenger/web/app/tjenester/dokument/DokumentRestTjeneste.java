@@ -108,7 +108,7 @@ public class DokumentRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Path(MOTTATT_DOKUMENTER_PART_PATH)
     @Operation(description = "Henter listen av mottatte dokumenter knyttet til en fagsak", tags = "dokument")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public Collection<MottattDokumentDto> hentAlleMottatteDokumenterForBehandling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
@@ -121,7 +121,7 @@ public class DokumentRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Path(DOKUMENTER_PART_PATH)
     @Operation(description = "Henter dokumentlisten knyttet til en sak", summary = "Oversikt over alle pdf dokumenter fra dokumentarkiv registrert for saksnummer.", tags = "dokument")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Collection<DokumentDto> hentAlleDokumenterForSak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
             @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
@@ -155,7 +155,7 @@ public class DokumentRestTjeneste {
     @GET
     @Path(DOKUMENT_PART_PATH)
     @Operation(description = "Søk etter dokument på JOARK-identifikatorene journalpostId og dokumentId", summary = "Retunerer dokument som er tilknyttet saksnummer, journalpostId og dokumentId (bare pdf)", tags = "dokument")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response hentDokument(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
             @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer") @Valid SaksnummerDto saksnummer,
             @TilpassetAbacAttributt(supplierClass = JournalIdAbacSupplier.class) @NotNull @QueryParam("journalpostId") @Parameter(description = "Unik identifikator av journalposten (forsendelsenivå)") @Valid JournalpostIdDto journalpostId,

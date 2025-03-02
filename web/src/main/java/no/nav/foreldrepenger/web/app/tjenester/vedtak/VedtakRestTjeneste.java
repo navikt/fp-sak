@@ -87,7 +87,7 @@ public class VedtakRestTjeneste {
     @POST
     @Operation(description = "Generer vedtaksxmler som ikke er gyldige på nytt", tags = "vedtak")
     @Path(REGENERER_PART_PATH)
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     @Transactional
     public Response regenererIkkeGyldigeVedtaksXml(
             @Parameter(description = "Datointervall i vedtak tabell for hvor det skal genereres ny vedtaksxml og maksAntall som behandles") @NotNull @Valid GenererVedtaksXmlDto genererVedtaksXmlDto) {
