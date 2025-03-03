@@ -112,7 +112,7 @@ public class InfotrygdOppslagRestTjeneste {
         summary = "Oversikt over utbetalinger knyttet til en bruker kan søkes via fødselsnummer eller d-nummer.",
         responses = {@ApiResponse(responseCode = "200", description = "Returnerer grunnlag",
             content = {@Content(mediaType = "application/json", schema = @Schema(implementation = InfotrygdVedtakDto.class))}),})
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response sokInfotrygd(@TilpassetAbacAttributt(supplierClass = SøkeFeltAbacDataSupplier.class)
         @Parameter(description = "Søkestreng kan være aktørId, fødselsnummer eller D-nummer.") @Valid SokefeltDto søkestreng) {
         var trimmed = søkestreng.getSearchString() != null ? søkestreng.getSearchString().trim() : "";

@@ -89,7 +89,7 @@ Logging til sporingsloggen gjøres automatisk av løsningen for endepunkter som 
 .Normalt kommer sporingslogg ved å legge på tilgangskontroll slik
 [source,java]
 ----
-@BeskyttetRessurs(aactionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+@BeskyttetRessurs(aactionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
 public List<FagsakDto> søkFagsaker(/*...*/)
 /*...*/
 ----

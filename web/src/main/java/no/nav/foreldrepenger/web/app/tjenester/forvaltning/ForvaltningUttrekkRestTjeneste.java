@@ -95,7 +95,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Setter saker med revurdering til under behandling", tags = "FORVALTNING-uttrekk")
     @Path("/openIkkeLopendeSaker")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response openIkkeLopendeSaker() {
         var query = entityManager.createNativeQuery("""
                 select saksnummer, id from fagsak where fagsak_status in (:fstatus)
@@ -150,7 +150,7 @@ public class ForvaltningUttrekkRestTjeneste {
     }
 
     /*
-     * Denne kan brukes ifm migrering av utvalgte egenskaper sammen med MigrerTilOmsorgRettTask.
+     * template til brukes ifm migrering av utvalgte egenskaper sammen med MigrerTilOmsorgRettTask.
      *
      */
     @POST
@@ -158,7 +158,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Flytt behandling til steg", tags = "FORVALTNING-uttrekk")
     @Path("/flyttBehandlingTilSteg")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response flyttBehandlingTilSteg() {
         var query = entityManager.createNativeQuery("""
             select * from behandling where opprettet_tid < '01.01.2000'
@@ -186,7 +186,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @Operation(description = "Hent liste av saknumre for fagsak uten noen behandlinger", tags = "FORVALTNING-uttrekk", responses = {
             @ApiResponse(responseCode = "200", description = "Fagsaker uten behandling", content = @Content(array = @ArraySchema(arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = SaksnummerDto.class)), mediaType = MediaType.APPLICATION_JSON))
     })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public List<SaksnummerDto> listFagsakUtenBehandling() {
         return fagsakRepository.hentÅpneFagsakerUtenBehandling().stream().map(SaksnummerDto::new).toList();
     }
@@ -196,7 +196,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Lagrer task for å finne overlapp. Resultat i overlapp_vedtak", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response avstemOverlappForPeriode(@Parameter(description = "Periode") @BeanParam @Valid AvstemmingPeriodeDto dto) {
         var fom = LocalDate.of(2018,10,20);
         var tom = LocalDate.now();
@@ -232,7 +232,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Sletter tidligere avstemming som er eldre enn fom (dd + 1 sletter alle)", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response slettTidligereAvstemming(@Parameter(description = "Periode") @BeanParam @Valid AvstemmingPeriodeDto dto) {
         if ("hendelseALLE".equals(dto.getKey())) {
             overlappRepository.slettAvstemtPeriode(dto.getFom());
@@ -247,7 +247,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Lagrer task for å finne overlapp. Resultat i app-logg", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response avstemSakForOverlapp(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
                                              @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
         var prosessTaskData = ProsessTaskData.forProsessTask(VedtakOverlappAvstemSakTask.class);
@@ -263,7 +263,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @Path("/hentAvstemtSakOverlapp")
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Prøver å finne overlapp og returnere resultat", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public Response hentAvstemtSakOverlappTrex(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
                                                    @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
         var resultat = overlappRepository.hentForSaksnummer(new Saksnummer(s.getVerdi())).stream()
@@ -280,7 +280,7 @@ public class ForvaltningUttrekkRestTjeneste {
         responses = {@ApiResponse(responseCode = "200", description = "Restanse", content = @Content(
             array = @ArraySchema(arraySchema = @Schema(implementation = List.class),
                 schema = @Schema(implementation = InfotrygdRestanseDto.class)), mediaType = MediaType.APPLICATION_JSON))})
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response infotrygdRestanseFP() {
         var restanse = foreldrepengerSak.getRestanse();
         return Response.ok(restanse).build();
@@ -294,7 +294,7 @@ public class ForvaltningUttrekkRestTjeneste {
         responses = {@ApiResponse(responseCode = "200", description = "Restanse", content = @Content(
             array = @ArraySchema(arraySchema = @Schema(implementation = List.class),
                 schema = @Schema(implementation = InfotrygdRestanseDto.class)), mediaType = MediaType.APPLICATION_JSON))})
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response infotrygdRestanseSVP() {
         var restanse = svangerskapspengerSak.getRestanse();
         return Response.ok(restanse).build();

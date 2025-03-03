@@ -70,6 +70,8 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
             MDC_EXTENDED_LOG_CONTEXT.add("behandling", behId);
         });
 
+        var auditAktørId = utledAuditAktørId(dataAttributter, fagsakIder);
+
         var aktørIder = utledAktørIder(dataAttributter, fagsakIder);
         var aksjonspunktTypeOverstyring = PipRepository.harAksjonspunktTypeOverstyring(dataAttributter.getVerdier(AppAbacAttributtType.AKSJONSPUNKT_DEFINISJON));
 
@@ -77,6 +79,7 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         Set<String> fnrs = dataAttributter.getVerdier(AppAbacAttributtType.FNR);
 
         var builder = AppRessursData.builder()
+            .medAuditAktørId(auditAktørId)
             .leggTilAktørIdSet(aktører)
             .leggTilFødselsnumre(fnrs);
         if (aksjonspunktTypeOverstyring) {
@@ -144,6 +147,16 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         aktørIder.addAll(aktørIdVerdier.stream().map(AktørId::new).collect(Collectors.toSet()));
         aktørIder.addAll(pipRepository.hentAktørIdKnyttetTilFagsaker(fagsakIder));
         return aktørIder;
+    }
+
+    private String utledAuditAktørId(AbacDataAttributter attributter, Set<Long> fagsakIder) {
+        Set<String> aktørIdVerdier = attributter.getVerdier(AppAbacAttributtType.AKTØR_ID);
+        Set<String> personIdentVerdier = attributter.getVerdier(AppAbacAttributtType.FNR);
+
+        return pipRepository.hentAktørIdSomEierFagsaker(fagsakIder).stream().findFirst().map(AktørId::getId)
+            .or(() -> aktørIdVerdier.stream().findFirst())
+            .or(() -> personIdentVerdier.stream().findFirst())
+            .orElse(null);
     }
 
     private Collection<AktørId> aktørIdStringTilAktørId(Set<String> aktørId) {

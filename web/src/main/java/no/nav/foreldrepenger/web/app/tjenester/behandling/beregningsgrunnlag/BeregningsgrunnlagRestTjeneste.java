@@ -58,7 +58,7 @@ public class BeregningsgrunnlagRestTjeneste {
 
     @GET
     @Operation(description = "Hent beregningsgrunnlag for angitt behandling", summary = "Returnerer beregningsgrunnlag for behandling.", tags = "beregningsgrunnlag")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     @Path(BEREGNINGSGRUNNLAG_PART_PATH)
     public BeregningsgrunnlagDto hentBeregningsgrunnlag(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {

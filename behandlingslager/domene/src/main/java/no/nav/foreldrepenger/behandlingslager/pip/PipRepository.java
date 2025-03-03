@@ -99,6 +99,25 @@ public class PipRepository {
         return Optional.of(new PipBehandlingsData((String) resultat[0], (String) resultat[1], (Long) resultat[2], (String) resultat[3]));
     }
 
+    public Set<AktørId> hentAktørIdSomEierFagsaker(Collection<Long> fagsakIder) {
+        Objects.requireNonNull(fagsakIder, SAKSNUMMER);
+        if (fagsakIder.isEmpty()) {
+            return Collections.emptySet();
+        }
+        var sql = """
+            SELECT br.AKTOER_ID FROM Fagsak fag
+            JOIN Bruker br ON fag.BRUKER_ID = br.ID
+            WHERE fag.id in (:fagsakIder) AND br.AKTOER_ID IS NOT NULL
+            """;
+
+        var query = entityManager.createNativeQuery(sql);
+        query.setParameter("fagsakIder", fagsakIder);
+
+        @SuppressWarnings("unchecked")
+        List<String> aktørIdList = query.getResultList();
+        return aktørIdList.stream().map(AktørId::new).collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
     public Set<AktørId> hentAktørIdKnyttetTilFagsaker(Collection<Long> fagsakIder) {
         Objects.requireNonNull(fagsakIder, SAKSNUMMER);
         if (fagsakIder.isEmpty()) {

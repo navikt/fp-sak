@@ -133,7 +133,7 @@ public class BehandlingRestTjeneste {
             @ApiResponse(responseCode = "202", description = "Hent behandling initiert, Returnerer link til å polle på fremdrift", headers = @Header(name = HttpHeaders.LOCATION)),
             @ApiResponse(responseCode = "303", description = "Behandling tilgjenglig (prosesstasks avsluttet)", headers = @Header(name = HttpHeaders.LOCATION))
     })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     @Deprecated
     public Response hentBehandling(@Context HttpServletRequest request,
                                    @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
@@ -157,7 +157,7 @@ public class BehandlingRestTjeneste {
     // re-enable hvis endres til ikke-tom @Path(BEHANDLINGER_PART_PATH)
     @Deprecated
     @Operation(description = "Hent behandling gitt id", summary = "Returnerer behandlingen som er tilknyttet id. Dette er resultat etter at asynkrone operasjoner er utført.", tags = "behandlinger", responses = {@ApiResponse(responseCode = "200", description = "Returnerer Behandling", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = UtvidetBehandlingDto.class)))})
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response hentBehandlingResultat(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
         @NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
         //LOG.info("REST DEPRECATED {} GET {}", this.getClass().getSimpleName(), BASE_PATH);
@@ -177,7 +177,7 @@ public class BehandlingRestTjeneste {
     @Path(SETT_PA_VENT_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Setter behandling på vent", tags = "behandlinger")
-    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public void settBehandlingPaVent(@TilpassetAbacAttributt(supplierClass = LocalBehandlingIdAbacDataSupplier.class)
         @Parameter(description = "Frist for behandling på vent") @Valid SettBehandlingPaVentDto dto) {
         var behandling = getBehandling(dto);
@@ -190,7 +190,7 @@ public class BehandlingRestTjeneste {
     @Path(ENDRE_VENTEFRIST_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Endrer ventefrist for behandling på vent", tags = "behandlinger")
-    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.VENTEFRIST)
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.VENTEFRIST, sporingslogg = true)
     public void endreFristForBehandlingPaVent(@TilpassetAbacAttributt(supplierClass = LocalBehandlingIdAbacDataSupplier.class)
             @Parameter(description = "Frist for behandling på vent") @Valid SettBehandlingPaVentDto dto) {
         var behandling = getBehandling(dto);
@@ -202,7 +202,7 @@ public class BehandlingRestTjeneste {
     @Path(HENLEGG_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Henlegger behandling", tags = "behandlinger")
-    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public void henleggBehandling(@TilpassetAbacAttributt(supplierClass = LocalBehandlingIdAbacDataSupplier.class)
         @Parameter(description = "Henleggelsesårsak") @Valid HenleggBehandlingDto dto) {
         var behandling = getBehandling(dto);
@@ -221,7 +221,7 @@ public class BehandlingRestTjeneste {
     @Operation(description = "Gjenopptar behandling som er satt på vent", tags = "behandlinger", responses = {
             @ApiResponse(responseCode = "200", description = "Gjenoppta behandling påstartet i bakgrunnen", headers = @Header(name = HttpHeaders.LOCATION))
     })
-    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response gjenopptaBehandling(@Context HttpServletRequest request,
                                         @TilpassetAbacAttributt(supplierClass = LocalBehandlingIdAbacDataSupplier.class)
             @Parameter(description = "BehandlingId for behandling som skal gjenopptas") @Valid GjenopptaBehandlingDto dto)
@@ -246,7 +246,7 @@ public class BehandlingRestTjeneste {
     @Path(BYTT_ENHET_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Bytte behandlende enhet", tags = "behandlinger")
-    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public void byttBehandlendeEnhet(@TilpassetAbacAttributt(supplierClass = LocalBehandlingIdAbacDataSupplier.class)
         @Parameter(description = "Ny enhet som skal byttes") @Valid ByttBehandlendeEnhetDto dto) {
         var behandlingVersjon = dto.getBehandlingVersjon();
@@ -266,7 +266,7 @@ public class BehandlingRestTjeneste {
     @Operation(description = "Opprette ny behandling", tags = "behandlinger", responses = {
             @ApiResponse(responseCode = "202", description = "Opprett ny behandling pågår", headers = @Header(name = HttpHeaders.LOCATION))
     })
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response opprettNyBehandling(@Context HttpServletRequest request,
                                         @TilpassetAbacAttributt(supplierClass = NyBehandlingAbacDataSupplier.class)
             @Parameter(description = "Saksnummer og flagg om det er ny behandling etter klage") @Valid NyBehandlingDto dto)
@@ -334,7 +334,7 @@ public class BehandlingRestTjeneste {
     @GET
     @Path(BEHANDLINGER_ALLE_PART_PATH)
     @Operation(description = "Henter alle behandlinger basert på saksnummer", summary = "Returnerer alle behandlinger som er tilknyttet saksnummer.", tags = "behandlinger")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
 
     public List<BehandlingDto> hentBehandlinger(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
             @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer") @Valid SaksnummerDto s) {
@@ -349,7 +349,7 @@ public class BehandlingRestTjeneste {
     @Operation(description = "Åpner behandling for endringer", tags = "behandlinger", responses = {
             @ApiResponse(responseCode = "200", description = "Åpning av behandling for endringer påstartet i bakgrunnen", headers = @Header(name = HttpHeaders.LOCATION))
     })
-    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
 
     public Response åpneBehandlingForEndringer(@Context HttpServletRequest request,
                                                @TilpassetAbacAttributt(supplierClass = LocalBehandlingIdAbacDataSupplier.class)
@@ -379,7 +379,7 @@ public class BehandlingRestTjeneste {
     @GET
     @Path(ANNEN_PART_BEHANDLING_PART_PATH)
     @Operation(description = "Henter annen parts behandling basert på saksnummer", tags = "behandlinger")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
 
     public Response hentAnnenPartsGjeldendeBehandling(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
                                                       @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer") @Valid SaksnummerDto s) {

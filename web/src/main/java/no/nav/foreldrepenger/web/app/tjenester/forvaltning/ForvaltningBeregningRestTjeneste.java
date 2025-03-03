@@ -28,8 +28,6 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import no.nav.foreldrepenger.domene.migrering.MigrerBeregningSakTask;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +60,7 @@ import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
+import no.nav.foreldrepenger.domene.migrering.MigrerBeregningSakTask;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -118,7 +117,7 @@ public class ForvaltningBeregningRestTjeneste {
     @Path("/satsHentGjeldende")
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Hent liste av gjeldende eller nyeste sats", tags = "FORVALTNING-beregning", responses = {@ApiResponse(responseCode = "200", description = "Gjeldende satser", content = @Content(array = @ArraySchema(arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = BeregningSatsDto.class)), mediaType = MediaType.APPLICATION_JSON))})
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public List<BeregningSatsDto> hentGjeldendeSatser() {
         return Set.of(BeregningSatsType.ENGANG, BeregningSatsType.GRUNNBELØP, BeregningSatsType.GSNITT)
             .stream()
@@ -132,7 +131,7 @@ public class ForvaltningBeregningRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Lagre ny sats", tags = "FORVALTNING-beregning", responses = {@ApiResponse(responseCode = "200", description = "Gjeldende satser", content = @Content(array = @ArraySchema(arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = BeregningSatsDto.class)), mediaType = MediaType.APPLICATION_JSON))})
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public List<BeregningSatsDto> lagreNySats(@BeanParam @Valid @NotNull BeregningSatsDto dto) {
         var type = dto.getSatsType();
         var brukTom = dto.getSatsTom() != null ? dto.getSatsTom() : LocalDate.now().plusYears(99);
@@ -182,7 +181,7 @@ public class ForvaltningBeregningRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Steng fagsak og flytt til Infotrygd", tags = "FORVALTNING-fagsak", responses = {@ApiResponse(responseCode = "200", description = "Flyttet fagsak.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))), @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response opprettGreguleringEnkeltSak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
         var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElseThrow();
@@ -207,7 +206,7 @@ public class ForvaltningBeregningRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Setter opphørsdato for refusjon for en gitt journalpost", tags = "FORVALTNING-beregning")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response opphørRefusjonInntektsmelding(@BeanParam @Valid StoppRefusjonDto dto) {
         var behandling = behandlingRepository.hentBehandling(dto.getBehandlingUuid());
         var inntektsmeldinger = iayTjeneste.finnGrunnlag(behandling.getId())
@@ -235,7 +234,7 @@ public class ForvaltningBeregningRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Henter input for beregning", tags = "FORVALTNING-beregning")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response hentRefusjonskravperioderInput(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         var behandling = getBehandling(dto);
         var inputTjeneste = beregningsgrunnlagInputProvider.getTjeneste(behandling.getFagsakYtelseType());
@@ -252,7 +251,7 @@ public class ForvaltningBeregningRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Henter input for beregning", tags = "FORVALTNING-beregning")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response hentBeregningsgrunnlagInput(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         var behandling = getBehandling(dto);
         var inputTjeneste = beregningsgrunnlagInputProvider.getTjeneste(behandling.getFagsakYtelseType());

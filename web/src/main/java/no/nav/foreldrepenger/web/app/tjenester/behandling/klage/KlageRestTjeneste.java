@@ -109,7 +109,7 @@ public class KlageRestTjeneste {
     @Operation(description = "Hent informasjon om klagevurdering for en klagebehandling", tags = "klage", responses = {
             @ApiResponse(responseCode = "200", description = "Returnerer vurdering av en klage fra ulike instanser", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = KlagebehandlingDto.class)))
     })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public Response getKlageVurdering(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
@@ -126,7 +126,7 @@ public class KlageRestTjeneste {
     @Path(MELLOMLAGRE_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Mellomlagring av vurderingstekst for klagebehandling", tags = "klage")
-    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response mellomlagreKlage(@TilpassetAbacAttributt(supplierClass = MellomlagreKlageAbacSupplier.class)
             @Parameter(description = "KlageVurderingAdapter tilpasset til mellomlagring.") @Valid KlageVurderingResultatAksjonspunktMellomlagringDto apDto) {
 
@@ -167,7 +167,7 @@ public class KlageRestTjeneste {
     @Path(MELLOMLAGRE_FORMKRAV_KLAGE_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Mellomlagring av fritekst til brev for avvist formkrav", tags = "klage")
-    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response mellomlagreAvvistFormKrav(@TilpassetAbacAttributt(supplierClass = MellomlagreFormKravAbacSupplier.class)
                                      @Parameter(description = "KlageVurderingAdapter tilpasset til mellomlagring.") @Valid KlageFormKravAksjonspunktMellomlagringDto apDto) {
 
@@ -230,7 +230,7 @@ public class KlageRestTjeneste {
     @Operation(description = "Hent mottatt klagedokument for en klagebehandling", summary = "Kan returnere dokument uten verdier i hvis det ikke finnes noe klagedokument på behandlingen", tags = "klage", responses = {
             @ApiResponse(responseCode = "200", description = "Returnerer mottatt klagedokument", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = MottattKlagedokumentDto.class)))
     })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public MottattKlagedokumentDto getMottattKlagedokument(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());

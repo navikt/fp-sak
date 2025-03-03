@@ -67,7 +67,7 @@ public class FormidlingRestTjeneste {
     @Path(RESSURSER_PART_PATH)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Hent behandling med tilhørende ressurslenker for bruk i formidling", tags = "formidling")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response hentBehandlingDtoForBrev(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
         @NotNull @Parameter(description = "UUID for behandlingen") @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
         var behandling = behandlingRepository.hentBehandlingHvisFinnes(behandlingIdDto.getBehandlingUuid());
@@ -80,7 +80,7 @@ public class FormidlingRestTjeneste {
     @Path(UTSATT_START_PART_PATH)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Hent informasjon om sak er utsatt fra start og evt ny dato", tags = "formidling")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public Response utsattStartdato(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandlingHvisFinnes(uuidDto.getBehandlingUuid());
@@ -94,7 +94,7 @@ public class FormidlingRestTjeneste {
     @Path(MOTTATT_DATO_SØKNADSFRIST_PART_PATH)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Hent gjeldende mottatt dato for søknad", tags = "formidling")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public Response mottattDatoSøknad(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                     @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var mottattDatoSøknad = behandlingRepository.hentBehandlingHvisFinnes(uuidDto.getBehandlingUuid())

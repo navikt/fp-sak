@@ -20,7 +20,6 @@ import no.nav.abakus.callback.registerdata.CallbackDto;
 import no.nav.abakus.callback.registerdata.ReferanseDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.RegisterdataCallback;
-import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentKvitteringDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -52,7 +51,7 @@ public class IAYRegisterdataCallbackRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Callback når registerinnhenting av IAY har blitt fullført i Abakus", tags = "registerdata")
-    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public Response callback(@Parameter(description = "callbackDto") @Valid @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) CallbackDto dto) {
         // Ta lås
         var behandlingLås = låsRepository.taLås(dto.getAvsenderRef().getReferanse());
