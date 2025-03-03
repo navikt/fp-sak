@@ -2,9 +2,9 @@ package no.nav.foreldrepenger.domene.person.krr;
 
 import java.net.URI;
 import java.time.Duration;
+import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriBuilder;
 import jakarta.ws.rs.core.UriBuilderException;
 
@@ -14,8 +14,6 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.vedtak.exception.IntegrasjonException;
-import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.felles.integrasjon.rest.NavHeaders;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
@@ -24,7 +22,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "krr.rs.uri", endpointDefault = "https://digdir-krr-proxy.intern.nav.no/rest/v1/person",
+@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "krr.rs.uri", endpointDefault = "https://digdir-krr-proxy.intern.nav.no/rest/v1/personer",
     scopesProperty = "krr.rs.scopes", scopesDefault = "api://prod-gcp.team-rocket.digdir-krr-proxy/.default")
 public class KrrSpråkKlient {
 
@@ -47,26 +45,25 @@ public class KrrSpråkKlient {
 
     public Språkkode finnSpråkkodeForBruker(String fnr) {
         try {
-            var request = RestRequest.newGET(endpoint, restConfig)
-                .header(NavHeaders.HEADER_NAV_PERSONIDENT, fnr)
+            var request = RestRequest.newPOSTJson(new Personidenter(List.of(fnr)), endpoint, restConfig)
                 .otherCallId(NavHeaders.HEADER_NAV_CALL_ID)
                 .timeout(Duration.ofSeconds(3)); // Kall langt avgårde - blokkerer ofte til 3*timeout. Request inn til fpsak har timeout 20s.
-            var respons = restClient.sendReturnOptional(request, KrrRespons.class);
-            return respons
-                .map(KrrRespons::språk)
-                .map(Språkkode::defaultNorsk)
-                .orElse(Språkkode.NB);
-        } catch (ManglerTilgangException manglerTilgangException) {
-            LOG.info("KrrSpråkKlient: Mangler tilgang, returnerer default.");
-            return Språkkode.NB;
-        } catch (IntegrasjonException e) {
-            var NOT_FOUND = String.valueOf(Response.Status.NOT_FOUND.getStatusCode());
-            var ie = e.getMessage();
-            if (ie.contains(NOT_FOUND)) {
-                LOG.info("KrrSpråkKlient: fant ikke bruker, returnerer default. Feilmelding: {}", ie);
+            var respons = restClient.send(request, Kontaktinformasjoner.class);
+            if (respons.feil() != null && !respons.feil().isEmpty()) {
+                var feilkode = respons.feil().get(fnr);
+                if (Kontaktinformasjoner.FeilKode.person_ikke_funnet.equals(feilkode)) {
+                    LOG.info("KrrSpråkKlient: fant ikke bruker, returnerer default");
+                } else {
+                    LOG.warn("KrrSpråkKlient: Uventet feil ved kall til KRR, returnerer default.");
+                }
                 return Språkkode.NB;
             }
-            throw e;
+            var person = respons.personer().get(fnr);
+            if (!person.aktiv()) {
+                LOG.info("KrrSpråkKlient: bruker er inaktiv, returnerer default");
+                return Språkkode.NB;
+            }
+            return Språkkode.defaultNorsk(person.spraak());
         } catch (UriBuilderException|IllegalArgumentException e) {
             throw new IllegalArgumentException("Utviklerfeil syntax-exception for KrrSpråkKlient.finnSpråkkodeForBruker");
         }
@@ -74,4 +71,6 @@ public class KrrSpråkKlient {
 
     record KrrRespons(@JsonProperty("spraak") String språk) { }
 
+    record Personidenter(List<String> personidenter) {
+    }
 }
