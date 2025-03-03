@@ -46,7 +46,6 @@ public class KrrSpråkKlient {
     public Språkkode finnSpråkkodeForBruker(String fnr) {
         try {
             var request = RestRequest.newPOSTJson(new Personidenter(List.of(fnr)), endpoint, restConfig)
-                .header(NavHeaders.HEADER_NAV_PERSONIDENT, fnr)
                 .otherCallId(NavHeaders.HEADER_NAV_CALL_ID)
                 .timeout(Duration.ofSeconds(3)); // Kall langt avgårde - blokkerer ofte til 3*timeout. Request inn til fpsak har timeout 20s.
             var respons = restClient.send(request, Kontaktinformasjoner.class);
