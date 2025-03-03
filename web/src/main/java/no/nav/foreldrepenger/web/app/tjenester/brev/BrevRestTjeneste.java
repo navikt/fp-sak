@@ -207,7 +207,7 @@ public class BrevRestTjeneste {
     @Path("/kvittering/v3")
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Kvitterer at brevet ble produsert og sendt. BREV_SENT historikk blir lagt og behandling dokument blir oppdatert med journalpostId.", tags = "brev")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK) // Bruk create siden behandling ofte er avsluttet når kallet kommer
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = false) // Bruk create siden behandling ofte er avsluttet når kallet kommer
     public void kvitteringV3(@TilpassetAbacAttributt(supplierClass = DokumentKvitteringDataSupplier.class) @Valid DokumentKvitteringDto kvitto) {
         dokumentBehandlingTjeneste.kvitterSendtBrev(
             new DokumentKvittering(kvitto.behandlingUuid(), kvitto.dokumentbestillingUuid(), kvitto.journalpostId(), kvitto.dokumentId()));
@@ -217,7 +217,7 @@ public class BrevRestTjeneste {
     @Path(VARSEL_REVURDERING_PART_PATH)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Sjekk har varsel sendt om revurdering", tags = "brev")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public Boolean harSendtVarselOmRevurdering(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.VARSEL_OM_REVURDERING);

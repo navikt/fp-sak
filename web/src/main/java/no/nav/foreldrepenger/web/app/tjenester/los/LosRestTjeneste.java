@@ -90,7 +90,7 @@ public class LosRestTjeneste {
     @Operation(description = "Hent egenskaper for fagsak gitt saksnummer for LOS", summary = "Returnerer saksegenskaper som er tilknyttet saksnummer.", tags = "los-data", responses = {@ApiResponse(responseCode = "200", description = "Returnerer behandling", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = LosFagsakEgenskaperDto.class))}),})
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public Response hentFagsakEgenskaper(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
         return fagsakRepository.hentSakGittSaksnummer(new Saksnummer(s.getVerdi()))
             .map(f -> new LosFagsakEgenskaperDto(losBehandlingDtoTjeneste.lagFagsakEgenskaperString(f), null))

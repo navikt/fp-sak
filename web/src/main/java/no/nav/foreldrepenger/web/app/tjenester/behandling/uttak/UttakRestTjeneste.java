@@ -104,7 +104,7 @@ public class UttakRestTjeneste {
     @GET
     @Path(STONADSKONTOER_PART_PATH)
     @Operation(description = "Hent informasjon om stønadskontoer for behandling", summary = "Returnerer stønadskontoer for behandling", tags = "uttak")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public SaldoerDto getStonadskontoer(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class)
                                             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = hentBehandling(uuidDto);
@@ -119,7 +119,7 @@ public class UttakRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path(STONADSKONTOER_GITT_UTTAKSPERIODER_PART_PATH)
     @Operation(description = "Hent informasjon om stønadskontoer for behandling gitt uttaksperioder", summary = "Returnerer stønadskontoer for behandling", tags = "uttak")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public SaldoerDto getStonadskontoerGittUttaksperioder(@TilpassetAbacAttributt(supplierClass = BehandlingMedUttakAbacSupplier.class)
             @NotNull @Parameter(description = "Behandling og liste med uttaksperioder") @Valid BehandlingMedUttaksperioderDto dto) {
         var behandling = behandlingRepository.hentBehandling(dto.getBehandlingUuid());
@@ -137,7 +137,7 @@ public class UttakRestTjeneste {
     @GET
     @Path(RESULTAT_PERIODER_PART_PATH)
     @Operation(description = "Henter uttaksresultatperioder", summary = "Returnerer uttaksresultatperioder", tags = "uttak")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public UttakResultatPerioderDto hentUttakResultatPerioder(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = hentBehandling(uuidDto);
@@ -148,7 +148,7 @@ public class UttakRestTjeneste {
     @GET
     @Path(FAKTA_ARBEIDSFORHOLD_PART_PATH)
     @Operation(description = "Henter arbeidsforhold som er relevant for fakta uttak", summary = "Henter arbeidsforhold som er relevant for fakta uttak", tags = "uttak")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public List<ArbeidsforholdDto> hentArbeidsforhold(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = hentBehandling(uuidDto);
@@ -159,7 +159,7 @@ public class UttakRestTjeneste {
     @GET
     @Path(RESULTAT_SVANGERSKAPSPENGER_PART_PATH)
     @Operation(description = "Henter svangerskapspenger uttaksresultat", summary = "Returnerer svangerskapspenger uttaksresultat", tags = "uttak")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public SvangerskapspengerUttakResultatDto hentSvangerskapspengerUttakResultat(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = hentBehandling(uuidDto);
@@ -170,7 +170,7 @@ public class UttakRestTjeneste {
     @GET
     @Path(VURDER_DOKUMENTASJON_PART_PATH)
     @Operation(description = "Hent perioder med behov for dokumentasjon", tags = "uttak")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public List<DokumentasjonVurderingBehovDto> hentDokumentasjonVurderingBehov(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return dokumentasjonVurderingBehovDtoTjeneste.lagDtos(uuidDto);
     }
@@ -178,7 +178,7 @@ public class UttakRestTjeneste {
     @GET
     @Path(FAKTA_UTTAK_PART_PATH)
     @Operation(description = "Hent perioder for fakta om uttak", tags = "uttak")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public List<FaktaUttakPeriodeDto> hentFaktaUttakPerioder(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return faktaUttakPeriodeDtoTjeneste.lagDtos(uuidDto);
     }

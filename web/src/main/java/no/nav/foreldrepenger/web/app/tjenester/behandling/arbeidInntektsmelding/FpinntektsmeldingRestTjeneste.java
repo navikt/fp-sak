@@ -15,11 +15,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +22,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -74,7 +73,7 @@ public class FpinntektsmeldingRestTjeneste {
     @Path(KONTROLLER_FORESPØRSEL_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Sjekker om en sak fortsatt trenger inntektsmelding fra gitt orgnr.", summary = "Sjekker om en sak fortsatt trenger inntektsmelding fra gitt orgnr", tags = "arbeid-intektsmelding")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public Response kontrollerForespørselForSaksnummer(@TilpassetAbacAttributt(supplierClass = KontrollerForespørselDtoAbacDataSupplier.class)
                                    @NotNull @Parameter(description = "Saksnummer og orgnr der behov for inntektsmelding skal kontrolleres.") @Valid FpinntektsmeldingRestTjeneste.KontrollerForespørselRequestDto kontrollDto) {
         var virksomhet = Arbeidsgiver.virksomhet(kontrollDto.orgnr());

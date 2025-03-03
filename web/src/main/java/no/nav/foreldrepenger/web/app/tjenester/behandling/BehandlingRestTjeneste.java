@@ -246,7 +246,7 @@ public class BehandlingRestTjeneste {
     @Path(BYTT_ENHET_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Bytte behandlende enhet", tags = "behandlinger")
-    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public void byttBehandlendeEnhet(@TilpassetAbacAttributt(supplierClass = LocalBehandlingIdAbacDataSupplier.class)
         @Parameter(description = "Ny enhet som skal byttes") @Valid ByttBehandlendeEnhetDto dto) {
         var behandlingVersjon = dto.getBehandlingVersjon();

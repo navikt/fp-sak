@@ -81,7 +81,7 @@ public class ForvaltningTekniskRestTjeneste {
         @ApiResponse(responseCode = "400", description = "Fant ikke aktuell oppgave."),
         @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response ferdigstillOppgave(
         @TilpassetAbacAttributt(supplierClass = ForvaltningTekniskRestTjeneste.AbacDataSupplier.class)
         @Parameter(description = "Oppgave som skal settes ferdig") @NotNull @Valid ProsessTaskIdDto oppgaveIdDto) {
@@ -103,7 +103,7 @@ public class ForvaltningTekniskRestTjeneste {
             @ApiResponse(responseCode = "400", description = "Fant ikke aktuell oppgave."),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response hentAlleÅpneOppgaver() {
         try {
             return Response.ok().entity(oppgaveTjeneste.alleÅpneOppgaver()).build();
@@ -147,7 +147,7 @@ public class ForvaltningTekniskRestTjeneste {
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     @Operation(description = "Hente og lagre kodeverk Postnummer", tags = "FORVALTNING-teknisk")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response synkPostnummer() {
         postnummerTjeneste.synkroniserPostnummer();
@@ -159,7 +159,7 @@ public class ForvaltningTekniskRestTjeneste {
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     @Operation(description = "Fjern fagsakprosesstask for avsluttede behandlinger", tags = "FORVALTNING-teknisk")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response fjernFagsakProsesstaskAvsluttetBehandling() {
         fagsakProsessTaskRepository.fjernForAvsluttedeBehandlinger();

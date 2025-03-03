@@ -72,7 +72,7 @@ public class PipRestTjeneste {
     @POST // Bulk-metode
     @Path(AKTOER_FOR_SAK)
     @Operation(description = "Henter aktørId'er tilknyttet en gruppe saker", tags = "pip")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP, sporingslogg = false)
     public Map<String, Set<AktørId>> hentAktørIdMapTilknyttetSaker(@TilpassetAbacAttributt(supplierClass = SakSetSupplier.class)
                                                                        @NotNull @Valid SaksnummerSetDto saksnummerDto) {
         return saksnummerDto.saksnummer().stream()
@@ -82,7 +82,7 @@ public class PipRestTjeneste {
     @GET
     @Path(AKTOER_FOR_BEHANDLING)
     @Operation(description = "Henter aktørIder, fagsak- og behandlingstatus tilknyttet til en behandling", tags = "pip")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP, sporingslogg = false)
     public Set<AktørId> hentAktørIdListeTilknyttetBehandling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                        @NotNull @QueryParam("behandlingUuid") @Valid UuidDto uuidDto) {
         var fagsakIds = pipRepository.hentFagsakIdForBehandlingUuid(uuidDto.getBehandlingUuid());
@@ -92,7 +92,7 @@ public class PipRestTjeneste {
     @GET
     @Path(SAKSNUMMER_FOR_BEHANDLING)
     @Operation(description = "Henter aktørIder, fagsak- og behandlingstatus tilknyttet til en behandling", tags = "pip")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP, sporingslogg = false)
     public String hentSaksnummerTilknyttetBehandling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                              @NotNull @QueryParam("behandlingUuid") @Valid UuidDto uuidDto) {
         var fagsakIds = pipRepository.hentFagsakIdForBehandlingUuid(uuidDto.getBehandlingUuid());
@@ -102,7 +102,7 @@ public class PipRestTjeneste {
     @GET
     @Path(SAK_AKTOER_FOR_BEHANDLING)
     @Operation(description = "Henter aktørId'er tilknyttet en gruppe saker", tags = "pip")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP, sporingslogg = false)
     public Map<String, Set<AktørId>> hentSaksnummerAktørIdMapFor(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                                      @NotNull @QueryParam("behandlingUuid") @Valid UuidDto uuidDto) {
         return pipRepository.hentFagsakIdForBehandlingUuid(uuidDto.getBehandlingUuid()).stream()

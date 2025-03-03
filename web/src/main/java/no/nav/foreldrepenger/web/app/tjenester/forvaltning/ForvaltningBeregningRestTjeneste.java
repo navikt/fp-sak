@@ -117,7 +117,7 @@ public class ForvaltningBeregningRestTjeneste {
     @Path("/satsHentGjeldende")
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Hent liste av gjeldende eller nyeste sats", tags = "FORVALTNING-beregning", responses = {@ApiResponse(responseCode = "200", description = "Gjeldende satser", content = @Content(array = @ArraySchema(arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = BeregningSatsDto.class)), mediaType = MediaType.APPLICATION_JSON))})
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public List<BeregningSatsDto> hentGjeldendeSatser() {
         return Set.of(BeregningSatsType.ENGANG, BeregningSatsType.GRUNNBELØP, BeregningSatsType.GSNITT)
             .stream()
@@ -281,7 +281,7 @@ public class ForvaltningBeregningRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Henter ut behandlinger med diff på inntekt register og IM for en periode", tags = "FORVALTNING-beregning")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response hentInfOmBehandlingerMedDiff() {
         LocalDateTime fraDatoTid = LocalDateTime.now().minusMonths(2);
 

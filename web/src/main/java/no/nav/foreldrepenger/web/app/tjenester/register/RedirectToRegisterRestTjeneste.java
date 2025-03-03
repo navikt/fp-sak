@@ -58,7 +58,7 @@ public class RedirectToRegisterRestTjeneste {
     @Operation(description = "Redirecter til aa-reg for arbeidstakeren", tags = "aktoer", responses = {
         @ApiResponse(responseCode = "307", description = "Redirecter til aa-reg for arbeidstakeren")
     })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     @Path(AAREG_REG_POSTFIX)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response getAaregUrl(@TilpassetAbacAttributt(supplierClass = NullableSaksnummerAbacSupplier.class) @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
@@ -81,7 +81,7 @@ public class RedirectToRegisterRestTjeneste {
     @Operation(description = "Redirecter til a-inntekt for arbeidstakeren forhåndsvalgt nasjonal enhet og filter 8-30", tags = "aktoer", responses = {
         @ApiResponse(responseCode = "307", description = "Redirecter til a-inntekt for arbeidstakeren")
     })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     @Path(AINNTEKT_REG_POSTFIX)
     public Response getAInntektSammenligningUrl(@TilpassetAbacAttributt(supplierClass = NullableSaksnummerAbacSupplier.class) @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         if (saksnummerDto == null || saksnummerDto.getVerdi() == null) {

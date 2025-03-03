@@ -76,7 +76,7 @@ public class VedtakRestTjeneste {
     @GET
     @Path(HENT_VEDTAKSDOKUMENT_PART_PATH)
     @Operation(description = "Hent vedtaksdokument gitt behandlingId", summary = "Returnerer vedtaksdokument som er tilknyttet behandlingId.", tags = "vedtak")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public Response hentVedtaksdokument(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
             @NotNull @QueryParam("behandlingId") @Parameter(description = "BehandlingId for vedtaksdokument") @Valid BehandlingIdDto behandlingIdDto) {
         var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());
@@ -118,7 +118,7 @@ public class VedtakRestTjeneste {
     @POST
     @Operation(description = "Validerer vedtaksxml", tags = "vedtak")
     @Path(VALIDATE_PART_PATH)
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     @Transactional
     public Response validerVedtaksXml(
             @Parameter(description = "Datointervall i vedtak tabell for hvilke vedtakxml som skal valideres og maksAntall som behandles") @NotNull @Valid GenererVedtaksXmlDto genererVedtaksXmlDto) {

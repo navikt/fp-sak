@@ -101,7 +101,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     @GET
     @Path(ARBEID_OG_INNTEKTSMELDING_PART_PATH)
     @Operation(description = "Hent informasjon arbeidsforhold og tilhørende inntektsmeldinger", summary = "Returnerer info om arbeidsforhold og inntektsmeldinger tilknyttet saken.", tags = "arbeid-intektsmelding", responses = {@ApiResponse(responseCode = "200", description = "Returnerer ArbeidOgInntektsmeldingDto, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ArbeidOgInntektsmeldingDto.class)))})
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public ArbeidOgInntektsmeldingDto getArbeidOgInntektsmeldinger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                           @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
@@ -113,7 +113,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     @GET
     @Path(HENT_ALLE_INNTEKTSMELDINGER_PART_PATH)
     @Operation(description = "Henter alle inntektsmeldinger som hører til en fagsak", summary = "Returnerer liste av alle inntektsmeldinger til saken.", tags = "arbeid-intektsmelding", responses = {@ApiResponse(responseCode = "200", description = "", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = InntektsmeldingDto.class)))})
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public List<InntektsmeldingDto> getAlleInntektsmeldinger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                                    @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
