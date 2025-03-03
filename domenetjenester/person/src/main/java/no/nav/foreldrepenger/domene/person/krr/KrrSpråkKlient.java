@@ -22,7 +22,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "krr.rs.uri", endpointDefault = "https://digdir-krr-proxy.intern.nav.no/rest/v1/person",
+@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "krr.rs.uri", endpointDefault = "https://digdir-krr-proxy.intern.nav.no/rest/v1/personer",
     scopesProperty = "krr.rs.scopes", scopesDefault = "api://prod-gcp.team-rocket.digdir-krr-proxy/.default")
 public class KrrSpråkKlient {
 
