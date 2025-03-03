@@ -64,7 +64,7 @@ public class KrrSpråkKlient {
                 LOG.info("KrrSpråkKlient: bruker er inaktiv, returnerer default");
                 return Språkkode.NB;
             }
-            return Språkkode.valueOf(person.spraak());
+            return Språkkode.defaultNorsk(person.spraak());
         } catch (UriBuilderException|IllegalArgumentException e) {
             throw new IllegalArgumentException("Utviklerfeil syntax-exception for KrrSpråkKlient.finnSpråkkodeForBruker");
         }
