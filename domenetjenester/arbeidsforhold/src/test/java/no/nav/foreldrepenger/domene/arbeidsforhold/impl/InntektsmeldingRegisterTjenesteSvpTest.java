@@ -381,6 +381,38 @@ class InntektsmeldingRegisterTjenesteSvpTest {
     }
 
     @Test
+    void komplett_har_mottatt_inntektsmelding_med_arbeidsforholdsid_for_ett_av_arbeidsforholdene_en_im_mangler() {
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
+        var arbeidsgiver = Arbeidsgiver.virksomhet("123456789");
+        var ref = InternArbeidsforholdRef.nyRef();
+        var ref2 = InternArbeidsforholdRef.nyRef();
+        var aktivitetsAvtaleBuilder = lagAktivitetsAvtaleBuilder(SKJÆRINGSTIDSPUNKT.minusYears(1), null);
+        var yrkesaktivitet1 = lagYrkesaktivitetBuilder(List.of(aktivitetsAvtaleBuilder), arbeidsgiver, ref, List.of());
+        var yrkesaktivitet2 = lagYrkesaktivitetBuilder(List.of(aktivitetsAvtaleBuilder), arbeidsgiver, ref2, List.of());
+
+        lagArbeid(List.of(yrkesaktivitet1, yrkesaktivitet2));
+        lagInntekt(arbeidsgiver, SKJÆRINGSTIDSPUNKT.minusMonths(12), 12 );
+        var inntektsmeldingMedArbId = lagInntektsmelding(arbeidsgiver, BigDecimal.valueOf(55000), EksternArbeidsforholdRef.ref("1"), ref);
+        var grunnlag = byggIAY(List.of(inntektsmeldingMedArbId));
+
+        var tilrFomArbeidsforhold1 = lagTilretteleggingFom(SKJÆRINGSTIDSPUNKT.plusDays(5), TilretteleggingType.DELVIS_TILRETTELEGGING);
+        var tilretteleggingEntitet = lagTilrettelegging(arbeidsgiver, ref, SKJÆRINGSTIDSPUNKT, List.of(tilrFomArbeidsforhold1));
+
+        var tilrFomArbeidsforhold2 = lagTilretteleggingFom(SKJÆRINGSTIDSPUNKT.plusDays(15), TilretteleggingType.INGEN_TILRETTELEGGING);
+        var tilretteleggingEntitetArbeidsforhold2 = lagTilrettelegging(arbeidsgiver, ref2, SKJÆRINGSTIDSPUNKT, List.of(tilrFomArbeidsforhold2));
+        var svpGrunnlag = byggSvangerskapspengerGrunnlag(List.of(tilretteleggingEntitet, tilretteleggingEntitetArbeidsforhold2), behandlingReferanse.behandlingId());
+
+        when(svangerskapspengerRepository.hentGrunnlag(behandlingReferanse.behandlingId())).thenReturn(Optional.of(svpGrunnlag));
+        when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingReferanse.behandlingId())).thenReturn(Optional.of(grunnlag));
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingReferanse, skjæringstidspunkt.getUtledetSkjæringstidspunkt())).thenReturn(
+            List.of(inntektsmeldingMedArbId));
+
+        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerForKompletthet(behandlingReferanse, skjæringstidspunkt);
+
+        assertThat(manglendeInntektsmeldinger).isEmpty();
+    }
+
+    @Test
     void ett_arbeidsforhold_har_ikke_inntekt_men_siden_det_er_søkt_svp_skal_inntektsmelding_kreves() {
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
         var arbeidsgiver = Arbeidsgiver.virksomhet("123456789");

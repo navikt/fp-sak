@@ -1,7 +1,10 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -15,13 +18,19 @@ import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValgRepository;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk.ArbeidInntektHistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingUtenArbeidsforholdTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
 import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.fpinntektsmelding.SendNyBeskjedResponse;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -33,8 +42,8 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
     private ArbeidsforholdValgRepository arbeidsforholdValgRepository;
     private ArbeidsforholdAdministrasjonTjeneste arbeidsforholdTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
-    private ArbeidsforholdInntektsmeldingsMangelUtleder arbeidsforholdInntektsmeldingsMangelUtleder;
     private ArbeidInntektHistorikkinnslagTjeneste arbeidInntektHistorikkinnslagTjeneste;
+    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste;
@@ -48,23 +57,23 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
     public ArbeidsforholdInntektsmeldingMangelTjeneste(ArbeidsforholdValgRepository arbeidsforholdValgRepository,
                                                        ArbeidsforholdAdministrasjonTjeneste arbeidsforholdTjeneste,
                                                        InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                                       ArbeidsforholdInntektsmeldingsMangelUtleder arbeidsforholdInntektsmeldingsMangelUtleder,
                                                        ArbeidInntektHistorikkinnslagTjeneste arbeidInntektHistorikkinnslagTjeneste,
+                                                       InntektsmeldingTjeneste inntektsmeldingTjeneste,
                                                        InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste,
                                                        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                                        FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste) {
         this.arbeidsforholdValgRepository = arbeidsforholdValgRepository;
         this.arbeidsforholdTjeneste = arbeidsforholdTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
-        this.arbeidsforholdInntektsmeldingsMangelUtleder = arbeidsforholdInntektsmeldingsMangelUtleder;
         this.arbeidInntektHistorikkinnslagTjeneste = arbeidInntektHistorikkinnslagTjeneste;
+        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.inntektsmeldingRegisterTjeneste = inntektsmeldingRegisterTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.fpInntektsmeldingTjeneste = fpInntektsmeldingTjeneste;
     }
 
     public void lagreManglendeOpplysningerVurdering(BehandlingReferanse behandlingReferanse, Skjæringstidspunkt skjæringstidspunkt, ManglendeOpplysningerVurderingDto dto) {
-        var arbeidsforholdMedMangler = arbeidsforholdInntektsmeldingsMangelUtleder.finnAlleManglerIArbeidsforholdInntektsmeldinger(behandlingReferanse, skjæringstidspunkt);
+        var arbeidsforholdMedMangler = finnAlleManglerIArbeidsforholdInntektsmeldinger(behandlingReferanse, skjæringstidspunkt);
         var entiteter = ArbeidsforholdInntektsmeldingMangelMapper.mapManglendeOpplysningerVurdering(dto, arbeidsforholdMedMangler);
         sjekkUnikeReferanser(entiteter); // Skal kun være en avklaring pr referanse
         entiteter.forEach(ent -> arbeidsforholdValgRepository.lagre(ent, behandlingReferanse.behandlingId()));
@@ -114,7 +123,7 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
     }
 
     public void lagreManuelleArbeidsforhold(BehandlingReferanse behandlingReferanse, Skjæringstidspunkt stp, ManueltArbeidsforholdDto dto) {
-        var arbeidsforholdMedMangler = arbeidsforholdInntektsmeldingsMangelUtleder.finnAlleManglerIArbeidsforholdInntektsmeldinger(behandlingReferanse, stp);
+        var arbeidsforholdMedMangler = finnAlleManglerIArbeidsforholdInntektsmeldinger(behandlingReferanse, stp);
         var eksisterendeValg = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(behandlingReferanse.behandlingId());
         var valgSomMåRyddesBort = ArbeidsforholdInntektsmeldingRyddeTjeneste.valgSomMåRyddesBortVedOpprettelseAvArbeidsforhold(dto, eksisterendeValg);
 
@@ -131,11 +140,11 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
     }
 
     public List<ArbeidsforholdMangel> utledAlleManglerPåArbeidsforholdInntektsmelding(BehandlingReferanse behandlingReferanse, Skjæringstidspunkt skjæringstidspunkt) {
-        return arbeidsforholdInntektsmeldingsMangelUtleder.finnAlleManglerIArbeidsforholdInntektsmeldinger(behandlingReferanse, skjæringstidspunkt);
+        return finnAlleManglerIArbeidsforholdInntektsmeldinger(behandlingReferanse, skjæringstidspunkt);
     }
 
     public List<ArbeidsforholdMangel> utledUavklarteManglerPåArbeidsforholdInntektsmelding(BehandlingReferanse behandlingReferanse, Skjæringstidspunkt skjæringstidspunkt) {
-        var alleMangler = arbeidsforholdInntektsmeldingsMangelUtleder.finnAlleManglerIArbeidsforholdInntektsmeldinger(behandlingReferanse, skjæringstidspunkt);
+        var alleMangler = finnAlleManglerIArbeidsforholdInntektsmeldinger(behandlingReferanse, skjæringstidspunkt);
         var alleAvklaringer = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(behandlingReferanse.behandlingId());
         var uavklarteMangler = alleMangler.stream().filter(mangel -> !finnesAvklaringSomGjelderMangel(mangel, alleAvklaringer)).toList();
         return uavklarteMangler;
@@ -192,6 +201,31 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
             });
             arbeidsforholdTjeneste.lagreOverstyring(ref.behandlingId(), informasjonBuilder);
         }
+    }
+
+    private List<ArbeidsforholdMangel> finnAlleManglerIArbeidsforholdInntektsmeldinger(BehandlingReferanse referanse, Skjæringstidspunkt stp) {
+        var iayGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(referanse.behandlingId());
+        List<ArbeidsforholdMangel> mangler = new ArrayList<>();
+        if (iayGrunnlag.isPresent()) {
+            mangler.addAll(lagArbeidsforholdMedMangel(inntektsmeldingRegisterTjeneste
+                .utledManglendeInntektsmeldingerFraGrunnlag(referanse, stp), AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING));
+
+            mangler.addAll(lagArbeidsforholdMedMangel(InntektsmeldingUtenArbeidsforholdTjeneste
+                .utledManglendeArbeidsforhold(hentRelevanteInntektsmeldinger(referanse, stp, iayGrunnlag.get()),
+                    iayGrunnlag.get(),referanse.aktørId(), stp.getUtledetSkjæringstidspunkt()), AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD));
+        }
+
+        return mangler;
+    }
+
+    private List<Inntektsmelding> hentRelevanteInntektsmeldinger(BehandlingReferanse ref, Skjæringstidspunkt stp, InntektArbeidYtelseGrunnlag iayGrunnlag) {
+        return inntektsmeldingTjeneste.hentInntektsmeldinger(ref, stp.getUtledetSkjæringstidspunkt(), iayGrunnlag, true);
+    }
+    private List<ArbeidsforholdMangel> lagArbeidsforholdMedMangel(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsgiverSetMap, AksjonspunktÅrsak manglendeInntektsmelding) {
+        return arbeidsgiverSetMap.entrySet().stream()
+            .map(entry -> entry.getValue().stream().map(refer -> new ArbeidsforholdMangel(entry.getKey(), refer, manglendeInntektsmelding)).toList())
+            .flatMap(Collection::stream)
+            .toList();
     }
 
     /**
