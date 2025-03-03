@@ -16,8 +16,6 @@ import java.util.Set;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.abakus.iaygrunnlag.request.AvsluttGrunnlagRequest;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +29,7 @@ import no.nav.abakus.iaygrunnlag.UuidDto;
 import no.nav.abakus.iaygrunnlag.arbeidsforhold.v1.ArbeidsforholdDto;
 import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.InntektsmeldingerDto;
 import no.nav.abakus.iaygrunnlag.request.AktørDatoRequest;
+import no.nav.abakus.iaygrunnlag.request.AvsluttKoblingRequest;
 import no.nav.abakus.iaygrunnlag.request.InnhentRegisterdataRequest;
 import no.nav.abakus.iaygrunnlag.request.InntektArbeidYtelseGrunnlagRequest;
 import no.nav.abakus.iaygrunnlag.request.InntektsmeldingerMottattRequest;
@@ -373,7 +372,7 @@ public class AbakusTjeneste {
         }
     }
 
-    public void avsluttKobling(AvsluttGrunnlagRequest dto) throws IOException {
+    public void avsluttKobling(AvsluttKoblingRequest dto) throws IOException {
         var json = iayJsonWriter.writeValueAsString(dto);
 
         var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(json));

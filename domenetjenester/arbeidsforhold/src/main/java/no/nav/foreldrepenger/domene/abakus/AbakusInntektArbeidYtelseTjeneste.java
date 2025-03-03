@@ -16,7 +16,7 @@ import jakarta.inject.Inject;
 
 import no.nav.abakus.iaygrunnlag.AktørIdPersonident;
 import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.InntektsmeldingerDto;
-import no.nav.abakus.iaygrunnlag.request.AvsluttGrunnlagRequest;
+import no.nav.abakus.iaygrunnlag.request.AvsluttKoblingRequest;
 import no.nav.abakus.iaygrunnlag.request.Dataset;
 import no.nav.abakus.iaygrunnlag.request.InntektArbeidYtelseGrunnlagRequest;
 import no.nav.abakus.iaygrunnlag.request.InntektsmeldingerMottattRequest;
@@ -259,7 +259,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
     public void avslutt(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
-        var request = new AvsluttGrunnlagRequest(behandling.getSaksnummer().getVerdi(),
+        var request = new AvsluttKoblingRequest(behandling.getSaksnummer().getVerdi(),
                 behandling.getUuid(),
                 KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()),
                 new AktørIdPersonident(behandling.getAktørId().getId()));
