@@ -122,7 +122,6 @@ public interface InntektArbeidYtelseTjeneste {
 
     List<Inntektsmelding> hentUnikeInntektsmeldingerForSak(Saksnummer saksnummer);
 
-
     /**
      * Lagrer arbeidsforholdene på IAY aggregatet
      *
@@ -139,4 +138,11 @@ public interface InntektArbeidYtelseTjeneste {
      * @param builders     - Collection med {@link InntektsmeldingBuilder}
      */
     void lagreInntektsmeldinger(Saksnummer saksnummer, Long behandlingId, Collection<InntektsmeldingBuilder> builders);
+
+    /**
+     * Avslutter og sperrer kobling slik at det ikke lenger blir mulig til å gjøre endringer.
+     * Lese operasjoner er fortsatt mulig som tidligere.
+     * @param behandlingId - Behandling Id
+     */
+    void avslutt(Long behandlingId);
 }
