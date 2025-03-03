@@ -29,6 +29,7 @@ import no.nav.abakus.iaygrunnlag.UuidDto;
 import no.nav.abakus.iaygrunnlag.arbeidsforhold.v1.ArbeidsforholdDto;
 import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.InntektsmeldingerDto;
 import no.nav.abakus.iaygrunnlag.request.AktørDatoRequest;
+import no.nav.abakus.iaygrunnlag.request.AvsluttKoblingRequest;
 import no.nav.abakus.iaygrunnlag.request.InnhentRegisterdataRequest;
 import no.nav.abakus.iaygrunnlag.request.InntektArbeidYtelseGrunnlagRequest;
 import no.nav.abakus.iaygrunnlag.request.InntektsmeldingerMottattRequest;
@@ -77,23 +78,25 @@ public class AbakusTjeneste {
     private final URI endpointLagreOverstyrtOppgittOpptjening;
     private final URI endpointLagreOppgittOpptjeningNullstillOverstyring;
     private final URI endpointArbeidsforholdMedPermisjonerIPeriode;
+    private final URI endpointAvsluttKobling;
 
     @Inject
     public AbakusTjeneste() {
         this.restClient = RestClient.client();
         this.restConfig = RestConfig.forClient(AbakusTjeneste.class);
-        this.endpointArbeidsforholdMedPermisjonerIPeriode = toUri("/api/arbeidsforhold/v1/arbeidstakerMedPermisjoner");
+        this.innhentRegisterdata = toUri("/api/registerdata/v1/innhent/async");
         this.endpointGrunnlag = toUri("/api/iay/grunnlag/v1/");
-        this.endpointMottaInntektsmeldinger = toUri("/api/iay/inntektsmeldinger/v1/motta");
-        this.endpointMottaOppgittOpptjening = toUri("/api/iay/oppgitt/v1/motta");
         this.endpointKopierGrunnlag = toUri("/api/iay/grunnlag/v1/kopier");
         this.endpointKopierGrunnlagBeholdIM = toUri("/api/iay/grunnlag/v1/kopier-behold-im");
-        this.innhentRegisterdata = toUri("/api/registerdata/v1/innhent/async");
-        this.endpointInntektsmeldinger = toUri("/api/iay/inntektsmeldinger/v1/hentAlle");
-        this.endpointYtelser = toUri("/api/ytelse/v1/hent-vedtak-ytelse");
         this.endpointOverstyring = toUri("/api/iay/grunnlag/v1/overstyrt");
-        this.endpointLagreOverstyrtOppgittOpptjening = toUri("/api/iay/oppgitt/v1/overstyr");
+        this.endpointMottaInntektsmeldinger = toUri("/api/iay/inntektsmeldinger/v1/motta");
+        this.endpointInntektsmeldinger = toUri("/api/iay/inntektsmeldinger/v1/hentAlle");
+        this.endpointMottaOppgittOpptjening = toUri("/api/iay/oppgitt/v1/motta");
         this.endpointLagreOppgittOpptjeningNullstillOverstyring = toUri("/api/iay/oppgitt/v1/motta-og-nullstill-overstyring");
+        this.endpointLagreOverstyrtOppgittOpptjening = toUri("/api/iay/oppgitt/v1/overstyr");
+        this.endpointArbeidsforholdMedPermisjonerIPeriode = toUri("/api/arbeidsforhold/v1/arbeidstakerMedPermisjoner");
+        this.endpointAvsluttKobling = toUri("/api/kobling/v1/avslutt");
+        this.endpointYtelser = toUri("/api/ytelse/v1/hent-vedtak-ytelse");
     }
 
     private URI toUri(String relativeUri) {
@@ -265,7 +268,6 @@ public class AbakusTjeneste {
             }
             throw feilVedKallTilAbakus(feilmelding);
         }
-
     }
 
     public void lagreOppgittOpptjening(OppgittOpptjeningMottattRequest dto) throws IOException {
@@ -370,13 +372,37 @@ public class AbakusTjeneste {
         }
     }
 
+    public void avsluttKobling(AvsluttKoblingRequest dto) throws IOException {
+        var json = iayJsonWriter.writeValueAsString(dto);
+
+        var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(json));
+        var request = RestRequest.newRequest(method, endpointAvsluttKobling, restConfig).timeout(Duration.ofSeconds(30));
+
+        LOG.info("Avslutter kobling (behandlingUUID={}) i Abakus", dto.getReferanse());
+        var rawResponse = restClient.sendReturnUnhandled(request);
+        var responseCode = rawResponse.statusCode();
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            if (responseCode == HttpURLConnection.HTTP_NO_CONTENT) {
+                LOG.info("Fant ikke kobling for referanse: {} i Abakus", dto.getReferanse());
+                return;
+            }
+            var responseBody = rawResponse.body();
+            var feilmelding = String.format("Kunne ikke avslutte kobling for behandling: %s til abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
+                dto.getReferanse(), endpointAvsluttKobling, responseCode, responseBody);
+            if (responseCode == HttpURLConnection.HTTP_BAD_REQUEST) {
+                throw feilKallTilAbakus(feilmelding);
+            }
+            throw feilVedKallTilAbakus(feilmelding);
+        }
+    }
+
 
     private static TekniskException feilVedKallTilAbakus(String feilmelding) {
         return new TekniskException("FP-018669", "Feil ved kall til Abakus: " + feilmelding);
     }
 
     private static TekniskException feilKallTilAbakus(String feilmelding) {
-        return new TekniskException("FP-918669", "Feil ved kall til Abakus: " + feilmelding);
+        return new TekniskException("FP-918669", "[400]: Feil ved kall til Abakus: " + feilmelding);
     }
 
     private static TekniskException feilVedJsonParsing(String feilmelding) {

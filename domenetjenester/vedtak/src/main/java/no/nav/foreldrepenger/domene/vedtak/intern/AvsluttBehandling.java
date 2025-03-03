@@ -3,13 +3,13 @@ package no.nav.foreldrepenger.domene.vedtak.intern;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
+import no.nav.foreldrepenger.konfig.Environment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingVedtakEvent;
@@ -18,10 +18,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.impl.VurderBehandlingerUnderIverksettelse;
 
 @ApplicationScoped
 public class AvsluttBehandling {
+
+    private static final Environment ENV = Environment.current();
 
     private static final Logger LOG = LoggerFactory.getLogger(AvsluttBehandling.class);
 
@@ -33,6 +37,7 @@ public class AvsluttBehandling {
     private VurderBehandlingerUnderIverksettelse vurderBehandlingerUnderIverksettelse;
     private OppdatereFagsakRelasjonVedVedtak oppdatereFagsakRelasjonVedVedtak;
     private BeregningTjeneste beregningTjeneste;
+    private InntektArbeidYtelseTjeneste iayTjeneste;
 
     public AvsluttBehandling() {
         // CDI
@@ -44,7 +49,9 @@ public class AvsluttBehandling {
                              BehandlingEventPubliserer behandlingEventPubliserer,
                              VurderBehandlingerUnderIverksettelse vurderBehandlingerUnderIverksettelse,
                              BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
-                             OppdatereFagsakRelasjonVedVedtak oppdatereFagsakRelasjonVedVedtak, BeregningTjeneste beregningTjeneste) {
+                             OppdatereFagsakRelasjonVedVedtak oppdatereFagsakRelasjonVedVedtak,
+                             BeregningTjeneste beregningTjeneste,
+                             InntektArbeidYtelseTjeneste iayTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
@@ -53,6 +60,7 @@ public class AvsluttBehandling {
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.oppdatereFagsakRelasjonVedVedtak = oppdatereFagsakRelasjonVedVedtak;
         this.beregningTjeneste = beregningTjeneste;
+        this.iayTjeneste = iayTjeneste;
     }
 
     void avsluttBehandling(Long behandlingId) {
@@ -84,6 +92,9 @@ public class AvsluttBehandling {
         });
 
         if (behandling.erYtelseBehandling()) {
+            if (!ENV.isProd()) {
+                iayTjeneste.avslutt(behandlingId);
+            }
             beregningTjeneste.avslutt(BehandlingReferanse.fra(behandling));
         }
 
