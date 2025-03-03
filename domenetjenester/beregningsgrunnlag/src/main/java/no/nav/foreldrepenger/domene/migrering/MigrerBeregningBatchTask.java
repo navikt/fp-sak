@@ -64,7 +64,7 @@ class MigrerBeregningBatchTask implements ProsessTaskHandler {
         var sql ="""
             select * from (
             select fag.* from FAGSAK fag
-            where fag.ID =>:fraOgMedId and fag.ID =<: tilOgMedId
+            where fag.ID =>:fraOgMedId and fag.ID =<:tilOgMedId
             order by fag.id)
             where ROWNUM <= 10
             """;
