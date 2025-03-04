@@ -54,7 +54,7 @@ public class BeregningsresultatRestTjeneste {
     @GET
     @Path(ENGANGSTONAD_PART_PATH)
     @Operation(description = "Hent beregningsresultat med uttaksplan for engangsstønad behandling", summary = "Returnerer beregningsresultat med uttaksplan for behandling.", tags = "beregningsresultat")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public BeregningsresultatEngangsstønadDto hentBeregningsresultatEngangsstønad(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
@@ -64,7 +64,7 @@ public class BeregningsresultatRestTjeneste {
     @GET
     @Path(DAGYTELSE_PART_PATH)
     @Operation(description = "Hent beregningsresultat med uttaksplan for ytelser med daglig sats (svangerskapspenger og foreldrepenger)", summary = "Returnerer beregningsresultat med uttaksplan for behandling.", tags = "beregningsresultat")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public BeregningsresultatMedUttaksplanDto hentBeregningsresultatDagytelse(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                                                    @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());

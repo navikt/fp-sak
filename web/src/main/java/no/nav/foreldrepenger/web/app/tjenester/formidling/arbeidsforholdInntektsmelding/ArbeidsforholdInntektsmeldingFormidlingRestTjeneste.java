@@ -65,7 +65,7 @@ public class ArbeidsforholdInntektsmeldingFormidlingRestTjeneste {
 
     @GET
     @Operation(description = "Hent status for inntektsmeldinger for angitt behandling for formidlingsbruk", summary = "Returnerer status for inntektsmeldinger for behandling for formidlingsbruk.", tags = "formidling")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     @Path(INNTEKTSMELDING_STATUS_PART_PATH)
     public Response hentStatusInntektsmeldinger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                      @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {

@@ -167,15 +167,11 @@ public class YtelseFordelingDtoTjeneste {
         var harAleneomsorg = oppgittRettighet.getHarAleneomsorgForBarnet();
         var rettighet = Objects.equals(harAleneomsorg, Boolean.TRUE) ? null : new OmsorgOgRettDto.Rettighet(oppgittRettighet.getHarAnnenForeldreRett(),
             oppgittRettighet.getAnnenForelderOppholdEØS(), oppgittRettighet.getAnnenForelderRettEØS(), oppgittRettighet.getMorMottarUføretrygd());
-        var annenpartNavn = ap == null ? null : ap.getNavn();
-        var utenlandskFnrLand = ap == null ? null : ap.getUtenlandskFnrLand();
-        return new OmsorgOgRettDto.Søknad(harAleneomsorg, annenpartNavn, ident.orElse(null), utenlandskFnrLand, rettighet);
+        var utenlandskFnrLand = Optional.ofNullable(ap).map(OppgittAnnenPartEntitet::getUtenlandskFnrLand).orElse(null);
+        return new OmsorgOgRettDto.Søknad(harAleneomsorg, ident.orElse(null), utenlandskFnrLand, rettighet);
     }
 
     private static Optional<String> utledAnnenpartIdent(OppgittAnnenPartEntitet ap) {
-        if (ap == null || (ap.getAktørId() == null && ap.getUtenlandskPersonident() == null)) {
-            return Optional.empty();
-        }
-        return Optional.of(ap.getUtenlandskPersonident() == null ? ap.getAktørId().getId() : ap.getUtenlandskPersonident());
+        return Optional.ofNullable(ap).map(OppgittAnnenPartEntitet::getUtenlandskPersonident) ;
     }
 }

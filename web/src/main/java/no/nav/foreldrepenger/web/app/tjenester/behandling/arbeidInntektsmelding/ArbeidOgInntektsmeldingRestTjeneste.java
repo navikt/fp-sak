@@ -101,7 +101,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     @GET
     @Path(ARBEID_OG_INNTEKTSMELDING_PART_PATH)
     @Operation(description = "Hent informasjon arbeidsforhold og tilhørende inntektsmeldinger", summary = "Returnerer info om arbeidsforhold og inntektsmeldinger tilknyttet saken.", tags = "arbeid-intektsmelding", responses = {@ApiResponse(responseCode = "200", description = "Returnerer ArbeidOgInntektsmeldingDto, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ArbeidOgInntektsmeldingDto.class)))})
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public ArbeidOgInntektsmeldingDto getArbeidOgInntektsmeldinger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                           @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
@@ -113,7 +113,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     @GET
     @Path(HENT_ALLE_INNTEKTSMELDINGER_PART_PATH)
     @Operation(description = "Henter alle inntektsmeldinger som hører til en fagsak", summary = "Returnerer liste av alle inntektsmeldinger til saken.", tags = "arbeid-intektsmelding", responses = {@ApiResponse(responseCode = "200", description = "", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = InntektsmeldingDto.class)))})
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public List<InntektsmeldingDto> getAlleInntektsmeldinger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                                    @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
@@ -138,7 +138,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     @Operation(description = "Lagre vurdering av arbeidsforhold som mangler inntektsmelding, eller inntektsmelding som mangler arbeidsforhold", summary =
         "Lagrer vurdering av manglende inntektsmelding for et enkelt arbeidsforhold, "
             + "eller manglende arbeidsforhold for en enkelt inntektsmelding.", tags = "arbeid-intektsmelding")
-    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response lagreVurderingAvManglendeOpplysninger(@TilpassetAbacAttributt(supplierClass = ManglendeInntektsmeldingVurderingAbacDataSupplier.class)
                                                                    @NotNull @Parameter(description = "Vurdering av opplysning som mangler.") @Valid ManglendeOpplysningerVurderingDto manglendeOpplysningerVurderingDto) {
         LOG.info("Lagrer valg på behandling {}", manglendeOpplysningerVurderingDto.getBehandlingUuid());
@@ -157,7 +157,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     @Path(REGISTRER_ARBEIDSFORHOLD_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Lagre registrering av arbeidsforhold", summary = "Lagrer registrering av arbeidsforhold fra saksbehandler", tags = "arbeid-intektsmelding")
-    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response lagreManuelleArbeidsforhold(@TilpassetAbacAttributt(supplierClass = ManueltArbeidsforholdDtoAbacDataSupplier.class)
                                                  @NotNull @Parameter(description = "Registrering av arbeidsforhold.") @Valid ManueltArbeidsforholdDto manueltArbeidsforholdDto) {
         var behandling = behandlingRepository.hentBehandling(manueltArbeidsforholdDto.getBehandlingUuid());
@@ -180,7 +180,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     @Path(ÅPNE_FOR_NY_VURDERING_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Åpner behandling for endring av vurdering i arbeid og inntektsmelding, hvis dette er mulig.", summary = "Åpner behandling for endring ved å rulle saken tilbake til korrekt steg", tags = "arbeid-intektsmelding")
-    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response åpneForEndring(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
                                                 @NotNull @Parameter(description = "BehandlingUID og versjon på behadlingen.") @Valid BehandlingIdVersjonDto behandlingIdVersjonDto) {
         var behandling = behandlingRepository.hentBehandling(behandlingIdVersjonDto.getBehandlingUuid());

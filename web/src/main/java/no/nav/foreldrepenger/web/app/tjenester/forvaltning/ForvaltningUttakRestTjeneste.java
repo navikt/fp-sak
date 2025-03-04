@@ -46,7 +46,7 @@ public class ForvaltningUttakRestTjeneste {
     @Path("/beregn-kontoer")
     @Produces(MediaType.TEXT_PLAIN)
     @Operation(description = "Beregner kontoer basert på data fra behandlingen. Husk å revurdere begge foreldre", tags = "FORVALTNING-uttak")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response beregnKontoer(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
         forvaltningUttakTjeneste.beregnKontoer(dto.getBehandlingUuid());
@@ -57,7 +57,7 @@ public class ForvaltningUttakRestTjeneste {
     @Path("/endre-annen-forelder-rett")
     @Produces(MediaType.TEXT_PLAIN)
     @Operation(description = "Endrer resultat av AP om annen forelder har rett", tags = "FORVALTNING-uttak")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response endreAnnenForelderRett(@BeanParam @Valid ForvaltningBehandlingIdDto dto,
             @QueryParam(value = "harRett") @Valid Boolean harRett) {
         Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
@@ -70,7 +70,7 @@ public class ForvaltningUttakRestTjeneste {
     @Path("/endre-annen-forelder-rett-eøs")
     @Produces(MediaType.TEXT_PLAIN)
     @Operation(description = "Endrer om annen forelder har rett i eøs i oppgitte rettighet", tags = "FORVALTNING-uttak")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response endreAnnenForelderRettEØS(@BeanParam @Valid ForvaltningBehandlingIdDto dto,
                                            @QueryParam(value = "harRettEØS") @Valid Boolean harRettEØS, @QueryParam(value = "harOppholdEØS") @Valid Boolean annenForelderHarOppholdEØS) {
         Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
@@ -83,7 +83,7 @@ public class ForvaltningUttakRestTjeneste {
     @Path("/endre-aleneomsorg")
     @Produces(MediaType.TEXT_PLAIN)
     @Operation(description = "Endrer om bruker har aleneomsorg", tags = "FORVALTNING-uttak")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response endreAleneomsorg(@BeanParam @Valid ForvaltningBehandlingIdDto dto,
                                            @NotNull @QueryParam(value = "aleneomsorg") @Valid Boolean aleneomsorg) {
         Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
@@ -96,7 +96,7 @@ public class ForvaltningUttakRestTjeneste {
     @Path("/endre-uforetrygd")
     @Produces(MediaType.TEXT_PLAIN)
     @Operation(description = "Endrer om mor har uføretrygd (bare far rett)", tags = "FORVALTNING-uttak")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response endreUføreTrygd(@BeanParam @Valid ForvaltningBehandlingIdDto dto,
                                     @QueryParam(value = "morUforetrygd") @Valid Boolean morUforetrygd) {
         Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
@@ -109,7 +109,7 @@ public class ForvaltningUttakRestTjeneste {
     @Path("/startdato")
     @Produces(MediaType.TEXT_PLAIN)
     @Operation(description = "Setter overstyrt startdato for saken (ved manglende uttak)", tags = "FORVALTNING-uttak")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg =true)
     public Response settStartdato(@BeanParam @Valid StartdatoDto dto) {
         Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
 

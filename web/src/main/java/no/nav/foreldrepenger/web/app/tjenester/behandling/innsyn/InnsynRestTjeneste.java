@@ -65,7 +65,7 @@ public class InnsynRestTjeneste {
     @Path(INNSYN_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Hent diverse informasjon om innsynsbehandlingen", summary = "Returnerer info om innsynsbehandling", tags = "innsyn", responses = {@ApiResponse(responseCode = "200", description = "Returnerer innsynsbehandling eller ingenting hvis uuid ikke peker på en innsynsbehandling", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = InnsynsbehandlingDto.class)))})
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public Response getInnsynsbehandling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());

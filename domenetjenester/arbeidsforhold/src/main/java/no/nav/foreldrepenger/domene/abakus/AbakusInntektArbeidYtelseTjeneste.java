@@ -16,6 +16,7 @@ import jakarta.inject.Inject;
 
 import no.nav.abakus.iaygrunnlag.AktørIdPersonident;
 import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.InntektsmeldingerDto;
+import no.nav.abakus.iaygrunnlag.request.AvsluttKoblingRequest;
 import no.nav.abakus.iaygrunnlag.request.Dataset;
 import no.nav.abakus.iaygrunnlag.request.InntektArbeidYtelseGrunnlagRequest;
 import no.nav.abakus.iaygrunnlag.request.InntektsmeldingerMottattRequest;
@@ -251,6 +252,21 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
             abakusTjeneste.lagreInntektsmeldinger(inntektsmeldingerMottattRequest);
         } catch (IOException e) {
             throw feilVedKallTilAbakus("Lagre mottatte inntektsmeldinger i abakus: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void avslutt(Long behandlingId) {
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+
+        var request = new AvsluttKoblingRequest(behandling.getSaksnummer().getVerdi(),
+                behandling.getUuid(),
+                KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()),
+                new AktørIdPersonident(behandling.getAktørId().getId()));
+        try {
+            abakusTjeneste.avsluttKobling(request);
+        } catch (Exception e) {
+            throw feilVedKallTilAbakus("Avslutt kobling i abakus: " + e.getMessage(), e);
         }
     }
 

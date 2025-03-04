@@ -53,7 +53,7 @@ public class FeriepengegrunnlagRestTjeneste {
     @GET
     @Path(FERIEPENGER_PART_PATH)
     @Operation(description = "Hent feriepengegrunnlaget for en gitt behandling om det finnes", summary = "Returnerer feriepengegrunnlaget for behandling.", tags = "feriepengegrunnlag")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public FeriepengegrunnlagDto hentFeriepenger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());

@@ -1,7 +1,9 @@
 package no.nav.foreldrepenger.kompletthet.impl;
 
 import static java.util.Collections.emptyList;
+import static no.nav.foreldrepenger.kompletthet.impl.ManglendeInntektsmeldingTjeneste.gjelderBarePrivateArbeidsgivere;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
@@ -109,9 +111,8 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
             var manglendeInntektsmeldingerFraGrunnlag = manglendeInntektsmeldingTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(ref, stp);
             if (!manglendeInntektsmeldingerFraGrunnlag.isEmpty()) {
                 loggManglendeInntektsmeldinger(ref, manglendeInntektsmeldingerFraGrunnlag);
-                return manglendeInntektsmeldingTjeneste.finnVentefristTilManglendeInntektsmelding(ref, stp)
-                    .map(frist -> KompletthetResultat.ikkeOppfylt(frist, Venteårsak.VENT_OPDT_INNTEKTSMELDING))
-                    .orElse(KompletthetResultat.fristUtløpt());
+                var frist = manglendeInntektsmeldingTjeneste.finnVentefristTilManglendeInntektsmelding(ref, stp);
+                return ikkeOppfylt(frist, Venteårsak.VENT_OPDT_INNTEKTSMELDING);
             }
         }
 
@@ -168,25 +169,21 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
         return manglendeVedlegg.isEmpty();
     }
 
+    // Kalles fra KOARB (flere ganger) som setter autopunkt 7030 + fra KompletthetsKontroller (dokument på åpen behandling, hendelser)
     @Override
     public KompletthetResultat vurderEtterlysningInntektsmelding(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         if (ref.erRevurdering() || FagsakYtelseType.ENGANGSTØNAD.equals(ref.fagsakYtelseType())) {
             return KompletthetResultat.oppfylt();
         }
 
-        if (manglendeInntektsmeldingTjeneste.finnVentefristForEtterlysning(ref, stp).isEmpty()) {
+        var manglendeInntektsmeldinger = manglendeInntektsmeldingTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(ref, stp);
+        if (manglendeInntektsmeldinger.isEmpty() || gjelderBarePrivateArbeidsgivere(manglendeInntektsmeldinger)) {
             return KompletthetResultat.oppfylt();
         }
 
-        // Kalles fra KOARB (flere ganger) som setter autopunkt 7030 + fra KompletthetsKontroller (dokument på åpen behandling, hendelser)
-        var manglendeInntektsmeldinger = manglendeInntektsmeldingTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(ref, stp);
-        if (!manglendeInntektsmeldinger.isEmpty()) {
-            loggManglendeInntektsmeldinger(ref, manglendeInntektsmeldinger);
-            return manglendeInntektsmeldingTjeneste.vurderSkalInntektsmeldingEtterlyses(ref, stp, manglendeInntektsmeldinger)
-                .map(frist -> KompletthetResultat.ikkeOppfylt(frist, Venteårsak.VENT_OPDT_INNTEKTSMELDING))
-                .orElse(KompletthetResultat.oppfylt()); // Konvensjon for å sikre framdrift i prosessen
-        }
-        return KompletthetResultat.oppfylt();
+        loggManglendeInntektsmeldinger(ref, manglendeInntektsmeldinger);
+        var ventefristForEtterlysning = manglendeInntektsmeldingTjeneste.finnVentefristForEtterlysning(ref, stp, manglendeInntektsmeldinger.size());
+        return ikkeOppfylt(ventefristForEtterlysning, Venteårsak.VENT_OPDT_INNTEKTSMELDING);
     }
 
     private void loggManglendeInntektsmeldinger(BehandlingReferanse ref, List<ManglendeVedlegg> manglendeInntektsmeldinger) {
@@ -216,5 +213,15 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
         return ventefristTidligMottattSøknad
                 .map(frist -> KompletthetResultat.ikkeOppfylt(frist, Venteårsak.AVV_DOK))
                 .orElse(KompletthetResultat.fristUtløpt());
+    }
+
+    private static KompletthetResultat ikkeOppfylt(LocalDate frist, Venteårsak venteårsak) {
+        return erVentefristUtløpt(frist)
+                ? KompletthetResultat.fristUtløpt()
+                : KompletthetResultat.ikkeOppfylt(frist.atStartOfDay(), venteårsak);
+    }
+
+    private static boolean erVentefristUtløpt(LocalDate ønsketFrist) {
+        return !ønsketFrist.isAfter(LocalDate.now());
     }
 }

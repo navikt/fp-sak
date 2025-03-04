@@ -4,7 +4,6 @@ import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTI
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,7 +15,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -95,7 +93,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         manglendeInntektsmeldinger.put(Arbeidsgiver.virksomhet(KUNSTIG_ORG), new HashSet<>());
 
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.anyLong())).thenReturn(skjæringstidspunkt);
-        lenient().when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(any(), any())).thenReturn(new HashMap<>());
+        lenient().when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerForKompletthet(any(), any())).thenReturn(new HashMap<>());
 
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         søknadRepository = repositoryProvider.getSøknadRepository();
@@ -104,10 +102,9 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         var kompletthetsjekkerSøknad = new KompletthetsjekkerSøknadTjeneste(repositoryProvider, manglendeVedleggTjeneste);
         var manglendeInntektsmeldingTjeneste = new ManglendeInntektsmeldingTjeneste(
             repositoryProvider,
-            dokumentBestillerTjenesteMock,
             dokumentBehandlingTjenesteMock,
             inntektsmeldingArkivTjeneste,
-                inntektsmeldingTjeneste
+            inntektsmeldingTjeneste
         );
         kompletthetsjekker = new KompletthetsjekkerImpl(repositoryProvider, kompletthetsjekkerSøknad, personopplysningTjeneste, manglendeInntektsmeldingTjeneste);
         testUtil = new KompletthetssjekkerTestUtil(repositoryProvider);
@@ -140,11 +137,11 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
         assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(
-                søknadRepository.hentSøknad(behandling.getId()).getMottattDato().plusWeeks(1));
+                søknadRepository.hentSøknad(behandling.getId()).getMottattDato().plusDays(10));
     }
 
     @Test
-    void skal_ikke_sende_brev_når_inntektsmelding_finnes() {
+    void kompletthet_skal_være_oppfylt_når_det_ikke_mangler_noen_inntektsmelding() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         mockManglendeInntektsmeldingKompletthet(Collections.emptyMap());
@@ -160,11 +157,10 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isTrue();
         assertThat(kompletthetResultat.ventefrist()).isNull();
-        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(DokumentBestilling.class));
     }
 
     @Test
-    void skal_sende_brev_med_kort_frist_når_opprinnelig_frist_passert() {
+    void skal_justere_frist_hvis_allerede_motttatt_inntektsmelding() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         mockManglendeInntektsmeldingKompletthet(manglendeInntektsmeldinger);
@@ -179,36 +175,15 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
         assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(1));
-        verify(dokumentBestillerTjenesteMock, times(1)).bestillDokument(any(DokumentBestilling.class));
     }
 
     @Test
-    void skal_ikke_sende_brev_når_etterlysning_sendt() {
-        // Arrange
-        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
-        mockManglendeInntektsmeldingKompletthet(manglendeInntektsmeldinger);
-        testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(4),
-                STARTDATO_PERMISJON);
-        when(dokumentBehandlingTjenesteMock.erDokumentBestilt(any(), any())).thenReturn(true);
-        when(dokumentBehandlingTjenesteMock.dokumentSistBestiltTidspunkt(any(), any())).thenReturn(Optional.of(LocalDateTime.now().minusWeeks(3)));
-
-        // Act
-        var kompletthetResultat = kompletthetsjekker.vurderEtterlysningInntektsmelding(
-                lagRef(behandling), lagStp(STARTDATO_PERMISJON));
-
-        // Assert
-        assertThat(kompletthetResultat.erOppfylt()).isFalse();
-        assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(STARTDATO_PERMISJON);
-        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(DokumentBestilling.class));
-    }
-
-    @Test
-    void skal_etterlyse_mer_enn_3ukerfør() {
+    void skal_justere_ventefrist_ved_endret_skjæringstidspunkt() {
         // Arrange
         var stp = LocalDate.now().plusDays(2).plusWeeks(3);
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         mockManglendeInntektsmeldingKompletthet(manglendeInntektsmeldinger);
-        testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(1), stp);
+        testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusDays(10), stp);
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(Collections.emptyList());
 
         // Act
@@ -217,26 +192,24 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
-        assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(3));
-        verify(dokumentBestillerTjenesteMock, times(1)).bestillDokument(any(DokumentBestilling.class));
+        assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(2));
 
         // Act 2
-        stp = LocalDate.now().plusWeeks(3);
+        stp = LocalDate.now().plusWeeks(2);
         var kompletthetResultat2 = kompletthetsjekker.vurderEtterlysningInntektsmelding(
                 lagRef(behandling), lagStp(stp));
 
         // Assert
         assertThat(kompletthetResultat2.erOppfylt()).isFalse();
         assertThat(kompletthetResultat2.ventefrist().toLocalDate()).isEqualTo(stp);
-        verify(dokumentBestillerTjenesteMock, times(2)).bestillDokument(any(DokumentBestilling.class));
     }
 
     @Test
-    void skal_sende_brev_når_inntektsmelding_mangler() {
+    void kompletthet_ikke_oppflyt_med_frist_utledet_fra_mottattdato() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         mockManglendeInntektsmeldingKompletthet(manglendeInntektsmeldinger);
-        testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(1),
+        testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusDays(10),
                 STARTDATO_PERMISJON);
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(Collections.emptyList());
 
@@ -246,12 +219,11 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
-        assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(3));
-        verify(dokumentBestillerTjenesteMock, times(1)).bestillDokument(any(DokumentBestilling.class));
+        assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(2));
     }
 
     @Test
-    void skal_ikke_sende_brev_når_inntektsmelding_mangler_for_privat_arbeidsgivere() {
+    void skal_føre_til_oppflyt_kompletthet_når_inntektsmelding_mangler_for_privat_arbeidsgivere() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         HashMap<Arbeidsgiver, Set<InternArbeidsforholdRef>>  manglendeImPrivatArbGiver = new HashMap<>();
@@ -342,14 +314,14 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     }
 
     private void mockManglendeInntektsmelding() {
-        var manglendeInntektsmeldinger = new HashMap<Arbeidsgiver, Set<InternArbeidsforholdRef>>();
-        manglendeInntektsmeldinger.put(Arbeidsgiver.virksomhet("1"), new HashSet<>());
-        when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(any(), any())).thenReturn(
-                manglendeInntektsmeldinger);
+        var manglendeInntektsmeldingerSet = new HashMap<Arbeidsgiver, Set<InternArbeidsforholdRef>>();
+        manglendeInntektsmeldingerSet.put(Arbeidsgiver.virksomhet("1"), new HashSet<>());
+        when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerForKompletthet(any(), any())).thenReturn(
+                manglendeInntektsmeldingerSet);
     }
 
     private void mockManglendeInntektsmeldingKompletthet(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> manglendeIM) {
-        when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(any(), any())).thenReturn(
+        when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerForKompletthet(any(), any())).thenReturn(
             manglendeIM);
     }
 }
