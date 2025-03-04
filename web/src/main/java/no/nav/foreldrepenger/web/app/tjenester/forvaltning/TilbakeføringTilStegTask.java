@@ -14,22 +14,22 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(value = "migrering.migrertilomsorgrett", prioritet = 4, maxFailedRuns = 1)
+@ProsessTask(value = "migrering.tilbakeforbehandling", prioritet = 4, maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-public class MigrerTilOmsorgRettTask extends BehandlingProsessTask {
+public class TilbakeføringTilStegTask extends BehandlingProsessTask {
 
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlingsprosessTjeneste prosesseringTjeneste;
 
-    public MigrerTilOmsorgRettTask() {
+    public TilbakeføringTilStegTask() {
         // For CDI
     }
 
     @Inject
-    public MigrerTilOmsorgRettTask(BehandlingRepositoryProvider repositoryProvider,
-                                   BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                   BehandlingsprosessTjeneste prosesseringTjeneste) {
+    public TilbakeføringTilStegTask(BehandlingRepositoryProvider repositoryProvider,
+                                    BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                    BehandlingsprosessTjeneste prosesseringTjeneste) {
         super(repositoryProvider.getBehandlingLåsRepository());
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
@@ -45,7 +45,7 @@ public class MigrerTilOmsorgRettTask extends BehandlingProsessTask {
         if (behandling.isBehandlingPåVent()) {
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
         }
-        behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, BehandlingStegType.FORESLÅ_VEDTAK);
+        behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT);
         if (behandling.isBehandlingPåVent()) {
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
         }
