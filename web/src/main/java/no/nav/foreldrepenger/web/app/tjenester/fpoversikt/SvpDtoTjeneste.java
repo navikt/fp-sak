@@ -33,6 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakR
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -41,6 +42,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 public class SvpDtoTjeneste {
 
     private static final String UNEXPECTED_VALUE = "Unexpected value: ";
+    private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
     private SvangerskapspengerRepository svangerskapspengerRepository;
     private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
     private DtoTjenesteFelles felles;
@@ -48,11 +50,12 @@ public class SvpDtoTjeneste {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     @Inject
-    public SvpDtoTjeneste(SvangerskapspengerRepository svangerskapspengerRepository,
+    public SvpDtoTjeneste(ArbeidsgiverTjeneste arbeidsgiverTjeneste, SvangerskapspengerRepository svangerskapspengerRepository,
                           SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository,
                           DtoTjenesteFelles felles,
                           InntektsmeldingTjeneste inntektsmeldingTjeneste,
                           @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+        this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
         this.svangerskapspengerRepository = svangerskapspengerRepository;
         this.svangerskapspengerUttakResultatRepository = svangerskapspengerUttakResultatRepository;
         this.felles = felles;
@@ -169,8 +172,8 @@ public class SvpDtoTjeneste {
                 }).filter(Objects::nonNull).collect(Collectors.toSet());
                 //utlede oppholdsperioder
                 var oppholdsperioder = matchendeTilrettelegging.map(mt -> finnAlleOppholdsperioderFraTlr(mt, behandling)).orElse(Set.of());
-
-                return new SvpSak.Vedtak.ArbeidsforholdUttak(new SvpSak.Aktivitet(type, arbeidsgiver, arbeidsforholdId),
+                var arbeidsgiverNavn = arbeidsgiverTjeneste.hent(ua.getArbeidsgiver()).getNavn();
+                return new SvpSak.Vedtak.ArbeidsforholdUttak(new SvpSak.Aktivitet(type, arbeidsgiver, arbeidsforholdId, arbeidsgiverNavn),
                     matchendeTilrettelegging.map(SvpTilretteleggingEntitet::getBehovForTilretteleggingFom).orElse(null),
                     matchendeTilrettelegging.flatMap(SvpTilretteleggingEntitet::getOpplysningerOmRisikofaktorer).orElse(null),
                     matchendeTilrettelegging.flatMap(SvpTilretteleggingEntitet::getOpplysningerOmTilretteleggingstiltak).orElse(null), svpPerioder,
@@ -278,12 +281,12 @@ public class SvpDtoTjeneste {
             .map(svpGrunnlag -> svpGrunnlag.getOpprinneligeTilrettelegginger()
                 .getTilretteleggingListe()
                 .stream()
-                .map(SvpDtoTjeneste::map)
+                .map(this::map)
                 .collect(Collectors.toSet()))
             .orElse(Set.of());
     }
 
-    private static SvpSak.Søknad.Tilrettelegging map(SvpTilretteleggingEntitet tl) {
+    private SvpSak.Søknad.Tilrettelegging map(SvpTilretteleggingEntitet tl) {
         var aktivitet = utledAktivitet(tl);
         var perioder = tl.getTilretteleggingFOMListe().stream().map(tFom -> {
             SvpSak.TilretteleggingType tilretteleggingType = mapTilretteleggingType(tFom.getType());
@@ -302,10 +305,11 @@ public class SvpDtoTjeneste {
         };
     }
 
-    private static SvpSak.Aktivitet utledAktivitet(SvpTilretteleggingEntitet tl) {
+    private SvpSak.Aktivitet utledAktivitet(SvpTilretteleggingEntitet tl) {
         var aktivitetType = mapTilAktivitetType(tl.getArbeidType());
         var arbeidsgiver = tl.getArbeidsgiver().map(a -> new Arbeidsgiver(a.getIdentifikator())).orElse(null);
-        return new SvpSak.Aktivitet(aktivitetType, arbeidsgiver, null);
+        var arbeidsgiverNavn = tl.getArbeidsgiver().map(a -> arbeidsgiverTjeneste.hent(a).getNavn()).orElse(null);
+        return new SvpSak.Aktivitet(aktivitetType, arbeidsgiver, null, arbeidsgiverNavn);
     }
 
     private static SvpSak.Aktivitet.Type mapTilAktivitetType(ArbeidType arbeidType) {
