@@ -92,9 +92,7 @@ public class AvsluttBehandling {
         });
 
         if (behandling.erYtelseBehandling()) {
-            if (!ENV.isProd()) {
-                iayTjeneste.avslutt(behandlingId);
-            }
+            iayTjeneste.avslutt(behandlingId);
             beregningTjeneste.avslutt(BehandlingReferanse.fra(behandling));
         }
 
