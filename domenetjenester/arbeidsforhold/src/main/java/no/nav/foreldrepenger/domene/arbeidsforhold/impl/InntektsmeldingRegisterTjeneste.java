@@ -5,12 +5,10 @@ import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.tilMas
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -30,7 +28,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -120,6 +117,20 @@ public class InntektsmeldingRegisterTjeneste {
      */
     public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledManglendeInntektsmeldingerFraGrunnlag(BehandlingReferanse referanse,
         Skjæringstidspunkt stp) {
+        // Sjekk pr arbeidsforhold slik at saksbehandler kan avklare alle arbeidsforhold
+        return internUtledManglendeInntektsmeldinger(referanse, stp, true);
+    }
+
+    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledManglendeInntektsmeldingerForKompletthet(BehandlingReferanse referanse,
+                                                                                                         Skjæringstidspunkt stp) {
+        // Sjekker pr arbeidsgiver, ikke pr arbeidsforhold, slik at tilfelle med flere arbeidsforhold for samme arbeidsgiver
+        // der det har kommet 1 inntektsmelding med arbeidsforhold ikke blir liggende på vent, men går til avklaring
+        return internUtledManglendeInntektsmeldinger(referanse, stp, false);
+    }
+
+    private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> internUtledManglendeInntektsmeldinger(BehandlingReferanse referanse,
+                                                                                                  Skjæringstidspunkt stp,
+                                                                                                  boolean prArbeidsforhold) {
         Objects.requireNonNull(referanse, VALID_REF);
         var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(referanse.behandlingId());
         var påkrevdeInntektsmeldinger = utledPåkrevdeInntektsmeldingerFraGrunnlag(referanse, stp, inntektArbeidYtelseGrunnlag);
@@ -129,28 +140,33 @@ public class InntektsmeldingRegisterTjeneste {
         logInntektsmeldinger(referanse, påkrevdListeSøkteArbeidsforhold, "FILTRERT bort arbeidsforhold det ikke er søkt(svp) for");
 
         var påkrevdListeAktiveArbeidsforhold = aktiveArbeidsforholdFilter(referanse, stp, inntektArbeidYtelseGrunnlag, påkrevdListeSøkteArbeidsforhold);
-        filtrerUtMottatteInntektsmeldinger(referanse, stp, påkrevdListeAktiveArbeidsforhold, (a, i) -> i);
+        filtrerUtMottatteInntektsmeldinger(referanse, stp, inntektArbeidYtelseGrunnlag, påkrevdListeAktiveArbeidsforhold, prArbeidsforhold);
         logInntektsmeldinger(referanse, påkrevdListeAktiveArbeidsforhold, "FILTRERT bort inaktive arbeidsforhold, og arbeidsforhold vi har mottatt inntektsmelding på");
 
         return påkrevdListeAktiveArbeidsforhold;
     }
 
     // Vent med å ta i bruk denne til vi ikke lenger venter på andel i beregning
-    private <V> void filtrerUtMottatteInntektsmeldinger(BehandlingReferanse referanse, Skjæringstidspunkt stp,
-                                                        Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger, BiFunction<Arbeidsgiver, InternArbeidsforholdRef, V> tilnternArbeidsforhold) {
+    private void filtrerUtMottatteInntektsmeldinger(BehandlingReferanse referanse, Skjæringstidspunkt stp,
+                                                    Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
+                                                    Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger,
+                                                    boolean prArbeidsforhold) {
         // modder påkrevdeInntektsmeldinger for hvert kall
         if (!påkrevdeInntektsmeldinger.isEmpty()) {
-            inntektsmeldingerSomHarKommet(referanse, stp, påkrevdeInntektsmeldinger, tilnternArbeidsforhold);
+            var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(referanse, stp.getUtledetSkjæringstidspunkt());
+            for (var inntektsmelding : inntektsmeldinger) {
+                fjernArbeidsforholdFraPåkrevde(påkrevdeInntektsmeldinger, inntektsmelding.getArbeidsgiver(), inntektsmelding.getArbeidsforholdRef(), prArbeidsforhold);
+            }
             if (!påkrevdeInntektsmeldinger.isEmpty()) {
-                fjernInntektsmeldingerSomAltErAvklart(referanse, påkrevdeInntektsmeldinger, tilnternArbeidsforhold);
+                fjernInntektsmeldingerSomAltErAvklart(inntektArbeidYtelseGrunnlag, påkrevdeInntektsmeldinger, prArbeidsforhold);
             }
         }
     }
 
-    private <V> void fjernInntektsmeldingerSomAltErAvklart(BehandlingReferanse ref, Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger,
-            BiFunction<Arbeidsgiver, InternArbeidsforholdRef, V> tilnternArbeidsforhold) {
-        var arbeidsforholdInformasjon = inntektArbeidYtelseTjeneste.finnGrunnlag(ref.behandlingId())
-            .flatMap(InntektArbeidYtelseGrunnlag::getArbeidsforholdInformasjon);
+    private void fjernInntektsmeldingerSomAltErAvklart(Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
+                                                       Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger,
+                                                       boolean prArbeidsforhold) {
+        var arbeidsforholdInformasjon = inntektArbeidYtelseGrunnlag.flatMap(InntektArbeidYtelseGrunnlag::getArbeidsforholdInformasjon);
         if (arbeidsforholdInformasjon.isPresent()) {
             var informasjon = arbeidsforholdInformasjon.get();
             var inntektsmeldingSomIkkeKommer = informasjon.getOverstyringer()
@@ -158,53 +174,30 @@ public class InntektsmeldingRegisterTjeneste {
                 .filter(ArbeidsforholdOverstyring::kreverIkkeInntektsmelding)
                 .toList();
 
-            fjernInntektsmeldinger(påkrevdeInntektsmeldinger, inntektsmeldingSomIkkeKommer, tilnternArbeidsforhold);
-        }
-    }
-
-    private <V> void fjernInntektsmeldinger(Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger,
-            List<ArbeidsforholdOverstyring> inntektsmeldingSomIkkeKommer,
-            BiFunction<Arbeidsgiver, InternArbeidsforholdRef, V> tilnternArbeidsforhold) {
-        for (var im : inntektsmeldingSomIkkeKommer) {
-            if (påkrevdeInntektsmeldinger.containsKey(im.getArbeidsgiver())) {
-                var arbeidsforhold = påkrevdeInntektsmeldinger.get(im.getArbeidsgiver());
-                if (im.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold()) {
-                    var matchKey = tilnternArbeidsforhold.apply(im.getArbeidsgiver(), im.getArbeidsforholdRef());
-                    arbeidsforhold.remove(matchKey);
-                } else {
-                    arbeidsforhold.clear();
-                }
-                if (arbeidsforhold.isEmpty()) {
-                    påkrevdeInntektsmeldinger.remove(im.getArbeidsgiver());
-                }
+            for (var im : inntektsmeldingSomIkkeKommer) {
+                fjernArbeidsforholdFraPåkrevde(påkrevdeInntektsmeldinger, im.getArbeidsgiver(), im.getArbeidsforholdRef(), prArbeidsforhold);
             }
         }
     }
 
-    private <V> void inntektsmeldingerSomHarKommet(BehandlingReferanse referanse, Skjæringstidspunkt stp,
-            Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger, BiFunction<Arbeidsgiver, InternArbeidsforholdRef, V> tilnternArbeidsforhold) {
+    private void fjernArbeidsforholdFraPåkrevde(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger,
+                                                Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef,
+                                                boolean prArbeidsforhold) {
         if (påkrevdeInntektsmeldinger.isEmpty()) {
             return; // quick exit
         }
 
-        List<Inntektsmelding> inntektsmeldinger;
-        inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(referanse, stp.getUtledetSkjæringstidspunkt());
-
-        for (var inntektsmelding : inntektsmeldinger) {
-            if (påkrevdeInntektsmeldinger.containsKey(inntektsmelding.getArbeidsgiver())) {
-                var arbeidsforhold = påkrevdeInntektsmeldinger.get(inntektsmelding.getArbeidsgiver());
-                if (inntektsmelding.gjelderForEtSpesifiktArbeidsforhold()) {
-                    var matchKey = tilnternArbeidsforhold.apply(inntektsmelding.getArbeidsgiver(), inntektsmelding.getArbeidsforholdRef());
-                    arbeidsforhold.remove(matchKey);
-                } else {
-                    arbeidsforhold.clear();
-                }
-                if (arbeidsforhold.isEmpty()) {
-                    påkrevdeInntektsmeldinger.remove(inntektsmelding.getArbeidsgiver());
-                }
+        if (påkrevdeInntektsmeldinger.containsKey(arbeidsgiver)) {
+            var arbeidsforhold = påkrevdeInntektsmeldinger.get(arbeidsgiver);
+            if (prArbeidsforhold && arbeidsforholdRef != null && arbeidsforholdRef.gjelderForSpesifiktArbeidsforhold()) {
+                arbeidsforhold.remove(arbeidsforholdRef);
+            } else {
+                arbeidsforhold.clear();
+            }
+            if (arbeidsforhold.isEmpty()) {
+                påkrevdeInntektsmeldinger.remove(arbeidsgiver);
             }
         }
-
     }
 
     private boolean harRelevantAnsettelsesperiodeSomDekkerAngittDato(YrkesaktivitetFilter filter, Yrkesaktivitet yrkesaktivitet, LocalDate dato) {
@@ -226,15 +219,15 @@ public class InntektsmeldingRegisterTjeneste {
      * utledManglendeInntektsmeldingerFraAAreg da disse verdiene skal ikke påvirkes
      * av endringer i arkivet.
      */
-    private <V> Map<Arbeidsgiver, Set<V>> søknadsFilter(BehandlingReferanse referanse,
-                                                        Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger) {
+    private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> søknadsFilter(BehandlingReferanse referanse,
+                                                                          Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger) {
         var filter = FagsakYtelseTypeRef.Lookup.find(inntektsmeldingFiltere, referanse.fagsakYtelseType())
                 .orElseThrow(
                         () -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + referanse.fagsakYtelseType().getKode()));
         return filter.søknadsFilter(referanse, påkrevdeInntektsmeldinger);
     }
 
-    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> aktiveArbeidsforholdFilter(BehandlingReferanse referanse,
+    private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> aktiveArbeidsforholdFilter(BehandlingReferanse referanse,
                                                                                       Skjæringstidspunkt stp,
                                                                                       Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger) {
         var filter = FagsakYtelseTypeRef.Lookup.find(inntektsmeldingFiltere, referanse.fagsakYtelseType())

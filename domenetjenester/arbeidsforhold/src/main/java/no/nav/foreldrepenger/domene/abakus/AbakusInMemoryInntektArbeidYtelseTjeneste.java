@@ -278,6 +278,11 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
         lagreOgFlush(behandlingId, builder.build());
     }
 
+    @Override
+    public void avslutt(Long behandlingId) {
+        // Trenger ikke støtten her.
+    }
+
     private static Optional<Arbeidsgiver> utledeArbeidsgiverSomMåTilbakestilles(Inntektsmelding inntektsmelding,
             ArbeidsforholdInformasjon informasjon) {
         if (inntektsmelding.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold()) {
@@ -334,10 +339,6 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
 
     @Override
     public InntektArbeidYtelseGrunnlag hentGrunnlag(UUID behandlingUUid) {
-        throw new UnsupportedOperationException("NOT IMPLEMENTED (mangler kobling til behandlingUUid): #" + getCallerMethod());
-    }
-
-    private static Optional<InntektArbeidYtelseGrunnlag> getAktivtInntektArbeidGrunnlag(@SuppressWarnings("unused") UUID behandlingId) {
         throw new UnsupportedOperationException("NOT IMPLEMENTED (mangler kobling til behandlingUUid): #" + getCallerMethod());
     }
 

@@ -87,12 +87,6 @@ public class FagsakEgenskapRepository {
         return query.getResultList();
     }
 
-    public int slettNasjonal() {
-        return entityManager.createNativeQuery("delete from fagsak_egenskap where egenskap_value = :nasjonal")
-            .setParameter("nasjonal", "NASJONAL")
-            .executeUpdate();
-    }
-
     public void lagreAlleFagsakMarkeringer(long fagsakId, Collection<FagsakMarkering> markeringer) {
         var eksisterende = finnFagsakMarkeringer(fagsakId);
         markeringer.stream().filter(fm -> !eksisterende.contains(fm)).forEach(fm -> lagreFagsakMarkering(fagsakId, fm));

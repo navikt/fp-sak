@@ -40,8 +40,8 @@ public class InntektsmeldingFilterYtelseImpl implements InntektsmeldingFilterYte
     }
 
     @Override
-    public <V> Map<Arbeidsgiver, Set<V>> søknadsFilter(BehandlingReferanse referanse, Map<Arbeidsgiver, Set<V>> påkrevde) {
-        Map<Arbeidsgiver, Set<V>> filtrert = new HashMap<>();
+    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> søknadsFilter(BehandlingReferanse referanse, Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevde) {
+        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> filtrert = new HashMap<>();
         var arbeidsforholdFraSøknad = getArbeidsforholdSøktTilretteleggingI(referanse);
         påkrevde.forEach((key, value) -> {
             if (erSøktTilretteleggingI(arbeidsforholdFraSøknad, key)) {

@@ -100,7 +100,7 @@ public class AksjonspunktRestTjeneste {
     @Operation(description = "Hent aksjonspunter for en behandling", tags = "aksjonspunkt", responses = {
             @ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(uniqueItems = true, arraySchema = @Schema(implementation = Set.class), schema = @Schema(implementation = AksjonspunktDto.class)), mediaType = MediaType.APPLICATION_JSON))
     })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public Response getAksjonspunkter(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
@@ -126,7 +126,7 @@ public class AksjonspunktRestTjeneste {
     @Path(AKSJONSPUNKT_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Lagre endringer gitt av aksjonspunktene og rekjør behandling fra gjeldende steg", tags = "aksjonspunkt")
-    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response bekreft(@Context HttpServletRequest request,
                             @TilpassetAbacAttributt(supplierClass = BekreftetAbacDataSupplier.class)
             @Parameter(description = "Liste over aksjonspunkt som skal bekreftes, inklusiv data som trengs for å løse de.") @Valid BekreftedeAksjonspunkterDto apDto)
@@ -167,7 +167,7 @@ public class AksjonspunktRestTjeneste {
     @Path(AKSJONSPUNKT_OVERSTYR_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Overstyrer stegene", tags = "aksjonspunkt")
-    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response overstyr(@Context HttpServletRequest request,
                              @TilpassetAbacAttributt(supplierClass = OverstyrtAbacDataSupplier.class)
         @Parameter(description = "Liste over overstyring aksjonspunkter.") @Valid OverstyrteAksjonspunkterDto apDto) throws URISyntaxException {
@@ -192,7 +192,7 @@ public class AksjonspunktRestTjeneste {
     @Path(AKSJONSPUNKT_BESLUTT_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Lagre totrinnsvurdering aksjonspunkt", tags = "aksjonspunkt")
-    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response beslutt(@Context HttpServletRequest request,
                             @TilpassetAbacAttributt(supplierClass = BekreftetAbacDataSupplier.class)
                             @Parameter(description = "Liste over aksjonspunkt som skal bekreftes, inklusiv data som trengs for å løse de.") @Valid BekreftedeAksjonspunkterDto apDto)
