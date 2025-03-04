@@ -22,17 +22,18 @@ import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.mottak.registrerer.DokumentRegistrererTjeneste;
-import no.nav.foreldrepenger.mottak.registrerer.ManuellRegistreringAksjonspunktDto;
 import no.nav.foreldrepenger.søknad.v3.SøknadConstants;
 import no.nav.foreldrepenger.xmlutils.JaxbHelper;
 import no.nav.vedtak.exception.FunksjonellException;
@@ -69,24 +70,23 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
     @Override
     public OppdateringResultat oppdater(ManuellRegistreringDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingReferanse = param.getRef();
-        var behandlingId = param.getBehandlingId();
         var resultatBuilder = OppdateringResultat.utenTransisjon();
 
         if (dto.getUfullstendigSoeknad()) {
-            // Vurder å gå videre - retuerner resultatBuilder - men kan føre til automatisk vedtak. Foreslår manuell revurdering.
             if (behandlingReferanse.erRevurdering()) {
+                // Vi ønsker ikke mangelfulle søknader i revurderinger ettersom det ikke gitt at de skal til Opphør/Avslag
+                // Vurder å gå videre som en vanlig revurdering - dvs returner resultatBuilder.build() - men kan føre til automatisk vedtak uten brev.
+                // Foreslår derfor henleggelse + manuell revurdering i feilmelding. Evt brev utenom løsningen.
                 LOG.warn("Papirsøknad ufullstendig for revurdering i sak {} ytelse {}. Si fra på daglig overvåkning",
                     behandlingReferanse.saksnummer().getVerdi(), behandlingReferanse.fagsakYtelseType());
                 throw new FunksjonellException("FP-093926", "Kan ikke registrere mangelfull søknad i revurdering.",
                     "Henlegg behandlingen og opprett eventuelt en revurdering fra meny.");
             }
-            var adapter = new ManuellRegistreringAksjonspunktDto(!dto.getUfullstendigSoeknad());
-            dokumentRegistrererTjeneste.aksjonspunktManuellRegistrering(behandlingReferanse, adapter)
-                .ifPresent(ad -> resultatBuilder.medEkstraAksjonspunktResultat(ad, AksjonspunktStatus.OPPRETTET));
             lagHistorikkInnslag(behandlingReferanse, "Søknad er mangelfull", null);
             return resultatBuilder
-                .leggTilIkkeVurdertVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT)
-                .medFremoverHopp(FellesTransisjoner.FREMHOPP_TIL_KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT).build();
+                .leggTilAvslåttVilkårRegistrering(VilkårType.SØKERSOPPLYSNINGSPLIKT, Avslagsårsak.MANGLENDE_DOKUMENTASJON)
+                .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
+                .build();
         }
 
         ManuellRegistreringValidator.validerOpplysninger(dto);
@@ -99,10 +99,10 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
         var søknadXml = opprettSøknadsskjema(dto, behandlingReferanse, navBruker);
         var dokumentTypeId = finnDokumentType(dto, behandlingReferanse.behandlingType());
 
-        var adapter = new ManuellRegistreringAksjonspunktDto(!dto.getUfullstendigSoeknad(), søknadXml,
-            dokumentTypeId, dto.getMottattDato(), dto.isRegistrerVerge());
-        dokumentRegistrererTjeneste.aksjonspunktManuellRegistrering(behandlingReferanse, adapter)
-            .ifPresent(ad -> resultatBuilder.medEkstraAksjonspunktResultat(ad, AksjonspunktStatus.OPPRETTET));
+        dokumentRegistrererTjeneste.aksjonspunktManuellRegistrering(behandlingReferanse, søknadXml, dokumentTypeId, dto.getMottattDato());
+        if (dto.isRegistrerVerge()) {
+            resultatBuilder.medEkstraAksjonspunktResultat(AksjonspunktDefinisjon.AVKLAR_VERGE, AksjonspunktStatus.OPPRETTET);
+        }
 
         lagHistorikkInnslag(behandlingReferanse, "Registrer papirsøknad", dto.getKommentarEndring());
         return resultatBuilder.build();

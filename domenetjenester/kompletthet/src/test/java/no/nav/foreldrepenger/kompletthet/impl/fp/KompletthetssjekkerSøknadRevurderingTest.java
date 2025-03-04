@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadVedleggE
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
-import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.kompletthet.impl.KompletthetsjekkerImpl;
@@ -50,10 +49,9 @@ class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwareTest {
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         testUtil = new KompletthetssjekkerTestUtil(repositoryProvider);
-        var personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
         var manglendeVedleggTjeneste = new ManglendeVedleggTjeneste(repositoryProvider, dokumentArkivTjeneste);
         var kompletthetsjekkerSøknad = new KompletthetsjekkerSøknadTjeneste(repositoryProvider, manglendeVedleggTjeneste);
-        kompletthetssjekker = new KompletthetsjekkerImpl(repositoryProvider, kompletthetsjekkerSøknad, personopplysningTjeneste, mock(ManglendeInntektsmeldingTjeneste.class));
+        kompletthetssjekker = new KompletthetsjekkerImpl(repositoryProvider.getBehandlingRepository(), kompletthetsjekkerSøknad, mock(ManglendeInntektsmeldingTjeneste.class));
     }
 
     @Test

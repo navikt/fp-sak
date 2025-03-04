@@ -422,15 +422,17 @@ public class Behandling extends BaseEntitet {
         return tilstander.isEmpty() ? Optional.empty() : Optional.of(tilstander.get(0));
     }
 
-    /**
-     * @deprecated bygg fortrinnsvis logikk rundt eksistens av stegresultater (fx
-     *             vedtaksdato). Slik at man evt kan dekoble tabeller (evt behold en
-     *             current her)
-     */
-    @Deprecated
-    public Stream<BehandlingStegTilstand> getBehandlingStegTilstandHistorikk() {
-        Comparator<BehandlingStegTilstand> comparator = compareOpprettetTid();
-        return behandlingStegTilstander.stream().sorted(comparator);
+    // Test use only
+    public boolean harBehandlingStegTilstandHistorikk(int antall) {
+        return behandlingStegTilstander.size() == antall;
+    }
+
+    // Test use only
+    public List<BehandlingStegStatus> getHistoriskBehandlingStegStatus(BehandlingStegType stegType) {
+        return behandlingStegTilstander.stream()
+            .filter(bst -> stegType == null || Objects.equals(bst.getBehandlingSteg(), stegType))
+            .map(BehandlingStegTilstand::getBehandlingStegStatus)
+            .toList();
     }
 
     public BehandlingStegType getAktivtBehandlingSteg() {

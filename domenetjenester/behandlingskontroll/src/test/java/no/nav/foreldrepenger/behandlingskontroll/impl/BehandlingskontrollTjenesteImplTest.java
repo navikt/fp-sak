@@ -7,7 +7,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.Objects;
 
 import jakarta.persistence.EntityManager;
 
@@ -25,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegTilstand;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -82,12 +80,10 @@ class BehandlingskontrollTjenesteImplTest {
         assertThat(behandling.getStatus()).isEqualTo(BehandlingStatus.UTREDES);
         assertThat(behandling.getBehandlingStegStatus()).isEqualTo(BehandlingStegStatus.INNGANG);
         assertThat(behandling.getBehandlingStegTilstand()).isNotNull();
-        assertThat(behandling.getBehandlingStegTilstandHistorikk()).hasSize(2);
+        assertThat(behandling.harBehandlingStegTilstandHistorikk(2)).isTrue();
 
-        sjekkBehandlingStegTilstandHistorikk(behandling, steg3,
-                BehandlingStegStatus.TILBAKEFØRT);
-        sjekkBehandlingStegTilstandHistorikk(behandling, steg2,
-                BehandlingStegStatus.INNGANG);
+        sjekkBehandlingStegTilstandHistorikk(behandling, steg3, BehandlingStegStatus.TILBAKEFØRT);
+        sjekkBehandlingStegTilstandHistorikk(behandling, steg2, BehandlingStegStatus.INNGANG);
 
     }
 
@@ -108,12 +104,10 @@ class BehandlingskontrollTjenesteImplTest {
         assertThat(behandling.getBehandlingStegTilstand()).isNotNull();
 
         assertThat(behandling.getBehandlingStegTilstand(steg2)).isPresent();
-        assertThat(behandling.getBehandlingStegTilstandHistorikk()).hasSize(2);
+        assertThat(behandling.harBehandlingStegTilstandHistorikk(2)).isTrue();
 
-        sjekkBehandlingStegTilstandHistorikk(behandling, steg3,
-                BehandlingStegStatus.TILBAKEFØRT);
-        sjekkBehandlingStegTilstandHistorikk(behandling, steg2,
-                BehandlingStegStatus.UTGANG);
+        sjekkBehandlingStegTilstandHistorikk(behandling, steg3, BehandlingStegStatus.TILBAKEFØRT);
+        sjekkBehandlingStegTilstandHistorikk(behandling, steg2, BehandlingStegStatus.UTGANG);
 
     }
 
@@ -134,12 +128,10 @@ class BehandlingskontrollTjenesteImplTest {
         assertThat(behandling.getBehandlingStegTilstand()).isNotNull();
 
         assertThat(behandling.getBehandlingStegTilstand(steg2)).isPresent();
-        assertThat(behandling.getBehandlingStegTilstandHistorikk()).hasSize(2);
+        assertThat(behandling.harBehandlingStegTilstandHistorikk(2)).isTrue();
 
-        sjekkBehandlingStegTilstandHistorikk(behandling, steg3,
-                BehandlingStegStatus.TILBAKEFØRT);
-        sjekkBehandlingStegTilstandHistorikk(behandling, steg2,
-                BehandlingStegStatus.INNGANG);
+        sjekkBehandlingStegTilstandHistorikk(behandling, steg3, BehandlingStegStatus.TILBAKEFØRT);
+        sjekkBehandlingStegTilstandHistorikk(behandling, steg2, BehandlingStegStatus.INNGANG);
 
     }
 
@@ -161,7 +153,7 @@ class BehandlingskontrollTjenesteImplTest {
 
         assertThat(behandling.getBehandlingStegTilstand(steg3)).isPresent();
         assertThat(behandling.getBehandlingStegTilstand(steg4)).isNotPresent();
-        assertThat(behandling.getBehandlingStegTilstandHistorikk()).hasSize(1);
+        assertThat(behandling.harBehandlingStegTilstandHistorikk(1)).isTrue();
     }
 
     @Test
@@ -181,16 +173,14 @@ class BehandlingskontrollTjenesteImplTest {
         assertThat(behandling.getBehandlingStegTilstand()).isNotNull();
 
         assertThat(behandling.getBehandlingStegTilstand(steg5)).isPresent();
-        assertThat(behandling.getBehandlingStegTilstandHistorikk()).hasSize(2);
+        assertThat(behandling.harBehandlingStegTilstandHistorikk(2)).isTrue();
 
-        sjekkBehandlingStegTilstandHistorikk(behandling, steg3,
-                BehandlingStegStatus.AVBRUTT);
+        sjekkBehandlingStegTilstandHistorikk(behandling, steg3, BehandlingStegStatus.AVBRUTT);
 
         // NB: skipper STEP_4
         sjekkBehandlingStegTilstandHistorikk(behandling, steg4);
 
-        sjekkBehandlingStegTilstandHistorikk(behandling, steg5,
-                BehandlingStegStatus.INNGANG);
+        sjekkBehandlingStegTilstandHistorikk(behandling, steg5, BehandlingStegStatus.INNGANG);
 
     }
 
@@ -254,11 +244,12 @@ class BehandlingskontrollTjenesteImplTest {
         assertThat(behandling.getBehandlingStegStatus()).isEqualTo(BehandlingStegStatus.INNGANG);
         assertThat(behandling.getBehandlingStegTilstand()).isNotNull();
 
-        assertThat(behandling.getBehandlingStegTilstandHistorikk()).hasSize(2);
+        assertThat(behandling.harBehandlingStegTilstandHistorikk(2)).isTrue();
 
         sjekkBehandlingStegTilstandHistorikk(behandling, steg, BehandlingStegStatus.INNGANG);
 
-        assertThat(behandling.getBehandlingStegTilstand(steg).get().getBehandlingStegStatus()).isEqualTo(BehandlingStegStatus.INNGANG);
+        assertThat(behandling.getBehandlingStegTilstand(steg))
+            .hasValueSatisfying(v -> assertThat(v.getBehandlingStegStatus()).isEqualTo(BehandlingStegStatus.INNGANG));
 
     }
 
@@ -320,16 +311,13 @@ class BehandlingskontrollTjenesteImplTest {
         when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
         when(kontekst.getFagsakId()).thenReturn(behandling.getFagsakId());
         assertThat(kontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(behandling.getFagsakYtelseType(),
-                behandling.getType(), steg4, AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU))
+                behandling.getType(), steg4, AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD))
                         .isFalse();
     }
 
     private void sjekkBehandlingStegTilstandHistorikk(Behandling behandling, BehandlingStegType stegType,
             BehandlingStegStatus... stegStatuser) {
-        assertThat(
-                behandling.getBehandlingStegTilstandHistorikk().filter(bst -> stegType == null || Objects.equals(bst.getBehandlingSteg(), stegType))
-                        .map(BehandlingStegTilstand::getBehandlingStegStatus))
-                                .containsExactly(stegStatuser);
+        assertThat(behandling.getHistoriskBehandlingStegStatus(stegType)).containsExactly(stegStatuser);
     }
 
     private void initBehandlingskontrollTjeneste() {

@@ -182,6 +182,20 @@ public class OppdateringResultat {
             return this;
         }
 
+        public Builder leggTilAvslåttVilkårRegistrering(VilkårType vilkårType, Avslagsårsak avslagsårsak) {
+            Objects.requireNonNull(vilkårType);
+            Objects.requireNonNull(avslagsårsak);
+            if (Avslagsårsak.UDEFINERT.equals(avslagsårsak)) {
+                throw new IllegalArgumentException("Mangler gyldig avslagsårsak");
+            }
+            if (resultat.vilkårTyperNyeIkkeVurdert.contains(vilkårType) || resultat.vilkårTyperSomSkalFjernes.contains(vilkårType)) {
+                throw new IllegalStateException(MULTI_ENDRING);
+            }
+            resultat.vilkårTyperNyeIkkeVurdert.add(vilkårType);
+            resultat.vilkårUtfallSomSkalLeggesTil.add(new VilkårOppdateringResultat(vilkårType, avslagsårsak));
+            return this;
+        }
+
         public Builder fjernVilkårType(VilkårType vilkårType) {
             Objects.requireNonNull(vilkårType);
             if (resultat.vilkårTyperNyeIkkeVurdert.contains(vilkårType) ||

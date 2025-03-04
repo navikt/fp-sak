@@ -16,7 +16,5 @@ public interface Kompletthetsjekker {
 
     List<ManglendeVedlegg> utledAlleManglendeInntektsmeldingerSomIkkeKommer(BehandlingReferanse ref);
 
-    boolean erForsendelsesgrunnlagKomplett(BehandlingReferanse ref);
-
     KompletthetResultat vurderEtterlysningInntektsmelding(BehandlingReferanse ref, Skjæringstidspunkt stp);
 }
