@@ -47,7 +47,7 @@ public class FpOversiktRestTjeneste {
     @Path("sak")
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Hent sak for bruk i fpoversikt", tags = "fpoversikt")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Sak hentSak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @Parameter(description = "Saksnummer for fagsak") @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var saksnummer = saksnummerDto.getVerdi();
         try {
@@ -62,7 +62,7 @@ public class FpOversiktRestTjeneste {
     @Path("manglendeVedlegg")
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Henter manglede vedlegg på sak", tags = "fpoversikt")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public List<DokumentTyperDto> hentmanglendeVedlegg(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @Parameter(description = "Saksnummer for fagsak") @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var saksnummer = saksnummerDto.getVerdi();
         try {
@@ -77,7 +77,7 @@ public class FpOversiktRestTjeneste {
     @Path("inntektsmeldinger")
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Henter inntektsmeldinger på sak", tags = "fpoversikt")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public List<FpSakInntektsmeldingDto> hentInntektsmeldinger(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @Parameter(description = "Saksnummer for fagsak") @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var saksnummer = saksnummerDto.getVerdi();
         return dtoTjeneste.hentInntektsmeldingerForSak(saksnummer);

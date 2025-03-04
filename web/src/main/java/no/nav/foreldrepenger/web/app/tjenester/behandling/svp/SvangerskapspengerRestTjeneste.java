@@ -48,7 +48,7 @@ public class SvangerskapspengerRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Path(TILRETTELEGGING_V2_PART_PATH)
     @Operation(description = "Hent informasjon om tilretteleggingbehov ved svangerskapspenger", summary = "Returnerer termindato og liste med tilretteleggingsinfo pr. arbeidsforhold ved svangerskapspenger", tags = "svangerskapspenger")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public SvpTilretteleggingDto tilrettelegging(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());

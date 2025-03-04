@@ -70,7 +70,7 @@ public class ForvaltningOpptjeningRestTjeneste {
     @Path("/leggTilOppgittFrilans")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Legg til innslag for oppgitt frilansaktivitet", tags = "FORVALTNING-opptjening")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response leggTilOppgittFrilans(@BeanParam @Valid LeggTilOppgittFrilansDto dto) {
         var behandling = behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUuid());
         var oppgittOpptjening = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId()).getGjeldendeOppgittOpptjening();
@@ -90,7 +90,7 @@ public class ForvaltningOpptjeningRestTjeneste {
     @Path("/leggTilOppgittNæring")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Operation(description = "Legg til innslag for oppgitt næring som fisker", tags = "FORVALTNING-opptjening")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response leggTilOppgittNæring(@BeanParam @Valid LeggTilOppgittNæringDto dto) {
         var behandling = behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUuid());
         var oppgittOpptjening = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId()).getGjeldendeOppgittOpptjening();
@@ -123,7 +123,7 @@ public class ForvaltningOpptjeningRestTjeneste {
     @Path("/leggTilOppgittNæringFjerneAndreOppgitteOrgnummer")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Operation(description = "Legg til innslag for oppgitt næring og fjern andre orgnummer", tags = "FORVALTNING-opptjening")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response leggTilOppgittNæringFjerneAndreOppgitteOrgnummer(@BeanParam @Valid LeggTilOppgittNæringDto dto) {
         var behandling = behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUuid());
         var oppgittOpptjening = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId()).getGjeldendeOppgittOpptjening();
@@ -156,7 +156,7 @@ public class ForvaltningOpptjeningRestTjeneste {
     @Path("/reInnhentAlleIAYRegisterData")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Tvinger full registeroppdatering av IAY på åpen behandling", tags = "FORVALTNING-opptjening")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response reInnhentAlleIAYRegisterData(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         var behandling = getBehandling(dto);
         if (behandling.erSaksbehandlingAvsluttet()) {
@@ -174,7 +174,7 @@ public class ForvaltningOpptjeningRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Hent oppgitt opptjening for behandling", tags = "FORVALTNING-opptjening")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public OppgittOpptjeningDto hentOppgittOpptjening(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         var behandling = getBehandling(dto);
         var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlagKontrakt(behandling.getId());

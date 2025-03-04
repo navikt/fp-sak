@@ -53,7 +53,7 @@ public class DatavarehusAdminRestTjeneste {
     @POST
     @Operation(description = "Generer vedtaksxml på nytt for gitt behandlingid.", tags = "datavarehus")
     @Path("/regenerer_vedtaksdokument")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response regenererVedtaksXml(@BeanParam @Valid DvhAdminBehandlingIdDto uuidDto) {
 
         LOG.info("Skal generere vedtakXML for behandlingid {} ", uuidDto);

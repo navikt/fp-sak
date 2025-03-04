@@ -74,7 +74,7 @@ public class ForvaltningStegRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Generelt tilbakehopp", tags = "FORVALTNING-steg-hopp")
     @Path("/generell")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response hoppTilbake(@BeanParam @Valid HoppTilbakeDto dto) {
         hoppTilbake(dto.getBehandlingUuid(), dto.getBehandlingStegType());
         return Response.ok().build();
@@ -84,7 +84,7 @@ public class ForvaltningStegRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Hopp tilbake til 5085", tags = "FORVALTNING-steg-hopp")
     @Path("/5085")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response hoppTilbakeTil5085(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         hoppTilbake(dto.getBehandlingUuid(), KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING);
         return Response.ok().build();
@@ -94,7 +94,7 @@ public class ForvaltningStegRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Fjerner overstyring av familiehendelse og hopper tilbake til KOFAK", tags = "FORVALTNING-steg-hopp")
     @Path("/fjernFHValgHoppTilbake")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response fjernOverstyrtFH(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(dto.getBehandlingUuid());
         var grunnlag = familieHendelseRepository.hentAggregat(kontekst.getBehandlingId());
@@ -110,7 +110,7 @@ public class ForvaltningStegRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Fjerner startpunkt i revurdering og går tilbake til KOFAK", tags = "FORVALTNING-steg-hopp")
     @Path("/fjernStartpunkt")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response fjernStartpunkt(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         hoppTilbake(dto.getBehandlingUuid(), KONTROLLER_FAKTA);
         return Response.noContent().build();

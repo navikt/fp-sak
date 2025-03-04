@@ -49,7 +49,7 @@ public class ForvaltningBehandlingskontrollRestTjeneste {
     @Path("/taskFortsettBehandling")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "DRIFT: Opprett en manuell FortsettBehandlingTask for en behandling.", summary = "Oppretter en FortsettBehandlingTask som vil prosessere behandlingen. For håndtering av tilfelle der behandlingen har endt i limbo uten automtisk gjenoppliving.", tags = "FORVALTNING-behandlingskontroll")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response lagFortsettBehandling(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
 
         var behandling = behandlingRepository.hentBehandling(dto.getBehandlingUuid());

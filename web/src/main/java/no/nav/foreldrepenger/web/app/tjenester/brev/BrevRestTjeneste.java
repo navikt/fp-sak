@@ -96,7 +96,7 @@ public class BrevRestTjeneste {
     @Path(BREV_BESTILL_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Bestiller generering og sending av brevet", tags = "brev")
-    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public void bestillDokument(@TilpassetAbacAttributt(supplierClass = BrevAbacDataSupplier.class) @Parameter(description = "Inneholder kode til brevmal og data som skal flettes inn i brevet") @Valid BestillDokumentDto bestillBrevDto) {
         var behandling = behandlingRepository.hentBehandling(bestillBrevDto.behandlingUuid());
         LOG.info("Brev med brevmalkode={} bestilt på behandlingId={}", bestillBrevDto.brevmalkode(), behandling.getId());
@@ -153,7 +153,7 @@ public class BrevRestTjeneste {
     @Path(BREV_VIS_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Returnerer en pdf som er en forhåndsvisning av brevet", tags = "brev")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response forhåndsvisDokument(@Parameter(description = "Inneholder kode til brevmal og bestillingsdetaljer.") @TilpassetAbacAttributt(supplierClass = ForhåndsvisSupplier.class) @Valid ForhåndsvisDokumentDto forhåndsvisDto) { // NOSONAR
         var behandling = behandlingRepository.hentBehandling(forhåndsvisDto.behandlingUuid());
@@ -207,7 +207,7 @@ public class BrevRestTjeneste {
     @Path("/kvittering/v3")
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Kvitterer at brevet ble produsert og sendt. BREV_SENT historikk blir lagt og behandling dokument blir oppdatert med journalpostId.", tags = "brev")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK) // Bruk create siden behandling ofte er avsluttet når kallet kommer
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = false) // Bruk create siden behandling ofte er avsluttet når kallet kommer
     public void kvitteringV3(@TilpassetAbacAttributt(supplierClass = DokumentKvitteringDataSupplier.class) @Valid DokumentKvitteringDto kvitto) {
         dokumentBehandlingTjeneste.kvitterSendtBrev(
             new DokumentKvittering(kvitto.behandlingUuid(), kvitto.dokumentbestillingUuid(), kvitto.journalpostId(), kvitto.dokumentId()));
@@ -217,7 +217,7 @@ public class BrevRestTjeneste {
     @Path(VARSEL_REVURDERING_PART_PATH)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Sjekk har varsel sendt om revurdering", tags = "brev")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public Boolean harSendtVarselOmRevurdering(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.VARSEL_OM_REVURDERING);
