@@ -48,7 +48,7 @@ public class HistorikkRestTjeneste {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Henter alle historikkinnslag for en gitt sak.", tags = "historikk")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public Response hentAlleInnslag(@Context HttpServletRequest request,
                                     @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer")
                                     @TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)

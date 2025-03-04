@@ -75,7 +75,7 @@ public class LosRestTjeneste {
     @Operation(description = "Hent behandling gitt id for LOS", summary = "Returnerer behandlingen som er tilknyttet uuid.", tags = "los-data", responses = {@ApiResponse(responseCode = "200", description = "Returnerer behandling", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = LosBehandlingDto.class))}),})
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response hentBehandlingResultatForBackend(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
@@ -90,7 +90,7 @@ public class LosRestTjeneste {
     @Operation(description = "Hent egenskaper for fagsak gitt saksnummer for LOS", summary = "Returnerer saksegenskaper som er tilknyttet saksnummer.", tags = "los-data", responses = {@ApiResponse(responseCode = "200", description = "Returnerer behandling", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = LosFagsakEgenskaperDto.class))}),})
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public Response hentFagsakEgenskaper(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
         return fagsakRepository.hentSakGittSaksnummer(new Saksnummer(s.getVerdi()))
             .map(f -> new LosFagsakEgenskaperDto(losBehandlingDtoTjeneste.lagFagsakEgenskaperString(f), null))

@@ -56,7 +56,7 @@ public class AktoerRestTjeneste {
     @Operation(description = "Henter informasjon om en aktør", tags = "aktoer", responses = {
             @ApiResponse(responseCode = "200", description = "Returnerer basisinformasjon om en aktør og hvilke fagsaker vedkommede har i fpsak.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = AktoerInfoDto.class)))
     })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     // re-enable hvis endres til ikke-tom @Path(AKTOER_INFO_PART_PATH)
     public Response getAktoerInfo(@TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) @NotNull @QueryParam("aktoerId") @Valid AktoerIdDto aktoerIdDto) {
         var aktoerId = aktoerIdDto.get();
