@@ -49,16 +49,16 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
 
     @Override
     public KompletthetResultat vurderSøknadMottatt(BehandlingReferanse ref) {
-        if (ref.erRevurdering() || ref.fagsakYtelseType().equals(FagsakYtelseType.ENGANGSTØNAD)) {
+        if (ref.erRevurdering()) {
             return KompletthetResultat.oppfylt();
         }
 
-        if (!kompletthetssjekkerSøknad.erSøknadMottatt(ref)) {
-            // Litt implisitt forutsetning her, men denne sjekken skal bare ha bli kalt dersom søknad eller IM er mottatt
-            LOG.info("Behandling {} er ikke komplett - søknad er ikke mottatt", ref.behandlingId());
-            return KompletthetResultat.ikkeOppfylt(kompletthetssjekkerSøknad.finnVentefristTilManglendeSøknad(), Venteårsak.AVV_DOK);
+        if (kompletthetssjekkerSøknad.erSøknadMottatt(ref)) {
+            return KompletthetResultat.oppfylt();
         }
-        return KompletthetResultat.oppfylt();
+
+        LOG.info("Behandling {} er ikke komplett - søknad er ikke mottatt", ref.behandlingId());
+        return KompletthetResultat.ikkeOppfylt(kompletthetssjekkerSøknad.finnVentefristTilManglendeSøknad(), Venteårsak.AVV_DOK);
     }
 
     @Override
