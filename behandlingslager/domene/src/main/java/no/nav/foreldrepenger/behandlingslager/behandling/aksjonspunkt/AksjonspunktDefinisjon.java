@@ -281,9 +281,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             TOTRINN, EnumSet.of(ES, FP, SVP)),
     OVERSTYRING_AV_SØKNADSFRISTVILKÅRET(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_SØKNADSFRISTVILKÅRET_KODE, AksjonspunktType.OVERSTYRING, "Overstyring av søknadsfristvilkåret",
             BehandlingStegType.VURDER_SØKNADSFRISTVILKÅR, VurderingspunktType.UT, VilkårType.SØKNADSFRISTVILKÅRET, SkjermlenkeType.SOEKNADSFRIST, TOTRINN, EnumSet.of(ES)),
-    OVERSTYRING_AV_BEREGNING(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_BEREGNING_KODE,
-            AksjonspunktType.OVERSTYRING, "Overstyring av beregning", BehandlingStegType.BEREGN_YTELSE, VurderingspunktType.UT, UTEN_VILKÅR,
-            SkjermlenkeType.BEREGNING_FORELDREPENGER, TOTRINN, EnumSet.of(ES, FP, SVP)),
     OVERSTYRING_AV_UTTAKPERIODER(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_UTTAKPERIODER_KODE, AksjonspunktType.OVERSTYRING, "Overstyr uttaksperioder",
             BehandlingStegType.BEREGN_YTELSE,
             VurderingspunktType.INN, UTEN_VILKÅR, SkjermlenkeType.UTTAK, TOTRINN, EnumSet.of(ES, FP, SVP)),
@@ -432,6 +429,8 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     UTGÅTT_5098("5098", AksjonspunktType.MANUELL, "Gradering i søknadsperiode er lagt på aktivitet uten beregningsgrunnlag"),
     @Deprecated
     UTGÅTT_5099("5099", AksjonspunktType.MANUELL, "Kontroller aktivitetskrav"),
+    @Deprecated
+    UTGÅTT_6007("6007", AksjonspunktType.OVERSTYRING, "Overstyring av beregning"),
     @Deprecated
     UTGÅTT_6012("6012", AksjonspunktType.OVERSTYRING, "Overstyring av løpende medlemskapsvilkåret"),
     @Deprecated
