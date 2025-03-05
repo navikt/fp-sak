@@ -74,6 +74,11 @@
       "cluster": "dev-gcp"
     },
     {
+      "app": "fpinntektsmelding",
+      "namespace": "teamforeldrepenger",
+      "cluster": "dev-gcp"
+    },
+    {
       "app": "saf-q0",
       "namespace": "teamdokumenthandtering",
       "cluster": "dev-fss"
