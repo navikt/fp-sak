@@ -25,8 +25,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class OpprettManglendeForespørslerTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(OpprettManglendeForespørslerTask.class);
-    private static final String FRA_OG_MED = "fraOgMed";
-    private static final String TIL_OG_MED = "tilOgMed";
+    private static final String FRA_FAGSAK_ID = "fraFagsakId";
+    private static final String TOM_FAGSAK_ID = "tomFagsakId";
     private static final String DRY_RUN = "dryRun";
 
     private EntityManager entityManager;
@@ -48,55 +48,48 @@ public class OpprettManglendeForespørslerTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        var fraOgMedDato = LocalDate.parse(Optional.ofNullable(prosessTaskData.getPropertyValue(FRA_OG_MED)).orElseThrow());
-        var tilOgMedDato = LocalDate.parse(Optional.ofNullable(prosessTaskData.getPropertyValue(TIL_OG_MED)).orElseThrow());
+        var fraFagsakId = Optional.ofNullable(prosessTaskData.getPropertyValue(FRA_FAGSAK_ID)).map(Long::valueOf).orElseThrow();
+        var tomFagsakId = Optional.ofNullable(prosessTaskData.getPropertyValue(TOM_FAGSAK_ID)).map(Long::valueOf).orElse(2188628L);
         var dryRun = Boolean.parseBoolean(Optional.ofNullable(prosessTaskData.getPropertyValue(DRY_RUN)).orElse("true"));
 
-        var tilDatoIntervall = fraOgMedDato.plusDays(1);
-        LOG.info("Henter saker for fradato: {} og tilDato: {} ", fraOgMedDato, tilDatoIntervall);
-        var saker = finnNesteIntervallAvSAker(fraOgMedDato, tilDatoIntervall);
-
-        LOG.info("Fant {} saker som skal vurderes for å opprette forespørsler", saker.size());
+        var saker = finnNesteHundreSaker(fraFagsakId, tomFagsakId);
 
         saker.forEach(sak -> {
-            //Vurder om det skal opprettes forespørsel for behandling
             migrerManglendeForespørslerTjeneste.vurderOmForespørselSkalOpprettes(sak, dryRun);
         });
 
-        var nyFraOgMed = fraOgMedDato.plusDays(1);
-        if (nyFraOgMed.isAfter(tilOgMedDato) || nyFraOgMed.isEqual(tilOgMedDato)) {
-            LOG.info("Ingen flere saker å hente, fradato: {} er etter eller lik tildato: {}", nyFraOgMed, tilOgMedDato);
-        } else {
-            prosessTaskTjeneste.lagre(opprettManglendeForespørselTaskForNesteDato(nyFraOgMed, dryRun, tilOgMedDato));
-        }
+        saker.stream()
+            .map(Fagsak::getId)
+            .max(Long::compareTo)
+            .ifPresent(sisteId -> prosessTaskTjeneste.lagre(opprettManglendeForespørselTaskForNesteDato(sisteId+1, dryRun)));
     }
 
-    private List<Fagsak> finnNesteIntervallAvSAker(LocalDate fraOgMed, LocalDate tilOgMed) {
+    private List<Fagsak> finnNesteHundreSaker(Long nesteFagsakId, Long tomFagsakId) {
         var sql = """
-            select f.*
-            from fagsak f
-            where f.opprettet_tid < :nyImPortalLansertDato
-            and f.opprettet_tid >= to_date(:fraOgMed, 'DD-MM-YYYY')  and f.opprettet_tid <= to_date(:tilOgMed, 'DD-MM-YYYY')
-            and f.fagsak_status = :lopendeStatus
-            and f.ytelse_type in (:ytelseTyper)
+            select * from (
+            select fag.* from FAGSAK fag
+            where fag.id >= :fraFagsakId and fag.id <= :tomFagsakId
+           and fag.opprettet_tid < :nyImPortalLansertDato
+            and fag.fagsak_status = :lopendeStatus
+            and fag.ytelse_type in (:ytelseTyper)
+            order by fag.id)
+            where ROWNUM <= 100
             """;
 
-
         var query = entityManager.createNativeQuery(sql, Fagsak.class)
+            .setParameter("fraFagsakId", nesteFagsakId)
+            .setParameter("tomFagsakId", tomFagsakId)
             .setParameter("nyImPortalLansertDato", LocalDate.of(2024, 11, 14))
-            .setParameter("fraOgMed", fraOgMed)
-            .setParameter("tilOgMed", tilOgMed)
             .setParameter("lopendeStatus", FagsakStatus.LØPENDE.getKode())
             .setParameter("ytelseTyper", List.of(FagsakYtelseType.SVANGERSKAPSPENGER.getKode(), FagsakYtelseType.FORELDREPENGER.getKode()));
 
         return query.getResultList();
     }
 
-    public static ProsessTaskData opprettManglendeForespørselTaskForNesteDato(LocalDate nyFraOgMed, boolean dryRun, LocalDate tilOgMed) {
-        LOG.info("Oppretter OpprettManglendeForespørslerTask for dato {}", nyFraOgMed);
+    public static ProsessTaskData opprettManglendeForespørselTaskForNesteDato(Long nesteId, boolean dryRun) {
+        LOG.info("Oppretter OpprettManglendeForespørslerTask for fagsakId {}", nesteId);
         var prosessTaskData = ProsessTaskData.forProsessTask(OpprettManglendeForespørslerTask.class);
-        prosessTaskData.setProperty(FRA_OG_MED, String.valueOf(nyFraOgMed));
-        prosessTaskData.setProperty(TIL_OG_MED, String.valueOf(tilOgMed));
+        prosessTaskData.setProperty(FRA_FAGSAK_ID, String.valueOf(nesteId));
         prosessTaskData.setProperty(DRY_RUN, String.valueOf(dryRun));
         return prosessTaskData;
     }
