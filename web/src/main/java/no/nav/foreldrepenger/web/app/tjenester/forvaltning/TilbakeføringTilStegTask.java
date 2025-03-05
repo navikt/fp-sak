@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
+import java.time.LocalDateTime;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -9,27 +11,27 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(value = "migrering.migrertilomsorgrett", prioritet = 4, maxFailedRuns = 1)
+@ProsessTask(value = "migrering.tilbakeforbehandling", prioritet = 4, maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-public class MigrerTilOmsorgRettTask extends BehandlingProsessTask {
+public class TilbakeføringTilStegTask extends BehandlingProsessTask {
 
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-    private BehandlingsprosessTjeneste prosesseringTjeneste;
+    private BehandlingProsesseringTjeneste prosesseringTjeneste;
 
-    public MigrerTilOmsorgRettTask() {
+    public TilbakeføringTilStegTask() {
         // For CDI
     }
 
     @Inject
-    public MigrerTilOmsorgRettTask(BehandlingRepositoryProvider repositoryProvider,
-                                   BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                   BehandlingsprosessTjeneste prosesseringTjeneste) {
+    public TilbakeføringTilStegTask(BehandlingRepositoryProvider repositoryProvider,
+                                    BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                    BehandlingProsesseringTjeneste prosesseringTjeneste) {
         super(repositoryProvider.getBehandlingLåsRepository());
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
@@ -45,10 +47,11 @@ public class MigrerTilOmsorgRettTask extends BehandlingProsessTask {
         if (behandling.isBehandlingPåVent()) {
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
         }
-        behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, BehandlingStegType.FORESLÅ_VEDTAK);
+        behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT);
         if (behandling.isBehandlingPåVent()) {
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
         }
-        prosesseringTjeneste.asynkKjørProsess(behandling);
+        // Eventuelt fortsettBehandling dersom registerdata ikke trengs hentes på nytt
+        prosesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, LocalDateTime.now());
     }
 }
