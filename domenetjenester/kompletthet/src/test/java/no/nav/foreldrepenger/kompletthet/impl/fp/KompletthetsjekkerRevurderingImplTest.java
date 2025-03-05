@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
-import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 import no.nav.foreldrepenger.kompletthet.impl.KompletthetsjekkerImpl;
 import no.nav.foreldrepenger.kompletthet.impl.KompletthetsjekkerSøknadTjeneste;
@@ -48,7 +47,6 @@ class KompletthetsjekkerRevurderingImplTest extends EntityManagerAwareTest {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         testUtil = new KompletthetssjekkerTestUtil(repositoryProvider);
         var dokumentBehandlingTjeneste = mock(DokumentBehandlingTjeneste.class);
-        var personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
         var kompletthetsjekkerSøknad = new KompletthetsjekkerSøknadTjeneste(repositoryProvider, manglendeVedleggTjeneste);
         var manglendeInntektsmeldingTjeneste = new ManglendeInntektsmeldingTjeneste(
             repositoryProvider,
@@ -56,7 +54,7 @@ class KompletthetsjekkerRevurderingImplTest extends EntityManagerAwareTest {
             null,
                 new InntektsmeldingTjeneste(new AbakusInMemoryInntektArbeidYtelseTjeneste())
         );
-        kompletthetsjekker = new KompletthetsjekkerImpl(repositoryProvider, kompletthetsjekkerSøknad, personopplysningTjeneste, manglendeInntektsmeldingTjeneste);
+        kompletthetsjekker = new KompletthetsjekkerImpl(repositoryProvider.getBehandlingRepository(), kompletthetsjekkerSøknad, manglendeInntektsmeldingTjeneste);
 
         var skjæringstidspunkt = Skjæringstidspunkt .builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
         when(mock(SkjæringstidspunktTjeneste.class).getSkjæringstidspunkter(any())).thenReturn(skjæringstidspunkt);

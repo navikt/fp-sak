@@ -161,21 +161,24 @@ public class ForvaltningUttrekkRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response flyttBehandlingTilSteg() {
         var query = entityManager.createNativeQuery("""
-            select * from behandling where opprettet_tid < '01.01.2000'
+            select behandling_id
+            from aksjonspunkt
+            where aksjonspunkt_def = '5017' and aksjonspunkt_status = 'OPPR'
+            and behandling_id not in (select behandling_id from aksjonspunkt where aksjonspunkt_def > '7000' and aksjonspunkt_status = 'OPPR')
              """);
         @SuppressWarnings("unchecked")
         List<Number> resultatList = query.getResultList();
         var åpneAksjonspunkt =  resultatList.stream().map(Number::longValue).toList();
-        åpneAksjonspunkt.forEach(this::flyttTilbakeTilStart);
+        åpneAksjonspunkt.forEach(this::flyttBehandlingTilbakeTilSteg);
         return Response.ok().build();
     }
 
-    private void flyttTilbakeTilStart(Long behandlingId) {
+    private void flyttBehandlingTilbakeTilSteg(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        if (!BehandlingStegType.FORESLÅ_VEDTAK.equals(behandling.getAktivtBehandlingSteg())) {
+        if (!BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT.equals(behandling.getAktivtBehandlingSteg())) {
             return;
         }
-        var task = ProsessTaskData.forProsessTask(MigrerTilOmsorgRettTask.class);
+        var task = ProsessTaskData.forProsessTask(TilbakeføringTilStegTask.class);
         task.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
         taskTjeneste.lagre(task);
     }
