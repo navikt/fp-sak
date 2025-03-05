@@ -62,9 +62,8 @@ class MigrerBeregningBatchTask implements ProsessTaskHandler {
 
     private Stream<Fagsak> finnNesteHundreSaker(Long fraOgMedId, Long tilOgMedId) {
         var sql ="""
-            select * from (
-            select fag.* from FAGSAK fag
-            where fag.ID =>:fraOgMedId and fag.ID =<:tilOgMedId
+            select * from (select fag.* from FAGSAK fag
+            where fag.ID >= :fraOgMedId and fag.ID <= :tilOgMedId
             order by fag.id)
             where ROWNUM <= 10
             """;
@@ -77,7 +76,7 @@ class MigrerBeregningBatchTask implements ProsessTaskHandler {
 
     private void håndterBeregning(Fagsak fagsak, boolean dryRun) {
         if (dryRun) {
-            LOG.debug("Dry run: Migrerer ikke saksnummer {}", fagsak.getSaksnummer());
+            LOG.info("Dry run: Migrerer ikke saksnummer {}", fagsak.getSaksnummer());
             return;
         }
         beregningMigreringTjeneste.migrerSak(fagsak.getSaksnummer());
