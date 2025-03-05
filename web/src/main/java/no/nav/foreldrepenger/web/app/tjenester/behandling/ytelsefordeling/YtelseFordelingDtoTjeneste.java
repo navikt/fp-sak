@@ -127,7 +127,8 @@ public class YtelseFordelingDtoTjeneste {
         var manuellBehandlingResultat = opprettManuellBehandlingResultat(ytelseFordelingAggregat);
 
         var søknad = mapSøknad(oppgittAnnenpart.orElse(null), ytelseFordelingAggregat.getOppgittRettighet());
-        return Optional.of(new OmsorgOgRettDto(søknad, registerdata.orElse(null), manuellBehandlingResultat.orElse(null), behandling.getRelasjonsRolleType()));
+        return Optional.of(
+            new OmsorgOgRettDto(søknad, registerdata.orElse(null), manuellBehandlingResultat.orElse(null), behandling.getRelasjonsRolleType()));
     }
 
     private Optional<OmsorgOgRettDto.RegisterData> opprettRegisterdata(Long behandlingId, boolean oppgittAleneomsorg) {
@@ -165,13 +166,23 @@ public class YtelseFordelingDtoTjeneste {
         var ident = utledAnnenpartIdent(ap);
 
         var harAleneomsorg = oppgittRettighet.getHarAleneomsorgForBarnet();
-        var rettighet = Objects.equals(harAleneomsorg, Boolean.TRUE) ? null : new OmsorgOgRettDto.Rettighet(oppgittRettighet.getHarAnnenForeldreRett(),
-            oppgittRettighet.getAnnenForelderOppholdEØS(), oppgittRettighet.getAnnenForelderRettEØS(), oppgittRettighet.getMorMottarUføretrygd());
+        var rettighet = Objects.equals(harAleneomsorg, Boolean.TRUE) ? null : ikkeAleneomsorgRettighet(oppgittRettighet);
         var utenlandskFnrLand = Optional.ofNullable(ap).map(OppgittAnnenPartEntitet::getUtenlandskFnrLand).orElse(null);
         return new OmsorgOgRettDto.Søknad(harAleneomsorg, ident.orElse(null), utenlandskFnrLand, rettighet);
     }
 
+    private static OmsorgOgRettDto.Rettighet ikkeAleneomsorgRettighet(OppgittRettighetEntitet oppgittRettighet) {
+        var harAnnenForeldreRett = oppgittRettighet.getHarAnnenForeldreRett();
+        if (harAnnenForeldreRett) {
+            return new OmsorgOgRettDto.Rettighet(true, null, null, null);
+        }
+        var annenForelderRettEØSNullable = Boolean.TRUE.equals(
+            oppgittRettighet.getAnnenForelderOppholdEØS()) ? oppgittRettighet.getAnnenForelderRettEØSNullable() : null; //Bruker får ikke spørsmål om rett/arbeid eøs hvis man ikke har oppgitt at annen part har opphold i eøs
+        return new OmsorgOgRettDto.Rettighet(false, oppgittRettighet.getAnnenForelderOppholdEØS(), annenForelderRettEØSNullable,
+            oppgittRettighet.getMorMottarUføretrygd());
+    }
+
     private static Optional<String> utledAnnenpartIdent(OppgittAnnenPartEntitet ap) {
-        return Optional.ofNullable(ap).map(OppgittAnnenPartEntitet::getUtenlandskPersonident) ;
+        return Optional.ofNullable(ap).map(OppgittAnnenPartEntitet::getUtenlandskPersonident);
     }
 }
