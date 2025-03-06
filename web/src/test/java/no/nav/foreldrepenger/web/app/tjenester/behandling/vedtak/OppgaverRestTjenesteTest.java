@@ -1,0 +1,49 @@
+package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
+import java.util.UUID;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.app.OppgaveDtoTjeneste;
+
+class OppgaverRestTjenesteTest {
+
+    private OppgaverRestTjeneste oppgaverRestTjeneste;
+    private final BehandlingRepository behandlingRepositoryMock = mock(BehandlingRepository.class);
+    private final OppgaveDtoTjeneste oppgaveDtoTjenesteMock = mock(OppgaveDtoTjeneste.class);
+    private final Behandling behandling = mock(Behandling.class);
+
+    @BeforeEach
+    void setUp() {
+        when(behandling.getUuid()).thenReturn(UUID.randomUUID());
+        when(behandlingRepositoryMock.hentBehandling(any(UUID.class))).thenReturn(behandling);
+        oppgaverRestTjeneste = new OppgaverRestTjeneste(behandlingRepositoryMock, oppgaveDtoTjenesteMock);
+    }
+
+    @Test
+    void skal_hente_oppgaver() {
+        when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.FORELDREPENGER);
+        oppgaverRestTjeneste.hentOppgaver(new UuidDto(UUID.randomUUID()));
+
+        verify(oppgaveDtoTjenesteMock).mapTilDto(behandling.getAktørId());
+    }
+
+    @Test
+    void skal_ikke_hente_oppgaver_for_engangsstønad() {
+        when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.ENGANGSTØNAD);
+        oppgaverRestTjeneste.hentOppgaver(new UuidDto(UUID.randomUUID()));
+
+        verifyNoInteractions(oppgaveDtoTjenesteMock);
+    }
+}

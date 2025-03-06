@@ -84,8 +84,9 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.UttakRestTjenest
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon.DokumentasjonVurderingBehovDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BehandlingMedUttaksperioderDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta.FaktaUttakPeriodeDtoTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.NyVergeDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.OppgaverRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.NyVergeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.YtelsefordelingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste;
@@ -388,6 +389,7 @@ public class BehandlingDtoTjeneste {
             dto.leggTil(get(YtelsefordelingRestTjeneste.OMSORG_OG_RETT_PATH, "omsorg-og-rett", uuidDto));
             dto.leggTil(get(OpptjeningRestTjeneste.OPPTJENING_PATH, "opptjening", uuidDto));
             dto.leggTil(get(FeriepengegrunnlagRestTjeneste.FERIEPENGER_PATH, "feriepengegrunnlag", uuidDto));
+            dto.leggTil(get(OppgaverRestTjeneste.HENT_OPPGAVER_PATH, "hent-oppgaver", uuidDto));
 
             var beregningsgrunnlag = beregningTjeneste.hent(BehandlingReferanse.fra(behandling))
                 .flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
