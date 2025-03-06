@@ -6,15 +6,22 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 public record OmsorgOgRettDto(Søknad søknad, RegisterData registerdata, ManuellBehandlingResultat manuellBehandlingResultat,
                               RelasjonsRolleType relasjonsRolleType) {
 
-    public record Søknad(Boolean søkerHarAleneomsorg, String annenpartIdent, Landkoder annenpartBostedsland, Rettighet annenpartRettighet) {
+    public record Søknad(Verdi søkerHarAleneomsorg, String annenpartIdent, Landkoder annenpartBostedsland, Rettighet annenpartRettighet) {
     }
 
-    public record Rettighet(boolean harRettNorge, Boolean harOppholdEØS, Boolean harRettEØS, Boolean harUføretrygd) {
+    public record Rettighet(Verdi harRettNorge, Verdi harOppholdEØS, Verdi harRettEØS, Verdi harUføretrygd) {
+    }
+    public enum Verdi {
+        JA, NEI, IKKE_RELEVANT;
+
+        static Verdi fra(Boolean verdi) {
+            return verdi == null ? IKKE_RELEVANT : verdi ? JA : NEI;
+        }
     }
 
-    public record RegisterData(Boolean harAnnenpartUføretrygd, Boolean harAnnenpartForeldrepenger, Boolean harAnnenpartEngangsstønad) {
+    public record RegisterData(Verdi harAnnenpartUføretrygd, Verdi harAnnenpartForeldrepenger, Verdi harAnnenpartEngangsstønad) {
     }
 
-    public record ManuellBehandlingResultat(Boolean søkerHarAleneomsorg, Rettighet annenpartRettighet) {
+    public record ManuellBehandlingResultat(Verdi søkerHarAleneomsorg, Rettighet annenpartRettighet) {
     }
 }
