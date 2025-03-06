@@ -86,7 +86,7 @@ public class MigrerManglendeForespørslerTjeneste {
                     .toList();
 
             if (!arbeidsgivereMedRefusjon.isEmpty()) {
-                LOG.info("{} vil det opprettes forespørsel for følgende organisasjonsnumre {}", sak.getSaksnummer(), arbeidsgivereMedRefusjon.stream().map(OrganisasjonsnummerDto::toString).collect(Collectors.joining(", ")));
+                LOG.info("det opprettes forespørsel for {} for følgende organisasjonsnumre {}", sak.getSaksnummer(), arbeidsgivereMedRefusjon.stream().map(OrganisasjonsnummerDto::toString).collect(Collectors.joining(", ")));
                 fpInntektsmeldingTjeneste.opprettForespørsel(BehandlingReferanse.fra(behandling), stp, arbeidsgivereMedRefusjon, dryRun);
             } else {
                 LOG.info("{} har ingen arbeidsgivere med refusjon", sak.getSaksnummer());
