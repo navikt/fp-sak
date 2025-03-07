@@ -184,7 +184,7 @@ public class YtelseFordelingDtoTjeneste {
                                                                       RelasjonsRolleType relasjonsRolleType) {
         var harAnnenForeldreRett = oppgittRettighet.getHarAnnenForeldreRett();
         if (harAnnenForeldreRett) {
-            return new OmsorgOgRettDto.Rettighet(OmsorgOgRettDto.Verdi.JA, null, null, null);
+            return new OmsorgOgRettDto.Rettighet(OmsorgOgRettDto.Verdi.JA, IKKE_RELEVANT, IKKE_RELEVANT, IKKE_RELEVANT);
         }
         var annenForelderRettEØSNullable = Boolean.TRUE.equals(
             oppgittRettighet.getAnnenForelderOppholdEØS()) ? oppgittRettighet.getAnnenForelderRettEØSNullable() : null; //Bruker får ikke spørsmål om rett/arbeid eøs hvis man ikke har oppgitt at annen part har opphold i eøs
