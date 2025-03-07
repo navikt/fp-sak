@@ -150,7 +150,7 @@ public class UttakPerioderDtoTjeneste {
             .build();
 
         for (var aktivitet : periode.getAktiviteter()) {
-            dto.leggTilAktivitet(map(aktivitet, inntektArbeidYtelseGrunnlag, periode.isOpprinneligSendtTilManuellBehandling()));
+            dto.leggTilAktivitet(map(aktivitet, inntektArbeidYtelseGrunnlag));
         }
         return dto;
     }
@@ -178,18 +178,15 @@ public class UttakPerioderDtoTjeneste {
     }
 
     private UttakResultatPeriodeAktivitetDto map(ForeldrepengerUttakPeriodeAktivitet aktivitet,
-                                                 Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
-                                                 boolean opprinneligSendtTilManuellBehandling) {
+                                                 Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag) {
         var builder = new UttakResultatPeriodeAktivitetDto.Builder()
             .medProsentArbeid(aktivitet.getArbeidsprosent())
             .medGradering(aktivitet.isSøktGraderingForAktivitetIPeriode())
             .medTrekkdager(aktivitet.getTrekkdager())
             .medStønadskontoType(aktivitet.getTrekkonto())
-            .medUttakArbeidType(aktivitet.getUttakArbeidType());
+            .medUttakArbeidType(aktivitet.getUttakArbeidType())
+            .medUtbetalingsgrad(aktivitet.getUtbetalingsgrad());
         mapArbeidsforhold(aktivitet, builder, inntektArbeidYtelseGrunnlag);
-        if (!opprinneligSendtTilManuellBehandling) {
-            builder.medUtbetalingsgrad(aktivitet.getUtbetalingsgrad());
-        }
         return builder.build();
     }
 
