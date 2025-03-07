@@ -18,7 +18,7 @@ class BrevForhåndsvisningTest {
         var tittel = "tittel";
         var revurderingÅrsak = RevurderingVarslingÅrsak.ANNET;
         var brevType = DokumentForhandsvisning.DokumentType.AUTOMATISK;
-        var forhåndsvisning = new DokumentForhandsvisning(UUID.randomUUID(), new Saksnummer("9999"), dokumentMal, fritekst, tittel, revurderingÅrsak, brevType);
+        var forhåndsvisning = new DokumentForhandsvisning(UUID.randomUUID(), new Saksnummer("9999"), dokumentMal, null, fritekst, tittel, revurderingÅrsak, brevType);
         assertThat(forhåndsvisning.behandlingUuid()).isNotNull();
         assertThat(forhåndsvisning.dokumentMal()).isNotNull().isEqualTo(dokumentMal);
         assertThat(forhåndsvisning.fritekst()).isNotNull().isEqualTo(fritekst);

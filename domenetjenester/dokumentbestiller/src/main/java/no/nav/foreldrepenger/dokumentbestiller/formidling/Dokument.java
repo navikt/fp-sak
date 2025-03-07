@@ -16,4 +16,6 @@ public interface Dokument {
      * @param dokumentForhåndsvisDto
      */
     byte[] forhåndsvis(DokumentForhåndsvisDto dokumentForhåndsvisDto);
+
+    String genererHtml(DokumentForhåndsvisDto dokumentForhåndsvisDto);
 }

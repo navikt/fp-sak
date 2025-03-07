@@ -118,7 +118,7 @@ class DokumentBehandlingTjenesteTest {
         var bestilling = lagBestilling(DokumentMalType.INNHENTE_OPPLYSNINGER, null);
 
         // Act
-        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, bestilling);
+        dokumentBehandlingTjeneste.lagreDokumentBestilt(behandling, bestilling);
 
         // Assert
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
@@ -134,7 +134,7 @@ class DokumentBehandlingTjenesteTest {
         behandling = scenario.lagre(repositoryProvider);
         var bestilling = lagBestilling(DokumentMalType.INNHENTE_OPPLYSNINGER, null);
 
-        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, bestilling);
+        dokumentBehandlingTjeneste.lagreDokumentBestilt(behandling, bestilling);
 
         // Act+Assert
         assertThat(dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.INNHENTE_OPPLYSNINGER)).isTrue();
@@ -147,7 +147,7 @@ class DokumentBehandlingTjenesteTest {
 
         var bestilling = lagBestilling(DokumentMalType.ETTERLYS_INNTEKTSMELDING, DokumentMalType.ETTERLYS_INNTEKTSMELDING);
 
-        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, bestilling);
+        dokumentBehandlingTjeneste.lagreDokumentBestilt(behandling, bestilling);
 
         // Act+Assert
         assertThat(dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.INNHENTE_OPPLYSNINGER)).isFalse();

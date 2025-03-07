@@ -9,6 +9,7 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
@@ -19,6 +20,7 @@ import no.nav.foreldrepenger.dokumentbestiller.formidling.DokumentBestiller;
 public class DokumentBestillerTjeneste extends AbstractDokumentBestillerTjeneste {
 
     private BehandlingRepository behandlingRepository;
+    private BehandlingDokumentRepository behandlingDokumentRepository;
     private DokumentBestiller dokumentBestiller;
 
     DokumentBestillerTjeneste() {
@@ -28,9 +30,11 @@ public class DokumentBestillerTjeneste extends AbstractDokumentBestillerTjeneste
     @Inject
     public DokumentBestillerTjeneste(BehandlingRepository behandlingRepository,
                                      KlageRepository klageRepository,
+                                     BehandlingDokumentRepository behandlingDokumentRepository,
                                      DokumentBestiller dokumentBestiller) {
         super(klageRepository);
         this.behandlingRepository = behandlingRepository;
+        this.behandlingDokumentRepository = behandlingDokumentRepository;
         this.dokumentBestiller = dokumentBestiller;
     }
 
@@ -45,11 +49,18 @@ public class DokumentBestillerTjeneste extends AbstractDokumentBestillerTjeneste
             behandlingVedtak.getVedtakResultatType(), behandlingVedtak.isBeslutningsvedtak(), finnKlageVurdering(behandling));
 
         DokumentMalType journalførSom = null; // settes kun ved fritekst
-
         if (Vedtaksbrev.FRITEKST.equals(behandlingResultat.getVedtaksbrev())) {
-            journalførSom = endretVedtakOgKunEndringIFordeling(behandlingResultatType,
-                behandlingResultat.getKonsekvenserForYtelsen()) ? DokumentMalType.ENDRING_UTBETALING : dokumentMal;
-            dokumentMal = DokumentMalType.FRITEKSTBREV;
+            journalførSom = endretVedtakOgKunEndringIFordeling(behandlingResultatType, behandlingResultat.getKonsekvenserForYtelsen())
+                ? DokumentMalType.ENDRING_UTBETALING
+                : dokumentMal;
+
+            // TODO: Gjennomgås
+            var behandlingDokumentEntitet = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId()).orElseThrow();
+            if (behandlingDokumentEntitet.getOverstyrtBrevFritekstHtml() != null && !behandlingDokumentEntitet.getOverstyrtBrevFritekstHtml().isEmpty()) {
+                dokumentMal = DokumentMalType.FRITEKSTBREV_HMTL;
+            } else {
+                dokumentMal = DokumentMalType.FRITEKSTBREV;
+            }
         }
 
         bestillDokument(DokumentBestilling.builder()
