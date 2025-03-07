@@ -82,24 +82,32 @@ public class OppgaveTjeneste {
     /**
      * Supplerende oppgaver: Vurder Dokument og Konsekvens for Ytelse
      */
-    public boolean harÅpneVurderDokumentOppgaver(AktørId aktørId) {
+    public List<Oppgave> hentÅpneVurderDokumentOppgaver(AktørId aktørId) {
         try {
             var oppgaver = restKlient.finnÅpneOppgaver(List.of(Oppgavetype.VURDER_DOKUMENT.getKode(), "VUR_VL"), aktørId.getId(), null, null);
-            LOG.info("FPSAK GOSYS fant {} oppgaver av type {}", oppgaver.size(), Oppgavetype.VURDER_DOKUMENT.getKode());
-            return oppgaver != null && !oppgaver.isEmpty();
+            LOG.debug("FPSAK GOSYS fant {} oppgaver av type {}", oppgaver.size(), Oppgavetype.VURDER_DOKUMENT.getKode());
+            return oppgaver;
         } catch (Exception e) {
             throw new TekniskException("FP-395340", String.format(FEILMELDING + "%s.", Oppgavetype.VURDER_DOKUMENT.getKode()));
         }
     }
 
-    public boolean harÅpneVurderKonsekvensOppgaver(AktørId aktørId) {
+    public List<Oppgave> hentÅpneVurderKonsekvensOppgaver(AktørId aktørId) {
         try {
             var oppgaver = restKlient.finnÅpneOppgaverAvType(Oppgavetype.VURDER_KONSEKVENS_YTELSE, aktørId.getId(), null, null);
-            LOG.info("FPSAK GOSYS fant {} oppgaver av type {}", oppgaver.size(), Oppgavetype.VURDER_KONSEKVENS_YTELSE.getKode());
-            return oppgaver != null && !oppgaver.isEmpty();
+            LOG.debug("FPSAK GOSYS fant {} oppgaver av type {}", oppgaver.size(), Oppgavetype.VURDER_KONSEKVENS_YTELSE.getKode());
+            return oppgaver;
         } catch (Exception e) {
             throw new TekniskException("FP-395340", String.format(FEILMELDING + "%s.", Oppgavetype.VURDER_KONSEKVENS_YTELSE.getKode()));
         }
+    }
+
+    public boolean harÅpneVurderDokumentOppgaver(AktørId aktørId) {
+        return !hentÅpneVurderDokumentOppgaver(aktørId).isEmpty();
+    }
+
+    public boolean harÅpneVurderKonsekvensOppgaver(AktørId aktørId) {
+        return !hentÅpneVurderKonsekvensOppgaver(aktørId).isEmpty();
     }
 
     public String opprettVurderDokumentMedBeskrivelseBasertPåFagsakId(Long fagsakId, String journalpostId, String enhetsId, String beskrivelse) {
