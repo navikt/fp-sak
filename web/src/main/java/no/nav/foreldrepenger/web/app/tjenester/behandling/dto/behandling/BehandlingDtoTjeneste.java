@@ -84,8 +84,8 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.UttakRestTjenest
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon.DokumentasjonVurderingBehovDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BehandlingMedUttaksperioderDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta.FaktaUttakPeriodeDtoTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.NyVergeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.NyVergeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.YtelsefordelingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste;
@@ -194,6 +194,8 @@ public class BehandlingDtoTjeneste {
         // Brev
         dto.leggTil(post(BrevRestTjeneste.BREV_BESTILL_PATH, "brev-bestill"));
         dto.leggTil(post(BrevRestTjeneste.BREV_VIS_PATH, "brev-vis"));
+        dto.leggTil(post(BrevRestTjeneste.BREV_GENERER_HTML_PATH, "brev-generer-html"));
+        dto.leggTil(post(BrevRestTjeneste.BREV_LAGRE_HTML_PATH, "brev-lagre-html"));
 
         return dto;
     }
@@ -502,6 +504,7 @@ public class BehandlingDtoTjeneste {
             dto.setAvslagsarsakFritekst(behandlingDokument.get().getVedtakFritekst());
             dto.setOverskrift(behandlingDokument.get().getOverstyrtBrevOverskrift());
             dto.setFritekstbrev(behandlingDokument.get().getOverstyrtBrevFritekst());
+            dto.setFritekstbrevHtml(behandlingDokument.get().getOverstyrtBrevFritekstHtml());
         }
 
         dto.setVedtaksbrev(behandlingsresultat.getVedtaksbrev());

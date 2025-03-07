@@ -274,6 +274,7 @@ public class BehandlingFormidlingDtoTjeneste {
             dto.setAvslagsarsakFritekst(behandlingDokument.get().getVedtakFritekst());
             dto.setOverskrift(behandlingDokument.get().getOverstyrtBrevOverskrift());
             dto.setFritekstbrev(behandlingDokument.get().getOverstyrtBrevFritekst());
+            dto.setFritekstbrevHtml(behandlingDokument.get().getOverstyrtBrevFritekstHtml());
         }
 
         dto.setVedtaksbrev(behandlingsresultat.getVedtaksbrev());

@@ -16,17 +16,20 @@ public abstract class VedtaksbrevOverstyringDto extends BekreftetAksjonspunktDto
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String fritekstBrev;
 
+    @Size(max = 100000)
+    private String fritekstBrevHtml;
+
     private boolean skalBrukeOverstyrendeFritekstBrev;
 
     protected VedtaksbrevOverstyringDto() {
         // For Jackson
     }
 
-    protected VedtaksbrevOverstyringDto(String begrunnelse, String overskrift, String fritekstBrev,
-                              boolean skalBrukeOverstyrendeFritekstBrev) {
+    protected VedtaksbrevOverstyringDto(String begrunnelse, String overskrift, String fritekstBrev, String fritekstBrevHtml, boolean skalBrukeOverstyrendeFritekstBrev) {
         super(begrunnelse);
         this.overskrift = overskrift;
         this.fritekstBrev = fritekstBrev;
+        this.fritekstBrevHtml = fritekstBrevHtml;
         this.skalBrukeOverstyrendeFritekstBrev = skalBrukeOverstyrendeFritekstBrev;
     }
 
@@ -36,6 +39,10 @@ public abstract class VedtaksbrevOverstyringDto extends BekreftetAksjonspunktDto
 
     public String getFritekstBrev() {
         return fritekstBrev;
+    }
+
+    public String getFritekstBrevHtml() {
+        return fritekstBrevHtml;
     }
 
     public boolean isSkalBrukeOverstyrendeFritekstBrev() {

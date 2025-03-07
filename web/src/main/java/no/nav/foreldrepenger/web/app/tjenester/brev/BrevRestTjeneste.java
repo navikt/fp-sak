@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.brev;
 
 import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Function;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -12,6 +13,7 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
@@ -38,6 +40,7 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentKvittering;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillDokumentDto;
 import no.nav.foreldrepenger.dokumentbestiller.dto.ForhåndsvisDokumentDto;
+import no.nav.foreldrepenger.dokumentbestiller.dto.GenererHtmlDokumentDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus;
 import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentKvitteringDto;
@@ -65,6 +68,10 @@ public class BrevRestTjeneste {
     public static final String BREV_VIS_PATH = BASE_PATH + BREV_VIS_PART_PATH;
     private static final String BREV_BESTILL_PART_PATH = "/bestill";
     public static final String BREV_BESTILL_PATH = BASE_PATH + BREV_BESTILL_PART_PATH;
+    private static final String BREV_GENERER_HTML_PART_PATH = "/generer/html";
+    public static final String BREV_GENERER_HTML_PATH = BASE_PATH + BREV_GENERER_HTML_PART_PATH;
+    private static final String BREV_LAGRE_HTML_PART_PATH = "/lagre/html";
+    public static final String BREV_LAGRE_HTML_PATH = BASE_PATH + BREV_LAGRE_HTML_PART_PATH;
 
     private DokumentForhåndsvisningTjeneste dokumentForhåndsvisningTjeneste;
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
@@ -150,6 +157,43 @@ public class BrevRestTjeneste {
     }
 
     @POST
+    @Path(BREV_GENERER_HTML_PART_PATH)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_HTML)
+    @Operation(description = "Generer en html representasjon av brevet", tags = "brev")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
+    public Response genererHTMLRepresentasjonAvBrev(@TilpassetAbacAttributt(supplierClass = GenererBrevAbacDataSupplier.class) @Parameter(description = "Inneholder informasjon for å generere vedtaksbrev") @Valid GenererHtmlDokumentDto genererHtmlDokumentDto) { // NOSONAR
+        var behandling = behandlingRepository.hentBehandling(genererHtmlDokumentDto.behandlingUuid());
+        var bestilling = DokumentForhandsvisning.builder()
+            .medBehandlingUuid(genererHtmlDokumentDto.behandlingUuid())
+            .medSaksnummer(behandling.getSaksnummer())
+            .medDokumentMal(genererHtmlDokumentDto.dokumentMal())
+            .medRevurderingÅrsak(genererHtmlDokumentDto.arsakskode())
+            .medDokumentType(utledDokumentType(genererHtmlDokumentDto.automatiskVedtaksbrev()))
+            .build();
+
+        var dokument = dokumentForhåndsvisningTjeneste.genererHtml(bestilling);
+        if (dokument != null && !dokument.isEmpty()) {
+            return Response.ok(dokument)
+                .type(MediaType.TEXT_HTML_TYPE)
+                .build();
+        }
+        return Response.serverError().build();
+    }
+
+    @POST
+    @Path(BREV_LAGRE_HTML_PART_PATH + "/{behandlingUuid}")
+    @Consumes(MediaType.TEXT_HTML)
+    @Operation(description = "Lagrer ned overstyrt html-representasjon av brevet", tags = "brev")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
+    public Response lagreHtml(@TilpassetAbacAttributt(supplierClass = BehandlingUUIDSupplier.class) @PathParam("behandlingUuid") UUID behandlingUuid,
+                              @Valid @NotNull String html) {
+        var behandling = behandlingRepository.hentBehandling(behandlingUuid);
+        dokumentBehandlingTjeneste.lagreHtml(behandling, html);
+        return Response.ok().build();
+    }
+
+    @POST
     @Path(BREV_VIS_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Returnerer en pdf som er en forhåndsvisning av brevet", tags = "brev")
@@ -162,6 +206,7 @@ public class BrevRestTjeneste {
             .medSaksnummer(behandling.getSaksnummer())
             .medDokumentMal(forhåndsvisDto.dokumentMal())
             .medRevurderingÅrsak(forhåndsvisDto.arsakskode())
+            .medHtml(forhåndsvisDto.html())
             .medFritekst(forhåndsvisDto.fritekst())
             .medTittel(forhåndsvisDto.tittel())
             .medDokumentType(utledDokumentType(forhåndsvisDto.automatiskVedtaksbrev()))
@@ -224,7 +269,6 @@ public class BrevRestTjeneste {
     }
 
     public static class BrevAbacDataSupplier implements Function<Object, AbacDataAttributter> {
-
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (BestillDokumentDto) obj;
@@ -232,8 +276,15 @@ public class BrevRestTjeneste {
         }
     }
 
-    public static class DokumentKvitteringDataSupplier implements Function<Object, AbacDataAttributter> {
+    public static class GenererBrevAbacDataSupplier implements Function<Object, AbacDataAttributter> {
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var req = (GenererHtmlDokumentDto) obj;
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid());
+        }
+    }
 
+    public static class DokumentKvitteringDataSupplier implements Function<Object, AbacDataAttributter> {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (DokumentKvitteringDto) obj;
@@ -246,6 +297,13 @@ public class BrevRestTjeneste {
         public AbacDataAttributter apply(Object obj) {
             var req = (ForhåndsvisDokumentDto) obj;
             return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid());
+        }
+    }
+
+    public static class BehandlingUUIDSupplier implements Function<Object, AbacDataAttributter> {
+        @Override
+        public AbacDataAttributter apply(Object behandlingUuid) {
+            return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.BEHANDLING_UUID, behandlingUuid);
         }
     }
 

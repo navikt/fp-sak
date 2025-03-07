@@ -12,9 +12,9 @@ public class ForeslaVedtakManueltAksjonspuntDto extends VedtaksbrevOverstyringDt
         // for jackson
     }
 
-    public ForeslaVedtakManueltAksjonspuntDto(String begrunnelse, String overskrift, String fritekstBrev,
+    public ForeslaVedtakManueltAksjonspuntDto(String begrunnelse, String overskrift, String fritekstBrev, String fritekstBrevHtml,
                                               boolean skalBrukeOverstyrendeFritekstBrev) {
-        super(begrunnelse, overskrift, fritekstBrev, skalBrukeOverstyrendeFritekstBrev);
+        super(begrunnelse, overskrift, fritekstBrev, fritekstBrevHtml, skalBrukeOverstyrendeFritekstBrev);
     }
 
 

@@ -90,7 +90,7 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
         scenario.medSøknadHendelse().medFødselsDato(now);
         var behandling = scenario.lagre(repositoryProvider);
 
-        var dto = new ForeslåVedtakAksjonspunktDto(BEGRUNNELSE, OVERSKRIFT, FRITEKST, true);
+        var dto = new ForeslåVedtakAksjonspunktDto(BEGRUNNELSE, OVERSKRIFT, FRITEKST, null, true);
         var foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(
                 behandlingRepository, behandlingsresultatRepository, historikkinnslagRepository,
                 vedtakTjeneste,
@@ -121,7 +121,7 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
                 .build();
         behandlingDokumentRepository.lagreOgFlush(eksisterendeDok);
 
-        var dto = new ForeslåVedtakAksjonspunktDto(null, null, null, false);
+        var dto = new ForeslåVedtakAksjonspunktDto(null, null, null, null,false);
         var foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(
                 behandlingRepository, behandlingsresultatRepository, historikkinnslagRepository,
                 vedtakTjeneste,
