@@ -65,7 +65,10 @@ public class JettyServer {
     protected void bootStrap() throws Exception {
         konfigurerSikkerhet();
 
-        settJdniOppslag(DatasourceUtil.createDatasource("defaultDS", 30));
+        // Sett System.setProperty("task.manager.runner.threads", 10); til å endre antal prosesstask tråder. Default 10.
+        // `maxPoolSize` bør være satt minst til verdien av `task.manager.runner.threads` + 1 + antall connections man ønsker.
+        // `minIdle` sørger for at det alltid er en tilkobling klar når alle 10 prosesstask-trådene samtidig trenger en connection.
+        settJdniOppslag(DatasourceUtil.createDatasource("defaultDS", 25, 10));
         migrerDatabase("defaultDS");
         migrerDatabase("dvhDS");
 
@@ -100,7 +103,7 @@ public class JettyServer {
     }
 
     protected void migrerDatabase(String schemaName) {
-        try (var dataSource = DatasourceUtil.createDatasource(schemaName, 3)) {
+        try (var dataSource = DatasourceUtil.createDatasource(schemaName, 3, 1)) {
             Flyway.configure()
                 .dataSource(dataSource)
                 .locations("classpath:/db/migration/" + schemaName)
