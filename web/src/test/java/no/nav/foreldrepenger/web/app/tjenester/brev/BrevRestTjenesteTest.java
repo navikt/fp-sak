@@ -8,6 +8,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -17,11 +18,13 @@ import org.mockito.ArgumentCaptor;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentForhåndsvisningTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillDokumentDto;
+import no.nav.foreldrepenger.dokumentbestiller.dto.FritekstDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
@@ -58,7 +61,7 @@ class BrevRestTjenesteTest {
         when(behandlingRepository.hentBehandling(behandlingUuid)).thenReturn(behandlingMock);
         var fritekst = "Dette er en fritekst";
         var dokumentMal = INNHENTE_OPPLYSNINGER;
-        var bestillBrevDto = new BestillDokumentDto(behandlingUuid, dokumentMal, fritekst, null);
+        var bestillBrevDto = new BestillDokumentDto(behandlingUuid, dokumentMal, new FritekstDto(fritekst), null);
 
         // Act
         brevRestTjeneste.bestillDokument(bestillBrevDto);
@@ -93,4 +96,92 @@ class BrevRestTjenesteTest {
         assertThat(harSendt).isTrue();
     }
 
+    @Test
+    void redigert_html_skal_være_null_hvis_en_ikke_finner_i_dokumentbehandling_entitet() {
+        // Arrange
+        var brevProdusertAvFpdokgen = "html";
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagMocked();
+        when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(behandling);
+        when(dokumentForhåndsvisningTjenesteMock.genererHtml(behandling)).thenReturn(brevProdusertAvFpdokgen);
+        when(dokumentBehandlingTjenesteMock.hentMellomlagretOverstyring(behandling.getId())).thenReturn(Optional.empty());
+
+        // Act
+        var respons = brevRestTjeneste.hentOverstyringAvBrevMedOrginaltBrevPåHtmlFormat(new UuidDto(UUID.randomUUID()));
+
+        // Assert
+        var overstyrtDokumentDto = (BrevRestTjeneste.OverstyrtDokumentDto) respons.getEntity();
+        assertThat(overstyrtDokumentDto.opprinneligHtml()).isEqualTo(brevProdusertAvFpdokgen);
+        assertThat(overstyrtDokumentDto.redigertHtml()).isNull();
+    }
+
+    @Test
+    void skal_returnere_opprinnelig_og_redigert_hvis_det_foreligger_overstyring() {
+        // Arrange
+        var brevProdusertAvFpdokgen = "html";
+        var overstyryBrev = "OVERSTYRY BREV";
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagMocked();
+        when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(behandling);
+        when(dokumentForhåndsvisningTjenesteMock.genererHtml(behandling)).thenReturn(brevProdusertAvFpdokgen);
+        when(dokumentBehandlingTjenesteMock.hentMellomlagretOverstyring(behandling.getId())).thenReturn(Optional.of(overstyryBrev));
+
+        // Act
+        var respons = brevRestTjeneste.hentOverstyringAvBrevMedOrginaltBrevPåHtmlFormat(new UuidDto(UUID.randomUUID()));
+
+        // Assert
+        var overstyrtDokumentDto = (BrevRestTjeneste.OverstyrtDokumentDto) respons.getEntity();
+        assertThat(overstyrtDokumentDto.opprinneligHtml()).isEqualTo(brevProdusertAvFpdokgen);
+        assertThat(overstyrtDokumentDto.redigertHtml()).isEqualTo(overstyryBrev);
+    }
+
+    @Test
+    void skal_returnere_500_feil_hvis_opprinnelig_html_er_null_eller_tom() {
+        // Arrange
+        var brevProdusertAvFpdokgen = "";
+        var overstyryBrev = "OVERSTYRY BREV";
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagMocked();
+        when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(behandling);
+        when(dokumentForhåndsvisningTjenesteMock.genererHtml(behandling)).thenReturn(brevProdusertAvFpdokgen);
+        when(dokumentBehandlingTjenesteMock.hentMellomlagretOverstyring(behandling.getId())).thenReturn(Optional.of(overstyryBrev));
+
+        // Act
+        var respons = brevRestTjeneste.hentOverstyringAvBrevMedOrginaltBrevPåHtmlFormat(new UuidDto(UUID.randomUUID()));
+        assertThat(respons.getStatus()).isEqualTo(500);
+    }
+
+    @Test
+    void mellomlagring_skal_lagre_innhold_hvis_oppgitt() {
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagMocked();
+        when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(behandling);
+
+        // Act
+        brevRestTjeneste.mellomlagringAvOverstyring(new BrevRestTjeneste.MellomlagreHtmlDto(behandling.getUuid(), new FritekstDto("HTML")));
+
+        var captorHtml = ArgumentCaptor.forClass(String.class);
+
+        // Assert
+        verify(dokumentBehandlingTjenesteMock).lagreOverstyrtBrev(any(), captorHtml.capture());
+
+        assertThat(captorHtml.getValue()).isEqualTo("HTML");
+    }
+
+    @Test
+    void mellomlagring_av_overstyring_brev_skal_fjerne_innhold_hvis_null() {
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagMocked();
+        when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(behandling);
+
+        // Act
+        brevRestTjeneste.mellomlagringAvOverstyring(new BrevRestTjeneste.MellomlagreHtmlDto(behandling.getUuid(), null));
+
+        var captorHtml = ArgumentCaptor.forClass(String.class);
+
+        // Assert
+        verify(dokumentBehandlingTjenesteMock).lagreOverstyrtBrev(any(), captorHtml.capture());
+
+        assertThat(captorHtml.getValue()).isNull();
+    }
 }

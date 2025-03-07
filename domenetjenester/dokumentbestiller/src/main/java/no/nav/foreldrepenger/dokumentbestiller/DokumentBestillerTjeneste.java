@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.dokumentbestiller.formidling.DokumentBestiller;
 public class DokumentBestillerTjeneste extends AbstractDokumentBestillerTjeneste {
 
     private BehandlingRepository behandlingRepository;
+    private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
     private DokumentBestiller dokumentBestiller;
 
     DokumentBestillerTjeneste() {
@@ -28,9 +29,11 @@ public class DokumentBestillerTjeneste extends AbstractDokumentBestillerTjeneste
     @Inject
     public DokumentBestillerTjeneste(BehandlingRepository behandlingRepository,
                                      KlageRepository klageRepository,
+                                     DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
                                      DokumentBestiller dokumentBestiller) {
         super(klageRepository);
         this.behandlingRepository = behandlingRepository;
+        this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
         this.dokumentBestiller = dokumentBestiller;
     }
 
@@ -45,11 +48,14 @@ public class DokumentBestillerTjeneste extends AbstractDokumentBestillerTjeneste
             behandlingVedtak.getVedtakResultatType(), behandlingVedtak.isBeslutningsvedtak(), finnKlageVurdering(behandling));
 
         DokumentMalType journalførSom = null; // settes kun ved fritekst
-
         if (Vedtaksbrev.FRITEKST.equals(behandlingResultat.getVedtaksbrev())) {
-            journalførSom = endretVedtakOgKunEndringIFordeling(behandlingResultatType,
-                behandlingResultat.getKonsekvenserForYtelsen()) ? DokumentMalType.ENDRING_UTBETALING : dokumentMal;
-            dokumentMal = DokumentMalType.FRITEKSTBREV;
+            journalførSom = endretVedtakOgKunEndringIFordeling(behandlingResultatType, behandlingResultat.getKonsekvenserForYtelsen())
+                ? DokumentMalType.ENDRING_UTBETALING
+                : dokumentMal;
+
+            dokumentMal = dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId()).isPresent()
+                ? DokumentMalType.FRITEKSTBREV_HMTL
+                : DokumentMalType.FRITEKSTBREV;
         }
 
         bestillDokument(DokumentBestilling.builder()
