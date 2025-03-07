@@ -335,6 +335,7 @@ public class FastsettePerioderRegelResultatKonverterer {
             .medPeriodeSoknad(periodeSøknad)
             .medSamtidigUttak(uttakPeriode.erSamtidigUttak())
             .medSamtidigUttaksprosent(samtidigUttaksprosent(uttakPeriode))
+            .medManuellBehandlingÅrsak(UttakEnumMapper.map(uttakPeriode.getManuellbehandlingårsak()))
             .medFlerbarnsdager(uttakPeriode.isFlerbarnsdager())
             .build();
     }

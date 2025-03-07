@@ -111,6 +111,10 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
     @Column(name = "manuelt_behandlet", nullable = false, updatable = false)
     private boolean manueltBehandlet;
 
+    @Column(name = "manuell_behandling_aarsak", updatable = false, nullable = false)
+    @Convert(converter = ManuellBehandlingÅrsak.KodeverdiConverter.class)
+    private ManuellBehandlingÅrsak manuellBehandlingÅrsak = ManuellBehandlingÅrsak.UKJENT;
+
     @Override
     public String toString() {
         return "UttakResultatPeriodeEntitet{" +
@@ -123,6 +127,7 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
             ", periodeResultatÅrsak=" + periodeResultatÅrsak +
             ", samtidigUttak=" + samtidigUttak +
             ", samtidigUttaksprosent=" + samtidigUttaksprosent +
+            ", manuellBehandlingÅrsak=" + manuellBehandlingÅrsak.getKode() +
             ", manueltBehandlet=" + manueltBehandlet +
             '}';
     }
@@ -168,7 +173,7 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
     }
 
     public UttakResultatDokRegelEntitet getDokRegel() {
-        return dokRegel.isEmpty() ? null : dokRegel.get(0);
+        return dokRegel.isEmpty() ? null : dokRegel.getFirst();
     }
 
     public boolean isSamtidigUttak() {
@@ -207,15 +212,14 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
     }
 
     public ManuellBehandlingÅrsak getManuellBehandlingÅrsak() {
+        if (manuellBehandlingÅrsak != ManuellBehandlingÅrsak.UKJENT) {
+            return manuellBehandlingÅrsak;
+        }
         return getDokRegel() == null ? null : getDokRegel().getManuellBehandlingÅrsak();
     }
 
     public Optional<UttakResultatPeriodeSøknadEntitet> getPeriodeSøknad() {
         return Optional.ofNullable(periodeSøknad);
-    }
-
-    public boolean opprinneligSendtTilManuellBehandling() {
-        return getDokRegel() != null && getDokRegel().isTilManuellBehandling();
     }
 
     public boolean isManueltBehandlet() {
@@ -317,6 +321,11 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
             return this;
         }
 
+        public Builder medManuellBehandlingÅrsak(ManuellBehandlingÅrsak manuellBehandlingÅrsak) {
+            kladd.manuellBehandlingÅrsak = manuellBehandlingÅrsak;
+            return this;
+        }
+
         public Builder medDokRegel(UttakResultatDokRegelEntitet dokRegel) {
             kladd.dokRegel = Collections.singletonList(dokRegel);
             return this;
@@ -336,7 +345,7 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
             Objects.requireNonNull(kladd.tidsperiode, "tidsperiode");
             Objects.requireNonNull(kladd.periodeResultatType, "periodeResultatType");
             if (!kladd.dokRegel.isEmpty()) {
-                kladd.dokRegel.get(0).setPeriode(kladd);
+                kladd.dokRegel.getFirst().setPeriode(kladd);
             }
             if (kladd.utsettelseType == null) {
                 kladd.utsettelseType = UttakUtsettelseType.UDEFINERT;
