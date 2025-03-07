@@ -1,5 +1,9 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling;
 
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.OmsorgOgRettDto.Verdi.IKKE_RELEVANT;
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.OmsorgOgRettDto.Verdi.JA;
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.OmsorgOgRettDto.Verdi.fra;
+
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
@@ -11,6 +15,7 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
@@ -126,8 +131,9 @@ public class YtelseFordelingDtoTjeneste {
         var registerdata = opprettRegisterdata(behandlingId, oppgittAleneomsorg);
         var manuellBehandlingResultat = opprettManuellBehandlingResultat(ytelseFordelingAggregat);
 
-        var søknad = mapSøknad(oppgittAnnenpart.orElse(null), ytelseFordelingAggregat.getOppgittRettighet());
-        return Optional.of(new OmsorgOgRettDto(søknad, registerdata.orElse(null), manuellBehandlingResultat.orElse(null), behandling.getRelasjonsRolleType()));
+        var søknad = mapSøknad(oppgittAnnenpart.orElse(null), ytelseFordelingAggregat.getOppgittRettighet(), behandling.getRelasjonsRolleType());
+        return Optional.of(
+            new OmsorgOgRettDto(søknad, registerdata.orElse(null), manuellBehandlingResultat.orElse(null), behandling.getRelasjonsRolleType()));
     }
 
     private Optional<OmsorgOgRettDto.RegisterData> opprettRegisterdata(Long behandlingId, boolean oppgittAleneomsorg) {
@@ -144,15 +150,17 @@ public class YtelseFordelingDtoTjeneste {
         if (harAnnenpartForeldrepenger == null && harAnnenpartEngangsstønad == null && annenForelderMottarUføretrygd == null) {
             return Optional.empty();
         }
-        return Optional.of(new OmsorgOgRettDto.RegisterData(annenForelderMottarUføretrygd, harAnnenpartForeldrepenger, harAnnenpartEngangsstønad));
+        return Optional.of(
+            new OmsorgOgRettDto.RegisterData(fra(annenForelderMottarUføretrygd), fra(harAnnenpartForeldrepenger), fra(harAnnenpartEngangsstønad)));
     }
 
     private static Optional<OmsorgOgRettDto.ManuellBehandlingResultat> opprettManuellBehandlingResultat(YtelseFordelingAggregat ytelseFordelingAggregat) {
         return ytelseFordelingAggregat.getOverstyrtRettighet().map(or -> {
             var søkerHarAleneomsorg = or.getHarAleneomsorgForBarnet();
             var annenpartRettighet = Objects.equals(søkerHarAleneomsorg, Boolean.TRUE) ? null : new OmsorgOgRettDto.Rettighet(
-                or.getHarAnnenForeldreRett(), or.getAnnenForelderOppholdEØS(), or.getAnnenForelderRettEØSNullable(), or.getMorMottarUføretrygd());
-            return new OmsorgOgRettDto.ManuellBehandlingResultat(søkerHarAleneomsorg, annenpartRettighet);
+                fra(or.getHarAnnenForeldreRett()), fra(or.getAnnenForelderOppholdEØS()), fra(or.getAnnenForelderRettEØSNullable()),
+                fra(or.getMorMottarUføretrygd()));
+            return new OmsorgOgRettDto.ManuellBehandlingResultat(fra(søkerHarAleneomsorg), annenpartRettighet);
         });
     }
 
@@ -161,17 +169,33 @@ public class YtelseFordelingDtoTjeneste {
         return uttakInput.getYtelsespesifiktGrunnlag();
     }
 
-    private static OmsorgOgRettDto.Søknad mapSøknad(OppgittAnnenPartEntitet ap, OppgittRettighetEntitet oppgittRettighet) {
+    private static OmsorgOgRettDto.Søknad mapSøknad(OppgittAnnenPartEntitet ap,
+                                                    OppgittRettighetEntitet oppgittRettighet,
+                                                    RelasjonsRolleType relasjonsRolleType) {
         var ident = utledAnnenpartIdent(ap);
 
-        var harAleneomsorg = oppgittRettighet.getHarAleneomsorgForBarnet();
-        var rettighet = Objects.equals(harAleneomsorg, Boolean.TRUE) ? null : new OmsorgOgRettDto.Rettighet(oppgittRettighet.getHarAnnenForeldreRett(),
-            oppgittRettighet.getAnnenForelderOppholdEØS(), oppgittRettighet.getAnnenForelderRettEØS(), oppgittRettighet.getMorMottarUføretrygd());
+        var harAleneomsorg = Objects.equals(oppgittRettighet.getHarAleneomsorgForBarnet(), Boolean.TRUE);
+        var rettighet = harAleneomsorg ? null : ikkeAleneomsorgRettighet(oppgittRettighet, relasjonsRolleType);
         var utenlandskFnrLand = Optional.ofNullable(ap).map(OppgittAnnenPartEntitet::getUtenlandskFnrLand).orElse(null);
-        return new OmsorgOgRettDto.Søknad(harAleneomsorg, ident.orElse(null), utenlandskFnrLand, rettighet);
+        return new OmsorgOgRettDto.Søknad(fra(harAleneomsorg), ident.orElse(null), utenlandskFnrLand, rettighet);
+    }
+
+    private static OmsorgOgRettDto.Rettighet ikkeAleneomsorgRettighet(OppgittRettighetEntitet oppgittRettighet,
+                                                                      RelasjonsRolleType relasjonsRolleType) {
+        var harAnnenForeldreRett = oppgittRettighet.getHarAnnenForeldreRett();
+        if (harAnnenForeldreRett) {
+            return new OmsorgOgRettDto.Rettighet(OmsorgOgRettDto.Verdi.JA, null, null, null);
+        }
+        var annenForelderRettEØSNullable = Boolean.TRUE.equals(
+            oppgittRettighet.getAnnenForelderOppholdEØS()) ? oppgittRettighet.getAnnenForelderRettEØSNullable() : null; //Bruker får ikke spørsmål om rett/arbeid eøs hvis man ikke har oppgitt at annen part har opphold i eøs
+        var verdiOppholdEøs = fra(oppgittRettighet.getAnnenForelderOppholdEØS());
+        var verdiRettEøs = fra(annenForelderRettEØSNullable);
+        var verdiUføretrygd = RelasjonsRolleType.FARA.equals(relasjonsRolleType) && (verdiRettEøs != JA || verdiOppholdEøs != JA) ? fra(
+            oppgittRettighet.getMorMottarUføretrygd()) : IKKE_RELEVANT; //Matcher når bruker får spørsmål i søknadsdialogen
+        return new OmsorgOgRettDto.Rettighet(OmsorgOgRettDto.Verdi.NEI, verdiOppholdEøs, verdiRettEøs, verdiUføretrygd);
     }
 
     private static Optional<String> utledAnnenpartIdent(OppgittAnnenPartEntitet ap) {
-        return Optional.ofNullable(ap).map(OppgittAnnenPartEntitet::getUtenlandskPersonident) ;
+        return Optional.ofNullable(ap).map(OppgittAnnenPartEntitet::getUtenlandskPersonident);
     }
 }

@@ -95,20 +95,20 @@ class YtelseFordelingDtoTjenesteTest {
 
         var rettOgOmsorgDto = ytelseFordelingDtoTjeneste.mapFra(behandling.getUuid()).orElseThrow();
         var annenpartDto = rettOgOmsorgDto.søknad();
-        assertThat(annenpartDto.søkerHarAleneomsorg()).isFalse();
+        assertThat(annenpartDto.søkerHarAleneomsorg()).isEqualTo(OmsorgOgRettDto.Verdi.NEI);
         assertThat(annenpartDto.annenpartIdent()).isEqualTo(utenlandskFnr);
         assertThat(annenpartDto.annenpartBostedsland()).isEqualTo(utenlandskFnrLand);
-        assertThat(annenpartDto.annenpartRettighet().harRettNorge()).isFalse();
-        assertThat(annenpartDto.annenpartRettighet().harRettEØS()).isTrue();
-        assertThat(annenpartDto.annenpartRettighet().harUføretrygd()).isFalse();
-        assertThat(annenpartDto.annenpartRettighet().harOppholdEØS()).isTrue();
+        assertThat(annenpartDto.annenpartRettighet().harRettNorge()).isEqualTo(OmsorgOgRettDto.Verdi.NEI);
+        assertThat(annenpartDto.annenpartRettighet().harRettEØS()).isEqualTo(OmsorgOgRettDto.Verdi.JA);
+        assertThat(annenpartDto.annenpartRettighet().harUføretrygd()).isEqualTo(OmsorgOgRettDto.Verdi.IKKE_RELEVANT); //mor
+        assertThat(annenpartDto.annenpartRettighet().harOppholdEØS()).isEqualTo(OmsorgOgRettDto.Verdi.JA);
 
         var manuellBehandlingResultat = rettOgOmsorgDto.manuellBehandlingResultat();
-        assertThat(manuellBehandlingResultat.søkerHarAleneomsorg()).isFalse();
-        assertThat(manuellBehandlingResultat.annenpartRettighet().harOppholdEØS()).isFalse();
-        assertThat(manuellBehandlingResultat.annenpartRettighet().harRettEØS()).isFalse();
-        assertThat(manuellBehandlingResultat.annenpartRettighet().harUføretrygd()).isFalse();
-        assertThat(manuellBehandlingResultat.annenpartRettighet().harRettNorge()).isTrue();
+        assertThat(manuellBehandlingResultat.søkerHarAleneomsorg()).isEqualTo(OmsorgOgRettDto.Verdi.NEI);
+        assertThat(manuellBehandlingResultat.annenpartRettighet().harOppholdEØS()).isEqualTo(OmsorgOgRettDto.Verdi.NEI);
+        assertThat(manuellBehandlingResultat.annenpartRettighet().harRettEØS()).isEqualTo(OmsorgOgRettDto.Verdi.NEI);
+        assertThat(manuellBehandlingResultat.annenpartRettighet().harUføretrygd()).isEqualTo(OmsorgOgRettDto.Verdi.NEI);
+        assertThat(manuellBehandlingResultat.annenpartRettighet().harRettNorge()).isEqualTo(OmsorgOgRettDto.Verdi.JA);
 
         assertThat(rettOgOmsorgDto.relasjonsRolleType()).isEqualTo(RelasjonsRolleType.MORA);
     }
