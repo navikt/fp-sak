@@ -28,6 +28,8 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import no.nav.foreldrepenger.domene.migrering.BeregningMigreringMapper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -274,6 +276,19 @@ public class ForvaltningBeregningRestTjeneste {
         migreringstask.setSaksnummer(dto.getVerdi());
         taskTjeneste.lagre(migreringstask);
         return Response.ok().build();
+    }
+
+    @POST
+    @Path("/hentMigreringInput")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Migrerer en sak over til kalkulus", tags = "FORVALTNING-beregning")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response hentMigreringInput(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
+        var behandling = behandlingRepository.hentBehandling(dto.getBehandlingUuid());
+        var grunnlag = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId()).orElseThrow();
+        var response = BeregningMigreringMapper.map(grunnlag);
+        return Response.ok(response).build();
     }
 
     @POST
