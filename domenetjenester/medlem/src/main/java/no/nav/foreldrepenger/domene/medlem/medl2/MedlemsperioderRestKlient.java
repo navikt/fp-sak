@@ -14,7 +14,7 @@ import java.util.List;
 @RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, endpointProperty = "medl2p.rs.url", endpointDefault = "http://medlemskap-medl-api.team-rocket/rest/v1/periode/soek",
     scopesProperty = "medl2.scopes", scopesDefault = "api://prod-fss.team-rocket.medlemskap-medl-api/.default")
 @ApplicationScoped
-public class MedlemsperioderRestKlient {
+public class MedlemsperioderRestKlient implements Medlemskap {
 
 
     // Fra kodeverk PeriodestatusMedl
@@ -29,6 +29,7 @@ public class MedlemsperioderRestKlient {
         this.restConfig = RestConfig.forClient(MedlemsperioderRestKlient.class);
     }
 
+    @Override
     public List<Medlemskapsunntak> finnMedlemsunntak(String aktørId, LocalDate fom, LocalDate tom) {
         var medlemDto = new MedlemRequest(aktørId, null, List.of(KODE_PERIODESTATUS_GYLD, KODE_PERIODESTATUS_UAVK), List.of(),
             fom, tom, true);
