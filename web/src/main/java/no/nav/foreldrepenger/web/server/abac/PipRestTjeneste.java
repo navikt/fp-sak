@@ -63,7 +63,7 @@ public class PipRestTjeneste {
     @GET // Enkelt-sak
     @Path(AKTOER_FOR_SAK)
     @Operation(description = "Henter aktørId'er tilknyttet en fagsak", tags = "pip")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP, availabilityType = AvailabilityType.ALL)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP, availabilityType = AvailabilityType.ALL, sporingslogg = false)
     public Set<AktørId> hentAktørIdListeTilknyttetSak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
         @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         return pipRepository.hentAktørIdKnyttetTilSaksnummer(saksnummerDto.getVerdi());
