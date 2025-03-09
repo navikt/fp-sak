@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesser
 import no.nav.foreldrepenger.domene.person.verge.OpprettVergeTjeneste;
 import no.nav.foreldrepenger.domene.person.verge.VergeDtoTjeneste;
 import no.nav.foreldrepenger.domene.person.verge.dto.OpprettVergeDto;
+import no.nav.foreldrepenger.domene.person.verge.dto.VergeBackendDto;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBehandlingsmenyEnum;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeDto;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
@@ -33,7 +34,6 @@ import no.nav.vedtak.exception.TekniskException;
 public class VergeTjeneste {
 
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private VergeRepository vergeRepository;
     private HistorikkinnslagRepository historikkinnslagRepository;
     private PersonopplysningTjeneste personopplysningTjeneste;
@@ -42,15 +42,12 @@ public class VergeTjeneste {
 
     @Inject
     public VergeTjeneste(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                         BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                          VergeRepository vergeRepository,
                          HistorikkinnslagRepository historikkinnslagRepository,
-                         BehandlingRepository behandlingRepository,
                          PersonopplysningTjeneste personopplysningTjeneste,
                          OpprettVergeTjeneste opprettVergeTjeneste,
                          VergeDtoTjeneste vergeDtoTjeneste) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
-        this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.vergeRepository = vergeRepository;
         this.historikkinnslagRepository = historikkinnslagRepository;
         this.personopplysningTjeneste = personopplysningTjeneste;
@@ -64,6 +61,10 @@ public class VergeTjeneste {
 
     public VergeDto hentVerge(Behandling behandling) {
         return vergeRepository.hentAggregat(behandling.getId()).flatMap(vergeDtoTjeneste::lagVergeDto).orElse(null);
+    }
+
+    public VergeBackendDto hentVergeForBackend(Behandling behandling) {
+        return vergeRepository.hentAggregat(behandling.getId()).flatMap(vergeDtoTjeneste::lagVergeBackendDto).orElse(null);
     }
 
     public void opprettVerge(Behandling behandling, NyVergeDto param) {
@@ -93,30 +94,6 @@ public class VergeTjeneste {
             return VergeBehandlingsmenyEnum.OPPRETT;
         }
         return VergeBehandlingsmenyEnum.FJERN;
-    }
-
-
-    void opprettVergeAksjonspunktOgHoppTilbakeTilFORVEDSTEGHvisSenereSteg(Behandling behandling) {
-        if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE)) {
-            var msg = String.format("Behandling %s har allerede aksjonspunkt 5030 for verge/fullmektig", behandling.getId());
-            throw new TekniskException("FP-185321", msg);
-        }
-
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-        behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst, List.of(AksjonspunktDefinisjon.AVKLAR_VERGE));
-
-        if (behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.FORESLÅ_VEDTAK)) {
-            behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, BehandlingStegType.FORESLÅ_VEDTAK);
-        }
-
-        behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
-    }
-
-    void fjernVergeGrunnlagOgAksjonspunkt(Behandling behandling) {
-        avbrytVergeAksjonspunktHvisFinnes(behandling);
-        vergeRepository.fjernVergeFraEksisterendeGrunnlagHvisFinnes(behandling.getId());
-        opprettHistorikkinnslagForFjernetVerge(behandling);
-        behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
     }
 
     private void avbrytVergeAksjonspunktHvisFinnes(Behandling behandling) {

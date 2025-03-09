@@ -269,9 +269,6 @@ public class BehandlingDtoTjeneste {
             dto.leggTil(post(VergeRestTjeneste.VERGE_OPPRETT_PATH, "verge-opprett", new NyVergeDto(), uuidDto));
         }
 
-        dto.leggTil(post(VergeRestTjeneste.VERGE_OPPRETT_PATH_DEPRECATED, "opprett-verge", new BehandlingIdVersjonDto()));
-        dto.leggTil(post(VergeRestTjeneste.VERGE_FJERN_PATH_DEPRECATED, "fjern-verge", new BehandlingIdVersjonDto()));
-
         if (behandling.erYtelseBehandling()) {
             dto.leggTil(post(BehandlingRestTjeneste.OPNE_FOR_ENDRINGER_PATH, "opne-for-endringer", new ReåpneBehandlingDto()));
             dto.leggTil(
@@ -539,7 +536,7 @@ public class BehandlingDtoTjeneste {
     private void leggTilVergeHvisFinnes(Behandling behandling, UtvidetBehandlingDto dto, UuidDto uuidDto) {
         var vergeFinnes = vergeRepository.hentAggregat(behandling.getId()).isPresent();
         if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE) || vergeFinnes) {
-            dto.leggTil(get(PersonRestTjeneste.VERGE_PATH, "soeker-verge", uuidDto));
+            dto.leggTil(get(VergeRestTjeneste.BASE_PATH, "soeker-verge", uuidDto));
         }
     }
 }

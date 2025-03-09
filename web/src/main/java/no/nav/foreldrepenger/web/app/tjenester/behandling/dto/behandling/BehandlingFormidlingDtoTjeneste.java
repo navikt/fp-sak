@@ -42,9 +42,9 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.Ber
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.innsyn.InnsynRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.KlageRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.SøknadRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.UttakRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.YtelsefordelingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste;
@@ -299,7 +299,7 @@ public class BehandlingFormidlingDtoTjeneste {
 
     private void leggTilVergeHvisFinnes(BehandlingFormidlingDto dto, Behandling behandling, UuidDto uuidDto) {
         vergeRepository.hentAggregat(behandling.getId())
-            .ifPresent(v -> dto.leggTil(get(PersonRestTjeneste.VERGE_BACKEND_PATH, "verge-backend", uuidDto)));
+            .ifPresent(v -> dto.leggTil(get(VergeRestTjeneste.VERGE_BACKEND_PATH, "verge-backend", uuidDto)));
     }
 
     private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {
