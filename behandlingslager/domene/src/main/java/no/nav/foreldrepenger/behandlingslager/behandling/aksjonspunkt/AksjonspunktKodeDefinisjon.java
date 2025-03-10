@@ -49,7 +49,6 @@ public class AksjonspunktKodeDefinisjon {
 
     public static final String OVERSTYRING_AV_ADOPSJONSVILKÅRET_KODE = "6004";
     public static final String OVERSTYRING_AV_ADOPSJONSVILKÅRET_FP_KODE = "6010";
-    public static final String OVERSTYRING_AV_BEREGNING_KODE = "6007";
     public static final String OVERSTYRING_AV_FØDSELSVILKÅRET_KODE = "6003";
     public static final String OVERSTYRING_AV_FØDSELSVILKÅRET_FAR_MEDMOR_KODE = "6009";
     public static final String OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET_KODE = "6005";
@@ -164,7 +163,7 @@ public class AksjonspunktKodeDefinisjon {
     //  "5080"  "5081"  "5083"  "5088"
     //  "5090"  "5093"  "5094"  "5097" "5098"  "5099"
 
-    //  "6012"  "6013"  "6068"  "6070"
+    //  "6007" "6012"  "6013"  "6068"  "6070"
 
     //  "7004"  "7006"  "7009"
     //  "7015"  "7016"  "7017"  "7018"  "7019"

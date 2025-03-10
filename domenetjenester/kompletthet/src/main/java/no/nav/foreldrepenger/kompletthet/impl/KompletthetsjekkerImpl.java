@@ -19,14 +19,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
-import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
@@ -36,10 +31,7 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
     private static final Logger LOG = LoggerFactory.getLogger(KompletthetsjekkerImpl.class);
 
     private BehandlingRepository behandlingRepository;
-    private SøknadRepository søknadRepository;
     private KompletthetsjekkerSøknadTjeneste kompletthetssjekkerSøknad;
-    private FamilieHendelseRepository familieHendelseRepository;
-    private PersonopplysningTjeneste personopplysningTjeneste;
     private ManglendeInntektsmeldingTjeneste manglendeInntektsmeldingTjeneste;
 
     public KompletthetsjekkerImpl() {
@@ -47,30 +39,26 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
     }
 
     @Inject
-    public KompletthetsjekkerImpl(BehandlingRepositoryProvider provider,
+    public KompletthetsjekkerImpl(BehandlingRepository behandlingRepository,
                                   KompletthetsjekkerSøknadTjeneste kompletthetsjekkerSøknadTjeneste,
-                                  PersonopplysningTjeneste personopplysningTjeneste,
                                   ManglendeInntektsmeldingTjeneste manglendeInntektsmeldingTjeneste) {
-        this.behandlingRepository = provider.getBehandlingRepository();
-        this.søknadRepository = provider.getSøknadRepository();
-        this.familieHendelseRepository = provider.getFamilieHendelseRepository();
+        this.behandlingRepository = behandlingRepository;
         this.kompletthetssjekkerSøknad = kompletthetsjekkerSøknadTjeneste;
-        this.personopplysningTjeneste = personopplysningTjeneste;
         this.manglendeInntektsmeldingTjeneste = manglendeInntektsmeldingTjeneste;
     }
 
     @Override
     public KompletthetResultat vurderSøknadMottatt(BehandlingReferanse ref) {
-        if (ref.erRevurdering() || ref.fagsakYtelseType().equals(FagsakYtelseType.ENGANGSTØNAD)) {
+        if (ref.erRevurdering()) {
             return KompletthetResultat.oppfylt();
         }
 
-        if (!kompletthetssjekkerSøknad.erSøknadMottatt(ref)) {
-            // Litt implisitt forutsetning her, men denne sjekken skal bare ha bli kalt dersom søknad eller IM er mottatt
-            LOG.info("Behandling {} er ikke komplett - søknad er ikke mottatt", ref.behandlingId());
-            return KompletthetResultat.ikkeOppfylt(kompletthetssjekkerSøknad.finnVentefristTilManglendeSøknad(), Venteårsak.AVV_DOK);
+        if (kompletthetssjekkerSøknad.erSøknadMottatt(ref)) {
+            return KompletthetResultat.oppfylt();
         }
-        return KompletthetResultat.oppfylt();
+
+        LOG.info("Behandling {} er ikke komplett - søknad er ikke mottatt", ref.behandlingId());
+        return KompletthetResultat.ikkeOppfylt(kompletthetssjekkerSøknad.finnVentefristTilManglendeSøknad(), Venteårsak.AVV_DOK);
     }
 
     @Override
@@ -139,36 +127,6 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
                 .toList();
     }
 
-    @Override
-    public boolean erForsendelsesgrunnlagKomplett(BehandlingReferanse ref) {
-        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ref.fagsakYtelseType())) {
-            return true; //Håndteres manuellt
-        }
-
-        if (FagsakYtelseType.ENGANGSTØNAD.equals(ref.fagsakYtelseType())) {
-            var søknadOpt = søknadRepository.hentSøknadHvisEksisterer(ref.behandlingId());
-            if (søknadOpt.isEmpty()) {
-                // Uten søknad må det antas at den heller ikke er komplett. Sjekker nedenfor forutsetter at søknad finnes.
-                return false;
-            }
-            if (!søknadOpt.get().getElektroniskRegistrert()) {
-                // Søknad manuelt registrert av saksbehandlier - dermed er opplysningsplikt allerede vurdert av han/henne
-                return true;
-            }
-            if (kompletthetssjekkerSøknad.utledManglendeVedleggForSøknad(ref).isEmpty()) {
-                return true;
-            }
-            if (familieHendelseRepository.hentAggregat(ref.behandlingId()).getSøknadVersjon().getGjelderFødsel()) {
-                return finnesBarnet(ref);
-            }
-            return false;
-        }
-
-        // Fpsak
-        var manglendeVedlegg = kompletthetssjekkerSøknad.utledManglendeVedleggForSøknad(ref);
-        return manglendeVedlegg.isEmpty();
-    }
-
     // Kalles fra KOARB (flere ganger) som setter autopunkt 7030 + fra KompletthetsKontroller (dokument på åpen behandling, hendelser)
     @Override
     public KompletthetResultat vurderEtterlysningInntektsmelding(BehandlingReferanse ref, Skjæringstidspunkt stp) {
@@ -189,22 +147,6 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
     private void loggManglendeInntektsmeldinger(BehandlingReferanse ref, List<ManglendeVedlegg> manglendeInntektsmeldinger) {
         var arbgivere = manglendeInntektsmeldinger.stream().map(v -> OrgNummer.tilMaskertNummer(v.arbeidsgiver())).toList().toString();
         LOG.info("Behandling {} er ikke komplett - mangler IM fra arbeidsgivere: {}", ref.behandlingId(), arbgivere);
-    }
-
-    private boolean finnesBarnet(BehandlingReferanse ref) {
-        var fødselsDato = familieHendelseRepository.hentAggregat(ref.behandlingId())
-                .getSøknadVersjon()
-                .getBarna()
-                .stream()
-                .map(UidentifisertBarn::getFødselsdato)
-                .findFirst();
-
-        if (fødselsDato.isPresent()) {
-            var personopplysninger = personopplysningTjeneste.hentPersonopplysninger(ref);
-            var alleBarn = personopplysninger.getBarna();
-            return alleBarn.stream().anyMatch(bb -> bb.getFødselsdato().equals(fødselsDato.get()));
-        }
-        return false;
     }
 
     private KompletthetResultat ikkeOppfyltManglerVedlegg(BehandlingReferanse ref) {

@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
-import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.kompletthet.impl.KompletthetsjekkerImpl;
@@ -58,8 +57,6 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     private InntektsmeldingRegisterTjeneste inntektsmeldingArkivTjeneste;
     @Mock
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
-    @Mock
-    private PersonopplysningTjeneste personopplysningTjeneste;
 
     private Kompletthetsjekker kompletthetsjekker;
     private final Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder()
@@ -83,7 +80,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
             inntektsmeldingArkivTjeneste,
             inntektsmeldingTjeneste
         );
-        kompletthetsjekker = new KompletthetsjekkerImpl(repositoryProvider, kompletthetsjekkerSøknad, personopplysningTjeneste, manglendeInntektsmeldingTjeneste);
+        kompletthetsjekker = new KompletthetsjekkerImpl(repositoryProvider.getBehandlingRepository(), kompletthetsjekkerSøknad, manglendeInntektsmeldingTjeneste);
 
         testUtil = new KompletthetssjekkerTestUtil(repositoryProvider);
     }

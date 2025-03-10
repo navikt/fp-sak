@@ -20,8 +20,6 @@ public class Transisjoner {
             new FremoverhoppTransisjon(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_VEDTAK.getId(), BehandlingStegType.FORESLÅ_VEDTAK),
             new FremoverhoppTransisjon(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT.getId(),
                     BehandlingStegType.FORESLÅ_BEHANDLINGSRESULTAT),
-            new FremoverhoppTransisjon(FellesTransisjoner.FREMHOPP_TIL_KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT.getId(),
-                    BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT),
             new FremoverhoppTransisjon(FellesTransisjoner.FREMHOPP_TIL_UTTAKSPLAN.getId(), BehandlingStegType.INNGANG_UTTAK),
             new FremoverhoppTransisjon(FellesTransisjoner.FREMHOPP_TIL_BEREGN_YTELSE.getId(), BehandlingStegType.BEREGN_YTELSE),
             new FremoverhoppTransisjon(FellesTransisjoner.FREMHOPP_TIL_IVERKSETT_VEDTAK.getId(), BehandlingStegType.IVERKSETT_VEDTAK),
