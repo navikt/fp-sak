@@ -138,7 +138,7 @@ public class BrevRestTjeneste {
     }
 
     private static String utledBegrunnelse(DokumentMalType dokumentMal, DokumentMalType journalførSom) {
-        if (DokumentMalType.FRITEKSTBREV.equals(dokumentMal)) {
+        if (DokumentMalType.FRITEKSTBREV.equals(dokumentMal) || DokumentMalType.FRITEKSTBREV_HMTL.equals(dokumentMal)) {
             Objects.requireNonNull(journalførSom, "journalførSom må være satt om FRITEKST brev brukes.");
             return journalførSom.getNavn() + " (" + dokumentMal.getNavn() + ")";
         }
@@ -206,7 +206,6 @@ public class BrevRestTjeneste {
             .medSaksnummer(behandling.getSaksnummer())
             .medDokumentMal(forhåndsvisDto.dokumentMal())
             .medRevurderingÅrsak(forhåndsvisDto.arsakskode())
-            .medHtml(forhåndsvisDto.html())
             .medFritekst(forhåndsvisDto.fritekst())
             .medTittel(forhåndsvisDto.tittel())
             .medDokumentType(utledDokumentType(forhåndsvisDto.automatiskVedtaksbrev()))

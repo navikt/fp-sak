@@ -9,7 +9,6 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 public record DokumentForhandsvisning(UUID behandlingUuid,
                                        Saksnummer saksnummer,
                                        DokumentMalType dokumentMal,
-                                       String html,
                                        String fritekst,
                                        String tittel,
                                        RevurderingVarslingÅrsak revurderingÅrsak,
@@ -29,7 +28,6 @@ public record DokumentForhandsvisning(UUID behandlingUuid,
         private Saksnummer saksnummer;
         private DokumentMalType dokumentMal;
         private RevurderingVarslingÅrsak revurderingÅrsak;
-        private String html;
         private String fritekst;
         private String tittel;
         private DokumentType dokumentType;
@@ -59,11 +57,6 @@ public record DokumentForhandsvisning(UUID behandlingUuid,
             return this;
         }
 
-        public Builder medHtml(String html) {
-            this.html = html;
-            return this;
-        }
-
         public Builder medTittel(String tittel) {
             this.tittel = tittel;
             return this;
@@ -76,18 +69,16 @@ public record DokumentForhandsvisning(UUID behandlingUuid,
 
         public DokumentForhandsvisning build() {
             valider();
-            return new DokumentForhandsvisning(behandlingUuid, saksnummer, dokumentMal, html, fritekst, tittel, revurderingÅrsak, dokumentType);
+            return new DokumentForhandsvisning(behandlingUuid, saksnummer, dokumentMal, fritekst, tittel, revurderingÅrsak, dokumentType);
         }
 
         private void valider() {
             Objects.requireNonNull(behandlingUuid, "Behandling UUID må være satt");
             Objects.requireNonNull(saksnummer, "Saksnummer må være satt");
             Objects.requireNonNull(dokumentType, "Dokument type må være satt");
-            if (DokumentMalType.FRITEKSTBREV.equals(dokumentMal)) {
-                if (html != null) {
-                    Objects.requireNonNull(fritekst, "Fritekst må være satt for fritekstbrev");
-                    Objects.requireNonNull(tittel, "Tittel må være satt for fritekstbrev.");
-                }
+            if (DokumentMalType.FRITEKSTBREV.equals(dokumentMal) || DokumentMalType.FRITEKSTBREV_HMTL.equals(dokumentMal)) {
+                Objects.requireNonNull(fritekst, "Fritekst må være satt for fritekstbrev");
+                Objects.requireNonNull(tittel, "Tittel må være satt for fritekstbrev.");
             } else if (DokumentMalType.INNHENTE_OPPLYSNINGER.equals(dokumentMal)) {
                 Objects.requireNonNull(fritekst, "Fritekst må være satt for revurdering årsak Annet.");
             } else if (DokumentMalType.VARSEL_OM_REVURDERING.equals(dokumentMal)) {

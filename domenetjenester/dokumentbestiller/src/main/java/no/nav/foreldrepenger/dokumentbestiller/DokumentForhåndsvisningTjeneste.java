@@ -118,8 +118,7 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
             mapDokumentMal(bestillingDokumentMal),
             mapRevurderignÅrsak(bestilling.revurderingÅrsak()),
             bestilling.tittel(),
-            bestilling.fritekst(),
-            bestilling.html()
+            bestilling.fritekst()
         );
     }
 

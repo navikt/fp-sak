@@ -50,7 +50,6 @@ public class BestillDokumentTask implements ProsessTaskHandler {
             mapDokumentMal(DokumentMalType.valueOf(prosessTaskData.getPropertyValue(DOKUMENT_MAL))),
             mapRevurderignÅrsak(Optional.ofNullable(prosessTaskData.getPropertyValue(REVURDERING_ÅRSAK)).map(RevurderingVarslingÅrsak::valueOf).orElse(null)),
             prosessTaskData.getPayloadAsString(),
-            null, // TODO: Henter dette ved callback.. er det andre plasser en vedtaskbrev dette trengs? Forvaltningstjeneste?
             mapDokumentMal(Optional.ofNullable(prosessTaskData.getPropertyValue(JOURNALFOER_SOM_DOKUMENT)).map(DokumentMalType::valueOf).orElse(null))
         );
     }
