@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.behandling.steg.foreslåvedtak;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -11,6 +11,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
 
 @ApplicationScoped
 public class SjekkMotEksisterendeOppgaverTjeneste {
@@ -26,26 +28,26 @@ public class SjekkMotEksisterendeOppgaverTjeneste {
     }
 
     public List<AksjonspunktDefinisjon> sjekkMotEksisterendeGsakOppgaver(AktørId aktørid, Behandling behandling) {
-
         if (!SpesialBehandling.skalUttakVurderes(behandling) || sjekkMotEksisterendeGsakOppgaverUtført(behandling)) {
             return List.of();
         }
-
-        List<AksjonspunktDefinisjon> aksjonspunktliste = new ArrayList<>();
-
-        if (oppgaveTjeneste.harÅpneVurderKonsekvensOppgaver(aktørid)) {
-            aksjonspunktliste.add(AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK);
-        }
-        if (oppgaveTjeneste.harÅpneVurderDokumentOppgaver(aktørid)) {
-            aksjonspunktliste.add(AksjonspunktDefinisjon.VURDERE_DOKUMENT_FØR_VEDTAK);
-        }
-        return aksjonspunktliste;
+        return mapTilAksjonspunktDefinisjonerForOppgaver(oppgaveTjeneste.hentÅpneVurderDokumentOgVurderKonsekvensOppgaver(aktørid));
     }
 
+    // TODO: Er det riktig at man ikke skal returnere aksjonspunkter dersom kun en av dem er utført?
     private boolean sjekkMotEksisterendeGsakOppgaverUtført(Behandling behandling) {
         return behandling.getAksjonspunkter()
             .stream()
             .anyMatch(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK) && ap.erUtført()
                 || ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDERE_DOKUMENT_FØR_VEDTAK) && ap.erUtført());
+    }
+
+    static List<AksjonspunktDefinisjon> mapTilAksjonspunktDefinisjonerForOppgaver(List<Oppgave> oppgaver) {
+        return oppgaver.stream()
+            .map(Oppgave::oppgavetype)
+            .map(oppgavetype -> Objects.equals(oppgavetype,
+                Oppgavetype.VURDER_KONSEKVENS_YTELSE.getKode()) ? AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK : AksjonspunktDefinisjon.VURDERE_DOKUMENT_FØR_VEDTAK)
+            .distinct()
+            .toList();
     }
 }
