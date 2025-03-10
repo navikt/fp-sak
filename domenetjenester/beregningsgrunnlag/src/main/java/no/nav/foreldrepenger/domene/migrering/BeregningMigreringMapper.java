@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -55,6 +56,7 @@ import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagFrilansAndel;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRegelSporing;
 import no.nav.foreldrepenger.domene.entiteter.BesteberegningInntektEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BesteberegningMånedsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BesteberegninggrunnlagEntitet;
@@ -62,6 +64,7 @@ import no.nav.foreldrepenger.domene.entiteter.Sammenligningsgrunnlag;
 import no.nav.foreldrepenger.domene.entiteter.SammenligningsgrunnlagPrStatus;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulator.KodeverkTilKalkulusMapper;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagRegelType;
 import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -72,11 +75,13 @@ public class BeregningMigreringMapper {
         // Skjuler default
     }
 
-    public static BeregningsgrunnlagGrunnlagMigreringDto map(BeregningsgrunnlagGrunnlagEntitet grunnlag) {
-        return mapGrunnlag(grunnlag);
+    public static BeregningsgrunnlagGrunnlagMigreringDto map(BeregningsgrunnlagGrunnlagEntitet grunnlag,
+                                                             Map<BeregningsgrunnlagRegelType, BeregningsgrunnlagRegelSporing> grunnlagSporinger) {
+        return mapGrunnlag(grunnlag, grunnlagSporinger);
     }
 
-    private static BeregningsgrunnlagGrunnlagMigreringDto mapGrunnlag(BeregningsgrunnlagGrunnlagEntitet entitet) {
+    private static BeregningsgrunnlagGrunnlagMigreringDto mapGrunnlag(BeregningsgrunnlagGrunnlagEntitet entitet,
+                                                                      Map<BeregningsgrunnlagRegelType, BeregningsgrunnlagRegelSporing> grunnlagSporinger) {
         var aktivitetOverstyringer = entitet.getOverstyring().map(BeregningMigreringMapper::mapAktivitetOverstyringer).orElse(null);
         var saksbehandletAktiviteter = entitet.getSaksbehandletAktiviteter().map(BeregningMigreringMapper::mapAktiviteter).orElse(null);
         var registerAktiviteter = entitet.getRegisterAktiviteter() == null ? null : mapAktiviteter(entitet.getRegisterAktiviteter());
@@ -84,12 +89,12 @@ public class BeregningMigreringMapper {
         var faktaAggregat = entitet.getBeregningsgrunnlag().flatMap(BeregningMigreringMapper::mapFaktaAggregat).orElse(null);
         var beregningsgrunnlag = entitet.getBeregningsgrunnlag().map(BeregningMigreringMapper::mapBeregningsgrunnlag).orElse(null);
         var tilstand = KodeverkTilKalkulusMapper.mapBeregningsgrunnlagTilstand(entitet.getBeregningsgrunnlagTilstand());
-        var grunnlagSporinger = entitet.getBeregningsgrunnlag().map(BeregningMigreringMapper::mapGrunnlagSporinger).orElse(List.of());
-        var periodeSporinger = entitet.getBeregningsgrunnlag().map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder).orElse(List.of()).stream()
+        var grunnlagSporingerDto = mapGrunnlagSporinger(grunnlagSporinger);
+        var periodeSporingerDto = entitet.getBeregningsgrunnlag().map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder).orElse(List.of()).stream()
             .map(BeregningMigreringMapper::mapPeriodeSporinger)
             .flatMap(Collection::stream)
             .toList();
-        var dto = new BeregningsgrunnlagGrunnlagMigreringDto(beregningsgrunnlag, registerAktiviteter, saksbehandletAktiviteter, aktivitetOverstyringer, refusjonOverstyringer, faktaAggregat, tilstand, grunnlagSporinger, periodeSporinger);
+        var dto = new BeregningsgrunnlagGrunnlagMigreringDto(beregningsgrunnlag, registerAktiviteter, saksbehandletAktiviteter, aktivitetOverstyringer, refusjonOverstyringer, faktaAggregat, tilstand, grunnlagSporingerDto, periodeSporingerDto);
         settOpprettetOgEndretFelter(entitet, dto);
         return dto;
     }
@@ -101,8 +106,8 @@ public class BeregningMigreringMapper {
             .toList();
     }
 
-    private static List<RegelSporingGrunnlagMigreringDto> mapGrunnlagSporinger(BeregningsgrunnlagEntitet bg) {
-        return bg.getRegelSporinger().entrySet().stream()
+    private static List<RegelSporingGrunnlagMigreringDto> mapGrunnlagSporinger(Map<BeregningsgrunnlagRegelType, BeregningsgrunnlagRegelSporing> sporinger) {
+        return sporinger.entrySet().stream()
             .map(entry -> new RegelSporingGrunnlagMigreringDto(entry.getValue().getRegelEvaluering(),
                     entry.getValue().getRegelInput(), KodeverkTilKalkulusMapper.mapGrunnlagRegeltype(entry.getKey()), entry.getValue().getRegelVersjon()))
             .toList();
