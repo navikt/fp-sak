@@ -28,15 +28,13 @@ class HentMedlemskapFraRegisterTest {
 
     @Mock
     private Medlemskap restKlient;
-    @Mock
-    private MedlemsperioderRestKlient medlemsperioderRestClient;
     private HentMedlemskapFraRegister medlemTjeneste;
 
     private static final long MEDL_ID_1 = 2663947L;
 
     @BeforeEach
     void before() {
-        medlemTjeneste = new HentMedlemskapFraRegister(restKlient, medlemsperioderRestClient);
+        medlemTjeneste = new HentMedlemskapFraRegister(restKlient);
     }
 
     @Test
