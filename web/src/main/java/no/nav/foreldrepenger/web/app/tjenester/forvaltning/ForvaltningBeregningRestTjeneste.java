@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -287,7 +288,8 @@ public class ForvaltningBeregningRestTjeneste {
     public Response hentMigreringInput(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         var behandling = behandlingRepository.hentBehandling(dto.getBehandlingUuid());
         var grunnlag = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId()).orElseThrow();
-        var response = BeregningMigreringMapper.map(grunnlag);
+        var response = BeregningMigreringMapper.map(grunnlag, grunnlag.getBeregningsgrunnlag().map(BeregningsgrunnlagEntitet::getRegelSporinger)
+            .orElse(Map.of()));
         return Response.ok(response).build();
     }
 
