@@ -55,12 +55,14 @@ class BeregningMigreringTjenesteTest {
     private BeregningsgrunnlagKoblingRepository koblingRepository;
     @Mock
     private BehandlingRepository behandlingRepository;
+    @Mock
+    private RegelsporingMigreringTjeneste regelsporingMigreringTjeneste;
 
     private BeregningMigreringTjeneste beregningMigreringTjeneste;
 
     @BeforeEach
     void setup() {
-        beregningMigreringTjeneste = new BeregningMigreringTjeneste(klient, beregningsgrunnlagRepository, koblingRepository, behandlingRepository);
+        beregningMigreringTjeneste = new BeregningMigreringTjeneste(klient, beregningsgrunnlagRepository, koblingRepository, behandlingRepository, regelsporingMigreringTjeneste);
     }
 
     @Test
