@@ -49,7 +49,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
-import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBehandlingsmenyEnum;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
@@ -61,8 +60,6 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
 
     @Mock
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-    @Mock
-    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
     private BehandlingRepository behandlingRepository;
     private VergeRepository vergeRepository;
@@ -90,9 +87,9 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
         vergeRepository = new VergeRepository(entityManager);
         historikkRepository = new HistorikkinnslagRepository(entityManager);
 
-        var nyVergeTjeneste = new OpprettVergeTjeneste(personinfoAdapter, brukerTjeneste, vergeRepository, historikkRepository);
-        vergeTjeneste = new VergeTjeneste(behandlingskontrollTjeneste, behandlingProsesseringTjeneste, vergeRepository, historikkRepository,
-            behandlingRepository, personopplysningTjeneste, nyVergeTjeneste, vergeDtoTjeneste);
+        var opprettVergeTjeneste = new OpprettVergeTjeneste(personinfoAdapter, brukerTjeneste, vergeRepository, historikkRepository);
+        vergeTjeneste = new VergeTjeneste(behandlingskontrollTjeneste, vergeRepository, historikkRepository, personopplysningTjeneste,
+            opprettVergeTjeneste, vergeDtoTjeneste);
 
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), RelasjonsRolleType.MORA,
             new Saksnummer("0123"));
@@ -176,41 +173,6 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
             // Assert
             assertThat(behandlingOperasjon).isEqualTo(VergeBehandlingsmenyEnum.FJERN);
         }
-    }
-
-    @Test
-    void skal_opprette_verge_aksjonspunkt() {
-        // Arrange
-        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-        when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.FORESLÅ_VEDTAK)).thenReturn(true);
-
-        // Act
-        vergeTjeneste.opprettVergeAksjonspunktOgHoppTilbakeTilFORVEDSTEGHvisSenereSteg(behandling);
-
-        // Assert
-        verify(behandlingskontrollTjeneste).lagreAksjonspunkterFunnet(any(), eq(List.of(AksjonspunktDefinisjon.AVKLAR_VERGE)));
-        verify(behandlingProsesseringTjeneste).reposisjonerBehandlingTilbakeTil(behandling, BehandlingStegType.FORESLÅ_VEDTAK);
-        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandling(behandling);
-    }
-
-    @Test
-    void skal_fjerne_verge_grunnlag_og_aksjonspunkt() {
-        // Arrange
-        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-        AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AVKLAR_VERGE);
-        vergeRepository.lagreOgFlush(behandling.getId(), opprettVergeBuilder());
-
-        // Act
-        vergeTjeneste.fjernVergeGrunnlagOgAksjonspunkt(behandling);
-
-        // Assert
-        assertThat(vergeRepository.hentAggregat(behandling.getId())).isNotPresent();
-        var ap = behandling.getAksjonspunktFor(AksjonspunktDefinisjon.AVKLAR_VERGE);
-        verify(behandlingskontrollTjeneste).lagreAksjonspunkterAvbrutt(any(), any(), eq(List.of(ap)));
-        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandling(behandling);
-        var historikkinnslag = historikkRepository.hent(behandling.getSaksnummer());
-        assertThat(historikkinnslag).hasSize(1);
-        assertThat(historikkinnslag.getFirst().getTittel()).contains("verge", "fjernet");
     }
 
     @Nested
