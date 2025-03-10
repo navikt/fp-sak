@@ -6,6 +6,8 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.util.List;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OppgaveType;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,20 +34,18 @@ class OppgaveDtoTjenesteTest {
 
     @Test
     void henter_oppgaver_og_mapper_til_dto() {
-        Oppgave vurderKonsekvens1 = opprettOppgave(Oppgavetype.VURDER_KONSEKVENS_YTELSE, "vurderKonsekvensBeskrivelse1");
-        Oppgave vurderKonsekvens2 = opprettOppgave(Oppgavetype.VURDER_KONSEKVENS_YTELSE, "vurderKonsekvensBeskrivelse2");
         Oppgave vurderDokument1 = opprettOppgave(Oppgavetype.VURDER_DOKUMENT, "vurderDokumentBeskrivelse1");
         Oppgave vurderDokument2 = opprettOppgave(Oppgavetype.VURDER_DOKUMENT, "vurderDokumentBeskrivelse2");
-        List<Oppgave> forventedeOppgaver = List.of(vurderKonsekvens1, vurderKonsekvens2, vurderDokument1,
-            vurderDokument2);
-        when(oppgaveTjenesteMock.hentÅpneVurderKonsekvensOppgaver(AKTØR_ID)).thenReturn(List.of(vurderKonsekvens1, vurderKonsekvens2));
-        when(oppgaveTjenesteMock.hentÅpneVurderDokumentOppgaver(AKTØR_ID)).thenReturn(List.of(vurderDokument1, vurderDokument2));
+        Oppgave vurderKonsekvens1 = opprettOppgave(Oppgavetype.VURDER_KONSEKVENS_YTELSE, "vurderKonsekvensBeskrivelse1");
+        Oppgave vurderKonsekvens2 = opprettOppgave(Oppgavetype.VURDER_KONSEKVENS_YTELSE, "vurderKonsekvensBeskrivelse2");
+        List<Oppgave> forventedeOppgaver = List.of(vurderDokument1, vurderDokument2, vurderKonsekvens1, vurderKonsekvens2);
+        when(oppgaveTjenesteMock.hentÅpneVurderDokumentOgVurderKonsekvensOppgaver(AKTØR_ID)).thenReturn(forventedeOppgaver);
 
         var oppgaver = oppgaveDtoTjeneste.mapTilDto(AKTØR_ID);
 
         assertThat(oppgaver).hasSize(4);
         for (int i = 0; i < oppgaver.size(); i++) {
-            assertThat(oppgaver.get(i).oppgavetype()).isEqualTo(forventedeOppgaver.get(i).oppgavetype());
+            assertThat(oppgaver.get(i).oppgavetype()).isEqualTo(OppgaveType.fraKode(forventedeOppgaver.get(i).oppgavetype()));
             assertThat(oppgaver.get(i).beskrivelse()).isEqualTo(forventedeOppgaver.get(i).beskrivelse());
         }
     }

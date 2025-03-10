@@ -10,9 +10,8 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum OppgaveType implements Kodeverdi {
 
-    UDEFINERT("-", "Ikke satt eller valgt kode"),
-    VUR_KONS_YTE("VUR_KONS_YTE", "Vurder konsekvens for ytelse"),
-    VUR("VUR", "Vurder dokument");
+    VUR_KONSEKVENS("VUR_KONSEKVENS", "Vurder konsekvens for ytelse"),
+    VUR_DOKUMENT("VUR_DOKUMENT", "Vurder dokument");
 
     public static final String KODEVERK = "OPPGAVE_TYPE";
     private static final Map<String, OppgaveType> KODER = new LinkedHashMap<>();
@@ -33,6 +32,15 @@ public enum OppgaveType implements Kodeverdi {
     OppgaveType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
+    }
+
+    public static OppgaveType fraKode(String kode) {
+        return switch (kode) {
+            case "VUR_KONS_YTE" -> VUR_KONSEKVENS;
+            case "VUR",
+                 "VUR_VL" -> VUR_DOKUMENT;
+            default -> null;
+        };
     }
 
     public static Map<String, OppgaveType> kodeMap() {

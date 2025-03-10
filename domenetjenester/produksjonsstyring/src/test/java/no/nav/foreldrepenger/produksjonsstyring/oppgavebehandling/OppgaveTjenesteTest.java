@@ -85,29 +85,13 @@ class OppgaveTjenesteTest {
         var scenario = lagScenario();
         var behandling = lagBehandling(scenario);
         var tjeneste = lagTjeneste(scenario);
-        when(oppgaveRestKlient.finnÅpneOppgaver(eq(List.of(Oppgavetype.VURDER_DOKUMENT.getKode(), "VUR_VL")), any(), any(), any())).thenReturn(List.of(OPPGAVE));
-        when(oppgaveRestKlient.finnÅpneOppgaverAvType(eq(Oppgavetype.VURDER_KONSEKVENS_YTELSE), any(), any(), any())).thenReturn(List.of());
+        when(oppgaveRestKlient.finnÅpneOppgaver(
+            eq(List.of(Oppgavetype.VURDER_DOKUMENT.getKode(), "VUR_VL", Oppgavetype.VURDER_KONSEKVENS_YTELSE.getKode())), any(), any(), any()))
+            .thenReturn(List.of(OPPGAVE));
 
-        var harVurderDok = tjeneste.hentÅpneVurderDokumentOppgaver(behandling.getAktørId());
-        var harVurderKY = tjeneste.hentÅpneVurderKonsekvensOppgaver(behandling.getAktørId());
+        var oppgaver = tjeneste.hentÅpneVurderDokumentOgVurderKonsekvensOppgaver(behandling.getAktørId());
 
-        assertThat(harVurderDok).isNotEmpty().contains(OPPGAVE);
-        assertThat(harVurderKY).isEmpty();
-    }
-
-    @Test
-    void skal_hente_om_oppgave_liste_eksisterer() {
-        var scenario = lagScenario();
-        var behandling = lagBehandling(scenario);
-        var tjeneste = lagTjeneste(scenario);
-        when(oppgaveRestKlient.finnÅpneOppgaver(eq(List.of(Oppgavetype.VURDER_DOKUMENT.getKode(), "VUR_VL")), any(), any(), any())).thenReturn(List.of(OPPGAVE));
-        when(oppgaveRestKlient.finnÅpneOppgaverAvType(eq(Oppgavetype.VURDER_KONSEKVENS_YTELSE), any(), any(), any())).thenReturn(List.of());
-
-        var harVurderDok = tjeneste.harÅpneVurderDokumentOppgaver(behandling.getAktørId());
-        var harVurderKY = tjeneste.harÅpneVurderKonsekvensOppgaver(behandling.getAktørId());
-
-        assertThat(harVurderDok).isTrue();
-        assertThat(harVurderKY).isFalse();
+        assertThat(oppgaver).isNotEmpty().contains(OPPGAVE);
     }
 
     @Test
