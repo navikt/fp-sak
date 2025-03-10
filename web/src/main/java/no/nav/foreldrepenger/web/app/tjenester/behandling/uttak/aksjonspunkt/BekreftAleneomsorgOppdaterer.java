@@ -16,8 +16,9 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaOmsorgRettTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AvklarAleneomsorgVurderingDto;
@@ -45,7 +46,7 @@ public class BekreftAleneomsorgOppdaterer implements AksjonspunktOppdaterer<Avkl
     @Override
     public OppdateringResultat oppdater(AvklarAleneomsorgVurderingDto dto, AksjonspunktOppdaterParameter param) {
         // Må ha valgt aleneomsorg = true, annenForelderRett = true, eller annenForelderRettEØS = true, eller valgt uføretrygd true/false
-        if (måVelgeUføre(dto) && dto.getAnnenforelderMottarUføretrygd() == null) {
+        if (måVelgeUføre(dto, param.getRef().relasjonRolle()) && dto.getAnnenforelderMottarUføretrygd() == null) {
             LOG.warn("Avklar aleneomsorg: får inn denne Dto'en som gir feil {}", dto);
             throw new FunksjonellException("FP-093924", "Avkreftet aleneomsorg mangler verdi for annen forelder rett eller uføretrygd.",
                 "Angi om annen forelder har rett eller om annen forelder mottar uføretrygd.");
@@ -80,8 +81,8 @@ public class BekreftAleneomsorgOppdaterer implements AksjonspunktOppdaterer<Avkl
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();
     }
 
-    private static boolean måVelgeUføre(AvklarAleneomsorgVurderingDto dto) {
-        return !(Objects.equals(dto.getAleneomsorg(), Boolean.TRUE) || Objects.equals(dto.getAnnenforelderHarRett(), Boolean.TRUE) || Objects.equals(
+    private static boolean måVelgeUføre(AvklarAleneomsorgVurderingDto dto, RelasjonsRolleType relasjonsRolleType) {
+        return relasjonsRolleType != RelasjonsRolleType.MORA && !(Objects.equals(dto.getAleneomsorg(), Boolean.TRUE) || Objects.equals(dto.getAnnenforelderHarRett(), Boolean.TRUE) || Objects.equals(
             dto.getAnnenForelderHarRettEØS(), Boolean.TRUE));
     }
 

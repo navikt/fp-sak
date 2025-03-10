@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapKi
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.exception.IntegrasjonException;
 
 @ApplicationScoped
 public class HentMedlemskapFraRegister {
@@ -22,25 +21,35 @@ public class HentMedlemskapFraRegister {
     private static final Logger LOG = LoggerFactory.getLogger(HentMedlemskapFraRegister.class);
 
     private Medlemskap restKlient;
+    private MedlemsperioderRestKlient medlemsperioderRestKlient;
 
     HentMedlemskapFraRegister() {
         // CDI
     }
 
     @Inject
-    public HentMedlemskapFraRegister(Medlemskap restKlient) {
+    public HentMedlemskapFraRegister(Medlemskap restKlient, MedlemsperioderRestKlient medlemsperioderRestKlient) {
         this.restKlient = restKlient;
+        this.medlemsperioderRestKlient = medlemsperioderRestKlient;
     }
 
     public List<Medlemskapsperiode> finnMedlemskapPerioder(AktørId aktørId, LocalDate fom, LocalDate tom) {
+        var mups = restKlient.finnMedlemsunntak(aktørId.getId(), fom, tom);
+        LOG.info("MEDL2 REST RS {}", mups);
+        sammenlign(mups, aktørId, fom, tom);
+        return mups.stream().map(this::mapFraMedlemsunntak).toList();
+    }
+
+    private void sammenlign(List<Medlemskapsunntak> input, AktørId aktørId, LocalDate fom, LocalDate tom) {
         try {
-            var mups = restKlient.finnMedlemsunntak(aktørId.getId(), fom, tom).stream()
-                .map(this::mapFraMedlemsunntak)
-                .toList();
-            LOG.info("MEDL2 REST RS {}", mups);
-            return mups;
+            var perioder = medlemsperioderRestKlient.finnMedlemsunntak(aktørId.getId(), fom, tom);
+            if (perioder.size() == input.size() && perioder.containsAll(input)) {
+                LOG.info("MEDL2 POST sammenligning OK");
+            } else {
+                LOG.info("MEDL2 POST sammenligning ulike gammel {} ny {}", input, perioder);
+            }
         } catch (Exception e) {
-            throw new IntegrasjonException("FP-085791", "Feil ved kall til medlemskap tjenesten.", e);
+            LOG.info("MEDL2 POST sammenligning feil", e);
         }
     }
 
