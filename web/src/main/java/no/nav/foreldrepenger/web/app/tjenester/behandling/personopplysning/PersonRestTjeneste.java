@@ -21,7 +21,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.domene.person.verge.VergeDtoTjeneste;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBackendDto;
-import no.nav.foreldrepenger.domene.person.verge.dto.VergeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
@@ -39,10 +38,6 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 public class PersonRestTjeneste {
 
     static final String BASE_PATH = "/behandling";
-    private static final String VERGE_PART_PATH = "/person/verge";
-    public static final String VERGE_PATH = BASE_PATH + VERGE_PART_PATH;
-    private static final String VERGE_BACKEND_PART_PATH = "/person/verge-backend";
-    public static final String VERGE_BACKEND_PATH = BASE_PATH + VERGE_BACKEND_PART_PATH;
     private static final String MEDLEMSKAP_V3_PART_PATH = "/person/medlemskap-v3";
     public static final String MEDLEMSKAP_V3_PATH = BASE_PATH + MEDLEMSKAP_V3_PART_PATH;
     private static final String PERSONOVERSIKT_PART_PATH = "/person/personoversikt";
@@ -50,8 +45,6 @@ public class PersonRestTjeneste {
     private static final String PERSONOPPLYSNINGER_TILBAKE_PART_PATH = "/person/personopplysninger-tilbake";
     public static final String PERSONOPPLYSNINGER_TILBAKE_PATH = BASE_PATH + PERSONOPPLYSNINGER_TILBAKE_PART_PATH;
 
-    private VergeRepository vergeRepository;
-    private VergeDtoTjeneste vergeDtoTjenesteImpl;
     private MedlemDtoTjeneste medlemDtoTjeneste;
     private PersonopplysningDtoPersonIdentTjeneste personopplysningFnrFinder;
     private PersonopplysningDtoTjeneste personopplysningDtoTjeneste;
@@ -62,44 +55,15 @@ public class PersonRestTjeneste {
     }
 
     @Inject
-    public PersonRestTjeneste(VergeRepository vergeRepository,
-            VergeDtoTjeneste vergeTjeneste,
+    public PersonRestTjeneste(
             MedlemDtoTjeneste medlemTjeneste,
             PersonopplysningDtoTjeneste personopplysningTjeneste,
             PersonopplysningDtoPersonIdentTjeneste personopplysningFnrFinder,
             BehandlingsprosessTjeneste behandlingsprosessTjeneste) {
-        this.vergeRepository = vergeRepository;
         this.medlemDtoTjeneste = medlemTjeneste;
-        this.vergeDtoTjenesteImpl = vergeTjeneste;
         this.personopplysningDtoTjeneste = personopplysningTjeneste;
         this.personopplysningFnrFinder = personopplysningFnrFinder;
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
-    }
-
-    @GET
-    @Path(VERGE_PART_PATH)
-    @Operation(description = "Returnerer informasjon om verge knyttet til søker for denne behandlingen", tags = "behandling - person", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer Verge, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = VergeDto.class)))
-    })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
-    public VergeDto getVerge(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        var behandlingId = getBehandlingsId(uuidDto.getBehandlingUuid());
-        var vergeDto = vergeRepository.hentAggregat(behandlingId).flatMap(vergeDtoTjenesteImpl::lagVergeDto);
-
-        return vergeDto.orElse(null);
-    }
-
-    @GET
-    @Path(VERGE_BACKEND_PART_PATH)
-    @Operation(description = "Returnerer informasjon om verge knyttet til søker for denne behandlingen for bruk backend", tags = "behandling - person", responses = {
-        @ApiResponse(responseCode = "200", description = "Returnerer Verge, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = VergeBackendDto.class)))
-    })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
-    public VergeBackendDto getVergeBackend(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        var behandlingId = getBehandlingsId(uuidDto.getBehandlingUuid());
-        return vergeRepository.hentAggregat(behandlingId).flatMap(vergeDtoTjenesteImpl::lagVergeBackendDto).orElse(null);
     }
 
     @GET

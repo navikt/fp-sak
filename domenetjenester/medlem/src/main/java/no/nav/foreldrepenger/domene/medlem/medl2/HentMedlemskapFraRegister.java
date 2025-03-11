@@ -6,20 +6,14 @@ import java.util.List;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDekningType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapKildeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.exception.IntegrasjonException;
 
 @ApplicationScoped
 public class HentMedlemskapFraRegister {
-
-    private static final Logger LOG = LoggerFactory.getLogger(HentMedlemskapFraRegister.class);
 
     private Medlemskap restKlient;
 
@@ -33,15 +27,9 @@ public class HentMedlemskapFraRegister {
     }
 
     public List<Medlemskapsperiode> finnMedlemskapPerioder(AktørId aktørId, LocalDate fom, LocalDate tom) {
-        try {
-            var mups = restKlient.finnMedlemsunntak(aktørId.getId(), fom, tom).stream()
-                .map(this::mapFraMedlemsunntak)
-                .toList();
-            LOG.info("MEDL2 REST RS {}", mups);
-            return mups;
-        } catch (Exception e) {
-            throw new IntegrasjonException("FP-085791", "Feil ved kall til medlemskap tjenesten.", e);
-        }
+        return restKlient.finnMedlemsunntak(aktørId.getId(), fom, tom).stream()
+            .map(this::mapFraMedlemsunntak)
+            .toList();
     }
 
     private Medlemskapsperiode mapFraMedlemsunntak(Medlemskapsunntak medlemsperiode) {

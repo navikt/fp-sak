@@ -5,6 +5,6 @@ import java.util.List;
 
 public interface Medlemskap {
 
-    List<Medlemskapsunntak> finnMedlemsunntak(String aktørId, LocalDate fom, LocalDate tom) throws Exception;
+    List<Medlemskapsunntak> finnMedlemsunntak(String aktørId, LocalDate fom, LocalDate tom);
 
 }

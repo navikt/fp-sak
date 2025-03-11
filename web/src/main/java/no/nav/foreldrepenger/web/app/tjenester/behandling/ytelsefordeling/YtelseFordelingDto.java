@@ -4,8 +4,6 @@ import java.time.LocalDate;
 
 public class YtelseFordelingDto {
     private Boolean overstyrtOmsorg;
-    private Boolean bekreftetAleneomsorg;
-    private RettigheterAnnenforelderDto rettigheterAnnenforelder;
     private LocalDate førsteUttaksdato;
     private boolean ønskerJustertVedFødsel;
 
@@ -14,14 +12,6 @@ public class YtelseFordelingDto {
 
     public Boolean getOverstyrtOmsorg() {
         return overstyrtOmsorg;
-    }
-
-    public Boolean getBekreftetAleneomsorg() {
-        return bekreftetAleneomsorg;
-    }
-
-    public RettigheterAnnenforelderDto getRettigheterAnnenforelder() {
-        return rettigheterAnnenforelder;
     }
 
     public LocalDate getFørsteUttaksdato() {
@@ -38,17 +28,6 @@ public class YtelseFordelingDto {
 
         public Builder medOverstyrtOmsorg(Boolean overstyrtOmsorg) {
             kladd.overstyrtOmsorg = overstyrtOmsorg;
-            return this;
-        }
-
-
-        public Builder medBekreftetAleneomsorg(Boolean bekreftetAleneomsorg) {
-            kladd.bekreftetAleneomsorg = bekreftetAleneomsorg;
-            return this;
-        }
-
-        public Builder medRettigheterAnnenforelder(RettigheterAnnenforelderDto rettighetAnnenforelder) {
-            kladd.rettigheterAnnenforelder = rettighetAnnenforelder;
             return this;
         }
 

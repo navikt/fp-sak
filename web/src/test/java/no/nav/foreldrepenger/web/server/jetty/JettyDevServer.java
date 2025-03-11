@@ -7,6 +7,9 @@ public class JettyDevServer extends JettyServer {
     private static final Environment ENV = Environment.current();
 
     public static void main(String[] args) throws Exception {
+        // Konfigurerer tasker til å polle mer aggressivt, gjør at verdikjede kjører raskere lokalt
+        System.setProperty("task.manager.polling.delay", "40");
+        System.setProperty("task.manager.runner.threads", "4");
         jettyServer(args).bootStrap();
     }
 

@@ -86,7 +86,7 @@ record SvpSak(String saksnummer,
         }
     }
 
-    public record Aktivitet(Type type, Arbeidsgiver arbeidsgiver, String arbeidsforholdId) {
+    public record Aktivitet(Type type, Arbeidsgiver arbeidsgiver, String arbeidsforholdId, String arbeidsgiverNavn) {
 
         public enum Type {
             ORDINÆRT_ARBEID,

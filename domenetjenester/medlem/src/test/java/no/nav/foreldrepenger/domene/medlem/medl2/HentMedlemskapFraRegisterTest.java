@@ -11,6 +11,9 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDekningType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapKildeType;
@@ -18,17 +21,19 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapTy
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
+@ExtendWith(MockitoExtension.class)
 class HentMedlemskapFraRegisterTest {
 
     private static final AktørId AKTØR_ID = AktørId.dummy();
 
-    private Medlemskap restKlient = mock(Medlemskap.class);
+    @Mock
+    private Medlemskap restKlient;
     private HentMedlemskapFraRegister medlemTjeneste;
 
     private static final long MEDL_ID_1 = 2663947L;
 
     @BeforeEach
-    public void before() {
+    void before() {
         medlemTjeneste = new HentMedlemskapFraRegister(restKlient);
     }
 
@@ -57,9 +62,9 @@ class HentMedlemskapFraRegisterTest {
         assertThat(medlemskapsperioder).hasSize(1);
 
         var medlemskapsperiode1 = new Medlemskapsperiode.Builder()
-                .medFom(LocalDate.of(2010, 8, 1))
-                .medTom(LocalDate.of(2010, 12, 31))
-                .medDatoBesluttet(LocalDate.of(2012, 5, 26))
+                .medFom(LocalDate.of(2019, 8, 1))
+                .medTom(LocalDate.of(2019, 12, 31))
+                .medDatoBesluttet(LocalDate.of(2020, 5, 26))
                 .medErMedlem(true)
                 .medDekning(MedlemskapDekningType.FULL)
                 .medLovvalg(MedlemskapType.ENDELIG)
@@ -68,5 +73,6 @@ class HentMedlemskapFraRegisterTest {
                 .medStudieland(Landkoder.VUT)
                 .medMedlId(MEDL_ID_1)
                 .build();
+        assertThat(medlemskapsperioder.getFirst()).isEqualTo(medlemskapsperiode1);
     }
 }
