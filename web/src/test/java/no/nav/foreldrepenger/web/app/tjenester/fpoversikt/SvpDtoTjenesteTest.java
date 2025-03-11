@@ -12,6 +12,8 @@ import java.util.Optional;
 
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -61,6 +63,8 @@ class SvpDtoTjenesteTest extends EntityManagerAwareTest {
     private BehandlingRepository behandlingRepository;
     @Mock
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
+    @Mock
+    private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
     @Inject
     private DtoTjenesteFelles felles;
     @Inject
@@ -75,7 +79,7 @@ class SvpDtoTjenesteTest extends EntityManagerAwareTest {
         svangerskapspengerRepository = new SvangerskapspengerRepository(entityManager);
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
-        tjeneste = new SvpDtoTjeneste(svangerskapspengerRepository, repositoryProvider.getSvangerskapspengerUttakResultatRepository(), felles,
+        tjeneste = new SvpDtoTjeneste(arbeidsgiverTjeneste, svangerskapspengerRepository, repositoryProvider.getSvangerskapspengerUttakResultatRepository(), felles,
             inntektsmeldingTjeneste, skjæringstidspunktTjeneste);
     }
 

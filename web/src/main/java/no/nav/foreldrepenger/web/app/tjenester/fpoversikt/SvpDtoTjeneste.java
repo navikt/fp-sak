@@ -33,6 +33,8 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakR
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
+import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -41,6 +43,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 public class SvpDtoTjeneste {
 
     private static final String UNEXPECTED_VALUE = "Unexpected value: ";
+    private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
     private SvangerskapspengerRepository svangerskapspengerRepository;
     private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
     private DtoTjenesteFelles felles;
@@ -48,11 +51,13 @@ public class SvpDtoTjeneste {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     @Inject
-    public SvpDtoTjeneste(SvangerskapspengerRepository svangerskapspengerRepository,
+    public SvpDtoTjeneste(ArbeidsgiverTjeneste arbeidsgiverTjeneste,
+                          SvangerskapspengerRepository svangerskapspengerRepository,
                           SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository,
                           DtoTjenesteFelles felles,
                           InntektsmeldingTjeneste inntektsmeldingTjeneste,
                           @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+        this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
         this.svangerskapspengerRepository = svangerskapspengerRepository;
         this.svangerskapspengerUttakResultatRepository = svangerskapspengerUttakResultatRepository;
         this.felles = felles;
@@ -98,7 +103,8 @@ public class SvpDtoTjeneste {
             return null;
         }
         return switch (avslagsårsak) {
-            case ARBEIDSTAKER_KAN_OMPLASSERES, SN_FL_HAR_MULIGHET_TIL_Å_TILRETTELEGGE_SITT_VIRKE -> SvpSak.Vedtak.AvslagÅrsak.ARBEIDSGIVER_KAN_TILRETTELEGGE;
+            case ARBEIDSTAKER_KAN_OMPLASSERES, SN_FL_HAR_MULIGHET_TIL_Å_TILRETTELEGGE_SITT_VIRKE ->
+                SvpSak.Vedtak.AvslagÅrsak.ARBEIDSGIVER_KAN_TILRETTELEGGE;
             case SØKER_HAR_MOTTATT_SYKEPENGER -> SvpSak.Vedtak.AvslagÅrsak.SØKER_ER_INNVILGET_SYKEPENGER;
             case MANGLENDE_DOKUMENTASJON -> SvpSak.Vedtak.AvslagÅrsak.MANGLENDE_DOKUMENTASJON;
             default -> SvpSak.Vedtak.AvslagÅrsak.ANNET;
@@ -160,8 +166,7 @@ public class SvpDtoTjeneste {
                             SvpSak.Vedtak.ArbeidsforholdUttak.SvpPeriode.ResultatÅrsak.AVSLAG_INNGANGSVILKÅR;
                     };
 
-                    var arbeidstidprosent =  matchendeTilretteleggingFOM
-                        .filter(mt -> TilretteleggingType.DELVIS_TILRETTELEGGING.equals(mt.getType()))
+                    var arbeidstidprosent = matchendeTilretteleggingFOM.filter(mt -> TilretteleggingType.DELVIS_TILRETTELEGGING.equals(mt.getType()))
                         .map(TilretteleggingFOM::getStillingsprosent)
                         .orElse(null);
                     return new SvpSak.Vedtak.ArbeidsforholdUttak.SvpPeriode(p.getFom(), p.getTom(), tilretteleggingType, arbeidstidprosent,
@@ -169,8 +174,8 @@ public class SvpDtoTjeneste {
                 }).filter(Objects::nonNull).collect(Collectors.toSet());
                 //utlede oppholdsperioder
                 var oppholdsperioder = matchendeTilrettelegging.map(mt -> finnAlleOppholdsperioderFraTlr(mt, behandling)).orElse(Set.of());
-
-                return new SvpSak.Vedtak.ArbeidsforholdUttak(new SvpSak.Aktivitet(type, arbeidsgiver, arbeidsforholdId),
+                var arbeidsgiverNavn = Optional.ofNullable(arbeidsgiverTjeneste.hent(ua.getArbeidsgiver())).map(ArbeidsgiverOpplysninger::getNavn).orElse(null);
+                return new SvpSak.Vedtak.ArbeidsforholdUttak(new SvpSak.Aktivitet(type, arbeidsgiver, arbeidsforholdId, arbeidsgiverNavn),
                     matchendeTilrettelegging.map(SvpTilretteleggingEntitet::getBehovForTilretteleggingFom).orElse(null),
                     matchendeTilrettelegging.flatMap(SvpTilretteleggingEntitet::getOpplysningerOmRisikofaktorer).orElse(null),
                     matchendeTilrettelegging.flatMap(SvpTilretteleggingEntitet::getOpplysningerOmTilretteleggingstiltak).orElse(null), svpPerioder,
@@ -180,48 +185,43 @@ public class SvpDtoTjeneste {
     }
 
     private boolean bareFinnesInnvilgetPerioder(SvangerskapspengerUttakResultatEntitet uttak) {
-        var perioder = uttak.getUttaksResultatArbeidsforhold()
-            .stream()
-            .flatMap(ua -> ua.getPerioder().stream())
-            .toList();
+        var perioder = uttak.getUttaksResultatArbeidsforhold().stream().flatMap(ua -> ua.getPerioder().stream()).toList();
         if (perioder.isEmpty()) {
             return false;
         }
-        return perioder.stream()
-            .allMatch(SvangerskapspengerUttakResultatPeriodeEntitet::isInnvilget);
+        return perioder.stream().allMatch(SvangerskapspengerUttakResultatPeriodeEntitet::isInnvilget);
     }
 
     private Set<SvpSak.OppholdPeriode> finnAlleOppholdsperioderFraTlr(SvpTilretteleggingEntitet tilrettelegging, Behandling behandling) {
         var oppholdspFraSaksbehandler = oppholdsperioderFraSøknadOgSaksbehandler(tilrettelegging);
         Set<SvpSak.OppholdPeriode> alleOppholdForArbforhold = new HashSet<>(oppholdspFraSaksbehandler);
         //opphold fra inntektsmelding
-        tilrettelegging.getArbeidsgiver().ifPresent( arbeidsgiver -> {
+        tilrettelegging.getArbeidsgiver().ifPresent(arbeidsgiver -> {
             var oppholdFraIM = oppholdsperioderFraIM(behandling, arbeidsgiver, tilrettelegging.getInternArbeidsforholdRef().orElse(null));
             alleOppholdForArbforhold.addAll(oppholdFraIM);
-            });
+        });
 
         return alleOppholdForArbforhold;
     }
 
     private static Set<SvpSak.OppholdPeriode> oppholdsperioderFraSøknadOgSaksbehandler(SvpTilretteleggingEntitet matchendeTilrettelegging) {
-        return matchendeTilrettelegging.getAvklarteOpphold()
-            .stream()
-            .map(o -> {
-                var oppholdÅrsak = switch (o.getOppholdÅrsak()) {
-                    case SYKEPENGER -> SvpSak.OppholdPeriode.Årsak.SYKEPENGER;
-                    case FERIE -> SvpSak.OppholdPeriode.Årsak.FERIE;
-                };
-                SvpSak.OppholdPeriode.OppholdKilde oppholdKilde = switch(o.getKilde()) {
-                    case SØKNAD -> SvpSak.OppholdPeriode.OppholdKilde.SØKNAD;
-                    case REGISTRERT_AV_SAKSBEHANDLER-> SvpSak.OppholdPeriode.OppholdKilde.SAKSBEHANDLER;
-                    case null -> SvpSak.OppholdPeriode.OppholdKilde.SAKSBEHANDLER;
-                };
-                return new SvpSak.OppholdPeriode(o.getFom(), o.getTom(), oppholdÅrsak, oppholdKilde);
-            })
-            .collect(Collectors.toSet());
+        return matchendeTilrettelegging.getAvklarteOpphold().stream().map(o -> {
+            var oppholdÅrsak = switch (o.getOppholdÅrsak()) {
+                case SYKEPENGER -> SvpSak.OppholdPeriode.Årsak.SYKEPENGER;
+                case FERIE -> SvpSak.OppholdPeriode.Årsak.FERIE;
+            };
+            SvpSak.OppholdPeriode.OppholdKilde oppholdKilde = switch (o.getKilde()) {
+                case SØKNAD -> SvpSak.OppholdPeriode.OppholdKilde.SØKNAD;
+                case REGISTRERT_AV_SAKSBEHANDLER -> SvpSak.OppholdPeriode.OppholdKilde.SAKSBEHANDLER;
+                case null -> SvpSak.OppholdPeriode.OppholdKilde.SAKSBEHANDLER;
+            };
+            return new SvpSak.OppholdPeriode(o.getFom(), o.getTom(), oppholdÅrsak, oppholdKilde);
+        }).collect(Collectors.toSet());
     }
 
-    private Set<SvpSak.OppholdPeriode> oppholdsperioderFraIM(Behandling behandling, no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef internArbeidsforholdRef) {
+    private Set<SvpSak.OppholdPeriode> oppholdsperioderFraIM(Behandling behandling,
+                                                             no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver arbeidsgiver,
+                                                             InternArbeidsforholdRef internArbeidsforholdRef) {
         Set<SvpSak.OppholdPeriode> oppholdFraImForArbeidsgiver = new HashSet<>();
         var inntektsmeldingForArbeidsforhold = finnIMForArbforhold(behandling, arbeidsgiver, internArbeidsforholdRef);
 
@@ -231,19 +231,23 @@ public class SvpDtoTjeneste {
     }
 
     private Set<SvpSak.OppholdPeriode> hentOppholdFraIm(Inntektsmelding inntektsmelding) {
-        return inntektsmelding.getUtsettelsePerioder().stream()
+        return inntektsmelding.getUtsettelsePerioder()
+            .stream()
             .filter(utsettelse -> UtsettelseÅrsak.FERIE.equals(utsettelse.getÅrsak()))
             .map(utsettelse -> new SvpSak.OppholdPeriode(utsettelse.getPeriode().getFomDato(), utsettelse.getPeriode().getTomDato(),
-                SvpSak.OppholdPeriode.Årsak.FERIE,
-                SvpSak.OppholdPeriode.OppholdKilde.INNTEKTSMELDING))
+                SvpSak.OppholdPeriode.Årsak.FERIE, SvpSak.OppholdPeriode.OppholdKilde.INNTEKTSMELDING))
             .collect(Collectors.toSet());
     }
 
-    private Optional<Inntektsmelding> finnIMForArbforhold(Behandling behandling, no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef internArbeidsforholdRef) {
+    private Optional<Inntektsmelding> finnIMForArbforhold(Behandling behandling,
+                                                          no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver arbeidsgiver,
+                                                          InternArbeidsforholdRef internArbeidsforholdRef) {
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         var ref = BehandlingReferanse.fra(behandling);
-        return inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunkter.getUtledetSkjæringstidspunkt()).stream()
-            .filter(inntektsmelding -> inntektsmelding.getArbeidsgiver().equals(arbeidsgiver) && (internArbeidsforholdRef == null || inntektsmelding.getArbeidsforholdRef().gjelderFor(internArbeidsforholdRef)))
+        return inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunkter.getUtledetSkjæringstidspunkt())
+            .stream()
+            .filter(inntektsmelding -> inntektsmelding.getArbeidsgiver().equals(arbeidsgiver) && (internArbeidsforholdRef == null
+                || inntektsmelding.getArbeidsforholdRef().gjelderFor(internArbeidsforholdRef)))
             .findFirst();
     }
 
@@ -278,12 +282,12 @@ public class SvpDtoTjeneste {
             .map(svpGrunnlag -> svpGrunnlag.getOpprinneligeTilrettelegginger()
                 .getTilretteleggingListe()
                 .stream()
-                .map(SvpDtoTjeneste::map)
+                .map(this::map)
                 .collect(Collectors.toSet()))
             .orElse(Set.of());
     }
 
-    private static SvpSak.Søknad.Tilrettelegging map(SvpTilretteleggingEntitet tl) {
+    private SvpSak.Søknad.Tilrettelegging map(SvpTilretteleggingEntitet tl) {
         var aktivitet = utledAktivitet(tl);
         var perioder = tl.getTilretteleggingFOMListe().stream().map(tFom -> {
             SvpSak.TilretteleggingType tilretteleggingType = mapTilretteleggingType(tFom.getType());
@@ -302,10 +306,13 @@ public class SvpDtoTjeneste {
         };
     }
 
-    private static SvpSak.Aktivitet utledAktivitet(SvpTilretteleggingEntitet tl) {
+    private SvpSak.Aktivitet utledAktivitet(SvpTilretteleggingEntitet tl) {
         var aktivitetType = mapTilAktivitetType(tl.getArbeidType());
         var arbeidsgiver = tl.getArbeidsgiver().map(a -> new Arbeidsgiver(a.getIdentifikator())).orElse(null);
-        return new SvpSak.Aktivitet(aktivitetType, arbeidsgiver, null);
+        var arbeidsgiverNavn = tl.getArbeidsgiver()
+            .flatMap(a -> Optional.ofNullable(arbeidsgiverTjeneste.hent(a)).map(ArbeidsgiverOpplysninger::getNavn))
+            .orElse(null);
+        return new SvpSak.Aktivitet(aktivitetType, arbeidsgiver, null, arbeidsgiverNavn);
     }
 
     private static SvpSak.Aktivitet.Type mapTilAktivitetType(ArbeidType arbeidType) {
