@@ -2,11 +2,15 @@ package no.nav.foreldrepenger.domene.migrering;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRegelSporing;
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagRegelType;
 
 import org.jboss.weld.exceptions.IllegalStateException;
 import org.slf4j.Logger;
@@ -44,6 +48,7 @@ public class BeregningMigreringTjeneste {
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private BeregningsgrunnlagKoblingRepository koblingRepository;
     private BehandlingRepository behandlingRepository;
+    private RegelsporingMigreringTjeneste regelsporingMigreringTjeneste;
 
     BeregningMigreringTjeneste() {
         // CDI
@@ -53,11 +58,13 @@ public class BeregningMigreringTjeneste {
     public BeregningMigreringTjeneste(KalkulusKlient klient,
                                       BeregningsgrunnlagRepository beregningsgrunnlagRepository,
                                       BeregningsgrunnlagKoblingRepository koblingRepository,
-                                      BehandlingRepository behandlingRepository) {
+                                      BehandlingRepository behandlingRepository,
+                                      RegelsporingMigreringTjeneste regelsporingMigreringTjeneste) {
         this.klient = klient;
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
         this.koblingRepository = koblingRepository;
         this.behandlingRepository = behandlingRepository;
+        this.regelsporingMigreringTjeneste = regelsporingMigreringTjeneste;
     }
 
     public void migrerSak(no.nav.foreldrepenger.domene.typer.Saksnummer saksnummer) {
@@ -78,14 +85,16 @@ public class BeregningMigreringTjeneste {
         }
         try {
             // Map og migrer
+            var grunnlagSporinger = regelsporingMigreringTjeneste.finnRegelsporingGrunnlag(grunnlag.get(),
+                referanse);
             var originalKobling = referanse.getOriginalBehandlingId().flatMap(oid -> koblingRepository.hentKobling(oid));
-            var migreringsDto = BeregningMigreringMapper.map(grunnlag.get());
+            var migreringsDto = BeregningMigreringMapper.map(grunnlag.get(), grunnlagSporinger);
             var kobling = koblingRepository.hentKobling(referanse.behandlingId()).orElseGet(() -> koblingRepository.opprettKobling(referanse));
             var request = lagMigreringRequest(referanse, kobling, originalKobling, migreringsDto);
             var response = klient.migrerGrunnlag(request);
 
             // Sammenlign grunnlag fra kalkulus og fpsak
-            sammenlignGrunnlag(response, referanse);
+            sammenlignGrunnlag(response, referanse, grunnlagSporinger);
 
             // Oppdater kobling med data fra grunnlag
             if (response.grunnlag() != null && response.grunnlag().getBeregningsgrunnlag() != null) {
@@ -109,9 +118,10 @@ public class BeregningMigreringTjeneste {
         koblingRepository.oppdaterKoblingMedReguleringsbehov(kobling, harBehovForGRegulering);
     }
 
-    private void sammenlignGrunnlag(MigrerBeregningsgrunnlagResponse response, BehandlingReferanse referanse) {
+    private void sammenlignGrunnlag(MigrerBeregningsgrunnlagResponse response, BehandlingReferanse referanse,
+                                    Map<BeregningsgrunnlagRegelType, BeregningsgrunnlagRegelSporing> grunnlagSporinger) {
         var entitet = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(referanse.behandlingId()).orElseThrow();
-        verifiserRegelsporinger(response, entitet);
+        verifiserRegelsporinger(response, entitet, grunnlagSporinger);
         var fpsakGrunnlag = FraEntitetTilBehandlingsmodellMapper.mapBeregningsgrunnlagGrunnlag(entitet);
         var kalkulusGrunnlag = KalkulusTilFpsakMapper.map(response.grunnlag(), Optional.ofNullable(response.besteberegningGrunnlag()));
         var fpJson = StandardJsonConfig.toJson(fpsakGrunnlag);
@@ -121,12 +131,10 @@ public class BeregningMigreringTjeneste {
         }
     }
 
-    private void verifiserRegelsporinger(MigrerBeregningsgrunnlagResponse response, BeregningsgrunnlagGrunnlagEntitet entitet) {
+    private void verifiserRegelsporinger(MigrerBeregningsgrunnlagResponse response, BeregningsgrunnlagGrunnlagEntitet entitet,
+                                         Map<BeregningsgrunnlagRegelType, BeregningsgrunnlagRegelSporing> fpsakGrunnlagSporinger) {
         // Verifiser grunnlagsporinger
         var grunnlagSporinger = response.sporingerGrunnlag();
-        var fpsakGrunnlagSporinger = entitet.getBeregningsgrunnlag()
-            .map(BeregningsgrunnlagEntitet::getRegelSporinger)
-            .orElse(Collections.emptyMap());
         var alleGrunnlagSporingerMatcher = grunnlagSporinger.size() == fpsakGrunnlagSporinger.size() && grunnlagSporinger.stream().allMatch(kalkulusRegelGrunnlag -> {
             var type = KodeverkFraKalkulusMapper.mapRegelGrunnlagType(kalkulusRegelGrunnlag.type());
             var fpsakSporing = fpsakGrunnlagSporinger.get(type);
