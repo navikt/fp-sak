@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
+// For å håndtere migrering berørt av TFP-6040
 @ApplicationScoped
 public class RegelsporingMigreringTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(RegelsporingMigreringTjeneste.class);
