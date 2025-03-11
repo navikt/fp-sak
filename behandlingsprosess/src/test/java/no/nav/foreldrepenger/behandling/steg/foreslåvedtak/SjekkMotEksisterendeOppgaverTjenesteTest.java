@@ -35,7 +35,7 @@ class SjekkMotEksisterendeOppgaverTjenesteTest {
     private SjekkMotEksisterendeOppgaverTjeneste sjekkMotEksisterendeOppgaverTjeneste;
 
     private static Oppgave opprettOppgave(Oppgavetype oppgavetype) {
-        return new Oppgave(99L, null, null, null, null, Tema.FOR.getOffisiellKode(), null, oppgavetype.getKode(), null, 2, "4805",
+        return new Oppgave(99L, null, null, null, null, Tema.FOR.getOffisiellKode(), null, oppgavetype, null, 2, "4805",
             LocalDate.now().plusDays(1), LocalDate.now(), Prioritet.NORM, Oppgavestatus.AAPNET, "beskrivelse", null);
     }
 

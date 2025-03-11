@@ -52,7 +52,7 @@ public class OppgaverRestTjeneste {
     @GET
     @Path(HENT_OPPGAVER_PART_PATH)
     @Operation(description = "Henter åpne oppgaver", tags = "vedtak")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public List<OppgaveDto> hentOppgaver(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return oppgaveDtoTjeneste.mapTilDto(behandling.getAktørId());

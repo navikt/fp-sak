@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.app;
 
-import java.util.Arrays;
 import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -28,14 +27,15 @@ public class OppgaveDtoTjeneste {
     public List<OppgaveDto> mapTilDto(AktørId aktørId) {
         return oppgaveTjeneste.hentÅpneVurderDokumentOgVurderKonsekvensOppgaver(aktørId)
             .stream()
-            .map(oppgave -> new OppgaveDto(OppgaveType.fra(getOppgavetypeForKode(oppgave.oppgavetype())), oppgave.beskrivelse()))
+            .map(oppgave -> new OppgaveDto(getOppgaveTypeForKode(oppgave.oppgavetype()), oppgave.beskrivelse()))
             .toList();
     }
 
-    Oppgavetype getOppgavetypeForKode(String kode) {
-        return Arrays.stream(Oppgavetype.values())
-            .filter(type -> type.getKode().equals(kode))
-            .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("Finner ikke Oppgavetype for kode " + kode));
+    static OppgaveType getOppgaveTypeForKode(Oppgavetype oppgavetype) {
+        return switch (oppgavetype) {
+            case Oppgavetype.VURDER_KONSEKVENS_YTELSE -> OppgaveType.VUR_KONSEKVENS;
+            case Oppgavetype.VURDER_DOKUMENT -> OppgaveType.VUR_DOKUMENT;
+            default -> null;
+        };
     }
 }

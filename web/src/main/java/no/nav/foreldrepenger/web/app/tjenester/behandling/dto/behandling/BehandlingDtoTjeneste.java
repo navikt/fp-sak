@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -22,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
@@ -367,11 +367,8 @@ public class BehandlingDtoTjeneste {
             dto.leggTil(get(OpptjeningRestTjeneste.UTLAND_DOK_STATUS_PATH, "utland-dok-status", uuidDto));
         }
 
-        if (behandling.getAksjonspunkter()
-            .stream()
-            .filter(Aksjonspunkt::erÅpentAksjonspunkt)
-            .anyMatch(aksjonspunkt -> aksjonspunkt.getAksjonspunktDefinisjon() == AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK
-                || aksjonspunkt.getAksjonspunktDefinisjon() == AksjonspunktDefinisjon.VURDERE_DOKUMENT_FØR_VEDTAK)) {
+        if (!behandling.getÅpneAksjonspunkter(
+            Set.of(AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK, AksjonspunktDefinisjon.VURDERE_DOKUMENT_FØR_VEDTAK)).isEmpty()) {
             dto.leggTil(get(OppgaverRestTjeneste.HENT_OPPGAVER_PATH, "hent-oppgaver", uuidDto));
         }
 

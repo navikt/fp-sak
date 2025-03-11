@@ -49,13 +49,12 @@ class OppgaveDtoTjenesteTest {
 
     @Test
     void skal_hente_riktig_oppgavetype() {
-        assertThat(oppgaveDtoTjeneste.getOppgavetypeForKode(Oppgavetype.VURDER_DOKUMENT.getKode())).isEqualTo(Oppgavetype.VURDER_DOKUMENT);
-        assertThat(oppgaveDtoTjeneste.getOppgavetypeForKode(Oppgavetype.VURDER_KONSEKVENS_YTELSE.getKode())).isEqualTo(
-            Oppgavetype.VURDER_KONSEKVENS_YTELSE);
+        assertThat(OppgaveDtoTjeneste.getOppgaveTypeForKode(Oppgavetype.VURDER_DOKUMENT)).isEqualTo(OppgaveType.VUR_DOKUMENT);
+        assertThat(OppgaveDtoTjeneste.getOppgaveTypeForKode(Oppgavetype.VURDER_KONSEKVENS_YTELSE)).isEqualTo(OppgaveType.VUR_KONSEKVENS);
     }
 
     private static Oppgave opprettOppgave(Oppgavetype oppgavetype, String beskrivelse) {
-        return new Oppgave(99L, null, null, null, null, Tema.FOR.getOffisiellKode(), null, oppgavetype.getKode(), null, 2, "4805",
+        return new Oppgave(99L, null, null, null, null, Tema.FOR.getOffisiellKode(), null, oppgavetype, null, 2, "4805",
             LocalDate.now().plusDays(1), LocalDate.now(), Prioritet.NORM, Oppgavestatus.AAPNET, beskrivelse, null);
     }
 }
