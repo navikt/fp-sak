@@ -9,8 +9,11 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.persistence.EntityManager;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -186,4 +189,48 @@ class FordelRestTjenesteTest {
 
         assertThat(actualMessage).contains(expectedMessage);
     }
+
+    @Test
+    void skal_ikke_finne_sak_når_feil_ytelse() {
+        var saknr = new Saksnummer("TEST3");
+        var fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
+        var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
+
+        when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak1, fagsak2));
+
+        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock);
+
+        var result = tjeneste.sjekkSakForInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), LocalDate.now(), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.SVANGERSKAPSPENGER));
+
+        var response = (FordelRestTjeneste.SakInntektsmeldingResponse) result.getEntity();
+        assertThat(response).isNotNull();
+        assertThat(response.søkerHarSak()).isFalse();
+    }
+
+    @Test
+    void skal_finne_sak_når_rett_ytelse() {
+        var saknr = new Saksnummer("TEST3");
+        var fagsak1 = Fagsak.opprettNy(FagsakYtelseType.SVANGERSKAPSPENGER, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
+        fagsak1.setId(1L);
+        var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
+        fagsak2.setId(2L);
+
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
+        scenario.medSaksnummer(saknr).medSøknadHendelse().medFødselsDato(LocalDate.now());
+        var behandling = scenario.lagMocked();
+
+        when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak1, fagsak2));
+        when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(1L)).thenReturn(Optional.of(behandling));
+        when(behandlingRepositoryProviderMock.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
+        when(sakInfoDtoTjenesteMock.finnFørsteUttaksdato(any(Behandling.class))).thenReturn(LocalDate.now());
+
+        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock);
+
+        var result = tjeneste.sjekkSakForInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), LocalDate.now(), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.SVANGERSKAPSPENGER));
+
+        var response = (FordelRestTjeneste.SakInntektsmeldingResponse) result.getEntity();
+        assertThat(response).isNotNull();
+        assertThat(response.søkerHarSak()).isTrue();
+    }
+
 }
