@@ -196,6 +196,7 @@ public class BehandlingDtoTjeneste {
         dto.leggTil(post(BrevRestTjeneste.BREV_VIS_PATH, "brev-vis"));
         dto.leggTil(post(BrevRestTjeneste.BREV_GENERER_HTML_PATH, "brev-generer-html"));
         dto.leggTil(post(BrevRestTjeneste.BREV_LAGRE_HTML_PATH, "brev-lagre-html"));
+        dto.leggTil(post(BrevRestTjeneste.BREV_NULLSTILL_OVERSTYRING_PATH, "brev-nullstill-overstyring"));
 
         return dto;
     }

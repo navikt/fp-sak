@@ -10,6 +10,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -72,6 +73,8 @@ public class BrevRestTjeneste {
     public static final String BREV_GENERER_HTML_PATH = BASE_PATH + BREV_GENERER_HTML_PART_PATH;
     private static final String BREV_LAGRE_HTML_PART_PATH = "/lagre/html";
     public static final String BREV_LAGRE_HTML_PATH = BASE_PATH + BREV_LAGRE_HTML_PART_PATH;
+    private static final String BREV_NULLSTILL_OVERSTYRING_PART_PATH = "/nullstill/overstyring";
+    public static final String BREV_NULLSTILL_OVERSTYRING_PATH = BASE_PATH + BREV_NULLSTILL_OVERSTYRING_PART_PATH;
 
     private DokumentForhåndsvisningTjeneste dokumentForhåndsvisningTjeneste;
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
@@ -165,12 +168,12 @@ public class BrevRestTjeneste {
     public Response genererHTMLRepresentasjonAvBrev(@TilpassetAbacAttributt(supplierClass = GenererBrevAbacDataSupplier.class) @Parameter(description = "Inneholder informasjon for å generere vedtaksbrev") @Valid GenererHtmlDokumentDto genererHtmlDokumentDto) { // NOSONAR
         var behandling = behandlingRepository.hentBehandling(genererHtmlDokumentDto.behandlingUuid());
         var bestilling = DokumentForhandsvisning.builder()
-            .medBehandlingUuid(genererHtmlDokumentDto.behandlingUuid())
-            .medSaksnummer(behandling.getSaksnummer())
-            .medDokumentMal(genererHtmlDokumentDto.dokumentMal())
-            .medRevurderingÅrsak(genererHtmlDokumentDto.arsakskode())
-            .medDokumentType(utledDokumentType(genererHtmlDokumentDto.automatiskVedtaksbrev()))
-            .build();
+                .medBehandlingUuid(genererHtmlDokumentDto.behandlingUuid())
+                .medSaksnummer(behandling.getSaksnummer())
+                .medDokumentMal(genererHtmlDokumentDto.dokumentMal())
+                .medRevurderingÅrsak(genererHtmlDokumentDto.arsakskode())
+                .medDokumentType(utledDokumentType(genererHtmlDokumentDto.automatiskVedtaksbrev()))
+                .build();
 
         var dokument = dokumentForhåndsvisningTjeneste.genererHtml(bestilling);
         if (dokument != null && !dokument.isEmpty()) {
@@ -185,11 +188,21 @@ public class BrevRestTjeneste {
     @Path(BREV_LAGRE_HTML_PART_PATH + "/{behandlingUuid}")
     @Consumes(MediaType.TEXT_HTML)
     @Operation(description = "Lagrer ned overstyrt html-representasjon av brevet", tags = "brev")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response lagreHtml(@TilpassetAbacAttributt(supplierClass = BehandlingUUIDSupplier.class) @PathParam("behandlingUuid") UUID behandlingUuid,
                               @Valid @NotNull String html) {
         var behandling = behandlingRepository.hentBehandling(behandlingUuid);
         dokumentBehandlingTjeneste.lagreHtml(behandling, html);
+        return Response.ok().build();
+    }
+
+    @DELETE
+    @Path(BREV_NULLSTILL_OVERSTYRING_PART_PATH + "/{behandlingUuid}")
+    @Operation(description = "Nullstiller overstyring av brev", tags = "brev")
+    @BeskyttetRessurs(actionType = ActionType.DELETE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
+    public Response nullstillOverstyringAvVedtaksbrev(@TilpassetAbacAttributt(supplierClass = BehandlingUUIDSupplier.class) @PathParam("behandlingUuid") UUID behandlingUuid) {
+        var behandling = behandlingRepository.hentBehandling(behandlingUuid);
+        dokumentBehandlingTjeneste.nullstillOverstyringAvBrev(behandling.getId());
         return Response.ok().build();
     }
 

@@ -181,6 +181,16 @@ public class DokumentBehandlingTjeneste {
             .map(t -> t.plusWeeks(behandling.getType().getBehandlingstidFristUker()));
     }
 
+    public void nullstillOverstyringAvBrev(long behandlingId) {
+        var behandlingDokument = getBehandlingDokumentBuilder(behandlingId)
+            .medBehandling(behandlingId)
+            .medOverstyrtBrevOverskrift(null)
+            .medOverstyrtBrevFritekst(null)
+            .medOverstyrtBrevFritekstHtml(null)
+            .build();
+        behandlingDokumentRepository.lagreOgFlush(behandlingDokument);
+    }
+
     public void lagreHtml(Behandling behandling, String html) {
         var behandlingDokumentBuilder = getBehandlingDokumentBuilder(behandling.getId());
         behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder

@@ -112,7 +112,6 @@ public class BehandlingsresultatDto {
         this.erRevurderingMedUendretUtfall = erRevurderingMedUendretUtfall;
     }
 
-
     public String getOverskrift() {
         return overskrift;
     }
