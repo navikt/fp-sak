@@ -85,9 +85,8 @@ class OppgaveTjenesteTest {
         var scenario = lagScenario();
         var behandling = lagBehandling(scenario);
         var tjeneste = lagTjeneste(scenario);
-        when(oppgaveRestKlient.finnÅpneOppgaver(
-            eq(List.of(Oppgavetype.VURDER_DOKUMENT.getKode(), "VUR_VL", Oppgavetype.VURDER_KONSEKVENS_YTELSE.getKode())), any(), any(), any()))
-            .thenReturn(List.of(OPPGAVE));
+        when(oppgaveRestKlient.finnÅpneOppgaver(eq(List.of(Oppgavetype.VURDER_DOKUMENT.getKode(), Oppgavetype.VURDER_KONSEKVENS_YTELSE.getKode())),
+            any(), any(), any())).thenReturn(List.of(OPPGAVE));
 
         var oppgaver = tjeneste.hentÅpneVurderDokumentOgVurderKonsekvensOppgaver(behandling.getAktørId());
 

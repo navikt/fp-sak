@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
@@ -369,6 +370,14 @@ public class BehandlingDtoTjeneste {
             dto.leggTil(get(OpptjeningRestTjeneste.UTLAND_DOK_STATUS_PATH, "utland-dok-status", uuidDto));
         }
 
+        if (behandling.getAksjonspunkter()
+            .stream()
+            .filter(Aksjonspunkt::erÅpentAksjonspunkt)
+            .anyMatch(aksjonspunkt -> aksjonspunkt.getAksjonspunktDefinisjon() == AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK
+                || aksjonspunkt.getAksjonspunktDefinisjon() == AksjonspunktDefinisjon.VURDERE_DOKUMENT_FØR_VEDTAK)) {
+            dto.leggTil(get(OppgaverRestTjeneste.HENT_OPPGAVER_PATH, "hent-oppgaver", uuidDto));
+        }
+
         var harSimuleringAksjonspunkt = behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_FEILUTBETALING);
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
             var beregning = Optional.ofNullable(getBehandlingsresultat(behandling.getId()))
@@ -389,7 +398,6 @@ public class BehandlingDtoTjeneste {
             dto.leggTil(get(YtelsefordelingRestTjeneste.OMSORG_OG_RETT_PATH, "omsorg-og-rett", uuidDto));
             dto.leggTil(get(OpptjeningRestTjeneste.OPPTJENING_PATH, "opptjening", uuidDto));
             dto.leggTil(get(FeriepengegrunnlagRestTjeneste.FERIEPENGER_PATH, "feriepengegrunnlag", uuidDto));
-            dto.leggTil(get(OppgaverRestTjeneste.HENT_OPPGAVER_PATH, "hent-oppgaver", uuidDto));
 
             var beregningsgrunnlag = beregningTjeneste.hent(BehandlingReferanse.fra(behandling))
                 .flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);

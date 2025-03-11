@@ -37,15 +37,4 @@ class OppgaveTypeTest {
         assertThat(OppgaveType.kodeMap()).containsEntry("VUR_KONSEKVENS", OppgaveType.VUR_KONSEKVENS);
         assertThat(OppgaveType.kodeMap()).containsEntry("VUR_DOKUMENT", OppgaveType.VUR_DOKUMENT);
     }
-
-    @Test
-    void skal_mappe_til_riktig_oppgaveType_for_vur_kons_yte() {
-        assertThat(OppgaveType.fraKode("VUR_KONS_YTE")).isEqualTo(OppgaveType.VUR_KONSEKVENS);
-    }
-
-    @Test
-    void skal_mappe_til_riktig_oppgaveType_for_vur_og_vur_vl() {
-        assertThat(OppgaveType.fraKode("VUR")).isEqualTo(OppgaveType.VUR_DOKUMENT);
-        assertThat(OppgaveType.fraKode("VUR_VL")).isEqualTo(OppgaveType.VUR_DOKUMENT);
-    }
 }

@@ -7,6 +7,7 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
 
 public enum OppgaveType implements Kodeverdi {
 
@@ -34,11 +35,10 @@ public enum OppgaveType implements Kodeverdi {
         this.navn = navn;
     }
 
-    public static OppgaveType fraKode(String kode) {
-        return switch (kode) {
-            case "VUR_KONS_YTE" -> VUR_KONSEKVENS;
-            case "VUR",
-                 "VUR_VL" -> VUR_DOKUMENT;
+    public static OppgaveType fra(Oppgavetype oppgavetype) {
+        return switch (oppgavetype) {
+            case Oppgavetype.VURDER_KONSEKVENS_YTELSE -> VUR_KONSEKVENS;
+            case Oppgavetype.VURDER_DOKUMENT -> VUR_DOKUMENT;
             default -> null;
         };
     }
