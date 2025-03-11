@@ -34,7 +34,6 @@ public class SjekkMotEksisterendeOppgaverTjeneste {
         return mapTilAksjonspunktDefinisjonerForOppgaver(oppgaveTjeneste.hentÅpneVurderDokumentOgVurderKonsekvensOppgaver(aktørid));
     }
 
-    // TODO: Er det riktig at man ikke skal returnere aksjonspunkter dersom kun en av dem er utført?
     private boolean sjekkMotEksisterendeGsakOppgaverUtført(Behandling behandling) {
         return behandling.getAksjonspunkter()
             .stream()
