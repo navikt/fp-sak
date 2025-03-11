@@ -64,23 +64,11 @@ public class YtelseFordelingDtoTjeneste {
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId());
         var dtoBuilder = new YtelseFordelingDto.Builder();
         ytelseFordelingAggregat.ifPresent(yfa -> {
-            dtoBuilder.medBekreftetAleneomsorg(yfa.getAleneomsorgAvklaring());
             dtoBuilder.medOverstyrtOmsorg(yfa.getOverstyrtOmsorg());
             dtoBuilder.medFørsteUttaksdato(finnFørsteUttaksdato(behandling));
             dtoBuilder.medØnskerJustertVedFødsel(yfa.getGjeldendeFordeling().ønskerJustertVedFødsel());
-            dtoBuilder.medRettigheterAnnenforelder(lagAnnenforelderRettDto(behandling, yfa));
         });
         return Optional.of(dtoBuilder.build());
-    }
-
-    private RettigheterAnnenforelderDto lagAnnenforelderRettDto(Behandling behandling, YtelseFordelingAggregat yfa) {
-        var uføregrunnlag = uføretrygdRepository.hentGrunnlag(behandling.getId());
-        var avklareUføretrygd =
-            yfa.getMorUføretrygdAvklaring() == null && uføregrunnlag.filter(UføretrygdGrunnlagEntitet::uavklartAnnenForelderMottarUføretrygd)
-                .isPresent();
-        var avklareRettEØS = yfa.getAnnenForelderRettEØSAvklaring() == null && yfa.oppgittAnnenForelderTilknytningEØS();
-        return new RettigheterAnnenforelderDto(yfa.getAnnenForelderRettAvklaring(), yfa.getAnnenForelderRettEØSAvklaring(), avklareRettEØS,
-            yfa.getMorUføretrygdAvklaring(), avklareUføretrygd);
     }
 
     public LocalDate finnFørsteUttaksdato(Behandling behandling) {
