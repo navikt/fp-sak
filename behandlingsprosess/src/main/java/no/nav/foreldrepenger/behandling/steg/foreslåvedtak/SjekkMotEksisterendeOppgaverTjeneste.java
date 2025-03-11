@@ -45,7 +45,7 @@ public class SjekkMotEksisterendeOppgaverTjeneste {
         return oppgaver.stream()
             .map(Oppgave::oppgavetype)
             .map(oppgavetype -> Objects.equals(oppgavetype,
-                Oppgavetype.VURDER_KONSEKVENS_YTELSE.getKode()) ? AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK : AksjonspunktDefinisjon.VURDERE_DOKUMENT_FØR_VEDTAK)
+                Oppgavetype.VURDER_KONSEKVENS_YTELSE) ? AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK : AksjonspunktDefinisjon.VURDERE_DOKUMENT_FØR_VEDTAK)
             .distinct()
             .toList();
     }
