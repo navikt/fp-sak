@@ -68,10 +68,6 @@
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
         </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-            <artifactId>oppgave-rest-klient</artifactId>
-        </dependency>
         <!-- Test -->
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
