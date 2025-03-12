@@ -43,7 +43,6 @@ public class OppgaveTjeneste {
     private static final String SYK_ANSVARLIG_ENHETID = "4488";
     private static final String OMS_TEMA = "OMS";
     private static final String OMS_ANSVARLIG_ENHETID = "4487";
-    private static final String FEILMELDING = "Feil ved henting av oppgaver for oppgavetype=";
 
     private FagsakRepository fagsakRepository;
 
@@ -58,7 +57,8 @@ public class OppgaveTjeneste {
 
     @Inject
     public OppgaveTjeneste(FagsakRepository fagsakRepository,
-                           BehandlingRepository behandlingRepository, Oppgaver restKlient,
+                           BehandlingRepository behandlingRepository,
+                           Oppgaver restKlient,
                            ProsessTaskTjeneste taskTjeneste,
                            PersoninfoAdapter personinfoAdapter) {
         this.fagsakRepository = fagsakRepository;
@@ -82,23 +82,14 @@ public class OppgaveTjeneste {
     /**
      * Supplerende oppgaver: Vurder Dokument og Konsekvens for Ytelse
      */
-    public boolean harÅpneVurderDokumentOppgaver(AktørId aktørId) {
+    public List<Oppgave> hentÅpneVurderDokumentOgVurderKonsekvensOppgaver(AktørId aktørId) {
+        var oppgaveTyper = List.of(Oppgavetype.VURDER_DOKUMENT.getKode(), Oppgavetype.VURDER_KONSEKVENS_YTELSE.getKode());
         try {
-            var oppgaver = restKlient.finnÅpneOppgaver(List.of(Oppgavetype.VURDER_DOKUMENT.getKode(), "VUR_VL"), aktørId.getId(), null, null);
-            LOG.info("FPSAK GOSYS fant {} oppgaver av type {}", oppgaver.size(), Oppgavetype.VURDER_DOKUMENT.getKode());
-            return oppgaver != null && !oppgaver.isEmpty();
+            var oppgaver = restKlient.finnÅpneOppgaver(oppgaveTyper, aktørId.getId(), null, null);
+            LOG.debug("FPSAK GOSYS fant {} oppgaver av typer {}", oppgaver.size(), oppgaveTyper);
+            return oppgaver;
         } catch (Exception e) {
-            throw new TekniskException("FP-395340", String.format(FEILMELDING + "%s.", Oppgavetype.VURDER_DOKUMENT.getKode()));
-        }
-    }
-
-    public boolean harÅpneVurderKonsekvensOppgaver(AktørId aktørId) {
-        try {
-            var oppgaver = restKlient.finnÅpneOppgaverAvType(Oppgavetype.VURDER_KONSEKVENS_YTELSE, aktørId.getId(), null, null);
-            LOG.info("FPSAK GOSYS fant {} oppgaver av type {}", oppgaver.size(), Oppgavetype.VURDER_KONSEKVENS_YTELSE.getKode());
-            return oppgaver != null && !oppgaver.isEmpty();
-        } catch (Exception e) {
-            throw new TekniskException("FP-395340", String.format(FEILMELDING + "%s.", Oppgavetype.VURDER_KONSEKVENS_YTELSE.getKode()));
+            throw new TekniskException("FP-395340", String.format("Feil ved henting av oppgaver for oppgavetyper=%s.", oppgaveTyper));
         }
     }
 
@@ -217,6 +208,4 @@ public class OppgaveTjeneste {
         var oppgv = restKlient.hentOppgave(oppgaveId);
         LOG.info("FPSAK GOSYS ferdigstilte oppgave {} status {}", oppgaveId, Optional.ofNullable(oppgv).map(Oppgave::status).orElse(null));
     }
-
-
 }

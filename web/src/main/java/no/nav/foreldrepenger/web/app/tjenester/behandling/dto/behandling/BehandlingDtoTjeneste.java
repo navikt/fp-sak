@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -84,8 +85,9 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.UttakRestTjenest
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon.DokumentasjonVurderingBehovDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BehandlingMedUttaksperioderDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta.FaktaUttakPeriodeDtoTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.NyVergeDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.OppgaverRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.NyVergeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.YtelsefordelingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste;
@@ -363,6 +365,11 @@ public class BehandlingDtoTjeneste {
 
         if (behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AUTOMATISK_MARKERING_AV_UTENLANDSSAK)) {
             dto.leggTil(get(OpptjeningRestTjeneste.UTLAND_DOK_STATUS_PATH, "utland-dok-status", uuidDto));
+        }
+
+        if (!behandling.getÅpneAksjonspunkter(
+            Set.of(AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK, AksjonspunktDefinisjon.VURDERE_DOKUMENT_FØR_VEDTAK)).isEmpty()) {
+            dto.leggTil(get(OppgaverRestTjeneste.HENT_OPPGAVER_PATH, "hent-oppgaver", uuidDto));
         }
 
         var harSimuleringAksjonspunkt = behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_FEILUTBETALING);

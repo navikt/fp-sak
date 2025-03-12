@@ -27,6 +27,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.svp.Svangerskapspenger
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.SøknadRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.TilbakekrevingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.UttakRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.OppgaverRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.YtelsefordelingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
@@ -111,6 +112,7 @@ public class RestImplementationClasses {
         classes.add(BrevRestTjeneste.class);
         classes.add(LosRestTjeneste.class);
         classes.add(RedirectToRegisterRestTjeneste.class);
+        classes.add(OppgaverRestTjeneste.class);
 
         // Søk infotrygd
         classes.add(InfotrygdOppslagRestTjeneste.class);

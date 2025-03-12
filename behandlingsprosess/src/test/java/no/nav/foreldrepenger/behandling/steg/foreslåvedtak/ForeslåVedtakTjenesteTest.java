@@ -8,6 +8,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
+
 import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Tema;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
@@ -41,6 +46,10 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
 
 @CdiDbAwareTest
 class ForeslåVedtakTjenesteTest {
@@ -76,8 +85,7 @@ class ForeslåVedtakTjenesteTest {
     public void setUp() {
         behandling = ScenarioMorSøkerEngangsstønad.forFødsel().lagre(repositoryProvider);
 
-        lenient().when(oppgaveTjeneste.harÅpneVurderKonsekvensOppgaver(any(AktørId.class))).thenReturn(Boolean.FALSE);
-        lenient().when(oppgaveTjeneste.harÅpneVurderDokumentOppgaver(any(AktørId.class))).thenReturn(Boolean.FALSE);
+        lenient().when(oppgaveTjeneste.hentÅpneVurderDokumentOgVurderKonsekvensOppgaver(any(AktørId.class))).thenReturn(Collections.emptyList());
         lenient().when(dokumentBehandlingTjeneste.erDokumentBestilt(anyLong(), any())).thenReturn(true);
 
         var sjekkMotEksisterendeOppgaverTjeneste = new SjekkMotEksisterendeOppgaverTjeneste(oppgaveTjeneste);
@@ -232,9 +240,8 @@ class ForeslåVedtakTjenesteTest {
     @Test
     void lagerRiktigAksjonspunkterNårDetErOppgaveriGsak() {
         // Arrange
-        lenient().when(oppgaveTjeneste.harÅpneVurderKonsekvensOppgaver(any(AktørId.class))).thenReturn(Boolean.TRUE);
-        lenient().when(oppgaveTjeneste.harÅpneVurderDokumentOppgaver(any(AktørId.class))).thenReturn(Boolean.TRUE);
-
+        lenient().when(oppgaveTjeneste.hentÅpneVurderDokumentOgVurderKonsekvensOppgaver(any(AktørId.class)))
+            .thenReturn(List.of(opprettOppgave(Oppgavetype.VURDER_DOKUMENT), opprettOppgave(Oppgavetype.VURDER_KONSEKVENS_YTELSE)));
 
         // Act
         var stegResultat = tjeneste.foreslåVedtak(behandling);
@@ -249,9 +256,8 @@ class ForeslåVedtakTjenesteTest {
     void lagerIkkeNyeAksjonspunkterNårAksjonspunkterAlleredeFinnes() {
         // Arrange
         leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK, false, false);
-        lenient().when(oppgaveTjeneste.harÅpneVurderKonsekvensOppgaver(any(AktørId.class))).thenReturn(Boolean.TRUE);
-        lenient().when(oppgaveTjeneste.harÅpneVurderDokumentOppgaver(any(AktørId.class))).thenReturn(Boolean.TRUE);
-
+        lenient().when(oppgaveTjeneste.hentÅpneVurderDokumentOgVurderKonsekvensOppgaver(any(AktørId.class)))
+            .thenReturn(List.of(opprettOppgave(Oppgavetype.VURDER_DOKUMENT), opprettOppgave(Oppgavetype.VURDER_KONSEKVENS_YTELSE)));
 
         // Act
         var stegResultat = tjeneste.foreslåVedtak(behandling);
@@ -368,4 +374,8 @@ class ForeslåVedtakTjenesteTest {
         }
     }
 
+    private static Oppgave opprettOppgave(Oppgavetype oppgavetype) {
+        return new Oppgave(99L, null, null, null, null, Tema.FOR.getOffisiellKode(), null, oppgavetype, null, 2, "4805",
+            LocalDate.now().plusDays(1), LocalDate.now(), Prioritet.NORM, Oppgavestatus.AAPNET, "beskrivelse", null);
+    }
 }

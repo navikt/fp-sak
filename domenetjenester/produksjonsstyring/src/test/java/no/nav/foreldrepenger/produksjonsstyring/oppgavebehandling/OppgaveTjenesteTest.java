@@ -85,14 +85,12 @@ class OppgaveTjenesteTest {
         var scenario = lagScenario();
         var behandling = lagBehandling(scenario);
         var tjeneste = lagTjeneste(scenario);
-        when(oppgaveRestKlient.finnÅpneOppgaver(eq(List.of(Oppgavetype.VURDER_DOKUMENT.getKode(), "VUR_VL")), any(), any(), any())).thenReturn(List.of(OPPGAVE));
-        when(oppgaveRestKlient.finnÅpneOppgaverAvType(eq(Oppgavetype.VURDER_KONSEKVENS_YTELSE), any(), any(), any())).thenReturn(List.of());
+        when(oppgaveRestKlient.finnÅpneOppgaver(eq(List.of(Oppgavetype.VURDER_DOKUMENT.getKode(), Oppgavetype.VURDER_KONSEKVENS_YTELSE.getKode())),
+            any(), any(), any())).thenReturn(List.of(OPPGAVE));
 
-        var harVurderDok = tjeneste.harÅpneVurderDokumentOppgaver(behandling.getAktørId());
-        var harVurderKY = tjeneste.harÅpneVurderKonsekvensOppgaver(behandling.getAktørId());
+        var oppgaver = tjeneste.hentÅpneVurderDokumentOgVurderKonsekvensOppgaver(behandling.getAktørId());
 
-        assertThat(harVurderDok).isTrue();
-        assertThat(harVurderKY).isFalse();
+        assertThat(oppgaver).isNotEmpty().contains(OPPGAVE);
     }
 
     @Test
