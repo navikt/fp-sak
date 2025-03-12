@@ -30,6 +30,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
@@ -264,6 +265,24 @@ public class FordelRestTjeneste {
             .map(fagsak -> sakInfoDtoTjeneste.mapSakInfoV2Dto(fagsak)).toList();
     }
 
+    @POST
+    @Path("/sakInntektsmelding")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Sjekker om det finnes en sak som potensielt kan knyttes til inntektsmelding med gitt startdato", tags = "fordel")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
+    public Response sjekkSakForInntektsmelding(@TilpassetAbacAttributt(supplierClass = SakInntektsmeldingDtoAbacDataSupplier.class) @Parameter(description = "AktørId") @Valid SakInntektsmeldingDto sakInntektsmeldingDto) {
+        ensureCallId();
+        if (!AktørId.erGyldigAktørId(sakInntektsmeldingDto.bruker().aktørId())) {
+            throw new IllegalArgumentException("Oppgitt aktørId er ikke en gyldig ident.");
+        }
+        var søkersFagsaker = fagsakTjeneste.finnFagsakerForAktør(new AktørId(sakInntektsmeldingDto.bruker().aktørId()));
+        var ytelseDetSjekkesMot = sakInntektsmeldingDto.ytelse().equals(SakInntektsmeldingDto.YtelseType.FORELDREPENGER) ? FagsakYtelseType.FORELDREPENGER : FagsakYtelseType.SVANGERSKAPSPENGER;
+        var finnesSakPåSøkerForYtelse = søkersFagsaker.stream()
+            .anyMatch(fag -> fag.getYtelseType().equals(ytelseDetSjekkesMot));
+        return Response.ok(new SakInntektsmeldingResponse(finnesSakPåSøkerForYtelse)).build();
+    }
+
     public record AktørIdDto(@NotNull @Digits(integer = 19, fraction = 0) String aktørId) {
         @Override
         public String toString() {
@@ -279,6 +298,15 @@ public class FordelRestTjeneste {
                 return "*".repeat(length);
             }
             return "*".repeat(length - 4) + aktørId.substring(length - 4);
+        }
+    }
+
+    public record SakInntektsmeldingResponse(boolean søkerHarSak){}
+
+    public record SakInntektsmeldingDto(@NotNull @Valid AktørIdDto bruker, @NotNull @Valid YtelseType ytelse){
+        protected enum YtelseType {
+            FORELDREPENGER,
+            SVANGERSKAPSPENGER
         }
     }
 
@@ -486,5 +514,14 @@ public class FordelRestTjeneste {
             return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, getSaksnummer());
         }
 
+    }
+
+    public static class SakInntektsmeldingDtoAbacDataSupplier implements Function<Object, AbacDataAttributter> {
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var req = (SakInntektsmeldingDto) obj;
+            return AbacDataAttributter.opprett()
+                .leggTil(AppAbacAttributtType.AKTØR_ID, req.bruker().aktørId());
+        }
     }
 }
