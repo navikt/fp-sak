@@ -29,26 +29,22 @@ import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
 @ExtendWith(MockitoExtension.class)
 class SjekkMotEksisterendeOppgaverTjenesteTest {
 
+    private static final AktørId AKTØR_ID = AktørId.dummy();
+
     @Mock
     private OppgaveTjeneste oppgaveTjenesteMock;
     @InjectMocks
     private SjekkMotEksisterendeOppgaverTjeneste sjekkMotEksisterendeOppgaverTjeneste;
 
-    private static Oppgave opprettOppgave(Oppgavetype oppgavetype) {
-        return new Oppgave(99L, null, null, null, null, Tema.FOR.getOffisiellKode(), null, oppgavetype, null, 2, "4805",
-            LocalDate.now().plusDays(1), LocalDate.now(), Prioritet.NORM, Oppgavestatus.AAPNET, "beskrivelse", null);
-    }
-
     @Test
     void henter_aksjonspunkter_for_behandling() {
-        AktørId aktørId = AktørId.dummy();
         var behandling = mock(Behandling.class);
         var vurderDokumentOppgave = opprettOppgave(Oppgavetype.VURDER_DOKUMENT);
         var vurderKonsekvensOppgave = opprettOppgave(Oppgavetype.VURDER_KONSEKVENS_YTELSE);
-        when(oppgaveTjenesteMock.hentÅpneVurderDokumentOgVurderKonsekvensOppgaver(aktørId)).thenReturn(
+        when(oppgaveTjenesteMock.hentÅpneVurderDokumentOgVurderKonsekvensOppgaver(AKTØR_ID)).thenReturn(
             List.of(vurderDokumentOppgave, vurderKonsekvensOppgave));
 
-        var aksjonspunktDefinisjoner = sjekkMotEksisterendeOppgaverTjeneste.sjekkMotEksisterendeGsakOppgaver(aktørId, behandling);
+        var aksjonspunktDefinisjoner = sjekkMotEksisterendeOppgaverTjeneste.sjekkMotEksisterendeGsakOppgaver(AKTØR_ID, behandling);
 
         assertThat(aksjonspunktDefinisjoner).containsOnlyOnce(AksjonspunktDefinisjon.VURDERE_DOKUMENT_FØR_VEDTAK);
         assertThat(aksjonspunktDefinisjoner).containsOnlyOnce(AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK);
@@ -56,14 +52,13 @@ class SjekkMotEksisterendeOppgaverTjenesteTest {
 
     @Test
     void henter_ikke_utførte_aksjonspunkter_for_behandling() {
-        AktørId aktørId = AktørId.dummy();
         var behandling = mock(Behandling.class);
         var aksjonspunkt = mock(Aksjonspunkt.class);
         when(aksjonspunkt.getAksjonspunktDefinisjon()).thenReturn(AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK);
         when(aksjonspunkt.erUtført()).thenReturn(true);
         when(behandling.getAksjonspunkter()).thenReturn(Set.of(aksjonspunkt));
 
-        var aksjonspunktDefinisjoner = sjekkMotEksisterendeOppgaverTjeneste.sjekkMotEksisterendeGsakOppgaver(aktørId, behandling);
+        var aksjonspunktDefinisjoner = sjekkMotEksisterendeOppgaverTjeneste.sjekkMotEksisterendeGsakOppgaver(AKTØR_ID, behandling);
 
         assertThat(aksjonspunktDefinisjoner).isEmpty();
     }
@@ -79,5 +74,10 @@ class SjekkMotEksisterendeOppgaverTjenesteTest {
 
         assertThat(aksjonspunktDefinisjoner).containsOnlyOnce(AksjonspunktDefinisjon.VURDERE_DOKUMENT_FØR_VEDTAK);
         assertThat(aksjonspunktDefinisjoner).containsOnlyOnce(AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK);
+    }
+
+    private static Oppgave opprettOppgave(Oppgavetype oppgavetype) {
+        return new Oppgave(99L, null, null, null, null, Tema.FOR.getOffisiellKode(), null, oppgavetype, null, 2, "4805",
+            LocalDate.now().plusDays(1), LocalDate.now(), Prioritet.NORM, Oppgavestatus.AAPNET, "beskrivelse", null);
     }
 }
