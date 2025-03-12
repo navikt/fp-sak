@@ -303,7 +303,7 @@ public class FordelRestTjeneste {
 
     public record SakInntektsmeldingResponse(boolean søkerHarSak){}
 
-    public record SakInntektsmeldingDto(@NotNull AktørIdDto bruker, @NotNull YtelseType ytelse){
+    public record SakInntektsmeldingDto(@NotNull @Valid AktørIdDto bruker, @NotNull @Valid YtelseType ytelse){
         protected enum YtelseType {
             FORELDREPENGER,
             SVANGERSKAPSPENGER
