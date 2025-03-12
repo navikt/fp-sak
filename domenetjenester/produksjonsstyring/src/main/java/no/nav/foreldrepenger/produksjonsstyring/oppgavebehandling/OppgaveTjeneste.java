@@ -83,7 +83,7 @@ public class OppgaveTjeneste {
      * Supplerende oppgaver: Vurder Dokument og Konsekvens for Ytelse
      */
     public List<Oppgave> hentÅpneVurderDokumentOgVurderKonsekvensOppgaver(AktørId aktørId) {
-        var oppgaveTyper = List.of(Oppgavetype.VURDER_DOKUMENT.getKode(), Oppgavetype.VURDER_KONSEKVENS_YTELSE.getKode());
+        var oppgaveTyper = List.of(Oppgavetype.VURDER_KONSEKVENS_YTELSE.getKode(), Oppgavetype.VURDER_DOKUMENT.getKode());
         try {
             var oppgaver = restKlient.finnÅpneOppgaver(oppgaveTyper, aktørId.getId(), null, null);
             LOG.debug("FPSAK GOSYS fant {} oppgaver av typer {}", oppgaver.size(), oppgaveTyper);
