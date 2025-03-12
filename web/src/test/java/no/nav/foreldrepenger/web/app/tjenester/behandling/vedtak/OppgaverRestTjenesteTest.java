@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.UUID;
@@ -19,10 +18,10 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.app.OppgaveDtoT
 
 class OppgaverRestTjenesteTest {
 
-    private OppgaverRestTjeneste oppgaverRestTjeneste;
     private final BehandlingRepository behandlingRepositoryMock = mock(BehandlingRepository.class);
     private final OppgaveDtoTjeneste oppgaveDtoTjenesteMock = mock(OppgaveDtoTjeneste.class);
     private final Behandling behandling = mock(Behandling.class);
+    private OppgaverRestTjeneste oppgaverRestTjeneste;
 
     @BeforeEach
     void setUp() {
@@ -32,7 +31,7 @@ class OppgaverRestTjenesteTest {
     }
 
     @Test
-    void skal_hente_oppgaver() {
+    void skal_hente_oppgaver_for_foreldrepenger() {
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.FORELDREPENGER);
         oppgaverRestTjeneste.hentOppgaver(new UuidDto(UUID.randomUUID()));
 
@@ -40,10 +39,18 @@ class OppgaverRestTjenesteTest {
     }
 
     @Test
-    void skal_ikke_hente_oppgaver_for_engangsstønad() {
+    void skal_hente_oppgaver_for_engangsstønad() {
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.ENGANGSTØNAD);
         oppgaverRestTjeneste.hentOppgaver(new UuidDto(UUID.randomUUID()));
 
-        verifyNoInteractions(oppgaveDtoTjenesteMock);
+        verify(oppgaveDtoTjenesteMock).mapTilDto(behandling.getAktørId());
+    }
+
+    @Test
+    void skal_hente_oppgaver_for_svangerskapspenger() {
+        when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.SVANGERSKAPSPENGER);
+        oppgaverRestTjeneste.hentOppgaver(new UuidDto(UUID.randomUUID()));
+
+        verify(oppgaveDtoTjenesteMock).mapTilDto(behandling.getAktørId());
     }
 }
