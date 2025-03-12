@@ -276,27 +276,11 @@ public class FordelRestTjeneste {
         if (!AktørId.erGyldigAktørId(sakInntektsmeldingDto.bruker().aktørId())) {
             throw new IllegalArgumentException("Oppgitt aktørId er ikke en gyldig ident.");
         }
-        // Saker kan være i behandling i 3 år, og arbeidsgiver kan sende inntektsmelding 3 mnd etter første dato med refusjon
-        var tidligsteFom = sakInntektsmeldingDto.førsteUttaksdag().minusYears(3).minusMonths(3);
-        var senesteTom = sakInntektsmeldingDto.førsteUttaksdag().plusMonths(1);
-        var periode = Intervall.fraOgMedTilOgMed(tidligsteFom, senesteTom);
         var søkersFagsaker = fagsakTjeneste.finnFagsakerForAktør(new AktørId(sakInntektsmeldingDto.bruker().aktørId()));
-        var finnesSakSomKanKnyttesTilDato = søkersFagsaker.stream()
-            .filter(fag -> {
-                if (sakInntektsmeldingDto.ytelse().equals(SakInntektsmeldingDto.YtelseType.SVANGERSKAPSPENGER)) {
-                    return fag.getYtelseType().equals(FagsakYtelseType.SVANGERSKAPSPENGER);
-                }
-                return fag.getYtelseType().equals(FagsakYtelseType.FORELDREPENGER);
-            }).anyMatch(fag -> {
-                var førsteUttaksdatoForFagsak = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fag.getId())
-                    .map(beh -> sakInfoDtoTjeneste.finnFørsteUttaksdato(beh))
-                    .orElse(null);
-                if (førsteUttaksdatoForFagsak == null) {
-                    return false;
-                }
-                return periode.inkluderer(førsteUttaksdatoForFagsak);
-            });
-        return Response.ok(new SakInntektsmeldingResponse(finnesSakSomKanKnyttesTilDato)).build();
+        var ytelseDetSjekkesMot = sakInntektsmeldingDto.ytelse().equals(SakInntektsmeldingDto.YtelseType.FORELDREPENGER) ? FagsakYtelseType.FORELDREPENGER : FagsakYtelseType.SVANGERSKAPSPENGER;
+        var finnesSakPåSøkerForYtelse = søkersFagsaker.stream()
+            .anyMatch(fag -> fag.getYtelseType().equals(ytelseDetSjekkesMot));
+        return Response.ok(new SakInntektsmeldingResponse(finnesSakPåSøkerForYtelse)).build();
     }
 
     public record AktørIdDto(@NotNull @Digits(integer = 19, fraction = 0) String aktørId) {
@@ -319,7 +303,7 @@ public class FordelRestTjeneste {
 
     public record SakInntektsmeldingResponse(boolean søkerHarSak){}
 
-    public record SakInntektsmeldingDto(@NotNull AktørIdDto bruker, @NotNull LocalDate førsteUttaksdag, @NotNull YtelseType ytelse){
+    public record SakInntektsmeldingDto(@NotNull AktørIdDto bruker, @NotNull YtelseType ytelse){
         protected enum YtelseType {
             FORELDREPENGER,
             SVANGERSKAPSPENGER

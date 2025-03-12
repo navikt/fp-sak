@@ -200,7 +200,7 @@ class FordelRestTjenesteTest {
 
         var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock);
 
-        var result = tjeneste.sjekkSakForInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), LocalDate.now(), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.SVANGERSKAPSPENGER));
+        var result = tjeneste.sjekkSakForInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.SVANGERSKAPSPENGER));
 
         var response = (FordelRestTjeneste.SakInntektsmeldingResponse) result.getEntity();
         assertThat(response).isNotNull();
@@ -215,18 +215,11 @@ class FordelRestTjenesteTest {
         var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
         fagsak2.setId(2L);
 
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
-        scenario.medSaksnummer(saknr).medSøknadHendelse().medFødselsDato(LocalDate.now());
-        var behandling = scenario.lagMocked();
-
         when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak1, fagsak2));
-        when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(1L)).thenReturn(Optional.of(behandling));
-        when(behandlingRepositoryProviderMock.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
-        when(sakInfoDtoTjenesteMock.finnFørsteUttaksdato(any(Behandling.class))).thenReturn(LocalDate.now());
 
         var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock);
 
-        var result = tjeneste.sjekkSakForInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), LocalDate.now(), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.SVANGERSKAPSPENGER));
+        var result = tjeneste.sjekkSakForInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.SVANGERSKAPSPENGER));
 
         var response = (FordelRestTjeneste.SakInntektsmeldingResponse) result.getEntity();
         assertThat(response).isNotNull();
