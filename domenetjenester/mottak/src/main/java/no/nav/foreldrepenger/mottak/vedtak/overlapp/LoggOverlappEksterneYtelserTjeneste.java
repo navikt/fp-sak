@@ -108,18 +108,22 @@ public class LoggOverlappEksterneYtelserTjeneste {
     }
 
     public void loggOverlappForVedtakFPSAK(Behandling behandling) {
-        var overlappListe = loggOverlappendeYtelser(behandling).stream()
+        var ref = BehandlingReferanse.fra(behandling);
+        var tidslinjeFpsak = getTidslinjeForBehandling(ref);
+        var overlappListe = loggOverlappendeYtelser(ref, tidslinjeFpsak).stream()
             .map(b -> b.medHendelse(OverlappVedtak.HENDELSE_VEDTAK_FOR).build())
             .toList();
 
         overlappListe.forEach(overlappRepository::lagre);
 
-        oppgaveTjeneste.håndterOverlapp(overlappListe, behandling);
+        oppgaveTjeneste.håndterOverlapp(overlappListe, ref, tidslinjeFpsak);
     }
 
 
     public void loggOverlappForAvstemming(String hendelse, Behandling behandling) {
-        loggOverlappendeYtelser(behandling).stream()
+        var ref = BehandlingReferanse.fra(behandling);
+        var tidslinjeFpsak = getTidslinjeForBehandling(ref);
+        loggOverlappendeYtelser(ref, tidslinjeFpsak).stream()
             .map(b -> b.medHendelse(hendelse))
             .forEach(overlappRepository::lagre);
     }
@@ -154,9 +158,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
         };
     }
 
-    private List<OverlappVedtak.Builder> loggOverlappendeYtelser(Behandling behandling) {
-        var ref = BehandlingReferanse.fra(behandling);
-        var perioderFpGradert = getTidslinjeForBehandling(ref);
+    private List<OverlappVedtak.Builder> loggOverlappendeYtelser(BehandlingReferanse ref, LocalDateTimeline<BigDecimal> perioderFpGradert) {
         if (perioderFpGradert.isEmpty()) {
             return Collections.emptyList();
         }
@@ -169,7 +171,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
         vurderOmOverlappOMS(ref.aktørId(), tidligsteUttakFP, perioderFpGradert, overlappene);
         vurderOmOverlappSYK(ident, tidligsteUttakFP, perioderFpGradert, overlappene);
         return overlappene.stream()
-            .map(b -> b.medSaksnummer(behandling.getSaksnummer()).medBehandlingId(ref.behandlingId()))
+            .map(b -> b.medSaksnummer(ref.saksnummer()).medBehandlingId(ref.behandlingId()))
             .toList();
     }
 
