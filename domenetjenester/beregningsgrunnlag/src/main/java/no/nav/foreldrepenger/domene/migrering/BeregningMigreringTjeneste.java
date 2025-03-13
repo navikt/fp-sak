@@ -9,9 +9,6 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRegelSporing;
-import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagRegelType;
-
 import org.jboss.weld.exceptions.IllegalStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,15 +27,18 @@ import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKobling;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKoblingRepository;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRegelSporing;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.mappers.fra_entitet_til_domene.FraEntitetTilBehandlingsmodellMapper;
 import no.nav.foreldrepenger.domene.mappers.fra_kalkulator_til_entitet.KodeverkFraKalkulusMapper;
 import no.nav.foreldrepenger.domene.mappers.fra_kalkulus_til_domene.KalkulusTilFpsakMapper;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagPeriodeRegelType;
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagRegelType;
 import no.nav.foreldrepenger.domene.prosess.GrunnbeløpReguleringsutleder;
 import no.nav.foreldrepenger.domene.prosess.KalkulusKlient;
 import no.nav.foreldrepenger.domene.typer.Beløp;
+import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 public class BeregningMigreringTjeneste {
@@ -105,7 +105,7 @@ public class BeregningMigreringTjeneste {
                 referanse.behandlingId(), grunnlag.map(BeregningsgrunnlagGrunnlagEntitet::getId)));
         } catch (Exception e) {
             var msg = String.format("Feil ved mapping av grunnlag for sak %s, behandlingId %s og grunnlag %s. Fikk feil %s", referanse.saksnummer(),
-                referanse.behandlingId(), grunnlag.map(BeregningsgrunnlagGrunnlagEntitet::getId), e);
+                referanse.behandlingUuid(), grunnlag.map(BeregningsgrunnlagGrunnlagEntitet::getId), e);
             throw new IllegalStateException(msg);
         }
     }
@@ -127,7 +127,18 @@ public class BeregningMigreringTjeneste {
         var fpJson = StandardJsonConfig.toJson(fpsakGrunnlag);
         var kalkJson = StandardJsonConfig.toJson(kalkulusGrunnlag);
         if (!fpJson.equals(kalkJson)) {
+            logg(fpJson, kalkJson);
             throw new IllegalStateException("Missmatch mellom kalkulus json og fpsak json av samme beregninsgrunnlag");
+        }
+    }
+
+    private void logg(String jsonFpsak, String jsonKalkulus) {
+        try {
+            var maskertFpsak = jsonFpsak.replaceAll("\\d{13}|\\d{11}|\\d{9}", "*");
+            var maskertKalkulus = jsonKalkulus.replaceAll("\\d{13}|\\d{11}|\\d{9}", "*");
+            LOG.info("Json fpsak: {} Json kalkulus: {} ", maskertFpsak, maskertKalkulus);
+        } catch (TekniskException jsonProcessingException) {
+            LOG.warn("Feil ved logging av grunnlagsjson", jsonProcessingException);
         }
     }
 
