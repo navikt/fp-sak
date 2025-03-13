@@ -1,6 +1,9 @@
 package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -8,10 +11,12 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
+import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
 /*
  * Tjeneste for å opprette samshandlingsoppgaver dersom nylig vedtak i fpsak overlapper andre ytelser
@@ -29,6 +34,8 @@ import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjenest
 @ApplicationScoped
 public class OverlappOppgaveTjeneste {
 
+    private static final String SYKEPENGER = "sykepenger";
+
     private OppgaveTjeneste oppgaveTjeneste;
 
 
@@ -41,70 +48,85 @@ public class OverlappOppgaveTjeneste {
         // for CDI
     }
 
-    public void håndterOverlapp(List<OverlappVedtak> overlappListe, Behandling behandling) {
+    public void håndterOverlapp(List<OverlappVedtak> overlappListe, BehandlingReferanse ref, LocalDateTimeline<BigDecimal> tidslineFpsak) {
+        if (overlappListe.isEmpty()) {
+            return;
+        }
+        var fpsakIntervall = new LocalDateInterval(tidslineFpsak.getMinLocalDate(), tidslineFpsak.getMaxLocalDate());
         var grupperteOverlapp = overlappListe.stream()
             .collect(Collectors.groupingBy(Gruppering::new));
         grupperteOverlapp.entrySet().stream()
             .filter(e -> OverlappVedtak.OverlappYtelseType.SP.equals(e.getKey().ytelseType()))
-            .forEach(e -> håndterOverlappSykepenger(e.getKey(), e.getValue(), behandling));
+            .forEach(e -> håndterOverlappSykepenger(e.getKey(), e.getValue(), ref, fpsakIntervall));
         grupperteOverlapp.entrySet().stream()
             .filter(e -> OverlappVedtak.OverlappYtelseType.BS.equals(e.getKey().ytelseType()) || Fagsystem.K9SAK.equals(e.getKey().fagsystem()))
-            .forEach(e -> håndterOverlappPleieOmsorg(e.getKey(), e.getValue(), behandling));
+            .forEach(e -> håndterOverlappPleieOmsorg(e.getKey(), e.getValue(), ref, fpsakIntervall));
     }
 
-    private void håndterOverlappSykepenger(Gruppering gruppering, List<OverlappVedtak> overlappListe, Behandling behandling) {
-        if (overlappListe.isEmpty()) { // Utelat Infotrygd inntil det er avtalt
-            return;
-        }
+    private void håndterOverlappSykepenger(Gruppering gruppering, List<OverlappVedtak> overlappListe, BehandlingReferanse ref, LocalDateInterval fpsakIntervall) {
         var system = Fagsystem.INFOTRYGD.equals(gruppering.fagsystem()) ? "Infotrygd" : "Speil";
-        var minFom = overlappListe.stream()
-            .map(periode -> periode.getPeriode().getFomDato())
-            .min(Comparator.naturalOrder()).orElseThrow();
-        var maxTom = overlappListe.stream()
-            .map(periode -> periode.getPeriode().getTomDato())
-            .max(Comparator.naturalOrder()).orElseThrow();
-        var foreldrepengerYtelse = behandling.getFagsakYtelseType().getNavn().toLowerCase();
-        var maxUtbetalingsprosent = overlappListe.stream()
-            .map(OverlappVedtak::getFpsakUtbetalingsprosent)
-            .max(Comparator.naturalOrder()).orElse(100L);
-
         // Beskrivelse må tilpasses dersom / når det skal opprettes oppgaver ved overlapp mot Infotrygd
-        var beskrivelse = String.format("Det er innvilget %s (%s%%) som overlapper med sykepenger i periode %s - %s i %s. Vurder konsekvens for ytelse.",
-            foreldrepengerYtelse, maxUtbetalingsprosent, minFom, maxTom, system );
-        oppgaveTjeneste.opprettVurderKonsekvensHosSykepenger(beskrivelse, behandling.getAktørId());
+        var beskrivelse2 = lagBeskrivelseAnnenYtelse(SYKEPENGER, system, overlappListe);
+        var beskrivelse = lagSamletBeskrivelse(ref, overlappListe, fpsakIntervall, beskrivelse2, SYKEPENGER);
+        oppgaveTjeneste.opprettVurderKonsekvensHosSykepenger(beskrivelse, ref.aktørId());
 
     }
 
-    private void håndterOverlappPleieOmsorg(Gruppering gruppering, List<OverlappVedtak> overlappListe, Behandling behandling) {
-        if (overlappListe.isEmpty()) {
-            return;
-        }
-        var minFom = overlappListe.stream()
-            .map(periode -> periode.getPeriode().getFomDato())
-            .min(Comparator.naturalOrder()).orElseThrow();
-        var maxTom = overlappListe.stream()
-            .map(periode -> periode.getPeriode().getTomDato())
-            .max(Comparator.naturalOrder()).orElseThrow();
-        var foreldrepengerYtelse = behandling.getFagsakYtelseType().getNavn().toLowerCase();
-        var maxUtbetalingsprosent = overlappListe.stream()
-            .map(OverlappVedtak::getFpsakUtbetalingsprosent)
-            .max(Comparator.naturalOrder()).orElse(100L);
+    private void håndterOverlappPleieOmsorg(Gruppering gruppering, List<OverlappVedtak> overlappListe, BehandlingReferanse ref, LocalDateInterval fpsakIntervall) {
         var omsorgspengerYtelse = omsorgspengerYtelse(gruppering);
 
-        if (Fagsystem.K9SAK.equals(gruppering.fagsystem())) {
-            var beskrivelse = String.format("Det er innvilget %s (%s%%) som overlapper med %s sak %s i periode %s - %s i K9-sak. Vurder konsekvens for ytelse.",
-                    foreldrepengerYtelse, maxUtbetalingsprosent, omsorgspengerYtelse, gruppering.saksnummer(), minFom, maxTom );
-            oppgaveTjeneste.opprettVurderKonsekvensHosPleiepenger(beskrivelse, behandling.getAktørId());
+        var beskrivelse2 = Fagsystem.K9SAK.equals(gruppering.fagsystem())
+            ? lagBeskrivelseAnnenYtelse(omsorgspengerYtelse + " sak " + gruppering.saksnummer(), "K9-sak", overlappListe)
+            : lagBeskrivelseAnnenYtelse(omsorgspengerYtelse, "Infotrygd", overlappListe);
+
+        var beskrivelse = lagSamletBeskrivelse(ref, overlappListe, fpsakIntervall, beskrivelse2, omsorgspengerYtelse);
+        oppgaveTjeneste.opprettVurderKonsekvensHosPleiepenger(beskrivelse, ref.aktørId());
+    }
+
+    private static String lagSamletBeskrivelse(BehandlingReferanse ref, List<OverlappVedtak> overlappListe, LocalDateInterval fpsakIntervall,
+                                               String beskrivelse2, String ytelse) {
+        var beskrivelse1 = lagBeskrivelseVedtakForeldrepenger(ref, overlappListe, fpsakIntervall);
+        var beskrivelse3 = lagBeskrivelseVeiledning(ytelse);
+        return beskrivelse1 + System.lineSeparator() + beskrivelse2 + System.lineSeparator() + beskrivelse3;
+    }
+
+
+    private static String lagBeskrivelseVedtakForeldrepenger(BehandlingReferanse ref, List<OverlappVedtak> overlappListe, LocalDateInterval fpsakIntervall) {
+        var foreldrepengerYtelse = ref.fagsakYtelseType().getNavn().toLowerCase();
+        var maxUtbetalingsprosent = overlappListe.stream()
+            .map(OverlappVedtak::getFpsakUtbetalingsprosent)
+            .max(Comparator.naturalOrder()).orElse(100L);
+        return String.format("Denne oppgaven kommer fordi det er innvilget %s (%s%%) fra %s til %s med saksnummer %s.",
+            foreldrepengerYtelse, maxUtbetalingsprosent, d2(fpsakIntervall.getFomDato()), d2(fpsakIntervall.getTomDato()), ref.saksnummer().getVerdi());
+    }
+
+    private static String lagBeskrivelseAnnenYtelse(String ytelse, String system, List<OverlappVedtak> overlappListe) {
+        if (overlappListe.size() == 2 || overlappListe.size() == 3) {
+            var perioder = overlappListe.stream()
+                .map(p -> String.format("%s til %s", d2(p.getPeriode().getFomDato()), d2(p.getPeriode().getTomDato())))
+                .toList();
+            return String.format("Dette vedtaket overlapper antagelig med %s i %s i periodene %s.", ytelse, system, String.join(", ", perioder));
         } else {
-            var beskrivelse = String.format("Det er innvilget %s (%s%%) som overlapper med pleiepenger i periode %s - %s i Infotrygd. Vurder konsekvens for ytelse.",
-                    foreldrepengerYtelse, maxUtbetalingsprosent, minFom, maxTom );
-            oppgaveTjeneste.opprettVurderKonsekvensHosPleiepenger(beskrivelse, behandling.getAktørId());
+            var minFom = overlappListe.stream().map(p -> p.getPeriode().getFomDato()).min(Comparator.naturalOrder()).orElseThrow();
+            var maxTom = overlappListe.stream().map(p -> p.getPeriode().getTomDato()).max(Comparator.naturalOrder()).orElseThrow();
+
+            return String.format("Dette vedtaket overlapper antagelig med %s i %s i perioden fra %s til %s.", ytelse, system, d2(minFom), d2(maxTom));
         }
     }
+
+    private static String d2(LocalDate dato) {
+        return dato.format(DateTimeFormatter.ofPattern("d.M.yy"));
+    }
+
+    private static String lagBeskrivelseVeiledning(String ytelse) {
+        return String.format("Det må undersøkes om det er overlapp mellom ytelsene og om %s skal endres. Er du i tvil må du ta kontakt med NFP.", ytelse);
+    }
+
+
 
     private static String omsorgspengerYtelse(Gruppering gruppering) {
         return switch (gruppering.ytelseType()) {
-            case SP -> "sykepenger";
+            case SP -> SYKEPENGER;
             case BS -> "pleiepenger";
             case PLEIEPENGER, OMSORGSPENGER, OPPLÆRINGSPENGER, FRISINN -> gruppering.ytelseType().name().toLowerCase();
         };
