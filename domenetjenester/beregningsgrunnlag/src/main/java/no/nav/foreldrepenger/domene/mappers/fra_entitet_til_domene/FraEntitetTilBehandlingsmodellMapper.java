@@ -38,6 +38,7 @@ import no.nav.foreldrepenger.domene.modell.FaktaAggregat;
 import no.nav.foreldrepenger.domene.modell.FaktaAktør;
 import no.nav.foreldrepenger.domene.modell.FaktaArbeidsforhold;
 import no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagPrStatus;
+import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaVurderingKilde;
 import no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak;
@@ -314,12 +315,24 @@ public class FraEntitetTilBehandlingsmodellMapper {
     private static Optional<FaktaAktør> mapFaktaAktør(List<BeregningsgrunnlagPrStatusOgAndel> andeler,
                                                       List<no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller) {
         var faktaAktørBuilder = FaktaAktør.builder();
+        mapMilitær(andeler, faktaOmBeregningTilfeller, faktaAktørBuilder);
         mapEtterlønnSluttpakke(faktaOmBeregningTilfeller, faktaAktørBuilder);
         mapMottarFLYtelse(andeler, faktaOmBeregningTilfeller, faktaAktørBuilder);
         mapErNyIArbeidslivetSN(andeler, faktaOmBeregningTilfeller, faktaAktørBuilder);
         mapSkalBesteberegnes(andeler, faktaOmBeregningTilfeller, faktaAktørBuilder);
         mapErNyoppstartetFL(andeler, faktaOmBeregningTilfeller, faktaAktørBuilder);
         return faktaAktørBuilder.erUgyldig() ? Optional.empty() : Optional.of(faktaAktørBuilder.build());
+    }
+
+    private static void mapMilitær(List<BeregningsgrunnlagPrStatusOgAndel> andeler,
+                                   List<FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller,
+                                   FaktaAktør.Builder faktaAktørBuilder) {
+        var harVurdertMilitær = faktaOmBeregningTilfeller.stream()
+            .anyMatch(tilfelle -> tilfelle.equals(FaktaOmBeregningTilfelle.VURDER_MILITÆR_SIVILTJENESTE));
+        var harMilitær = andeler.stream().anyMatch(a -> a.getAktivitetStatus().equals(AktivitetStatus.MILITÆR_ELLER_SIVIL));
+        if (harVurdertMilitær) {
+            faktaAktørBuilder.medErMilitærSiviltjeneste(new FaktaVurdering(harMilitær, FaktaVurderingKilde.SAKSBEHANDLER));
+        }
     }
 
     private static void mapErNyoppstartetFL(List<BeregningsgrunnlagPrStatusOgAndel> andeler,
