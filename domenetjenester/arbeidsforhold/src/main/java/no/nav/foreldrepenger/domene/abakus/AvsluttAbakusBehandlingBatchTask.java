@@ -29,7 +29,7 @@ class AvsluttAbakusBehandlingBatchTask implements ProsessTaskHandler {
     private static final String FRA_OG_MED = "fraOgMed";
     private static final String TIL_OG_MED = "tilOgMed";
     private static final String DRY_RUN = "dryRun";
-    private static final int MAX_RESULT_BATCH_SIZE = 500;
+    private static final int MAX_RESULT_BATCH_SIZE = 100;
 
     private final InntektArbeidYtelseTjeneste abakusTjeneste;
     private final EntityManager entityManager;
