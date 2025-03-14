@@ -19,6 +19,7 @@ import jakarta.persistence.Table;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Entity(name = "AktivitetskravGrunnlag")
@@ -39,11 +40,12 @@ public class AktivitetskravGrunnlagEntitet extends BaseEntitet {
     @ManyToOne
     @JoinColumn(name = "aktivitetskrav_arbeid_perioder_id", updatable = false)
     private AktivitetskravArbeidPerioderEntitet perioderMedAktivitetskravArbeid;
+
     @ChangeTracked
     @Embedded
     @AttributeOverride(name = "fomDato", column = @Column(name = "periode_fom"))
     @AttributeOverride(name = "tomDato", column = @Column(name = "periode_tom"))
-    DatoIntervallEntitet periode;
+    private DatoIntervallEntitet periode;
 
     AktivitetskravGrunnlagEntitet() {
         //CDI
@@ -85,6 +87,27 @@ public class AktivitetskravGrunnlagEntitet extends BaseEntitet {
     @Override
     public int hashCode() {
         return Objects.hash(id, aktiv, behandlingId, perioderMedAktivitetskravArbeid, periode);
+    }
+
+    public boolean mor75StillingOgIngenPermisjoner(DatoIntervallEntitet tidsperiode) {
+        return getAktivitetskravPerioderMedArbeidEnitet().map(per -> {
+            if (harPermisjoner(tidsperiode, per)) {
+                return false;
+            }
+
+            var morsArbeidsprosent = per.getAktivitetskravArbeidPeriodeListe().stream()
+                .filter(p -> tidsperiode.erOmsluttetAv(p.getPeriode()))
+                .map(AktivitetskravArbeidPeriodeEntitet::getSumStillingsprosent)
+                .reduce(Stillingsprosent.ZERO, Stillingsprosent::add);
+            return morsArbeidsprosent.merEllerLik(new Stillingsprosent(75));
+        }).orElse(false);
+    }
+
+    private static boolean harPermisjoner(DatoIntervallEntitet tidsperiode, AktivitetskravArbeidPerioderEntitet per) {
+        return per.getAktivitetskravArbeidPeriodeListe()
+            .stream()
+            .filter(p -> tidsperiode.erOmsluttetAv(p.getPeriode()))
+            .anyMatch(p -> p.getSumPermisjonsprosent().merEnn0());
     }
 
     public static class Builder {
