@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.diff.TraverseValue;
  * Stillingsprosent slik det er oppgitt i arbeidsavtalen
  */
 @Embeddable
-public class Stillingsprosent implements Serializable, IndexKey, TraverseValue {
+public class Stillingsprosent implements Serializable, IndexKey, TraverseValue, Comparable<Stillingsprosent> {
     private static final Logger LOG = LoggerFactory.getLogger(Stillingsprosent.class);
 
     private static final BigDecimal MAX_VERDI = new BigDecimal(500);
@@ -115,5 +115,22 @@ public class Stillingsprosent implements Serializable, IndexKey, TraverseValue {
 
     public boolean erNulltall() {
         return verdi != null && verdi.intValue() == 0;
+    }
+
+    public Stillingsprosent add(Stillingsprosent stillingsprosent) {
+        return new Stillingsprosent(this.verdi.add(stillingsprosent.verdi));
+    }
+
+    @Override
+    public int compareTo(Stillingsprosent o) {
+        return this.verdi.compareTo(o.verdi);
+    }
+
+    public boolean merEllerLik(Stillingsprosent that) {
+        return this.compareTo(that) >= 0;
+    }
+
+    public boolean merEnn0() {
+        return this.compareTo(ZERO) > 0;
     }
 }

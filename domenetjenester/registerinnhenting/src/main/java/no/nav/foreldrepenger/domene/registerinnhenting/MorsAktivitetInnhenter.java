@@ -21,11 +21,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.Aktivite
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravGrunnlagEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.abakus.ArbeidsforholdTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdMedPermisjon;
@@ -64,63 +62,63 @@ public class MorsAktivitetInnhenter {
     }
 
     public void innhentMorsAktivitet(Behandling behandling) {
+        if (!FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
+            throw new IllegalStateException("Kan ikke hente mors aktivitet for behandling med fagsakytelse: " + behandling.getFagsakYtelseType());
+        }
+        if (!behandling.getRelasjonsRolleType().erFarEllerMedMor()) {
+            throw new IllegalStateException("Kan ikke hente mors aktivitet for behandling med relasjonstype: " + behandling.getRelasjonsRolleType());
+        }
         var behandlingId = behandling.getId();
         var ytelseaggregat = ytelseFordelingTjeneste.hentAggregat(behandlingId);
-        var perioderAktivitetskravArbeid = hentPerioderMedAktivitetskrav(ytelseaggregat, behandling.getFagsakYtelseType());
-        var morsAktivitetsGrunnlag = aktivitetskravArbeidRepository.hentGrunnlag(behandlingId);
-
-        if (perioderAktivitetskravArbeid.isEmpty() && morsAktivitetsGrunnlag.isEmpty()) {
+        var perioderAktivitetskravArbeid = hentPerioderMedAktivitetskrav(ytelseaggregat);
+        if (perioderAktivitetskravArbeid.isEmpty()) {
+            LOG.info("Ingen perioder med aktivitetskrav arbeid for behandlingId: {}", behandlingId);
             return;
         }
+
+        var morsAktivitetsGrunnlag = aktivitetskravArbeidRepository.hentGrunnlag(behandlingId);
 
         var annenPartAktørId = hentAnnenPartAktørId(BehandlingReferanse.fra(behandling));
         if (annenPartAktørId == null) {
             LOG.info("MorsAktivitetInnhenter: Finner ingen annen part for behandling med aktivitetskrav arbeid for behandlingId: {}", behandlingId);
             return;
         }
-        var morAktvitet = finnMorsAktivitet(behandling, perioderAktivitetskravArbeid, annenPartAktørId, morsAktivitetsGrunnlag);
-        if (morAktvitet == null) {
-            LOG.info("MorsAktivitetInnhenter: Finner ingen aktivitet på mor for behandlingId: {}", behandlingId);
-            return;
-        }
-        aktivitetskravArbeidRepository.lagreAktivitetskravArbeidPerioder(behandlingId, morAktvitet.perioderEntitet(), morAktvitet.fraDato(), morAktvitet.tilDato());
+        var morAktvitetOpt = finnMorsAktivitet(behandling, perioderAktivitetskravArbeid, annenPartAktørId, morsAktivitetsGrunnlag);
+
+        morAktvitetOpt.ifPresent(
+            morAktivitet -> aktivitetskravArbeidRepository.lagreAktivitetskravArbeidPerioder(behandlingId, morAktivitet.perioderEntitet(),
+                morAktivitet.fraDato(), morAktivitet.tilDato()));
     }
 
-    public MorAktivitet finnMorsAktivitet(Behandling behandling,
-                                          List<OppgittPeriodeEntitet> perioderAktivitetskravArbeid,
-                                          AktørId annenPartAktørId,
-                                          Optional<AktivitetskravGrunnlagEntitet> gjeldendeAktivitetsgrunnlag) {
+    Optional<MorAktivitet> finnMorsAktivitet(Behandling behandling,
+                                             List<OppgittPeriodeEntitet> perioderAktivitetskravArbeid,
+                                             AktørId annenPartAktørId,
+                                             Optional<AktivitetskravGrunnlagEntitet> gjeldendeAktivitetsgrunnlag) {
 
-        var nyMinsteAktvitetskravDato = minsteFraDatoMinusIntervall(perioderAktivitetskravArbeid).orElse(Tid.TIDENES_ENDE);
-        var nyHøyesteAktivitetskravDato = hentHøyesteFraDatoPlusIntervall(perioderAktivitetskravArbeid).orElse(null);
+        var nyMinsteAktvitetskravDato = minsteFraDatoMinusIntervall(perioderAktivitetskravArbeid);
+        var nyHøyesteAktivitetskravDato = hentHøyesteFraDatoPlusIntervall(perioderAktivitetskravArbeid);
 
-        if (nyHøyesteAktivitetskravDato == null && gjeldendeAktivitetsgrunnlag.isEmpty()) {
-            return null;
-        }
+        var fraDatoGjeldendeGrunnlag = gjeldendeAktivitetsgrunnlag.map(grunnlag -> grunnlag.getPeriode().getFomDato()).orElse(Tid.TIDENES_ENDE);
+        var tilDatoGjeldendeGrunnlag = gjeldendeAktivitetsgrunnlag.map(grunnlag -> grunnlag.getPeriode().getTomDato()).orElse(Tid.TIDENES_BEGYNNELSE);
 
-        var nyGrunnlagFraDato = utledNyGrunnlagFraDato(nyMinsteAktvitetskravDato, gjeldendeAktivitetsgrunnlag.map(grunnlag -> grunnlag.getPeriode().getFomDato()).orElse(Tid.TIDENES_ENDE));
-        var nyGrunnlagTilDato = nyHøyesteAktivitetskravDato != null ? nyHøyesteAktivitetskravDato : gjeldendeAktivitetsgrunnlag.get().getPeriode().getTomDato();
+        var nyGrunnlagFraDato = nyMinsteAktvitetskravDato.isBefore(fraDatoGjeldendeGrunnlag) ? nyMinsteAktvitetskravDato : fraDatoGjeldendeGrunnlag;
+        var nyGrunnlagTilDato = nyHøyesteAktivitetskravDato.isAfter(
+            tilDatoGjeldendeGrunnlag) ? nyHøyesteAktivitetskravDato : tilDatoGjeldendeGrunnlag;
 
-        LOG.info("MorsAktivitetInnhenter: Henter mors aktivitet for behandlingId: {} for periode:{} - {}", behandling.getId(), nyGrunnlagFraDato, nyGrunnlagTilDato);
-        var arbeidsforholdInfo = abakusArbeidsforholdTjeneste.hentArbeidsforholdInfoForEnPeriode(annenPartAktørId, nyGrunnlagFraDato, nyGrunnlagTilDato,
-            behandling.getFagsakYtelseType());
+        LOG.info("MorsAktivitetInnhenter: Henter mors aktivitet for behandlingId: {} for periode:{} - {}", behandling.getId(), nyGrunnlagFraDato,
+            nyGrunnlagTilDato);
+        var arbeidsforholdInfo = abakusArbeidsforholdTjeneste.hentArbeidsforholdInfoForEnPeriode(annenPartAktørId, nyGrunnlagFraDato,
+            nyGrunnlagTilDato, behandling.getFagsakYtelseType());
 
         if (arbeidsforholdInfo.isEmpty()) {
-            return null;
+            LOG.info("MorsAktivitetInnhenter: Finner ingen aktivitet på mor for behandlingId: {}", behandling.getId());
+            return Optional.empty();
         }
 
         var mapAvOrgnrOgAvtaler = arbeidsforholdInfo.stream().collect(Collectors.groupingBy(this::aktivitetskravNøkkel));
         var perioderBuilder = lagAktivitetskravPerioderBuilder(mapAvOrgnrOgAvtaler, nyGrunnlagFraDato, nyHøyesteAktivitetskravDato);
 
-        return new MorAktivitet(nyGrunnlagFraDato, nyGrunnlagTilDato, perioderBuilder);
-    }
-
-    private LocalDate utledNyGrunnlagFraDato(LocalDate nyMinsteAktvitetskravDato, LocalDate fraDatoGjeldendeGrunnlag) {
-        if (nyMinsteAktvitetskravDato.isBefore(fraDatoGjeldendeGrunnlag)) {
-            return nyMinsteAktvitetskravDato;
-        } else {
-            return fraDatoGjeldendeGrunnlag;
-        }
+        return Optional.of(new MorAktivitet(nyGrunnlagFraDato, nyGrunnlagTilDato, perioderBuilder));
     }
 
     public record MorAktivitet(LocalDate fraDato, LocalDate tilDato, AktivitetskravArbeidPerioderEntitet perioderEntitet) {
@@ -148,31 +146,33 @@ public class MorsAktivitetInnhenter {
                 permisjonsprosent != null ? permisjonsprosent.getValue() : BigDecimal.ZERO));
     }
 
-    private static Optional<LocalDate> hentHøyesteFraDatoPlusIntervall(List<OppgittPeriodeEntitet> aktuellePerioder) {
+    private static LocalDate hentHøyesteFraDatoPlusIntervall(List<OppgittPeriodeEntitet> aktuellePerioder) {
         return aktuellePerioder.stream()
             .map(OppgittPeriodeEntitet::getTom)
             .max(LocalDate::compareTo)
-            .map(maxDato -> maxDato.plusWeeks(2));
+            .map(maxDato -> maxDato.plusWeeks(2))
+            .orElseThrow();
     }
 
-    private static Optional<LocalDate> minsteFraDatoMinusIntervall(List<OppgittPeriodeEntitet> aktuellePerioder) {
+    private static LocalDate minsteFraDatoMinusIntervall(List<OppgittPeriodeEntitet> aktuellePerioder) {
         return aktuellePerioder.stream()
             .map(OppgittPeriodeEntitet::getFom)
             .min(LocalDate::compareTo)
-            .map(minDato -> minDato.minusWeeks(2));
+            .map(minDato -> minDato.minusWeeks(2))
+            .orElseThrow();
     }
 
-    private static List<OppgittPeriodeEntitet> hentPerioderMedAktivitetskrav(YtelseFordelingAggregat ytelseaggregat, FagsakYtelseType ytelseType) {
+    private static List<OppgittPeriodeEntitet> hentPerioderMedAktivitetskrav(YtelseFordelingAggregat ytelseaggregat) {
         return ytelseaggregat.getGjeldendeFordeling()
             .getPerioder()
             .stream()
-            .filter(p -> FagsakYtelseType.FORELDREPENGER.equals(ytelseType) && UttakPeriodeType.FELLESPERIODE.equals(p.getPeriodeType()) && MorsAktivitet.ARBEID.equals(p.getMorsAktivitet()))
+            .filter(OppgittPeriodeEntitet::kanAutomatiskAvklareMorsArbeid)
             .toList();
     }
 
     private AktivitetskravArbeidPerioderEntitet lagAktivitetskravPerioderBuilder(Map<String, List<ArbeidsforholdMedPermisjon>> mapAvOrgnrOgAvtaler,
-                                                                                         LocalDate fraDato,
-                                                                                         LocalDate tilDato) {
+                                                                                 LocalDate fraDato,
+                                                                                 LocalDate tilDato) {
         List<AktivitetskravArbeidPeriodeEntitet.Builder> builderListe = new ArrayList<>();
         mapAvOrgnrOgAvtaler.forEach((key, value) -> {
             var stillingsprosentTidslinje = stillingsprosentTidslinje(value);

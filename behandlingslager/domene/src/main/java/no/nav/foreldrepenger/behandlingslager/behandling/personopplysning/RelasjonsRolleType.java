@@ -96,6 +96,10 @@ public enum RelasjonsRolleType implements Kodeverdi {
         return FORELDRE_ROLLER.contains(type);
     }
 
+    public boolean erFarEllerMedMor() {
+        return erFarEllerMedmor(this);
+    }
+
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<RelasjonsRolleType, String> {
         @Override
