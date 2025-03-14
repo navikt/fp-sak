@@ -338,13 +338,13 @@ public class BeregningMigreringMapper {
             mottarYtelseVurdering.orElse(null), harLønnsendringVurdering.orElse(null));
 
         // Valider at avklaringer matcher med tilfeller
-        if (erTidsbegrensetVurdering.isPresent() && tilfeller.stream().noneMatch(t -> t.equals(FaktaOmBeregningTilfelle.VURDER_TIDSBEGRENSET_ARBEIDSFORHOLD))) {
+        if (erTidsbegrensetVurdering.isPresent() && (tilfeller.isEmpty() || tilfeller.stream().noneMatch(t -> t.equals(FaktaOmBeregningTilfelle.VURDER_TIDSBEGRENSET_ARBEIDSFORHOLD)))) {
             throw new IllegalStateException("Finner andel som har satt vurdering om tidsbegrenset arbeidsforhold, men finner ikke matchende fakta tilfelle");
         }
-        if (harLønnsendringVurdering.isPresent() && tilfeller.stream().noneMatch(t -> t.equals(FaktaOmBeregningTilfelle.VURDER_LØNNSENDRING))) {
+        if (harLønnsendringVurdering.isPresent() && (tilfeller.isEmpty() || tilfeller.stream().noneMatch(t -> t.equals(FaktaOmBeregningTilfelle.VURDER_LØNNSENDRING)))) {
             throw new IllegalStateException("Finner andel som har satt vurdering om lønnsendring, men finner ikke matchende fakta tilfelle");
         }
-        if (mottarYtelseVurdering.isPresent() && tilfeller.stream().noneMatch(t -> t.equals(FaktaOmBeregningTilfelle.VURDER_MOTTAR_YTELSE))) {
+        if (mottarYtelseVurdering.isPresent() && (tilfeller.isEmpty() || tilfeller.stream().noneMatch(t -> t.equals(FaktaOmBeregningTilfelle.VURDER_MOTTAR_YTELSE)))) {
             throw new IllegalStateException("Finner andel som har satt vurdering om mottar ytelse, men finner ikke matchende fakta tilfelle");
         }
 
