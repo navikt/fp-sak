@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravPermisjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
@@ -144,7 +145,7 @@ class VurderUttakDokumentasjonAksjonspunktUtlederTest {
                         .medPeriode(fellesperiode.getFom(), fellesperiode.getTom())
                         .medSumStillingsprosent(BigDecimal.valueOf(100))
                         .medOrgNummer(OrgNummer.KUNSTIG_ORG)
-                        .medSumPermisjonsprosent(BigDecimal.ZERO))
+                        .medPermisjon(BigDecimal.ZERO, AktivitetskravPermisjonType.UDEFINERT))
                     .build())
                 .build())
             .medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(familieHendelse));

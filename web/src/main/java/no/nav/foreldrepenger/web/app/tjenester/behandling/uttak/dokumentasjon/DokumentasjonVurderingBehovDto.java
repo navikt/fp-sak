@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravPermisjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.MorsStillingsprosent;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
@@ -17,11 +18,8 @@ import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.foreldrepenger.domene.uttak.fakta.uttak.DokumentasjonVurderingBehov;
 import no.nav.foreldrepenger.domene.uttak.fakta.uttak.RegisterVurdering;
 
-public record DokumentasjonVurderingBehovDto(@NotNull LocalDate fom,
-                                             @NotNull LocalDate tom,
-                                             @NotNull DokumentasjonVurderingBehov.Behov.Type type,
-                                             @NotNull DokumentasjonVurderingBehov.Behov.Årsak årsak,
-                                             Vurdering vurdering,
+public record DokumentasjonVurderingBehovDto(@NotNull LocalDate fom, @NotNull LocalDate tom, @NotNull DokumentasjonVurderingBehov.Behov.Type type,
+                                             @NotNull DokumentasjonVurderingBehov.Behov.Årsak årsak, Vurdering vurdering,
                                              @Valid MorsStillingsprosent morsStillingsprosent,
                                              Set<AktivitetskravGrunnlagArbeid> aktivitetskravGrunnlag) {
 
@@ -65,12 +63,16 @@ public record DokumentasjonVurderingBehovDto(@NotNull LocalDate fom,
         }
     }
 
-    record AktivitetskravGrunnlagArbeid(OrgNummer orgNummer, BigDecimal stillingsprosent, BigDecimal permisjonsprosent) {
+    record AktivitetskravGrunnlagArbeid(OrgNummer orgNummer, BigDecimal stillingsprosent, Permisjon permisjon) {
         static AktivitetskravGrunnlagArbeid from(AktivitetskravArbeidPeriodeEntitet e) {
-            var stilling = Optional.ofNullable(e.getSumStillingsprosent()).map(Stillingsprosent::getVerdi).orElse(null);
-            var permisjon = Optional.ofNullable(e.getSumPermisjonsprosent()).map(Stillingsprosent::getVerdi).orElse(null);
-            return new AktivitetskravGrunnlagArbeid(e.getOrgNummer(), stilling, permisjon);
+            var stilling = Optional.ofNullable(e.getSumStillingsprosent()).map(Stillingsprosent::getVerdi).orElse(BigDecimal.ZERO);
+            var permisjonsprosent = Optional.ofNullable(e.getSumPermisjonsprosent()).map(Stillingsprosent::getVerdi).orElse(BigDecimal.ZERO);
+            var permisjonstype = Optional.ofNullable(e.getPermisjonsbeskrivelseType()).orElse(AktivitetskravPermisjonType.UDEFINERT);
+            return new AktivitetskravGrunnlagArbeid(e.getOrgNummer(), stilling, new Permisjon(permisjonsprosent, permisjonstype));
         }
+    }
+
+    private record Permisjon(BigDecimal prosent, AktivitetskravPermisjonType type) {
 
     }
 }

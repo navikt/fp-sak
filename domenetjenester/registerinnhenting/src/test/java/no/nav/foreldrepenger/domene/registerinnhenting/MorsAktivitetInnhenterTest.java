@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.Aktivite
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravPermisjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
@@ -119,6 +120,41 @@ class MorsAktivitetInnhenterTest {
             .map(aktPeriode -> aktPeriode.getSumStillingsprosent().getVerdi())
             .reduce(BigDecimal::add)
             .orElse(BigDecimal.ZERO)).isEqualTo(BigDecimal.valueOf(100));
+    }
+
+    @Test
+    void sjekk_at_permisjon_settes_til_flere_hvis_flere_typer_permisjon_i_samme_periode() {
+        var annenPartAktørId = AktørId.dummy();
+        var fraDato = LocalDate.now().minusWeeks(1);
+        var tilDato = LocalDate.now().plusWeeks(4);
+        var periode = DatoIntervallEntitet.fraOgMedTilOgMed(fraDato.minusWeeks(2), tilDato.plusWeeks(2));
+        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        var behandling = førstegangScenario.lagMocked();
+        var virksomhet = Arbeidsgiver.virksomhet("999999999");
+        var perioderMedAktivitetskrav = List.of(lagOppgittPeriode(LocalDate.now().minusWeeks(1), LocalDate.now()),
+            lagOppgittPeriode(LocalDate.now().plusWeeks(2), LocalDate.now().plusWeeks(4)));
+        var aktivitetsavtaler = List.of(lagAktivitetsavtale(periode, BigDecimal.valueOf(100)));
+
+        var permisjoner = List.of(lagPermisjon(periode, BigDecimal.TEN), lagPermisjon(periode, BigDecimal.TEN));
+        var arbeidsforholdMedPermisjon = List.of(
+            lagArbeidsforholdMedPermisjon(virksomhet, EksternArbeidsforholdRef.ref("01"), aktivitetsavtaler, permisjoner));
+
+        when(abakusArbeidsforholdTjeneste.hentArbeidsforholdInfoForEnPeriode(any(), any(), any(), any())).thenReturn(arbeidsforholdMedPermisjon);
+
+        var morAktivitet = morsAktivitetInnhenter.finnMorsAktivitet(behandling, perioderMedAktivitetskrav, annenPartAktørId, Optional.empty())
+            .orElseThrow();
+        var aktivitetPeriodeEntitetListe = morAktivitet.perioderEntitet().getAktivitetskravArbeidPeriodeListe();
+
+
+        assertThat(morAktivitet.fraDato()).isEqualTo(fraDato.minusWeeks(2));
+        assertThat(morAktivitet.tilDato()).isEqualTo(tilDato.plusWeeks(2));
+        assertThat(aktivitetPeriodeEntitetListe).hasSize(1);
+        var arbeidPeriode = aktivitetPeriodeEntitetListe.getFirst()
+            .getAktivitetskravArbeidPerioder()
+            .getAktivitetskravArbeidPeriodeListe()
+            .getFirst();
+        assertThat(arbeidPeriode.getSumPermisjonsprosent().getVerdi()).isEqualTo(BigDecimal.valueOf(20));
+        assertThat(arbeidPeriode.getPermisjonsbeskrivelseType()).isEqualTo(AktivitetskravPermisjonType.FLERE);
     }
 
     @Test
@@ -235,7 +271,8 @@ class MorsAktivitetInnhenterTest {
         assertThat(aktivitetPeriodeEntitetListe.stream().filter(aktPeriode -> aktPeriode.getOrgNummer().getId().equals(orgnr1.getOrgnr()))).anyMatch(
             periode -> periode.getSumStillingsprosent().getVerdi().equals(BigDecimal.valueOf(55)));
         assertThat(aktivitetPeriodeEntitetListe.stream().filter(aktPeriode -> aktPeriode.getOrgNummer().getId().equals(orgnr1.getOrgnr()))).anyMatch(
-            periode -> periode.getSumPermisjonsprosent().getVerdi().equals(BigDecimal.valueOf(20)));
+            periode -> periode.getSumPermisjonsprosent().getVerdi().equals(BigDecimal.valueOf(20)) && periode.getPermisjonsbeskrivelseType()
+                .equals(AktivitetskravPermisjonType.ANNEN_PERMISJON));
         assertThat(aktivitetPeriodeEntitetListe.stream().filter(aktPeriode -> aktPeriode.getOrgNummer().getId().equals(orgnr2.getOrgnr()))).anyMatch(
             periode -> periode.getSumStillingsprosent().getVerdi().equals(BigDecimal.valueOf(25)));
         assertThat(aktivitetPeriodeEntitetListe.stream()
@@ -294,7 +331,7 @@ class MorsAktivitetInnhenterTest {
                                                                                      String orgnr) {
         return new AktivitetskravArbeidPeriodeEntitet.Builder().medPeriode(fra, til)
             .medOrgNummer(orgnr)
-            .medSumPermisjonsprosent(BigDecimal.ZERO)
+            .medPermisjon(BigDecimal.ZERO, AktivitetskravPermisjonType.UDEFINERT)
             .medSumStillingsprosent(stillingsprosent);
     }
 
