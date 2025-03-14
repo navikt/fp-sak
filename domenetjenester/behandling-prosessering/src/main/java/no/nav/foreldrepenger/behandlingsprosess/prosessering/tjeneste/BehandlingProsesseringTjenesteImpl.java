@@ -226,7 +226,8 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
             tasker.add(lagTaskData(TaskType.forProsessTask(InnhentIAYIAbakusTask.class), behandling, nesteKjøringEtter, prioritet));
         }
         if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) && behandling.getRelasjonsRolleType().erFarEllerMedMor()) {
-            //tasker.add(lagTaskData(TaskType.forProsessTask(InnhentMorsAktivitetTask.class), behandling, nesteKjøringEtter, prioritet)); TODO: TFP-5383
+            //TODO TFP-5383
+           // tasker.add(lagTaskData(TaskType.forProsessTask(InnhentMorsAktivitetTask.class), behandling, nesteKjøringEtter, prioritet));
         }
         gruppe.addNesteParallell(tasker);
         var oppdaterInnhentTidspunkt = lagTaskData(TaskType.forProsessTask(SettRegisterdataInnhentetTidspunktTask.class), behandling, nesteKjøringEtter, prioritet);

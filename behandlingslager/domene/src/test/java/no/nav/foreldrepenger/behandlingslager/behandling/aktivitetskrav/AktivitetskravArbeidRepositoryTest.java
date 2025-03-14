@@ -200,7 +200,7 @@ class AktivitetskravArbeidRepositoryTest extends EntityManagerAwareTest {
     private AktivitetskravArbeidPeriodeEntitet.Builder lagAktvitetskravArbeidPeriode(LocalDate fra, LocalDate til, BigDecimal stillingsprosent) {
         return new AktivitetskravArbeidPeriodeEntitet.Builder().medPeriode(fra, til)
             .medOrgNummer(ORG_NR)
-            .medSumPermisjonsprosent(BigDecimal.ZERO)
+            .medPermisjon(BigDecimal.ZERO, AktivitetskravPermisjonType.UDEFINERT)
             .medSumStillingsprosent(stillingsprosent);
     }
 }

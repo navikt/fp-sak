@@ -1,5 +1,14 @@
 package no.nav.foreldrepenger.domene.registerinnhenting;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravPermisjonType.ANNEN_PERMISJON;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravPermisjonType.FLERE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravPermisjonType.FORELDREPENGER;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravPermisjonType.MILITÆRTJENESTE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravPermisjonType.PERMITTERING;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravPermisjonType.UDEFINERT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravPermisjonType.UTDANNING;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravPermisjonType.VELDFERD;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -21,12 +30,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.Aktivite
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravPermisjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.abakus.ArbeidsforholdTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdMedPermisjon;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
@@ -124,26 +135,60 @@ public class MorsAktivitetInnhenter {
     public record MorAktivitet(LocalDate fraDato, LocalDate tilDato, AktivitetskravArbeidPerioderEntitet perioderEntitet) {
     }
 
-    private static LocalDateTimeline<BigDecimal> permisjonTidslinje(List<ArbeidsforholdMedPermisjon> arbeidsforholdInfo) {
+    private static LocalDateTimeline<Permisjon> permisjonTidslinje(List<ArbeidsforholdMedPermisjon> arbeidsforholdInfo) {
         //sørger for at hull blir 0% og at de permisjonene som overlapper  per arbeidsforhold summeres
-        return new LocalDateTimeline<>(arbeidsforholdInfo.stream()
-            .flatMap(a -> a.permisjoner().stream())
-            .map(permisjon -> new LocalDateSegment<>(permisjon.periode().getFomDato(), permisjon.periode().getTomDato(), permisjon.prosent()))
-            .toList(), bigDesimalSum());
+        return new LocalDateTimeline<>(arbeidsforholdInfo.stream().flatMap(a -> a.permisjoner().stream()).map(permisjon -> {
+            var value = new Permisjon(permisjon.prosent(), map(permisjon.type()));
+            return new LocalDateSegment<>(permisjon.periode().getFomDato(), permisjon.periode().getTomDato(), value);
+        }).toList(), permisjonSum());
+    }
+
+    private static AktivitetskravPermisjonType map(PermisjonsbeskrivelseType type) {
+        return switch (type) {
+            case UDEFINERT -> UDEFINERT;
+            case PERMISJON, ANNEN_PERMISJON_LOVFESTET, ANNEN_PERMISJON_IKKE_LOVFESTET -> ANNEN_PERMISJON;
+            case UTDANNINGSPERMISJON, UTDANNINGSPERMISJON_LOVFESTET, UTDANNINGSPERMISJON_IKKE_LOVFESTET -> UTDANNING;
+            case VELFERDSPERMISJON -> VELDFERD;
+            case PERMISJON_MED_FORELDREPENGER -> FORELDREPENGER;
+            case PERMISJON_VED_MILITÆRTJENESTE -> MILITÆRTJENESTE;
+            case PERMITTERING -> PERMITTERING;
+        };
     }
 
     private static LocalDateTimeline<AktivitetskravPeriodeGrunnlag> lagTidslinjeMed0(LocalDate fraDato, LocalDate tilDato) {
-        return new LocalDateTimeline<>(fraDato, tilDato, new AktivitetskravPeriodeGrunnlag(BigDecimal.ZERO, BigDecimal.ZERO));
+        return new LocalDateTimeline<>(fraDato, tilDato,
+            new AktivitetskravPeriodeGrunnlag(BigDecimal.ZERO, new Permisjon(BigDecimal.ZERO, UDEFINERT)));
     }
 
     private static LocalDateSegmentCombinator<BigDecimal, BigDecimal, BigDecimal> bigDesimalSum() {
         return StandardCombinators::sum;
     }
 
-    private static LocalDateSegmentCombinator<BigDecimal, BigDecimal, AktivitetskravPeriodeGrunnlag> bigDecimalTilAktivitetskravVurderingGrunnlagCombinator() {
-        return (localDateInterval, stillingsprosent, permisjonsprosent) -> new LocalDateSegment<>(localDateInterval,
-            new AktivitetskravPeriodeGrunnlag(stillingsprosent != null ? stillingsprosent.getValue() : BigDecimal.ZERO,
-                permisjonsprosent != null ? permisjonsprosent.getValue() : BigDecimal.ZERO));
+    private static LocalDateSegmentCombinator<Permisjon, Permisjon, Permisjon> permisjonSum() {
+        return (datoInterval, datoSegment, datoSegment2) -> {
+            var prosent = datoSegment != null ? datoSegment.getValue().prosent() : BigDecimal.ZERO;
+            var prosent2 = datoSegment2 != null ? datoSegment2.getValue().prosent() : BigDecimal.ZERO;
+            var sumType = sumType(datoSegment, datoSegment2);
+            return new LocalDateSegment<>(datoInterval, new Permisjon(prosent.add(prosent2), sumType));
+        };
+    }
+
+    private static AktivitetskravPermisjonType sumType(LocalDateSegment<Permisjon> datoSegment,
+                                                       LocalDateSegment<Permisjon> datoSegment2) {
+        var type1 = datoSegment != null ? datoSegment.getValue().type() : UDEFINERT;
+        var type2 = datoSegment2 != null ? datoSegment2.getValue().type() : UDEFINERT;
+        if (type1 != UDEFINERT && type2 != UDEFINERT) {
+            return FLERE;
+        }
+        return type1 != UDEFINERT ? type1 : type2;
+    }
+
+    private static LocalDateSegmentCombinator<BigDecimal, Permisjon, AktivitetskravPeriodeGrunnlag> bigDecimalTilAktivitetskravVurderingGrunnlagCombinator() {
+        return (localDateInterval, stillingsprosent, permisjon) -> {
+            var sumStillingsprosent = stillingsprosent != null ? stillingsprosent.getValue() : BigDecimal.ZERO;
+            var sumPermisjon = permisjon != null ? permisjon.getValue() : new Permisjon(BigDecimal.ZERO, UDEFINERT);
+            return new LocalDateSegment<>(localDateInterval, new AktivitetskravPeriodeGrunnlag(sumStillingsprosent, sumPermisjon));
+        };
     }
 
     private static LocalDate hentHøyesteFraDatoPlusIntervall(List<OppgittPeriodeEntitet> aktuellePerioder) {
@@ -163,18 +208,14 @@ public class MorsAktivitetInnhenter {
     }
 
     private static List<OppgittPeriodeEntitet> hentPerioderMedAktivitetskrav(YtelseFordelingAggregat ytelseaggregat) {
-        return ytelseaggregat.getGjeldendeFordeling()
-            .getPerioder()
-            .stream()
-            .filter(OppgittPeriodeEntitet::kanAutomatiskAvklareMorsArbeid)
-            .toList();
+        return ytelseaggregat.getGjeldendeFordeling().getPerioder().stream().filter(OppgittPeriodeEntitet::kanAutomatiskAvklareMorsArbeid).toList();
     }
 
     private AktivitetskravArbeidPerioderEntitet lagAktivitetskravPerioderBuilder(Map<String, List<ArbeidsforholdMedPermisjon>> mapAvOrgnrOgAvtaler,
                                                                                  LocalDate fraDato,
                                                                                  LocalDate tilDato) {
         List<AktivitetskravArbeidPeriodeEntitet.Builder> builderListe = new ArrayList<>();
-        mapAvOrgnrOgAvtaler.forEach((key, value) -> {
+        mapAvOrgnrOgAvtaler.forEach((orgnr, value) -> {
             var stillingsprosentTidslinje = stillingsprosentTidslinje(value);
             var permisjonProsentTidslinje = permisjonTidslinje(value);
             var grunnlagTidslinje = stillingsprosentTidslinje.crossJoin(permisjonProsentTidslinje,
@@ -182,7 +223,7 @@ public class MorsAktivitetInnhenter {
                 .crossJoin(lagTidslinjeMed0(fraDato, tilDato), StandardCombinators::coalesceLeftHandSide)
                 .compress();
 
-            builderListe.addAll(grunnlagTidslinje.stream().map(segment -> opprettBuilder(segment, key)).toList());
+            builderListe.addAll(grunnlagTidslinje.stream().map(segment -> opprettBuilder(segment, orgnr)).toList());
         });
 
         var perioderBuilder = new AktivitetskravArbeidPerioderEntitet.Builder();
@@ -192,11 +233,12 @@ public class MorsAktivitetInnhenter {
         return perioderBuilder.build();
     }
 
-    private AktivitetskravArbeidPeriodeEntitet.Builder opprettBuilder(LocalDateSegment<AktivitetskravPeriodeGrunnlag> segment, String orgNummer) {
-        return new AktivitetskravArbeidPeriodeEntitet.Builder().medOrgNummer(orgNummer)
+    private AktivitetskravArbeidPeriodeEntitet.Builder opprettBuilder(LocalDateSegment<AktivitetskravPeriodeGrunnlag> segment, String orgnr) {
+        var value = segment.getValue();
+        return new AktivitetskravArbeidPeriodeEntitet.Builder().medOrgNummer(orgnr)
             .medPeriode(segment.getFom(), segment.getTom())
-            .medSumStillingsprosent(segment.getValue().sumStillingsprosent())
-            .medSumPermisjonsprosent(segment.getValue().SumPermisjonsprosent());
+            .medSumStillingsprosent(value.sumStillingsprosent())
+            .medPermisjon(value.permisjon().prosent(), value.permisjon().type());
     }
 
     private String aktivitetskravNøkkel(ArbeidsforholdMedPermisjon arbeidsforholdInfo) {
@@ -217,6 +259,9 @@ public class MorsAktivitetInnhenter {
             .orElseGet(() -> personopplysningTjeneste.hentOppgittAnnenPartAktørId(behandlingReferanse.behandlingId()).orElse(null));
     }
 
-    private record AktivitetskravPeriodeGrunnlag(BigDecimal sumStillingsprosent, BigDecimal SumPermisjonsprosent) {
+    private record AktivitetskravPeriodeGrunnlag(BigDecimal sumStillingsprosent, Permisjon permisjon) {
+    }
+
+    private record Permisjon(BigDecimal prosent, AktivitetskravPermisjonType type) {
     }
 }

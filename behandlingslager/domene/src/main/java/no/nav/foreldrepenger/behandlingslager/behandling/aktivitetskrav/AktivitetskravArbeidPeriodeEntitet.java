@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -50,6 +51,11 @@ public class AktivitetskravArbeidPeriodeEntitet extends BaseCreateableEntitet {
     @AttributeOverride(name = "verdi", column = @Column(name = "sum_permisjonsprosent"))
     private Stillingsprosent sumPermisjonsprosent;
 
+    @ChangeTracked
+    @Convert(converter = AktivitetskravPermisjonType.KodeverdiConverter.class)
+    @Column(name = "permisjon_type", nullable = false, updatable = false)
+    private AktivitetskravPermisjonType permisjonsbeskrivelseType = AktivitetskravPermisjonType.UDEFINERT;
+
     public AktivitetskravArbeidPeriodeEntitet() {
         //CDI
     }
@@ -74,26 +80,28 @@ public class AktivitetskravArbeidPeriodeEntitet extends BaseCreateableEntitet {
         return sumPermisjonsprosent;
     }
 
+    public AktivitetskravPermisjonType getPermisjonsbeskrivelseType() {
+        return permisjonsbeskrivelseType;
+    }
+
     public void setAktivitetskravArbeidPerioder(AktivitetskravArbeidPerioderEntitet aktivitetskravArbeidPerioder) {
         this.aktivitetskravArbeidPerioder = aktivitetskravArbeidPerioder;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
+        if (this == o)
             return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof AktivitetskravArbeidPeriodeEntitet that))
             return false;
-        }
-        AktivitetskravArbeidPeriodeEntitet that = (AktivitetskravArbeidPeriodeEntitet) o;
         return Objects.equals(periode, that.periode) && Objects.equals(orgNummer, that.orgNummer) && Objects.equals(sumStillingsprosent,
-            that.sumStillingsprosent) && Objects.equals(sumPermisjonsprosent, that.sumPermisjonsprosent);
+            that.sumStillingsprosent) && Objects.equals(sumPermisjonsprosent, that.sumPermisjonsprosent)
+            && permisjonsbeskrivelseType == that.permisjonsbeskrivelseType;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(periode, orgNummer, sumStillingsprosent, sumPermisjonsprosent);
+        return Objects.hash(periode, orgNummer, sumStillingsprosent, sumPermisjonsprosent, permisjonsbeskrivelseType);
     }
 
     public static class Builder {
@@ -118,8 +126,10 @@ public class AktivitetskravArbeidPeriodeEntitet extends BaseCreateableEntitet {
             return this;
         }
 
-        public Builder medSumPermisjonsprosent(BigDecimal permisjonsprosent) {
-            this.kladd.sumPermisjonsprosent = new Stillingsprosent(permisjonsprosent);
+
+        public Builder medPermisjon(BigDecimal sumPermisjonsprosent, AktivitetskravPermisjonType type) {
+            this.kladd.sumPermisjonsprosent = new Stillingsprosent(sumPermisjonsprosent);
+            this.kladd.permisjonsbeskrivelseType = type == null ? AktivitetskravPermisjonType.UDEFINERT : type;
             return this;
         }
 

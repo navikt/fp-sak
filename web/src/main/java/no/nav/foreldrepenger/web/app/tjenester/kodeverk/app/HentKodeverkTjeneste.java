@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravPermisjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
@@ -132,6 +133,7 @@ public class HentKodeverkTjeneste {
         map.put(AdresseType.class.getSimpleName(), AdresseType.kodeMap().values());
         map.put(NaturalYtelseType.class.getSimpleName(), NaturalYtelseType.kodeMap().values());
         map.put(OppgaveType.class.getSimpleName(), OppgaveType.kodeMap().values());
+        map.put(AktivitetskravPermisjonType.class.getSimpleName(), AktivitetskravPermisjonType.kodeMap().values());
 
         map.put(Inntektskategori.class.getSimpleName(), Inntektskategori.kodeMap().values()); //Brukes i ft-frontend-saksbehandling prosjektet
 
