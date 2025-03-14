@@ -13,6 +13,7 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -33,6 +34,8 @@ class DokumentasjonVurderingTypeBehovDtoTjenesteTest {
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
+    @Inject
+    private AktivitetskravArbeidRepository aktivitetskravArbeidRepository;
     @Inject
     private VurderUttakDokumentasjonAksjonspunktUtleder vurderUttakDokumentasjonAksjonspunktUtleder;
     @Inject
@@ -64,7 +67,7 @@ class DokumentasjonVurderingTypeBehovDtoTjenesteTest {
         var behandling = scenario.lagre(repositoryProvider);
 
         var tjeneste = new DokumentasjonVurderingBehovDtoTjeneste(repositoryProvider.getBehandlingRepository(), uttakInputTjeneste,
-            vurderUttakDokumentasjonAksjonspunktUtleder);
+            vurderUttakDokumentasjonAksjonspunktUtleder, aktivitetskravArbeidRepository);
         var resultat = tjeneste.lagDtos(new UuidDto(behandling.getUuid()));
         assertThat(resultat).hasSize(2);
         assertThat(resultat.get(0).vurdering()).isEqualTo(GODKJENT);

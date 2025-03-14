@@ -105,6 +105,9 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
     }
 
     static DokumentasjonVurdering mapVurdering(DokumentasjonVurderingBehovDto dto) {
+        if (dto.vurdering() == DokumentasjonVurderingBehovDto.Vurdering.GODKJENT_AUTOMATISK) {
+            return null;
+        }
         var type = switch (dto.type()) {
             case UTSETTELSE -> mapUtsettelseVurdering(dto.årsak(), dto.vurdering());
             case UTTAK -> mapUttak(dto.årsak(), dto.vurdering());
@@ -119,11 +122,13 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
             case AKTIVITETSKRAV_INNLAGT, AKTIVITETSKRAV_IKKE_OPPGITT, AKTIVITETSKRAV_ARBEID_OG_UTDANNING, AKTIVITETSKRAV_ARBEID,
                  AKTIVITETSKRAV_INTROPROG, AKTIVITETSKRAV_KVALPROG, AKTIVITETSKRAV_UTDANNING, AKTIVITETSKRAV_TRENGER_HJELP -> switch (vurdering) {
                 case GODKJENT -> MORS_AKTIVITET_GODKJENT;
+                case GODKJENT_AUTOMATISK -> throw godkjentAutomatiskException();
                 case IKKE_GODKJENT -> MORS_AKTIVITET_IKKE_GODKJENT;
                 case IKKE_DOKUMENTERT -> MORS_AKTIVITET_IKKE_DOKUMENTERT;
             };
             case TIDLIG_OPPSTART_FAR -> switch (vurdering) {
                 case GODKJENT -> TIDLIG_OPPSTART_FEDREKVOTE_GODKJENT;
+                case GODKJENT_AUTOMATISK -> throw godkjentAutomatiskException();
                 case IKKE_GODKJENT, IKKE_DOKUMENTERT -> TIDLIG_OPPSTART_FEDREKVOTE_IKKE_GODKJENT;
             };
             default -> throw new IllegalStateException(UNEXPECTED_VALUE + årsak);
@@ -139,22 +144,30 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
         return switch (årsak) {
             case INNLEGGELSE_ANNEN_FORELDER -> switch (vurdering) {
                 case GODKJENT -> INNLEGGELSE_ANNEN_FORELDER_GODKJENT;
+                case GODKJENT_AUTOMATISK -> throw godkjentAutomatiskException();
                 case IKKE_GODKJENT, IKKE_DOKUMENTERT -> INNLEGGELSE_ANNEN_FORELDER_IKKE_GODKJENT;
             };
             case SYKDOM_ANNEN_FORELDER -> switch (vurdering) {
                 case GODKJENT -> SYKDOM_ANNEN_FORELDER_GODKJENT;
+                case GODKJENT_AUTOMATISK -> throw godkjentAutomatiskException();
                 case IKKE_GODKJENT, IKKE_DOKUMENTERT -> SYKDOM_ANNEN_FORELDER_IKKE_GODKJENT;
             };
             case BARE_SØKER_RETT -> switch (vurdering) {
                 case GODKJENT -> BARE_SØKER_RETT_GODKJENT;
+                case GODKJENT_AUTOMATISK -> throw godkjentAutomatiskException();
                 case IKKE_GODKJENT, IKKE_DOKUMENTERT -> BARE_SØKER_RETT_IKKE_GODKJENT;
             };
             case ALENEOMSORG -> switch (vurdering) {
                 case GODKJENT -> ALENEOMSORG_GODKJENT;
+                case GODKJENT_AUTOMATISK -> throw godkjentAutomatiskException();
                 case IKKE_GODKJENT, IKKE_DOKUMENTERT -> ALENEOMSORG_IKKE_GODKJENT;
             };
             default -> throw new IllegalStateException(UNEXPECTED_VALUE + årsak);
         };
+    }
+
+    private static IllegalStateException godkjentAutomatiskException() {
+        return new IllegalStateException("GODKJENT_AUTOMATISK skal ikke lagres");
     }
 
     @SuppressWarnings("DuplicatedCode")
@@ -163,27 +176,33 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
         return switch (årsak) {
             case INNLEGGELSE_SØKER -> switch (vurdering) {
                 case GODKJENT -> INNLEGGELSE_SØKER_GODKJENT;
+                case GODKJENT_AUTOMATISK -> throw godkjentAutomatiskException();
                 case IKKE_GODKJENT, IKKE_DOKUMENTERT -> INNLEGGELSE_SØKER_IKKE_GODKJENT;
             };
             case INNLEGGELSE_BARN -> switch (vurdering) {
                 case GODKJENT -> INNLEGGELSE_BARN_GODKJENT;
+                case GODKJENT_AUTOMATISK -> throw godkjentAutomatiskException();
                 case IKKE_GODKJENT, IKKE_DOKUMENTERT -> INNLEGGELSE_BARN_IKKE_GODKJENT;
             };
             case HV_ØVELSE -> switch (vurdering) {
                 case GODKJENT -> HV_OVELSE_GODKJENT;
+                case GODKJENT_AUTOMATISK -> throw godkjentAutomatiskException();
                 case IKKE_GODKJENT, IKKE_DOKUMENTERT -> HV_OVELSE_IKKE_GODKJENT;
             };
             case NAV_TILTAK -> switch (vurdering) {
                 case GODKJENT -> NAV_TILTAK_GODKJENT;
+                case GODKJENT_AUTOMATISK -> throw godkjentAutomatiskException();
                 case IKKE_GODKJENT, IKKE_DOKUMENTERT -> NAV_TILTAK_IKKE_GODKJENT;
             };
             case SYKDOM_SØKER -> switch (vurdering) {
                 case GODKJENT -> SYKDOM_SØKER_GODKJENT;
+                case GODKJENT_AUTOMATISK -> throw godkjentAutomatiskException();
                 case IKKE_GODKJENT, IKKE_DOKUMENTERT -> SYKDOM_SØKER_IKKE_GODKJENT;
             };
             case AKTIVITETSKRAV_INNLAGT, AKTIVITETSKRAV_IKKE_OPPGITT, AKTIVITETSKRAV_ARBEID_OG_UTDANNING, AKTIVITETSKRAV_ARBEID,
                  AKTIVITETSKRAV_INTROPROG, AKTIVITETSKRAV_KVALPROG, AKTIVITETSKRAV_UTDANNING, AKTIVITETSKRAV_TRENGER_HJELP -> switch (vurdering) {
                 case GODKJENT -> MORS_AKTIVITET_GODKJENT;
+                case GODKJENT_AUTOMATISK -> throw godkjentAutomatiskException();
                 case IKKE_GODKJENT -> MORS_AKTIVITET_IKKE_GODKJENT;
                 case IKKE_DOKUMENTERT -> MORS_AKTIVITET_IKKE_DOKUMENTERT;
             };

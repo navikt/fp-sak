@@ -21,12 +21,13 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 
-@Entity(name= "AktivitetskravArbeidPeriodeEntitet")
+@Entity(name = "AktivitetskravArbeidPeriodeEntitet")
 @Table(name = "AKTIVITETSKRAV_ARBEID_PERIODE")
 public class AktivitetskravArbeidPeriodeEntitet extends BaseCreateableEntitet {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_AKTIVITETSKRAV_ARBEID_PERIODE")
     private Long id;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "aktivitetskrav_arbeid_perioder_id", nullable = false, updatable = false, unique = true)
     private AktivitetskravArbeidPerioderEntitet aktivitetskravArbeidPerioder;
@@ -48,6 +49,7 @@ public class AktivitetskravArbeidPeriodeEntitet extends BaseCreateableEntitet {
     @ChangeTracked
     @AttributeOverride(name = "verdi", column = @Column(name = "sum_permisjonsprosent"))
     private Stillingsprosent sumPermisjonsprosent;
+
     public AktivitetskravArbeidPeriodeEntitet() {
         //CDI
     }
@@ -85,8 +87,8 @@ public class AktivitetskravArbeidPeriodeEntitet extends BaseCreateableEntitet {
             return false;
         }
         AktivitetskravArbeidPeriodeEntitet that = (AktivitetskravArbeidPeriodeEntitet) o;
-        return Objects.equals(periode, that.periode) && Objects.equals(orgNummer, that.orgNummer) && Objects.equals(
-            sumStillingsprosent, that.sumStillingsprosent) && Objects.equals(sumPermisjonsprosent, that.sumPermisjonsprosent);
+        return Objects.equals(periode, that.periode) && Objects.equals(orgNummer, that.orgNummer) && Objects.equals(sumStillingsprosent,
+            that.sumStillingsprosent) && Objects.equals(sumPermisjonsprosent, that.sumPermisjonsprosent);
     }
 
     @Override
@@ -94,7 +96,7 @@ public class AktivitetskravArbeidPeriodeEntitet extends BaseCreateableEntitet {
         return Objects.hash(periode, orgNummer, sumStillingsprosent, sumPermisjonsprosent);
     }
 
-    public static class Builder{
+    public static class Builder {
         AktivitetskravArbeidPeriodeEntitet kladd;
 
         public Builder() {
