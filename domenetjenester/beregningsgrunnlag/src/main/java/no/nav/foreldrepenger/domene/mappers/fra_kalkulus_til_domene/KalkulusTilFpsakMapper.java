@@ -82,10 +82,12 @@ public final class KalkulusTilFpsakMapper {
     }
 
     private static FaktaArbeidsforhold mapFaktaArbeidsforhold(FaktaArbeidsforholdDto fa) {
-        return FaktaArbeidsforhold.builder(mapArbeidsgiver(fa.getArbeidsgiver()), fa.getArbeidsforholdRef() == null ? InternArbeidsforholdRef.nullRef() : InternArbeidsforholdRef.ref(fa.getArbeidsforholdRef().getAbakusReferanse()))
-            .medErTidsbegrenset(new FaktaVurdering(fa.getErTidsbegrenset(), FaktaVurderingKilde.SAKSBEHANDLER))
-            .medHarMottattYtelse(new FaktaVurdering(fa.getHarMottattYtelse(), FaktaVurderingKilde.SAKSBEHANDLER))
-            .medHarLønnsendringIBeregningsperioden(new FaktaVurdering(fa.getHarLønnsendringIBeregningsperioden(), FaktaVurderingKilde.SAKSBEHANDLER))
+        return FaktaArbeidsforhold.builder(mapArbeidsgiver(fa.getArbeidsgiver()), fa.getArbeidsforholdRef() == null
+                ? InternArbeidsforholdRef.nullRef()
+                : InternArbeidsforholdRef.ref(fa.getArbeidsforholdRef().getAbakusReferanse()))
+            .medErTidsbegrenset(fa.getErTidsbegrenset() == null ? null : new FaktaVurdering(fa.getErTidsbegrenset(), FaktaVurderingKilde.SAKSBEHANDLER))
+            .medHarMottattYtelse(fa.getHarMottattYtelse() == null ? null : new FaktaVurdering(fa.getHarMottattYtelse(), FaktaVurderingKilde.SAKSBEHANDLER))
+            .medHarLønnsendringIBeregningsperioden(fa.getHarLønnsendringIBeregningsperioden() == null ? null : new FaktaVurdering(fa.getHarLønnsendringIBeregningsperioden(), FaktaVurderingKilde.SAKSBEHANDLER))
             .build();
     }
 
