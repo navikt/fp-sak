@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetAggregatEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetEntitet;
@@ -89,7 +90,10 @@ public class FraEntitetTilBehandlingsmodellMapper {
             .stream()
             .map(FraEntitetTilBehandlingsmodellMapper::mapAktivitetOverstyring)
             .sorted(Comparator.comparing(BeregningAktivitetOverstyring::getOpptjeningAktivitetType)
-                .thenComparing(a -> a.getPeriode().getFomDato()).thenComparing(a -> a.getPeriode().getTomDato()))
+                .thenComparing(a -> a.getPeriode().getFomDato())
+                .thenComparing(a -> a.getPeriode().getTomDato())
+                .thenComparing(a -> a.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null))
+                .thenComparing(a -> a.getArbeidsforholdRef() == null ? null : a.getArbeidsforholdRef().getReferanse()))
             .forEach(builder::leggTilOverstyring);
         return builder.build();
     }
@@ -112,7 +116,10 @@ public class FraEntitetTilBehandlingsmodellMapper {
             .stream()
             .map(FraEntitetTilBehandlingsmodellMapper::mapBeregningAktivitet)
             .sorted(Comparator.comparing(BeregningAktivitet::getOpptjeningAktivitetType)
-                .thenComparing(a -> a.getPeriode().getFomDato()).thenComparing(a -> a.getPeriode().getTomDato()))
+                .thenComparing(a -> a.getPeriode().getFomDato())
+                .thenComparing(a -> a.getPeriode().getTomDato())
+                .thenComparing(a -> a.getArbeidsgiver() == null ? null : a.getArbeidsgiver().getIdentifikator())
+                .thenComparing(a -> a.getArbeidsforholdRef() == null ? null : a.getArbeidsforholdRef().getReferanse()))
             .forEach(builder::leggTilAktivitet);
         return builder.build();
     }
