@@ -9,7 +9,6 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidPerioderEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
@@ -49,9 +48,10 @@ public class AnnenPartGrunnlagBygger {
                 annenpartUttak.ifPresent(uttakResultatEntitet -> builder.sisteSøknadMottattTidspunkt(ap.søknadOpprettetTidspunkt())
                     .uttaksperioder(uttaksperioder(uttakResultatEntitet)));
             });
-            fpGrunnlag.getAktivitetskravGrunnlag()
-                .flatMap(AktivitetskravGrunnlagEntitet::getAktivitetskravPerioderMedArbeidEnitet)
-                .ifPresent(agp -> builder.aktivitetskravGrunnlag(map(agp)));
+            //TODO TFP-5383 kommenter inn ved automatisering av aktivitetskrav >= 75%
+//            fpGrunnlag.getAktivitetskravGrunnlag()
+//                .flatMap(AktivitetskravGrunnlagEntitet::getAktivitetskravPerioderMedArbeidEnitet)
+//                .ifPresent(agp -> builder.aktivitetskravGrunnlag(map(agp)));
             return Optional.of(builder);
         }
         return Optional.empty();

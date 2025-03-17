@@ -1,13 +1,10 @@
 package no.nav.foreldrepenger.domene.registerinnhenting;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravPermisjonType.ANNEN_PERMISJON;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravPermisjonType.FLERE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravPermisjonType.FORELDREPENGER;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravPermisjonType.MILITÆRTJENESTE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravPermisjonType.PERMITTERING;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravPermisjonType.UDEFINERT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravPermisjonType.UTDANNING;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravPermisjonType.VELDFERD;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -146,11 +143,9 @@ public class MorsAktivitetInnhenter {
     private static AktivitetskravPermisjonType map(PermisjonsbeskrivelseType type) {
         return switch (type) {
             case UDEFINERT -> UDEFINERT;
-            case PERMISJON, ANNEN_PERMISJON_LOVFESTET, ANNEN_PERMISJON_IKKE_LOVFESTET -> ANNEN_PERMISJON;
+            case PERMISJON, ANNEN_PERMISJON_LOVFESTET, ANNEN_PERMISJON_IKKE_LOVFESTET, PERMISJON_VED_MILITÆRTJENESTE, VELFERDSPERMISJON -> ANNEN_PERMISJON;
             case UTDANNINGSPERMISJON, UTDANNINGSPERMISJON_LOVFESTET, UTDANNINGSPERMISJON_IKKE_LOVFESTET -> UTDANNING;
-            case VELFERDSPERMISJON -> VELDFERD;
             case PERMISJON_MED_FORELDREPENGER -> FORELDREPENGER;
-            case PERMISJON_VED_MILITÆRTJENESTE -> MILITÆRTJENESTE;
             case PERMITTERING -> PERMITTERING;
         };
     }
@@ -178,7 +173,7 @@ public class MorsAktivitetInnhenter {
         var type1 = datoSegment != null ? datoSegment.getValue().type() : UDEFINERT;
         var type2 = datoSegment2 != null ? datoSegment2.getValue().type() : UDEFINERT;
         if (type1 != UDEFINERT && type2 != UDEFINERT) {
-            return FLERE;
+            return ANNEN_PERMISJON;
         }
         return type1 != UDEFINERT ? type1 : type2;
     }

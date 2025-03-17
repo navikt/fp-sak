@@ -15,12 +15,9 @@ public enum AktivitetskravPermisjonType implements Kodeverdi {
 
     UDEFINERT("-", "Ikke definert"),
     UTDANNING("UTDANNING", "Utdanning"),
-    VELDFERD("VELFERD", "Velferd"),
     FORELDREPENGER("FORELDREPENGER", "Foreldrepenger"),
-    MILITÆRTJENESTE("MILITÆRTJENESTE", "Militærtjeneste"),
     PERMITTERING("PERMITTERING", "Permittering"),
     ANNEN_PERMISJON("ANNEN_PERMISJON", "Annen permisjon"),
-    FLERE("FLERE", "Flere permisjonstyper")
     ;
 
     private static final Map<String, AktivitetskravPermisjonType> KODER = new LinkedHashMap<>();

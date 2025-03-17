@@ -123,7 +123,7 @@ class MorsAktivitetInnhenterTest {
     }
 
     @Test
-    void sjekk_at_permisjon_settes_til_flere_hvis_flere_typer_permisjon_i_samme_periode() {
+    void sjekk_at_permisjon_settes_til_annen_hvis_flere_typer_permisjon_i_samme_periode() {
         var annenPartAktørId = AktørId.dummy();
         var fraDato = LocalDate.now().minusWeeks(1);
         var tilDato = LocalDate.now().plusWeeks(4);
@@ -154,7 +154,7 @@ class MorsAktivitetInnhenterTest {
             .getAktivitetskravArbeidPeriodeListe()
             .getFirst();
         assertThat(arbeidPeriode.getSumPermisjonsprosent().getVerdi()).isEqualTo(BigDecimal.valueOf(20));
-        assertThat(arbeidPeriode.getPermisjonsbeskrivelseType()).isEqualTo(AktivitetskravPermisjonType.FLERE);
+        assertThat(arbeidPeriode.getPermisjonsbeskrivelseType()).isEqualTo(AktivitetskravPermisjonType.ANNEN_PERMISJON);
     }
 
     @Test
