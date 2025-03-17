@@ -92,7 +92,8 @@ public class FraEntitetTilBehandlingsmodellMapper {
             .sorted(Comparator.comparing(BeregningAktivitetOverstyring::getOpptjeningAktivitetType)
                 .thenComparing(a -> a.getPeriode().getFomDato())
                 .thenComparing(a -> a.getPeriode().getTomDato())
-                .thenComparing(a -> a.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null)))
+                .thenComparing(a -> a.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null))
+                .thenComparing(a -> a.getArbeidsforholdRef() == null ? null : a.getArbeidsforholdRef().getReferanse()))
             .forEach(builder::leggTilOverstyring);
         return builder.build();
     }
@@ -117,7 +118,8 @@ public class FraEntitetTilBehandlingsmodellMapper {
             .sorted(Comparator.comparing(BeregningAktivitet::getOpptjeningAktivitetType)
                 .thenComparing(a -> a.getPeriode().getFomDato())
                 .thenComparing(a -> a.getPeriode().getTomDato())
-                .thenComparing(a -> a.getArbeidsgiver() == null ? null : a.getArbeidsgiver().getIdentifikator()))
+                .thenComparing(a -> a.getArbeidsgiver() == null ? null : a.getArbeidsgiver().getIdentifikator())
+                .thenComparing(a -> a.getArbeidsforholdRef() == null ? null : a.getArbeidsforholdRef().getReferanse()))
             .forEach(builder::leggTilAktivitet);
         return builder.build();
     }
