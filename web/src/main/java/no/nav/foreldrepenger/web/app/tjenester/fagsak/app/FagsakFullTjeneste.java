@@ -41,7 +41,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOppretti
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.AnnenPartBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.FagsakBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.FagsakBehandlingDtoTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkRequestPath;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkinnslagDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakFullDto;
@@ -103,7 +102,7 @@ public class FagsakFullTjeneste {
         this.historikkTjeneste = historikkTjeneste;
     }
 
-    public Optional<FagsakFullDto> hentFullFagsakDtoForSaksnummer(HttpServletRequest request, Saksnummer saksnummer) {
+    public Optional<FagsakFullDto> hentFullFagsakDtoForSaksnummer(Saksnummer saksnummer) {
         var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
         if (fagsak == null) {
             return Optional.empty();
@@ -120,10 +119,9 @@ public class FagsakFullTjeneste {
         var fagsakMarkeringer = fagsakEgenskapRepository.finnFagsakMarkeringer(fagsak.getId());
         var alleBehandlinger = behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId());
         var behandlingDtoer = behandlingDtoTjeneste.lagBehandlingDtoer(alleBehandlinger);
-        var dokumentPath = HistorikkRequestPath.getRequestPath(request);
         List<HistorikkinnslagDto> historikk;
         try {
-            historikk = historikkTjeneste.hentForSak(saksnummer, dokumentPath);
+            historikk = historikkTjeneste.hentForSak(saksnummer);
         } catch (Exception e) {
             LOG.warn("Feil ved henting av historikkinnslag", e);
             historikk = List.of();

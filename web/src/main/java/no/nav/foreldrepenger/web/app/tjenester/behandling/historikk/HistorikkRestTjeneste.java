@@ -49,13 +49,11 @@ public class HistorikkRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Henter alle historikkinnslag for en gitt sak.", tags = "historikk")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
-    public Response hentAlleInnslag(@Context HttpServletRequest request,
-                                    @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer")
+    public Response hentAlleInnslag(@NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer")
                                     @TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
                                     @Valid SaksnummerDto saksnummerDto) {
-        var url = HistorikkRequestPath.getRequestPath(request);
 
-        var historikkInnslagDtoList = historikkTjeneste.hentForSak(new Saksnummer(saksnummerDto.getVerdi()), url);
+        var historikkInnslagDtoList = historikkTjeneste.hentForSak(new Saksnummer(saksnummerDto.getVerdi()));
         return Response.ok().entity(historikkInnslagDtoList).build();
     }
 }

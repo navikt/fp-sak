@@ -1,12 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.historikk;
 
-import java.net.URI;
-
 public class HistorikkInnslagDokumentLinkDto {
 
     private String tag;
-    private URI url;
-
     private String journalpostId;
     private String dokumentId;
     private boolean utgått;
@@ -33,18 +29,6 @@ public class HistorikkInnslagDokumentLinkDto {
 
     public void setDokumentId(String dokumentId) {
         this.dokumentId = dokumentId;
-    }
-
-    public URI getUrl() {
-        return url;
-    }
-
-    public void setUrl(URI url) {
-        this.url = url;
-    }
-
-    public void setUrl(String url) {
-        this.url = URI.create(url);
     }
 
     public boolean isUtgått() {
