@@ -41,7 +41,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOppretti
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.AnnenPartBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.FagsakBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.FagsakBehandlingDtoTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkRequestPath;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkinnslagDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakFullDto;
