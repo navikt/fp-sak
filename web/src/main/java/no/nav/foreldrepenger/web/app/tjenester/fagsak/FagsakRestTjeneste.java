@@ -137,10 +137,9 @@ public class FagsakRestTjeneste {
         @ApiResponse(responseCode = "404", description = "Fagsak ikke tilgjengelig")
     })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
-    public Response hentFullFagsak(@Context HttpServletRequest request,
-                                   @TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
+    public Response hentFullFagsak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
         var saksnummer = new Saksnummer(s.getVerdi());
-        return fagsakFullTjeneste.hentFullFagsakDtoForSaksnummer(request, saksnummer)
+        return fagsakFullTjeneste.hentFullFagsakDtoForSaksnummer(saksnummer)
             .map(f -> Response.ok(f).build())
             .orElseGet(() -> Response.status(Response.Status.FORBIDDEN).build()); // Etablert praksis
     }
