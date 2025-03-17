@@ -15,7 +15,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingResponse;
 
 @ExtendWith(MockitoExtension.class)
 class EnhetsTjenesteTest {
@@ -28,8 +27,6 @@ class EnhetsTjenesteTest {
     private static OrganisasjonsEnhet enhetNormal = new OrganisasjonsEnhet("4867", "Nav foreldrepenger");
     private static OrganisasjonsEnhet enhetKode6 = new OrganisasjonsEnhet("2103", "Nav Vikafossen");
     private static OrganisasjonsEnhet enhetSkjermet = new OrganisasjonsEnhet("4883", "Nav skjermet");
-    private static ArbeidsfordelingResponse respNormal = new ArbeidsfordelingResponse("4867", "Nav foreldrepenger", "Aktiv", "FPY");
-    private static ArbeidsfordelingResponse respKode6 = new ArbeidsfordelingResponse("2103", "Nav Vikafossen", "Aktiv", "KO");
 
     @Mock
     private RutingKlient rutingKlient;
