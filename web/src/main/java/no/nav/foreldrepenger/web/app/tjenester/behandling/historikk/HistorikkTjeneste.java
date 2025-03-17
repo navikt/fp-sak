@@ -46,22 +46,22 @@ public class HistorikkTjeneste {
         //CDI
     }
 
-    public List<HistorikkinnslagDto> hentForSak(Saksnummer saksnummer, URI dokumentPath) {
+    public List<HistorikkinnslagDto> hentForSak(Saksnummer saksnummer) {
         var journalPosterForSak = dokumentArkivTjeneste.hentAlleJournalposterForSakCached(saksnummer)
             .stream()
             .map(ArkivJournalPost::getJournalpostId)
             .toList();
 
         return historikkinnslagRepository.hent(saksnummer).stream()
-            .map(h -> map(dokumentPath, h, journalPosterForSak))
+            .map(h -> map(h, journalPosterForSak))
             .sorted(Comparator.comparing(HistorikkinnslagDto::opprettetTidspunkt))
             .toList();
     }
 
-    private HistorikkinnslagDto map(URI dokumentPath, Historikkinnslag h, List<JournalpostId> journalPosterForSak) {
+    private HistorikkinnslagDto map(Historikkinnslag h, List<JournalpostId> journalPosterForSak) {
         var behandlingId = h.getBehandlingId();
         var uuid = behandlingId == null ? null : behandlingRepository.hentBehandling(behandlingId).getUuid();
-        List<HistorikkInnslagDokumentLinkDto> dokumenter = tilDokumentlenker(h.getDokumentLinker(), journalPosterForSak, dokumentPath);
+        List<HistorikkInnslagDokumentLinkDto> dokumenter = tilDokumentlenker(h.getDokumentLinker(), journalPosterForSak);
         var linjer = h.getLinjer()
             .stream()
             .sorted(Comparator.comparing(HistorikkinnslagLinje::getSekvensNr))
@@ -72,30 +72,22 @@ public class HistorikkTjeneste {
     }
 
     private static List<HistorikkInnslagDokumentLinkDto> tilDokumentlenker(List<HistorikkinnslagDokumentLink> dokumentLinker,
-                                                                           List<JournalpostId> journalPosterForSak,
-                                                                           URI dokumentPath) {
+                                                                           List<JournalpostId> journalPosterForSak) {
         if (dokumentLinker == null) {
             return List.of();
         }
-        return dokumentLinker.stream().map(d -> tilDokumentlenker(d, journalPosterForSak, dokumentPath)) //
+        return dokumentLinker.stream().map(d -> tilDokumentlenke(d, journalPosterForSak)) //
             .toList();
     }
 
-    private static HistorikkInnslagDokumentLinkDto tilDokumentlenker(HistorikkinnslagDokumentLink lenke,
-                                                                     List<JournalpostId> journalPosterForSak,
-                                                                     URI dokumentPath) {
+    private static HistorikkInnslagDokumentLinkDto tilDokumentlenke(HistorikkinnslagDokumentLink lenke,
+                                                                     List<JournalpostId> journalPosterForSak) {
         var erUtgått = aktivJournalPost(lenke.getJournalpostId(), journalPosterForSak);
         var dto = new HistorikkInnslagDokumentLinkDto();
         dto.setTag(erUtgått ? String.format("%s (utgått)", lenke.getLinkTekst()) : lenke.getLinkTekst());
         dto.setUtgått(erUtgått);
         dto.setDokumentId(lenke.getDokumentId());
         dto.setJournalpostId(lenke.getJournalpostId().getVerdi());
-        if (lenke.getJournalpostId().getVerdi() != null && lenke.getDokumentId() != null && dokumentPath != null) {
-            var builder = UriBuilder.fromUri(dokumentPath)
-                .queryParam("journalpostId", lenke.getJournalpostId().getVerdi())
-                .queryParam("dokumentId", lenke.getDokumentId());
-            dto.setUrl(builder.build());
-        }
         return dto;
     }
 
