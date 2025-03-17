@@ -93,7 +93,7 @@ public class BehandlendeEnhetTjeneste {
     public OrganisasjonsEnhet finnBehandlendeEnhetForUkoblet(Fagsak fagsak, String sisteBrukt) {
         return Optional.ofNullable(sisteBrukt)
             .map(e -> EnhetsTjeneste.velgEnhet(e, finnSaksmerking(fagsak.getId())))
-            .orElseGet(() -> enhetsTjeneste.hentEnhetSjekkKunAktør(fagsak.getAktørId(), fagsak.getYtelseType()));
+            .orElseGet(() -> enhetsTjeneste.hentEnhetSjekkKunAktør(fagsak.getAktørId()));
     }
 
     private OrganisasjonsEnhet finnEnhetFor(Fagsak fagsak) {
@@ -101,7 +101,7 @@ public class BehandlendeEnhetTjeneste {
         var enhet = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
             .map(Behandling::getBehandlendeOrganisasjonsEnhet)
             .map(e -> EnhetsTjeneste.velgEnhet(e.enhetId(), merking))
-            .orElseGet(() -> enhetsTjeneste.hentEnhetSjekkKunAktør(fagsak.getAktørId(), fagsak.getYtelseType()));
+            .orElseGet(() -> enhetsTjeneste.hentEnhetSjekkKunAktør(fagsak.getAktørId()));
         return EnhetsTjeneste.velgEnhet(enhet, merking);
     }
 
@@ -145,7 +145,7 @@ public class BehandlendeEnhetTjeneste {
         relasjon.map(FagsakRelasjon::getFagsakNrEn).map(Fagsak::getAktørId).ifPresent(allePersoner::add);
         relasjon.flatMap(FagsakRelasjon::getFagsakNrTo).map(Fagsak::getAktørId).ifPresent(allePersoner::add);
 
-        return enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), fagsak.getYtelseType(), hovedPerson, allePersoner,
+        return enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), hovedPerson, allePersoner,
             finnSaksmerking(fagsak));
     }
 

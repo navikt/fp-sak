@@ -5,8 +5,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -14,13 +12,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.Answer;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.Arbeidsfordeling;
-import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingRequest;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingResponse;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,15 +32,13 @@ class EnhetsTjenesteTest {
     private static ArbeidsfordelingResponse respKode6 = new ArbeidsfordelingResponse("2103", "Nav Vikafossen", "Aktiv", "KO");
 
     @Mock
-    private Arbeidsfordeling arbeidsfordelingTjeneste;
-    @Mock
     private RutingKlient rutingKlient;
 
     private EnhetsTjeneste enhetsTjeneste;
 
     @BeforeEach
     public void oppsett() {
-        enhetsTjeneste = new EnhetsTjeneste(arbeidsfordelingTjeneste, rutingKlient);
+        enhetsTjeneste = new EnhetsTjeneste(rutingKlient);
     }
 
     @Test
@@ -54,7 +46,7 @@ class EnhetsTjenesteTest {
         // Oppsett
         settOppPDLStrukturer(false, false, false);
 
-        var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD);
+        var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID);
 
         assertThat(enhet)
             .isNotNull()
@@ -66,7 +58,7 @@ class EnhetsTjenesteTest {
         // Oppsett
         settOppPDLStrukturer(true, false, false);
 
-        var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD);
+        var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID);
 
         assertThat(enhet)
             .isNotNull()
@@ -78,7 +70,7 @@ class EnhetsTjenesteTest {
         // Oppsett
         settOppSkjermetStrukturer(true, false);
 
-        var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD);
+        var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID);
 
         assertThat(enhet)
             .isNotNull()
@@ -90,9 +82,9 @@ class EnhetsTjenesteTest {
         // Oppsett
         settOppPDLStrukturer(false, true, false);
 
-        var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD);
+        var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID);
         var enhet1 = enhetsTjeneste
-                .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), FagsakYtelseType.ENGANGSTØNAD, MOR_AKTØR_ID, FAMILIE, Set.of()).orElse(enhet);
+                .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), MOR_AKTØR_ID, FAMILIE, Set.of()).orElse(enhet);
 
         assertThat(enhet).isNotNull();
         assertThat(enhet1).isEqualTo(enhetKode6);
@@ -103,9 +95,9 @@ class EnhetsTjenesteTest {
         // Oppsett
         settOppPDLStrukturer(false, false, true);
 
-        var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD);
+        var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID);
         var enhet1 = enhetsTjeneste
-                .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), FagsakYtelseType.ENGANGSTØNAD, MOR_AKTØR_ID, FAMILIE, Set.of()).orElse(enhet);
+                .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), MOR_AKTØR_ID, FAMILIE, Set.of()).orElse(enhet);
 
         assertThat(enhet).isNotNull();
         assertThat(enhet1).isEqualTo(enhetKode6);
@@ -116,8 +108,7 @@ class EnhetsTjenesteTest {
         // Oppsett
         settOppPDLStrukturer(false, false, true);
 
-        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), FagsakYtelseType.ENGANGSTØNAD,
-            MOR_AKTØR_ID, FAMILIE, Set.of());
+        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), MOR_AKTØR_ID, FAMILIE, Set.of());
 
         assertThat(enhet)
             .isPresent()
@@ -129,9 +120,9 @@ class EnhetsTjenesteTest {
         // Oppsett
         settOppSkjermetStrukturer(false, true);
         when(rutingKlient.finnRutingEgenskaper(Set.of(MOR_AKTØR_ID.getId()))).thenReturn(Set.of());
-        var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD);
+        var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID);
         var enhet1 = enhetsTjeneste
-            .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), FagsakYtelseType.ENGANGSTØNAD, MOR_AKTØR_ID, FAMILIE, Set.of());
+            .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), MOR_AKTØR_ID, FAMILIE, Set.of());
 
         assertThat(enhet)
             .isNotNull()
@@ -155,8 +146,7 @@ class EnhetsTjenesteTest {
         // Oppsett
         settOppPDLStrukturer(true, false, true);
 
-        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetKode6.enhetId(), FagsakYtelseType.ENGANGSTØNAD,
-                MOR_AKTØR_ID, FAMILIE, Set.of());
+        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetKode6.enhetId(), MOR_AKTØR_ID, FAMILIE, Set.of());
 
         assertThat(enhet).isNotPresent();
     }
@@ -166,8 +156,7 @@ class EnhetsTjenesteTest {
         // Oppsett
         settOppPDLStrukturer(false, true, false);
 
-        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), FagsakYtelseType.ENGANGSTØNAD,
-                MOR_AKTØR_ID, FAMILIE, Set.of());
+        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), MOR_AKTØR_ID, FAMILIE, Set.of());
 
         assertThat(enhet)
             .isPresent()
@@ -179,8 +168,7 @@ class EnhetsTjenesteTest {
         // Oppsett
         settOppPDLStrukturer(false, false, true);
 
-        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), FagsakYtelseType.ENGANGSTØNAD,
-                MOR_AKTØR_ID, FAMILIE, Set.of());
+        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), MOR_AKTØR_ID, FAMILIE, Set.of());
 
         assertThat(enhet)
             .isPresent()
@@ -192,8 +180,7 @@ class EnhetsTjenesteTest {
         // Oppsett
         settOppSkjermetStrukturer(false, true);
 
-        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), FagsakYtelseType.ENGANGSTØNAD,
-            MOR_AKTØR_ID, FAMILIE, Set.of());
+        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), MOR_AKTØR_ID, FAMILIE, Set.of());
 
         assertThat(enhet)
             .isPresent()
@@ -203,18 +190,10 @@ class EnhetsTjenesteTest {
     private void settOppPDLStrukturer(boolean morKode6, boolean barnKode6, boolean annenPartKode6) {
 
         lenient().when(rutingKlient.finnRutingEgenskaper(any())).thenReturn(morKode6 || annenPartKode6 || barnKode6? Set.of(RutingResultat.STRENGTFORTROLIG) : Set.of());
-
-        lenient().doAnswer((Answer<List<ArbeidsfordelingResponse>>) invocation -> {
-            var data = (ArbeidsfordelingRequest) invocation.getArguments()[0];
-            return Objects.equals("SPSF", data.diskresjonskode()) ? List.of(respKode6) : List.of(respNormal);
-        }).when(arbeidsfordelingTjeneste).finnEnhet(any(ArbeidsfordelingRequest.class));
-
     }
 
     private void settOppSkjermetStrukturer(boolean morSkjermet, boolean annenPartSkjermet) {
 
         lenient().when(rutingKlient.finnRutingEgenskaper(any())).thenReturn(morSkjermet || annenPartSkjermet ? Set.of(RutingResultat.SKJERMING) : Set.of());
-
-        lenient().doAnswer((Answer<List<ArbeidsfordelingResponse>>) invocation -> List.of(respNormal)).when(arbeidsfordelingTjeneste).finnEnhet(any(ArbeidsfordelingRequest.class));
     }
 }
