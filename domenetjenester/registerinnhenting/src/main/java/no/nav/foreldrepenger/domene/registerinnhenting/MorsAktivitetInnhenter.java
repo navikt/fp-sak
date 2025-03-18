@@ -84,13 +84,12 @@ public class MorsAktivitetInnhenter {
             return;
         }
 
-        var morsAktivitetsGrunnlag = aktivitetskravArbeidRepository.hentGrunnlag(behandlingId);
-
         var annenPartAktørId = hentAnnenPartAktørId(BehandlingReferanse.fra(behandling));
         if (annenPartAktørId == null) {
             LOG.info("MorsAktivitetInnhenter: Finner ingen annen part for behandling med aktivitetskrav arbeid for behandlingId: {}", behandlingId);
             return;
         }
+        var morsAktivitetsGrunnlag = aktivitetskravArbeidRepository.hentGrunnlag(behandlingId);
         var morAktvitetOpt = finnMorsAktivitet(behandling, perioderAktivitetskravArbeid, annenPartAktørId, morsAktivitetsGrunnlag);
 
         morAktvitetOpt.ifPresent(
@@ -172,7 +171,7 @@ public class MorsAktivitetInnhenter {
                                                        LocalDateSegment<Permisjon> datoSegment2) {
         var type1 = datoSegment != null ? datoSegment.getValue().type() : UDEFINERT;
         var type2 = datoSegment2 != null ? datoSegment2.getValue().type() : UDEFINERT;
-        if (type1 != UDEFINERT && type2 != UDEFINERT) {
+        if (type1 != UDEFINERT && type2 != UDEFINERT && type1 != type2) {
             return ANNEN_PERMISJON;
         }
         return type1 != UDEFINERT ? type1 : type2;
