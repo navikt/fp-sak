@@ -7,8 +7,6 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
@@ -17,8 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeSøkn
 import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Trekkdager;
-import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetskravArbeidPeriode;
-import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetskravGrunnlag;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AnnenPart;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AnnenpartUttakPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AnnenpartUttakPeriodeAktivitet;
@@ -57,17 +53,17 @@ public class AnnenPartGrunnlagBygger {
         return Optional.empty();
     }
 
-    private AktivitetskravGrunnlag map(AktivitetskravArbeidPerioderEntitet aktivitetskravPerioderMedArbeidEnitet) {
-        var perioder = aktivitetskravPerioderMedArbeidEnitet.getAktivitetskravArbeidPeriodeListe()
-            .stream()
-            .map(AnnenPartGrunnlagBygger::map)
-            .toList();
-        return new AktivitetskravGrunnlag(perioder);
-    }
-
-    private static AktivitetskravArbeidPeriode map(AktivitetskravArbeidPeriodeEntitet p) {
-        return new AktivitetskravArbeidPeriode(p.getPeriode().getFomDato(), p.getPeriode().getTomDato(), p.getSumStillingsprosent().getVerdi());
-    }
+//    private AktivitetskravGrunnlag map(AktivitetskravArbeidPerioderEntitet aktivitetskravPerioderMedArbeidEnitet) {
+//        var perioder = aktivitetskravPerioderMedArbeidEnitet.getAktivitetskravArbeidPeriodeListe()
+//            .stream()
+//            .map(AnnenPartGrunnlagBygger::map)
+//            .toList();
+//        return new AktivitetskravGrunnlag(perioder);
+//    }
+//
+//    private static AktivitetskravArbeidPeriode map(AktivitetskravArbeidPeriodeEntitet p) {
+//        return new AktivitetskravArbeidPeriode(p.getPeriode().getFomDato(), p.getPeriode().getTomDato(), p.getSumStillingsprosent().getVerdi());
+//    }
 
     private List<AnnenpartUttakPeriode> uttaksperioder(UttakResultatEntitet annenpartUttak) {
         return annenpartUttak.getGjeldendePerioder()
