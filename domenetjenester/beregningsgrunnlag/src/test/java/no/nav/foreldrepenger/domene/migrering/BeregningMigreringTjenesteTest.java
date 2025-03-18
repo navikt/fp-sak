@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.migrering;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -73,9 +74,10 @@ class BeregningMigreringTjenesteTest {
         var ref = BehandlingReferanse.fra(behandling);
         when(beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(any())).thenReturn(Optional.of(lagGrunnlagEntitet()));
         when(behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(saksnummer)).thenReturn(List.of(behandling));
+        when(behandlingRepository.hentBehandling(anyLong())).thenReturn(behandling);
         when(koblingRepository.hentKobling(any())).thenReturn(Optional.empty());
         when(koblingRepository.opprettKobling(any())).thenReturn(new BeregningsgrunnlagKobling(ref.behandlingId(), ref.behandlingUuid()));
-        when(klient.migrerGrunnlag(any())).thenReturn(new MigrerBeregningsgrunnlagResponse(lagGrunnlagDto(), null, List.of(), List.of()));
+        when(klient.migrerGrunnlag(any())).thenReturn(new MigrerBeregningsgrunnlagResponse(lagGrunnlagDto(), null, List.of(), List.of(), List.of()));
 
         // Act
         beregningMigreringTjeneste.migrerSak(saksnummer);
@@ -92,10 +94,11 @@ class BeregningMigreringTjenesteTest {
         var ref = BehandlingReferanse.fra(behandling);
         when(beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(any())).thenReturn(Optional.of(lagGrunnlagEntitet()));
         when(behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(saksnummer)).thenReturn(List.of(behandling));
+        when(behandlingRepository.hentBehandling(anyLong())).thenReturn(behandling);
         when(koblingRepository.hentKobling(any())).thenReturn(Optional.empty());
         when(koblingRepository.opprettKobling(any())).thenReturn(new BeregningsgrunnlagKobling(ref.behandlingId(), ref.behandlingUuid()));
         when(klient.migrerGrunnlag(any())).thenReturn(new MigrerBeregningsgrunnlagResponse(lagGrunnlagDto(), null, List.of(new MigrerBeregningsgrunnlagResponse.RegelsporingPeriode(
-            BeregningsgrunnlagPeriodeRegelType.FASTSETT, "eval", "input", "1.0", new Periode(LocalDate.now(), LocalDate.now()))), List.of()));
+            BeregningsgrunnlagPeriodeRegelType.FASTSETT, "eval", "input", "1.0", new Periode(LocalDate.now(), LocalDate.now()))), List.of(), List.of()));
 
         // Act
         // Assert
