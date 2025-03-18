@@ -289,7 +289,7 @@ public class ForvaltningBeregningRestTjeneste {
         var behandling = behandlingRepository.hentBehandling(dto.getBehandlingUuid());
         var grunnlag = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId()).orElseThrow();
         var response = BeregningMigreringMapper.map(grunnlag, grunnlag.getBeregningsgrunnlag().map(BeregningsgrunnlagEntitet::getRegelSporinger)
-            .orElse(Map.of()));
+            .orElse(Map.of()), behandling.getAksjonspunkter());
         return Response.ok(response).build();
     }
 

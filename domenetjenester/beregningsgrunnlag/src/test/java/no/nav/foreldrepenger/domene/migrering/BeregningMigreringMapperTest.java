@@ -12,7 +12,15 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+
+import no.nav.folketrygdloven.kalkulus.kodeverk.AvklaringsbehovDefinisjon;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
+
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 
 import org.junit.jupiter.api.Test;
 
@@ -56,7 +64,7 @@ class BeregningMigreringMapperTest {
             .build(periode1);
         var grunnlag = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(1L, BeregningsgrunnlagTilstand.FASTSATT);
 
-        var grDto = BeregningMigreringMapper.map(grunnlag, Map.of());
+        var grDto = BeregningMigreringMapper.map(grunnlag, Map.of(), Set.of());
 
         assertThat(grDto).isNotNull();
         assertThat(grDto.getBeregningsgrunnlagTilstand()).isEqualTo(no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand.FASTSATT);
@@ -118,7 +126,7 @@ class BeregningMigreringMapperTest {
             .build(periode1);
         var grunnlag = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(1L, BeregningsgrunnlagTilstand.FASTSATT);
 
-        var grDto = BeregningMigreringMapper.map(grunnlag, Map.of());
+        var grDto = BeregningMigreringMapper.map(grunnlag, Map.of(), Set.of());
 
         assertThat(grDto).isNotNull();
         assertThat(grDto.getBeregningsgrunnlagTilstand()).isEqualTo(no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand.FASTSATT);
@@ -193,7 +201,7 @@ class BeregningMigreringMapperTest {
             .build(beregningsgrunnlag);
         var grunnlag = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(1L, BeregningsgrunnlagTilstand.FASTSATT);
 
-        var grDto = BeregningMigreringMapper.map(grunnlag, Map.of());
+        var grDto = BeregningMigreringMapper.map(grunnlag, Map.of(), Set.of());
 
         assertThat(grDto).isNotNull();
         assertThat(grDto.getBeregningsgrunnlagTilstand()).isEqualTo(no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand.FASTSATT);
@@ -282,7 +290,7 @@ class BeregningMigreringMapperTest {
             .build(beregningsgrunnlag);
         var grunnlag = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(1L, BeregningsgrunnlagTilstand.FASTSATT);
 
-        var grDto = BeregningMigreringMapper.map(grunnlag, Map.of());
+        var grDto = BeregningMigreringMapper.map(grunnlag, Map.of(), Set.of());
 
         assertThat(grDto).isNotNull();
         assertThat(grDto.getBeregningsgrunnlagTilstand()).isEqualTo(no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand.FASTSATT);
@@ -368,7 +376,7 @@ class BeregningMigreringMapperTest {
             .build(periode1);
         var grunnlag = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(1L, BeregningsgrunnlagTilstand.FASTSATT);
 
-        var grDto = BeregningMigreringMapper.map(grunnlag, Map.of());
+        var grDto = BeregningMigreringMapper.map(grunnlag, Map.of(), Set.of());
 
         assertThat(grDto).isNotNull();
         assertThat(grDto.getBeregningsgrunnlagTilstand()).isEqualTo(no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand.FASTSATT);
@@ -453,8 +461,10 @@ class BeregningMigreringMapperTest {
             .medAktivitetStatus(SELVSTENDIG_NÆRINGSDRIVENDE)
             .build(periode1);
         var grunnlag = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(1L, BeregningsgrunnlagTilstand.FASTSATT);
-
-        var grDto = BeregningMigreringMapper.map(grunnlag, beregningsgrunnlag.getRegelSporinger());
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
+        var ap = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling,
+            AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS);
+        var grDto = BeregningMigreringMapper.map(grunnlag, beregningsgrunnlag.getRegelSporinger(), Set.of(ap));
 
         assertThat(grDto).isNotNull();
         assertThat(grDto.getBeregningsgrunnlagTilstand()).isEqualTo(no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand.FASTSATT);
@@ -515,7 +525,8 @@ class BeregningMigreringMapperTest {
         assertThat(sporingP2Fors.getRegelInput()).isEqualTo("Periode2-input");
         assertThat(sporingP2Fors.getRegelVersjon()).isEqualTo("1.0");
 
-
+        assertThat(grDto.getAvklaringsbehov()).hasSize(1);
+        assertThat(grDto.getAvklaringsbehov().getFirst().getDefinisjon()).isEqualTo(AvklaringsbehovDefinisjon.FASTSETT_BG_AT_FL);
     }
 
 }
