@@ -71,10 +71,13 @@ public class HåndterOverlappPleiepengerTask extends GenerellProsessTask {
             .stream()
             .filter(p -> p.getDagsats() > 0)
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom)
-            .min(Comparator.naturalOrder())
-            .orElseThrow();
+            .min(Comparator.naturalOrder());
 
-        var ytelserPleiepenger = hentYtelser(fagsak.getAktørId(), tidligsteTilkjent);
+        if (tidligsteTilkjent.isEmpty()) {
+            return false;
+        }
+
+        var ytelserPleiepenger = hentYtelser(fagsak.getAktørId(), tidligsteTilkjent.get());
 
         return SjekkOverlapp.erOverlappOgMerEnn100Prosent(beregningsresultatEntitet, ytelserPleiepenger);
     }
