@@ -7,8 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import no.nav.folketrygdloven.kalkulus.migrering.AvklaringsbehovMigreringDto;
 import no.nav.folketrygdloven.kalkulus.migrering.BGAndelArbeidsforholdMigreringDto;
 import no.nav.folketrygdloven.kalkulus.migrering.BaseMigreringDto;
 import no.nav.folketrygdloven.kalkulus.migrering.BeregningAktivitetAggregatMigreringDto;
@@ -39,6 +41,7 @@ import no.nav.folketrygdloven.kalkulus.felles.v1.Periode;
 import no.nav.folketrygdloven.kalkulus.kodeverk.FaktaVurderingKilde;
 import no.nav.folketrygdloven.kalkulus.kodeverk.SammenligningsgrunnlagType;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
@@ -76,12 +79,14 @@ public class BeregningMigreringMapper {
     }
 
     public static BeregningsgrunnlagGrunnlagMigreringDto map(BeregningsgrunnlagGrunnlagEntitet grunnlag,
-                                                             Map<BeregningsgrunnlagRegelType, BeregningsgrunnlagRegelSporing> grunnlagSporinger) {
-        return mapGrunnlag(grunnlag, grunnlagSporinger);
+                                                             Map<BeregningsgrunnlagRegelType, BeregningsgrunnlagRegelSporing> grunnlagSporinger,
+                                                             Set<Aksjonspunkt> aksjonspunkter) {
+        return mapGrunnlag(grunnlag, grunnlagSporinger, aksjonspunkter);
     }
 
     private static BeregningsgrunnlagGrunnlagMigreringDto mapGrunnlag(BeregningsgrunnlagGrunnlagEntitet entitet,
-                                                                      Map<BeregningsgrunnlagRegelType, BeregningsgrunnlagRegelSporing> grunnlagSporinger) {
+                                                                      Map<BeregningsgrunnlagRegelType, BeregningsgrunnlagRegelSporing> grunnlagSporinger,
+                                                                      Set<Aksjonspunkt> aksjonspunkter) {
         var aktivitetOverstyringer = entitet.getOverstyring().map(BeregningMigreringMapper::mapAktivitetOverstyringer).orElse(null);
         var saksbehandletAktiviteter = entitet.getSaksbehandletAktiviteter().map(BeregningMigreringMapper::mapAktiviteter).orElse(null);
         var registerAktiviteter = entitet.getRegisterAktiviteter() == null ? null : mapAktiviteter(entitet.getRegisterAktiviteter());
@@ -94,9 +99,25 @@ public class BeregningMigreringMapper {
             .map(BeregningMigreringMapper::mapPeriodeSporinger)
             .flatMap(Collection::stream)
             .toList();
-        var dto = new BeregningsgrunnlagGrunnlagMigreringDto(beregningsgrunnlag, registerAktiviteter, saksbehandletAktiviteter, aktivitetOverstyringer, refusjonOverstyringer, faktaAggregat, tilstand, grunnlagSporingerDto, periodeSporingerDto);
+        var avklaringsbehov = aksjonspunkter.stream()
+            .map(BeregningMigreringMapper::mapAksjonspunkt)
+            .flatMap(Optional::stream)
+            .toList();
+        var dto = new BeregningsgrunnlagGrunnlagMigreringDto(beregningsgrunnlag, registerAktiviteter, saksbehandletAktiviteter, aktivitetOverstyringer, refusjonOverstyringer,
+            faktaAggregat, tilstand, grunnlagSporingerDto, periodeSporingerDto, avklaringsbehov);
         settOpprettetOgEndretFelter(entitet, dto);
         return dto;
+    }
+
+    private static Optional<AvklaringsbehovMigreringDto> mapAksjonspunkt(Aksjonspunkt ap) {
+        var apDef = BeregningAvklaringsbehovMigreringMapper.finnBeregningAvklaringsbehov(ap.getAksjonspunktDefinisjon());
+        if (apDef == null) {
+            return Optional.empty();
+        }
+        var avklaringsbehov = new AvklaringsbehovMigreringDto(apDef, BeregningAvklaringsbehovMigreringMapper.mapAvklaringStatus(ap.getStatus()), ap.getBegrunnelse(), false, ap.getEndretAv(),
+            ap.getEndretTidspunkt());
+        settOpprettetOgEndretFelter(ap, avklaringsbehov);
+        return Optional.of(avklaringsbehov);
     }
 
     private static List<RegelSporingPeriodeMigreringDto> mapPeriodeSporinger(BeregningsgrunnlagPeriode bgPeriode) {

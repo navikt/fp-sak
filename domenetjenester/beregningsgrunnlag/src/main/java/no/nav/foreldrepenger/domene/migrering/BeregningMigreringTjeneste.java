@@ -2,12 +2,16 @@ package no.nav.foreldrepenger.domene.migrering;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 
 import org.jboss.weld.exceptions.IllegalStateException;
 import org.slf4j.Logger;
@@ -77,6 +81,11 @@ public class BeregningMigreringTjeneste {
         behandlinger.forEach(b -> migrerBehandling(BehandlingReferanse.fra(b)));
     }
 
+    public boolean kanHentesFraKalkulus(BehandlingReferanse behandlingReferanse) {
+        return koblingRepository.hentKobling(behandlingReferanse.behandlingId()).isPresent();
+
+    }
+
     private void migrerBehandling(BehandlingReferanse referanse) {
         var grunnlag = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(referanse.behandlingId());
         if (grunnlag.isEmpty()) {
@@ -88,13 +97,14 @@ public class BeregningMigreringTjeneste {
             var grunnlagSporinger = regelsporingMigreringTjeneste.finnRegelsporingGrunnlag(grunnlag.get(),
                 referanse);
             var originalKobling = referanse.getOriginalBehandlingId().flatMap(oid -> koblingRepository.hentKobling(oid));
-            var migreringsDto = BeregningMigreringMapper.map(grunnlag.get(), grunnlagSporinger);
+            var aksjonspunkter = behandlingRepository.hentBehandling(referanse.behandlingId()).getAksjonspunkter();
+            var migreringsDto = BeregningMigreringMapper.map(grunnlag.get(), grunnlagSporinger, aksjonspunkter);
             var kobling = koblingRepository.hentKobling(referanse.behandlingId()).orElseGet(() -> koblingRepository.opprettKobling(referanse));
             var request = lagMigreringRequest(referanse, kobling, originalKobling, migreringsDto);
             var response = klient.migrerGrunnlag(request);
 
             // Sammenlign grunnlag fra kalkulus og fpsak
-            sammenlignGrunnlag(response, referanse, grunnlagSporinger);
+            sammenlignGrunnlag(response, referanse, grunnlagSporinger, aksjonspunkter);
 
             // Oppdater kobling med data fra grunnlag
             if (response.grunnlag() != null && response.grunnlag().getBeregningsgrunnlag() != null) {
@@ -119,9 +129,11 @@ public class BeregningMigreringTjeneste {
     }
 
     private void sammenlignGrunnlag(MigrerBeregningsgrunnlagResponse response, BehandlingReferanse referanse,
-                                    Map<BeregningsgrunnlagRegelType, BeregningsgrunnlagRegelSporing> grunnlagSporinger) {
+                                    Map<BeregningsgrunnlagRegelType, BeregningsgrunnlagRegelSporing> grunnlagSporinger,
+                                    Set<Aksjonspunkt> aksjonspunkter) {
         var entitet = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(referanse.behandlingId()).orElseThrow();
         verifiserRegelsporinger(response, entitet, grunnlagSporinger);
+        verifiserAksjonspunkter(aksjonspunkter, response.avklaringsbehov());
         var fpsakGrunnlag = FraEntitetTilBehandlingsmodellMapper.mapBeregningsgrunnlagGrunnlag(entitet);
         var kalkulusGrunnlag = KalkulusTilFpsakMapper.map(response.grunnlag(), Optional.ofNullable(response.besteberegningGrunnlag()));
         var fpJson = StandardJsonConfig.toJson(fpsakGrunnlag);
@@ -130,6 +142,27 @@ public class BeregningMigreringTjeneste {
             logg(fpJson, kalkJson);
             throw new IllegalStateException("Missmatch mellom kalkulus json og fpsak json av samme beregninsgrunnlag");
         }
+    }
+
+    private void verifiserAksjonspunkter(Set<Aksjonspunkt> aksjonspunkter, List<MigrerBeregningsgrunnlagResponse.Avklaringsbehov> alleAvklaringsbehov) {
+        var relevanteAksjonspunkter = aksjonspunkter.stream()
+            .filter(a -> BeregningAvklaringsbehovMigreringMapper.finnBeregningAvklaringsbehov(a.getAksjonspunktDefinisjon()) != null)
+            .toList();
+        var erLikeStore = relevanteAksjonspunkter.size() == alleAvklaringsbehov.size();
+        var alleAvklaringsbehovMtcher = erLikeStore &&
+            relevanteAksjonspunkter.stream().allMatch(aksjonspunkt -> alleAvklaringsbehov.stream().anyMatch(avklaringsbehov -> finnesMatchForAksjonspunkt(avklaringsbehov, aksjonspunkt)));
+        if (!alleAvklaringsbehovMtcher) {
+            throw new IllegalStateException("Feil med matching av avklaringsbehov");
+        }
+    }
+
+    private boolean finnesMatchForAksjonspunkt(MigrerBeregningsgrunnlagResponse.Avklaringsbehov avklaringsbehov, Aksjonspunkt aksjonspunkt) {
+        var definisjonMatcher = Objects.equals(BeregningAvklaringsbehovMigreringMapper.finnBeregningAvklaringsbehov(aksjonspunkt.getAksjonspunktDefinisjon()), avklaringsbehov.definisjon());
+        var statusMatcher = Objects.equals(BeregningAvklaringsbehovMigreringMapper.mapAvklaringStatus(aksjonspunkt.getStatus()), avklaringsbehov.status());
+        var begrunnelseMatcher = Objects.equals(aksjonspunkt.getBegrunnelse(), avklaringsbehov.begrunnelse());
+        var vurdertAvMatcher = Objects.equals(aksjonspunkt.getEndretAv(), avklaringsbehov.vurdertAv());
+        var vurdertTidspunktMatcher = Objects.equals(aksjonspunkt.getEndretTidspunkt(), avklaringsbehov.vurdertTidspunkt());
+        return definisjonMatcher && statusMatcher && begrunnelseMatcher && vurdertAvMatcher && vurdertTidspunktMatcher;
     }
 
     private void logg(String jsonFpsak, String jsonKalkulus) {
@@ -190,5 +223,4 @@ public class BeregningMigreringTjeneste {
             case ENGANGSTØNAD, UDEFINERT -> throw new IllegalStateException("Ukjent ytelse som skal beregnes " + fagsakYtelseType);
         };
     }
-
 }
