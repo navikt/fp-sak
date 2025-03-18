@@ -95,11 +95,11 @@ public class VurderUttakDokumentasjonAksjonspunktUtleder {
                                                                                   UttakInput input,
                                                                                   DokumentasjonVurdering tidligereVurdering,
                                                                                   DokumentasjonVurderingBehov.Behov aktKravBehov) {
-        //TODO TFP-5383 kommenter inn ved automatisering av aktivitetskrav >= 75%
+        //TODO TFP-5383 kommenter inn ved automatisering av aktivitetskrav >= 75%. Sjekk bfhr
 //        if (tidligereVurdering == null) {
 //            ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = input.getYtelsespesifiktGrunnlag();
 //            var aktivitetskravGrunnlag = ytelsespesifiktGrunnlag.getAktivitetskravGrunnlag();
-//            if (oppgittPeriode.kanAutomatiskAvklareMorsArbeid() && aktivitetskravGrunnlag.isPresent()) {
+//            if (oppgittPeriode.harAktivitetskravArbeid() && aktivitetskravGrunnlag.isPresent()) {
 //                var registerVurdering = vurderMorsArbeid(oppgittPeriode, aktivitetskravGrunnlag.get());
 //                return Optional.of(new DokumentasjonVurderingBehov(oppgittPeriode, aktKravBehov, null, registerVurdering));
 //            }

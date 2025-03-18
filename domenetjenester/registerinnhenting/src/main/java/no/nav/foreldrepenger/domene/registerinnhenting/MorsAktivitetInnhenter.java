@@ -5,12 +5,14 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.A
 import static no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravPermisjonType.PERMITTERING;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravPermisjonType.UDEFINERT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravPermisjonType.UTDANNING;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FELLESPERIODE;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -28,9 +30,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.Aktivite
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravPermisjonType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.abakus.ArbeidsforholdTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdMedPermisjon;
@@ -142,7 +146,8 @@ public class MorsAktivitetInnhenter {
     private static AktivitetskravPermisjonType map(PermisjonsbeskrivelseType type) {
         return switch (type) {
             case UDEFINERT -> UDEFINERT;
-            case PERMISJON, ANNEN_PERMISJON_LOVFESTET, ANNEN_PERMISJON_IKKE_LOVFESTET, PERMISJON_VED_MILITÆRTJENESTE, VELFERDSPERMISJON -> ANNEN_PERMISJON;
+            case PERMISJON, ANNEN_PERMISJON_LOVFESTET, ANNEN_PERMISJON_IKKE_LOVFESTET, PERMISJON_VED_MILITÆRTJENESTE, VELFERDSPERMISJON ->
+                ANNEN_PERMISJON;
             case UTDANNINGSPERMISJON, UTDANNINGSPERMISJON_LOVFESTET, UTDANNINGSPERMISJON_IKKE_LOVFESTET -> UTDANNING;
             case PERMISJON_MED_FORELDREPENGER -> FORELDREPENGER;
             case PERMITTERING -> PERMITTERING;
@@ -167,8 +172,7 @@ public class MorsAktivitetInnhenter {
         };
     }
 
-    private static AktivitetskravPermisjonType sumType(LocalDateSegment<Permisjon> datoSegment,
-                                                       LocalDateSegment<Permisjon> datoSegment2) {
+    private static AktivitetskravPermisjonType sumType(LocalDateSegment<Permisjon> datoSegment, LocalDateSegment<Permisjon> datoSegment2) {
         var type1 = datoSegment != null ? datoSegment.getValue().type() : UDEFINERT;
         var type2 = datoSegment2 != null ? datoSegment2.getValue().type() : UDEFINERT;
         if (type1 != UDEFINERT && type2 != UDEFINERT && type1 != type2) {
@@ -202,7 +206,19 @@ public class MorsAktivitetInnhenter {
     }
 
     private static List<OppgittPeriodeEntitet> hentPerioderMedAktivitetskrav(YtelseFordelingAggregat ytelseaggregat) {
-        return ytelseaggregat.getGjeldendeFordeling().getPerioder().stream().filter(OppgittPeriodeEntitet::kanAutomatiskAvklareMorsArbeid).toList();
+        return ytelseaggregat.getGjeldendeFordeling()
+            .getPerioder()
+            .stream()
+            .filter(p -> skalInnhenteAktivitetskravGrunnlag(p, ytelseaggregat))
+            .toList();
+    }
+
+    private static boolean skalInnhenteAktivitetskravGrunnlag(OppgittPeriodeEntitet p, YtelseFordelingAggregat ytelseaggregat) {
+        if (!MorsAktivitet.ARBEID.equals(p.getMorsAktivitet())) {
+            return false;
+        }
+        return !ytelseaggregat.harAnnenForelderRett() ? Objects.equals(UttakPeriodeType.FORELDREPENGER, p.getPeriodeType()) : Objects.equals(
+            FELLESPERIODE, p.getPeriodeType());
     }
 
     private AktivitetskravArbeidPerioderEntitet lagAktivitetskravPerioderBuilder(Map<String, List<ArbeidsforholdMedPermisjon>> mapAvOrgnrOgAvtaler,

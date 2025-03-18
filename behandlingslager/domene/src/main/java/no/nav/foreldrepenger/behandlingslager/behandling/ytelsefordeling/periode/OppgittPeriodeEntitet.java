@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FELLESPERIODE;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
@@ -329,10 +327,6 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
      */
     public boolean isVedtaksperiode() {
         return getPeriodeKilde().equals(FordelingPeriodeKilde.TIDLIGERE_VEDTAK);
-    }
-
-    public boolean kanAutomatiskAvklareMorsArbeid() {
-        return FELLESPERIODE.equals(getPeriodeType()) && MorsAktivitet.ARBEID.equals(getMorsAktivitet()); //TODO TFP-5383 bfhr
     }
 
     @Override

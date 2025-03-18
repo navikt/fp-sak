@@ -44,7 +44,7 @@ public class AnnenPartGrunnlagBygger {
                 annenpartUttak.ifPresent(uttakResultatEntitet -> builder.sisteSøknadMottattTidspunkt(ap.søknadOpprettetTidspunkt())
                     .uttaksperioder(uttaksperioder(uttakResultatEntitet)));
             });
-            //TODO TFP-5383 kommenter inn ved automatisering av aktivitetskrav >= 75%
+            //TODO TFP-5383 kommenter inn ved automatisering av aktivitetskrav >= 75%. Sjekk bfhr
 //            fpGrunnlag.getAktivitetskravGrunnlag()
 //                .flatMap(AktivitetskravGrunnlagEntitet::getAktivitetskravPerioderMedArbeidEnitet)
 //                .ifPresent(agp -> builder.aktivitetskravGrunnlag(map(agp)));

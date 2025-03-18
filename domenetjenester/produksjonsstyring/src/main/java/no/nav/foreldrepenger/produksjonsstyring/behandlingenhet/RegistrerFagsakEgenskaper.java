@@ -116,7 +116,7 @@ public class RegistrerFagsakEgenskaper {
             return false;
         }
         var aleneomsorg = yfAggregat.filter(YtelseFordelingAggregat::harAleneomsorg).isPresent();
-        var bareFarRett = yfAggregat.filter(a -> a.harAnnenForelderRett(false)).isEmpty();
+        var bareFarRett = yfAggregat.filter(a -> a.harAnnenForelderRett()).isEmpty();
         return bareFarRett && !aleneomsorg;
     }
 
