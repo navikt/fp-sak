@@ -163,8 +163,17 @@ public class ForvaltningUttrekkRestTjeneste {
         var query = entityManager.createNativeQuery("""
             select behandling_id
             from aksjonspunkt
-            where aksjonspunkt_def = '5017' and aksjonspunkt_status = 'OPPR'
+            where aksjonspunkt_def = '5074' and aksjonspunkt_status = 'OPPR'
             and behandling_id not in (select behandling_id from aksjonspunkt where aksjonspunkt_def > '7000' and aksjonspunkt_status = 'OPPR')
+            and behandling_id in (select behandling_id from fpsak.gr_ytelses_fordeling gy join fpsak.YF_FORDELING_PERIODE op on gy.so_fordeling_id = op.fordeling_id
+                        where mors_aktivitet = 'ARBEID')
+            and exists (select * from fpsak.behandling b join fpsak.fagsak f on b.fagsak_id = f.id join fpsak.fagsak_relasjon fr on f.id in (fagsak_en_id, fagsak_to_id)
+                        where b.id = behandling_id and bruker_rolle <> 'MORA' and fagsak_to_id is not null)
+            and behandling_id in (
+              select behandling_id from fpsak.gr_soeknad gs join fpsak.soeknad_vedlegg sv on gs.soeknad_id = sv.soeknad_id where skjemanummer = 'I000132' and innsendingsvalg = 'LASTET_OPP'
+              union all
+              select behandling_id from fpsak.mottatt_dokument where type = 'I000132'
+              )
              """);
         @SuppressWarnings("unchecked")
         List<Number> resultatList = query.getResultList();
@@ -175,7 +184,7 @@ public class ForvaltningUttrekkRestTjeneste {
 
     private void flyttBehandlingTilbakeTilSteg(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        if (!BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT.equals(behandling.getAktivtBehandlingSteg())) {
+        if (!BehandlingStegType.FAKTA_UTTAK_DOKUMENTASJON.equals(behandling.getAktivtBehandlingSteg())) {
             return;
         }
         var task = ProsessTaskData.forProsessTask(TilbakeføringTilStegTask.class);
