@@ -37,6 +37,10 @@ public class YtelseFordelingAggregat {
             .orElseGet(() -> TRUE.equals(getOppgittRettighet().getHarAleneomsorgForBarnet()));
     }
 
+    public boolean harAnnenForelderRett() {
+        return harAnnenForelderRett(false);
+    }
+
     public boolean harAnnenForelderRett(boolean annenpartHarForeldrepengerUtbetaling) {
         if (annenpartHarForeldrepengerUtbetaling || avklartAnnenForelderHarRettEØS()) {
             return true;

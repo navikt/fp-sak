@@ -57,16 +57,21 @@ public class AktivitetskravArbeidRepository {
         }
     }
 
-    public void  fjernGrunnlag(AktivitetskravGrunnlagEntitet aktivitetskravGrunnlagEntitet) {
-        aktivitetskravGrunnlagEntitet.deaktiver();
-        entityManager.persist(aktivitetskravGrunnlagEntitet);
-    }
-
     public Optional<AktivitetskravGrunnlagEntitet> hentGrunnlag(Long behandlingId) {
         var query = entityManager.createQuery(
             "FROM AktivitetskravGrunnlag grunnlag WHERE grunnlag.behandlingId = :behandlingId AND grunnlag.aktiv = true",
             AktivitetskravGrunnlagEntitet.class).setParameter("behandlingId", behandlingId);
 
         return HibernateVerktøy.hentUniktResultat(query);
+    }
+
+    public void kopierGrunnlagFraEksisterendeBehandling(Long originalBehandlingId, Long nyBehandlingId) {
+        var eksisterendeGrunnlag = hentGrunnlag(originalBehandlingId);
+        eksisterendeGrunnlag.ifPresent(g -> {
+            var nyttgrunnlag = AktivitetskravGrunnlagEntitet.Builder.oppdatere(eksisterendeGrunnlag)
+                .medBehandlingId(nyBehandlingId)
+                .build();
+            lagreGrunnlag(Optional.empty(), nyttgrunnlag);
+        });
     }
 }

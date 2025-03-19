@@ -49,7 +49,7 @@ public class AksjonspunktUtlederForForeldrepengerFødsel extends AksjonspunktUtl
         }
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(param.getBehandlingId());
         //setter false på annen parts utbetaling her, greit å få AP i de få casene der mor har uttak og far oppgitt at hun ikke har rett
-        return !ytelseFordelingAggregat.harAnnenForelderRett(false) || ytelseFordelingAggregat.harAleneomsorg();
+        return !ytelseFordelingAggregat.harAnnenForelderRett() || ytelseFordelingAggregat.harAleneomsorg();
     }
 
 }

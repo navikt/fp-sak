@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
@@ -58,13 +59,15 @@ public class UttakGrunnlagTjeneste {
     private PleiepengerRepository pleiepengerRepository;
     private UføretrygdRepository uføretrygdRepository;
     private NesteSakRepository nesteSakRepository;
+    private AktivitetskravArbeidRepository aktivitetskravArbeidRepository;
 
     @Inject
     public UttakGrunnlagTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
                                  BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider,
                                  RelatertBehandlingTjeneste relatertBehandlingTjeneste,
                                  FamilieHendelseTjeneste familieHendelseTjeneste,
-                                 FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
+                                 FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
+                                 AktivitetskravArbeidRepository aktivitetskravArbeidRepository) {
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.behandlingVedtakRepository = behandlingRepositoryProvider.getBehandlingVedtakRepository();
@@ -75,6 +78,7 @@ public class UttakGrunnlagTjeneste {
         this.pleiepengerRepository = grunnlagRepositoryProvider.getPleiepengerRepository();
         this.uføretrygdRepository = grunnlagRepositoryProvider.getUføretrygdRepository();
         this.nesteSakRepository = grunnlagRepositoryProvider.getNesteSakRepository();
+        this.aktivitetskravArbeidRepository = aktivitetskravArbeidRepository;
     }
 
     UttakGrunnlagTjeneste() {
@@ -110,6 +114,7 @@ public class UttakGrunnlagTjeneste {
             .medUføretrygdGrunnlag(uføretrygdGrunnlag(ref).orElse(null))
             .medNesteSakGrunnlag(nesteSakGrunnlag(ref).orElse(null))
             .medDødsfall(harDødsfall(behandling, familiehendelser, ref))
+            .medAktivitetskravGrunnlag(aktivitetskravArbeidRepository.hentGrunnlag(behandlingId).orElse(null))
             ;
         if (fagsakRelasjon.isPresent()) {
             var annenpart = annenpart(fagsakRelasjon.get(), behandling);

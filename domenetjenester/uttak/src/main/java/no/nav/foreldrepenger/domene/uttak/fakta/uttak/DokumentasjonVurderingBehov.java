@@ -5,14 +5,24 @@ import java.util.Objects;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 
-public record DokumentasjonVurderingBehov(OppgittPeriodeEntitet oppgittPeriode, Behov behov, DokumentasjonVurdering vurdering) {
+public record DokumentasjonVurderingBehov(OppgittPeriodeEntitet oppgittPeriode,
+                                          Behov behov,
+                                          DokumentasjonVurdering vurdering,
+                                          RegisterVurdering registerVurdering) {
 
     public DokumentasjonVurderingBehov {
         Objects.requireNonNull(behov);
     }
 
+    public DokumentasjonVurderingBehov(OppgittPeriodeEntitet oppgittPeriode, Behov behov, DokumentasjonVurdering vurdering) {
+        this(oppgittPeriode, behov, vurdering, null);
+    }
+
     public boolean måVurderes() {
-        return vurdering == null;
+        if (vurdering == null) {
+            return registerVurdering != RegisterVurdering.MORS_AKTIVITET_GODKJENT;
+        }
+        return false;
     }
 
     public record Behov(Behov.Type type, Behov.Årsak årsak) {
