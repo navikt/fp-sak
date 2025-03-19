@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import jakarta.enterprise.inject.Any;
 import jakarta.inject.Inject;
@@ -76,10 +77,10 @@ class VurderUttakDokumentasjonOppdatererTest {
 
         var vurdering1 = new DokumentasjonVurderingBehovDto(eksisterendeUtsettelse.getFom(),
             eksisterendeUtsettelse.getFom().plusWeeks(1).minusDays(1), DokumentasjonVurderingBehov.Behov.Type.UTSETTELSE,
-            DokumentasjonVurderingBehov.Behov.Årsak.SYKDOM_SØKER, DokumentasjonVurderingBehovDto.Vurdering.GODKJENT, null);
+            DokumentasjonVurderingBehov.Behov.Årsak.SYKDOM_SØKER, DokumentasjonVurderingBehovDto.Vurdering.GODKJENT, null, Set.of());
         var vurdering2 = new DokumentasjonVurderingBehovDto(vurdering1.tom().plusDays(1), eksisterendeUtsettelse.getTom(),
             DokumentasjonVurderingBehov.Behov.Type.UTSETTELSE, DokumentasjonVurderingBehov.Behov.Årsak.SYKDOM_SØKER,
-            DokumentasjonVurderingBehovDto.Vurdering.IKKE_GODKJENT, null);
+            DokumentasjonVurderingBehovDto.Vurdering.IKKE_GODKJENT, null, Set.of());
         var dto = new VurderUttakDokumentasjonDto("begrunnelse", List.of(vurdering1, vurdering2));
 
         var resultat = kjørOppdatering(behandling, dto);
@@ -119,7 +120,7 @@ class VurderUttakDokumentasjonOppdatererTest {
 
         var dto = new VurderUttakDokumentasjonDto();
         var vurdering = new DokumentasjonVurderingBehovDto(eksisterendeØverføring.getFom(), eksisterendeØverføring.getTom(),
-            DokumentasjonVurderingBehov.Behov.Type.OVERFØRING, DokumentasjonVurderingBehov.Behov.Årsak.SYKDOM_ANNEN_FORELDER, null, null);
+            DokumentasjonVurderingBehov.Behov.Type.OVERFØRING, DokumentasjonVurderingBehov.Behov.Årsak.SYKDOM_ANNEN_FORELDER, null, null, Set.of());
         dto.setVurderingBehov(List.of(vurdering));
 
         var resultat = kjørOppdatering(behandling, dto);
@@ -143,7 +144,7 @@ class VurderUttakDokumentasjonOppdatererTest {
 
         var dto = new VurderUttakDokumentasjonDto();
         var vurdering = new DokumentasjonVurderingBehovDto(eksisterendeØverføring.getFom().minusWeeks(1), eksisterendeØverføring.getTom(),
-            DokumentasjonVurderingBehov.Behov.Type.OVERFØRING, DokumentasjonVurderingBehov.Behov.Årsak.SYKDOM_ANNEN_FORELDER, null, null);
+            DokumentasjonVurderingBehov.Behov.Type.OVERFØRING, DokumentasjonVurderingBehov.Behov.Årsak.SYKDOM_ANNEN_FORELDER, null, null, Set.of());
         dto.setVurderingBehov(List.of(vurdering));
 
         assertThatThrownBy(() -> kjørOppdatering(behandling, dto)).isInstanceOf(IllegalArgumentException.class);
@@ -161,7 +162,7 @@ class VurderUttakDokumentasjonOppdatererTest {
 
         var dto = new VurderUttakDokumentasjonDto();
         var vurdering = new DokumentasjonVurderingBehovDto(eksisterendeØverføring.getFom(), eksisterendeØverføring.getTom().plusWeeks(1),
-            DokumentasjonVurderingBehov.Behov.Type.OVERFØRING, DokumentasjonVurderingBehov.Behov.Årsak.SYKDOM_ANNEN_FORELDER, null, null);
+            DokumentasjonVurderingBehov.Behov.Type.OVERFØRING, DokumentasjonVurderingBehov.Behov.Årsak.SYKDOM_ANNEN_FORELDER, null, null, Set.of());
         dto.setVurderingBehov(List.of(vurdering));
 
         assertThatThrownBy(() -> kjørOppdatering(behandling, dto)).isInstanceOf(IllegalArgumentException.class);
@@ -178,7 +179,7 @@ class VurderUttakDokumentasjonOppdatererTest {
 
         var vurdering1 = new DokumentasjonVurderingBehovDto(eksisterendeUttak.getFom(), eksisterendeUttak.getTom(),
             DokumentasjonVurderingBehov.Behov.Type.UTTAK, DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_ARBEID,
-            DokumentasjonVurderingBehovDto.Vurdering.GODKJENT, new MorsStillingsprosent(BigDecimal.valueOf(74.99)));
+            DokumentasjonVurderingBehovDto.Vurdering.GODKJENT, new MorsStillingsprosent(BigDecimal.valueOf(74.99)), Set.of());
         var dto = new VurderUttakDokumentasjonDto("begrunnelse", List.of(vurdering1));
 
         var behandling = behandlingMedAp(List.of(eksisterendeUttak));

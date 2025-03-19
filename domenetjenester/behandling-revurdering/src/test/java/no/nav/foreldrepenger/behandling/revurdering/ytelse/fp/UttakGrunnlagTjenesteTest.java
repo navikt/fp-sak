@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningVersjonType;
@@ -40,7 +41,7 @@ class UttakGrunnlagTjenesteTest {
         var familieHendelseRepository = new FamilieHendelseRepository(entityManager);
         var familieHendelseTjeneste = new FamilieHendelseTjeneste(null, familieHendelseRepository);
         tjeneste = new UttakGrunnlagTjeneste(repositoryProvider, grunnlagRepositoryProvider, relatertBehandlingTjeneste, familieHendelseTjeneste,
-            fagsakRelasjonTjeneste);
+            fagsakRelasjonTjeneste, new AktivitetskravArbeidRepository(entityManager));
     }
 
     @Test

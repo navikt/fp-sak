@@ -2,13 +2,20 @@ package no.nav.foreldrepenger.domene.uttak.fakta.uttak;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravPermisjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
@@ -17,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
@@ -112,5 +120,53 @@ class VurderUttakDokumentasjonAksjonspunktUtlederTest {
 
         assertThat(aksjonspunktDefinisjon).isFalse();
         assertThat(behov).isEmpty();
+    }
+
+    //TODO TFP-5383 kommenter inn ved automatisering av aktivitetskrav >= 75%
+    @Disabled
+    @Test
+    void utleder_ikke_ap_hvis_far_fellesperiode_og_mor_er_i_arbeid() {
+        var fødselsdato = LocalDate.of(2025, 3, 14);
+
+        var fellesperiode = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+            .medPeriode(fødselsdato.plusWeeks(6), fødselsdato.plusWeeks(10).minusDays(1))
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medMorsAktivitet(MorsAktivitet.ARBEID)
+            .build();
+
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
+            .medJustertFordeling(new OppgittFordelingEntitet(List.of(fellesperiode), true));
+        var behandling = scenario.lagre(uttakRepositoryProvider);
+
+        var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 0);
+        var fpGrunnlag = new ForeldrepengerGrunnlag()
+            .medAktivitetskravGrunnlag(AktivitetskravGrunnlagEntitet.Builder.oppdatere(Optional.empty())
+                .medPerioderMedAktivitetskravArbeid(new AktivitetskravArbeidPerioderEntitet.Builder()
+                    .leggTil(new AktivitetskravArbeidPeriodeEntitet.Builder()
+                        .medPeriode(fellesperiode.getFom(), fellesperiode.getTom())
+                        .medSumStillingsprosent(BigDecimal.valueOf(100))
+                        .medOrgNummer(OrgNummer.KUNSTIG_ORG)
+                        .medPermisjon(BigDecimal.ZERO, AktivitetskravPermisjonType.UDEFINERT))
+                    .build())
+                .build())
+            .medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(familieHendelse));
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null, fpGrunnlag);
+        var utledetAp = utleder.utledAksjonspunktFor(input);
+
+        assertThat(utledetAp).isFalse();
+
+        var behov = utleder.utledDokumentasjonVurderingBehov(input)
+            .stream().sorted(Comparator.comparing(dokumentasjonVurderingBehov -> dokumentasjonVurderingBehov.oppgittPeriode().getFom()))
+            .toList();
+        assertThat(behov).hasSize(1);
+        assertThat(behov.getFirst().måVurderes()).isFalse();
+
+        assertThat(behov.getFirst().behov().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_ARBEID);
+        assertThat(behov.getFirst().behov().type()).isEqualTo(DokumentasjonVurderingBehov.Behov.Type.UTTAK);
+
+        assertThat(behov.getFirst().registerVurdering()).isEqualTo(RegisterVurdering.MORS_AKTIVITET_GODKJENT);
+        assertThat(behov.getFirst().vurdering()).isNull();
     }
 }

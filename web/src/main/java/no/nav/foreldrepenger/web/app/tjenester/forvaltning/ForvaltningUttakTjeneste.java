@@ -83,7 +83,7 @@ public class ForvaltningUttakTjeneste {
         if (ytelseFordelingAggregat.getAnnenForelderRettAvklaring() == null) {
             throw new ForvaltningException("Kan ikke endre ettersom annen forelder har rett ikke er avklart");
         }
-        if (ytelseFordelingAggregat.harAnnenForelderRett(false) != harRett) {
+        if (ytelseFordelingAggregat.harAnnenForelderRett() != harRett) {
             ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(behandlingId, harRett, null, ytelseFordelingAggregat.getMorUføretrygdAvklaring());
 
             var begrunnelse = harRett ? "FORVALTNING - Endret til annen forelder har rett" : "FORVALTNING - Endret til annen forelder har ikke rett";
@@ -130,7 +130,7 @@ public class ForvaltningUttakTjeneste {
         var behandlingId = behandling.getId();
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandlingId);
         var bareFarRett = !RelasjonsRolleType.erMor(behandling.getRelasjonsRolleType()) &&
-            !ytelseFordelingAggregat.harAnnenForelderRett(false);
+            !ytelseFordelingAggregat.harAnnenForelderRett();
         if (!bareFarRett) {
             throw new ForvaltningException("Gjelder ikke bare far rett");
         }

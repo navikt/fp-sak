@@ -30,6 +30,7 @@ import no.nav.foreldrepenger.domene.registerinnhenting.RegisterdataEndringshånd
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.RegisterdataOppdatererTask;
 import no.nav.foreldrepenger.domene.registerinnhenting.task.InnhentIAYIAbakusTask;
 import no.nav.foreldrepenger.domene.registerinnhenting.task.InnhentMedlemskapOpplysningerTask;
+import no.nav.foreldrepenger.domene.registerinnhenting.task.InnhentMorsAktivitetTask;
 import no.nav.foreldrepenger.domene.registerinnhenting.task.InnhentPersonopplysningerTask;
 import no.nav.foreldrepenger.domene.registerinnhenting.task.SettRegisterdataInnhentetTidspunktTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -224,6 +225,9 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
         tasker.add(lagTaskData(TaskType.forProsessTask(InnhentMedlemskapOpplysningerTask.class), behandling, nesteKjøringEtter, prioritet));
         if (!FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
             tasker.add(lagTaskData(TaskType.forProsessTask(InnhentIAYIAbakusTask.class), behandling, nesteKjøringEtter, prioritet));
+        }
+        if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) && behandling.getRelasjonsRolleType().erFarEllerMedMor()) {
+           tasker.add(lagTaskData(TaskType.forProsessTask(InnhentMorsAktivitetTask.class), behandling, nesteKjøringEtter, prioritet));
         }
         gruppe.addNesteParallell(tasker);
         var oppdaterInnhentTidspunkt = lagTaskData(TaskType.forProsessTask(SettRegisterdataInnhentetTidspunktTask.class), behandling, nesteKjøringEtter, prioritet);

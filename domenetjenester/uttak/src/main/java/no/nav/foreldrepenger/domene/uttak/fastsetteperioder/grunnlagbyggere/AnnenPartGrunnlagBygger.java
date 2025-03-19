@@ -36,23 +36,39 @@ public class AnnenPartGrunnlagBygger {
 
     public Optional<AnnenPart.Builder> byggGrunnlag(ForeldrepengerGrunnlag fpGrunnlag) {
         var apOpt = fpGrunnlag.getAnnenpart();
-        if (apOpt.isEmpty()) {
-            return Optional.empty();
-        }
-        var annenpart = apOpt.get();
 
-        var annenpartUttak =
-            fpUttakRepository.hentUttakResultatHvisEksisterer(annenpart.gjeldendeVedtakBehandlingId());
-        if (annenpartUttak.isEmpty()) {
-            return Optional.empty();
+        if (apOpt.isPresent() || fpGrunnlag.getAktivitetskravGrunnlag().isPresent()) {
+            var builder = new AnnenPart.Builder();
+            apOpt.ifPresent(ap -> {
+                var annenpartUttak = fpUttakRepository.hentUttakResultatHvisEksisterer(ap.gjeldendeVedtakBehandlingId());
+                annenpartUttak.ifPresent(uttakResultatEntitet -> builder.sisteSøknadMottattTidspunkt(ap.søknadOpprettetTidspunkt())
+                    .uttaksperioder(uttaksperioder(uttakResultatEntitet)));
+            });
+            //TODO TFP-5383 kommenter inn ved automatisering av aktivitetskrav >= 75%. Sjekk bfhr
+//            fpGrunnlag.getAktivitetskravGrunnlag()
+//                .flatMap(AktivitetskravGrunnlagEntitet::getAktivitetskravPerioderMedArbeidEnitet)
+//                .ifPresent(agp -> builder.aktivitetskravGrunnlag(map(agp)));
+            return Optional.of(builder);
         }
-        return Optional.of(new AnnenPart.Builder()
-            .sisteSøknadMottattTidspunkt(annenpart.søknadOpprettetTidspunkt())
-            .uttaksperioder(uttaksperioder(annenpartUttak.get())));
+        return Optional.empty();
     }
 
+//    private AktivitetskravGrunnlag map(AktivitetskravArbeidPerioderEntitet aktivitetskravPerioderMedArbeidEnitet) {
+//        var perioder = aktivitetskravPerioderMedArbeidEnitet.getAktivitetskravArbeidPeriodeListe()
+//            .stream()
+//            .map(AnnenPartGrunnlagBygger::map)
+//            .toList();
+//        return new AktivitetskravGrunnlag(perioder);
+//    }
+//
+//    private static AktivitetskravArbeidPeriode map(AktivitetskravArbeidPeriodeEntitet p) {
+//        return new AktivitetskravArbeidPeriode(p.getPeriode().getFomDato(), p.getPeriode().getTomDato(), p.getSumStillingsprosent().getVerdi());
+//    }
+
     private List<AnnenpartUttakPeriode> uttaksperioder(UttakResultatEntitet annenpartUttak) {
-        return annenpartUttak.getGjeldendePerioder().getPerioder().stream()
+        return annenpartUttak.getGjeldendePerioder()
+            .getPerioder()
+            .stream()
             .filter(this::erInnvilgetPeriodeEllerHarTrekkdager)
             .sorted(Comparator.comparing(UttakResultatPeriodeEntitet::getFom))
             .map(AnnenPartGrunnlagBygger::map)
@@ -60,8 +76,7 @@ public class AnnenPartGrunnlagBygger {
     }
 
     public static AnnenpartUttakPeriode map(UttakResultatPeriodeEntitet periode) {
-        var builder = utledBuilder(periode)
-            .samtidigUttak(periode.isSamtidigUttak())
+        var builder = utledBuilder(periode).samtidigUttak(periode.isSamtidigUttak())
             .flerbarnsdager(periode.isFlerbarnsdager())
             .innvilget(PeriodeResultatType.INNVILGET.equals(periode.getResultatType()))
             .senestMottattDato(periode.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getMottattDato).orElse(null));
@@ -70,8 +85,8 @@ public class AnnenPartGrunnlagBygger {
             var utbetalingsgrad = new Utbetalingsgrad(aktivitet.getUtbetalingsgrad().decimalValue());
             var trekkdager = new Trekkdager(aktivitet.getTrekkdager().decimalValue());
             var trekkonto = UttakEnumMapper.map(aktivitet.getTrekkonto());
-            var mapped = new AnnenpartUttakPeriodeAktivitet(UttakEnumMapper.map(aktivitet.getUttakAktivitet()),
-                trekkonto, trekkdager, utbetalingsgrad);
+            var mapped = new AnnenpartUttakPeriodeAktivitet(UttakEnumMapper.map(aktivitet.getUttakAktivitet()), trekkonto, trekkdager,
+                utbetalingsgrad);
             builder.uttakPeriodeAktivitet(mapped);
         }
         return builder.build();

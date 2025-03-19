@@ -6,6 +6,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
@@ -26,7 +27,10 @@ public class InnhentMorsAktivitetTask extends BehandlingProsessTask {
     }
 
     @Inject
-    public InnhentMorsAktivitetTask(BehandlingRepository behandlingRepository, MorsAktivitetInnhenter morsAktivitetInnhenter) {
+    public InnhentMorsAktivitetTask(BehandlingLåsRepository behandlingLåsRepository,
+                                    BehandlingRepository behandlingRepository,
+                                    MorsAktivitetInnhenter morsAktivitetInnhenter) {
+        super(behandlingLåsRepository);
         this.behandlingRepository = behandlingRepository;
         this.morsAktivitetInnhenter = morsAktivitetInnhenter;
     }
