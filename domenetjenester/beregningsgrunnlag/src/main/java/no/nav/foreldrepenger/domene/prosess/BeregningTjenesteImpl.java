@@ -11,16 +11,16 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
+import no.nav.foreldrepenger.domene.migrering.BeregningMigreringTjeneste;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
-import no.nav.foreldrepenger.konfig.Environment;
 
 @ApplicationScoped
 public class BeregningTjenesteImpl implements BeregningTjeneste {
     private BeregningFPSAK fpsakBeregner;
     private BeregningKalkulus kalkulusBeregner;
-    private boolean skalKalleKalkulus;
+    private BeregningMigreringTjeneste beregningMigreringTjeneste;
 
     BeregningTjenesteImpl() {
         // CDI
@@ -28,15 +28,16 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
 
     @Inject
     public BeregningTjenesteImpl(BeregningFPSAK fpsakBeregner,
-                                 BeregningKalkulus kalkulusBeregner) {
+                                 BeregningKalkulus kalkulusBeregner,
+                                 BeregningMigreringTjeneste beregningMigreringTjeneste) {
         this.fpsakBeregner = fpsakBeregner;
         this.kalkulusBeregner = kalkulusBeregner;
-        this.skalKalleKalkulus = Environment.current().isLocal();
+        this.beregningMigreringTjeneste = beregningMigreringTjeneste;
     }
 
     @Override
     public Optional<BeregningsgrunnlagGrunnlag> hent(BehandlingReferanse referanse) {
-        if (skalKalleKalkulus) {
+        if (skalKalleKalkulus(referanse)) {
             return kalkulusBeregner.hent(referanse);
         } else {
             return fpsakBeregner.hent(referanse);
@@ -45,7 +46,7 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
 
     @Override
     public Optional<BeregningsgrunnlagDto> hentGuiDto(BehandlingReferanse referanse) {
-        if (skalKalleKalkulus) {
+        if (skalKalleKalkulus(referanse)) {
             return kalkulusBeregner.hentGUIDto(referanse);
         } else {
             return fpsakBeregner.hentGUIDto(referanse);
@@ -54,7 +55,7 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
 
     @Override
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat beregn(BehandlingReferanse referanse, BehandlingStegType stegType) {
-        if (skalKalleKalkulus) {
+        if (skalKalleKalkulus(referanse)) {
             return kalkulusBeregner.beregn(referanse, stegType);
         } else {
             return fpsakBeregner.beregn(referanse, stegType);
@@ -68,7 +69,7 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
 
     @Override
     public void kopier(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling, BeregningsgrunnlagTilstand tilstand) {
-        if (skalKalleKalkulus) {
+        if (skalKalleKalkulus(revurdering)) {
             kalkulusBeregner.kopier(revurdering, originalbehandling, tilstand);
         } else {
             fpsakBeregner.kopier(revurdering, originalbehandling, tilstand);
@@ -78,7 +79,7 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
 
     @Override
     public Optional<OppdaterBeregningsgrunnlagResultat> oppdaterBeregning(BekreftetAksjonspunktDto oppdatering, BehandlingReferanse referanse) {
-        if (skalKalleKalkulus) {
+        if (skalKalleKalkulus(referanse)) {
             return kalkulusBeregner.oppdaterBeregning(oppdatering, referanse);
         } else {
             return fpsakBeregner.oppdaterBeregning(oppdatering, referanse);
@@ -87,7 +88,7 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
 
     @Override
     public Optional<OppdaterBeregningsgrunnlagResultat> overstyrBeregning(OverstyringAksjonspunktDto overstyring, BehandlingReferanse referanse) {
-        if (skalKalleKalkulus) {
+        if (skalKalleKalkulus(referanse)) {
             return kalkulusBeregner.overstyrBeregning(overstyring, referanse);
         } else {
             return fpsakBeregner.overstyrBeregning(overstyring, referanse);
@@ -96,7 +97,7 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
 
     @Override
     public void avslutt(BehandlingReferanse referanse) {
-        if (skalKalleKalkulus) {
+        if (skalKalleKalkulus(referanse)) {
             kalkulusBeregner.avslutt(referanse);
         } else {
             fpsakBeregner.avslutt(referanse);
@@ -104,4 +105,7 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
 
     }
 
+    private boolean skalKalleKalkulus(BehandlingReferanse referanse) {
+        return beregningMigreringTjeneste.skalBeregnesIKalkulus(referanse);
+    }
 }
