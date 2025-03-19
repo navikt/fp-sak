@@ -22,9 +22,12 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
-@Entity(name = "AktivitetskravGrunnlag")
+@Entity(name = AktivitetskravGrunnlagEntitet.GRUNNLAG_NAME)
 @Table(name = "GR_AKTIVITETSKRAV_ARBEID")
 public class AktivitetskravGrunnlagEntitet extends BaseEntitet {
+
+    public static final String GRUNNLAG_NAME = "AktivitetskravGrunnlag";
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_GR_AKTIVITETSKRAV_ARBEID")
     private Long id;
@@ -58,6 +61,10 @@ public class AktivitetskravGrunnlagEntitet extends BaseEntitet {
 
     public Optional<AktivitetskravArbeidPerioderEntitet> getAktivitetskravPerioderMedArbeidEnitet() {
         return Optional.ofNullable(perioderMedAktivitetskravArbeid);
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public boolean isAktiv() {
