@@ -41,6 +41,7 @@ import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdMedPermisjon;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateSegmentCombinator;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
@@ -231,7 +232,7 @@ public class MorsAktivitetInnhenter {
             var grunnlagTidslinje = stillingsprosentTidslinje.crossJoin(permisjonProsentTidslinje,
                     bigDecimalTilAktivitetskravVurderingGrunnlagCombinator())
                 .crossJoin(lagTidslinjeMed0(fraDato, tilDato), StandardCombinators::coalesceLeftHandSide)
-                .compress();
+                .compress(LocalDateInterval::abutsWorkdays, MorsAktivitetInnhenter::likeNaboer, StandardCombinators::leftOnly);
 
             builderListe.addAll(grunnlagTidslinje.stream().map(segment -> opprettBuilder(segment, orgnr)).toList());
         });
@@ -241,6 +242,11 @@ public class MorsAktivitetInnhenter {
         builderListe.forEach(perioderBuilder::leggTil);
 
         return perioderBuilder.build();
+    }
+
+    private static boolean likeNaboer(AktivitetskravPeriodeGrunnlag o1, AktivitetskravPeriodeGrunnlag o2) {
+        return o1.permisjon.type == o2.permisjon.type && o1.permisjon.prosent.compareTo(o2.permisjon.prosent) == 0
+            && o1.sumStillingsprosent.compareTo(o2.sumStillingsprosent) == 0;
     }
 
     private AktivitetskravArbeidPeriodeEntitet.Builder opprettBuilder(LocalDateSegment<AktivitetskravPeriodeGrunnlag> segment, String orgnr) {
