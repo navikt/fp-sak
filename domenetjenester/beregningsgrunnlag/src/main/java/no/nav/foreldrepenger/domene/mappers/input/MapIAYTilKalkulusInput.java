@@ -1,7 +1,16 @@
 package no.nav.foreldrepenger.domene.mappers.input;
 
+import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import no.nav.folketrygdloven.kalkulus.felles.v1.Aktør;
 import no.nav.folketrygdloven.kalkulus.felles.v1.AktørIdPersonident;
+import no.nav.folketrygdloven.kalkulus.felles.v1.EksternArbeidsforholdRef;
 import no.nav.folketrygdloven.kalkulus.felles.v1.InternArbeidsforholdRefDto;
 import no.nav.folketrygdloven.kalkulus.felles.v1.Organisasjon;
 import no.nav.folketrygdloven.kalkulus.felles.v1.Periode;
@@ -10,6 +19,7 @@ import no.nav.folketrygdloven.kalkulus.iay.arbeid.v1.AktivitetsAvtaleDto;
 import no.nav.folketrygdloven.kalkulus.iay.arbeid.v1.ArbeidDto;
 import no.nav.folketrygdloven.kalkulus.iay.arbeid.v1.ArbeidsforholdInformasjonDto;
 import no.nav.folketrygdloven.kalkulus.iay.arbeid.v1.ArbeidsforholdOverstyringDto;
+import no.nav.folketrygdloven.kalkulus.iay.arbeid.v1.ArbeidsforholdReferanseDto;
 import no.nav.folketrygdloven.kalkulus.iay.arbeid.v1.PermisjonDto;
 import no.nav.folketrygdloven.kalkulus.iay.arbeid.v1.YrkesaktivitetDto;
 import no.nav.folketrygdloven.kalkulus.iay.inntekt.v1.InntekterDto;
@@ -60,15 +70,6 @@ import no.nav.foreldrepenger.domene.mappers.til_kalkulator.KodeverkTilKalkulusMa
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 
-import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 public class MapIAYTilKalkulusInput {
 
     private MapIAYTilKalkulusInput() {
@@ -99,7 +100,7 @@ public class MapIAYTilKalkulusInput {
     }
 
     private static ArbeidsforholdInformasjonDto mapTilArbeidsforholdInformasjonDto(ArbeidsforholdInformasjon arbeidsforholdInformasjon) {
-        List<ArbeidsforholdOverstyringDto> resultat = arbeidsforholdInformasjon.getOverstyringer().stream()
+        var overstyringer = arbeidsforholdInformasjon.getOverstyringer().stream()
             .map(arbeidsforholdOverstyring -> {
                 List<Periode> perioder = Optional.ofNullable(arbeidsforholdOverstyring.getArbeidsforholdOverstyrtePerioder()).orElseGet(List::of)
                     .stream()
@@ -115,10 +116,13 @@ public class MapIAYTilKalkulusInput {
             })
             .toList();
 
-        if (!resultat.isEmpty()) {
-            return new ArbeidsforholdInformasjonDto(resultat);
+        var referanser = arbeidsforholdInformasjon.getArbeidsforholdReferanser().stream().map(ref -> new ArbeidsforholdReferanseDto(mapTilAktør(ref.getArbeidsgiver()),
+            ref.getInternReferanse() == null ? null : new InternArbeidsforholdRefDto(ref.getInternReferanse().getReferanse()),
+            ref.getEksternReferanse() == null ? null : new EksternArbeidsforholdRef(ref.getEksternReferanse().getReferanse()))).collect(Collectors.toSet());
+        if (overstyringer.isEmpty() && referanser.isEmpty()) {
+            return null;
         }
-        return null;
+        return new ArbeidsforholdInformasjonDto(overstyringer, referanser);
     }
 
     private static InntektsmeldingerDto mapInntektsmeldingTilDto(List<Inntektsmelding> inntektsmeldinger) {
