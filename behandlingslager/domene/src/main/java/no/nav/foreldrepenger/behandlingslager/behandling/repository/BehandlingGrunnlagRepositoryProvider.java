@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValgRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
@@ -34,6 +35,7 @@ public class BehandlingGrunnlagRepositoryProvider {
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private SvangerskapspengerRepository svangerskapspengerRepository;
     private ArbeidsforholdValgRepository arbeidsforholdValgRepository;
+    private AktivitetskravArbeidRepository aktivitetskravArbeidRepository;
 
     BehandlingGrunnlagRepositoryProvider() {
         // for CDI proxy
@@ -53,6 +55,7 @@ public class BehandlingGrunnlagRepositoryProvider {
         this.søknadRepository = new SøknadRepository(entityManager, new BehandlingRepository(entityManager));
         this.nesteSakRepository = new NesteSakRepository(entityManager);
         this.arbeidsforholdValgRepository = new ArbeidsforholdValgRepository(entityManager);
+        this.aktivitetskravArbeidRepository = new AktivitetskravArbeidRepository(entityManager);
 
         // Ytelsespesifikke grunnlag
         this.ytelsesFordelingRepository = new YtelsesFordelingRepository(entityManager);
@@ -93,6 +96,10 @@ public class BehandlingGrunnlagRepositoryProvider {
 
     public SvangerskapspengerRepository getSvangerskapspengerRepository() {
         return svangerskapspengerRepository;
+    }
+
+    public AktivitetskravArbeidRepository getAktivitetskravArbeidRepository() {
+        return aktivitetskravArbeidRepository;
     }
 
     public NesteSakRepository getNesteSakRepository() {
