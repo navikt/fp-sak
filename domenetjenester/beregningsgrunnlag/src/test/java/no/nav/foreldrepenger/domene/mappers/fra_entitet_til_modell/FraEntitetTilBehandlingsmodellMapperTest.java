@@ -36,6 +36,11 @@ class FraEntitetTilBehandlingsmodellMapperTest {
         assertThat(mappetRegAkt.getBeregningAktiviteter().get(1).getArbeidsgiver()).isEqualTo(faktiskRegAkt.getBeregningAktiviteter().get(1).getArbeidsgiver());
         assertThat(mappetRegAkt.getBeregningAktiviteter().get(1).getOpptjeningAktivitetType()).isEqualTo(faktiskRegAkt.getBeregningAktiviteter().get(1).getOpptjeningAktivitetType());
 
+        assertThat(mappetRegAkt.getBeregningAktiviteter().get(2).getPeriode()).isEqualTo(faktiskRegAkt.getBeregningAktiviteter().get(2).getPeriode());
+        assertThat(mappetRegAkt.getBeregningAktiviteter().get(2).getArbeidsforholdRef()).isEqualTo(faktiskRegAkt.getBeregningAktiviteter().get(2).getArbeidsforholdRef());
+        assertThat(mappetRegAkt.getBeregningAktiviteter().get(2).getArbeidsgiver()).isEqualTo(faktiskRegAkt.getBeregningAktiviteter().get(2).getArbeidsgiver());
+        assertThat(mappetRegAkt.getBeregningAktiviteter().get(2).getOpptjeningAktivitetType()).isEqualTo(faktiskRegAkt.getBeregningAktiviteter().get(2).getOpptjeningAktivitetType());
+
         // Assert oversyrte aktiviteter
         var faktiskOsAkt = bg.getOverstyrteEllerRegisterAktiviteter();
         var mappetOsAkt = mappetGrunnlag.getOverstyrteEllerRegisterAktiviteter();
@@ -234,6 +239,15 @@ class FraEntitetTilBehandlingsmodellMapperTest {
                   },
                   "arbeidsforholdRef" : { },
                   "opptjeningAktivitetType" : "ARBEID"
+                }, {
+                  "opprettetAv" : "vtp",
+                  "opprettetTidspunkt" : "2022-06-30T12:13:05.9591278",
+                  "periode" : {
+                    "fomDato" : "2022-01-30",
+                    "tomDato" : "2022-06-02"
+                  },
+                  "arbeidsforholdRef" : { },
+                  "opptjeningAktivitetType" : "DAGPENGER"
                 }, {
                   "opprettetAv" : "vtp",
                   "opprettetTidspunkt" : "2022-06-30T12:13:05.9591278",
