@@ -53,6 +53,7 @@ public class AktivitetskravGrunnlagEntitet extends BaseEntitet {
 
     public AktivitetskravGrunnlagEntitet(AktivitetskravGrunnlagEntitet grunnlagEnitet) {
         grunnlagEnitet.getAktivitetskravPerioderMedArbeidEnitet().ifPresent(perioder -> this.perioderMedAktivitetskravArbeid = perioder);
+        this.periode = grunnlagEnitet.getPeriode();
     }
 
     public Optional<AktivitetskravArbeidPerioderEntitet> getAktivitetskravPerioderMedArbeidEnitet() {
