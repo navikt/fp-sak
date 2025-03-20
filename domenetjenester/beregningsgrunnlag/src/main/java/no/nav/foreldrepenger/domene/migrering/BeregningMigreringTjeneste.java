@@ -11,8 +11,6 @@ import java.util.Set;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
-
 import org.jboss.weld.exceptions.IllegalStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +23,7 @@ import no.nav.folketrygdloven.kalkulus.migrering.MigrerBeregningsgrunnlagRespons
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
@@ -89,10 +88,12 @@ public class BeregningMigreringTjeneste {
 
         // Legger til behandlinger som peker på de som blir migrert først
         while (sortertListe.size() != behandlinger.size()) {
-            var nyttElementILista = behandlinger.stream().filter(behandling -> !sortertListe.contains(behandling)).filter(behandling -> {
-                var originalBehandling = behandling.getOriginalBehandlingId().orElseThrow();
-                return sortertListe.stream().anyMatch(beh -> beh.getId().equals(originalBehandling));
-            }).findFirst();
+            var nyttElementILista = behandlinger.stream()
+                .filter(behandling -> !sortertListe.contains(behandling))
+                .filter(behandling -> {
+                    var originalBehandling = behandling.getOriginalBehandlingId().orElseThrow();
+                    return sortertListe.stream().anyMatch(beh -> beh.getId().equals(originalBehandling));
+                }).findFirst();
             if (nyttElementILista.isEmpty()) {
                 break;
             }
