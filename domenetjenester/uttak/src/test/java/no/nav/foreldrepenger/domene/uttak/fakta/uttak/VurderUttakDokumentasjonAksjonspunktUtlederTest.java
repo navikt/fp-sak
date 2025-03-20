@@ -8,7 +8,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -122,8 +121,6 @@ class VurderUttakDokumentasjonAksjonspunktUtlederTest {
         assertThat(behov).isEmpty();
     }
 
-    //TODO TFP-5383 kommenter inn ved automatisering av aktivitetskrav >= 75%
-    @Disabled
     @Test
     void utleder_ikke_ap_hvis_far_fellesperiode_og_mor_er_i_arbeid() {
         var fødselsdato = LocalDate.of(2025, 3, 14);
@@ -142,6 +139,7 @@ class VurderUttakDokumentasjonAksjonspunktUtlederTest {
 
         var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 0);
         var fpGrunnlag = new ForeldrepengerGrunnlag()
+            .medMottattMorsArbeidDokument(true)
             .medAktivitetskravGrunnlag(AktivitetskravGrunnlagEntitet.Builder.oppdatere(Optional.empty())
                 .medPerioderMedAktivitetskravArbeid(new AktivitetskravArbeidPerioderEntitet.Builder()
                     .leggTil(new AktivitetskravArbeidPeriodeEntitet.Builder()

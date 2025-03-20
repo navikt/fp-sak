@@ -20,6 +20,7 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
     private NesteSakGrunnlagEntitet nesteSakGrunnlag;
     private boolean dødsfall;
     private AktivitetskravGrunnlagEntitet aktivitetskravGrunnlag;
+    private boolean mottattMorsArbeidDokument;
 
     public ForeldrepengerGrunnlag() {
 
@@ -37,6 +38,7 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
         this.nesteSakGrunnlag = foreldrepengerGrunnlag.nesteSakGrunnlag;
         this.dødsfall = foreldrepengerGrunnlag.dødsfall;
         this.aktivitetskravGrunnlag = foreldrepengerGrunnlag.aktivitetskravGrunnlag;
+        this.mottattMorsArbeidDokument = foreldrepengerGrunnlag.mottattMorsArbeidDokument;
     }
 
     public boolean isBerørtBehandling() {
@@ -81,6 +83,10 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
 
     public Optional<AktivitetskravGrunnlagEntitet> getAktivitetskravGrunnlag() {
         return Optional.ofNullable(aktivitetskravGrunnlag);
+    }
+
+    public boolean isMottattMorsArbeidDokument() {
+        return mottattMorsArbeidDokument;
     }
 
     public ForeldrepengerGrunnlag medErBerørtBehandling(boolean berørtBehandling) {
@@ -146,6 +152,12 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
     public ForeldrepengerGrunnlag medAktivitetskravGrunnlag(AktivitetskravGrunnlagEntitet aktivitetskravGrunnlag) {
         var nyttGrunnlag = new ForeldrepengerGrunnlag(this);
         nyttGrunnlag.aktivitetskravGrunnlag = aktivitetskravGrunnlag;
+        return nyttGrunnlag;
+    }
+
+    public ForeldrepengerGrunnlag medMottattMorsArbeidDokument(boolean mottattMorsArbeidDokument) {
+        var nyttGrunnlag = new ForeldrepengerGrunnlag(this);
+        nyttGrunnlag.mottattMorsArbeidDokument = mottattMorsArbeidDokument;
         return nyttGrunnlag;
     }
 }
