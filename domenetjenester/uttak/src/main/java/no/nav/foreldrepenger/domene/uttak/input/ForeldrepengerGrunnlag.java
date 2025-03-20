@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.uttak.input;
 
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
@@ -18,6 +19,8 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
     private UføretrygdGrunnlagEntitet uføretrygdGrunnlag;
     private NesteSakGrunnlagEntitet nesteSakGrunnlag;
     private boolean dødsfall;
+    private AktivitetskravGrunnlagEntitet aktivitetskravGrunnlag;
+
     public ForeldrepengerGrunnlag() {
 
     }
@@ -33,6 +36,7 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
         this.uføretrygdGrunnlag = foreldrepengerGrunnlag.uføretrygdGrunnlag;
         this.nesteSakGrunnlag = foreldrepengerGrunnlag.nesteSakGrunnlag;
         this.dødsfall = foreldrepengerGrunnlag.dødsfall;
+        this.aktivitetskravGrunnlag = foreldrepengerGrunnlag.aktivitetskravGrunnlag;
     }
 
     public boolean isBerørtBehandling() {
@@ -73,6 +77,10 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
 
     public boolean isDødsfall() {
         return dødsfall;
+    }
+
+    public Optional<AktivitetskravGrunnlagEntitet> getAktivitetskravGrunnlag() {
+        return Optional.ofNullable(aktivitetskravGrunnlag);
     }
 
     public ForeldrepengerGrunnlag medErBerørtBehandling(boolean berørtBehandling) {
@@ -132,6 +140,12 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
     public ForeldrepengerGrunnlag medDødsfall(boolean dødsfall) {
         var nyttGrunnlag = new ForeldrepengerGrunnlag(this);
         nyttGrunnlag.dødsfall = dødsfall;
+        return nyttGrunnlag;
+    }
+
+    public ForeldrepengerGrunnlag medAktivitetskravGrunnlag(AktivitetskravGrunnlagEntitet aktivitetskravGrunnlag) {
+        var nyttGrunnlag = new ForeldrepengerGrunnlag(this);
+        nyttGrunnlag.aktivitetskravGrunnlag = aktivitetskravGrunnlag;
         return nyttGrunnlag;
     }
 }

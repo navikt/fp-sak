@@ -192,11 +192,6 @@ public class BehandlingDtoTjeneste {
         if (!BehandlingType.INNSYN.equals(behandling.getType()) && BehandlingStatus.FATTER_VEDTAK.equals(behandling.getStatus())) {
             dto.leggTil(post(AksjonspunktRestTjeneste.AKSJONSPUNKT_BESLUTT_PATH, "bekreft-totrinnsaksjonspunkt", uuidDto));
         }
-
-        // Brev
-        dto.leggTil(post(BrevRestTjeneste.BREV_BESTILL_PATH, "brev-bestill"));
-        dto.leggTil(post(BrevRestTjeneste.BREV_VIS_PATH, "brev-vis"));
-
         return dto;
     }
 
@@ -355,6 +350,9 @@ public class BehandlingDtoTjeneste {
             return dto;
         }
 
+        dto.leggTil(post(BrevRestTjeneste.BREV_VIS_PATH, "brev-vis"));
+        dto.leggTil(get(BrevRestTjeneste.BREV_HENT_OVERSTYRING_PATH, "hent-brev-overstyring", uuidDto));
+        dto.leggTil(post(BrevRestTjeneste.BREV_MELLOMLAGRE_OVERSTYRING_PATH, "mellomlagre-brev-overstyring"));
         dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V2_PATH, "familiehendelse-v2", uuidDto));
         dto.leggTil(get(PersonRestTjeneste.PERSONOVERSIKT_PATH, "behandling-personoversikt", uuidDto));
         dto.leggTil(get(PersonRestTjeneste.MEDLEMSKAP_V3_PATH, "soeker-medlemskap-v3", uuidDto));
@@ -506,6 +504,7 @@ public class BehandlingDtoTjeneste {
             dto.setAvslagsarsakFritekst(behandlingDokument.get().getVedtakFritekst());
             dto.setOverskrift(behandlingDokument.get().getOverstyrtBrevOverskrift());
             dto.setFritekstbrev(behandlingDokument.get().getOverstyrtBrevFritekst());
+            dto.setFritekstbrevHtml(behandlingDokument.get().getOverstyrtBrevFritekstHtml());
         }
 
         dto.setVedtaksbrev(behandlingsresultat.getVedtaksbrev());

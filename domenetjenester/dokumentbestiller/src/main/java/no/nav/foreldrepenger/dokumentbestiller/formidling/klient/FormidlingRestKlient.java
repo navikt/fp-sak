@@ -3,10 +3,13 @@ package no.nav.foreldrepenger.dokumentbestiller.formidling.klient;
 import java.net.URI;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.UriBuilder;
 
 import no.nav.foreldrepenger.dokumentbestiller.formidling.Dokument;
 import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentBestillingDto;
+import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentBestillingHtmlDto;
 import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentForhåndsvisDto;
 import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
@@ -24,6 +27,7 @@ public class FormidlingRestKlient implements Dokument {
 
     private static final String BESTILL_URL = "/bestill";
     private static final String FORHÅNDSVIS_URL = "/forhaandsvis";
+    private static final String GENERER_HTML_URL = "/generer/html";
     private static final String V3 = "/v3";
     private final URI uri;
 
@@ -43,5 +47,12 @@ public class FormidlingRestKlient implements Dokument {
     public byte[] forhåndsvis(DokumentForhåndsvisDto dokumentForhåndsvisDto) {
         var request = RestRequest.newPOSTJson(dokumentForhåndsvisDto, UriBuilder.fromUri(uri).path(FORHÅNDSVIS_URL).path(V3).build(), restConfig);
         return restClient.sendReturnByteArray(request);
+    }
+
+    @Override
+    public String genererHtml(DokumentBestillingHtmlDto dokumentForhåndsvisDto) {
+        var request = RestRequest.newPOSTJson(dokumentForhåndsvisDto, UriBuilder.fromUri(uri).path(GENERER_HTML_URL).path(V3).build(), restConfig);
+        request.setAndReplaceHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+        return restClient.sendReturnResponseString(request).body();
     }
 }

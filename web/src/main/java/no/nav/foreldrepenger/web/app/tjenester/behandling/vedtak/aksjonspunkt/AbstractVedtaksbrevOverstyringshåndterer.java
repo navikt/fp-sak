@@ -69,20 +69,20 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
 
     private void oppdaterFritekstVedtaksbrev(VedtaksbrevOverstyringDto dto, AksjonspunktOppdaterParameter param) {
         var behandling = getBehandling(param.getBehandlingId());
-        settFritekstBrev(behandling, dto.getOverskrift(), dto.getFritekstBrev());
+        settFritekstBrev(behandling, dto);
     }
 
     private Behandling getBehandling(Long behandlingId) {
         return behandlingRepository.hentBehandling(behandlingId);
     }
 
-    private void settFritekstBrev(Behandling behandling, String overskrift, String fritekst) {
+    private void settFritekstBrev(Behandling behandling, VedtaksbrevOverstyringDto dto) {
         var behandlingId = behandling.getId();
         var behandlingDokumentBuilder = getBehandlingDokumentBuilder(behandlingId);
         behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder
                 .medBehandling(behandlingId)
-                .medOverstyrtBrevOverskrift(overskrift)
-                .medOverstyrtBrevFritekst(fritekst)
+                .medOverstyrtBrevOverskrift(dto.getOverskrift())
+                .medOverstyrtBrevFritekst(dto.getFritekstBrev())
                 .build());
         var behandlingsresultat = getBehandlingsresultatBuilder(behandlingId)
                 .medVedtaksbrev(Vedtaksbrev.FRITEKST)
@@ -97,6 +97,7 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
                     .medBehandling(behandlingId)
                     .medOverstyrtBrevOverskrift(null)
                     .medOverstyrtBrevFritekst(null)
+                    .medOverstyrtBrevFritekstHtml(null)
                     .build();
             behandlingDokumentRepository.lagreOgFlush(behandlingDokument);
             var behandling = getBehandling(behandlingId);

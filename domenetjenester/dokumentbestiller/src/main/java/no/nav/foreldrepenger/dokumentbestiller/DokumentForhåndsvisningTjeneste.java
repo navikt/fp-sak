@@ -5,6 +5,7 @@ import static no.nav.foreldrepenger.dokumentbestiller.formidling.BestillDokument
 import static no.nav.foreldrepenger.dokumentbestiller.vedtak.VedtaksbrevUtleder.velgDokumentMalForForhåndsvisningAvVedtak;
 
 import java.util.List;
+import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -23,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.dokumentbestiller.formidling.Dokument;
 import no.nav.foreldrepenger.kontrakter.formidling.kodeverk.Saksnummer;
+import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentBestillingHtmlDto;
 import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentForhåndsvisDto;
 
 @ApplicationScoped
@@ -52,47 +54,68 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
         this.brev = brev;
     }
 
-    public byte[] forhåndsvisDokument(DokumentForhandsvisning bestilling) {
-        var behandlingUuid = bestilling.behandlingUuid();
-        var bestillingDokumentMal = bestilling.dokumentMal();
-        LOG.info("Forhåndsviser brev med mal {} for behandling {}", bestillingDokumentMal, behandlingUuid);
-
-        // Av og til er FRITEK satt allerede av GUI.
-        if (bestillingDokumentMal == null) { // Gjelder kun vedtaksbrev
-            LOG.info("Utleder dokumentMal for {}", behandlingUuid);
-
-            var behandling = behandlingRepository.hentBehandling(behandlingUuid);
-            var resultat = behandlingsresultatRepository.hent(behandling.getId());
-
-            var brevType = bestilling.dokumentType();
-            var resultatBrev = resultat.getVedtaksbrev();
-
-            LOG.info("brevType: {}, Vedtaksbrev: {}", brevType, resultatBrev);
-            // (gjelderAutomatiskBrev == null || Boolean.FALSE.equals(gjelderAutomatiskBrev))
-            if (DokumentForhandsvisning.DokumentType.OVERSTYRT.equals(brevType) && Vedtaksbrev.FRITEKST.equals(resultatBrev)) {
-                LOG.info("Utleder Fritekst mal.");
-                bestillingDokumentMal = DokumentMalType.FRITEKSTBREV;
-            } else {
-                LOG.info("Utleder Automatisk mal");
-                var revurderingMedUendretUtfall = erRevurderingMedUendretUtfall(behandling);
-                var erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering = erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering(
-                    resultat.getBehandlingResultatType(), resultat.getKonsekvenserForYtelsen(), behandling.getId());
-
-                var erRevurderingMedUendretUtfall = revurderingMedUendretUtfall || erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering;
-
-                LOG.info("revurderingMedUendretUtfall: {}, erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering: {}", revurderingMedUendretUtfall,
-                    erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering);
-
-                var klageVurdering = finnKlageVurdering(behandling);
-
-                var dokumentMal = velgDokumentMalForForhåndsvisningAvVedtak(behandling, resultat.getBehandlingResultatType(),
-                    resultat.getKonsekvenserForYtelsen(), erRevurderingMedUendretUtfall, klageVurdering);
-
-                LOG.info("Utledet {} dokumentMal for {}", dokumentMal, behandlingUuid);
-                bestillingDokumentMal = dokumentMal;
-            }
-        }
+    public byte[] forhåndsvisDokument(Long behandlingId, DokumentForhandsvisning bestilling) {
+        var bestillingDokumentMal = maltypeFraBestillingEllersUtledFraBehandling(behandlingId, bestilling, bestilling.behandlingUuid());
+        LOG.info("Forhåndsviser brev med mal {} for behandling {}", bestillingDokumentMal, bestilling.behandlingUuid());
         return brev.forhåndsvis(lagForhåndsvisningDto(bestilling, bestillingDokumentMal));
+    }
+
+    public String genererHtml(Behandling behandling) {
+        var dokumentBestillingHtmlDto = lagDokumentBestillingHtmlDto(behandling);
+        LOG.info("Genererer HTML for brev med mal {} for behandling {}", dokumentBestillingHtmlDto.dokumentMal(), behandling.getUuid());
+        return brev.genererHtml(dokumentBestillingHtmlDto);
+    }
+
+    private DokumentBestillingHtmlDto lagDokumentBestillingHtmlDto(Behandling behandling) {
+        var dokumentMalType = utledDokumentmalTypeFraBehandling(behandling.getId(), behandling.getUuid(), DokumentForhandsvisning.DokumentType.AUTOMATISK);
+        return new DokumentBestillingHtmlDto(
+            behandling.getUuid(),
+            new Saksnummer(behandling.getSaksnummer().getVerdi()),
+            mapDokumentMal(dokumentMalType)
+        );
+    }
+
+    private DokumentMalType maltypeFraBestillingEllersUtledFraBehandling(Long behandlingId, DokumentForhandsvisning bestilling, UUID behandlingUuid) {
+        if (bestilling.dokumentMal() != null) {
+            return bestilling.dokumentMal();
+        }
+        return utledDokumentmalTypeFraBehandling(behandlingId, behandlingUuid, bestilling.dokumentType());
+    }
+
+    private DokumentMalType utledDokumentmalTypeFraBehandling(Long behandlingId, UUID behandlingUuid, DokumentForhandsvisning.DokumentType brevType) {
+        LOG.info("Utleder dokumentMal for {}", behandlingUuid);
+
+        var behandling = behandlingRepository.hentBehandling(behandlingUuid);
+        var resultat = behandlingsresultatRepository.hent(behandling.getId());
+
+        var resultatBrev = resultat.getVedtaksbrev();
+
+        LOG.info("brevType: {}, Vedtaksbrev: {}", brevType, resultatBrev);
+        // (gjelderAutomatiskBrev == null || Boolean.FALSE.equals(gjelderAutomatiskBrev))
+        if (DokumentForhandsvisning.DokumentType.OVERSTYRT.equals(brevType) && Vedtaksbrev.FRITEKST.equals(resultatBrev)) {
+            var fritekstMal = dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandlingId).isPresent()
+                ? DokumentMalType.FRITEKSTBREV_HMTL
+                : DokumentMalType.FRITEKSTBREV;
+
+            LOG.info("Utledere maltype for fritekst: {}", fritekstMal);
+            return fritekstMal;
+        } else {
+            LOG.info("Utleder Automatisk mal");
+            var revurderingMedUendretUtfall = erRevurderingMedUendretUtfall(behandling);
+            var erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering = erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering(resultat.getBehandlingResultatType(), resultat.getKonsekvenserForYtelsen(), behandling.getId());
+
+            var erRevurderingMedUendretUtfall = revurderingMedUendretUtfall || erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering;
+
+            LOG.info("revurderingMedUendretUtfall: {}, erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering: {}", revurderingMedUendretUtfall,
+                erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering);
+
+            var klageVurdering = finnKlageVurdering(behandling);
+
+            var dokumentMal = velgDokumentMalForForhåndsvisningAvVedtak(behandling, resultat.getBehandlingResultatType(), resultat.getKonsekvenserForYtelsen(), erRevurderingMedUendretUtfall, klageVurdering);
+
+            LOG.info("Utledet {} dokumentMal for {}", dokumentMal, behandlingUuid);
+            return dokumentMal;
+        }
     }
 
     private DokumentForhåndsvisDto lagForhåndsvisningDto(DokumentForhandsvisning bestilling, DokumentMalType bestillingDokumentMal) {
@@ -105,8 +128,6 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
             bestilling.fritekst()
         );
     }
-
-
 
     private boolean erRevurderingMedUendretUtfall(Behandling behandling) {
         return FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, behandling.getFagsakYtelseType())

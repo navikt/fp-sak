@@ -118,7 +118,7 @@ class DokumentBehandlingTjenesteTest {
         var bestilling = lagBestilling(DokumentMalType.INNHENTE_OPPLYSNINGER, null);
 
         // Act
-        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, bestilling);
+        dokumentBehandlingTjeneste.lagreDokumentBestilt(behandling, bestilling);
 
         // Assert
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
@@ -134,7 +134,7 @@ class DokumentBehandlingTjenesteTest {
         behandling = scenario.lagre(repositoryProvider);
         var bestilling = lagBestilling(DokumentMalType.INNHENTE_OPPLYSNINGER, null);
 
-        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, bestilling);
+        dokumentBehandlingTjeneste.lagreDokumentBestilt(behandling, bestilling);
 
         // Act+Assert
         assertThat(dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.INNHENTE_OPPLYSNINGER)).isTrue();
@@ -147,7 +147,7 @@ class DokumentBehandlingTjenesteTest {
 
         var bestilling = lagBestilling(DokumentMalType.ETTERLYS_INNTEKTSMELDING, DokumentMalType.ETTERLYS_INNTEKTSMELDING);
 
-        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, bestilling);
+        dokumentBehandlingTjeneste.lagreDokumentBestilt(behandling, bestilling);
 
         // Act+Assert
         assertThat(dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.INNHENTE_OPPLYSNINGER)).isFalse();
@@ -173,6 +173,45 @@ class DokumentBehandlingTjenesteTest {
         var behandlingDokumentEtter = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
         assertThat(behandlingDokumentEtter).isPresent();
         assertThat(behandlingDokumentEtter.get().getVedtakFritekst()).isNull();
+    }
+
+    @Test
+    void skal_finne_overtyrt_brev_ved_mellomlagring() {
+        // Arrange
+        behandling = scenario.lagre(repositoryProvider);
+        var behandlingDokumentBuilder = BehandlingDokumentEntitet.Builder.ny()
+            .medBehandling(behandling.getId());
+        behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder.build());
+
+        // Act
+        var overstyrtBrev = "<div><h1>TITTELEN ER GOD</h1><p>body</p></div>";
+        dokumentBehandlingTjeneste.lagreOverstyrtBrev(behandling, overstyrtBrev);
+
+        // Assert
+        var mellomlagretOverstyring = dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId());
+        assertThat(mellomlagretOverstyring).isPresent();
+        assertThat(mellomlagretOverstyring.get()).contains(overstyrtBrev);
+    }
+
+    @Test
+    void skal_ikke_finne_overstyrt_brev_hvis_en_fjerner_mellomlagring() {
+        // Arrange
+        var overstyrtBrev = "<div><h1>TITTELEN ER GOD</h1><p>body</p></div>";
+        behandling = scenario.lagre(repositoryProvider);
+        var behandlingDokumentBuilder = BehandlingDokumentEntitet.Builder.ny()
+            .medBehandling(behandling.getId())
+            .medOverstyrtBrevFritekstHtml(overstyrtBrev)
+            .medVedtakFritekst(VEDTAK_FRITEKST);
+        behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder.build());
+        assertThat(dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId())).isPresent();
+        assertThat(dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId()).get()).contains(overstyrtBrev);
+
+        // Act
+        dokumentBehandlingTjeneste.lagreOverstyrtBrev(behandling, null);
+
+        // Assert
+        var mellomlagretOverstyring = dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId());
+        assertThat(mellomlagretOverstyring).isEmpty();
     }
 
     @Test

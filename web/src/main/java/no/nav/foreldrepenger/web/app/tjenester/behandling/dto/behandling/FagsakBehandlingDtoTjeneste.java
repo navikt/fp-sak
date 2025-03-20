@@ -162,6 +162,8 @@ public class FagsakBehandlingDtoTjeneste {
         dto.setBrevmaler(brevmalTjeneste.hentBrevmalerFor(behandling));
         dto.leggTil(post(BrevRestTjeneste.BREV_BESTILL_PATH, "brev-bestill"));
         dto.leggTil(post(BrevRestTjeneste.BREV_VIS_PATH, "brev-vis"));
+        dto.leggTil(get(BrevRestTjeneste.BREV_HENT_OVERSTYRING_PATH, "hent-brev-overstyring"));
+        dto.leggTil(post(BrevRestTjeneste.BREV_MELLOMLAGRE_OVERSTYRING_PATH, "mellomlagre-brev-overstyring"));
 
         return dto;
     }
@@ -203,6 +205,7 @@ public class FagsakBehandlingDtoTjeneste {
             dto.setAvslagsarsakFritekst(behandlingDokument.get().getVedtakFritekst());
             dto.setOverskrift(behandlingDokument.get().getOverstyrtBrevOverskrift());
             dto.setFritekstbrev(behandlingDokument.get().getOverstyrtBrevFritekst());
+            dto.setFritekstbrevHtml(behandlingDokument.get().getOverstyrtBrevFritekstHtml());
         }
 
         dto.setVedtaksbrev(behandlingsresultat.getVedtaksbrev());

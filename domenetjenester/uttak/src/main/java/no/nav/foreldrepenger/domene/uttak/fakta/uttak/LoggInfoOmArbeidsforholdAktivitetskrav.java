@@ -64,7 +64,7 @@ public class LoggInfoOmArbeidsforholdAktivitetskrav {
             return;
         }
 
-        var harAnnenForelderRett = ytelseFordelingAggregat.harAnnenForelderRett(false);
+        var harAnnenForelderRett = ytelseFordelingAggregat.harAnnenForelderRett();
 
         loggInfoOmArbeidsforhold(fraDato, tilDato, behandlingReferanse.saksnummer(), harAnnenForelderRett, aktuellePerioder, arbeidsforholdInfo);
     }

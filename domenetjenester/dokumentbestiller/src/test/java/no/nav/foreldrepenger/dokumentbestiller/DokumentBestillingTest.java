@@ -99,6 +99,41 @@ class DokumentBestillingTest {
     }
 
     @Test
+    void exception_builder_friteksthtml_uten_journalfør_som_satt() {
+        var behandlingUuid = UUID.randomUUID();
+        var dokumentMal = DokumentMalType.FRITEKSTBREV_HMTL;
+
+        var bestillingBuilder = DokumentBestilling.builder()
+            .medBehandlingUuid(behandlingUuid)
+            .medSaksnummer(SAKSNUMMER)
+            .medDokumentMal(dokumentMal);
+
+        var ex = assertThrows(NullPointerException.class, bestillingBuilder::build);
+        assertThat(ex.getMessage()).contains("journalførSom");
+    }
+
+    @Test
+    void ok_builder_friteksthtml_med_journalfør_som() {
+        var behandlingUuid = UUID.randomUUID();
+        var dokumentMal = DokumentMalType.FRITEKSTBREV_HMTL;
+        var journalførSom = DokumentMalType.FORELDREPENGER_INNVILGELSE;
+
+        var bestilling = DokumentBestilling.builder()
+            .medBehandlingUuid(behandlingUuid)
+            .medSaksnummer(SAKSNUMMER)
+            .medDokumentMal(dokumentMal)
+            .medJournalførSom(journalførSom)
+            .build();
+
+        assertThat(bestilling.behandlingUuid()).isNotNull().isEqualTo(behandlingUuid);
+        assertThat(bestilling.dokumentMal()).isNotNull().isEqualTo(dokumentMal);
+        assertThat(bestilling.bestillingUuid()).isNotNull();
+        assertThat(bestilling.journalførSom()).isNotNull().isEqualTo(journalførSom);
+        assertThat(bestilling.fritekst()).isNull();
+        assertThat(bestilling.revurderingÅrsak()).isNull();
+    }
+
+    @Test
     void exception_builder_innhent_opplysninger_mangler_fritekst() {
         var behandlingUuid = UUID.randomUUID();
         var dokumentMal = DokumentMalType.INNHENTE_OPPLYSNINGER;

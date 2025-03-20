@@ -36,6 +36,10 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
     private String overstyrtBrevFritekst;
 
     @Lob
+    @Column(name = "overstyrt_brev_fritekst_html")
+    private String overstyrtBrevFritekstHtml;
+
+    @Lob
     @Column(name = "vedtak_fritekst") // bør hete utfyllende tekst
     private String vedtakFritekst;
 
@@ -60,6 +64,10 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
 
     public String getOverstyrtBrevFritekst() {
         return overstyrtBrevFritekst;
+    }
+
+    public String getOverstyrtBrevFritekstHtml() {
+        return overstyrtBrevFritekstHtml;
     }
 
     public String getVedtakFritekst() {
@@ -119,6 +127,7 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
                 .medBehandling(behandlingDokument.getBehandlingId())
                 .medOverstyrtBrevOverskrift(behandlingDokument.getOverstyrtBrevOverskrift())
                 .medOverstyrtBrevFritekst(behandlingDokument.getOverstyrtBrevFritekst())
+                .medOverstyrtBrevFritekstHtml(behandlingDokument.getOverstyrtBrevFritekstHtml())
                 .medVedtakFritekst(behandlingDokument.getVedtakFritekst())
                 .medBestilteDokumenter(behandlingDokument.getBestilteDokumenter());
             builder.behandlingDokumentMal.id = behandlingDokument.id;
@@ -137,6 +146,11 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
 
         public BehandlingDokumentEntitet.Builder medOverstyrtBrevFritekst(String overstyrtBrevFritekst) {
             behandlingDokumentMal.overstyrtBrevFritekst = overstyrtBrevFritekst;
+            return this;
+        }
+
+        public BehandlingDokumentEntitet.Builder medOverstyrtBrevFritekstHtml(String overstyrtBrevFritekstHtml) {
+            behandlingDokumentMal.overstyrtBrevFritekstHtml = overstyrtBrevFritekstHtml;
             return this;
         }
 
