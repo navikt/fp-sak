@@ -170,9 +170,9 @@ public class ForvaltningUttrekkRestTjeneste {
             and exists (select * from behandling b join fagsak f on b.fagsak_id = f.id join fagsak_relasjon fr on f.id in (fagsak_en_id, fagsak_to_id)
                         where b.id = behandling_id and bruker_rolle <> 'MORA' and fagsak_to_id is not null)
             and behandling_id in (
-              select behandling_id from gr_soeknad gs join soeknad_vedlegg sv on gs.soeknad_id = sv.soeknad_id where skjemanummer = 'I000132' and innsendingsvalg = 'LASTET_OPP'
+              select b.id from behandling b where fagsak_id in (select fagsak_id from behandling bi join gr_soeknad gs on gs.behandling_id = bi.id join soeknad_vedlegg sv on gs.soeknad_id = sv.soeknad_id where skjemanummer = 'I000132' and innsendingsvalg = 'LASTET_OPP')
               union all
-              select behandling_id from mottatt_dokument where type = 'I000132'
+              select b.id from mottatt_dokument md join behandling b on md.fagsak_id = b.fagsak_id where type = 'I000132'
               )
              """);
         @SuppressWarnings("unchecked")
