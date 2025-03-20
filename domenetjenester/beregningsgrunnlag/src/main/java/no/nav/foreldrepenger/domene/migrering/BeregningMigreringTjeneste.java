@@ -13,6 +13,8 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 
+import no.nav.foreldrepenger.konfig.Environment;
+
 import org.jboss.weld.exceptions.IllegalStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,6 +73,22 @@ public class BeregningMigreringTjeneste {
         this.regelsporingMigreringTjeneste = regelsporingMigreringTjeneste;
     }
 
+    public boolean skalBeregnesIKalkulus(BehandlingReferanse referanse) {
+        if (Environment.current().isProd()) {
+            return false;
+        }
+        var harAktivtGrunnlagIFpsak = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(referanse.behandlingId()).isPresent();
+        if (harAktivtGrunnlagIFpsak) {
+            return false;
+        }
+        var originalKobling = referanse.getOriginalBehandlingId().flatMap(koblingRepository::hentKobling);
+        if (referanse.erRevurdering() && originalKobling.isEmpty()) {
+            // Revurderinger er avhengig av at originalkobling ligger i kalkulus så vi har et grunnlag å basere oss på
+            return false;
+        }
+        return true;
+    }
+
     public void migrerSak(no.nav.foreldrepenger.domene.typer.Saksnummer saksnummer) {
         var behandlinger = behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(saksnummer)
             .stream()
@@ -79,11 +97,6 @@ public class BeregningMigreringTjeneste {
             .sorted(Comparator.comparing(Behandling::getOpprettetDato))
             .toList();
         behandlinger.forEach(b -> migrerBehandling(BehandlingReferanse.fra(b)));
-    }
-
-    public boolean kanHentesFraKalkulus(BehandlingReferanse behandlingReferanse) {
-        return koblingRepository.hentKobling(behandlingReferanse.behandlingId()).isPresent();
-
     }
 
     private void migrerBehandling(BehandlingReferanse referanse) {

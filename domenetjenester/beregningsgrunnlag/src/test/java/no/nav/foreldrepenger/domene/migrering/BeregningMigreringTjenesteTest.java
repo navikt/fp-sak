@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.migrering;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -10,12 +11,14 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.jboss.weld.exceptions.IllegalStateException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.folketrygdloven.kalkulus.felles.v1.Periode;
@@ -104,6 +107,63 @@ class BeregningMigreringTjenesteTest {
         // Assert
         assertThrows(IllegalStateException.class, () -> beregningMigreringTjeneste.migrerSak(saksnummer));
     }
+
+    @Test
+    void skal_ikke_beregne_i_kalkulus_dersom_det_finnes_aktivt_grunnlag_i_fpsak() {
+        // Arrange
+        var behandling = lagBehandling();
+        var ref = BehandlingReferanse.fra(behandling);
+        when(beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(any())).thenReturn(Optional.of(lagGrunnlagEntitet()));
+
+        // Act
+        var skalBeregneIKalkulus = beregningMigreringTjeneste.skalBeregnesIKalkulus(ref);
+
+        assertThat(skalBeregneIKalkulus).isFalse();
+    }
+
+    @Test
+    void skal_beregne_i_kalkulus_dersom_det_ikke_finnes_aktivt_grunnlag_i_fpsak() {
+        // Arrange
+        var behandling = lagBehandling();
+        var ref = BehandlingReferanse.fra(behandling);
+        when(beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(any())).thenReturn(Optional.empty());
+
+        // Act
+        var skalBeregneIKalkulus = beregningMigreringTjeneste.skalBeregnesIKalkulus(ref);
+
+        assertThat(skalBeregneIKalkulus).isTrue();
+    }
+
+    @Test
+    void skal_ikke_beregne_i_kalkulus_hvis_originalbehandling_ikke_er_i_kalkulus() {
+        // Arrange
+        BehandlingReferanse ref = Mockito.mock(BehandlingReferanse.class);
+        when(ref.behandlingId()).thenReturn(1L);
+        when(ref.erRevurdering()).thenReturn(true);
+        when(ref.getOriginalBehandlingId()).thenReturn(Optional.of(2L));
+        when(beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(any())).thenReturn(Optional.empty());
+        when(koblingRepository.hentKobling(2L)).thenReturn(Optional.empty());
+        // Act
+        var skalBeregneIKalkulus = beregningMigreringTjeneste.skalBeregnesIKalkulus(ref);
+
+        assertThat(skalBeregneIKalkulus).isFalse();
+    }
+
+    @Test
+    void skal_beregne_i_kalkulus_hvis_originalbehandling_er_i_kalkulus() {
+        // Arrange
+        BehandlingReferanse ref = Mockito.mock(BehandlingReferanse.class);
+        when(ref.behandlingId()).thenReturn(1L);
+        when(ref.erRevurdering()).thenReturn(true);
+        when(ref.getOriginalBehandlingId()).thenReturn(Optional.of(2L));
+        when(beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(any())).thenReturn(Optional.empty());
+        when(koblingRepository.hentKobling(2L)).thenReturn(Optional.of(new BeregningsgrunnlagKobling(2L, UUID.randomUUID())));
+        // Act
+        var skalBeregneIKalkulus = beregningMigreringTjeneste.skalBeregnesIKalkulus(ref);
+
+        assertThat(skalBeregneIKalkulus).isTrue();
+    }
+
 
     private Behandling lagBehandling() {
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
