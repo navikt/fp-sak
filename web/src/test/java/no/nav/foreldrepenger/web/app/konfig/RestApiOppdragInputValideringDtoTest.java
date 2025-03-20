@@ -30,8 +30,6 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.Valid;
@@ -52,12 +50,14 @@ import jakarta.ws.rs.QueryParam;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.dokumentbestiller.dto.FritekstDto;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.foreldrepenger.web.app.IndexClasses;
@@ -95,6 +95,7 @@ class RestApiOppdragInputValideringDtoTest extends RestApiTester {
 
             // Enforces av UUID selv
             put(UUID.class, singletonList(emptyList()));
+            put(FritekstDto.class, singletonList(List.of(Valid.class))); // Fritekst kan inneholde HTML og en kan derfor ikke bruke @Pattern validering på String
         }
     };
 

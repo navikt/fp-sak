@@ -5,11 +5,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.UUID;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
-
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 class DokumentForhandsvisningTest {
@@ -63,5 +62,28 @@ class DokumentForhandsvisningTest {
             .medTittel(expectedTittel)
             .medDokumentType(expectedDokumentType)
             .build()).isInstanceOf(NullPointerException.class).hasMessageContaining("Revurdering årsak må være satt.");
+    }
+
+    @Test
+    void skal_hive_exception_hvis_fritekstbrev_mangler_fritekst() {
+        assertThatThrownBy(() -> DokumentForhandsvisning.builder()
+            .medBehandlingUuid(UUID.randomUUID())
+            .medDokumentMal(DokumentMalType.FRITEKSTBREV_HMTL)
+            //.medFritekst()
+            .medSaksnummer(new Saksnummer("123"))
+            .medDokumentType(DokumentForhandsvisning.DokumentType.OVERSTYRT)
+            .build()).isInstanceOf(NullPointerException.class).hasMessageContaining("Fritekst må være satt for fritekstbre");
+    }
+
+    @Test
+    void skal_ikke_hive_exception_hvis_fritekstbrev_har_innhold_i_fritekst() {
+        var dokumentForhandsvisning = DokumentForhandsvisning.builder()
+            .medBehandlingUuid(UUID.randomUUID())
+            .medDokumentMal(DokumentMalType.FRITEKSTBREV_HMTL)
+            .medFritekst("Fritekst")
+            .medSaksnummer(new Saksnummer("123"))
+            .medDokumentType(DokumentForhandsvisning.DokumentType.OVERSTYRT)
+            .build();
+        assertThat(dokumentForhandsvisning.fritekst()).isEqualTo("Fritekst");
     }
 }

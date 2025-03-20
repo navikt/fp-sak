@@ -33,6 +33,8 @@ public class BehandlingsresultatDto {
     private String overskrift;
     @JsonProperty("fritekstbrev")
     private String fritekstbrev;
+    @JsonProperty("fritekstbrevHtml")
+    private String fritekstbrevHtml;
     @JsonProperty("erRevurderingMedUendretUtfall")
     private Boolean erRevurderingMedUendretUtfall;
     @JsonProperty("skjæringstidspunkt")
@@ -110,7 +112,6 @@ public class BehandlingsresultatDto {
         this.erRevurderingMedUendretUtfall = erRevurderingMedUendretUtfall;
     }
 
-
     public String getOverskrift() {
         return overskrift;
     }
@@ -125,6 +126,14 @@ public class BehandlingsresultatDto {
 
     public void setFritekstbrev(String fritekstbrev) {
         this.fritekstbrev = fritekstbrev;
+    }
+
+    public String getFritekstbrevHtml() {
+        return fritekstbrevHtml;
+    }
+
+    public void setFritekstbrevHtml(String fritekstbrevHtml) {
+        this.fritekstbrevHtml = fritekstbrevHtml;
     }
 
     public SkjæringstidspunktDto getSkjæringstidspunkt() {

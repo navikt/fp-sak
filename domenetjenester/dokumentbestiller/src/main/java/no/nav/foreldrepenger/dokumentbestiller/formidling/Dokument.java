@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.dokumentbestiller.formidling;
 
 import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentBestillingDto;
+import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentBestillingHtmlDto;
 import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentForhåndsvisDto;
 
 public interface Dokument {
@@ -16,4 +17,6 @@ public interface Dokument {
      * @param dokumentForhåndsvisDto
      */
     byte[] forhåndsvis(DokumentForhåndsvisDto dokumentForhåndsvisDto);
+
+    String genererHtml(DokumentBestillingHtmlDto dokumentForhåndsvisDto);
 }

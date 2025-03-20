@@ -60,11 +60,12 @@ public class DokumentBehandlingTjeneste {
         this.historikkinnslagRepository = repositoryProvider.getHistorikkinnslagRepository();
     }
 
-    public void loggDokumentBestilt(Behandling behandling, DokumentBestilling bestilling) {
+    public void lagreDokumentBestilt(Behandling behandling, DokumentBestilling bestilling) {
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId())
             .orElseGet(() -> BehandlingDokumentEntitet.Builder.ny().medBehandling(behandling.getId()).build());
 
-        behandlingDokument.leggTilBestiltDokument(new BehandlingDokumentBestiltEntitet.Builder().medBehandlingDokument(behandlingDokument)
+        behandlingDokument.leggTilBestiltDokument(new BehandlingDokumentBestiltEntitet.Builder()
+            .medBehandlingDokument(behandlingDokument)
             .medDokumentMalType(bestilling.dokumentMal().getKode())
             .medBestillingUuid(bestilling.bestillingUuid())
             .medOpprinneligDokumentMal(Optional.ofNullable(bestilling.journalførSom()).map(DokumentMalType::getKode).orElse(null))
@@ -178,5 +179,27 @@ public class DokumentBehandlingTjeneste {
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
             .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
             .map(t -> t.plusWeeks(behandling.getType().getBehandlingstidFristUker()));
+    }
+
+    public Optional<String> hentMellomlagretOverstyring(Long behandlingId) {
+        return behandlingDokumentRepository.hentHvisEksisterer(behandlingId)
+            .map(BehandlingDokumentEntitet::getOverstyrtBrevFritekstHtml);
+    }
+
+    public void lagreOverstyrtBrev(Behandling behandling, String html) {
+        var behandlingDokumentBuilder = getBehandlingDokumentBuilder(behandling.getId());
+        behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder
+            .medBehandling(behandling.getId())
+            .medOverstyrtBrevFritekstHtml(html)
+            .build());
+    }
+
+    private BehandlingDokumentEntitet.Builder getBehandlingDokumentBuilder(long behandlingId) {
+        var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingId);
+        return getBehandlingDokumentBuilder(behandlingDokument);
+    }
+
+    private BehandlingDokumentEntitet.Builder getBehandlingDokumentBuilder(Optional<BehandlingDokumentEntitet> behandlingDokument) {
+        return behandlingDokument.map(BehandlingDokumentEntitet.Builder::fraEksisterende).orElseGet(BehandlingDokumentEntitet.Builder::ny);
     }
 }
