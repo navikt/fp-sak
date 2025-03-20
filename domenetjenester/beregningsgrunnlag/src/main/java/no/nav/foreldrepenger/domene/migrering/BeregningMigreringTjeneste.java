@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.domene.migrering;
 
 import java.util.Collections;
-import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -76,9 +76,29 @@ public class BeregningMigreringTjeneste {
             .stream()
             .filter(Behandling::erYtelseBehandling)
             .filter(Behandling::erAvsluttet)
-            .sorted(Comparator.comparing(Behandling::getOpprettetDato))
             .toList();
-        behandlinger.forEach(b -> migrerBehandling(BehandlingReferanse.fra(b)));
+        var sorterteBehandlinger = sorterBehandlinger(behandlinger);
+        sorterteBehandlinger.forEach(this::migrerBehandling);
+    }
+
+    public LinkedHashSet<Behandling> sorterBehandlinger(List<Behandling> behandlinger) {
+        LinkedHashSet<Behandling> sortertListe = new LinkedHashSet<>();
+
+        // Legger til behandlinger uten avhengigheter
+        behandlinger.stream().filter(b -> b.getOriginalBehandlingId().isEmpty()).forEach(sortertListe::add);
+
+        // Legger til behandlinger som peker på de som blir migrert først
+        while (sortertListe.size() != behandlinger.size()) {
+            var nyttElementILista = behandlinger.stream().filter(behandling -> !sortertListe.contains(behandling)).filter(behandling -> {
+                var originalBehandling = behandling.getOriginalBehandlingId().orElseThrow();
+                return sortertListe.stream().anyMatch(beh -> beh.getId().equals(originalBehandling));
+            }).findFirst();
+            if (nyttElementILista.isEmpty()) {
+                break;
+            }
+            sortertListe.add(nyttElementILista.get());
+        }
+        return sortertListe;
     }
 
     public boolean kanHentesFraKalkulus(BehandlingReferanse behandlingReferanse) {
@@ -86,36 +106,36 @@ public class BeregningMigreringTjeneste {
 
     }
 
-    private void migrerBehandling(BehandlingReferanse referanse) {
-        var grunnlag = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(referanse.behandlingId());
+    private void migrerBehandling(Behandling behandling) {
+        var grunnlag = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId());
         if (grunnlag.isEmpty()) {
-            LOG.info(String.format("Finner ikke beregningsgrunnlag på behandling %s, ingenting å migrere", referanse.behandlingId()));
+            LOG.info(String.format("Finner ikke beregningsgrunnlag på behandling %s, ingenting å migrere", behandling.getId()));
             return;
         }
+        var ref = BehandlingReferanse.fra(behandling);
         try {
             // Map og migrer
-            var grunnlagSporinger = regelsporingMigreringTjeneste.finnRegelsporingGrunnlag(grunnlag.get(),
-                referanse);
-            var originalKobling = referanse.getOriginalBehandlingId().flatMap(oid -> koblingRepository.hentKobling(oid));
-            var aksjonspunkter = behandlingRepository.hentBehandling(referanse.behandlingId()).getAksjonspunkter();
+            var grunnlagSporinger = regelsporingMigreringTjeneste.finnRegelsporingGrunnlag(grunnlag.get(), ref);
+            var originalKobling = behandling.getOriginalBehandlingId().flatMap(oid -> koblingRepository.hentKobling(oid));
+            var aksjonspunkter = behandlingRepository.hentBehandling(behandling.getId()).getAksjonspunkter();
             var migreringsDto = BeregningMigreringMapper.map(grunnlag.get(), grunnlagSporinger, aksjonspunkter);
-            var kobling = koblingRepository.hentKobling(referanse.behandlingId()).orElseGet(() -> koblingRepository.opprettKobling(referanse));
-            var request = lagMigreringRequest(referanse, kobling, originalKobling, migreringsDto);
+            var kobling = koblingRepository.hentKobling(behandling.getId()).orElseGet(() -> koblingRepository.opprettKobling(ref));
+            var request = lagMigreringRequest(ref, kobling, originalKobling, migreringsDto);
             var response = klient.migrerGrunnlag(request);
 
             // Sammenlign grunnlag fra kalkulus og fpsak
-            sammenlignGrunnlag(response, referanse, grunnlagSporinger, aksjonspunkter);
+            sammenlignGrunnlag(response, ref, grunnlagSporinger, aksjonspunkter);
 
             // Oppdater kobling med data fra grunnlag
             if (response.grunnlag() != null && response.grunnlag().getBeregningsgrunnlag() != null) {
                 oppdaterKoblingMedStpGrunnbeløpOgReguleringsbehov(kobling, response.grunnlag().getBeregningsgrunnlag());
             }
 
-            LOG.info(String.format("Vellykket migrering og verifisering av beregningsgrunnlag på sak %s, behandlingId %s og grunnlag %s.", referanse.saksnummer(),
-                referanse.behandlingId(), grunnlag.map(BeregningsgrunnlagGrunnlagEntitet::getId)));
+            LOG.info(String.format("Vellykket migrering og verifisering av beregningsgrunnlag på sak %s, behandlingId %s og grunnlag %s.", ref.saksnummer(),
+                behandling.getId(), grunnlag.map(BeregningsgrunnlagGrunnlagEntitet::getId)));
         } catch (Exception e) {
-            var msg = String.format("Feil ved mapping av grunnlag for sak %s, behandlingId %s og grunnlag %s. Fikk feil %s", referanse.saksnummer(),
-                referanse.behandlingUuid(), grunnlag.map(BeregningsgrunnlagGrunnlagEntitet::getId), e);
+            var msg = String.format("Feil ved mapping av grunnlag for sak %s, behandlingId %s og grunnlag %s. Fikk feil %s", ref.saksnummer(),
+                behandling.getUuid(), grunnlag.map(BeregningsgrunnlagGrunnlagEntitet::getId), e);
             throw new IllegalStateException(msg);
         }
     }
