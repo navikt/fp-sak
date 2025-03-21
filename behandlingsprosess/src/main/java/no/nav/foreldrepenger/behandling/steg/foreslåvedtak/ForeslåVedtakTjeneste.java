@@ -1,7 +1,17 @@
 package no.nav.foreldrepenger.behandling.steg.foreslåvedtak;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -18,14 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 @ApplicationScoped
 class ForeslåVedtakTjeneste {
@@ -93,8 +95,26 @@ class ForeslåVedtakTjeneste {
 
         håndterToTrinn(behandling, aksjonspunktDefinisjoner);
 
+        if (harTidligereOverstyringAvVedtaksbrevUtenAtDetBlirAksjonspunktForeslåVedtak(behandling, aksjonspunktDefinisjoner)) {
+            if (behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.FORESLÅ_VEDTAK)) {
+                aksjonspunktDefinisjoner.add(AksjonspunktDefinisjon.FORESLÅ_VEDTAK);
+            } else if (behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT)) {
+                aksjonspunktDefinisjoner.add(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
+            } else {
+                // Skal ikke være mulig å overstyre brev utenom et tidligere avbrutt FORESLÅ_VEDTAK/FORESLÅ_VEDTAK_MANUELT aksjonspunkt
+                throw new IllegalStateException("Utviklerfeil: Skal ikke kunne sende ut automatisk fritekstbrev uten totrinn!");
+            }
+        }
+
         return aksjonspunktDefinisjoner.isEmpty() ? BehandleStegResultat.utførtUtenAksjonspunkter()
                 : BehandleStegResultat.utførtMedAksjonspunkter(aksjonspunktDefinisjoner);
+    }
+
+    private boolean harTidligereOverstyringAvVedtaksbrevUtenAtDetBlirAksjonspunktForeslåVedtak(Behandling behandling, List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner) {
+        if (aksjonspunktDefinisjoner.contains(AksjonspunktDefinisjon.FORESLÅ_VEDTAK) || aksjonspunktDefinisjoner.contains(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT)) {
+            return false;
+        }
+        return dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId()).isPresent();
     }
 
     private boolean harÅpneKlagerEllerAnker(Fagsak fagsak) {
