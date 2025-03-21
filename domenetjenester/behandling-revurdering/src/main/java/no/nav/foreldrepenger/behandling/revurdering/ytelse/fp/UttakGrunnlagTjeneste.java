@@ -1,7 +1,10 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
 import java.time.Period;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -11,6 +14,7 @@ import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
@@ -26,6 +30,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.Pleiepenger
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.Innsendingsvalg;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
@@ -60,6 +66,7 @@ public class UttakGrunnlagTjeneste {
     private UføretrygdRepository uføretrygdRepository;
     private NesteSakRepository nesteSakRepository;
     private AktivitetskravArbeidRepository aktivitetskravArbeidRepository;
+    private MottatteDokumentRepository mottatteDokumentRepository;
 
     @Inject
     public UttakGrunnlagTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
@@ -79,6 +86,7 @@ public class UttakGrunnlagTjeneste {
         this.uføretrygdRepository = grunnlagRepositoryProvider.getUføretrygdRepository();
         this.nesteSakRepository = grunnlagRepositoryProvider.getNesteSakRepository();
         this.aktivitetskravArbeidRepository = aktivitetskravArbeidRepository;
+        this.mottatteDokumentRepository = behandlingRepositoryProvider.getMottatteDokumentRepository();
     }
 
     UttakGrunnlagTjeneste() {
@@ -115,12 +123,36 @@ public class UttakGrunnlagTjeneste {
             .medNesteSakGrunnlag(nesteSakGrunnlag(ref).orElse(null))
             .medDødsfall(harDødsfall(behandling, familiehendelser, ref))
             .medAktivitetskravGrunnlag(aktivitetskravArbeidRepository.hentGrunnlag(behandlingId).orElse(null))
+            .medMottattMorsArbeidDokument(harMottattMorsArbeidDokument(behandling))
             ;
         if (fagsakRelasjon.isPresent()) {
             var annenpart = annenpart(fagsakRelasjon.get(), behandling);
             grunnlag = grunnlag.medAnnenpart(annenpart.orElse(null));
         }
         return grunnlag;
+    }
+
+    private boolean harMottattMorsArbeidDokument(Behandling behandling) {
+        var vedleggMorsArbeid = søknadRepository.hentSøknadFraGrunnlag(behandling.getId())
+            .map(SøknadEntitet::getSøknadVedlegg).orElseGet(Set::of).stream()
+            .filter(v -> DokumentTypeId.MOR_ARBEID.getKode().equals(v.getSkjemanummer()))
+            .toList();
+        if (vedleggMorsArbeid.isEmpty() || vedleggMorsArbeid.stream().allMatch(v -> v.getInnsendingsvalg() == Innsendingsvalg.LASTET_OPP)) {
+            return true;
+        }
+        var mottattDokumentPåSak = mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandling.getFagsakId())
+            .stream()
+            .anyMatch(d -> d.getDokumentType().equals(DokumentTypeId.MOR_ARBEID));
+        var mottattVedleggPåSak = søknadRepository.hentAbsoluttAlleSøknaderForFagsak(behandling.getFagsakId())
+            .stream().anyMatch(UttakGrunnlagTjeneste::harMorsArbeidVedlegg);
+        return mottattDokumentPåSak || mottattVedleggPåSak;
+    }
+
+    private static boolean harMorsArbeidVedlegg(SøknadEntitet s) {
+        return s.getSøknadVedlegg()
+            .stream()
+            .anyMatch(sv -> DokumentTypeId.MOR_ARBEID.getKode().equals(sv.getSkjemanummer()) && Objects.equals(sv.getInnsendingsvalg(),
+                Innsendingsvalg.LASTET_OPP));
     }
 
     private boolean harDødsfall(Behandling behandling, FamilieHendelser familiehendelser, BehandlingReferanse ref) {

@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.uttak.fakta.uttak;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -11,9 +12,11 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerInnleggelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
@@ -95,16 +98,20 @@ public class VurderUttakDokumentasjonAksjonspunktUtleder {
                                                                                   UttakInput input,
                                                                                   DokumentasjonVurdering tidligereVurdering,
                                                                                   DokumentasjonVurderingBehov.Behov aktKravBehov) {
-        //TODO TFP-5383 kommenter inn ved automatisering av aktivitetskrav >= 75%. Sjekk bfhr
-//        if (tidligereVurdering == null) {
-//            ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = input.getYtelsespesifiktGrunnlag();
-//            var aktivitetskravGrunnlag = ytelsespesifiktGrunnlag.getAktivitetskravGrunnlag();
-//            if (oppgittPeriode.harAktivitetskravArbeid() && aktivitetskravGrunnlag.isPresent()) {
-//                var registerVurdering = vurderMorsArbeid(oppgittPeriode, aktivitetskravGrunnlag.get());
-//                return Optional.of(new DokumentasjonVurderingBehov(oppgittPeriode, aktKravBehov, null, registerVurdering));
-//            }
-//        }
+        if (tidligereVurdering == null) {
+            ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = input.getYtelsespesifiktGrunnlag();
+            var aktivitetskravGrunnlag = ytelsespesifiktGrunnlag.getAktivitetskravGrunnlag();
+            if (aktivitetskravGrunnlag.isPresent() && skalGjøreRegisterVurdering(oppgittPeriode, input.getYtelsespesifiktGrunnlag())) {
+                var registerVurdering = vurderMorsArbeid(oppgittPeriode, aktivitetskravGrunnlag.get());
+                return Optional.of(new DokumentasjonVurderingBehov(oppgittPeriode, aktKravBehov, null, registerVurdering));
+            }
+        }
         return Optional.of(new DokumentasjonVurderingBehov(oppgittPeriode, aktKravBehov, tidligereVurdering));
+    }
+
+    private static boolean skalGjøreRegisterVurdering(OppgittPeriodeEntitet oppgittPeriode, ForeldrepengerGrunnlag fpGrunnlag) {
+        return Objects.equals(UttakPeriodeType.FELLESPERIODE, oppgittPeriode.getPeriodeType()) && Objects.equals(oppgittPeriode.getMorsAktivitet(),
+            MorsAktivitet.ARBEID) && fpGrunnlag.isMottattMorsArbeidDokument();
     }
 
     private static RegisterVurdering vurderMorsArbeid(OppgittPeriodeEntitet oppgittPeriode,
