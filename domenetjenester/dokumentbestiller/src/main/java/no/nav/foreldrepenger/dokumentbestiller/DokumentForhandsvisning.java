@@ -76,10 +76,11 @@ public record DokumentForhandsvisning(UUID behandlingUuid,
             Objects.requireNonNull(behandlingUuid, "Behandling UUID må være satt");
             Objects.requireNonNull(saksnummer, "Saksnummer må være satt");
             Objects.requireNonNull(dokumentType, "Dokument type må være satt");
-
             if (DokumentMalType.FRITEKSTBREV.equals(dokumentMal)) {
                 Objects.requireNonNull(fritekst, "Fritekst må være satt for fritekstbrev");
                 Objects.requireNonNull(tittel, "Tittel må være satt for fritekstbrev.");
+            } else if (DokumentMalType.FRITEKSTBREV_HMTL.equals(dokumentMal)) {
+                Objects.requireNonNull(fritekst, "Fritekst må være satt for fritekstbrev");
             } else if (DokumentMalType.INNHENTE_OPPLYSNINGER.equals(dokumentMal)) {
                 Objects.requireNonNull(fritekst, "Fritekst må være satt for revurdering årsak Annet.");
             } else if (DokumentMalType.VARSEL_OM_REVURDERING.equals(dokumentMal)) {

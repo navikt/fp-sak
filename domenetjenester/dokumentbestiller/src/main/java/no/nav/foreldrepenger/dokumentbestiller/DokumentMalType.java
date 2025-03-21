@@ -1,16 +1,18 @@
 package no.nav.foreldrepenger.dokumentbestiller;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+
 public enum DokumentMalType implements Kodeverdi {
 
     FRITEKSTBREV("FRITEK"),
+    FRITEKSTBREV_HMTL("FRIHTM"),
     ENGANGSSTØNAD_INNVILGELSE("INNVES"),
     ENGANGSSTØNAD_AVSLAG("AVSLES"),
     FORELDREPENGER_INNVILGELSE("INVFOR"),
@@ -126,7 +128,7 @@ public enum DokumentMalType implements Kodeverdi {
 
     private static String utledDokumentTittel(DokumentMalType mal) {
         return switch (mal) {
-            case FRITEKSTBREV -> "Fritekstbrev";
+            case FRITEKSTBREV, FRITEKSTBREV_HMTL-> "Fritekstbrev";
             case ENGANGSSTØNAD_INNVILGELSE -> "Innvilget engangsstønad";
             case ENGANGSSTØNAD_AVSLAG -> "Avslag engangsstønad";
             case FORELDREPENGER_INNVILGELSE -> "Innvilgelsesbrev foreldrepenger";

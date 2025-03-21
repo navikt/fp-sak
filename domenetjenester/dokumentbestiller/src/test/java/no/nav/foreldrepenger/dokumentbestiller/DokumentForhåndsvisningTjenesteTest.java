@@ -1,7 +1,11 @@
 package no.nav.foreldrepenger.dokumentbestiller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.dokumentbestiller.formidling.Dokument;
 import no.nav.foreldrepenger.kontrakter.formidling.kodeverk.DokumentMal;
+import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentBestillingHtmlDto;
 import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentForhåndsvisDto;
 
 @ExtendWith(MockitoExtension.class)
@@ -55,7 +60,7 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
             .medDokumentType(DokumentForhandsvisning.DokumentType.OVERSTYRT)
             .build();
 
-        tjeneste.forhåndsvisDokument(bestilling);
+        tjeneste.forhåndsvisDokument(behandling.getId(), bestilling);
 
         var bestillingCaptor = ArgumentCaptor.forClass(DokumentForhåndsvisDto.class);
 
@@ -81,7 +86,7 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
             .medDokumentType(DokumentForhandsvisning.DokumentType.OVERSTYRT)
             .build();
 
-        tjeneste.forhåndsvisDokument(bestilling);
+        tjeneste.forhåndsvisDokument(behandling.getId(), bestilling);
 
         var bestillingCaptor = ArgumentCaptor.forClass(DokumentForhåndsvisDto.class);
 
@@ -104,7 +109,7 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
             .medDokumentType(DokumentForhandsvisning.DokumentType.AUTOMATISK)
             .build();
 
-        tjeneste.forhåndsvisDokument(bestilling);
+        tjeneste.forhåndsvisDokument(behandling.getId(), bestilling);
 
         var bestillingCaptor = ArgumentCaptor.forClass(DokumentForhåndsvisDto.class);
 
@@ -127,7 +132,7 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
             .medDokumentType(DokumentForhandsvisning.DokumentType.OVERSTYRT)
             .build();
 
-        tjeneste.forhåndsvisDokument(bestilling);
+        tjeneste.forhåndsvisDokument(behandling.getId(), bestilling);
 
         var bestillingCaptor = ArgumentCaptor.forClass(DokumentForhåndsvisDto.class);
 
@@ -135,5 +140,47 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
 
         var bestillingValue = bestillingCaptor.getValue();
         assertThat(bestillingValue.dokumentMal()).isEqualTo(DokumentMal.FRITEKSTBREV);
+    }
+
+    @Test
+    void skal_utlede_fritekstbrev_html_som_ble_valgt_av_saksbehanlder() {
+        // Arrange
+        AbstractTestScenario<?> scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        settOpp(scenario, Vedtaksbrev.FRITEKST);
+
+        var bestilling = DokumentForhandsvisning.builder()
+            .medBehandlingUuid(behandling.getUuid())
+            .medSaksnummer(behandling.getSaksnummer())
+            .medDokumentType(DokumentForhandsvisning.DokumentType.OVERSTYRT)
+            .build();
+
+        when(dokumentBehandlingTjeneste.hentMellomlagretOverstyring(any())).thenReturn(Optional.of("OVERSTYRT BREV HER"));
+
+        tjeneste.forhåndsvisDokument(behandling.getId(), bestilling);
+
+        var bestillingCaptor = ArgumentCaptor.forClass(DokumentForhåndsvisDto.class);
+
+        verify(brevTjeneste).forhåndsvis(bestillingCaptor.capture());
+
+        var bestillingValue = bestillingCaptor.getValue();
+        assertThat(bestillingValue.dokumentMal()).isEqualTo(DokumentMal.FRITEKSTBREV_HTML);
+    }
+
+    @Test
+    void skal_utleder_automatisk_dokumentmaltype_uavhengig_av_vedtaksbrev_type() {
+        // Arrange
+        AbstractTestScenario<?> scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        settOpp(scenario, Vedtaksbrev.FRITEKST); // Vedtaskbrev skal ikke ha noen betydning
+
+        tjeneste.genererHtml(behandling);
+
+        var bestillingCaptor = ArgumentCaptor.forClass(DokumentBestillingHtmlDto.class);
+
+        verify(brevTjeneste).genererHtml(bestillingCaptor.capture());
+
+        var bestillingValue = bestillingCaptor.getValue();
+        assertThat(bestillingValue.dokumentMal()).isEqualTo(DokumentMal.ENGANGSSTØNAD_INNVILGELSE);
+        assertThat(bestillingValue.behandlingUuid()).isEqualTo(behandling.getUuid());
+        assertThat(bestillingValue.saksnummer().saksnummer()).isEqualTo(scenario.getFagsak().getSaksnummer().getVerdi());
     }
 }
