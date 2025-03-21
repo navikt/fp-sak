@@ -10,10 +10,15 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import jakarta.persistence.EntityManager;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -195,8 +200,14 @@ class FordelRestTjenesteTest {
         var saknr = new Saksnummer("TEST3");
         var fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
         var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
+        fagsak1.setId(1L);
+        fagsak2.setId(2L);
 
         when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak1, fagsak2));
+
+        var b1 = mock(Behandling.class);
+        when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(1L)).thenReturn(Optional.of(b1));
+        when(behandlingRepositoryProviderMock.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
 
         var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock);
 
@@ -215,11 +226,85 @@ class FordelRestTjenesteTest {
         var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
         fagsak2.setId(2L);
 
+        var b1 = mock(Behandling.class);
+        when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(1L)).thenReturn(Optional.of(b1));
+        when(behandlingRepositoryProviderMock.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
+
         when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak1, fagsak2));
 
         var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock);
 
         var result = tjeneste.sjekkSakForInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.SVANGERSKAPSPENGER));
+
+        var response = (FordelRestTjeneste.SakInntektsmeldingResponse) result.getEntity();
+        assertThat(response).isNotNull();
+        assertThat(response.søkerHarSak()).isTrue();
+    }
+
+    @Test
+    void skal_ikke_finne_sak_når_søkt_for_tidlig() {
+        var saknr = new Saksnummer("TEST3");
+        var fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
+        fagsak1.setId(1L);
+        var b1 = mock(Behandling.class);
+        var a1 = mock(Aksjonspunkt.class);
+        when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(1L)).thenReturn(Optional.of(b1));
+        when(a1.getAksjonspunktDefinisjon()).thenReturn(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD);
+        when(a1.getStatus()).thenReturn(AksjonspunktStatus.OPPRETTET);
+        when(b1.getAksjonspunkter()).thenReturn(Set.of(a1));
+        when(behandlingRepositoryProviderMock.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
+        when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak1));
+
+        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock);
+
+        var result = tjeneste.sjekkSakForInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.FORELDREPENGER));
+
+        var response = (FordelRestTjeneste.SakInntektsmeldingResponse) result.getEntity();
+        assertThat(response).isNotNull();
+        assertThat(response.søkerHarSak()).isFalse();
+    }
+
+    @Test
+    void skal_finne_sak_når_vanlig_åpent_aksjonspunkt() {
+        var saknr = new Saksnummer("TEST3");
+        var fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
+        fagsak1.setId(1L);
+        var b1 = mock(Behandling.class);
+        var a1 = mock(Aksjonspunkt.class);
+        var a2 = mock(Aksjonspunkt.class);
+        when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(1L)).thenReturn(Optional.of(b1));
+        when(a1.getAksjonspunktDefinisjon()).thenReturn(AksjonspunktDefinisjon.VURDER_FAKTA_FOR_ATFL_SN);
+        when(a1.getStatus()).thenReturn(AksjonspunktStatus.OPPRETTET);
+        when(a2.getStatus()).thenReturn(AksjonspunktStatus.UTFØRT);
+        when(b1.getAksjonspunkter()).thenReturn(Set.of(a1, a2));
+        when(behandlingRepositoryProviderMock.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
+        when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak1));
+
+        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock);
+
+        var result = tjeneste.sjekkSakForInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.FORELDREPENGER));
+
+        var response = (FordelRestTjeneste.SakInntektsmeldingResponse) result.getEntity();
+        assertThat(response).isNotNull();
+        assertThat(response.søkerHarSak()).isTrue();
+    }
+
+    @Test
+    void skal_finne_sak_når_søkt_for_tidlig_er_utført() {
+        var saknr = new Saksnummer("TEST3");
+        var fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
+        fagsak1.setId(1L);
+        var b1 = mock(Behandling.class);
+        var a1 = mock(Aksjonspunkt.class);
+        when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(1L)).thenReturn(Optional.of(b1));
+        when(a1.getStatus()).thenReturn(AksjonspunktStatus.UTFØRT);
+        when(b1.getAksjonspunkter()).thenReturn(Set.of(a1));
+        when(behandlingRepositoryProviderMock.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
+        when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak1));
+
+        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock);
+
+        var result = tjeneste.sjekkSakForInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.FORELDREPENGER));
 
         var response = (FordelRestTjeneste.SakInntektsmeldingResponse) result.getEntity();
         assertThat(response).isNotNull();
