@@ -166,7 +166,6 @@ public class ForvaltningUttrekkRestTjeneste {
             where aksjonspunkt_def = '5074' and aksjonspunkt_status = 'UTFO'
               and endret_av = 'srvfpsak'
               and endret_tid >= TO_TIMESTAMP ('21-Mar-25 12:00:00.000000', 'DD-Mon-RR HH24:MI:SS.FF')
-              and behandling_id not in (select behandling_id from aksjonspunkt where aksjonspunkt_def = '5074' and aksjonspunkt_status = 'UTFO' and endret_av != 'srvfpsak')
               and behandling_id in (select behandling_id from aksjonspunkt where aksjonspunkt_def in ('5015', '5028', '5071', '5095') and aksjonspunkt_status = 'OPPR' )
              """);
         @SuppressWarnings("unchecked")
