@@ -95,10 +95,10 @@ class ForeslåVedtakTjeneste {
 
         håndterToTrinn(behandling, aksjonspunktDefinisjoner);
 
-        if (harTidligereOverstyringAvVedtaksbrevUtenAtDetBlirToTrinn(behandling, aksjonspunktDefinisjoner)) {
-            if (behandling.harAvbruttAksjonspunktMedType(AksjonspunktDefinisjon.FORESLÅ_VEDTAK)) {
+        if (harTidligereOverstyringAvVedtaksbrevUtenAtDetBlirAksjonspunktForeslåVedtak(behandling, aksjonspunktDefinisjoner)) {
+            if (behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.FORESLÅ_VEDTAK)) {
                 aksjonspunktDefinisjoner.add(AksjonspunktDefinisjon.FORESLÅ_VEDTAK);
-            } else if (behandling.harAvbruttAksjonspunktMedType(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT)) {
+            } else if (behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT)) {
                 aksjonspunktDefinisjoner.add(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
             } else {
                 // Skal ikke være mulig å overstyre brev utenom et tidligere avbrutt FORESLÅ_VEDTAK/FORESLÅ_VEDTAK_MANUELT aksjonspunkt
@@ -110,7 +110,7 @@ class ForeslåVedtakTjeneste {
                 : BehandleStegResultat.utførtMedAksjonspunkter(aksjonspunktDefinisjoner);
     }
 
-    private boolean harTidligereOverstyringAvVedtaksbrevUtenAtDetBlirToTrinn(Behandling behandling, List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner) {
+    private boolean harTidligereOverstyringAvVedtaksbrevUtenAtDetBlirAksjonspunktForeslåVedtak(Behandling behandling, List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner) {
         if (aksjonspunktDefinisjoner.contains(AksjonspunktDefinisjon.FORESLÅ_VEDTAK) || aksjonspunktDefinisjoner.contains(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT)) {
             return false;
         }
