@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
-import java.time.LocalDateTime;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -52,6 +50,7 @@ public class TilbakeføringTilStegTask extends BehandlingProsessTask {
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
         }
         // Eventuelt fortsettBehandling dersom registerdata ikke trengs hentes på nytt
-        prosesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, LocalDateTime.now());
+        //prosesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, LocalDateTime.now());
+        behandlingskontrollTjeneste.prosesserBehandling(kontekst);
     }
 }
