@@ -7,6 +7,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -291,14 +292,13 @@ public class FordelRestTjeneste {
         var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId);
         // I enkelte tilfeller skal vi ikke tillate innsending av inntektsmelding selv om det finnes sak, fordi saken reelt sett ikke er klar for behandling
         return behandling.map(b -> b.getAksjonspunkter().stream()
-            .noneMatch(ap -> stårIÅpentAksjonspunkt(ap, AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD)
-                || stårIÅpentAksjonspunkt(ap, AksjonspunktDefinisjon.VENT_PÅ_SØKNAD)
-                || stårIÅpentAksjonspunkt(ap, AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_FORELDREPENGER)))
+            .noneMatch(ap -> stårIÅpentAksjonspunkt(ap, Set.of(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD,
+                AksjonspunktDefinisjon.VENT_PÅ_SØKNAD, AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_FORELDREPENGER))))
             .orElse(false);
     }
 
-    private boolean stårIÅpentAksjonspunkt(Aksjonspunkt ap, AksjonspunktDefinisjon def) {
-        return ap.getStatus().equals(AksjonspunktStatus.OPPRETTET) && ap.getAksjonspunktDefinisjon().equals(def);
+    private boolean stårIÅpentAksjonspunkt(Aksjonspunkt ap, Set<AksjonspunktDefinisjon> definisjoner) {
+        return ap.getStatus().equals(AksjonspunktStatus.OPPRETTET) && definisjoner.contains(ap.getAksjonspunktDefinisjon());
     }
 
     public record AktørIdDto(@NotNull @Digits(integer = 19, fraction = 0) String aktørId) {
