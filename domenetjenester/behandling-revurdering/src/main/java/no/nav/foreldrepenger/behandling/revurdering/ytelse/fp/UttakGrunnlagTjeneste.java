@@ -1,8 +1,10 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
 import java.time.Period;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -131,6 +133,13 @@ public class UttakGrunnlagTjeneste {
     }
 
     private boolean harMottattMorsArbeidDokument(Behandling behandling) {
+        var vedleggMorsArbeid = søknadRepository.hentSøknadFraGrunnlag(behandling.getId())
+            .map(SøknadEntitet::getSøknadVedlegg).orElseGet(Set::of).stream()
+            .filter(v -> DokumentTypeId.MOR_ARBEID.getKode().equals(v.getSkjemanummer()))
+            .toList();
+        if (vedleggMorsArbeid.isEmpty() || vedleggMorsArbeid.stream().allMatch(v -> v.getInnsendingsvalg() == Innsendingsvalg.LASTET_OPP)) {
+            return true;
+        }
         var mottattDokumentPåSak = mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandling.getFagsakId())
             .stream()
             .anyMatch(d -> d.getDokumentType().equals(DokumentTypeId.MOR_ARBEID));
