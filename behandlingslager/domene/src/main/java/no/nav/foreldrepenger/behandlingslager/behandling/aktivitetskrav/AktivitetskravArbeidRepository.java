@@ -74,4 +74,10 @@ public class AktivitetskravArbeidRepository {
             lagreGrunnlag(Optional.empty(), nyttgrunnlag);
         });
     }
+
+    public AktivitetskravGrunnlagEntitet hentGrunnlagPåId(Long grunnlagId) {
+        var query = entityManager.createQuery("FROM AktivitetskravGrunnlag ag WHERE ag.id = :grunnlagId",
+            AktivitetskravGrunnlagEntitet.class).setParameter("grunnlagId", grunnlagId);
+        return query.getResultStream().findFirst().orElse(null);
+    }
 }
