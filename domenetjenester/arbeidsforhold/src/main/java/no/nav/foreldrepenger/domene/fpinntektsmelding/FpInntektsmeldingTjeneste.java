@@ -118,31 +118,58 @@ public class FpInntektsmeldingTjeneste {
             .map(arbeidsgiver -> new OrganisasjonsnummerDto(arbeidsgiver.getOrgnr()))
             .toList();
         if (arbeidsgivereViManglerInntektsmeldingFra.isEmpty()) {
-            LOG.info("FpInntektsmeldingTjeneste:lagForespørsel: Ingen inntektsmeldinger mangler for sak {} og behandlingId {}", ref.saksnummer(), ref.behandlingId());
+            LOG.info("FpInntektsmeldingTjeneste:lagForespørsel: Ingen inntektsmeldinger mangler for sak {} og behandlingId {}", ref.saksnummer(),
+                ref.behandlingId());
             return;
         }
-        opprettForespørsel(ref, stp, arbeidsgivereViManglerInntektsmeldingFra, false);
-    }
-
-    public void opprettForespørsel(BehandlingReferanse ref, Skjæringstidspunkt stp, List<OrganisasjonsnummerDto> arbeidsgivereDetSkalOpprettesForespørselFor,
-                                   boolean dryRun) {
         var skjæringstidspunkt = stp.getUtledetSkjæringstidspunkt();
         var førsteUttaksdato = stp.getFørsteUttaksdato();
 
-        var request = new OpprettForespørselRequest(new OpprettForespørselRequest.AktørIdDto(ref.aktørId().getId()),
-            null, skjæringstidspunkt, mapYtelsetype(ref.fagsakYtelseType()),
-            new SaksnummerDto(ref.saksnummer().getVerdi()), førsteUttaksdato, arbeidsgivereDetSkalOpprettesForespørselFor);
+        var request = new OpprettForespørselRequest(new OpprettForespørselRequest.AktørIdDto(ref.aktørId().getId()), null, skjæringstidspunkt,
+            mapYtelsetype(ref.fagsakYtelseType()), new SaksnummerDto(ref.saksnummer().getVerdi()), førsteUttaksdato,
+            arbeidsgivereViManglerInntektsmeldingFra);
 
-        LOG.info("Sender kall til fpinntektsmelding om å opprette forespørsel for saksnummer {} med skjæringstidspunkt {} for følgende organisasjonsnumre: {}",  ref.saksnummer(),
-            stp, arbeidsgivereDetSkalOpprettesForespørselFor);
+        LOG.info(
+            "Sender kall til fpinntektsmelding om å opprette forespørsel for saksnummer {} med skjæringstidspunkt {} for følgende organisasjonsnumre: {}",
+            ref.saksnummer(), stp, arbeidsgivereViManglerInntektsmeldingFra);
+
+        var opprettForespørselResponseNy = klient.opprettForespørsel(request);
+
+        opprettForespørselResponseNy.organisasjonsnumreMedStatus().forEach(organisasjonsnummerMedStatus -> {
+            var orgnr = organisasjonsnummerMedStatus.organisasjonsnummerDto().orgnr();
+            if (organisasjonsnummerMedStatus.status().equals(OpprettForespørselResponsNy.ForespørselResultat.FORESPØRSEL_OPPRETTET)) {
+                lagHistorikkForForespørsel(ref,
+                    String.format("Oppgave om å sende inntektsmelding er opprettet for %s.", hentArbeidsgivernavn(orgnr)));
+            } else {
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Fpinntektsmelding har allerede oppgave på saksnummer: {} og orgnummer: {} på stp: {} og første uttaksdato: {}",
+                        ref.saksnummer(), tilMaskertNummer(orgnr), skjæringstidspunkt, førsteUttaksdato);
+                }
+            }
+        });
+    }
+
+    public void opprettMigrertForespørsel(BehandlingReferanse ref,
+                                          Skjæringstidspunkt stp,
+                                          List<OrganisasjonsnummerDto> arbeidsgivereDetSkalOpprettesForespørselFor,
+                                          boolean dryRun) {
+        var skjæringstidspunkt = stp.getUtledetSkjæringstidspunkt();
+        var førsteUttaksdato = stp.getFørsteUttaksdato();
+
+        var request = new OpprettForespørselRequest(new OpprettForespørselRequest.AktørIdDto(ref.aktørId().getId()), null, skjæringstidspunkt,
+            mapYtelsetype(ref.fagsakYtelseType()), new SaksnummerDto(ref.saksnummer().getVerdi()), førsteUttaksdato,
+            arbeidsgivereDetSkalOpprettesForespørselFor);
+
+        LOG.info(
+            "Sender kall til fpinntektsmelding om å opprette migrert forespørsel for saksnummer {} med skjæringstidspunkt {} for følgende organisasjonsnumre: {}",
+            ref.saksnummer(), stp, arbeidsgivereDetSkalOpprettesForespørselFor);
         if (!dryRun) {
             var opprettForespørselResponseNy = klient.opprettForespørsel(request);
 
             opprettForespørselResponseNy.organisasjonsnumreMedStatus().forEach(organisasjonsnummerMedStatus -> {
                 var orgnr = organisasjonsnummerMedStatus.organisasjonsnummerDto().orgnr();
                 if (organisasjonsnummerMedStatus.status().equals(OpprettForespørselResponsNy.ForespørselResultat.FORESPØRSEL_OPPRETTET)) {
-                    lagHistorikkForForespørsel(ref,
-                        String.format("Oppgave om å sende inntektsmelding er opprettet for %s.", hentArbeidsgivernavn(orgnr)));
+                    LOG.info("Migrert oppgave om å sende inntektsmelding er opprettet for {}.", hentArbeidsgivernavn(orgnr));
                 } else {
                     if (LOG.isInfoEnabled()) {
                         LOG.info("Fpinntektsmelding har allerede oppgave på saksnummer: {} og orgnummer: {} på stp: {} og første uttaksdato: {}",
