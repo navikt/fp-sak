@@ -96,7 +96,7 @@ public class SøknadRepository {
     public List<SøknadEntitet> hentAbsoluttAlleSøknaderForFagsak(Long fagsakId) {
         return behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsakId).stream()
             .map(Behandling::getId)
-            .map(this::hentSøknad)
+            .flatMap(b -> hentSøknadFraGrunnlag(b).stream())
             .toList();
     }
 }
