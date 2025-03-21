@@ -1,8 +1,10 @@
 package no.nav.foreldrepenger.domene.migrering;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -105,6 +107,96 @@ class BeregningMigreringTjenesteTest {
         assertThrows(IllegalStateException.class, () -> beregningMigreringTjeneste.migrerSak(saksnummer));
     }
 
+    @Test
+    void skal_sortere_behandlinger_i_klassisk_rekkefølge() {
+        // Arrange
+        var behandling1 = mock(Behandling.class);
+        var behandling2 = mock(Behandling.class);
+        var behandling3 = mock(Behandling.class);
+        when(behandling1.getId()).thenReturn(1L);
+        when(behandling2.getId()).thenReturn(2L);
+        when(behandling3.getId()).thenReturn(3L);
+
+        when(behandling1.getOriginalBehandlingId()).thenReturn(Optional.empty());
+        when(behandling2.getOriginalBehandlingId()).thenReturn(Optional.of(1L));
+        when(behandling3.getOriginalBehandlingId()).thenReturn(Optional.of(2L));
+
+        // Act
+        var sortertListe = beregningMigreringTjeneste.sorterBehandlinger(List.of(behandling2, behandling1, behandling3));
+
+        // Assert
+        var iterator = sortertListe.iterator();
+        var b1 = iterator.next();
+        assertThat(b1.getId()).isEqualTo(1L);
+
+        var b2 = iterator.next();
+        assertThat(b2.getId()).isEqualTo(2L);
+
+        var b3 = iterator.next();
+        assertThat(b3.getId()).isEqualTo(3L);
+    }
+
+    @Test
+    void skal_sortere_behandlinger_ingen_revurderinger_rekkefølge_ubetydelig() {
+        // Arrange
+        var behandling1 = mock(Behandling.class);
+        var behandling2 = mock(Behandling.class);
+
+        when(behandling1.getOriginalBehandlingId()).thenReturn(Optional.empty());
+        when(behandling2.getOriginalBehandlingId()).thenReturn(Optional.empty());
+
+        // Act
+        var sortertListe = beregningMigreringTjeneste.sorterBehandlinger(List.of(behandling2, behandling1));
+
+        // Assert
+        assertThat(sortertListe).containsExactlyInAnyOrder(behandling2, behandling1);
+    }
+
+    @Test
+    void skal_sortere_behandlinger_i_sprikende_tre() {
+        // Arrange
+        var behandling1 = mock(Behandling.class);
+        var behandling2 = mock(Behandling.class);
+        var behandling3 = mock(Behandling.class);
+        var behandling4 = mock(Behandling.class);
+        var behandling5 = mock(Behandling.class);
+
+        when(behandling1.getId()).thenReturn(1L);
+        when(behandling2.getId()).thenReturn(2L);
+        when(behandling3.getId()).thenReturn(3L);
+        when(behandling4.getId()).thenReturn(4L);
+        when(behandling5.getId()).thenReturn(5L);
+
+        when(behandling1.getOriginalBehandlingId()).thenReturn(Optional.empty());
+        when(behandling2.getOriginalBehandlingId()).thenReturn(Optional.of(1L));
+        when(behandling3.getOriginalBehandlingId()).thenReturn(Optional.of(2L));
+        when(behandling4.getOriginalBehandlingId()).thenReturn(Optional.of(2L));
+        when(behandling5.getOriginalBehandlingId()).thenReturn(Optional.of(4L));
+
+        // Act
+        var sortertListe = beregningMigreringTjeneste.sorterBehandlinger(List.of(behandling4, behandling2,behandling5, behandling1, behandling3));
+
+        // Assert
+        var iterator = sortertListe.iterator();
+        var b1 = iterator.next();
+        assertThat(b1.getId()).isEqualTo(1L);
+
+        var b2 = iterator.next();
+        assertThat(b2.getId()).isEqualTo(2L);
+
+        var b3 = iterator.next();
+        var akseptertId3 = b3.getId().equals(3L) || b3.getId().equals(4L);
+        assertThat(akseptertId3).isTrue();
+
+        var b4 = iterator.next();
+        var akseptertId4 = b4.getId().equals(3L) || b4.getId().equals(4L) ||b4.getId().equals(5L);
+        assertThat(akseptertId4).isTrue();
+
+        var b5 = iterator.next();
+        var akseptertId5 = b5.getId().equals(3L) ||b5.getId().equals(5L);
+        assertThat(akseptertId5).isTrue();
+
+    }
     private Behandling lagBehandling() {
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
         behandling.avsluttBehandling();

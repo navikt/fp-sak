@@ -350,9 +350,12 @@ public class BehandlingDtoTjeneste {
             return dto;
         }
 
-        dto.leggTil(post(BrevRestTjeneste.BREV_VIS_PATH, "brev-vis"));
-        dto.leggTil(get(BrevRestTjeneste.BREV_HENT_OVERSTYRING_PATH, "hent-brev-overstyring", uuidDto));
-        dto.leggTil(post(BrevRestTjeneste.BREV_MELLOMLAGRE_OVERSTYRING_PATH, "mellomlagre-brev-overstyring"));
+
+        if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.FORESLÅ_VEDTAK) || behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT)) {
+            dto.leggTil(get(BrevRestTjeneste.BREV_HENT_OVERSTYRING_PATH, "hent-brev-overstyring", uuidDto));
+            dto.leggTil(post(BrevRestTjeneste.BREV_MELLOMLAGRE_OVERSTYRING_PATH, "mellomlagre-brev-overstyring"));
+        }
+
         dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V2_PATH, "familiehendelse-v2", uuidDto));
         dto.leggTil(get(PersonRestTjeneste.PERSONOVERSIKT_PATH, "behandling-personoversikt", uuidDto));
         dto.leggTil(get(PersonRestTjeneste.MEDLEMSKAP_V3_PATH, "soeker-medlemskap-v3", uuidDto));

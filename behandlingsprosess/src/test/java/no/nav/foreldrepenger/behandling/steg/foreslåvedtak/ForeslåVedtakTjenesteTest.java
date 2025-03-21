@@ -1,16 +1,19 @@
 package no.nav.foreldrepenger.behandling.steg.foreslåvedtak;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.inject.Inject;
 
@@ -360,6 +363,47 @@ class ForeslåVedtakTjenesteTest {
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
         assertThat(stegResultat.getAksjonspunktListe()).isEmpty();
+    }
+
+    @Test
+    void skal_til_totrinn_hvis_tidlige_avbrutt_foreslå_vedtak_har_akitv_overstyring_av_brev() {
+        // Arrange
+        behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagre(repositoryProvider);
+        leggTilAksjonspunkt(AksjonspunktDefinisjon.FORESLÅ_VEDTAK, true, true);
+        when(dokumentBehandlingTjeneste.hentMellomlagretOverstyring(any())).thenReturn(Optional.of("OVERSTYRY BREV!!"));
+
+        // Act
+        var stegResultat = tjeneste.foreslåVedtak(behandling);
+
+        // Assert
+        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(stegResultat.getAksjonspunktListe()).containsExactly(AksjonspunktDefinisjon.FORESLÅ_VEDTAK);
+    }
+
+    @Test
+    void skal_til_totrinn_hvis_tidlige_avbrutt_foreslå_vedtak_manuelt_har_akitv_overstyring_av_brev() {
+        // Arrange
+        behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagre(repositoryProvider);
+        leggTilAksjonspunkt(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT, true, true);
+        when(dokumentBehandlingTjeneste.hentMellomlagretOverstyring(any())).thenReturn(Optional.of("OVERSTYRY BREV!!"));
+
+        // Act
+        var stegResultat = tjeneste.foreslåVedtak(behandling);
+
+        // Assert
+        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(stegResultat.getAksjonspunktListe()).containsExactly(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
+    }
+
+
+    @Test
+    void skal_hive_exception_hvis_brev_er_overstyrt_og_det_ikke_finnes_et_tidligere_avbrutt_foreslå_vedtak_aksjonspunkt() {
+        // Arrange
+        behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagre(repositoryProvider);
+        when(dokumentBehandlingTjeneste.hentMellomlagretOverstyring(any())).thenReturn(Optional.of("ULOVLIG OVERSTYRING AV BREV!"));
+
+        // Act
+        assertThrows(IllegalStateException.class, () -> tjeneste.foreslåVedtak(behandling));
     }
 
     private void leggTilAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon, boolean totrinnsbehandling, boolean settTilAvbrutt) {
