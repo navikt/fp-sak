@@ -89,10 +89,10 @@ public class BeregningMigreringTjeneste {
         // Legger til behandlinger som peker på de som blir migrert først
         while (sortertListe.size() != behandlinger.size()) {
             var nyttElementILista = behandlinger.stream()
-                .filter(behandling -> !sortertListe.contains(behandling))
+                .filter(behandling -> !listeInneholderBehandling(sortertListe, behandling.getId()))
                 .filter(behandling -> {
                     var originalBehandling = behandling.getOriginalBehandlingId().orElseThrow();
-                    return sortertListe.stream().anyMatch(beh -> beh.getId().equals(originalBehandling));
+                    return listeInneholderBehandling(sortertListe, originalBehandling);
                 }).findFirst();
             if (nyttElementILista.isEmpty()) {
                 break;
@@ -100,6 +100,10 @@ public class BeregningMigreringTjeneste {
             sortertListe.add(nyttElementILista.get());
         }
         return sortertListe;
+    }
+
+    private boolean listeInneholderBehandling(LinkedHashSet<Behandling> sortertListe, Long id) {
+        return sortertListe.stream().anyMatch(b -> b.getId().equals(id));
     }
 
     public boolean kanHentesFraKalkulus(BehandlingReferanse behandlingReferanse) {
