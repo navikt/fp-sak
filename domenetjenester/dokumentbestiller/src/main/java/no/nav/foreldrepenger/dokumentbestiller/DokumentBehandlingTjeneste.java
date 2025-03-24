@@ -159,7 +159,7 @@ public class DokumentBehandlingTjeneste {
 
     private DokumentMalType utledMalBrukt(String dokumentMalType, String opprineligDokumentMal) {
         var dokumentMal = DokumentMalType.fraKode(dokumentMalType);
-        if (DokumentMalType.FRITEKSTBREV.equals(dokumentMal) && opprineligDokumentMal != null) {
+        if ((DokumentMalType.FRITEKSTBREV.equals(dokumentMal) || DokumentMalType.FRITEKSTBREV_HMTL.equals(dokumentMal)) && opprineligDokumentMal != null) {
             return DokumentMalType.fraKode(opprineligDokumentMal);
         }
         return dokumentMal;
