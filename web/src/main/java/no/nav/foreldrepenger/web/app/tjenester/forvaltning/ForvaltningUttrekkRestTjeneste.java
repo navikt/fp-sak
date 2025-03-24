@@ -163,8 +163,10 @@ public class ForvaltningUttrekkRestTjeneste {
         var query = entityManager.createNativeQuery("""
             select behandling_id
             from aksjonspunkt
-            where aksjonspunkt_def = '5017' and aksjonspunkt_status = 'OPPR'
-            and behandling_id not in (select behandling_id from aksjonspunkt where aksjonspunkt_def > '7000' and aksjonspunkt_status = 'OPPR')
+            where aksjonspunkt_def = '5074' and aksjonspunkt_status = 'UTFO'
+              and endret_av = 'srvfpsak'
+              and endret_tid >= TO_TIMESTAMP ('21-Mar-25 12:00:00.000000', 'DD-Mon-RR HH24:MI:SS.FF')
+              and behandling_id in (select behandling_id from aksjonspunkt where aksjonspunkt_def in ('5015', '5028', '5071', '5095') and aksjonspunkt_status = 'OPPR' )
              """);
         @SuppressWarnings("unchecked")
         List<Number> resultatList = query.getResultList();
@@ -175,9 +177,9 @@ public class ForvaltningUttrekkRestTjeneste {
 
     private void flyttBehandlingTilbakeTilSteg(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        if (!BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT.equals(behandling.getAktivtBehandlingSteg())) {
-            return;
-        }
+        //if (!BehandlingStegType.FAKTA_UTTAK_DOKUMENTASJON.equals(behandling.getAktivtBehandlingSteg())) {
+        //    return;
+        //}
         var task = ProsessTaskData.forProsessTask(TilbakeføringTilStegTask.class);
         task.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
         taskTjeneste.lagre(task);

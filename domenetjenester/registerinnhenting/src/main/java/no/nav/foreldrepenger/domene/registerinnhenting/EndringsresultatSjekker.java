@@ -9,6 +9,7 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.RegisterdataDiffsjekker;
+import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
@@ -32,6 +33,7 @@ public class EndringsresultatSjekker {
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private StønadsperioderInnhenter stønadsperioderInnhenter;
+    private MorsAktivitetInnhenter morsAktivitetInnhenter;
 
     @Inject
     public EndringsresultatSjekker(PersonopplysningTjeneste personopplysningTjeneste,
@@ -39,13 +41,15 @@ public class EndringsresultatSjekker {
                                    MedlemTjeneste medlemTjeneste,
                                    InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
                                    YtelseFordelingTjeneste ytelseFordelingTjeneste,
-                                   StønadsperioderInnhenter stønadsperioderInnhenter) {
+                                   StønadsperioderInnhenter stønadsperioderInnhenter,
+                                   MorsAktivitetInnhenter morsAktivitetInnhenter) {
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.medlemTjeneste = medlemTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.stønadsperioderInnhenter = stønadsperioderInnhenter;
+        this.morsAktivitetInnhenter = morsAktivitetInnhenter;
     }
 
     EndringsresultatSjekker() {
@@ -66,6 +70,7 @@ public class EndringsresultatSjekker {
         snapshot.leggTil(iaySnapshot);
         snapshot.leggTil(ytelseFordelingTjeneste.finnAktivAggregatId(behandlingId));
         snapshot.leggTil(stønadsperioderInnhenter.finnAktivGrunnlagId(behandlingId));
+        snapshot.leggTil(morsAktivitetInnhenter.finnAktivGrunnlagId(behandlingId));
 
         return snapshot;
     }
@@ -90,6 +95,8 @@ public class EndringsresultatSjekker {
             .ifPresent(idEndring -> sporedeEndringerDiff.leggTilSporetEndring(idEndring, () -> diffResultatYf(idEndring)));
         idDiff.hentDelresultat(NesteSakGrunnlagEntitet.class)
             .ifPresent(idEndring -> sporedeEndringerDiff.leggTilSporetEndring(idEndring, () -> diffResultatNesteSak(idEndring)));
+        idDiff.hentDelresultat(AktivitetskravGrunnlagEntitet.class)
+            .ifPresent(idEndring -> sporedeEndringerDiff.leggTilSporetEndring(idEndring, () -> diffResultatAktivitetskravArbeid(idEndring)));
         return sporedeEndringerDiff;
     }
 
@@ -106,8 +113,7 @@ public class EndringsresultatSjekker {
     }
 
     private DiffResult diffResultatMedslemskap(EndringsresultatDiff idDiff) {
-        Objects.requireNonNull(idDiff.getGrunnlagId1(), "kan ikke diffe når id1 ikke er oppgitt");
-        Objects.requireNonNull(idDiff.getGrunnlagId2(), "kan ikke diffe når id2 ikke er oppgitt");
+        nullSjekk(idDiff);
 
         var grunnlag1 = medlemTjeneste.hentGrunnlagPåId((Long) idDiff.getGrunnlagId1())
             .orElseThrow(() -> new IllegalStateException("id1 ikke kjent"));
@@ -125,8 +131,7 @@ public class EndringsresultatSjekker {
     }
 
     private DiffResult diffResultatYf(EndringsresultatDiff idDiff) {
-        Objects.requireNonNull(idDiff.getGrunnlagId1(), "kan ikke diffe når id1 ikke er oppgitt");
-        Objects.requireNonNull(idDiff.getGrunnlagId2(), "kan ikke diffe når id2 ikke er oppgitt");
+        nullSjekk(idDiff);
 
         var grunnlag1 = ytelseFordelingTjeneste.hentGrunnlagPåId((Long) idDiff.getGrunnlagId1())
             .orElseThrow(() -> new IllegalStateException("GrunnlagId1 må være oppgitt"));
@@ -136,11 +141,22 @@ public class EndringsresultatSjekker {
     }
 
     private DiffResult diffResultatNesteSak(EndringsresultatDiff idDiff) {
-        Objects.requireNonNull(idDiff.getGrunnlagId1(), "kan ikke diffe når id1 ikke er oppgitt");
-        Objects.requireNonNull(idDiff.getGrunnlagId2(), "kan ikke diffe når id2 ikke er oppgitt");
+        nullSjekk(idDiff);
 
         var grunnlag1 = stønadsperioderInnhenter.hentGrunnlagPåId((Long) idDiff.getGrunnlagId1());
         var grunnlag2 = stønadsperioderInnhenter.hentGrunnlagPåId((Long) idDiff.getGrunnlagId2());
         return new RegisterdataDiffsjekker(true).getDiffEntity().diff(grunnlag1, grunnlag2);
+    }
+
+    private DiffResult diffResultatAktivitetskravArbeid(EndringsresultatDiff idDiff) {
+        nullSjekk(idDiff);
+        var grunnlag1 = stønadsperioderInnhenter.hentGrunnlagPåId((Long) idDiff.getGrunnlagId1());
+        var grunnlag2 = stønadsperioderInnhenter.hentGrunnlagPåId((Long) idDiff.getGrunnlagId2());
+        return new RegisterdataDiffsjekker(true).getDiffEntity().diff(grunnlag1, grunnlag2);
+    }
+
+    private void nullSjekk(EndringsresultatDiff idDiff) {
+        Objects.requireNonNull(idDiff.getGrunnlagId1(), "kan ikke diffe når id1 ikke er oppgitt");
+        Objects.requireNonNull(idDiff.getGrunnlagId2(), "kan ikke diffe når id2 ikke er oppgitt");
     }
 }

@@ -350,9 +350,12 @@ public class BehandlingDtoTjeneste {
             return dto;
         }
 
-        dto.leggTil(post(BrevRestTjeneste.BREV_VIS_PATH, "brev-vis"));
-        dto.leggTil(get(BrevRestTjeneste.BREV_HENT_OVERSTYRING_PATH, "hent-brev-overstyring", uuidDto));
-        dto.leggTil(post(BrevRestTjeneste.BREV_MELLOMLAGRE_OVERSTYRING_PATH, "mellomlagre-brev-overstyring"));
+
+        if (harAksjonspunktIForslåVedtakSomErOpprettetEllerUtført(behandling)) {
+            dto.leggTil(get(BrevRestTjeneste.BREV_HENT_OVERSTYRING_PATH, "hent-brev-overstyring", uuidDto));
+            dto.leggTil(post(BrevRestTjeneste.BREV_MELLOMLAGRE_OVERSTYRING_PATH, "mellomlagre-brev-overstyring"));
+        }
+
         dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V2_PATH, "familiehendelse-v2", uuidDto));
         dto.leggTil(get(PersonRestTjeneste.PERSONOVERSIKT_PATH, "behandling-personoversikt", uuidDto));
         dto.leggTil(get(PersonRestTjeneste.MEDLEMSKAP_V3_PATH, "soeker-medlemskap-v3", uuidDto));
@@ -478,6 +481,13 @@ public class BehandlingDtoTjeneste {
         });
 
         return dto;
+    }
+
+    private static boolean harAksjonspunktIForslåVedtakSomErOpprettetEllerUtført(Behandling behandling) {
+        return behandling.getAksjonspunkter().stream()
+            .filter(ap -> AksjonspunktDefinisjon.FORESLÅ_VEDTAK.equals(ap.getAksjonspunktDefinisjon())
+                || AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT.equals(ap.getAksjonspunktDefinisjon()))
+            .anyMatch(ap -> ap.erOpprettet() || ap.erUtført());
     }
 
     private Optional<BehandlingsresultatDto> lagBehandlingsresultatDto(Behandling behandling) {

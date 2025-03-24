@@ -25,6 +25,10 @@ public record DokumentasjonVurderingBehov(OppgittPeriodeEntitet oppgittPeriode,
         return false;
     }
 
+    public boolean harSaksbehandlerVurdering() {
+        return vurdering != null;
+    }
+
     public record Behov(Behov.Type type, Behov.Årsak årsak) {
         public enum Type {
             UTSETTELSE,

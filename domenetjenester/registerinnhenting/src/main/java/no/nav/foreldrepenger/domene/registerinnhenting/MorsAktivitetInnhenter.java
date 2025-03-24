@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidRepository;
@@ -103,6 +104,18 @@ public class MorsAktivitetInnhenter {
             morAktivitet -> aktivitetskravArbeidRepository.lagreAktivitetskravArbeidPerioder(behandlingId, morAktivitet.perioderEntitet(),
                 morAktivitet.fraDato(), morAktivitet.tilDato()));
     }
+
+    public EndringsresultatSnapshot finnAktivGrunnlagId(Long behandlingId) {
+        return aktivitetskravArbeidRepository.hentGrunnlag(behandlingId).map(AktivitetskravGrunnlagEntitet::getId)
+            .map(id -> EndringsresultatSnapshot.medSnapshot(AktivitetskravGrunnlagEntitet.class, id))
+            .orElse(EndringsresultatSnapshot.utenSnapshot(AktivitetskravGrunnlagEntitet.class));
+    }
+
+    public AktivitetskravGrunnlagEntitet hentGrunnlagPåId(Long grunnlagId) {
+        return aktivitetskravArbeidRepository.hentGrunnlagPåId(grunnlagId);
+    }
+
+
 
     Optional<MorAktivitet> finnMorsAktivitet(Behandling behandling,
                                              List<OppgittPeriodeEntitet> perioderAktivitetskravArbeid,

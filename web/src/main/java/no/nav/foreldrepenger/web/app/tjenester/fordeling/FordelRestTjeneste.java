@@ -7,6 +7,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -30,13 +31,15 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -281,8 +284,21 @@ public class FordelRestTjeneste {
         var ytelseDetSjekkesMot = sakInntektsmeldingDto.ytelse().equals(SakInntektsmeldingDto.YtelseType.FORELDREPENGER) ? FagsakYtelseType.FORELDREPENGER : FagsakYtelseType.SVANGERSKAPSPENGER;
         var finnesSakPåSøkerForYtelse = søkersFagsaker.stream()
             .filter(fag -> !fag.getStatus().equals(FagsakStatus.AVSLUTTET))
-            .anyMatch(fag -> fag.getYtelseType().equals(ytelseDetSjekkesMot));
+            .anyMatch(fag -> erÅpenForBehandling(fag.getId()) && fag.getYtelseType().equals(ytelseDetSjekkesMot));
         return Response.ok(new SakInntektsmeldingResponse(finnesSakPåSøkerForYtelse)).build();
+    }
+
+    private boolean erÅpenForBehandling(Long fagsakId) {
+        var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId);
+        // I enkelte tilfeller skal vi ikke tillate innsending av inntektsmelding selv om det finnes sak, fordi saken reelt sett ikke er klar for behandling
+        return behandling.map(b -> b.getAksjonspunkter().stream()
+            .noneMatch(ap -> stårIÅpentAksjonspunkt(ap, Set.of(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD,
+                AksjonspunktDefinisjon.VENT_PÅ_SØKNAD, AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_FORELDREPENGER))))
+            .orElse(false);
+    }
+
+    private boolean stårIÅpentAksjonspunkt(Aksjonspunkt ap, Set<AksjonspunktDefinisjon> definisjoner) {
+        return ap.getStatus().equals(AksjonspunktStatus.OPPRETTET) && definisjoner.contains(ap.getAksjonspunktDefinisjon());
     }
 
     public record AktørIdDto(@NotNull @Digits(integer = 19, fraction = 0) String aktørId) {

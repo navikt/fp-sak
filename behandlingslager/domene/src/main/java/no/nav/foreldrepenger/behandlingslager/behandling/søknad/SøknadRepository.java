@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.søknad;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -90,5 +91,12 @@ public class SøknadRepository {
     public void kopierGrunnlagFraEksisterendeBehandling(Behandling gammelBehandling, Behandling nyBehandling) {
         var søknadEntitet = hentSøknadHvisEksisterer(gammelBehandling.getId());
         søknadEntitet.ifPresent(entitet -> lagreOgFlush(nyBehandling, entitet));
+    }
+
+    public List<SøknadEntitet> hentAbsoluttAlleSøknaderForFagsak(Long fagsakId) {
+        return behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsakId).stream()
+            .map(Behandling::getId)
+            .flatMap(b -> hentSøknadFraGrunnlag(b).stream())
+            .toList();
     }
 }

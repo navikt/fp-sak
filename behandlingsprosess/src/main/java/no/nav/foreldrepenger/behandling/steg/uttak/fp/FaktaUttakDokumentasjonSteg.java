@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.uttak.fakta.uttak.DokumentasjonVurderingBehov;
 import no.nav.foreldrepenger.domene.uttak.fakta.uttak.VurderUttakDokumentasjonAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 
@@ -51,14 +52,18 @@ public class FaktaUttakDokumentasjonSteg implements UttakSteg {
         if (utledetAp) {
             return BehandleStegResultat.utførtMedAksjonspunkt(VURDER_UTTAK_DOKUMENTASJON);
         }
-        if (behandling.harAvbruttAksjonspunktMedType(VURDER_UTTAK_DOKUMENTASJON) && harDokVurderingBehov(uttakInput)) {
+        if (behandling.harAvbruttAksjonspunktMedType(VURDER_UTTAK_DOKUMENTASJON) && uttakDokAvklartAvSaksbehandler(uttakInput)) {
             var aksjonspunktResultat = AksjonspunktResultat.opprettForAksjonspunkt(VURDER_UTTAK_DOKUMENTASJON, AksjonspunktStatus.UTFØRT);
             return BehandleStegResultat.utførtMedAksjonspunktResultat(aksjonspunktResultat);
         }
         return BehandleStegResultat.utførtUtenAksjonspunkter();
     }
 
-    private boolean harDokVurderingBehov(UttakInput uttakInput) {
-        return !vurderUttakDokumentasjonAksjonspunktUtleder.utledDokumentasjonVurderingBehov(uttakInput).isEmpty();
+    private boolean uttakDokAvklartAvSaksbehandler(UttakInput uttakInput) {
+        return !vurderUttakDokumentasjonAksjonspunktUtleder.utledDokumentasjonVurderingBehov(uttakInput)
+            .stream()
+            .filter(DokumentasjonVurderingBehov::harSaksbehandlerVurdering)
+            .toList()
+            .isEmpty();
     }
 }
