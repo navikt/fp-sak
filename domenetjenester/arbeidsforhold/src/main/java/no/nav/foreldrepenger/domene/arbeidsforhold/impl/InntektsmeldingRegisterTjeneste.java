@@ -96,6 +96,8 @@ public class InntektsmeldingRegisterTjeneste {
                 .filter(ya -> AA_REG_TYPER.contains(ya.getArbeidType()))
                 .filter(ya -> harRelevantAnsettelsesperiodeSomDekkerAngittDato(filterFør, ya, skjæringstidspunkt.getUtledetSkjæringstidspunkt()))
                 .toList();
+            var arbeidsgivere = relevanteYrkesaktiviteter.stream().map(Yrkesaktivitet::getArbeidsgiver).toList();
+            LOG.info("Relevante yrkesaktiviteter for inntektsmelding: {}", arbeidsgivere);
             relevanteYrkesaktiviteter.forEach(relevantYrkesaktivitet -> {
                 var identifikator = relevantYrkesaktivitet.getArbeidsgiver();
                 var arbeidsforholdRef = InternArbeidsforholdRef.ref(relevantYrkesaktivitet.getArbeidsforholdRef().getReferanse());
@@ -132,6 +134,7 @@ public class InntektsmeldingRegisterTjeneste {
                                                                                                   Skjæringstidspunkt stp,
                                                                                                   boolean prArbeidsforhold) {
         Objects.requireNonNull(referanse, VALID_REF);
+        LOG.info("Utleder manglende inntektsmeldinger på skjæringstidspunkt {} for behandling {}", stp.getUtledetSkjæringstidspunkt(), referanse.behandlingId());
         var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(referanse.behandlingId());
         var påkrevdeInntektsmeldinger = utledPåkrevdeInntektsmeldingerFraGrunnlag(referanse, stp, inntektArbeidYtelseGrunnlag);
         logInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, "UFILTRERT");
