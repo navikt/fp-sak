@@ -18,9 +18,12 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
@@ -51,6 +54,7 @@ public class FpDtoTjeneste {
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private UføretrygdRepository uføretrygdRepository;
     private DtoTjenesteFelles felles;
+    private SøknadRepository søknadRepository;
 
     @Inject
     public FpDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
@@ -67,6 +71,7 @@ public class FpDtoTjeneste {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.uføretrygdRepository = uføretrygdRepository;
         this.felles = felles;
+        this.søknadRepository = repositoryProvider.getSøknadRepository();
     }
 
     FpDtoTjeneste() {
@@ -163,8 +168,7 @@ public class FpDtoTjeneste {
     }
 
     private Set<FpSak.Søknad> finnFpSøknader(Optional<Behandling> åpenYtelseBehandling, List<MottattDokument> mottatteSøknader) {
-        return mottatteSøknader.stream()
-            .map(md -> {
+        return mottatteSøknader.stream().map(md -> {
                 var status = statusForSøknad(åpenYtelseBehandling, md.getBehandlingId());
                 var perioder = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(md.getBehandlingId()).map(ytelseFordelingAggregat -> {
                     var oppgittFordeling = ytelseFordelingAggregat.getOppgittFordeling();
@@ -172,10 +176,32 @@ public class FpDtoTjeneste {
                 }).orElse(Set.of());
                 var behandling = behandlingRepository.hentBehandling(md.getBehandlingId());
                 var oppgittDekningsgrad = dekningsgradTjeneste.finnOppgittDekningsgrad(BehandlingReferanse.fra(behandling));
-                return new FpSak.Søknad(status, md.getMottattTidspunkt(), perioder, oppgittDekningsgrad.map(FpDtoTjeneste::tilDekningsgradDto).orElse(null));
-            })
-            .filter(s -> !s.perioder().isEmpty()) //Filtrerer ut søknaden som ikke er registert i YF. Feks behandling står i papir punching
+                var morArbeidUtenDok = morArbeidUtenDok(behandling);
+                return new FpSak.Søknad(status, md.getMottattTidspunkt(), perioder,
+                    oppgittDekningsgrad.map(FpDtoTjeneste::tilDekningsgradDto).orElse(null), morArbeidUtenDok);
+            }).filter(s -> !s.perioder().isEmpty()) //Filtrerer ut søknaden som ikke er registert i YF. Feks behandling står i papir punching
             .collect(Collectors.toSet());
+    }
+
+    private boolean morArbeidUtenDok(Behandling behandling) {
+        if (!behandling.getFagsak().getRelasjonsRolleType().erFarEllerMedMor() || mottattEllerVenterDokumentasjonPåAtMorErIArbeid(behandling)) {
+            return false;
+        }
+        var søknadsperioder = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId())
+            .map(yfa -> yfa.getOppgittFordeling().getPerioder())
+            .orElse(List.of());
+        return søknadsperioder.stream().anyMatch(OppgittPeriodeEntitet::erAktivitetskravMedMorArbeid);
+    }
+
+    private boolean mottattEllerVenterDokumentasjonPåAtMorErIArbeid(Behandling behandling) {
+        var vedleggMorsArbeid = søknadRepository.hentSøknadFraGrunnlag(behandling.getId())
+            .map(SøknadEntitet::getSøknadVedlegg)
+            .orElseGet(Set::of)
+            .stream()
+            .filter(v -> Set.of(DokumentTypeId.MOR_ARBEID.getKode(), DokumentTypeId.DOK_MORS_UTDANNING_ARBEID_SYKDOM.getKode())
+                .contains(v.getSkjemanummer())) //Sjekker gammelt skjemanummer her for historiske behandlinger
+            .toList();
+        return !vedleggMorsArbeid.isEmpty();
     }
 
     private static FpSak.Dekningsgrad tilDekningsgradDto(Dekningsgrad dekningsgrad) {

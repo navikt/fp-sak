@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.uttak.fakta.uttak;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -12,11 +11,9 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerInnleggelseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
@@ -110,8 +107,7 @@ public class VurderUttakDokumentasjonAksjonspunktUtleder {
     }
 
     private static boolean skalGjøreRegisterVurdering(OppgittPeriodeEntitet oppgittPeriode, ForeldrepengerGrunnlag fpGrunnlag) {
-        return Objects.equals(UttakPeriodeType.FELLESPERIODE, oppgittPeriode.getPeriodeType()) && Objects.equals(oppgittPeriode.getMorsAktivitet(),
-            MorsAktivitet.ARBEID) && fpGrunnlag.isMottattMorsArbeidDokument();
+        return oppgittPeriode.erAktivitetskravMedMorArbeid() && fpGrunnlag.isMottattMorsArbeidDokument();
     }
 
     private static RegisterVurdering vurderMorsArbeid(OppgittPeriodeEntitet oppgittPeriode,

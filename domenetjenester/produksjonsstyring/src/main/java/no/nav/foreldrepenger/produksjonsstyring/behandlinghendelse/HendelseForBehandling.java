@@ -5,5 +5,6 @@ public enum HendelseForBehandling {
     ENHET,
     AVSLUTTET,
     OPPRETTET,
-    ANNET;
+    LAGRET_SØKNAD,
+    ANNET
 }

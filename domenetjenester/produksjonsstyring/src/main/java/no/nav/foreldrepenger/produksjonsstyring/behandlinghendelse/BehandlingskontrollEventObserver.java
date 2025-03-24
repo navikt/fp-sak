@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingskontrollEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingEnhetEvent;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.MottattDokumentPersistertEvent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
@@ -73,6 +74,16 @@ public class BehandlingskontrollEventObserver {
             opprettProsessTask(event, HendelseForBehandling.ENHET);
         } catch (Exception ex) {
             LOG.warn("Publisering av AksjonspunktHarEndretBehandlendeEnhetEvent feilet", ex);
+        }
+    }
+
+    public void observerMottattDokumentPersistertEvent(@Observes MottattDokumentPersistertEvent event) {
+        try {
+            if (event.mottattDokument().erSøknadsDokument()) {
+                opprettProsessTask(event, HendelseForBehandling.LAGRET_SØKNAD);
+            }
+        } catch (Exception ex) {
+            LOG.warn("Publisering av MottattDokumentPersistertEvent feilet", ex);
         }
     }
 
