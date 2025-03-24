@@ -351,7 +351,7 @@ public class BehandlingDtoTjeneste {
         }
 
 
-        if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.FORESLÅ_VEDTAK) || behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT)) {
+        if (behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.FORESLÅ_VEDTAK) || behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT)) {
             dto.leggTil(get(BrevRestTjeneste.BREV_HENT_OVERSTYRING_PATH, "hent-brev-overstyring", uuidDto));
             dto.leggTil(post(BrevRestTjeneste.BREV_MELLOMLAGRE_OVERSTYRING_PATH, "mellomlagre-brev-overstyring"));
         }
