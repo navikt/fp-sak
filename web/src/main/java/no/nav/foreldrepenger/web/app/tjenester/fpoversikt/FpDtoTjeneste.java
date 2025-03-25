@@ -184,7 +184,12 @@ public class FpDtoTjeneste {
     }
 
     private boolean morArbeidUtenDok(Behandling behandling) {
-        if (!behandling.getFagsak().getRelasjonsRolleType().erFarEllerMedMor() || mottattEllerVenterDokumentasjonPåAtMorErIArbeid(behandling)) {
+        if (!behandling.getFagsak().getRelasjonsRolleType().erFarEllerMedMor()) {
+            return false;
+        }
+        var søknad = søknadRepository.hentSøknadFraGrunnlag(behandling.getId())
+            .filter(SøknadEntitet::getElektroniskRegistrert);
+        if (søknad.isEmpty() || mottattEllerVenterDokumentasjonPåAtMorErIArbeid(søknad.get())) {
             return false;
         }
         var søknadsperioder = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId())
@@ -193,10 +198,8 @@ public class FpDtoTjeneste {
         return søknadsperioder.stream().anyMatch(OppgittPeriodeEntitet::erAktivitetskravMedMorArbeid);
     }
 
-    private boolean mottattEllerVenterDokumentasjonPåAtMorErIArbeid(Behandling behandling) {
-        var vedleggMorsArbeid = søknadRepository.hentSøknadFraGrunnlag(behandling.getId())
-            .map(SøknadEntitet::getSøknadVedlegg)
-            .orElseGet(Set::of)
+    private boolean mottattEllerVenterDokumentasjonPåAtMorErIArbeid(SøknadEntitet søknad) {
+        var vedleggMorsArbeid = søknad.getSøknadVedlegg()
             .stream()
             .filter(v -> Set.of(DokumentTypeId.MOR_ARBEID.getKode(), DokumentTypeId.DOK_MORS_UTDANNING_ARBEID_SYKDOM.getKode())
                 .contains(v.getSkjemanummer())) //Sjekker gammelt skjemanummer her for historiske behandlinger
