@@ -92,10 +92,19 @@ public class InntektsmeldingRegisterTjeneste {
             var filterFør = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(referanse.aktørId()))
                 .før(skjæringstidspunkt.getUtledetSkjæringstidspunkt());
 
-            var relevanteYrkesaktiviteter = filterFør.getYrkesaktiviteter().stream()
+            var yrkesaktiviteterNy = filterFør.getYrkesaktiviteterKunAnsettelsesperiode();
+            var yrkesaktiviteterGammel = filterFør.getYrkesaktiviteter();
+            if (yrkesaktiviteterGammel.size() != yrkesaktiviteterNy.size()) {
+                LOG.info("IM_BEHOV_DIFF: Ny og gammel metode for utledning av hvilke arbeidsforhold vi trenger inntektsmelding fra gir ulike resultater."
+                    + " Saksnummer {} med gammel liste: {} og ny liste {}", referanse.saksnummer(), yrkesaktiviteterGammel, yrkesaktiviteterNy);
+            }
+
+            var relevanteYrkesaktiviteter = yrkesaktiviteterGammel.stream()
                 .filter(ya -> AA_REG_TYPER.contains(ya.getArbeidType()))
                 .filter(ya -> harRelevantAnsettelsesperiodeSomDekkerAngittDato(filterFør, ya, skjæringstidspunkt.getUtledetSkjæringstidspunkt()))
                 .toList();
+            var arbeidsgivere = relevanteYrkesaktiviteter.stream().map(Yrkesaktivitet::getArbeidsgiver).toList();
+            LOG.info("Relevante yrkesaktiviteter for inntektsmelding: {}", arbeidsgivere);
             relevanteYrkesaktiviteter.forEach(relevantYrkesaktivitet -> {
                 var identifikator = relevantYrkesaktivitet.getArbeidsgiver();
                 var arbeidsforholdRef = InternArbeidsforholdRef.ref(relevantYrkesaktivitet.getArbeidsforholdRef().getReferanse());
@@ -132,6 +141,7 @@ public class InntektsmeldingRegisterTjeneste {
                                                                                                   Skjæringstidspunkt stp,
                                                                                                   boolean prArbeidsforhold) {
         Objects.requireNonNull(referanse, VALID_REF);
+        LOG.info("Utleder manglende inntektsmeldinger på skjæringstidspunkt {} for behandling {}", stp.getUtledetSkjæringstidspunkt(), referanse.behandlingId());
         var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(referanse.behandlingId());
         var påkrevdeInntektsmeldinger = utledPåkrevdeInntektsmeldingerFraGrunnlag(referanse, stp, inntektArbeidYtelseGrunnlag);
         logInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, "UFILTRERT");
