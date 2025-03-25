@@ -66,8 +66,8 @@ public class OverlappOppgaveTjeneste {
     private void håndterOverlappSykepenger(Gruppering gruppering, List<OverlappVedtak> overlappListe, BehandlingReferanse ref, LocalDateInterval fpsakIntervall) {
         var system = Fagsystem.INFOTRYGD.equals(gruppering.fagsystem()) ? "Infotrygd" : "Speil";
         // Beskrivelse må tilpasses dersom / når det skal opprettes oppgaver ved overlapp mot Infotrygd
-        var beskrivelse2 = lagBeskrivelseAnnenYtelse(SYKEPENGER, system, overlappListe);
-        var beskrivelse = lagSamletBeskrivelse(ref, overlappListe, fpsakIntervall, beskrivelse2, SYKEPENGER);
+        var beskrivelse2 = lagBeskrivelseAnnenYtelse(ref, SYKEPENGER, system, overlappListe);
+        var beskrivelse = lagSamletBeskrivelse(ref, fpsakIntervall, beskrivelse2, SYKEPENGER);
         oppgaveTjeneste.opprettVurderKonsekvensHosSykepenger(beskrivelse, ref.aktørId());
 
     }
@@ -76,34 +76,35 @@ public class OverlappOppgaveTjeneste {
         var omsorgspengerYtelse = omsorgspengerYtelse(gruppering);
 
         var beskrivelse2 = Fagsystem.K9SAK.equals(gruppering.fagsystem())
-            ? lagBeskrivelseAnnenYtelse(omsorgspengerYtelse + " sak " + gruppering.saksnummer(), "K9-sak", overlappListe)
-            : lagBeskrivelseAnnenYtelse(omsorgspengerYtelse, "Infotrygd", overlappListe);
+            ? lagBeskrivelseAnnenYtelse(ref, omsorgspengerYtelse + " sak " + gruppering.saksnummer(), "K9-sak", overlappListe)
+            : lagBeskrivelseAnnenYtelse(ref, omsorgspengerYtelse, "Infotrygd", overlappListe);
 
-        var beskrivelse = lagSamletBeskrivelse(ref, overlappListe, fpsakIntervall, beskrivelse2, omsorgspengerYtelse);
+        var beskrivelse = lagSamletBeskrivelse(ref, fpsakIntervall, beskrivelse2, omsorgspengerYtelse);
         oppgaveTjeneste.opprettVurderKonsekvensHosPleiepenger(beskrivelse, ref.aktørId());
     }
 
-    private static String lagSamletBeskrivelse(BehandlingReferanse ref, List<OverlappVedtak> overlappListe, LocalDateInterval fpsakIntervall,
+    private static String lagSamletBeskrivelse(BehandlingReferanse ref, LocalDateInterval fpsakIntervall,
                                                String beskrivelse2, String ytelse) {
-        var beskrivelse1 = lagBeskrivelseVedtakForeldrepenger(ref, overlappListe, fpsakIntervall);
+        var beskrivelse1 = lagBeskrivelseVedtakForeldrepenger(ref, fpsakIntervall);
         var beskrivelse3 = lagBeskrivelseVeiledning(ytelse);
         return beskrivelse1 + System.lineSeparator() + beskrivelse2 + System.lineSeparator() + beskrivelse3;
     }
 
 
-    private static String lagBeskrivelseVedtakForeldrepenger(BehandlingReferanse ref, List<OverlappVedtak> overlappListe, LocalDateInterval fpsakIntervall) {
+    private static String lagBeskrivelseVedtakForeldrepenger(BehandlingReferanse ref, LocalDateInterval fpsakIntervall) {
         var foreldrepengerYtelse = ref.fagsakYtelseType().getNavn().toLowerCase();
-        var maxUtbetalingsprosent = overlappListe.stream()
-            .map(OverlappVedtak::getFpsakUtbetalingsprosent)
-            .max(Comparator.naturalOrder()).orElse(100L);
-        return String.format("Denne oppgaven kommer fordi det er innvilget %s (%s%%) fra %s til %s med saksnummer %s.",
-            foreldrepengerYtelse, maxUtbetalingsprosent, d2(fpsakIntervall.getFomDato()), d2(fpsakIntervall.getTomDato()), ref.saksnummer().getVerdi());
+        return String.format("Denne oppgaven kommer fordi det er innvilget %s fra %s til %s med saksnummer %s.",
+            foreldrepengerYtelse, d2(fpsakIntervall.getFomDato()), d2(fpsakIntervall.getTomDato()), ref.saksnummer().getVerdi());
     }
 
-    private static String lagBeskrivelseAnnenYtelse(String ytelse, String system, List<OverlappVedtak> overlappListe) {
-        if (overlappListe.size() == 2 || overlappListe.size() == 3) {
+    private static String lagBeskrivelseAnnenYtelse(BehandlingReferanse ref, String ytelse, String system, List<OverlappVedtak> overlappListe) {
+        var foreldrepengerYtelse = ref.fagsakYtelseType().getNavn().toLowerCase();
+        if (overlappListe.size() == 1) {
+            var tekst = tekstForEnkeltPeriode(overlappListe.getFirst(), foreldrepengerYtelse);
+            return String.format("Dette vedtaket overlapper antagelig med %s i %s i perioden %s.", ytelse, system, tekst);
+        } else if (overlappListe.size() == 2 || overlappListe.size() == 3) {
             var perioder = overlappListe.stream()
-                .map(p -> String.format("%s til %s", d2(p.getPeriode().getFomDato()), d2(p.getPeriode().getTomDato())))
+                .map(p -> tekstForEnkeltPeriode(p, foreldrepengerYtelse))
                 .toList();
             return String.format("Dette vedtaket overlapper antagelig med %s i %s i periodene %s.", ytelse, system, String.join(", ", perioder));
         } else {
@@ -112,6 +113,11 @@ public class OverlappOppgaveTjeneste {
 
             return String.format("Dette vedtaket overlapper antagelig med %s i %s i perioden fra %s til %s.", ytelse, system, d2(minFom), d2(maxTom));
         }
+    }
+
+    private static String tekstForEnkeltPeriode (OverlappVedtak overlapp, String foreldrepengerYtelse) {
+        return String.format("%s til %s med %s%% %s", d2(overlapp.getPeriode().getFomDato()), d2(overlapp.getPeriode().getTomDato()),
+            overlapp.getFpsakUtbetalingsprosent(), foreldrepengerYtelse);
     }
 
     private static String d2(LocalDate dato) {
