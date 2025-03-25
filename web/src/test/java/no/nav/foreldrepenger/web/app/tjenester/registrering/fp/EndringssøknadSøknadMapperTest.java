@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
-import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
@@ -47,8 +46,6 @@ class EndringssøknadSøknadMapperTest {
     private PersoninfoAdapter personinfoAdapter;
     @Mock
     private VirksomhetTjeneste virksomhetTjeneste;
-    @Mock
-    private DatavarehusTjeneste datavarehusTjeneste;
     private final SøknadMapper ytelseSøknadMapper = new EndringssøknadSøknadMapper();
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
@@ -70,7 +67,6 @@ class EndringssøknadSøknadMapperTest {
         oppdaterDtoForFødsel(manuellRegistreringEndringsøknadDto, true, LocalDate.now(), 1);
         var soeknad = ytelseSøknadMapper.mapSøknad(manuellRegistreringEndringsøknadDto, navBruker);
 
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         var oppgittPeriodeMottattDatoTjeneste = new SøknadDataFraTidligereVedtakTjeneste(
             new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()),
             new FpUttakRepository(repositoryProvider.getEntityManager()), repositoryProvider.getBehandlingRepository());
