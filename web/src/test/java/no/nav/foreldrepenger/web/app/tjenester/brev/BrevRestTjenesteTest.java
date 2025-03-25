@@ -112,7 +112,7 @@ class BrevRestTjenesteTest {
 
         // Assert
         var overstyrtDokumentDto = (BrevRestTjeneste.OverstyrtDokumentDto) respons.getEntity();
-        assertThat(overstyrtDokumentDto.opprinneligHtml()).isEqualTo(brevProdusertAvFpdokgen);
+        assertThat(overstyrtDokumentDto.automatiskVedtaksbrev()).isEqualTo(brevProdusertAvFpdokgen);
         assertThat(overstyrtDokumentDto.redigertHtml()).isNull();
     }
 
@@ -132,8 +132,9 @@ class BrevRestTjenesteTest {
 
         // Assert
         var overstyrtDokumentDto = (BrevRestTjeneste.OverstyrtDokumentDto) respons.getEntity();
-        assertThat(overstyrtDokumentDto.opprinneligHtml()).isEqualTo(brevProdusertAvFpdokgen);
+        assertThat(overstyrtDokumentDto.automatiskVedtaksbrev()).isEqualTo(brevProdusertAvFpdokgen);
         assertThat(overstyrtDokumentDto.redigertHtml()).isEqualTo(overstyryBrev);
+        assertThat(overstyrtDokumentDto.erEndring()).isEqualTo(overstyryBrev);
     }
 
     @Test
@@ -159,12 +160,12 @@ class BrevRestTjenesteTest {
         when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(behandling);
 
         // Act
-        brevRestTjeneste.mellomlagringAvOverstyring(new BrevRestTjeneste.MellomlagreHtmlDto(behandling.getUuid(), new FritekstDto("HTML")));
+        brevRestTjeneste.mellomlagringAvOverstyring(new BrevRestTjeneste.MellomlagreHtmlDto(behandling.getUuid(), new FritekstDto("HTML"), new FritekstDto("ORGINAL HTML")));
 
         var captorHtml = ArgumentCaptor.forClass(String.class);
 
         // Assert
-        verify(dokumentBehandlingTjenesteMock).lagreOverstyrtBrev(any(), captorHtml.capture());
+        verify(dokumentBehandlingTjenesteMock).lagreOverstyrtBrev(any(), captorHtml.capture(), any());
 
         assertThat(captorHtml.getValue()).isEqualTo("HTML");
     }
@@ -176,7 +177,7 @@ class BrevRestTjenesteTest {
         when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(behandling);
 
         // Act
-        brevRestTjeneste.mellomlagringAvOverstyring(new BrevRestTjeneste.MellomlagreHtmlDto(behandling.getUuid(), null));
+        brevRestTjeneste.mellomlagringAvOverstyring(new BrevRestTjeneste.MellomlagreHtmlDto(behandling.getUuid(), null, null));
 
         // Assert
         verify(dokumentBehandlingTjenesteMock,  times(1)).fjernOverstyringAvBrev(any());

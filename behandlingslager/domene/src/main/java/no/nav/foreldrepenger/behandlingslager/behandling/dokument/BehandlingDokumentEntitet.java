@@ -40,6 +40,10 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
     private String overstyrtBrevFritekstHtml;
 
     @Lob
+    @Column(name = "overstyrt_brev_utgangspunkt_html")
+    private String overstyrtBrevUtgangspunktHtml;
+
+    @Lob
     @Column(name = "vedtak_fritekst") // bør hete utfyllende tekst
     private String vedtakFritekst;
 
@@ -70,6 +74,10 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
         return overstyrtBrevFritekstHtml;
     }
 
+    public String getOverstyrtBrevUtgangspunktHtml() {
+        return overstyrtBrevUtgangspunktHtml;
+    }
+
     public String getVedtakFritekst() {
         return vedtakFritekst;
     }
@@ -95,12 +103,13 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
         return Objects.equals(behandlingId, that.behandlingId) &&
             Objects.equals(overstyrtBrevOverskrift, that.overstyrtBrevOverskrift) &&
             Objects.equals(overstyrtBrevFritekst, that.overstyrtBrevFritekst) &&
+            Objects.equals(overstyrtBrevFritekstHtml, that.overstyrtBrevFritekstHtml) &&
             Objects.equals(vedtakFritekst, that.vedtakFritekst);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(behandlingId, overstyrtBrevOverskrift, overstyrtBrevFritekst, vedtakFritekst);
+        return Objects.hash(behandlingId, overstyrtBrevOverskrift, overstyrtBrevFritekst, overstyrtBrevFritekstHtml, vedtakFritekst);
     }
 
     @Override
@@ -128,6 +137,7 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
                 .medOverstyrtBrevOverskrift(behandlingDokument.getOverstyrtBrevOverskrift())
                 .medOverstyrtBrevFritekst(behandlingDokument.getOverstyrtBrevFritekst())
                 .medOverstyrtBrevFritekstHtml(behandlingDokument.getOverstyrtBrevFritekstHtml())
+                .medOverstyrtBrevUtgangspunktHtml(behandlingDokument.getOverstyrtBrevUtgangspunktHtml())
                 .medVedtakFritekst(behandlingDokument.getVedtakFritekst())
                 .medBestilteDokumenter(behandlingDokument.getBestilteDokumenter());
             builder.behandlingDokumentMal.id = behandlingDokument.id;
@@ -154,6 +164,11 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
             return this;
         }
 
+        public BehandlingDokumentEntitet.Builder medOverstyrtBrevUtgangspunktHtml(String overstyrtBrevUtgangspunktHtml) {
+            behandlingDokumentMal.overstyrtBrevUtgangspunktHtml = overstyrtBrevUtgangspunktHtml;
+            return this;
+        }
+
         public BehandlingDokumentEntitet.Builder medVedtakFritekst(String vedtakFritekst) {
             behandlingDokumentMal.vedtakFritekst = vedtakFritekst;
             return this;
@@ -174,6 +189,10 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
             if (behandlingDokumentMal.overstyrtBrevFritekst != null || behandlingDokumentMal.overstyrtBrevOverskrift != null) {
                 Objects.requireNonNull(behandlingDokumentMal.overstyrtBrevFritekst, "overstyrtBrevFritekst må være satt");
                 Objects.requireNonNull(behandlingDokumentMal.overstyrtBrevOverskrift, "overstyrtBrevOverskrift må være satt");
+            }
+            if (behandlingDokumentMal.overstyrtBrevFritekstHtml != null || behandlingDokumentMal.overstyrtBrevUtgangspunktHtml != null) {
+                Objects.requireNonNull(behandlingDokumentMal.overstyrtBrevFritekstHtml, "overstyrtBrevFritekstHtml må være satt");
+                Objects.requireNonNull(behandlingDokumentMal.overstyrtBrevUtgangspunktHtml, "overstyrtBrevOrginalHtml må være satt");
             }
         }
     }

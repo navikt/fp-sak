@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.brev;
 
+import static no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste.fjernWhitespace;
+
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Function;
@@ -168,31 +170,41 @@ public class BrevRestTjeneste {
         }
 
         var eksiterendeOverstyring = dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId());
-        var overstyrtBrev = new OverstyrtDokumentDto(dokument, eksiterendeOverstyring.orElse(null));
+        if (eksiterendeOverstyring.isPresent()) {
+            var overstyrtBrev = new OverstyrtDokumentDto(dokument, eksiterendeOverstyring.get(), harEndretGrunnlagForOverstyring(behandling, dokument));
+            return Response.ok(overstyrtBrev)
+                .type(MediaType.APPLICATION_JSON_TYPE)
+                .build();
+        }
+        var overstyrtBrev = new OverstyrtDokumentDto(dokument, null, false);
         return Response.ok(overstyrtBrev)
             .type(MediaType.APPLICATION_JSON_TYPE)
             .build();
     }
 
-    public record OverstyrtDokumentDto(String opprinneligHtml, String redigertHtml) {
+    private boolean harEndretGrunnlagForOverstyring(Behandling behandling, String dokument) {
+        return !fjernWhitespace(dokument).contains(dokumentBehandlingTjeneste.hentOverstyrtBrevUtgangspunktHtml(behandling.getId()));
+    }
+
+    public record OverstyrtDokumentDto(String automatiskVedtaksbrev, String redigertHtml, boolean erEndring) {
     }
 
     @POST
     @Path(BREV_MELLOMLAGRE_OVERSTYRING_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Lagrer ned overstyrt html-representasjon av brevet som brukes ved foreslå vedtak aksjonspunktet", tags = "brev")
+    @Operation(description = "Lagrer ned overstyrt brev med html representasjon av brevet som brukes ved foreslå vedtak aksjonspunktet", tags = "brev")
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response mellomlagringAvOverstyring(@TilpassetAbacAttributt(supplierClass = MellomlagringHtmlSupplier.class) @Valid @NotNull MellomlagreHtmlDto mellomlagring) {
         var behandling = behandlingRepository.hentBehandling(mellomlagring.behandlingUuid());
         if (mellomlagring.redigertInnhold() == null) {
             dokumentBehandlingTjeneste.fjernOverstyringAvBrev(behandling);
         } else {
-            dokumentBehandlingTjeneste.lagreOverstyrtBrev(behandling, mellomlagring.redigertInnhold().verdi());
+            dokumentBehandlingTjeneste.lagreOverstyrtBrev(behandling, mellomlagring.redigertInnhold().verdi(), mellomlagring.redigertFra().verdi());
         }
         return Response.ok().build();
     }
 
-    public record MellomlagreHtmlDto(@Valid @NotNull UUID behandlingUuid, @Valid FritekstDto redigertInnhold) {
+    public record MellomlagreHtmlDto(@Valid @NotNull UUID behandlingUuid, @Valid FritekstDto redigertInnhold, @Valid FritekstDto redigertFra) {
     }
 
     @POST
