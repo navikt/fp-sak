@@ -92,7 +92,14 @@ public class InntektsmeldingRegisterTjeneste {
             var filterFør = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(referanse.aktørId()))
                 .før(skjæringstidspunkt.getUtledetSkjæringstidspunkt());
 
-            var relevanteYrkesaktiviteter = filterFør.getYrkesaktiviteter().stream()
+            var yrkesaktiviteterNy = filterFør.getYrkesaktiviteterKunAnsettelsesperiode();
+            var yrkesaktiviteterGammel = filterFør.getYrkesaktiviteter();
+            if (yrkesaktiviteterGammel.size() != yrkesaktiviteterNy.size()) {
+                LOG.info("IM_BEHOV_DIFF: Ny og gammel metode for utledning av hvilke arbeidsforhold vi trenger inntektsmelding fra gir ulike resultater."
+                    + " Saksnummer {} med gammel liste: {} og ny liste {}", referanse.saksnummer(), yrkesaktiviteterGammel, yrkesaktiviteterNy);
+            }
+
+            var relevanteYrkesaktiviteter = yrkesaktiviteterGammel.stream()
                 .filter(ya -> AA_REG_TYPER.contains(ya.getArbeidType()))
                 .filter(ya -> harRelevantAnsettelsesperiodeSomDekkerAngittDato(filterFør, ya, skjæringstidspunkt.getUtledetSkjæringstidspunkt()))
                 .toList();

@@ -95,6 +95,14 @@ public class YrkesaktivitetFilter {
                 .collect(Collectors.toUnmodifiableSet());
     }
 
+    public Collection<Yrkesaktivitet> getYrkesaktiviteterKunAnsettelsesperiode() {
+        return getYrkesaktiviteterInklusiveFiktive().stream()
+            .filter(this::erIkkeFrilansOppdrag)
+            .filter(this::skalBrukes)
+            .filter(this::erArbeidsforholdOgStarterPåRettSideAvSkjæringstidspunkt)
+            .collect(Collectors.toUnmodifiableSet());
+    }
+
     /**
      * Collection av aktiviteter filtrert iht ArbeidsforholdInformasjon. Aktiviteter
      * hvor overstyring har satt ArbeidsforholdHandlingType til
@@ -332,4 +340,5 @@ public class YrkesaktivitetFilter {
     public Collection<ArbeidsforholdOverstyring> getArbeidsforholdOverstyringer() {
         return arbeidsforholdOverstyringer == null ? Collections.emptyList() : arbeidsforholdOverstyringer.getOverstyringer();
     }
+
 }
