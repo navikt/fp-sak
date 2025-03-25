@@ -329,6 +329,10 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
         return getPeriodeKilde().equals(FordelingPeriodeKilde.TIDLIGERE_VEDTAK);
     }
 
+    public boolean erAktivitetskravMedMorArbeid() {
+        return Objects.equals(UttakPeriodeType.FELLESPERIODE, getPeriodeType()) && Objects.equals(getMorsAktivitet(), MorsAktivitet.ARBEID);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

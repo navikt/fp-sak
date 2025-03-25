@@ -83,6 +83,8 @@ public class PubliserBehandlingHendelseTask extends GenerellProsessTask {
     private static Hendelse utledHendelse(Behandling behandling, HendelseForBehandling oppgittHendelse) {
         if (HendelseForBehandling.ENHET.equals(oppgittHendelse)) {
             return Hendelse.ENHET;
+        } else if (oppgittHendelse.equals(HendelseForBehandling.LAGRET_SØKNAD)) {
+            return Hendelse.LAGRET_SØKNAD;
         } else if (behandling.isBehandlingPåVent()) {
             return behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD) ? Hendelse.MANGLERSØKNAD : Hendelse.VENTETILSTAND;
         } else if (!behandling.getÅpneAksjonspunkter(PAPIR).isEmpty()) {
