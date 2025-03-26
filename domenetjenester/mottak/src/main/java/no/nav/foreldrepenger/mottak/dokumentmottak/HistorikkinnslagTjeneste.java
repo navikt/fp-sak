@@ -115,16 +115,11 @@ public class HistorikkinnslagTjeneste {
         historikkinnslagRepository.lagre(historikk);
     }
 
-    public void opprettHistorikkinnslagForVedlegg(Fagsak fagsak,
-                                                  Behandling behandling,
-                                                  JournalpostId journalpostId,
-                                                  DokumentTypeId dokumentTypeId,
-                                                  boolean elektronisk) {
+    public void opprettHistorikkinnslagForVedlegg(Fagsak fagsak, JournalpostId journalpostId, DokumentTypeId dokumentTypeId, boolean elektronisk) {
         var dokumenter = lagDokumenterLenker(BehandlingType.UDEFINERT, journalpostId, elektronisk,
             DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId));
         historikkinnslagRepository.lagre(new Historikkinnslag.Builder().medTittel("Vedlegg er mottatt")
             .medFagsakId(fagsak.getId())
-            .medBehandlingId(behandling == null ? null : behandling.getId())
             .medAktør(DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId) ? HistorikkAktør.ARBEIDSGIVER : HistorikkAktør.SØKER)
             .medDokumenter(dokumenter)
             .build());

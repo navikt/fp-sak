@@ -22,7 +22,7 @@ class DokumentmottakerVedleggHåndteringVedAvslåttBehandlingTest extends Dokume
     void setUp() {
         this.dokumentmottakerFellesSpied = Mockito.spy(dokumentmottakerFelles);
 
-        Mockito.doNothing().when(dokumentmottakerFellesSpied).opprettHistorikkinnslagForVedlegg(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(dokumentmottakerFellesSpied).opprettHistorikkinnslagForVedlegg(Mockito.any(), Mockito.any());
 
         dokumentmottakerVedlegg = new DokumentmottakerVedlegg(behandlingRevurderingTjeneste, dokumentmottakerFellesSpied,
             kompletthetskontroller, repositoryProvider.getBehandlingRepository());
