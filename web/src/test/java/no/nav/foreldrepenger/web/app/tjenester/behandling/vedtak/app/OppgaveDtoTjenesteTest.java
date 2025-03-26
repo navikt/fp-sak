@@ -5,11 +5,11 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.dto.OppgaveDto;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,16 +56,8 @@ class OppgaveDtoTjenesteTest {
         var oppgaver = oppgaveDtoTjeneste.mapTilDto(AKTØR_ID);
 
         assertThat(oppgaver).hasSize(2);
-        assertThat(oppgaver.getFirst().oppgavetype()).isEqualTo(OppgaveType.VUR_DOKUMENT);
-        assertThat(oppgaver.getFirst().nyesteBeskrivelse().kommentar()).isEqualTo(forventedeOppgaver.getFirst().beskrivelse());
-        assertThat(oppgaver.getFirst().eldreBeskrivelser()).isEmpty();
-        assertThat(oppgaver.getFirst().hovedDokument().getDokumentId()).isEqualTo(arkivJournalPost.getHovedDokument().getDokumentId());
-        assertThat(oppgaver.getFirst().andreDokumenter()).hasSameSizeAs(arkivJournalPost.getAndreDokument());
-        assertThat(oppgaver.getLast().oppgavetype()).isEqualTo(OppgaveType.VUR_KONSEKVENS);
-        assertThat(oppgaver.getLast().nyesteBeskrivelse().kommentar()).isEqualTo(forventedeOppgaver.getLast().beskrivelse());
-        assertThat(oppgaver.getLast().eldreBeskrivelser()).isEmpty();
-        assertThat(oppgaver.getLast().hovedDokument()).isNull();
-        assertThat(oppgaver.getLast().andreDokumenter()).isEmpty();
+        assertOppgave(oppgaver.get(0), OppgaveType.VUR_DOKUMENT, "vurderDokumentBeskrivelse", 3);
+        assertOppgave(oppgaver.get(1), OppgaveType.VUR_KONSEKVENS, "vurderKonsekvensBeskrivelse", 0);
     }
 
     @Test
@@ -76,22 +68,30 @@ class OppgaveDtoTjenesteTest {
 
     @Test
     void skal_formatere_beskrivelse() {
-        var beskrivelse = "header\nkommentarMedHeader\n\nheader2\nkommentarMedHeader2\n\nkommentarUtenHeader";
-        var beskrivelser = OppgaveDtoTjeneste.formaterBeskrivelse(beskrivelse);
+        var beskrivelse = "--- header ---\nkommentarMedHeader\n\n--- header2 ---\nkommentarMedHeader2Del1\nkommentarMedHeader2Del2\n\nVL: kommentarUtenHeader";
+        var beskrivelser = OppgaveDtoTjeneste.splittBeskrivelser(beskrivelse);
 
         assertThat(beskrivelser).hasSize(3);
-        assertThat(beskrivelser.getFirst().header()).isEqualTo("header");
-        assertThat(beskrivelser.getFirst().kommentar()).isEqualTo("kommentarMedHeader");
-        assertThat(beskrivelser.get(1).header()).isEqualTo("header2");
-        assertThat(beskrivelser.get(1).kommentar()).isEqualTo("kommentarMedHeader2");
-        assertThat(beskrivelser.getLast().header()).isEmpty();
-        assertThat(beskrivelser.getLast().kommentar()).isEqualTo("kommentarUtenHeader");
+        assertBeskrivelse(beskrivelser.getFirst(), "--- header ---", "kommentarMedHeader");
+        assertBeskrivelse(beskrivelser.get(1), "--- header2 ---", "kommentarMedHeader2Del1", "kommentarMedHeader2Del2");
+        assertBeskrivelse(beskrivelser.getLast(), "", "VL: kommentarUtenHeader");
     }
 
     @Test
     void formaterBeskrivelse_håndterer_tom_beskrivelse() {
-        var beskrivelser = OppgaveDtoTjeneste.formaterBeskrivelse("");
-        assertThat(beskrivelser).isEmpty();
+        assertThat(OppgaveDtoTjeneste.splittBeskrivelser("")).isEmpty();
+    }
+
+    private static void assertOppgave(OppgaveDto oppgave, OppgaveType type, String beskrivelse, int antallDokumenter) {
+        assertThat(oppgave.oppgavetype()).isEqualTo(type);
+        assertThat(oppgave.nyesteBeskrivelse().kommentarer()).containsExactly(beskrivelse);
+        assertThat(oppgave.eldreBeskrivelser()).isEmpty();
+        assertThat(oppgave.dokumenter()).hasSize(antallDokumenter);
+    }
+
+    private static void assertBeskrivelse(OppgaveDto.Beskrivelse beskrivelse, String header, String... kommentarer) {
+        assertThat(beskrivelse.header()).isEqualTo(header);
+        assertThat(beskrivelse.kommentarer()).containsExactly(kommentarer);
     }
 
     private static Oppgave opprettOppgave(Oppgavetype oppgavetype, String beskrivelse, String journalpostId) {
@@ -101,12 +101,10 @@ class OppgaveDtoTjenesteTest {
 
     private static ArkivJournalPost opprettArkivJournalPost(JournalpostId journalpostId) {
         var hovedDokument = opprettDokument(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL, "456");
-        ArrayList<ArkivDokument> andreDokumenter = new ArrayList<>();
-        andreDokumenter.add(opprettDokument(DokumentTypeId.DOK_REISE, "678"));
-        andreDokumenter.add(opprettDokument(DokumentTypeId.KLAGE_DOKUMENT, "987"));
+        var andreDokumenter = List.of(opprettDokument(DokumentTypeId.DOK_REISE, "678"), opprettDokument(DokumentTypeId.KLAGE_DOKUMENT, "987"));
         return ArkivJournalPost.Builder.ny()
             .medJournalpostId(journalpostId)
-            .medTidspunkt(LocalDateTime.of(LocalDate.now().minusDays(6), LocalTime.of(10, 10)))
+            .medTidspunkt(LocalDateTime.now())
             .medHoveddokument(hovedDokument)
             .medAndreDokument(andreDokumenter)
             .build();
