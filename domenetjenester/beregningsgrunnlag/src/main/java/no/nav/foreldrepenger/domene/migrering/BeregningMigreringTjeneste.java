@@ -11,10 +11,6 @@ import java.util.Set;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
-
-import no.nav.foreldrepenger.konfig.Environment;
-
 import org.jboss.weld.exceptions.IllegalStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +41,7 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagRegelType;
 import no.nav.foreldrepenger.domene.prosess.GrunnbeløpReguleringsutleder;
 import no.nav.foreldrepenger.domene.prosess.KalkulusKlient;
 import no.nav.foreldrepenger.domene.typer.Beløp;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
@@ -124,11 +121,6 @@ public class BeregningMigreringTjeneste {
 
     private boolean listeInneholderBehandling(LinkedHashSet<Behandling> sortertListe, Long id) {
         return sortertListe.stream().anyMatch(b -> b.getId().equals(id));
-    }
-
-    public boolean kanHentesFraKalkulus(BehandlingReferanse behandlingReferanse) {
-        return koblingRepository.hentKobling(behandlingReferanse.behandlingId()).isPresent();
-
     }
 
     private void migrerBehandling(Behandling behandling) {
