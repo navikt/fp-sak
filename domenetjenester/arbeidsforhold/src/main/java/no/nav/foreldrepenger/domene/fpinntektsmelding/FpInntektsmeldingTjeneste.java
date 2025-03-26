@@ -161,7 +161,7 @@ public class FpInntektsmeldingTjeneste {
             arbeidsgivereDetSkalOpprettesForespørselFor);
 
         LOG.info(
-            "Sender kall til fpinntektsmelding om å opprette migrert forespørsel for saksnummer {} med skjæringstidspunkt {} for følgende organisasjonsnumre: {}",
+            "MIGRER-FP:Sender kall til fpinntektsmelding om å opprette migrert forespørsel for saksnummer {} med skjæringstidspunkt {} for følgende organisasjonsnumre: {}",
             ref.saksnummer(), stp, arbeidsgivereDetSkalOpprettesForespørselFor);
         if (!dryRun) {
             var opprettForespørselResponseNy = klient.opprettForespørsel(request);
@@ -169,10 +169,10 @@ public class FpInntektsmeldingTjeneste {
             opprettForespørselResponseNy.organisasjonsnumreMedStatus().forEach(organisasjonsnummerMedStatus -> {
                 var orgnr = organisasjonsnummerMedStatus.organisasjonsnummerDto().orgnr();
                 if (organisasjonsnummerMedStatus.status().equals(OpprettForespørselResponsNy.ForespørselResultat.FORESPØRSEL_OPPRETTET)) {
-                    LOG.info("Migrert oppgave om å sende inntektsmelding er opprettet for {}.", hentArbeidsgivernavn(orgnr));
+                    LOG.info("MIGRER-FPM:igrert forespørsel om å sende inntektsmelding er opprettet for {}.", hentArbeidsgivernavn(orgnr));
                 } else {
                     if (LOG.isInfoEnabled()) {
-                        LOG.info("Fpinntektsmelding har allerede oppgave på saksnummer: {} og orgnummer: {} på stp: {} og første uttaksdato: {}",
+                        LOG.info("MIGRER-FP:Fpinntektsmelding har allerede forespørsel på saksnummer: {} og orgnummer: {} på stp: {} og første uttaksdato: {}",
                             ref.saksnummer(), tilMaskertNummer(orgnr), skjæringstidspunkt, førsteUttaksdato);
                     }
                 }
