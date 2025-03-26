@@ -36,11 +36,12 @@ class DokumentmottakerVedlegg implements Dokumentmottaker {
 
     @Override
     public void mottaDokument(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
-        dokumentmottakerFelles.opprettHistorikkinnslagForVedlegg(fagsak, mottattDokument);
 
         var åpenBehandling = behandlingRevurderingTjeneste.finnÅpenYtelsesbehandling(fagsak.getId());
         var åpenAnnenBehandling = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
             .filter(b -> !b.erYtelseBehandling()).findFirst();
+        var historikkBehandling = åpenAnnenBehandling.orElse(åpenBehandling.orElse(null));
+        dokumentmottakerFelles.opprettHistorikkinnslagForVedlegg(fagsak, historikkBehandling, mottattDokument);
 
         if (åpenAnnenBehandling.isPresent()) { // Klage, anke, etc
             dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, åpenAnnenBehandling.get(), mottattDokument);
@@ -55,11 +56,12 @@ class DokumentmottakerVedlegg implements Dokumentmottaker {
 
     @Override
     public void mottaDokumentForKøetBehandling(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
-        dokumentmottakerFelles.opprettHistorikkinnslagForVedlegg(fagsak, mottattDokument);
 
         var eksisterendeKøetBehandling = behandlingRevurderingTjeneste.finnKøetYtelsesbehandling(fagsak.getId());
         var åpenAnnenBehandling = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
             .filter(b -> !b.erYtelseBehandling()).findFirst();
+        var historikkBehandling = åpenAnnenBehandling.orElse(eksisterendeKøetBehandling.orElse(null));
+        dokumentmottakerFelles.opprettHistorikkinnslagForVedlegg(fagsak, historikkBehandling, mottattDokument);
         if (åpenAnnenBehandling.isPresent()) { // Klage, anke, etc
             dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, åpenAnnenBehandling.get(), mottattDokument);
         } else if (eksisterendeKøetBehandling.isPresent()) { //#V5

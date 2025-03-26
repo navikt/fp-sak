@@ -126,11 +126,12 @@ class DokumentmottakerVedleggTest {
         var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, null);
 
         // Act
-        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), null);
+        var fagsak = behandling.getFagsak();
+        dokumentmottaker.mottaDokument(mottattDokument, fagsak, null);
 
         // Assert
         verify(kompletthetskontroller).persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
-        verify(dokumentmottakerFelles).opprettHistorikkinnslagForVedlegg(behandling.getFagsak(), mottattDokument);
+        verify(dokumentmottakerFelles).opprettHistorikkinnslagForVedlegg(fagsak, behandling, mottattDokument);
     }
 
     @Test
