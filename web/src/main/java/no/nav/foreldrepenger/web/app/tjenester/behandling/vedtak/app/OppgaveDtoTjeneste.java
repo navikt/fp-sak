@@ -54,7 +54,7 @@ public class OppgaveDtoTjeneste {
         List<OppgaveDto.Beskrivelse> eldreBeskrivelser =
             beskrivelser.size() > 1 ? beskrivelser.subList(1, beskrivelser.size()) : Collections.emptyList();
 
-        return new OppgaveDto(oppgaveType, nyesteBeskrivelse, eldreBeskrivelser, dokumenter);
+        return new OppgaveDto(oppgaveType, oppgave.beskrivelse(), nyesteBeskrivelse, eldreBeskrivelser, dokumenter);
     }
 
     static OppgaveType getOppgaveTypeForKode(Oppgavetype oppgavetype) {
