@@ -194,6 +194,14 @@ public class DokumentBehandlingTjeneste {
             .build());
     }
 
+    public void fjernOverstyringAvBrev(Behandling behandling) {
+        var behandlingDokumentBuilder = getBehandlingDokumentBuilder(behandling.getId());
+        behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder
+            .medBehandling(behandling.getId())
+            .medOverstyrtBrevFritekstHtml(null)
+            .build());
+    }
+
     private BehandlingDokumentEntitet.Builder getBehandlingDokumentBuilder(long behandlingId) {
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingId);
         return getBehandlingDokumentBuilder(behandlingDokument);

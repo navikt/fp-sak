@@ -184,11 +184,15 @@ public class BrevRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response mellomlagringAvOverstyring(@TilpassetAbacAttributt(supplierClass = MellomlagringHtmlSupplier.class) @Valid @NotNull MellomlagreHtmlDto mellomlagring) {
         var behandling = behandlingRepository.hentBehandling(mellomlagring.behandlingUuid());
-        dokumentBehandlingTjeneste.lagreOverstyrtBrev(behandling, mellomlagring.html() != null ? mellomlagring.html().verdi() : null);
+        if (mellomlagring.redigertInnhold() == null) {
+            dokumentBehandlingTjeneste.fjernOverstyringAvBrev(behandling);
+        } else {
+            dokumentBehandlingTjeneste.lagreOverstyrtBrev(behandling, mellomlagring.redigertInnhold().verdi());
+        }
         return Response.ok().build();
     }
 
-    public record MellomlagreHtmlDto(@Valid @NotNull UUID behandlingUuid, @Valid FritekstDto html) {
+    public record MellomlagreHtmlDto(@Valid @NotNull UUID behandlingUuid, @Valid FritekstDto redigertInnhold) {
     }
 
     @POST

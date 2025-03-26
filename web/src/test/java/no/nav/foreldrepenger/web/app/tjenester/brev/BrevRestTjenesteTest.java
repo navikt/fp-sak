@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -177,11 +178,7 @@ class BrevRestTjenesteTest {
         // Act
         brevRestTjeneste.mellomlagringAvOverstyring(new BrevRestTjeneste.MellomlagreHtmlDto(behandling.getUuid(), null));
 
-        var captorHtml = ArgumentCaptor.forClass(String.class);
-
         // Assert
-        verify(dokumentBehandlingTjenesteMock).lagreOverstyrtBrev(any(), captorHtml.capture());
-
-        assertThat(captorHtml.getValue()).isNull();
+        verify(dokumentBehandlingTjenesteMock,  times(1)).fjernOverstyringAvBrev(any());
     }
 }
