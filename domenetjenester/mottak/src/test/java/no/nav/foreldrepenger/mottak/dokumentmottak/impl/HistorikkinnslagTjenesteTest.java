@@ -66,9 +66,9 @@ class HistorikkinnslagTjenesteTest {
 
         var dokumentLinker = historikkinnslag.getDokumentLinker();
         assertThat(dokumentLinker).hasSize(2);
-        assertThat(dokumentLinker.get(0).getDokumentId()).isEqualTo(HOVEDDOKUMENT_DOKUMENT_ID);
-        assertThat(dokumentLinker.get(0).getJournalpostId()).isEqualTo(JOURNALPOST_ID);
-        assertThat(dokumentLinker.get(0).getLinkTekst()).isEqualTo("Søknad");
+        assertThat(dokumentLinker.getFirst().getDokumentId()).isEqualTo(HOVEDDOKUMENT_DOKUMENT_ID);
+        assertThat(dokumentLinker.getFirst().getJournalpostId()).isEqualTo(JOURNALPOST_ID);
+        assertThat(dokumentLinker.getFirst().getLinkTekst()).isEqualTo("Søknad");
         assertThat(dokumentLinker.get(1).getDokumentId()).isEqualTo(VEDLEGG_DOKUMENT_ID);
         assertThat(dokumentLinker.get(1).getJournalpostId()).isEqualTo(JOURNALPOST_ID);
         assertThat(dokumentLinker.get(1).getLinkTekst()).isEqualTo("Vedlegg");
@@ -93,9 +93,9 @@ class HistorikkinnslagTjenesteTest {
         var historikkinnslag = captor.getValue();
         var dokumentLinker = historikkinnslag.getDokumentLinker();
         assertThat(dokumentLinker).hasSize(1);
-        assertThat(dokumentLinker.get(0).getDokumentId()).isEqualTo(HOVEDDOKUMENT_DOKUMENT_ID);
-        assertThat(dokumentLinker.get(0).getJournalpostId()).isEqualTo(JOURNALPOST_ID);
-        assertThat(dokumentLinker.get(0).getLinkTekst()).isEqualTo("Papirsøknad");
+        assertThat(dokumentLinker.getFirst().getDokumentId()).isEqualTo(HOVEDDOKUMENT_DOKUMENT_ID);
+        assertThat(dokumentLinker.getFirst().getJournalpostId()).isEqualTo(JOURNALPOST_ID);
+        assertThat(dokumentLinker.getFirst().getLinkTekst()).isEqualTo("Papirsøknad");
     }
 
     @Test
@@ -109,7 +109,8 @@ class HistorikkinnslagTjenesteTest {
             .thenReturn(Optional.of(byggJournalpost(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, Collections.emptyList())));
 
         // Act
-        historikkinnslagTjeneste.opprettHistorikkinnslagForVedlegg(behandling.getFagsak(), JOURNALPOST_ID, DokumentTypeId.INNTEKTSMELDING, true);
+        historikkinnslagTjeneste.opprettHistorikkinnslagForVedlegg(behandling.getFagsak(), behandling, JOURNALPOST_ID, DokumentTypeId.INNTEKTSMELDING,
+            true);
 
         // Assert
         var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
@@ -117,9 +118,9 @@ class HistorikkinnslagTjenesteTest {
         var historikkinnslag = captor.getValue();
         var dokumentLinker = historikkinnslag.getDokumentLinker();
         assertThat(dokumentLinker).hasSize(1);
-        assertThat(dokumentLinker.get(0).getDokumentId()).isEqualTo(HOVEDDOKUMENT_DOKUMENT_ID);
-        assertThat(dokumentLinker.get(0).getJournalpostId()).isEqualTo(JOURNALPOST_ID);
-        assertThat(dokumentLinker.get(0).getLinkTekst()).isEqualTo("Inntektsmelding");
+        assertThat(dokumentLinker.getFirst().getDokumentId()).isEqualTo(HOVEDDOKUMENT_DOKUMENT_ID);
+        assertThat(dokumentLinker.getFirst().getJournalpostId()).isEqualTo(JOURNALPOST_ID);
+        assertThat(dokumentLinker.getFirst().getLinkTekst()).isEqualTo("Inntektsmelding");
     }
 
     @Test
@@ -133,7 +134,8 @@ class HistorikkinnslagTjenesteTest {
             .thenReturn(Optional.of(byggJournalpost(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, Collections.emptyList())));
 
         // Act
-        historikkinnslagTjeneste.opprettHistorikkinnslagForVedlegg(behandling.getFagsak(), JOURNALPOST_ID, DokumentTypeId.ANNET, false);
+        historikkinnslagTjeneste.opprettHistorikkinnslagForVedlegg(behandling.getFagsak(), behandling, JOURNALPOST_ID, DokumentTypeId.ANNET,
+            false);
 
         // Assert
         var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
@@ -141,9 +143,9 @@ class HistorikkinnslagTjenesteTest {
         var historikkinnslag = captor.getValue();
         var dokumentLinker = historikkinnslag.getDokumentLinker();
         assertThat(dokumentLinker).hasSize(1);
-        assertThat(dokumentLinker.get(0).getDokumentId()).isEqualTo(HOVEDDOKUMENT_DOKUMENT_ID);
-        assertThat(dokumentLinker.get(0).getJournalpostId()).isEqualTo(JOURNALPOST_ID);
-        assertThat(dokumentLinker.get(0).getLinkTekst()).isEqualTo("Ettersendelse");
+        assertThat(dokumentLinker.getFirst().getDokumentId()).isEqualTo(HOVEDDOKUMENT_DOKUMENT_ID);
+        assertThat(dokumentLinker.getFirst().getJournalpostId()).isEqualTo(JOURNALPOST_ID);
+        assertThat(dokumentLinker.getFirst().getLinkTekst()).isEqualTo("Ettersendelse");
     }
 
     @Test
