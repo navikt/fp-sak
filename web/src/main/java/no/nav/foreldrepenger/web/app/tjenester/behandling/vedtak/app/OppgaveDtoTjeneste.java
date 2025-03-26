@@ -35,6 +35,10 @@ public class OppgaveDtoTjeneste {
         this.dokumentArkivTjeneste = dokumentArkivTjeneste;
     }
 
+    public List<OppgaveDto> mapTilDto(AktørId aktørId) {
+        return oppgaveTjeneste.hentÅpneVurderDokumentOgVurderKonsekvensOppgaver(aktørId).stream().map(this::mapTilOppgaveDto).toList();
+    }
+
     private OppgaveDto mapTilOppgaveDto(Oppgave oppgave) {
         var oppgaveType = getOppgaveTypeForKode(oppgave.oppgavetype());
 
@@ -117,9 +121,5 @@ public class OppgaveDtoTjeneste {
         if (!beskrivelse.isEmpty()) {
             beskrivelser.add(new OppgaveDto.Beskrivelse(header, List.of(beskrivelse.split("\n"))));
         }
-    }
-
-    public List<OppgaveDto> mapTilDto(AktørId aktørId) {
-        return oppgaveTjeneste.hentÅpneVurderDokumentOgVurderKonsekvensOppgaver(aktørId).stream().map(this::mapTilOppgaveDto).toList();
     }
 }
