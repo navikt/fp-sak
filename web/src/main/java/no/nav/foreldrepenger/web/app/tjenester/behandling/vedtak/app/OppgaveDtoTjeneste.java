@@ -86,6 +86,7 @@ public class OppgaveDtoTjeneste {
         List<OppgaveDto.Beskrivelse> beskrivelser = new ArrayList<>();
 
         if (oppgaveBeskrivelse != null && !oppgaveBeskrivelse.trim().isEmpty()) {
+            // Splitter beskrivelse opp i (1) headere med innhold og (2) eventuell VL-kommentar
             String[] splittetBeskrivelse = oppgaveBeskrivelse.split("VL: ", 2);
 
             String resterendeBeskrivelse = splittetBeskrivelse[0].trim();
@@ -99,12 +100,14 @@ public class OppgaveDtoTjeneste {
     }
 
     private static void splittPåHeaderOgLeggTilBeskrivelse(String resterendeBeskrivelse, List<OppgaveDto.Beskrivelse> beskrivelser) {
+        // Matcher som finner mønsteret for header (--- tekst ---)
         Matcher headerMatcher = Pattern.compile("--- .*? ---").matcher(resterendeBeskrivelse);
 
         String currentHeader = "";
         int lastIndex = 0;
 
         while (headerMatcher.find()) {
+            // Hvis det finnes tekst før den første overskriften, legg den til som beskrivelse
             if (lastIndex < headerMatcher.start()) {
                 leggTilBeskrivelse(beskrivelser, currentHeader, resterendeBeskrivelse.substring(lastIndex, headerMatcher.start()).trim());
             }
@@ -112,6 +115,7 @@ public class OppgaveDtoTjeneste {
             lastIndex = headerMatcher.end();
         }
 
+        // Hvis det er tekst igjen etter siste overskrift, legg den til
         if (lastIndex < resterendeBeskrivelse.length()) {
             leggTilBeskrivelse(beskrivelser, currentHeader, resterendeBeskrivelse.substring(lastIndex).trim());
         }
@@ -119,6 +123,7 @@ public class OppgaveDtoTjeneste {
 
     private static void leggTilBeskrivelse(List<OppgaveDto.Beskrivelse> beskrivelser, String header, String beskrivelse) {
         if (!beskrivelse.isEmpty()) {
+            // Oppretter OppgaveDto.Beskrivelse med overskrift og kommentarer delt opp i linjer
             beskrivelser.add(new OppgaveDto.Beskrivelse(header, List.of(beskrivelse.split("\n"))));
         }
     }
