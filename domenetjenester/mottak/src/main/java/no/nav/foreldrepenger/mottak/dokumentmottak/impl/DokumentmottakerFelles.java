@@ -112,13 +112,12 @@ public class DokumentmottakerFelles {
             DokumentKategori.SØKNAD.equals(mottattDokument.getDokumentKategori())) {
             historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, mottattDokument.getJournalpostId(), mottattDokument.getElektroniskRegistrert(), false);
         } else {
-            historikkinnslagTjeneste.opprettHistorikkinnslagForVedlegg(behandling.getFagsak(), mottattDokument.getJournalpostId(),
-                mottattDokument.getDokumentType(), mottattDokument.getElektroniskRegistrert());
+            opprettHistorikkinnslagForVedlegg(behandling.getFagsak(), behandling, mottattDokument);
         }
     }
 
-    void opprettHistorikkinnslagForVedlegg(Fagsak fagsak, MottattDokument mottattDokument) {
-        historikkinnslagTjeneste.opprettHistorikkinnslagForVedlegg(fagsak, mottattDokument.getJournalpostId(),
+    void opprettHistorikkinnslagForVedlegg(Fagsak fagsak, Behandling behandling, MottattDokument mottattDokument) {
+        historikkinnslagTjeneste.opprettHistorikkinnslagForVedlegg(fagsak, behandling, mottattDokument.getJournalpostId(),
             mottattDokument.getDokumentType(), mottattDokument.getElektroniskRegistrert());
     }
 
