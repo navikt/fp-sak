@@ -74,7 +74,7 @@ class OppgaveDtoTjenesteTest {
         assertThat(beskrivelser).hasSize(3);
         assertBeskrivelse(beskrivelser.getFirst(), "--- header ---", "kommentarMedHeader");
         assertBeskrivelse(beskrivelser.get(1), "--- header2 ---", "kommentarMedHeader2Del1", "kommentarMedHeader2Del2");
-        assertBeskrivelse(beskrivelser.getLast(), "", "VL: kommentarUtenHeader");
+        assertBeskrivelse(beskrivelser.getLast(), null, "VL: kommentarUtenHeader");
     }
 
     @Test
