@@ -1,8 +1,15 @@
 package no.nav.foreldrepenger.domene.vedtak.migrering;
 
+import java.util.List;
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
@@ -11,11 +18,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Optional;
 
 @ApplicationScoped
 @ProsessTask(value = "fpinntektsmelding.opprettManglendeforespørsler", prioritet = 3, maxFailedRuns = 1)
@@ -82,7 +84,7 @@ public class OpprettManglendeForespørslerTask implements ProsessTaskHandler {
     }
 
     public static ProsessTaskData opprettManglendeForespørselTaskForNesteDato(Long nesteId, Long tomFagsakId,  boolean dryRun) {
-        LOG.info("Oppretter OpprettManglendeForespørslerTask for fagsakId {}", nesteId);
+        LOG.info("MIGRER-FP: Oppretter OpprettManglendeForespørslerTask for fagsakId {}", nesteId);
         var prosessTaskData = ProsessTaskData.forProsessTask(OpprettManglendeForespørslerTask.class);
         prosessTaskData.setProperty(FRA_FAGSAK_ID, String.valueOf(nesteId));
         prosessTaskData.setProperty(TOM_FAGSAK_ID, String.valueOf(tomFagsakId));

@@ -1,7 +1,14 @@
 package no.nav.foreldrepenger.domene.vedtak.migrering;
 
+import java.time.LocalDate;
+import java.util.stream.Collectors;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
@@ -15,12 +22,6 @@ import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.svp.MaksDatoUttakTjenesteImpl;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.konfig.Tid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class MigrerManglendeForespørslerTjeneste {
@@ -39,7 +40,8 @@ public class MigrerManglendeForespørslerTjeneste {
     }
 
     @Inject
-    public MigrerManglendeForespørslerTjeneste(BehandlingRepository behandlingRepository, SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+    public MigrerManglendeForespørslerTjeneste(BehandlingRepository behandlingRepository,
+                                               SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                                StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste,
                                                UttakInputTjeneste uttakInputTjeneste,
                                                FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste,
@@ -68,28 +70,31 @@ public class MigrerManglendeForespørslerTjeneste {
                 var saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput);
                 var stønadRest = stønadskontoSaldoTjeneste.finnStønadRest(saldoUtregning);
                 if (stønadRest <= 10) {
-                    LOG.info("Saksnummer {} har ikke nok dager igjen på saldo til å opprette forespørsel. Stønadrest er: {}", sak.getSaksnummer(), stønadRest);
+                    LOG.info("MIGRER-FP: Saksnummer {} har ikke nok dager igjen på saldo til å opprette forespørsel. Stønadrest er: {}",
+                        sak.getSaksnummer(), stønadRest);
                     return;
                 }
             } else {
                 var sisteUttaksdato = maksDatoUttakTjenesteSvp.beregnMaksDatoUttak(uttakInput).orElse(Tid.TIDENES_BEGYNNELSE);
                 if (sisteUttaksdato.plusDays(10).isBefore(LocalDate.now())) {
-                    LOG.info("Saksnummer {} har ingen uttaksperioder. Ingen forespørsel opprettes", sak.getSaksnummer());
+                    LOG.info("MIGRER-FP: Saksnummer {} har ingen uttaksperioder. Ingen forespørsel opprettes", sak.getSaksnummer());
                     return;
                 }
             }
 
-            var arbeidsgivereMedRefusjon = inntektsmeldingTjeneste.hentInntektsmeldinger(BehandlingReferanse.fra(behandling), stp.getUtledetSkjæringstidspunkt()).stream()
-                    .filter(inntektsmelding -> !inntektsmelding.kommerFraArbeidsgiverPortal() && inntektsmelding.getArbeidsgiver().getErVirksomhet())
-                    .filter(inntektsmelding -> inntektsmelding.getRefusjonBeløpPerMnd() != null && inntektsmelding.getRefusjonBeløpPerMnd().getVerdi().compareTo(BigDecimal.ZERO) > 0)
-                    .map(inntektsmelding -> new OrganisasjonsnummerDto(inntektsmelding.getArbeidsgiver().getOrgnr()))
-                    .toList();
+            var arbeidsgivereSomHarSendtIm = inntektsmeldingTjeneste.hentInntektsmeldinger(BehandlingReferanse.fra(behandling),
+                    stp.getUtledetSkjæringstidspunkt())
+                .stream()
+                .filter(inntektsmelding -> !inntektsmelding.kommerFraArbeidsgiverPortal() && inntektsmelding.getArbeidsgiver().getErVirksomhet())
+                .map(inntektsmelding -> new OrganisasjonsnummerDto(inntektsmelding.getArbeidsgiver().getOrgnr()))
+                .toList();
 
-            if (!arbeidsgivereMedRefusjon.isEmpty()) {
-                LOG.info("det opprettes forespørsel for {} for følgende organisasjonsnumre {}", sak.getSaksnummer(), arbeidsgivereMedRefusjon.stream().map(OrganisasjonsnummerDto::toString).collect(Collectors.joining(", ")));
-                fpInntektsmeldingTjeneste.opprettForespørsel(BehandlingReferanse.fra(behandling), stp, arbeidsgivereMedRefusjon, dryRun);
+            if (!arbeidsgivereSomHarSendtIm.isEmpty()) {
+                LOG.info("MIGRER-FP: Det opprettes migrert forespørsel for {} for følgende organisasjonsnumre {}", sak.getSaksnummer(),
+                    arbeidsgivereSomHarSendtIm.stream().map(OrganisasjonsnummerDto::toString).collect(Collectors.joining(", ")));
+                fpInntektsmeldingTjeneste.opprettMigrertForespørsel(BehandlingReferanse.fra(behandling), stp, arbeidsgivereSomHarSendtIm, dryRun);
             } else {
-                LOG.info("{} har ingen arbeidsgivere med refusjon", sak.getSaksnummer());
+                LOG.info("MIGRER-FP: {} har ingen arbeidsgivere med refusjon", sak.getSaksnummer());
             }
         });
     }
