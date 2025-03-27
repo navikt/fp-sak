@@ -117,7 +117,7 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
     }
 
     private boolean erFritekst(BehandlingDokumentEntitet dok) {
-        return dok.getOverstyrtBrevFritekst() != null;
+        return dok.getOverstyrtBrevFritekst() != null || dok.getOverstyrtBrevFritekstHtml() != null;
     }
 
     private Behandlingsresultat.Builder getBehandlingsresultatBuilder(long behandlingId) {
