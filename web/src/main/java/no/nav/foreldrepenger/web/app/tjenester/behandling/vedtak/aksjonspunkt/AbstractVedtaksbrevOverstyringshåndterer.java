@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
+import no.nav.vedtak.exception.TekniskException;
 
 public abstract class AbstractVedtaksbrevOverstyringshåndterer {
 
@@ -79,15 +80,22 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
     private void settFritekstBrev(Behandling behandling, VedtaksbrevOverstyringDto dto) {
         var behandlingId = behandling.getId();
         var behandlingDokumentBuilder = getBehandlingDokumentBuilder(behandlingId);
-        behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder
-                .medBehandling(behandlingId)
-                .medOverstyrtBrevOverskrift(dto.getOverskrift())
-                .medOverstyrtBrevFritekst(dto.getFritekstBrev())
-                .build());
+        var behandlingDokumentEntitet = behandlingDokumentBuilder.medBehandling(behandlingId)
+            .medOverstyrtBrevOverskrift(dto.getOverskrift())
+            .medOverstyrtBrevFritekst(dto.getFritekstBrev())
+            .build();
+        verifiserBehandlingDokumentHarRedigertBrev(behandlingDokumentEntitet);
+        behandlingDokumentRepository.lagreOgFlush(behandlingDokumentEntitet);
         var behandlingsresultat = getBehandlingsresultatBuilder(behandlingId)
                 .medVedtaksbrev(Vedtaksbrev.FRITEKST)
                 .buildFor(behandling);
         behandlingsresultatRepository.lagre(behandlingId, behandlingsresultat);
+    }
+
+    private static void verifiserBehandlingDokumentHarRedigertBrev(BehandlingDokumentEntitet behandlingDokumentEntitet) {
+        if (behandlingDokumentEntitet.getOverstyrtBrevFritekst() == null && behandlingDokumentEntitet.getOverstyrtBrevFritekstHtml() == null) {
+            throw new TekniskException("FP-666916", "Foreslå vedtaksteget har sendt at brev skal overstyres til beslutter men det foreligger ingen overstyring!");
+        }
     }
 
     private void fjernFritekstBrevHvisEksisterer(long behandlingId) {
