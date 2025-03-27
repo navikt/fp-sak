@@ -93,7 +93,7 @@ public class OppgaveDtoTjeneste {
             splittPåHeaderOgLeggTilBeskrivelse(resterendeBeskrivelse, beskrivelser);
 
             if (splittetBeskrivelse.length > 1) {
-                leggTilBeskrivelse(beskrivelser, "", "VL: " + splittetBeskrivelse[1].trim());
+                leggTilBeskrivelse(beskrivelser, null, "VL: " + splittetBeskrivelse[1].trim());
             }
         }
         return beskrivelser;
