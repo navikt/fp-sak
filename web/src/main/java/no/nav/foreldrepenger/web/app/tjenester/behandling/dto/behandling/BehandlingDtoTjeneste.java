@@ -35,6 +35,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
@@ -351,7 +352,7 @@ public class BehandlingDtoTjeneste {
         }
 
 
-        if (harAksjonspunktIForslåVedtakSomErOpprettetEllerUtført(behandling)) {
+        if (harAksjonspunktIForslåVedtakSomErOpprettetEllerUtført(behandling) && harIkkeBehandlingresultatMedVedtaksbrevINGEN(behandling)) {
             dto.leggTil(get(BrevRestTjeneste.BREV_HENT_OVERSTYRING_PATH, "hent-brev-overstyring", uuidDto));
             dto.leggTil(post(BrevRestTjeneste.BREV_MELLOMLAGRE_OVERSTYRING_PATH, "mellomlagre-brev-overstyring"));
         }
@@ -483,10 +484,15 @@ public class BehandlingDtoTjeneste {
         return dto;
     }
 
+    private boolean harIkkeBehandlingresultatMedVedtaksbrevINGEN(Behandling behandling) {
+        return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())
+            .filter(resultat -> !Vedtaksbrev.INGEN.equals(resultat.getVedtaksbrev()))
+            .isPresent();
+    }
+
     private static boolean harAksjonspunktIForslåVedtakSomErOpprettetEllerUtført(Behandling behandling) {
         return behandling.getAksjonspunkter().stream()
-            .filter(ap -> AksjonspunktDefinisjon.FORESLÅ_VEDTAK.equals(ap.getAksjonspunktDefinisjon())
-                || AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT.equals(ap.getAksjonspunktDefinisjon()))
+            .filter(ap -> AksjonspunktDefinisjon.FORESLÅ_VEDTAK.equals(ap.getAksjonspunktDefinisjon()) || AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT.equals(ap.getAksjonspunktDefinisjon()))
             .anyMatch(ap -> ap.erOpprettet() || ap.erUtført());
     }
 
@@ -511,10 +517,11 @@ public class BehandlingDtoTjeneste {
 
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
         if (behandlingDokument.isPresent()) {
-            dto.setAvslagsarsakFritekst(behandlingDokument.get().getVedtakFritekst());
-            dto.setOverskrift(behandlingDokument.get().getOverstyrtBrevOverskrift());
-            dto.setFritekstbrev(behandlingDokument.get().getOverstyrtBrevFritekst());
-            dto.setFritekstbrevHtml(behandlingDokument.get().getOverstyrtBrevFritekstHtml());
+            var behandlingDokumentEntitet = behandlingDokument.get();
+            dto.setAvslagsarsakFritekst(behandlingDokumentEntitet.getVedtakFritekst());
+            dto.setOverskrift(behandlingDokumentEntitet.getOverstyrtBrevOverskrift());
+            dto.setFritekstbrev(behandlingDokumentEntitet.getOverstyrtBrevFritekst());
+            dto.setHarRedigertVedtaksbrev(behandlingDokumentEntitet.getOverstyrtBrevFritekstHtml() != null);
         }
 
         dto.setVedtaksbrev(behandlingsresultat.getVedtaksbrev());
