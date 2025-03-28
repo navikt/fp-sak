@@ -14,7 +14,8 @@ public record OpprettForespørselRequest(@NotNull @Valid AktørIdDto aktørId,
                                         @NotNull YtelseType ytelsetype,
                                         @NotNull @Valid SaksnummerDto fagsakSaksnummer,
                                         @Valid LocalDate førsteUttaksdato,
-                                        @Valid List<OrganisasjonsnummerDto> organisasjonsnumre) {
+                                        @Valid List<OrganisasjonsnummerDto> organisasjonsnumre,
+                                        @Valid @NotNull boolean migrering) {
     protected record AktørIdDto(@NotNull @JsonValue String id){
         @Override
         public String toString() {
