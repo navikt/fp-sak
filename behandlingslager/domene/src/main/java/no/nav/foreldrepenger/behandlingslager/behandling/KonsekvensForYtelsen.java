@@ -13,14 +13,12 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum KonsekvensForYtelsen implements Kodeverdi{
 
-
     FORELDREPENGER_OPPHØRER("FORELDREPENGER_OPPHØRER", "Foreldrepenger opphører"),
     ENDRING_I_BEREGNING("ENDRING_I_BEREGNING", "Endring i beregning"),
     ENDRING_I_UTTAK("ENDRING_I_UTTAK", "Endring i uttak"),
     ENDRING_I_FORDELING_AV_YTELSEN("ENDRING_I_FORDELING_AV_YTELSEN", "Endring i fordeling av ytelsen"),
     INGEN_ENDRING("INGEN_ENDRING", "Ingen endring"),
     UDEFINERT("-", "Udefinert"),
-
     ;
 
     private static final Map<String, KonsekvensForYtelsen> KODER = new LinkedHashMap<>();
