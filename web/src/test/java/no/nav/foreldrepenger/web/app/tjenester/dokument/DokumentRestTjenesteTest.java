@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.NavBrukerBuilder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
@@ -44,6 +43,7 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 
 @ExtendWith(MockitoExtension.class)
@@ -57,7 +57,7 @@ class DokumentRestTjenesteTest {
     @Mock
     private FagsakRepository fagsakRepository;
     @Mock
-    private MottatteDokumentRepository mottatteDokumentRepository;
+    private MottatteDokumentTjeneste mottatteDokumentTjeneste;
     @Mock
     private VirksomhetTjeneste virksomhetTjeneste;
     @Mock
@@ -67,7 +67,7 @@ class DokumentRestTjenesteTest {
 
     @BeforeEach
     public void setUp() {
-        tjeneste = new DokumentRestTjeneste(dokumentArkivTjeneste, inntektsmeldingTjeneste, fagsakRepository, mottatteDokumentRepository,
+        tjeneste = new DokumentRestTjeneste(dokumentArkivTjeneste, inntektsmeldingTjeneste, fagsakRepository, mottatteDokumentTjeneste,
                 virksomhetTjeneste, behandlingRepository);
     }
 
@@ -133,7 +133,7 @@ class DokumentRestTjenesteTest {
                 .medDokumentType(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL).medFagsakId(fagsakId).medBehandlingId(behandlingId).build();
         var mdim = new MottattDokument.Builder().medId(1002L).medJournalPostId(new JournalpostId("124"))
                 .medDokumentType(DokumentTypeId.INNTEKTSMELDING).medFagsakId(fagsakId).medBehandlingId(behandlingId).build();
-        when(mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(fagsakId)).thenReturn(List.of(mdim, mds));
+        when(mottatteDokumentTjeneste.hentMottatteDokumentFagsak(fagsakId)).thenReturn(List.of(mdim, mds));
 
         var vnavn = "Sinsen Septik og Snarmat";
         var sinsen = new Virksomhet.Builder().medNavn(vnavn).medOrgnr(ORGNR).build();

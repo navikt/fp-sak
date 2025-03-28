@@ -47,18 +47,16 @@ public class BeregningsgrunnlagFormidlingRestTjeneste {
     }
 
     @Inject
-    public BeregningsgrunnlagFormidlingRestTjeneste(BehandlingRepository behandlingRepository,
-                                                    BeregningTjeneste beregningTjeneste) {
+    public BeregningsgrunnlagFormidlingRestTjeneste(BehandlingRepository behandlingRepository, BeregningTjeneste beregningTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.beregningTjeneste = beregningTjeneste;
     }
 
     @GET
-    @Operation(description = "Hent beregningsgrunnlag for angitt behandling for formidlingsbruk", summary = "Returnerer beregningsgrunnlag for behandling for formidlingsbruk.", tags = "formidling")
+    @Operation(description = "Hent beregningsgrunnlag for angitt behandling for bruk i brev", summary = "Returnerer beregningsgrunnlag for behandling for brev.", tags = "formidling")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     @Path(BEREGNINGSGRUNNLAG_PART_PATH)
-    public Response hentBeregningsgrunnlagFormidlingV2(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-                                                     @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public Response hentBeregningsgrunnlagFormidlingV2(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var uid = Optional.ofNullable(uuidDto.getBehandlingUuid());
         var dto = uid.flatMap(behandlingRepository::hentBehandlingHvisFinnes)
             .map(BehandlingReferanse::fra)
@@ -66,10 +64,8 @@ public class BeregningsgrunnlagFormidlingRestTjeneste {
             .flatMap(bggr -> new BeregningsgrunnlagFormidlingV2DtoTjeneste(bggr).map());
 
         if (dto.isEmpty()) {
-            var responseBuilder = Response.ok();
-            return responseBuilder.build();
+            return Response.ok().build();
         }
-        var responseBuilder = Response.ok(dto.get());
-        return responseBuilder.build();
+        return Response.ok(dto.get()).build();
     }
 }

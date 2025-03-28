@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 
 @RequestScoped
 class IAYRequestCache {
-    private List<InntektArbeidYtelseGrunnlag> cacheGrunnlag = new ArrayList<>();
+    private final List<InntektArbeidYtelseGrunnlag> cacheGrunnlag = new ArrayList<>();
 
     void leggTil(InntektArbeidYtelseGrunnlag dto) {
         this.cacheGrunnlag.removeIf(g -> dto.getEksternReferanse().equals(g.getEksternReferanse()));
