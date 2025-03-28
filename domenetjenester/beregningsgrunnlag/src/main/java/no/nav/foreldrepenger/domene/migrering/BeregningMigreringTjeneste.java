@@ -41,6 +41,7 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagRegelType;
 import no.nav.foreldrepenger.domene.prosess.GrunnbeløpReguleringsutleder;
 import no.nav.foreldrepenger.domene.prosess.KalkulusKlient;
 import no.nav.foreldrepenger.domene.typer.Beløp;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
@@ -68,6 +69,22 @@ public class BeregningMigreringTjeneste {
         this.koblingRepository = koblingRepository;
         this.behandlingRepository = behandlingRepository;
         this.regelsporingMigreringTjeneste = regelsporingMigreringTjeneste;
+    }
+
+    public boolean skalBeregnesIKalkulus(BehandlingReferanse referanse) {
+        if (Environment.current().isProd()) {
+            return false;
+        }
+        var harAktivtGrunnlagIFpsak = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(referanse.behandlingId()).isPresent();
+        if (harAktivtGrunnlagIFpsak) {
+            return false;
+        }
+        var originalKobling = referanse.getOriginalBehandlingId().flatMap(koblingRepository::hentKobling);
+        if (referanse.erRevurdering() && originalKobling.isEmpty()) {
+            // Revurderinger er avhengig av at originalkobling ligger i kalkulus så vi har et grunnlag å basere oss på
+            return false;
+        }
+        return true;
     }
 
     public void migrerSak(no.nav.foreldrepenger.domene.typer.Saksnummer saksnummer) {
@@ -104,11 +121,6 @@ public class BeregningMigreringTjeneste {
 
     private boolean listeInneholderBehandling(LinkedHashSet<Behandling> sortertListe, Long id) {
         return sortertListe.stream().anyMatch(b -> b.getId().equals(id));
-    }
-
-    public boolean kanHentesFraKalkulus(BehandlingReferanse behandlingReferanse) {
-        return koblingRepository.hentKobling(behandlingReferanse.behandlingId()).isPresent();
-
     }
 
     private void migrerBehandling(Behandling behandling) {
