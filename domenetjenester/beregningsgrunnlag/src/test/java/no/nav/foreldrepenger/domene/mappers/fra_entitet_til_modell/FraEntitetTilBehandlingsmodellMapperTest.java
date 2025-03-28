@@ -2,15 +2,43 @@ package no.nav.foreldrepenger.domene.mappers.fra_entitet_til_modell;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import no.nav.foreldrepenger.domene.mappers.fra_entitet_til_domene.FraEntitetTilBehandlingsmodellMapper;
-import no.nav.foreldrepenger.domene.modell.kodeverk.SammenligningsgrunnlagType;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
+import no.nav.foreldrepenger.domene.mappers.fra_entitet_til_domene.FraEntitetTilBehandlingsmodellMapper;
+import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.modell.kodeverk.SammenligningsgrunnlagType;
+import no.nav.vedtak.konfig.Tid;
 
 class FraEntitetTilBehandlingsmodellMapperTest {
+
+    @Test
+    void tester_at_null_tom_mappes_om_til_tidenes_ende() {
+        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny().medGrunnbeløp(BigDecimal.valueOf(0L)).medSkjæringstidspunkt(LocalDate.now()).build();
+        BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSAVKLARINGSPENGER).build(beregningsgrunnlag);
+        var periode = BeregningsgrunnlagPeriode.ny().medBeregningsgrunnlagPeriode(LocalDate.now(), null).build(beregningsgrunnlag);
+        BeregningsgrunnlagPeriode.oppdater(periode).build(beregningsgrunnlag);
+        var gr = BeregningsgrunnlagGrunnlagBuilder.nytt()
+            .medBeregningsgrunnlag(beregningsgrunnlag)
+            .build(1L, BeregningsgrunnlagTilstand.FORESLÅTT);
+
+        var mappetGrunnlag = FraEntitetTilBehandlingsmodellMapper.mapBeregningsgrunnlagGrunnlag(gr);
+
+        assertThat(mappetGrunnlag).isNotNull();
+        var p1 = mappetGrunnlag.getBeregningsgrunnlag().orElseThrow().getBeregningsgrunnlagPerioder().getFirst();
+        assertThat(p1).isNotNull();
+        assertThat(p1.getPeriode().getFomDato()).isEqualTo(LocalDate.now());
+        assertThat(p1.getPeriode().getTomDato()).isEqualTo(Tid.TIDENES_ENDE);
+    }
 
     @Test
     void tester_mapping_beregningsgrunnlag() {

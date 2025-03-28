@@ -220,8 +220,8 @@ public class FraEntitetTilBehandlingsmodellMapper {
 
     private static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode mapPeriode(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode beregningsgrunnlagPeriodeDto) {
         var periodeBuilder = no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode.builder()
-            .medBeregningsgrunnlagPeriode(beregningsgrunnlagPeriodeDto.getBeregningsgrunnlagPeriodeFom(),
-                beregningsgrunnlagPeriodeDto.getBeregningsgrunnlagPeriodeTom())
+            .medBeregningsgrunnlagPeriode(beregningsgrunnlagPeriodeDto.getPeriode().getFomDato(),
+                beregningsgrunnlagPeriodeDto.getPeriode().getTomDato())
             .medAvkortetPrÅr(beregningsgrunnlagPeriodeDto.getAvkortetPrÅr())
             .medBruttoPrÅr(beregningsgrunnlagPeriodeDto.getBruttoPrÅr())
             .medRedusertPrÅr(beregningsgrunnlagPeriodeDto.getRedusertPrÅr())

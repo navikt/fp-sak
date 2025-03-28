@@ -4,7 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.dto.OppgaveDto;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,9 +17,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.Tema;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OppgaveType;
+import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
+import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
+import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
@@ -28,23 +38,26 @@ class OppgaveDtoTjenesteTest {
 
     @Mock
     private OppgaveTjeneste oppgaveTjenesteMock;
+    @Mock
+    private DokumentArkivTjeneste dokumentArkivTjenesteMock;
     @InjectMocks
     private OppgaveDtoTjeneste oppgaveDtoTjeneste;
 
     @Test
     void henter_oppgaver_og_mapper_til_dto() {
-        Oppgave vurderDokument = opprettOppgave(Oppgavetype.VURDER_DOKUMENT, "vurderDokumentBeskrivelse");
-        Oppgave vurderKonsekvens = opprettOppgave(Oppgavetype.VURDER_KONSEKVENS_YTELSE, "vurderKonsekvensBeskrivelse");
+        var vurderDokumentJournalpostId = new JournalpostId("123");
+        Oppgave vurderDokument = opprettOppgave(Oppgavetype.VURDER_DOKUMENT, "vurderDokumentBeskrivelse", vurderDokumentJournalpostId.getVerdi());
+        Oppgave vurderKonsekvens = opprettOppgave(Oppgavetype.VURDER_KONSEKVENS_YTELSE, "vurderKonsekvensBeskrivelse", null);
         List<Oppgave> forventedeOppgaver = List.of(vurderDokument, vurderKonsekvens);
+        ArkivJournalPost arkivJournalPost = opprettArkivJournalPost(vurderDokumentJournalpostId);
         when(oppgaveTjenesteMock.hentÅpneVurderDokumentOgVurderKonsekvensOppgaver(AKTØR_ID)).thenReturn(forventedeOppgaver);
+        when(dokumentArkivTjenesteMock.hentJournalpostForSak(vurderDokumentJournalpostId)).thenReturn(Optional.of(arkivJournalPost));
 
         var oppgaver = oppgaveDtoTjeneste.mapTilDto(AKTØR_ID);
 
         assertThat(oppgaver).hasSize(2);
-        assertThat(oppgaver.getFirst().oppgavetype()).isEqualTo(OppgaveType.VUR_DOKUMENT);
-        assertThat(oppgaver.getFirst().beskrivelse()).isEqualTo(forventedeOppgaver.getFirst().beskrivelse());
-        assertThat(oppgaver.getLast().oppgavetype()).isEqualTo(OppgaveType.VUR_KONSEKVENS);
-        assertThat(oppgaver.getLast().beskrivelse()).isEqualTo(forventedeOppgaver.getLast().beskrivelse());
+        assertOppgave(oppgaver.get(0), OppgaveType.VUR_DOKUMENT, "vurderDokumentBeskrivelse", 3);
+        assertOppgave(oppgaver.get(1), OppgaveType.VUR_KONSEKVENS, "vurderKonsekvensBeskrivelse", 0);
     }
 
     @Test
@@ -53,8 +66,56 @@ class OppgaveDtoTjenesteTest {
         assertThat(OppgaveDtoTjeneste.getOppgaveTypeForKode(Oppgavetype.VURDER_KONSEKVENS_YTELSE)).isEqualTo(OppgaveType.VUR_KONSEKVENS);
     }
 
-    private static Oppgave opprettOppgave(Oppgavetype oppgavetype, String beskrivelse) {
-        return new Oppgave(99L, null, null, null, null, Tema.FOR.getOffisiellKode(), null, oppgavetype, null, 2, "4805",
+    @Test
+    void skal_formatere_beskrivelse() {
+        var beskrivelse = "--- header ---\nkommentarMedHeader\n\n--- header2 ---\nkommentarMedHeader2Del1\nkommentarMedHeader2Del2\n\nVL: kommentarUtenHeader";
+        var beskrivelser = OppgaveDtoTjeneste.splittBeskrivelser(beskrivelse);
+
+        assertThat(beskrivelser).hasSize(3);
+        assertBeskrivelse(beskrivelser.getFirst(), "--- header ---", "kommentarMedHeader");
+        assertBeskrivelse(beskrivelser.get(1), "--- header2 ---", "kommentarMedHeader2Del1", "kommentarMedHeader2Del2");
+        assertBeskrivelse(beskrivelser.getLast(), null, "VL: kommentarUtenHeader");
+    }
+
+    @Test
+    void formaterBeskrivelse_håndterer_tom_beskrivelse() {
+        assertThat(OppgaveDtoTjeneste.splittBeskrivelser("")).isEmpty();
+    }
+
+    private static void assertOppgave(OppgaveDto oppgave, OppgaveType type, String beskrivelse, int antallDokumenter) {
+        assertThat(oppgave.oppgavetype()).isEqualTo(type);
+        assertThat(oppgave.nyesteBeskrivelse().kommentarer()).containsExactly(beskrivelse);
+        assertThat(oppgave.eldreBeskrivelser()).isEmpty();
+        assertThat(oppgave.dokumenter()).hasSize(antallDokumenter);
+    }
+
+    private static void assertBeskrivelse(OppgaveDto.Beskrivelse beskrivelse, String header, String... kommentarer) {
+        assertThat(beskrivelse.header()).isEqualTo(header);
+        assertThat(beskrivelse.kommentarer()).containsExactly(kommentarer);
+    }
+
+    private static Oppgave opprettOppgave(Oppgavetype oppgavetype, String beskrivelse, String journalpostId) {
+        return new Oppgave(99L, journalpostId, null, null, null, Tema.FOR.getOffisiellKode(), null, oppgavetype, null, 2, "4805",
             LocalDate.now().plusDays(1), LocalDate.now(), Prioritet.NORM, Oppgavestatus.AAPNET, beskrivelse, null);
+    }
+
+    private static ArkivJournalPost opprettArkivJournalPost(JournalpostId journalpostId) {
+        var hovedDokument = opprettDokument(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL, "456");
+        var andreDokumenter = List.of(opprettDokument(DokumentTypeId.DOK_REISE, "678"), opprettDokument(DokumentTypeId.KLAGE_DOKUMENT, "987"));
+        return ArkivJournalPost.Builder.ny()
+            .medJournalpostId(journalpostId)
+            .medTidspunkt(LocalDateTime.now())
+            .medHoveddokument(hovedDokument)
+            .medAndreDokument(andreDokumenter)
+            .build();
+    }
+
+    private static ArkivDokument opprettDokument(DokumentTypeId dokumentTypeId, String dokumentId) {
+        return ArkivDokument.Builder.ny()
+            .medTittel(dokumentTypeId.getNavn())
+            .medDokumentId(dokumentId)
+            .medDokumentTypeId(dokumentTypeId)
+            .medAlleDokumenttyper(Set.of(dokumentTypeId))
+            .build();
     }
 }
