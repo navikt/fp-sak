@@ -198,7 +198,10 @@ public class DokumentBehandlingTjeneste {
         var behandlingDokumentBuilder = getBehandlingDokumentBuilder(behandling.getId());
         behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder
             .medBehandling(behandling.getId())
+            .medOverstyrtBrevOverskrift(null)
+            .medOverstyrtBrevFritekst(null)
             .medOverstyrtBrevFritekstHtml(null)
+            .medVedtakFritekst(null)
             .build());
     }
 
