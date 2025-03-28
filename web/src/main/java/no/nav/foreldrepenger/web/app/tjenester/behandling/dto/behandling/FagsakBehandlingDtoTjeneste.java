@@ -199,10 +199,11 @@ public class FagsakBehandlingDtoTjeneste {
 
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
         if (behandlingDokument.isPresent()) {
-            dto.setAvslagsarsakFritekst(behandlingDokument.get().getVedtakFritekst());
-            dto.setOverskrift(behandlingDokument.get().getOverstyrtBrevOverskrift());
-            dto.setFritekstbrev(behandlingDokument.get().getOverstyrtBrevFritekst());
-            dto.setFritekstbrevHtml(behandlingDokument.get().getOverstyrtBrevFritekstHtml());
+            var behandlingDokumentEntitet = behandlingDokument.get();
+            dto.setAvslagsarsakFritekst(behandlingDokumentEntitet.getVedtakFritekst());
+            dto.setOverskrift(behandlingDokumentEntitet.getOverstyrtBrevOverskrift());
+            dto.setFritekstbrev(behandlingDokumentEntitet.getOverstyrtBrevFritekst());
+            dto.setHarRedigertVedtaksbrev(behandlingDokumentEntitet.getOverstyrtBrevFritekstHtml() != null);
         }
 
         dto.setVedtaksbrev(behandlingsresultat.getVedtaksbrev());
