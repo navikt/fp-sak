@@ -108,10 +108,12 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
                     .medOverstyrtBrevFritekstHtml(null)
                     .build();
             behandlingDokumentRepository.lagreOgFlush(behandlingDokument);
-            var behandling = getBehandling(behandlingId);
-            var behandlingResultat = getBehandlingsresultatBuilder(behandlingId)
-                    .medVedtaksbrev(Vedtaksbrev.AUTOMATISK)
-                    .buildFor(behandling);
+        }
+        var behandlingsresultatOpt = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
+        if (behandlingsresultatOpt.isPresent() && Vedtaksbrev.FRITEKST.equals(behandlingsresultatOpt.get().getVedtaksbrev())) {
+            var behandlingResultat = Behandlingsresultat.builderEndreEksisterende(behandlingsresultatOpt.get())
+                .medVedtaksbrev(Vedtaksbrev.AUTOMATISK)
+                .build();
             behandlingsresultatRepository.lagre(behandlingId, behandlingResultat);
         }
     }
