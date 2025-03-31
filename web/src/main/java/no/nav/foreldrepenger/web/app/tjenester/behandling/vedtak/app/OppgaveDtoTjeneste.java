@@ -118,7 +118,7 @@ public class OppgaveDtoTjeneste {
 
         // Hvis det er tekst igjen etter siste headeren, legg den til
         if (lastIndex < resterendeBeskrivelse.length()) {
-            håndterBeskrivelse(beskrivelser, currentHeader, resterendeBeskrivelse.substring(lastIndex));
+            håndterBeskrivelse(beskrivelser, currentHeader, resterendeBeskrivelse.substring(lastIndex).trim());
         }
     }
 
