@@ -63,12 +63,12 @@ class ForeslåOgFatteVedtakAksjonspunktTest extends EntityManagerAwareTest {
         var behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(new BehandlingskontrollServiceProvider(em, new BehandlingModellRepository(),
                 mock(BehandlingskontrollEventPubliserer.class)));
         var lagretVedtakRepository = new LagretVedtakRepository(em);
-        var totrinnTjeneste = new TotrinnTjeneste(totrinnRepository);
         repositoryProvider = new BehandlingRepositoryProvider(em);
         behandlingDokumentRepository = new BehandlingDokumentRepository(em);
         behandlingRepository = new BehandlingRepository(em);
         behandlingsresultatRepository = new BehandlingsresultatRepository(em);
         totrinnRepository = new TotrinnRepository(em);
+        var totrinnTjeneste = new TotrinnTjeneste(totrinnRepository);
         vedtakTjeneste = new VedtakTjeneste(behandlingRepository, behandlingsresultatRepository, repositoryProvider.getHistorikkinnslagRepository(),
             lagretVedtakRepository, totrinnTjeneste);
         historikkinnslagRepository = repositoryProvider.getHistorikkinnslagRepository();
