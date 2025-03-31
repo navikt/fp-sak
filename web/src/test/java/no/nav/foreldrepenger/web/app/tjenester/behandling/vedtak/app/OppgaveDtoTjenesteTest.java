@@ -88,6 +88,26 @@ class OppgaveDtoTjenesteTest {
     }
 
     @Test
+    void første_kommentar_splittes_for_over_tre_linjer() {
+        var beskrivelse = """
+            --- 20.03.2025 11:24 F_Z990245 E_Z990245 (Z990245, 0219) ---
+            Bruker sier at han har søkt Foreldrepenger, han er i permisjon nå. Han har ikke fått svar, han skriver at saksnr er: 12341234.
+            Han har AAP, så det er greit å vite om han får Foreldrepenger før man evt stanser denne ytelsen.
+            Det må også vurderes om det er riktig å stanse AAP.
+            Ta kontakt med aktuell saksbehandler.
+            VL: Søknad om foreldrepenger ved fødsel""";
+        var beskrivelser = OppgaveDtoTjeneste.splittBeskrivelser(beskrivelse);
+
+        assertThat(beskrivelser).hasSize(3);
+        assertBeskrivelse(beskrivelser.getFirst(), "--- 20.03.2025 11:24 F_Z990245 E_Z990245 (Z990245, 0219) ---",
+            "Bruker sier at han har søkt Foreldrepenger, han er i permisjon nå. Han har ikke fått svar, han skriver at saksnr er: 12341234.",
+            "Han har AAP, så det er greit å vite om han får Foreldrepenger før man evt stanser denne ytelsen.",
+            "Det må også vurderes om det er riktig å stanse AAP.");
+        assertBeskrivelse(beskrivelser.get(1), null, "Ta kontakt med aktuell saksbehandler.");
+        assertBeskrivelse(beskrivelser.getLast(), null, "VL: Søknad om foreldrepenger ved fødsel");
+    }
+
+    @Test
     void formaterBeskrivelse_håndterer_tom_beskrivelse() {
         assertThat(OppgaveDtoTjeneste.splittBeskrivelser("")).isEmpty();
     }

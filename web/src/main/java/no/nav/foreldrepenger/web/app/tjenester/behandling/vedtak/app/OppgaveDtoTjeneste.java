@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -86,14 +87,14 @@ public class OppgaveDtoTjeneste {
         List<OppgaveDto.Beskrivelse> beskrivelser = new ArrayList<>();
 
         if (oppgaveBeskrivelse != null && !oppgaveBeskrivelse.trim().isEmpty()) {
-            // Splitter beskrivelse opp i (1) headere med innhold og (2) eventuell VL-kommentar
+            // Splitter beskrivelse opp i (indeks 0) headere med innhold og (indeks 1) eventuell VL-kommentar
             String[] splittetBeskrivelse = oppgaveBeskrivelse.split("VL: ", 2);
 
             String resterendeBeskrivelse = splittetBeskrivelse[0].trim();
             splittPåHeaderOgLeggTilBeskrivelse(resterendeBeskrivelse, beskrivelser);
 
             if (splittetBeskrivelse.length > 1) {
-                leggTilBeskrivelse(beskrivelser, null, "VL: " + splittetBeskrivelse[1].trim());
+                leggTilBeskrivelse(beskrivelser, null, List.of("VL: " + splittetBeskrivelse[1].trim().lines().collect(Collectors.joining("\n"))));
             }
         }
         return beskrivelser;
@@ -109,13 +110,7 @@ public class OppgaveDtoTjeneste {
         while (headerMatcher.find()) {
             // Hvis det finnes tekst før den neste headeren, legg den til som beskrivelse med nåværende header
             if (lastIndex < headerMatcher.start()) {
-                if (beskrivelser.isEmpty()) {
-                    // Hvis beskrivelser er tom er man på den første beskrivelsen, den skal ha spesiell håndtering
-                    splittOgLeggTilBeskrivelse(beskrivelser, currentHeader, resterendeBeskrivelse.substring(lastIndex, headerMatcher.start()).trim());
-                } else {
-                    leggTilBeskrivelse(beskrivelser, currentHeader, resterendeBeskrivelse.substring(lastIndex, headerMatcher.start()).trim());
-
-                }
+                håndterBeskrivelse(beskrivelser, currentHeader, resterendeBeskrivelse.substring(lastIndex, headerMatcher.start()).trim());
             }
             currentHeader = headerMatcher.group();
             lastIndex = headerMatcher.end();
@@ -123,27 +118,34 @@ public class OppgaveDtoTjeneste {
 
         // Hvis det er tekst igjen etter siste headeren, legg den til
         if (lastIndex < resterendeBeskrivelse.length()) {
-            leggTilBeskrivelse(beskrivelser, currentHeader, resterendeBeskrivelse.substring(lastIndex).trim());
+            håndterBeskrivelse(beskrivelser, currentHeader, resterendeBeskrivelse.substring(lastIndex));
         }
     }
 
-    private static void splittOgLeggTilBeskrivelse(List<OppgaveDto.Beskrivelse> beskrivelser, String header, String beskrivelse) {
-        if (!beskrivelse.isEmpty()) {
-            List<String> kommentarer = List.of(beskrivelse.split("\n"));
-            // Splitter opp slik at det kun vises maks 3 linjer i første beskrivelse
-            if (kommentarer.size() > 3) {
-                beskrivelser.add(new OppgaveDto.Beskrivelse(header, kommentarer.subList(0, 3)));
-                beskrivelser.add(new OppgaveDto.Beskrivelse(null, kommentarer.subList(3, kommentarer.size())));
+    private static void håndterBeskrivelse(List<OppgaveDto.Beskrivelse> beskrivelser, String header, String kommentar) {
+        if (!kommentar.isEmpty()) {
+            if (beskrivelser.isEmpty()) {
+                // Hvis beskrivelser er tom er man på den første beskrivelsen, den skal ha spesiell håndtering
+                splittOgLeggTilBeskrivelse(beskrivelser, header, kommentar);
             } else {
-                beskrivelser.add(new OppgaveDto.Beskrivelse(header, kommentarer));
+                leggTilBeskrivelse(beskrivelser, header, List.of(kommentar.split("\n")));
             }
         }
     }
 
-    private static void leggTilBeskrivelse(List<OppgaveDto.Beskrivelse> beskrivelser, String header, String beskrivelse) {
-        if (!beskrivelse.isEmpty()) {
-            // Oppretter OppgaveDto.Beskrivelse med overskrift og kommentarer delt opp i linjer
-            beskrivelser.add(new OppgaveDto.Beskrivelse(header, List.of(beskrivelse.split("\n"))));
+    private static void splittOgLeggTilBeskrivelse(List<OppgaveDto.Beskrivelse> beskrivelser, String header, String kommentar) {
+        List<String> kommentarer = List.of(kommentar.split("\n"));
+        // Splitter opp slik at det kun vises maks 3 linjer i første beskrivelse
+        if (kommentarer.size() > 3) {
+            leggTilBeskrivelse(beskrivelser, header, kommentarer.subList(0, 3));
+            leggTilBeskrivelse(beskrivelser, null, kommentarer.subList(3, kommentarer.size()));
+        } else {
+            leggTilBeskrivelse(beskrivelser, header, kommentarer);
         }
+    }
+
+    private static void leggTilBeskrivelse(List<OppgaveDto.Beskrivelse> beskrivelser, String header, List<String> kommentarer) {
+        // Oppretter OppgaveDto.Beskrivelse med overskrift og kommentarer delt opp i linjer
+        beskrivelser.add(new OppgaveDto.Beskrivelse(header, kommentarer));
     }
 }
