@@ -86,6 +86,7 @@ public final class FastsettePerioderRevurderingUtil {
             .medFlerbarnsdager(periode.isFlerbarnsdager())
             .medGraderingAvslagÅrsak(periode.getGraderingAvslagÅrsak())
             .medManueltBehandlet(periode.isManueltBehandlet())
+            .medManuellBehandlingÅrsak(periode.getManuellBehandlingÅrsak())
             .medBegrunnelse(periode.getBegrunnelse());
         if (periode.getDokRegel() != null) {
             builder.medDokRegel(kopierDokRegel(periode.getDokRegel()));

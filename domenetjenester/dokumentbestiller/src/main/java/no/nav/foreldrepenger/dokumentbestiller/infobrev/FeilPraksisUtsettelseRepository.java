@@ -158,7 +158,7 @@ public class FeilPraksisUtsettelseRepository {
                           and ba.BEHANDLING_ARSAK_TYPE = 'FEIL_PRAKSIS_UTSETTELSE'
                           and a.AKSJONSPUNKT_DEF = '7013'
                           and a.AKSJONSPUNKT_STATUS = 'OPPR'
-                          and a.FRIST_TID = to_date('2024-12-30', 'yyyy-mm-dd')
+                          and a.FRIST_TID < to_date('2026-01-01', 'yyyy-mm-dd')
                           and b.BEHANDLING_STATUS = 'UTRED'
                           order by b.id
         ) where ROWNUM <= 100

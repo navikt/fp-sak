@@ -36,7 +36,6 @@ public class ForeldrepengerUttakPeriode {
     private OppholdÅrsak oppholdÅrsak = OppholdÅrsak.UDEFINERT;
     private OverføringÅrsak overføringÅrsak;
     private UttakPeriodeType søktKonto;
-    private boolean opprinneligSendtTilManuellBehandling;
     private String begrunnelse;
     private boolean manueltBehandlet;
     private LocalDate mottattDato;
@@ -158,10 +157,6 @@ public class ForeldrepengerUttakPeriode {
         return søktKonto;
     }
 
-    public boolean isOpprinneligSendtTilManuellBehandling() {
-        return opprinneligSendtTilManuellBehandling;
-    }
-
     public Boolean isManueltBehandlet() {
         return manueltBehandlet;
     }
@@ -253,7 +248,6 @@ public class ForeldrepengerUttakPeriode {
             ", oppholdÅrsak=" + oppholdÅrsak +
             ", overføringÅrsak=" + overføringÅrsak +
             ", søktKonto=" + søktKonto +
-            ", opprinneligSendtTilManuellBehandling=" + opprinneligSendtTilManuellBehandling +
             ", manueltBehandlet=" + manueltBehandlet +
             ", mottattDato=" + mottattDato +
             ", tidligstMottatttDato=" + tidligstMottatttDato +
@@ -347,11 +341,6 @@ public class ForeldrepengerUttakPeriode {
 
         public Builder medSøktKonto(UttakPeriodeType søktKonto) {
             kladd.søktKonto = søktKonto;
-            return this;
-        }
-
-        public Builder medOpprinneligSendtTilManuellBehandling(boolean opprinneligSendtTilManuellBehandling) {
-            kladd.opprinneligSendtTilManuellBehandling = opprinneligSendtTilManuellBehandling;
             return this;
         }
 

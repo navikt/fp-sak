@@ -31,7 +31,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 class FeilPraksisForlengVentefristSingleTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(FeilPraksisForlengVentefristSingleTask.class);
-    private static final LocalDateTime FRIST = LocalDate.of(2025, 9, 26).atStartOfDay();
+    private static final LocalDateTime FRIST = LocalDate.of(2026, 4, 20).atStartOfDay();
     private static final List<String> OPPGAVE_TYPER = List.of(Oppgavetype.VURDER_DOKUMENT.getKode(), Oppgavetype.VURDER_KONSEKVENS_YTELSE.getKode(),
         "VURD_HENV", "VUR_SVAR", "KONT_BRUK");
 
