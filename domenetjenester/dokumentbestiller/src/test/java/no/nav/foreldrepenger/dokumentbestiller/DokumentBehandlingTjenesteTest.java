@@ -40,7 +40,7 @@ class DokumentBehandlingTjenesteTest {
     private int fristUker = 6;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingDokumentRepository = new BehandlingDokumentRepository(repositoryProvider.getEntityManager());
         dokumentBehandlingTjeneste = new DokumentBehandlingTjeneste(repositoryProvider, behandlingskontrollTjeneste, behandlingDokumentRepository);
@@ -159,7 +159,7 @@ class DokumentBehandlingTjenesteTest {
         behandling = scenario.lagre(repositoryProvider);
         var behandlingDokumentBuilder = BehandlingDokumentEntitet.Builder.ny()
             .medBehandling(behandling.getId())
-            .medVedtakFritekst(VEDTAK_FRITEKST);
+            .medUtfyllendeTekstAutomatiskVedtaksbrev(VEDTAK_FRITEKST);
         behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder.build());
 
         var behandlingDokumentFør = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
@@ -201,7 +201,7 @@ class DokumentBehandlingTjenesteTest {
         var behandlingDokumentBuilder = BehandlingDokumentEntitet.Builder.ny()
             .medBehandling(behandling.getId())
             .medOverstyrtBrevFritekstHtml(overstyrtBrev)
-            .medVedtakFritekst(VEDTAK_FRITEKST);
+            .medUtfyllendeTekstAutomatiskVedtaksbrev(VEDTAK_FRITEKST);
         behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder.build());
         assertThat(dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId())).isPresent();
         assertThat(dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId()).get()).contains(overstyrtBrev);
