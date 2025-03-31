@@ -40,6 +40,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.ManuellBehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
@@ -493,7 +494,7 @@ class FastsettePerioderTjenesteTest {
         var uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(
             behandling.getId());
         var resultat = uttakResultat.get().getOpprinneligPerioder().getPerioder().get(1);
-        assertThat(resultat.getDokRegel().isTilManuellBehandling()).isFalse();
+        assertThat(resultat.getManuellBehandlingÅrsak()).isEqualTo(ManuellBehandlingÅrsak.UKJENT);
         assertThat(resultat.getResultatÅrsak()).isInstanceOf(PeriodeResultatÅrsak.class);
     }
 

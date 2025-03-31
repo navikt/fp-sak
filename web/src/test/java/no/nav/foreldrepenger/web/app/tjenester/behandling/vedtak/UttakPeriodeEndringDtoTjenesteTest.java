@@ -137,7 +137,7 @@ class UttakPeriodeEndringDtoTjenesteTest {
             .medSamtidigUttak(true)
             .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
             .build();
-        var dokRegel = UttakResultatDokRegelEntitet.utenManuellBehandling()
+        var dokRegel = new UttakResultatDokRegelEntitet.Builder()
             .medRegelInput(" ")
             .medRegelEvaluering(" ")
             .build();

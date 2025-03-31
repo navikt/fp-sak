@@ -30,29 +30,25 @@ public class ForeldrepengerUttakTjeneste {
     }
 
     public Optional<ForeldrepengerUttak> hentHvisEksisterer(long behandlingId) {
-        return hentHvisEksisterer(behandlingId, false);
-    }
-
-    public Optional<ForeldrepengerUttak> hentHvisEksisterer(long behandlingId, boolean ignoreDok) {
-        return fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId).map(entitet -> map(entitet, ignoreDok));
+        return fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId).map(ForeldrepengerUttakTjeneste::map);
     }
 
     public ForeldrepengerUttak hent(long behandlingId) {
         return hentHvisEksisterer(behandlingId).orElseThrow();
     }
 
-    private static ForeldrepengerUttak map(UttakResultatEntitet entitet, boolean ignoreDok) {
+    private static ForeldrepengerUttak map(UttakResultatEntitet entitet) {
         var opprinneligPerioder = entitet.getOpprinneligPerioder().getPerioder().stream()
-            .map(p -> map(p, ignoreDok))
+            .map(ForeldrepengerUttakTjeneste::map)
             .toList();
         var overstyrtPerioder = entitet.getOverstyrtPerioder() == null ? null : entitet.getOverstyrtPerioder().getPerioder().stream()
-            .map(p -> map(p, ignoreDok))
+            .map(ForeldrepengerUttakTjeneste::map)
             .toList();
         var kontoutregning = Optional.ofNullable(entitet.getStønadskontoberegning()).map(Stønadskontoberegning::getStønadskontoutregning).orElse(Map.of());
         return new ForeldrepengerUttak(opprinneligPerioder, overstyrtPerioder, kontoutregning);
     }
 
-    private static ForeldrepengerUttakPeriode map(UttakResultatPeriodeEntitet entitet, boolean ignoreDok) {
+    private static ForeldrepengerUttakPeriode map(UttakResultatPeriodeEntitet entitet) {
         var aktiviteter = entitet.getAktiviteter().stream()
             .map(ForeldrepengerUttakTjeneste::map)
             .toList();
@@ -73,7 +69,7 @@ public class ForeldrepengerUttakTjeneste {
             .medGraderingInnvilget(entitet.isGraderingInnvilget())
             .medGraderingAvslagÅrsak(entitet.getGraderingAvslagÅrsak())
             .medSamtidigUttaksprosent(entitet.getSamtidigUttaksprosent())
-            .medManuellBehandlingÅrsak(ignoreDok ? null : entitet.getManuellBehandlingÅrsak())
+            .medManuellBehandlingÅrsak(entitet.getManuellBehandlingÅrsak())
             .medSøktKonto(entitet.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getUttakPeriodeType).orElse(null))
             .medMottattDato(mottattDato)
             .medTidligstMottattDato(tidligsMottatt)
