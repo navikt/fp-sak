@@ -127,7 +127,7 @@ public class FpInntektsmeldingTjeneste {
 
         var request = new OpprettForespørselRequest(new OpprettForespørselRequest.AktørIdDto(ref.aktørId().getId()), null, skjæringstidspunkt,
             mapYtelsetype(ref.fagsakYtelseType()), new SaksnummerDto(ref.saksnummer().getVerdi()), førsteUttaksdato,
-            arbeidsgivereViManglerInntektsmeldingFra);
+            arbeidsgivereViManglerInntektsmeldingFra, false);
 
         LOG.info(
             "Sender kall til fpinntektsmelding om å opprette forespørsel for saksnummer {} med skjæringstidspunkt {} for følgende organisasjonsnumre: {}",
@@ -158,7 +158,7 @@ public class FpInntektsmeldingTjeneste {
 
         var request = new OpprettForespørselRequest(new OpprettForespørselRequest.AktørIdDto(ref.aktørId().getId()), null, skjæringstidspunkt,
             mapYtelsetype(ref.fagsakYtelseType()), new SaksnummerDto(ref.saksnummer().getVerdi()), førsteUttaksdato,
-            arbeidsgivereDetSkalOpprettesForespørselFor);
+            arbeidsgivereDetSkalOpprettesForespørselFor, true);
 
         LOG.info(
             "MIGRER-FP:Sender kall til fpinntektsmelding om å opprette migrert forespørsel for saksnummer {} med skjæringstidspunkt {} for følgende organisasjonsnumre: {}",
