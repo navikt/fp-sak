@@ -27,6 +27,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
@@ -34,6 +36,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -68,13 +71,15 @@ public class ForvaltningBehandlingRestTjeneste {
     private ProsessTaskTjeneste taskTjeneste;
     private ForvaltningBerørtBehandlingTjeneste berørtBehandlingTjeneste;
     private SvangerskapspengerRepository svangerskapspengerRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
 
     @Inject
     public ForvaltningBehandlingRestTjeneste(ForvaltningBerørtBehandlingTjeneste forvaltningBerørtBehandlingTjeneste,
                                              BehandlingsoppretterTjeneste behandlingsoppretterTjeneste,
                                              ProsessTaskTjeneste taskTjeneste,
                                              BehandlingRepositoryProvider repositoryProvider,
-                                             SvangerskapspengerRepository svangerskapspengerRepository) {
+                                             SvangerskapspengerRepository svangerskapspengerRepository,
+                                             BehandlingsresultatRepository behandlingsresultatRepository) {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.mottatteDokumentRepository = repositoryProvider.getMottatteDokumentRepository();
@@ -82,6 +87,7 @@ public class ForvaltningBehandlingRestTjeneste {
         this.berørtBehandlingTjeneste = forvaltningBerørtBehandlingTjeneste;
         this.behandlingsoppretterTjeneste = behandlingsoppretterTjeneste;
         this.svangerskapspengerRepository = svangerskapspengerRepository;
+        this.behandlingsresultatRepository = behandlingsresultatRepository;
     }
 
     public ForvaltningBehandlingRestTjeneste() {
@@ -259,6 +265,38 @@ public class ForvaltningBehandlingRestTjeneste {
 
         LOG.info("Fjerner overstyrt svangerskapspenger-grunnlag for behandling med uuid: {}", behandlingUuid);
         svangerskapspengerRepository.tømmeOverstyrtGrunnlag(behandling.getId());
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/behandlingsresultat")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Oppdaterer vedtaksbrev typen på et eksisterende behandlingsresultat", tags = "FORVALTNING-behandling", responses = {
+        @ApiResponse(responseCode = "200", description = "Oppdatert behandlingsresultat.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
+        @ApiResponse(responseCode = "400", description = "Oppgitt behandlinguuid er ukjent"),
+        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
+    })
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
+    public Response oppdaterBehandlingresultatMedVedtaksbrevType(
+        @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class) @NotNull @QueryParam("behandlingUuid") @Valid BehandlingIdDto behandlingIdDto,
+        @TilpassetAbacAttributt(supplierClass = ForvaltningFagsakRestTjeneste.AbacEmptySupplier.class) @NotNull @QueryParam("vedtaksbrev") @Valid Vedtaksbrev vedtaksbrev,
+        @NotNull @QueryParam(value = "dryRun") @Valid Boolean dryRun) {
+        var behandling = behandlingRepository.hentBehandlingHvisFinnes(behandlingIdDto.getBehandlingUuid());
+        if (behandling.isEmpty()) {
+            LOG.info("Oppgitt behandlingUui {} er ukjent", behandlingIdDto.getBehandlingUuid());
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        var behandlingId = behandling.get().getId();
+        var gammeltBehandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
+        LOG.info("Behandlingsresultat med id {} endrer vedtaksbrev fra {} til {}, dryrun: {}", gammeltBehandlingsresultat.getId(), gammeltBehandlingsresultat.getVedtaksbrev(), vedtaksbrev, dryRun);
+        if (Boolean.FALSE.equals(dryRun)) {
+            var nyttBehandlingsresultat = Behandlingsresultat.builderEndreEksisterende(gammeltBehandlingsresultat)
+                .medVedtaksbrev(vedtaksbrev)
+                .build();
+            LOG.info("Lagrer endret behandlingsresultat med id {} og vedtaksbrev {}", nyttBehandlingsresultat.getId(), nyttBehandlingsresultat.getVedtaksbrev());
+            behandlingsresultatRepository.lagre(behandlingId, nyttBehandlingsresultat);
+        }
         return Response.ok().build();
     }
 
