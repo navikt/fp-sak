@@ -276,10 +276,8 @@ public class FastsettePerioderRegelResultatKonverterer {
     }
 
     private UttakResultatDokRegelEntitet lagDokRegel(FastsettePeriodeResultat resultat) {
-        var manuellBehandlingÅrsak = UttakEnumMapper.map(resultat.uttakPeriode().getManuellbehandlingårsak());
-        var builder = resultat.isManuellBehandling() ? UttakResultatDokRegelEntitet.medManuellBehandling(
-            manuellBehandlingÅrsak) : UttakResultatDokRegelEntitet.utenManuellBehandling();
-        return builder.medRegelEvaluering(resultat.evalueringResultat())
+        return new UttakResultatDokRegelEntitet.Builder()
+            .medRegelEvaluering(resultat.evalueringResultat())
             .medRegelInput(resultat.innsendtGrunnlag())
             .medRegelVersjon(resultat.versjon())
             .build();
