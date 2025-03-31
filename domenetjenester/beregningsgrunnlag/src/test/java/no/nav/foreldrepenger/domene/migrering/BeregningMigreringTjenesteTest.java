@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -12,6 +13,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+
+import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagRegelType;
 
 import org.jboss.weld.exceptions.IllegalStateException;
 import org.junit.jupiter.api.BeforeEach;
@@ -106,6 +109,31 @@ class BeregningMigreringTjenesteTest {
         // Assert
         assertThrows(IllegalStateException.class, () -> beregningMigreringTjeneste.migrerSak(saksnummer));
     }
+
+    @Test
+    void skal_kunne_migrere_regelsporing_uten_evalueringer() {
+        // Arrange
+        var saksnummer = new Saksnummer("123");
+        var behandling = lagBehandling();
+        var ref = BehandlingReferanse.fra(behandling);
+        var grunnlag = lagGrunnlagEntitet(no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagRegelType.PERIODISERING, null, "input");
+        when(beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(any())).thenReturn(Optional.of(grunnlag));
+        when(behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(saksnummer)).thenReturn(List.of(behandling));
+        when(behandlingRepository.hentBehandling(anyLong())).thenReturn(behandling);
+        when(koblingRepository.hentKobling(any())).thenReturn(Optional.empty());
+        when(regelsporingMigreringTjeneste.finnRegelsporingGrunnlag(any(), any())).thenReturn(grunnlag.getBeregningsgrunnlag().get().getRegelSporinger());
+        var kobling = new BeregningsgrunnlagKobling(ref.behandlingId(), ref.behandlingUuid());
+        when(koblingRepository.opprettKobling(any())).thenReturn(kobling);
+        when(klient.migrerGrunnlag(any())).thenReturn(new MigrerBeregningsgrunnlagResponse(lagGrunnlagDto(), null, List.of(), List.of(new MigrerBeregningsgrunnlagResponse.RegelsporingGrunnlag(
+            BeregningsgrunnlagRegelType.PERIODISERING, null, "input", null)), List.of()));
+
+        // Act
+        beregningMigreringTjeneste.migrerSak(saksnummer);
+
+        // Assert
+        verify(koblingRepository, times(1)).oppdaterKoblingMedStpOgGrunnbeløp(kobling, grunnlag.getBeregningsgrunnlag().get().getGrunnbeløp(), grunnlag.getBeregningsgrunnlag().get().getSkjæringstidspunkt());
+    }
+
 
     @Test
     void skal_sortere_behandlinger_i_klassisk_rekkefølge() {
@@ -210,6 +238,22 @@ class BeregningMigreringTjenesteTest {
         var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
             .medSkjæringstidspunkt(LocalDate.now())
             .medGrunnbeløp(grunnbeløp)
+            .leggTilBeregningsgrunnlagPeriode(beregningsgrunnlagPeriode)
+            .leggTilAktivitetStatus(new BeregningsgrunnlagAktivitetStatus.Builder().medAktivitetStatus(AktivitetStatus.KOMBINERT_AT_FL).medHjemmel(
+                Hjemmel.F_14_7_8_40))
+            .build();
+        var gr = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(1L, BeregningsgrunnlagTilstand.FASTSATT);
+        return gr;
+    }
+
+    private BeregningsgrunnlagGrunnlagEntitet lagGrunnlagEntitet(no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagRegelType regelType, String evaluering, String input) {
+        var beregningsgrunnlagPeriode = new BeregningsgrunnlagPeriode.Builder().medBeregningsgrunnlagPeriode(LocalDate.now(), Tid.TIDENES_ENDE).medBruttoPrÅr(
+            BigDecimal.valueOf(100_000)).medAvkortetPrÅr(BigDecimal.valueOf(100_000)).medRedusertPrÅr(BigDecimal.valueOf(100_000));
+        var grunnbeløp = Beløp.av(100000);
+        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
+            .medSkjæringstidspunkt(LocalDate.now())
+            .medGrunnbeløp(grunnbeløp)
+            .medRegelSporing(input, evaluering, regelType, null)
             .leggTilBeregningsgrunnlagPeriode(beregningsgrunnlagPeriode)
             .leggTilAktivitetStatus(new BeregningsgrunnlagAktivitetStatus.Builder().medAktivitetStatus(AktivitetStatus.KOMBINERT_AT_FL).medHjemmel(
                 Hjemmel.F_14_7_8_40))
