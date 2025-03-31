@@ -221,7 +221,7 @@ class FpUttakRepositoryTest extends EntityManagerAwareTest {
             .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
             .medDokumentasjonVurdering(new DokumentasjonVurdering(INNLEGGELSE_SØKER_GODKJENT))
             .build();
-        var dokRegel = UttakResultatDokRegelEntitet.utenManuellBehandling()
+        var dokRegel = new UttakResultatDokRegelEntitet.Builder()
             .medRegelInput(" ")
             .medRegelEvaluering(" ")
             .build();

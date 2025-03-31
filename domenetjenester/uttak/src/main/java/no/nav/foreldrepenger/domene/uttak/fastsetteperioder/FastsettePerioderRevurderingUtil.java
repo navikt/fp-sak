@@ -96,13 +96,7 @@ public final class FastsettePerioderRevurderingUtil {
     }
 
     private static UttakResultatDokRegelEntitet kopierDokRegel(UttakResultatDokRegelEntitet dokRegel) {
-        UttakResultatDokRegelEntitet.Builder nyDokRegel;
-        if (dokRegel.isTilManuellBehandling()) {
-            nyDokRegel = UttakResultatDokRegelEntitet.medManuellBehandling(dokRegel.getManuellBehandlingÅrsak());
-        } else {
-            nyDokRegel = UttakResultatDokRegelEntitet.utenManuellBehandling();
-        }
-        return nyDokRegel
+        return new UttakResultatDokRegelEntitet.Builder()
             .medRegelEvaluering(dokRegel.getRegelEvaluering())
             .medRegelInput(dokRegel.getRegelInput())
             .medRegelVersjon(dokRegel.getRegelVersjon())

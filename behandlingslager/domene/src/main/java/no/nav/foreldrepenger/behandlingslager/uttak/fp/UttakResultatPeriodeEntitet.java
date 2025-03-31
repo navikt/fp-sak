@@ -212,10 +212,7 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
     }
 
     public ManuellBehandlingÅrsak getManuellBehandlingÅrsak() {
-        if (manuellBehandlingÅrsak != ManuellBehandlingÅrsak.UKJENT) {
-            return manuellBehandlingÅrsak;
-        }
-        return getDokRegel() == null ? ManuellBehandlingÅrsak.UKJENT : getDokRegel().getManuellBehandlingÅrsak();
+        return manuellBehandlingÅrsak;
     }
 
     public Optional<UttakResultatPeriodeSøknadEntitet> getPeriodeSøknad() {

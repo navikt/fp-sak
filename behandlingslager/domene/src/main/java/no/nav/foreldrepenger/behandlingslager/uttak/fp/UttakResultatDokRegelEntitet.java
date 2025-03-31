@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,7 +12,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
-import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Entity
 @Table(name = "UTTAK_RESULTAT_DOK_REGEL")
@@ -34,10 +32,6 @@ public class UttakResultatDokRegelEntitet extends BaseEntitet {
     @JoinColumn(name = "uttak_resultat_periode_id", updatable = false, nullable = false)
     private UttakResultatPeriodeEntitet periode;
 
-    @Column(name = "manuell_behandling_aarsak", updatable = false, nullable = false)
-    @Convert(converter = ManuellBehandlingÅrsak.KodeverdiConverter.class)
-    private ManuellBehandlingÅrsak manuellBehandlingÅrsak = ManuellBehandlingÅrsak.UKJENT;
-
     @Lob
     @Column(name = "regel_input", updatable = false)
     private String regelInput;
@@ -49,16 +43,8 @@ public class UttakResultatDokRegelEntitet extends BaseEntitet {
     @Column(name = "regel_versjon")
     private String regelVersjon;
 
-    @Convert(converter = BooleanToStringConverter.class)
-    @Column(name = "til_manuell_behandling", nullable = false, updatable = false)
-    private boolean tilManuellBehandling;
-
     public Long getId() {
         return id;
-    }
-
-    public ManuellBehandlingÅrsak getManuellBehandlingÅrsak() {
-        return manuellBehandlingÅrsak;
     }
 
     public String getRegelInput() {
@@ -73,25 +59,9 @@ public class UttakResultatDokRegelEntitet extends BaseEntitet {
         return regelVersjon;
     }
 
-    public boolean isTilManuellBehandling() {
-        return tilManuellBehandling;
-    }
-
     @Override
     public String toString() {
-        return "UttakResultatDokRegelEntitet{" +
-            "id=" + id +
-            ", manuellBehandlingÅrsak=" + manuellBehandlingÅrsak.getKode() +
-            ", tilManuellVurdering=" + tilManuellBehandling +
-            '}';
-    }
-
-    public static Builder medManuellBehandling(ManuellBehandlingÅrsak manuellBehandlingÅrsak) {
-        return new Builder(true, manuellBehandlingÅrsak);
-    }
-
-    public static Builder utenManuellBehandling() {
-        return new Builder(false, null);
+        return "UttakResultatDokRegelEntitet{" + "versjon=" + versjon + ", id=" + id + '}';
     }
 
     public void setPeriode(UttakResultatPeriodeEntitet periode) {
@@ -100,14 +70,7 @@ public class UttakResultatDokRegelEntitet extends BaseEntitet {
 
     public static class Builder {
 
-        private UttakResultatDokRegelEntitet kladd = new UttakResultatDokRegelEntitet();
-
-        private Builder(boolean tilManuellBehandling, ManuellBehandlingÅrsak manuellBehandlingÅrsak) {
-            if (manuellBehandlingÅrsak != null) {
-                kladd.manuellBehandlingÅrsak = manuellBehandlingÅrsak;
-            }
-            kladd.tilManuellBehandling = tilManuellBehandling;
-        }
+        private final UttakResultatDokRegelEntitet kladd = new UttakResultatDokRegelEntitet();
 
         public Builder medRegelInput(String regelInput) {
             kladd.regelInput = regelInput;

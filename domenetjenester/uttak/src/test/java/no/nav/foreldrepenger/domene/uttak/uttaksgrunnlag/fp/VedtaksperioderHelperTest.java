@@ -870,7 +870,7 @@ class VedtaksperioderHelperTest {
             Arbeidsgiver.virksomhet(arbeidsgiverOrgnr), InternArbeidsforholdRef.nyRef())
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .build();
-        var dokRegel = UttakResultatDokRegelEntitet.utenManuellBehandling()
+        var dokRegel = new UttakResultatDokRegelEntitet.Builder()
             .medRegelInput(" ")
             .medRegelEvaluering(" ")
             .build();
