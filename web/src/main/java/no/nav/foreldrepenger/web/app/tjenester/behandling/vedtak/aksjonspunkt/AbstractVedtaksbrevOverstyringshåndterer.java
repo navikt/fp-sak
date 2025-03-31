@@ -66,7 +66,7 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         var behandlingId = behandling.getId();
         var utfyllendeTekst = dto.getBegrunnelse();
         if (dto.isSkalBrukeOverstyrendeFritekstBrev()) {
-            fjernUtfyllendeTekstForAutomatiskVedtaksbrev(behandlingId);
+            fjernUtfyllendeTekstForAutomatiskVedtaksbrevHvisSatt(behandlingId);
             verifiserBehandlingDokumentInneholderRedigertBrev(behandlingId);
             var behandlingsresultat = getBehandlingsresultatBuilder(behandlingId)
                 .medVedtaksbrev(Vedtaksbrev.FRITEKST)
@@ -82,18 +82,21 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
                     .build();
                 behandlingDokumentRepository.lagreOgFlush(behandlingDokument);
             } else if (skalFjerneUtfyllendeTekstForAutomatiskVedtaksbrev(behandling)) {
-                fjernUtfyllendeTekstForAutomatiskVedtaksbrev(behandlingId);
+                fjernUtfyllendeTekstForAutomatiskVedtaksbrevHvisSatt(behandlingId);
             }
         }
 
     }
 
-    private void fjernUtfyllendeTekstForAutomatiskVedtaksbrev(Long behandlingId) {
-        var behandlingDokument = getBehandlingDokumentBuilder(behandlingId)
-            .medBehandling(behandlingId)
-            .medUtfyllendeTekstAutomatiskVedtaksbrev(null)
-            .build();
-        behandlingDokumentRepository.lagreOgFlush(behandlingDokument);
+    private void fjernUtfyllendeTekstForAutomatiskVedtaksbrevHvisSatt(Long behandlingId) {
+        var behandlingDokumentEntitetOpt = behandlingDokumentRepository.hentHvisEksisterer(behandlingId);
+        if (behandlingDokumentEntitetOpt.isPresent() && behandlingDokumentEntitetOpt.get().getVedtakFritekst() != null) {
+            var behandlingDokument = BehandlingDokumentEntitet.Builder.fraEksisterende(behandlingDokumentEntitetOpt.get())
+                .medBehandling(behandlingId)
+                .medUtfyllendeTekstAutomatiskVedtaksbrev(null)
+                .build();
+            behandlingDokumentRepository.lagreOgFlush(behandlingDokument);
+        }
     }
 
     private void verifiserBehandlingDokumentInneholderRedigertBrev(Long behandlingId) {
@@ -106,7 +109,7 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
     private void fjernRedigertEllerOverstyrBrevHvisEksisterer(Long behandlingId) {
         var eksisterendeBehandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingId);
         if (eksisterendeBehandlingDokument.isPresent() && erFritekst(eksisterendeBehandlingDokument.get())) {
-            var behandlingDokument = getBehandlingDokumentBuilder(behandlingId)
+            var behandlingDokument = BehandlingDokumentEntitet.Builder.fraEksisterende(eksisterendeBehandlingDokument.get())
                 .medBehandling(behandlingId)
                 .medOverstyrtBrevOverskrift(null)
                 .medOverstyrtBrevFritekst(null)
