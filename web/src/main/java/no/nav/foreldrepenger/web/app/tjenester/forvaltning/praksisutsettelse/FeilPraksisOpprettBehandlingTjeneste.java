@@ -149,7 +149,7 @@ public class FeilPraksisOpprettBehandlingTjeneste {
         }
 
         if (behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId()).stream()
-                .anyMatch(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE))) {
+                .anyMatch(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE) || b.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_IVERKS_UTSET))) {
             LOG.info("FeilPraksisUtsettelse: Har allerede hatt feil praksis revurdering for sak {}", fagsak.getSaksnummer());
             return;
         }
