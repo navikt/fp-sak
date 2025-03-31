@@ -219,8 +219,9 @@ public class BeregningMigreringTjeneste {
         var alleGrunnlagSporingerMatcher = grunnlagSporinger.size() == fpsakGrunnlagSporinger.size() && grunnlagSporinger.stream().allMatch(kalkulusRegelGrunnlag -> {
             var type = KodeverkFraKalkulusMapper.mapRegelGrunnlagType(kalkulusRegelGrunnlag.type());
             var fpsakSporing = fpsakGrunnlagSporinger.get(type);
-            return fpsakSporing != null && fpsakSporing.getRegelEvaluering().equals(kalkulusRegelGrunnlag.regelevaluering()) && fpsakSporing.getRegelInput()
-                .equals(kalkulusRegelGrunnlag.regelinput()) && Objects.equals(fpsakSporing.getRegelVersjon(), kalkulusRegelGrunnlag.regelversjon());
+            return fpsakSporing != null && Objects.equals(fpsakSporing.getRegelEvaluering(), kalkulusRegelGrunnlag.regelevaluering())
+                && Objects.equals(fpsakSporing.getRegelInput(), kalkulusRegelGrunnlag.regelinput())
+                && Objects.equals(fpsakSporing.getRegelVersjon(), kalkulusRegelGrunnlag.regelversjon());
         });
         if (!alleGrunnlagSporingerMatcher) {
             throw new IllegalStateException("Feil med matching av regelsporing på grunnlagsnivå");
