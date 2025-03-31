@@ -185,7 +185,7 @@ public class BrevRestTjeneste {
     public Response mellomlagringAvOverstyring(@TilpassetAbacAttributt(supplierClass = MellomlagringHtmlSupplier.class) @Valid @NotNull MellomlagreHtmlDto mellomlagring) {
         var behandling = behandlingRepository.hentBehandling(mellomlagring.behandlingUuid());
         if (mellomlagring.redigertInnhold() == null) {
-            dokumentBehandlingTjeneste.fjernOverstyringAvBrev(behandling);
+            dokumentBehandlingTjeneste.fjernAllOverstyringAvBrev(behandling);
         } else {
             dokumentBehandlingTjeneste.lagreOverstyrtBrev(behandling, mellomlagring.redigertInnhold().verdi());
         }
