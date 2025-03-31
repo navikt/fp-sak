@@ -44,7 +44,7 @@ class FeilPraksisUtsettelseIkrafttredelseAlleTask implements ProsessTaskHandler 
             case MOR -> utvalgRepository.alleSakerMorAvslagUtsettelse();
             case FAR -> utvalgRepository.alleSakerFarBeggeEllerAleneUtsettelse();
         };
-        LOG.info("Hentet {} saker for utvalg {}", saker.size(), utvalg);
+        LOG.info("FeilPraksisUtsettelse Hentet {} saker for utvalg {}", saker.size(), utvalg);
         saker.stream().map((Long fagsakId) -> opprettTaskForEnkeltSak(fagsakId, dryRun)).forEach(prosessTaskTjeneste::lagre);
     }
 
