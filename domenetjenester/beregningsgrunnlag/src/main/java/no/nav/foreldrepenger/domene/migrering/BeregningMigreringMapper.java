@@ -122,15 +122,24 @@ public class BeregningMigreringMapper {
 
     private static List<RegelSporingPeriodeMigreringDto> mapPeriodeSporinger(BeregningsgrunnlagPeriode bgPeriode) {
         return bgPeriode.getRegelSporinger().entrySet().stream()
-            .map(entry -> new RegelSporingPeriodeMigreringDto(entry.getValue().getRegelEvaluering(), entry.getValue().getRegelInput(),
-                mapPeriode(bgPeriode.getPeriode()), KodeverkTilKalkulusMapper.mapPeriodeRegelType(entry.getKey()), entry.getValue().getRegelVersjon()))
+            .map(entry -> {
+                var dto = new RegelSporingPeriodeMigreringDto(entry.getValue().getRegelEvaluering(),
+                    entry.getValue().getRegelInput(), mapPeriode(bgPeriode.getPeriode()),
+                    KodeverkTilKalkulusMapper.mapPeriodeRegelType(entry.getKey()), entry.getValue().getRegelVersjon());
+                settOpprettetOgEndretFelter(entry.getValue(), dto);
+                return dto;
+            })
             .toList();
     }
 
     private static List<RegelSporingGrunnlagMigreringDto> mapGrunnlagSporinger(Map<BeregningsgrunnlagRegelType, BeregningsgrunnlagRegelSporing> sporinger) {
         return sporinger.entrySet().stream()
-            .map(entry -> new RegelSporingGrunnlagMigreringDto(entry.getValue().getRegelEvaluering(),
-                    entry.getValue().getRegelInput(), KodeverkTilKalkulusMapper.mapGrunnlagRegeltype(entry.getKey()), entry.getValue().getRegelVersjon()))
+            .map(entry -> {
+                var dto = new RegelSporingGrunnlagMigreringDto(entry.getValue().getRegelEvaluering(),
+                    entry.getValue().getRegelInput(), KodeverkTilKalkulusMapper.mapGrunnlagRegeltype(entry.getKey()), entry.getValue().getRegelVersjon());
+                settOpprettetOgEndretFelter(entry.getValue(), dto);
+                return dto;
+            })
             .toList();
     }
 

@@ -38,31 +38,32 @@ public class RegelsporingMigreringTjeneste {
             // Ikke rammet av feil
             return aktivtGrunnlag.getBeregningsgrunnlag().map(BeregningsgrunnlagEntitet::getRegelSporinger).orElse(Map.of());
         }
-        var sporinger = aktivtGrunnlag.getBeregningsgrunnlag()
+        var sporingerFraAktivtGrunnlag = aktivtGrunnlag.getBeregningsgrunnlag()
             .map(BeregningsgrunnlagEntitet::getRegelSporinger)
             .orElse(Map.of());
-        if (sporinger.containsKey(BeregningsgrunnlagRegelType.BRUKERS_STATUS)
-            && sporinger.containsKey(BeregningsgrunnlagRegelType.SKJÆRINGSTIDSPUNKT) &&
-            sporinger.containsKey(BeregningsgrunnlagRegelType.PERIODISERING_NATURALYTELSE)) {
+        if (sporingerFraAktivtGrunnlag.containsKey(BeregningsgrunnlagRegelType.BRUKERS_STATUS)
+            && sporingerFraAktivtGrunnlag.containsKey(BeregningsgrunnlagRegelType.SKJÆRINGSTIDSPUNKT)) {
             // Ikke rammet av feil
-            return sporinger;
+            return sporingerFraAktivtGrunnlag;
         }
         // Rammet av feil
         LOG.info("Behandling {} mangler regelsporinger, henter fra tidligere grunnlag", referanse.behandlingId());
         var sporingerFraGammeltGrunnlag = finnSporingFraGammelGrunnlag(referanse);
-        if (sporingerFraGammeltGrunnlag.get(BeregningsgrunnlagRegelType.BRUKERS_STATUS) != null) {
+        if (sporingerFraGammeltGrunnlag.get(BeregningsgrunnlagRegelType.BRUKERS_STATUS) != null && sporingerFraAktivtGrunnlag.get(BeregningsgrunnlagRegelType.BRUKERS_STATUS) == null) {
             logg(referanse.behandlingId(), BeregningsgrunnlagRegelType.BRUKERS_STATUS);
-            sporinger.put(BeregningsgrunnlagRegelType.BRUKERS_STATUS, sporingerFraGammeltGrunnlag.get(BeregningsgrunnlagRegelType.BRUKERS_STATUS));
+            sporingerFraAktivtGrunnlag.put(BeregningsgrunnlagRegelType.BRUKERS_STATUS, sporingerFraGammeltGrunnlag.get(BeregningsgrunnlagRegelType.BRUKERS_STATUS));
         }
-        if (sporingerFraGammeltGrunnlag.get(BeregningsgrunnlagRegelType.PERIODISERING_NATURALYTELSE) != null) {
+        // Denne regeltypen ble introdusert senere, og finnes ikke på grunnlag før juli 2020.
+        // Kopierer derfor også den hvis den finnes, men tar kun utgangspuiinkt i at BRUKERS_STATUS og SKJÆRINGSTIDSPUNKT må være til stede.
+        if (sporingerFraGammeltGrunnlag.get(BeregningsgrunnlagRegelType.PERIODISERING_NATURALYTELSE) != null && sporingerFraAktivtGrunnlag.get(BeregningsgrunnlagRegelType.PERIODISERING_NATURALYTELSE) == null) {
             logg(referanse.behandlingId(), BeregningsgrunnlagRegelType.PERIODISERING_NATURALYTELSE);
-            sporinger.put(BeregningsgrunnlagRegelType.PERIODISERING_NATURALYTELSE, sporingerFraGammeltGrunnlag.get(BeregningsgrunnlagRegelType.PERIODISERING_NATURALYTELSE));
+            sporingerFraAktivtGrunnlag.put(BeregningsgrunnlagRegelType.PERIODISERING_NATURALYTELSE, sporingerFraGammeltGrunnlag.get(BeregningsgrunnlagRegelType.PERIODISERING_NATURALYTELSE));
         }
-        if (sporingerFraGammeltGrunnlag.get(BeregningsgrunnlagRegelType.SKJÆRINGSTIDSPUNKT) != null) {
+        if (sporingerFraGammeltGrunnlag.get(BeregningsgrunnlagRegelType.SKJÆRINGSTIDSPUNKT) != null && sporingerFraAktivtGrunnlag.get(BeregningsgrunnlagRegelType.SKJÆRINGSTIDSPUNKT) == null) {
             logg(referanse.behandlingId(), BeregningsgrunnlagRegelType.SKJÆRINGSTIDSPUNKT);
-            sporinger.put(BeregningsgrunnlagRegelType.SKJÆRINGSTIDSPUNKT, sporingerFraGammeltGrunnlag.get(BeregningsgrunnlagRegelType.SKJÆRINGSTIDSPUNKT));
+            sporingerFraAktivtGrunnlag.put(BeregningsgrunnlagRegelType.SKJÆRINGSTIDSPUNKT, sporingerFraGammeltGrunnlag.get(BeregningsgrunnlagRegelType.SKJÆRINGSTIDSPUNKT));
         }
-        return sporinger;
+        return sporingerFraAktivtGrunnlag;
     }
 
     private void logg(Long behandlingId, BeregningsgrunnlagRegelType beregningsgrunnlagRegelType) {
@@ -72,9 +73,11 @@ public class RegelsporingMigreringTjeneste {
     private Map<BeregningsgrunnlagRegelType, BeregningsgrunnlagRegelSporing> finnSporingFraGammelGrunnlag(BehandlingReferanse referanse) {
         var kofakGrunnlag = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(referanse.behandlingId(),
             BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER);
-        var grunnlag = kofakGrunnlag.orElseThrow();
-        var beregningsgrunnlagEntitet = grunnlag.getBeregningsgrunnlag().orElseThrow();
-        return beregningsgrunnlagEntitet.getRegelSporinger();
+        // Behandlinger som starter i uttak har ikke grunnlag med type OPPDATERT_MED_ANDELER, er derfor ingen regelsporinger å kopiere
+        return kofakGrunnlag
+            .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag)
+            .map(BeregningsgrunnlagEntitet::getRegelSporinger)
+            .orElse(Map.of());
     }
 
 
