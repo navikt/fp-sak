@@ -68,13 +68,43 @@ class OppgaveDtoTjenesteTest {
 
     @Test
     void skal_formatere_beskrivelse() {
-        var beskrivelse = "--- header ---\nkommentarMedHeader\n\n--- header2 ---\nkommentarMedHeader2Del1\nkommentarMedHeader2Del2\n\nVL: kommentarUtenHeader";
+        var beskrivelse = """
+            --- 20.03.2025 11:24 F_Z990245 E_Z990245 (Z990245, 0219) ---
+            Bruker sier at han har søkt Foreldrepenger, han er i permisjon nå. Han har ikke fått svar, han skriver at saksnr er: 12341234.
+            Han har AAP, så det er greit å vite om han får Foreldrepenger før man evt stanser denne ytelsen.
+            --- 19.01.2025 11:24 F_Z990245 E_Z990245 (Z990245, 0219) ---
+            Må ringe bruker for å avklare AAP og Foreldrepenger.
+            Undersøk dette før vi går videre
+            VL: Søknad om foreldrepenger ved fødsel""";
         var beskrivelser = OppgaveDtoTjeneste.splittBeskrivelser(beskrivelse);
 
         assertThat(beskrivelser).hasSize(3);
-        assertBeskrivelse(beskrivelser.getFirst(), "--- header ---", "kommentarMedHeader");
-        assertBeskrivelse(beskrivelser.get(1), "--- header2 ---", "kommentarMedHeader2Del1", "kommentarMedHeader2Del2");
-        assertBeskrivelse(beskrivelser.getLast(), null, "VL: kommentarUtenHeader");
+        assertBeskrivelse(beskrivelser.getFirst(), "--- 20.03.2025 11:24 F_Z990245 E_Z990245 (Z990245, 0219) ---",
+            "Bruker sier at han har søkt Foreldrepenger, han er i permisjon nå. Han har ikke fått svar, han skriver at saksnr er: 12341234.",
+            "Han har AAP, så det er greit å vite om han får Foreldrepenger før man evt stanser denne ytelsen.");
+        assertBeskrivelse(beskrivelser.get(1), "--- 19.01.2025 11:24 F_Z990245 E_Z990245 (Z990245, 0219) ---",
+            "Må ringe bruker for å avklare AAP og Foreldrepenger.", "Undersøk dette før vi går videre");
+        assertBeskrivelse(beskrivelser.getLast(), null, "VL: Søknad om foreldrepenger ved fødsel");
+    }
+
+    @Test
+    void første_kommentar_splittes_for_over_tre_linjer() {
+        var beskrivelse = """
+            --- 20.03.2025 11:24 F_Z990245 E_Z990245 (Z990245, 0219) ---
+            Bruker sier at han har søkt Foreldrepenger, han er i permisjon nå. Han har ikke fått svar, han skriver at saksnr er: 12341234.
+            Han har AAP, så det er greit å vite om han får Foreldrepenger før man evt stanser denne ytelsen.
+            Det må også vurderes om det er riktig å stanse AAP.
+            Ta kontakt med aktuell saksbehandler.
+            VL: Søknad om foreldrepenger ved fødsel""";
+        var beskrivelser = OppgaveDtoTjeneste.splittBeskrivelser(beskrivelse);
+
+        assertThat(beskrivelser).hasSize(3);
+        assertBeskrivelse(beskrivelser.getFirst(), "--- 20.03.2025 11:24 F_Z990245 E_Z990245 (Z990245, 0219) ---",
+            "Bruker sier at han har søkt Foreldrepenger, han er i permisjon nå. Han har ikke fått svar, han skriver at saksnr er: 12341234.",
+            "Han har AAP, så det er greit å vite om han får Foreldrepenger før man evt stanser denne ytelsen.",
+            "Det må også vurderes om det er riktig å stanse AAP.");
+        assertBeskrivelse(beskrivelser.get(1), null, "Ta kontakt med aktuell saksbehandler.");
+        assertBeskrivelse(beskrivelser.getLast(), null, "VL: Søknad om foreldrepenger ved fødsel");
     }
 
     @Test
