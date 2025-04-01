@@ -5,6 +5,6 @@ import jakarta.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public record FritekstDto(@Valid @Size(max = 10_000) @JsonValue String verdi) {
+public record FritekstDto(@Valid @Size(max = 20_000) @JsonValue String verdi) {
 
 }
