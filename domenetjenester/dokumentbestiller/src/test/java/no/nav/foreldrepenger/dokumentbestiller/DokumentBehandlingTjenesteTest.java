@@ -185,7 +185,7 @@ class DokumentBehandlingTjenesteTest {
 
         // Act
         var overstyrtBrev = "<div><h1>TITTELEN ER GOD</h1><p>body</p></div>";
-        dokumentBehandlingTjeneste.lagreOverstyrtBrev(behandling, overstyrtBrev);
+        dokumentBehandlingTjeneste.lagreOverstyrtBrev(behandling, overstyrtBrev, "orginalHtml");
 
         // Assert
         var mellomlagretOverstyring = dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId());
@@ -201,13 +201,14 @@ class DokumentBehandlingTjenesteTest {
         var behandlingDokumentBuilder = BehandlingDokumentEntitet.Builder.ny()
             .medBehandling(behandling.getId())
             .medOverstyrtBrevFritekstHtml(overstyrtBrev)
+            .medOverstyrtBrevUtgangspunktHtml("ETT ELLER ANNA")
             .medVedtakFritekst(VEDTAK_FRITEKST);
         behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder.build());
         assertThat(dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId())).isPresent();
         assertThat(dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId()).get()).contains(overstyrtBrev);
 
         // Act
-        dokumentBehandlingTjeneste.lagreOverstyrtBrev(behandling, null);
+        dokumentBehandlingTjeneste.fjernOverstyringAvBrev(behandling);
 
         // Assert
         var mellomlagretOverstyring = dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId());
