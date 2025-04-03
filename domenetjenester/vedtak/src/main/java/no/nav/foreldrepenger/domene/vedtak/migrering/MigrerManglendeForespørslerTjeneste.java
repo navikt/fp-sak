@@ -61,15 +61,19 @@ public class MigrerManglendeForespørslerTjeneste {
     }
 
     public void vurderOmForespørselSkalOpprettes(Fagsak sak, boolean dryRun) {
-        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(sak.getId());
         var sisteYtelsebehandling = behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(sak.getId());
 
         sisteYtelsebehandling.ifPresent(behandling -> {
+            var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
             var uttakInput = uttakInputTjeneste.lagInput(behandling);
+            if (stp == null) {
+                LOG.info("MIGRER-FP: Saksnummer {} har ingen skjæringstidspunkt. Ingen forespørsel opprettes", sak.getSaksnummer());
+                return;
+            }
             if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsak().getYtelseType())) {
                 var saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput);
                 var stønadRest = stønadskontoSaldoTjeneste.finnStønadRest(saldoUtregning);
-                if (stønadRest <= 10) {
+                if (stønadRest < 1) {
                     LOG.info("MIGRER-FP: Saksnummer {} har ikke nok dager igjen på saldo til å opprette forespørsel. Stønadrest er: {}",
                         sak.getSaksnummer(), stønadRest);
                     return;
