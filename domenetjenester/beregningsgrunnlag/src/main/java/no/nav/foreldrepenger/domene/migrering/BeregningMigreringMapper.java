@@ -95,7 +95,9 @@ public class BeregningMigreringMapper {
         var beregningsgrunnlag = entitet.getBeregningsgrunnlag().map(BeregningMigreringMapper::mapBeregningsgrunnlag).orElse(null);
         var tilstand = KodeverkTilKalkulusMapper.mapBeregningsgrunnlagTilstand(entitet.getBeregningsgrunnlagTilstand());
         var grunnlagSporingerDto = mapGrunnlagSporinger(grunnlagSporinger);
-        var periodeSporingerDto = entitet.getBeregningsgrunnlag().map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder).orElse(List.of()).stream()
+        var periodeSporingerDto = entitet.getBeregningsgrunnlag().map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder)
+            .orElse(List.of())
+            .stream()
             .map(BeregningMigreringMapper::mapPeriodeSporinger)
             .flatMap(Collection::stream)
             .toList();
@@ -122,6 +124,8 @@ public class BeregningMigreringMapper {
 
     private static List<RegelSporingPeriodeMigreringDto> mapPeriodeSporinger(BeregningsgrunnlagPeriode bgPeriode) {
         return bgPeriode.getRegelSporinger().entrySet().stream()
+            // Sporing eller evaluering må være satt, ellers gir ikke sporingen verdi og kan kastes.
+            .filter(entry -> entry.getValue().getRegelEvaluering() != null || entry.getValue().getRegelInput() != null)
             .map(entry -> {
                 var dto = new RegelSporingPeriodeMigreringDto(entry.getValue().getRegelEvaluering(),
                     entry.getValue().getRegelInput(), mapPeriode(bgPeriode.getPeriode()),
