@@ -337,7 +337,7 @@ public class BeregningMigreringMapper {
 
         sanitycheckBesteberegning(bg);
 
-        var faktaAktørMigreringDto = mapFaktaAktør(bgp.getBeregningsgrunnlagPrStatusOgAndelList(), bg.getFaktaOmBeregningTilfeller());
+        var faktaAktørMigreringDto = mapFaktaAktør(bg, bgp.getBeregningsgrunnlagPrStatusOgAndelList(), bg.getFaktaOmBeregningTilfeller());
         var faktaArbeidsforhold = mapAlleFaktaArbeidsforhold(bgp.getBeregningsgrunnlagPrStatusOgAndelList(),
             bg.getFaktaOmBeregningTilfeller());
         if (faktaAktørMigreringDto.isEmpty() && faktaArbeidsforhold.isEmpty()) {
@@ -387,6 +387,7 @@ public class BeregningMigreringMapper {
             && arbeidsforholdFakta.getHarLønnsendringIBeregningsperioden() == null) {
             return Optional.empty();
         }
+        settOpprettetOgEndretFelter(andel, arbeidsforholdFakta);
         return Optional.of(arbeidsforholdFakta);
     }
 
@@ -422,7 +423,8 @@ public class BeregningMigreringMapper {
         }
     }
 
-    private static Optional<FaktaAktørMigreringDto> mapFaktaAktør(List<BeregningsgrunnlagPrStatusOgAndel> andelListe, List<FaktaOmBeregningTilfelle> tilfeller) {
+    private static Optional<FaktaAktørMigreringDto> mapFaktaAktør(BeregningsgrunnlagEntitet bg,
+                                                                  List<BeregningsgrunnlagPrStatusOgAndel> andelListe, List<FaktaOmBeregningTilfelle> tilfeller) {
         var dto = new FaktaAktørMigreringDto();
         var nyIArbeidslivetVurdering = finnAndel(andelListe, AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
             .map(BeregningsgrunnlagPrStatusOgAndel::getNyIArbeidslivet)
@@ -454,6 +456,7 @@ public class BeregningMigreringMapper {
             && dto.getHarFLMottattYtelse() == null && dto.getErNyoppstartetFL() == null && dto.getErNyIArbeidslivetSN() == null) {
             return Optional.empty();
         }
+        settOpprettetOgEndretFelter(bg, dto);
         return Optional.of(dto);
     }
 
