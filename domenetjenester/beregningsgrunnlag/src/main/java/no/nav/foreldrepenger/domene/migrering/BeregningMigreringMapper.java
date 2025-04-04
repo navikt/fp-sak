@@ -89,7 +89,7 @@ public class BeregningMigreringMapper {
                                                                       Set<Aksjonspunkt> aksjonspunkter) {
         var aktivitetOverstyringer = entitet.getOverstyring().map(BeregningMigreringMapper::mapAktivitetOverstyringer).orElse(null);
         var saksbehandletAktiviteter = entitet.getSaksbehandletAktiviteter().map(BeregningMigreringMapper::mapAktiviteter).orElse(null);
-        var registerAktiviteter = entitet.getRegisterAktiviteter() == null ? null : mapAktiviteter(entitet.getRegisterAktiviteter());
+        var registerAktiviteter = entitet.getRegisterAktiviteter() == null ? lagEnkeltAktivitetaggregat(entitet) : mapAktiviteter(entitet.getRegisterAktiviteter());
         var refusjonOverstyringer = entitet.getRefusjonOverstyringer().map(BeregningMigreringMapper::mapRefusjonOverstyringer).orElse(null);
         var faktaAggregat = entitet.getBeregningsgrunnlag().flatMap(BeregningMigreringMapper::mapFaktaAggregat).orElse(null);
         var beregningsgrunnlag = entitet.getBeregningsgrunnlag().map(BeregningMigreringMapper::mapBeregningsgrunnlag).orElse(null);
@@ -109,6 +109,11 @@ public class BeregningMigreringMapper {
             faktaAggregat, tilstand, grunnlagSporingerDto, periodeSporingerDto, avklaringsbehov);
         settOpprettetOgEndretFelter(entitet, dto);
         return dto;
+    }
+
+    private static BeregningAktivitetAggregatMigreringDto lagEnkeltAktivitetaggregat(BeregningsgrunnlagGrunnlagEntitet entitet) {
+        // TFP-6081: Hvis hele aggregatet mangler (gjelder 15 saker), migrerer vi heller over et forenklet aggregat for å ikke trenge løse på validering i kalkulus
+        return new BeregningAktivitetAggregatMigreringDto(List.of(), entitet.getBeregningsgrunnlag().map(BeregningsgrunnlagEntitet::getSkjæringstidspunkt).orElseThrow());
     }
 
     private static Optional<AvklaringsbehovMigreringDto> mapAksjonspunkt(Aksjonspunkt ap) {
