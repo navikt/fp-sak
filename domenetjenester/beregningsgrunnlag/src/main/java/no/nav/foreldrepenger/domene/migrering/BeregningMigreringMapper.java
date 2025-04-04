@@ -113,7 +113,10 @@ public class BeregningMigreringMapper {
 
     private static BeregningAktivitetAggregatMigreringDto lagEnkeltAktivitetaggregat(BeregningsgrunnlagGrunnlagEntitet entitet) {
         // TFP-6081: Hvis hele aggregatet mangler (gjelder 15 saker), migrerer vi heller over et forenklet aggregat for å ikke trenge løse på validering i kalkulus
-        return new BeregningAktivitetAggregatMigreringDto(List.of(), entitet.getBeregningsgrunnlag().map(BeregningsgrunnlagEntitet::getSkjæringstidspunkt).orElseThrow());
+        var beregningAktivitetAggregatMigreringDto = new BeregningAktivitetAggregatMigreringDto(List.of(),
+            entitet.getBeregningsgrunnlag().map(BeregningsgrunnlagEntitet::getSkjæringstidspunkt).orElseThrow());
+        settOpprettetOgEndretFelter(entitet, beregningAktivitetAggregatMigreringDto);
+        return beregningAktivitetAggregatMigreringDto;
     }
 
     private static Optional<AvklaringsbehovMigreringDto> mapAksjonspunkt(Aksjonspunkt ap) {
