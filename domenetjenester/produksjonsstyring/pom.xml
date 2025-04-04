@@ -41,6 +41,10 @@
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
             <artifactId>oppgave-rest-klient</artifactId>
         </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+            <artifactId>pip-klient</artifactId>
+        </dependency>
 
         <!-- Prosjektinterne avhengigheter -->
         <dependency>

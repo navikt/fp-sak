@@ -49,16 +49,23 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
     }
 
     @Override
+    public AppRessursData lagAppRessursDataForSystembruker(AbacDataAttributter dataAttributter) {
+        // Slår opp behandling/fagsak men ikke alle aktører i saken. Trenger kun behandlingstatus/fagsakstatus
+        return lagAppressursDataInternt(dataAttributter, true);
+    }
+
+    @Override
     public AppRessursData lagAppRessursData(AbacDataAttributter dataAttributter) {
+        return lagAppressursDataInternt(dataAttributter, false);
+    }
+
+    public AppRessursData lagAppressursDataInternt(AbacDataAttributter dataAttributter, boolean systembruker) {
         var behandlingIder = utledBehandlingIder(dataAttributter);
-        Optional<PipBehandlingsData> behandlingData = behandlingIder.isPresent()
-            ? pipRepository.hentDataForBehandling(behandlingIder.get())
-            : Optional.empty();
+        var behandlingData = behandlingIder.flatMap(pipRepository::hentDataForBehandling);
         var fagsakIder = behandlingData.map(behandlingsData -> utledFagsakIder(dataAttributter, behandlingsData))
             .orElseGet(() -> utledFagsakIder(dataAttributter));
 
-        behandlingData.ifPresent(
-            pipBehandlingsData -> validerSamsvarBehandlingOgFagsak(behandlingIder.get(), pipBehandlingsData.getFagsakId(), fagsakIder));
+        behandlingData.ifPresent(d -> validerSamsvarBehandlingOgFagsak(behandlingIder.get(), d.getFagsakId(), fagsakIder));
 
         if (!fagsakIder.isEmpty()) {
             var saksnumre = pipRepository.saksnummerForFagsakId(fagsakIder);
@@ -70,27 +77,32 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
             MDC_EXTENDED_LOG_CONTEXT.add("behandling", behId);
         });
 
-        var auditAktørId = utledAuditAktørId(dataAttributter, fagsakIder);
+        var builder = AppRessursData.builder();
 
-        var aktørIder = utledAktørIder(dataAttributter, fagsakIder);
-        var aksjonspunktTypeOverstyring = PipRepository.harAksjonspunktTypeOverstyring(dataAttributter.getVerdier(AppAbacAttributtType.AKSJONSPUNKT_DEFINISJON));
+        if (!systembruker) {
+            var auditAktørId = utledAuditAktørId(dataAttributter, fagsakIder);
 
-        Set<String> aktører = aktørIder.stream().map(AktørId::getId).collect(Collectors.toCollection(TreeSet::new));
-        Set<String> fnrs = dataAttributter.getVerdier(AppAbacAttributtType.FNR);
+            var aktørIder = utledAktørIder(dataAttributter, fagsakIder);
 
-        var builder = AppRessursData.builder()
-            .medAuditAktørId(auditAktørId)
-            .leggTilAktørIdSet(aktører)
-            .leggTilFødselsnumre(fnrs);
-        if (aksjonspunktTypeOverstyring) {
-            builder.medOverstyring(PipOverstyring.OVERSTYRING);
+            Set<String> aktører = aktørIder.stream().map(AktørId::getId).collect(Collectors.toCollection(TreeSet::new));
+            Set<String> fnrs = dataAttributter.getVerdier(AppAbacAttributtType.FNR);
+
+            builder
+                .medAuditIdent(auditAktørId)
+                .leggTilAktørIdSet(aktører)
+                .leggTilFødselsnumre(fnrs);
+            var aksjonspunktTypeOverstyring = PipRepository.harAksjonspunktTypeOverstyring(dataAttributter.getVerdier(AppAbacAttributtType.AKSJONSPUNKT_DEFINISJON));
+            if (aksjonspunktTypeOverstyring) {
+                builder.medOverstyring(PipOverstyring.OVERSTYRING);
+            }
+            behandlingData.flatMap(PipBehandlingsData::getAnsvarligSaksbehandler)
+                .ifPresent(builder::medAnsvarligSaksbehandler);
         }
+
         behandlingData.map(PipBehandlingsData::getBehandligStatus).flatMap(AbacUtil::oversettBehandlingStatus)
             .ifPresent(builder::medBehandlingStatus);
         behandlingData.map(PipBehandlingsData::getFagsakStatus).flatMap(AbacUtil::oversettFagstatus)
             .ifPresent(builder::medFagsakStatus);
-        behandlingData.flatMap(PipBehandlingsData::getAnsvarligSaksbehandler)
-            .ifPresent(builder::medAnsvarligSaksbehandler);
         return builder.build();
     }
 
@@ -118,24 +130,32 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
     }
 
     private Set<Long> utledFagsakIder(AbacDataAttributter attributter) {
-        Set<Long> fagsakIder = new HashSet<>();
-        fagsakIder.addAll(attributter.getVerdier(AppAbacAttributtType.FAGSAK_ID));
+        Set<Long> fagsakIder = new HashSet<>(attributter.getVerdier(AppAbacAttributtType.FAGSAK_ID));
 
-        //
-        fagsakIder.addAll(pipRepository.fagsakIderForSøker(aktørIdStringTilAktørId(attributter.getVerdier(AppAbacAttributtType.SAKER_FOR_AKTØR))));
+        // Søk - sjekker alle saker for bruker ved innkommende søk - burde heller filtrere resultatet når det blir tilgjengelig
+        Set<String> aktørIdFraSøk = attributter.getVerdier(AppAbacAttributtType.SAKER_FOR_AKTØR);
+        if (!aktørIdFraSøk.isEmpty()) {
+            fagsakIder.addAll(pipRepository.fagsakIderForSøker(aktørIdStringTilAktørId(aktørIdFraSøk)));
+        }
 
         // fra saksnummer
         Set<String> saksnummere = attributter.getVerdier(AppAbacAttributtType.SAKSNUMMER);
-        fagsakIder.addAll(pipRepository.fagsakIdForSaksnummer(saksnummere));
+        if (!saksnummere.isEmpty()) {
+            fagsakIder.addAll(pipRepository.fagsakIdForSaksnummer(saksnummere));
+        }
 
         // journalpostIder
         Set<String> ikkePåkrevdJournalpostIdVerdier = attributter.getVerdier(AppAbacAttributtType.JOURNALPOST_ID);
         var ikkePåkrevdeJournalpostId = ikkePåkrevdJournalpostIdVerdier.stream().map(JournalpostId::new).collect(Collectors.toSet());
-        fagsakIder.addAll(pipRepository.fagsakIdForJournalpostId(ikkePåkrevdeJournalpostId));
+        if (!ikkePåkrevdeJournalpostId.isEmpty()) {
+            fagsakIder.addAll(pipRepository.fagsakIdForJournalpostId(ikkePåkrevdeJournalpostId));
+        }
 
         Set<String> påkrevdJournalpostIdVerdier = attributter.getVerdier(AppAbacAttributtType.EKSISTERENDE_JOURNALPOST_ID);
         var påkrevdJournalpostId = påkrevdJournalpostIdVerdier.stream().map(JournalpostId::new).collect(Collectors.toSet());
-        fagsakIder.addAll(pipRepository.fagsakIdForJournalpostId(påkrevdJournalpostId));
+        if (!påkrevdJournalpostId.isEmpty()) {
+            fagsakIder.addAll(pipRepository.fagsakIdForJournalpostId(påkrevdJournalpostId));
+        }
 
         return fagsakIder;
     }
@@ -143,9 +163,10 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
     private Set<AktørId> utledAktørIder(AbacDataAttributter attributter, Set<Long> fagsakIder) {
         Set<String> aktørIdVerdier = attributter.getVerdier(AppAbacAttributtType.AKTØR_ID);
 
-        Set<AktørId> aktørIder = new HashSet<>();
-        aktørIder.addAll(aktørIdVerdier.stream().map(AktørId::new).collect(Collectors.toSet()));
-        aktørIder.addAll(pipRepository.hentAktørIdKnyttetTilFagsaker(fagsakIder));
+        var aktørIder = new HashSet<>(aktørIdVerdier.stream().map(AktørId::new).collect(Collectors.toSet()));
+        if (!fagsakIder.isEmpty()) {
+            aktørIder.addAll(pipRepository.hentAktørIdKnyttetTilFagsaker(fagsakIder));
+        }
         return aktørIder;
     }
 

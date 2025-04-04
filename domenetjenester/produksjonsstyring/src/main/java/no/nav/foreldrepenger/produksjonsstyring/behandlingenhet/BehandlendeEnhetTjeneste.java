@@ -35,6 +35,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.vedtak.felles.integrasjon.ruting.RutingResultat;
 
 @ApplicationScoped
 public class BehandlendeEnhetTjeneste {
@@ -145,7 +146,7 @@ public class BehandlendeEnhetTjeneste {
         relasjon.map(FagsakRelasjon::getFagsakNrEn).map(Fagsak::getAktørId).ifPresent(allePersoner::add);
         relasjon.flatMap(FagsakRelasjon::getFagsakNrTo).map(Fagsak::getAktørId).ifPresent(allePersoner::add);
 
-        return enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), hovedPerson, allePersoner,
+        return enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), allePersoner,
             finnSaksmerking(fagsak));
     }
 

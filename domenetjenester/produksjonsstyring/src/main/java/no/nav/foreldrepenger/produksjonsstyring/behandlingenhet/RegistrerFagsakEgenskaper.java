@@ -10,9 +10,6 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
@@ -32,11 +29,10 @@ import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
+import no.nav.vedtak.felles.integrasjon.ruting.RutingResultat;
 
 @Dependent
 public class RegistrerFagsakEgenskaper {
-
-    private static final Logger LOG = LoggerFactory.getLogger(RegistrerFagsakEgenskaper.class);
 
     private final BehandlendeEnhetTjeneste enhetTjeneste;
     private final PersoninfoAdapter personinfo;
