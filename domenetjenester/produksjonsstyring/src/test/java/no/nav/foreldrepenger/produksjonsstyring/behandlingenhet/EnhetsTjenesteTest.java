@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.vedtak.felles.integrasjon.ruting.RutingResultat;
 
 @ExtendWith(MockitoExtension.class)
 class EnhetsTjenesteTest {
@@ -81,7 +82,7 @@ class EnhetsTjenesteTest {
 
         var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID);
         var enhet1 = enhetsTjeneste
-                .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), MOR_AKTØR_ID, FAMILIE, Set.of()).orElse(enhet);
+                .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), FAMILIE, Set.of()).orElse(enhet);
 
         assertThat(enhet).isNotNull();
         assertThat(enhet1).isEqualTo(enhetKode6);
@@ -94,7 +95,7 @@ class EnhetsTjenesteTest {
 
         var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID);
         var enhet1 = enhetsTjeneste
-                .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), MOR_AKTØR_ID, FAMILIE, Set.of()).orElse(enhet);
+                .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), FAMILIE, Set.of()).orElse(enhet);
 
         assertThat(enhet).isNotNull();
         assertThat(enhet1).isEqualTo(enhetKode6);
@@ -105,7 +106,7 @@ class EnhetsTjenesteTest {
         // Oppsett
         settOppPDLStrukturer(false, false, true);
 
-        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), MOR_AKTØR_ID, FAMILIE, Set.of());
+        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), FAMILIE, Set.of());
 
         assertThat(enhet)
             .isPresent()
@@ -119,7 +120,7 @@ class EnhetsTjenesteTest {
         when(rutingKlient.finnRutingEgenskaper(Set.of(MOR_AKTØR_ID.getId()))).thenReturn(Set.of());
         var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID);
         var enhet1 = enhetsTjeneste
-            .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), MOR_AKTØR_ID, FAMILIE, Set.of());
+            .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), FAMILIE, Set.of());
 
         assertThat(enhet)
             .isNotNull()
@@ -143,7 +144,7 @@ class EnhetsTjenesteTest {
         // Oppsett
         settOppPDLStrukturer(true, false, true);
 
-        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetKode6.enhetId(), MOR_AKTØR_ID, FAMILIE, Set.of());
+        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetKode6.enhetId(), FAMILIE, Set.of());
 
         assertThat(enhet).isNotPresent();
     }
@@ -153,7 +154,7 @@ class EnhetsTjenesteTest {
         // Oppsett
         settOppPDLStrukturer(false, true, false);
 
-        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), MOR_AKTØR_ID, FAMILIE, Set.of());
+        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), FAMILIE, Set.of());
 
         assertThat(enhet)
             .isPresent()
@@ -165,7 +166,7 @@ class EnhetsTjenesteTest {
         // Oppsett
         settOppPDLStrukturer(false, false, true);
 
-        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), MOR_AKTØR_ID, FAMILIE, Set.of());
+        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), FAMILIE, Set.of());
 
         assertThat(enhet)
             .isPresent()
@@ -177,7 +178,7 @@ class EnhetsTjenesteTest {
         // Oppsett
         settOppSkjermetStrukturer(false, true);
 
-        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), MOR_AKTØR_ID, FAMILIE, Set.of());
+        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), FAMILIE, Set.of());
 
         assertThat(enhet)
             .isPresent()

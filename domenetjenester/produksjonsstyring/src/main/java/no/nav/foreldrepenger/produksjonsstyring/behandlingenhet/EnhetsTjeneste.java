@@ -13,6 +13,7 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.vedtak.felles.integrasjon.ruting.RutingResultat;
 
 @ApplicationScoped
 public class EnhetsTjeneste {
@@ -98,7 +99,7 @@ public class EnhetsTjeneste {
         }
     }
 
-    Optional<OrganisasjonsEnhet> oppdaterEnhetSjekkOppgittePersoner(String enhetId, AktørId hovedAktør,
+    Optional<OrganisasjonsEnhet> oppdaterEnhetSjekkOppgittePersoner(String enhetId,
                                                                     Set<AktørId> alleAktører, Collection<FagsakMarkering> saksmarkering) {
         if (SPESIALENHETER.contains(enhetId)) {
             return Optional.empty();
