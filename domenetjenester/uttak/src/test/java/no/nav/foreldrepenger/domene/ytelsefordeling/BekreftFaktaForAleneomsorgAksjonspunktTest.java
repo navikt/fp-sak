@@ -27,8 +27,8 @@ class BekreftFaktaForAleneomsorgAksjonspunktTest {
             .isNotNull()
             .isFalse();
 
-        var perioderAnnenforelderHarRettOptional = ytelsesFordelingRepository.hentAggregat(
-            behandlingId).getAnnenForelderRettAvklaring();
+        var yfa = ytelsesFordelingRepository.hentAggregat(behandlingId);
+        var perioderAnnenforelderHarRettOptional = yfa.getAnnenForelderRettAvklaring();
         assertThat(perioderAnnenforelderHarRettOptional).isNull();
 
         //må legge inn etter endret til har aleneomsorg

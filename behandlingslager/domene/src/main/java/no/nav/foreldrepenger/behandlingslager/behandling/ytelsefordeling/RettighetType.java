@@ -6,5 +6,5 @@ public enum RettighetType {
     BEGGE_RETT,
     BEGGE_RETT_EØS,
     BARE_SØKER_RETT,
-    BARE_FAR_RETT_MOR_UFØR
+    BARE_FAR_RETT_MOR_UFØR;
 }

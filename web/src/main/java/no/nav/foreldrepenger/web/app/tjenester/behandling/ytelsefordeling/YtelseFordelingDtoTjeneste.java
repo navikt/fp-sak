@@ -143,7 +143,7 @@ public class YtelseFordelingDtoTjeneste {
     }
 
     private static Optional<OmsorgOgRettDto.ManuellBehandlingResultat> opprettManuellBehandlingResultat(YtelseFordelingAggregat ytelseFordelingAggregat) {
-        return ytelseFordelingAggregat.getOverstyrtRettighet().map(or -> {
+        return ytelseFordelingAggregat.getAvklartRettighet().map(or -> {
             var søkerHarAleneomsorg = or.getHarAleneomsorgForBarnet();
             var annenpartRettighet = Objects.equals(søkerHarAleneomsorg, Boolean.TRUE) ? null : new OmsorgOgRettDto.Rettighet(
                 fra(or.getHarAnnenForeldreRett()), fra(or.getAnnenForelderOppholdEØS()), fra(or.getAnnenForelderRettEØSNullable()),
