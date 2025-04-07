@@ -23,6 +23,7 @@ public class YtelseFordelingAggregat {
     private Dekningsgrad oppgittDekningsgrad;
     private Dekningsgrad sakskompleksDekningsgrad;
     private Boolean overstyrtOmsorg;
+    private RettighetType overstyrtRettighetType;
 
     protected YtelseFordelingAggregat() {
     }
@@ -155,6 +156,32 @@ public class YtelseFordelingAggregat {
 
     public Dekningsgrad getGjeldendeDekningsgrad() {
         return Optional.ofNullable(getSakskompleksDekningsgrad()).orElse(getOppgittDekningsgrad());
+    }
+
+    public RettighetType getRettighetType(boolean annenpartHarForeldrepengerUtbetaling,
+                                          RelasjonsRolleType relasjonsRolleType,
+                                          UføretrygdGrunnlagEntitet uføretrygdGrunnlag) {
+        if (overstyrtRettighetType != null) {
+            return overstyrtRettighetType;
+        }
+        if (annenpartHarForeldrepengerUtbetaling) {
+            return RettighetType.BEGGE_RETT;
+        }
+        if (avklartAnnenForelderHarRettEØS()) {
+            return RettighetType.BEGGE_RETT_EØS;
+        }
+        if (robustHarAleneomsorg(relasjonsRolleType)) {
+            return RettighetType.ALENEOMSORG;
+        }
+        if (morMottarUføretrygd(uføretrygdGrunnlag)) {
+            return RettighetType.BARE_FAR_RETT_MOR_UFØR;
+        }
+        return Optional.ofNullable(getAnnenForelderRettAvklaring())
+            .orElseGet(() -> {
+                var or = getOppgittRettighet();
+                Objects.requireNonNull(or, "oppgittRettighet");
+                return or.getHarAnnenForeldreRett() == null || or.getHarAnnenForeldreRett();
+            }) ? RettighetType.BEGGE_RETT : RettighetType.BARE_SØKER_RETT;
     }
 
     public static class Builder {
