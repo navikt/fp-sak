@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 
 final class JusterFordelingTjeneste {
@@ -28,7 +29,7 @@ final class JusterFordelingTjeneste {
                                                                 LocalDate nyFamiliehendelse,
                                                                 RelasjonsRolleType relasjonsRolleType,
                                                                 boolean ønskerJustertVedFødsel) {
-        if (gammelFamiliehendelse == null || nyFamiliehendelse == null) {
+        if (gammelFamiliehendelse == null || nyFamiliehendelse == null || bareFpffEtterGammelFamiliehendelse(oppgittePerioder, gammelFamiliehendelse)) {
             return oppgittePerioder;
         }
         gammelFamiliehendelse = flyttFraHelgTilMandag(gammelFamiliehendelse);
@@ -44,6 +45,12 @@ final class JusterFordelingTjeneste {
         justert = sorterEtterFom(justert);
         exceptionHvisOverlapp(justert);
         return justert;
+    }
+
+    private static boolean bareFpffEtterGammelFamiliehendelse(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate familiehendelse) {
+        // Papirsøknad
+        return !oppgittePerioder.isEmpty() && oppgittePerioder.stream()
+            .allMatch(p -> !p.getFom().isBefore(familiehendelse) && p.getPeriodeType().equals(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL));
     }
 
     private static List<OppgittPeriodeEntitet> justerPerioder(List<OppgittPeriodeEntitet> oppgittePerioder,
