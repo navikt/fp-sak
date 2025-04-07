@@ -17,13 +17,15 @@ public class YtelseFordelingAggregat {
     private OppgittFordelingEntitet oppgittFordeling;
     private OppgittFordelingEntitet justertFordeling;
     private OppgittFordelingEntitet overstyrtFordeling;
+
     private OppgittRettighetEntitet oppgittRettighet;
     private OppgittRettighetEntitet overstyrtRettighet;
+    private RettighetType overstyrtRettighetType;
+
     private AvklarteUttakDatoerEntitet avklarteDatoer;
     private Dekningsgrad oppgittDekningsgrad;
     private Dekningsgrad sakskompleksDekningsgrad;
     private Boolean overstyrtOmsorg;
-    private RettighetType overstyrtRettighetType;
 
     protected YtelseFordelingAggregat() {
     }
@@ -86,6 +88,10 @@ public class YtelseFordelingAggregat {
         return Optional.ofNullable(overstyrtRettighet);
     }
 
+    public Optional<RettighetType> getOverstyrtRettighetType() {
+        return Optional.ofNullable(overstyrtRettighetType);
+    }
+
     public Boolean getOverstyrtOmsorg() {
         return overstyrtOmsorg;
     }
@@ -95,22 +101,27 @@ public class YtelseFordelingAggregat {
     }
 
     public Boolean getAleneomsorgAvklaring() {
-        return getOverstyrtRettighet().map(OppgittRettighetEntitet::getHarAleneomsorgForBarnet)
+        return getOverstyrtRettighet()
+            .map(OppgittRettighetEntitet::getHarAleneomsorgForBarnet)
             .orElse(null);
     }
 
     public Boolean getAnnenForelderRettAvklaring() {
-        return getOverstyrtRettighet().map(OppgittRettighetEntitet::getHarAnnenForeldreRett)
+        return getOverstyrtRettighet()
+            .map(OppgittRettighetEntitet::getHarAnnenForeldreRett)
             .orElse(null);
     }
 
     public Boolean getAnnenForelderRettEØSAvklaring() {
-        return getOverstyrtRettighet().map(OppgittRettighetEntitet::getAnnenForelderRettEØSNullable)
+        return getOverstyrtRettighet()
+            .map(OppgittRettighetEntitet::getAnnenForelderRettEØSNullable)
             .orElse(null);
     }
 
     public Boolean getMorUføretrygdAvklaring() {
-        return getOverstyrtRettighet().map(OppgittRettighetEntitet::getMorMottarUføretrygd).orElse(null);
+        return getOverstyrtRettighet()
+            .map(OppgittRettighetEntitet::getMorMottarUføretrygd)
+            .orElse(null);
     }
 
     public OppgittFordelingEntitet getGjeldendeFordeling() {
@@ -233,6 +244,11 @@ public class YtelseFordelingAggregat {
 
         public Builder medOverstyrtRettighet(OppgittRettighetEntitet overstyrtRettighet) {
             kladd.overstyrtRettighet = overstyrtRettighet;
+            return this;
+        }
+
+        public Builder medOverstyrtRettighetType(RettighetType overstyrtRettighetType) {
+            kladd.overstyrtRettighetType = overstyrtRettighetType;
             return this;
         }
 

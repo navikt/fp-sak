@@ -135,7 +135,6 @@ public class FaktaOmsorgRettTjeneste {
         }
     }
 
-
     private String konvertBooleanTilVerdiForAleneomsorgForBarnet(Boolean aleneomsorgForBarnet) {
         if (aleneomsorgForBarnet == null) {
             return null;

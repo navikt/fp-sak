@@ -60,6 +60,7 @@ public class YtelsesFordelingRepository {
                 ytelseFordelingGrunnlagEntitet.getSakskompleksDekningsgrad()))
             .medOppgittRettighet(ytelseFordelingGrunnlagEntitet.getOppgittRettighet())
             .medOverstyrtRettighet(ytelseFordelingGrunnlagEntitet.getOverstyrtRettighet())
+            .medOverstyrtRettighetType(ytelseFordelingGrunnlagEntitet.getOverstyrtRettighetType())
             .medOppgittFordeling(ytelseFordelingGrunnlagEntitet.getOppgittFordeling())
             .medJustertFordeling(ytelseFordelingGrunnlagEntitet.getJustertFordeling())
             .medOverstyrtFordeling(ytelseFordelingGrunnlagEntitet.getOverstyrtFordeling())
@@ -124,6 +125,7 @@ public class YtelsesFordelingRepository {
         grunnlag.setSakskompleksDekningsgrad(aggregat.getSakskompleksDekningsgrad() == null ? null : aggregat.getSakskompleksDekningsgrad().getVerdi());
         grunnlag.setOppgittRettighet(aggregat.getOppgittRettighet());
         aggregat.getOverstyrtRettighet().ifPresent(grunnlag::setOverstyrtRettighet);
+        aggregat.getOverstyrtRettighetType().ifPresent(grunnlag::setOverstyrtRettighetType);
         grunnlag.setOppgittFordeling(aggregat.getOppgittFordeling());
         aggregat.getOverstyrtFordeling().ifPresent(grunnlag::setOverstyrtFordeling);
         aggregat.getJustertFordeling().ifPresent(grunnlag::setJustertFordeling);

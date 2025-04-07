@@ -10,6 +10,7 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.RettighetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
@@ -109,11 +110,12 @@ public class YtelseFordelingTjeneste {
         ytelsesFordelingRepository.lagre(behandlingId, ytelseFordelingAggregatBuilder.build());
     }
 
-    public void endreOverstyrtRettighet(Long behandlingId, OppgittRettighetEntitet nyRettighet) {
+    public void endreOverstyrtRettighet(Long behandlingId, RettighetType rettighetType) {
         var builder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
-            .medOverstyrtRettighet(nyRettighet);
+            .medOverstyrtRettighetType(rettighetType);
         ytelsesFordelingRepository.lagre(behandlingId, builder.build());
     }
+
 
     public void bekreftAnnenforelderHarRett(Long behandlingId, boolean annenforelderHarRett, Boolean annenForelderHarRettEØS, Boolean annenforelderMottarUføretrygd) {
         var overstyrtRett = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
