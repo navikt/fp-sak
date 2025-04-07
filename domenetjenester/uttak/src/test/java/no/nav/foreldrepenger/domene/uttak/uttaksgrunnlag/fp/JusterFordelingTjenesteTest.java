@@ -2225,6 +2225,21 @@ class JusterFordelingTjenesteTest {
         assertThat(justertePerioder.get(2).getPeriodeType()).isEqualTo(FELLESPERIODE);
     }
 
+    @Test
+    void fpff_etter_termin_skal_føre_til_ingen_justering() {
+        var termindato = LocalDate.of(2025, 4, 7);
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.plusWeeks(4), termindato.plusWeeks(5));
+        var oppgittePerioder = List.of(fpff);
+
+        var fødselsdato = termindato.plusMonths(1);
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
+
+        assertThat(justertePerioder).hasSize(1);
+        assertThat(justertePerioder.getFirst().getFom()).isEqualTo(fpff.getFom());
+        assertThat(justertePerioder.getFirst().getTom()).isEqualTo(fpff.getTom());
+        assertThat(justertePerioder.getFirst().getPeriodeType()).isEqualTo(FORELDREPENGER_FØR_FØDSEL);
+    }
+
     private static List<OppgittPeriodeEntitet> juster(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate familehendelse1, LocalDate familehendelse2) {
         var justert = JusterFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, familehendelse1, familehendelse2, RelasjonsRolleType.MORA, false);
         return slåSammenLikePerioder(justert);
