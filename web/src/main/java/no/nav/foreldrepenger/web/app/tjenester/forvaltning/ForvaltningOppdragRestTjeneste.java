@@ -13,9 +13,6 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.K27PatchDto;
@@ -29,8 +26,6 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @ApplicationScoped
 @Transactional
 public class ForvaltningOppdragRestTjeneste {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ForvaltningOppdragRestTjeneste.class);
 
     private ForvaltningOppdragTjeneste forvaltningOppdragTjeneste;
 
@@ -52,7 +47,7 @@ public class ForvaltningOppdragRestTjeneste {
     public Response kvitterOK(
             @Parameter(description = "Identifikasjon av oppdrag som kvitteres OK. Sett oppdaterProsessTask til false kun når prosesstasken allerede er flyttet til FERDIG") @NotNull @Valid KvitteringDto kvitteringDto) {
         forvaltningOppdragTjeneste.kvitterOk(
-            kvitteringDto.getBehandlingId(),
+            kvitteringDto.getBehandlingUuid(),
             kvitteringDto.getFagsystemId(),
             kvitteringDto.getOppdaterProsessTask());
         return Response.ok().build();
@@ -66,7 +61,7 @@ public class ForvaltningOppdragRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response patchOppdrag(@NotNull @Valid OppdragPatchDto dto) {
         forvaltningOppdragTjeneste.patchOppdrag(dto);
-        return Response.ok("Patchet oppdrag for behandling=" + dto.getBehandlingId()).build();
+        return Response.ok("Patchet oppdrag for behandling=" + dto.getBehandlingUuid().toString()).build();
     }
 
     @POST
@@ -77,7 +72,7 @@ public class ForvaltningOppdragRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response patchOppdragOgRekjør(@NotNull @Valid OppdragPatchDto dto) {
         forvaltningOppdragTjeneste.patchOppdragOgRekjør(dto);
-        return Response.ok("Patchet oppdrag for behandling=" + dto.getBehandlingId()).build();
+        return Response.ok("Patchet oppdrag for behandling=" + dto.getBehandlingUuid().toString()).build();
     }
 
     @POST
@@ -87,7 +82,7 @@ public class ForvaltningOppdragRestTjeneste {
     @Operation(description = "Patcher oppdrag som har feil i maks dato ved refusjon til AG, og sender over til oppdragsysstemet. Sjekk med Team FP hvis i tvil. Viktig at det sjekkes i Oppdragsystemet etter oversending at alt har gått som forventet", tags = "FORVALTNING-oppdrag")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response patchK27(@NotNull @Valid K27PatchDto dto) {
-        forvaltningOppdragTjeneste.patchk27(dto.getBehandlingId(), dto.getFagsystemId(), dto.getMaksDato());
-        return Response.ok("Patchet oppdrag for behandling=" + dto.getBehandlingId()).build();
+        forvaltningOppdragTjeneste.patchk27(dto.getBehandlingUuid(), dto.getFagsystemId(), dto.getMaksDato());
+        return Response.ok("Patchet oppdrag for behandling=" + dto.getBehandlingUuid().toString()).build();
     }
 }

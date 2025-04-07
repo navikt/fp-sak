@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,7 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
 class PipRepositoryTest extends EntityManagerAwareTest {
 
-    private static final JournalpostId JOURNALPOST_ID = new JournalpostId("42");
+    private static final String JOURNALPOST_ID = "42";
 
     private BehandlingRepository behandlingRepository;
     private PipRepository pipRepository;
@@ -44,19 +45,6 @@ class PipRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    void skal_finne_behandligstatus_og_sakstatus_for_behandling() {
-        var behandling = behandlingBuilder.opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
-        lagreBehandling(behandling);
-
-        var pipBehandlingsData = pipRepository.hentDataForBehandling(behandling.getId());
-        assertThat(pipBehandlingsData).isPresent();
-        assertThat(pipBehandlingsData.get()).isNotNull();
-        assertThat(pipBehandlingsData.get().getBehandligStatus()).isEqualTo(behandling.getStatus().getKode());
-        assertThat(pipBehandlingsData.get().getFagsakStatus()).isEqualTo(behandling.getFagsak().getStatus().getKode());
-        assertThat(pipBehandlingsData.get().getFagsakId()).isEqualTo(behandling.getFagsak().getId());
-    }
-
-    @Test
     void skal_finne_behandligstatus_og_sakstatus_for_behandlingUuid() {
         var behandling = behandlingBuilder.opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
         lagreBehandling(behandling);
@@ -64,55 +52,32 @@ class PipRepositoryTest extends EntityManagerAwareTest {
         var pipBehandlingsData = pipRepository.hentDataForBehandlingUuid(behandling.getUuid());
         assertThat(pipBehandlingsData).isPresent();
         assertThat(pipBehandlingsData.get()).isNotNull();
-        assertThat(pipBehandlingsData.get().getBehandligStatus()).isEqualTo(behandling.getStatus().getKode());
-        assertThat(pipBehandlingsData.get().getFagsakStatus()).isEqualTo(behandling.getFagsak().getStatus().getKode());
-        assertThat(pipBehandlingsData.get().getFagsakId()).isEqualTo(behandling.getFagsak().getId());
+        assertThat(pipBehandlingsData.get().behandligStatus()).isEqualTo(behandling.getStatus().getKode());
+        assertThat(pipBehandlingsData.get().fagsakStatus()).isEqualTo(behandling.getFagsak().getStatus().getKode());
+        assertThat(pipBehandlingsData.get().saksnummer()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
     }
 
     @Test
     void skal_returne_tomt_resultat_når_det_søkes_etter_behandling_id_som_ikke_finnes() {
-        var pipBehandlingsData = pipRepository.hentDataForBehandling(1241L);
+        var pipBehandlingsData = pipRepository.hentDataForBehandlingUuid(UUID.randomUUID());
         assertThat(pipBehandlingsData).isNotPresent();
     }
 
     @Test
-    void skal_finne_alle_fagsaker_for_en_søker() {
-        var fagsak1 = behandlingBuilder.opprettFagsak(FagsakYtelseType.FORELDREPENGER);
-        var aktørId1 = fagsak1.getAktørId();
-        var fagsak2 = behandlingBuilder.opprettFagsak(FagsakYtelseType.FORELDREPENGER, aktørId1);
-        @SuppressWarnings("unused") var fagsakAnnenAktør = new BasicBehandlingBuilder(getEntityManager()).opprettFagsak(FagsakYtelseType.FORELDREPENGER);
-
-        var resultat = pipRepository.fagsakIderForSøker(Collections.singleton(aktørId1));
-
-        assertThat(resultat).containsOnly(fagsak1.getId(), fagsak2.getId());
-    }
-
-    @Test
-    void skal_finne_aktoerId_for_fagsak() {
-        var aktørId1 = AktørId.dummy();
-        var fagsak = behandlingBuilder.opprettFagsak(FagsakYtelseType.FORELDREPENGER, aktørId1);
-
-        var aktørIder = pipRepository.hentAktørIdKnyttetTilFagsaker(Collections.singleton(fagsak.getId()));
-        assertThat(aktørIder).containsOnly(aktørId1);
-    }
-
-    @Test
     void skal_finne_aktoerId_for_saksnummer() {
-        var aktørId1 = AktørId.dummy();
-        var fagsak = behandlingBuilder.opprettFagsak(FagsakYtelseType.FORELDREPENGER, aktørId1);
+        var fagsak = behandlingBuilder.opprettFagsak(FagsakYtelseType.FORELDREPENGER, AktørId.dummy());
 
         var aktørIder = pipRepository.hentAktørIdKnyttetTilSaksnummer(fagsak.getSaksnummer().getVerdi());
-        assertThat(aktørIder).containsOnly(aktørId1);
+        assertThat(aktørIder).containsOnly(fagsak.getAktørId());
     }
 
     @Test
     void skal_finne_saksnummer_for_behandling_id() {
-        var aktørId1 = AktørId.dummy();
-        var fagsak = behandlingBuilder.opprettFagsak(FagsakYtelseType.FORELDREPENGER, aktørId1);
+        var fagsak = behandlingBuilder.opprettFagsak(FagsakYtelseType.FORELDREPENGER);
         var behandling = behandlingBuilder.opprettOgLagreFørstegangssøknad(fagsak);
 
-        var fagsakId = pipRepository.hentFagsakIdForBehandlingUuid(behandling.getUuid());
-        assertThat(fagsakId).containsOnly(fagsak.getId());
+        var fagsakId = pipRepository.hentSaksnummerForBehandlingUuid(behandling.getUuid());
+        assertThat(fagsakId).hasValueSatisfying(s -> assertThat(fagsak.getSaksnummer().getVerdi()).isEqualTo(s));
     }
 
     @Test
@@ -125,8 +90,8 @@ class PipRepositoryTest extends EntityManagerAwareTest {
         fagsakRepository.lagre(journalpost2);
         getEntityManager().flush();
 
-        var fagsakId = pipRepository.fagsakIdForJournalpostId(Collections.singleton(JOURNALPOST_ID));
-        assertThat(fagsakId).containsOnly(fagsak1.getId());
+        var fagsakId = pipRepository.saksnummerForJournalpostId(Collections.singleton(JOURNALPOST_ID));
+        assertThat(fagsakId).containsOnly(fagsak1.getSaksnummer().getVerdi());
     }
 
     @Test
