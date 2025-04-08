@@ -1,14 +1,14 @@
-package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.v2;
+package no.nav.foreldrepenger.web.app.tjenester.formidling.rest.dto;
 
 import java.time.LocalDate;
 import java.util.List;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.SkjæringstidspunktDto;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.KonsekvensForYtelsen;
 
-public class BehandlingsresultatV2Dto {
+public class BehandlingsresultatDto {
 
     private BehandlingResultatType type;
     private Avslagsårsak avslagsarsak;
@@ -20,19 +20,19 @@ public class BehandlingsresultatV2Dto {
     private boolean endretDekningsgrad;
     private LocalDate opphørsdato;
 
-    public BehandlingsresultatV2Dto() {
+    public BehandlingsresultatDto() {
         // trengs for deserialisering av JSON
     }
 
-    void setType(BehandlingResultatType type) {
+    public void setType(BehandlingResultatType type) {
         this.type = type;
     }
 
-    void setAvslagsarsak(Avslagsårsak avslagsarsak) {
+    public void setAvslagsarsak(Avslagsårsak avslagsarsak) {
         this.avslagsarsak = avslagsarsak;
     }
 
-    void setAvslagsarsakFritekst(String avslagsarsakFritekst) {
+    public void setAvslagsarsakFritekst(String avslagsarsakFritekst) {
         this.avslagsarsakFritekst = avslagsarsakFritekst;
     }
 

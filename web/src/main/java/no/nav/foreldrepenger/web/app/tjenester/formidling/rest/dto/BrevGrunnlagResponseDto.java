@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.v2;
+package no.nav.foreldrepenger.web.app.tjenester.formidling.rest.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 
-public class BrevGrunnlagDto {
+public class BrevGrunnlagResponseDto {
 
     private UUID uuid;
     private BehandlingType type;
@@ -29,15 +29,15 @@ public class BrevGrunnlagDto {
     private UUID originalBehandlingUuid;
     private Avslagsårsak medlemskapOpphørsårsak;
     private LocalDate medlemskapFom;
-    private BehandlingsresultatV2Dto behandlingsresultat; //
-    private FagsakV2Dto fagsak;
-    private VergeV2Dto verge;
+    private BehandlingsresultatDto behandlingsresultat; //
+    private FagsakDto fagsak;
+    private VergeDto verge;
 
     private List<BehandlingÅrsakType> behandlingÅrsaker; //
     private List<VilkårType> vilkår;
     private List<ResourceLink> links = new ArrayList<>();
 
-    public BrevGrunnlagDto() {
+    public BrevGrunnlagResponseDto() {
         // trengs for deserialisering av JSON
     }
 
@@ -73,7 +73,7 @@ public class BrevGrunnlagDto {
         this.medlemskapFom = medlemskapFom;
     }
 
-    public FagsakV2Dto getFagsak() {
+    public FagsakDto getFagsak() {
         return fagsak;
     }
 
@@ -97,7 +97,7 @@ public class BrevGrunnlagDto {
         return status;
     }
 
-    public BehandlingsresultatV2Dto getBehandlingsresultat() {
+    public BehandlingsresultatDto getBehandlingsresultat() {
         return behandlingsresultat;
     }
 
@@ -113,7 +113,7 @@ public class BrevGrunnlagDto {
         return Collections.unmodifiableList(links);
     }
 
-    void leggTil(ResourceLink link) {
+    public void leggTil(ResourceLink link) {
         links.add(link);
     }
 
@@ -129,11 +129,11 @@ public class BrevGrunnlagDto {
         return behandlingÅrsaker;
     }
 
-    void setBehandlingÅrsaker(List<BehandlingÅrsakType> behandlingÅrsaker) {
+    public void setBehandlingÅrsaker(List<BehandlingÅrsakType> behandlingÅrsaker) {
         this.behandlingÅrsaker = behandlingÅrsaker;
     }
 
-    void setFagsak(FagsakV2Dto fagsak) {
+    public void setFagsak(FagsakDto fagsak) {
         this.fagsak = fagsak;
     }
 
@@ -141,35 +141,35 @@ public class BrevGrunnlagDto {
         this.uuid = uuid;
     }
 
-    void setType(BehandlingType type) {
+    public void setType(BehandlingType type) {
         this.type = type;
     }
 
-    void setOpprettet(LocalDateTime opprettet) {
+    public void setOpprettet(LocalDateTime opprettet) {
         this.opprettet = opprettet;
     }
 
-    void setAvsluttet(LocalDateTime avsluttet) {
+    public void setAvsluttet(LocalDateTime avsluttet) {
         this.avsluttet = avsluttet;
     }
 
-    void setBehandlingsresultat(BehandlingsresultatV2Dto behandlingsresultat) {
+    public void setBehandlingsresultat(BehandlingsresultatDto behandlingsresultat) {
         this.behandlingsresultat = behandlingsresultat;
     }
 
-    void setStatus(BehandlingStatus status) {
+    public void setStatus(BehandlingStatus status) {
         this.status = status;
     }
 
-    void setBehandlendeEnhetId(String behandlendeEnhetId) {
+    public void setBehandlendeEnhetId(String behandlendeEnhetId) {
         this.behandlendeEnhetId = behandlendeEnhetId;
     }
 
-    void setSpråkkode(Språkkode språkkode) {
+    public void setSpråkkode(Språkkode språkkode) {
         this.språkkode = språkkode;
     }
 
-    void setToTrinnsBehandling(boolean toTrinnsBehandling) {
+    public void setToTrinnsBehandling(boolean toTrinnsBehandling) {
         this.toTrinnsBehandling = toTrinnsBehandling;
     }
 
@@ -177,11 +177,11 @@ public class BrevGrunnlagDto {
         this.vilkår = vilkår;
     }
 
-    public VergeV2Dto getVerge() {
+    public VergeDto getVerge() {
         return verge;
     }
 
-    public void setVerge(VergeV2Dto verge) {
+    public void setVerge(VergeDto verge) {
         this.verge = verge;
     }
 }

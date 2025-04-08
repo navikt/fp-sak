@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.v2;
+package no.nav.foreldrepenger.web.app.tjenester.formidling;
 
 import static java.util.Collections.emptyList;
 import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.get;
@@ -56,9 +56,14 @@ import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.app.FagsakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.formidling.FormidlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.arbeidsforholdInntektsmelding.ArbeidsforholdInntektsmeldingFormidlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag.BeregningsgrunnlagFormidlingRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.dto.BehandlingsresultatDto;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.dto.BrevGrunnlagResponseDto;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.dto.FagsakDto;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.dto.VergeDto;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.FormidlingRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.tilkjentytelse.TilkjentYtelseFormidlingRestTjeneste;
 
 @ApplicationScoped
@@ -77,6 +82,10 @@ public class BrevGrunnlagTjeneste {
     private MedlemTjeneste medlemTjeneste;
     private VergeTjeneste vergeTjeneste;
     private FagsakTjeneste fagsakTjeneste;
+
+    BrevGrunnlagTjeneste() {
+        // for CDI proxy
+    }
 
     @Inject
     public BrevGrunnlagTjeneste(BehandlingRepositoryProvider repositoryProvider,
@@ -105,12 +114,8 @@ public class BrevGrunnlagTjeneste {
         this.fagsakTjeneste = fagsakTjeneste;
     }
 
-    BrevGrunnlagTjeneste() {
-        // for CDI proxy
-    }
-
-    public BrevGrunnlagDto toDto(Behandling behandling) {
-        var dto = new BrevGrunnlagDto();
+    public BrevGrunnlagResponseDto toDto(Behandling behandling) {
+        var dto = new BrevGrunnlagResponseDto();
         settBehandlingInfoForBrev(behandling, dto);
         settFagsakInfoForBrev(behandling.getSaksnummer(), dto);
         settVergeInfoForBrev(behandling, dto);
@@ -124,7 +129,7 @@ public class BrevGrunnlagTjeneste {
         return utvideBehandlingDto(behandling, dto);
     }
 
-    private void settBehandlingInfoForBrev(Behandling behandling, BrevGrunnlagDto dto) {
+    private void settBehandlingInfoForBrev(Behandling behandling, BrevGrunnlagResponseDto dto) {
         setStandardfelter(behandling, dto);
         dto.setSpråkkode(getSpråkkode(behandling));
         var behandlingsresultat = getBehandlingsresultat(behandling.getId());
@@ -142,7 +147,7 @@ public class BrevGrunnlagTjeneste {
             .toList();
     }
 
-    static void setStandardfelter(Behandling behandling, BrevGrunnlagDto dto) {
+    static void setStandardfelter(Behandling behandling, BrevGrunnlagResponseDto dto) {
         dto.setUuid(behandling.getUuid());
         dto.setType(behandling.getType());
         dto.setOpprettet(behandling.getOpprettetDato());
@@ -167,9 +172,9 @@ public class BrevGrunnlagTjeneste {
         return !behandling.getÅpneAksjonspunkter(kriterier).isEmpty();
     }
 
-    private void settFagsakInfoForBrev(Saksnummer saksnummer, BrevGrunnlagDto dto) {
+    private void settFagsakInfoForBrev(Saksnummer saksnummer, BrevGrunnlagResponseDto dto) {
         var fagsak = fagsakTjeneste.hentFagsakDtoForSaksnummer(saksnummer).orElseThrow();
-        var fagsakDto = new FagsakV2Dto(fagsak.saksnummer(), fagsak.fagsakYtelseType(), fagsak.relasjonsRolleType(), fagsak.aktørId(),
+        var fagsakDto = new FagsakDto(fagsak.saksnummer(), fagsak.fagsakYtelseType(), fagsak.relasjonsRolleType(), fagsak.aktørId(),
             fagsak.dekningsgrad());
         dto.setFagsak(fagsakDto);
     }
@@ -187,29 +192,29 @@ public class BrevGrunnlagTjeneste {
             .orElseGet(() -> behandlingOpt.map(Behandling::getFagsak).map(Fagsak::getNavBruker).map(NavBruker::getSpråkkode).orElse(null));
     }
 
-    private void settVergeInfoForBrev(Behandling behandling, BrevGrunnlagDto dto) {
+    private void settVergeInfoForBrev(Behandling behandling, BrevGrunnlagResponseDto dto) {
         var verge = vergeTjeneste.hentVergeForBackend(behandling);
         if (verge != null) {
-            var vergeV2Dto = new VergeV2Dto(verge.getAktoerId(), verge.getNavn(), verge.getOrganisasjonsnummer(), verge.getGyldigFom(),
+            var vergeV2Dto = new VergeDto(verge.getAktoerId(), verge.getNavn(), verge.getOrganisasjonsnummer(), verge.getGyldigFom(),
                 verge.getGyldigTom());
             dto.setVerge(vergeV2Dto);
         }
     }
 
-    private BrevGrunnlagDto utvideBehandlingDtoKlage(Behandling behandling, BrevGrunnlagDto dto) {
+    private BrevGrunnlagResponseDto utvideBehandlingDtoKlage(Behandling behandling, BrevGrunnlagResponseDto dto) {
         var uuidDto = new UuidDto(behandling.getUuid());
         dto.leggTil(get(KlageRestTjeneste.KLAGE_V2_PATH, "klage-vurdering", uuidDto));
         dto.leggTil(get(KlageRestTjeneste.MOTTATT_KLAGEDOKUMENT_V2_PATH, "mottatt-klagedokument", uuidDto));
         return dto;
     }
 
-    private BrevGrunnlagDto utvideBehandlingDtoForInnsyn(Behandling behandling, BrevGrunnlagDto dto) {
+    private BrevGrunnlagResponseDto utvideBehandlingDtoForInnsyn(Behandling behandling, BrevGrunnlagResponseDto dto) {
         var uuidDto = new UuidDto(behandling.getUuid());
         dto.leggTil(get(InnsynRestTjeneste.INNSYN_PATH, "innsyn", uuidDto));
         return dto;
     }
 
-    private BrevGrunnlagDto utvideBehandlingDto(Behandling behandling, BrevGrunnlagDto dto) {
+    private BrevGrunnlagResponseDto utvideBehandlingDto(Behandling behandling, BrevGrunnlagResponseDto dto) {
         var uuidDto = new UuidDto(behandling.getUuid());
         // mapping ved hjelp av tjenester
         dto.leggTil(get(SøknadRestTjeneste.SOKNAD_BACKEND_PATH, "soknad-backend", uuidDto));
@@ -291,14 +296,14 @@ public class BrevGrunnlagTjeneste {
         return annenpartBehandling.flatMap(ab -> uttakTjeneste.hentHvisEksisterer(ab.getId()));
     }
 
-    private Optional<BehandlingsresultatV2Dto> lagBehandlingsresultatDto(Behandling behandling, Behandlingsresultat behandlingsresultat) {
+    private Optional<BehandlingsresultatDto> lagBehandlingsresultatDto(Behandling behandling, Behandlingsresultat behandlingsresultat) {
         if (behandlingsresultat == null) {
             return Optional.empty();
         }
-        var dto = new BehandlingsresultatV2Dto();
+        var dto = new BehandlingsresultatDto();
         dto.setType(behandlingsresultat.getBehandlingResultatType());
         dto.setAvslagsarsak(behandlingsresultat.getAvslagsårsak());
-        dto.setKonsekvenserForYtelsen(behandlingsresultat.getKonsekvenserForYtelsen());
+        dto.setKonsekvenserForYtelsen(mapKonsekvensForYtelsen(behandlingsresultat.getKonsekvenserForYtelsen()));
         dto.setSkjæringstidspunkt(finnSkjæringstidspunktForBehandling(behandling, behandlingsresultat).orElse(null));
         dto.setEndretDekningsgrad(dekningsgradTjeneste.behandlingHarEndretDekningsgrad(BehandlingReferanse.fra(behandling)));
         if (!FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
@@ -313,6 +318,10 @@ public class BrevGrunnlagTjeneste {
             dto.setFritekstbrev(behandlingDokument.get().getOverstyrtBrevFritekst());
         }
         return Optional.of(dto);
+    }
+
+    private List<KonsekvensForYtelsen> mapKonsekvensForYtelsen(List<no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen> konsekvenserForYtelsen) {
+        return konsekvenserForYtelsen.stream().map(k -> KonsekvensForYtelsen.valueOf(k.name())).toList();
     }
 
     private Optional<SkjæringstidspunktDto> finnSkjæringstidspunktForBehandling(Behandling behandling, Behandlingsresultat behandlingsresultat) {
