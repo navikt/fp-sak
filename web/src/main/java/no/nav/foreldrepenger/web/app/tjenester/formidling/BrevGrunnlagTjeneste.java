@@ -1,26 +1,12 @@
 package no.nav.foreldrepenger.web.app.tjenester.formidling;
 
-import static java.util.Collections.emptyList;
-import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.get;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.*;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
@@ -28,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
@@ -58,14 +45,22 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.app.FagsakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.arbeidsforholdInntektsmelding.ArbeidsforholdInntektsmeldingFormidlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag.BeregningsgrunnlagFormidlingRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.FormidlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.dto.BehandlingsresultatDto;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.dto.BrevGrunnlagResponseDto;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.dto.FagsakDto;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.dto.VergeDto;
-import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.FormidlingRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.AvslagÅrsak;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.BehandlingResultatType;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.tilkjentytelse.TilkjentYtelseFormidlingRestTjeneste;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static java.util.Collections.emptyList;
+import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.get;
 
 @ApplicationScoped
 public class BrevGrunnlagTjeneste {
@@ -303,7 +298,7 @@ public class BrevGrunnlagTjeneste {
         }
         var dto = new BehandlingsresultatDto();
         dto.setType(mapBehandlingResultatType(behandlingsresultat.getBehandlingResultatType()));
-        dto.setAvslagsarsak(behandlingsresultat.getAvslagsårsak());
+        dto.setAvslagsarsak(mapAvslagÅrsak(behandlingsresultat.getAvslagsårsak()));
         dto.setKonsekvenserForYtelsen(mapKonsekvensForYtelsen(behandlingsresultat.getKonsekvenserForYtelsen()));
         dto.setSkjæringstidspunkt(finnSkjæringstidspunktForBehandling(behandling, behandlingsresultat).orElse(null));
         dto.setEndretDekningsgrad(dekningsgradTjeneste.behandlingHarEndretDekningsgrad(BehandlingReferanse.fra(behandling)));
@@ -319,6 +314,13 @@ public class BrevGrunnlagTjeneste {
             dto.setFritekstbrev(behandlingDokument.get().getOverstyrtBrevFritekst());
         }
         return Optional.of(dto);
+    }
+
+    private AvslagÅrsak mapAvslagÅrsak(Avslagsårsak avslagsårsak) {
+        if (avslagsårsak == null) {
+            return AvslagÅrsak.UDEFINERT;
+        }
+        return AvslagÅrsak.valueOf(avslagsårsak.name());
     }
 
     private BehandlingResultatType mapBehandlingResultatType(no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType behandlingResultatType) {
