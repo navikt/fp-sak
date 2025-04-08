@@ -168,7 +168,7 @@ class InntektsmeldingTjenesteTest {
         // Assert
         assertThat(inntektsmeldingTjeneste.hentInntektsmeldinger(ref, I_DAG)).hasSize(1);
 
-        // Arrange: Arbeidsforholdet blir oppdater i AA-reg, blir inaktivt
+        // Arrange: Arbeidsforholdet blir oppdater i Aa-reg, blir inaktivt
         var inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
         var aktørArbeidBuilder = inntektArbeidYtelseAggregatBuilder.getAktørArbeidBuilder(AKTØRID);
         var yrkesaktivitetBuilderForType = aktørArbeidBuilder.getYrkesaktivitetBuilderForType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
@@ -201,7 +201,7 @@ class InntektsmeldingTjenesteTest {
         // Assert
         assertThat(inntektsmeldingTjeneste.hentInntektsmeldinger(ref, I_DAG)).hasSize(1);
 
-        // Arrange: Arbeidsforholdet blir oppdater i AA-reg, blir inaktivt
+        // Arrange: Arbeidsforholdet blir oppdater i Aa-reg, blir inaktivt
         var inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
         var aktørArbeidBuilder = inntektArbeidYtelseAggregatBuilder.getAktørArbeidBuilder(AKTØRID);
         var yrkesaktivitetBuilderForType = aktørArbeidBuilder.getYrkesaktivitetBuilderForType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
