@@ -152,7 +152,6 @@ public class FeilPraksisUtsettelseRepository {
           select distinct b.FAGSAK_ID, b.ID, f.saksnummer from fpsak.BEHANDLING b
                                                join fpsak.FAGSAK f on b.FAGSAK_ID = f.ID
                                                join fpsak.AKSJONSPUNKT a on a.BEHANDLING_ID = b.ID
-                                               join fpsak.BEHANDLING_STEG_TILSTAND steg on steg.BEHANDLING_ID = b.ID
                                                join fpsak.BEHANDLING_ARSAK ba on ba.BEHANDLING_ID = b.ID
                           where b.id > :fraBehandlingId
                           and ba.BEHANDLING_ARSAK_TYPE = 'FEIL_PRAKSIS_UTSETTELSE'
