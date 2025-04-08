@@ -66,7 +66,8 @@ class PdpRequestBuilderTest {
                 Optional.of(new PipBehandlingsData(behandligStatus, ansvarligSaksbehandler, BEHANDLING_ID, BEHANDLING_UUID, fagsakStatus, SAKSNUMMER)));
 
         var request = requestBuilder.lagAppRessursData(attributter);
-        assertThat(request.getSaksnummer()).isEqualTo(SAKSNUMMER.getVerdi());
+        //assertThat(request.getSaksnummer()).isEqualTo(SAKSNUMMER.getVerdi());
+        assertThat(request.getAktørIdSet()).containsOnly(AKTØR_1.getId());
         assertThat(request.getResource(ForeldrepengerDataKeys.SAKSBEHANDLER).verdi()).isEqualTo(ansvarligSaksbehandler);
         assertThat(request.getResource(ForeldrepengerDataKeys.BEHANDLING_STATUS).verdi())
                 .isEqualTo(PipBehandlingStatus.OPPRETTET.getVerdi());
@@ -83,7 +84,8 @@ class PdpRequestBuilderTest {
         lenient().when(pipRepository.hentAktørIdKnyttetTilSaksnummer(SAKSNUMMER.getVerdi())).thenReturn(Collections.singleton(AKTØR_1));
 
         var request = requestBuilder.lagAppRessursData(attributter);
-        assertThat(request.getSaksnummer()).isEqualTo(SAKSNUMMER.getVerdi());
+        //assertThat(request.getSaksnummer()).isEqualTo(SAKSNUMMER.getVerdi());
+        assertThat(request.getAktørIdSet()).containsOnly(AKTØR_1.getId());
     }
 
     @Test
