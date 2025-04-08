@@ -174,8 +174,7 @@ public class InfotrygdOppslagRestTjeneste {
             var attributter = AbacDataAttributter.opprett();
             var søkestring = req.getSearchString() != null ? req.getSearchString().trim() : "";
             if (søkestring.length() == 13 /* guess - aktørId */) {
-                attributter.leggTil(AppAbacAttributtType.AKTØR_ID, søkestring)
-                    .leggTil(AppAbacAttributtType.SAKER_FOR_AKTØR, søkestring);
+                attributter.leggTil(AppAbacAttributtType.AKTØR_ID, søkestring);
             } else if (søkestring.length() == 11 /* guess - FNR */) {
                 attributter.leggTil(AppAbacAttributtType.FNR, søkestring);
             }

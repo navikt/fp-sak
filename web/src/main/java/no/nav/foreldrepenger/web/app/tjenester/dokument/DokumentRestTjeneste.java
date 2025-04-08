@@ -180,8 +180,7 @@ public class DokumentRestTjeneste {
     public static class DokumentIdAbacSupplier implements Function<Object, AbacDataAttributter> {
         @Override
         public AbacDataAttributter apply(Object obj) {
-            var req = (DokumentIdDto) obj;
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.DOKUMENT_ID, req.getDokumentId());
+            return AbacDataAttributter.opprett();
         }
     }
 
@@ -189,7 +188,7 @@ public class DokumentRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (JournalpostIdDto) obj;
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.EKSISTERENDE_JOURNALPOST_ID, req.getJournalpostId());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.JOURNALPOST_ID, req.getJournalpostId());
         }
     }
 

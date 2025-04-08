@@ -7,6 +7,7 @@ import java.time.Period;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
+import java.util.UUID;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
@@ -63,27 +64,28 @@ class ForvaltningOppdragTjeneste {
         this.behandlingVedtakRepository = behandlingVedtakRepository;
     }
 
-    public void kvitterOk(long behandlingId, long fagsystemId, boolean oppdaterProsesstask) {
+    public void kvitterOk(UUID behandlingUuid, long fagsystemId, boolean oppdaterProsesstask) {
+        var behandling = behandlingRepository.hentBehandling(behandlingUuid);
         var kvittering = new ØkonomiKvittering();
-        kvittering.setBehandlingId(behandlingId);
+        kvittering.setBehandlingId(behandling.getId());
         kvittering.setFagsystemId(fagsystemId);
         kvittering.setAlvorlighetsgrad(Alvorlighetsgrad.OK);
 
-        LOG.info("Kvitterer oppdrag OK for behandlingId={} fagsystemId={} oppdaterProsessTask={}", behandlingId,
+        LOG.info("Kvitterer oppdrag OK for behandlingId={} fagsystemId={} oppdaterProsessTask={}", behandlingUuid,
             fagsystemId, oppdaterProsesstask);
         økonomioppdragKvitteringTjeneste.behandleKvittering(kvittering, oppdaterProsesstask);
     }
 
     public void patchOppdrag(OppdragPatchDto dto) {
-        var behandlingId = dto.getBehandlingId();
+        var behandlingId = dto.getBehandlingUuid();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandlingId)
+        var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandling.getId())
             .orElseThrow(() -> new IllegalArgumentException("Fant ikke oppdragskontroll for behandlingId=" + behandlingId));
         var vurderØkonomiTask = taskTjeneste.finn(oppdragskontroll.getProsessTaskId());
 
         validerUferdigProsesstask(vurderØkonomiTask);
 
-        utførPatching(dto, behandlingId, behandling, oppdragskontroll);
+        utførPatching(dto, behandling, oppdragskontroll);
         lagSendØkonomioppdragTask(vurderØkonomiTask, false);
 
         LOG.warn(
@@ -92,15 +94,15 @@ class ForvaltningOppdragTjeneste {
     }
 
     public void patchOppdragOgRekjør(OppdragPatchDto dto) {
-        var behandlingId = dto.getBehandlingId();
+        var behandlingId = dto.getBehandlingUuid();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandlingId)
+        var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandling.getId())
             .orElseThrow(() -> new IllegalArgumentException("Fant ikke oppdragskontroll for behandlingId=" + behandlingId));
         var vurderØkonomiTask = taskTjeneste.finn(oppdragskontroll.getProsessTaskId());
 
         validerFerdigProsesstask(vurderØkonomiTask);
 
-        utførPatching(dto, behandlingId, behandling, oppdragskontroll);
+        utførPatching(dto, behandling, oppdragskontroll);
         byttStatusTilVenterPåKvittering(vurderØkonomiTask);
         lagSendØkonomioppdragTask(vurderØkonomiTask, true);
 
@@ -108,9 +110,10 @@ class ForvaltningOppdragTjeneste {
             behandlingId);
     }
 
-    public void patchk27(long behandlingId, long fagsystemId, LocalDate maksDato) {
-        var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandlingId)
-            .orElseThrow(() -> new IllegalArgumentException("Fant ikke oppdragskontroll for behandlingId=" + behandlingId));
+    public void patchk27(UUID behandlingUuid, long fagsystemId, LocalDate maksDato) {
+        var behandling = behandlingRepository.hentBehandling(behandlingUuid);
+        var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandling.getId())
+            .orElseThrow(() -> new IllegalArgumentException("Fant ikke oppdragskontroll for behandlingId=" + behandlingUuid));
 
         // Finn oppdrag som skal patches
         var oppdrag110TilPatching = oppdragskontroll.getOppdrag110Liste().stream()
@@ -118,7 +121,7 @@ class ForvaltningOppdragTjeneste {
             .toList();
 
         if (oppdrag110TilPatching.size() != 1) {
-            LOG.warn("Mer enn oppdrag110 funnet for behandlingId {} og fagsystemId {}. Avbryttet patching.", behandlingId, fagsystemId);
+            LOG.warn("Mer enn oppdrag110 funnet for behandlingId {} og fagsystemId {}. Avbryttet patching.", behandlingUuid, fagsystemId);
             return;
         }
 
@@ -154,13 +157,13 @@ class ForvaltningOppdragTjeneste {
         lagSendØkonomioppdragTask(behandlingPatchet);
     }
 
-    private void utførPatching(OppdragPatchDto dto, Long behandlingId, Behandling behandling, Oppdragskontroll oppdragskontroll) {
+    private void utførPatching(OppdragPatchDto dto, Behandling behandling, Oppdragskontroll oppdragskontroll) {
         validerHyppighet();
         validerFagsystemId(behandling, dto.getFagsystemId());
         validerDelytelseId(dto);
 
         var fnrBruker = personinfoAdapter.hentFnr(behandling.getAktørId())
-            .orElseThrow(() -> new IllegalArgumentException("Fant ikke FNR for aktør på behandlingId=" + behandlingId));
+            .orElseThrow(() -> new IllegalArgumentException("Fant ikke FNR for aktør på sak=" + behandling.getFagsak().getSaksnummer().getVerdi()));
 
         kvitterBortEksisterendeOppdrag(dto, oppdragskontroll);
 
@@ -191,7 +194,7 @@ class ForvaltningOppdragTjeneste {
                     .build();
                 LOG.info(
                     "Eksisterende oppdrag for behandlingId={} fagsystemId={} som ventet på kvittering, ble satt til kvittert med feilkode slik at oppdraget ikke tas i betraktning i senere behandlinger.",
-                    dto.getBehandlingId(), dto.getFagsystemId());
+                    dto.getBehandlingUuid(), dto.getFagsystemId());
             }
         }
     }

@@ -180,8 +180,7 @@ public class FagsakRestTjeneste {
             var attributter = AbacDataAttributter.opprett();
             var søkestring = req.getSearchString() != null ? req.getSearchString().trim() : "";
             if (AktørId.erGyldigAktørId(søkestring)) {
-                attributter.leggTil(AppAbacAttributtType.AKTØR_ID, søkestring)
-                    .leggTil(AppAbacAttributtType.SAKER_FOR_AKTØR, søkestring);
+                attributter.leggTil(AppAbacAttributtType.AKTØR_ID, søkestring);
             } else if (PersonIdent.erGyldigFnr(søkestring)) {
                 attributter.leggTil(AppAbacAttributtType.FNR, søkestring);
             } else {

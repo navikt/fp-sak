@@ -1,7 +1,9 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -12,10 +14,9 @@ import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
 public class K27PatchDto implements AbacDto {
 
-    @Min(0)
-    @Max(Long.MAX_VALUE)
+    @Valid
     @NotNull
-    private Long behandlingId;
+    private UUID behandlingUuid;
 
     @Min(0)
     @Max(Long.MAX_VALUE)
@@ -25,12 +26,12 @@ public class K27PatchDto implements AbacDto {
     @NotNull
     private LocalDate maksDato;
 
-    public Long getBehandlingId() {
-        return behandlingId;
+    public UUID getBehandlingUuid() {
+        return behandlingUuid;
     }
 
-    public void setBehandlingId(Long behandlingId) {
-        this.behandlingId = behandlingId;
+    public void setBehandlingUuid(UUID behandlingUuid) {
+        this.behandlingUuid = behandlingUuid;
     }
 
     public Long getFagsystemId() {
@@ -52,6 +53,6 @@ public class K27PatchDto implements AbacDto {
     @Override
     public AbacDataAttributter abacAttributter() {
         return AbacDataAttributter.opprett()
-            .leggTil(AppAbacAttributtType.BEHANDLING_ID, behandlingId);
+            .leggTil(AppAbacAttributtType.BEHANDLING_UUID, behandlingUuid);
     }
 }

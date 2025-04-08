@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.UUID;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertFalse;
@@ -25,11 +26,10 @@ import no.nav.vedtak.sikkerhet.abac.AbacDto;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.NONE, getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, isGetterVisibility = JsonAutoDetect.Visibility.NONE, creatorVisibility = JsonAutoDetect.Visibility.NONE)
 public class OppdragPatchDto implements AbacDto {
 
-    @Min(0)
-    @Max(Long.MAX_VALUE)
+    @Valid
     @NotNull
-    @JsonProperty("behandingId")
-    private Long behandlingId;
+    @JsonProperty("behandingUuid")
+    private UUID behandlingUuid;
 
     @NotNull
     @JsonProperty("brukerErMottaker")
@@ -98,8 +98,8 @@ public class OppdragPatchDto implements AbacDto {
         return estimertSum < 600000;
     }
 
-    public Long getBehandlingId() {
-        return behandlingId;
+    public UUID getBehandlingUuid() {
+        return behandlingUuid;
     }
 
     public boolean erBrukerMottaker() {
@@ -133,6 +133,6 @@ public class OppdragPatchDto implements AbacDto {
     @Override
     public AbacDataAttributter abacAttributter() {
         return AbacDataAttributter.opprett()
-            .leggTil(AppAbacAttributtType.BEHANDLING_ID, behandlingId);
+            .leggTil(AppAbacAttributtType.BEHANDLING_UUID, behandlingUuid);
     }
 }

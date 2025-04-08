@@ -1,28 +1,27 @@
 package no.nav.foreldrepenger.web.server.abac;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.pip.PipBehandlingsData;
 import no.nav.foreldrepenger.behandlingslager.pip.PipRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.JournalpostId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.mdc.MdcExtendedLogContext;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.PdpRequestBuilder;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
+import no.nav.vedtak.sikkerhet.abac.pipdata.PipBehandlingStatus;
+import no.nav.vedtak.sikkerhet.abac.pipdata.PipFagsakStatus;
 import no.nav.vedtak.sikkerhet.abac.pipdata.PipOverstyring;
 
 @Dependent
@@ -39,12 +38,11 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         this.pipRepository = pipRepository;
     }
 
-    private static void validerSamsvarBehandlingOgFagsak(Long behandlingId, Long fagsakId, Set<Long> fagsakIder) {
-        var fagsakerSomIkkeErForventet = fagsakIder.stream()
-                .filter(f -> !fagsakId.equals(f))
-                .toList();
-        if (!fagsakerSomIkkeErForventet.isEmpty()) {
-            throw new ManglerTilgangException("FP-280301", String.format("Ugyldig input. Ikke samsvar mellom behandlingId %s og fagsakId %s", behandlingId, fagsakerSomIkkeErForventet));
+    private static void validerSamsvarBehandlingOgFagsak(PipBehandlingsData pipBehandlingsData, Optional<Saksnummer> saksnummer) {
+        var fagsakerSomIkkeErForventet = saksnummer.filter(f -> !pipBehandlingsData.saksnummer().equals(f));
+        if (fagsakerSomIkkeErForventet.isPresent()) {
+            throw new ManglerTilgangException("FP-280301", String.format("Ugyldig input. Ikke samsvar mellom behandlingId %s og fagsakId %s",
+                pipBehandlingsData.behandlingId(), fagsakerSomIkkeErForventet));
         }
     }
 
@@ -60,131 +58,104 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
     }
 
     public AppRessursData lagAppressursDataInternt(AbacDataAttributter dataAttributter, boolean systembruker) {
-        var behandlingIder = utledBehandlingIder(dataAttributter);
-        var behandlingData = behandlingIder.flatMap(pipRepository::hentDataForBehandling);
-        var fagsakIder = behandlingData.map(behandlingsData -> utledFagsakIder(dataAttributter, behandlingsData))
-            .orElseGet(() -> utledFagsakIder(dataAttributter));
+        var behandlingUuid = utledBehandling(dataAttributter);
+        var behandlingData = behandlingUuid.flatMap(pipRepository::hentDataForBehandlingUuid);
+        var saksnummer = utledSaksnummer(dataAttributter, behandlingData.orElse(null));
 
-        behandlingData.ifPresent(d -> validerSamsvarBehandlingOgFagsak(behandlingIder.get(), d.getFagsakId(), fagsakIder));
+        behandlingData.ifPresent(d -> validerSamsvarBehandlingOgFagsak(d, saksnummer));
 
-        if (!fagsakIder.isEmpty()) {
-            var saksnumre = pipRepository.saksnummerForFagsakId(fagsakIder);
+        saksnummer.ifPresent(s -> {
             MDC_EXTENDED_LOG_CONTEXT.remove("fagsak");
-            MDC_EXTENDED_LOG_CONTEXT.add("fagsak", saksnumre.size() == 1 ? saksnumre.iterator().next() : saksnumre.toString());
-        }
-        behandlingIder.ifPresent(behId -> {
+            MDC_EXTENDED_LOG_CONTEXT.add("fagsak", s);
+        });
+        behandlingData.ifPresent(bd -> {
             MDC_EXTENDED_LOG_CONTEXT.remove("behandling");
-            MDC_EXTENDED_LOG_CONTEXT.add("behandling", behId);
+            MDC_EXTENDED_LOG_CONTEXT.add("behandling", bd.behandlingUuid());
+            MDC_EXTENDED_LOG_CONTEXT.remove("behandlingId"); // Forenkler oppslag ved feilfinning
+            MDC_EXTENDED_LOG_CONTEXT.add("behandlingId", bd.behandlingId());
         });
 
-        var builder = AppRessursData.builder();
+        Set<String> aktører = dataAttributter.getVerdier(AppAbacAttributtType.AKTØR_ID);
+        Set<String> fnrs = dataAttributter.getVerdier(AppAbacAttributtType.FNR);
 
-        if (!systembruker) {
-            var auditAktørId = utledAuditAktørId(dataAttributter, fagsakIder);
+        var builder = AppRessursData.builder()
+            .leggTilAktørIdSet(aktører)
+            .leggTilFødselsnumre(fnrs);
 
-            var aktørIder = utledAktørIder(dataAttributter, fagsakIder);
-
-            Set<String> aktører = aktørIder.stream().map(AktørId::getId).collect(Collectors.toCollection(TreeSet::new));
-            Set<String> fnrs = dataAttributter.getVerdier(AppAbacAttributtType.FNR);
-
-            builder
-                .medAuditIdent(auditAktørId)
-                .leggTilAktørIdSet(aktører)
-                .leggTilFødselsnumre(fnrs);
-            var aksjonspunktTypeOverstyring = PipRepository.harAksjonspunktTypeOverstyring(dataAttributter.getVerdier(AppAbacAttributtType.AKSJONSPUNKT_DEFINISJON));
-            if (aksjonspunktTypeOverstyring) {
-                builder.medOverstyring(PipOverstyring.OVERSTYRING);
-            }
-            behandlingData.flatMap(PipBehandlingsData::getAnsvarligSaksbehandler)
-                .ifPresent(builder::medAnsvarligSaksbehandler);
-        }
-
-        behandlingData.map(PipBehandlingsData::getBehandligStatus).flatMap(AbacUtil::oversettBehandlingStatus)
+        saksnummer.map(Saksnummer::getVerdi).ifPresent(builder::medSaksnummer);
+        behandlingData.flatMap(PipBehandlingsData::getAnsvarligSaksbehandler)
+            .ifPresent(builder::medAnsvarligSaksbehandler);
+        behandlingData.map(PipBehandlingsData::behandlingStatus).flatMap(AppPdpRequestBuilderImpl::oversettBehandlingStatus)
             .ifPresent(builder::medBehandlingStatus);
-        behandlingData.map(PipBehandlingsData::getFagsakStatus).flatMap(AbacUtil::oversettFagstatus)
+        behandlingData.map(PipBehandlingsData::fagsakStatus).flatMap(AppPdpRequestBuilderImpl::oversettFagstatus)
             .ifPresent(builder::medFagsakStatus);
+        var aksjonspunktTypeOverstyring = PipRepository.harAksjonspunktTypeOverstyring(dataAttributter.getVerdier(AppAbacAttributtType.AKSJONSPUNKT_DEFINISJON));
+        if (aksjonspunktTypeOverstyring) {
+            builder.medOverstyring(PipOverstyring.OVERSTYRING);
+        }
+        if (!systembruker) {
+            var auditAktørId = utledAuditAktørId(dataAttributter, saksnummer);
+            builder.medAuditIdent(auditAktørId);
+        }
         return builder.build();
     }
 
-    private Optional<Long> utledBehandlingIder(AbacDataAttributter attributter) {
+    private Optional<UUID> utledBehandling(AbacDataAttributter attributter) {
         Set<UUID> uuids = attributter.getVerdier(AppAbacAttributtType.BEHANDLING_UUID);
-        Set<Long> behandlingIdVerdier = attributter.getVerdier(AppAbacAttributtType.BEHANDLING_ID);
-        var behandlingId0 = behandlingIdVerdier.stream().mapToLong(Long::valueOf).boxed().toList();
 
-        Set<Long> behandlingsIder = new LinkedHashSet<>(behandlingId0);
-        behandlingsIder.addAll(pipRepository.behandlingsIdForUuid(uuids));
-
-        if (behandlingsIder.isEmpty()) {
+        if (uuids.isEmpty()) {
             return Optional.empty();
         }
-        if (behandlingsIder.size() == 1) {
-            return Optional.of(behandlingsIder.iterator().next());
+        if (uuids.size() == 1) {
+            return uuids.stream().findFirst();
         }
-        throw new TekniskException("FP-621834", String.format("Ugyldig input. Støtter bare 0 eller 1 behandling, men har %s", behandlingsIder));
+        throw new TekniskException("FP-621834", String.format("Ugyldig input. Støtter bare 0 eller 1 behandling, men har %s", uuids));
     }
 
-    private Set<Long> utledFagsakIder(AbacDataAttributter attributter, PipBehandlingsData behandlingData) {
-        var fagsaker = utledFagsakIder(attributter);
-        fagsaker.add(behandlingData.getFagsakId());
-        return fagsaker;
-    }
-
-    private Set<Long> utledFagsakIder(AbacDataAttributter attributter) {
-        Set<Long> fagsakIder = new HashSet<>(attributter.getVerdier(AppAbacAttributtType.FAGSAK_ID));
-
-        // Søk - sjekker alle saker for bruker ved innkommende søk - burde heller filtrere resultatet når det blir tilgjengelig
-        Set<String> aktørIdFraSøk = attributter.getVerdier(AppAbacAttributtType.SAKER_FOR_AKTØR);
-        if (!aktørIdFraSøk.isEmpty()) {
-            fagsakIder.addAll(pipRepository.fagsakIderForSøker(aktørIdStringTilAktørId(aktørIdFraSøk)));
-        }
-
-        // fra saksnummer
-        Set<String> saksnummere = attributter.getVerdier(AppAbacAttributtType.SAKSNUMMER);
-        if (!saksnummere.isEmpty()) {
-            fagsakIder.addAll(pipRepository.fagsakIdForSaksnummer(saksnummere));
-        }
+    private Optional<Saksnummer> utledSaksnummer(AbacDataAttributter attributter, PipBehandlingsData behandlingData) {
+        Set<String> saksnummerString = new HashSet<>(attributter.getVerdier(AppAbacAttributtType.SAKSNUMMER));
+        var saksnummer = new HashSet<>(saksnummerString.stream().map(Saksnummer::new).toList());
+        Optional.ofNullable(behandlingData).map(PipBehandlingsData::saksnummer).ifPresent(saksnummer::add);
 
         // journalpostIder
-        Set<String> ikkePåkrevdJournalpostIdVerdier = attributter.getVerdier(AppAbacAttributtType.JOURNALPOST_ID);
-        var ikkePåkrevdeJournalpostId = ikkePåkrevdJournalpostIdVerdier.stream().map(JournalpostId::new).collect(Collectors.toSet());
-        if (!ikkePåkrevdeJournalpostId.isEmpty()) {
-            fagsakIder.addAll(pipRepository.fagsakIdForJournalpostId(ikkePåkrevdeJournalpostId));
+        Set<String> journalpostIdVerdier = attributter.getVerdier(AppAbacAttributtType.JOURNALPOST_ID);
+        if (!journalpostIdVerdier.isEmpty()) {
+            saksnummer.addAll(pipRepository.saksnummerForJournalpostId(journalpostIdVerdier));
         }
-
-        Set<String> påkrevdJournalpostIdVerdier = attributter.getVerdier(AppAbacAttributtType.EKSISTERENDE_JOURNALPOST_ID);
-        var påkrevdJournalpostId = påkrevdJournalpostIdVerdier.stream().map(JournalpostId::new).collect(Collectors.toSet());
-        if (!påkrevdJournalpostId.isEmpty()) {
-            fagsakIder.addAll(pipRepository.fagsakIdForJournalpostId(påkrevdJournalpostId));
+        if (saksnummer.isEmpty()) {
+            return Optional.empty();
         }
-
-        return fagsakIder;
+        if (saksnummer.size() == 1) {
+            return saksnummer.stream().findFirst();
+        }
+        throw new TekniskException("FP-621834", String.format("Ugyldig input. Støtter bare 0 eller 1 sak, men har %s", saksnummer));
     }
 
-    private Set<AktørId> utledAktørIder(AbacDataAttributter attributter, Set<Long> fagsakIder) {
-        Set<String> aktørIdVerdier = attributter.getVerdier(AppAbacAttributtType.AKTØR_ID);
-
-        var aktørIder = new HashSet<>(aktørIdVerdier.stream().map(AktørId::new).collect(Collectors.toSet()));
-        if (!fagsakIder.isEmpty()) {
-            aktørIder.addAll(pipRepository.hentAktørIdKnyttetTilFagsaker(fagsakIder));
-        }
-        return aktørIder;
-    }
-
-    private String utledAuditAktørId(AbacDataAttributter attributter, Set<Long> fagsakIder) {
+    private String utledAuditAktørId(AbacDataAttributter attributter, Optional<Saksnummer> saksnummer) {
         Set<String> aktørIdVerdier = attributter.getVerdier(AppAbacAttributtType.AKTØR_ID);
         Set<String> personIdentVerdier = attributter.getVerdier(AppAbacAttributtType.FNR);
 
-        return pipRepository.hentAktørIdSomEierFagsaker(fagsakIder).stream().findFirst().map(AktørId::getId)
+        return saksnummer.flatMap(pipRepository::hentAktørIdSomEierFagsak).map(AktørId::getId)
             .or(() -> aktørIdVerdier.stream().findFirst())
             .or(() -> personIdentVerdier.stream().findFirst())
             .orElse(null);
     }
 
-    private Collection<AktørId> aktørIdStringTilAktørId(Set<String> aktørId) {
-        if (aktørId == null || aktørId.isEmpty()) {
-            return Collections.emptySet();
-        }
-        return aktørId.stream().map(AktørId::new).collect(Collectors.toSet());
+    public static Optional<PipFagsakStatus> oversettFagstatus(FagsakStatus fagsakStatus) {
+        return switch (fagsakStatus) {
+            case OPPRETTET -> Optional.of(PipFagsakStatus.OPPRETTET);
+            case UNDER_BEHANDLING -> Optional.of(PipFagsakStatus.UNDER_BEHANDLING);
+            case null, default -> Optional.empty();
+        };
+    }
+
+    public static Optional<PipBehandlingStatus> oversettBehandlingStatus(BehandlingStatus behandlingStatus) {
+        return switch (behandlingStatus) {
+            case OPPRETTET -> Optional.of(PipBehandlingStatus.OPPRETTET);
+            case UTREDES -> Optional.of(PipBehandlingStatus.UTREDES);
+            case FATTER_VEDTAK -> Optional.of(PipBehandlingStatus.FATTE_VEDTAK);
+            case null, default -> Optional.empty();
+        };
     }
 
 }

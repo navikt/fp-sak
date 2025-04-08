@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.server.abac;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -24,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.foreldrepenger.behandlingslager.pip.PipRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
@@ -85,8 +85,10 @@ public class PipRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP, sporingslogg = false)
     public Set<AktørId> hentAktørIdListeTilknyttetBehandling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                        @NotNull @QueryParam("behandlingUuid") @Valid UuidDto uuidDto) {
-        var fagsakIds = pipRepository.hentFagsakIdForBehandlingUuid(uuidDto.getBehandlingUuid());
-        return pipRepository.hentAktørIdKnyttetTilFagsaker(fagsakIds);
+        return pipRepository.hentSaksnummerForBehandlingUuid(uuidDto.getBehandlingUuid())
+            .map(Saksnummer::getVerdi)
+            .map(pipRepository::hentAktørIdKnyttetTilSaksnummer)
+            .orElseGet(Set::of);
     }
 
     @GET
@@ -95,21 +97,18 @@ public class PipRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP, sporingslogg = false)
     public String hentSaksnummerTilknyttetBehandling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                              @NotNull @QueryParam("behandlingUuid") @Valid UuidDto uuidDto) {
-        var fagsakIds = pipRepository.hentFagsakIdForBehandlingUuid(uuidDto.getBehandlingUuid());
-        return pipRepository.saksnummerForFagsakId(fagsakIds).stream().findFirst().orElse(null);
+        return pipRepository.hentSaksnummerForBehandlingUuid(uuidDto.getBehandlingUuid()).map(Saksnummer::getVerdi).orElse(null);
     }
 
     @GET
     @Path(SAK_AKTOER_FOR_BEHANDLING)
     @Operation(description = "Henter aktørId'er tilknyttet en gruppe saker", tags = "pip")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP, sporingslogg = false)
-    public List<SakAktørDto> hentSaksnummerAktørIdFor(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
+    public SakAktørDto hentSaksnummerAktørIdFor(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                                      @NotNull @QueryParam("behandlingUuid") @Valid UuidDto uuidDto) {
-        return pipRepository.hentFagsakIdForBehandlingUuid(uuidDto.getBehandlingUuid()).stream()
-            .map(fid -> pipRepository.saksnummerForFagsakId(Set.of(fid)))
-            .flatMap(Collection::stream)
-            .map(s -> new SakAktørDto(s, pipRepository.hentAktørIdKnyttetTilSaksnummer(s)))
-            .toList();
+        return pipRepository.hentSaksnummerForBehandlingUuid(uuidDto.getBehandlingUuid())
+            .map(s -> new SakAktørDto(s.getVerdi(), pipRepository.hentAktørIdKnyttetTilSaksnummer(s.getVerdi())))
+            .orElse(null);
     }
 
     public record SaksnummerPlainDto(@JsonValue @NotNull @Size(max = 20) @Pattern(regexp = "^[a-zA-Z0-9_\\-]*$") String saksnummer) { }
