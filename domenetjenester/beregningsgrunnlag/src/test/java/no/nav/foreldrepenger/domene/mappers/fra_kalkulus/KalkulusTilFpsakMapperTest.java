@@ -12,7 +12,13 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand;
+import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.FaktaAggregatDto;
+import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.FaktaAktørDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.besteberegning.BesteberegningGrunnlagDto;
+
+import no.nav.foreldrepenger.domene.modell.FaktaAggregat;
+
 
 import org.junit.jupiter.api.Test;
 
@@ -58,6 +64,26 @@ class KalkulusTilFpsakMapperTest {
             assertLikeAktiviteter(kontraktBgg.getRegisterAktiviteter().getAktiviteter(), domeneBgg.getRegisterAktiviteter().getBeregningAktiviteter());
         }
     }
+
+    @Test
+    void skal_mape_faktaaggregat() {
+        var fakta = new FaktaAggregatDto(List.of(), new FaktaAktørDto(false, true, null, null, false, true));
+        var kontraktGr = new BeregningsgrunnlagGrunnlagDto(null, fakta, null, null, null, null,
+            BeregningsgrunnlagTilstand.FASTSATT);
+
+        var domeneGr = KalkulusTilFpsakMapper.map(kontraktGr, Optional.empty());
+
+        assertThat(domeneGr).isNotNull();
+        var faktaAktør = domeneGr.getFaktaAggregat().flatMap(FaktaAggregat::getFaktaAktør).orElse(null);
+        assertThat(faktaAktør).isNotNull();
+        assertThat(faktaAktør.getErNyIArbeidslivetSNVurdering()).isFalse();
+        assertThat(faktaAktør.getErNyoppstartetFLVurdering()).isTrue();
+        assertThat(faktaAktør.getHarFLMottattYtelse()).isNull();
+        assertThat(faktaAktør.getSkalBeregnesSomMilitær()).isNull();
+        assertThat(faktaAktør.getSkalBesteberegnesVurdering()).isFalse();
+        assertThat(faktaAktør.getMottarEtterlønnSluttpakkeVurdering()).isTrue();
+    }
+
 
     @Test
     void skal_teste_mapping_med_besteberegning() {

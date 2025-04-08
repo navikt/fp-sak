@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.migrering;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -485,15 +486,8 @@ public class BeregningMigreringMapper {
         if (!harVurderManuellBesteberegningTilfelle) {
             return Optional.empty();
         }
-        var harManuellBesteberegningtilfelle = tilfeller.stream().anyMatch(b -> b.equals(FaktaOmBeregningTilfelle.FASTSETT_BESTEBEREGNING_FØDENDE_KVINNE)
-            || b.equals(FaktaOmBeregningTilfelle.FASTSETT_BG_KUN_YTELSE));
         var harSattManuellBesteberegning = andelListe.stream().anyMatch(a -> a.getBesteberegningPrÅr() != null && a.getBesteberegningPrÅr().compareTo(BigDecimal.ZERO)>0);
-
-        if (!Objects.equals(harManuellBesteberegningtilfelle, harSattManuellBesteberegning)) {
-            throw new IllegalStateException("Tvetydig data ved mapping av manuell besteberegning, må undersøkes manuelt");
-        }
-        var erManueltBesteberegnet = andelListe.stream().anyMatch(a -> a.getBesteberegningPrÅr() != null && a.getBesteberegningPrÅr().compareTo(BigDecimal.ZERO)>0);
-        return Optional.of(new FaktaVurderingMigreringDto(erManueltBesteberegnet, FaktaVurderingKilde.SAKSBEHANDLER));
+        return Optional.of(new FaktaVurderingMigreringDto(harSattManuellBesteberegning, FaktaVurderingKilde.SAKSBEHANDLER));
     }
 
     private static Optional<FaktaVurderingMigreringDto> utledFaktaAvklaringEtterlønn(List<BeregningsgrunnlagPrStatusOgAndel> etterlønnSluttpakkeAndeler) {

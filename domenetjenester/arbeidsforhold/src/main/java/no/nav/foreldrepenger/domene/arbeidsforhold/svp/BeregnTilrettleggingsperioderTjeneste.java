@@ -53,7 +53,7 @@ public class BeregnTilrettleggingsperioderTjeneste {
 
     /**
      * Gir en liste med Arbeidsgiver med arbeidtype som inneholder informasjon om
-     * utbetalingsgrad beregnet basert på register informasjon fra AA-reg og det som
+     * utbetalingsgrad beregnet basert på register informasjon fra Aa-reg og det som
      * har blitt oppgitt i søknaden for Svangerskapspenger.
      *
      * @param behandlingReferanse {@link BehandlingReferanse}
@@ -78,7 +78,7 @@ public class BeregnTilrettleggingsperioderTjeneste {
                 .map(g -> new YrkesaktivitetFilter(g.getArbeidsforholdInformasjon(), finnSaksbehandletEllerRegister(aktørId, g)))
                 .orElse(YrkesaktivitetFilter.EMPTY);
 
-        // beregner i henhold til stillingsprosent på arbeidsforholdene i AA-reg
+        // beregner i henhold til stillingsprosent på arbeidsforholdene i Aa-reg
         var ordinæreArbeidsforhold = gjeldendeTilretteleggingerSomSkalBrukes.stream()
                 .filter(tilrettelegging -> tilrettelegging.getArbeidsgiver().isPresent()
                         && ArbeidType.ORDINÆRT_ARBEIDSFORHOLD.equals(tilrettelegging.getArbeidType()))
