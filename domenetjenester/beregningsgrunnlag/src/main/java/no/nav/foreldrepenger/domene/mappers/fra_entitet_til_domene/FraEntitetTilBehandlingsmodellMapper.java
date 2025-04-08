@@ -57,7 +57,7 @@ public class FraEntitetTilBehandlingsmodellMapper {
         return BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty())
             .medBeregningsgrunnlag(
                 grunnlagEntitet.getBeregningsgrunnlag().map(FraEntitetTilBehandlingsmodellMapper::mapBeregningsgrunnlag).orElse(null))
-            .medRegisterAktiviteter(grunnlagEntitet.getRegisterAktiviteter() == null ? null : mapBeregningAktivitetAggregat(grunnlagEntitet.getRegisterAktiviteter()))
+            .medRegisterAktiviteter(grunnlagEntitet.getRegisterAktiviteter() == null ? lagEnkeltAktivitetaggregat(grunnlagEntitet) : mapBeregningAktivitetAggregat(grunnlagEntitet.getRegisterAktiviteter()))
             .medSaksbehandletAktiviteter(
                 grunnlagEntitet.getSaksbehandletAktiviteter().map(FraEntitetTilBehandlingsmodellMapper::mapBeregningAktivitetAggregat).orElse(null))
             .medOverstyring(
@@ -66,6 +66,13 @@ public class FraEntitetTilBehandlingsmodellMapper {
             .medFakta(grunnlagEntitet.getBeregningsgrunnlag()
                 .flatMap(FraEntitetTilBehandlingsmodellMapper::mapFaktaAggregat).orElse(null))
             .build(grunnlagEntitet.getBeregningsgrunnlagTilstand());
+    }
+
+    private static BeregningAktivitetAggregat lagEnkeltAktivitetaggregat(BeregningsgrunnlagGrunnlagEntitet entitet) {
+        // TFP-6081
+        var builder = BeregningAktivitetAggregat.builder()
+            .medSkjæringstidspunktOpptjening(entitet.getBeregningsgrunnlag().map(BeregningsgrunnlagEntitet::getSkjæringstidspunkt).orElseThrow());
+        return builder.build();
     }
 
     private static BeregningRefusjonOverstyringer mapRefusjonOverstyringer(BeregningRefusjonOverstyringerEntitet refusjonOverstyringAggregat) {

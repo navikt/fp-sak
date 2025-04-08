@@ -16,6 +16,8 @@ import java.util.Optional;
 
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagRegelType;
 
+import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningAktivitetAggregatDto;
+
 import org.jboss.weld.exceptions.IllegalStateException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -271,7 +273,7 @@ class BeregningMigreringTjenesteTest {
             no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus.KOMBINERT_AT_FL, no.nav.folketrygdloven.kalkulus.kodeverk.Hjemmel.F_14_7_8_40);
         var bgDto = new BeregningsgrunnlagDto(LocalDate.now(), List.of(), List.of(beregningsgrunnlagPeriodeDto), List.of(), List.of(),
             false, new no.nav.folketrygdloven.kalkulus.felles.v1.Beløp(BigDecimal.valueOf(100_000)), List.of(status));
-        var grDto = new BeregningsgrunnlagGrunnlagDto(bgDto, null, null, null, null, null,
+        var grDto = new BeregningsgrunnlagGrunnlagDto(bgDto, null, new BeregningAktivitetAggregatDto(List.of(), LocalDate.now()), null, null, null,
             no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand.FASTSATT);
         return grDto;
     }

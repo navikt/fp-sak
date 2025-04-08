@@ -60,13 +60,13 @@ class BehandlendeEnhetTjenesteTest {
     void finn_mors_enhet_annenpart_kode6() {
         // Oppsett
         when(enhetsTjeneste.hentEnhetSjekkKunAktør(any())).thenReturn(ENHET_NORMAL);
-        when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any())).thenReturn(Optional.empty());
+        when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any())).thenReturn(Optional.empty());
 
         var behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now(), FAR_AKTØR_ID);
 
         var morEnhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(behandlingMor.getFagsak());
 
-        when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any())).thenReturn(Optional.of(ENHET_KODE_6));
+        when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any())).thenReturn(Optional.of(ENHET_KODE_6));
         var nyEnhet = behandlendeEnhetTjeneste.sjekkEnhetEtterEndring(behandlingMor);
 
         assertThat(morEnhet.enhetId()).isEqualTo(ENHET_NORMAL.enhetId());
@@ -77,7 +77,7 @@ class BehandlendeEnhetTjenesteTest {
     void finn_enhet_etter_kobling_far_relasjon_kode6() {
         // Oppsett
         lenient().when(enhetsTjeneste.hentEnhetSjekkKunAktør(any())).thenReturn(ENHET_NORMAL);
-        lenient().when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(),any())).thenReturn(Optional.empty());
+        lenient().when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(),any())).thenReturn(Optional.empty());
 
         var behandlingMor = opprettBehandlingMorSøkerFødselRegistrertPDL(LocalDate.now(),1,  FAR_AKTØR_ID);
         behandlingMor.setBehandlendeEnhet(ENHET_NORMAL);
@@ -87,7 +87,7 @@ class BehandlendeEnhetTjenesteTest {
         repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandlingMor.getFagsak());
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(behandlingMor.getFagsak(), behandlingFar.getFagsak());
 
-        lenient().when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any())).thenReturn(Optional.of(ENHET_KODE_6));
+        lenient().when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any())).thenReturn(Optional.of(ENHET_KODE_6));
 
         var oppdatertEnhet = behandlendeEnhetTjeneste.endretBehandlendeEnhetEtterFagsakKobling(behandlingMor);
 

@@ -89,13 +89,15 @@ public class BeregningMigreringMapper {
                                                                       Set<Aksjonspunkt> aksjonspunkter) {
         var aktivitetOverstyringer = entitet.getOverstyring().map(BeregningMigreringMapper::mapAktivitetOverstyringer).orElse(null);
         var saksbehandletAktiviteter = entitet.getSaksbehandletAktiviteter().map(BeregningMigreringMapper::mapAktiviteter).orElse(null);
-        var registerAktiviteter = entitet.getRegisterAktiviteter() == null ? null : mapAktiviteter(entitet.getRegisterAktiviteter());
+        var registerAktiviteter = entitet.getRegisterAktiviteter() == null ? lagEnkeltAktivitetaggregat(entitet) : mapAktiviteter(entitet.getRegisterAktiviteter());
         var refusjonOverstyringer = entitet.getRefusjonOverstyringer().map(BeregningMigreringMapper::mapRefusjonOverstyringer).orElse(null);
         var faktaAggregat = entitet.getBeregningsgrunnlag().flatMap(BeregningMigreringMapper::mapFaktaAggregat).orElse(null);
         var beregningsgrunnlag = entitet.getBeregningsgrunnlag().map(BeregningMigreringMapper::mapBeregningsgrunnlag).orElse(null);
         var tilstand = KodeverkTilKalkulusMapper.mapBeregningsgrunnlagTilstand(entitet.getBeregningsgrunnlagTilstand());
         var grunnlagSporingerDto = mapGrunnlagSporinger(grunnlagSporinger);
-        var periodeSporingerDto = entitet.getBeregningsgrunnlag().map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder).orElse(List.of()).stream()
+        var periodeSporingerDto = entitet.getBeregningsgrunnlag().map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder)
+            .orElse(List.of())
+            .stream()
             .map(BeregningMigreringMapper::mapPeriodeSporinger)
             .flatMap(Collection::stream)
             .toList();
@@ -107,6 +109,14 @@ public class BeregningMigreringMapper {
             faktaAggregat, tilstand, grunnlagSporingerDto, periodeSporingerDto, avklaringsbehov);
         settOpprettetOgEndretFelter(entitet, dto);
         return dto;
+    }
+
+    private static BeregningAktivitetAggregatMigreringDto lagEnkeltAktivitetaggregat(BeregningsgrunnlagGrunnlagEntitet entitet) {
+        // TFP-6081: Hvis hele aggregatet mangler (gjelder 15 saker), migrerer vi heller over et forenklet aggregat for å ikke trenge løse på validering i kalkulus
+        var beregningAktivitetAggregatMigreringDto = new BeregningAktivitetAggregatMigreringDto(List.of(),
+            entitet.getBeregningsgrunnlag().map(BeregningsgrunnlagEntitet::getSkjæringstidspunkt).orElseThrow());
+        settOpprettetOgEndretFelter(entitet, beregningAktivitetAggregatMigreringDto);
+        return beregningAktivitetAggregatMigreringDto;
     }
 
     private static Optional<AvklaringsbehovMigreringDto> mapAksjonspunkt(Aksjonspunkt ap) {
@@ -122,6 +132,8 @@ public class BeregningMigreringMapper {
 
     private static List<RegelSporingPeriodeMigreringDto> mapPeriodeSporinger(BeregningsgrunnlagPeriode bgPeriode) {
         return bgPeriode.getRegelSporinger().entrySet().stream()
+            // Sporing eller evaluering må være satt, ellers gir ikke sporingen verdi og kan kastes.
+            .filter(entry -> entry.getValue().getRegelEvaluering() != null || entry.getValue().getRegelInput() != null)
             .map(entry -> {
                 var dto = new RegelSporingPeriodeMigreringDto(entry.getValue().getRegelEvaluering(),
                     entry.getValue().getRegelInput(), mapPeriode(bgPeriode.getPeriode()),
@@ -333,7 +345,7 @@ public class BeregningMigreringMapper {
 
         sanitycheckBesteberegning(bg);
 
-        var faktaAktørMigreringDto = mapFaktaAktør(bgp.getBeregningsgrunnlagPrStatusOgAndelList(), bg.getFaktaOmBeregningTilfeller());
+        var faktaAktørMigreringDto = mapFaktaAktør(bg, bgp.getBeregningsgrunnlagPrStatusOgAndelList(), bg.getFaktaOmBeregningTilfeller());
         var faktaArbeidsforhold = mapAlleFaktaArbeidsforhold(bgp.getBeregningsgrunnlagPrStatusOgAndelList(),
             bg.getFaktaOmBeregningTilfeller());
         if (faktaAktørMigreringDto.isEmpty() && faktaArbeidsforhold.isEmpty()) {
@@ -383,6 +395,7 @@ public class BeregningMigreringMapper {
             && arbeidsforholdFakta.getHarLønnsendringIBeregningsperioden() == null) {
             return Optional.empty();
         }
+        settOpprettetOgEndretFelter(andel, arbeidsforholdFakta);
         return Optional.of(arbeidsforholdFakta);
     }
 
@@ -418,7 +431,8 @@ public class BeregningMigreringMapper {
         }
     }
 
-    private static Optional<FaktaAktørMigreringDto> mapFaktaAktør(List<BeregningsgrunnlagPrStatusOgAndel> andelListe, List<FaktaOmBeregningTilfelle> tilfeller) {
+    private static Optional<FaktaAktørMigreringDto> mapFaktaAktør(BeregningsgrunnlagEntitet bg,
+                                                                  List<BeregningsgrunnlagPrStatusOgAndel> andelListe, List<FaktaOmBeregningTilfelle> tilfeller) {
         var dto = new FaktaAktørMigreringDto();
         var nyIArbeidslivetVurdering = finnAndel(andelListe, AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
             .map(BeregningsgrunnlagPrStatusOgAndel::getNyIArbeidslivet)
@@ -450,6 +464,7 @@ public class BeregningMigreringMapper {
             && dto.getHarFLMottattYtelse() == null && dto.getErNyoppstartetFL() == null && dto.getErNyIArbeidslivetSN() == null) {
             return Optional.empty();
         }
+        settOpprettetOgEndretFelter(bg, dto);
         return Optional.of(dto);
     }
 

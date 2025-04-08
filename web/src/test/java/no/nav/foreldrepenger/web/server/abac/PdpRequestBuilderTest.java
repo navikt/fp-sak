@@ -28,17 +28,15 @@ import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.ForeldrepengerDataKeys;
 import no.nav.vedtak.sikkerhet.abac.pipdata.PipBehandlingStatus;
 import no.nav.vedtak.sikkerhet.abac.pipdata.PipFagsakStatus;
+import no.nav.vedtak.sikkerhet.abac.pipdata.PipOverstyring;
 
 @ExtendWith(MockitoExtension.class)
 class PdpRequestBuilderTest {
-
-    private static final String DUMMY_ID_TOKEN = "dummyheader.dymmypayload.dummysignaturee";
 
     private static final Long FAGSAK_ID = 10001L;
     private static final Long FAGSAK_ID_2 = 10002L;
     private static final Long BEHANDLING_ID = 333L;
     private static final JournalpostId JOURNALPOST_ID = new JournalpostId("444");
-    private static final JournalpostId JOURNALPOST_ID_UGYLDIG = new JournalpostId("555");
     private static final String SAKSNUMMER = "7777";
 
     private static final AktørId AKTØR_0 = AktørId.dummy();
@@ -127,7 +125,7 @@ class PdpRequestBuilderTest {
                 .leggTil(AppAbacAttributtType.AKSJONSPUNKT_DEFINISJON, AksjonspunktDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET);
 
         var request = requestBuilder.lagAppRessursData(attributter);
-        assertThat(request.getResource(ForeldrepengerDataKeys.AKSJONSPUNKT_OVERSTYRING).verdi()).isEqualTo("Overstyring");
+        assertThat(request.getResource(ForeldrepengerDataKeys.AKSJONSPUNKT_OVERSTYRING).verdi()).isEqualTo(PipOverstyring.OVERSTYRING.getVerdi());
     }
 
     @Test
