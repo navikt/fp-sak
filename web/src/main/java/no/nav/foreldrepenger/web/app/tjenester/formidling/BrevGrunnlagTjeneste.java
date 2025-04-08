@@ -63,6 +63,7 @@ import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.dto.BrevGrunnlagR
 import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.dto.FagsakDto;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.dto.VergeDto;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.FormidlingRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.BehandlingResultatType;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.tilkjentytelse.TilkjentYtelseFormidlingRestTjeneste;
 
@@ -301,7 +302,7 @@ public class BrevGrunnlagTjeneste {
             return Optional.empty();
         }
         var dto = new BehandlingsresultatDto();
-        dto.setType(behandlingsresultat.getBehandlingResultatType());
+        dto.setType(mapBehandlingResultatType(behandlingsresultat.getBehandlingResultatType()));
         dto.setAvslagsarsak(behandlingsresultat.getAvslagsårsak());
         dto.setKonsekvenserForYtelsen(mapKonsekvensForYtelsen(behandlingsresultat.getKonsekvenserForYtelsen()));
         dto.setSkjæringstidspunkt(finnSkjæringstidspunktForBehandling(behandling, behandlingsresultat).orElse(null));
@@ -318,6 +319,13 @@ public class BrevGrunnlagTjeneste {
             dto.setFritekstbrev(behandlingDokument.get().getOverstyrtBrevFritekst());
         }
         return Optional.of(dto);
+    }
+
+    private BehandlingResultatType mapBehandlingResultatType(no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType behandlingResultatType) {
+        if (behandlingResultatType == null) {
+            return null;
+        }
+        return BehandlingResultatType.valueOf(behandlingResultatType.name());
     }
 
     private List<KonsekvensForYtelsen> mapKonsekvensForYtelsen(List<no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen> konsekvenserForYtelsen) {
