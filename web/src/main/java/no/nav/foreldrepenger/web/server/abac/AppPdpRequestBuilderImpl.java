@@ -75,14 +75,18 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
             MDC_EXTENDED_LOG_CONTEXT.add("behandlingId", bd.behandlingId());
         });
 
-        Set<String> aktører = dataAttributter.getVerdier(AppAbacAttributtType.AKTØR_ID);
+        // TODO - finn ut måte å håndtere autotest med mye polling før sakskobling
+        Set<String> aktører = new HashSet<>(dataAttributter.getVerdier(AppAbacAttributtType.AKTØR_ID));
+        saksnummer.map(Saksnummer::getVerdi)
+            .ifPresent(s -> aktører.addAll(pipRepository.hentAktørIdKnyttetTilSaksnummer(s).stream().map(AktørId::getId).toList()));
         Set<String> fnrs = dataAttributter.getVerdier(AppAbacAttributtType.FNR);
 
         var builder = AppRessursData.builder()
             .leggTilAktørIdSet(aktører)
             .leggTilFødselsnumre(fnrs);
 
-        saksnummer.map(Saksnummer::getVerdi).ifPresent(builder::medSaksnummer);
+        // TODO - finn ut måte å håndtere autotest med mye polling før sakskobling
+        //saksnummer.map(Saksnummer::getVerdi).ifPresent(builder::medSaksnummer);
         behandlingData.flatMap(PipBehandlingsData::getAnsvarligSaksbehandler)
             .ifPresent(builder::medAnsvarligSaksbehandler);
         behandlingData.map(PipBehandlingsData::behandlingStatus).flatMap(AppPdpRequestBuilderImpl::oversettBehandlingStatus)
