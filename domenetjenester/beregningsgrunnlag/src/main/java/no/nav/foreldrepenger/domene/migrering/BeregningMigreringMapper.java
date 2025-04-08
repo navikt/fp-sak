@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.migrering;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -487,10 +488,16 @@ public class BeregningMigreringMapper {
         }
         var harManuellBesteberegningtilfelle = tilfeller.stream().anyMatch(b -> b.equals(FaktaOmBeregningTilfelle.FASTSETT_BESTEBEREGNING_FØDENDE_KVINNE)
             || b.equals(FaktaOmBeregningTilfelle.FASTSETT_BG_KUN_YTELSE));
-        var harSattManuellBesteberegning = andelListe.stream().anyMatch(a -> a.getBesteberegningPrÅr() != null && a.getBesteberegningPrÅr().compareTo(BigDecimal.ZERO)>0);
+        // besteberegnetPrÅr fantes ikke før denne datoen, så for slike grunnlag vil besteberegning være lagret på beregnet
+        var bbLagretPåBeregnet = andelListe.getFirst().getOpprettetTidspunkt().toLocalDate().isBefore(LocalDate.of(2018, 12, 12));
+        var harSattManuellBesteberegning = bbLagretPåBeregnet ?
+            andelListe.stream().anyMatch(a -> a.getBeregnetPrÅr() != null && a.getBeregnetPrÅr().compareTo(BigDecimal.ZERO)>0)
+            : andelListe.stream().anyMatch(a -> a.getBesteberegningPrÅr() != null && a.getBesteberegningPrÅr().compareTo(BigDecimal.ZERO)>0);
 
         if (!Objects.equals(harManuellBesteberegningtilfelle, harSattManuellBesteberegning)) {
-            throw new IllegalStateException("Tvetydig data ved mapping av manuell besteberegning, må undersøkes manuelt");
+            var msg = String.format("Tvetydig data ved mapping av manuell besteberegning, må undersøkes manuelt. Har tilfeller: %s og andeler %s",
+                tilfeller, andelListe);
+            throw new IllegalStateException(msg);
         }
         var erManueltBesteberegnet = andelListe.stream().anyMatch(a -> a.getBesteberegningPrÅr() != null && a.getBesteberegningPrÅr().compareTo(BigDecimal.ZERO)>0);
         return Optional.of(new FaktaVurderingMigreringDto(erManueltBesteberegnet, FaktaVurderingKilde.SAKSBEHANDLER));
