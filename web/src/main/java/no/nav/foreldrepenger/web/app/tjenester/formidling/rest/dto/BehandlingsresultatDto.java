@@ -3,9 +3,9 @@ package no.nav.foreldrepenger.web.app.tjenester.formidling.rest.dto;
 import java.time.LocalDate;
 import java.util.List;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.SkjæringstidspunktDto;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.BehandlingResultatType;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.KonsekvensForYtelsen;
 
 public class BehandlingsresultatDto {
