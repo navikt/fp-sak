@@ -30,6 +30,8 @@ class FeilPraksisForlengVentefristAlleTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
+        return; // for å stoppe tasks som henger i spørringer
+        /**
         var behandlingIdProperty = prosessTaskData.getPropertyValue(FRA_BEHANDLING_ID);
         var fraBehandlingId = behandlingIdProperty == null ? null : Long.valueOf(behandlingIdProperty);
 
@@ -42,6 +44,7 @@ class FeilPraksisForlengVentefristAlleTask implements ProsessTaskHandler {
             .max(Comparator.naturalOrder())
             .map(FeilPraksisForlengVentefristAlleTask::opprettTaskForNesteUtvalg)
             .ifPresent(prosessTaskTjeneste::lagre);
+         */
 
     }
 
