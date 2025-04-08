@@ -1,17 +1,17 @@
 package no.nav.foreldrepenger.web.app.tjenester.formidling.rest.dto;
 
-import java.time.LocalDate;
-import java.util.List;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.SkjæringstidspunktDto;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.AvslagÅrsak;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.BehandlingResultatType;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.KonsekvensForYtelsen;
+
+import java.time.LocalDate;
+import java.util.List;
 
 public class BehandlingsresultatDto {
 
     private BehandlingResultatType type;
-    private Avslagsårsak avslagsarsak;
+    private AvslagÅrsak avslagsarsak;
     private String avslagsarsakFritekst;
     private List<KonsekvensForYtelsen> konsekvenserForYtelsen;
     private String overskrift;
@@ -28,7 +28,7 @@ public class BehandlingsresultatDto {
         this.type = type;
     }
 
-    public void setAvslagsarsak(Avslagsårsak avslagsarsak) {
+    public void setAvslagsarsak(AvslagÅrsak avslagsarsak) {
         this.avslagsarsak = avslagsarsak;
     }
 
@@ -44,7 +44,7 @@ public class BehandlingsresultatDto {
         return type;
     }
 
-    public Avslagsårsak getAvslagsarsak() {
+    public AvslagÅrsak getAvslagsarsak() {
         return avslagsarsak;
     }
 
