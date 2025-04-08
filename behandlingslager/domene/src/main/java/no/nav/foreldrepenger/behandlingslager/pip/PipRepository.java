@@ -29,7 +29,6 @@ public class PipRepository {
 
     private static final LRUCache<UUID, Saksnummer> BEH_SAK = new LRUCache<>(20000, TimeUnit.MILLISECONDS.convert(7, TimeUnit.DAYS));
     private static final LRUCache<String, AktørId> SAK_EIER = new LRUCache<>(5000, TimeUnit.MILLISECONDS.convert(2, TimeUnit.HOURS));
-    private static final LRUCache<String, Set<AktørId>> SAK_AKTØR = new LRUCache<>(1000, TimeUnit.MILLISECONDS.convert(2, TimeUnit.MINUTES));
 
     private static final String SAKSNUMMER = "saksnummer";
     private static final String BUUID = "behandlingUuid";
@@ -105,10 +104,6 @@ public class PipRepository {
     public Set<AktørId> hentAktørIdKnyttetTilSaksnummer(String saksnummer) {
         Objects.requireNonNull(saksnummer, SAKSNUMMER);
 
-        if (SAK_AKTØR.get(saksnummer) != null) {
-            return SAK_AKTØR.get(saksnummer);
-        }
-
         var sql = """
             SELECT por.AKTOER_ID From Fagsak fag
             JOIN BEHANDLING beh ON fag.ID = beh.FAGSAK_ID
@@ -133,9 +128,7 @@ public class PipRepository {
 
         @SuppressWarnings("unchecked")
         List<String> aktørIdList = query.getResultList();
-        var aktører = aktørIdList.stream().map(AktørId::new).collect(Collectors.toCollection(LinkedHashSet::new));
-        SAK_AKTØR.put(saksnummer, aktører);
-        return aktører;
+        return aktørIdList.stream().map(AktørId::new).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     @SuppressWarnings({ "unchecked", "cast" })
