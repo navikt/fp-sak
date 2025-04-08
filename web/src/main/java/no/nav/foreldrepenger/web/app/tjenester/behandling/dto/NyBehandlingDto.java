@@ -1,8 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -11,9 +10,8 @@ import no.nav.foreldrepenger.validering.ValidKodeverk;
 
 public class NyBehandlingDto {
     @NotNull
-    @Min(0)
-    @Max(Long.MAX_VALUE)
-    private Long saksnummer;
+    @Digits(integer = 18, fraction = 0)
+    private String saksnummer;
 
     @NotNull
     @ValidKodeverk
@@ -25,11 +23,11 @@ public class NyBehandlingDto {
     @Valid
     private boolean nyBehandlingEtterKlage;
 
-    public void setSaksnummer(Long saksnummer) {
+    public void setSaksnummer(String saksnummer) {
         this.saksnummer = saksnummer;
     }
 
-    public Long getSaksnummer() {
+    public String getSaksnummer() {
         return saksnummer;
     }
 

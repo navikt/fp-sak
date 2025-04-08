@@ -113,7 +113,7 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
     }
 
     private Optional<Saksnummer> utledSaksnummer(AbacDataAttributter attributter, PipBehandlingsData behandlingData) {
-        Set<String> saksnummerString = new HashSet<>(attributter.getVerdier(AppAbacAttributtType.SAKSNUMMER));
+        Set<String> saksnummerString = attributter.getVerdier(AppAbacAttributtType.SAKSNUMMER);
         var saksnummer = new HashSet<>(saksnummerString.stream().map(Saksnummer::new).toList());
         Optional.ofNullable(behandlingData).map(PipBehandlingsData::saksnummer).ifPresent(saksnummer::add);
 
