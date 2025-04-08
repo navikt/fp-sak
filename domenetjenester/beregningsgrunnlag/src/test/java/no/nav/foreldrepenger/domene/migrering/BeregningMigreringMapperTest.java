@@ -10,6 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -357,14 +358,15 @@ class BeregningMigreringMapperTest {
             .medBeregningsgrunnlagPeriode(stp, stp.plusMonths(2).minusDays(1))
             .medBruttoPrÅr(BigDecimal.valueOf(26_000))
             .build(beregningsgrunnlag);
-        BeregningsgrunnlagPrStatusOgAndel.builder()
+        var andel1 = BeregningsgrunnlagPrStatusOgAndel.builder()
             .medAndelsnr(1L)
             .medBeregnetPrÅr(BigDecimal.valueOf(12_000))
             .medAktivitetStatus(DAGPENGER)
             .medBesteberegningPrÅr(BigDecimal.valueOf(12_000))
             .build(periode1);
+        andel1.setOpprettetTidspunkt(LocalDateTime.now());
         var arbforRef = UUID.randomUUID().toString();
-        BeregningsgrunnlagPrStatusOgAndel.builder()
+        var andel2 = BeregningsgrunnlagPrStatusOgAndel.builder()
             .medAndelsnr(2L)
             .medBeregnetPrÅr(BigDecimal.valueOf(14_000))
             .medBesteberegningPrÅr(BigDecimal.valueOf(14_000))
@@ -374,6 +376,7 @@ class BeregningMigreringMapperTest {
                 .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999"))
                 .medRefusjonskravPrÅr(BigDecimal.valueOf(14_000)))
             .build(periode1);
+        andel2.setOpprettetTidspunkt(LocalDateTime.now());
         var grunnlag = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(1L, BeregningsgrunnlagTilstand.FASTSATT);
 
         var grDto = BeregningMigreringMapper.map(grunnlag, Map.of(), Set.of());
