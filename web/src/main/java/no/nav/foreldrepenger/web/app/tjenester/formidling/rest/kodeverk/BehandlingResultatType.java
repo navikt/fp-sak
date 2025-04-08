@@ -1,0 +1,47 @@
+package no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk;
+
+public enum BehandlingResultatType {
+
+    IKKE_FASTSATT,
+    INNVILGET,
+    AVSLÅTT,
+    OPPHØR,
+    HENLAGT_SØKNAD_TRUKKET,
+    HENLAGT_FEILOPPRETTET,
+    HENLAGT_BRUKER_DØD,
+    MERGET_OG_HENLAGT,
+    HENLAGT_SØKNAD_MANGLER,
+    FORELDREPENGER_ENDRET,
+    FORELDREPENGER_SENERE,
+    INGEN_ENDRING,
+    @Deprecated // Tidligere brukt ifm flytting til infotrygd ved feilopprettede saker
+    MANGLER_BEREGNINGSREGLER,
+
+    // Klage
+    KLAGE_AVVIST,
+    KLAGE_MEDHOLD,
+    KLAGE_DELVIS_MEDHOLD,
+    KLAGE_OMGJORT_UGUNST,
+    KLAGE_YTELSESVEDTAK_OPPHEVET,
+    KLAGE_YTELSESVEDTAK_STADFESTET,
+    KLAGE_TILBAKEKREVING_VEDTAK_STADFESTET, // Brukes av kun Tilbakekreving eller Tilbakekreving Revurdering
+    HENLAGT_KLAGE_TRUKKET,
+    HJEMSENDE_UTEN_OPPHEVE,
+
+    // Anke
+    ANKE_AVVIST,
+    ANKE_MEDHOLD,
+    ANKE_DELVIS_MEDHOLD,
+    ANKE_OMGJORT_UGUNST,
+    ANKE_OPPHEVE_OG_HJEMSENDE,
+    ANKE_HJEMSENDE_UTEN_OPPHEV,
+    ANKE_YTELSESVEDTAK_STADFESTET,
+    HENLAGT_ANKE_TRUKKET,
+
+    // Innsyn
+    INNSYN_INNVILGET,
+    INNSYN_DELVIS_INNVILGET,
+    INNSYN_AVVIST,
+    HENLAGT_INNSYN_TRUKKET,
+    ;
+}
