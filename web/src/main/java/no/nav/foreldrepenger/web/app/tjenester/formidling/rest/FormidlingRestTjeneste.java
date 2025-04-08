@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.formidling;
+package no.nav.foreldrepenger.web.app.tjenester.formidling.rest;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSupp
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingFormidlingDtoTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.v2.BrevGrunnlagTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.BrevGrunnlagTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.utsattoppstart.StartdatoUtsattDto;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.utsattoppstart.StartdatoUtsattDtoTjeneste;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -48,6 +48,10 @@ public class FormidlingRestTjeneste {
     private BrevGrunnlagTjeneste brevGrunnlagTjeneste;
     private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
 
+    FormidlingRestTjeneste() {
+        // Plattform trenger tom Ctor (Hibernate, CDI, etc)
+    }
+
     @Inject
     public FormidlingRestTjeneste(BehandlingRepository behandlingRepository,
                                   BehandlingFormidlingDtoTjeneste behandlingFormidlingDtoTjeneste,
@@ -59,10 +63,6 @@ public class FormidlingRestTjeneste {
         this.brevGrunnlagTjeneste = brevGrunnlagTjeneste;
         this.startdatoUtsattDtoTjeneste = startdatoUtsattDtoTjeneste;
         this.uttaksperiodegrenseRepository = uttaksperiodegrenseRepository;
-    }
-
-    public FormidlingRestTjeneste() {
-        // Plattform trenger tom Ctor (Hibernate, CDI, etc)
     }
 
     @GET
