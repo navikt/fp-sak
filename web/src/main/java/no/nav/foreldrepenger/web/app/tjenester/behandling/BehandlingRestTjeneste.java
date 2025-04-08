@@ -271,7 +271,7 @@ public class BehandlingRestTjeneste {
                                         @TilpassetAbacAttributt(supplierClass = NyBehandlingAbacDataSupplier.class)
             @Parameter(description = "Saksnummer og flagg om det er ny behandling etter klage") @Valid NyBehandlingDto dto)
         throws URISyntaxException {
-        var saksnummer = new Saksnummer(Long.toString(dto.getSaksnummer()));
+        var saksnummer = new Saksnummer(dto.getSaksnummer());
         var funnetFagsak = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, true);
         var kode = dto.getBehandlingType();
 
@@ -406,6 +406,7 @@ public class BehandlingRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (NyBehandlingDto) obj;
+
             return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, req.getSaksnummer());
         }
     }
