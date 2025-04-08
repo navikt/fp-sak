@@ -52,9 +52,9 @@ class PipRepositoryTest extends EntityManagerAwareTest {
         var pipBehandlingsData = pipRepository.hentDataForBehandlingUuid(behandling.getUuid());
         assertThat(pipBehandlingsData).isPresent();
         assertThat(pipBehandlingsData.get()).isNotNull();
-        assertThat(pipBehandlingsData.get().behandligStatus()).isEqualTo(behandling.getStatus().getKode());
-        assertThat(pipBehandlingsData.get().fagsakStatus()).isEqualTo(behandling.getFagsak().getStatus().getKode());
-        assertThat(pipBehandlingsData.get().saksnummer()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        assertThat(pipBehandlingsData.get().behandlingStatus()).isEqualTo(behandling.getStatus());
+        assertThat(pipBehandlingsData.get().fagsakStatus()).isEqualTo(behandling.getFagsak().getStatus());
+        assertThat(pipBehandlingsData.get().saksnummer()).isEqualTo(behandling.getFagsak().getSaksnummer());
     }
 
     @Test
@@ -77,7 +77,7 @@ class PipRepositoryTest extends EntityManagerAwareTest {
         var behandling = behandlingBuilder.opprettOgLagreFørstegangssøknad(fagsak);
 
         var fagsakId = pipRepository.hentSaksnummerForBehandlingUuid(behandling.getUuid());
-        assertThat(fagsakId).hasValueSatisfying(s -> assertThat(fagsak.getSaksnummer().getVerdi()).isEqualTo(s));
+        assertThat(fagsakId).hasValueSatisfying(s -> assertThat(fagsak.getSaksnummer()).isEqualTo(s));
     }
 
     @Test
@@ -91,7 +91,7 @@ class PipRepositoryTest extends EntityManagerAwareTest {
         getEntityManager().flush();
 
         var fagsakId = pipRepository.saksnummerForJournalpostId(Collections.singleton(JOURNALPOST_ID));
-        assertThat(fagsakId).containsOnly(fagsak1.getSaksnummer().getVerdi());
+        assertThat(fagsakId).containsOnly(fagsak1.getSaksnummer());
     }
 
     @Test

@@ -15,15 +15,19 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.JournalpostId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.util.LRUCache;
 
 @ApplicationScoped
 public class PipRepository {
 
-    private static final LRUCache<UUID, String> BEH_SAK = new LRUCache<>(20000, TimeUnit.MILLISECONDS.convert(7, TimeUnit.DAYS));
+    private static final LRUCache<UUID, Saksnummer> BEH_SAK = new LRUCache<>(20000, TimeUnit.MILLISECONDS.convert(7, TimeUnit.DAYS));
     private static final LRUCache<String, AktørId> SAK_EIER = new LRUCache<>(5000, TimeUnit.MILLISECONDS.convert(2, TimeUnit.HOURS));
     private static final LRUCache<String, Set<AktørId>> SAK_AKTØR = new LRUCache<>(1000, TimeUnit.MILLISECONDS.convert(2, TimeUnit.MINUTES));
 
@@ -40,19 +44,18 @@ public class PipRepository {
         this.entityManager = entityManager;
     }
 
-    public Optional<String> hentSaksnummerForBehandlingUuid(UUID behandlingUuid) {
+    public Optional<Saksnummer> hentSaksnummerForBehandlingUuid(UUID behandlingUuid) {
         Objects.requireNonNull(behandlingUuid, BUUID);
-        var cahcedSak = BEH_SAK.get(behandlingUuid);
-        if (cahcedSak != null) {
-            BEH_SAK.put(behandlingUuid, cahcedSak);
-            return Optional.of(cahcedSak);
+        var cachedSak = BEH_SAK.get(behandlingUuid);
+        if (cachedSak != null) {
+            BEH_SAK.put(behandlingUuid, cachedSak);
+            return Optional.of(cachedSak);
         }
 
-        var sql = "SELECT f.saksnummer saksnummer FROM BEHANDLING b JOIN FAGSAK f ON b.fagsak_id = f.id WHERE b.uuid = :behandlingUuid";
-        var query = entityManager.createNativeQuery(sql)
+        var query = entityManager.createQuery("SELECT f.saksnummer saksnummer FROM Behandling b JOIN Fagsak f ON b.fagsak = f WHERE b.uuid = :behandlingUuid")
             .setParameter(BUUID, behandlingUuid);
         @SuppressWarnings("unchecked")
-        List<String> resultater = query.getResultList();
+        List<Saksnummer> resultater = query.getResultList();
         var sak = resultater.stream().findFirst();
         sak.ifPresent(s -> BEH_SAK.put(behandlingUuid, s));
         return sak;
@@ -62,45 +65,40 @@ public class PipRepository {
         Objects.requireNonNull(behandlingUuid, BUUID);
 
         var sql = """
-            SELECT b.behandling_status behandligStatus,
-            b.ansvarlig_saksbehandler ansvarligSaksbehandler,
-            b.id behandlingId,
-            f.fagsak_status fagsakStatus,
-            f.saksnummer saksnummer
-            FROM BEHANDLING b
-            JOIN FAGSAK f ON b.fagsak_id = f.id
+            SELECT b.status, b.ansvarligSaksbehandler, b.id, f.fagsakStatus, f.saksnummer
+            FROM Behandling b JOIN Fagsak f ON b.fagsak = f
             WHERE b.uuid = :behandlingUuid
             """;
 
-        var query = entityManager.createNativeQuery(sql);
-        query.setParameter(BUUID, behandlingUuid);
+        var query = entityManager.createQuery(sql)
+            .setParameter(BUUID, behandlingUuid);
         @SuppressWarnings("unchecked")
         List<Object[]> resultater = query.getResultList();
         return resultater.stream().findFirst().map(r -> mapPipBehandlingsdata(behandlingUuid, r));
     }
 
     private static PipBehandlingsData mapPipBehandlingsdata(UUID behandlingUuid, Object[] resultat) {
-        return new PipBehandlingsData((String) resultat[0], (String) resultat[1], (Long) resultat[2], behandlingUuid, (String) resultat[3], (String) resultat[4]);
+        return new PipBehandlingsData((BehandlingStatus) resultat[0], (String) resultat[1], (Long) resultat[2], behandlingUuid, (FagsakStatus) resultat[3], (Saksnummer) resultat[4]);
     }
 
-    public Optional<AktørId> hentAktørIdSomEierFagsak(String saksnummer) {
+    public Optional<AktørId> hentAktørIdSomEierFagsak(Saksnummer saksnummer) {
         Objects.requireNonNull(saksnummer, SAKSNUMMER);
-        if (SAK_EIER.get(saksnummer) != null) {
-            return Optional.of(SAK_EIER.get(saksnummer));
+        if (SAK_EIER.get(saksnummer.getVerdi()) != null) {
+            return Optional.of(SAK_EIER.get(saksnummer.getVerdi()));
         }
         var sql = """
-            SELECT br.AKTOER_ID FROM Fagsak fag
-            JOIN Bruker br ON fag.BRUKER_ID = br.ID
-            WHERE fag.saksnummer = :saksnummer  AND br.AKTOER_ID IS NOT NULL
+            SELECT br.aktørId FROM Fagsak fag
+            JOIN Bruker br ON fag.navBruker = br
+            WHERE fag.saksnummer = :saksnummer  AND br.aktørId IS NOT NULL
             """;
 
-        var query = entityManager.createNativeQuery(sql);
-        query.setParameter(SAKSNUMMER, saksnummer);
+        var query = entityManager.createQuery(sql)
+            .setParameter(SAKSNUMMER, saksnummer);
 
         @SuppressWarnings("unchecked")
-        List<String> aktørIdList = query.getResultList();
-        var eier = aktørIdList.stream().findFirst().map(AktørId::new);
-        eier.ifPresent(e -> SAK_EIER.put(saksnummer, e));
+        List<AktørId> aktørIdList = query.getResultList();
+        var eier = aktørIdList.stream().findFirst();
+        eier.ifPresent(e -> SAK_EIER.put(saksnummer.getVerdi(), e));
         return eier;
     }
 
@@ -130,8 +128,8 @@ public class PipRepository {
             WHERE fag.SAKSNUMMER = (:saksnummer) AND grp.aktiv = 'J' AND sa.AKTOER_ID IS NOT NULL
             """;
 
-        var query = entityManager.createNativeQuery(sql);
-        query.setParameter(SAKSNUMMER, saksnummer);
+        var query = entityManager.createNativeQuery(sql)
+            .setParameter(SAKSNUMMER, saksnummer);
 
         @SuppressWarnings("unchecked")
         List<String> aktørIdList = query.getResultList();
@@ -141,14 +139,15 @@ public class PipRepository {
     }
 
     @SuppressWarnings({ "unchecked", "cast" })
-    public Set<String> saksnummerForJournalpostId(Collection<String> journalpostId) {
+    public Set<Saksnummer> saksnummerForJournalpostId(Collection<String> journalpostId) {
         if (journalpostId.isEmpty()) {
             return Collections.emptySet();
         }
-        var sql = "SELECT distinct f.saksnummer FROM JOURNALPOST j JOIN FAGSAK f on j.fagsak_id = f.id WHERE journalpost_id in (:journalpostId)";
-        var query = entityManager.createNativeQuery(sql);
-        query.setParameter("journalpostId", journalpostId);
-        return new LinkedHashSet<>((List<String>)query.getResultList());
+        var sql = "SELECT f.saksnummer FROM Journalpost j JOIN Fagsak f on j.fagsak = f WHERE j.journalpostId in (:journalpostId)";
+        var query = entityManager.createQuery(sql)
+            .setParameter("journalpostId", journalpostId.stream().map(JournalpostId::new).toList());
+        List<Saksnummer> saksnummerList = query.getResultList();
+        return new LinkedHashSet<>(saksnummerList);
     }
 
     public static boolean harAksjonspunktTypeOverstyring(Collection<AksjonspunktDefinisjon> aksjonspunktKoder) {

@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.foreldrepenger.behandlingslager.pip.PipRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
@@ -85,6 +86,7 @@ public class PipRestTjeneste {
     public Set<AktørId> hentAktørIdListeTilknyttetBehandling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                        @NotNull @QueryParam("behandlingUuid") @Valid UuidDto uuidDto) {
         return pipRepository.hentSaksnummerForBehandlingUuid(uuidDto.getBehandlingUuid())
+            .map(Saksnummer::getVerdi)
             .map(pipRepository::hentAktørIdKnyttetTilSaksnummer)
             .orElseGet(Set::of);
     }
@@ -95,7 +97,7 @@ public class PipRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP, sporingslogg = false)
     public String hentSaksnummerTilknyttetBehandling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                              @NotNull @QueryParam("behandlingUuid") @Valid UuidDto uuidDto) {
-        return pipRepository.hentSaksnummerForBehandlingUuid(uuidDto.getBehandlingUuid()).orElse(null);
+        return pipRepository.hentSaksnummerForBehandlingUuid(uuidDto.getBehandlingUuid()).map(Saksnummer::getVerdi).orElse(null);
     }
 
     @GET
@@ -105,7 +107,7 @@ public class PipRestTjeneste {
     public SakAktørDto hentSaksnummerAktørIdFor(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                                      @NotNull @QueryParam("behandlingUuid") @Valid UuidDto uuidDto) {
         return pipRepository.hentSaksnummerForBehandlingUuid(uuidDto.getBehandlingUuid())
-            .map(s -> new SakAktørDto(s, pipRepository.hentAktørIdKnyttetTilSaksnummer(s)))
+            .map(s -> new SakAktørDto(s.getVerdi(), pipRepository.hentAktørIdKnyttetTilSaksnummer(s.getVerdi())))
             .orElse(null);
     }
 

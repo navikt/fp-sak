@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.pip.PipBehandlingsData;
 import no.nav.foreldrepenger.behandlingslager.pip.PipRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.pdp.ForeldrepengerDataKeys;
@@ -34,12 +35,10 @@ class PdpRequestBuilderTest {
     private static final Long BEHANDLING_ID = 333L;
     private static final UUID BEHANDLING_UUID = UUID.randomUUID();
     private static final String JOURNALPOST_ID = "444";
-    private static final String SAKSNUMMER = "7777";
-    private static final String SAKSNUMMER_2 = "7778";
+    private static final Saksnummer SAKSNUMMER = new Saksnummer("7777");
+    private static final Saksnummer SAKSNUMMER_2 = new Saksnummer("7778");
 
-    private static final AktørId AKTØR_0 = AktørId.dummy();
     private static final AktørId AKTØR_1 = AktørId.dummy();
-    private static final AktørId AKTØR_2 = AktørId.dummy();
 
     private static final String PERSON_0 = "00000000000";
 
@@ -49,7 +48,7 @@ class PdpRequestBuilderTest {
     private AppPdpRequestBuilderImpl requestBuilder;
 
     @BeforeEach
-    public void beforeEach() {
+    void beforeEach() {
         requestBuilder = new AppPdpRequestBuilderImpl(pipRepository);
 
     }
@@ -59,15 +58,15 @@ class PdpRequestBuilderTest {
         var attributter = AbacDataAttributter.opprett()
                 .leggTil(AppAbacAttributtType.BEHANDLING_UUID, BEHANDLING_UUID);
 
-        lenient().when(pipRepository.hentAktørIdKnyttetTilSaksnummer(SAKSNUMMER)).thenReturn(Collections.singleton(AKTØR_1));
-        var behandligStatus = BehandlingStatus.OPPRETTET.getKode();
+        lenient().when(pipRepository.hentAktørIdKnyttetTilSaksnummer(SAKSNUMMER.getVerdi())).thenReturn(Collections.singleton(AKTØR_1));
+        var behandligStatus = BehandlingStatus.OPPRETTET;
         var ansvarligSaksbehandler = "Z123456";
-        var fagsakStatus = FagsakStatus.UNDER_BEHANDLING.getKode();
+        var fagsakStatus = FagsakStatus.UNDER_BEHANDLING;
         lenient().when(pipRepository.hentDataForBehandlingUuid(BEHANDLING_UUID)).thenReturn(
                 Optional.of(new PipBehandlingsData(behandligStatus, ansvarligSaksbehandler, BEHANDLING_ID, BEHANDLING_UUID, fagsakStatus, SAKSNUMMER)));
 
         var request = requestBuilder.lagAppRessursData(attributter);
-        assertThat(request.getSaksnummer()).isEqualTo(SAKSNUMMER);
+        assertThat(request.getSaksnummer()).isEqualTo(SAKSNUMMER.getVerdi());
         assertThat(request.getResource(ForeldrepengerDataKeys.SAKSBEHANDLER).verdi()).isEqualTo(ansvarligSaksbehandler);
         assertThat(request.getResource(ForeldrepengerDataKeys.BEHANDLING_STATUS).verdi())
                 .isEqualTo(PipBehandlingStatus.OPPRETTET.getVerdi());
@@ -81,10 +80,10 @@ class PdpRequestBuilderTest {
                 .leggTil(AppAbacAttributtType.JOURNALPOST_ID, JOURNALPOST_ID);
 
         lenient().when(pipRepository.saksnummerForJournalpostId(Collections.singleton(JOURNALPOST_ID))).thenReturn(Collections.singleton(SAKSNUMMER));
-        lenient().when(pipRepository.hentAktørIdKnyttetTilSaksnummer(SAKSNUMMER)).thenReturn(Collections.singleton(AKTØR_1));
+        lenient().when(pipRepository.hentAktørIdKnyttetTilSaksnummer(SAKSNUMMER.getVerdi())).thenReturn(Collections.singleton(AKTØR_1));
 
         var request = requestBuilder.lagAppRessursData(attributter);
-        assertThat(request.getSaksnummer()).isEqualTo(SAKSNUMMER);
+        assertThat(request.getSaksnummer()).isEqualTo(SAKSNUMMER.getVerdi());
     }
 
     @Test
@@ -116,11 +115,11 @@ class PdpRequestBuilderTest {
     @Test
     void skal_ikke_godta_at_det_sendes_inn_fagsak_id_og_behandling_id_som_ikke_stemmer_overens() {
 
-        var attributter = AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, SAKSNUMMER_2);
+        var attributter = AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, SAKSNUMMER_2.getVerdi());
         attributter.leggTil(AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, BEHANDLING_UUID));
 
         when(pipRepository.hentDataForBehandlingUuid(BEHANDLING_UUID)).thenReturn(Optional.of(
-                new PipBehandlingsData(BehandlingStatus.OPPRETTET.getKode(), "Z1234", 666L, BEHANDLING_UUID, FagsakStatus.OPPRETTET.getKode(), SAKSNUMMER)));
+                new PipBehandlingsData(BehandlingStatus.OPPRETTET, "Z1234", 666L, BEHANDLING_UUID, FagsakStatus.OPPRETTET, SAKSNUMMER)));
 
         var e = assertThrows(TekniskException.class, () -> requestBuilder.lagAppRessursData(attributter));
         assertThat(e.getMessage()).contains("Ugyldig input. Støtter bare 0 eller 1 sak, men har");
