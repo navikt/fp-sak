@@ -152,7 +152,7 @@ FP_VK_2: https://confluence.adeo.no/pages/viewpage.action?pageId=173827808
  <p>
  Aktiviteter som inngår er:
  <ul>
- <li>Arbeid - registrert arbeidsforhold i AA-registeret</li>
+ <li>Arbeid - registrert arbeidsforhold i Aa-registeret</li>
  <li>Næring - Registrert i Enhetsregisteret som selvstendig næringsdrivende</li>
  <li>Ytelser - Dagpenger, Arbeidsavklaringspenger, Foreldrepenger, Sykepenger, Svangerskapspenger, Opplæringspenger,
  Omsorgspenger og Pleiepenger</li>
