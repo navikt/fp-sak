@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.formidling.rest.dto;
 
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.SkjæringstidspunktDto;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.AvslagÅrsak;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.BehandlingResultatType;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.KonsekvensForYtelsen;

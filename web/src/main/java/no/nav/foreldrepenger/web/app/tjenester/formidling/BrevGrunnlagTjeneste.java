@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.*;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -32,7 +33,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidsforhold.InntektArbeidYtelseRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.BeregningsresultatRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.SkjæringstidspunktDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.innsyn.InnsynRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.KlageRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.SøknadRestTjeneste;
@@ -46,10 +46,7 @@ import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRe
 import no.nav.foreldrepenger.web.app.tjenester.formidling.arbeidsforholdInntektsmelding.ArbeidsforholdInntektsmeldingFormidlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag.BeregningsgrunnlagFormidlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.FormidlingRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.dto.BehandlingsresultatDto;
-import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.dto.BrevGrunnlagResponseDto;
-import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.dto.FagsakDto;
-import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.dto.VergeDto;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.dto.*;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.AvslagÅrsak;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.BehandlingResultatType;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.KonsekvensForYtelsen;
@@ -339,10 +336,15 @@ public class BrevGrunnlagTjeneste {
             return Optional.empty();
         }
         try {
-            return SkjæringstidspunktDto.fraSkjæringstidspunkt(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
+            return fraSkjæringstidspunkt(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
         } catch (Exception e) {
             return Optional.empty();
         }
+    }
+
+    public static Optional<SkjæringstidspunktDto> fraSkjæringstidspunkt(Skjæringstidspunkt skjæringstidspunkt) {
+        var dato = Optional.ofNullable(skjæringstidspunkt).flatMap(Skjæringstidspunkt::getSkjæringstidspunktHvisUtledet);
+        return dato.map(d -> new SkjæringstidspunktDto(d, skjæringstidspunkt.utenMinsterett()));
     }
 
     private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {
