@@ -97,6 +97,9 @@ public final class KalkulusTilFpsakMapper {
         if (faktaAktør.getSkalBeregnesSomMilitær() != null) {
             builder.medErMilitærSiviltjeneste(new FaktaVurdering(faktaAktør.getSkalBeregnesSomMilitær(), FaktaVurderingKilde.SAKSBEHANDLER));
         }
+        if (faktaAktør.getMottarEtterlønnSluttpakke() != null) {
+            builder.medMottarEtterlønnSluttpakke(new FaktaVurdering(faktaAktør.getMottarEtterlønnSluttpakke(), FaktaVurderingKilde.SAKSBEHANDLER));
+        }
         if (faktaAktør.getErNyoppstartetFL() != null) {
             builder.medErNyoppstartetFL(new FaktaVurdering(faktaAktør.getErNyoppstartetFL(), FaktaVurderingKilde.SAKSBEHANDLER));
         }
