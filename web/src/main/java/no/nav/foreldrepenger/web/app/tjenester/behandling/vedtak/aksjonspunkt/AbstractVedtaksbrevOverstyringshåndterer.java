@@ -56,7 +56,7 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         if (dto.isSkalBrukeOverstyrendeFritekstBrev()) {
             oppdaterFritekstVedtaksbrev(dto, param);
         } else {
-            fjernFritekstBrevHvisEksisterer(param.getBehandlingId());
+            fjernFritekstBrevHvisEksisterer(behandling);
         }
         opprettHistorikkinnslag(param.getRef(), behandling, toTrinn);
         if (toTrinn) {
@@ -98,7 +98,8 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         }
     }
 
-    private void fjernFritekstBrevHvisEksisterer(long behandlingId) {
+    private void fjernFritekstBrevHvisEksisterer(Behandling behandling) {
+        var behandlingId = behandling.getId();
         var eksisterendeBehandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingId);
         if (eksisterendeBehandlingDokument.isPresent() && erFritekst(eksisterendeBehandlingDokument.get())) {
             var behandlingDokument = getBehandlingDokumentBuilder(eksisterendeBehandlingDokument)
@@ -113,7 +114,7 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         if (behandlingsresultatOpt.isPresent() && Vedtaksbrev.FRITEKST.equals(behandlingsresultatOpt.get().getVedtaksbrev())) {
             var behandlingResultat = Behandlingsresultat.builderEndreEksisterende(behandlingsresultatOpt.get())
                 .medVedtaksbrev(Vedtaksbrev.AUTOMATISK)
-                .build();
+                .buildFor(behandling);
             behandlingsresultatRepository.lagre(behandlingId, behandlingResultat);
         }
     }
