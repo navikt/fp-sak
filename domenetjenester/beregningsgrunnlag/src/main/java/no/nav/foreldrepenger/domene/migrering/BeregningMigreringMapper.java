@@ -1,12 +1,10 @@
 package no.nav.foreldrepenger.domene.migrering;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -446,10 +444,7 @@ public class BeregningMigreringMapper {
             .flatMap(BeregningsgrunnlagPrStatusOgAndel::getBeregningsgrunnlagFrilansAndel)
             .map(BeregningsgrunnlagFrilansAndel::getNyoppstartet)
             .map(b -> new FaktaVurderingMigreringDto(b, FaktaVurderingKilde.SAKSBEHANDLER));
-        var etterlønnSluttpakkeAndeler = andelListe.stream()
-            .filter(a -> a.getArbeidsforholdType().equals(OpptjeningAktivitetType.ETTERLØNN_SLUTTPAKKE))
-            .toList();
-        var etterlønnSluttpakkeFaktaAvklaring = utledFaktaAvklaringEtterlønn(etterlønnSluttpakkeAndeler);
+        var etterlønnSluttpakkeFaktaAvklaring = utledFaktaAvklaringEtterlønn(tilfeller);
         var skalBesteberegnesVurdering = sjekkOmErBesteberegnetManuelt(tilfeller, andelListe);
         var erMilitærVurdering = sjekkOmErVurdertMilitær(tilfeller, andelListe);
 
@@ -490,14 +485,14 @@ public class BeregningMigreringMapper {
         return Optional.of(new FaktaVurderingMigreringDto(harSattManuellBesteberegning, FaktaVurderingKilde.SAKSBEHANDLER));
     }
 
-    private static Optional<FaktaVurderingMigreringDto> utledFaktaAvklaringEtterlønn(List<BeregningsgrunnlagPrStatusOgAndel> etterlønnSluttpakkeAndeler) {
-        if (etterlønnSluttpakkeAndeler.isEmpty()) {
+    private static Optional<FaktaVurderingMigreringDto> utledFaktaAvklaringEtterlønn(List<FaktaOmBeregningTilfelle> tilfeller) {
+        var harVurderEtterønnTilfelle = tilfeller.stream().anyMatch(b -> b.equals(FaktaOmBeregningTilfelle.VURDER_ETTERLØNN_SLUTTPAKKE));
+        if (!harVurderEtterønnTilfelle) {
             return Optional.empty();
         }
-        var erManueltFastsattHøyereEnn0 = etterlønnSluttpakkeAndeler.stream()
-            .anyMatch(a -> Boolean.TRUE.equals(a.getFastsattAvSaksbehandler()) && a.getBeregnetPrÅr() != null
-                && a.getBeregnetPrÅr().compareTo(BigDecimal.ZERO) > 0);
-        return erManueltFastsattHøyereEnn0 ?
+        var harFastsattEtterlønnSluttpakke = tilfeller.stream()
+            .anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle.FASTSETT_ETTERLØNN_SLUTTPAKKE));
+        return harFastsattEtterlønnSluttpakke ?
             Optional.of(new FaktaVurderingMigreringDto(Boolean.TRUE, FaktaVurderingKilde.SAKSBEHANDLER))
             : Optional.of(new FaktaVurderingMigreringDto(Boolean.FALSE, FaktaVurderingKilde.SAKSBEHANDLER));
     }
