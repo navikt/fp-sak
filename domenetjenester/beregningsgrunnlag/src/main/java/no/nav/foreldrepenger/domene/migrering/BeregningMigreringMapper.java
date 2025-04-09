@@ -486,7 +486,7 @@ public class BeregningMigreringMapper {
         if (!harVurderManuellBesteberegningTilfelle) {
             return Optional.empty();
         }
-        var harSattManuellBesteberegning = andelListe.stream().anyMatch(a -> a.getBesteberegningPrÅr() != null && a.getBesteberegningPrÅr().compareTo(BigDecimal.ZERO)>0);
+        var harSattManuellBesteberegning = andelListe.stream().anyMatch(a -> a.getBesteberegningPrÅr() != null);
         return Optional.of(new FaktaVurderingMigreringDto(harSattManuellBesteberegning, FaktaVurderingKilde.SAKSBEHANDLER));
     }
 
