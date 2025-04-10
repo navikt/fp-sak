@@ -60,7 +60,9 @@ public class BeregningsgrunnlagKoblingRepository {
     }
 
     public BeregningsgrunnlagKobling oppdaterKoblingMedStpOgGrunnbeløp(BeregningsgrunnlagKobling kobling, Beløp g, LocalDate skjæringstidspunkt) {
-        kobling.oppdaterMedGrunnbeløp(g);
+        if (g != null) {
+            kobling.oppdaterMedGrunnbeløp(g);
+        }
         kobling.oppdaterMedSkjæringstidspunkt(skjæringstidspunkt);
         lagreKobling(kobling);
         return kobling;

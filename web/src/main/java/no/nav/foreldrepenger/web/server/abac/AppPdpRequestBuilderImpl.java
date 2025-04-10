@@ -49,21 +49,61 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
     @Override
     public AppRessursData lagAppRessursDataForSystembruker(AbacDataAttributter dataAttributter) {
         // Slår opp behandling/fagsak men ikke alle aktører i saken. Trenger kun behandlingstatus/fagsakstatus
-        return lagAppressursDataInternt(dataAttributter, true);
+        var behandlingUuid = utledBehandling(dataAttributter);
+        var behandlingData = behandlingUuid.flatMap(pipRepository::hentDataForBehandlingUuid);
+        var saksnummer = utledSaksnummer(dataAttributter, behandlingData.orElse(null));
+
+        setLogContext(saksnummer, behandlingData);
+
+        var builder = AppRessursData.builder();
+        behandlingData.map(PipBehandlingsData::behandlingStatus).flatMap(AppPdpRequestBuilderImpl::oversettBehandlingStatus)
+            .ifPresent(builder::medBehandlingStatus);
+        behandlingData.map(PipBehandlingsData::fagsakStatus).flatMap(AppPdpRequestBuilderImpl::oversettFagstatus)
+            .ifPresent(builder::medFagsakStatus);
+        return builder.build();
+
     }
 
     @Override
     public AppRessursData lagAppRessursData(AbacDataAttributter dataAttributter) {
-        return lagAppressursDataInternt(dataAttributter, false);
-    }
-
-    public AppRessursData lagAppressursDataInternt(AbacDataAttributter dataAttributter, boolean systembruker) {
         var behandlingUuid = utledBehandling(dataAttributter);
         var behandlingData = behandlingUuid.flatMap(pipRepository::hentDataForBehandlingUuid);
         var saksnummer = utledSaksnummer(dataAttributter, behandlingData.orElse(null));
 
         behandlingData.ifPresent(d -> validerSamsvarBehandlingOgFagsak(d, saksnummer));
 
+        setLogContext(saksnummer, behandlingData);
+
+        var builder = AppRessursData.builder();
+
+        // TODO - finn ut måte å håndtere autotest med mye polling før sakskobling - eller slå seg til ro med dagens opplegg
+        Set<String> aktører = new HashSet<>(dataAttributter.getVerdier(AppAbacAttributtType.AKTØR_ID));
+        saksnummer.map(Saksnummer::getVerdi)
+            .ifPresent(s -> aktører.addAll(pipRepository.hentAktørIdKnyttetTilSaksnummer(s).stream().map(AktørId::getId).toList()));
+        Set<String> fnrs = dataAttributter.getVerdier(AppAbacAttributtType.FNR);
+
+        builder.leggTilAktørIdSet(aktører)
+            .leggTilFødselsnumre(fnrs);
+        // TODO - finn ut måte å håndtere autotest med mye polling før sakskobling - eller slå seg til ro med dagens opplegg
+        //saksnummer.map(Saksnummer::getVerdi).ifPresent(builder::medSaksnummer);
+        behandlingData.map(PipBehandlingsData::behandlingStatus).flatMap(AppPdpRequestBuilderImpl::oversettBehandlingStatus)
+            .ifPresent(builder::medBehandlingStatus);
+        behandlingData.map(PipBehandlingsData::fagsakStatus).flatMap(AppPdpRequestBuilderImpl::oversettFagstatus)
+            .ifPresent(builder::medFagsakStatus);
+        behandlingData.flatMap(PipBehandlingsData::getAnsvarligSaksbehandler)
+            .ifPresent(builder::medAnsvarligSaksbehandler);
+        var aksjonspunktTypeOverstyring = PipRepository.harAksjonspunktTypeOverstyring(dataAttributter.getVerdier(AppAbacAttributtType.AKSJONSPUNKT_DEFINISJON));
+        if (aksjonspunktTypeOverstyring) {
+            builder.medOverstyring(PipOverstyring.OVERSTYRING);
+        }
+
+        var auditAktørId = utledAuditAktørId(dataAttributter, saksnummer);
+        builder.medAuditIdent(auditAktørId);
+        return builder.build();
+
+    }
+
+    private static void setLogContext(Optional<Saksnummer> saksnummer, Optional<PipBehandlingsData> behandlingData) {
         saksnummer.ifPresent(s -> {
             MDC_EXTENDED_LOG_CONTEXT.remove("fagsak");
             MDC_EXTENDED_LOG_CONTEXT.add("fagsak", s);
@@ -74,34 +114,6 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
             MDC_EXTENDED_LOG_CONTEXT.remove("behandlingId"); // Forenkler oppslag ved feilfinning
             MDC_EXTENDED_LOG_CONTEXT.add("behandlingId", bd.behandlingId());
         });
-
-        // TODO - finn ut måte å håndtere autotest med mye polling før sakskobling
-        Set<String> aktører = new HashSet<>(dataAttributter.getVerdier(AppAbacAttributtType.AKTØR_ID));
-        saksnummer.map(Saksnummer::getVerdi)
-            .ifPresent(s -> aktører.addAll(pipRepository.hentAktørIdKnyttetTilSaksnummer(s).stream().map(AktørId::getId).toList()));
-        Set<String> fnrs = dataAttributter.getVerdier(AppAbacAttributtType.FNR);
-
-        var builder = AppRessursData.builder()
-            .leggTilAktørIdSet(aktører)
-            .leggTilFødselsnumre(fnrs);
-
-        // TODO - finn ut måte å håndtere autotest med mye polling før sakskobling
-        //saksnummer.map(Saksnummer::getVerdi).ifPresent(builder::medSaksnummer);
-        behandlingData.flatMap(PipBehandlingsData::getAnsvarligSaksbehandler)
-            .ifPresent(builder::medAnsvarligSaksbehandler);
-        behandlingData.map(PipBehandlingsData::behandlingStatus).flatMap(AppPdpRequestBuilderImpl::oversettBehandlingStatus)
-            .ifPresent(builder::medBehandlingStatus);
-        behandlingData.map(PipBehandlingsData::fagsakStatus).flatMap(AppPdpRequestBuilderImpl::oversettFagstatus)
-            .ifPresent(builder::medFagsakStatus);
-        var aksjonspunktTypeOverstyring = PipRepository.harAksjonspunktTypeOverstyring(dataAttributter.getVerdier(AppAbacAttributtType.AKSJONSPUNKT_DEFINISJON));
-        if (aksjonspunktTypeOverstyring) {
-            builder.medOverstyring(PipOverstyring.OVERSTYRING);
-        }
-        if (!systembruker) {
-            var auditAktørId = utledAuditAktørId(dataAttributter, saksnummer);
-            builder.medAuditIdent(auditAktørId);
-        }
-        return builder.build();
     }
 
     private Optional<UUID> utledBehandling(AbacDataAttributter attributter) {
