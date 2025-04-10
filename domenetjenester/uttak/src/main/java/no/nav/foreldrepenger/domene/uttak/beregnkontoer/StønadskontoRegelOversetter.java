@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.RettighetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
@@ -36,16 +36,18 @@ public class StønadskontoRegelOversetter {
                                                        UttakCore2024 uttakCore2024) {
 
         var familieHendelse = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
-        var annenForeldreHarRett = ytelseFordelingAggregat.harAnnenForelderRett(annenpartsGjeldendeUttaksplan.filter(ForeldrepengerUttak::harUtbetaling).isPresent());
 
+        var rettighetType = ytelseFordelingAggregat.getRettighetType(
+            annenpartsGjeldendeUttaksplan.stream().anyMatch(ForeldrepengerUttak::harUtbetaling), ref.relasjonRolle(),
+            fpGrunnlag.getUføretrygdGrunnlag().orElse(null));
         var grunnlagBuilder = BeregnKontoerGrunnlag.builder()
             .regelvalgsdato(uttakCore2024.utledRegelvalgsdato(familieHendelse))
             .antallBarn(familieHendelse.getAntallBarn())
             .dekningsgrad(map(dekningsgrad))
             .brukerRolle(UttakEnumMapper.mapTilBeregning(ref.relasjonRolle()))
-            .rettighetType(mapRettighet(ref.relasjonRolle(), ytelseFordelingAggregat, annenForeldreHarRett))
+            .rettighetType(mapRettigshetstype(rettighetType))
             .tidligereUtregning(mapTilStønadskontoBeregning(tidligereUtregning))
-            .morHarUføretrygd(ytelseFordelingAggregat.morMottarUføretrygd(fpGrunnlag.getUføretrygdGrunnlag().orElse(null)))
+            .morHarUføretrygd(rettighetType.equals(RettighetType.BARE_FAR_RETT_MOR_UFØR))
             .familieHendelseDatoNesteSak(familieHendelseNesteSak(fpGrunnlag).orElse(null));
 
 
@@ -53,6 +55,14 @@ public class StønadskontoRegelOversetter {
         utledRegelvalgsdato(skjæringstidspunkt, dekningsgrad, familieHendelse).ifPresent(grunnlagBuilder::regelvalgsdato);
         return grunnlagBuilder
             .build();
+    }
+
+    private static Rettighetstype mapRettigshetstype(RettighetType rettighetType) {
+        return switch (rettighetType) {
+            case ALENEOMSORG -> Rettighetstype.ALENEOMSORG;
+            case BEGGE_RETT, BEGGE_RETT_EØS -> Rettighetstype.BEGGE_RETT;
+            case BARE_SØKER_RETT, BARE_FAR_RETT_MOR_UFØR -> Rettighetstype.BARE_SØKER_RETT;
+        };
     }
 
     private static void leggTilFamileHendelseDatoer(BeregnKontoerGrunnlag.Builder grunnlagBuilder,
@@ -63,17 +73,6 @@ public class StønadskontoRegelOversetter {
             grunnlagBuilder.termindato(gjeldendeFamilieHendelse.getTermindato().orElse(null));
         } else {
             grunnlagBuilder.omsorgsovertakelseDato(gjeldendeFamilieHendelse.getOmsorgsovertakelse().orElseThrow());
-        }
-    }
-
-    private static Rettighetstype mapRettighet(RelasjonsRolleType relasjonsRolleType, YtelseFordelingAggregat ytelseFordelingAggregat, boolean annenForeldreHarRett) {
-        // Skal være avklart på dette tidspunktet - forsiktig med metoder som har fallback til oppgitt rettighet pga nyere førstegangssøknader.
-        if (ytelseFordelingAggregat.robustHarAleneomsorg(relasjonsRolleType)) {
-            return Rettighetstype.ALENEOMSORG;
-        } else if (annenForeldreHarRett) {
-            return Rettighetstype.BEGGE_RETT;
-        } else {
-            return Rettighetstype.BARE_SØKER_RETT;
         }
     }
 
