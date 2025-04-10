@@ -107,6 +107,7 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
                     .medOverstyrtBrevOverskrift(null)
                     .medOverstyrtBrevFritekst(null)
                     .medOverstyrtBrevFritekstHtml(null)
+                    .medOverstyrtBrevUtgangspunktHtml(null)
                     .build();
             behandlingDokumentRepository.lagreOgFlush(behandlingDokument);
         }

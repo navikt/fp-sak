@@ -186,11 +186,18 @@ public class DokumentBehandlingTjeneste {
             .map(BehandlingDokumentEntitet::getOverstyrtBrevFritekstHtml);
     }
 
-    public void lagreOverstyrtBrev(Behandling behandling, String html) {
+    public String hentOverstyrtBrevUtgangspunktHtml(Long behandlingId) {
+        return behandlingDokumentRepository.hentHvisEksisterer(behandlingId)
+            .map(BehandlingDokumentEntitet::getOverstyrtBrevUtgangspunktHtml)
+            .orElseThrow();
+    }
+
+    public void lagreOverstyrtBrev(Behandling behandling, String html, String orginalHtml) {
         var behandlingDokumentBuilder = getBehandlingDokumentBuilder(behandling.getId());
         behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder
             .medBehandling(behandling.getId())
             .medOverstyrtBrevFritekstHtml(html)
+            .medOverstyrtBrevUtgangspunktHtml(fjernWhitespace(orginalHtml))
             .build());
     }
 
@@ -209,5 +216,9 @@ public class DokumentBehandlingTjeneste {
 
     private BehandlingDokumentEntitet.Builder getBehandlingDokumentBuilder(Optional<BehandlingDokumentEntitet> behandlingDokument) {
         return behandlingDokument.map(BehandlingDokumentEntitet.Builder::fraEksisterende).orElseGet(BehandlingDokumentEntitet.Builder::ny);
+    }
+
+    public static String fjernWhitespace(String text) {
+        return text.replaceAll("\\s", "");
     }
 }
