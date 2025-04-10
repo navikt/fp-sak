@@ -72,7 +72,12 @@ import no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class BeregningMigreringMapper {
+    private static final Logger LOG = LoggerFactory.getLogger(BeregningMigreringMapper.class);
+
     private BeregningMigreringMapper() {
         // Skjuler default
     }
@@ -218,7 +223,7 @@ public class BeregningMigreringMapper {
         dto.setDagsatsBruker(entitet.getDagsatsBruker());
 
         // Grunnlag
-        dto.setBruttoPrÅr(mapBeløp(entitet.getBruttoPrÅr()));
+        dto.setBruttoPrÅr(mapBeløp(finnBrutto(entitet)));
         dto.setBeregnetPrÅr(mapBeløp(entitet.getBeregnetPrÅr()));
         dto.setOverstyrtPrÅr(mapBeløp(entitet.getOverstyrtPrÅr()));
         dto.setBesteberegningPrÅr(mapBeløp(entitet.getBesteberegningPrÅr()));
@@ -235,6 +240,15 @@ public class BeregningMigreringMapper {
 
         settOpprettetOgEndretFelter(entitet, dto);
         return dto;
+    }
+
+    private static BigDecimal finnBrutto(BeregningsgrunnlagPrStatusOgAndel andelEntitet) {
+        // Pga FP-6085 trenger vi denne sjekken for å vite hva som skal migreres til kalkulus
+        if (andelEntitet.getBeregnetPrÅr() == null && andelEntitet.getOverstyrtPrÅr() == null && andelEntitet.getBruttoPrÅr() == null && andelEntitet.getFordeltPrÅr() != null) {
+            LOG.warn("Grunnlag mangler brutto, beregnet og overstyrt, men har satt fordelt. Bruker fordelt som brutto under migrering");
+            return andelEntitet.getFordeltPrÅr();
+        }
+        return andelEntitet.getBruttoPrÅr();
     }
 
     private static BGAndelArbeidsforholdMigreringDto mapBgAndelArbeidsforhold(BGAndelArbeidsforhold entitet) {
