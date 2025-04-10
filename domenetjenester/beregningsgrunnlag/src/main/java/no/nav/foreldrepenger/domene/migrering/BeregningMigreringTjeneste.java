@@ -160,7 +160,8 @@ public class BeregningMigreringTjeneste {
     private void oppdaterKoblingMedStpGrunnbeløpOgReguleringsbehov(BeregningsgrunnlagKobling kobling, BeregningsgrunnlagDto grunnlag) {
         var stp = grunnlag.getSkjæringstidspunkt();
         var grunnbeløp = grunnlag.getGrunnbeløp() == null ? null : Beløp.fra(grunnlag.getGrunnbeløp().verdi());
-        var harBehovForGRegulering = GrunnbeløpReguleringsutleder.kanPåvirkesAvGrunnbeløpRegulering(KalkulusTilFpsakMapper.mapGrunnlag(grunnlag, Optional.empty()));
+        var harBehovForGRegulering = grunnbeløp != null && GrunnbeløpReguleringsutleder.kanPåvirkesAvGrunnbeløpRegulering(
+            KalkulusTilFpsakMapper.mapGrunnlag(grunnlag, Optional.empty()));
         koblingRepository.oppdaterKoblingMedStpOgGrunnbeløp(kobling, grunnbeløp, stp);
         koblingRepository.oppdaterKoblingMedReguleringsbehov(kobling, harBehovForGRegulering);
     }

@@ -118,7 +118,7 @@ class BeregningMigreringTjenesteTest {
         var saksnummer = new Saksnummer("123");
         var behandling = lagBehandling();
         var ref = BehandlingReferanse.fra(behandling);
-        var grunnlag = lagGrunnlagEntitet(no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagRegelType.PERIODISERING, null, "input");
+        var grunnlag = lagGrunnlagEntitet(no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagRegelType.PERIODISERING, null, "input", BigDecimal.valueOf(100000));
         when(beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(any())).thenReturn(Optional.of(grunnlag));
         when(behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(saksnummer)).thenReturn(List.of(behandling));
         when(behandlingRepository.hentBehandling(anyLong())).thenReturn(behandling);
@@ -136,6 +136,29 @@ class BeregningMigreringTjenesteTest {
         verify(koblingRepository, times(1)).oppdaterKoblingMedStpOgGrunnbeløp(kobling, grunnlag.getBeregningsgrunnlag().get().getGrunnbeløp(), grunnlag.getBeregningsgrunnlag().get().getSkjæringstidspunkt());
     }
 
+    @Test
+    void skal_migrere_uten_grunnbeløp() {
+        // Arrange
+        var saksnummer = new Saksnummer("123");
+        var behandling = lagBehandling();
+        var ref = BehandlingReferanse.fra(behandling);
+        var grunnlag = lagGrunnlagEntitet(no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagRegelType.PERIODISERING, null, "input", null);
+        when(beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(any())).thenReturn(Optional.of(grunnlag));
+        when(behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(saksnummer)).thenReturn(List.of(behandling));
+        when(behandlingRepository.hentBehandling(anyLong())).thenReturn(behandling);
+        when(koblingRepository.hentKobling(any())).thenReturn(Optional.empty());
+        when(regelsporingMigreringTjeneste.finnRegelsporingGrunnlag(any(), any())).thenReturn(grunnlag.getBeregningsgrunnlag().get().getRegelSporinger());
+        var kobling = new BeregningsgrunnlagKobling(ref.behandlingId(), ref.behandlingUuid());
+        when(koblingRepository.opprettKobling(any())).thenReturn(kobling);
+        when(klient.migrerGrunnlag(any())).thenReturn(new MigrerBeregningsgrunnlagResponse(lagGrunnlagDto(null), null, List.of(), List.of(new MigrerBeregningsgrunnlagResponse.RegelsporingGrunnlag(
+            BeregningsgrunnlagRegelType.PERIODISERING, null, "input", null)), List.of()));
+
+        // Act
+        beregningMigreringTjeneste.migrerSak(saksnummer);
+
+        // Assert
+        verify(koblingRepository, times(1)).oppdaterKoblingMedStpOgGrunnbeløp(kobling, null, grunnlag.getBeregningsgrunnlag().get().getSkjæringstidspunkt());
+    }
 
     @Test
     void skal_sortere_behandlinger_i_klassisk_rekkefølge() {
@@ -248,23 +271,27 @@ class BeregningMigreringTjenesteTest {
         return gr;
     }
 
-    private BeregningsgrunnlagGrunnlagEntitet lagGrunnlagEntitet(no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagRegelType regelType, String evaluering, String input) {
+    private BeregningsgrunnlagGrunnlagEntitet lagGrunnlagEntitet(no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagRegelType regelType, String evaluering, String input, BigDecimal grunnbeløp) {
         var beregningsgrunnlagPeriode = new BeregningsgrunnlagPeriode.Builder().medBeregningsgrunnlagPeriode(LocalDate.now(), Tid.TIDENES_ENDE).medBruttoPrÅr(
             BigDecimal.valueOf(100_000)).medAvkortetPrÅr(BigDecimal.valueOf(100_000)).medRedusertPrÅr(BigDecimal.valueOf(100_000));
-        var grunnbeløp = Beløp.av(100000);
-        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
+        var beregningsgrunnlagBuilder = BeregningsgrunnlagEntitet.ny()
             .medSkjæringstidspunkt(LocalDate.now())
-            .medGrunnbeløp(grunnbeløp)
             .medRegelSporing(input, evaluering, regelType, null)
             .leggTilBeregningsgrunnlagPeriode(beregningsgrunnlagPeriode)
             .leggTilAktivitetStatus(new BeregningsgrunnlagAktivitetStatus.Builder().medAktivitetStatus(AktivitetStatus.KOMBINERT_AT_FL).medHjemmel(
-                Hjemmel.F_14_7_8_40))
-            .build();
-        var gr = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(1L, BeregningsgrunnlagTilstand.FASTSATT);
+                Hjemmel.F_14_7_8_40));
+        if (grunnbeløp != null) {
+            beregningsgrunnlagBuilder.medGrunnbeløp(grunnbeløp);
+        }
+        var gr = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlagBuilder.build()).build(1L, BeregningsgrunnlagTilstand.FASTSATT);
         return gr;
     }
 
     private BeregningsgrunnlagGrunnlagDto lagGrunnlagDto() {
+        return lagGrunnlagDto(BigDecimal.valueOf(100000));
+    }
+
+    private BeregningsgrunnlagGrunnlagDto lagGrunnlagDto(BigDecimal grunnbeløp) {
         var beregningsgrunnlagPeriodeDto = new BeregningsgrunnlagPeriodeDto(List.of(), new Periode(LocalDate.now(), Tid.TIDENES_ENDE),
             new no.nav.folketrygdloven.kalkulus.felles.v1.Beløp(BigDecimal.valueOf(100_000)),
             new no.nav.folketrygdloven.kalkulus.felles.v1.Beløp(BigDecimal.valueOf(100_000)),
@@ -272,7 +299,7 @@ class BeregningMigreringTjenesteTest {
         var status = new BeregningsgrunnlagAktivitetStatusDto(
             no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus.KOMBINERT_AT_FL, no.nav.folketrygdloven.kalkulus.kodeverk.Hjemmel.F_14_7_8_40);
         var bgDto = new BeregningsgrunnlagDto(LocalDate.now(), List.of(), List.of(beregningsgrunnlagPeriodeDto), List.of(), List.of(),
-            false, new no.nav.folketrygdloven.kalkulus.felles.v1.Beløp(BigDecimal.valueOf(100_000)), List.of(status));
+            false, grunnbeløp == null ? null : new no.nav.folketrygdloven.kalkulus.felles.v1.Beløp(grunnbeløp), List.of(status));
         var grDto = new BeregningsgrunnlagGrunnlagDto(bgDto, null, new BeregningAktivitetAggregatDto(List.of(), LocalDate.now()), null, null, null,
             no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand.FASTSATT);
         return grDto;
