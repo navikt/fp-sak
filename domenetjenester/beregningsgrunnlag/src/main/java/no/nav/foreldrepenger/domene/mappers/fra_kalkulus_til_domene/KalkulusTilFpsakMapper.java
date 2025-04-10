@@ -139,7 +139,11 @@ public final class KalkulusTilFpsakMapper {
 
     private static BeregningRefusjonOverstyringer mapRefusjonoverstyringer(BeregningRefusjonOverstyringerDto refusjonOverstyringer) {
         var builder = BeregningRefusjonOverstyringer.builder();
-        refusjonOverstyringer.getOverstyringer().stream().map(KalkulusTilFpsakMapper::mapRefusjonoverstyring).forEach(builder::leggTilOverstyring);
+        refusjonOverstyringer.getOverstyringer().stream()
+            .map(KalkulusTilFpsakMapper::mapRefusjonoverstyring)
+            .sorted(Comparator.comparing(BeregningRefusjonOverstyring::getFørsteMuligeRefusjonFom, Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(a -> a.getArbeidsgiver().getIdentifikator()))
+            .forEach(builder::leggTilOverstyring);
         return builder.build();
     }
 
@@ -152,6 +156,8 @@ public final class KalkulusTilFpsakMapper {
             .map(rp -> new BeregningRefusjonPeriode(
                 rp.getArbeidsforholdRef() == null ? InternArbeidsforholdRef.nullRef() : InternArbeidsforholdRef.ref(
                     rp.getArbeidsforholdRef().getAbakusReferanse()), rp.getStartdatoRefusjon()))
+            .sorted(Comparator.comparing(BeregningRefusjonPeriode::getStartdatoRefusjon)
+                .thenComparing(a -> a.getArbeidsforholdRef().getReferanse(), Comparator.nullsLast(Comparator.naturalOrder())))
             .toList();
         return new BeregningRefusjonOverstyring(mapArbeidsgiver(r.getArbeidsgiver()), r.getFørsteMuligeRefusjonFom(), Boolean.TRUE.equals(r.getErFristUtvidet()), refusjonsperioder);
     }
