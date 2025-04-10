@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.mappers.fra_entitet_til_domene;
 
+import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -77,7 +78,11 @@ public class FraEntitetTilBehandlingsmodellMapper {
 
     private static BeregningRefusjonOverstyringer mapRefusjonOverstyringer(BeregningRefusjonOverstyringerEntitet refusjonOverstyringAggregat) {
         var builder = BeregningRefusjonOverstyringer.builder();
-        refusjonOverstyringAggregat.getRefusjonOverstyringer().stream().map(FraEntitetTilBehandlingsmodellMapper::mapRefusjonOverstyring).forEach(builder::leggTilOverstyring);
+        refusjonOverstyringAggregat.getRefusjonOverstyringer().stream()
+            .map(FraEntitetTilBehandlingsmodellMapper::mapRefusjonOverstyring)
+            .sorted(Comparator.comparing(BeregningRefusjonOverstyring::getFørsteMuligeRefusjonFom, Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(a -> a.getArbeidsgiver().getIdentifikator()))
+            .forEach(builder::leggTilOverstyring);
         return builder.build();
     }
 
@@ -85,6 +90,8 @@ public class FraEntitetTilBehandlingsmodellMapper {
         var perioder = refusjonOverstyring.getRefusjonPerioder()
             .stream()
             .map(r -> new BeregningRefusjonPeriode(r.getArbeidsforholdRef(), r.getStartdatoRefusjon()))
+            .sorted(Comparator.comparing(BeregningRefusjonPeriode::getStartdatoRefusjon)
+                .thenComparing(a -> a.getArbeidsforholdRef().getReferanse(), Comparator.nullsLast(Comparator.naturalOrder())))
             .toList();
         return new BeregningRefusjonOverstyring(refusjonOverstyring.getArbeidsgiver(), refusjonOverstyring.getFørsteMuligeRefusjonFom().orElse(null),
             Boolean.TRUE.equals(refusjonOverstyring.getErFristUtvidet()), perioder);
@@ -254,7 +261,7 @@ public class FraEntitetTilBehandlingsmodellMapper {
             .medAvkortetRefusjonPrÅr(andelEntitet.getAvkortetRefusjonPrÅr())
             .medBeregnetPrÅr(andelEntitet.getBeregnetPrÅr())
             .medBesteberegnetPrÅr(andelEntitet.getBesteberegningPrÅr())
-            .medBruttoPrÅr(andelEntitet.getBruttoPrÅr())
+            .medBruttoPrÅr(finnBrutto(andelEntitet))
             .medDagsatsBruker(andelEntitet.getDagsatsBruker())
             .medDagsatsArbeidsgiver(andelEntitet.getDagsatsArbeidsgiver())
             .medKilde(andelEntitet.getKilde())
@@ -284,6 +291,14 @@ public class FraEntitetTilBehandlingsmodellMapper {
                     andelEntitet.getPgi3()));
         }
         return builder.build();
+    }
+
+    private static BigDecimal finnBrutto(BeregningsgrunnlagPrStatusOgAndel andelEntitet) {
+        // Pga FP-6085 trenger vi denne sjekken for å gi lik sammenligning med kalkulus grunnlag
+        if (andelEntitet.getBeregnetPrÅr() == null && andelEntitet.getOverstyrtPrÅr() == null && andelEntitet.getBruttoPrÅr() == null && andelEntitet.getFordeltPrÅr() != null) {
+            return andelEntitet.getFordeltPrÅr();
+        }
+        return andelEntitet.getBruttoPrÅr();
     }
 
     private static no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold.Builder mapBgAndelArbeidsforhold(BGAndelArbeidsforhold bgAndelArbeidsforhold) {
