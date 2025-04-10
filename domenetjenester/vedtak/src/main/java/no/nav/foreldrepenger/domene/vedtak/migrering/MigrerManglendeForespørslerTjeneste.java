@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.fpinntektsmelding.OrganisasjonsnummerDto;
+import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.svp.MaksDatoUttakTjenesteImpl;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -66,6 +67,7 @@ public class MigrerManglendeForespørslerTjeneste {
         sisteYtelsebehandling.ifPresent(behandling -> {
             var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
             var uttakInput = uttakInputTjeneste.lagInput(behandling);
+
             if (stp == null) {
                 LOG.info("MIGRER-FP: Saksnummer {} har ingen skjæringstidspunkt. Ingen forespørsel opprettes", sak.getSaksnummer());
                 return;
@@ -73,15 +75,17 @@ public class MigrerManglendeForespørslerTjeneste {
             if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsak().getYtelseType())) {
                 var saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput);
                 var stønadRest = stønadskontoSaldoTjeneste.finnStønadRest(saldoUtregning);
-                if (stønadRest < 1) {
-                    LOG.info("MIGRER-FP: Saksnummer {} har ikke nok dager igjen på saldo til å opprette forespørsel. Stønadrest er: {}",
-                        sak.getSaksnummer(), stønadRest);
+                ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
+                var fødselsdato = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getFødselsdato().orElse(Tid.TIDENES_BEGYNNELSE);
+                if (stønadRest < 1 || fødselsdato.plusYears(3).plusDays(1).isBefore(LocalDate.now())) {
+                    LOG.info("MIGRER-FP: Ingen forespørsel opprettes for saksnummer {}. Fp-saken har ikke uttaksdager igjen, eller barnet er over 3 år. ",
+                        sak.getSaksnummer());
                     return;
                 }
             } else {
                 var sisteUttaksdato = maksDatoUttakTjenesteSvp.beregnMaksDatoUttak(uttakInput).orElse(Tid.TIDENES_BEGYNNELSE);
-                if (sisteUttaksdato.plusDays(10).isBefore(LocalDate.now())) {
-                    LOG.info("MIGRER-FP: Saksnummer {} har ingen uttaksperioder. Ingen forespørsel opprettes", sak.getSaksnummer());
+                if (sisteUttaksdato.isBefore(LocalDate.now())) {
+                    LOG.info("MIGRER-FP: Ingen forespørsel opprettes for saksnummer {}. Svp-saken har ikke uttaksdager igjen. ", sak.getSaksnummer());
                     return;
                 }
             }
