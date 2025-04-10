@@ -7,8 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -19,21 +21,33 @@ public class SendVedtaksbrevTask extends BehandlingProsessTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(SendVedtaksbrevTask.class);
 
-    private SendVedtaksbrev tjeneste;
+    private BehandlingVedtakRepository behandlingVedtakRepository;
+    private SkalSendeVedtaksbrevUtleder skalSendeVedtaksbrevUtleder;
+    private DokumentBestillerTjeneste dokumentBestillerTjeneste;
 
     SendVedtaksbrevTask() {
         // for CDI proxy
     }
 
     @Inject
-    public SendVedtaksbrevTask(SendVedtaksbrev tjeneste, BehandlingRepositoryProvider repositoryProvider) {
+    public SendVedtaksbrevTask(BehandlingRepositoryProvider repositoryProvider,
+                               SkalSendeVedtaksbrevUtleder skalSendeVedtaksbrevUtleder,
+                               DokumentBestillerTjeneste dokumentBestillerTjeneste) {
         super(repositoryProvider.getBehandlingLåsRepository());
-        this.tjeneste = tjeneste;
+        this.skalSendeVedtaksbrevUtleder = skalSendeVedtaksbrevUtleder;
+        this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
+        this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
     }
 
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
-        tjeneste.sendVedtaksbrev(behandlingId);
+        var behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId);
+        if (behandlingVedtakOpt.isEmpty()) {
+            LOG.info("Det foreligger ikke vedtak i behandling: {}, kan ikke sende vedtaksbrev", behandlingId);
+        } else if (skalSendeVedtaksbrevUtleder.skalSendVedtaksbrev(behandlingId)) {
+            LOG.info("Sender vedtaksbrev for behandlingId: {}", behandlingId);
+            dokumentBestillerTjeneste.produserVedtaksbrev(behandlingVedtakOpt.get());
+        }
         LOG.info("Utført for behandling: {}", behandlingId);
     }
 }
