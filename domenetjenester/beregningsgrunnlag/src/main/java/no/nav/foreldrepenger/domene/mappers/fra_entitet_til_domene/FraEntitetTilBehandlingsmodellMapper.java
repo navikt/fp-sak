@@ -78,7 +78,11 @@ public class FraEntitetTilBehandlingsmodellMapper {
 
     private static BeregningRefusjonOverstyringer mapRefusjonOverstyringer(BeregningRefusjonOverstyringerEntitet refusjonOverstyringAggregat) {
         var builder = BeregningRefusjonOverstyringer.builder();
-        refusjonOverstyringAggregat.getRefusjonOverstyringer().stream().map(FraEntitetTilBehandlingsmodellMapper::mapRefusjonOverstyring).forEach(builder::leggTilOverstyring);
+        refusjonOverstyringAggregat.getRefusjonOverstyringer().stream()
+            .map(FraEntitetTilBehandlingsmodellMapper::mapRefusjonOverstyring)
+            .sorted(Comparator.comparing(BeregningRefusjonOverstyring::getFørsteMuligeRefusjonFom, Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(a -> a.getArbeidsgiver().getIdentifikator()))
+            .forEach(builder::leggTilOverstyring);
         return builder.build();
     }
 
@@ -86,6 +90,8 @@ public class FraEntitetTilBehandlingsmodellMapper {
         var perioder = refusjonOverstyring.getRefusjonPerioder()
             .stream()
             .map(r -> new BeregningRefusjonPeriode(r.getArbeidsforholdRef(), r.getStartdatoRefusjon()))
+            .sorted(Comparator.comparing(BeregningRefusjonPeriode::getStartdatoRefusjon)
+                .thenComparing(a -> a.getArbeidsforholdRef().getReferanse(), Comparator.nullsLast(Comparator.naturalOrder())))
             .toList();
         return new BeregningRefusjonOverstyring(refusjonOverstyring.getArbeidsgiver(), refusjonOverstyring.getFørsteMuligeRefusjonFom().orElse(null),
             Boolean.TRUE.equals(refusjonOverstyring.getErFristUtvidet()), perioder);

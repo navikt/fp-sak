@@ -207,7 +207,8 @@ public class BeregningMigreringTjeneste {
         try {
             var maskertFpsak = jsonFpsak.replaceAll("\\d{13}|\\d{11}|\\d{9}", "*");
             var maskertKalkulus = jsonKalkulus.replaceAll("\\d{13}|\\d{11}|\\d{9}", "*");
-            LOG.info("Json fpsak: {} Json kalkulus: {} ", maskertFpsak, maskertKalkulus);
+            LOG.info("Json fpsak: {}", maskertFpsak);
+            LOG.info("Json kalkulus: {}", maskertKalkulus);
         } catch (TekniskException jsonProcessingException) {
             LOG.warn("Feil ved logging av grunnlagsjson", jsonProcessingException);
         }
