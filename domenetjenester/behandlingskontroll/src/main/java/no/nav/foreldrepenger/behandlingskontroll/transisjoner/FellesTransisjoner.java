@@ -11,7 +11,6 @@ public class FellesTransisjoner {
     public static final TransisjonIdentifikator HENLAGT = TransisjonIdentifikator.forId("henlagt");
     public static final TransisjonIdentifikator SETT_PÅ_VENT = TransisjonIdentifikator.forId("sett-på-vent");
     public static final TransisjonIdentifikator TILBAKEFØRT_TIL_AKSJONSPUNKT = TransisjonIdentifikator.forId(TILBAKEFØR_PREFIX + "aksjonspunkt");
-    public static final TransisjonIdentifikator TILBAKEFØRT_TIL_MEDLEMSKAP = TransisjonIdentifikator.forId(TILBAKEFØR_PREFIX + "medlemskap");
     public static final TransisjonIdentifikator FREMHOPP_TIL_FORESLÅ_VEDTAK = TransisjonIdentifikator.forId(FREMHOPP_PREFIX + "foreslå-vedtak");
     public static final TransisjonIdentifikator FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT = TransisjonIdentifikator
             .forId(FREMHOPP_PREFIX + "foreslå-behandlingsresultat");
