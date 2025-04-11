@@ -536,6 +536,12 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             Long id = a.getArgument(0);
             return Optional.ofNullable(behandlingMap.getOrDefault(id, null));
         });
+        lenient().when(behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(any(), any(BehandlingType.class)))
+            .thenAnswer(a -> {
+                Long id = a.getArgument(0);
+                BehandlingType type = a.getArgument(1);
+                return behandlingMap.values().stream().filter(b -> type.equals(b.getType()) && b.getFagsakId().equals(id)).sorted().findFirst();
+            });
         lenient().when(behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(any(), any(BehandlingType.class)))
                 .thenAnswer(a -> {
                     Long id = a.getArgument(0);
