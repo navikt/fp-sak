@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 
@@ -90,28 +89,17 @@ public class SkalSendeVedtaksbrevUtleder {
                 LOG.info("Sender informasjonsbrev om uendret utfall i behandling: {}", behandlingId);
                 // Dette her håndteres videre i dokumentMalUtleder
             } else {
-                LOG.info("Uendret utfall av revurdering og har ikke sendt varsel om revurdering eller fritekst brev. Sender ikke brev for behandling: {}", behandlingId);
+                LOG.info(
+                    "Uendret utfall av revurdering og har ikke sendt varsel om revurdering eller fritekst brev. Sender ikke brev for behandling: {}",
+                    behandlingId);
                 return false;
             }
-        } else if (gjelderEngangsstønad(behandling)) {
-            LOG.info("Sender vedtaksbrev({}) for engangsstønad i behandling: {}", behandlingsresultat.getBehandlingResultatType().getKode(), behandlingId);
-        } else if (gjelderForeldrepenger(behandling)){
-            LOG.info("Sender vedtaksbrev({}) for foreldrepenger i behandling: {}", behandlingsresultat.getBehandlingResultatType().getKode(), behandlingId); //$NON-NLS-1
-        } else {
-            LOG.info("Sender vedtaksbrev({}) for svangerskapspenger i behandling: {}", behandlingsresultat.getBehandlingResultatType().getKode(), behandlingId); //$NON-NLS-1
         }
         return true;
     }
 
     private static boolean harFritekstBrev(Behandlingsresultat behandlingsresultat) {
         return Vedtaksbrev.FRITEKST.equals(behandlingsresultat.getVedtaksbrev());
-    }
-
-    private boolean gjelderEngangsstønad(Behandling behandling) {
-        return FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType());
-    }
-    private boolean gjelderForeldrepenger(Behandling behandling) {
-        return FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType());
     }
 
     private boolean skalSendeVedtaksbrevIKlagebehandling(Behandling behandling) {
