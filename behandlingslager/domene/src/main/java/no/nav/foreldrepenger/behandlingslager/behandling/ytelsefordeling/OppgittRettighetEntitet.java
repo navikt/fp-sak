@@ -150,6 +150,19 @@ public class OppgittRettighetEntitet extends BaseEntitet {
                 rett.annenForelderOppholdEØS);
     }
 
+    public RettighetType tilRettighetType() {
+        if (Boolean.TRUE.equals(getHarAleneomsorgForBarnet())) {
+            return RettighetType.ALENEOMSORG;
+        } else if (Boolean.TRUE.equals(getMorMottarUføretrygd())) {
+            return RettighetType.BARE_FAR_RETT_MOR_UFØR;
+        } else if (Boolean.TRUE.equals(getAnnenForelderRettEØSNullable())) {
+            return RettighetType.BEGGE_RETT_EØS;
+        } else if (Boolean.TRUE.equals(getHarAnnenForeldreRett())) {
+            return RettighetType.BEGGE_RETT;
+        }
+        return RettighetType.BARE_SØKER_RETT;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

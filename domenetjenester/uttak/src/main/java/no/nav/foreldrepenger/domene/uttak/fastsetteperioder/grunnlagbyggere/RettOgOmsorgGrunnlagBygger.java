@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.RettOgOmsorg;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.RettighetType;
 
 @ApplicationScoped
 public class RettOgOmsorgGrunnlagBygger {
@@ -40,15 +41,25 @@ public class RettOgOmsorgGrunnlagBygger {
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
         var annenpartsUttaksplan = hentAnnenpartsUttak(uttakInput);
         var samtykke = samtykke(ytelseFordelingAggregat);
+        var annenpartHarForeldrepengerUtbetaling = annenpartsUttaksplan.filter(ForeldrepengerUttak::harUtbetaling).isPresent();
+        ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
+        var rettighetType = map(ytelseFordelingAggregat.getRettighetType(annenpartHarForeldrepengerUtbetaling, ref.relasjonRolle(),
+            ytelsespesifiktGrunnlag.getUføretrygdGrunnlag().orElse(null)));
         return new RettOgOmsorg.Builder()
-                .aleneomsorg(ytelseFordelingAggregat.robustHarAleneomsorg(uttakInput.getBehandlingReferanse().relasjonRolle()))
-                .farHarRett(farHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
-                .morHarRett(morHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
-                .morUføretrygd(morUføretrygd(uttakInput, ytelseFordelingAggregat))
+            .rettighetType(rettighetType)
                 .morOppgittUføretrygd(morOppgittUføretrygd(uttakInput))
                 .samtykke(samtykke)
                 .harOmsorg(ytelseFordelingAggregat.harOmsorg())
             ;
+    }
+
+    private RettighetType map(no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.RettighetType rettighetType) {
+        return switch (rettighetType) {
+            case ALENEOMSORG -> RettighetType.ALENEOMSORG;
+            case BEGGE_RETT, BEGGE_RETT_EØS -> RettighetType.BEGGE_RETT;
+            case BARE_SØKER_RETT -> RettighetType.BARE_SØKER_RETT;
+            case BARE_FAR_RETT_MOR_UFØR -> RettighetType.BARE_FAR_RETT_MOR_UFØR;
+        };
     }
 
     private Optional<ForeldrepengerUttak> hentAnnenpartsUttak(UttakInput uttakInput) {

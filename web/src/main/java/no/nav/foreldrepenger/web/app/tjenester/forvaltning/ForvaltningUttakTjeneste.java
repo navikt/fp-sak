@@ -101,10 +101,10 @@ public class ForvaltningUttakTjeneste {
         }
 
         var nyRettighet = new OppgittRettighetEntitet(false, false, false, annenForelderHarRettEØS, annenForelderHarOppholdEØS);
-        if (ytelseFordelingAggregat.getOverstyrtRettighet().isEmpty()) {
+        if (ytelseFordelingAggregat.getAvklartRettighet().isEmpty()) {
             ytelseFordelingTjeneste.endreOppgittRettighet(behandlingId, nyRettighet);
         } else {
-            ytelseFordelingTjeneste.endreOverstyrtRettighet(behandlingId, nyRettighet);
+            ytelseFordelingTjeneste.overstyrRettighet(behandlingId, nyRettighet.tilRettighetType());
         }
         var begrunnelse = annenForelderHarRettEØS ? "FORVALTNING - Endret til at bruker har oppgitt at annen forelder har rett i EØS" :
             "FORVALTNING - Endret til at bruker har oppgitt at annen forelder ikke har rett i EØS";
@@ -140,10 +140,10 @@ public class ForvaltningUttakTjeneste {
         }
 
         var nyRettighet = new OppgittRettighetEntitet(false, false, morUføretrygd, false, null);
-        if (ytelseFordelingAggregat.getOverstyrtRettighet().isEmpty()) {
+        if (ytelseFordelingAggregat.getAvklartRettighet().isEmpty()) {
             ytelseFordelingTjeneste.endreOppgittRettighet(behandlingId, nyRettighet);
         } else {
-            ytelseFordelingTjeneste.endreOverstyrtRettighet(behandlingId, nyRettighet);
+            ytelseFordelingTjeneste.overstyrRettighet(behandlingId, nyRettighet.tilRettighetType());
         }
         var begrunnelse = morUføretrygd ? "FORVALTNING - Endret til at mor mottar Uføretrygd" :
             "FORVALTNING - Endret til at mor ikke mottar Uføretrygd";

@@ -203,7 +203,7 @@ class UttakStegImplTest {
 
         var yfa = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
             .medOppgittRettighet(OppgittRettighetEntitet.aleneomsorg())
-            .medOverstyrtRettighet(OppgittRettighetEntitet.aleneomsorg());
+            .medAvklartRettighet(OppgittRettighetEntitet.aleneomsorg());
         ytelsesFordelingRepository.lagre(behandling.getId(), yfa.build());
 
         // Act -- behandler mors behandling først
@@ -226,7 +226,7 @@ class UttakStegImplTest {
 
         // Act -- kjører steget på nytt for mor
         yfa = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
-            .medOverstyrtRettighet(OppgittRettighetEntitet.beggeRett());
+            .medAvklartRettighet(OppgittRettighetEntitet.beggeRett());
         ytelsesFordelingRepository.lagre(behandling.getId(), yfa.build());
         steg.utførSteg(kontekst(behandling));
 

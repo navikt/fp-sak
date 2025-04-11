@@ -12,7 +12,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
-
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 
@@ -57,6 +56,9 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
     @ChangeTracked
     private OppgittRettighetEntitet overstyrtRettighet;
 
+    @Column(name = "overstyrt_rettighet_type")
+    @ChangeTracked
+    private RettighetType overstyrtRettighetType;
 
     @Column(name = "oppgitt_dekningsgrad")
     @Max(value = 100)
@@ -144,6 +146,14 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
 
     void setOverstyrtRettighet(OppgittRettighetEntitet overstyrtRettighet) {
         this.overstyrtRettighet = overstyrtRettighet;
+    }
+
+    public RettighetType getOverstyrtRettighetType() {
+        return overstyrtRettighetType;
+    }
+
+    public void setOverstyrtRettighetType(RettighetType overstyrtRettighetType) {
+        this.overstyrtRettighetType = overstyrtRettighetType;
     }
 
     void setBehandling(Long behandlingId) {

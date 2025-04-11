@@ -17,8 +17,11 @@ public class YtelseFordelingAggregat {
     private OppgittFordelingEntitet oppgittFordeling;
     private OppgittFordelingEntitet justertFordeling;
     private OppgittFordelingEntitet overstyrtFordeling;
+
     private OppgittRettighetEntitet oppgittRettighet;
-    private OppgittRettighetEntitet overstyrtRettighet;
+    private OppgittRettighetEntitet avklartRettighet;
+    private RettighetType overstyrtRettighet;
+
     private AvklarteUttakDatoerEntitet avklarteDatoer;
     private Dekningsgrad oppgittDekningsgrad;
     private Dekningsgrad sakskompleksDekningsgrad;
@@ -81,8 +84,22 @@ public class YtelseFordelingAggregat {
         return oppgittRettighet;
     }
 
-    public Optional<OppgittRettighetEntitet> getOverstyrtRettighet() {
+    public Optional<OppgittRettighetEntitet> getAvklartRettighet() {
+        return Optional.ofNullable(avklartRettighet);
+    }
+
+    public Optional<RettighetType> getOverstyrtRettighet() {
         return Optional.ofNullable(overstyrtRettighet);
+    }
+
+    public Optional<RettighetType> getGjeldendeRettighetstype() {
+        var overstyrtEllerAvklartRettighet = Optional.ofNullable(overstyrtRettighet)
+            .or(() -> Optional.ofNullable(avklartRettighet).map(OppgittRettighetEntitet::tilRettighetType));
+        if (overstyrtEllerAvklartRettighet.isPresent()) {
+            return overstyrtEllerAvklartRettighet;
+        }
+        return Optional.of(getOppgittRettighet())
+            .map(OppgittRettighetEntitet::tilRettighetType);
     }
 
     public Boolean getOverstyrtOmsorg() {
@@ -94,22 +111,31 @@ public class YtelseFordelingAggregat {
     }
 
     public Boolean getAleneomsorgAvklaring() {
-        return getOverstyrtRettighet().map(OppgittRettighetEntitet::getHarAleneomsorgForBarnet)
+        return getOverstyrtRettighet()
+            .map(RettighetType.ALENEOMSORG::equals)
+            .or(() -> getAvklartRettighet().map(OppgittRettighetEntitet::getHarAleneomsorgForBarnet))
             .orElse(null);
     }
 
     public Boolean getAnnenForelderRettAvklaring() {
-        return getOverstyrtRettighet().map(OppgittRettighetEntitet::getHarAnnenForeldreRett)
+        return getOverstyrtRettighet()
+            .map(RettighetType.BEGGE_RETT::equals)
+            .or(() -> getAvklartRettighet().map(OppgittRettighetEntitet::getHarAnnenForeldreRett))
             .orElse(null);
     }
 
     public Boolean getAnnenForelderRettEØSAvklaring() {
-        return getOverstyrtRettighet().map(OppgittRettighetEntitet::getAnnenForelderRettEØSNullable)
+        return getOverstyrtRettighet()
+            .map(RettighetType.BEGGE_RETT_EØS::equals)
+            .or(() -> getAvklartRettighet().map(OppgittRettighetEntitet::getAnnenForelderRettEØSNullable))
             .orElse(null);
     }
 
     public Boolean getMorUføretrygdAvklaring() {
-        return getOverstyrtRettighet().map(OppgittRettighetEntitet::getMorMottarUføretrygd).orElse(null);
+        return getOverstyrtRettighet()
+            .map(RettighetType.BARE_FAR_RETT_MOR_UFØR::equals)
+            .or(() -> getAvklartRettighet().map(OppgittRettighetEntitet::getMorMottarUføretrygd))
+            .orElse(null);
     }
 
     public OppgittFordelingEntitet getGjeldendeFordeling() {
@@ -155,6 +181,32 @@ public class YtelseFordelingAggregat {
 
     public Dekningsgrad getGjeldendeDekningsgrad() {
         return Optional.ofNullable(getSakskompleksDekningsgrad()).orElse(getOppgittDekningsgrad());
+    }
+
+    public RettighetType getRettighetType(boolean annenpartHarForeldrepengerUtbetaling,
+                                          RelasjonsRolleType relasjonsRolleType,
+                                          UføretrygdGrunnlagEntitet uføretrygdGrunnlag) {
+        if (overstyrtRettighet != null) {
+            return overstyrtRettighet;
+        }
+        if (annenpartHarForeldrepengerUtbetaling) {
+            return RettighetType.BEGGE_RETT;
+        }
+        if (avklartAnnenForelderHarRettEØS()) {
+            return RettighetType.BEGGE_RETT_EØS;
+        }
+        if (robustHarAleneomsorg(relasjonsRolleType)) {
+            return RettighetType.ALENEOMSORG;
+        }
+        if (morMottarUføretrygd(uføretrygdGrunnlag)) {
+            return RettighetType.BARE_FAR_RETT_MOR_UFØR;
+        }
+        return Boolean.TRUE.equals(Optional.ofNullable(getAnnenForelderRettAvklaring())
+            .orElseGet(() -> {
+                var or = getOppgittRettighet();
+                Objects.requireNonNull(or, "oppgittRettighet");
+                return or.getHarAnnenForeldreRett() == null || or.getHarAnnenForeldreRett();
+            })) ? RettighetType.BEGGE_RETT : RettighetType.BARE_SØKER_RETT;
     }
 
     public static class Builder {
@@ -204,8 +256,14 @@ public class YtelseFordelingAggregat {
             return this;
         }
 
-        public Builder medOverstyrtRettighet(OppgittRettighetEntitet overstyrtRettighet) {
-            kladd.overstyrtRettighet = overstyrtRettighet;
+        // TODO: Når en setter avklart rettighet... skal man da nulle ut overstyring? Eller antar man at overstyring er ryddet opp hvis det er tilbakehopp?
+        public Builder medAvklartRettighet(OppgittRettighetEntitet avklartRettighet) {
+            kladd.avklartRettighet = avklartRettighet;
+            return this;
+        }
+
+        public Builder medOverstyrtRettighetType(RettighetType overstyrtRettighetType) {
+            kladd.overstyrtRettighet = overstyrtRettighetType;
             return this;
         }
 

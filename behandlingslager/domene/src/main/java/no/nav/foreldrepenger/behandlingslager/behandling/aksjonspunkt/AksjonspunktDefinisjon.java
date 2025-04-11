@@ -307,6 +307,9 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     OVERSTYRING_AV_DEKNINGSGRAD(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_DEKNINGSGRAD_KODE, AksjonspunktType.OVERSTYRING, "Overstyr dekningsgrad",
         BehandlingStegType.DEKNINGSGRAD, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER,
         TOTRINN, EnumSet.of(FP)),
+    OVERSTYRING_AV_RETT_OG_OMSORG(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_RETT_OG_OMSORG, AksjonspunktType.OVERSTYRING, "Overstyr rett og omsorg",
+        BehandlingStegType.KONTROLLER_OMSORG_RETT, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.FAKTA_OMSORG_OG_RETT,
+        TOTRINN, EnumSet.of(FP)),
 
     OVERSTYRING_AV_FORUTGÅENDE_MEDLEMSKAPSVILKÅR(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_FORUTGÅENDE_MEDLEMSKAPSVILKÅR_KODE, AksjonspunktType.OVERSTYRING,
         "Overstyring av vilkår forutgående medlemskap", BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.UT, VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE,
