@@ -174,11 +174,15 @@ public class FraEntitetTilBehandlingsmodellMapper {
             BeregningsgrunnlagPeriode::getBeregningsgrunnlagPeriodeFom)).forEach(builder::leggTilBeregningsgrunnlagPeriode);
 
         // Sammenligningsgrunnlag
-        beregningsgrunnlagDto.getSammenligningsgrunnlag().ifPresentOrElse(sg -> builder.leggTilSammenligningsgrunnlagPrStatus(mapSammenligningsgrunnlagTilNyModell(sg, beregningsgrunnlagDto.getAktivitetStatuser())),
-            () -> beregningsgrunnlagDto.getSammenligningsgrunnlagPrStatusListe().stream()
+        if (!beregningsgrunnlagDto.getSammenligningsgrunnlagPrStatusListe().isEmpty()) {
+            beregningsgrunnlagDto.getSammenligningsgrunnlagPrStatusListe().stream()
                 .map(FraEntitetTilBehandlingsmodellMapper::mapSammenligningsgrunnlagPrStatus)
                 .sorted(Comparator.comparing(SammenligningsgrunnlagPrStatus::getSammenligningsgrunnlagType))
-                .forEach(builder::leggTilSammenligningsgrunnlagPrStatus));
+                .forEach(builder::leggTilSammenligningsgrunnlagPrStatus);
+        } else {
+            beregningsgrunnlagDto.getSammenligningsgrunnlag()
+                .ifPresent(sg -> builder.leggTilSammenligningsgrunnlagPrStatus(mapSammenligningsgrunnlagTilNyModell(sg, beregningsgrunnlagDto.getAktivitetStatuser())));
+        }
 
         return builder.build();
     }
