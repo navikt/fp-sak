@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -21,6 +22,8 @@ import no.nav.foreldrepenger.domene.fpinntektsmelding.OrganisasjonsnummerDto;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.svp.MaksDatoUttakTjenesteImpl;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregning;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.konfig.Tid;
 
@@ -74,10 +77,12 @@ public class MigrerManglendeForespørslerTjeneste {
             }
             if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsak().getYtelseType())) {
                 var saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput);
-                var stønadRest = stønadskontoSaldoTjeneste.finnStønadRest(saldoUtregning);
                 ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
+
+                var restSaldo = beregnRestSaldoForRolle(saldoUtregning, RelasjonsRolleType.erMor(behandling.getFagsak().getRelasjonsRolleType()));
+
                 var fødselsdato = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getFødselsdato().orElse(Tid.TIDENES_BEGYNNELSE);
-                if (stønadRest < 1 || fødselsdato.plusYears(3).plusDays(1).isBefore(LocalDate.now())) {
+                if (restSaldo < 1 || fødselsdato.plusYears(3).plusDays(1).isBefore(LocalDate.now())) {
                     LOG.info("MIGRER-FP: Ingen forespørsel opprettes for saksnummer {}. Fp-saken har ikke uttaksdager igjen, eller barnet er over 3 år. ",
                         sak.getSaksnummer());
                     return;
@@ -105,5 +110,11 @@ public class MigrerManglendeForespørslerTjeneste {
                 LOG.info("MIGRER-FP: {} har ingen arbeidsgivere med refusjon", sak.getSaksnummer());
             }
         });
+    }
+
+    private int beregnRestSaldoForRolle(SaldoUtregning saldoUtregning, boolean erMor) {
+        var stønadskontoType = erMor ? Stønadskontotype.MØDREKVOTE : Stønadskontotype.FEDREKVOTE;
+        return saldoUtregning.saldo(stønadskontoType) + saldoUtregning.saldo(Stønadskontotype.FELLESPERIODE)
+            + saldoUtregning.saldo(Stønadskontotype.FORELDREPENGER);
     }
 }
