@@ -1,8 +1,12 @@
 package no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -23,6 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
@@ -35,9 +40,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 class OppgaveTjenesteTest {
 
     private static final String FNR = "00000000000";
-    private static final Oppgave OPPGAVE = new Oppgave(99L, null, null, null, null,
-            Tema.FOR.getOffisiellKode(), null, null, null, 1, "4806",
-            LocalDate.now().plusDays(1), LocalDate.now(), Prioritet.NORM, Oppgavestatus.AAPNET, "beskrivelse", "null");
+    private static final Oppgave OPPGAVE = new Oppgave(99L, null, null, null, null, Tema.FOR.getOffisiellKode(), null, null, null, 1, "4806",
+        LocalDate.now().plusDays(1), LocalDate.now(), Prioritet.NORM, Oppgavestatus.AAPNET, "beskrivelse", "null");
 
     @Mock
     private PersoninfoAdapter personinfoAdapter;
@@ -59,9 +63,9 @@ class OppgaveTjenesteTest {
     }
 
     private OppgaveTjeneste lagTjeneste(AbstractTestScenario<?> scenario) {
-        var provider =  scenario.mockBehandlingRepositoryProvider();
-        return new OppgaveTjeneste(provider.getFagsakRepository(), provider.getBehandlingRepository(),
-            oppgaveRestKlient, taskTjeneste, personinfoAdapter);
+        var provider = scenario.mockBehandlingRepositoryProvider();
+        return new OppgaveTjeneste(provider.getFagsakRepository(), provider.getBehandlingRepository(), oppgaveRestKlient, taskTjeneste,
+            personinfoAdapter);
     }
 
     @Test
@@ -71,8 +75,7 @@ class OppgaveTjenesteTest {
         var scenario = lagScenario();
         var behandling = lagBehandling(scenario);
         var tjeneste = lagTjeneste(scenario);
-        var oppgaveId = tjeneste.opprettVurderDokumentMedBeskrivelseBasertPåFagsakId(behandling.getFagsakId(), null, "2010",
-                "bla bla");
+        var oppgaveId = tjeneste.opprettVurderDokumentMedBeskrivelseBasertPåFagsakId(behandling.getFagsakId(), null, "2010", "bla bla");
 
         var request = captor.getValue();
         assertThat(request.saksreferanse()).isEqualTo(behandling.getSaksnummer().getVerdi());
@@ -128,8 +131,7 @@ class OppgaveTjenesteTest {
 
         assertThat(request.tema()).isEqualTo("STO");
         assertThat(request.fristFerdigstillelse()).isEqualTo(forventetFrist);
-        assertThat(request.beskrivelse())
-                .isEqualTo("Samordning arenaytelse. Vedtak foreldrepenger fra " + førsteAugust);
+        assertThat(request.beskrivelse()).isEqualTo("Samordning arenaytelse. Vedtak foreldrepenger fra " + førsteAugust);
         assertThat(oppgaveId).isEqualTo(OPPGAVE.id().toString());
     }
 
@@ -146,15 +148,12 @@ class OppgaveTjenesteTest {
         var førsteUttaksdato = LocalDate.of(2019, 2, 1);
         var vedtaksdato = LocalDate.of(2019, 1, 15);
         var personIdent = new PersonIdent(FNR);
-        var beskrivelse = String.format("Refusjon til privat arbeidsgiver," +
-                "Saksnummer: %s," +
-                "Vedtaksdato: %s," +
-                "Dato for første utbetaling: %s," +
-                "Fødselsnummer arbeidsgiver: %s", behandling.getSaksnummer().getVerdi(),
-                vedtaksdato, førsteUttaksdato, personIdent.getIdent());
+        var beskrivelse = String.format(
+            "Refusjon til privat arbeidsgiver," + "Saksnummer: %s," + "Vedtaksdato: %s," + "Dato for første utbetaling: %s,"
+                + "Fødselsnummer arbeidsgiver: %s", behandling.getSaksnummer().getVerdi(), vedtaksdato, førsteUttaksdato, personIdent.getIdent());
 
-        var oppgaveId = tjeneste.opprettOppgaveSettUtbetalingPåVentPrivatArbeidsgiver(behandling.getId(),
-                førsteUttaksdato, vedtaksdato, behandling.getAktørId());
+        var oppgaveId = tjeneste.opprettOppgaveSettUtbetalingPåVentPrivatArbeidsgiver(behandling.getId(), førsteUttaksdato, vedtaksdato,
+            behandling.getAktørId());
 
         var request = captor.getValue();
         assertThat(request.saksreferanse()).isEqualTo(behandling.getSaksnummer().getVerdi());
@@ -164,5 +163,22 @@ class OppgaveTjenesteTest {
         assertThat(request.beskrivelse()).isEqualTo(beskrivelse);
         assertThat(request.prioritet()).isEqualTo(Prioritet.HOY);
         assertThat(oppgaveId).isEqualTo(OPPGAVE.id().toString());
+    }
+
+    @Test
+    void ferdigstille_oppgave_kalles_videre_til_rest_klient() {
+        var tjeneste = lagTjeneste(lagScenario());
+        tjeneste.ferdigstillOppgave(OPPGAVE.id().toString());
+        verify(oppgaveRestKlient, times(1)).ferdigstillOppgave(OPPGAVE.id().toString());
+        verify(oppgaveRestKlient, times(1)).hentOppgave(OPPGAVE.id().toString());
+    }
+
+    @Test
+    void ferdigstille_oppgave_feiler_for_oppgaveId_null() {
+        var tjeneste = lagTjeneste(lagScenario());
+        doThrow(new IllegalArgumentException("Feil")).when(oppgaveRestKlient).ferdigstillOppgave(null);
+
+        assertThatThrownBy(() -> tjeneste.ferdigstillOppgave(null)).isInstanceOf(TekniskException.class)
+            .hasMessageContaining("Noe feilet ved ferdigstilling av oppgave");
     }
 }
