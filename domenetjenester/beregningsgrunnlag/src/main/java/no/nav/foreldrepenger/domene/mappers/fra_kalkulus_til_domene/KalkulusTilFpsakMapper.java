@@ -234,6 +234,7 @@ public final class KalkulusTilFpsakMapper {
         // Sammenligningsgrunnlag
         beregningsgrunnlagDto.getSammenligningsgrunnlagPrStatusListe().stream()
             .map(KalkulusTilFpsakMapper::mapSammenligningsgrunnlag)
+            .sorted(Comparator.comparing(SammenligningsgrunnlagPrStatus::getSammenligningsgrunnlagType))
             .forEach(builder::leggTilSammenligningsgrunnlagPrStatus);
 
         // Besteberegning

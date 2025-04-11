@@ -175,7 +175,10 @@ public class FraEntitetTilBehandlingsmodellMapper {
 
         // Sammenligningsgrunnlag
         beregningsgrunnlagDto.getSammenligningsgrunnlag().ifPresentOrElse(sg -> builder.leggTilSammenligningsgrunnlagPrStatus(mapSammenligningsgrunnlagTilNyModell(sg, beregningsgrunnlagDto.getAktivitetStatuser())),
-            () -> beregningsgrunnlagDto.getSammenligningsgrunnlagPrStatusListe().stream().map(FraEntitetTilBehandlingsmodellMapper::mapSammenligningsgrunnlagPrStatus).forEach(builder::leggTilSammenligningsgrunnlagPrStatus));
+            () -> beregningsgrunnlagDto.getSammenligningsgrunnlagPrStatusListe().stream()
+                .map(FraEntitetTilBehandlingsmodellMapper::mapSammenligningsgrunnlagPrStatus)
+                .sorted(Comparator.comparing(SammenligningsgrunnlagPrStatus::getSammenligningsgrunnlagType))
+                .forEach(builder::leggTilSammenligningsgrunnlagPrStatus));
 
         return builder.build();
     }
