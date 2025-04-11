@@ -28,8 +28,6 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
     private BehandlingRepository behandlingRepository;
     private VedtakTjeneste vedtakTjeneste;
 
-
-
     AbstractVedtaksbrevOverstyringshåndterer(BehandlingRepository behandlingRepository,
                                              BehandlingsresultatRepository behandlingsresultatRepository,
                                              HistorikkinnslagRepository historikkinnslagRepository,
@@ -49,12 +47,13 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
     OppdateringResultat håndter(VedtaksbrevOverstyringDto dto, AksjonspunktOppdaterParameter param, boolean toTrinn) {
         var behandlingId = param.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        oppdaterDataForVedtaksbrev(dto, behandling);
+        oppdaterVedtaksbrev(dto, behandling);
         opprettHistorikkinnslag(param.getRef(), behandling, toTrinn, dto.isSkalBrukeOverstyrendeFritekstBrev());
-        var builder = OppdateringResultat.utenTransisjon()
-            .medTotrinnHvis(dto.isSkalBrukeOverstyrendeFritekstBrev());
+
+        var builder = OppdateringResultat.utenTransisjon();
         if (toTrinn) {
             opprettAksjonspunktForFatterVedtak(behandling, builder);
+            builder.medTotrinnHvis(true);
             behandling.setToTrinnsBehandling();
         } else {
             behandling.nullstillToTrinnsBehandling();
@@ -62,7 +61,7 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         return builder.build();
     }
 
-    private void oppdaterDataForVedtaksbrev(VedtaksbrevOverstyringDto dto, Behandling behandling) {
+    private void oppdaterVedtaksbrev(VedtaksbrevOverstyringDto dto, Behandling behandling) {
         var behandlingId = behandling.getId();
         var utfyllendeTekst = dto.getBegrunnelse();
         if (dto.isSkalBrukeOverstyrendeFritekstBrev()) {
@@ -70,12 +69,12 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
             verifiserBehandlingDokumentInneholderRedigertBrev(behandlingId);
             var behandlingsresultat = getBehandlingsresultatBuilder(behandlingId)
                 .medVedtaksbrev(Vedtaksbrev.FRITEKST)
-                .build();
+                .buildFor(behandling); // .buildFor oppdaterer også ES legacy BR hvis det foreligger.
             behandlingsresultatRepository.lagre(behandlingId, behandlingsresultat);
         } else {
             // Automatisk vedtaksbrev med mulig utfyllende fritekst (satt av begrunnelse)
-            fjernRedigertEllerOverstyrBrevHvisEksisterer(behandlingId);
-            if (behandlingsresultatRepository.hentHvisEksisterer(behandlingId).isPresent() && utfyllendeTekst != null) {
+            fjernEksisterendeRedigertEllerOverstyrBrevHvisEksisterer(behandling);
+            if (utfyllendeTekst != null) {
                 var behandlingDokument = getBehandlingDokumentBuilder(behandlingId)
                     .medBehandling(behandlingId)
                     .medUtfyllendeTekstAutomatiskVedtaksbrev(utfyllendeTekst)
@@ -85,7 +84,6 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
                 fjernUtfyllendeTekstForAutomatiskVedtaksbrevHvisSatt(behandlingId);
             }
         }
-
     }
 
     private void fjernUtfyllendeTekstForAutomatiskVedtaksbrevHvisSatt(Long behandlingId) {
@@ -106,7 +104,8 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         }
     }
 
-    private void fjernRedigertEllerOverstyrBrevHvisEksisterer(Long behandlingId) {
+    private void fjernEksisterendeRedigertEllerOverstyrBrevHvisEksisterer(Behandling behandling) {
+        var behandlingId = behandling.getId();
         var eksisterendeBehandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingId);
         if (eksisterendeBehandlingDokument.isPresent() && erFritekst(eksisterendeBehandlingDokument.get())) {
             var behandlingDokument = BehandlingDokumentEntitet.Builder.fraEksisterende(eksisterendeBehandlingDokument.get())
@@ -122,7 +121,7 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         if (behandlingsresultatOpt.isPresent() && Vedtaksbrev.FRITEKST.equals(behandlingsresultatOpt.get().getVedtaksbrev())) {
             var behandlingResultat = Behandlingsresultat.builderEndreEksisterende(behandlingsresultatOpt.get())
                 .medVedtaksbrev(Vedtaksbrev.AUTOMATISK)
-                .buildFor(behandling);
+                .buildFor(behandling); // .buildFor oppdaterer også ES legacy BR hvis det foreligger.
             behandlingsresultatRepository.lagre(behandlingId, behandlingResultat);
         }
     }
