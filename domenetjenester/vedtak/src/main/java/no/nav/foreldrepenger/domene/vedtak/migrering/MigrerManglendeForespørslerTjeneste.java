@@ -113,15 +113,8 @@ public class MigrerManglendeForespørslerTjeneste {
     }
 
     private int beregnRestSaldoForRolle(SaldoUtregning saldoUtregning, boolean erMor) {
-        if (erMor) {
-            return saldoUtregning.saldo(Stønadskontotype.FORELDREPENGER_FØR_FØDSEL)
-                + saldoUtregning.saldo(Stønadskontotype.MØDREKVOTE)
-                + saldoUtregning.saldo(Stønadskontotype.FELLESPERIODE)
-                + saldoUtregning.saldo(Stønadskontotype.FORELDREPENGER);
-        } else {
-            return saldoUtregning.saldo(Stønadskontotype.FEDREKVOTE)
-                + saldoUtregning.saldo(Stønadskontotype.FORELDREPENGER)
-                + saldoUtregning.saldo(Stønadskontotype.FELLESPERIODE);
-        }
+        var stønadskontoType = erMor ? Stønadskontotype.MØDREKVOTE : Stønadskontotype.FEDREKVOTE;
+        return saldoUtregning.saldo(stønadskontoType) + saldoUtregning.saldo(Stønadskontotype.FELLESPERIODE)
+            + saldoUtregning.saldo(Stønadskontotype.FORELDREPENGER);
     }
 }
