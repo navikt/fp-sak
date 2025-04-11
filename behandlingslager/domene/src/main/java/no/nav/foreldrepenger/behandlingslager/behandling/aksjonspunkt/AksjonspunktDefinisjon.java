@@ -363,18 +363,15 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     @Deprecated
     UTGÅTT_5009("5009", AksjonspunktType.MANUELL, "Avklar tilleggsopplysninger"),
     @Deprecated
-    UTGÅTT_5019("5019", AksjonspunktType.MANUELL, "Avklar lovlig opphold.", BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.INN,
-        VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.FAKTA_OM_MEDLEMSKAP, ENTRINN, EnumSet.of(ES, FP, SVP)),
+    UTGÅTT_5019("5019", AksjonspunktType.MANUELL, "Avklar lovlig opphold."),
     @Deprecated
-    UTGÅTT_5020("5020", AksjonspunktType.MANUELL, "Avklar om bruker er bosatt.", BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.INN,
-        VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.FAKTA_OM_MEDLEMSKAP, ENTRINN, EnumSet.of(ES, FP, SVP)),
+    UTGÅTT_5020("5020", AksjonspunktType.MANUELL, "Avklar om bruker er bosatt."),
     @Deprecated
     UTGÅTT_5021("5021", AksjonspunktType.MANUELL, "Avklar om bruker har gyldig periode."),
     @Deprecated
     UTGÅTT_5022("5022", AksjonspunktType.MANUELL, "Avklar fakta for status på person."),
     @Deprecated
-    UTGÅTT_5023("5023", AksjonspunktType.MANUELL, "Avklar oppholdsrett.", BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.INN,
-        VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.FAKTA_OM_MEDLEMSKAP, ENTRINN, EnumSet.of(ES, FP, SVP)),
+    UTGÅTT_5023("5023", AksjonspunktType.MANUELL, "Avklar oppholdsrett."),
     @Deprecated
     UTGÅTT_5024("5024", AksjonspunktType.MANUELL, "Saksbehandler må avklare hvilke verdier som er gjeldene, det er mismatch mellom register- og lokaldata (UTGÅTT)"),
     @Deprecated
@@ -392,9 +389,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     @Deprecated
     UTGÅTT_5050("5050", AksjonspunktType.MANUELL, "Vurder gradering på andel uten beregningsgrunnlag"),
     @Deprecated
-    UTGÅTT_5053("5053", AksjonspunktType.MANUELL, "Avklar fortsatt medlemskap.",
-        BehandlingStegType.INNGANG_UTTAK, VurderingspunktType.UT, VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE,
-        SkjermlenkeType.FAKTA_OM_MEDLEMSKAP, TOTRINN, EnumSet.of(FP, SVP)),
+    UTGÅTT_5053("5053", AksjonspunktType.MANUELL, "Avklar fortsatt medlemskap."),
     @Deprecated
     UTGÅTT_5056("5056", AksjonspunktType.MANUELL, "Kontroll av manuelt opprettet revurderingsbehandling"),
     @Deprecated

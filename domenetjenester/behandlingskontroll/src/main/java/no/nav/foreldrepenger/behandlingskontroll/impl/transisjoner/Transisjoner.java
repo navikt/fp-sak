@@ -16,7 +16,6 @@ public class Transisjoner {
             new HenleggelseTransisjon(),
             new SettPåVent(),
             new TilbakeføringTransisjon(FellesTransisjoner.TILBAKEFØRT_TIL_AKSJONSPUNKT.getId()),
-            new TilbakeføringTransisjon(FellesTransisjoner.TILBAKEFØRT_TIL_MEDLEMSKAP.getId(), BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR),
             new FremoverhoppTransisjon(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_VEDTAK.getId(), BehandlingStegType.FORESLÅ_VEDTAK),
             new FremoverhoppTransisjon(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT.getId(),
                     BehandlingStegType.FORESLÅ_BEHANDLINGSRESULTAT),
