@@ -179,6 +179,6 @@ class BrevRestTjenesteTest {
         brevRestTjeneste.mellomlagringAvOverstyring(new BrevRestTjeneste.MellomlagreHtmlDto(behandling.getUuid(), null));
 
         // Assert
-        verify(dokumentBehandlingTjenesteMock,  times(1)).fjernAllOverstyringAvBrev(any());
+        verify(dokumentBehandlingTjenesteMock,  times(1)).fjernOverstyringAvBrev(any());
     }
 }
