@@ -76,14 +76,12 @@ public class MigrerManglendeForespørslerTjeneste {
                 return;
             }
             if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsak().getYtelseType())) {
-                var saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput);
                 ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
-
                 if (fpGrunnlag == null) {
                     LOG.info("MIGRER-FP: Ingen forespørsel opprettes for saksnummer {}. Ingen grunnlag for fp-saken", sak.getSaksnummer());
                     return;
                 }
-
+                var saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput);
                 var restSaldo = beregnRestSaldoForRolle(saldoUtregning, RelasjonsRolleType.erMor(behandling.getFagsak().getRelasjonsRolleType()));
 
                 var fødselsdato = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getFødselsdato().orElse(Tid.TIDENES_BEGYNNELSE);
