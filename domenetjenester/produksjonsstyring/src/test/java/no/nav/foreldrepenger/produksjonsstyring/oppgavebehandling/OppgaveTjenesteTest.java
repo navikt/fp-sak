@@ -41,8 +41,8 @@ class OppgaveTjenesteTest {
 
     private static final String FNR = "00000000000";
     private static final Oppgave OPPGAVE = new Oppgave(99L, null, null, null, null,
-        Tema.FOR.getOffisiellKode(), null, null, null, 1, "4806",
-        LocalDate.now().plusDays(1), LocalDate.now(), Prioritet.NORM, Oppgavestatus.AAPNET, "beskrivelse", "null");
+            Tema.FOR.getOffisiellKode(), null, null, null, 1, "4806",
+            LocalDate.now().plusDays(1), LocalDate.now(), Prioritet.NORM, Oppgavestatus.AAPNET, "beskrivelse", "null");
 
     @Mock
     private PersoninfoAdapter personinfoAdapter;
@@ -77,7 +77,7 @@ class OppgaveTjenesteTest {
         var behandling = lagBehandling(scenario);
         var tjeneste = lagTjeneste(scenario);
         var oppgaveId = tjeneste.opprettVurderDokumentMedBeskrivelseBasertPåFagsakId(behandling.getFagsakId(), null, "2010",
-            "bla bla");
+                "bla bla");
 
         var request = captor.getValue();
         assertThat(request.saksreferanse()).isEqualTo(behandling.getSaksnummer().getVerdi());
@@ -134,7 +134,7 @@ class OppgaveTjenesteTest {
         assertThat(request.tema()).isEqualTo("STO");
         assertThat(request.fristFerdigstillelse()).isEqualTo(forventetFrist);
         assertThat(request.beskrivelse())
-            .isEqualTo("Samordning arenaytelse. Vedtak foreldrepenger fra " + førsteAugust);
+                .isEqualTo("Samordning arenaytelse. Vedtak foreldrepenger fra " + førsteAugust);
         assertThat(oppgaveId).isEqualTo(OPPGAVE.id().toString());
     }
 
@@ -156,10 +156,10 @@ class OppgaveTjenesteTest {
                 "Vedtaksdato: %s," +
                 "Dato for første utbetaling: %s," +
                 "Fødselsnummer arbeidsgiver: %s", behandling.getSaksnummer().getVerdi(),
-            vedtaksdato, førsteUttaksdato, personIdent.getIdent());
+                vedtaksdato, førsteUttaksdato, personIdent.getIdent());
 
         var oppgaveId = tjeneste.opprettOppgaveSettUtbetalingPåVentPrivatArbeidsgiver(behandling.getId(),
-            førsteUttaksdato, vedtaksdato, behandling.getAktørId());
+                førsteUttaksdato, vedtaksdato, behandling.getAktørId());
 
         var request = captor.getValue();
         assertThat(request.saksreferanse()).isEqualTo(behandling.getSaksnummer().getVerdi());
