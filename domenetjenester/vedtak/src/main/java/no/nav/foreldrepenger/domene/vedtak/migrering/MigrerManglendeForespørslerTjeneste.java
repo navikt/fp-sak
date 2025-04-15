@@ -1,6 +1,9 @@
 package no.nav.foreldrepenger.domene.vedtak.migrering;
 
 import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -12,6 +15,9 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -38,6 +44,7 @@ public class MigrerManglendeForespørslerTjeneste {
     private FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private MaksDatoUttakTjenesteImpl maksDatoUttakTjenesteSvp;
+    private BeregningsresultatRepository tilkjentRepository;
 
     public MigrerManglendeForespørslerTjeneste() {
         // for CDI proxy
@@ -50,7 +57,8 @@ public class MigrerManglendeForespørslerTjeneste {
                                                UttakInputTjeneste uttakInputTjeneste,
                                                FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste,
                                                InntektsmeldingTjeneste inntektsmeldingTjeneste,
-                                               @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) MaksDatoUttakTjenesteImpl maksDatoUttakTjenesteSvp) {
+                                               @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) MaksDatoUttakTjenesteImpl maksDatoUttakTjenesteSvp,
+                                               BeregningsresultatRepository tilkjentRepository) {
         this.behandlingRepository = behandlingRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
@@ -58,6 +66,7 @@ public class MigrerManglendeForespørslerTjeneste {
         this.fpInntektsmeldingTjeneste = fpInntektsmeldingTjeneste;
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.maksDatoUttakTjenesteSvp = maksDatoUttakTjenesteSvp;
+        this.tilkjentRepository = tilkjentRepository;
     }
 
     public void migrerManglendeForespørsler() {
@@ -75,6 +84,7 @@ public class MigrerManglendeForespørslerTjeneste {
                 LOG.info("MIGRER-FP: Ingen forespørsel opprettes for saksnummer {}. Finner ikke skjæringstidspunkt", sak.getSaksnummer());
                 return;
             }
+
             if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsak().getYtelseType())) {
                 ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
                 if (fpGrunnlag == null) {
@@ -83,9 +93,12 @@ public class MigrerManglendeForespørslerTjeneste {
                 }
                 var saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput);
                 var restSaldo = beregnRestSaldoForRolle(saldoUtregning, RelasjonsRolleType.erMor(behandling.getFagsak().getRelasjonsRolleType()));
+                var barnetsFødselsdato = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getFødselsdato().orElse(Tid.TIDENES_BEGYNNELSE);
+                var sisteTilkjenteUtbetalingsdato = hentSisteUtbetalingDato(behandling.getId()).orElse(Tid.TIDENES_BEGYNNELSE);
+                var barnetErOver3År  = barnetsFødselsdato.plusYears(3).plusDays(1).isBefore(LocalDate.now());
+                var harUtbetaltHeleSaldoen = restSaldo < 2 && sisteTilkjenteUtbetalingsdato.isBefore(LocalDate.now());
 
-                var fødselsdato = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getFødselsdato().orElse(Tid.TIDENES_BEGYNNELSE);
-                if (restSaldo < 1 || fødselsdato.plusYears(3).plusDays(1).isBefore(LocalDate.now())) {
+                if (harUtbetaltHeleSaldoen || barnetErOver3År){
                     LOG.info("MIGRER-FP: Ingen forespørsel opprettes for saksnummer {}. Fp-saken har ikke uttaksdager igjen, eller barnet er over 3 år. ",
                         sak.getSaksnummer());
                     return;
@@ -119,5 +132,13 @@ public class MigrerManglendeForespørslerTjeneste {
         var stønadskontoType = erMor ? Stønadskontotype.MØDREKVOTE : Stønadskontotype.FEDREKVOTE;
         return saldoUtregning.saldo(stønadskontoType) + saldoUtregning.saldo(Stønadskontotype.FELLESPERIODE)
             + saldoUtregning.saldo(Stønadskontotype.FORELDREPENGER);
+    }
+
+    private Optional<LocalDate> hentSisteUtbetalingDato(Long behandlingId) {
+        return tilkjentRepository.hentUtbetBeregningsresultat(behandlingId)
+            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
+            .filter(p -> p.getDagsats() > 0)
+            .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
+            .max(Comparator.naturalOrder());
     }
 }
