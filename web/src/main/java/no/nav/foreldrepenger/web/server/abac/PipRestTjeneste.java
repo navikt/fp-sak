@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.server.abac;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -28,6 +29,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSupp
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
+import no.nav.vedtak.felles.integrasjon.fpsakpip.SakMedPersonerDto;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -44,7 +46,7 @@ public class PipRestTjeneste {
     protected static final String PIP_BASE_PATH = "/pip";
 
     private static final String AKTOER_FOR_SAK = "/aktoer-for-sak";
-    private static final String AKTOER_FOR_BEHANDLING = "/aktoer-for-behandling";
+        private static final String AKTOER_FOR_BEHANDLING = "/aktoer-for-behandling";
     private static final String SAKSNUMMER_FOR_BEHANDLING = "/saksnummer-for-behandling";
     private static final String SAK_AKTOER_FOR_BEHANDLING = "/sak-aktoer-for-behandling";
 
@@ -72,10 +74,11 @@ public class PipRestTjeneste {
     @Path(AKTOER_FOR_SAK)
     @Operation(description = "Henter aktørId'er tilknyttet en gruppe saker", tags = "pip")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP, sporingslogg = false)
-    public List<SakAktørDto> hentAktørIdMapTilknyttetSaker(@TilpassetAbacAttributt(supplierClass = SakSetSupplier.class)
+    public List<SakMedPersonerDto> hentAktørIdMapTilknyttetSaker(@TilpassetAbacAttributt(supplierClass = SakSetSupplier.class)
                                                                        @NotNull @Valid SaksnummerSetDto saksnummerDto) {
         return saksnummerDto.saksnummer().stream()
-            .map(s -> new SakAktørDto(s.saksnummer(), pipRepository.hentAktørIdKnyttetTilSaksnummer(s.saksnummer())))
+            .map(SaksnummerPlainDto::saksnummer)
+            .map(this::lagSakMedPersonerDto)
             .toList();
     }
 
@@ -104,18 +107,22 @@ public class PipRestTjeneste {
     @Path(SAK_AKTOER_FOR_BEHANDLING)
     @Operation(description = "Henter aktørId'er tilknyttet en gruppe saker", tags = "pip")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP, sporingslogg = false)
-    public SakAktørDto hentSaksnummerAktørIdFor(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
+    public SakMedPersonerDto hentSaksnummerAktørIdFor(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                                      @NotNull @QueryParam("behandlingUuid") @Valid UuidDto uuidDto) {
         return pipRepository.hentSaksnummerForBehandlingUuid(uuidDto.getBehandlingUuid())
-            .map(s -> new SakAktørDto(s.getVerdi(), pipRepository.hentAktørIdKnyttetTilSaksnummer(s.getVerdi())))
+            .map(Saksnummer::getVerdi)
+            .map(this::lagSakMedPersonerDto)
             .orElse(null);
+    }
+
+    private SakMedPersonerDto lagSakMedPersonerDto(String saksnummer) {
+        var identer = pipRepository.hentAktørIdKnyttetTilSaksnummer(saksnummer).stream().map(AktørId::getId).collect(Collectors.toSet());
+        return new SakMedPersonerDto(saksnummer, identer);
     }
 
     public record SaksnummerPlainDto(@JsonValue @NotNull @Size(max = 20) @Pattern(regexp = "^[a-zA-Z0-9_\\-]*$") String saksnummer) { }
 
     public record SaksnummerSetDto(@Valid @Size(max = 500) Set<@Valid SaksnummerPlainDto> saksnummer) {}
-
-    public record SakAktørDto(String saksnummer, Set<AktørId> aktoerId) { }
 
     // Trengs ikke her - PIP-tjenester skal bare kalles av system/client_credentials
     public static class SakSetSupplier implements Function<Object, AbacDataAttributter> {
