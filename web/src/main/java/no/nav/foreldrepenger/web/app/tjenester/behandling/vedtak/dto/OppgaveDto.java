@@ -5,7 +5,7 @@ import java.util.List;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OppgaveType;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
-public record OppgaveDto(OppgaveType oppgavetype, Beskrivelse nyesteBeskrivelse, List<Beskrivelse> eldreBeskrivelser, List<Beskrivelse> beskrivelser, List<Dokument> dokumenter) {
+public record OppgaveDto(OppgaveIdDto oppgaveId, OppgaveType oppgavetype, List<Beskrivelse> beskrivelser, List<Dokument> dokumenter) {
 
     public record Beskrivelse(String header, List<String> kommentarer) {
     }

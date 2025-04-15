@@ -1,8 +1,12 @@
 package no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -23,6 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgaver;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
@@ -59,7 +64,7 @@ class OppgaveTjenesteTest {
     }
 
     private OppgaveTjeneste lagTjeneste(AbstractTestScenario<?> scenario) {
-        var provider =  scenario.mockBehandlingRepositoryProvider();
+        var provider = scenario.mockBehandlingRepositoryProvider();
         return new OppgaveTjeneste(provider.getFagsakRepository(), provider.getBehandlingRepository(),
             oppgaveRestKlient, taskTjeneste, personinfoAdapter);
     }
@@ -164,5 +169,22 @@ class OppgaveTjenesteTest {
         assertThat(request.beskrivelse()).isEqualTo(beskrivelse);
         assertThat(request.prioritet()).isEqualTo(Prioritet.HOY);
         assertThat(oppgaveId).isEqualTo(OPPGAVE.id().toString());
+    }
+
+    @Test
+    void ferdigstille_oppgave_kalles_videre_til_rest_klient() {
+        var tjeneste = lagTjeneste(lagScenario());
+        tjeneste.ferdigstillOppgave(OPPGAVE.id().toString());
+        verify(oppgaveRestKlient, times(1)).ferdigstillOppgave(OPPGAVE.id().toString());
+        verify(oppgaveRestKlient, times(1)).hentOppgave(OPPGAVE.id().toString());
+    }
+
+    @Test
+    void ferdigstille_oppgave_feiler_for_oppgaveId_null() {
+        var tjeneste = lagTjeneste(lagScenario());
+        doThrow(new IllegalArgumentException("Feil")).when(oppgaveRestKlient).ferdigstillOppgave(null);
+
+        assertThatThrownBy(() -> tjeneste.ferdigstillOppgave(null)).isInstanceOf(TekniskException.class)
+            .hasMessageContaining("Noe feilet ved ferdigstilling av oppgave");
     }
 }

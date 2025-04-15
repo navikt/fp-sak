@@ -372,6 +372,7 @@ public class BehandlingDtoTjeneste {
         if (!behandling.getÅpneAksjonspunkter(
             Set.of(AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK, AksjonspunktDefinisjon.VURDERE_DOKUMENT_FØR_VEDTAK)).isEmpty()) {
             dto.leggTil(get(OppgaverRestTjeneste.HENT_OPPGAVER_PATH, "hent-oppgaver", uuidDto));
+            dto.leggTil(post(OppgaverRestTjeneste.FERDIGSTILL_OPPGAVE_PATH, "ferdigstill-oppgave"));
         }
 
         var harSimuleringAksjonspunkt = behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_FEILUTBETALING);
