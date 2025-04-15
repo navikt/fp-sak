@@ -54,6 +54,11 @@
       "cluster": "prod-fss"
     },
     {
+      "app": "fptilgang",
+      "namespace": "teamforeldrepenger",
+      "cluster": "prod-fss"
+    },
+    {
       "app": "fpfordel",
       "namespace": "teamforeldrepenger",
       "cluster": "prod-fss"
