@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FamilieHendelseDato;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -20,6 +21,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.SakensPersonerEndretEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -39,6 +41,7 @@ public class VurderSøktForTidligSteg implements BehandlingSteg {
 
     private Kompletthetsjekker kompletthetsjekker;
     private BehandlingRepository behandlingRepository;
+    private BehandlingEventPubliserer behandlingEventPubliserer;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
@@ -48,8 +51,10 @@ public class VurderSøktForTidligSteg implements BehandlingSteg {
     @Inject
     public VurderSøktForTidligSteg(Kompletthetsjekker kompletthetsjekker,
                                    BehandlingRepositoryProvider provider,
+                                   BehandlingEventPubliserer behandlingEventPubliserer,
                                    SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.kompletthetsjekker = kompletthetsjekker;
+        this.behandlingEventPubliserer = behandlingEventPubliserer;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = provider.getBehandlingRepository();
         this.ytelsesFordelingRepository = provider.getYtelsesFordelingRepository();
@@ -58,6 +63,10 @@ public class VurderSøktForTidligSteg implements BehandlingSteg {
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        // Dekker tilfelle av lagret annen forelder fra søknad (papir/digital). Dessuten evt sakskobling i forrige steg. Primært pga test/polling
+        if (behandling.erYtelseBehandling() && !behandling.erRevurdering()) {
+            behandlingEventPubliserer.publiserBehandlingEvent(new SakensPersonerEndretEvent(behandling.getFagsakId(), behandling.getSaksnummer(), behandling.getId()));
+        }
         if (skalPassereKompletthet(behandling) || behandling.erRevurdering()) {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }

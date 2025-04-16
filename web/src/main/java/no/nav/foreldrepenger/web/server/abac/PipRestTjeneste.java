@@ -22,6 +22,7 @@ import jakarta.ws.rs.core.MediaType;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import io.swagger.v3.oas.annotations.Operation;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.pip.PipRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -46,15 +47,17 @@ public class PipRestTjeneste {
     protected static final String PIP_BASE_PATH = "/pip";
 
     private static final String AKTOER_FOR_SAK = "/aktoer-for-sak";
-        private static final String AKTOER_FOR_BEHANDLING = "/aktoer-for-behandling";
+    private static final String AKTOER_FOR_BEHANDLING = "/aktoer-for-behandling";
     private static final String SAKSNUMMER_FOR_BEHANDLING = "/saksnummer-for-behandling";
     private static final String SAK_AKTOER_FOR_BEHANDLING = "/sak-aktoer-for-behandling";
 
     private PipRepository pipRepository;
+    private PersonopplysningRepository personopplysningRepository;
 
     @Inject
-    public PipRestTjeneste(PipRepository pipRepository) {
+    public PipRestTjeneste(PipRepository pipRepository, PersonopplysningRepository personopplysningRepository) {
         this.pipRepository = pipRepository;
+        this.personopplysningRepository = personopplysningRepository;
     }
 
     public PipRestTjeneste() {
@@ -67,7 +70,7 @@ public class PipRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP, availabilityType = AvailabilityType.ALL, sporingslogg = false)
     public Set<AktørId> hentAktørIdListeTilknyttetSak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
         @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
-        return pipRepository.hentAktørIdKnyttetTilSaksnummer(saksnummerDto.getVerdi());
+        return personopplysningRepository.hentAktørIdKnyttetTilSaksnummer(saksnummerDto.getVerdi());
     }
 
     @POST // Bulk-metode
@@ -90,7 +93,7 @@ public class PipRestTjeneste {
                                                        @NotNull @QueryParam("behandlingUuid") @Valid UuidDto uuidDto) {
         return pipRepository.hentSaksnummerForBehandlingUuid(uuidDto.getBehandlingUuid())
             .map(Saksnummer::getVerdi)
-            .map(pipRepository::hentAktørIdKnyttetTilSaksnummer)
+            .map(personopplysningRepository::hentAktørIdKnyttetTilSaksnummer)
             .orElseGet(Set::of);
     }
 
@@ -116,7 +119,7 @@ public class PipRestTjeneste {
     }
 
     private SakMedPersonerDto lagSakMedPersonerDto(String saksnummer) {
-        var identer = pipRepository.hentAktørIdKnyttetTilSaksnummer(saksnummer).stream().map(AktørId::getId).collect(Collectors.toSet());
+        var identer = personopplysningRepository.hentAktørIdKnyttetTilSaksnummer(saksnummer).stream().map(AktørId::getId).collect(Collectors.toSet());
         return new SakMedPersonerDto(saksnummer, identer);
     }
 

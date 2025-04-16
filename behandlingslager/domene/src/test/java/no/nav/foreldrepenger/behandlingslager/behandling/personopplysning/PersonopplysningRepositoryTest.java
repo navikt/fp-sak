@@ -13,8 +13,10 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Gyldighetsperiode;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.StatsborgerskapPeriode;
+import no.nav.foreldrepenger.behandlingslager.behandling.BasicBehandlingBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadAnnenPartType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -72,6 +74,104 @@ class PersonopplysningRepositoryTest extends EntityManagerAwareTest {
         assertThat(personopplysningerAggregat).isNotEqualTo(førsteVersjonPersonopplysningerAggregat);
         assertThat(personopplysningerAggregat.getSøker()).isEqualToComparingOnlyGivenFields(førsteVersjonPersonopplysningerAggregat.getSøker(), "aktørId", "navn", "fødselsdato", "sivilstand", "brukerKjønn");
         assertThat(personopplysningerAggregat.getSøker()).isNotEqualTo(førsteVersjonPersonopplysningerAggregat.getSøker());
+    }
+
+
+    @Test
+    void skal_finne_aktoerId_for_saksnummer_kun_sak() {
+        var fagsak = new BasicBehandlingBuilder(getEntityManager()).opprettFagsak(FagsakYtelseType.FORELDREPENGER, AktørId.dummy());
+
+        var aktørIder = repository.hentAktørIdKnyttetTilSaksnummer(fagsak.getSaksnummer().getVerdi());
+        assertThat(aktørIder).containsOnly(fagsak.getAktørId());
+    }
+
+    @Test
+    void skal_finne_aktoerId_for_saksnummer_behandling_med_oppgitt_annenpart() {
+        var fagsak = new BasicBehandlingBuilder(getEntityManager()).opprettFagsak(FagsakYtelseType.FORELDREPENGER, AktørId.dummy());
+        var builder = Behandling.forFørstegangssøknad(fagsak);
+        var behandling = builder.build();
+        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
+        var annenPart = AktørId.dummy();
+        repository.lagre(behandling.getId(), new OppgittAnnenPartBuilder().medType(SøknadAnnenPartType.FAR).medAktørId(annenPart).build());
+
+        var aktørIder = repository.hentAktørIdKnyttetTilSaksnummer(fagsak.getSaksnummer().getVerdi());
+        assertThat(aktørIder).containsOnly(fagsak.getAktørId(), annenPart);
+    }
+
+    @Test
+    void skal_finne_aktoerId_for_saksnummer_behandling_med_annenpart_oppgitt_og_register() {
+        var fagsak = new BasicBehandlingBuilder(getEntityManager()).opprettFagsak(FagsakYtelseType.FORELDREPENGER, AktørId.dummy());
+        var builder = Behandling.forFørstegangssøknad(fagsak);
+        var behandling = builder.build();
+        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
+        var annenPart = AktørId.dummy();
+        repository.lagre(behandling.getId(), new OppgittAnnenPartBuilder().medType(SøknadAnnenPartType.FAR).medAktørId(annenPart).build());
+
+        var informasjonBuilder = repository.opprettBuilderForRegisterdata(behandling.getId());
+        var personopplysningBuilder = informasjonBuilder.getPersonopplysningBuilder(annenPart)
+            .medNavn("Annen part")
+            .medKjønn(NavBrukerKjønn.MANN)
+            .medFødselsdato(LocalDate.now().minusYears(25))
+            .medSivilstand(SivilstandType.GIFT);
+        informasjonBuilder.leggTil(personopplysningBuilder);
+        repository.lagre(behandling.getId(), informasjonBuilder);
+
+        var aktørIder = repository.hentAktørIdKnyttetTilSaksnummer(fagsak.getSaksnummer().getVerdi());
+        assertThat(aktørIder).containsOnly(fagsak.getAktørId(), annenPart);
+    }
+
+    @Test
+    void skal_finne_aktoerId_for_saksnummer_behandling_med_annenpart_og_barn() {
+        var fagsak = new BasicBehandlingBuilder(getEntityManager()).opprettFagsak(FagsakYtelseType.FORELDREPENGER, AktørId.dummy());
+        var builder = Behandling.forFørstegangssøknad(fagsak);
+        var behandling = builder.build();
+        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
+        var annenPart = AktørId.dummy();
+        repository.lagre(behandling.getId(), new OppgittAnnenPartBuilder().medType(SøknadAnnenPartType.FAR).medAktørId(annenPart).build());
+
+        var informasjonBuilder = repository.opprettBuilderForRegisterdata(behandling.getId());
+        var personopplysningBuilder = informasjonBuilder.getPersonopplysningBuilder(annenPart)
+            .medNavn("Annen part")
+            .medKjønn(NavBrukerKjønn.MANN)
+            .medFødselsdato(LocalDate.now().minusYears(25))
+            .medSivilstand(SivilstandType.GIFT);
+        informasjonBuilder.leggTil(personopplysningBuilder);
+
+
+        var barn = AktørId.dummy();
+        var personopplysningBuilderBarn = informasjonBuilder.getPersonopplysningBuilder(barn)
+            .medNavn("Barn Bruker")
+            .medKjønn(NavBrukerKjønn.KVINNE)
+            .medFødselsdato(LocalDate.now().minusDays(2))
+            .medSivilstand(SivilstandType.UGIFT);
+        informasjonBuilder.leggTil(personopplysningBuilderBarn);
+
+        repository.lagre(behandling.getId(), informasjonBuilder);
+
+        var aktørIder = repository.hentAktørIdKnyttetTilSaksnummer(fagsak.getSaksnummer().getVerdi());
+        assertThat(aktørIder).containsOnly(fagsak.getAktørId(), annenPart, barn);
+    }
+
+    @Test
+    void skal_finne_aktoerId_for_saksnummer_behandling_med_barn() {
+        var fagsak = new BasicBehandlingBuilder(getEntityManager()).opprettFagsak(FagsakYtelseType.FORELDREPENGER, AktørId.dummy());
+        var builder = Behandling.forFørstegangssøknad(fagsak);
+        var behandling = builder.build();
+        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
+
+        var informasjonBuilder = repository.opprettBuilderForRegisterdata(behandling.getId());
+        var barn = AktørId.dummy();
+        var personopplysningBuilderBarn = informasjonBuilder.getPersonopplysningBuilder(barn)
+            .medNavn("Barn Bruker")
+            .medKjønn(NavBrukerKjønn.KVINNE)
+            .medFødselsdato(LocalDate.now().minusDays(2))
+            .medSivilstand(SivilstandType.UGIFT);
+        informasjonBuilder.leggTil(personopplysningBuilderBarn);
+
+        repository.lagre(behandling.getId(), informasjonBuilder);
+
+        var aktørIder = repository.hentAktørIdKnyttetTilSaksnummer(fagsak.getSaksnummer().getVerdi());
+        assertThat(aktørIder).containsOnly(fagsak.getAktørId(), barn);
     }
 
     private PersonopplysningerAggregat tilAggregat(Behandling behandling, PersonopplysningGrunnlagEntitet grunnlag) {
