@@ -26,7 +26,7 @@ jobs:
     uses: navikt/fp-gha-workflows/.github/workflows/build-app-no-db.yml@sonar
     with:
       runs-on: 'ubuntu-latest-8-cores' # default: ubuntu-latest
-      t-2c: '-T 8C' # default:
+      t-2c: '-T 4C' # default:
       build-image: ${{ github.ref_name == 'master' }} # default: true
       push-image: ${{ github.ref_name == 'master' }} # default: false
       use-reader: true
