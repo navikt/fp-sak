@@ -31,7 +31,6 @@ jobs:
       push-image: ${{ github.ref_name == 'master' }} # default: false
       use-reader: true
     secrets: inherit
-
   sonar-analyse:
     name: Builds
     permissions:
