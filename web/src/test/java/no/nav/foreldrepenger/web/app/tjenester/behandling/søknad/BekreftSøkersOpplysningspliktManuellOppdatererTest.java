@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringAksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -62,7 +62,7 @@ class BekreftSøkersOpplysningspliktManuellOppdatererTest {
 
         var aksjonspunktSet = resultat.getEkstraAksjonspunktResultat()
             .stream()
-            .map(AksjonspunktResultat::getAksjonspunktDefinisjon)
+            .map(OppdateringAksjonspunktResultat::aksjonspunktDefinisjon)
             .collect(Collectors.toSet());
 
         assertThat(aksjonspunktSet).isEmpty();

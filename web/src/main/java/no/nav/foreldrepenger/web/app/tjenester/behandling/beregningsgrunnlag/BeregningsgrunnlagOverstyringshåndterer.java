@@ -9,11 +9,10 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
@@ -29,6 +28,7 @@ public class BeregningsgrunnlagOverstyringshåndterer implements Overstyringshå
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
     private BeregningTjeneste beregningTjeneste;
     private FaktaBeregningHistorikkKalkulusTjeneste faktaBeregningHistorikkKalkulusTjeneste;
+    private BehandlingRepository behandlingRepository;
 
     BeregningsgrunnlagOverstyringshåndterer() {
         // for CDI proxy
@@ -38,33 +38,33 @@ public class BeregningsgrunnlagOverstyringshåndterer implements Overstyringshå
     public BeregningsgrunnlagOverstyringshåndterer(FaktaBeregningHistorikkHåndterer faktaBeregningHistorikkHåndterer,
                                                    FaktaBeregningHistorikkKalkulusTjeneste faktaBeregningHistorikkKalkulusTjeneste,
                                                    HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
-                                                   BeregningTjeneste beregningTjeneste) {
+                                                   BeregningTjeneste beregningTjeneste, BehandlingRepository behandlingRepository) {
         this.faktaBeregningHistorikkHåndterer = faktaBeregningHistorikkHåndterer;
         this.faktaBeregningHistorikkKalkulusTjeneste = faktaBeregningHistorikkKalkulusTjeneste;
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.beregningTjeneste = beregningTjeneste;
+        this.behandlingRepository = behandlingRepository;
     }
 
     @Override
-    public OppdateringResultat håndterOverstyring(OverstyrBeregningsgrunnlagDto dto,
-                                                  Behandling behandling, BehandlingskontrollKontekst kontekst) {
-        var ref = BehandlingReferanse.fra(behandling);
+    public OppdateringResultat håndterOverstyring(OverstyrBeregningsgrunnlagDto dto, BehandlingReferanse ref) {
         var endringsaggregat = beregningTjeneste.overstyrBeregning(dto, ref);
         if (endringsaggregat.isPresent()) {
             faktaBeregningHistorikkKalkulusTjeneste.lagHistorikk(ref, endringsaggregat.get(), dto.getBegrunnelse());
         } else {
-            var forrigeGrunnlag = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandling.getId(), behandling.getOriginalBehandlingId(),
+            var forrigeGrunnlag = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(ref.behandlingId(), ref.getOriginalBehandlingId(),
                 BeregningsgrunnlagTilstand.FORESLÅTT);
-            var aktivtGrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(behandling.getId());
-            faktaBeregningHistorikkHåndterer.lagHistorikkOverstyringInntekt(behandling, dto, aktivtGrunnlag, forrigeGrunnlag);
+            var aktivtGrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(ref.behandlingId());
+            faktaBeregningHistorikkHåndterer.lagHistorikkOverstyringInntekt(ref, dto, aktivtGrunnlag, forrigeGrunnlag);
         }
         var builder = OppdateringResultat.utenTransisjon();
-        fjernOverstyrtAksjonspunkt(behandling)
+        fjernOverstyrtAksjonspunkt(ref)
             .ifPresent(ap -> builder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
         return builder.build();
     }
 
-    private Optional<Aksjonspunkt> fjernOverstyrtAksjonspunkt(Behandling behandling) {
-        return behandling.getÅpentAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VURDER_FAKTA_FOR_ATFL_SN);
+    private Optional<Aksjonspunkt> fjernOverstyrtAksjonspunkt(BehandlingReferanse ref) {
+        return behandlingRepository.hentBehandling(ref.behandlingId())
+            .getÅpentAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VURDER_FAKTA_FOR_ATFL_SN);
     }
 }

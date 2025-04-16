@@ -5,11 +5,10 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.Histor
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
@@ -35,20 +34,20 @@ public class OverstyringAvklarStartdatoForPeriodenHåndterer implements Overstyr
     }
 
     @Override
-    public OppdateringResultat håndterOverstyring(OverstyringAvklarStartdatoForPeriodenDto dto, Behandling behandling, BehandlingskontrollKontekst kontekst) {
-        ytelseFordelingTjeneste.aksjonspunktAvklarStartdatoForPerioden(behandling.getId(), dto.getStartdatoFraSoknad());
+    public OppdateringResultat håndterOverstyring(OverstyringAvklarStartdatoForPeriodenDto dto, BehandlingReferanse ref) {
+        ytelseFordelingTjeneste.aksjonspunktAvklarStartdatoForPerioden(ref.behandlingId(), dto.getStartdatoFraSoknad());
         return OppdateringResultat.utenTransisjon().build();
     }
 
     @Override
-    public void lagHistorikkInnslag(OverstyringAvklarStartdatoForPeriodenDto dto, Behandling behandling) {
+    public void lagHistorikkInnslag(OverstyringAvklarStartdatoForPeriodenDto dto, BehandlingReferanse ref) {
         var opprinneligDato = dto.getOpprinneligDato();
         var startdatoFraSoknad = dto.getStartdatoFraSoknad();
         if (!startdatoFraSoknad.isEqual(opprinneligDato)) {
             var historikkinnslag = new Historikkinnslag.Builder().medTittel(SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER)
                 .medAktør(HistorikkAktør.SAKSBEHANDLER)
-                .medBehandlingId(behandling.getId())
-                .medFagsakId(behandling.getFagsakId())
+                .medBehandlingId(ref.behandlingId())
+                .medFagsakId(ref.fagsakId())
                 .addLinje(fraTilEquals("Startdato for foreldrepengeperioden", opprinneligDato, startdatoFraSoknad))
                 .addLinje(dto.getBegrunnelse())
                 .build();

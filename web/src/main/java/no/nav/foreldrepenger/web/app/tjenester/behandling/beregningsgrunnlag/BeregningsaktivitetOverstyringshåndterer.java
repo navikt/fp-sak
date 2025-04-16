@@ -7,8 +7,6 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
@@ -42,18 +40,16 @@ public class BeregningsaktivitetOverstyringshåndterer implements Overstyringsh�
     }
 
     @Override
-    public OppdateringResultat håndterOverstyring(OverstyrBeregningsaktiviteterDto dto, Behandling behandling,
-                                                  BehandlingskontrollKontekst kontekst) {
-        var ref = BehandlingReferanse.fra(behandling);
+    public OppdateringResultat håndterOverstyring(OverstyrBeregningsaktiviteterDto dto, BehandlingReferanse ref) {
         var endringsaggregat = beregningTjeneste.overstyrBeregning(dto, ref);
         if (endringsaggregat.isPresent()) {
             beregningsaktivitetHistorikkKalkulusTjeneste.lagHistorikk(ref, dto.getBegrunnelse(), endringsaggregat.get());
 
         } else {
-            var grunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId())
+            var grunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(ref.behandlingId())
                 .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Mangler BeregningsgrunnlagGrunnlagEntitet"));
-            var originalBehandlingId = behandling.getOriginalBehandlingId();
-            var forrige = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandling.getId(), originalBehandlingId,
+            var originalBehandlingId = ref.getOriginalBehandlingId();
+            var forrige = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(ref.behandlingId(), originalBehandlingId,
                     BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER)
                 .map(BeregningsgrunnlagGrunnlagEntitet::getGjeldendeAktiviteter);
             var registerAktiviteter = grunnlag.getRegisterAktiviteter();

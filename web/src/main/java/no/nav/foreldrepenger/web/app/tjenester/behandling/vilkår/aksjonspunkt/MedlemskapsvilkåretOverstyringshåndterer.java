@@ -4,12 +4,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdateringTransisjon;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
@@ -36,19 +34,16 @@ public class MedlemskapsvilkåretOverstyringshåndterer implements Overstyringsh
     }
 
     @Override
-    public OppdateringResultat håndterOverstyring(OverstyringMedlemskapsvilkåretDto dto,
-                                                  Behandling behandling,
-                                                  BehandlingskontrollKontekst kontekst) {
+    public OppdateringResultat håndterOverstyring(OverstyringMedlemskapsvilkåretDto dto, BehandlingReferanse ref) {
         var avslagsårsak = Avslagsårsak.fraKode(dto.getAvslagskode());
-        var behandlingReferanse = BehandlingReferanse.fra(behandling);
-        var utfall = medlemskapAksjonspunktFellesTjeneste.oppdater(behandlingReferanse,
+        var utfall = medlemskapAksjonspunktFellesTjeneste.oppdater(ref,
             avslagsårsak, dto.getOpphørFom(), dto.getBegrunnelse(), SkjermlenkeType.PUNKT_FOR_MEDLEMSKAP);
-        inngangsvilkårTjeneste.overstyrAksjonspunkt(behandling.getId(), VilkårType.MEDLEMSKAPSVILKÅRET, utfall,
-            avslagsårsak == null ? Avslagsårsak.UDEFINERT : avslagsårsak, kontekst);
+        inngangsvilkårTjeneste.overstyrAksjonspunkt(ref.behandlingId(), VilkårType.MEDLEMSKAPSVILKÅRET, utfall,
+            avslagsårsak == null ? Avslagsårsak.UDEFINERT : avslagsårsak);
         if (VilkårUtfallType.OPPFYLT.equals(utfall)) {
             return OppdateringResultat.utenOverhopp();
         } else {
-            return OppdateringResultat.medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR);
+            return OppdateringResultat.medFremoverHopp(AksjonspunktOppdateringTransisjon.AVSLAG_VILKÅR);
         }
     }
 }

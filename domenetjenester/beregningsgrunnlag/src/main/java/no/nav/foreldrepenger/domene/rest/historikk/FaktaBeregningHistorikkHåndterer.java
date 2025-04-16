@@ -11,11 +11,10 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
@@ -79,15 +78,15 @@ public class FaktaBeregningHistorikkHåndterer {
      * @param aktivtGrunnlag  Det aktive og oppdaterte beregningsgrunnlaget
      * @param forrigeGrunnlag Det forrige grunnlaget som ble lagret i fakta om beregning
      */
-    public void lagHistorikkOverstyringInntekt(Behandling behandling,
+    public void lagHistorikkOverstyringInntekt(BehandlingReferanse ref,
                                                OverstyrBeregningsgrunnlagDto dto,
                                                BeregningsgrunnlagEntitet aktivtGrunnlag,
                                                Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag) {
 
-        var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId());
+        var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.behandlingId());
         var linjeBuilder = håndterTilfelleHistorikk(dto.getFakta(), aktivtGrunnlag, forrigeGrunnlag, iayGrunnlag);
         linjeBuilder.addAll(faktaOmBeregningOverstyringHistorikkTjeneste.lagHistorikk(dto, aktivtGrunnlag, forrigeGrunnlag, iayGrunnlag));
-        lagHistorikkInnslag(BehandlingReferanse.fra(behandling), linjeBuilder, dto.getBegrunnelse());
+        lagHistorikkInnslag(ref, linjeBuilder, dto.getBegrunnelse());
     }
 
     private List<HistorikkinnslagLinjeBuilder> håndterTilfelleHistorikk(FaktaBeregningLagreDto dto,

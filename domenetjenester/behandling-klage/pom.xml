@@ -17,6 +17,10 @@
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>produksjonsstyring</artifactId>
         </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger</groupId>
+            <artifactId>dokumentarkiv</artifactId>
+        </dependency>
 
         <!--Interne prosjektavhengigheter-->
         <dependency>

@@ -4,13 +4,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdateringTransisjon;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
@@ -38,21 +35,19 @@ public class MedlemskapsvilkåretForutgåendeOverstyringshåndterer implements O
     }
 
     @Override
-    public OppdateringResultat håndterOverstyring(OverstyringForutgåendeMedlemskapsvilkårDto dto,
-                                                  Behandling behandling,
-                                                  BehandlingskontrollKontekst kontekst) {
-        if (!FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
+    public OppdateringResultat håndterOverstyring(OverstyringForutgåendeMedlemskapsvilkårDto dto, BehandlingReferanse ref) {
+        if (!FagsakYtelseType.ENGANGSTØNAD.equals(ref.fagsakYtelseType())) {
             throw new IllegalArgumentException("Utviklerfeil: Prøver overstyre forutgående medlemskap for annen ytelse enn engangsstønad");
         }
         var avslagsårsak = Avslagsårsak.fraKode(dto.getAvslagskode());
-        var utfall = medlemskapAksjonspunktFellesTjeneste.oppdaterForutgående(BehandlingReferanse.fra(behandling), avslagsårsak, dto.getMedlemFom(),
+        var utfall = medlemskapAksjonspunktFellesTjeneste.oppdaterForutgående(ref, avslagsårsak, dto.getMedlemFom(),
             dto.getBegrunnelse(), SkjermlenkeType.PUNKT_FOR_MEDLEMSKAP);
-        inngangsvilkårTjeneste.overstyrAksjonspunkt(kontekst.getBehandlingId(), VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE, utfall,
-            avslagsårsak == null ? Avslagsårsak.UDEFINERT : avslagsårsak, kontekst);
+        inngangsvilkårTjeneste.overstyrAksjonspunkt(ref.behandlingId(), VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE, utfall,
+            avslagsårsak == null ? Avslagsårsak.UDEFINERT : avslagsårsak);
         if (VilkårUtfallType.OPPFYLT.equals(utfall)) {
             return OppdateringResultat.utenOverhopp();
         } else {
-            return OppdateringResultat.medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR);
+            return OppdateringResultat.medFremoverHopp(AksjonspunktOppdateringTransisjon.AVSLAG_VILKÅR);
         }
     }
 }
