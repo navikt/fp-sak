@@ -58,7 +58,6 @@ class PdpRequestBuilderTest {
         var attributter = AbacDataAttributter.opprett()
                 .leggTil(AppAbacAttributtType.BEHANDLING_UUID, BEHANDLING_UUID);
 
-        lenient().when(pipRepository.hentAktørIdKnyttetTilSaksnummer(SAKSNUMMER.getVerdi())).thenReturn(Collections.singleton(AKTØR_1));
         var behandligStatus = BehandlingStatus.OPPRETTET;
         var ansvarligSaksbehandler = "Z123456";
         var fagsakStatus = FagsakStatus.UNDER_BEHANDLING;
@@ -66,8 +65,7 @@ class PdpRequestBuilderTest {
                 Optional.of(new PipBehandlingsData(behandligStatus, ansvarligSaksbehandler, BEHANDLING_ID, BEHANDLING_UUID, fagsakStatus, SAKSNUMMER)));
 
         var request = requestBuilder.lagAppRessursData(attributter);
-        //assertThat(request.getSaksnummer()).isEqualTo(SAKSNUMMER.getVerdi());
-        assertThat(request.getAktørIdSet()).containsOnly(AKTØR_1.getId());
+        assertThat(request.getSaksnummer()).isEqualTo(SAKSNUMMER.getVerdi());
         assertThat(request.getResource(ForeldrepengerDataKeys.SAKSBEHANDLER).verdi()).isEqualTo(ansvarligSaksbehandler);
         assertThat(request.getResource(ForeldrepengerDataKeys.BEHANDLING_STATUS).verdi())
                 .isEqualTo(PipBehandlingStatus.OPPRETTET.getVerdi());
@@ -81,11 +79,9 @@ class PdpRequestBuilderTest {
                 .leggTil(AppAbacAttributtType.JOURNALPOST_ID, JOURNALPOST_ID);
 
         lenient().when(pipRepository.saksnummerForJournalpostId(Collections.singleton(JOURNALPOST_ID))).thenReturn(Collections.singleton(SAKSNUMMER));
-        lenient().when(pipRepository.hentAktørIdKnyttetTilSaksnummer(SAKSNUMMER.getVerdi())).thenReturn(Collections.singleton(AKTØR_1));
 
         var request = requestBuilder.lagAppRessursData(attributter);
-        //assertThat(request.getSaksnummer()).isEqualTo(SAKSNUMMER.getVerdi());
-        assertThat(request.getAktørIdSet()).containsOnly(AKTØR_1.getId());
+        assertThat(request.getSaksnummer()).isEqualTo(SAKSNUMMER.getVerdi());
     }
 
     @Test
