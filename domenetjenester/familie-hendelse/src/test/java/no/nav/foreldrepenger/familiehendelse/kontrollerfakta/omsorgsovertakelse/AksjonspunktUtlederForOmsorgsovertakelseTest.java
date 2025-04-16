@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
@@ -29,16 +29,16 @@ class AksjonspunktUtlederForOmsorgsovertakelseTest {
     void skal_utledede_aksjonspunkt_basert_på_fakta_om_engangsstønad_til_far() {
         var overtattOmsorg = aksjonspunktForFakta(OVERTATT_OMSORG);
         assertThat(overtattOmsorg).hasSize(1);
-        assertThat(overtattOmsorg.get(0).getAksjonspunktDefinisjon()).isEqualTo(AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE);
+        assertThat(overtattOmsorg.get(0).aksjonspunktDefinisjon()).isEqualTo(AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE);
 
         var andreForelderDød = aksjonspunktForFakta(ANDRE_FORELDER_DØD);
         assertThat(andreForelderDød).hasSize(1);
-        assertThat(andreForelderDød.get(0).getAksjonspunktDefinisjon()).isEqualTo(AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE);
+        assertThat(andreForelderDød.get(0).aksjonspunktDefinisjon()).isEqualTo(AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE);
 
         assertThat(aksjonspunktForFakta(ADOPTERER_ALENE)).isEmpty();
     }
 
-    private List<AksjonspunktResultat> aksjonspunktForFakta(FarSøkerType farSøkerType) {
+    private List<AksjonspunktUtlederResultat> aksjonspunktForFakta(FarSøkerType farSøkerType) {
         var behandling = byggBehandling(farSøkerType);
         return aksjonspunktUtleder.utledAksjonspunkterFor(new AksjonspunktUtlederInput(BehandlingReferanse.fra(behandling), null));
     }

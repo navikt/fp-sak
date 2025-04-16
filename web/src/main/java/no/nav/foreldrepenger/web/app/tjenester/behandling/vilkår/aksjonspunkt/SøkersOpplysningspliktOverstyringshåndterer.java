@@ -5,12 +5,11 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.Histor
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdateringTransisjon;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
@@ -40,26 +39,25 @@ public class SøkersOpplysningspliktOverstyringshåndterer implements Overstyrin
     }
 
     @Override
-    public void lagHistorikkInnslag(OverstyringSokersOpplysingspliktDto dto, Behandling behandling) {
-        leggTilEndretFeltIHistorikkInnslag(behandling.getFagsakId(), behandling.getId(), dto);
+    public void lagHistorikkInnslag(OverstyringSokersOpplysingspliktDto dto, BehandlingReferanse ref) {
+        leggTilEndretFeltIHistorikkInnslag(ref.fagsakId(), ref.behandlingId(), dto);
     }
 
     @Override
-    public OppdateringResultat håndterOverstyring(OverstyringSokersOpplysingspliktDto dto, Behandling behandling,
-                                                  BehandlingskontrollKontekst kontekst) {
+    public OppdateringResultat håndterOverstyring(OverstyringSokersOpplysingspliktDto dto, BehandlingReferanse ref) {
 
-        if (!dto.getErVilkarOk() && behandling.erRevurdering()) {
+        if (!dto.getErVilkarOk() && ref.erRevurdering()) {
             throw new FunksjonellException("FP-093925", "Kan ikke avslå revurdering med opplysningsplikt.",
                 "Overstyr ett av de andre vilkårene.");
         }
         var utfall = dto.getErVilkarOk() ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
-        inngangsvilkårTjeneste.overstyrAksjonspunktForSøkersopplysningsplikt(behandling.getId(), utfall, kontekst);
+        inngangsvilkårTjeneste.overstyrAksjonspunktForSøkersopplysningsplikt(ref.behandlingId(), utfall);
 
         var builder = OppdateringResultat.utenTransisjon();
         if (VilkårUtfallType.OPPFYLT.equals(utfall)) {
             return builder.build();
         }
-        builder.medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR);
+        builder.medFremoverHopp(AksjonspunktOppdateringTransisjon.AVSLAG_VILKÅR);
         return builder.build();
     }
 

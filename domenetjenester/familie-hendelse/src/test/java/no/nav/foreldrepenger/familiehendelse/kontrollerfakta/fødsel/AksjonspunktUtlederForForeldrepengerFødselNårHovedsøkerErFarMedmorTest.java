@@ -16,7 +16,7 @@ import org.mockito.Mockito;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederResultat;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -87,7 +87,7 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedmorTest 
         var behandling = opprettBehandlingFarSøkerFødselRegistrertIPDL(LocalDate.now(), 2, 1);
         var utledeteAksjonspunkter = testObjekt.utledAksjonspunkterFor(lagInput(behandling, LocalDate.now()));
 
-        assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktResultat.opprettForAksjonspunkt(SJEKK_MANGLENDE_FØDSEL));
+        assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktUtlederResultat.opprettForAksjonspunkt(SJEKK_MANGLENDE_FØDSEL));
         verify(testObjekt).samsvarerAntallBarnISøknadMedAntallBarnIPDL(any(FamilieHendelseGrunnlagEntitet.class));
     }
 
@@ -99,7 +99,7 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedmorTest 
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling, LocalDate.now()));
 
         assertThat(utledeteAksjonspunkter).hasSize(1);
-        assertThat(utledeteAksjonspunkter.get(0).getAksjonspunktDefinisjon()).isEqualTo(AVKLAR_TERMINBEKREFTELSE);;
+        assertThat(utledeteAksjonspunkter.getFirst().aksjonspunktDefinisjon()).isEqualTo(AVKLAR_TERMINBEKREFTELSE);;
     }
 
     @Test
@@ -110,7 +110,7 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedmorTest 
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInputMedMinsterettFar(behandling, LocalDate.now()));
 
         assertThat(utledeteAksjonspunkter).hasSize(1);
-        assertThat(utledeteAksjonspunkter.get(0).getAksjonspunktDefinisjon()).isEqualTo(AVKLAR_TERMINBEKREFTELSE);
+        assertThat(utledeteAksjonspunkter.getFirst().aksjonspunktDefinisjon()).isEqualTo(AVKLAR_TERMINBEKREFTELSE);
     }
 
     @Test
@@ -134,7 +134,7 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedmorTest 
             repositoryProvider.getYtelsesFordelingRepository()));
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling, LocalDate.now()));
 
-        assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktResultat.opprettForAksjonspunkt(SJEKK_MANGLENDE_FØDSEL));
+        assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktUtlederResultat.opprettForAksjonspunkt(SJEKK_MANGLENDE_FØDSEL));
         verify(apUtleder).erFristForRegistreringAvFødselPassert(any(FamilieHendelseGrunnlagEntitet.class));
     }
 
@@ -146,9 +146,9 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedmorTest 
             repositoryProvider.getYtelsesFordelingRepository()));
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling, termindato));
 
-        assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktResultat.opprettForAksjonspunkt(AUTO_VENT_PÅ_FØDSELREGISTRERING));
-        assertThat(utledeteAksjonspunkter.get(0).getFrist()).isNotNull();
-        assertThat(utledeteAksjonspunkter.get(0).getVenteårsak()).isNotNull();
+        assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktUtlederResultat.opprettForAksjonspunkt(AUTO_VENT_PÅ_FØDSELREGISTRERING));
+        assertThat(utledeteAksjonspunkter.getFirst().frist()).isNotNull();
+        assertThat(utledeteAksjonspunkter.getFirst().venteårsak()).isNotNull();
         verify(apUtleder).erFristForRegistreringAvFødselPassert(any(FamilieHendelseGrunnlagEntitet.class));
     }
 
@@ -160,7 +160,7 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedmorTest 
         var apUtleder = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(iayTjeneste, familieHendelseTjeneste,
             repositoryProvider.getYtelsesFordelingRepository()));
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(param);
-        assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktResultat.opprettForAksjonspunkt(AVKLAR_TERMINBEKREFTELSE));
+        assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktUtlederResultat.opprettForAksjonspunkt(AVKLAR_TERMINBEKREFTELSE));
     }
 
     @Test
@@ -171,7 +171,7 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedmorTest 
         var apUtleder = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(iayTjeneste, familieHendelseTjeneste,
             repositoryProvider.getYtelsesFordelingRepository()));
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(param);
-        assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktResultat.opprettForAksjonspunkt(AVKLAR_TERMINBEKREFTELSE));
+        assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktUtlederResultat.opprettForAksjonspunkt(AVKLAR_TERMINBEKREFTELSE));
     }
 
     private Behandling opprettBehandlingFarSøkerFødselRegistrertIPDL(LocalDate fødseldato, int antallBarnSøknad, int antallBarnPDL) {

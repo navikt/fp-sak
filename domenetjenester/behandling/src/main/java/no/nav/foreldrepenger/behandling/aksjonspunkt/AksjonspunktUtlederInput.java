@@ -10,46 +10,41 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-public class AksjonspunktUtlederInput {
+public record AksjonspunktUtlederInput(BehandlingReferanse ref, Skjæringstidspunkt stp) {
 
-    private final BehandlingReferanse ref;
-    private final Skjæringstidspunkt stp;
-
-    public AksjonspunktUtlederInput(BehandlingReferanse ref, Skjæringstidspunkt stp) {
+    public AksjonspunktUtlederInput {
         Objects.requireNonNull(ref, "ref");
-        this.ref = ref;
-        this.stp = stp;
     }
 
     public Long getBehandlingId() {
-        return ref.behandlingId();
+        return ref().behandlingId();
     }
 
     public AktørId getAktørId() {
-        return ref.aktørId();
+        return ref().aktørId();
     }
 
     public FagsakYtelseType getYtelseType() {
-        return ref.fagsakYtelseType();
+        return ref().fagsakYtelseType();
     }
 
     public BehandlingType getBehandlingType() {
-        return ref.behandlingType();
+        return ref().behandlingType();
     }
 
     public RelasjonsRolleType getRelasjonsRolleType() {
-        return ref.relasjonRolle();
+        return ref().relasjonRolle();
     }
 
     public BehandlingReferanse getRef() {
-        return ref;
+        return ref();
     }
 
     public Skjæringstidspunkt getSkjæringstidspunkt() {
-        return stp;
+        return stp();
     }
 
     public Saksnummer getSaksnummer() {
-        return ref.saksnummer();
+        return ref().saksnummer();
     }
 }

@@ -37,10 +37,6 @@
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>risikoklassifisering</artifactId>
         </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger</groupId>
-            <artifactId>tilbakekreving</artifactId>
-        </dependency>
 
         <!-- Test avhengigheter -->
         <dependency>

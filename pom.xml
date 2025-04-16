@@ -416,11 +416,6 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger</groupId>
-                <artifactId>tilbakekreving</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger</groupId>
                 <artifactId>opptjeningsvilkar</artifactId>
                 <version>${project.version}</version>
             </dependency>

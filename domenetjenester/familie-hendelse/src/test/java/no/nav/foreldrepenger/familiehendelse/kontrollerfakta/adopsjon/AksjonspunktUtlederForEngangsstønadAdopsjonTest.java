@@ -12,23 +12,23 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 
 class AksjonspunktUtlederForEngangsstønadAdopsjonTest {
 
-    private AksjonspunktUtlederForEngangsstønadAdopsjon utleder = new AksjonspunktUtlederForEngangsstønadAdopsjon();
+    private final AksjonspunktUtlederForEngangsstønadAdopsjon utleder = new AksjonspunktUtlederForEngangsstønadAdopsjon();
 
     @Test
     void skal_utledede_aksjonspunkt_basert_på_fakta_om_engangsstønad_til_far() {
         var aksjonspunktForFaktaForFar = aksjonspunktForFaktaForFar();
 
         assertThat(aksjonspunktForFaktaForFar).hasSize(3);
-        assertThat(aksjonspunktForFaktaForFar.get(0).getAksjonspunktDefinisjon()).isEqualTo(AVKLAR_ADOPSJONSDOKUMENTAJON);
-        assertThat(aksjonspunktForFaktaForFar.get(1).getAksjonspunktDefinisjon()).isEqualTo(AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN);
-        assertThat(aksjonspunktForFaktaForFar.get(2).getAksjonspunktDefinisjon()).isEqualTo(AVKLAR_OM_SØKER_ER_MANN_SOM_ADOPTERER_ALENE);
+        assertThat(aksjonspunktForFaktaForFar.get(0).aksjonspunktDefinisjon()).isEqualTo(AVKLAR_ADOPSJONSDOKUMENTAJON);
+        assertThat(aksjonspunktForFaktaForFar.get(1).aksjonspunktDefinisjon()).isEqualTo(AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN);
+        assertThat(aksjonspunktForFaktaForFar.get(2).aksjonspunktDefinisjon()).isEqualTo(AVKLAR_OM_SØKER_ER_MANN_SOM_ADOPTERER_ALENE);
     }
 
     @Test
@@ -36,11 +36,11 @@ class AksjonspunktUtlederForEngangsstønadAdopsjonTest {
         var aksjonspunktForFaktaForMor = aksjonspunktForFaktaForMor();
 
         assertThat(aksjonspunktForFaktaForMor).hasSize(2);
-        assertThat(aksjonspunktForFaktaForMor.get(0).getAksjonspunktDefinisjon()).isEqualTo(AVKLAR_ADOPSJONSDOKUMENTAJON);
-        assertThat(aksjonspunktForFaktaForMor.get(1).getAksjonspunktDefinisjon()).isEqualTo(AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN);
+        assertThat(aksjonspunktForFaktaForMor.get(0).aksjonspunktDefinisjon()).isEqualTo(AVKLAR_ADOPSJONSDOKUMENTAJON);
+        assertThat(aksjonspunktForFaktaForMor.get(1).aksjonspunktDefinisjon()).isEqualTo(AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN);
     }
 
-    private List<AksjonspunktResultat> aksjonspunktForFaktaForFar() {
+    private List<AksjonspunktUtlederResultat> aksjonspunktForFaktaForFar() {
         var farSøkerAdopsjonScenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         var behandling = farSøkerAdopsjonScenario.lagMocked();
         return utleder.utledAksjonspunkterFor(lagInput(behandling));
@@ -50,7 +50,7 @@ class AksjonspunktUtlederForEngangsstønadAdopsjonTest {
         return new AksjonspunktUtlederInput(BehandlingReferanse.fra(behandling), null);
     }
 
-    private List<AksjonspunktResultat> aksjonspunktForFaktaForMor() {
+    private List<AksjonspunktUtlederResultat> aksjonspunktForFaktaForMor() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var behandling = scenario.lagMocked();
         return utleder.utledAksjonspunkterFor(lagInput(behandling));

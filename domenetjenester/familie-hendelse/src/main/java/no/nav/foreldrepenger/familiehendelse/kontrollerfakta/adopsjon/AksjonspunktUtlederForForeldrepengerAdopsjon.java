@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.familiehendelse.kontrollerfakta.adopsjon;
 
-import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettForAksjonspunkt;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +8,7 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtleder;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 
@@ -28,10 +26,10 @@ public class AksjonspunktUtlederForForeldrepengerAdopsjon implements Aksjonspunk
     }
 
     @Override
-    public List<AksjonspunktResultat> utledAksjonspunkterFor(AksjonspunktUtlederInput param) {
-        List<AksjonspunktResultat> aksjonspunktResultater = new ArrayList<>();
+    public List<AksjonspunktUtlederResultat> utledAksjonspunkterFor(AksjonspunktUtlederInput param) {
+        List<AksjonspunktUtlederResultat> aksjonspunktResultater = new ArrayList<>();
 
-        aksjonspunktResultater.add(opprettForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON));
+        aksjonspunktResultater.add(AksjonspunktUtlederResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON));
 
         var søknadVersjon = familieHendelseTjeneste.hentAggregat(param.getBehandlingId()).getSøknadVersjon();
         var adopsjon = søknadVersjon.getAdopsjon();
@@ -41,7 +39,7 @@ public class AksjonspunktUtlederForForeldrepengerAdopsjon implements Aksjonspunk
 
         var erEktefellesBarn = adopsjon.get().getErEktefellesBarn();
         if (erEktefellesBarn == null || erEktefellesBarn) {
-            aksjonspunktResultater.add(opprettForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN));
+            aksjonspunktResultater.add(AksjonspunktUtlederResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN));
         }
         return aksjonspunktResultater;
     }

@@ -11,7 +11,6 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
@@ -84,7 +83,7 @@ public class InngangsvilkårTjeneste {
     /**
      * Overstyr søkers opplysningsplikt.
      */
-    public void overstyrAksjonspunktForSøkersopplysningsplikt(Long behandlingId, VilkårUtfallType utfall, BehandlingskontrollKontekst kontekst) {
+    public void overstyrAksjonspunktForSøkersopplysningsplikt(Long behandlingId, VilkårUtfallType utfall) {
         var vilkårType = VilkårType.SØKERSOPPLYSNINGSPLIKT;
 
         var behandling = behandlingRepository.hentBehandling(behandlingId);
@@ -98,15 +97,15 @@ public class InngangsvilkårTjeneste {
             builder.overstyrVilkår(vilkårType, VilkårUtfallType.IKKE_OPPFYLT,  Avslagsårsak.MANGLENDE_DOKUMENTASJON);
         }
         builder.buildFor(behandling);
-        behandlingRepository.lagre(getBehandlingsresultat(behandlingId).getVilkårResultat(), kontekst.getSkriveLås());
-        behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
+        var lås = behandlingRepository.taSkriveLås(behandlingId);
+        behandlingRepository.lagre(getBehandlingsresultat(behandlingId).getVilkårResultat(), lås);
+        behandlingRepository.lagre(behandling, lås);
     }
 
     /**
      * Overstyr gitt aksjonspunkt på Inngangsvilkår.
      */
-    public void overstyrAksjonspunkt(Long behandlingId, VilkårType vilkårType, VilkårUtfallType utfall, Avslagsårsak avslagsårsak,
-                                     BehandlingskontrollKontekst kontekst) {
+    public void overstyrAksjonspunkt(Long behandlingId, VilkårType vilkårType, VilkårUtfallType utfall, Avslagsårsak avslagsårsak) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
         var vilkårResultat = getBehandlingsresultat(behandlingId).getVilkårResultat();
@@ -118,8 +117,9 @@ public class InngangsvilkårTjeneste {
                 LOG.warn("Overstyrer til IKKE OPPFYLT uten gyldig avslagskode, behandling {} vilkårtype {} kode {}", behandlingId, vilkårType, avslagsårsak);
         }
         var resultat = builder.buildFor(behandling);
-        behandlingRepository.lagre(resultat, kontekst.getSkriveLås());
-        behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
+        var lås = behandlingRepository.taSkriveLås(behandlingId);
+        behandlingRepository.lagre(resultat, lås);
+        behandlingRepository.lagre(behandling, lås);
     }
 
     public Behandlingsresultat getBehandlingsresultat(Long behandlingId) {
