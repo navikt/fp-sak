@@ -37,6 +37,7 @@ jobs:
     permissions:
       actions: read
       contents: read
+    needs: build-app
     uses: navikt/fp-gha-workflows/.github/workflows/sonar-analyse.yml@sonar
     secrets: inherit
 
