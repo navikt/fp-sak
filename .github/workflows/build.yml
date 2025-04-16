@@ -41,7 +41,7 @@ jobs:
     secrets: inherit
 
   fpsak-tester:
-    name: Fpsak testerww
+    name: Fpsak tester
     permissions:
       contents: read
       id-token: write
