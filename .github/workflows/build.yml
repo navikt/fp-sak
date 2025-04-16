@@ -23,7 +23,7 @@ jobs:
       contents: read
       packages: write
       id-token: write
-    uses: navikt/fp-gha-workflows/.github/workflows/build-app-no-db.yml@main
+    uses: navikt/fp-gha-workflows/.github/workflows/build-app-no-db.yml@sonar
     with:
       runs-on: 'ubuntu-latest-8-cores' # default: ubuntu-latest
       t-2c: '-T 2C' # default:
@@ -32,8 +32,16 @@ jobs:
       use-reader: true
     secrets: inherit
 
+  sonar-analyse:
+    name: Builds
+    permissions:
+      actions: read
+      contents: read
+    uses: navikt/fp-gha-workflows/.github/workflows/sonar-analyse.yml@sonar
+    secrets: inherit
+
   fpsak-tester:
-    name: Fpsak tester
+    name: Fpsak testerww
     permissions:
       contents: read
       id-token: write
