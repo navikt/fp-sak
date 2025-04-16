@@ -1,9 +1,8 @@
 package no.nav.foreldrepenger.behandling.steg.avklarfakta;
 
-import static java.util.stream.Collectors.toList;
-
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederResultat;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -80,13 +80,22 @@ public abstract class KontrollerFaktaTjenesteInngangsVilkår implements Kontroll
     }
 
     private List<AksjonspunktResultat> utled(BehandlingReferanse ref, Skjæringstidspunkt stp) {
+        var input = new AksjonspunktUtlederInput(ref, stp);
         var aksjonspunktUtleders = utlederTjeneste.utledUtledereFor(ref);
-        List<AksjonspunktResultat> aksjonspunktResultater = new ArrayList<>();
-        for (var aksjonspunktUtleder : aksjonspunktUtleders) {
-            aksjonspunktResultater.addAll(aksjonspunktUtleder.utledAksjonspunkterFor(new AksjonspunktUtlederInput(ref, stp)));
-        }
-        return aksjonspunktResultater.stream()
-                .distinct() // Unngå samme aksjonspunkt flere multipliser
-                .collect(toList());
+        var utledet = aksjonspunktUtleders.stream()
+            .map(u -> u.utledAksjonspunkterFor(input))
+            .flatMap(Collection::stream)
+            .collect(Collectors.toSet());
+
+        return utledet.stream()
+            .map(this::mapAksjonspunktUtlederResultat)
+            .toList();
+    }
+
+    private AksjonspunktResultat mapAksjonspunktUtlederResultat(AksjonspunktUtlederResultat resultat) {
+        return resultat.frist() != null
+            ? AksjonspunktResultat.opprettForAksjonspunktMedFrist(resultat.aksjonspunktDefinisjon(), resultat.venteårsak(), resultat.frist())
+            : AksjonspunktResultat.opprettForAksjonspunkt(resultat.aksjonspunktDefinisjon());
+
     }
 }

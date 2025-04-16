@@ -37,11 +37,11 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
+import no.nav.foreldrepenger.produksjonsstyring.tilbakekreving.FptilbakeRestKlient;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageHistorikkinnslag;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageVurderingResultatAksjonspunktDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlagevurderingOppdaterer;
-import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
 
 @CdiDbAwareTest
 class KlagevurderingOppdatererTest {

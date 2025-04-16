@@ -94,7 +94,7 @@ class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityManagerAwar
 
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
-        assertThat(aksjonspunktResultater.get(0).getAksjonspunktDefinisjon())
+        assertThat(aksjonspunktResultater.getFirst().aksjonspunktDefinisjon())
                 .isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
     }
 
@@ -115,7 +115,7 @@ class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityManagerAwar
 
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
-        assertThat(aksjonspunktResultater.get(0).getAksjonspunktDefinisjon())
+        assertThat(aksjonspunktResultater.getFirst().aksjonspunktDefinisjon())
                 .isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
     }
 
@@ -155,7 +155,7 @@ class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityManagerAwar
 
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
-        assertThat(aksjonspunktResultater.get(0).getAksjonspunktDefinisjon())
+        assertThat(aksjonspunktResultater.getFirst().aksjonspunktDefinisjon())
                 .isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE);
     }
 

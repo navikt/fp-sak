@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling.impl;
+package no.nav.foreldrepenger.behandling;
 
 import static java.time.Month.JANUARY;
 import static no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn.MANN;
@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;

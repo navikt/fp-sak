@@ -5,14 +5,14 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdateringTransisjon;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
@@ -58,7 +58,7 @@ public class BekreftSøkersOpplysningspliktManuellOppdaterer implements Aksjonsp
             åpneAksjonspunkter.stream().filter(a -> !a.getAksjonspunktDefinisjon().equals(dto.getAksjonspunktDefinisjon())) // Ikke seg selv
                 .forEach(a -> resultatBuilder.medEkstraAksjonspunktResultat(a.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
 
-            return resultatBuilder.medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
+            return resultatBuilder.medFremoverHopp(AksjonspunktOppdateringTransisjon.AVSLAG_VILKÅR)
                 .leggTilManueltAvslåttVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, Avslagsårsak.MANGLENDE_DOKUMENTASJON)
                 .build();
         }

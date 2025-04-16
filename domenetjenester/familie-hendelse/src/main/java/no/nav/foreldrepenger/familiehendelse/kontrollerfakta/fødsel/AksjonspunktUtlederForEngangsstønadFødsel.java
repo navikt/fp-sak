@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.familiehendelse.kontrollerfakta.fødsel;
 
-import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettListeForAksjonspunkt;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE;
 
 import java.util.List;
@@ -9,7 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederResultat;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 
@@ -29,7 +28,7 @@ public class AksjonspunktUtlederForEngangsstønadFødsel extends AksjonspunktUtl
     }
 
     @Override
-    protected List<AksjonspunktResultat> utledAksjonspunkterForTerminbekreftelse(AksjonspunktUtlederInput param) {
-        return opprettListeForAksjonspunkt(AVKLAR_TERMINBEKREFTELSE);
+    protected List<AksjonspunktUtlederResultat> utledAksjonspunkterForTerminbekreftelse(AksjonspunktUtlederInput param) {
+        return AksjonspunktUtlederResultat.opprettListeForAksjonspunkt(AVKLAR_TERMINBEKREFTELSE);
     }
 }

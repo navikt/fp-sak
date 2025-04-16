@@ -19,8 +19,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
-import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
+import no.nav.foreldrepenger.produksjonsstyring.tilbakekreving.FptilbakeRestKlient;
 
 @ApplicationScoped
 public class KlageHistorikkinnslag {

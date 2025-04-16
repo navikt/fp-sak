@@ -31,9 +31,19 @@
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>batch</artifactId>
         </dependency>
+
+        <!-- Kafka og behandling-hendelse -->
         <dependency>
-            <groupId>no.nav.foreldrepenger</groupId>
-            <artifactId>tilbakekreving</artifactId>
+            <groupId>no.nav.foreldrepenger.kontrakter.topics</groupId>
+            <artifactId>hendelser-behandling</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+            <artifactId>kafka-properties</artifactId>
         </dependency>
 
         <!-- Integrasjon klient avhengigheter -->

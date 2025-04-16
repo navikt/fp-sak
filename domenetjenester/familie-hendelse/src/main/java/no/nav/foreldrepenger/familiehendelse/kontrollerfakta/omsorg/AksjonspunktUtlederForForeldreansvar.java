@@ -1,14 +1,12 @@
 package no.nav.foreldrepenger.familiehendelse.kontrollerfakta.omsorg;
 
-import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettListeForAksjonspunkt;
-
 import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtleder;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 
 
@@ -20,8 +18,8 @@ public class AksjonspunktUtlederForForeldreansvar implements AksjonspunktUtleder
     }
 
     @Override
-    public List<AksjonspunktResultat> utledAksjonspunkterFor(AksjonspunktUtlederInput param) {
-        return opprettListeForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_FORELDREANSVAR);
+    public List<AksjonspunktUtlederResultat> utledAksjonspunkterFor(AksjonspunktUtlederInput param) {
+        return AksjonspunktUtlederResultat.opprettListeForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_FORELDREANSVAR);
     }
 
 }

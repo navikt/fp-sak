@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -27,14 +25,14 @@ public class OppdateringResultat {
     private String henleggingsbegrunnelse;
     private boolean beholdAksjonspunktÅpent = false;
     private boolean totrinnsKontroll = false;
-    private TransisjonIdentifikator transisjonId;
-    private final List<AksjonspunktResultat> ekstraAksjonspunktResultat = new ArrayList<>();
+    private AksjonspunktOppdateringTransisjon transisjon;
+    private final List<OppdateringAksjonspunktResultat> ekstraAksjonspunktResultat = new ArrayList<>();
 
-    private OppdateringResultat(BehandlingStegType nesteSteg, OverhoppKontroll overhoppKontroll, TransisjonIdentifikator transisjonId,
+    private OppdateringResultat(BehandlingStegType nesteSteg, OverhoppKontroll overhoppKontroll, AksjonspunktOppdateringTransisjon transisjon,
             boolean totrinn) {
         this.overhoppKontroll = overhoppKontroll;
         this.nesteSteg = nesteSteg;
-        this.transisjonId = transisjonId;
+        this.transisjon = transisjon;
         this.totrinnsKontroll = totrinn;
     }
 
@@ -67,16 +65,16 @@ public class OppdateringResultat {
     /**
      * Brukes typisk ved avslag på Vilår for å hoppe fram til uttak/vedtak
      */
-    public static OppdateringResultat medFremoverHopp(TransisjonIdentifikator transisjonId) {
-        return new OppdateringResultat(null, OverhoppKontroll.FREMOVERHOPP, transisjonId, false);
+    public static OppdateringResultat medFremoverHopp(AksjonspunktOppdateringTransisjon transisjon) {
+        return new OppdateringResultat(null, OverhoppKontroll.FREMOVERHOPP, transisjon, false);
     }
 
     /**
      * Brukes typisk ved avslag på Vilår for å hoppe fram til uttak/vedtak men
      * setter totrinnskontroll
      */
-    public static OppdateringResultat medFremoverHoppTotrinn(TransisjonIdentifikator transisjonId) {
-        return new OppdateringResultat(null, OverhoppKontroll.FREMOVERHOPP, transisjonId, true);
+    public static OppdateringResultat medFremoverHoppTotrinn(AksjonspunktOppdateringTransisjon transisjon) {
+        return new OppdateringResultat(null, OverhoppKontroll.FREMOVERHOPP, transisjon, true);
     }
 
     /**
@@ -91,8 +89,8 @@ public class OppdateringResultat {
         return nesteSteg;
     }
 
-    public TransisjonIdentifikator getTransisjon() {
-        return transisjonId;
+    public AksjonspunktOppdateringTransisjon getTransisjon() {
+        return transisjon;
     }
 
     public OverhoppKontroll getOverhoppKontroll() {
@@ -119,7 +117,7 @@ public class OppdateringResultat {
         return vilkårTyperNyeIkkeVurdert;
     }
 
-    public List<AksjonspunktResultat> getEkstraAksjonspunktResultat() {
+    public List<OppdateringAksjonspunktResultat> getEkstraAksjonspunktResultat() {
         return ekstraAksjonspunktResultat;
     }
 
@@ -132,7 +130,7 @@ public class OppdateringResultat {
     }
 
     public static class Builder {
-        private OppdateringResultat resultat;
+        private final OppdateringResultat resultat;
 
         public Builder() {
             resultat = new OppdateringResultat(OverhoppKontroll.UTEN_OVERHOPP);
@@ -234,9 +232,9 @@ public class OppdateringResultat {
         /*
          * Brukes i spesielle tilfelle rundt foreslå vedtak og avslag vilkår
          */
-        public Builder medFremoverHopp(TransisjonIdentifikator transisjonId) {
+        public Builder medFremoverHopp(AksjonspunktOppdateringTransisjon transisjon) {
             resultat.overhoppKontroll = OverhoppKontroll.FREMOVERHOPP;
-            resultat.transisjonId = transisjonId;
+            resultat.transisjon = transisjon;
             return this;
         }
 
@@ -246,7 +244,7 @@ public class OppdateringResultat {
          * fra før. Bruk helst andre mekanismer.
          */
         public Builder medEkstraAksjonspunktResultat(AksjonspunktDefinisjon aksjonspunktDefinisjon, AksjonspunktStatus nyStatus) {
-            resultat.ekstraAksjonspunktResultat.add(AksjonspunktResultat.opprettForAksjonspunkt(aksjonspunktDefinisjon, nyStatus));
+            resultat.ekstraAksjonspunktResultat.add(new OppdateringAksjonspunktResultat(aksjonspunktDefinisjon, nyStatus));
             return this;
         }
 
@@ -259,7 +257,7 @@ public class OppdateringResultat {
     public String toString() {
         return "OppdateringResultat{" +
                 "nesteSteg=" + nesteSteg +
-                ", transisjonId=" + transisjonId +
+                ", transisjon=" + transisjon +
                 ", overhoppKontroll=" + overhoppKontroll +
                 ", henleggelseResultat=" + henleggelseResultat +
                 ", henleggingsbegrunnelse='" + henleggingsbegrunnelse + '\'' +

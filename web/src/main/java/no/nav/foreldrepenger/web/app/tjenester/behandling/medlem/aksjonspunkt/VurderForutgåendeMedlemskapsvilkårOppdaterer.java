@@ -5,9 +5,9 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdateringTransisjon;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
@@ -38,7 +38,7 @@ public class VurderForutgåendeMedlemskapsvilkårOppdaterer implements Aksjonspu
             return OppdateringResultat.utenTransisjon().leggTilManueltOppfyltVilkår(VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE).build();
         } else {
             return OppdateringResultat.utenTransisjon()
-                .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
+                .medFremoverHopp(AksjonspunktOppdateringTransisjon.AVSLAG_VILKÅR)
                 .leggTilManueltAvslåttVilkår(VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE, avslagskode)
                 .build();
         }
