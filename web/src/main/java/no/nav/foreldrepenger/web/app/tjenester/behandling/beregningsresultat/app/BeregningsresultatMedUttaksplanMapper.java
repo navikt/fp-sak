@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.app;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Comparator;
@@ -14,17 +15,19 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.Kopimaskin;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BehandlingBeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
+import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
@@ -81,24 +84,24 @@ public class BeregningsresultatMedUttaksplanMapper {
             .map(andelPar -> {
                 var brukersAndel = andelPar.bruker();
                 var arbeidsgiversAndel = andelPar.arbeidsgiver();
-                var arbeidsgiver = brukersAndel.getArbeidsgiver();
+                var arbeidsgiver = Optional.ofNullable(brukersAndel.arbeidsgiver());
                 var dtoBuilder = BeregningsresultatPeriodeAndelDto.build()
-                    .medRefusjon(arbeidsgiversAndel.map(BeregningsresultatAndel::getDagsats).orElse(0))
-                    .medTilSøker(brukersAndel.getDagsats())
-                    .medUtbetalingsgrad(brukersAndel.getUtbetalingsgrad())
+                    .medRefusjon(arbeidsgiversAndel.map(LokalBRAndel::dagsats).orElse(0))
+                    .medTilSøker(brukersAndel.dagsats())
+                    .medUtbetalingsgrad(brukersAndel.utbetalingsgrad())
                     .medSisteUtbetalingsdato(andelTilSisteUtbetalingsdatoMap.getOrDefault(genererAndelKey(brukersAndel), Optional.empty()).orElse(null))
-                    .medAktivitetstatus(brukersAndel.getAktivitetStatus())
-                    .medArbeidsforholdId(brukersAndel.getArbeidsforholdRef() != null
-                        ? brukersAndel.getArbeidsforholdRef().getReferanse() : null)
+                    .medAktivitetstatus(brukersAndel.aktivitetStatus())
+                    .medArbeidsforholdId(brukersAndel.arbeidsforholdRef() != null
+                        ? brukersAndel.arbeidsforholdRef().getReferanse() : null)
                     .medAktørId(arbeidsgiver.filter(Arbeidsgiver::erAktørId).map(Arbeidsgiver::getAktørId).map(AktørId::getId).orElse(null))
-                    .medArbeidsforholdType(brukersAndel.getArbeidsforholdType())
+                    .medArbeidsforholdType(brukersAndel.arbeidsforholdType())
                     .medUttak(lagUttak(uttak, beregningsresultatPeriode, brukersAndel))
-                    .medStillingsprosent(brukersAndel.getStillingsprosent());
-                var internArbeidsforholdId = brukersAndel.getArbeidsforholdRef() != null ? brukersAndel.getArbeidsforholdRef().getReferanse() : null;
+                    .medStillingsprosent(brukersAndel.stillingsprosent());
+                var internArbeidsforholdId = brukersAndel.arbeidsforholdRef() != null ? brukersAndel.arbeidsforholdRef().getReferanse() : null;
                 dtoBuilder.medArbeidsforholdId(internArbeidsforholdId);
                 iayGrunnlag.flatMap(InntektArbeidYtelseGrunnlag::getArbeidsforholdInformasjon).ifPresent(arbeidsforholdInformasjon -> {
                     if (internArbeidsforholdId != null && arbeidsgiver.isPresent()) {
-                        var eksternArbeidsforholdRef = arbeidsforholdInformasjon.finnEkstern(arbeidsgiver.get(), brukersAndel.getArbeidsforholdRef());
+                        var eksternArbeidsforholdRef = arbeidsforholdInformasjon.finnEkstern(arbeidsgiver.get(), brukersAndel.arbeidsforholdRef);
                         dtoBuilder.medEksternArbeidsforholdId(eksternArbeidsforholdRef.getReferanse());
                     }
                 });
@@ -125,10 +128,32 @@ public class BeregningsresultatMedUttaksplanMapper {
     }
 
     private AktivitetStatusMedIdentifikator genererAndelKey(BeregningsresultatAndel andel) {
-        return new AktivitetStatusMedIdentifikator(andel.getAktivitetStatus(), finnSekundærIdentifikator(andel));
+        return new AktivitetStatusMedIdentifikator(andel.getAktivitetStatus(), finnSekundærIdentifikator(andel.getArbeidsgiver(), andel.getArbeidsforholdRef()));
     }
 
-    private record AndelerBrukerAG(BeregningsresultatAndel bruker, Optional<BeregningsresultatAndel> arbeidsgiver) {}
+    private AktivitetStatusMedIdentifikator genererAndelKey(LokalBRAndel andel) {
+        return new AktivitetStatusMedIdentifikator(andel.aktivitetStatus, finnSekundærIdentifikator(Optional.ofNullable(andel.arbeidsgiver()), andel.arbeidsforholdRef()));
+    }
+
+    private record AndelerBrukerAG(LokalBRAndel bruker, Optional<LokalBRAndel> arbeidsgiver) {}
+
+    private record LokalBRAndel(Boolean brukerErMottaker, Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef,
+                                OpptjeningAktivitetType arbeidsforholdType, Integer dagsats, BigDecimal stillingsprosent,
+                                BigDecimal utbetalingsgrad, Integer dagsatsFraBg, BeregningsresultatPeriode beregningsresultatPeriode,
+                                AktivitetStatus aktivitetStatus, Inntektskategori inntektskategori) {
+
+        static LokalBRAndel fraAndel(BeregningsresultatAndel andel) {
+            return new LokalBRAndel(andel.erBrukerMottaker(), andel.getArbeidsgiver().orElse(null), andel.getArbeidsforholdRef(),
+                andel.getArbeidsforholdType(), andel.getDagsats(), andel.getStillingsprosent(), andel.getUtbetalingsgrad(), andel.getDagsatsFraBg(),
+                andel.getBeregningsresultatPeriode(), andel.getAktivitetStatus(), andel.getInntektskategori());
+        }
+
+        static LokalBRAndel slåSammen(LokalBRAndel andel, Integer dagsats, Integer dagsatsFraBg) {
+            return new LokalBRAndel(andel.brukerErMottaker(), andel.arbeidsgiver(), andel.arbeidsforholdRef(),
+                andel.arbeidsforholdType(), dagsats, andel.stillingsprosent(), andel.utbetalingsgrad(), dagsatsFraBg,
+                andel.beregningsresultatPeriode(), andel.aktivitetStatus(), andel.inntektskategori());
+        }
+    }
 
     private List<AndelerBrukerAG> genererAndelListe(List<BeregningsresultatAndel> beregningsresultatAndelList) {
         var collect = beregningsresultatAndelList.stream()
@@ -137,11 +162,13 @@ public class BeregningsresultatMedUttaksplanMapper {
         return collect.values().stream().map(andeler -> {
             var brukerAndel = andeler.stream()
                 .filter(BeregningsresultatAndel::erBrukerMottaker)
+                .map(LokalBRAndel::fraAndel)
                 .reduce(this::slåSammenAndeler)
                 .orElseThrow(() -> new IllegalStateException("Utvilkerfeil: Mangler andel for bruker, men skal alltid ha andel for bruker her."));
 
             var arbeidsgiverAndel = andeler.stream()
                 .filter(a -> !a.erBrukerMottaker())
+                .map(LokalBRAndel::fraAndel)
                 .reduce(this::slåSammenAndeler);
 
             return new AndelerBrukerAG(brukerAndel, arbeidsgiverAndel);
@@ -149,20 +176,20 @@ public class BeregningsresultatMedUttaksplanMapper {
             .toList();
     }
 
-    private Optional<String> finnSekundærIdentifikator(BeregningsresultatAndel andel) {
+    private Optional<String> finnSekundærIdentifikator(Optional<Arbeidsgiver> arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef) {
         // Denne metoden finner sekundæridentifikator for andelen, etter aktivitetstatus.
         // Mulige identifikatorer i prioritert rekkefølge:
         // 1. arbeidsforholdId
         // 2. orgNr
-        if (andel.getArbeidsforholdRef() != null && andel.getArbeidsforholdRef().getReferanse() != null) {
-            return Optional.of(andel.getArbeidsforholdRef().getReferanse());
+        if (arbeidsforholdRef != null && arbeidsforholdRef.getReferanse() != null) {
+            return Optional.of(arbeidsforholdRef.getReferanse());
         }
-        return andel.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator);
+        return arbeidsgiver.map(Arbeidsgiver::getIdentifikator);
     }
 
     private UttakDto lagUttak(Optional<ForeldrepengerUttak> uttak,
                                         BeregningsresultatPeriode beregningsresultatPeriode,
-                                        BeregningsresultatAndel brukersAndel) {
+                                        LokalBRAndel brukersAndel) {
 
         if (uttak.isEmpty()) {
             return UttakDto.build().create();
@@ -176,7 +203,7 @@ public class BeregningsresultatMedUttaksplanMapper {
         return uttakDto.orElseGet(() -> UttakDto.build().create());
     }
 
-    private Optional<UttakDto> lagUttakDto(ForeldrepengerUttakPeriode uttakPeriode, BeregningsresultatAndel brukersAndel) {
+    private Optional<UttakDto> lagUttakDto(ForeldrepengerUttakPeriode uttakPeriode, LokalBRAndel brukersAndel) {
         var aktiviteter = uttakPeriode.getAktiviteter();
         var korrektUttakAndelOpt = finnKorrektUttaksAndel(brukersAndel, aktiviteter);
         return korrektUttakAndelOpt.map(foreldrepengerUttakPeriodeAktivitet -> UttakDto.build()
@@ -191,14 +218,14 @@ public class BeregningsresultatMedUttaksplanMapper {
         return uttakPeriode.isGraderingInnvilget() && korrektUttakAndel.isSøktGraderingForAktivitetIPeriode();
     }
 
-    private Optional<ForeldrepengerUttakPeriodeAktivitet> finnKorrektUttaksAndel(BeregningsresultatAndel brukersAndel, List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter) {
-        if (brukersAndel.getAktivitetStatus().equals(AktivitetStatus.FRILANSER)) {
+    private Optional<ForeldrepengerUttakPeriodeAktivitet> finnKorrektUttaksAndel(LokalBRAndel brukersAndel, List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter) {
+        if (brukersAndel.aktivitetStatus().equals(AktivitetStatus.FRILANSER)) {
             return førsteAvType(aktiviteter, UttakArbeidType.FRILANS);
         }
-        if (brukersAndel.getAktivitetStatus().equals(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)) {
+        if (brukersAndel.aktivitetStatus().equals(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)) {
             return førsteAvType(aktiviteter, UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE);
         }
-        if (brukersAndel.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSTAKER)) {
+        if (brukersAndel.aktivitetStatus().equals(AktivitetStatus.ARBEIDSTAKER)) {
             return finnKorrektArbeidstakerAndel(brukersAndel, aktiviteter);
         }
         return førsteAvType(aktiviteter, UttakArbeidType.ANNET);
@@ -210,7 +237,7 @@ public class BeregningsresultatMedUttaksplanMapper {
             .findFirst();
     }
 
-    private Optional<ForeldrepengerUttakPeriodeAktivitet> finnKorrektArbeidstakerAndel(BeregningsresultatAndel brukersAndel, List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter) {
+    private Optional<ForeldrepengerUttakPeriodeAktivitet> finnKorrektArbeidstakerAndel(LokalBRAndel brukersAndel, List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter) {
         var korrekteAktiviteter = finnKorrekteAktiviteter(brukersAndel, aktiviteter);
         if (korrekteAktiviteter.size() != 1) {
             return Optional.empty();
@@ -218,10 +245,10 @@ public class BeregningsresultatMedUttaksplanMapper {
         return Optional.of(korrekteAktiviteter.get(0));
     }
 
-    private List<ForeldrepengerUttakPeriodeAktivitet> finnKorrekteAktiviteter(BeregningsresultatAndel brukersAndel, List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter) {
+    private List<ForeldrepengerUttakPeriodeAktivitet> finnKorrekteAktiviteter(LokalBRAndel brukersAndel, List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter) {
         return aktiviteter.stream()
-            .filter(aktivitet -> Objects.equals(brukersAndel.getArbeidsgiver().orElse(null), aktivitet.getArbeidsgiver().orElse(null)))
-            .filter(aktivitet -> Objects.equals(brukersAndel.getArbeidsforholdRef(), aktivitet.getArbeidsforholdRef()))
+            .filter(aktivitet -> Objects.equals(brukersAndel.arbeidsgiver(), aktivitet.getArbeidsgiver().orElse(null)))
+            .filter(aktivitet -> Objects.equals(brukersAndel.arbeidsforholdRef(), aktivitet.getArbeidsforholdRef()))
             .filter(aktivitet -> Objects.equals(UttakArbeidType.ORDINÆRT_ARBEID, aktivitet.getUttakArbeidType()))
             .toList();
     }
@@ -235,23 +262,19 @@ public class BeregningsresultatMedUttaksplanMapper {
             .orElseThrow(() -> new IllegalArgumentException("BeregningsresultatPeriode tilhører ikke noen periode fra UttakResultatEntitet"));
     }
 
-    private BeregningsresultatAndel slåSammenAndeler(BeregningsresultatAndel a, BeregningsresultatAndel b) {
-        var førsteArbeidsforholdId = a.getArbeidsforholdRef();
-        var andreArbeidsforholdId = b.getArbeidsforholdRef();
+    private LokalBRAndel slåSammenAndeler(LokalBRAndel a, LokalBRAndel b) {
+        var førsteArbeidsforholdId = a.arbeidsforholdRef;
+        var andreArbeidsforholdId = b.arbeidsforholdRef();
         var harUlikeArbeidsforholdIder = false;
         if (førsteArbeidsforholdId != null && andreArbeidsforholdId != null) {
             harUlikeArbeidsforholdIder = !Objects.equals(førsteArbeidsforholdId.getReferanse(), andreArbeidsforholdId.getReferanse());
         }
         if (harUlikeArbeidsforholdIder
-            || a.getUtbetalingsgrad().compareTo(b.getUtbetalingsgrad()) != 0
-            || a.getStillingsprosent().compareTo(b.getStillingsprosent()) != 0
-            || !a.getBeregningsresultatPeriode().equals(b.getBeregningsresultatPeriode())) {
+            || a.utbetalingsgrad().compareTo(b.utbetalingsgrad()) != 0
+            || a.stillingsprosent().compareTo(b.stillingsprosent()) != 0
+            || !a.beregningsresultatPeriode().equals(b.beregningsresultatPeriode())) {
             throw new IllegalStateException("Utviklerfeil: Andeler som slås sammen skal ikke ha ulikt arbeidsforhold, periode, stillingsprosent eller utbetalingsgrad");
         }
-        var ny = Kopimaskin.deepCopy(a, a.getBeregningsresultatPeriode());
-        BeregningsresultatAndel.builder(ny)
-            .medDagsats(a.getDagsats() + b.getDagsats())
-            .medDagsatsFraBg(a.getDagsatsFraBg() + b.getDagsatsFraBg());
-        return ny;
+        return LokalBRAndel.slåSammen(a, a.dagsats() + b.dagsats(), a.dagsatsFraBg() + b.dagsatsFraBg());
     }
 }
