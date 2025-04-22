@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.Transisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -80,7 +80,7 @@ public interface BehandlingskontrollTjeneste {
     /**
      * FLytt prosesen til et tidlligere steg.
      *
-     * @throws IllegalstateException dersom tidligereSteg er etter aktivt steg i
+     * @throws IllegalStateException dersom tidligereSteg er etter aktivt steg i
      *                               behandlingen (i følge BehandlingsModell for
      *                               gitt BehandlingType).
      */
@@ -94,7 +94,7 @@ public interface BehandlingskontrollTjeneste {
      * definerte neste steget i prosessen (som normalt skulle blitt kalt gjennom
      * {@link #prosesserBehandling(BehandlingskontrollKontekst)}.
      *
-     * @throws IllegalstateException dersom senereSteg er før eller lik aktivt steg
+     * @throws IllegalStateException dersom senereSteg er før eller lik aktivt steg
      *                               i behandlingen (i følge BehandlingsModell for
      *                               gitt BehandlingType).
      */
@@ -236,7 +236,7 @@ public interface BehandlingskontrollTjeneste {
     boolean skalAksjonspunktLøsesIEllerEtterSteg(FagsakYtelseType ytelseType, BehandlingType behandlingType, BehandlingStegType behandlingSteg,
             AksjonspunktDefinisjon aksjonspunktDefinisjon);
 
-    void fremoverTransisjon(TransisjonIdentifikator transisjonId, BehandlingskontrollKontekst kontekst);
+    void fremoverTransisjon(BehandlingStegType målSteg, BehandlingskontrollKontekst kontekst);
 
     boolean inneholderSteg(Behandling behandling, BehandlingStegType registrerSøknad);
 

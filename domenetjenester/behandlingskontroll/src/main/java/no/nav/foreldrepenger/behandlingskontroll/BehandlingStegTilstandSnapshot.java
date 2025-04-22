@@ -1,58 +1,32 @@
 package no.nav.foreldrepenger.behandlingskontroll;
 
-import java.util.Objects;
-
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegTilstand;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 
-public class BehandlingStegTilstandSnapshot {
+public record BehandlingStegTilstandSnapshot(BehandlingStegType steg, BehandlingStegStatus status) {
 
-    private final Long id;
-    private final BehandlingStegType steg;
-    private final BehandlingStegStatus status;
 
-    public BehandlingStegTilstandSnapshot(Long id, BehandlingStegType steg, BehandlingStegStatus status) {
-        this.id = id;
-        this.steg = steg;
-        this.status = status;
+    public static BehandlingStegTilstandSnapshot tilBehandlingsStegSnapshot(Behandling behandling) {
+        var tilstand = behandling.getBehandlingStegTilstand();
+        var stegType = tilstand.map(BehandlingStegTilstand::getBehandlingSteg);
+        var status = tilstand.map(BehandlingStegTilstand::getBehandlingStegStatus).orElse(null);
+        return stegType.map(s -> new BehandlingStegTilstandSnapshot(s, status)).orElse(null);
     }
 
-    public BehandlingStegType getSteg() {
-        return steg;
+    public static BehandlingStegTilstandSnapshot tilBehandlingsStegSnapshot(Behandling behandling, BehandlingStegType steg) {
+        var tilstand = behandling.getBehandlingStegTilstand(steg);
+        var stegType = tilstand.map(BehandlingStegTilstand::getBehandlingSteg);
+        var status = tilstand.map(BehandlingStegTilstand::getBehandlingStegStatus).orElse(null);
+        return stegType.map(s -> new BehandlingStegTilstandSnapshot(s, status)).orElse(null);
     }
 
-    public BehandlingStegStatus getStatus() {
-        return status;
+    public static BehandlingStegTilstandSnapshot tilBehandlingsStegSnapshotSiste(Behandling behandling) {
+        var tilstand = behandling.getSisteBehandlingStegTilstand();
+        var stegType = tilstand.map(BehandlingStegTilstand::getBehandlingSteg);
+        var status = tilstand.map(BehandlingStegTilstand::getBehandlingStegStatus).orElse(null);
+        return stegType.map(s -> new BehandlingStegTilstandSnapshot(s, status)).orElse(null);
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        var that = (BehandlingStegTilstandSnapshot) o;
-        return Objects.equals(steg, that.steg) &&
-                Objects.equals(status, that.status);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(steg, status);
-    }
-
-    @Override
-    public String toString() {
-        return "BehandlingStegTilstandSnapshot{" +
-                "id=" + id +
-                ", steg=" + steg +
-                ", status=" + status +
-                '}';
-    }
 }

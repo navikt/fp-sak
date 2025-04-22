@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -79,7 +78,7 @@ public class InngangUttakStegRevurdering implements InngangUttakSteg {
         }
         var uttakInput = uttakInputTjeneste.lagInput(behandlingId);
         if (skalKopiereUttakTjeneste.skalKopiereStegResultat(uttakInput)) {
-            return BehandleStegResultat.fremoverførtMedAksjonspunktResultater(FellesTransisjoner.FREMHOPP_TIL_BEREGN_YTELSE, aksjonspunkter);
+            return BehandleStegResultat.fremoverførtMedAksjonspunktResultater(BehandlingStegType.BEREGN_YTELSE, aksjonspunkter);
         }
         return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
     }

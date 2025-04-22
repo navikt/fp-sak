@@ -3,11 +3,6 @@ package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollTjenesteImpl;
-import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
@@ -25,21 +20,6 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class DokumentmottakTestUtil {
-
-    public static BehandlingskontrollTjeneste lagBehandlingskontrollTjenesteMock(BehandlingskontrollServiceProvider serviceProvider) {
-        return new BehandlingskontrollTjenesteImpl(serviceProvider) {
-            @Override
-            protected void fireEventBehandlingStegOvergang(BehandlingskontrollKontekst kontekst, Behandling behandling,
-                                                           BehandlingStegTilstandSnapshot forrigeTilstand, BehandlingStegTilstandSnapshot nyTilstand) {
-                // NOOP
-            }
-
-            @Override
-            public void prosesserBehandling(BehandlingskontrollKontekst kontekst) {
-                // NOOP
-            }
-        };
-    }
 
     static MottattDokument byggMottattDokument(DokumentTypeId dokumentTypeId, Long fagsakId, String xml, LocalDate mottattDato, boolean elektroniskRegistrert,
                                                String journalpostId) {

@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingModellVisitor;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegUtfall;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
@@ -51,7 +52,7 @@ class BehandlingskontrollTjenesteImplTest {
         serviceProvider = new BehandlingskontrollServiceProvider(entityManager, new BehandlingModellRepository(), eventPubliserer);
         var modell = serviceProvider.getBehandlingModellRepository().getModell(BehandlingType.FØRSTEGANGSSØKNAD, FagsakYtelseType.ENGANGSTØNAD);
 
-        steg2 = modell.getAlleBehandlingStegTyper().get(8);
+        steg2 = modell.hvertSteg().map(BehandlingStegModell::getBehandlingStegType).toList().get(8);
         steg3 = modell.finnNesteSteg(steg2).getBehandlingStegType();
         steg4 = modell.finnNesteSteg(steg3).getBehandlingStegType();
         steg5 = modell.finnNesteSteg(steg4).getBehandlingStegType();

@@ -30,10 +30,9 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.HenleggBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
@@ -100,7 +99,7 @@ public class AksjonspunktTjeneste {
         behandlingRepository.lagre(getBehandlingsresultat(behandling.getId()).getVilkårResultat(), kontekst.getSkriveLås());
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
 
-        håndterOverhopp(overhoppResultat, kontekst);
+        håndterOverhopp(behandling, overhoppResultat, kontekst);
 
         if (behandling.isBehandlingPåVent()) {
             // Skal ikke fortsette behandling dersom behandling ble satt på vent
@@ -139,8 +138,8 @@ public class AksjonspunktTjeneste {
         behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligsteAksjonspunkt(kontekst, bekreftedeApKoder);
     }
 
-    private void håndterOverhopp(OverhoppResultat overhoppResultat, BehandlingskontrollKontekst kontekst) {
-        // TODO (essv): PKMANTIS-1992 Skrive om alle overhopp til å bruke transisjon (se fremoverTransisjon nedenfor)
+    private void håndterOverhopp(Behandling behandling, OverhoppResultat overhoppResultat, BehandlingskontrollKontekst kontekst) {
+        // TODO (essv): PKMANTIS-1992 Skrive om alle overhopp til å bruke stegTransisjon (se fremoverTransisjon nedenfor)
         var funnetHenleggelse = overhoppResultat.finnHenleggelse();
         if (funnetHenleggelse.isPresent()) {
             var henleggelse = funnetHenleggelse.get();
@@ -149,8 +148,8 @@ public class AksjonspunktTjeneste {
         } else {
             var fremoverTransisjon = overhoppResultat.finnFremoverTransisjon();
             if (fremoverTransisjon.isPresent()) {
-                var riktigTransisjon = utledFremhoppTransisjon(kontekst, fremoverTransisjon.get());
-                behandlingskontrollTjeneste.fremoverTransisjon(riktigTransisjon, kontekst);
+                var riktigSteg = utledFremhoppSteg(behandling, fremoverTransisjon.get());
+                behandlingskontrollTjeneste.fremoverTransisjon(riktigSteg, kontekst);
             }
         }
     }
@@ -170,7 +169,7 @@ public class AksjonspunktTjeneste {
         var overhoppForOverstyring = overstyrVilkårEllerBeregning(overstyrteAksjonspunkter, behandling, kontekst);
 
         // Fremoverhopp hvis vilkår settes til AVSLÅTT
-        håndterOverhopp(overhoppForOverstyring, kontekst);
+        håndterOverhopp(behandling, overhoppForOverstyring, kontekst);
 
         if (behandling.isBehandlingPåVent()) {
             // Skal ikke fortsette behandling dersom behandling ble satt på vent
@@ -195,16 +194,15 @@ public class AksjonspunktTjeneste {
         return behandlingsresultatRepository.hent(behandlingId);
     }
 
-    private TransisjonIdentifikator utledFremhoppTransisjon(BehandlingskontrollKontekst kontekst, AksjonspunktOppdateringTransisjon transisjon) {
+    private BehandlingStegType utledFremhoppSteg(Behandling behandling, AksjonspunktOppdateringTransisjon transisjon) {
         if (AksjonspunktOppdateringTransisjon.AVSLAG_VILKÅR.equals(transisjon)) {
-            var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
             if (behandling.erRevurdering() && !FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsak().getYtelseType())
                 && !harAvslåttForrigeBehandling(behandling)) {
-                return FellesTransisjoner.FREMHOPP_TIL_UTTAKSPLAN;
+                return BehandlingStegType.INNGANG_UTTAK;
             }
-            return FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT;
+            return BehandlingStegType.FORESLÅ_BEHANDLINGSRESULTAT;
         } else if (AksjonspunktOppdateringTransisjon.FORESLÅ_VEDTAK.equals(transisjon)) {
-            return FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_VEDTAK;
+            return BehandlingStegType.FORESLÅ_VEDTAK;
         } else {
             throw new IllegalArgumentException("Utviklerfeil: mangler mapping av aksjonspunkttransisjon til transisasjon");
         }

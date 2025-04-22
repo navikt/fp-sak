@@ -19,7 +19,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.StegProsesseringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingskontroll.testutilities.TestScenario;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -283,7 +282,7 @@ class BehandlingModellTest {
         var modell = setupModell(modellData);
         Set<AksjonspunktDefinisjon> aksjonspunktDefinisjoner = new HashSet<>();
         aksjonspunktDefinisjoner.add(aksjonspunktDefinisjon);
-        var behandlingStegModell = modell.finnTidligsteStegFor(aksjonspunktDefinisjoner);
+        var behandlingStegModell = modell.finnTidligsteStegForAksjonspunktDefinisjon(aksjonspunktDefinisjoner);
         assertThat(behandlingStegModell.getBehandlingStegType()).isEqualTo(STEG_3);
     }
 

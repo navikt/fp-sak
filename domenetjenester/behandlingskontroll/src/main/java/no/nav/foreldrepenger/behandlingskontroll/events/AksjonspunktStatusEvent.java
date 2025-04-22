@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 public class AksjonspunktStatusEvent implements BehandlingEvent {
     private final BehandlingskontrollKontekst kontekst;
     private final BehandlingStegType behandlingStegType;
-    private List<Aksjonspunkt> aksjonspunkter;
+    private final List<Aksjonspunkt> aksjonspunkter;
 
     public AksjonspunktStatusEvent(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter,
             BehandlingStegType behandlingStegType) {
@@ -37,10 +37,6 @@ public class AksjonspunktStatusEvent implements BehandlingEvent {
         return kontekst.getBehandlingId();
     }
 
-    public BehandlingskontrollKontekst getKontekst() {
-        return kontekst;
-    }
-
     public BehandlingStegType getBehandlingStegType() {
         return behandlingStegType;
     }
@@ -52,7 +48,7 @@ public class AksjonspunktStatusEvent implements BehandlingEvent {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<" + aksjonspunkter + ", behandlingId="
-                + getKontekst().getBehandlingId() + ", steg=" + getBehandlingStegType() + ">";
+                + getBehandlingId() + ", steg=" + getBehandlingStegType() + ">";
     }
 
 }

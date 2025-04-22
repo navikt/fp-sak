@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.anke.AnkeVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
@@ -40,7 +40,7 @@ class AnkeStegTest {
 
         // Assert
         assertThat(behandlingStegResultat).isNotNull();
-        assertThat(behandlingStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(behandlingStegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(behandlingStegResultat.getAksjonspunktListe()).hasSize(1);
 
         var aksjonspunktDefinisjon = behandlingStegResultat.getAksjonspunktListe().get(0);

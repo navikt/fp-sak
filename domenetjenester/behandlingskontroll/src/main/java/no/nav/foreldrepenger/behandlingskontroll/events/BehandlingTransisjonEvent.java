@@ -2,29 +2,25 @@ package no.nav.foreldrepenger.behandlingskontroll.events;
 
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.Transisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegTilstand;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class BehandlingTransisjonEvent implements BehandlingEvent {
 
     private final BehandlingskontrollKontekst kontekst;
-    private TransisjonIdentifikator transisjonIdentifikator;
-    private BehandlingStegTilstand fraTilstand;
-    private BehandlingStegType tilStegType;
-    private boolean erOverhopp;
+    private final Transisjon transisjon;
+    private final BehandlingStegTilstandSnapshot fraTilstand;
 
-    public BehandlingTransisjonEvent(BehandlingskontrollKontekst kontekst, TransisjonIdentifikator transisjonIdentifikator,
-            BehandlingStegTilstand fraTilstand, BehandlingStegType tilStegType, boolean erOverhopp) {
+    public BehandlingTransisjonEvent(BehandlingskontrollKontekst kontekst, Transisjon transisjon, BehandlingStegTilstandSnapshot fraTilstand) {
         this.kontekst = kontekst;
-        this.transisjonIdentifikator = transisjonIdentifikator;
+        this.transisjon = transisjon;
         this.fraTilstand = fraTilstand;
-        this.tilStegType = tilStegType;
-        this.erOverhopp = erOverhopp;
     }
 
     @Override
@@ -46,25 +42,22 @@ public class BehandlingTransisjonEvent implements BehandlingEvent {
         return kontekst;
     }
 
-    public TransisjonIdentifikator getTransisjonIdentifikator() {
-        return transisjonIdentifikator;
+    public StegTransisjon getStegTransisjon() {
+        return transisjon.stegTransisjon();
     }
 
     public Optional<BehandlingStegStatus> getFørsteStegStatus() {
-        return Optional.ofNullable(fraTilstand).map(BehandlingStegTilstand::getBehandlingStegStatus);
+        return Optional.ofNullable(fraTilstand).map(BehandlingStegTilstandSnapshot::status);
     }
 
     public BehandlingStegType getFørsteSteg() {
         // siden hopper framover blir dette fraSteg
-        return fraTilstand != null ? fraTilstand.getBehandlingSteg() : null;
+        return Optional.ofNullable(fraTilstand).map(BehandlingStegTilstandSnapshot::steg).orElse(null);
     }
 
     public BehandlingStegType getSisteSteg() {
         // siden hopper framover blir dette tilSteg
-        return tilStegType;
+        return transisjon.målSteg();
     }
 
-    public boolean erOverhopp() {
-        return erOverhopp;
-    }
 }

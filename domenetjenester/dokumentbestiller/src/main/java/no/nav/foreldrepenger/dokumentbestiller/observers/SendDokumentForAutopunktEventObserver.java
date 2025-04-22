@@ -34,9 +34,8 @@ public class SendDokumentForAutopunktEventObserver {
     }
 
     public void sendBrevForAutopunkt(@Observes AksjonspunktStatusEvent event) {
-        var kontekst = event.getKontekst();
         var aksjonspunkter = event.getAksjonspunkter();
-        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(event.getBehandlingId());
         finnAksjonspunkerMedDef(aksjonspunkter, AksjonspunktDefinisjon.VENT_PÅ_SØKNAD)
             .ifPresent(ap -> sendBrevForAutopunkt.sendBrevForSøknadIkkeMottatt(behandling));
         finnAksjonspunkerMedDef(aksjonspunkter, AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD)

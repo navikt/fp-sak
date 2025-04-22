@@ -1,8 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.inngangsvilkår;
 
-import static no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT;
-import static no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner.FREMHOPP_TIL_UTTAKSPLAN;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -140,9 +137,9 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
     private BehandleStegResultat getBehandleStegResultatVedAvslag(Behandling behandling, List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner) {
         if (behandling.erRevurdering() && !FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) && !harAvslåttForrigeBehandling(
             behandling)) {
-            return BehandleStegResultat.fremoverførtMedAksjonspunkter(FREMHOPP_TIL_UTTAKSPLAN, aksjonspunktDefinisjoner);
+            return BehandleStegResultat.fremoverførtMedAksjonspunkter(BehandlingStegType.INNGANG_UTTAK, aksjonspunktDefinisjoner);
         }
-        return BehandleStegResultat.fremoverførtMedAksjonspunkter(FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT, aksjonspunktDefinisjoner);
+        return BehandleStegResultat.fremoverførtMedAksjonspunkter(BehandlingStegType.FORESLÅ_BEHANDLINGSRESULTAT, aksjonspunktDefinisjoner);
     }
 
     protected void opprettDynamiskeVilkårForBehandling(BehandlingskontrollKontekst kontekst, Behandling behandling) {

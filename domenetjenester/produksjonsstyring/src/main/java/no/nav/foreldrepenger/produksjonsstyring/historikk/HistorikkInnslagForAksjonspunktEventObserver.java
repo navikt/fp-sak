@@ -37,18 +37,17 @@ public class HistorikkInnslagForAksjonspunktEventObserver {
     }
 
     /**
-     * @param aksjonspunkterFunnetEvent
+     * @param event
      */
-    public void oppretteHistorikkForBehandlingPåVent(@Observes AksjonspunktStatusEvent aksjonspunkterFunnetEvent) {
-        var ktx = aksjonspunkterFunnetEvent.getKontekst();
-        for (var aksjonspunkt : aksjonspunkterFunnetEvent.getAksjonspunkter()) {
+    public void oppretteHistorikkForBehandlingPåVent(@Observes AksjonspunktStatusEvent event) {
+        for (var aksjonspunkt : event.getAksjonspunkter()) {
             if (aksjonspunkt.erOpprettet() && AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING.equals(aksjonspunkt.getAksjonspunktDefinisjon())) {
-                opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), "Behandlingen er satt på vent", null,
+                opprettHistorikkinnslagForVenteFristRelaterteInnslag(event.getBehandlingId(), event.getFagsakId(), "Behandlingen er satt på vent", null,
                     Venteårsak.VENT_ÅPEN_BEHANDLING);
             } else if (aksjonspunkt.erOpprettet() && aksjonspunkt.getFristTid() != null) {
                 var frist = aksjonspunkt.getFristTid();
                 var venteårsak = aksjonspunkt.getVenteårsak();
-                opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), "Behandlingen er satt på vent", frist,
+                opprettHistorikkinnslagForVenteFristRelaterteInnslag(event.getBehandlingId(), event.getFagsakId(), "Behandlingen er satt på vent", frist,
                     venteårsak);
             }
         }
@@ -77,18 +76,17 @@ public class HistorikkInnslagForAksjonspunktEventObserver {
         historikkinnslagRepository.lagre(historikkinnslagBuilder.build());
     }
 
-    public void oppretteHistorikkForGjenopptattBehandling(@Observes AksjonspunktStatusEvent aksjonspunkterFunnetEvent) {
-        for (var aksjonspunkt : aksjonspunkterFunnetEvent.getAksjonspunkter()) {
-            var ktx = aksjonspunkterFunnetEvent.getKontekst();
+    public void oppretteHistorikkForGjenopptattBehandling(@Observes AksjonspunktStatusEvent event) {
+        for (var aksjonspunkt : event.getAksjonspunkter()) {
             if (aksjonspunkt.erUtført() && AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING.equals(aksjonspunkt.getAksjonspunktDefinisjon())) {
-                opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), "Køet behandling er gjenopptatt",
+                opprettHistorikkinnslagForVenteFristRelaterteInnslag(event.getBehandlingId(), event.getFagsakId(), "Køet behandling er gjenopptatt",
                     null, null);
             } else if (aksjonspunkt.erUtført() && aksjonspunkt.getFristTid() != null) {
                 // Unngå dobbelinnslag (innslag ved manuellTaAvVent) + konvensjon med påVent->SBH=null og manuellGjenoppta->SBH=ident
-                var manueltTattAvVent = Optional.ofNullable(behandlingRepository.hentBehandlingReadOnly(ktx.getBehandlingId()))
+                var manueltTattAvVent = Optional.ofNullable(behandlingRepository.hentBehandlingReadOnly(event.getBehandlingId()))
                     .map(Behandling::getAnsvarligSaksbehandler).isPresent();
                 if (!manueltTattAvVent) {
-                    opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), "Behandlingen er gjenopptatt",
+                    opprettHistorikkinnslagForVenteFristRelaterteInnslag(event.getBehandlingId(), event.getFagsakId(), "Behandlingen er gjenopptatt",
                         null, null);
                 }
             }

@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -47,7 +47,7 @@ class FaktaLøpendeOmsorgStegTest {
         var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås);
 
         var behandleStegResultat = steg.utførSteg(kontekst);
-        assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(behandleStegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         var aksjonspunkter = behandleStegResultat.getAksjonspunktListe();
         assertThat(aksjonspunkter).hasSize(1);
         assertThat(aksjonspunkter.get(0)).isEqualTo(AksjonspunktDefinisjon.AVKLAR_LØPENDE_OMSORG);

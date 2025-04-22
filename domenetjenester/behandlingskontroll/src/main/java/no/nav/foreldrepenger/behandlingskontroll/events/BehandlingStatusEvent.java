@@ -16,9 +16,8 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
  */
 public class BehandlingStatusEvent implements BehandlingEvent {
 
-    private BehandlingskontrollKontekst kontekst;
-
-    private BehandlingStatus nyStatus;
+    private final BehandlingskontrollKontekst kontekst;
+    private final BehandlingStatus nyStatus;
 
     BehandlingStatusEvent(BehandlingskontrollKontekst kontekst, BehandlingStatus nyStatus) {
         this.kontekst = kontekst;
@@ -38,10 +37,6 @@ public class BehandlingStatusEvent implements BehandlingEvent {
     @Override
     public Long getFagsakId() {
         return kontekst.getFagsakId();
-    }
-
-    public BehandlingskontrollKontekst getKontekst() {
-        return kontekst;
     }
 
     public BehandlingStatus getNyStatus() {

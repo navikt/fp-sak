@@ -10,7 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
@@ -49,7 +49,7 @@ class VarselRevurderingStegImplTest {
         when(behandlingRepository.hentBehandling(behandlingId)).thenReturn(behandling);
 
         var behandleStegResultat = steg.utførSteg(kontekst);
-        assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(behandleStegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         var aksjonspunkter = behandleStegResultat.getAksjonspunktListe();
         assertThat(aksjonspunkter).isEmpty();
     }
@@ -63,7 +63,7 @@ class VarselRevurderingStegImplTest {
         when(behandlingRepository.hentBehandling(behandlingId)).thenReturn(behandling);
 
         var behandleStegResultat = steg.utførSteg(kontekst);
-        assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(behandleStegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         var aksjonspunkter = behandleStegResultat.getAksjonspunktListe();
         assertThat(aksjonspunkter).isEmpty();
     }
@@ -77,7 +77,7 @@ class VarselRevurderingStegImplTest {
 
         var behandleStegResultat = steg.utførSteg(kontekst);
 
-        assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(behandleStegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(behandleStegResultat.getAksjonspunktListe()).hasSize(1);
 
         // Behandling skal være på vent med frist 3 uker
@@ -92,7 +92,7 @@ class VarselRevurderingStegImplTest {
         when(behandlingRepository.hentBehandling(behandlingId)).thenReturn(behandling);
 
         var behandleStegResultat = steg.utførSteg(kontekst);
-        assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(behandleStegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         var aksjonspunkter = behandleStegResultat.getAksjonspunktListe();
         assertThat(aksjonspunkter).hasSize(1);
         assertThat(aksjonspunkter.get(0)).isEqualTo(AksjonspunktDefinisjon.VARSEL_REVURDERING_MANUELL);
