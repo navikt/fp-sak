@@ -3,9 +3,9 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt.
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
@@ -27,7 +27,7 @@ public class AdopsjonsvilkåretOverstyringshåndterer extends InngangsvilkårOve
     }
 
     @Override
-    public void lagHistorikkInnslag(OverstyringAdopsjonsvilkåretDto dto, Behandling behandling) {
-        lagHistorikkInnslagForOverstyrtVilkår(behandling, dto.getBegrunnelse(), dto.getErVilkarOk(), SkjermlenkeType.PUNKT_FOR_ADOPSJON);
+    public void lagHistorikkInnslag(OverstyringAdopsjonsvilkåretDto dto, BehandlingReferanse ref) {
+        lagHistorikkInnslagForOverstyrtVilkår(ref, dto.getBegrunnelse(), dto.getErVilkarOk(), SkjermlenkeType.PUNKT_FOR_ADOPSJON);
     }
 }

@@ -36,7 +36,6 @@
         <module>bom</module>
         <module>behandlingskontroll</module>
         <module>risikoklassifisering</module>
-        <module>tilbakekreving</module>
         <module>beregningsgrunnlag</module>
         <module>kompletthet</module>
     </modules>

@@ -3,11 +3,10 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.dekningsgrad;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = AvklarDekningsgradOverstyringDto.class, adapter = Overstyringshåndterer.class)
@@ -25,7 +24,7 @@ public class AvklarDekningsgradOverstyringshåndterer implements Overstyringshå
     }
 
     @Override
-    public OppdateringResultat håndterOverstyring(AvklarDekningsgradOverstyringDto dto, Behandling behandling, BehandlingskontrollKontekst kontekst) {
-        return fellesTjeneste.oppdater(dto.getDekningsgrad(), kontekst.getFagsakId(), kontekst.getBehandlingId(), dto.getBegrunnelse());
+    public OppdateringResultat håndterOverstyring(AvklarDekningsgradOverstyringDto dto, BehandlingReferanse ref) {
+        return fellesTjeneste.oppdater(dto.getDekningsgrad(), ref.fagsakId(), ref.behandlingId(), dto.getBegrunnelse());
     }
 }

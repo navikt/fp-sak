@@ -1,9 +1,7 @@
 package no.nav.foreldrepenger.familiehendelse.kontrollerfakta.omsorgsovertakelse;
 
-import static java.util.Collections.emptyList;
 import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.JA;
 import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.NEI;
-import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettListeForAksjonspunkt;
 
 import java.util.List;
 
@@ -12,8 +10,8 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtleder;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederResultat;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall;
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
@@ -25,7 +23,7 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 @ApplicationScoped
 public class AksjonspunktUtlederForOmsorgsovertakelse implements AksjonspunktUtleder {
 
-    private static final List<AksjonspunktResultat> INGEN_AKSJONSPUNKTER = emptyList();
+    private static final List<AksjonspunktUtlederResultat> INGEN_AKSJONSPUNKTER = List.of();
     private FamilieHendelseTjeneste familieHendelseTjeneste;
 
     AksjonspunktUtlederForOmsorgsovertakelse() {
@@ -37,9 +35,9 @@ public class AksjonspunktUtlederForOmsorgsovertakelse implements AksjonspunktUtl
     }
 
     @Override
-    public List<AksjonspunktResultat> utledAksjonspunkterFor(AksjonspunktUtlederInput param) {
+    public List<AksjonspunktUtlederResultat> utledAksjonspunkterFor(AksjonspunktUtlederInput param) {
         if (farAdoptererAlene(param.getBehandlingId()) == NEI) {
-            return opprettListeForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE);
+            return AksjonspunktUtlederResultat.opprettListeForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE);
         }
         return INGEN_AKSJONSPUNKTER;
     }

@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdateringTransisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
@@ -107,7 +107,7 @@ class OmsorgsvilkårOppdatererTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(resultat.kreverTotrinnsKontroll()).isFalse();
-        assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR);
+        assertThat(resultat.getTransisjon()).isEqualTo(AksjonspunktOppdateringTransisjon.AVSLAG_VILKÅR);
         assertThat(resultat.getVilkårUtfallSomSkalLeggesTil()).hasSize(1);
         assertThat(resultat.getVilkårUtfallSomSkalLeggesTil().get(0).getVilkårType()).isEqualTo(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);
         assertThat(resultat.getVilkårUtfallSomSkalLeggesTil().get(0).getVilkårUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
