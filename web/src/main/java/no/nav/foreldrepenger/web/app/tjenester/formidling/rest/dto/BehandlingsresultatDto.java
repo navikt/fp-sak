@@ -16,7 +16,7 @@ public class BehandlingsresultatDto {
     private String overskrift;
     private String fritekstbrev;
     private SkjæringstidspunktDto skjæringstidspunkt;
-    private boolean endretDekningsgrad;
+    private Boolean endretDekningsgrad;
     private LocalDate opphørsdato;
 
     public BehandlingsresultatDto() {
