@@ -29,6 +29,8 @@ public class BehandlingsresultatDto {
     private List<KonsekvensForYtelsen> konsekvenserForYtelsen;
     @JsonProperty("vedtaksbrev")
     private Vedtaksbrev vedtaksbrev;
+    @JsonProperty("vedtaksbrevProduseresOgSendesUt")
+    private boolean vedtaksbrevBlirProdusertOgSendtUt;
     @JsonProperty("overskrift")
     private String overskrift;
     @JsonProperty("fritekstbrev")
@@ -134,6 +136,14 @@ public class BehandlingsresultatDto {
 
     public void setHarRedigertVedtaksbrev(boolean harRedigertVedtaksbrev) {
         this.harRedigertVedtaksbrev = harRedigertVedtaksbrev;
+    }
+
+    public boolean isVedtaksbrevBlirProdusertOgSendtUt() {
+        return vedtaksbrevBlirProdusertOgSendtUt;
+    }
+
+    public void setVedtaksbrevBlirProdusertOgSendtUt(boolean vedtaksbrevBlirProdusertOgSendtUt) {
+        this.vedtaksbrevBlirProdusertOgSendtUt = vedtaksbrevBlirProdusertOgSendtUt;
     }
 
     public SkjæringstidspunktDto getSkjæringstidspunkt() {

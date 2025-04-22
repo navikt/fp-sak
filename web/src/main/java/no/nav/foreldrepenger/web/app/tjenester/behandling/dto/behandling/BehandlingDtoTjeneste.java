@@ -35,7 +35,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
@@ -222,7 +221,8 @@ public class BehandlingDtoTjeneste {
             .map(behandlingRepository::hentBehandling);
         return behandlinger.stream().map(behandling -> {
             var erBehandlingMedGjeldendeVedtak = erBehandlingMedGjeldendeVedtak(behandling, behandlingMedGjeldendeVedtak);
-            var behandlingsresultatDto = lagBehandlingsresultatDto(behandling);
+            var vedtaksbrevBlirProdusertOgSendtUt = skalSendeVedtaksbrevUtleder.skalSendVedtaksbrev(behandling.getId());
+            var behandlingsresultatDto = lagBehandlingsresultatDto(behandling, vedtaksbrevBlirProdusertOgSendtUt);
             var vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
                 .map(BehandlingVedtak::getVedtaksdato)
                 .orElse(null);
@@ -243,14 +243,16 @@ public class BehandlingDtoTjeneste {
         return dto;
     }
 
-    private void settStandardfelterUtvidet(Behandling behandling, UtvidetBehandlingDto dto, boolean erBehandlingMedGjeldendeVedtak) {
+    private void settStandardfelterUtvidet(Behandling behandling, UtvidetBehandlingDto dto,
+                                           boolean erBehandlingMedGjeldendeVedtak,
+                                           boolean vedtaksbrevBlirProdusertOgSendtUt) {
         var vedtaksDato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
             .map(BehandlingVedtak::getVedtaksdato)
             .orElse(null);
         BehandlingDtoUtil.settStandardfelterUtvidet(behandling, getBehandlingsresultat(behandling.getId()), dto, erBehandlingMedGjeldendeVedtak,
             vedtaksDato);
         dto.setSpråkkode(getSpråkkode(behandling));
-        var behandlingsresultatDto = lagBehandlingsresultatDto(behandling);
+        var behandlingsresultatDto = lagBehandlingsresultatDto(behandling, vedtaksbrevBlirProdusertOgSendtUt);
         dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
     }
 
@@ -289,7 +291,8 @@ public class BehandlingDtoTjeneste {
 
     private UtvidetBehandlingDto mapFra(Behandling behandling, boolean erBehandlingMedGjeldendeVedtak) {
         var dto = new UtvidetBehandlingDto();
-        settStandardfelterUtvidet(behandling, dto, erBehandlingMedGjeldendeVedtak);
+        var vedtaksbrevBlirProdusertOgSendtUt = skalSendeVedtaksbrevUtleder.skalSendVedtaksbrev(behandling.getId());
+        settStandardfelterUtvidet(behandling, dto, erBehandlingMedGjeldendeVedtak, vedtaksbrevBlirProdusertOgSendtUt);
 
         var saksnummerDto = new SaksnummerDto(behandling.getSaksnummer());
         dto.leggTil(get(FagsakRestTjeneste.FAGSAK_PATH, "fagsak", saksnummerDto));
@@ -316,7 +319,7 @@ public class BehandlingDtoTjeneste {
         if (BehandlingType.ANKE.equals(behandling.getType())) {
             return utvideBehandlingDtoAnke(behandling, dto);
         }
-        return utvideBehandlingDto(behandling, dto);
+        return utvideBehandlingDto(behandling, dto, vedtaksbrevBlirProdusertOgSendtUt);
     }
 
     private UtvidetBehandlingDto utvideBehandlingDtoKlage(Behandling behandling, UtvidetBehandlingDto dto) {
@@ -340,7 +343,7 @@ public class BehandlingDtoTjeneste {
         return dto;
     }
 
-    private UtvidetBehandlingDto utvideBehandlingDto(Behandling behandling, UtvidetBehandlingDto dto) {
+    private UtvidetBehandlingDto utvideBehandlingDto(Behandling behandling, UtvidetBehandlingDto dto, boolean vedtaksbrevBlirProdusertOgSendtUt) {
         var uuidDto = new UuidDto(behandling.getUuid());
         // mapping ved hjelp av tjenester
         var harInnhentetRegisterData = behandlingRepository.hentSistOppdatertTidspunkt(behandling.getId()).isPresent();
@@ -355,8 +358,7 @@ public class BehandlingDtoTjeneste {
             return dto;
         }
 
-
-        if (harAksjonspunktIForslåVedtakSomErOpprettetEllerUtført(behandling) && harIkkeBehandlingresultatMedVedtaksbrevINGEN(behandling) && skalSendeVedtaksbrevUtleder.skalSendVedtaksbrev(behandling.getId())) {
+        if (harAksjonspunktIForslåVedtakSomErOpprettetEllerUtført(behandling) && vedtaksbrevBlirProdusertOgSendtUt) {
             dto.leggTil(get(BrevRestTjeneste.BREV_HENT_OVERSTYRING_PATH, "hent-brev-overstyring", uuidDto));
             dto.leggTil(post(BrevRestTjeneste.BREV_MELLOMLAGRE_OVERSTYRING_PATH, "mellomlagre-brev-overstyring"));
         }
@@ -488,19 +490,13 @@ public class BehandlingDtoTjeneste {
         return dto;
     }
 
-    private boolean harIkkeBehandlingresultatMedVedtaksbrevINGEN(Behandling behandling) {
-        return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())
-            .filter(resultat -> !Vedtaksbrev.INGEN.equals(resultat.getVedtaksbrev()))
-            .isPresent();
-    }
-
     private static boolean harAksjonspunktIForslåVedtakSomErOpprettetEllerUtført(Behandling behandling) {
         return behandling.getAksjonspunkter().stream()
             .filter(ap -> AksjonspunktDefinisjon.FORESLÅ_VEDTAK.equals(ap.getAksjonspunktDefinisjon()) || AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT.equals(ap.getAksjonspunktDefinisjon()))
             .anyMatch(ap -> ap.erOpprettet() || ap.erUtført());
     }
 
-    private Optional<BehandlingsresultatDto> lagBehandlingsresultatDto(Behandling behandling) {
+    private Optional<BehandlingsresultatDto> lagBehandlingsresultatDto(Behandling behandling, boolean vedtaksbrevBlirProdusertOgSendtUt) {
         var behandlingsresultat = getBehandlingsresultat(behandling.getId());
         if (behandlingsresultat == null) {
             return Optional.empty();
@@ -529,6 +525,7 @@ public class BehandlingDtoTjeneste {
         }
 
         dto.setVedtaksbrev(behandlingsresultat.getVedtaksbrev());
+        dto.setVedtaksbrevBlirProdusertOgSendtUt(vedtaksbrevBlirProdusertOgSendtUt);
         return Optional.of(dto);
     }
 
