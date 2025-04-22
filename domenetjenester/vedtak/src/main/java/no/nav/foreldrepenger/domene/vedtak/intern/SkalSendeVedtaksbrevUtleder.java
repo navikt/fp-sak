@@ -4,18 +4,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.*;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -25,8 +16,6 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 
 @ApplicationScoped
 public class SkalSendeVedtaksbrevUtleder {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SkalSendeVedtaksbrevUtleder.class);
 
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
@@ -51,51 +40,49 @@ public class SkalSendeVedtaksbrevUtleder {
         this.revurderingTjenesteInstanser = revurderingTjenesteInstanser;
     }
 
-    public boolean skalSendVedtaksbrev(Long behandlingId) {
+    public VedtaksbrevStatus statusVedtaksbrev(Long behandlingId) {
         var behandlingresultatOpt = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
         if (behandlingresultatOpt.isEmpty()) {
-            return false;
+            return VedtaksbrevStatus.INGEN_VEDTAKSBREV;
         }
 
         var behandlingsresultat = behandlingresultatOpt.get();
         if (Vedtaksbrev.INGEN.equals(behandlingsresultat.getVedtaksbrev())) {
-            LOG.info("Sender ikke vedtaksbrev om det er eksplisit markert med INGEN: {}", behandlingId);
-            return false;
+            return VedtaksbrevStatus.INGEN_VEDTAKSBREV;
         }
 
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (BehandlingType.ANKE.equals(behandling.getType())) {
-            LOG.info("Ankebrev sendes av kabal for behandling med id {} ", behandling.getId());
-            return false;
+            // Ankebrev sendes av kabal
+            return VedtaksbrevStatus.INGEN_VEDTAKSBREV_ANKE;
         }
 
         if (BehandlingType.KLAGE.equals(behandling.getType()) && (!skalSendeVedtaksbrevIKlagebehandling(behandling) || harKlageBlittBehandletAvKabal(behandling))) {
-            LOG.info("Sender ikke vedtaksbrev fra klagebehandlingen i behandlingen etter, eller når KlageVurderingResultat = null. For behandlingId {}", behandlingId);
-            return false;
+            // Sender ikke vedtaksbrev fra klagebehandlingen i behandlingen etter, eller når KlageVurderingResultat = null
+            return VedtaksbrevStatus.INGEN_VEDTAKSBREV_KLAGEBEHANDLING;
         }
 
         if (erBehandlingEtterKlage(behandling) && !skalSendeVedtaksbrevEtterKlage(behandling)) {
-            LOG.info("Sender ikke vedtaksbrev for vedtak fra omgjøring fra klageinstansen på behandling {}, gjelder medhold fra klageinstans", behandlingId);
-            return false;
+            // Sender ikke vedtaksbrev for revurderinger med omgjøring fra klageinstanse (gjelder medhold)
+            return VedtaksbrevStatus.INGEN_VEDTAKSBREV_BEHANDLING_ETTER_KLAGE;
         }
 
         if (SpesialBehandling.erJusterFeriepenger(behandling)) {
-            LOG.info("Sender ikke vedtaksbrev for reberegning av feriepenger: {}", behandlingId);
-            return false;
+            // Sender ikke vedtaksbrev for reberegning av feriepenger
+            return VedtaksbrevStatus.INGEN_VEDTAKSBREV_JUSTERING_AV_FERIEPENGER;
         }
 
         if (Boolean.TRUE.equals(erRevurderingMedUendretUtfall(behandling))) { // Beslutningsvedtak betyr at vedtaket er innvilget men har ingen konsekvens for ytelsen.
             if (Boolean.TRUE.equals(harSendtVarselOmRevurdering(behandlingId)) || harFritekstBrev(behandlingsresultat)) {
-                LOG.info("Sender informasjonsbrev om uendret utfall i behandling: {}", behandlingId);
-                // Dette her håndteres videre i dokumentMalUtleder
+                // Sender informasjonsbrev om uendret utfall. Dette her håndteres videre i dokumentMalUtleder
+                return VedtaksbrevStatus.VEDTAKSBREV_PRODUSERES;
             } else {
-                LOG.info(
-                    "Uendret utfall av revurdering og har ikke sendt varsel om revurdering eller fritekst brev. Sender ikke brev for behandling: {}",
-                    behandlingId);
-                return false;
+                // Uendret utfall av revurdering og har ikke sendt varsel om revurdering eller fritekst brev
+                return VedtaksbrevStatus.INGEN_VEDTAKSBREV_INGEN_KONSEKVENS_FOR_YTELSE;
             }
         }
-        return true;
+
+        return VedtaksbrevStatus.VEDTAKSBREV_PRODUSERES;
     }
 
     private static boolean harFritekstBrev(Behandlingsresultat behandlingsresultat) {

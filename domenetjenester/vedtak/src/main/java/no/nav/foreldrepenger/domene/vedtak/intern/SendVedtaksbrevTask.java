@@ -44,9 +44,15 @@ public class SendVedtaksbrevTask extends BehandlingProsessTask {
         var behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId);
         if (behandlingVedtakOpt.isEmpty()) {
             LOG.info("Det foreligger ikke vedtak i behandling: {}, kan ikke sende vedtaksbrev", behandlingId);
-        } else if (skalSendeVedtaksbrevUtleder.skalSendVedtaksbrev(behandlingId)) {
+            return;
+        }
+
+        var vedtaksbrevStatus = skalSendeVedtaksbrevUtleder.statusVedtaksbrev(behandlingId);
+        if (vedtaksbrevStatus.vedtaksbrevSkalBliProdusert()) {
             LOG.info("Sender vedtaksbrev for behandlingId: {}", behandlingId);
             dokumentBestillerTjeneste.produserVedtaksbrev(behandlingVedtakOpt.get());
+        } else {
+            LOG.info("Sender IKKE vedtaksbrev pga {} for behandling: {}", vedtaksbrevStatus, behandlingId);
         }
         LOG.info("Utført for behandling: {}", behandlingId);
     }

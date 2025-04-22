@@ -11,6 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.RettenTil;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
+import no.nav.foreldrepenger.domene.vedtak.intern.VedtaksbrevStatus;
 
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class BehandlingsresultatDto {
@@ -29,8 +30,8 @@ public class BehandlingsresultatDto {
     private List<KonsekvensForYtelsen> konsekvenserForYtelsen;
     @JsonProperty("vedtaksbrev")
     private Vedtaksbrev vedtaksbrev;
-    @JsonProperty("vedtaksbrevBlirProdusertOgSendtUt")
-    private boolean vedtaksbrevBlirProdusertOgSendtUt;
+    @JsonProperty("vedtaksbrevStatus")
+    private VedtaksbrevStatus vedtaksbrevStatus;
     @JsonProperty("overskrift")
     private String overskrift;
     @JsonProperty("fritekstbrev")
@@ -138,12 +139,12 @@ public class BehandlingsresultatDto {
         this.harRedigertVedtaksbrev = harRedigertVedtaksbrev;
     }
 
-    public boolean isVedtaksbrevBlirProdusertOgSendtUt() {
-        return vedtaksbrevBlirProdusertOgSendtUt;
+    public VedtaksbrevStatus getVedtaksbrevStatus() {
+        return vedtaksbrevStatus;
     }
 
-    public void setVedtaksbrevBlirProdusertOgSendtUt(boolean vedtaksbrevBlirProdusertOgSendtUt) {
-        this.vedtaksbrevBlirProdusertOgSendtUt = vedtaksbrevBlirProdusertOgSendtUt;
+    public void setVedtaksbrevStatus(VedtaksbrevStatus vedtaksbrevStatus) {
+        this.vedtaksbrevStatus = vedtaksbrevStatus;
     }
 
     public SkjæringstidspunktDto getSkjæringstidspunkt() {
