@@ -29,7 +29,7 @@ public class BehandlingsresultatDto {
     private List<KonsekvensForYtelsen> konsekvenserForYtelsen;
     @JsonProperty("vedtaksbrev")
     private Vedtaksbrev vedtaksbrev;
-    @JsonProperty("vedtaksbrevProduseresOgSendesUt")
+    @JsonProperty("vedtaksbrevBlirProdusertOgSendtUt")
     private boolean vedtaksbrevBlirProdusertOgSendtUt;
     @JsonProperty("overskrift")
     private String overskrift;
