@@ -102,7 +102,7 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
     private static void setLogContext(Optional<Saksnummer> saksnummer, Optional<PipBehandlingsData> behandlingData) {
         saksnummer.ifPresent(s -> {
             MDC_EXTENDED_LOG_CONTEXT.remove("fagsak");
-            MDC_EXTENDED_LOG_CONTEXT.add("fagsak", s);
+            MDC_EXTENDED_LOG_CONTEXT.add("fagsak", s.getVerdi());
         });
         behandlingData.ifPresent(bd -> {
             MDC_EXTENDED_LOG_CONTEXT.remove("behandling");
