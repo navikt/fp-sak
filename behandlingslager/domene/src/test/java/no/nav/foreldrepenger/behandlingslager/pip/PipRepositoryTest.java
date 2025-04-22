@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Journalpost;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
 class PipRepositoryTest extends EntityManagerAwareTest {
@@ -61,14 +60,6 @@ class PipRepositoryTest extends EntityManagerAwareTest {
     void skal_returne_tomt_resultat_når_det_søkes_etter_behandling_id_som_ikke_finnes() {
         var pipBehandlingsData = pipRepository.hentDataForBehandlingUuid(UUID.randomUUID());
         assertThat(pipBehandlingsData).isNotPresent();
-    }
-
-    @Test
-    void skal_finne_aktoerId_for_saksnummer() {
-        var fagsak = behandlingBuilder.opprettFagsak(FagsakYtelseType.FORELDREPENGER, AktørId.dummy());
-
-        var aktørIder = pipRepository.hentAktørIdKnyttetTilSaksnummer(fagsak.getSaksnummer().getVerdi());
-        assertThat(aktørIder).containsOnly(fagsak.getAktørId());
     }
 
     @Test

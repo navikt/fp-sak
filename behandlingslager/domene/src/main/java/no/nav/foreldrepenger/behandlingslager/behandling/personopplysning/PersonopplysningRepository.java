@@ -3,11 +3,12 @@ package no.nav.foreldrepenger.behandlingslager.behandling.personopplysning;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 
 import org.hibernate.jpa.HibernateHints;
 
@@ -104,33 +105,36 @@ public class PersonopplysningRepository {
 
     private void populerAktørIdFraBehandling(Optional<PersonopplysningGrunnlagEntitet> resultat) {
         resultat.ifPresent(r -> {
-            var aktørQuery = entityManager.createNativeQuery("select br.aktoer_id from bruker br"
-                    + " inner join fagsak f on f.bruker_id=br.id"
-                    + " inner join behandling be on be.fagsak_id = f.id"
-                    + " where be.id = :behandling_id")
-                    .setParameter("behandling_id", r.getBehandlingId());
-            r.setAktørId(new AktørId((String) aktørQuery.getSingleResult()));
+            var aq = entityManager.createQuery("""
+                    select br.aktørId from Bruker br
+                     inner join Fagsak f on f.navBruker = br
+                     inner join Behandling be on be.fagsak = f
+                     where be.id = :behandling_id""", AktørId.class)
+                .setParameter("behandling_id", r.getBehandlingId());
+            r.setAktørId(aq.getSingleResult());
         });
     }
 
     public void oppdaterAktørIdFor(AktørId gammel, AktørId gjeldende) {
-        utførUpdate(entityManager.createNativeQuery("UPDATE PO_ADRESSE SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);
-        utførUpdate(entityManager.createNativeQuery("UPDATE PO_PERSONOPPLYSNING SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);
-        utførUpdate(entityManager.createNativeQuery("UPDATE PO_PERSONSTATUS SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);
-        utførUpdate(entityManager.createNativeQuery("UPDATE PO_OPPHOLD SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);
-        utførUpdate(entityManager.createNativeQuery("UPDATE PO_STATSBORGERSKAP SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);
-        utførUpdate(entityManager.createNativeQuery("UPDATE PO_RELASJON SET FRA_AKTOER_ID = :gjeldende WHERE FRA_AKTOER_ID = :gammel"), gammel, gjeldende);
-        utførUpdate(entityManager.createNativeQuery("UPDATE PO_RELASJON SET TIL_AKTOER_ID = :gjeldende WHERE TIL_AKTOER_ID = :gammel"), gammel, gjeldende);
-        utførUpdate(entityManager.createNativeQuery("UPDATE SO_ANNEN_PART SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);
-        utførUpdate(entityManager.createNativeQuery("UPDATE GR_UFORETRYGD SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);
-        utførUpdate(entityManager.createNativeQuery("UPDATE PSB_INNLAGT_PERIODE SET PLEIETRENGENDE_AKTOER_ID = :gjeldende WHERE PLEIETRENGENDE_AKTOER_ID = :gammel"), gammel, gjeldende);
+        utførUpdate("PO_ADRESSE",          "AKTOER_ID", gammel, gjeldende);
+        utførUpdate("PO_PERSONOPPLYSNING", "AKTOER_ID", gammel, gjeldende);
+        utførUpdate("PO_PERSONSTATUS",     "AKTOER_ID", gammel, gjeldende);
+        utførUpdate("PO_OPPHOLD",          "AKTOER_ID", gammel, gjeldende);
+        utførUpdate("PO_STATSBORGERSKAP",  "AKTOER_ID", gammel, gjeldende);
+        utførUpdate("PO_RELASJON",         "FRA_AKTOER_ID", gammel, gjeldende);
+        utførUpdate("PO_RELASJON",         "TIL_AKTOER_ID", gammel, gjeldende);
+        utførUpdate("SO_ANNEN_PART",       "AKTOER_ID", gammel, gjeldende);
+        utførUpdate("GR_UFORETRYGD",       "AKTOER_ID", gammel, gjeldende);
+        utførUpdate("PSB_INNLAGT_PERIODE", "PLEIETRENGENDE_AKTOER_ID", gammel, gjeldende);
         entityManager.flush();
     }
 
-    private void utførUpdate(Query query, AktørId gammel, AktørId gjeldende) {
-        query.setParameter("gjeldende", gjeldende.getId());
-        query.setParameter("gammel", gammel.getId());
-        query.executeUpdate();
+    private void utførUpdate(String table, String column, AktørId gammel, AktørId gjeldende) {
+        var qstring = String.format("UPDATE %s SET %s = :gjeldende WHERE %s = :gammel", table, column, column);
+        entityManager.createNativeQuery(qstring)
+            .setParameter("gjeldende", gjeldende.getId())
+            .setParameter("gammel", gammel.getId())
+            .executeUpdate();
         entityManager.flush();
     }
 
@@ -243,13 +247,14 @@ public class PersonopplysningRepository {
     }
 
     public List<Fagsak> fagsakerMedOppgittAnnenPart(AktørId annenPart) {
-        var aktørQuery = entityManager.createQuery("select distinct f from Fagsak f "
-                + " inner join Behandling b on b.fagsak=f "
-                + " join PersonopplysningGrunnlagEntitet gr on gr.behandlingId=b.id "
-                + " join SøknadAnnenPart ap on gr.søknadAnnenPart=ap "
-                + " where ap.aktørId = :aktoerId and gr.aktiv = true", Fagsak.class)
+        var fagsakMedAnnenPartQuery = entityManager.createQuery("""
+                select distinct f from Fagsak f
+                 inner join Behandling b on b.fagsak=f
+                 join PersonopplysningGrunnlagEntitet gr on gr.behandlingId=b.id
+                 join SøknadAnnenPart ap on gr.søknadAnnenPart=ap
+                 where ap.aktørId = :aktoerId and gr.aktiv = true""", Fagsak.class)
             .setParameter("aktoerId", annenPart);
-        return aktørQuery.getResultList();
+        return fagsakMedAnnenPartQuery.getResultList();
     }
 
     public PersonopplysningGrunnlagEntitet hentFørsteVersjonAvPersonopplysninger(Long behandlingId) {
@@ -268,6 +273,35 @@ public class PersonopplysningRepository {
 
         populerAktørIdFraBehandling(resultat);
         return resultat.orElse(null);
+    }
+
+    public Set<AktørId> hentAktørIdKnyttetTilSaksnummer(String saksnummer) {
+        Objects.requireNonNull(saksnummer, "saksnummer");
+
+        var sql = """
+            SELECT por.AKTOER_ID From Fagsak fag
+            JOIN BEHANDLING beh ON fag.ID = beh.FAGSAK_ID
+            JOIN GR_PERSONOPPLYSNING grp ON grp.behandling_id = beh.ID
+            JOIN PO_PERSONOPPLYSNING por ON grp.registrert_informasjon_id = por.po_informasjon_id
+            WHERE fag.SAKSNUMMER = :saksnummer AND grp.aktiv = 'J'
+             UNION ALL
+            SELECT br.AKTOER_ID FROM Fagsak fag
+            JOIN Bruker br ON fag.BRUKER_ID = br.ID
+            WHERE fag.SAKSNUMMER = :saksnummer AND br.AKTOER_ID IS NOT NULL
+             UNION ALL
+            SELECT sa.AKTOER_ID From Fagsak fag
+            JOIN BEHANDLING beh ON fag.ID = beh.FAGSAK_ID
+            JOIN GR_PERSONOPPLYSNING grp ON grp.behandling_id = beh.ID
+            JOIN SO_ANNEN_PART sa ON grp.so_annen_part_id = sa.ID
+            WHERE fag.SAKSNUMMER = :saksnummer AND grp.aktiv = 'J' AND sa.AKTOER_ID IS NOT NULL
+            """;
+
+        var query = entityManager.createNativeQuery(sql)
+            .setParameter("saksnummer", saksnummer);
+
+        @SuppressWarnings("unchecked")
+        List<String> aktørIdList = query.getResultList();
+        return aktørIdList.stream().map(AktørId::new).collect(Collectors.toSet());
     }
 
 }

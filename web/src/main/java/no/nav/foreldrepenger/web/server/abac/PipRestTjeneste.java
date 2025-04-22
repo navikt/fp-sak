@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.server.abac;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -21,6 +22,7 @@ import jakarta.ws.rs.core.MediaType;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import io.swagger.v3.oas.annotations.Operation;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.pip.PipRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -28,6 +30,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSupp
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
+import no.nav.vedtak.felles.integrasjon.fpsakpip.SakMedPersonerDto;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -49,10 +52,12 @@ public class PipRestTjeneste {
     private static final String SAK_AKTOER_FOR_BEHANDLING = "/sak-aktoer-for-behandling";
 
     private PipRepository pipRepository;
+    private PersonopplysningRepository personopplysningRepository;
 
     @Inject
-    public PipRestTjeneste(PipRepository pipRepository) {
+    public PipRestTjeneste(PipRepository pipRepository, PersonopplysningRepository personopplysningRepository) {
         this.pipRepository = pipRepository;
+        this.personopplysningRepository = personopplysningRepository;
     }
 
     public PipRestTjeneste() {
@@ -65,17 +70,18 @@ public class PipRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP, availabilityType = AvailabilityType.ALL, sporingslogg = false)
     public Set<AktørId> hentAktørIdListeTilknyttetSak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
         @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
-        return pipRepository.hentAktørIdKnyttetTilSaksnummer(saksnummerDto.getVerdi());
+        return personopplysningRepository.hentAktørIdKnyttetTilSaksnummer(saksnummerDto.getVerdi());
     }
 
     @POST // Bulk-metode
     @Path(AKTOER_FOR_SAK)
     @Operation(description = "Henter aktørId'er tilknyttet en gruppe saker", tags = "pip")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP, sporingslogg = false)
-    public List<SakAktørDto> hentAktørIdMapTilknyttetSaker(@TilpassetAbacAttributt(supplierClass = SakSetSupplier.class)
+    public List<SakMedPersonerDto> hentAktørIdMapTilknyttetSaker(@TilpassetAbacAttributt(supplierClass = SakSetSupplier.class)
                                                                        @NotNull @Valid SaksnummerSetDto saksnummerDto) {
         return saksnummerDto.saksnummer().stream()
-            .map(s -> new SakAktørDto(s.saksnummer(), pipRepository.hentAktørIdKnyttetTilSaksnummer(s.saksnummer())))
+            .map(SaksnummerPlainDto::saksnummer)
+            .map(this::lagSakMedPersonerDto)
             .toList();
     }
 
@@ -87,7 +93,7 @@ public class PipRestTjeneste {
                                                        @NotNull @QueryParam("behandlingUuid") @Valid UuidDto uuidDto) {
         return pipRepository.hentSaksnummerForBehandlingUuid(uuidDto.getBehandlingUuid())
             .map(Saksnummer::getVerdi)
-            .map(pipRepository::hentAktørIdKnyttetTilSaksnummer)
+            .map(personopplysningRepository::hentAktørIdKnyttetTilSaksnummer)
             .orElseGet(Set::of);
     }
 
@@ -104,18 +110,22 @@ public class PipRestTjeneste {
     @Path(SAK_AKTOER_FOR_BEHANDLING)
     @Operation(description = "Henter aktørId'er tilknyttet en gruppe saker", tags = "pip")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP, sporingslogg = false)
-    public SakAktørDto hentSaksnummerAktørIdFor(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
+    public SakMedPersonerDto hentSaksnummerAktørIdFor(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                                      @NotNull @QueryParam("behandlingUuid") @Valid UuidDto uuidDto) {
         return pipRepository.hentSaksnummerForBehandlingUuid(uuidDto.getBehandlingUuid())
-            .map(s -> new SakAktørDto(s.getVerdi(), pipRepository.hentAktørIdKnyttetTilSaksnummer(s.getVerdi())))
+            .map(Saksnummer::getVerdi)
+            .map(this::lagSakMedPersonerDto)
             .orElse(null);
+    }
+
+    private SakMedPersonerDto lagSakMedPersonerDto(String saksnummer) {
+        var identer = personopplysningRepository.hentAktørIdKnyttetTilSaksnummer(saksnummer).stream().map(AktørId::getId).collect(Collectors.toSet());
+        return new SakMedPersonerDto(saksnummer, identer);
     }
 
     public record SaksnummerPlainDto(@JsonValue @NotNull @Size(max = 20) @Pattern(regexp = "^[a-zA-Z0-9_\\-]*$") String saksnummer) { }
 
-    public record SaksnummerSetDto(@Valid @Size(max = 500) Set<@Valid SaksnummerPlainDto> saksnummer) {}
-
-    public record SakAktørDto(String saksnummer, Set<AktørId> aktoerId) { }
+    public record SaksnummerSetDto(@JsonValue @Valid @Size(max = 500) Set<@Valid SaksnummerPlainDto> saksnummer) {}
 
     // Trengs ikke her - PIP-tjenester skal bare kalles av system/client_credentials
     public static class SakSetSupplier implements Function<Object, AbacDataAttributter> {

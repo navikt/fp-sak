@@ -12,8 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -53,9 +51,7 @@ public class OpprettManglendeForespørslerTask implements ProsessTaskHandler {
 
         var saker = finnNesteHundreSaker(fraFagsakId, tomFagsakId);
 
-        saker.forEach(sak -> {
-            migrerManglendeForespørslerTjeneste.vurderOmForespørselSkalOpprettes(sak, dryRun);
-        });
+        saker.forEach(sak -> migrerManglendeForespørslerTjeneste.vurderOmForespørselSkalOpprettes(sak, dryRun));
 
         saker.stream()
             .map(Fagsak::getId)
@@ -67,18 +63,20 @@ public class OpprettManglendeForespørslerTask implements ProsessTaskHandler {
         var sql = """
             select * from (
             select fag.* from FAGSAK fag
-            where fag.id >= :fraFagsakId and fag.id <= :tomFagsakId
-            and fag.fagsak_status = :lopendeStatus
-            and fag.ytelse_type in (:ytelseTyper)
-            order by fag.id)
+            where 1=1
+            and fag.id >= :fraFagsakId and fag.id <= :tomFagsakId
+            and fag.fagsak_status <> 'AVSLU'
+            and fag.ytelse_type in ('SVP', 'FP')
+            and fag.opprettet_tid < '14.11.2024'
+            and exists (select * from fagsak_relasjon where fag.id in (fagsak_en_id , fagsak_to_id) and aktiv = 'J' and (avsluttningsdato is null or avsluttningsdato > sysdate))
+            order by fag.id
+            fetch first 100 rows only)
             where ROWNUM <= 100
             """;
 
         var query = entityManager.createNativeQuery(sql, Fagsak.class)
             .setParameter("fraFagsakId", nesteFagsakId)
-            .setParameter("tomFagsakId", tomFagsakId)
-            .setParameter("lopendeStatus", FagsakStatus.LØPENDE.getKode())
-            .setParameter("ytelseTyper", List.of(FagsakYtelseType.SVANGERSKAPSPENGER.getKode(), FagsakYtelseType.FORELDREPENGER.getKode()));
+            .setParameter("tomFagsakId", tomFagsakId);
 
         return query.getResultList();
     }
