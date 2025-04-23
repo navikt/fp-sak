@@ -76,8 +76,6 @@ class ForeslåVedtakTjeneste {
 
         List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner = new ArrayList<>(aksjonspunkterFraSteg);
 
-
-
         if (behandling.harAvbruttAlleAksjonspunktAvTyper(AksjonspunktDefinisjon.getAvvikIBeregning())) {
             dokumentBehandlingTjeneste.nullstillVedtakFritekstHvisFinnes(behandling.getId());
         }
@@ -87,8 +85,6 @@ class ForeslåVedtakTjeneste {
                 behandling.nullstillToTrinnsBehandling();
                 return BehandleStegResultat.utførtUtenAksjonspunkter();
             }
-
-
         } else {
             aksjonspunktDefinisjoner
                     .addAll(sjekkMotEksisterendeOppgaverTjeneste.sjekkMotEksisterendeGsakOppgaver(behandling.getAktørId(), behandling));
@@ -97,7 +93,6 @@ class ForeslåVedtakTjeneste {
                 aksjonspunktDefinisjoner.add(AksjonspunktDefinisjon.VURDERE_INNTEKTSMELDING_FØR_VEDTAK);
             }
         }
-
 
         håndterToTrinn(behandling, aksjonspunktDefinisjoner);
 
