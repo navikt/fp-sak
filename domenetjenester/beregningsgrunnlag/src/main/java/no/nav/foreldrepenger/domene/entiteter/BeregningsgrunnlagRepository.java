@@ -345,5 +345,20 @@ public class BeregningsgrunnlagRepository {
         }
         return false;
     }
+
+    public List<Long> hentFagsakerMedAAPIGrunnlag() {
+        var sql = """
+        SELECT DISTINCT f.id,
+          from Fagsak f
+          join behandling b on b.fagsak_id=f.id
+          join GR_BEREGNINGSGRUNNLAG grbg on (grbg.behandling_id=b.id and grbg.aktiv = 'J')
+          join BG_AKTIVITET_STATUS aks on aks.beregningsgrunnlag_id = grbr.beregningsgrunnlag_id
+          where aks.aktivitet_status = :status
+        """;
+
+        var query = entityManager.createNativeQuery(sql, Long.class)
+        .setParameter("status", "AAP");
+        return query.getResultList();
+    }
 }
 
