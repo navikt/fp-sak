@@ -354,7 +354,7 @@ public class BehandlingDtoTjeneste {
             return dto;
         }
 
-        if (harAksjonspunktIForslåVedtakSomErOpprettetEllerUtført(behandling) && skalSendeVedtaksbrevUtleder.statusVedtaksbrev(behandling.getId()).vedtaksbrevSkalBliProdusert()) {
+        if (harAksjonspunktIForslåVedtakSomErOpprettetEllerUtført(behandling) && skalSendeVedtaksbrevUtleder.statusVedtaksbrev(behandling.getId()).vedtaksbrevSkalProduseres()) {
             dto.leggTil(get(BrevRestTjeneste.BREV_HENT_OVERSTYRING_PATH, "hent-brev-overstyring", uuidDto));
             dto.leggTil(post(BrevRestTjeneste.BREV_MELLOMLAGRE_OVERSTYRING_PATH, "mellomlagre-brev-overstyring"));
         }

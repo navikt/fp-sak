@@ -48,7 +48,7 @@ public class SendVedtaksbrevTask extends BehandlingProsessTask {
         }
 
         var vedtaksbrevStatus = skalSendeVedtaksbrevUtleder.statusVedtaksbrev(behandlingId);
-        if (vedtaksbrevStatus.vedtaksbrevSkalBliProdusert()) {
+        if (vedtaksbrevStatus.vedtaksbrevSkalProduseres()) {
             LOG.info("Sender vedtaksbrev for behandlingId: {}", behandlingId);
             dokumentBestillerTjeneste.produserVedtaksbrev(behandlingVedtakOpt.get());
         } else {

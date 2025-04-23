@@ -9,7 +9,7 @@ public enum VedtaksbrevStatus {
     INGEN_VEDTAKSBREV_JUSTERING_AV_FERIEPENGER,
     INGEN_VEDTAKSBREV_INGEN_KONSEKVENS_FOR_YTELSE;
 
-    public boolean vedtaksbrevSkalBliProdusert() {
+    public boolean vedtaksbrevSkalProduseres() {
         return VEDTAKSBREV_PRODUSERES.equals(this);
     }
 }
