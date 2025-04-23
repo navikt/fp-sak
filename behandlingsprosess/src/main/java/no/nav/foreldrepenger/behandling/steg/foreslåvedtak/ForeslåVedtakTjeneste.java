@@ -76,7 +76,6 @@ class ForeslåVedtakTjeneste {
 
         List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner = new ArrayList<>(aksjonspunkterFraSteg);
 
-
         if (behandling.harAvbruttAlleAksjonspunktAvTyper(AksjonspunktDefinisjon.getAvvikIBeregning())) {
             dokumentBehandlingTjeneste.nullstillVedtakFritekstHvisFinnes(behandling.getId());
         }
