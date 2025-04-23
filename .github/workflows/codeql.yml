@@ -1,4 +1,4 @@
-name: "CodeQL"
+name: "Statisk analyse"
 
 on:
   pull_request:
