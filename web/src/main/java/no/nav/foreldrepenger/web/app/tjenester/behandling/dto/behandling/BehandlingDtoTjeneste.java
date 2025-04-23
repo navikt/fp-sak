@@ -52,7 +52,7 @@ import no.nav.foreldrepenger.domene.uttak.Uttak;
 import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
-import no.nav.foreldrepenger.domene.vedtak.intern.SkalSendeVedtaksbrevUtleder;
+import no.nav.foreldrepenger.domene.vedtak.intern.VedtaksbrevStatusUtleder;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjeneste;
@@ -122,7 +122,7 @@ public class BehandlingDtoTjeneste {
     private FaktaUttakPeriodeDtoTjeneste faktaUttakPeriodeDtoTjeneste;
     private UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste;
     private DekningsgradTjeneste dekningsgradTjeneste;
-    private SkalSendeVedtaksbrevUtleder skalSendeVedtaksbrevUtleder;
+    private VedtaksbrevStatusUtleder vedtaksbrevStatusUtleder;
 
 
     @Inject
@@ -139,7 +139,7 @@ public class BehandlingDtoTjeneste {
                                  UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste,
                                  DekningsgradTjeneste dekningsgradTjeneste,
                                  VergeRepository vergeRepository,
-                                 SkalSendeVedtaksbrevUtleder skalSendeVedtaksbrevUtleder) {
+                                 VedtaksbrevStatusUtleder vedtaksbrevStatusUtleder) {
         this.beregningTjeneste = beregningTjeneste;
         this.uttakTjeneste = uttakTjeneste;
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
@@ -158,7 +158,7 @@ public class BehandlingDtoTjeneste {
         this.utregnetStønadskontoTjeneste = utregnetStønadskontoTjeneste;
         this.dekningsgradTjeneste = dekningsgradTjeneste;
         this.vergeRepository = vergeRepository;
-        this.skalSendeVedtaksbrevUtleder = skalSendeVedtaksbrevUtleder;
+        this.vedtaksbrevStatusUtleder = vedtaksbrevStatusUtleder;
     }
 
     BehandlingDtoTjeneste() {
@@ -354,7 +354,7 @@ public class BehandlingDtoTjeneste {
             return dto;
         }
 
-        if (harAksjonspunktIForslåVedtakSomErOpprettetEllerUtført(behandling) && skalSendeVedtaksbrevUtleder.statusVedtaksbrev(behandling.getId()).vedtaksbrevSkalProduseres()) {
+        if (harAksjonspunktIForslåVedtakSomErOpprettetEllerUtført(behandling) && vedtaksbrevStatusUtleder.statusVedtaksbrev(behandling.getId()).vedtaksbrevSkalProduseres()) {
             dto.leggTil(get(BrevRestTjeneste.BREV_HENT_OVERSTYRING_PATH, "hent-brev-overstyring", uuidDto));
             dto.leggTil(post(BrevRestTjeneste.BREV_MELLOMLAGRE_OVERSTYRING_PATH, "mellomlagre-brev-overstyring"));
         }
@@ -521,7 +521,7 @@ public class BehandlingDtoTjeneste {
         }
 
         dto.setVedtaksbrev(behandlingsresultat.getVedtaksbrev());
-        dto.setVedtaksbrevStatus(skalSendeVedtaksbrevUtleder.statusVedtaksbrev(behandling.getId()));
+        dto.setVedtaksbrevStatus(vedtaksbrevStatusUtleder.statusVedtaksbrev(behandling.getId()));
         return Optional.of(dto);
     }
 

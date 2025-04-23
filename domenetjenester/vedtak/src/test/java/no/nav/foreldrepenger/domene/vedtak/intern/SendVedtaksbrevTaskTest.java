@@ -53,7 +53,7 @@ class SendVedtaksbrevTaskTest {
     @BeforeEach
     void setUp() {
         repositoryProvider = ScenarioMorSøkerForeldrepenger.forFødsel().mockBehandlingRepositoryProvider();
-        var skalSendeVedtaksbrevUtleder = new SkalSendeVedtaksbrevUtleder(
+        var skalSendeVedtaksbrevUtleder = new VedtaksbrevStatusUtleder(
             repositoryProvider.getBehandlingRepository(),
             repositoryProvider.getBehandlingsresultatRepository(),
             dokumentBehandlingTjeneste,

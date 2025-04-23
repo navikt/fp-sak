@@ -22,7 +22,7 @@ public class SendVedtaksbrevTask extends BehandlingProsessTask {
     private static final Logger LOG = LoggerFactory.getLogger(SendVedtaksbrevTask.class);
 
     private BehandlingVedtakRepository behandlingVedtakRepository;
-    private SkalSendeVedtaksbrevUtleder skalSendeVedtaksbrevUtleder;
+    private VedtaksbrevStatusUtleder vedtaksbrevStatusUtleder;
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
 
     SendVedtaksbrevTask() {
@@ -31,10 +31,10 @@ public class SendVedtaksbrevTask extends BehandlingProsessTask {
 
     @Inject
     public SendVedtaksbrevTask(BehandlingRepositoryProvider repositoryProvider,
-                               SkalSendeVedtaksbrevUtleder skalSendeVedtaksbrevUtleder,
+                               VedtaksbrevStatusUtleder vedtaksbrevStatusUtleder,
                                DokumentBestillerTjeneste dokumentBestillerTjeneste) {
         super(repositoryProvider.getBehandlingLåsRepository());
-        this.skalSendeVedtaksbrevUtleder = skalSendeVedtaksbrevUtleder;
+        this.vedtaksbrevStatusUtleder = vedtaksbrevStatusUtleder;
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
     }
@@ -47,7 +47,7 @@ public class SendVedtaksbrevTask extends BehandlingProsessTask {
             return;
         }
 
-        var vedtaksbrevStatus = skalSendeVedtaksbrevUtleder.statusVedtaksbrev(behandlingId);
+        var vedtaksbrevStatus = vedtaksbrevStatusUtleder.statusVedtaksbrev(behandlingId);
         if (vedtaksbrevStatus.vedtaksbrevSkalProduseres()) {
             LOG.info("Sender vedtaksbrev for behandlingId: {}", behandlingId);
             dokumentBestillerTjeneste.produserVedtaksbrev(behandlingVedtakOpt.get());

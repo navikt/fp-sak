@@ -4,9 +4,15 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -15,7 +21,7 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 
 @ApplicationScoped
-public class SkalSendeVedtaksbrevUtleder {
+public class VedtaksbrevStatusUtleder {
 
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
@@ -23,16 +29,16 @@ public class SkalSendeVedtaksbrevUtleder {
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
     private Instance<RevurderingTjeneste> revurderingTjenesteInstanser;
 
-    SkalSendeVedtaksbrevUtleder() {
+    VedtaksbrevStatusUtleder() {
         // for CDI proxy
     }
 
     @Inject
-    public SkalSendeVedtaksbrevUtleder(BehandlingRepository behandlingRepository,
-                                       BehandlingsresultatRepository behandlingsresultatRepository,
-                                       DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
-                                       KlageRepository klageRepository,
-                                       @Any Instance<RevurderingTjeneste> revurderingTjenesteInstanser) {
+    public VedtaksbrevStatusUtleder(BehandlingRepository behandlingRepository,
+                                    BehandlingsresultatRepository behandlingsresultatRepository,
+                                    DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
+                                    KlageRepository klageRepository,
+                                    @Any Instance<RevurderingTjeneste> revurderingTjenesteInstanser) {
         this.behandlingRepository = behandlingRepository;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
