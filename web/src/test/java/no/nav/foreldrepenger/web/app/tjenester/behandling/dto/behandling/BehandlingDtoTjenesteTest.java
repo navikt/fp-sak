@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
-import no.nav.foreldrepenger.domene.vedtak.intern.SkalSendeVedtaksbrevUtleder;
+import no.nav.foreldrepenger.domene.vedtak.intern.VedtaksbrevStatusUtleder;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 import no.nav.foreldrepenger.web.app.rest.ResourceLinks;
@@ -74,7 +74,7 @@ class BehandlingDtoTjenesteTest {
     private VergeRepository vergeRepository;
 
     @Inject
-    private SkalSendeVedtaksbrevUtleder skalSendeVedtaksbrevUtleder; // TODO INJECT
+    private VedtaksbrevStatusUtleder vedtaksbrevStatusUtleder; // TODO INJECT
 
     private BehandlingDtoTjeneste tjeneste;
 
@@ -83,7 +83,8 @@ class BehandlingDtoTjenesteTest {
         tjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste, uttakTjeneste, tilbakekrevingRepository,
             skjæringstidspunktTjeneste, behandlingDokumentRepository, mock(TotrinnTjeneste.class), dokumentasjonVurderingBehovDtoTjeneste,
             faktaUttakPeriodeDtoTjeneste, fagsakRelasjonTjeneste,
-            new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, foreldrepengerUttakTjeneste), dekningsgradTjeneste, vergeRepository, skalSendeVedtaksbrevUtleder);
+            new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, foreldrepengerUttakTjeneste), dekningsgradTjeneste, vergeRepository,
+            vedtaksbrevStatusUtleder);
     }
 
     @Test
