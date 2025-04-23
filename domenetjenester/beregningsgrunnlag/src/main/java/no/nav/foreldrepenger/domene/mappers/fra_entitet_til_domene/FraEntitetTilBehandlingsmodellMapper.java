@@ -246,12 +246,24 @@ public class FraEntitetTilBehandlingsmodellMapper {
             .medAvkortetPrÅr(beregningsgrunnlagPeriodeDto.getAvkortetPrÅr())
             .medBruttoPrÅr(beregningsgrunnlagPeriodeDto.getBruttoPrÅr())
             .medRedusertPrÅr(beregningsgrunnlagPeriodeDto.getRedusertPrÅr())
-            .medDagsats(beregningsgrunnlagPeriodeDto.getDagsats());
+            .medDagsats(finnDagsats(beregningsgrunnlagPeriodeDto));
         beregningsgrunnlagPeriodeDto.getPeriodeÅrsaker().stream().sorted(Comparator.comparing(PeriodeÅrsak::getKode)).forEach(periodeBuilder::leggTilPeriodeÅrsak);
         mapAndeler(beregningsgrunnlagPeriodeDto.getBeregningsgrunnlagPrStatusOgAndelList()).stream().sorted(Comparator.comparing(
             no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel::getAndelsnr)).forEach(
             periodeBuilder::leggTilBeregningsgrunnlagPrStatusOgAndel);
         return periodeBuilder.build();
+    }
+
+    private static Long finnDagsats(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode periode) {
+        // Pga TFP-6112 vil enkelte gamle grunnlag mangle dagsats på periodenivå selv om dagsats er 0 på en av andelene.
+        // For nye grunnlag vil dagsats for slike perioder være satt, så kompenserer for det i gamle andeler her til vi er migrert over
+        if (periode.getDagsats() != null) {
+            return periode.getDagsats();
+        }
+        if (periode.getBeregningsgrunnlagPrStatusOgAndelList().stream().anyMatch(a -> a.getDagsats() != null)) {
+            return periode.getBeregningsgrunnlagPrStatusOgAndelList().stream().map(BeregningsgrunnlagPrStatusOgAndel::getDagsats).filter(Objects::nonNull).reduce(Long::sum).orElse(0L);
+        }
+        return null;
     }
 
     private static List<no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel> mapAndeler(List<BeregningsgrunnlagPrStatusOgAndel> beregningsgrunnlagPrStatusOgAndelList) {
