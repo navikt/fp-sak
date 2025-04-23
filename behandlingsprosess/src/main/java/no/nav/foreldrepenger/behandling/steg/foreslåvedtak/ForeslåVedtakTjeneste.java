@@ -99,8 +99,6 @@ class ForeslåVedtakTjeneste {
         }
 
 
-
-
         håndterToTrinn(behandling, aksjonspunktDefinisjoner);
 
         if (harTidligereOverstyringAvVedtaksbrevUtenAtDetBlirAksjonspunktForeslåVedtak(behandling, aksjonspunktDefinisjoner)) {
