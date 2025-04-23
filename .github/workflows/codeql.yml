@@ -1,8 +1,6 @@
 name: "CodeQL"
 
 on:
-  push:
-    branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
   schedule:
@@ -15,5 +13,5 @@ jobs:
       actions: read
       contents: read
       security-events: write
-    uses: navikt/fp-gha-workflows/.github/workflows/codeql.yml@main
+    uses: navikt/fp-gha-workflows/.github/workflows/statisk-analyse.yml@statisk/analyse
     secrets: inherit
