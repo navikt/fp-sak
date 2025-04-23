@@ -1,4 +1,4 @@
-name: "Statisk analyse"
+name: "Statisk kode analyse"
 
 on:
   pull_request:
@@ -7,8 +7,8 @@ on:
     - cron: '0 0 * * 0,4'
 
 jobs:
-  codeql:
-    name: CodeQl
+  statisk-analyse:
+    name: Statisk kode analyse
     permissions:
       actions: read
       contents: read
