@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
+import no.nav.foreldrepenger.produksjonsstyring.tilbakekreving.FptilbakeRestKlient;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ExtendWith(MockitoExtension.class)

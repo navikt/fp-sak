@@ -8,8 +8,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -45,18 +43,18 @@ public class UttakOverstyringshåndterer implements Overstyringshåndterer<Overs
     }
 
     @Override
-    public OppdateringResultat håndterOverstyring(OverstyringUttakDto dto, Behandling behandling, BehandlingskontrollKontekst kontekst) {
-        this.forrigeUttak = uttakTjeneste.hent(kontekst.getBehandlingId());
+    public OppdateringResultat håndterOverstyring(OverstyringUttakDto dto, BehandlingReferanse ref) {
+        this.forrigeUttak = uttakTjeneste.hent(ref.behandlingId());
         var perioder = UttakPerioderMapper.map(dto.getPerioder(), forrigeUttak.getGjeldendePerioder());
-        var uttakInput = uttakInputTjeneste.lagInput(kontekst.getBehandlingId());
+        var uttakInput = uttakInputTjeneste.lagInput(ref.behandlingId());
         tjeneste.manueltFastsettePerioder(uttakInput, perioder);
         return OppdateringResultat.utenOverhopp();
     }
 
     @Override
-    public void lagHistorikkInnslag(OverstyringUttakDto dto, Behandling behandling) {
+    public void lagHistorikkInnslag(OverstyringUttakDto dto, BehandlingReferanse ref) {
         var historikkinnslag = UttakHistorikkUtil.forOverstyring()
-            .lagHistorikkinnslag(BehandlingReferanse.fra(behandling), dto.getPerioder(), forrigeUttak.getGjeldendePerioder());
+            .lagHistorikkinnslag(ref, dto.getPerioder(), forrigeUttak.getGjeldendePerioder());
         historikkinnslag.ifPresent(innslag -> historikkinnslagRepository.lagre(innslag));
     }
 }

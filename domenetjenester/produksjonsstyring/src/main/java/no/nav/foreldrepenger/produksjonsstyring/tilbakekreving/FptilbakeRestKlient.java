@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.økonomi.tilbakekreving.klient;
+package no.nav.foreldrepenger.produksjonsstyring.tilbakekreving;
 
 import java.util.UUID;
 

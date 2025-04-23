@@ -38,7 +38,7 @@ import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.kontrakter.fpwsproxy.simulering.request.OppdragskontrollDto;
 import no.nav.foreldrepenger.kontrakter.simulering.resultat.v1.SimuleringResultatDto;
-import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
+import no.nav.foreldrepenger.produksjonsstyring.tilbakekreving.FptilbakeRestKlient;
 import no.nav.foreldrepenger.økonomistøtte.SimulerOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.simulering.klient.FpOppdragRestKlient;
 import no.nav.foreldrepenger.økonomistøtte.simulering.tjeneste.SimuleringIntegrasjonTjeneste;

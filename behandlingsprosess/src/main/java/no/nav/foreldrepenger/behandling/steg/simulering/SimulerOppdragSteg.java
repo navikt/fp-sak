@@ -39,7 +39,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.Tilbakek
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.kontrakter.simulering.resultat.v1.SimuleringResultatDto;
-import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
+import no.nav.foreldrepenger.produksjonsstyring.tilbakekreving.FptilbakeRestKlient;
 import no.nav.foreldrepenger.økonomistøtte.SimulerOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.simulering.klient.FpOppdragRestKlient;
 import no.nav.foreldrepenger.økonomistøtte.simulering.tjeneste.SimuleringIntegrasjonTjeneste;

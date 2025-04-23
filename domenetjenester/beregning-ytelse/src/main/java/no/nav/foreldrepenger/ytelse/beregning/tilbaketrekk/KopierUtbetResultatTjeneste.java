@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.Kopimaskin;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
@@ -106,7 +105,17 @@ public class KopierUtbetResultatTjeneste {
                 .medBeregningsresultatPeriodeFomOgTom(utbPeriode.getBeregningsresultatPeriodeFom(), utbPeriode.getBeregningsresultatPeriodeTom())
                 .build(nyttUtbetResultat);
             utbPeriode.getBeregningsresultatAndelList().forEach(andel ->
-                BeregningsresultatAndel.builder(Kopimaskin.deepCopy(andel))
+                BeregningsresultatAndel.builder()
+                    .medDagsats(andel.getDagsats())
+                    .medDagsatsFraBg(andel.getDagsatsFraBg())
+                    .medUtbetalingsgrad(andel.getUtbetalingsgrad())
+                    .medStillingsprosent(andel.getStillingsprosent())
+                    .medBrukerErMottaker(andel.erBrukerMottaker())
+                    .medArbeidsgiver(andel.getArbeidsgiver().orElse(null))
+                    .medArbeidsforholdRef(andel.getArbeidsforholdRef())
+                    .medArbeidsforholdType(andel.getArbeidsforholdType())
+                    .medAktivitetStatus(andel.getAktivitetStatus())
+                    .medInntektskategori(andel.getInntektskategori())
                     .build(beregningsresultatPeriode)
             );
         });

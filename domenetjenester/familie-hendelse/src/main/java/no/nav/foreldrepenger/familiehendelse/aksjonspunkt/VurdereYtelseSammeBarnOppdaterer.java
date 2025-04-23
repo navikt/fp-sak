@@ -9,10 +9,10 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdateringTransisjon;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AvslagbartAksjonspunktDto;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
@@ -60,7 +60,7 @@ public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOp
                 var avslagsårsak = Avslagsårsak.fraDefinertKode(dto.getAvslagskode())
                     .orElseThrow(() -> new FunksjonellException("FP-MANGLER-ÅRSAK", "Ugyldig avslagsårsak", "Velg gyldig avslagsårsak"));
                 return resultatBuilder
-                    .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
+                    .medFremoverHopp(AksjonspunktOppdateringTransisjon.AVSLAG_VILKÅR)
                     .leggTilManueltAvslåttVilkår(vilkår.getVilkårType(), avslagsårsak)
                     .build();
             }
