@@ -46,7 +46,7 @@ public class OpprettManglendeForespørslerTask implements ProsessTaskHandler {
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         var fraFagsakId = Optional.ofNullable(prosessTaskData.getPropertyValue(FRA_FAGSAK_ID)).map(Long::valueOf).orElseThrow();
-        var tomFagsakId = Optional.ofNullable(prosessTaskData.getPropertyValue(TOM_FAGSAK_ID)).map(Long::valueOf).orElse(2188628L);
+        var tomFagsakId = Optional.ofNullable(prosessTaskData.getPropertyValue(TOM_FAGSAK_ID)).map(Long::valueOf).orElse(2130458L);
         var dryRun = Boolean.parseBoolean(Optional.ofNullable(prosessTaskData.getPropertyValue(DRY_RUN)).orElse("true"));
 
         var saker = finnNesteHundreSaker(fraFagsakId, tomFagsakId);
