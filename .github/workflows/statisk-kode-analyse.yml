@@ -16,5 +16,6 @@ jobs:
     uses: navikt/fp-gha-workflows/.github/workflows/codeql.yml@statisk/analyse
     with:
       runs-on: 'ubuntu-latest-8-cores'
+      t-2c: '-T 2C'
       use-reader: true
     secrets: inherit
