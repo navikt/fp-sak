@@ -9,7 +9,6 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.Kopimaskin;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
@@ -36,19 +35,13 @@ class HindreTilbaketrekkBeregningsresultatPeriode {
         var bgAndeler = wrapper.getBgAndeler();
         if (forrigeAndeler.isEmpty() || kunUtbetalingTilArbeidsgiver(forrigeAndeler)) {
             // ikke utbetalt tidligere: kopier bg-andeler
-            bgAndeler.forEach(andel ->
-                BeregningsresultatAndel.builder(Kopimaskin.deepCopy(andel))
-                    .medDagsats(andel.getDagsats())
-                    .medDagsatsFraBg(andel.getDagsatsFraBg())
-                    .build(beregningsresultatPeriode)
-            );
+            bgAndeler.forEach(andel -> lagBuilderFra(andel).build(beregningsresultatPeriode));
         } else {
             List<EndringIBeregningsresultat> alleEndringer = new ArrayList<>();
             alleEndringer.addAll(FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler));
             alleEndringer.addAll(FinnEndringerIResultatForTilkommetArbeidsforhold.finnEndringer(forrigeAndeler, bgAndeler, yrkesaktiviteter, skjæringstidspunkt));
 
             bgAndeler.stream()
-                .map(Kopimaskin::deepCopy)
                 .map(resultatAndel -> lagResultatBuilder(alleEndringer, resultatAndel))
                 .forEach(builder -> builder.build(beregningsresultatPeriode));
 
@@ -63,11 +56,11 @@ class HindreTilbaketrekkBeregningsresultatPeriode {
     private static BeregningsresultatAndel.Builder lagResultatBuilder(List<EndringIBeregningsresultat> alleEndringer, BeregningsresultatAndel resultatAndel) {
         var endring = finnEndringForResultatAndel(alleEndringer, resultatAndel);
         return endring.map(e -> lagBuilderForEndring(resultatAndel, e))
-            .orElse(new BeregningsresultatAndel.Builder(resultatAndel));
+            .orElseGet(() -> lagBuilderFra(resultatAndel));
     }
 
     private static BeregningsresultatAndel.Builder lagBuilderForEndring(BeregningsresultatAndel resultatAndel, EndringIBeregningsresultat e) {
-        return new BeregningsresultatAndel.Builder(resultatAndel).medDagsats(e.getDagsats()).medDagsatsFraBg(e.getDagsatsFraBg());
+        return lagBuilderFra(resultatAndel).medDagsats(e.getDagsats()).medDagsatsFraBg(e.getDagsatsFraBg());
     }
 
     private static Optional<EndringIBeregningsresultat> finnEndringForResultatAndel(List<EndringIBeregningsresultat> alleEndringer, BeregningsresultatAndel resultatAndel) {
@@ -86,5 +79,19 @@ class HindreTilbaketrekkBeregningsresultatPeriode {
         return andeler.stream()
             .filter(andel -> andel.getDagsats() > 0)
             .noneMatch(BeregningsresultatAndel::erBrukerMottaker);
+    }
+
+    private static BeregningsresultatAndel.Builder lagBuilderFra(BeregningsresultatAndel andel) {
+        return BeregningsresultatAndel.builder()
+            .medDagsats(andel.getDagsats())
+            .medDagsatsFraBg(andel.getDagsatsFraBg())
+            .medUtbetalingsgrad(andel.getUtbetalingsgrad())
+            .medStillingsprosent(andel.getStillingsprosent())
+            .medBrukerErMottaker(andel.erBrukerMottaker())
+            .medArbeidsgiver(andel.getArbeidsgiver().orElse(null))
+            .medArbeidsforholdRef(andel.getArbeidsforholdRef())
+            .medArbeidsforholdType(andel.getArbeidsforholdType())
+            .medAktivitetStatus(andel.getAktivitetStatus())
+            .medInntektskategori(andel.getInntektskategori());
     }
 }

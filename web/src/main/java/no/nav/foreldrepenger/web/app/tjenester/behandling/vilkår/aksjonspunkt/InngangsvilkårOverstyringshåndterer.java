@@ -2,12 +2,11 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdateringTransisjon;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
@@ -37,21 +36,21 @@ public abstract class InngangsvilkårOverstyringshåndterer<T extends Overstyrin
     }
 
     @Override
-    public OppdateringResultat håndterOverstyring(T dto, Behandling behandling, BehandlingskontrollKontekst kontekst) {
+    public OppdateringResultat håndterOverstyring(T dto, BehandlingReferanse ref) {
         var utfall = dto.getErVilkarOk() ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
         var avslagsårsak = dto.getErVilkarOk() ? Avslagsårsak.UDEFINERT : Avslagsårsak.fraDefinertKode(dto.getAvslagskode())
             .orElseThrow(() -> new FunksjonellException("FP-MANGLER-ÅRSAK", "Ugyldig avslagsårsak", "Velg gyldig avslagsårsak"));
 
-        inngangsvilkårTjeneste.overstyrAksjonspunkt(behandling.getId(), vilkårType, utfall, avslagsårsak, kontekst);
+        inngangsvilkårTjeneste.overstyrAksjonspunkt(ref.behandlingId(), vilkårType, utfall, avslagsårsak);
 
         if (utfall.equals(VilkårUtfallType.IKKE_OPPFYLT)) {
-            return OppdateringResultat.medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR);
+            return OppdateringResultat.medFremoverHopp(AksjonspunktOppdateringTransisjon.AVSLAG_VILKÅR);
         }
 
         return OppdateringResultat.utenOverhopp();
     }
 
-    protected void lagHistorikkInnslagForOverstyrtVilkår(Behandling behandling,
+    protected void lagHistorikkInnslagForOverstyrtVilkår(BehandlingReferanse ref,
                                                          String begrunnelse,
                                                          boolean vilkårOppfylt,
                                                          SkjermlenkeType skjermlenkeType) {
@@ -59,8 +58,8 @@ public abstract class InngangsvilkårOverstyringshåndterer<T extends Overstyrin
         var fraVerdi = vilkårOppfylt ? "Vilkåret er ikke oppfylt" : "Vilkåret er oppfylt";
         var historikkinnslag = new Historikkinnslag.Builder().medTittel(skjermlenkeType)
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
-            .medBehandlingId(behandling.getId())
-            .medFagsakId(behandling.getFagsakId())
+            .medBehandlingId(ref.behandlingId())
+            .medFagsakId(ref.fagsakId())
             .addLinje(fraTilEquals("Overstyrt vurdering: Utfallet", fraVerdi, tilVerdi))
             .addLinje(begrunnelse)
             .build();

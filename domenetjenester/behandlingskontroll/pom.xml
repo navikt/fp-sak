@@ -16,18 +16,13 @@
 
 
 	<dependencies>
-        <dependency>
-            <groupId>no.nav.vedtak.prosesstask</groupId>
-            <artifactId>prosesstask</artifactId>
-        </dependency>
-
-		<!-- NB ! NB ! NB !: Denne modulen er kandidat til å skilles ut som eget
+        <!-- NB ! NB ! NB !: Denne modulen er kandidat til å skilles ut som eget
 			bibliotek. Ikke legg inn flere avhengigheter til prosjektinterne moduler
 			her. -->
 
 		<!-- Interne avhengigheter -->
 		<dependency>
-			<!-- TODO: Fjern denne, dekk gjennom SPI -->
+			<!-- TODO: Fjern denne, dekk gjennom SPI (interfaces for Behandling, AP, Repo) -->
 			<groupId>no.nav.foreldrepenger</groupId>
 			<artifactId>behandlingslager-domene</artifactId>
 		</dependency>

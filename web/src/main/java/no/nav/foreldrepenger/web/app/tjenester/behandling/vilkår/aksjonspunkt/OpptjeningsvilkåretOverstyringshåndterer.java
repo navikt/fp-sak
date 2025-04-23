@@ -5,9 +5,9 @@ import java.util.List;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
@@ -37,14 +37,14 @@ public class OpptjeningsvilkåretOverstyringshåndterer extends InngangsvilkårO
     }
 
     @Override
-    public void lagHistorikkInnslag(OverstyringOpptjeningsvilkåretDto dto, Behandling behandling) {
-        lagHistorikkInnslagForOverstyrtVilkår(behandling, dto.getBegrunnelse(), dto.getErVilkarOk(), SkjermlenkeType.PUNKT_FOR_OPPTJENING);
+    public void lagHistorikkInnslag(OverstyringOpptjeningsvilkåretDto dto, BehandlingReferanse ref) {
+        lagHistorikkInnslagForOverstyrtVilkår(ref, dto.getBegrunnelse(), dto.getErVilkarOk(), SkjermlenkeType.PUNKT_FOR_OPPTJENING);
     }
 
     @Override
-    public void precondition(OverstyringOpptjeningsvilkåretDto dto, Behandling behandling) {
+    public void precondition(OverstyringOpptjeningsvilkåretDto dto, BehandlingReferanse ref) {
         if (dto.getErVilkarOk()) {
-            var ant = opptjeningRepository.finnOpptjening(behandling.getId()).map(Opptjening::getOpptjeningAktivitet).orElse(List.of()).stream()
+            var ant = opptjeningRepository.finnOpptjening(ref.behandlingId()).map(Opptjening::getOpptjeningAktivitet).orElse(List.of()).stream()
                 .filter(oa -> !oa.getAktivitetType().equals(OpptjeningAktivitetType.UTENLANDSK_ARBEIDSFORHOLD))
                 .count();
             if (ant > 0) {

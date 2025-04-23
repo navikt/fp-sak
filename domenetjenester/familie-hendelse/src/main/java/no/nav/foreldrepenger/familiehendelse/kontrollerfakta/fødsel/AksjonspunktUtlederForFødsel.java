@@ -1,11 +1,7 @@
 package no.nav.foreldrepenger.familiehendelse.kontrollerfakta.fødsel;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.JA;
 import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.NEI;
-import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettForAksjonspunktMedFrist;
-import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettListeForAksjonspunkt;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_VENT_PÅ_FØDSELREGISTRERING;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL;
 
@@ -16,8 +12,8 @@ import java.util.List;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtleder;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederResultat;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall;
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -32,7 +28,7 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
  */
 abstract class AksjonspunktUtlederForFødsel implements AksjonspunktUtleder {
 
-    private static final List<AksjonspunktResultat> INGEN_AKSJONSPUNKTER = emptyList();
+    private static final List<AksjonspunktUtlederResultat> INGEN_AKSJONSPUNKTER = List.of();
 
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     protected FamilieHendelseTjeneste familieHendelseTjeneste;
@@ -47,23 +43,23 @@ abstract class AksjonspunktUtlederForFødsel implements AksjonspunktUtleder {
     }
 
     @Override
-    public List<AksjonspunktResultat> utledAksjonspunkterFor(AksjonspunktUtlederInput param) {  // Metode rendrer flytdia.
+    public List<AksjonspunktUtlederResultat> utledAksjonspunkterFor(AksjonspunktUtlederInput param) {  // Metode rendrer flytdia.
         var familieHendelseGrunnlag = familieHendelseTjeneste.hentAggregat(param.getBehandlingId());
 
         // Sjekk om registrert eller allerede overstyrt fødsel. Deretter om frist utløpt
         if (erFødselenRegistrert(familieHendelseGrunnlag) == JA) {
             return samsvarerAntallBarnISøknadMedAntallBarnIPDL(familieHendelseGrunnlag) == NEI ?
-                opprettListeForAksjonspunkt(SJEKK_MANGLENDE_FØDSEL) : INGEN_AKSJONSPUNKTER;
+                AksjonspunktUtlederResultat.opprettListeForAksjonspunkt(SJEKK_MANGLENDE_FØDSEL) : INGEN_AKSJONSPUNKTER;
         }
         if (finnesOverstyrtFødsel(familieHendelseGrunnlag) == JA) {
             return INGEN_AKSJONSPUNKTER;
         }
         if (erFristForRegistreringAvFødselPassert(familieHendelseGrunnlag) == JA) {
-            return opprettListeForAksjonspunkt(SJEKK_MANGLENDE_FØDSEL);
+            return AksjonspunktUtlederResultat.opprettListeForAksjonspunkt(SJEKK_MANGLENDE_FØDSEL);
         }
         // Vent på registrering - vurder om det er riktig for FP
         if (harSøkerOppgittFødselISøknad(familieHendelseGrunnlag) == JA) {
-            return singletonList(opprettForAksjonspunktMedFrist(AUTO_VENT_PÅ_FØDSELREGISTRERING, Venteårsak.AVV_FODSEL, utledVentefrist(familieHendelseGrunnlag)));
+            return List.of(AksjonspunktUtlederResultat.opprettForAksjonspunktMedFrist(AUTO_VENT_PÅ_FØDSELREGISTRERING, Venteårsak.AVV_FODSEL, utledVentefrist(familieHendelseGrunnlag)));
         }
         // Vurder tilbakemeldinger her (skrivefeil etc)
         if (finnesOverstyrtTermin(familieHendelseGrunnlag) == JA) {
@@ -136,6 +132,6 @@ abstract class AksjonspunktUtlederForFødsel implements AksjonspunktUtleder {
             .anyMatch(aa -> aa.getErLøpende() || aa.getPeriode().overlapper(skjæringstidspunkt));
     }
 
-    protected abstract List<AksjonspunktResultat> utledAksjonspunkterForTerminbekreftelse(AksjonspunktUtlederInput param);
+    protected abstract List<AksjonspunktUtlederResultat> utledAksjonspunkterForTerminbekreftelse(AksjonspunktUtlederInput param);
 
 }

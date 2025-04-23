@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.produksjonsstyring.behandlinghendelse.HendelseForBehandling;
 import no.nav.foreldrepenger.produksjonsstyring.behandlinghendelse.PubliserBehandlingHendelseTask;
-import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
+import no.nav.foreldrepenger.produksjonsstyring.tilbakekreving.FptilbakeRestKlient;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
