@@ -13,12 +13,12 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
 public record OppgaveDto(OppgaveId oppgaveId, OppgaveType oppgavetype, List<Beskrivelse> beskrivelser, List<Dokument> dokumenter) {
 
+    public record OppgaveId(@NotNull @Digits(integer = 32, fraction = 0) @Min(1) @JsonValue String id) {
+    }
+
     public record Beskrivelse(String header, List<String> kommentarer) {
     }
 
     public record Dokument(JournalpostId journalpostId, String dokumentId, String tittel) {
-    }
-
-    public record OppgaveId(@NotNull @Digits(integer = 32, fraction = 0) @Min(1) @JsonValue String id) {
     }
 }
