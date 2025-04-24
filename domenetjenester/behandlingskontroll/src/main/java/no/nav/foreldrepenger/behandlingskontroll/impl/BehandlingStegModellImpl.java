@@ -77,6 +77,18 @@ class BehandlingStegModellImpl implements BehandlingStegModell {
         return behandlingModell;
     }
 
+    @Override
+    public BehandlingStegModell getNesteSteg() {
+        return getBehandlingModell().finnNesteSteg(getBehandlingStegType());
+    }
+
+    @Override
+    public BehandlingStegModell getSenereStegHvisFinnes(BehandlingStegType senereSteg) {
+        return getBehandlingModell().finnSenereSteg(getBehandlingStegType(), senereSteg)
+            .orElseThrow(() -> new IllegalStateException("Finnes ikke noe steg av type " + senereSteg + " etter " + getBehandlingStegType()));
+
+    }
+
     Set<AksjonspunktDefinisjon> getInngangAksjonpunkt() {
         return Collections.unmodifiableSet(inngangAksjonpunkt);
     }
@@ -146,7 +158,7 @@ class BehandlingStegModellImpl implements BehandlingStegModell {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + behandlingStegType.getKode() + ", "
+        return getClass().getSimpleName() + "<" + behandlingStegType + ", "
                 + "inngangAksjonspunkter=" + inngangAksjonpunkt + ", "
                 + "utgangAksjonspunkter=" + utgangAksjonpunkt + ", "
                 + "impl=" + steg

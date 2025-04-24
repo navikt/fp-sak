@@ -14,7 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -67,7 +67,7 @@ class ForeslåBeregningsgrunnlagStegTest {
         var resultat = steg.utførSteg(kontekst);
 
         // Assert
-        assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(resultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
     }
 
@@ -82,7 +82,7 @@ class ForeslåBeregningsgrunnlagStegTest {
         var resultat = steg.utførSteg(kontekst);
 
         // Assert
-        assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(resultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(resultat.getAksjonspunktListe()).hasSize(1);
         assertThat(resultat.getAksjonspunktListe().get(0)).isEqualTo(no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS);
     }

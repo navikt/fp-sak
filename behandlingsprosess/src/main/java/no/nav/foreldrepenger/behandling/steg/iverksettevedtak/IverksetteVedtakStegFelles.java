@@ -81,7 +81,7 @@ public class IverksetteVedtakStegFelles implements IverksetteVedtakSteg {
         var venteårsakOpt = kanBegynneIverksetting(behandling);
         if (venteårsakOpt.filter(Venteårsak.VENT_TIDLIGERE_BEHANDLING::equals).isPresent()) {
             LOG.info("Behandling {}: Iverksetting venter på annen behandling", behandlingId);
-            // Bruker transisjon startet for "prøv utførSteg senere". Stegstatus VENTER
+            // Bruker stegTransisjon startet for "prøv utførSteg senere". Stegstatus VENTER
             // betyr "under arbeid" (suspendert).
             // Behandlingsprosessen stopper og denne behandlingen blir plukket opp av
             // avsluttBehandling.

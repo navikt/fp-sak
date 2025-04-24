@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -147,7 +147,7 @@ class UttakStegImplTest {
         var behandleStegResultat = steg.utførSteg(kontekst(behandling));
 
         assertThat(behandleStegResultat).isNotNull();
-        assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(behandleStegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(behandleStegResultat.getAksjonspunktListe()).isEmpty();
 
         var resultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
@@ -175,7 +175,7 @@ class UttakStegImplTest {
         var behandleStegResultat = steg.utførSteg(kontekst(behandling));
 
         assertThat(behandleStegResultat).isNotNull();
-        assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(behandleStegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(behandleStegResultat.getAksjonspunktListe()).containsExactly(AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER);
 
         var resultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
@@ -522,7 +522,7 @@ class UttakStegImplTest {
         var behandleStegResultat = steg.utførSteg(kontekst(behandling));
 
         assertThat(behandleStegResultat).isNotNull();
-        assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(behandleStegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(behandleStegResultat.getAksjonspunktListe()).containsExactlyInAnyOrder(AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER,
                 AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_DØD);
         var resultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
@@ -547,7 +547,7 @@ class UttakStegImplTest {
         var behandleStegResultat = steg.utførSteg(kontekst(behandling));
 
         assertThat(behandleStegResultat).isNotNull();
-        assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(behandleStegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(behandleStegResultat.getAksjonspunktListe()).containsExactlyInAnyOrder(AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER,
                 AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_DØD);
 

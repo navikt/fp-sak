@@ -18,7 +18,7 @@ public class BehandlingStatusEventLogger {
 
     public void loggBehandlingStatusEndring(@Observes BehandlingStatusEvent event) {
         var behandlingId = event.getBehandlingId();
-        var fagsakId = event.getKontekst().getFagsakId();
+        var fagsakId = event.getFagsakId();
 
         var nyStatus = event.getNyStatus();
         var kode = nyStatus == null ? null : nyStatus.getKode();

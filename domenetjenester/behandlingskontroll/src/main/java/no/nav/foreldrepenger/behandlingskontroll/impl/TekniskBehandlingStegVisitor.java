@@ -4,8 +4,8 @@ import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingModellVisitor;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.StegProsesseringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -43,7 +43,7 @@ public class TekniskBehandlingStegVisitor implements BehandlingModellVisitor {
         LOG_CONTEXT.add("steg", steg.getBehandlingStegType().getKode());
 
         var behandling = serviceProvider.hentBehandling(kontekst.getBehandlingId());
-        var forrigeTilstand = BehandlingModellImpl.tilBehandlingsStegSnapshot(behandling.getSisteBehandlingStegTilstand());
+        var forrigeTilstand = BehandlingStegTilstandSnapshot.tilBehandlingsStegSnapshotSiste(behandling);
         // lag ny for hvert steg som kjøres
         var stegVisitor = new BehandlingStegVisitor(serviceProvider, behandling, steg, kontekst);
 

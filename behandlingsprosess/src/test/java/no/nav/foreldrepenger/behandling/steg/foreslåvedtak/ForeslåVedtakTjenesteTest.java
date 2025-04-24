@@ -21,7 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -106,7 +106,7 @@ class ForeslåVedtakTjenesteTest {
         var stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
-        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(stegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(stegResultat.getAksjonspunktListe()).hasSize(1);
         assertThat(stegResultat.getAksjonspunktListe().get(0)).isEqualTo(AksjonspunktDefinisjon.FORESLÅ_VEDTAK);
     }
@@ -134,7 +134,7 @@ class ForeslåVedtakTjenesteTest {
         var stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
-        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(stegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(stegResultat.getAksjonspunktListe()).contains(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
     }
 
@@ -149,7 +149,7 @@ class ForeslåVedtakTjenesteTest {
         var stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
-        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(stegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(stegResultat.getAksjonspunktListe()).contains(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
     }
 
@@ -165,7 +165,7 @@ class ForeslåVedtakTjenesteTest {
         var stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
-        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(stegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(stegResultat.getAksjonspunktListe()).contains(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
     }
 
@@ -180,7 +180,7 @@ class ForeslåVedtakTjenesteTest {
         var stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
-        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(stegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(stegResultat.getAksjonspunktListe()).isEmpty();
     }
 
@@ -190,7 +190,7 @@ class ForeslåVedtakTjenesteTest {
         var stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
-        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(stegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(stegResultat.getAksjonspunktListe()).isEmpty();
     }
 
@@ -200,7 +200,7 @@ class ForeslåVedtakTjenesteTest {
         var stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
-        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(stegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(behandling.isToTrinnsBehandling()).isFalse();
     }
 
@@ -210,7 +210,7 @@ class ForeslåVedtakTjenesteTest {
         var stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
-        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(stegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         verify(dokumentBehandlingTjeneste, times(1)).nullstillVedtakFritekstHvisFinnes(anyLong());
     }
 
@@ -223,7 +223,7 @@ class ForeslåVedtakTjenesteTest {
         var stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
-        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(stegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         verify(dokumentBehandlingTjeneste, times(1)).nullstillVedtakFritekstHvisFinnes(anyLong());
     }
 
@@ -236,7 +236,7 @@ class ForeslåVedtakTjenesteTest {
         var stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
-        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(stegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         verify(dokumentBehandlingTjeneste, times(0)).nullstillVedtakFritekstHvisFinnes(anyLong());
     }
 
@@ -250,7 +250,7 @@ class ForeslåVedtakTjenesteTest {
         var stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
-        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(stegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(stegResultat.getAksjonspunktListe()).contains(AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK);
         assertThat(stegResultat.getAksjonspunktListe()).contains(AksjonspunktDefinisjon.VURDERE_DOKUMENT_FØR_VEDTAK);
     }
@@ -266,7 +266,7 @@ class ForeslåVedtakTjenesteTest {
         var stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
-        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(stegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
     }
 
     @Test
@@ -278,7 +278,7 @@ class ForeslåVedtakTjenesteTest {
         var stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
-        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(stegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(stegResultat.getAksjonspunktListe()).isEmpty();
     }
 
@@ -296,7 +296,7 @@ class ForeslåVedtakTjenesteTest {
         var stegResultat = tjeneste.foreslåVedtak(revurdering);
 
         // Assert
-        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(stegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(stegResultat.getAksjonspunktListe()).hasSize(1);
         assertThat(stegResultat.getAksjonspunktListe().getFirst()).isEqualTo(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
     }
@@ -311,7 +311,7 @@ class ForeslåVedtakTjenesteTest {
         var stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
-        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(stegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(stegResultat.getAksjonspunktListe()).isEmpty();
     }
 
@@ -330,7 +330,7 @@ class ForeslåVedtakTjenesteTest {
         var stegResultat = tjeneste.foreslåVedtak(revurdering);
 
         // Assert
-        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(stegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(stegResultat.getAksjonspunktListe()).hasSize(1);
         assertThat(stegResultat.getAksjonspunktListe().getFirst()).isEqualTo(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
     }
@@ -345,7 +345,7 @@ class ForeslåVedtakTjenesteTest {
         var stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
-        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(stegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(stegResultat.getAksjonspunktListe()).hasSize(1);
         assertThat(stegResultat.getAksjonspunktListe().getFirst()).isEqualTo(AksjonspunktDefinisjon.FORESLÅ_VEDTAK);
     }
@@ -361,7 +361,7 @@ class ForeslåVedtakTjenesteTest {
         var stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
-        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(stegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(stegResultat.getAksjonspunktListe()).isEmpty();
     }
 
@@ -376,7 +376,7 @@ class ForeslåVedtakTjenesteTest {
         var stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
-        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(stegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(stegResultat.getAksjonspunktListe()).containsExactly(AksjonspunktDefinisjon.FORESLÅ_VEDTAK);
     }
 
@@ -391,7 +391,7 @@ class ForeslåVedtakTjenesteTest {
         var stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
-        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(stegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(stegResultat.getAksjonspunktListe()).containsExactly(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
     }
 

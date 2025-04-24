@@ -14,6 +14,10 @@ public interface BehandlingStegModell {
      */
     BehandlingSteg getSteg();
 
+    BehandlingStegModell getNesteSteg();
+
+    BehandlingStegModell getSenereStegHvisFinnes(BehandlingStegType senereSteg);
+
     BehandlingModell getBehandlingModell();
 
 }
