@@ -6,19 +6,15 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.UUID;
 
 import jakarta.ws.rs.core.Response;
-
-import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.dto.OppgaveIdDto;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OppgaveType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
@@ -69,7 +65,7 @@ class OppgaverRestTjenesteTest {
     @Test
     void skal_ferdigstille_oppgave() {
         var oppgaveId = "1";
-        try (var response = oppgaverRestTjeneste.ferdigstillOppgave(new OppgaveIdDto(oppgaveId))) {
+        try (var response = oppgaverRestTjeneste.ferdigstillOppgave(new OppgaveDto.OppgaveId(oppgaveId))) {
             verify(oppgaveTjenesteMock).ferdigstillOppgave(oppgaveId);
             assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         }

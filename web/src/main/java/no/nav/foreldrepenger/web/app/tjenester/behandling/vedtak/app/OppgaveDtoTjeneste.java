@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.dto.OppgaveDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.dto.OppgaveIdDto;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavetype;
 
@@ -53,7 +52,7 @@ public class OppgaveDtoTjeneste {
 
         List<OppgaveDto.Beskrivelse> beskrivelser = splittBeskrivelser(oppgave.beskrivelse());
 
-        return new OppgaveDto(new OppgaveIdDto(oppgave.id().toString()), oppgaveType, beskrivelser, dokumenter);
+        return new OppgaveDto(new OppgaveDto.OppgaveId(oppgave.id().toString()), oppgaveType, beskrivelser, dokumenter);
     }
 
     static OppgaveType getOppgaveTypeForKode(Oppgavetype oppgavetype) {

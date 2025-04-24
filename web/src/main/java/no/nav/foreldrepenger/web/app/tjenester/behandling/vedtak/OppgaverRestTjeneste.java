@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjenest
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.app.OppgaveDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.dto.OppgaveDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.dto.OppgaveIdDto;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -74,8 +73,8 @@ public class OppgaverRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Ferdigstiller valgt oppgave", tags = "vedtak")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = false)
-    public Response ferdigstillOppgave(@TilpassetAbacAttributt(supplierClass = OppgaveAbacDataSupplier.class) @NotNull @Parameter(description = "OppgaveId for oppgave som skal ferdigstilles") @Valid OppgaveIdDto oppgaveIdDto) {
-        oppgaveTjeneste.ferdigstillOppgave(oppgaveIdDto.id());
+    public Response ferdigstillOppgave(@TilpassetAbacAttributt(supplierClass = OppgaveAbacDataSupplier.class) @NotNull @Parameter(description = "OppgaveId for oppgave som skal ferdigstilles") @Valid OppgaveDto.OppgaveId oppgaveId) {
+        oppgaveTjeneste.ferdigstillOppgave(oppgaveId.id());
         return Response.ok().build();
     }
 
