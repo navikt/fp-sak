@@ -5,6 +5,8 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,13 +21,14 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
-@ProsessTask(value = "beregningsgrunnlag.aap.orkestrerer", prioritet = 4)
+@ProsessTask(value = "beregningsgrunnlag.aap.sak", prioritet = 4)
+@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class AAPPraksisendringSakTask implements ProsessTaskHandler  {
     private static final Logger LOG = LoggerFactory.getLogger(AAPPraksisendringSakTask.class);
     public static final String FAGSAK_ID = "fagsakId";
     private static final String HAR_AT_PÅ_STP_MELDING = "HAR_AT_PÅ_STP";
-    private static final String HAR_IKKE_INNTEKT_I_BEREGNINGSPERIODEN_MELDING = "HAR_IKKE_INNTEKT_I_BEREGNINGSPERIODEN_MELDING";
-    private static final String HAR_INNTEKT_I_BEREGNINGSPERIODEN_MELDING = "HAR_INNTEKT_I_BEREGNINGSPERIODEN_MELDING";
+    private static final String HAR_IKKE_INNTEKT_I_BEREGNINGSPERIODEN_MELDING = "HAR_IKKE_INNTEKT_I_BEREGNINGSPERIODEN";
+    private static final String HAR_INNTEKT_I_BEREGNINGSPERIODEN_MELDING = "HAR_INNTEKT_I_BEREGNINGSPERIODEN";
 
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private BehandlingRepository behandlingRepository;
