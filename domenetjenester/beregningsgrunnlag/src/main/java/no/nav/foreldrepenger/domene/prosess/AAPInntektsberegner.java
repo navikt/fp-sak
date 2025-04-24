@@ -31,12 +31,11 @@ public class AAPInntektsberegner  {
         var fom = skjæringstidspunkt.minusMonths(3).withDayOfMonth(1);
         var tom = skjæringstidspunkt.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
         var beregningsperiode = DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom);
-        var beløp = alleInntektsposter.stream()
+        return alleInntektsposter.stream()
             .filter(i -> i.getBeløp() != null && !i.getBeløp().erNullEllerNulltall())
             .filter(i -> i.getPeriode().overlapper(beregningsperiode))
             .map(Inntektspost::getBeløp)
             .reduce(Beløp::adder)
             .orElse(Beløp.ZERO);
-        return beløp;
     }
 }
