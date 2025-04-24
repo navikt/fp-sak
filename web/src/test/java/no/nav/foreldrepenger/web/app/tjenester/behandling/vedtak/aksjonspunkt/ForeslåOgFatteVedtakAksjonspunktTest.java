@@ -58,7 +58,7 @@ class ForeslåOgFatteVedtakAksjonspunktTest extends EntityManagerAwareTest {
     private HistorikkinnslagRepository historikkinnslagRepository;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         var em = getEntityManager();
         var behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(
             new BehandlingskontrollServiceProvider(em, new BehandlingModellRepository(), mock(BehandlingskontrollEventPubliserer.class)));
@@ -223,8 +223,9 @@ class ForeslåOgFatteVedtakAksjonspunktTest extends EntityManagerAwareTest {
             historikkinnslagRepository, vedtakTjeneste, behandlingDokumentRepository);
 
         // Act
-        assertThatThrownBy(() -> foreslaVedtakAksjonspunktOppdaterer.oppdater(dto,
-            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto))).isInstanceOf(TekniskException.class)
+        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto);
+        assertThatThrownBy(() -> foreslaVedtakAksjonspunktOppdaterer.oppdater(dto, param))
+            .isInstanceOf(TekniskException.class)
             .hasMessageContaining("FP-666916:");
     }
 
