@@ -498,7 +498,7 @@ class BeregningsgrunnlagRepositoryTest {
         beregningsgrunnlagRepository.lagre(behandling2.getId(), beregningsgrunnlagAap, BeregningsgrunnlagTilstand.FASTSATT);
 
         // Act
-        var aapGrunnlag = beregningsgrunnlagRepository.hentFagsakerMedAAPIGrunnlag();
+        var aapGrunnlag = beregningsgrunnlagRepository.hentFagsakerMedAAPIGrunnlag(0L, 10000000L);
 
         // Assert
         assertThat(aapGrunnlag).hasSize(1);

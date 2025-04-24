@@ -7,6 +7,8 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +68,12 @@ public class AAPPraksisendringSakTask implements ProsessTaskHandler  {
         var inntekter = iayGrunnlag.get().getAktørInntektFraRegister(sisteBehandling.get().getAktørId());
         var sumInntektBeregningsperiode = AAPInntektsberegner.finnAllBeregnetInntektIBeregningsperioden(inntekter, aktivtBeregningsgrunnlag.get().getSkjæringstidspunkt());
         if (sumInntektBeregningsperiode.compareTo(Beløp.ZERO) > 0) {
+            var statuser = aktivtBeregningsgrunnlag.get()
+                .getAktivitetStatuser()
+                .stream()
+                .map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus)
+                .toList();
+            LOG.info("Statuser på stp: {}", statuser);
             var msg = String.format("%s - fagsakId %s - beløp: %s", HAR_INNTEKT_I_BEREGNINGSPERIODEN_MELDING, fagsakId, sumInntektBeregningsperiode);
             LOG.info(msg);
         } else {

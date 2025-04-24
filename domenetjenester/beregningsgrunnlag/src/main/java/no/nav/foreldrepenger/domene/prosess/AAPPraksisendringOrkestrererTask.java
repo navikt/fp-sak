@@ -19,6 +19,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 public class AAPPraksisendringOrkestrererTask implements ProsessTaskHandler  {
     private static final Logger LOG = LoggerFactory.getLogger(AAPPraksisendringOrkestrererTask.class);
     private static final String DRY_RUN = "dryRun";
+    private static final String FRA_OG_MED = "fraOgMed";
+    private static final String TIL_OG_MED = "tilOgMed";
 
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private ProsessTaskTjeneste prosessTaskTjeneste;
@@ -37,8 +39,10 @@ public class AAPPraksisendringOrkestrererTask implements ProsessTaskHandler  {
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         LOG.info("Starter task for å hente kandidater påvirket av aap praksisendring.");
+        var fraOgMedId = Optional.ofNullable(prosessTaskData.getPropertyValue(FRA_OG_MED)).map(Long::valueOf).orElseThrow();
+        var tilOgMedId = Optional.ofNullable(prosessTaskData.getPropertyValue(TIL_OG_MED)).map(Long::valueOf).orElseThrow();
         var erDryRun = Optional.ofNullable(prosessTaskData.getPropertyValue(DRY_RUN)).filter("false"::equalsIgnoreCase).isEmpty();
-        var fagsakIder = beregningsgrunnlagRepository.hentFagsakerMedAAPIGrunnlag();
+        var fagsakIder = beregningsgrunnlagRepository.hentFagsakerMedAAPIGrunnlag(fraOgMedId, tilOgMedId);
         LOG.info("Fant {} fagsaker som vil undersøkes for påvirkning av praksisendring", fagsakIder.size());
         if (erDryRun) {
             LOG.info("Kjøring var dryrun, avslutter task.");
@@ -50,6 +54,18 @@ public class AAPPraksisendringOrkestrererTask implements ProsessTaskHandler  {
                 prosessTaskTjeneste.lagre(nyData);
             });
         }
+        fagsakIder.stream()
+            .max(Long::compareTo)
+            .ifPresent(nesteId -> prosessTaskTjeneste.lagre(opprettNesteTask(nesteId+1, erDryRun, tilOgMedId)));
         LOG.info("Avslutter task for å hente kandidater påvirket av aap praksisendring.");
     }
+
+    public static ProsessTaskData opprettNesteTask(Long nyFraOgMed, boolean dryRun, Long tilOgMed) {
+        var prosessTaskData = ProsessTaskData.forProsessTask(AAPPraksisendringOrkestrererTask.class);
+        prosessTaskData.setProperty(FRA_OG_MED, String.valueOf(nyFraOgMed));
+        prosessTaskData.setProperty(TIL_OG_MED, String.valueOf(tilOgMed));
+        prosessTaskData.setProperty(DRY_RUN, String.valueOf(dryRun));
+        return prosessTaskData;
+    }
+
 }

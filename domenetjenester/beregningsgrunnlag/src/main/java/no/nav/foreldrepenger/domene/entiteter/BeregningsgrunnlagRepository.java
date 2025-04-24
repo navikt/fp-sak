@@ -346,15 +346,19 @@ public class BeregningsgrunnlagRepository {
         return false;
     }
 
-    public List<Long> hentFagsakerMedAAPIGrunnlag() {
+    public List<Long> hentFagsakerMedAAPIGrunnlag(Long fraOgMedId, Long tilOgMedId) {
         var query = entityManager.createNativeQuery("""
-        SELECT DISTINCT f.id
-          from FAGSAK f
-          inner join BEHANDLING b on b.fagsak_id=f.id
-          inner join GR_BEREGNINGSGRUNNLAG grbg on (grbg.behandling_id=b.id and grbg.aktiv = 'J')
-          inner join BG_AKTIVITET_STATUS aks on aks.beregningsgrunnlag_id = grbg.beregningsgrunnlag_id
-          where aks.aktivitet_status = :status""");
+        select * from (
+            SELECT DISTINCT f.id
+              from FAGSAK f
+              inner join BEHANDLING b on b.fagsak_id=f.id
+              inner join GR_BEREGNINGSGRUNNLAG grbg on (grbg.behandling_id=b.id and grbg.aktiv = 'J')
+              inner join BG_AKTIVITET_STATUS aks on aks.beregningsgrunnlag_id = grbg.beregningsgrunnlag_id
+              where aks.aktivitet_status = :status and f.ID >= :fraOgMedId and f.ID <= :tilOgMedId)
+         where ROWNUM <= 100""");
         query.setParameter("status", "AAP");
+        query.setParameter("fraOgMedId", fraOgMedId);
+        query.setParameter("tilOgMedId", tilOgMedId);
         return query.getResultList();
     }
 }
