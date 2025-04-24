@@ -15,8 +15,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingTransisjonEvent;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
@@ -41,11 +40,14 @@ public class BehandlingskontrollFremoverhoppTransisjonEventObserver {
     }
 
     public void observerBehandlingSteg(@Observes BehandlingTransisjonEvent transisjonEvent) {
-        var behandling = serviceProvider.hentBehandling(transisjonEvent.getBehandlingId());
-        var modell = getModell(behandling);
-        if (!FellesTransisjoner.erFremhoppTransisjon(transisjonEvent.getTransisjonIdentifikator()) || !transisjonEvent.erOverhopp()) {
+        if (!StegTransisjon.HOPPOVER.equals(transisjonEvent.getStegTransisjon())) {
             return;
         }
+        //         if (!FellesTransisjoner.erFremhoppTransisjon(transisjonEvent.getTransisjonIdentifikator()) || !transisjonEvent.erOverhopp()) {
+        //            return;
+        //        }
+        var behandling = serviceProvider.hentBehandling(transisjonEvent.getBehandlingId());
+        var modell = getModell(behandling);
 
         var førsteSteg = transisjonEvent.getFørsteSteg();
         var sisteSteg = transisjonEvent.getSisteSteg();
@@ -68,7 +70,7 @@ public class BehandlingskontrollFremoverhoppTransisjonEventObserver {
                     avbrutte.add(a);
                 });
 
-        if (skalBesøkeStegene(transisjonEvent.getTransisjonIdentifikator())) {
+        if (skalBesøkeStegene(transisjonEvent.getStegTransisjon())) {
             if (!medInngangFørsteSteg) {
                 // juster til neste steg dersom vi står ved utgang av steget.
                 førsteSteg = modell.finnNesteSteg(førsteSteg).getBehandlingStegType();
@@ -105,8 +107,8 @@ public class BehandlingskontrollFremoverhoppTransisjonEventObserver {
         return serviceProvider.getBehandlingModellRepository().getModell(behandling.getType(), behandling.getFagsakYtelseType());
     }
 
-    private boolean skalBesøkeStegene(TransisjonIdentifikator transisjon) {
-        return !FellesTransisjoner.erSpolfremTransisjon(transisjon);
+    private boolean skalBesøkeStegene(StegTransisjon transisjon) {
+        return !StegTransisjon.FLYOVER.equals(transisjon);
     }
 
 }

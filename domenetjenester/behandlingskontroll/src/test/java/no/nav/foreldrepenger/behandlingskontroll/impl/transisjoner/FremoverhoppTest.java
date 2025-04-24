@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingskontroll.impl.transisjoner;
 
-import static no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus.AVBRUTT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus.UTFØRT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderingspunktType.INN;
@@ -22,6 +21,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg.TransisjonType;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingTransisjonEvent;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository;
@@ -29,9 +29,9 @@ import no.nav.foreldrepenger.behandlingskontroll.impl.observer.Behandlingskontro
 import no.nav.foreldrepenger.behandlingskontroll.impl.observer.StegTransisjon;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingskontroll.testutilities.TestScenario;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.Transisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegTilstand;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
@@ -157,9 +157,7 @@ class FremoverhoppTest {
             throw new IllegalStateException("BehandlingStegStatus " + fraPort + " ikke støttet i testen");
         }
 
-        var fraTilstand = new BehandlingStegTilstand(behandling, fra.steg(), fraStatus);
-        // BehandlingStegTilstand tilTilstand = new BehandlingStegTilstand(behandling,
-        // til, BehandlingStegStatus.VENTER);
+        var fraTilstand = new BehandlingStegTilstandSnapshot(fra.steg(), fraStatus);
         var fagsak = behandling.getFagsak();
         var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), behandlingLås);
         /*
@@ -167,8 +165,8 @@ class FremoverhoppTest {
          * BehandlingStegOvergangEvent.BehandlingStegOverhoppEvent(kontekst,
          * Optional.of(fraTilstand), Optional.of(tilTilstand));
          */
-        var transisjonEvent = new BehandlingTransisjonEvent(kontekst, FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT, fraTilstand,
-                til, true);
+        var transisjonEvent = new BehandlingTransisjonEvent(kontekst, new Transisjon(
+            no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon.HOPPOVER, til), fraTilstand);
 
         // act
         observer.observerBehandlingSteg(transisjonEvent);
@@ -188,9 +186,9 @@ class FremoverhoppTest {
         behandlingRepository.lagre(behandling, behandlingLås);
         var ap = serviceProvider.getAksjonspunktKontrollRepository().leggTilAksjonspunkt(behandling, ad, identifisertI);
 
-        if (status.getKode().equals(UTFØRT.getKode())) {
+        if (status.equals(UTFØRT)) {
             serviceProvider.getAksjonspunktKontrollRepository().setTilUtført(ap, "ferdig");
-        } else if (status.getKode().equals(AksjonspunktStatus.OPPRETTET.getKode())) {
+        } else if (status.equals(AksjonspunktStatus.OPPRETTET)) {
             // dette er default-status ved opprettelse
         } else {
             throw new IllegalArgumentException("Testen støtter ikke status " + status + " du må evt. utvide testen");

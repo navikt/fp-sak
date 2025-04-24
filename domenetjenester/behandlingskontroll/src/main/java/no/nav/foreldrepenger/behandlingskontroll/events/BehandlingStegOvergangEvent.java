@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandlingskontroll.events;
 
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
@@ -18,11 +19,11 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
  */
 public class BehandlingStegOvergangEvent implements BehandlingEvent {
 
-    private BehandlingskontrollKontekst kontekst;
-    private BehandlingStegTilstandSnapshot fraTilstand;
-    private BehandlingStegTilstandSnapshot tilTilstand;
+    private final BehandlingskontrollKontekst kontekst;
+    private final BehandlingStegTilstandSnapshot fraTilstand;
+    private final BehandlingStegTilstandSnapshot tilTilstand;
 
-    public BehandlingStegOvergangEvent(BehandlingskontrollKontekst kontekst, BehandlingStegTilstandSnapshot forrigeTilstand,
+    private BehandlingStegOvergangEvent(BehandlingskontrollKontekst kontekst, BehandlingStegTilstandSnapshot forrigeTilstand,
             BehandlingStegTilstandSnapshot nyTilstand) {
         super();
         this.kontekst = kontekst;
@@ -30,8 +31,15 @@ public class BehandlingStegOvergangEvent implements BehandlingEvent {
         this.tilTilstand = nyTilstand;
     }
 
-    public static BehandlingStegOvergangEvent nyEvent(BehandlingskontrollKontekst kontekst,
-            BehandlingStegTilstandSnapshot forrigeTilstand, BehandlingStegTilstandSnapshot nyTilstand, int relativForflytning) {
+    public static BehandlingStegOvergangEvent nyBehandlingStegOvergangEvent(BehandlingskontrollKontekst kontekst, BehandlingModell modell,
+                                                                            BehandlingStegTilstandSnapshot forrigeTilstand,
+                                                                            BehandlingStegTilstandSnapshot nyTilstand) {
+
+        var stegFørType = forrigeTilstand != null ? forrigeTilstand.steg() : null;
+        var stegEtterType = nyTilstand != null ? nyTilstand.steg() : null;
+
+        var relativForflytning = modell.relativStegForflytning(stegFørType, stegEtterType);
+
         if (relativForflytning == 1) {
             // normal forover
             return new BehandlingStegOvergangEvent(kontekst, forrigeTilstand, nyTilstand);
@@ -40,8 +48,7 @@ public class BehandlingStegOvergangEvent implements BehandlingEvent {
             // tilbakeføring
             return new BehandlingStegTilbakeføringEvent(kontekst, forrigeTilstand, nyTilstand);
         }
-        // > 1
-        // framføring
+        // > 1 = framføring. Se også TransisjonEvent
         return new BehandlingStegOvergangEvent.BehandlingStegOverhoppEvent(kontekst, forrigeTilstand, nyTilstand);
     }
 
@@ -81,11 +88,11 @@ public class BehandlingStegOvergangEvent implements BehandlingEvent {
     }
 
     public BehandlingStegType getTilStegType() {
-        return getTilTilstand().map(BehandlingStegTilstandSnapshot::getSteg).orElse(null);
+        return getTilTilstand().map(BehandlingStegTilstandSnapshot::steg).orElse(null);
     }
 
     public BehandlingStegType getFraStegType() {
-        return getFraTilstand().map(BehandlingStegTilstandSnapshot::getSteg).orElse(null);
+        return getFraTilstand().map(BehandlingStegTilstandSnapshot::steg).orElse(null);
     }
 
     public BehandlingStegType getFørsteSteg() {
@@ -99,11 +106,11 @@ public class BehandlingStegOvergangEvent implements BehandlingEvent {
     }
 
     public Optional<BehandlingStegStatus> getFørsteStegStatus() {
-        return getFraTilstand().map(BehandlingStegTilstandSnapshot::getStatus);
+        return getFraTilstand().map(BehandlingStegTilstandSnapshot::status);
     }
 
     public Optional<BehandlingStegStatus> getSisteStegStatus() {
-        return getTilTilstand().map(BehandlingStegTilstandSnapshot::getStatus);
+        return getTilTilstand().map(BehandlingStegTilstandSnapshot::status);
     }
 
     /**
@@ -132,13 +139,13 @@ public class BehandlingStegOvergangEvent implements BehandlingEvent {
         @Override
         public Optional<BehandlingStegStatus> getSisteStegStatus() {
             // siden hopper bakover blir dette fraSteg
-            return getFraTilstand().map(BehandlingStegTilstandSnapshot::getStatus);
+            return getFraTilstand().map(BehandlingStegTilstandSnapshot::status);
         }
 
         @Override
         public Optional<BehandlingStegStatus> getFørsteStegStatus() {
             // siden hopper bakover blir dette tilSteg
-            return getTilTilstand().map(BehandlingStegTilstandSnapshot::getStatus);
+            return getTilTilstand().map(BehandlingStegTilstandSnapshot::status);
         }
     }
 

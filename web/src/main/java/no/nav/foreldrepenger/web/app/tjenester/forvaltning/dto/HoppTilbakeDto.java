@@ -8,7 +8,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 public class HoppTilbakeDto extends ForvaltningBehandlingIdDto {
 
     @NotNull
-    @QueryParam("behandlingStegType")
+    @QueryParam("målSteg")
     private BehandlingStegType behandlingStegType;
 
     public BehandlingStegType getBehandlingStegType() {

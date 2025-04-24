@@ -257,7 +257,7 @@ public class ForvaltningBehandlingRestTjeneste {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
-        var behandlingTilstand = behandling.getSisteBehandlingStegTilstand().orElse(null);
+        var behandlingTilstand = behandling.getBehandlingStegTilstand().orElse(null);
         if ((behandlingTilstand == null || !(behandlingTilstand.getBehandlingSteg().equals(BehandlingStegType.VURDER_SVANGERSKAPSPENGERVILKÅR) && behandlingTilstand.getBehandlingStegStatus().equals(BehandlingStegStatus.INNGANG)))) {
             LOG.info("Behandling med uuid: {} har passert vurder tilretteleggingssteg og kan ikke fjerne overstyrt grunnlag", behandlingUuid);
             return Response.status(Response.Status.BAD_REQUEST).build();

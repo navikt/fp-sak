@@ -5,8 +5,6 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.List.of;
 import static java.util.stream.Collectors.toList;
-import static no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT;
-import static no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner.FREMHOPP_TIL_UTTAKSPLAN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -25,7 +23,7 @@ import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.opptjening.fp.Vurde
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -76,7 +74,8 @@ class InngangsvilkårStegImplTest {
         var stegResultat = new SutMedlemskapsvilkårSteg(repositoryProvider, inngangsvilkårFellesTjeneste).utførSteg(kontekst);
 
         // Assert
-        assertThat(stegResultat.getTransisjon()).isEqualTo(TransisjonIdentifikator.forId(FREMHOPP_TIL_UTTAKSPLAN.getId()));
+        assertThat(stegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.HOPPOVER);
+        assertThat(stegResultat.getTransisjon().målSteg()).isEqualTo(BehandlingStegType.INNGANG_UTTAK);
 
         var vilkårResultat = behandling.getBehandlingsresultat().getVilkårResultat();
         assertThat(vilkårResultat.getVilkårene().stream().map(Vilkår::getGjeldendeVilkårUtfall).collect(toList()))
@@ -185,7 +184,8 @@ class InngangsvilkårStegImplTest {
         var stegResultat = new SutOpptjeningOgMedlVilkårSteg(repositoryProvider, inngangsvilkårFellesTjeneste).utførSteg(kontekst);
 
         // Assert
-        assertThat(stegResultat.getTransisjon()).isEqualTo(TransisjonIdentifikator.forId(FREMHOPP_TIL_UTTAKSPLAN.getId()));
+        assertThat(stegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.HOPPOVER);
+        assertThat(stegResultat.getTransisjon().målSteg()).isEqualTo(BehandlingStegType.INNGANG_UTTAK);
     }
 
     @Test
@@ -220,7 +220,8 @@ class InngangsvilkårStegImplTest {
         var stegResultat = new SutOpptjeningOgMedlVilkårSteg(repositoryProvider, inngangsvilkårFellesTjeneste).utførSteg(kontekst);
 
         // Assert
-        assertThat(stegResultat.getTransisjon()).isEqualTo(TransisjonIdentifikator.forId(FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT.getId()));
+        assertThat(stegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.HOPPOVER);
+        assertThat(stegResultat.getTransisjon().målSteg()).isEqualTo(BehandlingStegType.FORESLÅ_BEHANDLINGSRESULTAT);
     }
 
     @Test
@@ -263,7 +264,8 @@ class InngangsvilkårStegImplTest {
         var stegResultat = new SutOpptjeningOgMedlVilkårSteg(repositoryProvider, inngangsvilkårFellesTjeneste).utførSteg(kontekst);
 
         // Assert
-        assertThat(stegResultat.getTransisjon()).isEqualTo(TransisjonIdentifikator.forId(FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT.getId()));
+        assertThat(stegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.HOPPOVER);
+        assertThat(stegResultat.getTransisjon().målSteg()).isEqualTo(BehandlingStegType.FORESLÅ_BEHANDLINGSRESULTAT);
     }
 
     @Test

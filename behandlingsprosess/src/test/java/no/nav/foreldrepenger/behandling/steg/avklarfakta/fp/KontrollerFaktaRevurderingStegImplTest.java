@@ -12,8 +12,8 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.Transisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -201,8 +201,7 @@ class KontrollerFaktaRevurderingStegImplTest {
         // Arrange
         var lås = behandlingRepository.taSkriveLås(behandling);
         var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås);
-        var expectedTransisjon =  TransisjonIdentifikator
-            .forId(FellesTransisjoner.SPOLFREM_PREFIX + StartpunktType.TILKJENT_YTELSE.getBehandlingSteg().getKode());
+        var expectedTransisjon =  new Transisjon(StegTransisjon.FLYOVER, StartpunktType.TILKJENT_YTELSE.getBehandlingSteg());
 
         // Act
         var stegResultat = steg.utførSteg(kontekst);

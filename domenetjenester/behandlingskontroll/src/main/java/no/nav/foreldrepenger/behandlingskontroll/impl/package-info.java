@@ -4,8 +4,13 @@
  * riktig framover gjennom et eller flere
  * {@link no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg} og stopper
  * på angitte
- * {@link no.nav.foreldrepenger.behandlingslager.behandling.Aksjonspunkt} som
+ * {@link no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt} som
  * oppdages.
+ *
+ * Dessuten håndteres andre operasjoner som endrer tilstanden for behandlinger og
+ * aksjonspunkt. Eksempler er aksjonspunkt-oppdaterere som endrer status på andre
+ * aksjonspunkt, vilkår ikke oppfylt, overstyrings-aksjonspunkt, kabal-hendelse RETUR,
+ * henleggelse fra meny, mv.
  * <p>
  * Hvilke {@link no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg} som
  * skal prosesseres er avhengig av

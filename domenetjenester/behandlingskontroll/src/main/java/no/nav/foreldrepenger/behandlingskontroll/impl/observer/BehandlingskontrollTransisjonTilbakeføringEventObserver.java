@@ -134,7 +134,7 @@ public class BehandlingskontrollTransisjonTilbakeføringEventObserver {
      * OVERSTYRING
      */
     private boolean skalReåpne(Aksjonspunkt a, BehandlingStegType førsteSteg, BehandlingModell modell) {
-        var måTidligstLøsesISteg = modell.finnTidligsteStegFor(a.getAksjonspunktDefinisjon())
+        var måTidligstLøsesISteg = modell.finnTidligsteStegForAksjonspunktDefinisjon(List.of(a.getAksjonspunktDefinisjon()))
                 .getBehandlingStegType();
         var måLøsesIEllerEtterFørsteSteg = !modell.erStegAFørStegB(måTidligstLøsesISteg, førsteSteg);
         return a.erManueltOpprettet() && måLøsesIEllerEtterFørsteSteg;

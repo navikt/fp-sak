@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandlingskontroll.impl;
 
 import static java.util.Collections.singletonList;
-import static no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner.FREMHOPP_TIL_IVERKSETT_VEDTAK;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,26 +19,22 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingModellVisitor;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegKonfigurasjon;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegUtfall;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
+import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegOvergangEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingTransisjonEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingskontrollEvent;
-import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingskontrollEvent.AvsluttetEvent;
-import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingskontrollEvent.ExceptionEvent;
-import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingskontrollEvent.StartetEvent;
-import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingskontrollEvent.StoppetEvent;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.Transisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegTilstand;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -95,7 +90,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     @Override
     public void prosesserBehandling(BehandlingskontrollKontekst kontekst) {
         var behandling = hentBehandling(kontekst);
-        if (Objects.equals(BehandlingStatus.AVSLUTTET.getKode(), behandling.getStatus().getKode())) {
+        if (Objects.equals(BehandlingStatus.AVSLUTTET, behandling.getStatus())) {
             return;
         }
         var modell = getModell(behandling.getType(), behandling.getFagsakYtelseType());
@@ -107,11 +102,11 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     @Override
     public void prosesserBehandlingGjenopptaHvisStegVenter(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType) {
         var behandling = hentBehandling(kontekst);
-        if (Objects.equals(BehandlingStatus.AVSLUTTET.getKode(), behandling.getStatus().getKode())) {
+        if (Objects.equals(BehandlingStatus.AVSLUTTET, behandling.getStatus())) {
             return;
         }
-        var tilstand = behandling.getBehandlingStegTilstand(behandlingStegType);
-        if (tilstand.isPresent() && BehandlingStegStatus.VENTER.equals(tilstand.get().getBehandlingStegStatus())) {
+        var tilstand = BehandlingStegTilstandSnapshot.tilBehandlingsStegSnapshot(behandling, behandlingStegType);
+        if (tilstand != null && BehandlingStegStatus.VENTER.equals(tilstand.status())) {
             var modell = getModell(behandling.getType(), behandling.getFagsakYtelseType());
             BehandlingModellVisitor stegVisitor = new TekniskBehandlingStegVenterVisitor(serviceProvider, kontekst);
 
@@ -124,11 +119,11 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
         validerOgFlaggStartetProsessering();
         BehandlingStegUtfall behandlingStegUtfall;
         try {
-            fyrEventBehandlingskontrollStartet(kontekst, modell);
+            fyrEventBehandlingskontrollStartet(kontekst);
             behandlingStegUtfall = doProsesserBehandling(kontekst, modell, visitor);
-            fyrEventBehandlingskontrollStoppet(kontekst, modell, behandlingStegUtfall);
+            fyrEventBehandlingskontrollStoppet(kontekst, behandlingStegUtfall);
         } catch (RuntimeException e) {
-            fyrEventBehandlingskontrollException(kontekst, modell, e);
+            fyrEventBehandlingskontrollException(kontekst, e);
             throw e;
         } finally {
             ferdigProsessering();
@@ -180,7 +175,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     public void behandlingTilbakeføringTilTidligereBehandlingSteg(BehandlingskontrollKontekst kontekst,
             BehandlingStegType tidligereStegType) {
 
-        var startStatusForNyttSteg = BehandlingStegKonfigurasjon.getInngang();
+        var startStatusForNyttSteg = BehandlingStegStatus.INNGANG;
         var behandlingId = kontekst.getBehandlingId();
         var behandling = serviceProvider.hentBehandling(behandlingId);
 
@@ -227,7 +222,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     public void behandlingFramføringTilSenereBehandlingSteg(BehandlingskontrollKontekst kontekst,
             BehandlingStegType senereSteg) {
 
-        var statusInngang = BehandlingStegKonfigurasjon.getInngang();
+        var statusInngang = BehandlingStegStatus.INNGANG;
         var behandlingId = kontekst.getBehandlingId();
         var behandling = serviceProvider.hentBehandling(behandlingId);
 
@@ -501,15 +496,17 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     public void henleggBehandling(BehandlingskontrollKontekst kontekst, BehandlingResultatType årsak) {
         // valider invarianter
         Objects.requireNonNull(årsak, "årsak");
+        var behandling = hentBehandling(kontekst);
 
-        var stegTilstandFør = doHenleggBehandling(kontekst, årsak);
+        var stegTilstandFør = doHenleggBehandling(kontekst, behandling, årsak);
+        var sluttSteg = getModell(behandling.getType(), behandling.getFagsakYtelseType()).getSluttSteg().getBehandlingStegType();
 
         // FIXME (MAUR): Bør løses via FellesTransisjoner og unngå hardkoding av
         // BehandlingStegType her.
         // må fremoverføres for å trigge riktig events for opprydding
-        behandlingFramføringTilSenereBehandlingSteg(kontekst, BehandlingStegType.IVERKSETT_VEDTAK);
+        behandlingFramføringTilSenereBehandlingSteg(kontekst, sluttSteg);
 
-        publiserFremhoppTransisjonHenleggelse(kontekst, stegTilstandFør, BehandlingStegType.IVERKSETT_VEDTAK);
+        publiserFremhoppTransisjonHenleggelse(kontekst, stegTilstandFør, sluttSteg);
 
         // sett Avsluttet og fyr status
         avsluttBehandling(kontekst);
@@ -519,21 +516,22 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     public void henleggBehandlingFraSteg(BehandlingskontrollKontekst kontekst, BehandlingResultatType årsak) {
         // valider invarianter
         Objects.requireNonNull(årsak, "årsak");
+        var behandling = hentBehandling(kontekst);
 
-        var stegTilstandFør = doHenleggBehandling(kontekst, årsak);
+        var stegTilstandFør = doHenleggBehandling(kontekst, behandling, årsak);
+        var sluttSteg = getModell(behandling.getType(), behandling.getFagsakYtelseType()).getSluttSteg().getBehandlingStegType();
 
         // TODO håndter henleggelse fra tidlig steg. Nå avbrytes steget og behandlingen
         // framoverføres ikke (ok?).
         // OBS mulig rekursiv prosessering kan oppstå (evt må BehKtrl framføre til ived
         // og fortsette)
-        publiserFremhoppTransisjonHenleggelse(kontekst, stegTilstandFør, BehandlingStegType.IVERKSETT_VEDTAK);
+        publiserFremhoppTransisjonHenleggelse(kontekst, stegTilstandFør, sluttSteg);
 
         // sett Avsluttet og fyr status
         avsluttBehandling(kontekst);
     }
 
-    private Optional<BehandlingStegTilstand> doHenleggBehandling(BehandlingskontrollKontekst kontekst, BehandlingResultatType årsak) {
-        var behandling = hentBehandling(kontekst);
+    private BehandlingStegTilstandSnapshot doHenleggBehandling(BehandlingskontrollKontekst kontekst, Behandling behandling, BehandlingResultatType årsak) {
 
         if (behandling.erSaksbehandlingAvsluttet()) {
             throw new TekniskException( "FP-143308", String.format("BehandlingId %s er allerede avsluttet, kan ikke henlegges",
@@ -549,9 +547,9 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
         }
 
         BehandlingStegType behandlingStegType = null;
-        var stegTilstandFør = behandling.getBehandlingStegTilstand();
-        if (stegTilstandFør.isPresent()) {
-            behandlingStegType = stegTilstandFør.get().getBehandlingSteg();
+        var stegTilstandFør = BehandlingStegTilstandSnapshot.tilBehandlingsStegSnapshot(behandling);
+        if (stegTilstandFør != null) {
+            behandlingStegType = stegTilstandFør.steg();
         }
 
         // avbryt aksjonspunkt
@@ -562,13 +560,10 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
         return stegTilstandFør;
     }
 
-    private void publiserFremhoppTransisjonHenleggelse(BehandlingskontrollKontekst kontekst, Optional<BehandlingStegTilstand> stegTilstandFør,
-            BehandlingStegType stegEtter) {
-        // Publiser tranisjonsevent (eventobserver(e) håndterer tilhørende
-        // tranisjonsregler)
-        var erOverhopp = true;
-        var event = new BehandlingTransisjonEvent(kontekst, FREMHOPP_TIL_IVERKSETT_VEDTAK, stegTilstandFør.orElse(null),
-                stegEtter, erOverhopp);
+    private void publiserFremhoppTransisjonHenleggelse(BehandlingskontrollKontekst kontekst, BehandlingStegTilstandSnapshot stegTilstandFør,
+                                                       BehandlingStegType stegEtter) {
+        // Publiser transisjonsevent (eventobserver(e) håndterer tilhørende transisjonsregler)
+        var event = new BehandlingTransisjonEvent(kontekst, new Transisjon(StegTransisjon.HOPPOVER, stegEtter), stegTilstandFør);
         eventPubliserer.fireEvent(event);
     }
 
@@ -603,7 +598,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
 
         var behandling = hentBehandling(kontekst);
 
-        if (Objects.equals(BehandlingStatus.AVSLUTTET.getKode(), behandling.getStatus().getKode())) {
+        if (Objects.equals(BehandlingStatus.AVSLUTTET, behandling.getStatus())) {
             throw new IllegalStateException("Utviklerfeil: Kan ikke prosessere avsluttet behandling");
         }
 
@@ -680,7 +675,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     protected void fireEventBehandlingStegOvergang(BehandlingskontrollKontekst kontekst, Behandling behandling,
             BehandlingStegTilstandSnapshot forrigeTilstand, BehandlingStegTilstandSnapshot nyTilstand) {
         var modell = getModell(behandling.getType(), behandling.getFagsakYtelseType());
-        var event = BehandlingModellImpl.nyBehandlingStegOvergangEvent(modell, forrigeTilstand, nyTilstand, kontekst);
+        var event = BehandlingStegOvergangEvent.nyBehandlingStegOvergangEvent(kontekst, modell, forrigeTilstand, nyTilstand);
         getEventPubliserer().fireEvent(event);
     }
 
@@ -688,7 +683,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
             BehandlingStegStatus behandlingStegStatus, BehandlingStegStatus sluttStatusForAndreÅpneSteg) {
         // Eksisterende tilstand
         var statusFør = behandling.getStatus();
-        var fraTilstand = BehandlingModellImpl.tilBehandlingsStegSnapshot(behandling.getBehandlingStegTilstand());
+        var fraTilstand = BehandlingStegTilstandSnapshot.tilBehandlingsStegSnapshot(behandling);
 
         // Oppdater behandling og lagre
         InternalManipulerBehandling.forceOppdaterBehandlingSteg(behandling, revidertStegType, behandlingStegStatus, sluttStatusForAndreÅpneSteg);
@@ -698,7 +693,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
 
         // Publiser oppdatering
         var statusEtter = behandling.getStatus();
-        var tilTilstand = BehandlingModellImpl.tilBehandlingsStegSnapshot(behandling.getBehandlingStegTilstand());
+        var tilTilstand = BehandlingStegTilstandSnapshot.tilBehandlingsStegSnapshot(behandling);
         fireEventBehandlingStegOvergang(kontekst, behandling, fraTilstand, tilTilstand);
         eventPubliserer.fireEvent(kontekst, statusFør, statusEtter);
     }
@@ -717,53 +712,60 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
         return behandlingModellRepository.getModell(behandlingType, ytelseType);
     }
 
-    private void fyrEventBehandlingskontrollException(BehandlingskontrollKontekst kontekst, BehandlingModell modell, RuntimeException e) {
+    private void fyrEventBehandlingskontrollException(BehandlingskontrollKontekst kontekst, RuntimeException e) {
         var behandling = hentBehandling(kontekst);
-        var stoppetEvent = new ExceptionEvent(kontekst, modell, behandling.getAktivtBehandlingSteg(),
-                behandling.getBehandlingStegStatus(), e);
+        var snapshot = BehandlingStegTilstandSnapshot.tilBehandlingsStegSnapshot(behandling);
+        var stoppetEvent = new BehandlingskontrollEvent.ExceptionEvent(kontekst, snapshot, e);
         eventPubliserer.fireEvent(stoppetEvent);
     }
 
-    private void fyrEventBehandlingskontrollStoppet(BehandlingskontrollKontekst kontekst, BehandlingModell modell, BehandlingStegUtfall stegUtfall) {
+    private void fyrEventBehandlingskontrollStoppet(BehandlingskontrollKontekst kontekst, BehandlingStegUtfall stegUtfall) {
         var behandling = hentBehandling(kontekst);
         BehandlingskontrollEvent event;
         if (behandling.erAvsluttet()) {
-            event = new AvsluttetEvent(kontekst, modell, behandling.getAktivtBehandlingSteg(), behandling.getBehandlingStegStatus());
+            var snapshot = BehandlingStegTilstandSnapshot.tilBehandlingsStegSnapshot(behandling);
+            event = new BehandlingskontrollEvent.AvsluttetEvent(kontekst, snapshot);
         } else if (stegUtfall == null) {
-            event = new StoppetEvent(kontekst, modell,
-                    behandling.getSisteBehandlingStegTilstand().map(BehandlingStegTilstand::getBehandlingSteg).orElse(null), null);
+            var snapshot = BehandlingStegTilstandSnapshot.tilBehandlingsStegSnapshotSiste(behandling);
+            event = new BehandlingskontrollEvent.StoppetEvent(kontekst, snapshot);
         } else {
-            event = new StoppetEvent(kontekst, modell, stegUtfall.behandlingStegType(), stegUtfall.resultat());
+            var snapshot = new BehandlingStegTilstandSnapshot(stegUtfall.behandlingStegType(), stegUtfall.resultat());
+            event = new BehandlingskontrollEvent.StoppetEvent(kontekst, snapshot);
         }
         eventPubliserer.fireEvent(event);
     }
 
-    private void fyrEventBehandlingskontrollStartet(BehandlingskontrollKontekst kontekst, BehandlingModell modell) {
+    private void fyrEventBehandlingskontrollStartet(BehandlingskontrollKontekst kontekst) {
         var behandling = hentBehandling(kontekst);
-        var startetEvent = new StartetEvent(kontekst, modell, behandling.getAktivtBehandlingSteg(),
-                behandling.getBehandlingStegStatus());
+        var snapshot = BehandlingStegTilstandSnapshot.tilBehandlingsStegSnapshot(behandling);
+        var startetEvent = new BehandlingskontrollEvent.StartetEvent(kontekst, snapshot);
         eventPubliserer.fireEvent(startetEvent);
     }
 
     @Override
-    public void fremoverTransisjon(TransisjonIdentifikator transisjonId, BehandlingskontrollKontekst kontekst) {
+    public void fremoverTransisjon(BehandlingStegType målSteg, BehandlingskontrollKontekst kontekst) {
+        if (målSteg == null) {
+            throw new IllegalArgumentException("Må oppgit målsteg");
+        }
+        var transisjon = new Transisjon(StegTransisjon.HOPPOVER, målSteg);
         var behandling = serviceProvider.hentBehandling(kontekst.getBehandlingId());
-        var stegTilstandFør = behandling.getBehandlingStegTilstand();
+        var stegTilstandFør = BehandlingStegTilstandSnapshot.tilBehandlingsStegSnapshot(behandling);
         var fraSteg = behandling.getAktivtBehandlingSteg();
 
         // Flytt behandlingssteg-peker fremover
         var modell = getModell(behandling.getType(), behandling.getFagsakYtelseType());
-        var transisjon = modell.finnTransisjon(transisjonId);
         var fraStegModell = modell.finnSteg(fraSteg);
         var tilStegModell = transisjon.nesteSteg(fraStegModell);
-        var tilSteg = tilStegModell.getBehandlingStegType();
+        var tilSteg = Optional.ofNullable(tilStegModell).map(BehandlingStegModell::getBehandlingStegType).orElse(null);
+        if (!Objects.equals(transisjon.målSteg(), tilSteg)) {
+            throw new IllegalArgumentException("Utviklerfeil mismatch mellom målsteg " + transisjon.målSteg() + " og utledet tilSteg " + tilSteg);
+        }
 
         behandlingFramføringTilSenereBehandlingSteg(kontekst, tilSteg);
 
         // Publiser tranisjonsevent (eventobserver(e) håndterer tilhørende
         // tranisjonsregler)
-        var event = new BehandlingTransisjonEvent(kontekst, transisjonId, stegTilstandFør.orElse(null), tilSteg,
-                transisjon.getMålstegHvisHopp().isPresent());
+        var event = new BehandlingTransisjonEvent(kontekst, transisjon, stegTilstandFør);
         eventPubliserer.fireEvent(event);
     }
 

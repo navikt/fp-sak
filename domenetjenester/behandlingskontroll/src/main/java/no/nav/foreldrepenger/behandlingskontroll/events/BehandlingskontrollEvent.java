@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.behandlingskontroll.events;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingModell;
+import java.util.Optional;
+
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
@@ -15,18 +17,12 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
  */
 public abstract class BehandlingskontrollEvent implements BehandlingEvent {
 
-    private BehandlingModell behandlingModell;
-    private BehandlingStegType stegType;
-    private BehandlingStegStatus stegStatus;
-    private BehandlingskontrollKontekst kontekst;
+    private final BehandlingskontrollKontekst kontekst;
+    private final BehandlingStegTilstandSnapshot snapshot;
 
-    public BehandlingskontrollEvent(BehandlingskontrollKontekst kontekst, BehandlingModell behandlingModell, BehandlingStegType stegType,
-            BehandlingStegStatus stegStatus) {
+    protected BehandlingskontrollEvent(BehandlingskontrollKontekst kontekst, BehandlingStegTilstandSnapshot snapshot) {
         this.kontekst = kontekst;
-        this.behandlingModell = behandlingModell;
-        this.stegType = stegType;
-        this.stegStatus = stegStatus;
-
+        this.snapshot = snapshot;
     }
 
     @Override
@@ -44,16 +40,12 @@ public abstract class BehandlingskontrollEvent implements BehandlingEvent {
         return kontekst.getBehandlingId();
     }
 
-    public BehandlingModell getBehandlingModell() {
-        return behandlingModell;
-    }
-
     public BehandlingStegType getStegType() {
-        return stegType;
+        return Optional.ofNullable(snapshot).map(BehandlingStegTilstandSnapshot::steg).orElse(null);
     }
 
     public BehandlingStegStatus getStegStatus() {
-        return stegStatus;
+        return Optional.ofNullable(snapshot).map(BehandlingStegTilstandSnapshot::status).orElse(null);
     }
 
     /**
@@ -63,9 +55,8 @@ public abstract class BehandlingskontrollEvent implements BehandlingEvent {
      */
     public static class StartetEvent extends BehandlingskontrollEvent {
 
-        public StartetEvent(BehandlingskontrollKontekst kontekst, BehandlingModell behandlingModell,
-                BehandlingStegType stegType, BehandlingStegStatus stegStatus) {
-            super(kontekst, behandlingModell, stegType, stegStatus);
+        public StartetEvent(BehandlingskontrollKontekst kontekst, BehandlingStegTilstandSnapshot snapshot) {
+            super(kontekst, snapshot);
         }
 
     }
@@ -77,9 +68,8 @@ public abstract class BehandlingskontrollEvent implements BehandlingEvent {
      */
     public static class StoppetEvent extends BehandlingskontrollEvent {
 
-        public StoppetEvent(BehandlingskontrollKontekst kontekst, BehandlingModell behandlingModell,
-                BehandlingStegType stegType, BehandlingStegStatus stegStatus) {
-            super(kontekst, behandlingModell, stegType, stegStatus);
+        public StoppetEvent(BehandlingskontrollKontekst kontekst, BehandlingStegTilstandSnapshot snapshot) {
+            super(kontekst, snapshot);
         }
 
     }
@@ -93,9 +83,8 @@ public abstract class BehandlingskontrollEvent implements BehandlingEvent {
      */
     public static class AvsluttetEvent extends BehandlingskontrollEvent {
 
-        public AvsluttetEvent(BehandlingskontrollKontekst kontekst, BehandlingModell behandlingModell, BehandlingStegType stegType,
-                BehandlingStegStatus stegStatus) {
-            super(kontekst, behandlingModell, stegType, stegStatus);
+        public AvsluttetEvent(BehandlingskontrollKontekst kontekst, BehandlingStegTilstandSnapshot snapshot) {
+            super(kontekst, snapshot);
         }
 
     }
@@ -107,11 +96,10 @@ public abstract class BehandlingskontrollEvent implements BehandlingEvent {
      */
     public static class ExceptionEvent extends BehandlingskontrollEvent {
 
-        private RuntimeException exception;
+        private final RuntimeException exception;
 
-        public ExceptionEvent(BehandlingskontrollKontekst kontekst, BehandlingModell behandlingModell, BehandlingStegType stegType,
-                BehandlingStegStatus stegStatus, RuntimeException exception) {
-            super(kontekst, behandlingModell, stegType, stegStatus);
+        public ExceptionEvent(BehandlingskontrollKontekst kontekst, BehandlingStegTilstandSnapshot snapshot, RuntimeException exception) {
+            super(kontekst, snapshot);
             this.exception = exception;
         }
 

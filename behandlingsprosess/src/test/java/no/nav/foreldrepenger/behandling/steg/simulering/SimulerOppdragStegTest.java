@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -92,7 +92,7 @@ class SimulerOppdragStegTest {
 
         // Assert
         assertThat(resultat.getAksjonspunktListe()).containsExactly(AksjonspunktDefinisjon.VURDER_FEILUTBETALING);
-        assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(resultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         verify(simulerOppdragTjenesteMock).hentOppdragskontrollForBehandling(anyLong());
         verify(fpOppdragRestKlientMock).startSimulering(any(OppdragskontrollDto.class));
 
@@ -123,7 +123,7 @@ class SimulerOppdragStegTest {
             AksjonspunktDefinisjon.KONTROLLER_STOR_ETTERBETALING_SØKER,
             AksjonspunktDefinisjon.VURDER_FEILUTBETALING
         );
-        assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(resultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
     }
 
 
@@ -144,7 +144,7 @@ class SimulerOppdragStegTest {
 
         // Assert
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
-        assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(resultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
     }
 
 
@@ -185,7 +185,7 @@ class SimulerOppdragStegTest {
 
         // Assert
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
-        assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(resultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
 
         var tilbakekrevingValg = tilbakekrevingRepository.hent(behandling.getId());
         assertThat(tilbakekrevingValg).isPresent();
@@ -243,7 +243,7 @@ class SimulerOppdragStegTest {
         entityManager.clear();
 
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
-        assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(resultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
 
         var tilbakekrevingValg = tilbakekrevingRepository.hent(behandling.getId());
         assertThat(tilbakekrevingValg).isPresent();
@@ -266,7 +266,7 @@ class SimulerOppdragStegTest {
         entityManager.clear();
 
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
-        assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(resultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
 
         var tilbakekrevingValg = tilbakekrevingRepository.hent(behandling.getId());
         assertThat(tilbakekrevingValg).isEmpty();
@@ -284,7 +284,7 @@ class SimulerOppdragStegTest {
         entityManager.clear();
 
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
-        assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(resultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(tilbakekrevingRepository.hent(behandling.getId())).isEmpty();
     }
 

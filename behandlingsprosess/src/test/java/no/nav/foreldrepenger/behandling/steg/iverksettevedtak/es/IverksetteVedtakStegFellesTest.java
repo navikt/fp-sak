@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.IverksetteVedtakStegFelles;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
@@ -83,7 +83,7 @@ class IverksetteVedtakStegFellesTest extends EntityManagerAwareTest {
         var resultat = utførSteg(behandling);
 
         // Assert
-        assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.STARTET);
+        assertThat(resultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.STARTET);
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
 
         when(vurderBehandlingerUnderIverksettelse.vurder(any())).thenReturn(false);
@@ -92,7 +92,7 @@ class IverksetteVedtakStegFellesTest extends EntityManagerAwareTest {
         var resultat2 = utførSteg(behandling);
 
         // Assert
-        assertThat(resultat2.getTransisjon()).isEqualTo(FellesTransisjoner.SETT_PÅ_VENT);
+        assertThat(resultat2.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.SUSPENDERT);
         assertThat(resultat2.getAksjonspunktListe()).isEmpty();
     }
 
@@ -110,7 +110,7 @@ class IverksetteVedtakStegFellesTest extends EntityManagerAwareTest {
 
         // Assert
         verify(opprettProsessTaskIverksett).opprettIverksettingTasks(eq(behandling));
-        assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.SETT_PÅ_VENT);
+        assertThat(resultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.SUSPENDERT);
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
         var behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
         assertThat(behandlingVedtakOpt).hasValueSatisfying(
@@ -129,7 +129,7 @@ class IverksetteVedtakStegFellesTest extends EntityManagerAwareTest {
         var resultat = utførSteg(behandling);
 
         // Assert
-        assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.SETT_PÅ_VENT);
+        assertThat(resultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.SUSPENDERT);
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
     }
 
@@ -145,7 +145,7 @@ class IverksetteVedtakStegFellesTest extends EntityManagerAwareTest {
         var resultat = utførSteg(behandling);
 
         // Assert
-        assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(resultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
     }
 
