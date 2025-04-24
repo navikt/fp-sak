@@ -35,7 +35,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
@@ -53,7 +52,7 @@ import no.nav.foreldrepenger.domene.uttak.Uttak;
 import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
-import no.nav.foreldrepenger.domene.vedtak.intern.SkalSendeVedtaksbrevUtleder;
+import no.nav.foreldrepenger.domene.vedtak.intern.VedtaksbrevStatusUtleder;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjeneste;
@@ -123,7 +122,7 @@ public class BehandlingDtoTjeneste {
     private FaktaUttakPeriodeDtoTjeneste faktaUttakPeriodeDtoTjeneste;
     private UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste;
     private DekningsgradTjeneste dekningsgradTjeneste;
-    private SkalSendeVedtaksbrevUtleder skalSendeVedtaksbrevUtleder;
+    private VedtaksbrevStatusUtleder vedtaksbrevStatusUtleder;
 
 
     @Inject
@@ -140,7 +139,7 @@ public class BehandlingDtoTjeneste {
                                  UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste,
                                  DekningsgradTjeneste dekningsgradTjeneste,
                                  VergeRepository vergeRepository,
-                                 SkalSendeVedtaksbrevUtleder skalSendeVedtaksbrevUtleder) {
+                                 VedtaksbrevStatusUtleder vedtaksbrevStatusUtleder) {
         this.beregningTjeneste = beregningTjeneste;
         this.uttakTjeneste = uttakTjeneste;
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
@@ -159,7 +158,7 @@ public class BehandlingDtoTjeneste {
         this.utregnetStønadskontoTjeneste = utregnetStønadskontoTjeneste;
         this.dekningsgradTjeneste = dekningsgradTjeneste;
         this.vergeRepository = vergeRepository;
-        this.skalSendeVedtaksbrevUtleder = skalSendeVedtaksbrevUtleder;
+        this.vedtaksbrevStatusUtleder = vedtaksbrevStatusUtleder;
     }
 
     BehandlingDtoTjeneste() {
@@ -355,8 +354,7 @@ public class BehandlingDtoTjeneste {
             return dto;
         }
 
-
-        if (harAksjonspunktIForslåVedtakSomErOpprettetEllerUtført(behandling) && harIkkeBehandlingresultatMedVedtaksbrevINGEN(behandling) && skalSendeVedtaksbrevUtleder.skalSendVedtaksbrev(behandling.getId())) {
+        if (harAksjonspunktIForslåVedtakSomErOpprettetEllerUtført(behandling) && vedtaksbrevStatusUtleder.statusVedtaksbrev(behandling.getId()).vedtaksbrevSkalProduseres()) {
             dto.leggTil(get(BrevRestTjeneste.BREV_HENT_OVERSTYRING_PATH, "hent-brev-overstyring", uuidDto));
             dto.leggTil(post(BrevRestTjeneste.BREV_MELLOMLAGRE_OVERSTYRING_PATH, "mellomlagre-brev-overstyring"));
         }
@@ -488,12 +486,6 @@ public class BehandlingDtoTjeneste {
         return dto;
     }
 
-    private boolean harIkkeBehandlingresultatMedVedtaksbrevINGEN(Behandling behandling) {
-        return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())
-            .filter(resultat -> !Vedtaksbrev.INGEN.equals(resultat.getVedtaksbrev()))
-            .isPresent();
-    }
-
     private static boolean harAksjonspunktIForslåVedtakSomErOpprettetEllerUtført(Behandling behandling) {
         return behandling.getAksjonspunkter().stream()
             .filter(ap -> AksjonspunktDefinisjon.FORESLÅ_VEDTAK.equals(ap.getAksjonspunktDefinisjon()) || AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT.equals(ap.getAksjonspunktDefinisjon()))
@@ -529,6 +521,7 @@ public class BehandlingDtoTjeneste {
         }
 
         dto.setVedtaksbrev(behandlingsresultat.getVedtaksbrev());
+        dto.setVedtaksbrevStatus(vedtaksbrevStatusUtleder.statusVedtaksbrev(behandling.getId()));
         return Optional.of(dto);
     }
 
