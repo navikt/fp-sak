@@ -23,7 +23,7 @@ jobs:
       contents: read
       packages: write
       id-token: write
-    uses: navikt/fp-gha-workflows/.github/workflows/build-app-no-db.yml@statisk/analyse
+    uses: navikt/fp-gha-workflows/.github/workflows/build-app-no-db.yml@main
     with:
       runs-on: 'ubuntu-latest-8-cores' # default: ubuntu-latest
       t-2c: '-T 2C' # default:
