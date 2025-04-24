@@ -494,15 +494,13 @@ class BeregningsgrunnlagRepositoryTest {
         var beregningsgrunnlag = buildBeregningsgrunnlag();
         var beregningsgrunnlagAap = buildBeregningsgrunnlag();
         buildBgAktivitetStatus(beregningsgrunnlagAap, AktivitetStatus.ARBEIDSAVKLARINGSPENGER);
-
-        // Act
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
         beregningsgrunnlagRepository.lagre(behandling2.getId(), beregningsgrunnlagAap, BeregningsgrunnlagTilstand.FASTSATT);
 
-        // Assert
-        var aapGrunnlag = beregningsgrunnlagRepository
-            .hentFagsakerMedAAPIGrunnlag();
+        // Act
+        var aapGrunnlag = beregningsgrunnlagRepository.hentFagsakerMedAAPIGrunnlag();
 
+        // Assert
         assertThat(aapGrunnlag).hasSize(1);
     }
 

@@ -74,7 +74,7 @@ class AAPInntektsberegnerTest {
     private void lagInntekt(Arbeidsgiver ag, LocalDate fom, int måneder, int inntekt) {
         var intBuilder = InntektBuilder.oppdatere(Optional.empty());
         intBuilder.medArbeidsgiver(ag).medInntektsKilde(InntektsKilde.INNTEKT_BEREGNING);
-        for (var i = 0; i<måneder; i++) {
+        for (var i = 0; i < måneder; i++) {
             var start = fom.plusMonths(i);
             var postBuilder = intBuilder.getInntektspostBuilder();
             postBuilder.medPeriode(start.withDayOfMonth(1), start.with(TemporalAdjusters.lastDayOfMonth()))
