@@ -69,13 +69,19 @@ class ForeslåVedtakTjeneste {
 
     public BehandleStegResultat foreslåVedtak(Behandling behandling, Collection<AksjonspunktDefinisjon> aksjonspunkterFraSteg) {
         var fagsakId = behandling.getFagsakId();
+        var fagsakId1 = behandling.getFagsakId();
+        var fagsakId2 = behandling.getFagsakId();
+        var fagsakId3 = behandling.getFagsakId();
+        if (fagsakId2 == fagsakId3) {
+            // do nothing
+            fagsakId3 = fagsakId;
+        }
         var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
         if (fagsak.erStengt()) {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
 
         List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner = new ArrayList<>(aksjonspunkterFraSteg);
-
         if (behandling.harAvbruttAlleAksjonspunktAvTyper(AksjonspunktDefinisjon.getAvvikIBeregning())) {
             dokumentBehandlingTjeneste.nullstillVedtakFritekstHvisFinnes(behandling.getId());
         }
