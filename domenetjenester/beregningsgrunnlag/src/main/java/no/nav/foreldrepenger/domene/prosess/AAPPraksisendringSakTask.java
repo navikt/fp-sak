@@ -5,8 +5,6 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
-
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
 
 import org.slf4j.Logger;
@@ -28,6 +26,7 @@ public class AAPPraksisendringSakTask implements ProsessTaskHandler  {
     private static final Logger LOG = LoggerFactory.getLogger(AAPPraksisendringSakTask.class);
     public static final String FAGSAK_ID = "fagsak_ident";
     private static final String HAR_AT_PÅ_STP_MELDING = "HAR_AT_PÅ_STP";
+    private static final String HAR_IKKE_AAP_PÅ_AKTIVT_GRUNNLAG_MELDING = "HAR_IKKE_AAP_PÅ_AKTIVT_GRUNNLAG";
     private static final String HAR_IKKE_INNTEKT_I_BEREGNINGSPERIODEN_MELDING = "HAR_IKKE_INNTEKT_I_BEREGNINGSPERIODEN";
     private static final String HAR_INNTEKT_I_BEREGNINGSPERIODEN_MELDING = "HAR_INNTEKT_I_BEREGNINGSPERIODEN";
 
@@ -52,6 +51,11 @@ public class AAPPraksisendringSakTask implements ProsessTaskHandler  {
         var aktivtBeregningsgrunnlag = sisteBehandling.flatMap(b -> beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(b.getId()));
         if (aktivtBeregningsgrunnlag.isEmpty()) {
             LOG.info("Finner ikke aktivt beregningsgrunnlag for fagsakId {}, undersøker ikke videre behov for reberegning", fagsakId);
+            return;
+        }
+        if (!harAAPPåAktivtBG(aktivtBeregningsgrunnlag.get())) {
+            var msg = String.format("%s - fagsakId %s", HAR_IKKE_AAP_PÅ_AKTIVT_GRUNNLAG_MELDING, fagsakId);
+            LOG.info(msg);
             return;
         }
         if (harAAPKombinertMedArbeidPåStp(aktivtBeregningsgrunnlag.get())) {
@@ -80,6 +84,10 @@ public class AAPPraksisendringSakTask implements ProsessTaskHandler  {
             LOG.info(msg);
         }
         LOG.info("Avslutter task for å undersøke behov for revurdering etter aap praksisendring for fagsakId {}.", fagsakId);
+    }
+
+    private boolean harAAPPåAktivtBG(BeregningsgrunnlagEntitet beregningsgrunnlagEntitet) {
+        return beregningsgrunnlagEntitet.getAktivitetStatuser().stream().anyMatch(a -> a.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSAVKLARINGSPENGER));
     }
 
     private boolean harAAPKombinertMedArbeidPåStp(BeregningsgrunnlagEntitet aktivtBeregningsgrunnlag) {
