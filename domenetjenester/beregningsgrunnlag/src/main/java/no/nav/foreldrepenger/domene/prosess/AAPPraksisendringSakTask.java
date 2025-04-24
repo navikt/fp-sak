@@ -23,11 +23,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
-@ProsessTask(value = "beregningsgrunnlag.aap.sak", prioritet = 4)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
+@ProsessTask(value = "beregningsgrunnlag.aap.sak", prioritet = 4, maxFailedRuns = 1)
 public class AAPPraksisendringSakTask implements ProsessTaskHandler  {
     private static final Logger LOG = LoggerFactory.getLogger(AAPPraksisendringSakTask.class);
-    public static final String FAGSAK_ID = "fagsakId";
+    public static final String FAGSAK_ID = "fagsak_ident";
     private static final String HAR_AT_PÅ_STP_MELDING = "HAR_AT_PÅ_STP";
     private static final String HAR_IKKE_INNTEKT_I_BEREGNINGSPERIODEN_MELDING = "HAR_IKKE_INNTEKT_I_BEREGNINGSPERIODEN";
     private static final String HAR_INNTEKT_I_BEREGNINGSPERIODEN_MELDING = "HAR_INNTEKT_I_BEREGNINGSPERIODEN";
