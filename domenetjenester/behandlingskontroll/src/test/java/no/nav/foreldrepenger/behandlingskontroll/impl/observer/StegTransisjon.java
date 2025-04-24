@@ -39,7 +39,7 @@ public class StegTransisjon {
     public String toString() {
         return "StegTransisjon{" +
                 "transisjonType=" + transisjonType +
-                ", behandlingStegType=" + behandlingStegType +
+                ", målSteg=" + behandlingStegType +
                 '}';
     }
 }

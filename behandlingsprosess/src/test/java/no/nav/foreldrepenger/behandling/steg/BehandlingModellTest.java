@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -33,7 +34,7 @@ class BehandlingModellTest {
         var ytelseType = tuple.ytelseType();
         var behandlingModellRepository = new BehandlingModellRepository();
         var modell = behandlingModellRepository.getModell(behandlingType, ytelseType);
-        for (var stegType : modell.getAlleBehandlingStegTyper()) {
+        for (var stegType : modell.hvertSteg().map(BehandlingStegModell::getBehandlingStegType).toList()) {
             var steg = modell.finnSteg(stegType);
             var description = String.format("Feilet for %s, %s, %s", ytelseType.getKode(), behandlingType.getKode(),
                     stegType.getKode());

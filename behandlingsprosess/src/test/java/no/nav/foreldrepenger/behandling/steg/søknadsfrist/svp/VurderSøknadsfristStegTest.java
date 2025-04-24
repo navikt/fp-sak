@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.Søknadsfrister;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -78,7 +78,7 @@ class VurderSøknadsfristStegTest {
         em.flush();
         em.clear();
         // Assert
-        assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(behandleStegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(behandleStegResultat.getAksjonspunktListe()).isEmpty();
 
         var gjeldendeUttaksperiodegrense = repositoryProvider.getUttaksperiodegrenseRepository()
@@ -111,7 +111,7 @@ class VurderSøknadsfristStegTest {
         em.clear();
 
         // Assert
-        assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(behandleStegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(behandleStegResultat.getAksjonspunktListe()).hasSize(1);
         assertThat(behandleStegResultat.getAksjonspunktListe().get(0)).isEqualTo(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRIST);
 
@@ -143,7 +143,7 @@ class VurderSøknadsfristStegTest {
         em.flush();
         em.clear();
         // Assert
-        assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(behandleStegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(behandleStegResultat.getAksjonspunktListe()).isEmpty();
 
         var gjeldendeUttaksperiodegrense = repositoryProvider.getUttaksperiodegrenseRepository()
@@ -169,7 +169,7 @@ class VurderSøknadsfristStegTest {
         em.flush();
         em.clear();
         // Assert
-        assertThat(rbehandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(behandleStegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(rbehandleStegResultat.getAksjonspunktListe()).isEmpty();
 
         gjeldendeUttaksperiodegrense = repositoryProvider.getUttaksperiodegrenseRepository()

@@ -389,37 +389,19 @@ public class Behandling extends BaseEntitet {
             throw new IllegalStateException("Utvikler-feil: Kan ikke ha flere steg samtidig åpne: " + tilstander);
         }
 
-        return tilstander.isEmpty() ? Optional.empty() : Optional.of(tilstander.get(0));
+        return tilstander.stream().findFirst();
     }
 
     public Optional<BehandlingStegTilstand> getSisteBehandlingStegTilstand() {
         // sjekk "ikke-sluttstatuser" først
-        var sisteAktive = getBehandlingStegTilstand();
-
-        if (sisteAktive.isPresent()) {
-            return sisteAktive;
-        }
-
-        Comparator<BehandlingStegTilstand> comparatorOpprettet = compareOpprettetTid();
-        Comparator<BehandlingStegTilstand> comparatorEndret = compareEndretTid();
-        var comparator = comparatorOpprettet.reversed()
-                .thenComparing(Comparator.nullsLast(comparatorEndret).reversed());
-
-        // tar nyeste.
-        return behandlingStegTilstander.stream().min(comparator);
+        return getBehandlingStegTilstand()
+            .or(() -> behandlingStegTilstander.stream()
+                .min(compareOpprettetTid().reversed().thenComparing(Comparator.nullsLast(compareEndretTid()).reversed())));
     }
 
     public Optional<BehandlingStegTilstand> getBehandlingStegTilstand(BehandlingStegType stegType) {
-        var tilstander = behandlingStegTilstander.stream()
-                .filter(t -> !BehandlingStegStatus.erSluttStatus(t.getBehandlingStegStatus())
-                        && Objects.equals(stegType, t.getBehandlingSteg()))
-                .toList();
-        if (tilstander.size() > 1) {
-            throw new IllegalStateException(
-                    "Utvikler-feil: Kan ikke ha flere steg samtidig åpne for stegType[" + stegType + "]: " + tilstander);
-        }
-
-        return tilstander.isEmpty() ? Optional.empty() : Optional.of(tilstander.get(0));
+        return getBehandlingStegTilstand()
+            .filter(t -> Objects.equals(stegType, t.getBehandlingSteg()));
     }
 
     // Test use only

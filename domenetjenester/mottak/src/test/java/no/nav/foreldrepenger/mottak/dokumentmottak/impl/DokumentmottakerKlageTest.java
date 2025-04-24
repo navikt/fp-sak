@@ -18,7 +18,7 @@ import org.mockito.Mockito;
 import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -76,14 +76,14 @@ class DokumentmottakerKlageTest {
     private Behandlingsoppretter behandlingsoppretter;
 
     @Inject
-    private BehandlingskontrollServiceProvider serviceProvider;
+    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
 
     private DokumentmottakerFelles dokumentmottakerFelles;
     private DokumentmottakerKlage dokumentmottaker;
     private BehandlingRepository behandlingRepository;
 
     @BeforeEach
-    public void oppsett() {
+    void oppsett() {
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         var mottatteDokumentTjeneste = mock(MottatteDokumentTjeneste.class);
         taskTjeneste = mock(ProsessTaskTjeneste.class);
@@ -92,8 +92,6 @@ class DokumentmottakerKlageTest {
         klageVurderingTjeneste = mock(KlageVurderingTjeneste.class);
         var enhet = new OrganisasjonsEnhet("4806", "Nav Drammen");
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
-
-        var behandlingskontrollTjeneste = DokumentmottakTestUtil.lagBehandlingskontrollTjenesteMock(serviceProvider);
 
         dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, behandlingRevurderingTjeneste, taskTjeneste, behandlendeEnhetTjeneste,
             historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter, mock(TomtUttakTjeneste.class));

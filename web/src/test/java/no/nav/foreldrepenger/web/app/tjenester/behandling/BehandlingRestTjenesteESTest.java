@@ -9,8 +9,6 @@ import java.time.LocalDate;
 
 import jakarta.persistence.EntityManager;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDoku
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Personopplysning;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
@@ -36,6 +35,7 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
+import no.nav.foreldrepenger.domene.vedtak.intern.VedtaksbrevStatusUtleder;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
@@ -65,6 +65,8 @@ class BehandlingRestTjenesteESTest {
     private BeregningTjeneste beregningTjeneste;
     @Mock
     private VergeRepository vergeRepository;
+    @Mock
+    private VedtaksbrevStatusUtleder vedtaksbrevStatusUtleder;
 
     private BehandlingRepositoryProvider repositoryProvider;
 
@@ -80,7 +82,8 @@ class BehandlingRestTjenesteESTest {
         var uttakTjeneste = new UttakTjeneste(repositoryProvider.getBehandlingRepository(), null, null);
         var behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste, uttakTjeneste, tilbakekrevingRepository,
             skjæringstidspunktTjeneste, behandlingDokumentRepository, mock(TotrinnTjeneste.class), null, null, fagsakRelasjonTjeneste,
-            new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, mock(ForeldrepengerUttakTjeneste.class)), mock(DekningsgradTjeneste.class), vergeRepository);
+            new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, mock(ForeldrepengerUttakTjeneste.class)), mock(DekningsgradTjeneste.class), vergeRepository,
+            vedtaksbrevStatusUtleder);
 
         henleggBehandlingTjeneste = mock(HenleggBehandlingTjeneste.class);
         behandlingRestTjeneste = new BehandlingRestTjeneste(behandlingsutredningTjeneste, behandlingsoppretterTjeneste,

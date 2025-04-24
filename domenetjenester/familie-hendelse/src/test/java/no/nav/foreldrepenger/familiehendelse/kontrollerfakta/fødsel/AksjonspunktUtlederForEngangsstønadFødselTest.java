@@ -17,7 +17,7 @@ import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederResultat;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -54,7 +54,7 @@ class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManagerAware
         //Act
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
         //Assert
-        assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktResultat.opprettForAksjonspunkt(AVKLAR_TERMINBEKREFTELSE));
+        assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktUtlederResultat.opprettForAksjonspunkt(AVKLAR_TERMINBEKREFTELSE));
         verify(apUtleder).utledAksjonspunkterForTerminbekreftelse(any());
     }
 
@@ -65,7 +65,7 @@ class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManagerAware
         //Act
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
         //Assert
-        assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktResultat.opprettForAksjonspunkt(SJEKK_MANGLENDE_FØDSEL));
+        assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktUtlederResultat.opprettForAksjonspunkt(SJEKK_MANGLENDE_FØDSEL));
         verify(apUtleder).erFristForRegistreringAvFødselPassert(any(FamilieHendelseGrunnlagEntitet.class));
     }
 
@@ -80,8 +80,8 @@ class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManagerAware
         //Act
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
         //Assert
-        assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktResultat.opprettForAksjonspunkt(AUTO_VENT_PÅ_FØDSELREGISTRERING));
-        assertThat(utledeteAksjonspunkter.get(0).getFrist()).isNotNull();
+        assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktUtlederResultat.opprettForAksjonspunkt(AUTO_VENT_PÅ_FØDSELREGISTRERING));
+        assertThat(utledeteAksjonspunkter.getFirst().frist()).isNotNull();
         //Usikker her
         verify(apUtleder).erFristForRegistreringAvFødselPassert(any(FamilieHendelseGrunnlagEntitet.class));
     }
@@ -93,7 +93,7 @@ class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManagerAware
         //Act
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
         //Assert
-        assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktResultat.opprettForAksjonspunkt(SJEKK_MANGLENDE_FØDSEL));
+        assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktUtlederResultat.opprettForAksjonspunkt(SJEKK_MANGLENDE_FØDSEL));
         //Usikker her
         verify(apUtleder).erFristForRegistreringAvFødselPassert(any(FamilieHendelseGrunnlagEntitet.class));
     }
@@ -127,7 +127,7 @@ class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManagerAware
         //Act
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
         //Assert
-        assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktResultat.opprettForAksjonspunkt(SJEKK_MANGLENDE_FØDSEL));
+        assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktUtlederResultat.opprettForAksjonspunkt(SJEKK_MANGLENDE_FØDSEL));
         verify(apUtleder).samsvarerAntallBarnISøknadMedAntallBarnIPDL(any(FamilieHendelseGrunnlagEntitet.class));
     }
 

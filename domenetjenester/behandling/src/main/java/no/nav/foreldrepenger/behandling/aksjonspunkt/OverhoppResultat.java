@@ -1,12 +1,10 @@
 package no.nav.foreldrepenger.behandling.aksjonspunkt;
 
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
-
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
+import java.util.stream.Collectors;
 
 public class OverhoppResultat {
     Set<OppdateringResultat> oppdatereResultater = new LinkedHashSet<>();
@@ -27,11 +25,11 @@ public class OverhoppResultat {
         return oppdatereResultater.stream().anyMatch(OppdateringResultat::kreverTotrinnsKontroll);
     }
 
-    public Optional<TransisjonIdentifikator> finnFremoverTransisjon() {
+    public Optional<AksjonspunktOppdateringTransisjon> finnFremoverTransisjon() {
         return oppdatereResultater.stream()
                 .filter(delresultat -> delresultat.getOverhoppKontroll().equals(OverhoppKontroll.FREMOVERHOPP))
                 .map(OppdateringResultat::getTransisjon)
-                .findFirst(); // TODO (essv): Sorter steg ut fra deres rekkefølge
+                .findFirst();
     }
 
     public Optional<OppdateringResultat> finnHenleggelse() {
@@ -40,10 +38,11 @@ public class OverhoppResultat {
                 .findFirst();
     }
 
-    public Set<AksjonspunktResultat> finnEkstraAksjonspunktResultat() {
-        Set<AksjonspunktResultat> resultater = new HashSet<>();
-        oppdatereResultater.forEach(res -> resultater.addAll(res.getEkstraAksjonspunktResultat()));
-        return resultater;
+    public Set<OppdateringAksjonspunktResultat> finnEkstraAksjonspunktResultat() {
+        return oppdatereResultater.stream()
+            .map(OppdateringResultat::getEkstraAksjonspunktResultat)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toSet());
     }
 
     @Override

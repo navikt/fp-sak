@@ -1,13 +1,10 @@
 package no.nav.foreldrepenger.behandlingskontroll;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -20,6 +17,15 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
  * Hver behandling type er knyttet til en egen BehandlingModell.
  */
 public interface BehandlingModell {
+
+    /** Identifiserende parametre for modell */
+    FagsakYtelseType getFagsakYtelseType();
+
+    BehandlingType getBehandlingType();
+
+    BehandlingStegModell getStartSteg();
+
+    BehandlingStegModell getSluttSteg();
 
     /** Gjelder kun steg ETTER angitt steg (eksklusv angitt steg). */
     Set<AksjonspunktDefinisjon> finnAksjonspunktDefinisjonerEtter(BehandlingStegType steg);
@@ -45,24 +51,19 @@ public interface BehandlingModell {
 
     BehandlingStegModell finnSteg(BehandlingStegType stegType);
 
+    Optional<BehandlingStegModell> finnSenereSteg(BehandlingStegType førsteSteg, BehandlingStegType senereSteg);
+
     Optional<BehandlingStegStatus> finnStegStatusFor(BehandlingStegType stegType, Collection<AksjonspunktDefinisjon> aksjonspunktDefinisjoner);
-
-    BehandlingStegModell finnTidligsteStegFor(Collection<AksjonspunktDefinisjon> aksjonspunkter);
-
-    BehandlingStegModell finnTidligsteStegFor(AksjonspunktDefinisjon aksjonspunkt);
 
     BehandlingStegModell finnTidligsteStegForAksjonspunktDefinisjon(Collection<AksjonspunktDefinisjon> aksjonspunktDefinisjoner);
 
-    /** Behandling type modellen gjelder for. */
-    BehandlingType getBehandlingType();
-
     Stream<BehandlingStegModell> hvertSteg();
 
-    Stream<BehandlingStegModell> hvertStegEtter(BehandlingStegType stegType);
+    Stream<BehandlingStegModell> hvertStegFra(BehandlingStegType fraSteg); // Eksklusiv fraSteg
 
     Stream<BehandlingStegModell> hvertStegFraOgMed(BehandlingStegType fraOgMedSteg);
 
-    Stream<BehandlingStegModell> hvertStegFraOgMedTil(BehandlingStegType fraOgMedSteg, BehandlingStegType tilSteg, boolean inklusivTil);
+    Stream<BehandlingStegModell> hvertStegFraOgMedTil(BehandlingStegType fraOgMedSteg, BehandlingStegType tilSteg, boolean tilOgMed);
 
     boolean erStegAFørStegB(BehandlingStegType stegA, BehandlingStegType stegB);
 
@@ -86,11 +87,5 @@ public interface BehandlingModell {
      * @return
      */
     BehandlingStegUtfall prosesserFra(BehandlingStegType startFraBehandlingStegType, BehandlingModellVisitor visitor);
-
-    FagsakYtelseType getFagsakYtelseType();
-
-    StegTransisjon finnTransisjon(TransisjonIdentifikator transisjonIdentifikator);
-
-    List<BehandlingStegType> getAlleBehandlingStegTyper();
 
 }

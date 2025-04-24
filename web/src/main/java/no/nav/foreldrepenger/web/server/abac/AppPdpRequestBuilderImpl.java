@@ -76,16 +76,12 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
 
         var builder = AppRessursData.builder();
 
-        // TODO - finn ut måte å håndtere autotest med mye polling før sakskobling - eller slå seg til ro med dagens opplegg
-        Set<String> aktører = new HashSet<>(dataAttributter.getVerdier(AppAbacAttributtType.AKTØR_ID));
-        saksnummer.map(Saksnummer::getVerdi)
-            .ifPresent(s -> aktører.addAll(pipRepository.hentAktørIdKnyttetTilSaksnummer(s).stream().map(AktørId::getId).toList()));
+        Set<String> aktører = dataAttributter.getVerdier(AppAbacAttributtType.AKTØR_ID);
         Set<String> fnrs = dataAttributter.getVerdier(AppAbacAttributtType.FNR);
 
         builder.leggTilAktørIdSet(aktører)
             .leggTilFødselsnumre(fnrs);
-        // TODO - finn ut måte å håndtere autotest med mye polling før sakskobling - eller slå seg til ro med dagens opplegg
-        //saksnummer.map(Saksnummer::getVerdi).ifPresent(builder::medSaksnummer);
+        saksnummer.map(Saksnummer::getVerdi).ifPresent(builder::medSaksnummer);
         behandlingData.map(PipBehandlingsData::behandlingStatus).flatMap(AppPdpRequestBuilderImpl::oversettBehandlingStatus)
             .ifPresent(builder::medBehandlingStatus);
         behandlingData.map(PipBehandlingsData::fagsakStatus).flatMap(AppPdpRequestBuilderImpl::oversettFagstatus)
@@ -106,7 +102,7 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
     private static void setLogContext(Optional<Saksnummer> saksnummer, Optional<PipBehandlingsData> behandlingData) {
         saksnummer.ifPresent(s -> {
             MDC_EXTENDED_LOG_CONTEXT.remove("fagsak");
-            MDC_EXTENDED_LOG_CONTEXT.add("fagsak", s);
+            MDC_EXTENDED_LOG_CONTEXT.add("fagsak", s.getVerdi());
         });
         behandlingData.ifPresent(bd -> {
             MDC_EXTENDED_LOG_CONTEXT.remove("behandling");

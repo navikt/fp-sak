@@ -8,29 +8,27 @@ import java.util.List;
 
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
-
-import no.nav.foreldrepenger.web.app.rest.ResourceLinks;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingValg;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingVidereBehandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
+import no.nav.foreldrepenger.domene.vedtak.intern.VedtaksbrevStatusUtleder;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
+import no.nav.foreldrepenger.web.app.rest.ResourceLinks;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.TilbakekrevingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon.DokumentasjonVurderingBehovDtoTjeneste;
@@ -75,6 +73,9 @@ class BehandlingDtoTjenesteTest {
     @Inject
     private VergeRepository vergeRepository;
 
+    @Inject
+    private VedtaksbrevStatusUtleder vedtaksbrevStatusUtleder; // TODO INJECT
+
     private BehandlingDtoTjeneste tjeneste;
 
     @BeforeEach
@@ -82,7 +83,8 @@ class BehandlingDtoTjenesteTest {
         tjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste, uttakTjeneste, tilbakekrevingRepository,
             skjæringstidspunktTjeneste, behandlingDokumentRepository, mock(TotrinnTjeneste.class), dokumentasjonVurderingBehovDtoTjeneste,
             faktaUttakPeriodeDtoTjeneste, fagsakRelasjonTjeneste,
-            new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, foreldrepengerUttakTjeneste), dekningsgradTjeneste, vergeRepository);
+            new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, foreldrepengerUttakTjeneste), dekningsgradTjeneste, vergeRepository,
+            vedtaksbrevStatusUtleder);
     }
 
     @Test

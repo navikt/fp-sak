@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandling.steg.inngangsvilkår;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
-import static no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner.FREMHOPP_TIL_UTTAKSPLAN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -17,9 +16,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
@@ -73,7 +72,8 @@ class SamletInngangsvilkårStegImplTest {
                 .utførSteg(kontekst);
 
         // Assert
-        assertThat(stegResultat.getTransisjon()).isEqualTo(TransisjonIdentifikator.forId(FREMHOPP_TIL_UTTAKSPLAN.getId()));
+        assertThat(stegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.HOPPOVER);
+        assertThat(stegResultat.getTransisjon().målSteg()).isEqualTo(BehandlingStegType.INNGANG_UTTAK);
 
         var vilkårResultat = behandling.getBehandlingsresultat().getVilkårResultat();
         assertThat(vilkårResultat.getVilkårene().stream().map(Vilkår::getGjeldendeVilkårUtfall).anyMatch(VilkårUtfallType.IKKE_OPPFYLT::equals)).isTrue();
@@ -104,7 +104,7 @@ class SamletInngangsvilkårStegImplTest {
                 .utførSteg(kontekst);
 
         // Assert
-        assertThat(stegResultat.getTransisjon()).isEqualTo(TransisjonIdentifikator.forId(FellesTransisjoner.UTFØRT.getId()));
+        assertThat(stegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
 
     }
 

@@ -128,7 +128,7 @@ public class TestEventObserver {
 
     private static String hentKode(Optional<BehandlingStegTilstandSnapshot> behandlingStegTilstand) {
         return behandlingStegTilstand
-                .map(BehandlingStegTilstandSnapshot::getStatus)
+                .map(BehandlingStegTilstandSnapshot::status)
                 .map(Kodeverdi::getKode)
                 .orElse("");
     }

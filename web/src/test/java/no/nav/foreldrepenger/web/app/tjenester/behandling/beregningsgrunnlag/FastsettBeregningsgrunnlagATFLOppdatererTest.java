@@ -85,8 +85,8 @@ class FastsettBeregningsgrunnlagATFLOppdatererTest {
 
         // Assert
         assertThat(resultat.getEkstraAksjonspunktResultat()).hasSize(1);
-        assertThat(resultat.getEkstraAksjonspunktResultat().get(0).getAksjonspunktDefinisjon())
+        assertThat(resultat.getEkstraAksjonspunktResultat().getFirst().aksjonspunktDefinisjon())
                 .isEqualTo(AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD);
-        assertThat(resultat.getEkstraAksjonspunktResultat().get(0).getMålStatus()).isEqualTo(AksjonspunktStatus.AVBRUTT);
+        assertThat(resultat.getEkstraAksjonspunktResultat().getFirst().aksjonspunktStatus()).isEqualTo(AksjonspunktStatus.AVBRUTT);
     }
 }

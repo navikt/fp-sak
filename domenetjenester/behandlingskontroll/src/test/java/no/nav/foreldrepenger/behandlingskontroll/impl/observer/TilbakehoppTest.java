@@ -199,8 +199,8 @@ class TilbakehoppTest {
 
     private Aksjonspunkt utførTilbakehoppReturnerAksjonspunkt(StegPort fra, StegPort til, Aksjonspunkt ap) {
 
-        var fraTilstand = new BehandlingStegTilstandSnapshot(1L, fra.steg(), getBehandlingStegStatus(fra));
-        var tilTilstand = new BehandlingStegTilstandSnapshot(2L, til.steg(), getBehandlingStegStatus(til));
+        var fraTilstand = new BehandlingStegTilstandSnapshot(fra.steg(), getBehandlingStegStatus(fra));
+        var tilTilstand = new BehandlingStegTilstandSnapshot(til.steg(), getBehandlingStegStatus(til));
         var fagsak = behandling.getFagsak();
         var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), behandlingLås);
         var event = new BehandlingStegOvergangEvent.BehandlingStegTilbakeføringEvent(
@@ -214,8 +214,8 @@ class TilbakehoppTest {
     }
 
     private Aksjonspunkt utførOverstyringTilbakehoppReturnerAksjonspunkt(StegPort fra, StegPort til, Aksjonspunkt ap) {
-        var fraTilstand = new BehandlingStegTilstandSnapshot(1L, fra.steg(), getBehandlingStegStatus(fra));
-        var tilTilstand = new BehandlingStegTilstandSnapshot(2L, til.steg(), getBehandlingStegStatus(til));
+        var fraTilstand = new BehandlingStegTilstandSnapshot(fra.steg(), getBehandlingStegStatus(fra));
+        var tilTilstand = new BehandlingStegTilstandSnapshot(til.steg(), getBehandlingStegStatus(til));
 
         var fagsak = behandling.getFagsak();
         var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), behandlingLås);
@@ -264,9 +264,9 @@ class TilbakehoppTest {
         behandlingRepository.lagre(behandling, behandlingLås);
         var ap = serviceProvider.getAksjonspunktKontrollRepository().leggTilAksjonspunkt(behandling, ad, identifisertISteg);
 
-        if (status.getKode().equals(AksjonspunktStatus.UTFØRT.getKode())) {
+        if (status.equals(AksjonspunktStatus.UTFØRT)) {
             serviceProvider.getAksjonspunktKontrollRepository().setTilUtført(ap, "ferdig");
-        } else if (status.getKode().equals(AksjonspunktStatus.OPPRETTET.getKode())) {
+        } else if (status.equals(AksjonspunktStatus.OPPRETTET)) {
             // dette er default-status ved opprettelse
         } else {
             throw new IllegalArgumentException("Testen støtter ikke status " + status + " du må evt. utvide testen");

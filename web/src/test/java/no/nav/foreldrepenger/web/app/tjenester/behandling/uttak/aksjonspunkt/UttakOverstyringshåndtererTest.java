@@ -12,10 +12,9 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverhoppKontroll;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
@@ -101,7 +100,7 @@ class UttakOverstyringshåndtererTest {
             .lagre(repositoryProvider);
         repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), opprinneligPerioder);
 
-        var result = oppdaterer.håndterOverstyring(dto, behandling, kontekst(behandling));
+        var result = oppdaterer.håndterOverstyring(dto, BehandlingReferanse.fra(behandling));
 
         var lagretUttak = uttakTjeneste.hent(behandling.getId());
 
@@ -114,11 +113,6 @@ class UttakOverstyringshåndtererTest {
         assertThat(lagretUttak.getGjeldendePerioder().get(0).getResultatÅrsak()).isEqualTo(periodeResultatÅrsak);
         assertThat(lagretUttak.getGjeldendePerioder().get(0).getAktiviteter()).hasSize(1);
         assertThat(result.getOverhoppKontroll()).isEqualTo(OverhoppKontroll.UTEN_OVERHOPP);
-    }
-
-    private BehandlingskontrollKontekst kontekst(Behandling behandling) {
-        return new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(),
-            repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
     }
 
     private UttakResultatPerioderEntitet opprettUttakResultatPeriode(PeriodeResultatType resultat,

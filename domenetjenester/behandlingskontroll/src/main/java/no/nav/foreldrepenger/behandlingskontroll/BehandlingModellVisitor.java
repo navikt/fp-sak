@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.behandlingskontroll;
 
+import no.nav.foreldrepenger.behandlingskontroll.impl.StegProsesseringResultat;
+
 /**
  * Visitor som kan benyttes til å traversere en sekvens av
  * {@link BehandlingSteg}.

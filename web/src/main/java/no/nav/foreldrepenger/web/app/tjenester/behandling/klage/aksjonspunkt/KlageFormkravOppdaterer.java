@@ -9,11 +9,11 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdateringTransisjon;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -68,7 +68,7 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
         var optionalAvvistÅrsak = vurderOgLagreFormkrav(dto, klageBehandling, klageResultat, klageVurdertAv);
         if (optionalAvvistÅrsak.isPresent()) {
             lagreKlageVurderingResultatMedAvvistKlage(klageBehandling, klageVurdertAv, dto.fritekstTilBrev() != null ? dto.fritekstTilBrev() : null);
-            return OppdateringResultat.medFremoverHoppTotrinn(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_VEDTAK);
+            return OppdateringResultat.medFremoverHoppTotrinn(AksjonspunktOppdateringTransisjon.FORESLÅ_VEDTAK);
         }
         //Må fjerne fritekst om det ble lagret i formkrav-vurderingen
         klageVurderingTjeneste.hentKlageVurderingResultat(klageBehandling, klageVurdertAv).ifPresent(klageVurderingResultat -> {

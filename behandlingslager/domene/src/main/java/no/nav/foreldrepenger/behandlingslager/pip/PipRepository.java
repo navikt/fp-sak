@@ -9,7 +9,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -99,36 +98,6 @@ public class PipRepository {
         var eier = aktørIdList.stream().findFirst();
         eier.ifPresent(e -> SAK_EIER.put(saksnummer.getVerdi(), e));
         return eier;
-    }
-
-    public Set<AktørId> hentAktørIdKnyttetTilSaksnummer(String saksnummer) {
-        Objects.requireNonNull(saksnummer, SAKSNUMMER);
-
-        var sql = """
-            SELECT por.AKTOER_ID From Fagsak fag
-            JOIN BEHANDLING beh ON fag.ID = beh.FAGSAK_ID
-            JOIN GR_PERSONOPPLYSNING grp ON grp.behandling_id = beh.ID
-            JOIN PO_INFORMASJON poi ON grp.registrert_informasjon_id = poi.ID
-            JOIN PO_PERSONOPPLYSNING por ON poi.ID = por.po_informasjon_id
-            WHERE fag.SAKSNUMMER = (:saksnummer) AND grp.aktiv = 'J'
-             UNION ALL
-            SELECT br.AKTOER_ID FROM Fagsak fag
-            JOIN Bruker br ON fag.BRUKER_ID = br.ID
-            WHERE fag.SAKSNUMMER = (:saksnummer) AND br.AKTOER_ID IS NOT NULL
-             UNION ALL
-            SELECT sa.AKTOER_ID From Fagsak fag
-            JOIN BEHANDLING beh ON fag.ID = beh.FAGSAK_ID
-            JOIN GR_PERSONOPPLYSNING grp ON grp.behandling_id = beh.ID
-            JOIN SO_ANNEN_PART sa ON grp.so_annen_part_id = sa.ID
-            WHERE fag.SAKSNUMMER = (:saksnummer) AND grp.aktiv = 'J' AND sa.AKTOER_ID IS NOT NULL
-            """;
-
-        var query = entityManager.createNativeQuery(sql)
-            .setParameter(SAKSNUMMER, saksnummer);
-
-        @SuppressWarnings("unchecked")
-        List<String> aktørIdList = query.getResultList();
-        return aktørIdList.stream().map(AktørId::new).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     @SuppressWarnings({ "unchecked", "cast" })

@@ -57,7 +57,7 @@ class BehandlingskontrollEventPublisererTest {
     }
 
     @AfterEach
-    public void after() {
+    void after() {
         TestEventObserver.reset();
     }
 
@@ -93,8 +93,8 @@ class BehandlingskontrollEventPublisererTest {
 
         // Assert
 
-        BehandlingskontrollEvent startEvent = new BehandlingskontrollEvent.StartetEvent(null, null, STEG_1, null);
-        BehandlingskontrollEvent stoppEvent = new BehandlingskontrollEvent.StoppetEvent(null, null, STEG_4, BehandlingStegStatus.UTGANG);
+        var startEvent = new BehandlingskontrollEvent.StartetEvent(null, new BehandlingStegTilstandSnapshot(STEG_1, null));
+        var stoppEvent = new BehandlingskontrollEvent.StoppetEvent(null, new BehandlingStegTilstandSnapshot(STEG_4, BehandlingStegStatus.UTGANG));
         assertThat(startEvent).isNotNull();
         assertThat(stoppEvent).isNotNull();
         TestEventObserver.containsExactly(startEvent, stoppEvent);
@@ -209,13 +209,14 @@ class BehandlingskontrollEventPublisererTest {
 
     private BehandlingStegOvergangEvent nyOvergangEvent(BehandlingskontrollKontekst kontekst,
             BehandlingStegType steg1, BehandlingStegStatus steg1Status, BehandlingStegType steg2, BehandlingStegStatus steg2Status) {
-        return new BehandlingStegOvergangEvent(kontekst, lagTilstand(steg1, steg1Status),
+        var modell = kontrollTjeneste.getModell(behandlingType, fagsakYtelseType);
+        return BehandlingStegOvergangEvent.nyBehandlingStegOvergangEvent(kontekst, modell, lagTilstand(steg1, steg1Status),
                 lagTilstand(steg2, steg2Status));
     }
 
     private BehandlingStegTilstandSnapshot lagTilstand(BehandlingStegType stegType,
             BehandlingStegStatus stegStatus) {
-        return new BehandlingStegTilstandSnapshot(1L, stegType, stegStatus);
+        return new BehandlingStegTilstandSnapshot(stegType, stegStatus);
     }
 
     private BehandlingModellImpl byggModell() {

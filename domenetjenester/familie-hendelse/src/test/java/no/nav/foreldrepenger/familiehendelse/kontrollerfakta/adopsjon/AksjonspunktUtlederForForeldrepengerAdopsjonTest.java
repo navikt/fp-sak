@@ -18,7 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -34,7 +34,7 @@ class AksjonspunktUtlederForForeldrepengerAdopsjonTest {
     private AksjonspunktUtlederForForeldrepengerAdopsjon utleder;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         var morSøkerAdopsjonScenario = ScenarioMorSøkerForeldrepenger.forAdopsjon();
 
         var familieHendelseTjeneste = new FamilieHendelseTjeneste(null,
@@ -56,7 +56,7 @@ class AksjonspunktUtlederForForeldrepengerAdopsjonTest {
         var aksjonspunkter = aksjonspunktForFakta(behandlingMock);
 
         assertThat(aksjonspunkter).hasSize(2);
-        assertThat(aksjonspunkter.stream().map(AksjonspunktResultat::getAksjonspunktDefinisjon).toList())
+        assertThat(aksjonspunkter.stream().map(AksjonspunktUtlederResultat::aksjonspunktDefinisjon).toList())
             .containsExactlyInAnyOrder(AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN, AVKLAR_ADOPSJONSDOKUMENTAJON);
     }
 
@@ -66,7 +66,7 @@ class AksjonspunktUtlederForForeldrepengerAdopsjonTest {
         var aksjonspunkter = aksjonspunktForFakta(behandlingMock);
 
         assertThat(aksjonspunkter).hasSize(2);
-        assertThat(aksjonspunkter.stream().map(AksjonspunktResultat::getAksjonspunktDefinisjon).toList())
+        assertThat(aksjonspunkter.stream().map(AksjonspunktUtlederResultat::aksjonspunktDefinisjon).toList())
             .containsExactlyInAnyOrder(AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN, AVKLAR_ADOPSJONSDOKUMENTAJON);
     }
 
@@ -76,7 +76,7 @@ class AksjonspunktUtlederForForeldrepengerAdopsjonTest {
         var aksjonspunkter = aksjonspunktForFakta(behandlingMock);
 
         assertThat(aksjonspunkter).hasSize(2);
-        assertThat(aksjonspunkter.stream().map(AksjonspunktResultat::getAksjonspunktDefinisjon).toList())
+        assertThat(aksjonspunkter.stream().map(AksjonspunktUtlederResultat::aksjonspunktDefinisjon).toList())
             .containsExactlyInAnyOrder(AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN, AVKLAR_ADOPSJONSDOKUMENTAJON);
     }
 
@@ -84,7 +84,7 @@ class AksjonspunktUtlederForForeldrepengerAdopsjonTest {
         return new AksjonspunktUtlederInput(BehandlingReferanse.fra(behandling), null);
     }
 
-    private List<AksjonspunktResultat> aksjonspunktForFakta(Behandling behandling) {
+    private List<AksjonspunktUtlederResultat> aksjonspunktForFakta(Behandling behandling) {
         return utleder.utledAksjonspunkterFor(lagInput(behandling));
     }
 

@@ -486,6 +486,24 @@ class BeregningsgrunnlagRepositoryTest {
         assertThat(beregningsgrunnlagOpt).hasValueSatisfying(bg -> assertThat(bg).isSameAs(beregningsgrunnlag2));
     }
 
+    @Test
+    void skal_hente_ut_aap_saker() {
+        // Arrange
+        var behandling = opprettBehandling();
+        var behandling2 = opprettBehandling();
+        var beregningsgrunnlag = buildBeregningsgrunnlag();
+        var beregningsgrunnlagAap = buildBeregningsgrunnlag();
+        buildBgAktivitetStatus(beregningsgrunnlagAap, AktivitetStatus.ARBEIDSAVKLARINGSPENGER);
+        beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
+        beregningsgrunnlagRepository.lagre(behandling2.getId(), beregningsgrunnlagAap, BeregningsgrunnlagTilstand.FASTSATT);
+
+        // Act
+        var aapGrunnlag = beregningsgrunnlagRepository.hentFagsakerMedAAPIGrunnlag(0L, 10000000L);
+
+        // Assert
+        assertThat(aapGrunnlag).hasSize(1);
+    }
+
     private void buildBgPrStatusOgAndel(BeregningsgrunnlagPeriode beregningsgrunnlagPeriode) {
         var bga = BGAndelArbeidsforhold
                 .builder()
@@ -530,8 +548,12 @@ class BeregningsgrunnlagRepositoryTest {
     }
 
     private void buildBgAktivitetStatus(BeregningsgrunnlagEntitet beregningsgrunnlag) {
+        buildBgAktivitetStatus(beregningsgrunnlag, AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE);
+    }
+
+    private void buildBgAktivitetStatus(BeregningsgrunnlagEntitet beregningsgrunnlag, AktivitetStatus aktivitetStatus) {
         BeregningsgrunnlagAktivitetStatus.builder()
-            .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
+            .medAktivitetStatus(aktivitetStatus)
             .build(beregningsgrunnlag);
     }
 

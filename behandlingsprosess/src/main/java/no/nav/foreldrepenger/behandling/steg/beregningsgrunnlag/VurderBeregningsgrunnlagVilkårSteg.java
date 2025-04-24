@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 
-import static no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -48,7 +46,7 @@ public class VurderBeregningsgrunnlagVilkårSteg implements BeregningsgrunnlagSt
         var resultat = beregningTjeneste.beregn(BehandlingReferanse.fra(behandling), BehandlingStegType.VURDER_VILKAR_BERGRUNN);
         beregningsgrunnlagVilkårTjeneste.lagreVilkårresultat(kontekst, resultat);
         if (Boolean.FALSE.equals(resultat.getVilkårOppfylt())) {
-            return BehandleStegResultat.fremoverført(FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT);
+            return BehandleStegResultat.fremoverført(BehandlingStegType.FORESLÅ_BEHANDLINGSRESULTAT);
         }
         return BehandleStegResultat.utførtMedAksjonspunktResultater(resultat.getAksjonspunkter());
     }

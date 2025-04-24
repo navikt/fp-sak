@@ -23,7 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
@@ -99,7 +99,7 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
         var resultat = steg.utførSteg(new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(), new BehandlingLås(behandling.getId())));
 
         // Assert
-        assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(resultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(resultat.getAksjonspunktResultater()).isEmpty();
         verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(DokumentBestilling.class));
     }
@@ -118,7 +118,7 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
         var resultat = steg.utførSteg(new BehandlingskontrollKontekst(revudering.getSaksnummer(), revudering.getFagsakId(), new BehandlingLås(revudering.getId())));
 
         // Assert
-        assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(resultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(resultat.getAksjonspunktResultater()).isEmpty();
         verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(DokumentBestilling.class));
     }
@@ -135,7 +135,7 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
         var resultat = steg.utførSteg(new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(), new BehandlingLås(behandling.getId())));
 
         // Assert
-        assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(resultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(resultat.getAksjonspunktResultater()).isEmpty();
         verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(DokumentBestilling.class));
         verify(kompletthetsjekker, never()).vurderEtterlysningInntektsmelding(any(), any());
@@ -157,7 +157,7 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
 
 
         // Assert
-        assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(resultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(resultat.getAksjonspunktResultater()).isEmpty();
         verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(DokumentBestilling.class));
     }
@@ -195,7 +195,7 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
 
 
         // Assert
-        assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(resultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(resultat.getAksjonspunktResultater()).isEmpty();
         verify(dokumentBestillerTjenesteMock, times(1)).bestillDokument(any(DokumentBestilling.class));
     }

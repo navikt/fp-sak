@@ -1,21 +1,25 @@
 package no.nav.foreldrepenger.behandlingskontroll.transisjoner;
 
-import java.util.Optional;
+public enum StegTransisjon {
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+    // Steg-orienterte transisjoner - mer tilstandsmaskinorientert. For tiden ikke egen GJENOPPTATT
+    STARTET,
+    SUSPENDERT,
+    UTFØRT,
 
-public interface StegTransisjon {
-    String getId();
+    // Prosess-orienterte transisjoner
+    RETURNER, // Kan gå på steg eller gjenåpning av aksjonspunkt. For tiden er kun aksjonspunkt støttet. Kaller vedHoppOverBakover
+    HENLEGG, // Evt kall denne for Avbrutt. Denne blir via en del omveier mappet om til HOPPPOVER via Event og Behandlingskontroll
 
-    BehandlingStegModell nesteSteg(BehandlingStegModell nåværendeSteg);
+    HOPPOVER, // Vil hoppe fram til angitt steg uten å utføre stegene, men vil kalle vedHoppOverFramover
+    FLYOVER, // Vil fly fram til angitt steg uten å utføre stegene eller kalle vedHoppOverFramover. Bruk av FLYOVER må selv initialisere data.
+    ;
 
-    default Optional<BehandlingStegType> getMålstegHvisHopp() {
-        return Optional.empty();
+    public boolean direkteTilGittDestinasjon() {
+        return this == HOPPOVER || this == FLYOVER;
     }
 
-    default BehandlingStegResultat getRetningForHopp() {
-        throw new IllegalArgumentException("Utviklerfeil: skal ikke kalles for transisjon " + getId());
+    public boolean kreverAksjonspunkt() {
+        return this == RETURNER;
     }
 }

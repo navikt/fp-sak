@@ -15,7 +15,7 @@ import org.mockito.Mock;
 
 import no.nav.foreldrepenger.behandling.steg.beregnytelse.BeregneYtelseStegImpl;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
@@ -94,7 +94,7 @@ class BeregneYtelseStegImplTest {
         var stegResultat = steg.utførSteg(kontekst);
 
         // Assert
-        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        assertThat(stegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
 
         var beregningsresultat = beregningsresultatRepository.hentBeregningsresultat(behandling.getId());
         assertThat(beregningsresultat).hasValueSatisfying(resultat -> {

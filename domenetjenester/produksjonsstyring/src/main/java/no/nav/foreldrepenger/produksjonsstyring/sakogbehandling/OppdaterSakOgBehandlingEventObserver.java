@@ -51,8 +51,7 @@ public class OppdaterSakOgBehandlingEventObserver {
 
         var nyStatus = event.getNyStatus();
 
-        var kontekst = event.getKontekst();
-        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(event.getBehandlingId());
 
         sendMeldingTilSakOgBehandling(behandling, nyStatus);
 

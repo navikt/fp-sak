@@ -15,13 +15,10 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
  */
 public class BehandlingStegStatusEvent implements BehandlingEvent {
 
-    private BehandlingskontrollKontekst kontekst;
-
-    private BehandlingStegStatus nyStatus;
-
-    private BehandlingStegType stegType;
-
-    private BehandlingStegStatus forrigeStatus;
+    private final BehandlingskontrollKontekst kontekst;
+    private final BehandlingStegStatus nyStatus;
+    private final BehandlingStegType stegType;
+    private final BehandlingStegStatus forrigeStatus;
 
     public BehandlingStegStatusEvent(BehandlingskontrollKontekst kontekst, BehandlingStegType stegType, BehandlingStegStatus forrigeStatus,
             BehandlingStegStatus nyStatus) {
@@ -57,10 +54,6 @@ public class BehandlingStegStatusEvent implements BehandlingEvent {
 
     public BehandlingStegStatus getNyStatus() {
         return nyStatus;
-    }
-
-    public BehandlingskontrollKontekst getKontekst() {
-        return kontekst;
     }
 
     @Override

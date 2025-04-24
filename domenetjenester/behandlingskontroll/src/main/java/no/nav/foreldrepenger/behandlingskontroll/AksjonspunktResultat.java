@@ -97,15 +97,11 @@ public class AksjonspunktResultat {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof AksjonspunktResultat that)) {
-            return false;
-        }
-
-        return aksjonspunktDefinisjon.getKode().equals(that.aksjonspunktDefinisjon.getKode());
+        return o instanceof AksjonspunktResultat that && aksjonspunktDefinisjon.equals(that.aksjonspunktDefinisjon);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(aksjonspunktDefinisjon.getKode());
+        return Objects.hash(aksjonspunktDefinisjon);
     }
 }

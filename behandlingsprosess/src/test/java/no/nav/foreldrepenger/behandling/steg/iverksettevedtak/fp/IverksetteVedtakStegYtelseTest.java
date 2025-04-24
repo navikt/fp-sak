@@ -15,7 +15,7 @@ import org.mockito.Mock;
 import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.IverksetteVedtakStegFelles;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -61,7 +61,7 @@ class IverksetteVedtakStegYtelseTest {
         var resultat = utførSteg(behandling);
 
         // Assert
-        assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.STARTET);
+        assertThat(resultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.STARTET);
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
 
         var historikinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
@@ -79,7 +79,7 @@ class IverksetteVedtakStegYtelseTest {
         var resultat = utførSteg(behandling);
 
         // Assert
-        assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.SETT_PÅ_VENT);
+        assertThat(resultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.SUSPENDERT);
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
     }
 
