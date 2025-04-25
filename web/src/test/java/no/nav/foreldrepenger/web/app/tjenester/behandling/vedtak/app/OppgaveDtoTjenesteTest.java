@@ -46,8 +46,8 @@ class OppgaveDtoTjenesteTest {
     @Test
     void henter_oppgaver_og_mapper_til_dto() {
         var vurderDokumentJournalpostId = new JournalpostId("123");
-        Oppgave vurderDokument = opprettOppgave(Oppgavetype.VURDER_DOKUMENT, "vurderDokumentBeskrivelse", vurderDokumentJournalpostId.getVerdi());
-        Oppgave vurderKonsekvens = opprettOppgave(Oppgavetype.VURDER_KONSEKVENS_YTELSE, "vurderKonsekvensBeskrivelse", null);
+        Oppgave vurderDokument = opprettOppgave(Oppgavetype.VURDER_DOKUMENT, "VL: vurderDokumentBeskrivelse", vurderDokumentJournalpostId.getVerdi());
+        Oppgave vurderKonsekvens = opprettOppgave(Oppgavetype.VURDER_KONSEKVENS_YTELSE, "VL: vurderKonsekvensBeskrivelse", null);
         List<Oppgave> forventedeOppgaver = List.of(vurderDokument, vurderKonsekvens);
         ArkivJournalPost arkivJournalPost = opprettArkivJournalPost(vurderDokumentJournalpostId);
         when(oppgaveTjenesteMock.hentÅpneVurderDokumentOgVurderKonsekvensOppgaver(AKTØR_ID)).thenReturn(forventedeOppgaver);
@@ -56,8 +56,8 @@ class OppgaveDtoTjenesteTest {
         var oppgaver = oppgaveDtoTjeneste.mapTilDto(AKTØR_ID);
 
         assertThat(oppgaver).hasSize(2);
-        assertOppgave(oppgaver.get(0), OppgaveType.VUR_DOKUMENT, "vurderDokumentBeskrivelse", 3);
-        assertOppgave(oppgaver.get(1), OppgaveType.VUR_KONSEKVENS, "vurderKonsekvensBeskrivelse", 0);
+        assertOppgave(oppgaver.get(0), OppgaveType.VUR_DOKUMENT, "VL: vurderDokumentBeskrivelse", 3);
+        assertOppgave(oppgaver.get(1), OppgaveType.VUR_KONSEKVENS, "VL: vurderKonsekvensBeskrivelse", 0);
     }
 
     @Test
@@ -114,8 +114,8 @@ class OppgaveDtoTjenesteTest {
 
     private static void assertOppgave(OppgaveDto oppgave, OppgaveType type, String beskrivelse, int antallDokumenter) {
         assertThat(oppgave.oppgavetype()).isEqualTo(type);
-        assertThat(oppgave.nyesteBeskrivelse().kommentarer()).containsExactly(beskrivelse);
-        assertThat(oppgave.eldreBeskrivelser()).isEmpty();
+        assertThat(oppgave.beskrivelser()).hasSize(1);
+        assertBeskrivelse(oppgave.beskrivelser().getFirst(), null, beskrivelse);
         assertThat(oppgave.dokumenter()).hasSize(antallDokumenter);
     }
 
