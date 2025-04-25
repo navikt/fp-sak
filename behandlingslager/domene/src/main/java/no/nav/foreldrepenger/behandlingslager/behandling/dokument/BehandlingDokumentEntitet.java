@@ -128,7 +128,7 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
                 .medOverstyrtBrevOverskrift(behandlingDokument.getOverstyrtBrevOverskrift())
                 .medOverstyrtBrevFritekst(behandlingDokument.getOverstyrtBrevFritekst())
                 .medOverstyrtBrevFritekstHtml(behandlingDokument.getOverstyrtBrevFritekstHtml())
-                .medVedtakFritekst(behandlingDokument.getVedtakFritekst())
+                .medUtfyllendeTekstAutomatiskVedtaksbrev(behandlingDokument.getVedtakFritekst())
                 .medBestilteDokumenter(behandlingDokument.getBestilteDokumenter());
             builder.behandlingDokumentMal.id = behandlingDokument.id;
             return builder;
@@ -154,7 +154,7 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
             return this;
         }
 
-        public BehandlingDokumentEntitet.Builder medVedtakFritekst(String vedtakFritekst) {
+        public BehandlingDokumentEntitet.Builder medUtfyllendeTekstAutomatiskVedtaksbrev(String vedtakFritekst) {
             behandlingDokumentMal.vedtakFritekst = vedtakFritekst;
             return this;
         }

@@ -103,7 +103,7 @@ public class DokumentBehandlingTjeneste {
     public void nullstillVedtakFritekstHvisFinnes(Long behandlingId) {
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingId);
         behandlingDokument.ifPresent(behandlingDokumentEntitet -> behandlingDokumentRepository.lagreOgFlush(
-            BehandlingDokumentEntitet.Builder.fraEksisterende(behandlingDokumentEntitet).medVedtakFritekst(null).build()));
+            BehandlingDokumentEntitet.Builder.fraEksisterende(behandlingDokumentEntitet).medUtfyllendeTekstAutomatiskVedtaksbrev(null).build()));
     }
 
     public void settBehandlingPåVent(Long behandlingId, Venteårsak venteårsak) {
