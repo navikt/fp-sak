@@ -6,11 +6,16 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import no.nav.vedtak.konfig.Tid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +33,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterT
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
-import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -76,9 +80,9 @@ public class FpInntektsmeldingTjeneste {
     }
 
     public void overstyrInntektsmelding(Inntektsmelding inntektsmeldingSomSkalOverstyres,
-                                        LocalDate opphørFom,
-                                        String saksbehandlerIdent,
+                                        LocalDate overstyrtOpphørFom, Map<LocalDate, Beløp> overstyrteRefusjonsendringer, String saksbehandlerIdent,
                                         BehandlingReferanse ref) {
+        var refusjonOpphørsdato = overstyrtOpphørFom == null ? Objects.requireNonNull(inntektsmeldingSomSkalOverstyres.getRefusjonOpphører()) : overstyrtOpphørFom;
         var ytelse = ref.fagsakYtelseType().equals(FagsakYtelseType.FORELDREPENGER) ? OverstyrInntektsmeldingRequest.YtelseType.FORELDREPENGER : OverstyrInntektsmeldingRequest.YtelseType.SVANGERSKAPSPENGER;
         var startdato = inntektsmeldingSomSkalOverstyres.getStartDatoPermisjon()
             .orElseGet(() -> skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId()).getUtledetSkjæringstidspunkt());
@@ -86,7 +90,15 @@ public class FpInntektsmeldingTjeneste {
         var arbeidsgiver = new OverstyrInntektsmeldingRequest.ArbeidsgiverDto(
             inntektsmeldingSomSkalOverstyres.getArbeidsgiver().getIdentifikator());
         var aktørId = new OverstyrInntektsmeldingRequest.AktørIdDto(ref.aktørId().getId());
-        var endringerIRefusjon = mapRefusjonsendringer(inntektsmeldingSomSkalOverstyres.getEndringerRefusjon(), opphørFom);
+
+        // Vi skal modifisere mappet, så lager et nytt her for å ikke endre input
+        Map<LocalDate, Beløp> refusjonsendringer = new TreeMap<>(overstyrteRefusjonsendringer);
+        inntektsmeldingSomSkalOverstyres.getEndringerRefusjon().forEach(r -> {
+            if (!refusjonsendringer.containsKey(r.getFom())) {
+                refusjonsendringer.put(r.getFom(), r.getRefusjonsbeløp());
+            }
+        });
+        var endringerIRefusjon = mapRefusjonsendringer(refusjonsendringer, refusjonOpphørsdato);
         var naturalytelser = mapNaturalytelser(inntektsmeldingSomSkalOverstyres.getNaturalYtelser());
         var request = new OverstyrInntektsmeldingRequest(aktørId, arbeidsgiver, startdato, ytelse,
             inntektsmeldingSomSkalOverstyres.getInntektBeløp().getVerdi(), refusjon, endringerIRefusjon, naturalytelser, saksbehandlerIdent, new SaksnummerDto(ref.saksnummer().getVerdi()));
@@ -99,14 +111,16 @@ public class FpInntektsmeldingTjeneste {
             .toList();
     }
 
-    private List<OverstyrInntektsmeldingRequest.RefusjonendringRequestDto> mapRefusjonsendringer(List<Refusjon> endringerRefusjon, LocalDate opphørFom) {
+    private List<OverstyrInntektsmeldingRequest.RefusjonendringRequestDto> mapRefusjonsendringer(Map<LocalDate, Beløp> endringerRefusjon, LocalDate overstyrtOpphørFom) {
         // Endringer etter opphørsdato er ikke relevant
-        var endringer = endringerRefusjon.stream()
-            .filter(e -> e.getFom().isBefore(opphørFom))
-            .map(e -> new OverstyrInntektsmeldingRequest.RefusjonendringRequestDto(e.getFom(), e.getRefusjonsbeløp().getVerdi()))
+        var endringer = endringerRefusjon.entrySet().stream()
+            .filter(e -> e.getKey().isBefore(overstyrtOpphørFom))
+            .map(e -> new OverstyrInntektsmeldingRequest.RefusjonendringRequestDto(e.getKey(), e.getValue().getVerdi()))
             .collect(Collectors.toList());
         // Setter opphør
-        endringer.add(new OverstyrInntektsmeldingRequest.RefusjonendringRequestDto(opphørFom, BigDecimal.ZERO));
+        if (!overstyrtOpphørFom.equals(Tid.TIDENES_ENDE)) {
+            endringer.add(new OverstyrInntektsmeldingRequest.RefusjonendringRequestDto(overstyrtOpphørFom, BigDecimal.ZERO));
+        }
         return endringer;
     }
 

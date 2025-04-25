@@ -31,6 +31,8 @@ import jakarta.ws.rs.core.Response;
 
 import no.nav.foreldrepenger.domene.migrering.BeregningMigreringMapper;
 
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -210,24 +212,30 @@ public class ForvaltningBeregningRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Setter opphørsdato for refusjon for en gitt journalpost", tags = "FORVALTNING-beregning")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
-    public Response opphørRefusjonInntektsmelding(@BeanParam @Valid StoppRefusjonDto dto) {
+    public Response opphørRefusjonInntektsmelding(@NotNull @Valid StoppRefusjonDto dto) {
         var behandling = behandlingRepository.hentBehandling(dto.getBehandlingUuid());
-        var inntektsmeldinger = iayTjeneste.finnGrunnlag(behandling.getId())
-            .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger)
-            .map(InntektsmeldingAggregat::getAlleInntektsmeldinger)
-            .orElse(Collections.emptyList());
-        var matchetInntektsmelding = inntektsmeldinger.stream().filter(im -> im.getJournalpostId().getVerdi().equals(dto.getJournalpostId())).findFirst();
-        if (matchetInntektsmelding.isEmpty()) {
-            var msg = String.format("Finner ikke inntektsmelding med journalpostId %s på behandling med uuid %s ", dto.getJournalpostId(),
-                dto.getBehandlingUuid());
-            return Response.ok(msg).build();
+//        var inntektsmeldinger = iayTjeneste.finnGrunnlag(behandling.getId())
+//            .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger)
+//            .map(InntektsmeldingAggregat::getAlleInntektsmeldinger)
+//            .orElse(Collections.emptyList());
+//        var matchetInntektsmelding = inntektsmeldinger.stream().filter(im -> im.getJournalpostId().getVerdi().equals(dto.getJournalpostId())).findFirst();
+//        if (matchetInntektsmelding.isEmpty()) {
+//            var msg = String.format("Finner ikke inntektsmelding med journalpostId %s på behandling med uuid %s ", dto.getJournalpostId(),
+//                dto.getBehandlingUuid());
+//            return Response.ok(msg).build();
+//        }
+        if (dto.getRefusjonsendringer().isEmpty() && dto.getRefusjonOpphørFom() == null) {
+            return Response.ok("Det er ikke oppgitt hverken opphørsdato for refusjojn eller en liste med refusjonsendringer, ingenting å endre.").build();
         }
+        var refusjonsendringer = dto.getRefusjonsendringer()
+            .stream()
+            .map(r -> new OverstyrInntektsmeldingTask.InntektsmeldingEndring.Refusjonsendring(r.getFom(), r.getBeløp()))
+            .toList();
+        var taskParam = new OverstyrInntektsmeldingTask.InntektsmeldingEndring(dto.getJournalpostId(), behandling.getId(), dto.getRefusjonOpphørFom(),
+            KontekstHolder.getKontekst().getUid(), refusjonsendringer);
         var task = ProsessTaskData.forProsessTask(OverstyrInntektsmeldingTask.class);
+        task.setPayload(DefaultJsonMapper.toJson(taskParam));
         task.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
-        task.setProperty(OverstyrInntektsmeldingTask.BEHANDLING_ID, behandling.getId().toString());
-        task.setProperty(OverstyrInntektsmeldingTask.JOURNALPOST_ID, dto.getJournalpostId());
-        task.setProperty(OverstyrInntektsmeldingTask.OPPHØR_FOM, dto.getRefusjonOpphørFom().toString());
-        task.setProperty(OverstyrInntektsmeldingTask.SAKSBEHANDLER_IDENT, KontekstHolder.getKontekst().getUid());
         taskTjeneste.lagre(task);
         return Response.ok().build();
     }

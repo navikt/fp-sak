@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import no.nav.foreldrepenger.domene.typer.Beløp;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -62,7 +64,7 @@ class FpInntektsmeldingTjenesteTest {
     }
 
     @Test
-    void skal_overstyre_inntektsmelding() {
+    void skal_overstyre_inntektsmelding_uten_endringer() {
         // Arrange
         var stp = LocalDate.of(2024,9,1);
         var saksnummerDto = new SaksnummerDto("1234");
@@ -82,10 +84,64 @@ class FpInntektsmeldingTjenesteTest {
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingRef.behandlingId())).thenReturn(Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build());
 
         // Act
-        fpInntektsmeldingTjeneste.overstyrInntektsmelding(inntektsmelding, opphørsdato, "Truls Test", behandlingRef);
+        fpInntektsmeldingTjeneste.overstyrInntektsmelding(inntektsmelding, opphørsdato, Map.of(), "Truls Test", behandlingRef);
 
         // Assert
         var foventedeRefusjonsendringer = List.of(new OverstyrInntektsmeldingRequest.RefusjonendringRequestDto(stp.plusDays(10), BigDecimal.valueOf(4000)), new OverstyrInntektsmeldingRequest.RefusjonendringRequestDto(opphørsdato, BigDecimal.ZERO));
+        var forventetRequest = new OverstyrInntektsmeldingRequest(new OverstyrInntektsmeldingRequest.AktørIdDto("9999999999999"), new OverstyrInntektsmeldingRequest.ArbeidsgiverDto("999999999"), stp, OverstyrInntektsmeldingRequest.YtelseType.FORELDREPENGER, BigDecimal.valueOf(5000), BigDecimal.valueOf(5000),
+            foventedeRefusjonsendringer, Collections.emptyList(), "Truls Test", saksnummerDto);
+        verify(klient, times(1)).overstyrInntektsmelding(forventetRequest);
+    }
+
+    @Test
+    void skal_overstyre_inntektsmelding_med_endringer() {
+        // Arrange
+        var stp = LocalDate.of(2024,9,1);
+        var saksnummerDto = new SaksnummerDto("1234");
+        var inntektsmelding = InntektsmeldingBuilder.builder()
+            .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999"))
+            .medBeløp(BigDecimal.valueOf(5000))
+            .medRefusjon(BigDecimal.valueOf(5000))
+            .build();
+
+        var behandlingRef = new BehandlingReferanse(new Saksnummer("1234"), 1234L, FagsakYtelseType.FORELDREPENGER, 4321L, UUID.randomUUID(),
+            BehandlingStatus.UTREDES, BehandlingType.FØRSTEGANGSSØKNAD, 5432L, new AktørId("9999999999999"), RelasjonsRolleType.MORA);
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingRef.behandlingId())).thenReturn(Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build());
+
+        // Act
+        fpInntektsmeldingTjeneste.overstyrInntektsmelding(inntektsmelding, null, Map.of(stp.plusDays(10), Beløp.ZERO, stp.plusDays(15), Beløp.av(4000)), "Truls Test", behandlingRef);
+
+        // Assert
+        var foventedeRefusjonsendringer = List.of(new OverstyrInntektsmeldingRequest.RefusjonendringRequestDto(stp.plusDays(10), BigDecimal.ZERO), new OverstyrInntektsmeldingRequest.RefusjonendringRequestDto(stp.plusDays(15), BigDecimal.valueOf(4000)));
+        var forventetRequest = new OverstyrInntektsmeldingRequest(new OverstyrInntektsmeldingRequest.AktørIdDto("9999999999999"), new OverstyrInntektsmeldingRequest.ArbeidsgiverDto("999999999"), stp, OverstyrInntektsmeldingRequest.YtelseType.FORELDREPENGER, BigDecimal.valueOf(5000), BigDecimal.valueOf(5000),
+            foventedeRefusjonsendringer, Collections.emptyList(), "Truls Test", saksnummerDto);
+        verify(klient, times(1)).overstyrInntektsmelding(forventetRequest);
+    }
+
+    @Test
+    void skal_overstyre_opphørsdato_og_flette_refusjonsendringer() {
+        // Arrange
+        var stp = LocalDate.of(2024,9,1);
+        var saksnummerDto = new SaksnummerDto("1234");
+        var ref1 = new Refusjon(BigDecimal.valueOf(4000), stp.plusDays(10));
+        var inntektsmelding = InntektsmeldingBuilder.builder()
+            .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999"))
+            .medBeløp(BigDecimal.valueOf(5000))
+            .medRefusjon(BigDecimal.valueOf(5000))
+            .leggTil(ref1)
+            .build();
+
+        var behandlingRef = new BehandlingReferanse(new Saksnummer("1234"), 1234L, FagsakYtelseType.FORELDREPENGER, 4321L, UUID.randomUUID(),
+            BehandlingStatus.UTREDES, BehandlingType.FØRSTEGANGSSØKNAD, 5432L, new AktørId("9999999999999"), RelasjonsRolleType.MORA);
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingRef.behandlingId())).thenReturn(Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build());
+
+        // Act
+        fpInntektsmeldingTjeneste.overstyrInntektsmelding(inntektsmelding, stp.plusDays(15), Map.of(stp.plusDays(5), Beløp.ZERO), "Truls Test", behandlingRef);
+
+        // Assert
+        var foventedeRefusjonsendringer = List.of(new OverstyrInntektsmeldingRequest.RefusjonendringRequestDto(stp.plusDays(5), BigDecimal.ZERO),
+            new OverstyrInntektsmeldingRequest.RefusjonendringRequestDto(stp.plusDays(10), BigDecimal.valueOf(4000)),
+            new OverstyrInntektsmeldingRequest.RefusjonendringRequestDto(stp.plusDays(15), BigDecimal.ZERO));
         var forventetRequest = new OverstyrInntektsmeldingRequest(new OverstyrInntektsmeldingRequest.AktørIdDto("9999999999999"), new OverstyrInntektsmeldingRequest.ArbeidsgiverDto("999999999"), stp, OverstyrInntektsmeldingRequest.YtelseType.FORELDREPENGER, BigDecimal.valueOf(5000), BigDecimal.valueOf(5000),
             foventedeRefusjonsendringer, Collections.emptyList(), "Truls Test", saksnummerDto);
         verify(klient, times(1)).overstyrInntektsmelding(forventetRequest);
