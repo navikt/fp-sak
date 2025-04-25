@@ -69,6 +69,6 @@ class OverstyrInntektsmeldingTask implements ProsessTaskHandler {
     }
 
     public record InntektsmeldingEndring(String journalpostId, Long behandlingId, LocalDate opphørdato, String saksbehandlerIdent, List<Refusjonsendring> refusjonsendringer) {
-        protected record Refusjonsendring(LocalDate fom, Double beløp){}
+        protected record Refusjonsendring(LocalDate fom, Long beløp){}
     }
 }

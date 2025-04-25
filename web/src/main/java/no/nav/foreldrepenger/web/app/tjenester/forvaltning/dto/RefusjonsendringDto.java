@@ -5,7 +5,8 @@ import static no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.InputValid
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.QueryParam;
@@ -18,18 +19,19 @@ public class RefusjonsendringDto {
     @Parameter(description = "YYYY-MM-DD")
     @QueryParam("fom")
     @Pattern(regexp = DATO_PATTERN)
-    String fom;
+    private String fom;
 
     @NotNull
     @QueryParam("beløp")
-    @Digits(integer = 10, fraction = 2)
-    Double beløp;
+    @Min(value = 0)
+    @Max(value = Long.MAX_VALUE)
+    private Long beløp;
 
     public RefusjonsendringDto() {
         // Jackson
     }
 
-    public Double getBeløp() {
+    public Long getBeløp() {
         return beløp;
     }
 
