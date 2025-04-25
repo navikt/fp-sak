@@ -51,11 +51,8 @@ public class OppgaveDtoTjeneste {
         }
 
         List<OppgaveDto.Beskrivelse> beskrivelser = splittBeskrivelser(oppgave.beskrivelse());
-        var nyesteBeskrivelse = beskrivelser.isEmpty() ? null : beskrivelser.getFirst();
-        List<OppgaveDto.Beskrivelse> eldreBeskrivelser =
-            beskrivelser.size() > 1 ? beskrivelser.subList(1, beskrivelser.size()) : Collections.emptyList();
 
-        return new OppgaveDto(oppgaveType, nyesteBeskrivelse, eldreBeskrivelser, beskrivelser, dokumenter);
+        return new OppgaveDto(new OppgaveDto.OppgaveId(oppgave.id().toString()), oppgaveType, beskrivelser, dokumenter);
     }
 
     static OppgaveType getOppgaveTypeForKode(Oppgavetype oppgavetype) {

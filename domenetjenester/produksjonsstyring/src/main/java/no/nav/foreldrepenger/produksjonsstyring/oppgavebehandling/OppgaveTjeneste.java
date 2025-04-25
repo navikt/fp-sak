@@ -197,6 +197,15 @@ public class OppgaveTjeneste {
         }
     }
 
+    public void ferdigstillOppgave(String oppgaveId) {
+        try {
+            avslutt(oppgaveId);
+        } catch (Exception e) {
+            LOG.warn("Kunne ikke ferdigstille oppgave med id {}", oppgaveId, e);
+            throw new TekniskException("FP-395342", "Noe feilet ved ferdigstilling av oppgave", e);
+        }
+    }
+
     public void ferdigstillOppgaveForForvaltning(String oppgaveId) {
         var avsluttOppgaveTask = ProsessTaskData.forProsessTask(AvsluttOppgaveTask.class);
         AvsluttOppgaveTask.setOppgaveId(avsluttOppgaveTask, oppgaveId);
