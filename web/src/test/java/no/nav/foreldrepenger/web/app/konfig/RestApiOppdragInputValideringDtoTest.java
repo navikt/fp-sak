@@ -206,7 +206,7 @@ class RestApiOppdragInputValideringDtoTest extends RestApiTester {
             } else if (getVurderingsalternativer(field) != null) {
                 validerRiktigAnnotert(field); // har konfigurert opp spesifikk validering
             } else if (field.getType().getName().startsWith("java")) {
-                throw new AssertionError(
+                       throw new AssertionError(
                     "Feltet " + field + " har ikke påkrevde annoteringer. Trenger evt. utvidelse av denne testen for å akseptere denne typen.");
             } else {
                 validerHarValidAnnotering(field);

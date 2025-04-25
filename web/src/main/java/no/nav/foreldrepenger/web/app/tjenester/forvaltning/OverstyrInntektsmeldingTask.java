@@ -1,9 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
@@ -15,10 +16,12 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
+import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 /*
  * Overstyring av inntektsmeldingtask. Gjøres i egen task for å sikre systemkontekst
@@ -27,11 +30,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 @ProsessTask(value = "fpinntektsmelding.overstyr.inntektsmelding", prioritet = 2)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 class OverstyrInntektsmeldingTask implements ProsessTaskHandler {
-
-    public static final String JOURNALPOST_ID = "journalpostId";
-    public static final String BEHANDLING_ID = "behandlingId";
-    public static final String OPPHØR_FOM = "opphoersdato";
-    public static final String SAKSBEHANDLER_IDENT = "saksbehandlerIdent";
 
     private final InntektArbeidYtelseTjeneste iayTjeneste;
     private final FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste;
@@ -48,14 +46,13 @@ class OverstyrInntektsmeldingTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
+        var json = prosessTaskData.getPayloadAsString();
+        var endringIInntektsmelding = DefaultJsonMapper.fromJson(json, InntektsmeldingEndring.class);
 
-        var jpId = Optional.ofNullable(prosessTaskData.getPropertyValue(JOURNALPOST_ID)).map(JournalpostId::new).orElseThrow();
-        var behandlingId = Optional.ofNullable(prosessTaskData.getPropertyValue(BEHANDLING_ID)).map(Long::valueOf).orElseThrow();
-        var opphørFom = LocalDate.parse(prosessTaskData.getPropertyValue(OPPHØR_FOM), DateTimeFormatter.ISO_LOCAL_DATE);
-        var saksbehandlerIdent = Optional.ofNullable(prosessTaskData.getPropertyValue(SAKSBEHANDLER_IDENT)).orElseThrow();
-        var ref = BehandlingReferanse.fra(behandlingRepository.hentBehandling(behandlingId));
+        var jpId = new JournalpostId(endringIInntektsmelding.journalpostId());
+        var ref = BehandlingReferanse.fra(behandlingRepository.hentBehandling(endringIInntektsmelding.behandlingId()));
 
-        var inntektsmeldingSomSkalOverstyres = iayTjeneste.finnGrunnlag(behandlingId)
+        var inntektsmeldingSomSkalOverstyres = iayTjeneste.finnGrunnlag(endringIInntektsmelding.behandlingId())
             .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger)
             .map(InntektsmeldingAggregat::getAlleInntektsmeldinger)
             .orElse(List.of())
@@ -64,6 +61,14 @@ class OverstyrInntektsmeldingTask implements ProsessTaskHandler {
             .findFirst()
             .orElseThrow();
 
-        fpInntektsmeldingTjeneste.overstyrInntektsmelding(inntektsmeldingSomSkalOverstyres, opphørFom, saksbehandlerIdent, ref);
+        Map<LocalDate, Beløp> refusjonsendringMap = endringIInntektsmelding.refusjonsendringer()
+            .stream()
+            .collect(Collectors.toMap(InntektsmeldingEndring.Refusjonsendring::fom, e -> Beløp.fra(BigDecimal.valueOf(e.beløp()))));
+
+        fpInntektsmeldingTjeneste.overstyrInntektsmelding(inntektsmeldingSomSkalOverstyres, endringIInntektsmelding.opphørdato(), refusjonsendringMap, endringIInntektsmelding.saksbehandlerIdent(), ref);
+    }
+
+    public record InntektsmeldingEndring(String journalpostId, Long behandlingId, LocalDate opphørdato, String saksbehandlerIdent, List<Refusjonsendring> refusjonsendringer) {
+        protected record Refusjonsendring(LocalDate fom, Long beløp){}
     }
 }

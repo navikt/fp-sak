@@ -4,12 +4,15 @@ import static no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.InputValid
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import jakarta.ws.rs.QueryParam;
 
 import io.swagger.v3.oas.annotations.Parameter;
@@ -23,7 +26,6 @@ public class StoppRefusjonDto implements AbacDto {
     @Valid
     private UUID behandlingUuid;
 
-    @NotNull
     @Parameter(description = "YYYY-MM-DD")
     @QueryParam("refusjonOpphoerFom")
     @Pattern(regexp = DATO_PATTERN)
@@ -33,6 +35,11 @@ public class StoppRefusjonDto implements AbacDto {
     @QueryParam("journalpostid")
     @Digits(integer = 18, fraction = 0)
     private String journalpostId;
+
+    @Valid
+    @QueryParam("refusjonsendringer")
+    @Size(max = 20)
+    private List<RefusjonsendringDto> refusjonsendringer;
 
     public StoppRefusjonDto() {
         // Jackson
@@ -53,6 +60,10 @@ public class StoppRefusjonDto implements AbacDto {
 
     public LocalDate getRefusjonOpphørFom() {
         return getLocalDate(refusjonOpphørFom);
+    }
+
+    public List<RefusjonsendringDto> getRefusjonsendringer() {
+        return refusjonsendringer == null ? Collections.emptyList() : refusjonsendringer;
     }
 
     private LocalDate getLocalDate(String datoString) {
