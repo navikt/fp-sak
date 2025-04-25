@@ -210,20 +210,20 @@ public class ForvaltningBeregningRestTjeneste {
     @Path("/stoppRefusjon")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Setter opphørsdato for refusjon for en gitt journalpost", tags = "FORVALTNING-beregning")
+    @Operation(description = "Endrer refusjon på inntektsmelding for en gitt journalpost", tags = "FORVALTNING-beregning")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response opphørRefusjonInntektsmelding(@NotNull @Valid StoppRefusjonDto dto) {
         var behandling = behandlingRepository.hentBehandling(dto.getBehandlingUuid());
-//        var inntektsmeldinger = iayTjeneste.finnGrunnlag(behandling.getId())
-//            .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger)
-//            .map(InntektsmeldingAggregat::getAlleInntektsmeldinger)
-//            .orElse(Collections.emptyList());
-//        var matchetInntektsmelding = inntektsmeldinger.stream().filter(im -> im.getJournalpostId().getVerdi().equals(dto.getJournalpostId())).findFirst();
-//        if (matchetInntektsmelding.isEmpty()) {
-//            var msg = String.format("Finner ikke inntektsmelding med journalpostId %s på behandling med uuid %s ", dto.getJournalpostId(),
-//                dto.getBehandlingUuid());
-//            return Response.ok(msg).build();
-//        }
+        var inntektsmeldinger = iayTjeneste.finnGrunnlag(behandling.getId())
+            .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger)
+            .map(InntektsmeldingAggregat::getAlleInntektsmeldinger)
+            .orElse(Collections.emptyList());
+        var matchetInntektsmelding = inntektsmeldinger.stream().filter(im -> im.getJournalpostId().getVerdi().equals(dto.getJournalpostId())).findFirst();
+        if (matchetInntektsmelding.isEmpty()) {
+            var msg = String.format("Finner ikke inntektsmelding med journalpostId %s på behandling med uuid %s ", dto.getJournalpostId(),
+                dto.getBehandlingUuid());
+            return Response.ok(msg).build();
+        }
         if (dto.getRefusjonsendringer().isEmpty() && dto.getRefusjonOpphørFom() == null) {
             return Response.ok("Det er ikke oppgitt hverken opphørsdato for refusjojn eller en liste med refusjonsendringer, ingenting å endre.").build();
         }
