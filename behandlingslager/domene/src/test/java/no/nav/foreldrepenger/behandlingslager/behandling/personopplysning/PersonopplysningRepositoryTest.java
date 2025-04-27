@@ -81,7 +81,7 @@ class PersonopplysningRepositoryTest extends EntityManagerAwareTest {
     void skal_finne_aktoerId_for_saksnummer_kun_sak() {
         var fagsak = new BasicBehandlingBuilder(getEntityManager()).opprettFagsak(FagsakYtelseType.FORELDREPENGER, AktørId.dummy());
 
-        var aktørIder = repository.hentAktørIdKnyttetTilSaksnummer(fagsak.getSaksnummer().getVerdi());
+        var aktørIder = repository.hentAktørIdKnyttetTilSaksnummer(fagsak.getSaksnummer());
         assertThat(aktørIder).containsOnly(fagsak.getAktørId());
     }
 
@@ -94,7 +94,7 @@ class PersonopplysningRepositoryTest extends EntityManagerAwareTest {
         var annenPart = AktørId.dummy();
         repository.lagre(behandling.getId(), new OppgittAnnenPartBuilder().medType(SøknadAnnenPartType.FAR).medAktørId(annenPart).build());
 
-        var aktørIder = repository.hentAktørIdKnyttetTilSaksnummer(fagsak.getSaksnummer().getVerdi());
+        var aktørIder = repository.hentAktørIdKnyttetTilSaksnummer(fagsak.getSaksnummer());
         assertThat(aktørIder).containsOnly(fagsak.getAktørId(), annenPart);
     }
 
@@ -116,7 +116,7 @@ class PersonopplysningRepositoryTest extends EntityManagerAwareTest {
         informasjonBuilder.leggTil(personopplysningBuilder);
         repository.lagre(behandling.getId(), informasjonBuilder);
 
-        var aktørIder = repository.hentAktørIdKnyttetTilSaksnummer(fagsak.getSaksnummer().getVerdi());
+        var aktørIder = repository.hentAktørIdKnyttetTilSaksnummer(fagsak.getSaksnummer());
         assertThat(aktørIder).containsOnly(fagsak.getAktørId(), annenPart);
     }
 
@@ -148,7 +148,7 @@ class PersonopplysningRepositoryTest extends EntityManagerAwareTest {
 
         repository.lagre(behandling.getId(), informasjonBuilder);
 
-        var aktørIder = repository.hentAktørIdKnyttetTilSaksnummer(fagsak.getSaksnummer().getVerdi());
+        var aktørIder = repository.hentAktørIdKnyttetTilSaksnummer(fagsak.getSaksnummer());
         assertThat(aktørIder).containsOnly(fagsak.getAktørId(), annenPart, barn);
     }
 
@@ -170,7 +170,7 @@ class PersonopplysningRepositoryTest extends EntityManagerAwareTest {
 
         repository.lagre(behandling.getId(), informasjonBuilder);
 
-        var aktørIder = repository.hentAktørIdKnyttetTilSaksnummer(fagsak.getSaksnummer().getVerdi());
+        var aktørIder = repository.hentAktørIdKnyttetTilSaksnummer(fagsak.getSaksnummer());
         assertThat(aktørIder).containsOnly(fagsak.getAktørId(), barn);
     }
 

@@ -54,6 +54,9 @@ class PipRepositoryTest extends EntityManagerAwareTest {
         assertThat(pipBehandlingsData.get().behandlingStatus()).isEqualTo(behandling.getStatus());
         assertThat(pipBehandlingsData.get().fagsakStatus()).isEqualTo(behandling.getFagsak().getStatus());
         assertThat(pipBehandlingsData.get().saksnummer()).isEqualTo(behandling.getFagsak().getSaksnummer());
+
+        var saksident = pipRepository.hentAktørIdSomEierFagsak(behandling.getSaksnummer());
+        assertThat(saksident).hasValueSatisfying(a -> assertThat(a).isEqualTo(behandling.getAktørId()));
     }
 
     @Test
@@ -69,6 +72,9 @@ class PipRepositoryTest extends EntityManagerAwareTest {
 
         var fagsakId = pipRepository.hentSaksnummerForBehandlingUuid(behandling.getUuid());
         assertThat(fagsakId).hasValueSatisfying(s -> assertThat(fagsak.getSaksnummer()).isEqualTo(s));
+
+        var saksident = pipRepository.hentAktørIdSomEierFagsak(behandling.getSaksnummer());
+        assertThat(saksident).hasValueSatisfying(a -> assertThat(a).isEqualTo(behandling.getAktørId()));
     }
 
     @Test
