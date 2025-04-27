@@ -125,6 +125,7 @@ public class BeregningMigreringTjeneste {
 
     private void migrerBehandling(Behandling behandling) {
         var grunnlag = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId());
+        var erHenlagt = behandling.getBehandlingsresultat().getBehandlingResultatType().erHenlagt();
         if (grunnlag.isEmpty()) {
             LOG.info(String.format("Finner ikke beregningsgrunnlag på behandling %s, ingenting å migrere", behandling.getId()));
             return;
@@ -141,7 +142,7 @@ public class BeregningMigreringTjeneste {
             var response = klient.migrerGrunnlag(request);
 
             // Sammenlign grunnlag fra kalkulus og fpsak
-            sammenlignGrunnlag(response, ref, grunnlagSporinger, aksjonspunkter);
+            sammenlignGrunnlag(response, ref, grunnlagSporinger, aksjonspunkter, erHenlagt);
 
             // Oppdater kobling med data fra grunnlag
             if (response.grunnlag() != null && response.grunnlag().getBeregningsgrunnlag() != null) {
@@ -168,7 +169,7 @@ public class BeregningMigreringTjeneste {
 
     private void sammenlignGrunnlag(MigrerBeregningsgrunnlagResponse response, BehandlingReferanse referanse,
                                     Map<BeregningsgrunnlagRegelType, BeregningsgrunnlagRegelSporing> grunnlagSporinger,
-                                    Set<Aksjonspunkt> aksjonspunkter) {
+                                    Set<Aksjonspunkt> aksjonspunkter, boolean erHenlagt) {
         var entitet = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(referanse.behandlingId()).orElseThrow();
         verifiserRegelsporinger(response, entitet, grunnlagSporinger);
         verifiserAksjonspunkter(aksjonspunkter, response.avklaringsbehov());
@@ -178,7 +179,11 @@ public class BeregningMigreringTjeneste {
         var kalkJson = StandardJsonConfig.toJson(kalkulusGrunnlag);
         if (!fpJson.equals(kalkJson)) {
             logg(fpJson, kalkJson);
-            throw new IllegalStateException("Missmatch mellom kalkulus json og fpsak json av samme beregninsgrunnlag");
+            if (erHenlagt) {
+                LOG.info("Sammenligning feilet, men behandling er henlagt, så fortsetter migrering. Saksnummer {} behandlingUUid {}", referanse.saksnummer(), referanse.behandlingUuid());
+            } else {
+                throw new IllegalStateException("Missmatch mellom kalkulus json og fpsak json av samme beregninsgrunnlag");
+            }
         }
     }
 
