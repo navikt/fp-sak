@@ -50,14 +50,14 @@ public class InnhentPersonopplysningerTask extends BehandlingProsessTask {
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var personerFør = personopplysningRepository.hentAktørIdKnyttetTilSaksnummer(behandling.getSaksnummer().getVerdi());
+        var personerFør = personopplysningRepository.hentAktørIdKnyttetTilSaksnummer(behandling.getSaksnummer());
         LOG.info("Innhenter personopplysninger for behandling: {}", behandling.getId());
         registerdataInnhenter.innhentPersonopplysninger(behandling);
         notifiserEndringPersoner(behandling, personerFør);
     }
 
     private void notifiserEndringPersoner(Behandling behandling, Set<AktørId> personerFør) {
-        var personerEtter = personopplysningRepository.hentAktørIdKnyttetTilSaksnummer(behandling.getSaksnummer().getVerdi());
+        var personerEtter = personopplysningRepository.hentAktørIdKnyttetTilSaksnummer(behandling.getSaksnummer());
         if (personerFør.size() != personerEtter.size() || !personerFør.containsAll(personerEtter)) {
             LOG.info("Persongalleri er endret for sak: {}", behandling.getSaksnummer().getVerdi());
             behandlingEventPubliserer.publiserBehandlingEvent(new SakensPersonerEndretEvent(behandling.getFagsakId(), behandling.getSaksnummer(), behandling.getId()));

@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.TraverseEntityGraphFactory;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffEntity;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 
 /**
@@ -275,7 +276,7 @@ public class PersonopplysningRepository {
         return resultat.orElse(null);
     }
 
-    public Set<AktørId> hentAktørIdKnyttetTilSaksnummer(String saksnummer) {
+    public Set<AktørId> hentAktørIdKnyttetTilSaksnummer(Saksnummer saksnummer) {
         Objects.requireNonNull(saksnummer, "saksnummer");
 
         var sql = """
@@ -297,7 +298,7 @@ public class PersonopplysningRepository {
             """;
 
         var query = entityManager.createNativeQuery(sql)
-            .setParameter("saksnummer", saksnummer);
+            .setParameter("saksnummer", saksnummer.getVerdi());
 
         @SuppressWarnings("unchecked")
         List<String> aktørIdList = query.getResultList();
