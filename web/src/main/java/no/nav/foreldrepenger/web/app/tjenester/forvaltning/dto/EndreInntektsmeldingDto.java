@@ -10,6 +10,8 @@ import java.util.UUID;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -19,29 +21,34 @@ import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
-public class StoppRefusjonDto implements AbacDto {
+public class EndreInntektsmeldingDto implements AbacDto {
 
     @NotNull
     @QueryParam("behandlingUuid")
     @Valid
     private UUID behandlingUuid;
 
+    @NotNull
+    @QueryParam("journalpostid")
+    @Digits(integer = 18, fraction = 0)
+    private String journalpostId;
+
     @Parameter(description = "YYYY-MM-DD")
     @QueryParam("refusjonOpphoerFom")
     @Pattern(regexp = DATO_PATTERN)
     private String refusjonOpphørFom;
 
-    @NotNull
-    @QueryParam("journalpostid")
-    @Digits(integer = 18, fraction = 0)
-    private String journalpostId;
+    @QueryParam("refusjonPrMndFraStart")
+    @Min(value = 0)
+    @Max(value = Long.MAX_VALUE)
+    private Long refusjonPrMndFraStart;
 
     @Valid
     @QueryParam("refusjonsendringer")
     @Size(max = 20)
     private List<RefusjonsendringDto> refusjonsendringer;
 
-    public StoppRefusjonDto() {
+    public EndreInntektsmeldingDto() {
         // Jackson
     }
 
@@ -71,5 +78,9 @@ public class StoppRefusjonDto implements AbacDto {
             return LocalDate.parse(datoString, DateTimeFormatter.ISO_LOCAL_DATE);
         }
         return null;
+    }
+
+    public Long getRefusjonPrMndFraStart() {
+        return refusjonPrMndFraStart;
     }
 }
