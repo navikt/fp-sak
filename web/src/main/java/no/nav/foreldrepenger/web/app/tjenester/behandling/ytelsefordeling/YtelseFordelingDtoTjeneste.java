@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnl
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Rettighetstype;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
@@ -115,22 +116,28 @@ public class YtelseFordelingDtoTjeneste {
         var personopplysningerAggregat = poaOpt.get();
 
         var oppgittAnnenpart = personopplysningerAggregat.getOppgittAnnenPart();
-        var oppgittAleneomsorg = Boolean.TRUE.equals(ytelseFordelingAggregat.getOppgittRettighet().getHarAleneomsorgForBarnet());
+        var oppgittRettighet = ytelseFordelingAggregat.getOppgittRettighet();
+        var oppgittAleneomsorg = Boolean.TRUE.equals(oppgittRettighet.getHarAleneomsorgForBarnet());
         var registerdata = opprettRegisterdata(behandlingId, oppgittAleneomsorg);
         var manuellBehandlingResultat = opprettManuellBehandlingResultat(ytelseFordelingAggregat);
 
-        var søknad = mapSøknad(oppgittAnnenpart.orElse(null), ytelseFordelingAggregat.getOppgittRettighet(), behandling.getRelasjonsRolleType());
+        var søknad = mapSøknad(oppgittAnnenpart.orElse(null), oppgittRettighet, behandling.getRelasjonsRolleType());
         return Optional.of(
-            new OmsorgOgRettDto(søknad, registerdata.orElse(null), manuellBehandlingResultat.orElse(null), behandling.getRelasjonsRolleType()));
+            new OmsorgOgRettDto(søknad, registerdata.orElse(null), manuellBehandlingResultat.orElse(null),
+                utledRettighetstype(behandling), behandling.getRelasjonsRolleType()));
+    }
+
+    private Rettighetstype utledRettighetstype(Behandling behandling) {
+        var uttakInput = uttakInputTjeneste.lagInput(behandling);
+        var harAnnenForelderForeldrepenger = harAnnenForelderForeldrepenger(uttakInput.getYtelsespesifiktGrunnlag());
+        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
+        return ytelseFordelingAggregat.getGjeldendeRettighetstype(harAnnenForelderForeldrepenger,
+            behandling.getRelasjonsRolleType(), uføretrygdRepository.hentGrunnlag(behandling.getId()).orElse(null));
     }
 
     private Optional<OmsorgOgRettDto.RegisterData> opprettRegisterdata(Long behandlingId, boolean oppgittAleneomsorg) {
         var ytelsespesifiktGrunnlag = hentForeldrepengerGrunnlag(behandlingId);
-        var harAnnenpartForeldrepenger = oppgittAleneomsorg ? null : ytelsespesifiktGrunnlag.getAnnenpart()
-            .map(Annenpart::gjeldendeVedtakBehandlingId)
-            .flatMap(uttakTjeneste::hentHvisEksisterer)
-            .filter(ForeldrepengerUttak::harUtbetaling)
-            .isPresent();
+        var harAnnenpartForeldrepenger = oppgittAleneomsorg ? null : harAnnenForelderForeldrepenger(ytelsespesifiktGrunnlag);
         var harAnnenpartEngangsstønad = oppgittAleneomsorg ? null : ytelsespesifiktGrunnlag.isOppgittAnnenForelderHarEngangsstønadForSammeBarn();
         var annenForelderMottarUføretrygd = uføretrygdRepository.hentGrunnlag(behandlingId)
             .map(UføretrygdGrunnlagEntitet::annenForelderMottarUføretrygd)
@@ -142,8 +149,16 @@ public class YtelseFordelingDtoTjeneste {
             new OmsorgOgRettDto.RegisterData(fra(annenForelderMottarUføretrygd), fra(harAnnenpartForeldrepenger), fra(harAnnenpartEngangsstønad)));
     }
 
+    private boolean harAnnenForelderForeldrepenger(ForeldrepengerGrunnlag ytelsespesifiktGrunnlag) {
+        return ytelsespesifiktGrunnlag.getAnnenpart()
+            .map(Annenpart::gjeldendeVedtakBehandlingId)
+            .flatMap(uttakTjeneste::hentHvisEksisterer)
+            .filter(ForeldrepengerUttak::harUtbetaling)
+            .isPresent();
+    }
+
     private static Optional<OmsorgOgRettDto.ManuellBehandlingResultat> opprettManuellBehandlingResultat(YtelseFordelingAggregat ytelseFordelingAggregat) {
-        return ytelseFordelingAggregat.getOverstyrtRettighet().map(or -> {
+        return ytelseFordelingAggregat.getAvklartRettighet().map(or -> {
             var søkerHarAleneomsorg = or.getHarAleneomsorgForBarnet();
             var annenpartRettighet = Objects.equals(søkerHarAleneomsorg, Boolean.TRUE) ? null : new OmsorgOgRettDto.Rettighet(
                 fra(or.getHarAnnenForeldreRett()), fra(or.getAnnenForelderOppholdEØS()), fra(or.getAnnenForelderRettEØSNullable()),

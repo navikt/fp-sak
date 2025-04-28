@@ -10,12 +10,9 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -27,91 +24,56 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarS�
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.RettOgOmsorg;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Rettighetstype;
 
 class RettOgOmsorgGrunnlagByggerTest {
 
     private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
 
     @Test
-    void skalLeggeTilHvemSomHarRett_SøkerMorHarRettAnnenForeldreHarIkkeRett() {
-        var behandling = morMedRett(true, false).lagre(repositoryProvider);
+    void skalLeggeTilHvemSomHarRett_SøkerMorAnnenForeldreHarIkkeRett() {
+        var behandling = morMedRett(false).lagre(repositoryProvider);
 
         var grunnlag = byggGrunnlag(behandling);
-        assertThat(grunnlag.getMorHarRett()).isTrue();
-        assertThat(grunnlag.getFarHarRett()).isFalse();
-        assertThat(grunnlag.getMorUføretrygd()).isFalse();
+        assertThat(grunnlag.rettighetsType()).isEqualTo(Rettighetstype.BARE_MOR_RETT);
         assertThat(grunnlag.getMorOppgittUføretrygd()).isFalse();
     }
 
     @Test
-    void skalLeggeTilHvemSomHarRett_SøkerMorHarRettAnnenForeldreHarRett() {
-        var behandling = morMedRett(true, true).lagre(repositoryProvider);
+    void skalLeggeTilHvemSomHarRett_SøkerMorAnnenForeldreHarRett() {
+        var behandling = morMedRett(true).lagre(repositoryProvider);
+
+        var grunnlag = byggGrunnlag(behandling);
+        assertThat(grunnlag.rettighetsType()).isEqualTo(Rettighetstype.BEGGE_RETT);
+    }
+
+    @Test
+    void skalLeggeTilHvemSomHarRett_SøkerFarAnnenForeldreHarRett() {
+        var behandling = farMedRett(true).lagre(repositoryProvider);
 
         var grunnlag = byggGrunnlag(behandling);
 
-        assertThat(grunnlag.getMorHarRett()).isTrue();
-        assertThat(grunnlag.getFarHarRett()).isTrue();
-        assertThat(grunnlag.getMorUføretrygd()).isFalse();
+        assertThat(grunnlag.rettighetsType()).isEqualTo(Rettighetstype.BEGGE_RETT);
         assertThat(grunnlag.getMorOppgittUføretrygd()).isFalse();
     }
 
     @Test
-    void skalLeggeTilHvemSomHarRett_SøkerFarHarRettAnnenForeldreHarRett() {
-        var behandling = farMedRett(true, true).lagre(repositoryProvider);
+    void skalLeggeTilHvemSomHarRett_SøkerFarAnnenForeldreHarIkkeRett() {
+        var behandling = farMedRett(false).lagre(repositoryProvider);
 
         var grunnlag = byggGrunnlag(behandling);
 
-        assertThat(grunnlag.getMorHarRett()).isTrue();
-        assertThat(grunnlag.getFarHarRett()).isTrue();
-        assertThat(grunnlag.getMorUføretrygd()).isFalse();
+        assertThat(grunnlag.rettighetsType()).isEqualTo(Rettighetstype.BARE_FAR_RETT);
         assertThat(grunnlag.getMorOppgittUføretrygd()).isFalse();
     }
 
     @Test
-    void skalLeggeTilHvemSomHarRett_SøkerFarHarRettAnnenForeldreHarIkkeRett() {
-        var behandling = farMedRett(true, false).lagre(repositoryProvider);
+    void skalLeggeTilHvemSomHarRett_SøkerFarHarAnnenForeldreHarRett() {
+        var behandling = farMedRett(true).lagre(repositoryProvider);
 
         var grunnlag = byggGrunnlag(behandling);
 
-        assertThat(grunnlag.getMorHarRett()).isFalse();
-        assertThat(grunnlag.getFarHarRett()).isTrue();
-        assertThat(grunnlag.getMorUføretrygd()).isFalse();
-        assertThat(grunnlag.getMorOppgittUføretrygd()).isFalse();
-    }
-
-    @Test
-    void skalLeggeTilHvemSomHarRett_SøkerFarHarIkkeRettAnnenForeldreHarIkkeRett() {
-        var behandling = farMedRett(false, false).lagre(repositoryProvider);
-
-        var grunnlag = byggGrunnlag(behandling);
-
-        assertThat(grunnlag.getMorHarRett()).isFalse();
-        assertThat(grunnlag.getFarHarRett()).isFalse();
-        assertThat(grunnlag.getMorUføretrygd()).isFalse();
-        assertThat(grunnlag.getMorOppgittUføretrygd()).isFalse();
-    }
-
-    @Test
-    void skalLeggeTilHvemSomHarRett_SøkerFarHarIkkeRettAnnenForeldreHarRett() {
-        var behandling = farMedRett(false, true).lagre(repositoryProvider);
-
-        var grunnlag = byggGrunnlag(behandling);
-
-        assertThat(grunnlag.getMorHarRett()).isTrue();
-        assertThat(grunnlag.getFarHarRett()).isFalse();
-        assertThat(grunnlag.getMorUføretrygd()).isFalse();
-        assertThat(grunnlag.getMorOppgittUføretrygd()).isFalse();
-    }
-
-    @Test
-    void skalLeggeTilHvemSomHarRett_SøkerMorHarIkkeRettAnnenForeldreHarRett() {
-        var behandling = morMedRett(false, true).lagre(repositoryProvider);
-
-        var grunnlag = byggGrunnlag(behandling);
-
-        assertThat(grunnlag.getMorHarRett()).isFalse();
-        assertThat(grunnlag.getFarHarRett()).isTrue();
-        assertThat(grunnlag.getMorUføretrygd()).isFalse();
+        assertThat(grunnlag.rettighetsType()).isEqualTo(Rettighetstype.BEGGE_RETT);
         assertThat(grunnlag.getMorOppgittUføretrygd()).isFalse();
     }
 
@@ -123,10 +85,7 @@ class RettOgOmsorgGrunnlagByggerTest {
 
         var grunnlag = byggGrunnlag(behandling);
 
-        assertThat(grunnlag.getAleneomsorg()).isTrue();
-        assertThat(grunnlag.getMorHarRett()).isTrue();
-        assertThat(grunnlag.getFarHarRett()).isFalse();
-        assertThat(grunnlag.getMorUføretrygd()).isFalse();
+        assertThat(grunnlag.rettighetsType()).isEqualTo(Rettighetstype.ALENEOMSORG);
         assertThat(grunnlag.getMorOppgittUføretrygd()).isFalse();
     }
 
@@ -138,66 +97,51 @@ class RettOgOmsorgGrunnlagByggerTest {
 
         var grunnlag = byggGrunnlag(behandling);
 
-        assertThat(grunnlag.getAleneomsorg()).isFalse();
-        assertThat(grunnlag.getMorHarRett()).isTrue();
-        assertThat(grunnlag.getFarHarRett()).isTrue();
-        assertThat(grunnlag.getMorUføretrygd()).isFalse();
+        assertThat(grunnlag.rettighetsType()).isEqualTo(Rettighetstype.BEGGE_RETT);
         assertThat(grunnlag.getMorOppgittUføretrygd()).isFalse();
     }
 
     @Test
     void skalLeggeTilOppgittOgRegisterUføre() {
-        var behandling = bareFarMedRett(true, false)
-            .medOverstyrtRettighet(new OppgittRettighetEntitet(false, false, null, null, null))
+        var behandling = bareFarMedRett(true, false).medOverstyrtRettighet(new OppgittRettighetEntitet(false, false, null, null, null))
             .lagre(repositoryProvider);
 
         var grunnlag = byggGrunnlagMedRegisterUføre(behandling, true);
 
-        assertThat(grunnlag.getMorHarRett()).isFalse();
-        assertThat(grunnlag.getFarHarRett()).isTrue();
-        assertThat(grunnlag.getMorUføretrygd()).isTrue();
+        assertThat(grunnlag.rettighetsType()).isEqualTo(Rettighetstype.BARE_FAR_RETT_MOR_UFØR);
         assertThat(grunnlag.getMorOppgittUføretrygd()).isTrue();
     }
 
     @Test
     void skalLeggeTilOppgittOgIkkeRegisterUføre() {
-        var behandling = bareFarMedRett(true, false)
-            .medOverstyrtRettighet(new OppgittRettighetEntitet(false, false, null, null, null))
+        var behandling = bareFarMedRett(true, false).medOverstyrtRettighet(new OppgittRettighetEntitet(false, false, null, null, null))
             .lagre(repositoryProvider);
 
         var grunnlag = byggGrunnlagMedRegisterUføre(behandling, false);
 
-        assertThat(grunnlag.getMorHarRett()).isFalse();
-        assertThat(grunnlag.getFarHarRett()).isTrue();
-        assertThat(grunnlag.getMorUføretrygd()).isFalse();
+        assertThat(grunnlag.rettighetsType()).isEqualTo(Rettighetstype.BARE_FAR_RETT);
         assertThat(grunnlag.getMorOppgittUføretrygd()).isTrue();
     }
 
     @Test
     void skalLeggeTilOppgittIkkeRegisterMenOverstyrtUføre() {
-        var behandling = bareFarMedRett(true, false)
-            .medOverstyrtRettighet(new OppgittRettighetEntitet(false, false, true, null, null))
+        var behandling = bareFarMedRett(true, false).medOverstyrtRettighet(new OppgittRettighetEntitet(false, false, true, null, null))
             .lagre(repositoryProvider);
 
         var grunnlag = byggGrunnlagMedRegisterUføre(behandling, false);
 
-        assertThat(grunnlag.getMorHarRett()).isFalse();
-        assertThat(grunnlag.getFarHarRett()).isTrue();
-        assertThat(grunnlag.getMorUføretrygd()).isTrue();
+        assertThat(grunnlag.rettighetsType()).isEqualTo(Rettighetstype.BARE_FAR_RETT_MOR_UFØR);
         assertThat(grunnlag.getMorOppgittUføretrygd()).isTrue();
     }
 
     @Test
     void skalLeggeTilOppgittIkkeRegisterMenOverstyrtIkkeUføre() {
-        var behandling = bareFarMedRett(true, false)
-            .medOverstyrtRettighet(new OppgittRettighetEntitet(false, false, false, null, null))
+        var behandling = bareFarMedRett(true, false).medOverstyrtRettighet(new OppgittRettighetEntitet(false, false, false, null, null))
             .lagre(repositoryProvider);
 
         var grunnlag = byggGrunnlagMedRegisterUføre(behandling, false);
 
-        assertThat(grunnlag.getMorHarRett()).isFalse();
-        assertThat(grunnlag.getFarHarRett()).isTrue();
-        assertThat(grunnlag.getMorUføretrygd()).isFalse();
+        assertThat(grunnlag.rettighetsType()).isEqualTo(Rettighetstype.BARE_FAR_RETT);
         assertThat(grunnlag.getMorOppgittUføretrygd()).isTrue();
     }
 
@@ -209,8 +153,7 @@ class RettOgOmsorgGrunnlagByggerTest {
         var behandling = scenario.lagre(repositoryProvider);
         var grunnlag = byggGrunnlag(behandling);
 
-        assertThat(grunnlag.getMorHarRett()).isTrue();
-        assertThat(grunnlag.getFarHarRett()).isTrue();
+        assertThat(grunnlag.rettighetsType()).isEqualTo(Rettighetstype.BEGGE_RETT);
     }
 
     @Test
@@ -221,8 +164,22 @@ class RettOgOmsorgGrunnlagByggerTest {
 
         var grunnlag = byggGrunnlag(behandling);
 
-        assertThat(grunnlag.getMorHarRett()).isFalse();
-        assertThat(grunnlag.getFarHarRett()).isTrue();
+        assertThat(grunnlag.rettighetsType()).isEqualTo(Rettighetstype.BARE_FAR_RETT);
+    }
+
+    @Test
+    void skal_bruke_overstyrt_rettighetstype() {
+        var scenario = bareFarMedRett(false, true);
+        var behandling = scenario.lagre(repositoryProvider);
+        var yfa = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
+        var overstyrtYfa = YtelseFordelingAggregat.oppdatere(yfa)
+            .medOverstyrtRettighetstype(no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Rettighetstype.ALENEOMSORG)
+            .build();
+        repositoryProvider.getYtelsesFordelingRepository().lagre(behandling.getId(), overstyrtYfa);
+
+        var grunnlag = byggGrunnlag(behandling);
+
+        assertThat(grunnlag.rettighetsType()).isEqualTo(Rettighetstype.ALENEOMSORG);
     }
 
     private AbstractTestScenario<?> medAleneomsorg() {
@@ -235,48 +192,32 @@ class RettOgOmsorgGrunnlagByggerTest {
 
     private RettOgOmsorgGrunnlagBygger grunnlagBygger() {
         var repositoryProvider = this.repositoryProvider;
-        return new RettOgOmsorgGrunnlagBygger(repositoryProvider,
-            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
+        return new RettOgOmsorgGrunnlagBygger(repositoryProvider, new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
     }
 
-    private AbstractTestScenario<?> morMedRett(boolean søkerHarRett, boolean annenForelderHarRett) {
-        return scenarioMedRett(ScenarioMorSøkerForeldrepenger.forFødsel(), søkerHarRett, annenForelderHarRett);
+    private AbstractTestScenario<?> morMedRett(boolean annenForelderHarRett) {
+        return scenarioMedRett(ScenarioMorSøkerForeldrepenger.forFødsel(), annenForelderHarRett);
     }
 
-    private AbstractTestScenario<?> farMedRett(boolean søkerHarRett, boolean annenForelderHarRett) {
-        return scenarioMedRett(ScenarioFarSøkerForeldrepenger.forFødsel(), søkerHarRett, annenForelderHarRett);
+    private AbstractTestScenario<?> farMedRett(boolean annenForelderHarRett) {
+        return scenarioMedRett(ScenarioFarSøkerForeldrepenger.forFødsel(), annenForelderHarRett);
     }
 
     private AbstractTestScenario<?> bareFarMedRett(boolean morOppgittUføre, boolean morOppgittEØS) {
-        return scenarioMedRett(ScenarioFarSøkerForeldrepenger.forFødsel(), true, false, morOppgittUføre, morOppgittEØS);
+        return scenarioMedRett(ScenarioFarSøkerForeldrepenger.forFødsel(), false, morOppgittUføre, morOppgittEØS);
+    }
+
+    private AbstractTestScenario<?> scenarioMedRett(AbstractTestScenario<?> scenario, boolean annenForelderHarRett) {
+        return scenarioMedRett(scenario, annenForelderHarRett, false, false);
     }
 
     private AbstractTestScenario<?> scenarioMedRett(AbstractTestScenario<?> scenario,
-                                       boolean søkerRett,
-                                       boolean annenForelderHarRett) {
-        return scenarioMedRett(scenario, søkerRett, annenForelderHarRett, false, false);
-    }
-
-    private AbstractTestScenario<?> scenarioMedRett(AbstractTestScenario<?> scenario,
-                                       boolean søkerRett,
-                                       boolean annenForelderHarRett,
-                                       boolean morOppgittUføre,
-                                       boolean morOppgittEØS) {
+                                                    boolean annenForelderHarRett,
+                                                    boolean morOppgittUføre,
+                                                    boolean morOppgittEØS) {
         scenario.medFordeling(new OppgittFordelingEntitet(Collections.emptyList(), true));
         scenario.medOppgittRettighet(new OppgittRettighetEntitet(annenForelderHarRett, false, morOppgittUføre, morOppgittEØS, morOppgittEØS));
-
-        if (!søkerRett) {
-            var behandlingsresultat = behandlingsresultatMedAvslåttVilkår();
-            scenario.medBehandlingsresultat(behandlingsresultat);
-        } return scenario;
-    }
-
-    private Behandlingsresultat behandlingsresultatMedAvslåttVilkår() {
-        var vilkårBuilder = VilkårResultat.builder();
-        vilkårBuilder.leggTilVilkårAvslått(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER, VilkårUtfallMerknad.VM_1004);
-        var behandlingsresultat = Behandlingsresultat.builderForInngangsvilkår().build();
-        behandlingsresultat.medOppdatertVilkårResultat(vilkårBuilder.build());
-        return behandlingsresultat;
+        return scenario;
     }
 
     private RettOgOmsorg byggGrunnlag(Behandling behandling) {
@@ -287,12 +228,11 @@ class RettOgOmsorgGrunnlagByggerTest {
 
     private RettOgOmsorg byggGrunnlagMedRegisterUføre(Behandling behandling, boolean uføreVerdi) {
         var bygger = grunnlagBygger();
-        var fpGrunnlag = new ForeldrepengerGrunnlag()
-            .medUføretrygdGrunnlag(UføretrygdGrunnlagEntitet.Builder.oppdatere(Optional.empty())
-                .medRegisterUføretrygd(uføreVerdi, LocalDate.now(), LocalDate.now())
-                .medBehandlingId(behandling.getId())
-                .medAktørIdUføretrygdet(uføreVerdi ? AktørId.dummy() : null)
-                .build());
+        var fpGrunnlag = new ForeldrepengerGrunnlag().medUføretrygdGrunnlag(UføretrygdGrunnlagEntitet.Builder.oppdatere(Optional.empty())
+            .medRegisterUføretrygd(uføreVerdi, LocalDate.now(), LocalDate.now())
+            .medBehandlingId(behandling.getId())
+            .medAktørIdUføretrygdet(uføreVerdi ? AktørId.dummy() : null)
+            .build());
         return bygger.byggGrunnlag(new UttakInput(BehandlingReferanse.fra(behandling), null, null, fpGrunnlag)).build();
     }
 

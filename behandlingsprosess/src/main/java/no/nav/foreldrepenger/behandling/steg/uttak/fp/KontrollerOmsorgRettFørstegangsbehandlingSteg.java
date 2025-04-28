@@ -21,22 +21,22 @@ import no.nav.foreldrepenger.domene.uttak.fakta.OmsorgRettUttakTjeneste;
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @BehandlingTypeRef(BehandlingType.FØRSTEGANGSSØKNAD)
 @ApplicationScoped
-public class KontrollerOmsorgRettSteg implements BehandlingSteg {
+public class KontrollerOmsorgRettFørstegangsbehandlingSteg implements BehandlingSteg {
 
     private OmsorgRettUttakTjeneste omsorgRettUttakTjeneste;
     private UttakInputTjeneste uttakInputTjeneste;
     private RyddOmsorgRettTjeneste ryddOmsorgRettTjeneste;
 
     @Inject
-    public KontrollerOmsorgRettSteg(UttakInputTjeneste uttakInputTjeneste,
-                                    OmsorgRettUttakTjeneste omsorgRettUttakTjeneste,
-                                    RyddOmsorgRettTjeneste ryddOmsorgRettTjeneste) {
+    public KontrollerOmsorgRettFørstegangsbehandlingSteg(UttakInputTjeneste uttakInputTjeneste,
+                                                         OmsorgRettUttakTjeneste omsorgRettUttakTjeneste,
+                                                         RyddOmsorgRettTjeneste ryddOmsorgRettTjeneste) {
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.omsorgRettUttakTjeneste = omsorgRettUttakTjeneste;
         this.ryddOmsorgRettTjeneste = ryddOmsorgRettTjeneste;
     }
 
-    KontrollerOmsorgRettSteg() {
+    KontrollerOmsorgRettFørstegangsbehandlingSteg() {
         // CDI
     }
 

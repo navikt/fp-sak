@@ -14,7 +14,6 @@ import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -50,58 +49,6 @@ public class ForvaltningUttakRestTjeneste {
     public Response beregnKontoer(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
         forvaltningUttakTjeneste.beregnKontoer(dto.getBehandlingUuid());
-        return Response.noContent().build();
-    }
-
-    @POST
-    @Path("/endre-annen-forelder-rett")
-    @Produces(MediaType.TEXT_PLAIN)
-    @Operation(description = "Endrer resultat av AP om annen forelder har rett", tags = "FORVALTNING-uttak")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
-    public Response endreAnnenForelderRett(@BeanParam @Valid ForvaltningBehandlingIdDto dto,
-            @QueryParam(value = "harRett") @Valid Boolean harRett) {
-        Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
-
-        forvaltningUttakTjeneste.endreAnnenForelderHarRett(dto.getBehandlingUuid(), harRett);
-        return Response.noContent().build();
-    }
-
-    @POST
-    @Path("/endre-annen-forelder-rett-eøs")
-    @Produces(MediaType.TEXT_PLAIN)
-    @Operation(description = "Endrer om annen forelder har rett i eøs i oppgitte rettighet", tags = "FORVALTNING-uttak")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
-    public Response endreAnnenForelderRettEØS(@BeanParam @Valid ForvaltningBehandlingIdDto dto,
-                                           @QueryParam(value = "harRettEØS") @Valid Boolean harRettEØS, @QueryParam(value = "harOppholdEØS") @Valid Boolean annenForelderHarOppholdEØS) {
-        Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
-
-        forvaltningUttakTjeneste.endreAnnenForelderHarRettEØS(dto.getBehandlingUuid(), harRettEØS, annenForelderHarOppholdEØS);
-        return Response.noContent().build();
-    }
-
-    @POST
-    @Path("/endre-aleneomsorg")
-    @Produces(MediaType.TEXT_PLAIN)
-    @Operation(description = "Endrer om bruker har aleneomsorg", tags = "FORVALTNING-uttak")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
-    public Response endreAleneomsorg(@BeanParam @Valid ForvaltningBehandlingIdDto dto,
-                                           @NotNull @QueryParam(value = "aleneomsorg") @Valid Boolean aleneomsorg) {
-        Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
-
-        forvaltningUttakTjeneste.endreAleneomsorg(dto.getBehandlingUuid(), aleneomsorg);
-        return Response.noContent().build();
-    }
-
-    @POST
-    @Path("/endre-uforetrygd")
-    @Produces(MediaType.TEXT_PLAIN)
-    @Operation(description = "Endrer om mor har uføretrygd (bare far rett)", tags = "FORVALTNING-uttak")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
-    public Response endreUføreTrygd(@BeanParam @Valid ForvaltningBehandlingIdDto dto,
-                                    @QueryParam(value = "morUforetrygd") @Valid Boolean morUforetrygd) {
-        Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
-
-        forvaltningUttakTjeneste.endreMorUføretrygd(dto.getBehandlingUuid(), morUforetrygd);
         return Response.noContent().build();
     }
 

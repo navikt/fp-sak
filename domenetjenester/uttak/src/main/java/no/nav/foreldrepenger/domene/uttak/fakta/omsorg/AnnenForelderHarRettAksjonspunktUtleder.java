@@ -52,6 +52,9 @@ public class AnnenForelderHarRettAksjonspunktUtleder implements OmsorgRettAksjon
     public List<AksjonspunktDefinisjon> utledAksjonspunkterFor(UttakInput input) {
         var ref = input.getBehandlingReferanse();
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
+        if (ytelseFordelingAggregat.getOverstyrtRettighetstype().isPresent()) {
+            return List.of();
+        }
 
         if (!personopplysninger.harOppgittAnnenpartMedNorskID(ref)) {
             return ytelseFordelingAggregat.oppgittAnnenForelderTilknytningEØS() ? aksjonspunkt() : List.of();
