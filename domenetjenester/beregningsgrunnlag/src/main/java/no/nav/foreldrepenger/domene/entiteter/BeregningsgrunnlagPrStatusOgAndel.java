@@ -329,7 +329,7 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
     }
 
     public Boolean getFastsattAvSaksbehandler() {
-        return fastsattAvSaksbehandler;
+        return fastsattAvSaksbehandler == null ? Boolean.FALSE : fastsattAvSaksbehandler;
     }
 
     public Inntektskategori getInntektskategori() {
