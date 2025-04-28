@@ -27,7 +27,7 @@ class RyddOmsorgRettTjeneste {
         ytelsesFordelingRepository.hentAggregatHvisEksisterer(kontekst.getBehandlingId())
             .map(a -> YtelseFordelingAggregat.Builder.oppdatere(Optional.of(a)))
             .ifPresent(builder -> {
-                builder.medOverstyrtRettighet(null);
+                builder.medAvklartRettighet(null);
                 ytelsesFordelingRepository.lagre(kontekst.getBehandlingId(), builder.build());
             });
     }

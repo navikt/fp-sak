@@ -103,6 +103,7 @@ public class ForeldrepengerModellProducer {
             BehandlingStegType.VURDER_REF_BERGRUNN,
             BehandlingStegType.FORDEL_BEREGNINGSGRUNNLAG,
             BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG,
+            BehandlingStegType.KONTROLLER_OMSORG_RETT,
             BehandlingStegType.INNGANG_UTTAK,
             BehandlingStegType.SØKNADSFRIST_FORELDREPENGER,
             BehandlingStegType.GRUNNLAG_UTTAK,

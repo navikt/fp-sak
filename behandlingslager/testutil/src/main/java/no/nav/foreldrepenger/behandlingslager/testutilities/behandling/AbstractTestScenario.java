@@ -910,7 +910,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         var yf = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
             .medOppgittRettighet(oppgittRettighet)
-            .medOverstyrtRettighet(overstyrtRettighet)
+            .medAvklartRettighet(overstyrtRettighet)
             .medOppgittDekningsgrad(oppgittDekningsgrad)
             .medOppgittFordeling(oppgittFordeling)
             .medJustertFordeling(justertFordeling)
