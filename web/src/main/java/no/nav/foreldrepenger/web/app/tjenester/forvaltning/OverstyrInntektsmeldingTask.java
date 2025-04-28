@@ -61,7 +61,7 @@ class OverstyrInntektsmeldingTask implements ProsessTaskHandler {
             .findFirst()
             .orElseThrow();
 
-        Map<LocalDate, Beløp> refusjonsendringMap = endringIInntektsmelding.getRefusjonendringer()
+        Map<LocalDate, Beløp> refusjonsendringMap = endringIInntektsmelding.getRefusjonsendringer()
             .stream()
             .collect(Collectors.toMap(InntektsmeldingEndring.Refusjonsendring::fom, e -> Beløp.fra(BigDecimal.valueOf(e.beløp()))));
 
@@ -69,7 +69,7 @@ class OverstyrInntektsmeldingTask implements ProsessTaskHandler {
     }
 
     public record InntektsmeldingEndring(String journalpostId, Long behandlingId, LocalDate opphørdato, String saksbehandlerIdent, List<Refusjonsendring> refusjonsendringer) {
-        public List<Refusjonsendring> getRefusjonendringer(){
+        public List<Refusjonsendring> getRefusjonsendringer(){
             return refusjonsendringer == null ? List.of() : refusjonsendringer;
         }
         public record Refusjonsendring(LocalDate fom, Long beløp){}
