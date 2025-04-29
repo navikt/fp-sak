@@ -257,7 +257,7 @@ class DokumentArkivTjenesteTest {
         dokumentinfo.setTittel(tittel);
         dokumentinfo.setLogiskeVedlegg(List.of());
         dokumentinfo.setDokumentvarianter(new ArrayList<>());
-        dokumentinfo.getDokumentvarianter().add(new Dokumentvariant(variantformat, null, null, null, null, true, null));
+        dokumentinfo.getDokumentvarianter().add(new Dokumentvariant(variantformat, null, null, null, null, true, null, true, List.of()));
         return dokumentinfo;
     }
 }

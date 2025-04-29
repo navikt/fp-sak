@@ -89,7 +89,7 @@ class PdpRequestBuilderTest {
         var attributter = AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FNR, PERSON_0);
 
         var request = requestBuilder.lagAppRessursData(attributter);
-        assertThat(request.getFødselsnumre()).containsOnly(PERSON_0);
+        assertThat(request.getIdenter()).containsOnly(PERSON_0);
     }
 
     @Test
@@ -107,7 +107,7 @@ class PdpRequestBuilderTest {
         var attributter = AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, AKTØR_1.getId());
 
         var request = requestBuilder.lagAppRessursData(attributter);
-        assertThat(request.getAktørIdSet()).containsOnly(AKTØR_1.getId());
+        assertThat(request.getIdenter()).containsOnly(AKTØR_1.getId());
     }
 
     @Test

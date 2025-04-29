@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
@@ -187,11 +187,11 @@ class EnhetsTjenesteTest {
 
     private void settOppPDLStrukturer(boolean morKode6, boolean barnKode6, boolean annenPartKode6) {
 
-        lenient().when(rutingKlient.finnRutingEgenskaper(any())).thenReturn(morKode6 || annenPartKode6 || barnKode6? Set.of(RutingResultat.STRENGTFORTROLIG) : Set.of());
+        lenient().when(rutingKlient.finnRutingEgenskaper(anySet())).thenReturn(morKode6 || annenPartKode6 || barnKode6? Set.of(RutingResultat.STRENGTFORTROLIG) : Set.of());
     }
 
     private void settOppSkjermetStrukturer(boolean morSkjermet, boolean annenPartSkjermet) {
 
-        lenient().when(rutingKlient.finnRutingEgenskaper(any())).thenReturn(morSkjermet || annenPartSkjermet ? Set.of(RutingResultat.SKJERMING) : Set.of());
+        lenient().when(rutingKlient.finnRutingEgenskaper(anySet())).thenReturn(morSkjermet || annenPartSkjermet ? Set.of(RutingResultat.SKJERMING) : Set.of());
     }
 }
