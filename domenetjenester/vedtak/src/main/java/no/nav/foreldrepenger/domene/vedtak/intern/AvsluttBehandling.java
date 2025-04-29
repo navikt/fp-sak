@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.vedtak.intern;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.konfig.Environment;
 
 import org.slf4j.Logger;
@@ -24,8 +25,6 @@ import no.nav.foreldrepenger.domene.vedtak.impl.VurderBehandlingerUnderIverksett
 
 @ApplicationScoped
 public class AvsluttBehandling {
-
-    private static final Environment ENV = Environment.current();
 
     private static final Logger LOG = LoggerFactory.getLogger(AvsluttBehandling.class);
 
@@ -91,7 +90,7 @@ public class AvsluttBehandling {
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(ventendeBehandling);
         });
 
-        if (behandling.erYtelseBehandling()) {
+        if (behandling.erYtelseBehandling() && !FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
             iayTjeneste.avslutt(behandlingId);
             beregningTjeneste.avslutt(BehandlingReferanse.fra(behandling));
         }

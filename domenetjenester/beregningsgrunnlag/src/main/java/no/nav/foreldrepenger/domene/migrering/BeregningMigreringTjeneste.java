@@ -97,7 +97,7 @@ public class BeregningMigreringTjeneste {
         sorterteBehandlinger.forEach(this::migrerBehandling);
     }
 
-    public LinkedHashSet<Behandling> sorterBehandlinger(List<Behandling> behandlinger) {
+    public Set<Behandling> sorterBehandlinger(List<Behandling> behandlinger) {
         LinkedHashSet<Behandling> sortertListe = new LinkedHashSet<>();
 
         // Legger til behandlinger uten avhengigheter
