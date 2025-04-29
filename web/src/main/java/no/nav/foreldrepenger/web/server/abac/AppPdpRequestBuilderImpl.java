@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.pip.PipBehandlingsData;
 import no.nav.foreldrepenger.behandlingslager.pip.PipRepository;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.exception.TekniskException;
@@ -74,13 +73,9 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
 
         setLogContext(saksnummer, behandlingData);
 
-        var builder = AppRessursData.builder();
-
-        Set<String> aktører = dataAttributter.getVerdier(AppAbacAttributtType.AKTØR_ID);
-        Set<String> fnrs = dataAttributter.getVerdier(AppAbacAttributtType.FNR);
-
-        builder.leggTilAktørIdSet(aktører)
-            .leggTilFødselsnumre(fnrs);
+        var builder = AppRessursData.builder()
+            .leggTilIdenter(dataAttributter.getVerdier(AppAbacAttributtType.AKTØR_ID))
+            .leggTilIdenter(dataAttributter.getVerdier(AppAbacAttributtType.FNR));
         saksnummer.map(Saksnummer::getVerdi).ifPresent(builder::medSaksnummer);
         behandlingData.map(PipBehandlingsData::behandlingStatus).flatMap(AppPdpRequestBuilderImpl::oversettBehandlingStatus)
             .ifPresent(builder::medBehandlingStatus);
@@ -93,8 +88,6 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
             builder.medOverstyring(PipOverstyring.OVERSTYRING);
         }
 
-        var auditAktørId = utledAuditAktørId(dataAttributter, saksnummer);
-        builder.medAuditIdent(auditAktørId);
         return builder.build();
 
     }
@@ -141,16 +134,6 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
             return saksnummer.stream().findFirst();
         }
         throw new TekniskException("FP-621834", String.format("Ugyldig input. Støtter bare 0 eller 1 sak, men har %s", saksnummer));
-    }
-
-    private String utledAuditAktørId(AbacDataAttributter attributter, Optional<Saksnummer> saksnummer) {
-        Set<String> aktørIdVerdier = attributter.getVerdier(AppAbacAttributtType.AKTØR_ID);
-        Set<String> personIdentVerdier = attributter.getVerdier(AppAbacAttributtType.FNR);
-
-        return saksnummer.flatMap(pipRepository::hentAktørIdSomEierFagsak).map(AktørId::getId)
-            .or(() -> aktørIdVerdier.stream().findFirst())
-            .or(() -> personIdentVerdier.stream().findFirst())
-            .orElse(null);
     }
 
     public static Optional<PipFagsakStatus> oversettFagstatus(FagsakStatus fagsakStatus) {
