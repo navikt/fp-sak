@@ -104,7 +104,8 @@ public class FordelRestTjeneste {
                               OpprettSakTjeneste opprettSakTjeneste,
                               BehandlingRepositoryProvider repositoryProvider,
                               VurderFagsystemFellesTjeneste vurderFagsystemFellesTjeneste,
-                              SakInfoDtoTjeneste sakInfoDtoTjeneste, SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                              SakInfoDtoTjeneste sakInfoDtoTjeneste,
+                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.dokumentmottakTjeneste = dokumentmottakTjeneste;
         this.fagsakTjeneste = fagsakTjeneste;
         this.opprettSakTjeneste = opprettSakTjeneste;
@@ -308,11 +309,11 @@ public class FordelRestTjeneste {
         var søkersFagsaker = fagsakTjeneste.finnFagsakerForAktør(new AktørId(sakInntektsmeldingDto.bruker().aktørId()));
         var ytelseDetSjekkesMot = sakInntektsmeldingDto.ytelse().equals(SakInntektsmeldingDto.YtelseType.FORELDREPENGER) ? FagsakYtelseType.FORELDREPENGER : FagsakYtelseType.SVANGERSKAPSPENGER;
         var infoOmSakIMResponse = søkersFagsaker.stream()
-            .filter(fag -> !fag.getStatus().equals(FagsakStatus.AVSLUTTET))
-            .filter(sak -> ytelseDetSjekkesMot.equals(sak.getYtelseType()))
+            .filter(sak -> !sak.getStatus().equals(FagsakStatus.AVSLUTTET) && ytelseDetSjekkesMot.equals(sak.getYtelseType()))
             .map(sak -> hentInfoOmSakIntektsmelding(sak.getId()))
             .findFirst()
             .orElse(new InfoOmSakInntektsmeldingResponse(StatusSakInntektsmelding.INGEN_BEHANDLING, Tid.TIDENES_ENDE));
+
         return Response.ok(infoOmSakIMResponse).build();
     }
 
