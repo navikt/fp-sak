@@ -4,13 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Rettighetstype;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
@@ -135,6 +138,14 @@ public class FaktaOmsorgRettTjeneste {
         }
     }
 
+    public void overstyrRettighet(BehandlingReferanse ref, Rettighetstype nyOverstyrtRettighet) {
+        ytelseFordelingTjeneste.overstyrRettighet(ref.behandlingId(), nyOverstyrtRettighet);
+        if (Set.of(Rettighetstype.BARE_FAR_RETT, Rettighetstype.BARE_FAR_RETT_MOR_UFØR).contains(nyOverstyrtRettighet)) {
+            fagsakEgenskapRepository.leggTilFagsakMarkering(ref.fagsakId(), FagsakMarkering.BARE_FAR_RETT);
+        } else {
+            fagsakEgenskapRepository.fjernFagsakMarkering(ref.fagsakId(), FagsakMarkering.BARE_FAR_RETT);
+        }
+    }
 
     private String konvertBooleanTilVerdiForAleneomsorgForBarnet(Boolean aleneomsorgForBarnet) {
         if (aleneomsorgForBarnet == null) {

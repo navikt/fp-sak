@@ -35,7 +35,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.fakta.OmsorgRettUttakTjeneste;
 
 @CdiDbAwareTest
-class KontrollerOmsorgRettStegTest {
+class KontrollerOmsorgRettFørstegangsbehandlingStegTest {
 
     private static final AktørId FAR_AKTØR_ID = AktørId.dummy();
 
@@ -49,7 +49,7 @@ class KontrollerOmsorgRettStegTest {
     @Inject
     @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
     @BehandlingTypeRef(BehandlingType.FØRSTEGANGSSØKNAD)
-    private KontrollerOmsorgRettSteg steg;
+    private KontrollerOmsorgRettFørstegangsbehandlingSteg steg;
 
     @Inject
     private UttakInputTjeneste uttakInputTjeneste;
@@ -83,7 +83,7 @@ class KontrollerOmsorgRettStegTest {
     public void oppsett() {
         var scenario = opprettBehandlingForFarSomSøker();
         behandling = scenario.lagre(repositoryProvider);
-        steg = new KontrollerOmsorgRettSteg(uttakInputTjeneste, tjeneste, ryddOmsorgRettTjeneste);
+        steg = new KontrollerOmsorgRettFørstegangsbehandlingSteg(uttakInputTjeneste, tjeneste, ryddOmsorgRettTjeneste);
     }
 
     @Test
