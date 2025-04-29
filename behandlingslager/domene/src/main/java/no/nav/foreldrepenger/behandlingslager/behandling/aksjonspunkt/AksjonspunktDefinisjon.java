@@ -506,6 +506,9 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_FOR_SN_NY_I_ARBEIDSLIVET, FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD,
         AksjonspunktDefinisjon.VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE);
 
+    private static final Set<AksjonspunktDefinisjon> IKKE_KLAR_FOR_INNTEKTSMELDING = Set.of(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD,
+        AksjonspunktDefinisjon.VENT_PÅ_SØKNAD, AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_FORELDREPENGER);
+
 
     private static final Map<AksjonspunktDefinisjon, Set<AksjonspunktDefinisjon>> UTELUKKENDE_AP_MAP = Map.ofEntries(
         Map.entry(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, Set.of(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE)),
@@ -670,6 +673,10 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
 
     public static Set<AksjonspunktDefinisjon> getAvvikIBeregning() {
         return AVVIK_I_BEREGNING;
+    }
+
+    public static Set<AksjonspunktDefinisjon> getIkkeKlarForInntektsmelding() {
+        return IKKE_KLAR_FOR_INNTEKTSMELDING;
     }
 
     @Override
