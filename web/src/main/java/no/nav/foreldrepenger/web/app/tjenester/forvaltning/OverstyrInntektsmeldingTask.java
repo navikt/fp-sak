@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.Dependent;
@@ -65,10 +66,14 @@ class OverstyrInntektsmeldingTask implements ProsessTaskHandler {
             .stream()
             .collect(Collectors.toMap(InntektsmeldingEndring.Refusjonsendring::fom, e -> Beløp.fra(BigDecimal.valueOf(e.beløp()))));
 
-        fpInntektsmeldingTjeneste.overstyrInntektsmelding(inntektsmeldingSomSkalOverstyres, endringIInntektsmelding.opphørdato(), refusjonsendringMap, endringIInntektsmelding.saksbehandlerIdent(), ref);
+        fpInntektsmeldingTjeneste.overstyrInntektsmelding(inntektsmeldingSomSkalOverstyres, Optional.ofNullable(endringIInntektsmelding.refusjonPrMndFraStart()),
+            Optional.ofNullable(endringIInntektsmelding.opphørdato()),
+            refusjonsendringMap,
+            endringIInntektsmelding.saksbehandlerIdent(),
+            ref);
     }
 
-    public record InntektsmeldingEndring(String journalpostId, Long behandlingId, LocalDate opphørdato, String saksbehandlerIdent, List<Refusjonsendring> refusjonsendringer) {
+    public record InntektsmeldingEndring(String journalpostId, Long behandlingId, LocalDate opphørdato, Long refusjonPrMndFraStart, String saksbehandlerIdent, List<Refusjonsendring> refusjonsendringer) {
         public List<Refusjonsendring> getRefusjonsendringer(){
             return refusjonsendringer == null ? List.of() : refusjonsendringer;
         }

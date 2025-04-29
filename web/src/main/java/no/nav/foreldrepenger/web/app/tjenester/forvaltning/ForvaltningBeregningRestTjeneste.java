@@ -73,7 +73,7 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.BeregningSatsDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.StoppRefusjonDto;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.EndreInntektsmeldingDto;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -212,7 +212,7 @@ public class ForvaltningBeregningRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Endrer refusjon på inntektsmelding for en gitt journalpost", tags = "FORVALTNING-beregning")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
-    public Response opphørRefusjonInntektsmelding(@NotNull @Valid StoppRefusjonDto dto) {
+    public Response opphørRefusjonInntektsmelding(@NotNull @Valid EndreInntektsmeldingDto dto) {
         var behandling = behandlingRepository.hentBehandling(dto.getBehandlingUuid());
         var inntektsmeldinger = iayTjeneste.finnGrunnlag(behandling.getId())
             .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger)
@@ -231,7 +231,7 @@ public class ForvaltningBeregningRestTjeneste {
             .stream()
             .map(r -> new OverstyrInntektsmeldingTask.InntektsmeldingEndring.Refusjonsendring(r.getFom(), r.getBeløp()))
             .toList();
-        var taskParam = new OverstyrInntektsmeldingTask.InntektsmeldingEndring(dto.getJournalpostId(), behandling.getId(), dto.getRefusjonOpphørFom(),
+        var taskParam = new OverstyrInntektsmeldingTask.InntektsmeldingEndring(dto.getJournalpostId(), behandling.getId(), dto.getRefusjonOpphørFom(), dto.getRefusjonPrMndFraStart(),
             KontekstHolder.getKontekst().getUid(), refusjonsendringer);
         var task = ProsessTaskData.forProsessTask(OverstyrInntektsmeldingTask.class);
         task.setPayload(DefaultJsonMapper.toJson(taskParam));

@@ -80,13 +80,19 @@ public class FpInntektsmeldingTjeneste {
     }
 
     public void overstyrInntektsmelding(Inntektsmelding inntektsmeldingSomSkalOverstyres,
-                                        LocalDate overstyrtOpphørFom, Map<LocalDate, Beløp> overstyrteRefusjonsendringer, String saksbehandlerIdent,
+                                        Optional<Long> refusjonPrMndFraStart,
+                                        Optional<LocalDate> overstyrtOpphørFom,
+                                        Map<LocalDate, Beløp> overstyrteRefusjonsendringer,
+                                        String saksbehandlerIdent,
                                         BehandlingReferanse ref) {
-        var refusjonOpphørsdato = overstyrtOpphørFom == null ? Objects.requireNonNull(inntektsmeldingSomSkalOverstyres.getRefusjonOpphører()) : overstyrtOpphørFom;
+        var refusjonOpphørsdato = overstyrtOpphørFom.orElseGet(() -> Objects.requireNonNull(inntektsmeldingSomSkalOverstyres.getRefusjonOpphører()));
         var ytelse = ref.fagsakYtelseType().equals(FagsakYtelseType.FORELDREPENGER) ? OverstyrInntektsmeldingRequest.YtelseType.FORELDREPENGER : OverstyrInntektsmeldingRequest.YtelseType.SVANGERSKAPSPENGER;
         var startdato = inntektsmeldingSomSkalOverstyres.getStartDatoPermisjon()
             .orElseGet(() -> skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId()).getUtledetSkjæringstidspunkt());
-        var refusjon = Optional.ofNullable(inntektsmeldingSomSkalOverstyres.getRefusjonBeløpPerMnd()).map(Beløp::getVerdi).orElse(null);
+        // Hvis refusjon er endret fra start brukes denne, ellers brukes gammelt refusjonsbeløp
+        var refusjon = refusjonPrMndFraStart.map(BigDecimal::valueOf)
+            .orElseGet(() -> Optional.ofNullable(inntektsmeldingSomSkalOverstyres.getRefusjonBeløpPerMnd())
+                .map(Beløp::getVerdi).orElse(null));
         var arbeidsgiver = new OverstyrInntektsmeldingRequest.ArbeidsgiverDto(
             inntektsmeldingSomSkalOverstyres.getArbeidsgiver().getIdentifikator());
         var aktørId = new OverstyrInntektsmeldingRequest.AktørIdDto(ref.aktørId().getId());
