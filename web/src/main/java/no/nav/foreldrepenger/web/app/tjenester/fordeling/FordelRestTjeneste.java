@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -33,6 +34,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
@@ -64,8 +66,10 @@ import no.nav.foreldrepenger.kontrakter.fordel.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.dokumentmottak.SaksbehandlingDokumentmottakTjeneste;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
@@ -89,6 +93,7 @@ public class FordelRestTjeneste {
     private FamilieHendelseRepository familieGrunnlagRepository;
     private BehandlingRepository behandlingRepository;
     private SakInfoDtoTjeneste sakInfoDtoTjeneste;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     public FordelRestTjeneste() {// For Rest-CDI
     }
@@ -99,7 +104,8 @@ public class FordelRestTjeneste {
                               OpprettSakTjeneste opprettSakTjeneste,
                               BehandlingRepositoryProvider repositoryProvider,
                               VurderFagsystemFellesTjeneste vurderFagsystemFellesTjeneste,
-                              SakInfoDtoTjeneste sakInfoDtoTjeneste) {
+                              SakInfoDtoTjeneste sakInfoDtoTjeneste,
+                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.dokumentmottakTjeneste = dokumentmottakTjeneste;
         this.fagsakTjeneste = fagsakTjeneste;
         this.opprettSakTjeneste = opprettSakTjeneste;
@@ -107,6 +113,7 @@ public class FordelRestTjeneste {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.vurderFagsystemTjeneste = vurderFagsystemFellesTjeneste;
         this.sakInfoDtoTjeneste = sakInfoDtoTjeneste;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
     @POST
@@ -288,6 +295,69 @@ public class FordelRestTjeneste {
         return Response.ok(new SakInntektsmeldingResponse(finnesSakPåSøkerForYtelse)).build();
     }
 
+    @POST
+    @Path("/infoOmSakInntektsmelding")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Returnerer informasjon om sak til fpinntektsmelding for å avgjøre om innsending av inntektsmelding er tillatt", tags = "fordel")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
+    public Response  infoOmSakForInntektsmelding(@TilpassetAbacAttributt(supplierClass = SakInntektsmeldingDtoAbacDataSupplier.class) @Parameter(description = "AktørId") @Valid SakInntektsmeldingDto sakInntektsmeldingDto) {
+        ensureCallId();
+        if (!AktørId.erGyldigAktørId(sakInntektsmeldingDto.bruker().aktørId())) {
+            throw new IllegalArgumentException("Oppgitt aktørId er ikke en gyldig ident.");
+        }
+        var søkersFagsaker = fagsakTjeneste.finnFagsakerForAktør(new AktørId(sakInntektsmeldingDto.bruker().aktørId()));
+        var ytelseDetSjekkesMot = sakInntektsmeldingDto.ytelse().equals(SakInntektsmeldingDto.YtelseType.FORELDREPENGER) ? FagsakYtelseType.FORELDREPENGER : FagsakYtelseType.SVANGERSKAPSPENGER;
+        var infoOmSakIMResponse = søkersFagsaker.stream()
+            .filter(sak -> !sak.getStatus().equals(FagsakStatus.AVSLUTTET) && ytelseDetSjekkesMot.equals(sak.getYtelseType()))
+            .map(sak -> hentInfoOmSakIntektsmelding(sak.getId()))
+            .findFirst()
+            .orElse(new InfoOmSakInntektsmeldingResponse(StatusSakInntektsmelding.INGEN_BEHANDLING, Tid.TIDENES_ENDE));
+
+        return Response.ok(infoOmSakIMResponse).build();
+    }
+
+    private InfoOmSakInntektsmeldingResponse hentInfoOmSakIntektsmelding(Long fagsakId) {
+        return behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId)
+            .map(this::mapInfoOmSakInntektsmelding)
+            .orElseGet(() -> new InfoOmSakInntektsmeldingResponse(StatusSakInntektsmelding.INGEN_BEHANDLING, Tid.TIDENES_ENDE));
+    }
+
+    private InfoOmSakInntektsmeldingResponse mapInfoOmSakInntektsmelding(Behandling behandling) {
+        var aksjonspunkterIkkeKlarForInntektsmelding = behandling.getAksjonspunkter().stream()
+            .filter(ap -> ap.getStatus().equals(AksjonspunktStatus.OPPRETTET)
+                && AksjonspunktDefinisjon.getIkkeKlarForInntektsmelding().contains(ap.getAksjonspunktDefinisjon()))
+            .map(Aksjonspunkt::getAksjonspunktDefinisjon)
+            .collect(Collectors.toSet());
+
+        var førsteUttaksdato = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getFørsteUttaksdatoHvisFinnes();
+        var inntektsmeldingStatusSak = mapInntektsmeldingStatusSak(aksjonspunkterIkkeKlarForInntektsmelding);
+        if (inntektsmeldingStatusSak.equals(StatusSakInntektsmelding.ÅPEN_FOR_BEHANDLING) && førsteUttaksdato.isEmpty()) {
+            throw new IllegalStateException("Ulovlig tilstand-infoOmSakForInntektsmelding: Finner ikke førsteUttaksdato for behandling " + behandling.getId() + "med inntektsmeldingsstatus ÅPEN_FOR_BEHANDLING");
+        }
+
+        return new InfoOmSakInntektsmeldingResponse(inntektsmeldingStatusSak, førsteUttaksdato.orElse(Tid.TIDENES_ENDE));
+    }
+
+     StatusSakInntektsmelding mapInntektsmeldingStatusSak(Set<AksjonspunktDefinisjon> aksjonspunkterIkkeKlarForInntektsmelding) {
+        return switch (aksjonspunkterIkkeKlarForInntektsmelding) {
+            case Set<AksjonspunktDefinisjon> ap when ap.isEmpty() -> StatusSakInntektsmelding.ÅPEN_FOR_BEHANDLING;
+            case Set<AksjonspunktDefinisjon> ap when ap.contains(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD) -> StatusSakInntektsmelding.SØKT_FOR_TIDLIG;
+            case Set<AksjonspunktDefinisjon> ap when ap.contains(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD) -> StatusSakInntektsmelding.VENTER_PÅ_SØKNAD;
+            case Set<AksjonspunktDefinisjon> ap when ap.contains(AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_FORELDREPENGER) -> StatusSakInntektsmelding.PAPIRSØKNAD_IKKE_REGISTRERT;
+            default -> throw new IllegalStateException("Utvikler feil-infoOmSakForInntektsmelding: ugyldig tilstand");
+        };
+    }
+
+    public enum StatusSakInntektsmelding {
+        ÅPEN_FOR_BEHANDLING,
+        SØKT_FOR_TIDLIG,
+        //Usikker på om vi trenger å forholde oss til denne i fremtiden. Inntektsmelding før søknad vil ikke skje i ny løsning
+        VENTER_PÅ_SØKNAD,
+        PAPIRSØKNAD_IKKE_REGISTRERT,
+        INGEN_BEHANDLING
+    }
+
     private boolean erÅpenForBehandling(Long fagsakId) {
         var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId);
         // I enkelte tilfeller skal vi ikke tillate innsending av inntektsmelding selv om det finnes sak, fordi saken reelt sett ikke er klar for behandling
@@ -320,6 +390,8 @@ public class FordelRestTjeneste {
     }
 
     public record SakInntektsmeldingResponse(boolean søkerHarSak){}
+
+    public record InfoOmSakInntektsmeldingResponse(StatusSakInntektsmelding statusInntektsmelding, LocalDate førsteUttaksdato) {}
 
     public record SakInntektsmeldingDto(@NotNull @Valid AktørIdDto bruker, @NotNull @Valid YtelseType ytelse){
         protected enum YtelseType {

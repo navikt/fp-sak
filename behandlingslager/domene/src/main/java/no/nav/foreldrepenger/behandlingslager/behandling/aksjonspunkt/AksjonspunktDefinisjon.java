@@ -227,7 +227,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         BehandlingStegType.SIMULER_OPPDRAG, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(FP, SVP)),
     AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT(
             AksjonspunktKodeDefinisjon.AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT_KODE, AksjonspunktType.MANUELL, "Avklar annen forelder har rett",
-            BehandlingStegType.KONTROLLER_OMSORG_RETT, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.FAKTA_OMSORG_OG_RETT, ENTRINN, EnumSet.of(FP, SVP)),
+            BehandlingStegType.KONTROLLER_OMSORG_RETT, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.FAKTA_OMSORG_OG_RETT, ENTRINN, EnumSet.of(FP)),
     VURDER_OPPTJENINGSVILKÅRET(
             AksjonspunktKodeDefinisjon.VURDER_OPPTJENINGSVILKÅRET_KODE, AksjonspunktType.MANUELL, "Manuell vurdering av opptjeningsvilkår",
             BehandlingStegType.VURDER_OPPTJENINGSVILKÅR, VurderingspunktType.UT, VilkårType.OPPTJENINGSVILKÅRET, SkjermlenkeType.PUNKT_FOR_OPPTJENING,
@@ -306,6 +306,9 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             TOTRINN, EnumSet.of(ES, FP, SVP)),
     OVERSTYRING_AV_DEKNINGSGRAD(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_DEKNINGSGRAD_KODE, AksjonspunktType.OVERSTYRING, "Overstyr dekningsgrad",
         BehandlingStegType.DEKNINGSGRAD, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER,
+        TOTRINN, EnumSet.of(FP)),
+    OVERSTYRING_AV_RETT_OG_OMSORG(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_RETT_OG_OMSORG_KODE, AksjonspunktType.OVERSTYRING, "Overstyr rett og omsorg",
+        BehandlingStegType.KONTROLLER_OMSORG_RETT, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.FAKTA_OMSORG_OG_RETT,
         TOTRINN, EnumSet.of(FP)),
 
     OVERSTYRING_AV_FORUTGÅENDE_MEDLEMSKAPSVILKÅR(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_FORUTGÅENDE_MEDLEMSKAPSVILKÅR_KODE, AksjonspunktType.OVERSTYRING,
@@ -503,6 +506,9 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_FOR_SN_NY_I_ARBEIDSLIVET, FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD,
         AksjonspunktDefinisjon.VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE);
 
+    private static final Set<AksjonspunktDefinisjon> IKKE_KLAR_FOR_INNTEKTSMELDING = Set.of(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD,
+        AksjonspunktDefinisjon.VENT_PÅ_SØKNAD, AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_FORELDREPENGER);
+
 
     private static final Map<AksjonspunktDefinisjon, Set<AksjonspunktDefinisjon>> UTELUKKENDE_AP_MAP = Map.ofEntries(
         Map.entry(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, Set.of(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE)),
@@ -667,6 +673,10 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
 
     public static Set<AksjonspunktDefinisjon> getAvvikIBeregning() {
         return AVVIK_I_BEREGNING;
+    }
+
+    public static Set<AksjonspunktDefinisjon> getIkkeKlarForInntektsmelding() {
+        return IKKE_KLAR_FOR_INNTEKTSMELDING;
     }
 
     @Override

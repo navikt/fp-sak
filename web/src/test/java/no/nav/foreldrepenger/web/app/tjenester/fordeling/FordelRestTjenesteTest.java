@@ -14,12 +14,6 @@ import java.util.Set;
 
 import jakarta.persistence.EntityManager;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,9 +23,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -49,8 +48,10 @@ import no.nav.foreldrepenger.kontrakter.fordel.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.dokumentmottak.SaksbehandlingDokumentmottakTjeneste;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.FordelRestTjeneste.AbacSaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.FordelRestTjeneste.AbacVurderFagsystemDto;
+import no.nav.vedtak.konfig.Tid;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(JpaExtension.class)
@@ -64,7 +65,6 @@ class FordelRestTjenesteTest {
     private OpprettSakTjeneste opprettSakTjenesteMock;
     @Mock
     private FagsakTjeneste fagsakTjenesteMock;
-
     @Mock
     private VurderFagsystemFellesTjeneste vurderFagsystemTjenesteMock;
     @Mock
@@ -75,6 +75,8 @@ class FordelRestTjenesteTest {
     private BehandlingRepository behandlingRepositoryMock;
     @Mock
     private SakInfoDtoTjeneste sakInfoDtoTjenesteMock;
+    @Mock
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjenesteMock;
 
     private FordelRestTjeneste fordelRestTjeneste;
     private BehandlingRepositoryProvider repositoryProvider;
@@ -83,7 +85,7 @@ class FordelRestTjenesteTest {
     public void setup(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         var fagsakTjeneste = new FagsakTjeneste(repositoryProvider.getFagsakRepository(), repositoryProvider.getSøknadRepository());
-        fordelRestTjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock, fagsakTjeneste, opprettSakTjenesteMock, repositoryProvider, vurderFagsystemTjenesteMock, sakInfoDtoTjenesteMock);
+        fordelRestTjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock, fagsakTjeneste, opprettSakTjenesteMock, repositoryProvider, vurderFagsystemTjenesteMock, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock);
     }
 
     @Test
@@ -173,7 +175,7 @@ class FordelRestTjenesteTest {
         when(sakInfoDtoTjenesteMock.mapSakInfoV2Dto(fagsak2)).thenReturn(sakDto2);
         when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak1, fagsak2));
 
-        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock);
+        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock);
 
         var result = tjeneste.finnAlleSakerForBrukerV2(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()));
 
@@ -184,7 +186,7 @@ class FordelRestTjenesteTest {
     @DisplayName("Skal kaste exceptions om aktørId er ikke gyldig.")
     void exception_om_ikke_gyldig_aktørId() {
         var tjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock, fagsakTjenesteMock, opprettSakTjenesteMock, mock(
-            BehandlingRepositoryProvider.class), vurderFagsystemTjenesteMock, sakInfoDtoTjenesteMock);
+            BehandlingRepositoryProvider.class), vurderFagsystemTjenesteMock, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock);
 
         var aktørIdDto = new FordelRestTjeneste.AktørIdDto("ikke_gyldig_id_haha:)");
         var exception = assertThrows(IllegalArgumentException.class, () -> tjeneste.finnAlleSakerForBrukerV2(aktørIdDto));
@@ -209,7 +211,7 @@ class FordelRestTjenesteTest {
         when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(1L)).thenReturn(Optional.of(b1));
         when(behandlingRepositoryProviderMock.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
 
-        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock);
+        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock);
 
         var result = tjeneste.sjekkSakForInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.SVANGERSKAPSPENGER));
 
@@ -232,7 +234,7 @@ class FordelRestTjenesteTest {
 
         when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak1, fagsak2));
 
-        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock);
+        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock);
 
         var result = tjeneste.sjekkSakForInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.SVANGERSKAPSPENGER));
 
@@ -255,7 +257,7 @@ class FordelRestTjenesteTest {
         when(behandlingRepositoryProviderMock.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
         when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak1));
 
-        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock);
+        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock);
 
         var result = tjeneste.sjekkSakForInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.FORELDREPENGER));
 
@@ -280,7 +282,7 @@ class FordelRestTjenesteTest {
         when(behandlingRepositoryProviderMock.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
         when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak1));
 
-        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock);
+        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock);
 
         var result = tjeneste.sjekkSakForInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.FORELDREPENGER));
 
@@ -302,7 +304,7 @@ class FordelRestTjenesteTest {
         when(behandlingRepositoryProviderMock.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
         when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak1));
 
-        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock);
+        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock);
 
         var result = tjeneste.sjekkSakForInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.FORELDREPENGER));
 
@@ -311,4 +313,129 @@ class FordelRestTjenesteTest {
         assertThat(response.søkerHarSak()).isTrue();
     }
 
+    @Test
+    void info_sak_inntektsmelding_når_søkt_for_tidlig() {
+        var saknr = new Saksnummer("TEST3");
+        var fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
+        fagsak1.setId(1L);
+        var b1 = mock(Behandling.class);
+        var a1 = mock(Aksjonspunkt.class);
+        var førsteUttaksdato = LocalDate.now().minusWeeks(5);
+        when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(1L)).thenReturn(Optional.of(b1));
+        when(a1.getAksjonspunktDefinisjon()).thenReturn(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD);
+        when(a1.getStatus()).thenReturn(AksjonspunktStatus.OPPRETTET);
+        when(b1.getAksjonspunkter()).thenReturn(Set.of(a1));
+        when(behandlingRepositoryProviderMock.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
+        when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak1));
+        when(skjæringstidspunktTjenesteMock.getSkjæringstidspunkter(b1.getId())).thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(førsteUttaksdato).build());
+
+
+        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock);
+
+        var result = tjeneste.infoOmSakForInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.FORELDREPENGER));
+
+        var response = (FordelRestTjeneste.InfoOmSakInntektsmeldingResponse) result.getEntity();
+        assertThat(response).isNotNull();
+        assertThat(response.statusInntektsmelding()).isEqualTo(FordelRestTjeneste.StatusSakInntektsmelding.SØKT_FOR_TIDLIG);
+        assertThat(response.førsteUttaksdato()).isEqualTo(førsteUttaksdato);
+    }
+
+    @Test
+    void info_om_sak_inntektsmelding_når_søkt_for_tidlig_er_utført() {
+        var saknr = new Saksnummer("TEST3");
+        var fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
+        fagsak1.setId(1L);
+        var b1 = mock(Behandling.class);
+        var a1 = mock(Aksjonspunkt.class);
+        when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(1L)).thenReturn(Optional.of(b1));
+        when(a1.getStatus()).thenReturn(AksjonspunktStatus.UTFØRT);
+        when(b1.getAksjonspunkter()).thenReturn(Set.of(a1));
+        when(behandlingRepositoryProviderMock.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
+        when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak1));
+        when(skjæringstidspunktTjenesteMock.getSkjæringstidspunkter(b1.getId())).thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(LocalDate.now()).build());
+
+        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock);
+
+        var result = tjeneste.infoOmSakForInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.FORELDREPENGER));
+
+        var response = (FordelRestTjeneste.InfoOmSakInntektsmeldingResponse) result.getEntity();
+
+        assertThat(response).isNotNull();
+        assertThat(response.statusInntektsmelding()).isEqualTo(FordelRestTjeneste.StatusSakInntektsmelding.ÅPEN_FOR_BEHANDLING);
+        assertThat(response.førsteUttaksdato()).isEqualTo(LocalDate.now());
+    }
+
+    @Test
+    void info_om_sak_inntektsmelding_når_feil_ytelse() {
+        var saknr = new Saksnummer("TEST3");
+        var fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
+        var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
+        fagsak1.setId(1L);
+        fagsak2.setId(2L);
+
+        when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak1, fagsak2));
+        when(behandlingRepositoryProviderMock.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
+
+        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock);
+        var result = tjeneste.infoOmSakForInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.SVANGERSKAPSPENGER));
+
+        var response = (FordelRestTjeneste.InfoOmSakInntektsmeldingResponse) result.getEntity();
+        assertThat(response).isNotNull();
+        assertThat(response.førsteUttaksdato()).isEqualTo(Tid.TIDENES_ENDE);
+        assertThat(response.statusInntektsmelding()).isEqualTo(FordelRestTjeneste.StatusSakInntektsmelding.INGEN_BEHANDLING);
+    }
+
+    @Test
+    void info_om_sak_inntektsmelding_når_åpent_aksjonspunkt_papirsøknad() {
+        var saknr = new Saksnummer("TEST3");
+        var fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
+        fagsak1.setId(1L);
+        var b1 = mock(Behandling.class);
+        var a1 = mock(Aksjonspunkt.class);
+
+        when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(1L)).thenReturn(Optional.of(b1));
+        when(a1.getAksjonspunktDefinisjon()).thenReturn(AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_FORELDREPENGER);
+        when(a1.getStatus()).thenReturn(AksjonspunktStatus.OPPRETTET);
+        when(b1.getAksjonspunkter()).thenReturn(Set.of(a1));
+        when(behandlingRepositoryProviderMock.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
+        when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak1));
+        when(skjæringstidspunktTjenesteMock.getSkjæringstidspunkter(b1.getId())).thenReturn(Skjæringstidspunkt.builder().build());
+
+        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock);
+
+        var result = tjeneste.infoOmSakForInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.FORELDREPENGER));
+
+        var response = (FordelRestTjeneste.InfoOmSakInntektsmeldingResponse) result.getEntity();
+        assertThat(response).isNotNull();
+        assertThat(response.statusInntektsmelding()).isEqualTo(FordelRestTjeneste.StatusSakInntektsmelding.PAPIRSØKNAD_IKKE_REGISTRERT);
+        assertThat(response.førsteUttaksdato()).isEqualTo(Tid.TIDENES_ENDE);
+    }
+
+    @Test
+    void info_om_sak_inntektsmelding_når_vanlig_åpent_aksjonspunkt() {
+        var saknr = new Saksnummer("TEST3");
+        var fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
+        fagsak1.setId(1L);
+        var b1 = mock(Behandling.class);
+        var a1 = mock(Aksjonspunkt.class);
+        var a2 = mock(Aksjonspunkt.class);
+        var førsteUttaksdato = LocalDate.now().minusWeeks(2);
+        when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(1L)).thenReturn(Optional.of(b1));
+        when(a1.getAksjonspunktDefinisjon()).thenReturn(AksjonspunktDefinisjon.VURDER_FAKTA_FOR_ATFL_SN);
+        when(a1.getStatus()).thenReturn(AksjonspunktStatus.OPPRETTET);
+        when(a2.getStatus()).thenReturn(AksjonspunktStatus.UTFØRT);
+        when(b1.getAksjonspunkter()).thenReturn(Set.of(a1, a2));
+        when(behandlingRepositoryProviderMock.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
+        when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak1));
+        when(skjæringstidspunktTjenesteMock.getSkjæringstidspunkter(b1.getId())).thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(førsteUttaksdato).build());
+
+        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock);
+
+        var result = tjeneste.infoOmSakForInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.FORELDREPENGER));
+
+        var response = (FordelRestTjeneste.InfoOmSakInntektsmeldingResponse) result.getEntity();
+        assertThat(response).isNotNull();
+        assertThat(response.statusInntektsmelding()).isEqualTo(FordelRestTjeneste.StatusSakInntektsmelding.ÅPEN_FOR_BEHANDLING);
+        assertThat(response.førsteUttaksdato()).isEqualTo(førsteUttaksdato);
+    }
 }

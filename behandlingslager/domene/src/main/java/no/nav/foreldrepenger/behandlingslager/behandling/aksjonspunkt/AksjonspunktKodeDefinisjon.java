@@ -105,6 +105,7 @@ public class AksjonspunktKodeDefinisjon {
     public static final String FASTSETT_UTTAKPERIODER_KODE = "5071";
     public static final String OVERSTYRING_AV_UTTAKPERIODER_KODE = "6008";
     public static final String AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT_KODE = "5086";
+    public static final String OVERSTYRING_AV_RETT_OG_OMSORG_KODE = "6018";
     public static final String VURDER_UTTAK_DOKUMENTASJON_KODE = "5074";
     public static final String FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET_KODE = "5063";
     public static final String FAKTA_UTTAK_INGEN_PERIODER_KODE = "5064";

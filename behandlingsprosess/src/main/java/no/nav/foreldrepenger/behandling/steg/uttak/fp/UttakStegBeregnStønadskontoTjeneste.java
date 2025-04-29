@@ -42,12 +42,16 @@ public class UttakStegBeregnStønadskontoTjeneste {
         var ref = input.getBehandlingReferanse();
         var gjeldendeStønadskontoberegning = fagsakRelasjonTjeneste.finnRelasjonFor(input.getBehandlingReferanse().saksnummer())
             .getStønadskontoberegning();
-        var kreverNyBeregning = gjeldendeStønadskontoberegning.isPresent() && behandlingHarAvklartDekningsgrad(ref);
+        var kreverNyBeregning = gjeldendeStønadskontoberegning.isPresent() && (behandlingHarAvklartDekningsgrad(ref) || behandlingHarOverstyrtRettighetstype(ref));
         var tidligereStønadskontoberegning = gjeldendeStønadskontoberegning.filter(sb -> !kreverNyBeregning);
         var gjeldendeKontoutregning = tidligereStønadskontoberegning.map(Stønadskontoberegning::getStønadskontoutregning).orElse(Map.of());
         return beregnStønadskontoerTjeneste.beregnForBehandling(input, gjeldendeKontoutregning)
             .or(() -> tidligereStønadskontoberegning)
             .orElseThrow();
+    }
+
+    private boolean behandlingHarOverstyrtRettighetstype(BehandlingReferanse ref) {
+        return behandlingRepository.hentBehandling(ref.behandlingId()).harUtførtAksjonspunktMedType(AksjonspunktDefinisjon.OVERSTYRING_AV_RETT_OG_OMSORG);
     }
 
     private boolean behandlingHarAvklartDekningsgrad(BehandlingReferanse ref) {

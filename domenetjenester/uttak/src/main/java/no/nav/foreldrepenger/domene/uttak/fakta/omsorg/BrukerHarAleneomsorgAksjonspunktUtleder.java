@@ -46,6 +46,9 @@ public class BrukerHarAleneomsorgAksjonspunktUtleder implements OmsorgRettAksjon
         var ref = input.getBehandlingReferanse();
 
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
+        if (ytelseFordelingAggregat.getOverstyrtRettighetstype().isPresent()) {
+            return List.of();
+        }
 
         return trengerAvklaring(ref, input.getSkjæringstidspunkt().orElseThrow(), ytelseFordelingAggregat) ? List.of(MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG) : List.of();
     }

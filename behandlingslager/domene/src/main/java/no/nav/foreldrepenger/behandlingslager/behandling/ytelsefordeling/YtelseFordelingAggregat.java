@@ -17,8 +17,11 @@ public class YtelseFordelingAggregat {
     private OppgittFordelingEntitet oppgittFordeling;
     private OppgittFordelingEntitet justertFordeling;
     private OppgittFordelingEntitet overstyrtFordeling;
+
     private OppgittRettighetEntitet oppgittRettighet;
-    private OppgittRettighetEntitet overstyrtRettighet;
+    private OppgittRettighetEntitet avklartRettighet;
+    private Rettighetstype overstyrtRettighetstype;
+
     private AvklarteUttakDatoerEntitet avklarteDatoer;
     private Dekningsgrad oppgittDekningsgrad;
     private Dekningsgrad sakskompleksDekningsgrad;
@@ -81,8 +84,12 @@ public class YtelseFordelingAggregat {
         return oppgittRettighet;
     }
 
-    public Optional<OppgittRettighetEntitet> getOverstyrtRettighet() {
-        return Optional.ofNullable(overstyrtRettighet);
+    public Optional<OppgittRettighetEntitet> getAvklartRettighet() {
+        return Optional.ofNullable(avklartRettighet);
+    }
+
+    public Optional<Rettighetstype> getOverstyrtRettighetstype() {
+        return Optional.ofNullable(overstyrtRettighetstype);
     }
 
     public Boolean getOverstyrtOmsorg() {
@@ -94,22 +101,31 @@ public class YtelseFordelingAggregat {
     }
 
     public Boolean getAleneomsorgAvklaring() {
-        return getOverstyrtRettighet().map(OppgittRettighetEntitet::getHarAleneomsorgForBarnet)
+        return getOverstyrtRettighetstype()
+            .map(Rettighetstype.ALENEOMSORG::equals)
+            .or(() -> getAvklartRettighet().map(OppgittRettighetEntitet::getHarAleneomsorgForBarnet))
             .orElse(null);
     }
 
     public Boolean getAnnenForelderRettAvklaring() {
-        return getOverstyrtRettighet().map(OppgittRettighetEntitet::getHarAnnenForeldreRett)
+        return getOverstyrtRettighetstype()
+            .map(Rettighetstype.BEGGE_RETT::equals)
+            .or(() -> getAvklartRettighet().map(OppgittRettighetEntitet::getHarAnnenForeldreRett))
             .orElse(null);
     }
 
     public Boolean getAnnenForelderRettEØSAvklaring() {
-        return getOverstyrtRettighet().map(OppgittRettighetEntitet::getAnnenForelderRettEØSNullable)
+        return getOverstyrtRettighetstype()
+            .map(Rettighetstype.BEGGE_RETT_EØS::equals)
+            .or(() -> getAvklartRettighet().map(OppgittRettighetEntitet::getAnnenForelderRettEØSNullable))
             .orElse(null);
     }
 
     public Boolean getMorUføretrygdAvklaring() {
-        return getOverstyrtRettighet().map(OppgittRettighetEntitet::getMorMottarUføretrygd).orElse(null);
+        return getOverstyrtRettighetstype()
+            .map(Rettighetstype.BARE_FAR_RETT_MOR_UFØR::equals)
+            .or(() -> getAvklartRettighet().map(OppgittRettighetEntitet::getMorMottarUføretrygd))
+            .orElse(null);
     }
 
     public OppgittFordelingEntitet getGjeldendeFordeling() {
@@ -155,6 +171,36 @@ public class YtelseFordelingAggregat {
 
     public Dekningsgrad getGjeldendeDekningsgrad() {
         return Optional.ofNullable(getSakskompleksDekningsgrad()).orElse(getOppgittDekningsgrad());
+    }
+
+    public Rettighetstype getGjeldendeRettighetstype(boolean annenpartHarForeldrepengerUtbetaling,
+                                                     RelasjonsRolleType relasjonsRolleType,
+                                                     UføretrygdGrunnlagEntitet uføretrygdGrunnlag) {
+        if (overstyrtRettighetstype != null) {
+            return overstyrtRettighetstype;
+        }
+        if (annenpartHarForeldrepengerUtbetaling) {
+            return Rettighetstype.BEGGE_RETT;
+        }
+        if (avklartAnnenForelderHarRettEØS()) {
+            return Rettighetstype.BEGGE_RETT_EØS;
+        }
+        if (robustHarAleneomsorg(relasjonsRolleType)) {
+            return Rettighetstype.ALENEOMSORG;
+        }
+        if (morMottarUføretrygd(uføretrygdGrunnlag)) {
+            return Rettighetstype.BARE_FAR_RETT_MOR_UFØR;
+        }
+        return Boolean.TRUE.equals(Optional.ofNullable(getAnnenForelderRettAvklaring())
+            .orElseGet(() -> {
+                var or = getOppgittRettighet();
+                Objects.requireNonNull(or, "oppgittRettighet");
+                return or.getHarAnnenForeldreRett() == null || or.getHarAnnenForeldreRett();
+            })) ? Rettighetstype.BEGGE_RETT : bareSøkerRett(relasjonsRolleType);
+    }
+
+    private static Rettighetstype bareSøkerRett(RelasjonsRolleType relasjonsRolleType) {
+        return relasjonsRolleType.erFarEllerMedMor() ? Rettighetstype.BARE_FAR_RETT : Rettighetstype.BARE_MOR_RETT;
     }
 
     public static class Builder {
@@ -204,8 +250,13 @@ public class YtelseFordelingAggregat {
             return this;
         }
 
-        public Builder medOverstyrtRettighet(OppgittRettighetEntitet overstyrtRettighet) {
-            kladd.overstyrtRettighet = overstyrtRettighet;
+        public Builder medAvklartRettighet(OppgittRettighetEntitet avklartRettighet) {
+            kladd.avklartRettighet = avklartRettighet;
+            return this;
+        }
+
+        public Builder medOverstyrtRettighetstype(Rettighetstype overstyrtRettighetstype) {
+            kladd.overstyrtRettighetstype = overstyrtRettighetstype;
             return this;
         }
 

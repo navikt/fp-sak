@@ -400,7 +400,7 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         var yfa = ytelsesFordelingRepository.hentAggregat(behandling.getId());
         ytelsesFordelingRepository.lagre(behandling.getId(),
             YtelseFordelingAggregat.oppdatere(yfa)
-                .medOverstyrtRettighet(OppgittRettighetEntitet.kopiAnnenForelderRettEØS(yfa.getOverstyrtRettighet().orElse(null), harRettEøs)).build());
+                .medAvklartRettighet(OppgittRettighetEntitet.kopiAnnenForelderRettEØS(yfa.getAvklartRettighet().orElse(null), harRettEøs)).build());
     }
 
     @Test
