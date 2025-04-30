@@ -36,7 +36,6 @@ import no.nav.foreldrepenger.domene.rest.dto.VurderFaktaOmBeregningDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderRefusjonBeregningsgrunnlagDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderVarigEndringEllerNyoppstartetSNDto;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagDto;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
@@ -130,11 +129,9 @@ public class BeregningFPSAK implements BeregningAPI {
     @Override
     public void avslutt(BehandlingReferanse referanse) {
         // Beregning er kjørt i fpsak, lager task her for å migrere grunnlaget til kalkulus
-        if (!Environment.current().isProd()) {
-            var migreringstask = ProsessTaskData.forProsessTask(MigrerBeregningSakTask.class);
-            migreringstask.setSaksnummer(referanse.saksnummer().getVerdi());
-            prosessTaskTjeneste.lagre(migreringstask);
-        }
+        var migreringstask = ProsessTaskData.forProsessTask(MigrerBeregningSakTask.class);
+        migreringstask.setSaksnummer(referanse.saksnummer().getVerdi());
+        prosessTaskTjeneste.lagre(migreringstask);
     }
 
     private Optional<OppdaterBeregningsgrunnlagResultat> overstyr(OverstyringAksjonspunktDto overstyring, BeregningsgrunnlagInput input) {
