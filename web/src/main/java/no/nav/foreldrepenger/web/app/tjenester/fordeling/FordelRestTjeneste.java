@@ -54,7 +54,6 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.kontrakter.fordel.BehandlendeFagsystemDto;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
-import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostMottakDto;
 import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
@@ -74,6 +73,7 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
@@ -122,7 +122,8 @@ public class FordelRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Informasjon om en fagsak", tags = "fordel")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
-    public BehandlendeFagsystemDto vurderFagsystem(@Parameter(description = "Krever behandlingstemaOffisiellKode", required = true) @Valid AbacVurderFagsystemDto vurderFagsystemDto) {
+    public BehandlendeFagsystemDto vurderFagsystem(@TilpassetAbacAttributt(supplierClass = FordelRestTjeneste.VurderFagsystemDtoAbacDataSupplier.class)
+        @Parameter(description = "Krever behandlingstemaOffisiellKode", required = true) @Valid VurderFagsystemDto vurderFagsystemDto) {
         ensureCallId();
         var vurderFagsystem = map(vurderFagsystemDto);
         var behandlendeFagsystem = vurderFagsystemTjeneste.vurderFagsystem(vurderFagsystem);
@@ -135,7 +136,8 @@ public class FordelRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Informasjon om en fagsak klageinstansrelatert", tags = "fordel")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
-    public BehandlendeFagsystemDto vurderForKlageinstans(@Parameter(description = "Krever behandlingstemaOffisiellKode", required = true) @Valid AbacVurderFagsystemDto vurderFagsystemDto) {
+    public BehandlendeFagsystemDto vurderForKlageinstans(@TilpassetAbacAttributt(supplierClass = FordelRestTjeneste.VurderFagsystemDtoAbacDataSupplier.class)
+        @Parameter(description = "Krever behandlingstemaOffisiellKode", required = true) @Valid VurderFagsystemDto vurderFagsystemDto) {
         ensureCallId();
         var vurderFagsystem = map(vurderFagsystemDto);
         var behandlendeFagsystem = vurderFagsystemTjeneste.vurderFagsystemForKlageinstans(vurderFagsystem);
@@ -148,7 +150,8 @@ public class FordelRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Informasjon om en fagsak", summary = "Varsel om en ny journalpost som skal behandles i systemet.", tags = "fordel")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
-    public FagsakInfomasjonDto fagsak(@Parameter(description = "Saksnummeret det skal hentes saksinformasjon om") @Valid AbacSaksnummerDto saksnummerDto) {
+    public FagsakInfomasjonDto fagsak(@TilpassetAbacAttributt(supplierClass = SaksnummerDtoAbacDataSupplier.class)
+        @Parameter(description = "Saksnummeret det skal hentes saksinformasjon om") @Valid SaksnummerDto saksnummerDto) {
         ensureCallId();
         var optFagsak = fagsakTjeneste.finnFagsakGittSaksnummer(new Saksnummer(saksnummerDto.getSaksnummer()), false);
         if (optFagsak.isEmpty() || optFagsak.get().erStengt()) {
@@ -177,7 +180,8 @@ public class FordelRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Ny journalpost skal behandles.", summary = "Varsel om en ny journalpost som skal behandles i systemet.", tags = "fordel")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
-    public SaksnummerDto opprettSak(@Parameter(description = "Oppretter fagsak") @Valid AbacOpprettSakDto opprettSakDto) {
+    public SaksnummerDto opprettSak(@TilpassetAbacAttributt(supplierClass = FordelRestTjeneste.OpprettSakDtoAbacDataSupplier.class)
+        @Parameter(description = "Oppretter fagsak") @Valid OpprettSakDto opprettSakDto) {
         ensureCallId();
         var journalpostId = opprettSakDto.getJournalpostId();
         var behandlingTema = BehandlingTema.finnForKodeverkEiersKode(opprettSakDto.getBehandlingstemaOffisiellKode());
@@ -228,7 +232,8 @@ public class FordelRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Knytt journalpost til fagsak.", summary = "Før en journalpost journalføres på en fagsak skal fagsaken oppdateres med journalposten.", tags = "fordel")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
-    public Response knyttSakOgJournalpost(@Parameter(description = "Saksnummer og JournalpostId som skal knyttes sammen") @Valid AbacJournalpostKnyttningDto journalpostKnytningDto) {
+    public Response knyttSakOgJournalpost(@TilpassetAbacAttributt(supplierClass = FordelRestTjeneste.JournalpostKnyttningDtoAbacDataSupplier.class)
+        @Parameter(description = "Saksnummer og JournalpostId som skal knyttes sammen") @Valid JournalpostKnyttningDto journalpostKnytningDto) {
         ensureCallId();
         var saksnummer = new Saksnummer(journalpostKnytningDto.getSaksnummer());
         var fagsak = opprettSakTjeneste.finnSak(saksnummer);
@@ -539,71 +544,46 @@ public class FordelRestTjeneste {
 
     }
 
-    public static class AbacJournalpostKnyttningDto extends JournalpostKnyttningDto implements AbacDto {
-        public AbacJournalpostKnyttningDto() {
-            super();
-        }
-
-        public AbacJournalpostKnyttningDto(SaksnummerDto saksnummerDto, JournalpostIdDto journalpostIdDto) {
-            super(saksnummerDto, journalpostIdDto);
-        }
+    public static class JournalpostKnyttningDtoAbacDataSupplier implements Function<Object, AbacDataAttributter> {
 
         @Override
-        public AbacDataAttributter abacAttributter() {
+        public AbacDataAttributter apply(Object obj) {
+            var req = (JournalpostKnyttningDto) obj;
             return AbacDataAttributter.opprett()
-                .leggTil(AppAbacAttributtType.JOURNALPOST_ID, getJournalpostId())
-                .leggTil(AppAbacAttributtType.SAKSNUMMER, getSaksnummer());
+                .leggTil(AppAbacAttributtType.JOURNALPOST_ID, req.getJournalpostId())
+                .leggTil(AppAbacAttributtType.SAKSNUMMER, req.getSaksnummer());
         }
     }
 
-    public static class AbacVurderFagsystemDto extends VurderFagsystemDto implements AbacDto {
-        public AbacVurderFagsystemDto() {
-            super();
-        }
-
-        public AbacVurderFagsystemDto(String journalpostId, boolean strukturertSøknad, String aktørId, String behandlingstemaOffisiellKode) {
-            super(journalpostId, strukturertSøknad, aktørId, behandlingstemaOffisiellKode);
-        }
+    public static class VurderFagsystemDtoAbacDataSupplier implements Function<Object, AbacDataAttributter> {
 
         @Override
-        public AbacDataAttributter abacAttributter() {
-            var abacDataAttributter = AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, getAktørId());
+        public AbacDataAttributter apply(Object obj) {
+            var req = (VurderFagsystemDto) obj;
+            var abacDataAttributter = AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.getAktørId());
 
-            getJournalpostId().ifPresent(id -> abacDataAttributter.leggTil(AppAbacAttributtType.JOURNALPOST_ID, id));
-            getSaksnummer().ifPresent(sn -> abacDataAttributter.leggTil(AppAbacAttributtType.SAKSNUMMER, sn));
+            req.getJournalpostId().ifPresent(id -> abacDataAttributter.leggTil(AppAbacAttributtType.JOURNALPOST_ID, id));
+            req.getSaksnummer().ifPresent(sn -> abacDataAttributter.leggTil(AppAbacAttributtType.SAKSNUMMER, sn));
             return abacDataAttributter;
         }
     }
 
-    public static class AbacOpprettSakDto extends OpprettSakDto implements AbacDto {
-        public AbacOpprettSakDto() {
-            super();
-        }
-
-        public AbacOpprettSakDto(String journalpostId, String behandlingstemaOffisiellKode, String aktørId) {
-            super(journalpostId, behandlingstemaOffisiellKode, aktørId);
-        }
+    public static class OpprettSakDtoAbacDataSupplier implements Function<Object, AbacDataAttributter> {
 
         @Override
-        public AbacDataAttributter abacAttributter() {
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, getAktørId());
+        public AbacDataAttributter apply(Object obj) {
+            var req = (OpprettSakDto) obj;
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.getAktørId());
         }
     }
 
-    public static class AbacSaksnummerDto extends SaksnummerDto implements AbacDto {
-        public AbacSaksnummerDto() {
-            // for Jackson
-        }
-
-        public AbacSaksnummerDto(String saksnummer) {
-            super(saksnummer);
-        }
+    public static class SaksnummerDtoAbacDataSupplier implements Function<Object, AbacDataAttributter> {
 
         @Override
-        public AbacDataAttributter abacAttributter() {
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, getSaksnummer());
+        public AbacDataAttributter apply(Object obj) {
+            var req = (SaksnummerDto) obj;
+            return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.SAKSNUMMER, req.getSaksnummer());
         }
-
     }
 
     public static class SakInntektsmeldingDtoAbacDataSupplier implements Function<Object, AbacDataAttributter> {

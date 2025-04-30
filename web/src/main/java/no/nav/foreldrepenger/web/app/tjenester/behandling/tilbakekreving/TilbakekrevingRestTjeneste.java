@@ -67,7 +67,7 @@ public class TilbakekrevingRestTjeneste {
         var behandlingId = uuidDto.getBehandlingUuid();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
-        return fpOppdragRestKlient.hentSimuleringResultatMedOgUtenInntrekk(behandling.getId()).orElse(null);
+        return fpOppdragRestKlient.hentSimuleringResultatMedOgUtenInntrekk(behandling.getId(), behandling.getUuid(), behandling.getSaksnummer().getVerdi()).orElse(null);
     }
 
     @GET

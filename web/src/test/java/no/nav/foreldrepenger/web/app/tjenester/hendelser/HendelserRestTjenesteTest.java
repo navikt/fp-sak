@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import jakarta.persistence.EntityManager;
 
@@ -27,11 +28,11 @@ import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.AktørIdDto;
+import no.nav.foreldrepenger.kontrakter.abonnent.v2.HendelseWrapperDto;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.DødfødselHendelseDto;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.FødselHendelseDto;
 import no.nav.foreldrepenger.mottak.hendelser.KlargjørHendelseTask;
-import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste.AbacAktørIdDto;
-import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste.AbacHendelseWrapperDto;
+import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
@@ -59,11 +60,13 @@ class HendelserRestTjenesteTest {
 
     @Test
     void skal_ta_imot_fødselshendelse_og_opprette_prosesstask() {
-        var aktørIdForeldre = List.of(AktørId.dummy(), AktørId.dummy());
+        var forelder1 = AktørId.dummy();
+        var forelder2 = AktørId.dummy();
+        var aktørIdForeldre = List.of(forelder1, forelder2);
         var fødselsdato = LocalDate.now();
         var hendelse = lagFødselHendelse(aktørIdForeldre, fødselsdato);
 
-        hendelserRestTjeneste.mottaHendelse(new AbacHendelseWrapperDto(hendelse));
+        hendelserRestTjeneste.mottaHendelse(new HendelseWrapperDto(hendelse));
 
         assertThat(hendelsemottakRepository.hendelseErNy(HENDELSE_ID)).isFalse();
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
@@ -74,15 +77,22 @@ class HendelserRestTjenesteTest {
         assertThat(task.getPayloadAsString()).isEqualTo(StandardJsonConfig.toJson(hendelse));
         assertThat(task.getPropertyValue(KlargjørHendelseTask.PROPERTY_UID)).isEqualTo(HENDELSE_ID);
         assertThat(task.getPropertyValue(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE)).isEqualTo("FØDSEL");
+
+        Set<String> abacAttributterAktør = (new HendelserRestTjeneste.HendelseWrapperDtoAbacDataSupplier())
+            .apply(new HendelseWrapperDto(hendelse))
+            .getVerdier(AppAbacAttributtType.AKTØR_ID);
+        assertThat(abacAttributterAktør).hasSize(2).containsExactlyInAnyOrder(forelder1.getId(), forelder2.getId());
     }
 
     @Test
     void skal_ta_imot_dødfødselhendelse_og_opprette_prosesstask() {
-        var aktørIdForeldre = List.of(AktørId.dummy(), AktørId.dummy());
+        var forelder1 = AktørId.dummy();
+        var forelder2 = AktørId.dummy();
+        var aktørIdForeldre = List.of(forelder1, forelder2);
         var dødfødseldato = LocalDate.now();
         var hendelse = lagDødfødselHendelse(aktørIdForeldre, dødfødseldato);
 
-        hendelserRestTjeneste.mottaHendelse(new AbacHendelseWrapperDto(hendelse));
+        hendelserRestTjeneste.mottaHendelse(new HendelseWrapperDto(hendelse));
 
         assertThat(hendelsemottakRepository.hendelseErNy(HENDELSE_ID)).isFalse();
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
@@ -93,6 +103,11 @@ class HendelserRestTjenesteTest {
         assertThat(task.getPayloadAsString()).isEqualTo(StandardJsonConfig.toJson(hendelse));
         assertThat(task.getPropertyValue(KlargjørHendelseTask.PROPERTY_UID)).isEqualTo(HENDELSE_ID);
         assertThat(task.getPropertyValue(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE)).isEqualTo("DØDFØDSEL");
+
+        Set<String> abacAttributterAktør = (new HendelserRestTjeneste.HendelseWrapperDtoAbacDataSupplier())
+            .apply(new HendelseWrapperDto(hendelse))
+            .getVerdier(AppAbacAttributtType.AKTØR_ID);
+        assertThat(abacAttributterAktør).hasSize(2).containsExactlyInAnyOrder(forelder1.getId(), forelder2.getId());
     }
 
     @Test
@@ -101,7 +116,7 @@ class HendelserRestTjenesteTest {
         var aktørIdForeldre = List.of(AktørId.dummy(), AktørId.dummy());
         var fødselsdato = LocalDate.now();
 
-        hendelserRestTjeneste.mottaHendelse(new AbacHendelseWrapperDto(lagFødselHendelse(aktørIdForeldre, fødselsdato)));
+        hendelserRestTjeneste.mottaHendelse(new HendelseWrapperDto(lagFødselHendelse(aktørIdForeldre, fødselsdato)));
 
         verifyNoInteractions(taskTjeneste);
     }
@@ -110,7 +125,7 @@ class HendelserRestTjenesteTest {
     void skal_returnere_tom_liste_når_aktørId_ikke_er_registrert_eller_mangler_sak() {
         when(sorteringRepository.hentEksisterendeAktørIderMedSak(anyList())).thenReturn(Collections.emptyList());
 
-        var resultat = hendelserRestTjeneste.grovSorter(List.of(new AbacAktørIdDto("0000000000000")));
+        var resultat = hendelserRestTjeneste.grovSorter(List.of(new AktørIdDto("0000000000000")));
 
         assertThat(resultat).isEmpty();
     }
@@ -125,16 +140,22 @@ class HendelserRestTjenesteTest {
 
         when(sorteringRepository.hentEksisterendeAktørIderMedSak(anyList())).thenReturn(harSak);
 
-        List<AbacAktørIdDto> sorter = new ArrayList<>();
-        sorter.add(new AbacAktørIdDto("0000000000000"));
-        sorter.add(new AbacAktørIdDto("0000000000001"));
-        sorter.add(new AbacAktørIdDto("0000000000002"));
+        List<AktørIdDto> sorter = new ArrayList<>();
+        sorter.add(new AktørIdDto("0000000000000"));
+        sorter.add(new AktørIdDto("0000000000001"));
+        sorter.add(new AktørIdDto("0000000000002"));
 
         var resultat = hendelserRestTjeneste.grovSorter(sorter);
 
         assertThat(resultat)
             .hasSameSizeAs(harSak)
             .isEqualTo(harSak.stream().map(AktørId::getId).toList());
+
+        Set<String> abacAttributterAktør = (new HendelserRestTjeneste.AktørIdDtoAbacDataSupplier())
+            .apply(sorter)
+            .getVerdier(AppAbacAttributtType.AKTØR_ID);
+        assertThat(abacAttributterAktør).hasSize(3)
+            .containsExactlyInAnyOrderElementsOf(sorter.stream().map(AktørIdDto::getAktørId).toList());
     }
 
     private FødselHendelseDto lagFødselHendelse(List<AktørId> aktørIdForeldre, LocalDate fødselsdato) {

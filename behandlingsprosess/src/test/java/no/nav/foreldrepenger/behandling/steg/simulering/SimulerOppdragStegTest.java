@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandling.steg.simulering;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -63,7 +64,7 @@ class SimulerOppdragStegTest {
     private BehandlingskontrollKontekst kontekst;
 
     @BeforeEach
-    public void setup(EntityManager entityManager) {
+    void setup(EntityManager entityManager) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         var behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -83,7 +84,7 @@ class SimulerOppdragStegTest {
         when(simulerOppdragTjenesteMock.hentOppdragskontrollForBehandling(anyLong())).thenReturn(
             Optional.of(oppdragskontroll));
 
-        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(
+        when(fpOppdragRestKlientMock.hentResultat(anyLong(), any(), anyString())).thenReturn(
                 Optional.of(new SimuleringResultatDto(-2354L, 0L,true)));
         steg = opprettSteg();
 
@@ -94,7 +95,7 @@ class SimulerOppdragStegTest {
         assertThat(resultat.getAksjonspunktListe()).containsExactly(AksjonspunktDefinisjon.VURDER_FEILUTBETALING);
         assertThat(resultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         verify(simulerOppdragTjenesteMock).hentOppdragskontrollForBehandling(anyLong());
-        verify(fpOppdragRestKlientMock).startSimulering(any(OppdragskontrollDto.class));
+        verify(fpOppdragRestKlientMock).startSimulering(any(OppdragskontrollDto.class), any(), anyString());
 
         var tilbakekrevingInntrekk = tilbakekrevingRepository.hentTilbakekrevingInntrekk(
                 behandling.getId());
@@ -111,7 +112,7 @@ class SimulerOppdragStegTest {
         when(simulerOppdragTjenesteMock.hentOppdragskontrollForBehandling(anyLong())).thenReturn(
             Optional.of(oppdragskontroll));
 
-        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(
+        when(fpOppdragRestKlientMock.hentResultat(anyLong(), any(), anyString())).thenReturn(
             Optional.of(new SimuleringResultatDto(-2354L, 0L,true)));
         steg = opprettSteg();
 
@@ -135,7 +136,7 @@ class SimulerOppdragStegTest {
         when(simulerOppdragTjenesteMock.hentOppdragskontrollForBehandling(anyLong())).thenReturn(
             Optional.of(oppdragskontroll));
 
-        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(
+        when(fpOppdragRestKlientMock.hentResultat(anyLong(), any(), anyString())).thenReturn(
             Optional.of(new SimuleringResultatDto(0L, -2354L,true)));
         steg = opprettSteg();
 
@@ -173,7 +174,7 @@ class SimulerOppdragStegTest {
     @Test
     void lagrer_automatisk_inntrekk_og_returnerer_ingen_aksjonspunkter_dersom_aksjonspunkt_for_inntrekk() {
         // Arrange
-        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(
+        when(fpOppdragRestKlientMock.hentResultat(anyLong(), any(), anyString())).thenReturn(
                 Optional.of(new SimuleringResultatDto(0L, -2354L,false)));
 
         steg = opprettSteg();
@@ -204,13 +205,11 @@ class SimulerOppdragStegTest {
                 simuleringIntegrasjonTjeneste, tilbakekrevingRepository, fpOppdragRestKlientMock,
                 fptilbakeRestKlientMock, beregningsresultatRepository);
 
-        mock(Behandling.class);
-
         // Act
         steg.vedHoppOverBakover(kontekst, null, null, null);
 
         // Verify
-        verify(fpOppdragRestKlientMock).kansellerSimulering(kontekst.getBehandlingId());
+        verify(fpOppdragRestKlientMock).kansellerSimulering(kontekst.getBehandlingId(), behandling.getUuid(), kontekst.getSaksnummer().getVerdi());
     }
 
     @Test
@@ -220,19 +219,17 @@ class SimulerOppdragStegTest {
                 simuleringIntegrasjonTjeneste, tilbakekrevingRepository, fpOppdragRestKlientMock,
                 fptilbakeRestKlientMock, beregningsresultatRepository);
 
-        mock(Behandling.class);
-
         // Act
         steg.vedHoppOverBakover(kontekst, null, BehandlingStegType.SIMULER_OPPDRAG, null);
 
         // Verify
-        verify(fpOppdragRestKlientMock, never()).kansellerSimulering(kontekst.getBehandlingId());
+        verify(fpOppdragRestKlientMock, never()).kansellerSimulering(kontekst.getBehandlingId(), null, kontekst.getSaksnummer().getVerdi());
     }
 
     @Test
     void utførSteg_lagrer_tilbakekrevingoppdater_hvis_det_er_en_åpen_tilbakekreving() {
         when(fptilbakeRestKlientMock.harÅpenTilbakekrevingsbehandling(any(Saksnummer.class))).thenReturn(true);
-        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(
+        when(fpOppdragRestKlientMock.hentResultat(anyLong(), any(), anyString())).thenReturn(
                 Optional.of(new SimuleringResultatDto(-2354L, 0L,true)));
 
         steg = opprettSteg();
@@ -255,7 +252,7 @@ class SimulerOppdragStegTest {
     @Test
     void utførSteg_lagrer_tilbakekrevingoppdater_hvis_det_er_en_åpen_tilbakekreving_men_simuleringresultat_ikke_påvirke_grunnlag() {
         when(fptilbakeRestKlientMock.harÅpenTilbakekrevingsbehandling(any(Saksnummer.class))).thenReturn(true);
-        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(
+        when(fpOppdragRestKlientMock.hentResultat(anyLong(), any(), anyString())).thenReturn(
                 Optional.of(new SimuleringResultatDto(0L, 0L,true)));
 
         steg = opprettSteg();

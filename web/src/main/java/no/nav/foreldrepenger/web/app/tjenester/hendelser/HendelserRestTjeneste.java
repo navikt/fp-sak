@@ -1,7 +1,9 @@
 package no.nav.foreldrepenger.web.app.tjenester.hendelser;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.function.Function;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -31,8 +33,8 @@ import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
-import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
@@ -73,7 +75,8 @@ public class HendelserRestTjeneste {
     @Path("/motta")
     @Operation(description = "Mottak av hendelser", tags = "hendelser")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
-    public EnkelRespons mottaHendelse(@Parameter(description = "Hendelse fra Fpabonnent") @Valid AbacHendelseWrapperDto wrapperDto) {
+    public EnkelRespons mottaHendelse(@TilpassetAbacAttributt(supplierClass = HendelserRestTjeneste.HendelseWrapperDtoAbacDataSupplier.class)
+                                          @Parameter(description = "Hendelse fra Fpabonnent") @Valid HendelseWrapperDto wrapperDto) {
         var hendelseDto = wrapperDto.getHendelse();
         var beskrivelse = String.format("Hendelse mottatt fra %s av typen %s med hendelseId: %s.",
                 hendelseDto.getAvsenderSystem(), hendelseDto.getHendelsetype(), hendelseDto.getId());
@@ -88,8 +91,9 @@ public class HendelserRestTjeneste {
     @Operation(description = "Grovsortering av aktørID-er. Returnerer aktørID-er i listen som har en sak.", tags = "hendelser")
     @Path("/grovsorter")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public List<String> grovSorter(@Parameter(description = "Liste med aktør IDer som skal sorteres") @Valid List<AbacAktørIdDto> aktoerIdListe) {
-        var aktørIdList = aktoerIdListe.stream().map(AbacAktørIdDto::getAktørId).map(AktørId::new).toList();
+    public List<String> grovSorter(@TilpassetAbacAttributt(supplierClass = HendelserRestTjeneste.AktørIdDtoAbacDataSupplier.class)
+        @Parameter(description = "Liste med aktør IDer som skal sorteres") @Valid List<AktørIdDto> aktoerIdListe) {
+        var aktørIdList = aktoerIdListe.stream().map(AktørIdDto::getAktørId).map(AktørId::new).toList();
         return sorteringRepository.hentEksisterendeAktørIderMedSak(aktørIdList).stream().map(AktørId::getId).toList();
     }
 
@@ -109,31 +113,30 @@ public class HendelserRestTjeneste {
         return new EnkelRespons("OK");
     }
 
-    public static class AbacAktørIdDto extends AktørIdDto implements AbacDto {
-        public AbacAktørIdDto() {
-        }
-
-        public AbacAktørIdDto(String aktørId) {
-            super(aktørId);
-        }
+    public static class AktørIdDtoAbacDataSupplier implements Function<Object, AbacDataAttributter> {
 
         @Override
-        public AbacDataAttributter abacAttributter() {
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, this.getAktørId());
+        public AbacDataAttributter apply(Object obj) {
+            var attributter = AbacDataAttributter.opprett();
+            if (obj instanceof AktørIdDto aktørIdDto) {
+                attributter.leggTil(AppAbacAttributtType.AKTØR_ID, aktørIdDto.getAktørId());
+            } else if (obj instanceof Collection<?> c) {
+                c.stream()
+                    .filter(AktørIdDto.class::isInstance)
+                    .map(m -> (AktørIdDto) m)
+                    .forEach(m -> attributter.leggTil(AppAbacAttributtType.AKTØR_ID, m.getAktørId()));
+            }
+            return attributter;
         }
     }
 
-    public static class AbacHendelseWrapperDto extends HendelseWrapperDto implements AbacDto {
-        public AbacHendelseWrapperDto() {
-        }
 
-        public AbacHendelseWrapperDto(HendelseDto hendelse) {
-            super(hendelse);
-        }
+    public static class HendelseWrapperDtoAbacDataSupplier implements Function<Object, AbacDataAttributter> {
 
         @Override
-        public AbacDataAttributter abacAttributter() {
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, new HashSet<>(this.getAlleAktørId()));
+        public AbacDataAttributter apply(Object obj) {
+            var req = (HendelseWrapperDto) obj;
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, new HashSet<>(req.getAlleAktørId()));
         }
     }
 }
