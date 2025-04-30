@@ -4,6 +4,7 @@ import static no.nav.foreldrepenger.økonomistøtte.simulering.klient.OppdragsKo
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -31,9 +32,9 @@ public class SimuleringIntegrasjonTjeneste {
         this.restKlient = restKlient;
     }
 
-    public void startSimulering(Optional<Oppdragskontroll> oppdragskontrollOpt) {
+    public void startSimulering(Optional<Oppdragskontroll> oppdragskontrollOpt, UUID behandlingUuid, String saksnummer) {
         if (oppdragskontrollOpt.isPresent() && erOppdragskontrollGyldigOgHarOppdragÅSimulere(oppdragskontrollOpt.get())) {
-            restKlient.startSimulering(tilDto(oppdragskontrollOpt.get()));
+            restKlient.startSimulering(tilDto(oppdragskontrollOpt.get()), behandlingUuid, saksnummer);
         } else {
             if (oppdragskontrollOpt.isPresent()) {
                 LOG.info("Ingen oppdrag å simulere for behandling {}", oppdragskontrollOpt.get().getBehandlingId());
@@ -49,9 +50,9 @@ public class SimuleringIntegrasjonTjeneste {
         return !oppdragskontroll.getOppdrag110Liste().isEmpty();
     }
 
-    public Optional<SimuleringResultatDto> hentResultat(Long behandlingId) {
+    public Optional<SimuleringResultatDto> hentResultat(Long behandlingId, UUID behandlingUuid, String saksnummer) {
         Objects.requireNonNull(behandlingId, "Utviklerfeil: behandlingId kan ikke være null");
-        return restKlient.hentResultat(behandlingId);
+        return restKlient.hentResultat(behandlingId, behandlingUuid, saksnummer);
     }
 
     public static boolean harFeilutbetaling(SimuleringResultatDto simuleringResultatDto) {

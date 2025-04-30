@@ -43,7 +43,7 @@ class SimuleringIntegrasjonTjenesteTest {
         when(oppdragskontroll.getBehandlingId()).thenReturn(null);
         when(oppdragskontroll.getOppdrag110Liste()).thenReturn(List.of());
         var oppdragskontrollOpt = Optional.of(oppdragskontroll);
-        assertThrows(NullPointerException.class, () -> integrasjonTjeneste.startSimulering(oppdragskontrollOpt));
+        assertThrows(NullPointerException.class, () -> integrasjonTjeneste.startSimulering(oppdragskontrollOpt, null, null));
     }
 
     @Test
@@ -52,32 +52,32 @@ class SimuleringIntegrasjonTjenesteTest {
         when(oppdragskontroll.getBehandlingId()).thenReturn(BEHANDLING_ID);
         when(oppdragskontroll.getOppdrag110Liste()).thenReturn(null);
         var oppdragskontrollOpt = Optional.of(oppdragskontroll);
-        assertThrows(NullPointerException.class, () -> integrasjonTjeneste.startSimulering(oppdragskontrollOpt));
+        assertThrows(NullPointerException.class, () -> integrasjonTjeneste.startSimulering(oppdragskontrollOpt, null, null));
     }
 
     @Test
     void test_skalSendeRequestTilRestKlientNårOppdragskontrollHarBådeBehandlingsIdOgOppdrag() {
         var oppdragskontroll = oppdragskontrollMedOppdrag(new Saksnummer("123456"), BEHANDLING_ID);
-        integrasjonTjeneste.startSimulering(Optional.of(oppdragskontroll));
-        verify(restKlientMock, atLeastOnce()).startSimulering(any());
+        integrasjonTjeneste.startSimulering(Optional.of(oppdragskontroll), null, null);
+        verify(restKlientMock, atLeastOnce()).startSimulering(any(), any(), any());
     }
 
     @Test
     void test_skalIkkeStartSimuleringNårOppdraglisteEmpty() {
         var oppdragskontroll = oppdragskontrollUtenOppdrag(new Saksnummer("123456"), BEHANDLING_ID, 123L);
-        integrasjonTjeneste.startSimulering(Optional.of(oppdragskontroll));
-        verify(restKlientMock, never()).startSimulering(any());
+        integrasjonTjeneste.startSimulering(Optional.of(oppdragskontroll), null, null);
+        verify(restKlientMock, never()).startSimulering(any(), any(), any());
     }
 
     @Test
     void test_skalFeileNårOppdragsystemKasterExsception() {
         doThrow(new OppdragForventetNedetidException())
-            .when(restKlientMock).startSimulering(any());
+            .when(restKlientMock).startSimulering(any(), any(), any());
         var oppdragskontroll = oppdragskontrollMedOppdrag(new Saksnummer("123456"), BEHANDLING_ID);
         var oppdragskontrollOpt = Optional.of(oppdragskontroll);
-        assertThatThrownBy(() -> integrasjonTjeneste.startSimulering(oppdragskontrollOpt))
+        assertThatThrownBy(() -> integrasjonTjeneste.startSimulering(oppdragskontrollOpt, null, null))
             .isInstanceOf(IntegrasjonException.class)
             .hasMessageContaining(OppdragForventetNedetidException.MELDING);
-        verify(restKlientMock, atLeastOnce()).startSimulering(any());
+        verify(restKlientMock, atLeastOnce()).startSimulering(any(), any(), any());
     }
 }

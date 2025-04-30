@@ -1,3 +1,7 @@
 package no.nav.foreldrepenger.økonomistøtte.simulering.klient;
 
-public record BehandlingIdDto(Long behandlingId) { }
+import java.util.UUID;
+
+public record BehandlingIdDto(Long behandlingId,
+                              UUID behandlingUuid,
+                              String saksnummer) { }

@@ -44,13 +44,12 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.kontrakter.fordel.SakInfoV2Dto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
+import no.nav.foreldrepenger.kontrakter.fordel.VurderFagsystemDto;
 import no.nav.foreldrepenger.kontrakter.fordel.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.dokumentmottak.SaksbehandlingDokumentmottakTjeneste;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.fordeling.FordelRestTjeneste.AbacSaksnummerDto;
-import no.nav.foreldrepenger.web.app.tjenester.fordeling.FordelRestTjeneste.AbacVurderFagsystemDto;
 import no.nav.vedtak.konfig.Tid;
 
 @ExtendWith(MockitoExtension.class)
@@ -91,7 +90,7 @@ class FordelRestTjenesteTest {
     @Test
     void skalReturnereFagsystemVedtaksløsning() {
         var saksnummer = new Saksnummer("12345");
-        var innDto = new AbacVurderFagsystemDto("1234", true, AKTØR_ID_MOR.getId(), "ab0047");
+        var innDto = new VurderFagsystemDto("1234", true, AKTØR_ID_MOR.getId(), "ab0047");
         var behandlendeFagsystem = new BehandlendeFagsystem(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING, saksnummer);
 
         when(vurderFagsystemTjenesteMock.vurderFagsystem(any(VurderFagsystem.class))).thenReturn(behandlendeFagsystem);
@@ -107,7 +106,7 @@ class FordelRestTjenesteTest {
     void skalReturnereFagsystemManuell() {
         var saksnummer = new Saksnummer("TEST1");
         var journalpostId = new JournalpostId("1234");
-        var innDto = new AbacVurderFagsystemDto(journalpostId.getVerdi(), false, AKTØR_ID_MOR.getId(), "ab0047");
+        var innDto = new VurderFagsystemDto(journalpostId.getVerdi(), false, AKTØR_ID_MOR.getId(), "ab0047");
         innDto.setDokumentTypeIdOffisiellKode(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL.getOffisiellKode());
         var behandlendeFagsystem = new BehandlendeFagsystem(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING, saksnummer);
 
@@ -124,7 +123,7 @@ class FordelRestTjenesteTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
         scenario.medSaksnummer(new Saksnummer("TEST2")).medSøknadHendelse().medFødselsDato(LocalDate.now());
         scenario.lagre(repositoryProvider);
-        var result = fordelRestTjeneste.fagsak(new AbacSaksnummerDto("TEST2"));
+        var result = fordelRestTjeneste.fagsak(new SaksnummerDto("TEST2"));
 
         assertThat(result).isNotNull();
         assertThat(new AktørId(result.getAktørId())).isEqualTo(AKTØR_ID_MOR);
@@ -138,7 +137,7 @@ class FordelRestTjenesteTest {
         scenario.medSaksnummer(saknr).medSøknadHendelse().medFødselsDato(LocalDate.now());
         var behandling = scenario.lagre(repositoryProvider);
         repositoryProvider.getFagsakRepository().fagsakSkalStengesForBruk(behandling.getFagsakId());
-        var result = fordelRestTjeneste.fagsak(new AbacSaksnummerDto("TEST3"));
+        var result = fordelRestTjeneste.fagsak(new SaksnummerDto("TEST3"));
 
         assertThat(result).isNull();
     }

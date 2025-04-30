@@ -51,9 +51,9 @@ public class SimulerInntrekkSjekkeTjeneste {
         var tilbakekrevingValg = tilbakekrevingRepository.hent(behandling.getId());
         if (tilbakekrevingValg.filter(valg -> valg.getVidereBehandling().equals(TilbakekrevingVidereBehandling.INNTREKK)).isPresent()) {
             var oppdragskontroll = simulerOppdragTjeneste.hentOppdragskontrollForBehandling(behandling.getId());
-            simuleringIntegrasjonTjeneste.startSimulering(oppdragskontroll);
+            simuleringIntegrasjonTjeneste.startSimulering(oppdragskontroll, behandling.getUuid(), behandling.getSaksnummer().getVerdi());
 
-            var simuleringResultatDto = simuleringIntegrasjonTjeneste.hentResultat(behandling.getId());
+            var simuleringResultatDto = simuleringIntegrasjonTjeneste.hentResultat(behandling.getId(), behandling.getUuid(), behandling.getSaksnummer().getVerdi());
             if (simuleringResultatDto.filter(SimuleringIntegrasjonTjeneste::harFeilutbetaling).isPresent()) {
                 tilbakekrevingRepository.lagre(behandling,
                     TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING, null));

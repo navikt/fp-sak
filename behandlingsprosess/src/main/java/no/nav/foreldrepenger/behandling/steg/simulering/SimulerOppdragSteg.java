@@ -113,7 +113,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
                                    BehandlingStegType fraSteg) {
         if (!BehandlingStegType.SIMULER_OPPDRAG.equals(tilSteg)) {
             var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-            fpOppdragRestKlient.kansellerSimulering(kontekst.getBehandlingId());
+            fpOppdragRestKlient.kansellerSimulering(kontekst.getBehandlingId(), behandling.getUuid(), behandling.getSaksnummer().getVerdi());
             tilbakekrevingRepository.deaktiverEksisterendeTilbakekrevingValg(behandling);
             tilbakekrevingRepository.deaktiverEksisterendeTilbakekrevingInntrekk(behandling);
         }
@@ -121,7 +121,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
 
     private void startSimulering(Behandling behandling) {
         var oppdragskontroll = simulerOppdragTjeneste.hentOppdragskontrollForBehandling(behandling.getId());
-        simuleringIntegrasjonTjeneste.startSimulering(oppdragskontroll);
+        simuleringIntegrasjonTjeneste.startSimulering(oppdragskontroll, behandling.getUuid(), behandling.getSaksnummer().getVerdi());
     }
 
     private void opprettFortsettBehandlingTask(Behandling behandling) {
@@ -138,7 +138,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
             aksjonspunkter.add(AksjonspunktDefinisjon.KONTROLLER_STOR_ETTERBETALING_SØKER);
         }
 
-        var simuleringResultatDto = simuleringIntegrasjonTjeneste.hentResultat(behandling.getId());
+        var simuleringResultatDto = simuleringIntegrasjonTjeneste.hentResultat(behandling.getId(), behandling.getUuid(), behandling.getSaksnummer().getVerdi());
         if (simuleringResultatDto.isPresent()) {
             var resultatDto = simuleringResultatDto.get();
             lagreBrukInntrekk(behandling, resultatDto);
