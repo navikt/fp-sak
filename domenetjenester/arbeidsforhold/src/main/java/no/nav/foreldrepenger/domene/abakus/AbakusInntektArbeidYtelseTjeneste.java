@@ -23,8 +23,8 @@ import no.nav.abakus.iaygrunnlag.request.InntektsmeldingerMottattRequest;
 import no.nav.abakus.iaygrunnlag.request.InntektsmeldingerRequest;
 import no.nav.abakus.iaygrunnlag.request.KopierGrunnlagRequest;
 import no.nav.abakus.iaygrunnlag.request.OppgittOpptjeningMottattRequest;
+import no.nav.abakus.iaygrunnlag.request.OverstyrGrunnlagRequest;
 import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagDto;
-import no.nav.abakus.iaygrunnlag.v1.OverstyrtInntektArbeidYtelseDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -140,9 +140,8 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
     }
 
     private InntektArbeidYtelseGrunnlagRequest initRequest(Behandling behandling, UUID inntektArbeidYtelseGrunnlagUuid) {
-        var request = new InntektArbeidYtelseGrunnlagRequest(new AktørIdPersonident(behandling.getAktørId().getId()));
-        request.medSaksnummer(behandling.getSaksnummer().getVerdi());
-        request.medYtelseType(KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()));
+        var request = new InntektArbeidYtelseGrunnlagRequest(new AktørIdPersonident(behandling.getAktørId().getId()),
+            behandling.getSaksnummer().getVerdi(), KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()));
         request.forKobling(behandling.getUuid());
         request.forGrunnlag(inntektArbeidYtelseGrunnlagUuid);
         request.medDataset(Arrays.asList(Dataset.values()));
@@ -237,9 +236,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
                                        Collection<InntektsmeldingBuilder> inntektsmeldingBuilderCollection) {
         Objects.requireNonNull(inntektsmeldingBuilderCollection, "inntektsmeldingBuilderCollection");
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var inntektsmeldingerDto = new IAYTilDtoMapper(behandling.getAktørId(),
-                KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()),
-                null, behandling.getUuid()).mapTilDto(inntektsmeldingBuilderCollection);
+        var inntektsmeldingerDto = IAYTilDtoMapper.mapTilDto(inntektsmeldingBuilderCollection);
 
         if (inntektsmeldingerDto == null) {
             return;
@@ -327,9 +324,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
                                                                         Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var aktør = new AktørIdPersonident(behandling.getAktørId().getId());
-        var oppgittOpptjening = new IAYTilDtoMapper(behandling.getAktørId(),
-            KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()),
-            null, behandling.getUuid()).mapTilDto(oppgittOpptjeningBuilder);
+        var oppgittOpptjening = IAYTilDtoMapper.mapTilDto(oppgittOpptjeningBuilder);
         return new OppgittOpptjeningMottattRequest(behandling.getSaksnummer().getVerdi(), behandling.getUuid(), aktør,
             KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()), oppgittOpptjening);
     }
@@ -382,20 +377,17 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
     }
 
     private InntektArbeidYtelseGrunnlagRequest initRequest(Behandling behandling) {
-        var request = new InntektArbeidYtelseGrunnlagRequest(new AktørIdPersonident(behandling.getAktørId().getId()));
+        var request = new InntektArbeidYtelseGrunnlagRequest(new AktørIdPersonident(behandling.getAktørId().getId()),
+            behandling.getSaksnummer().getVerdi(), KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()));
         request.medSisteKjenteGrunnlagReferanse(requestCache.getSisteAktiveGrunnlagReferanse(behandling.getUuid()));
-        request.medSaksnummer(behandling.getSaksnummer().getVerdi());
-        request.medYtelseType(KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()));
         request.forKobling(behandling.getUuid());
         request.medDataset(Arrays.asList(Dataset.values()));
         return request;
     }
 
     private InntektsmeldingerRequest initInntektsmeldingerRequest(Fagsak fagsak) {
-        var request = new InntektsmeldingerRequest(new AktørIdPersonident(fagsak.getAktørId().getId()));
-        request.setSaksnummer(fagsak.getSaksnummer().getVerdi());
-        request.setYtelseType(KodeverkMapper.fraFagsakYtelseType(fagsak.getYtelseType()));
-        return request;
+        return new InntektsmeldingerRequest(new AktørIdPersonident(fagsak.getAktørId().getId()),
+            fagsak.getSaksnummer().getVerdi(), KodeverkMapper.fraFagsakYtelseType(fagsak.getYtelseType()));
     }
 
     private List<Inntektsmelding> hentOgMapAlleInntektsmeldinger(Fagsak fagsak) {
@@ -467,10 +459,14 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         }
     }
 
-    private OverstyrtInntektArbeidYtelseDto konverterTilOverstyringDto(Behandling behandling, InntektArbeidYtelseGrunnlag gr) {
-        var tilDto = new IAYTilDtoMapper(behandling.getAktørId(), KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()),
-            gr.getEksternReferanse(), behandling.getUuid());
-        return tilDto.mapTilOverstyringDto(gr);
+    private OverstyrGrunnlagRequest konverterTilOverstyringDto(Behandling behandling, InntektArbeidYtelseGrunnlag gr) {
+        var overstyrt = IAYTilDtoMapper.mapTilOverstyrtDto(gr).orElse(null);
+        var arbeidsforholdInfo = IAYTilDtoMapper.mapTilArbeidsforholdInfoDto(gr).orElse(null);
+        return new OverstyrGrunnlagRequest(new AktørIdPersonident(behandling.getAktørId().getId()), behandling.getSaksnummer().getVerdi(),
+            KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()),
+            gr.getEksternReferanse(),
+            behandling.getUuid(),
+            arbeidsforholdInfo, overstyrt);
     }
 
     private static TekniskException feilVedKallTilAbakus(String feilmelding, Throwable t) {

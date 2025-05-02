@@ -180,7 +180,7 @@ public class FordelRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Ny journalpost skal behandles.", summary = "Varsel om en ny journalpost som skal behandles i systemet.", tags = "fordel")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
-    public SaksnummerDto opprettSak(@TilpassetAbacAttributt(supplierClass = FordelRestTjeneste.OpprettSakDtoAbacDataSupplier.class)
+    public SaksnummerDto opprettSak(@TilpassetAbacAttributt(supplierClass = OpprettSakDtoAbacDataSupplier.class)
         @Parameter(description = "Oppretter fagsak") @Valid OpprettSakDto opprettSakDto) {
         ensureCallId();
         var journalpostId = opprettSakDto.getJournalpostId();
@@ -200,7 +200,7 @@ public class FordelRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Ny journalpost skal behandles.", summary = "Varsel om en ny journalpost som skal behandles i systemet.", tags = "fordel")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
-    public SaksnummerDto opprettSakv2(@TilpassetAbacAttributt(supplierClass = AktørIdDataSupplier.class) @Parameter(description = "Oppretter fagsak") @Valid OpprettSakV2Dto opprettSakDto) {
+    public SaksnummerDto opprettSakv2(@TilpassetAbacAttributt(supplierClass = OpprettSakV2DtoAbacDataSupplier.class) @Parameter(description = "Oppretter fagsak") @Valid OpprettSakV2Dto opprettSakDto) {
         ensureCallId();
         var journalpostId = Optional.ofNullable(opprettSakDto.journalpostId());
         var ytelseType = mapYtelseType(opprettSakDto.ytelseType());
@@ -219,20 +219,13 @@ public class FordelRestTjeneste {
         };
     }
 
-    public static class AktørIdDataSupplier implements Function<Object, AbacDataAttributter> {
-        @Override
-        public AbacDataAttributter apply(Object obj) {
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, ((OpprettSakV2Dto) obj).aktørId());
-        }
-    }
-
     @POST
     @Path("/fagsak/knyttJournalpost")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Knytt journalpost til fagsak.", summary = "Før en journalpost journalføres på en fagsak skal fagsaken oppdateres med journalposten.", tags = "fordel")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
-    public Response knyttSakOgJournalpost(@TilpassetAbacAttributt(supplierClass = FordelRestTjeneste.JournalpostKnyttningDtoAbacDataSupplier.class)
+    public Response knyttSakOgJournalpost(@TilpassetAbacAttributt(supplierClass = JournalpostKnyttningDtoAbacDataSupplier.class)
         @Parameter(description = "Saksnummer og JournalpostId som skal knyttes sammen") @Valid JournalpostKnyttningDto journalpostKnytningDto) {
         ensureCallId();
         var saksnummer = new Saksnummer(journalpostKnytningDto.getSaksnummer());
@@ -574,6 +567,15 @@ public class FordelRestTjeneste {
         public AbacDataAttributter apply(Object obj) {
             var req = (OpprettSakDto) obj;
             return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.getAktørId());
+        }
+    }
+
+    public static class OpprettSakV2DtoAbacDataSupplier implements Function<Object, AbacDataAttributter> {
+
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var req = (OpprettSakV2Dto) obj;
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.aktørId());
         }
     }
 
