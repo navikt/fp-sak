@@ -45,7 +45,7 @@ public class YtelseFordelingAggregat {
     }
 
     public boolean harAnnenForelderRett(boolean annenpartHarForeldrepengerUtbetaling) {
-        if (annenpartHarForeldrepengerUtbetaling || avklartAnnenForelderHarRettEØS()) {
+        if ((getOverstyrtRettighetstype().isEmpty() && annenpartHarForeldrepengerUtbetaling) || avklartAnnenForelderHarRettEØS()) {
             return true;
         }
         return Optional.ofNullable(getAnnenForelderRettAvklaring())
