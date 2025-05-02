@@ -36,8 +36,8 @@ import no.nav.abakus.iaygrunnlag.request.InntektsmeldingerMottattRequest;
 import no.nav.abakus.iaygrunnlag.request.InntektsmeldingerRequest;
 import no.nav.abakus.iaygrunnlag.request.KopierGrunnlagRequest;
 import no.nav.abakus.iaygrunnlag.request.OppgittOpptjeningMottattRequest;
+import no.nav.abakus.iaygrunnlag.request.OverstyrGrunnlagRequest;
 import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagDto;
-import no.nav.abakus.iaygrunnlag.v1.OverstyrtInntektArbeidYtelseDto;
 import no.nav.abakus.vedtak.ytelse.Aktør;
 import no.nav.abakus.vedtak.ytelse.Periode;
 import no.nav.abakus.vedtak.ytelse.Ytelse;
@@ -88,7 +88,7 @@ public class AbakusTjeneste {
         this.endpointGrunnlag = toUri("/api/iay/grunnlag/v1/");
         this.endpointKopierGrunnlag = toUri("/api/iay/grunnlag/v1/kopier");
         this.endpointKopierGrunnlagBeholdIM = toUri("/api/iay/grunnlag/v1/kopier-behold-im");
-        this.endpointOverstyring = toUri("/api/iay/grunnlag/v1/overstyrt");
+        this.endpointOverstyring = toUri("/api/iay/grunnlag/v1/overstyr-grunnlag");
         this.endpointMottaInntektsmeldinger = toUri("/api/iay/inntektsmeldinger/v1/motta");
         this.endpointInntektsmeldinger = toUri("/api/iay/inntektsmeldinger/v1/hentAlle");
         this.endpointMottaOppgittOpptjening = toUri("/api/iay/oppgitt/v1/motta");
@@ -227,7 +227,7 @@ public class AbakusTjeneste {
         }
     }
 
-    public void lagreOverstyrtGrunnlag(OverstyrtInntektArbeidYtelseDto overstyrtDto) throws IOException {
+    public void lagreOverstyrtGrunnlag(OverstyrGrunnlagRequest overstyrtDto) throws IOException {
         var json = iayJsonWriter.writeValueAsString(overstyrtDto);
 
         var method = new RestRequest.Method(RestRequest.WebMethod.PUT, HttpRequest.BodyPublishers.ofString(json));

@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.vedtak.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -24,10 +23,6 @@ import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 @ApplicationScoped
 public class FatterVedtakAksjonspunkt {
-
-    private static final Set<AksjonspunktDefinisjon> LEGACY_MEDLEM = Set.of(AksjonspunktDefinisjon.UTGÅTT_5019,
-        AksjonspunktDefinisjon.UTGÅTT_5020, AksjonspunktDefinisjon.UTGÅTT_5021, AksjonspunktDefinisjon.UTGÅTT_5023,
-        AksjonspunktDefinisjon.UTGÅTT_5053);
 
     private VedtakTjeneste vedtakTjeneste;
     private TotrinnTjeneste totrinnTjeneste;
@@ -63,7 +58,7 @@ public class FatterVedtakAksjonspunkt {
         for (var aks : aksjonspunkter) {
             var erTotrinnGodkjent = aks.isGodkjent();
             var aksjonspunkt = behandling.getAksjonspunktFor(aks.getAksjonspunktDefinisjon());
-            if (!aks.isGodkjent() && !LEGACY_MEDLEM.contains(aks.getAksjonspunktDefinisjon())) {
+            if (!aks.isGodkjent()) {
                 skalReåpnes.add(aksjonspunkt);
             }
 
