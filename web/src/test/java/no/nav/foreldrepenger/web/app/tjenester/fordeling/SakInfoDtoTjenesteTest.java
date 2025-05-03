@@ -76,7 +76,7 @@ class SakInfoDtoTjenesteTest {
 
         var sakInfoDto = sakInfoDtoTjeneste.mapSakInfoV2Dto(fagsak);
 
-        assertThat(sakInfoDto.saksnummer().getSaksnummer()).isEqualTo(saknr.getVerdi());
+        assertThat(sakInfoDto.saksnummer().saksnummer()).isEqualTo(saknr.getVerdi());
         assertThat(sakInfoDto.status()).isEqualTo(SakInfoV2Dto.FagsakStatusDto.UNDER_BEHANDLING);
         assertThat(sakInfoDto.opprettetDato()).isEqualTo(opprettetTidSak1.toLocalDate());
         assertThat(sakInfoDto.ytelseType()).isEqualTo(YtelseTypeDto.FORELDREPENGER);
@@ -110,7 +110,7 @@ class SakInfoDtoTjenesteTest {
 
         var sakInfoDto = sakInfoDtoTjeneste.mapSakInfoV2Dto(fagsak);
 
-        assertThat(sakInfoDto.saksnummer().getSaksnummer()).isEqualTo(saknr.getVerdi());
+        assertThat(sakInfoDto.saksnummer().saksnummer()).isEqualTo(saknr.getVerdi());
         assertThat(sakInfoDto.status()).isEqualTo(SakInfoV2Dto.FagsakStatusDto.UNDER_BEHANDLING);
         assertThat(sakInfoDto.opprettetDato()).isEqualTo(opprettetTidSak1.toLocalDate());
         assertThat(sakInfoDto.ytelseType()).isEqualTo(YtelseTypeDto.SVANGERSKAPSPENGER);
@@ -132,7 +132,7 @@ class SakInfoDtoTjenesteTest {
 
         var sakInfoDto = sakInfoDtoTjeneste.mapSakInfoV2Dto(fagsak);
 
-        assertThat(sakInfoDto.saksnummer().getSaksnummer()).isEqualTo(saknr.getVerdi());
+        assertThat(sakInfoDto.saksnummer().saksnummer()).isEqualTo(saknr.getVerdi());
         assertThat(sakInfoDto.status()).isEqualTo(SakInfoV2Dto.FagsakStatusDto.UNDER_BEHANDLING);
         assertThat(sakInfoDto.opprettetDato()).isEqualTo(opprettetTid.toLocalDate());
         assertThat(sakInfoDto.ytelseType()).isEqualTo(YtelseTypeDto.FORELDREPENGER);

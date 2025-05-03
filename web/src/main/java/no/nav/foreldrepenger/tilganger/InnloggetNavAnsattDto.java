@@ -17,6 +17,12 @@ public record InnloggetNavAnsattDto(String brukernavn,
             builder.kanOppgavestyre, builder.kanBehandleKode6, LocalDateTime.now());
     }
 
+    public static InnloggetNavAnsattDto ukjentNavAnsatt(String brukernavn, String navn) {
+        return new InnloggetNavAnsattDto(brukernavn, navn, false, false, false,
+            false, false, LocalDateTime.now());
+    }
+
+
     @Override
     public String toString() {
         return "InnloggetNavAnsattDto{" +

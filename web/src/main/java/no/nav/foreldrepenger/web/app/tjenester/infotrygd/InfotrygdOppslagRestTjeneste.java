@@ -121,7 +121,7 @@ public class InfotrygdOppslagRestTjeneste {
             return Response.status(HttpURLConnection.HTTP_BAD_REQUEST).build();
         }
 
-        if (!ansattInfoKlient.medlemAvAlleGrupper(List.of(AnsattGruppe.HISTORISK))) {
+        if (!ansattInfoKlient.medlemAvAnsattGruppe(AnsattGruppe.HISTORISK)) {
             LOG.info("FPSAK INFOTRYGD SØK IKKE MEDLEM AV AD-GRUPPE HISTORISK"); // Sjekke bruksfrekvens ...
             throw new FunksjonellException("FP-110706", "Mangler tilgangen Foreldrepenger Historisk", "Be nærmeste leder om tilgangen Foreldrepenger Historisk");
         }

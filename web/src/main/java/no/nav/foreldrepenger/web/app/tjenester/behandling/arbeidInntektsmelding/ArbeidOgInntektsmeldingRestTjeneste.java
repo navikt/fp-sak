@@ -194,7 +194,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     }
 
     private boolean erOverstyringLovlig() {
-        return ansattInfoKlient.innloggetNavAnsatt().kanOverstyre();
+        return ansattInfoKlient.kanOverstyre();
     }
 
     private boolean endringGjelderHelmanueltArbeidsforhold(ManueltArbeidsforholdDto manueltArbeidsforholdDto) {
