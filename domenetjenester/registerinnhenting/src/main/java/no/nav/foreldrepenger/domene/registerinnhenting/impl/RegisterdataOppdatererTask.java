@@ -54,8 +54,9 @@ public class RegisterdataOppdatererTask extends BehandlingProsessTask {
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingsId) {
         // NB lås før hent behandling
+        var lås = behandlingRepository.taSkriveLås(behandlingsId);
         var behandling = behandlingRepository.hentBehandling(behandlingsId);
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
         if (behandling.erSaksbehandlingAvsluttet()) return;
 
         if (behandling.isBehandlingPåVent()) {

@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
@@ -39,13 +40,14 @@ class SøkersopplysningspliktOverstyringhåndtererTest {
         scenario.lagre(repositoryProvider);
 
         var behandling = scenario.getBehandling();
+        var lås = new BehandlingLås(behandling.getId());
         // Dto
         var overstyringspunktDto = new OverstyringSokersOpplysingspliktDto(false,
                 "test av overstyring");
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
 
         // Act
-        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling);
+        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling ,lås);
 
         // Assert
         var historikkinnslagene = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer());

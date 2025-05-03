@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
@@ -51,13 +52,14 @@ class OpptjeningsvilkåretOverstyringshåndtererTest {
         scenario.lagre(repositoryProvider);
 
         var behandling = scenario.getBehandling();
+        var lås = new BehandlingLås(behandling.getId());
         // Dto
         var overstyringspunktDto = new OverstyringOpptjeningsvilkåretDto(false,
                 "test av overstyring opptjeningsvilkåret", "1035");
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
 
         // Act
-        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling);
+        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling, lås);
 
         // Assert
         var aksjonspunktSet = behandling.getAksjonspunkter();
@@ -87,12 +89,13 @@ class OpptjeningsvilkåretOverstyringshåndtererTest {
         scenario.lagre(repositoryProvider);
 
         var behandling = scenario.getBehandling();
+        var lås = new BehandlingLås(behandling.getId());
         // Dto
         var overstyringspunktDto = new OverstyringOpptjeningsvilkåretDto(false,
                 "test av overstyring opptjeningsvilkåret", "1035");
 
         // Act
-        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling);
+        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling, lås);
 
         // Assert
         var historikkinnslagene = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer());
@@ -114,13 +117,14 @@ class OpptjeningsvilkåretOverstyringshåndtererTest {
         scenario.lagre(repositoryProvider);
 
         var behandling = scenario.getBehandling();
+        var lås = new BehandlingLås(behandling.getId());
         // Dto
         var overstyringspunktDto = new OverstyringOpptjeningsvilkåretDto(true,
                 "test av overstyring opptjeningsvilkåret", "1035");
         Collection<OverstyringAksjonspunktDto> dto = Set.of(overstyringspunktDto);
 
         //Act
-        assertThatThrownBy(() -> aksjonspunktTjeneste.overstyrAksjonspunkter(dto, behandling))
+        assertThatThrownBy(() -> aksjonspunktTjeneste.overstyrAksjonspunkter(dto, behandling, lås))
             .isInstanceOf(FunksjonellException.class)
             .hasMessage("FP-093923:Kan ikke overstyre vilkår. Det må være minst en aktivitet for at opptjeningsvilkåret skal kunne overstyres.");
     }

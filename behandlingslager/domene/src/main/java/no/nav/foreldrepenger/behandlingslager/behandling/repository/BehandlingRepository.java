@@ -40,6 +40,7 @@ public class BehandlingRepository {
     private static final String BEHANDLING_UUID = "behandlingUuid";
 
     private EntityManager entityManager;
+    private BehandlingLåsRepository låsRepository;
 
     BehandlingRepository() {
         // for CDI proxy
@@ -48,6 +49,7 @@ public class BehandlingRepository {
     @Inject
     public BehandlingRepository(EntityManager entityManager) {
         this.entityManager = entityManager;
+        this.låsRepository = new BehandlingLåsRepository(entityManager);
     }
 
     private static Optional<Behandling> optionalFirst(List<Behandling> behandlinger) {
@@ -362,8 +364,11 @@ public class BehandlingRepository {
     }
 
     public BehandlingLås taSkriveLås(Long behandlingId) {
-        var låsRepo = new BehandlingLåsRepository(entityManager);
-        return låsRepo.taLås(behandlingId);
+        return låsRepository.taLås(behandlingId);
+    }
+
+    public BehandlingLås taSkriveLås(UUID behandlingUuid) {
+        return låsRepository.taLås(behandlingUuid);
     }
 
     /**
@@ -489,8 +494,7 @@ public class BehandlingRepository {
 
     /** sjekk lås og oppgrader til skriv */
     public void verifiserBehandlingLås(BehandlingLås lås) {
-        var låsHåndterer = new BehandlingLåsRepository(entityManager);
-        låsHåndterer.oppdaterLåsVersjon(lås);
+        låsRepository.oppdaterLåsVersjon(lås);
     }
 
     Long lagre(Behandling behandling) {

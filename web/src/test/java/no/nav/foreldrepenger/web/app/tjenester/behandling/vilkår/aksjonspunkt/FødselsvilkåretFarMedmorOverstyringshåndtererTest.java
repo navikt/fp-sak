@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
@@ -51,13 +52,14 @@ class FødselsvilkåretFarMedmorOverstyringshåndtererTest {
         scenario.lagre(repositoryProvider);
 
         var behandling = scenario.getBehandling();
+        var lås = new BehandlingLås(behandling.getId());
         // Dto
         var overstyringDto = new OverstyringFødselvilkåretFarMedmorDto(
                 false, "test overstyring av inngangsvilkår far/medmor", Avslagsårsak.INGEN_BARN_DOKUMENTERT_PÅ_FAR_MEDMOR.getKode());
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
 
         // Act
-        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringDto), behandling);
+        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringDto), behandling, lås);
 
         // Assert
         var historikkinnslagene = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer());

@@ -92,8 +92,9 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
     private void klageAvsluttet(ProsessTaskData prosessTaskData, Long behandlingId, String ref) {
         var utfall = Optional.ofNullable(prosessTaskData.getPropertyValue(UTFALL_KEY))
             .map(KabalUtfall::valueOf).orElseThrow(() -> new IllegalStateException("Utviklerfeil: Kabal-klage avsluttet men mangler utfall"));
+        var lås = behandlingRepository.taSkriveLås(behandlingId);
         var klageBehandling = behandlingRepository.hentBehandling(behandlingId);
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(klageBehandling);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(klageBehandling, lås);
         kabalTjeneste.settKabalReferanse(klageBehandling, ref);
         if (!UTEN_VURDERING.contains(utfall)) {
             kabalTjeneste.lagreKlageUtfallFraKabal(klageBehandling, utfall);
@@ -167,7 +168,8 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Kabal-anke avsluttet men mangler utfall"));
         var ankeBehandling = kabalTjeneste.finnAnkeBehandling(behandlingId, ref)
             .orElseThrow(() -> new IllegalStateException("Mangler ankebehandling for behandling " + behandlingId));
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(ankeBehandling);
+        var lås = behandlingRepository.taSkriveLås(ankeBehandling);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(ankeBehandling, lås);
         kabalTjeneste.settKabalReferanse(ankeBehandling, ref);
         if (KabalUtfall.TRUKKET.equals(utfall) || KabalUtfall.HEVET.equals(utfall)) {
             if (ankeBehandling.isBehandlingPåVent()) {
@@ -198,8 +200,9 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
         var behandling = KabalHendelse.BehandlingType.KLAGE.equals(kabalBehandlingType) ? behandlingRepository.hentBehandling(behandlingId) :
             kabalTjeneste.finnAnkeBehandling(behandlingId, ref)
                 .orElseThrow(() -> new IllegalStateException("Finner ike ankebehandling for behandling " + behandlingId));
+        var lås = behandlingRepository.taSkriveLås(behandling);
         kabalTjeneste.settKabalReferanse(behandling, ref);
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
         kabalTjeneste.settKabalReferanse(behandling, ref);
         if (behandling.isBehandlingPåVent()) {
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtførtForHenleggelse(behandling, kontekst);

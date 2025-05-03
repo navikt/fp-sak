@@ -43,6 +43,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKontrollRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -238,6 +239,16 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
 
         // så les
         return new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(), lås,
+            behandling.getFagsakYtelseType(), behandling.getType());
+    }
+
+    @Override
+    public BehandlingskontrollKontekst initBehandlingskontroll(Behandling behandling, BehandlingLås skriveLås) {
+        Objects.requireNonNull(behandling, "behandling");
+        Objects.requireNonNull(skriveLås, "lås");
+
+        // så les
+        return new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(), skriveLås,
             behandling.getFagsakYtelseType(), behandling.getType());
     }
 

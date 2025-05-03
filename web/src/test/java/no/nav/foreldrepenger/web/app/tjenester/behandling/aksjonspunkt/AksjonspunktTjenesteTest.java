@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
@@ -73,11 +74,12 @@ class AksjonspunktTjenesteTest {
         // Bruker BekreftTerminbekreftelseAksjonspunktDto som konkret case
         var scenario = lagScenarioMedAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE);
         var behandling = scenario.lagre(repositoryProvider);
+        var lås = new BehandlingLås(behandling.getId());
 
         var dto = new BekreftTerminbekreftelseAksjonspunktDto(BEGRUNNELSE, TERMINDATO, UTSTEDTDATO, 1);
 
         // Act
-        aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), behandling);
+        aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), behandling, lås);
 
         // Assert
         var oppdatertBehandling = behandlingRepository.hentBehandling(behandling.getId());
@@ -89,11 +91,12 @@ class AksjonspunktTjenesteTest {
     void skal_håndtere_aksjonspunkt_for_omsorgsvilkåret() {
         var scenario = lagScenarioMedAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET);
         var behandling = scenario.lagre(repositoryProvider);
+        var lås = new BehandlingLås(behandling.getId());
         var dto = new OmsorgsvilkårAksjonspunktDto(BEGRUNNELSE, false,
                 Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O.getKode());
 
         // Act
-        aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), behandling);
+        aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), behandling, lås);
 
         // Assert
         assertThat(behandling.getBehandlingsresultat().getVilkårResultat()).isNotNull();
@@ -150,10 +153,11 @@ class AksjonspunktTjenesteTest {
         AksjonspunktTestSupport.setTilUtført(førstegangsbehandling.getAksjonspunkter().iterator().next(), BEGRUNNELSE);
         var revurdering = opprettRevurderingsbehandlingMedAksjonspunkt(førstegangsbehandling,
                 AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE);
+        var lås = new BehandlingLås(revurdering.getId());
         var dto = new BekreftTerminbekreftelseAksjonspunktDto(BEGRUNNELSE, LocalDate.now(), LocalDate.now(), 2);
 
         // Act
-        aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), revurdering);
+        aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), revurdering, lås);
 
         // Assert
         var oppdatertBehandling = behandlingRepository.hentBehandling(revurdering.getId());
@@ -168,11 +172,12 @@ class AksjonspunktTjenesteTest {
         AksjonspunktTestSupport.setTilUtført(førstegangsbehandling.getAksjonspunkter().iterator().next(), BEGRUNNELSE);
         var revurdering = opprettRevurderingsbehandlingMedAksjonspunkt(førstegangsbehandling,
                 AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET);
+        var lås = new BehandlingLås(revurdering.getId());
         var dto = new OmsorgsvilkårAksjonspunktDto(BEGRUNNELSE, false,
                 Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O.getKode());
 
         // Act
-        aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), revurdering);
+        aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), revurdering, lås);
 
         // Assert
         var oppdatertBehandling = behandlingRepository.hentBehandling(revurdering.getId());

@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
@@ -21,10 +22,20 @@ public interface BehandlingskontrollTjeneste {
     /**
      * Initierer ny behandlingskontroll for en ny behandling, som ikke er lagret i
      * behandlingsRepository og derfor ikke har fått tildelt behandlingId
+     * Vil forsøke ta skrivelås - som helst bør være tatt før man leser opp behandlingen
      *
-     * @param behandling - må være med
+     * @param behandling - må være med.
      */
     BehandlingskontrollKontekst initBehandlingskontroll(Behandling behandling);
+
+    /**
+     * Initierer ny behandlingskontroll for en ny behandling, som ikke er lagret i
+     * behandlingsRepository og derfor ikke har fått tildelt behandlingId
+     *
+     * @param behandling - må være med
+     * @param skriveLås - behandlingen må være låst - helst med behandlingId før den er lest opp fra behandlingRepository
+     */
+    BehandlingskontrollKontekst initBehandlingskontroll(Behandling behandling, BehandlingLås skriveLås);
 
     /**
      * Prosesser behandling fra dit den sist har kommet. Avhengig av vurderingspunkt

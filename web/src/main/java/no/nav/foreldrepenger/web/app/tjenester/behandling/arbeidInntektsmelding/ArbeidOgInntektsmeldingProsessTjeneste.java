@@ -40,13 +40,14 @@ public class ArbeidOgInntektsmeldingProsessTjeneste {
     }
 
     public void tillTilbakeOgOpprettAksjonspunkt(BehandlingIdVersjonDto dto, boolean erOverstyringSomLagerAP) {
+        var lås = behandlingRepository.taSkriveLås(dto.getBehandlingUuid());
         var behandling = behandlingRepository.hentBehandling(dto.getBehandlingUuid());
 
         // Diverse kontroller for å sjekke at vi har lov til å flytte behandlingen bakover i prosessen.
         validerAtOperasjonErLovlig(behandling, erOverstyringSomLagerAP);
 
         behandlingsutredningTjeneste.kanEndreBehandling(behandling, dto.getBehandlingVersjon());
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
         behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING);
         behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst, List.of(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING));
         behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);

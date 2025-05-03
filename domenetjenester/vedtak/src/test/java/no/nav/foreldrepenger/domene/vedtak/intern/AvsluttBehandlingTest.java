@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -84,10 +85,10 @@ class AvsluttBehandlingTest {
         avsluttBehandling = new AvsluttBehandling(repositoryProvider, behandlingskontrollTjeneste, behandlingVedtakEventPubliserer,
             vurderBehandlingerUnderIverksettelse, behandlingProsesseringTjeneste, oppdatereFagsakRelasjonVedVedtak, beregningTjeneste, iayTjeneste);
 
-        when(behandlingskontrollTjeneste.initBehandlingskontroll(Mockito.any(Behandling.class))).thenAnswer(
-                invocation -> {
+        when(behandlingskontrollTjeneste.initBehandlingskontroll(Mockito.any(Behandling.class), Mockito.any(BehandlingLås.class)))
+            .thenAnswer(invocation -> {
                     Behandling beh = invocation.getArgument(0);
-                    var lås = new BehandlingLås(beh.getId());
+                    BehandlingLås lås = invocation.getArgument(1);
                     return new BehandlingskontrollKontekst(beh, lås);
                 });
     }
@@ -188,7 +189,7 @@ class AvsluttBehandlingTest {
     }
 
     private void verifiserKallTilProsesserBehandling(Behandling behandling) {
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, new BehandlingLås(behandling.getId()));
         verify(behandlingskontrollTjeneste).prosesserBehandlingGjenopptaHvisStegVenter(kontekst,
                 BehandlingStegType.IVERKSETT_VEDTAK);
     }

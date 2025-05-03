@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
@@ -43,6 +44,7 @@ class AdopsjonsvilkårEngangsstønadOverstyringhåndtererTest {
         scenario.lagre(repositoryProvider);
 
         var behandling = scenario.getBehandling();
+        var lås = new BehandlingLås(behandling.getId());
 
         // Dto
         var overstyringspunktDto = new OverstyringAdopsjonsvilkåretDto(false,
@@ -50,7 +52,7 @@ class AdopsjonsvilkårEngangsstønadOverstyringhåndtererTest {
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
 
         // Act
-        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling);
+        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling, lås);
 
         // Assert
         var aksjonspunktSet = behandling.getAksjonspunkter();

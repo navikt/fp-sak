@@ -43,11 +43,12 @@ public class ÅpneBehandlingForEndringerTask extends BehandlingProsessTask {
 
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
+        var lås = behandlingRepository.taSkriveLås(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (behandling.erSaksbehandlingAvsluttet()) return;
         var startpunkt = StartpunktType.KONTROLLER_ARBEIDSFORHOLD;
         arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandler(behandling.getId());
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
         reaktiverAksjonspunkter(kontekst, behandling, startpunkt);
         behandling.setÅpnetForEndring(true);
         behandlingskontrollTjeneste.behandlingTilbakeføringHvisTidligereBehandlingSteg(kontekst, startpunkt.getBehandlingSteg());
