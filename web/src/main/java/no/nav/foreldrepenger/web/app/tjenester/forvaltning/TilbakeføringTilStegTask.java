@@ -42,8 +42,9 @@ public class TilbakeføringTilStegTask extends BehandlingProsessTask {
 
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
+        var lås = behandlingRepository.taSkriveLås(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
         if (behandling.isBehandlingPåVent()) {
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
         }

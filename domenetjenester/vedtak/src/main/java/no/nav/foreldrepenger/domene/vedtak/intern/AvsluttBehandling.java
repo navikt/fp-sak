@@ -62,8 +62,9 @@ public class AvsluttBehandling {
 
     void avsluttBehandling(Long behandlingId) {
         LOG.info("Avslutter behandling inngang {}", behandlingId);
+        var lås = behandlingRepository.taSkriveLås(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
 
         oppdatereFagsakRelasjonVedVedtak.oppdaterRelasjonVedVedtattBehandling(behandling);
 

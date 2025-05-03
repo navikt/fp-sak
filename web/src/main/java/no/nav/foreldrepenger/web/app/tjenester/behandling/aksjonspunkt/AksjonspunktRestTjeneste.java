@@ -141,6 +141,7 @@ public class AksjonspunktRestTjeneste {
     private Response bekreftAksjonspunkt(HttpServletRequest request, BekreftedeAksjonspunkterDto apDto) throws URISyntaxException {
         var bekreftedeAksjonspunktDtoer = apDto.getBekreftedeAksjonspunktDtoer();
 
+        var lås = behandlingRepository.taSkriveLås(apDto.getBehandlingUuid());
         var behandling = behandlingRepository.hentBehandling(apDto.getBehandlingUuid());
 
         behandlingutredningTjeneste.kanEndreBehandling(behandling, apDto.getBehandlingVersjon());
@@ -151,7 +152,7 @@ public class AksjonspunktRestTjeneste {
             LOG.info("Bekrefter flere aksjonspunkt {}", bekreftedeAksjonspunktDtoer.stream().map(a -> a.getAksjonspunktDefinisjon().getKode()).toList());
         }
 
-        applikasjonstjeneste.bekreftAksjonspunkter(bekreftedeAksjonspunktDtoer, behandling);
+        applikasjonstjeneste.bekreftAksjonspunkter(bekreftedeAksjonspunktDtoer, behandling, lås);
 
         return Redirect.tilBehandlingPollStatus(request, behandling.getUuid());
     }
@@ -172,6 +173,7 @@ public class AksjonspunktRestTjeneste {
                              @TilpassetAbacAttributt(supplierClass = OverstyrtAbacDataSupplier.class)
         @Parameter(description = "Liste over overstyring aksjonspunkter.") @Valid OverstyrteAksjonspunkterDto apDto) throws URISyntaxException {
 
+        var lås = behandlingRepository.taSkriveLås(apDto.getBehandlingUuid());
         var behandling = behandlingRepository.hentBehandling(apDto.getBehandlingUuid());
 
         behandlingutredningTjeneste.kanEndreBehandling(behandling, apDto.getBehandlingVersjon());
@@ -183,7 +185,7 @@ public class AksjonspunktRestTjeneste {
             LOG.info("Overstyrer flere aksjonspunkt {}", overstyrteAksjonspunktDtoer.stream().map(a -> a.getAksjonspunktDefinisjon().getKode()).toList());
         }
 
-        applikasjonstjeneste.overstyrAksjonspunkter(overstyrteAksjonspunktDtoer, behandling);
+        applikasjonstjeneste.overstyrAksjonspunkter(overstyrteAksjonspunktDtoer, behandling, lås);
 
         return Redirect.tilBehandlingPollStatus(request, behandling.getUuid());
     }

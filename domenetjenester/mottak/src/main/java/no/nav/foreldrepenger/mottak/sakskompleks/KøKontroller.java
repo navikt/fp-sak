@@ -158,8 +158,9 @@ public class KøKontroller {
     }
 
     public void oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling(Long behandlingId) {
+        var lås = behandlingRepository.taSkriveLås(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
         oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling(behandling);
     }
 

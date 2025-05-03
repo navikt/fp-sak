@@ -40,6 +40,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingSaksbehandlerEvent;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
@@ -86,8 +87,8 @@ public class AksjonspunktTjeneste {
         this.behandlingEventPubliserer = behandlingEventPubliserer;
     }
 
-    void bekreftAksjonspunkter(Collection<BekreftetAksjonspunktDto> bekreftedeAksjonspunktDtoer, Behandling behandling) {
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+    void bekreftAksjonspunkter(Collection<BekreftetAksjonspunktDto> bekreftedeAksjonspunktDtoer, Behandling behandling, BehandlingLås skriveLås) {
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, skriveLås);
         setAnsvarligSaksbehandler(bekreftedeAksjonspunktDtoer, behandling);
 
         spoolTilbakeTilTidligsteAksjonspunkt(bekreftedeAksjonspunktDtoer, kontekst);
@@ -152,12 +153,12 @@ public class AksjonspunktTjeneste {
         }
     }
 
-    public void overstyrAksjonspunkter(Collection<OverstyringAksjonspunktDto> overstyrteAksjonspunkter, Behandling behandling) {
+    public void overstyrAksjonspunkter(Collection<OverstyringAksjonspunktDto> overstyrteAksjonspunkter, Behandling behandling, BehandlingLås skriveLås) {
         if (SpesialBehandling.kanIkkeOverstyres(behandling)) {
             throw new FunksjonellException("FP-760744", "Behandlingen kan ikke overstyres og må gjennomføres",
                 "Vurder behov for ordinær revurdering etter at denne behnadlingen er avsluttet");
         }
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, skriveLås);
         setAnsvarligSaksbehandler(List.of(), behandling);
 
         // Tilbakestill gjeldende steg før fremføring

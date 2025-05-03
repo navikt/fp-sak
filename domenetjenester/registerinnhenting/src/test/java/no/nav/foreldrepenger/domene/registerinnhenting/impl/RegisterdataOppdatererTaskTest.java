@@ -66,8 +66,9 @@ class RegisterdataOppdatererTaskTest {
 
         behandling.setBehandlendeEnhet(organisasjonsEnhet);
         when(mockBehandlingRepository.hentBehandling(any(Long.class))).thenReturn(behandling);
+        when(mockBehandlingRepository.taSkriveLås(any(Long.class))).thenReturn(new BehandlingLås(behandling.getId()));
         lenient().when(mockBehandlingRepository.lagre(any(Behandling.class), any())).thenReturn(0L);
-        when(mockBehandlingskontrollTjeneste.initBehandlingskontroll(any(Behandling.class))).thenReturn(kontekst);
+        when(mockBehandlingskontrollTjeneste.initBehandlingskontroll(any(Behandling.class), any(BehandlingLås.class))).thenReturn(kontekst);
         lenient().when(kontekst.getSkriveLås()).thenReturn(lås);
         when(mockEnhetsTjeneste.sjekkEnhetEtterEndring(any())).thenReturn(Optional.of(enhet));
 
@@ -76,7 +77,7 @@ class RegisterdataOppdatererTaskTest {
 
         task.doTask(prosessTaskData);
 
-        verify(mockBehandlingskontrollTjeneste).initBehandlingskontroll(any(Behandling.class));
+        verify(mockBehandlingskontrollTjeneste).initBehandlingskontroll(any(Behandling.class), any(BehandlingLås.class));
         verify(mockRegisterdataEndringshåndterer).utledDiffOgReposisjonerBehandlingVedEndringer(any(), eq(null), anyBoolean());
         verify(mockEnhetsTjeneste).oppdaterBehandlendeEnhet(any(), eq(enhet), any(), any());
     }
@@ -94,8 +95,9 @@ class RegisterdataOppdatererTaskTest {
 
         behandling.setBehandlendeEnhet(organisasjonsEnhet);
         when(mockBehandlingRepository.hentBehandling(any(Long.class))).thenReturn(behandling);
+        when(mockBehandlingRepository.taSkriveLås(any(Long.class))).thenReturn(new BehandlingLås(behandling.getId()));
         lenient().when(mockBehandlingRepository.lagre(any(Behandling.class), any())).thenReturn(0L);
-        when(mockBehandlingskontrollTjeneste.initBehandlingskontroll(any(Behandling.class))).thenReturn(kontekst);
+        when(mockBehandlingskontrollTjeneste.initBehandlingskontroll(any(Behandling.class), any(BehandlingLås.class))).thenReturn(kontekst);
         lenient().when(kontekst.getSkriveLås()).thenReturn(lås);
         when(mockEnhetsTjeneste.sjekkEnhetEtterEndring(any())).thenReturn(Optional.of(enhet));
 
@@ -107,7 +109,7 @@ class RegisterdataOppdatererTaskTest {
 
         task.doTask(prosessTaskData);
 
-        verify(mockBehandlingskontrollTjeneste).initBehandlingskontroll(any(Behandling.class));
+        verify(mockBehandlingskontrollTjeneste).initBehandlingskontroll(any(Behandling.class), any(BehandlingLås.class));
         verify(mockRegisterdataEndringshåndterer).utledDiffOgReposisjonerBehandlingVedEndringer(any(), eq(snapshot), anyBoolean());
         verify(mockEnhetsTjeneste).oppdaterBehandlendeEnhet(any(), eq(enhet), any(), any());
     }

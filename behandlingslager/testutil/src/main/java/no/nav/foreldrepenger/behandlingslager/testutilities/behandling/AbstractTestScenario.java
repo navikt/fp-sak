@@ -564,6 +564,10 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
                             .findFirst();
                 });
 
+        lenient().when(behandlingRepository.taSkriveLås(anyLong())).thenAnswer((Answer<BehandlingLås>) invocation -> {
+            Long behId = invocation.getArgument(0);
+            return new BehandlingLås(behId);
+        });
         lenient().when(behandlingRepository.taSkriveLås(behandlingCaptor.capture())).thenAnswer((Answer<BehandlingLås>) invocation -> {
             Behandling beh = invocation.getArgument(0);
             return new BehandlingLås(beh.getId());

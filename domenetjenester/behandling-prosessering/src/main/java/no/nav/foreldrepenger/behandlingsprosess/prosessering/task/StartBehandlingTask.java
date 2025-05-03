@@ -39,8 +39,10 @@ public class StartBehandlingTask implements ProsessTaskHandler {
         var behandlingskontrollTjeneste = cdi.select(BehandlingskontrollTjeneste.class).get();
 
         try {
-            var behandling = behandlingRepository.hentBehandling(getBehandlingId(data));
-            var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+            var behandlingId = getBehandlingId(data);
+            var lås = behandlingRepository.taSkriveLås(behandlingId);
+            var behandling = behandlingRepository.hentBehandling(behandlingId);
+            var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
             // TODO (FC): assert at behandlingen starter fra første steg?
             behandlingskontrollTjeneste.prosesserBehandling(kontekst);
         } finally {

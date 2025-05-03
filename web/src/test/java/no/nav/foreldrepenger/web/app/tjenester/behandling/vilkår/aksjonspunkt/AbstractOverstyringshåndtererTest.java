@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
@@ -34,12 +35,13 @@ class AbstractOverstyringshåndtererTest {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusWeeks(2), 1);
         var behandling = scenario.lagre(repositoryProvider);
+        var lås = new BehandlingLås(behandling.getId());
         var ap = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET);
         AksjonspunktTestSupport.setTilUtført(ap, "OK");
 
         OverstyringAksjonspunktDto dto = new OverstyringFødselsvilkåretDto(false, IKKE_OK, Avslagsårsak.MANGLENDE_DOKUMENTASJON.getKode());
 
-        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(dto), behandling);
+        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(dto), behandling, lås);
 
         assertThat(behandling.getAksjonspunktFor(AksjonspunktDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET).getBegrunnelse()).isEqualTo(IKKE_OK);
     }

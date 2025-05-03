@@ -73,12 +73,13 @@ public class TilbakeførTilDekningsgradStegTask extends FagsakProsessTask {
             LOG.info("Fagsakrel dekningsgrad og yfa dekningsgrad er lik. Tilbakefører ikke behandling");
             return;
         }
+        var lås = behandlingRepository.taSkriveLås(behandling);
         if (erIStegTidligereEnnDekningsgrad(behandling)) {
             LOG.info("Annen parts behandling ligger før dekningsgrad steget");
             return;
         }
 
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
         if (behandling.isBehandlingPåVent()) {
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
         }
