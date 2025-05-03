@@ -57,7 +57,7 @@ class FødselsvilkåretFarMedmorOverstyringshåndtererTest {
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
 
         // Act
-        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringDto), behandling.getId());
+        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringDto), behandling);
 
         // Assert
         var historikkinnslagene = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer());

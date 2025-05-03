@@ -65,7 +65,6 @@ public class Kompletthetskontroller {
 
     void persisterDokumentOgVurderKompletthet(Behandling behandling, MottattDokument mottattDokument) {
         // Ta snapshot av gjeldende grunnlag-id-er før oppdateringer
-        var behandlingId = behandling.getId();
         var ref = BehandlingReferanse.fra(behandling);
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
 
@@ -83,12 +82,12 @@ public class Kompletthetskontroller {
                 behandlingProsesseringTjeneste.settBehandlingPåVent(behandling, AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD, kompletthetResultat.ventefrist(), kompletthetResultat.venteårsak());
             }
         }
-        if (kompletthetResultat.erOppfylt() && (erKompletthetssjekkEllerPassert(behandlingId)
+        if (kompletthetResultat.erOppfylt() && (erKompletthetssjekkEllerPassert(behandling)
             || behandling.isBehandlingPåVent() || mottattDokument.getDokumentType().erSøknadType() || mottattDokument.getDokumentType().erEndringsSøknadType())) {
             if (behandling.isBehandlingPåVent()) {
                 behandlingProsesseringTjeneste.taBehandlingAvVent(behandling);
             }
-            if (erRegisterinnhentingPassert(behandling.getId())) {
+            if (erRegisterinnhentingPassert(behandling)) {
                 // Reposisjoner basert på grunnlagsendring i nylig mottatt dokument. Videre reposisjonering gjøres i task etter registeroppdatering
                 behandlingProsesseringTjeneste.utledDiffOgReposisjonerBehandlingVedEndringer(behandling, grunnlagSnapshot);
                 behandlingProsesseringTjeneste.tvingInnhentingRegisteropplysninger(behandling);
@@ -107,7 +106,7 @@ public class Kompletthetskontroller {
     public void vurderNyForretningshendelse(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
         // Forbi kompletthet: Sikre oppdatering dersom behandling står i FatteVedtak eller registerdata er innhentet samme dag.
         // Venter i kompletthet: Prøv på nytt i utvalgte tilfelle
-        if (erRegisterinnhentingPassert(behandling.getId())) {
+        if (erRegisterinnhentingPassert(behandling)) {
             behandlingProsesseringTjeneste.tvingInnhentingRegisteropplysninger(behandling);
             behandlingProsesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, LocalDateTime.now());
         } else if (BehandlingÅrsakType.årsakerRelatertTilDød().contains(behandlingÅrsakType) && behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD)) {
@@ -159,11 +158,11 @@ public class Kompletthetskontroller {
         return KompletthetResultat.oppfylt(); // Enten AUTO_KØET_BEHANDLING eller ikke aktuelt å sjekke kompletthet => oppfylt
     }
 
-    private boolean erRegisterinnhentingPassert(Long behandlingId) {
-        return behandlingskontrollTjeneste.erStegPassert(behandlingId, BehandlingStegType.INNHENT_REGISTEROPP);
+    private boolean erRegisterinnhentingPassert(Behandling behandling) {
+        return behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.INNHENT_REGISTEROPP);
     }
 
-    private boolean erKompletthetssjekkEllerPassert(Long behandlingId) {
-        return behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandlingId, BehandlingStegType.VURDER_KOMPLETT_TIDLIG);
+    private boolean erKompletthetssjekkEllerPassert(Behandling behandling) {
+        return behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling, BehandlingStegType.VURDER_KOMPLETT_TIDLIG);
     }
 }

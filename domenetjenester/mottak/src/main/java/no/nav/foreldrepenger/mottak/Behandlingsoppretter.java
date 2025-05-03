@@ -152,7 +152,7 @@ public class Behandlingsoppretter {
     }
 
     public void henleggBehandling(Behandling behandling) {
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling.getId());
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtførtForHenleggelse(behandling, kontekst);
         behandlingskontrollTjeneste.henleggBehandling(kontekst, BehandlingResultatType.MERGET_OG_HENLAGT);
     }

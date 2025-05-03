@@ -3,9 +3,6 @@ package no.nav.foreldrepenger.domene.vedtak.intern;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.konfig.Environment;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
@@ -64,8 +62,8 @@ public class AvsluttBehandling {
 
     void avsluttBehandling(Long behandlingId) {
         LOG.info("Avslutter behandling inngang {}", behandlingId);
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
 
         oppdatereFagsakRelasjonVedVedtak.oppdaterRelasjonVedVedtattBehandling(behandling);
 

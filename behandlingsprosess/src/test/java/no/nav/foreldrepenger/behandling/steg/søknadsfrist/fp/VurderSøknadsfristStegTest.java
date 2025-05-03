@@ -99,9 +99,8 @@ class VurderSøknadsfristStegTest extends EntityManagerAwareTest {
 
         var søknad = opprettSøknad(førsteUttaksdato, mottattDato, behandling.getId());
         behandlingRepositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
-        var fagsak = behandling.getFagsak();
         // Act
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(),
+        var kontekst = new BehandlingskontrollKontekst(behandling,
                 behandlingRepository.taSkriveLås(behandling));
         var behandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(kontekst);
 
@@ -143,9 +142,8 @@ class VurderSøknadsfristStegTest extends EntityManagerAwareTest {
         var søknad = opprettSøknad(førsteUttaksdato, mottattDato, behandling.getId());
         behandlingRepositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
 
-        var fagsak = behandling.getFagsak();
         // Act
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(),
+        var kontekst = new BehandlingskontrollKontekst(behandling,
                 behandlingRepository.taSkriveLås(behandling));
         var behandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(kontekst);
 

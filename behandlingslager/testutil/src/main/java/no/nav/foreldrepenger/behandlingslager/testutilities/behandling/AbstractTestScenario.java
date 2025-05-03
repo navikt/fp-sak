@@ -566,8 +566,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
         lenient().when(behandlingRepository.taSkriveLås(behandlingCaptor.capture())).thenAnswer((Answer<BehandlingLås>) invocation -> {
             Behandling beh = invocation.getArgument(0);
-            return new BehandlingLås(beh.getId()) {
-            };
+            return new BehandlingLås(beh.getId());
         });
 
         lenient().when(behandlingRepository.hentSistOppdatertTidspunkt(any()))

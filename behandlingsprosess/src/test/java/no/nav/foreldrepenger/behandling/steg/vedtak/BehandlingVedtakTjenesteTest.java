@@ -66,8 +66,7 @@ class BehandlingVedtakTjenesteTest extends EntityManagerAwareTest {
         forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.FATTE_VEDTAK);
         var behandlingLås = lagreBehandling(revurdering);
         opprettFamilieHendelseGrunnlag(originalBehandling, revurdering);
-        var fagsak = revurdering.getFagsak();
-        var revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), behandlingLås);
+        var revurderingKontekst = new BehandlingskontrollKontekst(revurdering, behandlingLås);
         oppdaterMedBehandlingsresultat(revurderingKontekst, BehandlingResultatType.OPPHØR);
         lagUttaksresultatOpphørEtterSkjæringstidspunkt(revurdering);
 
@@ -146,7 +145,6 @@ class BehandlingVedtakTjenesteTest extends EntityManagerAwareTest {
                 .medBehandlendeEnhet("Stord")
                 .lagre(repositoryProvider);
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(behandling);
-        var fagsak = behandling.getFagsak();
-        return new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), behandlingRepository.taSkriveLås(behandling));
+        return new BehandlingskontrollKontekst(behandling, behandlingRepository.taSkriveLås(behandling));
     }
 }

@@ -151,7 +151,7 @@ public class AksjonspunktRestTjeneste {
             LOG.info("Bekrefter flere aksjonspunkt {}", bekreftedeAksjonspunktDtoer.stream().map(a -> a.getAksjonspunktDefinisjon().getKode()).toList());
         }
 
-        applikasjonstjeneste.bekreftAksjonspunkter(bekreftedeAksjonspunktDtoer, behandling.getId());
+        applikasjonstjeneste.bekreftAksjonspunkter(bekreftedeAksjonspunktDtoer, behandling);
 
         return Redirect.tilBehandlingPollStatus(request, behandling.getUuid());
     }
@@ -183,7 +183,7 @@ public class AksjonspunktRestTjeneste {
             LOG.info("Overstyrer flere aksjonspunkt {}", overstyrteAksjonspunktDtoer.stream().map(a -> a.getAksjonspunktDefinisjon().getKode()).toList());
         }
 
-        applikasjonstjeneste.overstyrAksjonspunkter(overstyrteAksjonspunktDtoer, behandling.getId());
+        applikasjonstjeneste.overstyrAksjonspunkter(overstyrteAksjonspunktDtoer, behandling);
 
         return Redirect.tilBehandlingPollStatus(request, behandling.getUuid());
     }

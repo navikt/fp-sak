@@ -208,7 +208,7 @@ public class MedlemDtoTjeneste {
     }
 
     private boolean behandlingLiggerEtterMedlemskapsvilkårssteg(Behandling behandling) {
-        return behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR);
+        return behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling, BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR);
     }
 
     private static Optional<MedlemskapDto.Annenpart> annenpart(PersonopplysningerAggregat personopplysningerAggregat,

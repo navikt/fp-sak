@@ -96,7 +96,7 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
         mockSkjæringstidspunkt(LocalDate.now().plusWeeks(2));
 
         // Act
-        var resultat = steg.utførSteg(new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(), new BehandlingLås(behandling.getId())));
+        var resultat = steg.utførSteg(new BehandlingskontrollKontekst(behandling, new BehandlingLås(behandling.getId())));
 
         // Assert
         assertThat(resultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
@@ -115,7 +115,7 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
         mockSkjæringstidspunkt(LocalDate.now().plusWeeks(2));
 
         // Act
-        var resultat = steg.utførSteg(new BehandlingskontrollKontekst(revudering.getSaksnummer(), revudering.getFagsakId(), new BehandlingLås(revudering.getId())));
+        var resultat = steg.utførSteg(new BehandlingskontrollKontekst(revudering, new BehandlingLås(revudering.getId())));
 
         // Assert
         assertThat(resultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
@@ -132,7 +132,7 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
         mockSkjæringstidspunkt(LocalDate.now().minusWeeks(6).minusDays(1));
 
         // Act
-        var resultat = steg.utførSteg(new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(), new BehandlingLås(behandling.getId())));
+        var resultat = steg.utførSteg(new BehandlingskontrollKontekst(behandling, new BehandlingLås(behandling.getId())));
 
         // Assert
         assertThat(resultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
@@ -153,7 +153,7 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
         mockSkjæringstidspunkt(LocalDate.now().plusWeeks(2));
 
         // Act
-        var resultat = steg.utførSteg(new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(), new BehandlingLås(behandling.getId())));
+        var resultat = steg.utførSteg(new BehandlingskontrollKontekst(behandling, new BehandlingLås(behandling.getId())));
 
 
         // Assert
@@ -173,7 +173,7 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
         mockSkjæringstidspunkt(LocalDate.now().plusWeeks(2));
 
         // Act
-        var resultat = steg.utførSteg(new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(), new BehandlingLås(behandling.getId())));
+        var resultat = steg.utførSteg(new BehandlingskontrollKontekst(behandling, new BehandlingLås(behandling.getId())));
 
         // Assert
         assertThat(resultat.getAksjonspunktResultater()).containsExactly(opprettForAksjonspunktMedFrist(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, Venteårsak.VENT_OPDT_INNTEKTSMELDING, ventefrist));
@@ -191,7 +191,7 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
         mockSkjæringstidspunkt(LocalDate.now().plusWeeks(2));
 
         // Act
-        var resultat = steg.utførSteg(new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(), new BehandlingLås(behandling.getId())));
+        var resultat = steg.utførSteg(new BehandlingskontrollKontekst(behandling, new BehandlingLås(behandling.getId())));
 
 
         // Assert

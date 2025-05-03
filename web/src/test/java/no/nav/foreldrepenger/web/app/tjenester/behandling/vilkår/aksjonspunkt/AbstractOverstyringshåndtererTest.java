@@ -39,7 +39,7 @@ class AbstractOverstyringshåndtererTest {
 
         OverstyringAksjonspunktDto dto = new OverstyringFødselsvilkåretDto(false, IKKE_OK, Avslagsårsak.MANGLENDE_DOKUMENTASJON.getKode());
 
-        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(dto), behandling.getId());
+        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(dto), behandling);
 
         assertThat(behandling.getAksjonspunktFor(AksjonspunktDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET).getBegrunnelse()).isEqualTo(IKKE_OK);
     }

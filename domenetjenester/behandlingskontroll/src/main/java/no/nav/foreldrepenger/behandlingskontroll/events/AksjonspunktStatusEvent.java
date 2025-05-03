@@ -10,31 +10,35 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class AksjonspunktStatusEvent implements BehandlingEvent {
-    private final BehandlingskontrollKontekst kontekst;
+
+    private final Long behandlingId;
+    private final Saksnummer saksnummer;
+    private final Long fagsakId;
     private final BehandlingStegType behandlingStegType;
     private final List<Aksjonspunkt> aksjonspunkter;
 
     public AksjonspunktStatusEvent(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter,
             BehandlingStegType behandlingStegType) {
-        super();
-        this.kontekst = kontekst;
+        this.behandlingId = kontekst.getBehandlingId();
+        this.saksnummer = kontekst.getSaksnummer();
+        this.fagsakId = kontekst.getFagsakId();
         this.behandlingStegType = behandlingStegType;
         this.aksjonspunkter = Collections.unmodifiableList(aksjonspunkter);
     }
 
     @Override
     public Long getFagsakId() {
-        return kontekst.getFagsakId();
+        return fagsakId;
     }
 
     @Override
     public Saksnummer getSaksnummer() {
-        return kontekst.getSaksnummer();
+        return saksnummer;
     }
 
     @Override
     public Long getBehandlingId() {
-        return kontekst.getBehandlingId();
+        return behandlingId;
     }
 
     public BehandlingStegType getBehandlingStegType() {

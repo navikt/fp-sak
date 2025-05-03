@@ -51,7 +51,7 @@ public class BehandlingskontrollTransisjonTilbakeføringEventObserver {
     public void observerBehandlingSteg(@Observes BehandlingStegTilbakeføringEvent event) {
         var behandlingId = event.getBehandlingId();
         var behandling = serviceProvider.hentBehandling(behandlingId);
-        var modell = getModell(behandling);
+        var modell = getModell(event.getKontekst());
         guardIngenÅpneAutopunkter(behandling);
 
         var førsteSteg = event.getFørsteSteg();
@@ -79,8 +79,8 @@ public class BehandlingskontrollTransisjonTilbakeføringEventObserver {
         s.getSteg().vedTransisjon(event.getKontekst(), s, BehandlingSteg.TransisjonType.HOPP_OVER_BAKOVER, førsteSteg, sisteSteg);
     }
 
-    private BehandlingModell getModell(Behandling behandling) {
-        return serviceProvider.getBehandlingModellRepository().getModell(behandling.getType(), behandling.getFagsakYtelseType());
+    private BehandlingModell getModell(BehandlingskontrollKontekst kontekst) {
+        return serviceProvider.getBehandlingModellRepository().getModell(kontekst.getBehandlingType(), kontekst.getYtelseType());
     }
 
     private List<Aksjonspunkt> håndterAksjonspunkter(Behandling behandling, Set<AksjonspunktDefinisjon> mellomliggendeAksjonspunkt,

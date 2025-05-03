@@ -28,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 
@@ -68,9 +69,9 @@ class BehandlingskontrollTjenesteImplTest {
         var behandling = TestScenario.forEngangsstønad()
                 .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
-        var kontekst = mock(BehandlingskontrollKontekst.class);
-        when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
-        when(kontekst.getFagsakId()).thenReturn(behandling.getFagsakId());
+        var lås = mock(BehandlingLås.class);
+        when(lås.getBehandlingId()).thenReturn(behandling.getId());
+        var kontekst = new BehandlingskontrollKontekst(behandling, lås);
 
         var steg = steg2;
         var inngangAksjonspunkt = steg2InngangAksjonspunkt;
@@ -93,9 +94,9 @@ class BehandlingskontrollTjenesteImplTest {
         var behandling = TestScenario.forEngangsstønad()
                 .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
-        var kontekst = mock(BehandlingskontrollKontekst.class);
-        when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
-        when(kontekst.getFagsakId()).thenReturn(behandling.getFagsakId());
+        var lås = mock(BehandlingLås.class);
+        when(lås.getBehandlingId()).thenReturn(behandling.getId());
+        var kontekst = new BehandlingskontrollKontekst(behandling, lås);
 
         kontrollTjeneste.behandlingTilbakeføringTilTidligsteAksjonspunkt(kontekst, List.of(steg2UtgangAksjonspunkt));
 
@@ -104,7 +105,7 @@ class BehandlingskontrollTjenesteImplTest {
         assertThat(behandling.getBehandlingStegStatus()).isEqualTo(BehandlingStegStatus.UTGANG);
         assertThat(behandling.getBehandlingStegTilstand()).isNotNull();
 
-        assertThat(behandling.getBehandlingStegTilstand(steg2)).isPresent();
+        assertThat(behandling.getBehandlingStegTilstandHvisSteg(steg2)).isPresent();
         assertThat(behandling.harBehandlingStegTilstandHistorikk(2)).isTrue();
 
         sjekkBehandlingStegTilstandHistorikk(behandling, steg3, BehandlingStegStatus.TILBAKEFØRT);
@@ -117,9 +118,9 @@ class BehandlingskontrollTjenesteImplTest {
         var behandling = TestScenario.forEngangsstønad()
                 .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
-        var kontekst = mock(BehandlingskontrollKontekst.class);
-        when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
-        when(kontekst.getFagsakId()).thenReturn(behandling.getFagsakId());
+        var lås = mock(BehandlingLås.class);
+        when(lås.getBehandlingId()).thenReturn(behandling.getId());
+        var kontekst = new BehandlingskontrollKontekst(behandling, lås);
 
         kontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, steg2);
 
@@ -128,7 +129,7 @@ class BehandlingskontrollTjenesteImplTest {
         assertThat(behandling.getBehandlingStegStatus()).isEqualTo(BehandlingStegStatus.INNGANG);
         assertThat(behandling.getBehandlingStegTilstand()).isNotNull();
 
-        assertThat(behandling.getBehandlingStegTilstand(steg2)).isPresent();
+        assertThat(behandling.getBehandlingStegTilstandHvisSteg(steg2)).isPresent();
         assertThat(behandling.harBehandlingStegTilstandHistorikk(2)).isTrue();
 
         sjekkBehandlingStegTilstandHistorikk(behandling, steg3, BehandlingStegStatus.TILBAKEFØRT);
@@ -141,9 +142,9 @@ class BehandlingskontrollTjenesteImplTest {
         var behandling = TestScenario.forEngangsstønad()
                 .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
-        var kontekst = mock(BehandlingskontrollKontekst.class);
-        when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
-        when(kontekst.getFagsakId()).thenReturn(behandling.getFagsakId());
+        var lås = mock(BehandlingLås.class);
+        when(lås.getBehandlingId()).thenReturn(behandling.getId());
+        var kontekst = new BehandlingskontrollKontekst(behandling, lås);
 
         kontrollTjeneste.behandlingTilbakeføringHvisTidligereBehandlingSteg(kontekst, steg4);
 
@@ -152,8 +153,8 @@ class BehandlingskontrollTjenesteImplTest {
         assertThat(behandling.getBehandlingStegStatus()).isNull();
         assertThat(behandling.getBehandlingStegTilstand()).isNotNull();
 
-        assertThat(behandling.getBehandlingStegTilstand(steg3)).isPresent();
-        assertThat(behandling.getBehandlingStegTilstand(steg4)).isNotPresent();
+        assertThat(behandling.getBehandlingStegTilstandHvisSteg(steg3)).isPresent();
+        assertThat(behandling.getBehandlingStegTilstandHvisSteg(steg4)).isNotPresent();
         assertThat(behandling.harBehandlingStegTilstandHistorikk(1)).isTrue();
     }
 
@@ -162,9 +163,9 @@ class BehandlingskontrollTjenesteImplTest {
         var behandling = TestScenario.forEngangsstønad()
                 .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
-        var kontekst = mock(BehandlingskontrollKontekst.class);
-        when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
-        when(kontekst.getFagsakId()).thenReturn(behandling.getFagsakId());
+        var lås = mock(BehandlingLås.class);
+        when(lås.getBehandlingId()).thenReturn(behandling.getId());
+        var kontekst = new BehandlingskontrollKontekst(behandling, lås);
 
         kontrollTjeneste.behandlingFramføringTilSenereBehandlingSteg(kontekst, steg5);
 
@@ -173,7 +174,7 @@ class BehandlingskontrollTjenesteImplTest {
         assertThat(behandling.getBehandlingStegStatus()).isEqualTo(BehandlingStegStatus.INNGANG);
         assertThat(behandling.getBehandlingStegTilstand()).isNotNull();
 
-        assertThat(behandling.getBehandlingStegTilstand(steg5)).isPresent();
+        assertThat(behandling.getBehandlingStegTilstandHvisSteg(steg5)).isPresent();
         assertThat(behandling.harBehandlingStegTilstandHistorikk(2)).isTrue();
 
         sjekkBehandlingStegTilstandHistorikk(behandling, steg3, BehandlingStegStatus.AVBRUTT);
@@ -190,9 +191,9 @@ class BehandlingskontrollTjenesteImplTest {
         var behandling = TestScenario.forEngangsstønad()
                 .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
-        var kontekst = mock(BehandlingskontrollKontekst.class);
-        when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
-        when(kontekst.getFagsakId()).thenReturn(behandling.getFagsakId());
+        var lås = mock(BehandlingLås.class);
+        when(lås.getBehandlingId()).thenReturn(behandling.getId());
+        var kontekst = new BehandlingskontrollKontekst(behandling, lås);
 
         assertThatThrownBy(() -> kontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, steg4))
                 .isInstanceOf(IllegalStateException.class)
@@ -205,9 +206,9 @@ class BehandlingskontrollTjenesteImplTest {
         var behandling = TestScenario.forEngangsstønad()
                 .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
-        var kontekst = mock(BehandlingskontrollKontekst.class);
-        when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
-        when(kontekst.getFagsakId()).thenReturn(behandling.getFagsakId());
+        var lås = mock(BehandlingLås.class);
+        when(lås.getBehandlingId()).thenReturn(behandling.getId());
+        var kontekst = new BehandlingskontrollKontekst(behandling, lås);
         var modell = serviceProvider.getBehandlingModellRepository().getModell(behandling.getType(), behandling.getFagsakYtelseType());
         // Arrange
         var iverksettSteg = BehandlingStegType.IVERKSETT_VEDTAK;
@@ -225,9 +226,9 @@ class BehandlingskontrollTjenesteImplTest {
         var behandling = TestScenario.forEngangsstønad()
                 .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
-        var kontekst = mock(BehandlingskontrollKontekst.class);
-        when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
-        when(kontekst.getFagsakId()).thenReturn(behandling.getFagsakId());
+        var lås = mock(BehandlingLås.class);
+        when(lås.getBehandlingId()).thenReturn(behandling.getId());
+        var kontekst = new BehandlingskontrollKontekst(behandling, lås);
         // Arrange
         var steg = steg2;
         forceOppdaterBehandlingSteg(behandling, steg, BehandlingStegStatus.UTGANG, BehandlingStegStatus.AVBRUTT);
@@ -249,7 +250,7 @@ class BehandlingskontrollTjenesteImplTest {
 
         sjekkBehandlingStegTilstandHistorikk(behandling, steg, BehandlingStegStatus.INNGANG);
 
-        assertThat(behandling.getBehandlingStegTilstand(steg))
+        assertThat(behandling.getBehandlingStegTilstandHvisSteg(steg))
             .hasValueSatisfying(v -> assertThat(v.getBehandlingStegStatus()).isEqualTo(BehandlingStegStatus.INNGANG));
 
     }
@@ -269,9 +270,9 @@ class BehandlingskontrollTjenesteImplTest {
         var behandling = TestScenario.forEngangsstønad()
                 .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
-        var kontekst = mock(BehandlingskontrollKontekst.class);
-        when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
-        when(kontekst.getFagsakId()).thenReturn(behandling.getFagsakId());
+        var lås = mock(BehandlingLås.class);
+        when(lås.getBehandlingId()).thenReturn(behandling.getId());
+        var kontekst = new BehandlingskontrollKontekst(behandling, lås);
 
         assertThatThrownBy(() -> this.kontrollTjeneste.prosesserBehandling(kontekst))
                 .isInstanceOf(IllegalStateException.class)
@@ -283,9 +284,6 @@ class BehandlingskontrollTjenesteImplTest {
         var behandling = TestScenario.forEngangsstønad()
                 .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
-        var kontekst = mock(BehandlingskontrollKontekst.class);
-        when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
-        when(kontekst.getFagsakId()).thenReturn(behandling.getFagsakId());
         assertThat(kontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(behandling.getFagsakYtelseType(),
                 behandling.getType(), steg3, AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET)).isTrue();
     }
@@ -295,9 +293,6 @@ class BehandlingskontrollTjenesteImplTest {
         var behandling = TestScenario.forEngangsstønad()
                 .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
-        var kontekst = mock(BehandlingskontrollKontekst.class);
-        when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
-        when(kontekst.getFagsakId()).thenReturn(behandling.getFagsakId());
         assertThat(kontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(behandling.getFagsakYtelseType(),
                 behandling.getType(), steg2, AksjonspunktDefinisjon.AVKLAR_VERGE))
                         .isTrue();
@@ -308,9 +303,6 @@ class BehandlingskontrollTjenesteImplTest {
         var behandling = TestScenario.forEngangsstønad()
                 .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
-        var kontekst = mock(BehandlingskontrollKontekst.class);
-        when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
-        when(kontekst.getFagsakId()).thenReturn(behandling.getFagsakId());
         assertThat(kontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(behandling.getFagsakYtelseType(),
                 behandling.getType(), steg4, AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD))
                         .isFalse();

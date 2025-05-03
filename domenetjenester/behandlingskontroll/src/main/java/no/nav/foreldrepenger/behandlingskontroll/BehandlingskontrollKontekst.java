@@ -2,7 +2,10 @@ package no.nav.foreldrepenger.behandlingskontroll;
 
 import java.util.Objects;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 /**
@@ -10,19 +13,33 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
  */
 public class BehandlingskontrollKontekst {
 
-    private BehandlingLås behandlingLås;
-    private Long fagsakId;
-    private Saksnummer saksnummer;
+    private final BehandlingLås behandlingLås;
+    private final Long fagsakId;
+    private final Saksnummer saksnummer;
+    private final FagsakYtelseType ytelseType;
+    private final BehandlingType behandlingType;
 
     /**
      * NB: Foretrekk {@link BehandlingskontrollTjeneste#initBehandlingskontroll} i
      * stedet for å opprette her direkte.
      */
-    public BehandlingskontrollKontekst(Saksnummer saksnummer, Long fagsakId, BehandlingLås behandlingLås) {
+    public BehandlingskontrollKontekst(Saksnummer saksnummer, Long fagsakId, BehandlingLås behandlingLås,
+                                       FagsakYtelseType ytelseType, BehandlingType behandlingType) {
         Objects.requireNonNull(behandlingLås, "behandlingLås");
         this.saksnummer = saksnummer;
         this.fagsakId = fagsakId;
         this.behandlingLås = behandlingLås;
+        this.ytelseType = ytelseType;
+        this.behandlingType = behandlingType;
+    }
+
+    public BehandlingskontrollKontekst(Behandling behandling, BehandlingLås behandlingLås) {
+        Objects.requireNonNull(behandlingLås, "behandlingLås");
+        this.saksnummer = behandling.getSaksnummer();
+        this.fagsakId = behandling.getFagsakId();
+        this.behandlingLås = behandlingLås;
+        this.ytelseType = behandling.getFagsakYtelseType();
+        this.behandlingType = behandling.getType();
     }
 
     public BehandlingLås getSkriveLås() {
@@ -39,6 +56,14 @@ public class BehandlingskontrollKontekst {
 
     public Saksnummer getSaksnummer() {
         return saksnummer;
+    }
+
+    public FagsakYtelseType getYtelseType() {
+        return ytelseType;
+    }
+
+    public BehandlingType getBehandlingType() {
+        return behandlingType;
     }
 
     @Override

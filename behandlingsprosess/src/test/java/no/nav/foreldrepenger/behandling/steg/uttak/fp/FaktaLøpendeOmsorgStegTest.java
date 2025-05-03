@@ -42,9 +42,8 @@ class FaktaLøpendeOmsorgStegTest {
     void utførerMedAksjonspunktFaktaForOmsorg() {
         var scenario = opprettBehandlingForFarSomSøker();
         var behandling = scenario.lagre(repositoryProvider);
-        var fagsak = behandling.getFagsak();
         var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling);
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås);
+        var kontekst = new BehandlingskontrollKontekst(behandling, lås);
 
         var behandleStegResultat = steg.utførSteg(kontekst);
         assertThat(behandleStegResultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);

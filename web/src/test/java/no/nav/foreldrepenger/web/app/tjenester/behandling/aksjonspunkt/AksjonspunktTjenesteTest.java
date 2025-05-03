@@ -77,7 +77,7 @@ class AksjonspunktTjenesteTest {
         var dto = new BekreftTerminbekreftelseAksjonspunktDto(BEGRUNNELSE, TERMINDATO, UTSTEDTDATO, 1);
 
         // Act
-        aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), behandling.getId());
+        aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), behandling);
 
         // Assert
         var oppdatertBehandling = behandlingRepository.hentBehandling(behandling.getId());
@@ -93,7 +93,7 @@ class AksjonspunktTjenesteTest {
                 Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O.getKode());
 
         // Act
-        aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), behandling.getId());
+        aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), behandling);
 
         // Assert
         assertThat(behandling.getBehandlingsresultat().getVilkårResultat()).isNotNull();
@@ -153,7 +153,7 @@ class AksjonspunktTjenesteTest {
         var dto = new BekreftTerminbekreftelseAksjonspunktDto(BEGRUNNELSE, LocalDate.now(), LocalDate.now(), 2);
 
         // Act
-        aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), revurdering.getId());
+        aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), revurdering);
 
         // Assert
         var oppdatertBehandling = behandlingRepository.hentBehandling(revurdering.getId());
@@ -172,7 +172,7 @@ class AksjonspunktTjenesteTest {
                 Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O.getKode());
 
         // Act
-        aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), revurdering.getId());
+        aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), revurdering);
 
         // Assert
         var oppdatertBehandling = behandlingRepository.hentBehandling(revurdering.getId());

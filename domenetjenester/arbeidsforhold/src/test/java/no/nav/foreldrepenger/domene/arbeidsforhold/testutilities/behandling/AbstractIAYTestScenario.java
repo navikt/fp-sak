@@ -271,8 +271,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
         var behandlingCaptor = ArgumentCaptor.forClass(Behandling.class);
         when(behandlingRepository.taSkriveLås(behandlingCaptor.capture())).thenAnswer((Answer<BehandlingLås>) invocation -> {
             Behandling beh = invocation.getArgument(0);
-            return new BehandlingLås(beh.getId()) {
-            };
+            return new BehandlingLås(beh.getId());
         });
 
         when(behandlingRepository.lagre(behandlingCaptor.capture(), ArgumentMatchers.any()))

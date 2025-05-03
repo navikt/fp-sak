@@ -48,8 +48,7 @@ class VurderOpptjeningsvilkårStegTest {
         scenario.medAvklarteUttakDatoer(avklarteUttakDatoer);
 
         var behandling = lagre(scenario);
-        var fagsak = behandling.getFagsak();
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(),
+        var kontekst = new BehandlingskontrollKontekst(behandling,
                 repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
 
         // Act

@@ -173,7 +173,7 @@ class BehandlingStegVisitor {
             BehandlingStegType stegType,
             BehandlingStegStatus førsteStegStatus,
             BehandlingStegStatus nyStegStatus) {
-        var behandlingStegTilstand = behandling.getBehandlingStegTilstand(stegType);
+        var behandlingStegTilstand = behandling.getBehandlingStegTilstandHvisSteg(stegType);
         if (behandlingStegTilstand.isPresent() && erForskjellig(førsteStegStatus, nyStegStatus)) {
                 InternalManipulerBehandling.forceOppdaterBehandlingSteg(behandling, stegType, nyStegStatus, BehandlingStegStatus.UTFØRT);
                 behandlingRepository.lagre(behandling, kontekst.getSkriveLås());

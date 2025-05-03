@@ -74,7 +74,7 @@ class AksjonspunktRestTjenesteTest {
         aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class),
             BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, BEHANDLING_VERSJON, aksjonspunkt));
 
-        verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
+        verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), any());
     }
 
     @Test
@@ -86,7 +86,7 @@ class AksjonspunktRestTjenesteTest {
         aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class),
             BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, BEHANDLING_VERSJON, aksjonspunkt));
 
-        verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
+        verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), any());
     }
 
     @Test
@@ -97,7 +97,7 @@ class AksjonspunktRestTjenesteTest {
         aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class),
             BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, BEHANDLING_VERSJON, aksjonspunkt));
 
-        verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
+        verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), any());
 
     }
 
@@ -113,7 +113,7 @@ class AksjonspunktRestTjenesteTest {
         aksjonspunktRestTjeneste.beslutt(mock(HttpServletRequest.class),
             BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, BEHANDLING_VERSJON, aksjonspunkt));
 
-        verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
+        verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), any());
     }
 
     @Test
@@ -131,7 +131,7 @@ class AksjonspunktRestTjenesteTest {
         aksjonspunktRestTjeneste.beslutt(mock(HttpServletRequest.class), BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, BEHANDLING_VERSJON,
             List.of(new FatterVedtakAksjonspunktDto(BEGRUNNELSE, List.of(new AksjonspunktGodkjenningDto())))));
 
-        verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
+        verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), any());
     }
 
     @Test

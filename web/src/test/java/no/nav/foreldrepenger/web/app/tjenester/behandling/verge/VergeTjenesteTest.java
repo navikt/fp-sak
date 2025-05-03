@@ -11,16 +11,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
-import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
-import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
-import no.nav.foreldrepenger.domene.person.verge.OpprettVergeTjeneste;
-import no.nav.foreldrepenger.domene.person.verge.VergeDtoTjeneste;
-
-import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.NyVergeDto;
-
-import no.nav.vedtak.exception.TekniskException;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -42,6 +32,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeType;
@@ -50,10 +41,16 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
+import no.nav.foreldrepenger.domene.person.verge.OpprettVergeTjeneste;
+import no.nav.foreldrepenger.domene.person.verge.VergeDtoTjeneste;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBehandlingsmenyEnum;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.NyVergeDto;
+import no.nav.vedtak.exception.TekniskException;
 
 @ExtendWith(MockitoExtension.class)
 class VergeTjenesteTest extends EntityManagerAwareTest {
@@ -109,7 +106,7 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
 
             var pa = opprettPersonopplysningAggregatForPersonUnder18(behandling.getAktørId());
             when(personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(any(), any())).thenReturn(Optional.of(pa));
-            when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.FORESLÅ_VEDTAK)).thenReturn(true);
+            when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling, BehandlingStegType.FORESLÅ_VEDTAK)).thenReturn(true);
 
             // Act
             var behandlingOperasjon = vergeTjeneste.utledBehandlingOperasjon(behandling);

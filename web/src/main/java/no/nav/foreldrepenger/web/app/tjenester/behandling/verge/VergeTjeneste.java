@@ -16,9 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
-import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.person.verge.OpprettVergeTjeneste;
 import no.nav.foreldrepenger.domene.person.verge.VergeDtoTjeneste;
 import no.nav.foreldrepenger.domene.person.verge.dto.OpprettVergeDto;
@@ -28,7 +26,6 @@ import no.nav.foreldrepenger.domene.person.verge.dto.VergeDto;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.NyVergeDto;
-import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 public class VergeTjeneste {
@@ -82,8 +79,8 @@ public class VergeTjeneste {
         var vergeAggregat = vergeRepository.hentAggregat(behandlingId);
         var harRegistrertVerge = vergeAggregat.isPresent() && vergeAggregat.get().getVerge().isPresent();
         var harÅpentVergeAP = behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE);
-        var iForeslåVedtakllerSenereSteg = behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandlingId, BehandlingStegType.FORESLÅ_VEDTAK);
-        var iFatteVedtakEllerSenereSteg = behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandlingId, BehandlingStegType.FATTE_VEDTAK);
+        var iForeslåVedtakllerSenereSteg = behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling, BehandlingStegType.FORESLÅ_VEDTAK);
+        var iFatteVedtakEllerSenereSteg = behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling, BehandlingStegType.FATTE_VEDTAK);
         var under18År = erSøkerUnder18ar(behandlingId, behandling.getAktørId());
 
         if (harRegistrertVerge && under18År && iForeslåVedtakllerSenereSteg || SpesialBehandling.erSpesialBehandling(behandling)

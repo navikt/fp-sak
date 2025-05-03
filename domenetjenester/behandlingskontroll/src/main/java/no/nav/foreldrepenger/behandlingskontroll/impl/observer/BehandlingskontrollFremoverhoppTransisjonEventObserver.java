@@ -12,6 +12,7 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg.TransisjonType;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingTransisjonEvent;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
@@ -47,7 +48,7 @@ public class BehandlingskontrollFremoverhoppTransisjonEventObserver {
         //            return;
         //        }
         var behandling = serviceProvider.hentBehandling(transisjonEvent.getBehandlingId());
-        var modell = getModell(behandling);
+        var modell = getModell(transisjonEvent.getKontekst());
 
         var førsteSteg = transisjonEvent.getFørsteSteg();
         var sisteSteg = transisjonEvent.getSisteSteg();
@@ -103,8 +104,8 @@ public class BehandlingskontrollFremoverhoppTransisjonEventObserver {
         stegModell.getSteg().vedTransisjon(transisjonEvent.getKontekst(), stegModell, TransisjonType.HOPP_OVER_FRAMOVER, finalFørsteSteg, sisteSteg);
     }
 
-    protected BehandlingModell getModell(Behandling behandling) {
-        return serviceProvider.getBehandlingModellRepository().getModell(behandling.getType(), behandling.getFagsakYtelseType());
+    protected BehandlingModell getModell(BehandlingskontrollKontekst kontekst) {
+        return serviceProvider.getBehandlingModellRepository().getModell(kontekst.getBehandlingType(), kontekst.getYtelseType());
     }
 
     private boolean skalBesøkeStegene(StegTransisjon transisjon) {

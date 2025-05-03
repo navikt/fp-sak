@@ -151,7 +151,7 @@ class IverksetteVedtakStegFellesTest extends EntityManagerAwareTest {
 
     private BehandleStegResultat utførSteg(Behandling behandling) {
         var lås = behandlingRepository.taSkriveLås(behandling);
-        return iverksetteVedtakSteg.utførSteg(new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(), lås));
+        return iverksetteVedtakSteg.utførSteg(new BehandlingskontrollKontekst(behandling, lås));
     }
 
     private Behandling opprettBehandling() {

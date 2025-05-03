@@ -157,7 +157,7 @@ public class KlageVurderingTjeneste {
     }
 
     private void tilbakeførBehandling(Behandling behandling, BehandlingStegType vurderingSteg) {
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling.getId());
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, vurderingSteg);
         prosesseringAsynkTjeneste.asynkProsesserBehandling(behandling);
     }
