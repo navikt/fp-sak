@@ -158,8 +158,8 @@ public class KøKontroller {
     }
 
     public void oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling(Long behandlingId) {
-        behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
+        behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling(behandling);
     }
 

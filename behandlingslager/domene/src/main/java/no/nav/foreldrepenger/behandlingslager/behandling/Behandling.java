@@ -399,7 +399,7 @@ public class Behandling extends BaseEntitet {
                 .min(compareOpprettetTid().reversed().thenComparing(Comparator.nullsLast(compareEndretTid()).reversed())));
     }
 
-    public Optional<BehandlingStegTilstand> getBehandlingStegTilstand(BehandlingStegType stegType) {
+    public Optional<BehandlingStegTilstand> getBehandlingStegTilstandHvisSteg(BehandlingStegType stegType) {
         return getBehandlingStegTilstand()
             .filter(t -> Objects.equals(stegType, t.getBehandlingSteg()));
     }

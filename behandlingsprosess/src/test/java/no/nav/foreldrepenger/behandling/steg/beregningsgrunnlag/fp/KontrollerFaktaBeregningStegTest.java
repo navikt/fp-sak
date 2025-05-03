@@ -77,6 +77,6 @@ class KontrollerFaktaBeregningStegTest {
 
     private BehandlingskontrollKontekst lagBehandlingskontrollkontekst(Behandling behandling) {
         var behandlingLås = behandlingRepository.taSkriveLås(behandling.getId());
-        return new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(), behandlingLås);
+        return new BehandlingskontrollKontekst(behandling, behandlingLås);
     }
 }

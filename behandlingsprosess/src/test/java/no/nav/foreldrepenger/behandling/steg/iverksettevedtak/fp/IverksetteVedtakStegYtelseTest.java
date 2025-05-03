@@ -85,7 +85,7 @@ class IverksetteVedtakStegYtelseTest {
 
     private BehandleStegResultat utførSteg(Behandling behandling) {
         var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling);
-        return iverksetteVedtakSteg.utførSteg(new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(), lås));
+        return iverksetteVedtakSteg.utførSteg(new BehandlingskontrollKontekst(behandling, lås));
     }
 
     private Behandling opprettBehandling() {

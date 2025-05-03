@@ -58,7 +58,7 @@ public class ÅpneBehandlingForEndringerTask extends BehandlingProsessTask {
 
     private void reaktiverAksjonspunkter(BehandlingskontrollKontekst kontekst, Behandling behandling, StartpunktType startpunkt) {
         var aksjonspunkterFraOgMedStartpunkt = behandlingskontrollTjeneste
-            .finnAksjonspunktDefinisjonerFraOgMed(behandling, startpunkt.getBehandlingSteg(), true);
+            .finnAksjonspunktDefinisjonerFraOgMed(kontekst, startpunkt.getBehandlingSteg(), true);
 
         behandling.getAksjonspunkter().stream()
             .filter(ap -> !ap.getAksjonspunktDefinisjon().erUtgått())

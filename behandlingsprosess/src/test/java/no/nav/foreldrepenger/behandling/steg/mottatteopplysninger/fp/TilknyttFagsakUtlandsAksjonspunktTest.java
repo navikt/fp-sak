@@ -45,8 +45,7 @@ class TilknyttFagsakUtlandsAksjonspunktTest {
 
         when(kobleSakerTjeneste.finnFagsakRelasjonDersomOpprettet(behandling)).thenReturn(Optional.of(new FagsakRelasjon(behandling.getFagsak(), null,
                 null, Dekningsgrad._100, fødselsdato.plusYears(3))));
-        var kontekst = new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(),
-            provider.getBehandlingRepository().taSkriveLås(behandling));
+        var kontekst = new BehandlingskontrollKontekst(behandling, provider.getBehandlingRepository().taSkriveLås(behandling));
 
         var tilknyttFagsakSteg = new TilknyttFagsakStegImpl(provider, kobleSakerTjeneste, mock(BehandlendeEnhetTjeneste.class),
             mock(InntektArbeidYtelseTjeneste.class), mock(RegistrerFagsakEgenskaper.class));

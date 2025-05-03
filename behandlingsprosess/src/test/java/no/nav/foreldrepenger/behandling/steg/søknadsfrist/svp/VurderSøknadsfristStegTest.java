@@ -69,10 +69,9 @@ class VurderSøknadsfristStegTest {
         repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
         em.flush();
         em.clear();
-        var fagsak = behandling.getFagsak();
 
         // Act
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(),
+        var kontekst = new BehandlingskontrollKontekst(behandling,
                 behandlingRepository.taSkriveLås(behandling));
         var behandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(kontekst);
         em.flush();
@@ -102,10 +101,9 @@ class VurderSøknadsfristStegTest {
         repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
         em.flush();
         em.clear();
-        var fagsak = behandling.getFagsak();
 
         // Act
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), behandlingRepository.taSkriveLås(behandling));
+        var kontekst = new BehandlingskontrollKontekst(behandling, behandlingRepository.taSkriveLås(behandling));
         var behandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(kontekst);
         em.flush();
         em.clear();
@@ -134,10 +132,9 @@ class VurderSøknadsfristStegTest {
         repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
         em.flush();
         em.clear();
-        var fagsak = behandling.getFagsak();
 
         // Act
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(),
+        var kontekst = new BehandlingskontrollKontekst(behandling,
             behandlingRepository.taSkriveLås(behandling));
         var behandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(kontekst);
         em.flush();
@@ -163,7 +160,7 @@ class VurderSøknadsfristStegTest {
         em.flush();
         em.clear();
         // Act
-        var rkontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(),
+        var rkontekst = new BehandlingskontrollKontekst(revurdering,
             behandlingRepository.taSkriveLås(revurdering));
         var rbehandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(rkontekst);
         em.flush();

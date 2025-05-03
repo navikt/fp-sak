@@ -30,7 +30,7 @@ class AnkeStegTest {
         var mockAnkeresultat = mock(AnkeResultatEntitet.class);
         when(mockAnkeresultat.erBehandletAvKabal()).thenReturn(Boolean.TRUE);
         when(ankeRepository.hentAnkeResultatHvisEksisterer(any())).thenReturn(Optional.of(mockAnkeresultat));
-        var kontekst = new BehandlingskontrollKontekst(ankeBehandling.getSaksnummer(), ankeBehandling.getFagsakId(),
+        var kontekst = new BehandlingskontrollKontekst(ankeBehandling,
                 new BehandlingLås(ankeBehandling.getId()));
 
         var steg = new AnkeSteg(ankeRepository, rProvider);

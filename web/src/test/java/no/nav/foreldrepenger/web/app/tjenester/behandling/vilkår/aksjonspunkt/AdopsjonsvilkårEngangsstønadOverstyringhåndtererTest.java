@@ -50,7 +50,7 @@ class AdopsjonsvilkårEngangsstønadOverstyringhåndtererTest {
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
 
         // Act
-        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling.getId());
+        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling);
 
         // Assert
         var aksjonspunktSet = behandling.getAksjonspunkter();

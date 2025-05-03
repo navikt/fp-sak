@@ -84,18 +84,11 @@ class AvsluttBehandlingTest {
         avsluttBehandling = new AvsluttBehandling(repositoryProvider, behandlingskontrollTjeneste, behandlingVedtakEventPubliserer,
             vurderBehandlingerUnderIverksettelse, behandlingProsesseringTjeneste, oppdatereFagsakRelasjonVedVedtak, beregningTjeneste, iayTjeneste);
 
-        when(behandlingskontrollTjeneste.initBehandlingskontroll(Mockito.anyLong())).thenAnswer(invocation -> {
-            Long behId = invocation.getArgument(0);
-            var lås = new BehandlingLås(behId) {
-            };
-            return new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås);
-        });
         when(behandlingskontrollTjeneste.initBehandlingskontroll(Mockito.any(Behandling.class))).thenAnswer(
                 invocation -> {
                     Behandling beh = invocation.getArgument(0);
-                    var lås = new BehandlingLås(beh.getId()) {
-                    };
-                    return new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås);
+                    var lås = new BehandlingLås(beh.getId());
+                    return new BehandlingskontrollKontekst(beh, lås);
                 });
     }
 

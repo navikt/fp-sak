@@ -42,12 +42,11 @@ class OppdaterSakOgBehandlingEventObserverTest {
         scenario.medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().plusDays(1)));
 
         var behandling = scenario.lagMocked();
-        var fagsak = behandling.getFagsak();
 
         repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         observer = new OppdaterSakOgBehandlingEventObserver(repositoryProvider, taskTjenesteMock);
 
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), scenario.taSkriveLåsForBehandling());
+        var kontekst = new BehandlingskontrollKontekst(behandling, scenario.taSkriveLåsForBehandling());
         BehandlingOpprettetEvent event = BehandlingStatusEvent.nyEvent(kontekst, BehandlingStatus.OPPRETTET);
 
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
@@ -65,12 +64,11 @@ class OppdaterSakOgBehandlingEventObserverTest {
         scenario.medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().plusDays(1)));
 
         var behandling = scenario.lagMocked();
-        var fagsak = behandling.getFagsak();
 
         repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         observer = new OppdaterSakOgBehandlingEventObserver(repositoryProvider, taskTjenesteMock);
 
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), scenario.taSkriveLåsForBehandling());
+        var kontekst = new BehandlingskontrollKontekst(behandling, scenario.taSkriveLåsForBehandling());
         BehandlingAvsluttetEvent event = BehandlingStatusEvent.nyEvent(kontekst, BehandlingStatus.AVSLUTTET);
 
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);

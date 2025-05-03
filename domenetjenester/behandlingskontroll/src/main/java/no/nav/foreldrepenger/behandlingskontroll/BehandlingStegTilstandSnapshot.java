@@ -15,8 +15,8 @@ public record BehandlingStegTilstandSnapshot(BehandlingStegType steg, Behandling
         return stegType.map(s -> new BehandlingStegTilstandSnapshot(s, status)).orElse(null);
     }
 
-    public static BehandlingStegTilstandSnapshot tilBehandlingsStegSnapshot(Behandling behandling, BehandlingStegType steg) {
-        var tilstand = behandling.getBehandlingStegTilstand(steg);
+    public static BehandlingStegTilstandSnapshot tilBehandlingsStegSnapshotHvisSteg(Behandling behandling, BehandlingStegType steg) {
+        var tilstand = behandling.getBehandlingStegTilstandHvisSteg(steg);
         var stegType = tilstand.map(BehandlingStegTilstand::getBehandlingSteg);
         var status = tilstand.map(BehandlingStegTilstand::getBehandlingStegStatus).orElse(null);
         return stegType.map(s -> new BehandlingStegTilstandSnapshot(s, status)).orElse(null);

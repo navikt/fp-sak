@@ -236,7 +236,7 @@ public class InntektArbeidYtelseRestTjeneste {
             alleReferanser.addAll(referanserFraOppgittOpptjening(iayg.getGjeldendeOppgittOpptjening()));
         });
 
-        if (behandling.erAvsluttet() || behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.SIMULER_OPPDRAG)) {
+        if (behandling.erAvsluttet() || behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling, BehandlingStegType.SIMULER_OPPDRAG)) {
             try {
                 var simuleringResultatDto = fpOppdragRestKlient.hentSimuleringResultatMedOgUtenInntrekk(behandling.getId(), behandling.getUuid(), behandling.getSaksnummer().getVerdi());
                 arbeidsgivere.addAll(simuleringResultatDto.map(this::finnArbeidsgivereFraSimulering).orElse(Collections.emptySet()));

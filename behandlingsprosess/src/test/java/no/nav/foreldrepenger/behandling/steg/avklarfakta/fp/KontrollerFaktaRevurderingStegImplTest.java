@@ -53,10 +53,9 @@ class KontrollerFaktaRevurderingStegImplTest {
     @Test
     void skal_ikke_fjerne_aksjonspunkter_som_er_utledet_etter_startpunktet() {
         var behandling = opprettRevurdering();
-        var fagsak = behandling.getFagsak();
         // Arrange
         var lås = behandlingRepository.taSkriveLås(behandling);
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås);
+        var kontekst = new BehandlingskontrollKontekst(behandling, lås);
 
         // Act
         var aksjonspunkter = steg.utførSteg(kontekst).getAksjonspunktListe();
@@ -71,10 +70,9 @@ class KontrollerFaktaRevurderingStegImplTest {
     @Test
     void må_nullstille_fordelingsperiode_hvis_ikke_er_endringssøknad() {
         var behandling = opprettRevurdering();
-        var fagsak = behandling.getFagsak();
         // Arrange
         var lås = behandlingRepository.taSkriveLås(behandling);
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås);
+        var kontekst = new BehandlingskontrollKontekst(behandling, lås);
 
         // Act
         steg.utførSteg(kontekst).getAksjonspunktListe();
@@ -106,8 +104,7 @@ class KontrollerFaktaRevurderingStegImplTest {
                 .medDefaultOppgittTilknytning()
                 .lagre(repositoryProvider);
 
-        var kontekst = new BehandlingskontrollKontekst(revurdering.getSaksnummer(), revurdering.getFagsakId(),
-            behandlingRepository.taSkriveLås(revurdering.getId()));
+        var kontekst = new BehandlingskontrollKontekst(revurdering, behandlingRepository.taSkriveLås(revurdering.getId()));
         steg.utførSteg(kontekst);
 
         var ytelseFordelingAggregat = repositoryProvider.getYtelsesFordelingRepository()
@@ -139,8 +136,7 @@ class KontrollerFaktaRevurderingStegImplTest {
                 .medDefaultOppgittTilknytning()
                 .lagre(repositoryProvider);
 
-        var kontekst = new BehandlingskontrollKontekst(revurdering.getSaksnummer(), revurdering.getFagsakId(),
-                behandlingRepository.taSkriveLås(revurdering.getId()));
+        var kontekst = new BehandlingskontrollKontekst(revurdering, behandlingRepository.taSkriveLås(revurdering.getId()));
         steg.utførSteg(kontekst);
 
         var ytelseFordelingAggregat = repositoryProvider.getYtelsesFordelingRepository()
@@ -156,10 +152,9 @@ class KontrollerFaktaRevurderingStegImplTest {
 
         var revurdering = opprettRevurderingPgaEndringsSøknad(behandling, fom, tom);
 
-        var fagsak = revurdering.getFagsak();
         // Arrange
         var lås = behandlingRepository.taSkriveLås(revurdering);
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås);
+        var kontekst = new BehandlingskontrollKontekst(revurdering, lås);
 
         // Act
         steg.utførSteg(kontekst).getAksjonspunktListe();
@@ -178,10 +173,9 @@ class KontrollerFaktaRevurderingStegImplTest {
     @Test
     void skal_gå_til_nærmeste_startpunkt_før_åpen_overstyring() {
         var behandling = opprettAutomatiskRevurderingMedÅpenOverstyring();
-        var fagsak = behandling.getFagsak();
         // Arrange
         var lås = behandlingRepository.taSkriveLås(behandling);
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås);
+        var kontekst = new BehandlingskontrollKontekst(behandling, lås);
 
         // Act
         var aksjonspunkter = steg.utførSteg(kontekst).getAksjonspunktListe();
@@ -197,10 +191,9 @@ class KontrollerFaktaRevurderingStegImplTest {
     @Test
     void feriepenge_berørt_hopper_til_tilkjent() {
         var behandling = opprettRevurdering(BehandlingÅrsakType.REBEREGN_FERIEPENGER);
-        var fagsak = behandling.getFagsak();
         // Arrange
         var lås = behandlingRepository.taSkriveLås(behandling);
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås);
+        var kontekst = new BehandlingskontrollKontekst(behandling, lås);
         var expectedTransisjon =  new Transisjon(StegTransisjon.FLYOVER, StartpunktType.TILKJENT_YTELSE.getBehandlingSteg());
 
         // Act
@@ -241,9 +234,8 @@ class KontrollerFaktaRevurderingStegImplTest {
     void skal_utlede_startpunkt_dersom_uttaksplan_på_original_behandling_mangler() {
         // Arrange
         var revurdering = opprettRevurderingPgaBerørtBehandling();
-        var fagsak = revurdering.getFagsak();
         var lås = behandlingRepository.taSkriveLås(revurdering);
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås);
+        var kontekst = new BehandlingskontrollKontekst(revurdering, lås);
 
         // Act
         steg.utførSteg(kontekst).getAksjonspunktListe();
@@ -259,9 +251,8 @@ class KontrollerFaktaRevurderingStegImplTest {
         var revurdering = opprettRevurderingPgaBerørtBehandling();
         repositoryProvider.getFagsakRelasjonRepository().oppdaterDekningsgrad(revurdering.getFagsak(), Dekningsgrad._100);
         endreDekningsgrad(revurdering.getId(), Dekningsgrad._80);
-        var fagsak = revurdering.getFagsak();
         var lås = behandlingRepository.taSkriveLås(revurdering);
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås);
+        var kontekst = new BehandlingskontrollKontekst(revurdering, lås);
 
         // Act
         steg.utførSteg(kontekst).getAksjonspunktListe();
@@ -286,9 +277,8 @@ class KontrollerFaktaRevurderingStegImplTest {
         var revurdering = opprettRevurdering(BehandlingÅrsakType.ENDRE_DEKNINGSGRAD);
         repositoryProvider.getFagsakRelasjonRepository().oppdaterDekningsgrad(revurdering.getFagsak(), Dekningsgrad._80);
         endreDekningsgrad(revurdering.getId(), Dekningsgrad._100);
-        var fagsak = revurdering.getFagsak();
         var lås = behandlingRepository.taSkriveLås(revurdering);
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås);
+        var kontekst = new BehandlingskontrollKontekst(revurdering, lås);
 
         // Act
         steg.utførSteg(kontekst).getAksjonspunktListe();
@@ -310,9 +300,8 @@ class KontrollerFaktaRevurderingStegImplTest {
         var behandlingLås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, behandlingLås);
 
-        var fagsak = behandling.getFagsak();
         var lås = behandlingRepository.taSkriveLås(behandling);
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås);
+        var kontekst = new BehandlingskontrollKontekst(behandling, lås);
 
         // Act
         steg.utførSteg(kontekst).getAksjonspunktListe();

@@ -65,7 +65,7 @@ class LukkForespørselObserverTest {
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
 
         var behandlingsres = new Behandlingsresultat.Builder().medBehandlingResultatType(BehandlingResultatType.MERGET_OG_HENLAGT).build();
-        BehandlingStatusEvent.BehandlingAvsluttetEvent event = BehandlingStatusEvent.nyEvent(byggKontekst(behandling, fagsak), BehandlingStatus.AVSLUTTET);
+        BehandlingStatusEvent.BehandlingAvsluttetEvent event = BehandlingStatusEvent.nyEvent(byggKontekst(behandling), BehandlingStatus.AVSLUTTET);
 
         behandling.setBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
@@ -82,7 +82,7 @@ class LukkForespørselObserverTest {
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
 
         var behandlingsres = new Behandlingsresultat.Builder().medBehandlingResultatType(BehandlingResultatType.MERGET_OG_HENLAGT).build();
-        BehandlingStatusEvent.BehandlingAvsluttetEvent event = BehandlingStatusEvent.nyEvent(byggKontekst(behandling, fagsak), BehandlingStatus.AVSLUTTET);
+        BehandlingStatusEvent.BehandlingAvsluttetEvent event = BehandlingStatusEvent.nyEvent(byggKontekst(behandling), BehandlingStatus.AVSLUTTET);
 
         behandling.setBehandlingType(BehandlingType.REVURDERING);
         when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
@@ -93,9 +93,8 @@ class LukkForespørselObserverTest {
         verify(fpInntektsmeldingTjeneste, times(0)).lagLukkForespørselTask(behandling, null, ForespørselStatus.UTGÅTT);
     }
 
-    private BehandlingskontrollKontekst byggKontekst(Behandling behandling, Fagsak fagsak) {
-        var behandlingLås = new BehandlingLås(behandling.getId()) {
-        };
-        return new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), behandlingLås);
+    private BehandlingskontrollKontekst byggKontekst(Behandling behandling) {
+        var behandlingLås = new BehandlingLås(behandling.getId());
+        return new BehandlingskontrollKontekst(behandling, behandlingLås);
     }
 }

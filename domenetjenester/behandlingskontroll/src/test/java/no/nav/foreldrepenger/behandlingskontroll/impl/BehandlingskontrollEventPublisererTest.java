@@ -66,7 +66,7 @@ class BehandlingskontrollEventPublisererTest {
         var scenario = TestScenario.forEngangsstønad();
         var behandling = scenario.lagre(serviceProvider);
 
-        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling.getId());
+        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling);
 
         var stegType = BehandlingStegType.SØKERS_RELASJON_TIL_BARN;
 
@@ -86,7 +86,7 @@ class BehandlingskontrollEventPublisererTest {
 
         var behandling = scenario.lagre(serviceProvider);
 
-        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling.getId());
+        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling);
 
         // Act
         kontrollTjeneste.prosesserBehandling(kontekst);
@@ -108,7 +108,7 @@ class BehandlingskontrollEventPublisererTest {
 
         var behandling = scenario.lagre(serviceProvider);
 
-        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling.getId());
+        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling);
 
         // Act
         kontrollTjeneste.prosesserBehandling(kontekst);
@@ -145,7 +145,7 @@ class BehandlingskontrollEventPublisererTest {
 
         var behandling = scenario.lagre(serviceProvider);
 
-        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling.getId());
+        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling);
 
         // Act
         kontrollTjeneste.prosesserBehandling(kontekst);
@@ -164,7 +164,7 @@ class BehandlingskontrollEventPublisererTest {
 
         var behandling = scenario.lagre(serviceProvider);
 
-        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling.getId());
+        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling);
 
         // Act
         kontrollTjeneste.prosesserBehandling(kontekst);
@@ -185,7 +185,7 @@ class BehandlingskontrollEventPublisererTest {
 
         var behandling = scenario.lagre(serviceProvider);
 
-        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling.getId());
+        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling);
 
         // Act
         kontrollTjeneste.prosesserBehandling(kontekst);

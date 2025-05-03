@@ -82,7 +82,7 @@ class RegistrerSøknadStegTest extends EntityManagerAwareTest {
                 .build();
         mottatteDokumentRepository.lagre(mottattDokument);
 
-        var kontekst = new BehandlingskontrollKontekst(saksnummer, fagsakId, lås);
+        var kontekst = new BehandlingskontrollKontekst(revurdering, lås);
         var resultat = steg.utførSteg(kontekst);
 
         assertThat(resultat.getAksjonspunktListe()).containsExactly(AksjonspunktDefinisjon.REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER);
@@ -114,7 +114,7 @@ class RegistrerSøknadStegTest extends EntityManagerAwareTest {
                 .build();
         mottatteDokumentRepository.lagre(mottattDokument);
 
-        var kontekst = new BehandlingskontrollKontekst(saksnummer, fagsakId, lås);
+        var kontekst = new BehandlingskontrollKontekst(revurdering, lås);
         var resultat = steg.utførSteg(kontekst);
 
         assertThat(resultat.getAksjonspunktListe()).containsExactly(AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_SVANGERSKAPSPENGER);

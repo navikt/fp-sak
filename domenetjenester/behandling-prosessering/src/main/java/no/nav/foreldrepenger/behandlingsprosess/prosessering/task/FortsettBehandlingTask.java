@@ -51,8 +51,8 @@ public class FortsettBehandlingTask implements ProsessTaskHandler {
 
         try {
             var behandlingId = getBehandlingId(data);
-            var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
             var behandling = behandlingRepository.hentBehandling(behandlingId);
+            var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
             var manuellFortsettelse = Optional.ofNullable(data.getPropertyValue(MANUELL_FORTSETTELSE))
                     .map(Boolean::valueOf)
                     .orElse(Boolean.FALSE);

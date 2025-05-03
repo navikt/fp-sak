@@ -86,10 +86,8 @@ public class AksjonspunktTjeneste {
         this.behandlingEventPubliserer = behandlingEventPubliserer;
     }
 
-    public void bekreftAksjonspunkter(Collection<BekreftetAksjonspunktDto> bekreftedeAksjonspunktDtoer, Long behandlingId) {
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
+    void bekreftAksjonspunkter(Collection<BekreftetAksjonspunktDto> bekreftedeAksjonspunktDtoer, Behandling behandling) {
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         setAnsvarligSaksbehandler(bekreftedeAksjonspunktDtoer, behandling);
 
         spoolTilbakeTilTidligsteAksjonspunkt(bekreftedeAksjonspunktDtoer, kontekst);
@@ -154,13 +152,12 @@ public class AksjonspunktTjeneste {
         }
     }
 
-    public void overstyrAksjonspunkter(Collection<OverstyringAksjonspunktDto> overstyrteAksjonspunkter, Long behandlingId) {
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
+    public void overstyrAksjonspunkter(Collection<OverstyringAksjonspunktDto> overstyrteAksjonspunkter, Behandling behandling) {
         if (SpesialBehandling.kanIkkeOverstyres(behandling)) {
             throw new FunksjonellException("FP-760744", "Behandlingen kan ikke overstyres og må gjennomføres",
                 "Vurder behov for ordinær revurdering etter at denne behnadlingen er avsluttet");
         }
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         setAnsvarligSaksbehandler(List.of(), behandling);
 
         // Tilbakestill gjeldende steg før fremføring

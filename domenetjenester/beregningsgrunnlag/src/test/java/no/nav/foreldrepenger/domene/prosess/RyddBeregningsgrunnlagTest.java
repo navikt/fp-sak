@@ -34,7 +34,7 @@ class RyddBeregningsgrunnlagTest {
 
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(new BehandlingRepositoryProvider(entityManager));
         referanse = BehandlingReferanse.fra(behandling);
-        var kontekst = new BehandlingskontrollKontekst(referanse.saksnummer(), referanse.fagsakId(), new BehandlingLås(referanse.behandlingId()));
+        var kontekst = new BehandlingskontrollKontekst(behandling, new BehandlingLås(referanse.behandlingId()));
         ryddBeregningsgrunnlag = new RyddBeregningsgrunnlag(beregningsgrunnlagRepository, kontekst);
     }
 

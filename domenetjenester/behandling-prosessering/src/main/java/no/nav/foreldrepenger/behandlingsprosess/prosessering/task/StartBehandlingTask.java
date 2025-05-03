@@ -2,8 +2,11 @@ package no.nav.foreldrepenger.behandlingsprosess.prosessering.task;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.spi.CDI;
+import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -16,6 +19,18 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 @ProsessTask("behandlingskontroll.startBehandling")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class StartBehandlingTask implements ProsessTaskHandler {
+
+    private BehandlingRepository behandlingRepository;
+
+    StartBehandlingTask() {
+        // For CDI proxy
+    }
+
+    @Inject
+    public StartBehandlingTask(BehandlingRepositoryProvider repositoryProvider) {
+        behandlingRepository = repositoryProvider.getBehandlingRepository();
+    }
+
     @Override
     public void doTask(ProsessTaskData data) {
 
@@ -24,7 +39,8 @@ public class StartBehandlingTask implements ProsessTaskHandler {
         var behandlingskontrollTjeneste = cdi.select(BehandlingskontrollTjeneste.class).get();
 
         try {
-            var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(getBehandlingId(data));
+            var behandling = behandlingRepository.hentBehandling(getBehandlingId(data));
+            var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
             // TODO (FC): assert at behandlingen starter fra første steg?
             behandlingskontrollTjeneste.prosesserBehandling(kontekst);
         } finally {

@@ -87,6 +87,6 @@ public class TilbakeførTilDekningsgradStegTask extends FagsakProsessTask {
     }
 
     private boolean erIStegTidligereEnnDekningsgrad(Behandling behandling) {
-        return !behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.DEKNINGSGRAD);
+        return !behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling, BehandlingStegType.DEKNINGSGRAD);
     }
 }

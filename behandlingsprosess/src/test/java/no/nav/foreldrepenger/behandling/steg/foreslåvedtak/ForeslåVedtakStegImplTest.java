@@ -21,9 +21,8 @@ class ForeslåVedtakStegImplTest {
         var steg = new ForeslåVedtakStegImpl(behandlingRepository, foreslåVedtakTjeneste);
 
         // Act
-        var fagsak = behandling.getFagsak();
         var behandlingLås = behandlingRepository.taSkriveLås(behandling);
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), behandlingLås);
+        var kontekst = new BehandlingskontrollKontekst(behandling, behandlingLås);
         steg.utførSteg(kontekst);
 
         // Assert

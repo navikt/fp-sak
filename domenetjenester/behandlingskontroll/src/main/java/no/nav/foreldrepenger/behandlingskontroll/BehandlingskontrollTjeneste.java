@@ -4,10 +4,8 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.Consumer;
 
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.Transisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -15,20 +13,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
 public interface BehandlingskontrollTjeneste {
-
-    /**
-     * Initier ny Behandlingskontroll, oppretter kontekst som brukes til sikre at
-     * parallle behandlinger og kjøringer går i tur og orden. Dette skjer gjennom å
-     * opprette en {@link BehandlingLås} som legges ved ved lagring.
-     *
-     * @param behandlingId - må være med
-     */
-    BehandlingskontrollKontekst initBehandlingskontroll(Long behandlingId);
 
     /**
      * Initierer ny behandlingskontroll for en ny behandling, som ikke er lagret i
@@ -39,20 +27,11 @@ public interface BehandlingskontrollTjeneste {
     BehandlingskontrollKontekst initBehandlingskontroll(Behandling behandling);
 
     /**
-     * Initier ny Behandlingskontroll, oppretter kontekst som brukes til sikre at
-     * parallle behandlinger og kjøringer går i tur og orden. Dette skjer gjennom å
-     * opprette en {@link BehandlingLås} som legges ved ved lagring.
-     *
-     * @param behandlingUuid - må være med
-     */
-    BehandlingskontrollKontekst initBehandlingskontroll(UUID behandlingUuid);
-
-    /**
      * Prosesser behandling fra dit den sist har kommet. Avhengig av vurderingspunkt
      * (inngang- og utgang-kriterier) vil steget kjøres på nytt.
      *
      * @param kontekst - kontekst for prosessering. Opprettes gjennom
-     *                 {@link #initBehandlingskontroll(Long)}
+     *                 {@link #initBehandlingskontroll(Behandling)}
      */
     void prosesserBehandling(BehandlingskontrollKontekst kontekst);
 
@@ -61,7 +40,7 @@ public interface BehandlingskontrollTjeneste {
      * Vil kalle gjenopptaSteg for angitt steg, senere vanlig framdrift
      *
      * @param kontekst           - kontekst for prosessering. Opprettes gjennom
-     *                           {@link #initBehandlingskontroll(Long)}
+     *                           {@link #initBehandlingskontroll(Behandling)}
      * @param behandlingStegType - precondition steg
      */
     void prosesserBehandlingGjenopptaHvisStegVenter(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType);
@@ -186,7 +165,7 @@ public interface BehandlingskontrollTjeneste {
      *
      * @param behandling
      * @param aksjonspunktDefinisjon hvilket Aksjonspunkt skal holde i 'ventingen'
-     * @param BehandlingStegType     stegType aksjonspunktet står i.
+     * @param stegType               stegType aksjonspunktet står i.
      * @param fristTid               Frist før Behandlingen å adresseres
      * @param venteårsak             Årsak til ventingen.
      *
@@ -219,7 +198,7 @@ public interface BehandlingskontrollTjeneste {
     /** Henlegg en behandling. */
     void henleggBehandling(BehandlingskontrollKontekst kontekst, BehandlingResultatType årsakKode);
 
-    Set<AksjonspunktDefinisjon> finnAksjonspunktDefinisjonerFraOgMed(Behandling behandling, BehandlingStegType steg, boolean medInngangOgså);
+    Set<AksjonspunktDefinisjon> finnAksjonspunktDefinisjonerFraOgMed(BehandlingskontrollKontekst kontekst, BehandlingStegType steg, boolean medInngangOgså);
 
     void henleggBehandlingFraSteg(BehandlingskontrollKontekst kontekst, BehandlingResultatType årsak);
 
@@ -227,7 +206,8 @@ public interface BehandlingskontrollTjeneste {
      * Sjekker i behandlingsmodellen om aksjonspunktet skal løses i eller etter det
      * angitte steget.
      *
-     * @param behandling
+     * @param ytelseType             ytelsen som skal sjekkes
+     * @param behandlingType         behandlingstypen som skal sjekkes
      * @param behandlingSteg         steget som aksjonspunktet skal sjekkes mot
      * @param aksjonspunktDefinisjon aksjonspunktet som skal sjekkes
      * @return true dersom aksjonspunktet skal løses i eller etter det angitte
@@ -242,9 +222,7 @@ public interface BehandlingskontrollTjeneste {
 
     int sammenlignRekkefølge(FagsakYtelseType ytelseType, BehandlingType behandlingType, BehandlingStegType stegA, BehandlingStegType stegB);
 
-    boolean erStegPassert(Long behandlingId, BehandlingStegType stegType);
-
     boolean erStegPassert(Behandling behandling, BehandlingStegType stegType);
 
-    boolean erIStegEllerSenereSteg(Long behandlingId, BehandlingStegType stegType);
+    boolean erIStegEllerSenereSteg(Behandling behandling, BehandlingStegType stegType);
 }

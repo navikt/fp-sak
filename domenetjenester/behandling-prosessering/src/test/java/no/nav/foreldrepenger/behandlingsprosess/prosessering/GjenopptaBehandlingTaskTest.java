@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandlingsprosess.prosessering;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
@@ -48,7 +48,7 @@ class GjenopptaBehandlingTaskTest {
 
         task.doTask(prosessTaskData);
 
-        verify(mockBehandlingskontrollTjeneste).initBehandlingskontroll(anyLong());
+        verify(mockBehandlingskontrollTjeneste).initBehandlingskontroll(any(Behandling.class));
     }
 
 }

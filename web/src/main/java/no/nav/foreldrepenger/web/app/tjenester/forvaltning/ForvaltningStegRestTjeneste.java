@@ -96,7 +96,8 @@ public class ForvaltningStegRestTjeneste {
     @Path("/fjernFHValgHoppTilbake")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response fjernOverstyrtFH(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(dto.getBehandlingUuid());
+        var behandling = behandlingRepository.hentBehandling(dto.getBehandlingUuid());
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         var grunnlag = familieHendelseRepository.hentAggregat(kontekst.getBehandlingId());
         if (grunnlag.getOverstyrtVersjon().isPresent()) {
             familieHendelseRepository.slettAvklarteData(kontekst.getBehandlingId(), kontekst.getSkriveLås());
@@ -124,8 +125,8 @@ public class ForvaltningStegRestTjeneste {
     }
 
     private void hoppTilbake(UUID behandlingUuid, BehandlingStegType tilSteg) {
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingUuid);
-        var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingUuid);
+        var behandling = behandlingRepository.hentBehandling(behandlingUuid);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         hoppTilbake(kontekst, behandling, tilSteg);
     }
 

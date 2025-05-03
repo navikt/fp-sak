@@ -16,27 +16,31 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
  */
 public class BehandlingStatusEvent implements BehandlingEvent {
 
-    private final BehandlingskontrollKontekst kontekst;
+    private final Long behandlingId;
+    private final Saksnummer saksnummer;
+    private final Long fagsakId;
     private final BehandlingStatus nyStatus;
 
     BehandlingStatusEvent(BehandlingskontrollKontekst kontekst, BehandlingStatus nyStatus) {
-        this.kontekst = kontekst;
+        this.behandlingId = kontekst.getBehandlingId();
+        this.saksnummer = kontekst.getSaksnummer();
+        this.fagsakId = kontekst.getFagsakId();
         this.nyStatus = nyStatus;
     }
 
     @Override
     public Saksnummer getSaksnummer() {
-        return kontekst.getSaksnummer();
+        return saksnummer;
     }
 
     @Override
     public Long getBehandlingId() {
-        return kontekst.getBehandlingId();
+        return behandlingId;
     }
 
     @Override
     public Long getFagsakId() {
-        return kontekst.getFagsakId();
+        return fagsakId;
     }
 
     public BehandlingStatus getNyStatus() {
@@ -51,7 +55,7 @@ public class BehandlingStatusEvent implements BehandlingEvent {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + kontekst +
+        return getClass().getSimpleName() + "<behandlingId=" + getBehandlingId() +
                 ", nyStatus=" + nyStatus +
                 ">";
     }

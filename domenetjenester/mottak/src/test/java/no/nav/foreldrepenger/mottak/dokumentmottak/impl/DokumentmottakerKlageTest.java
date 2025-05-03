@@ -189,9 +189,7 @@ class DokumentmottakerKlageTest {
         var behandling = scenario
                 .medBehandlingStegStart(BehandlingStegType.FATTE_VEDTAK)
                 .lagre(repositoryProvider);
-        var fagsak = behandling.getFagsak();
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(),
-                behandlingRepository.taSkriveLås(behandling));
+        var kontekst = new BehandlingskontrollKontekst(behandling, behandlingRepository.taSkriveLås(behandling));
 
         Behandlingsresultat.builderForInngangsvilkår()
                 .medBehandlingResultatType(BehandlingResultatType.INNVILGET)

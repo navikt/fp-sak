@@ -35,14 +35,14 @@ public class FagsakStatusEventObserver {
 
     public void observerBehandlingOpprettetEvent(@Observes BehandlingStatusEvent.BehandlingOpprettetEvent event) {
         LOG.debug("Oppdaterer status på Fagsak etter endring i behandling {}", event.getBehandlingId());
-        var fagsak = fagsakRepository.finnEksaktFagsak(event.getFagsakId());
+        var fagsak = fagsakRepository.finnEksaktFagsak(event.getSaksnummer());
         oppdaterFagsakStatusTjeneste.oppdaterFagsakNårBehandlingOpprettet(fagsak, event.getBehandlingId(), event.getNyStatus());
     }
 
     public void observerBehandlingAvsluttetEvent(@Observes BehandlingStatusEvent.BehandlingAvsluttetEvent event) {
         if (BehandlingStatus.AVSLUTTET.equals(event.getNyStatus())) {
             LOG.debug("Oppdaterer status på Fagsak etter endring i behandling {}", event.getBehandlingId());
-            var fagsak = fagsakRepository.finnEksaktFagsak(event.getFagsakId());
+            var fagsak = fagsakRepository.finnEksaktFagsak(event.getSaksnummer());
             oppdaterFagsakStatusTjeneste.lagBehandlingAvsluttetTask(fagsak, event.getBehandlingId());
         } else {
             throw new IllegalStateException(String.format("Utviklerfeil: AvsluttetEvent for behandlingId %s med status %s. Det skal ikke skje og må følges opp",

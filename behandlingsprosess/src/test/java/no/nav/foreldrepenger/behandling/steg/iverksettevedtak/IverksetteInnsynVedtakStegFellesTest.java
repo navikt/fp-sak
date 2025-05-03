@@ -27,8 +27,7 @@ class IverksetteInnsynVedtakStegFellesTest {
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         var steg = new IverksetteInnsynVedtakStegFelles(dokumentBestillerTjeneste, repositoryProvider, mock(BehandlingEventPubliserer.class));
         var behandling = scenario.getBehandling();
-        var fagsak = behandling.getFagsak();
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(),
+        var kontekst = new BehandlingskontrollKontekst(behandling,
             repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         steg.utførSteg(kontekst);
 
@@ -43,8 +42,7 @@ class IverksetteInnsynVedtakStegFellesTest {
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         var steg = new IverksetteInnsynVedtakStegFelles(dokumentBestillerTjeneste, repositoryProvider, mock(BehandlingEventPubliserer.class));
         var behandling = scenario.getBehandling();
-        var fagsak = behandling.getFagsak();
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(),
+        var kontekst = new BehandlingskontrollKontekst(behandling,
             repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         steg.utførSteg(kontekst);
 
@@ -62,8 +60,7 @@ class IverksetteInnsynVedtakStegFellesTest {
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         var steg = new IverksetteInnsynVedtakStegFelles(dokumentBestillerTjeneste, repositoryProvider, mock(BehandlingEventPubliserer.class));
         var behandling = scenario.getBehandling();
-        var fagsak = behandling.getFagsak();
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(),
+        var kontekst = new BehandlingskontrollKontekst(behandling,
             repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         steg.utførSteg(kontekst);
 

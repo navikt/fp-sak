@@ -45,7 +45,7 @@ class SøkersopplysningspliktOverstyringhåndtererTest {
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
 
         // Act
-        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling.getId());
+        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling);
 
         // Assert
         var historikkinnslagene = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer());

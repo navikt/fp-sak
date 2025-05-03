@@ -57,7 +57,7 @@ class OpptjeningsvilkåretOverstyringshåndtererTest {
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
 
         // Act
-        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling.getId());
+        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling);
 
         // Assert
         var aksjonspunktSet = behandling.getAksjonspunkter();
@@ -92,7 +92,7 @@ class OpptjeningsvilkåretOverstyringshåndtererTest {
                 "test av overstyring opptjeningsvilkåret", "1035");
 
         // Act
-        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling.getId());
+        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling);
 
         // Assert
         var historikkinnslagene = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer());
@@ -114,14 +114,13 @@ class OpptjeningsvilkåretOverstyringshåndtererTest {
         scenario.lagre(repositoryProvider);
 
         var behandling = scenario.getBehandling();
-        var behandlingId = behandling.getId();
         // Dto
         var overstyringspunktDto = new OverstyringOpptjeningsvilkåretDto(true,
                 "test av overstyring opptjeningsvilkåret", "1035");
         Collection<OverstyringAksjonspunktDto> dto = Set.of(overstyringspunktDto);
 
         //Act
-        assertThatThrownBy(() -> aksjonspunktTjeneste.overstyrAksjonspunkter(dto, behandlingId))
+        assertThatThrownBy(() -> aksjonspunktTjeneste.overstyrAksjonspunkter(dto, behandling))
             .isInstanceOf(FunksjonellException.class)
             .hasMessage("FP-093923:Kan ikke overstyre vilkår. Det må være minst en aktivitet for at opptjeningsvilkåret skal kunne overstyres.");
     }

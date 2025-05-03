@@ -73,8 +73,7 @@ class SimulerOppdragStegTest {
         beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
         this.entityManager = entityManager;
         behandling = scenario.lagre(repositoryProvider);
-        kontekst = new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(),
-                behandlingRepository.taSkriveLås(behandling));
+        kontekst = new BehandlingskontrollKontekst(behandling, behandlingRepository.taSkriveLås(behandling));
     }
 
     @Test

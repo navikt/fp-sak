@@ -208,8 +208,7 @@ class FatteVedtakStegTest {
         forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.FATTE_VEDTAK);
         var behandlingLås = lagreBehandling(revurdering);
         opprettFamilieHendelseGrunnlag(originalBehandling, revurdering);
-        var fagsak = revurdering.getFagsak();
-        var revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), behandlingLås);
+        var revurderingKontekst = new BehandlingskontrollKontekst(revurdering, behandlingLås);
         oppdaterMedBehandlingsresultat(revurderingKontekst, false, antallBarn);
 
         fatteVedtakSteg.utførSteg(revurderingKontekst);
@@ -240,8 +239,7 @@ class FatteVedtakStegTest {
         forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.FATTE_VEDTAK);
         var behandlingLås = lagreBehandling(revurdering);
         opprettFamilieHendelseGrunnlag(originalBehandling, revurdering);
-        var fagsak = revurdering.getFagsak();
-        var revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), behandlingLås);
+        var revurderingKontekst = new BehandlingskontrollKontekst(revurdering, behandlingLås);
         oppdaterMedBehandlingsresultat(revurderingKontekst, true, faktiskAntallBarn);
 
         fatteVedtakSteg.utførSteg(revurderingKontekst);
@@ -272,8 +270,7 @@ class FatteVedtakStegTest {
         var behandlingLås = lagreBehandling(revurdering);
 
         opprettFamilieHendelseGrunnlag(originalBehandling, revurdering);
-        var fagsak = revurdering.getFagsak();
-        var revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), behandlingLås);
+        var revurderingKontekst = new BehandlingskontrollKontekst(revurdering, behandlingLås);
         oppdaterMedBehandlingsresultat(revurderingKontekst, true, antallBarn);
 
         fatteVedtakSteg.utførSteg(revurderingKontekst);
@@ -312,8 +309,7 @@ class FatteVedtakStegTest {
         forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.FATTE_VEDTAK);
         var behandlingLås = lagreBehandling(revurdering);
         opprettFamilieHendelseGrunnlag(originalBehandling, revurdering);
-        var fagsak = revurdering.getFagsak();
-        var revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), behandlingLås);
+        var revurderingKontekst = new BehandlingskontrollKontekst(revurdering, behandlingLås);
         oppdaterMedBehandlingsresultat(revurderingKontekst, false, antallBarn);
 
         fatteVedtakSteg.utførSteg(revurderingKontekst);
@@ -496,8 +492,7 @@ class FatteVedtakStegTest {
         var beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling, bres);
         beregningRepository.lagre(beregningResultat, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
 
-        var fagsak = behandling.getFagsak();
-        return new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
+        return new BehandlingskontrollKontekst(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
     }
 
     private void oppdaterMedVedtak(BehandlingskontrollKontekst kontekst) {

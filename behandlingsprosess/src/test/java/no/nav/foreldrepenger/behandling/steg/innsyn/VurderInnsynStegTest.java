@@ -40,8 +40,7 @@ class VurderInnsynStegTest extends EntityManagerAwareTest {
 
         // Act
         var lås = behandlingRepository.taSkriveLås(behandling);
-        var fagsak = behandling.getFagsak();
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getSaksnummer(), fagsak.getId(), lås);
+        var kontekst = new BehandlingskontrollKontekst(behandling, lås);
         var resultat = steg.utførSteg(kontekst);
         assertThat(resultat.getAksjonspunktListe()).containsOnly(AksjonspunktDefinisjon.VURDER_INNSYN);
     }

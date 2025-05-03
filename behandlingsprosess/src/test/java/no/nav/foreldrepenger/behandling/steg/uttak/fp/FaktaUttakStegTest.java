@@ -50,7 +50,7 @@ class FaktaUttakStegTest {
         var behandling = scenario.lagre(repositoryProvider);
 
         var stegResultat = steg.utførSteg(
-            new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(), new BehandlingLås(behandling.getId())));
+            new BehandlingskontrollKontekst(behandling, new BehandlingLås(behandling.getId())));
 
         assertThat(stegResultat.getAksjonspunktListe()).containsExactly(AksjonspunktDefinisjon.FAKTA_UTTAK_MANUELT_SATT_STARTDATO_ULIK_SØKNAD_STARTDATO);
     }
