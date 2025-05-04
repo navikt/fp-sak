@@ -1,9 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.fordeling;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -23,8 +21,6 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -71,7 +67,6 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
-import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -153,7 +148,7 @@ public class FordelRestTjeneste {
     public FagsakInfomasjonDto fagsak(@TilpassetAbacAttributt(supplierClass = SaksnummerDtoAbacDataSupplier.class)
         @Parameter(description = "Saksnummeret det skal hentes saksinformasjon om") @Valid SaksnummerDto saksnummerDto) {
         ensureCallId();
-        var optFagsak = fagsakTjeneste.finnFagsakGittSaksnummer(new Saksnummer(saksnummerDto.getSaksnummer()), false);
+        var optFagsak = fagsakTjeneste.finnFagsakGittSaksnummer(new Saksnummer(saksnummerDto.saksnummer()), false);
         if (optFagsak.isEmpty() || optFagsak.get().erStengt()) {
             return null;
         }
@@ -183,10 +178,10 @@ public class FordelRestTjeneste {
     public SaksnummerDto opprettSak(@TilpassetAbacAttributt(supplierClass = OpprettSakDtoAbacDataSupplier.class)
         @Parameter(description = "Oppretter fagsak") @Valid OpprettSakDto opprettSakDto) {
         ensureCallId();
-        var journalpostId = opprettSakDto.getJournalpostId();
-        var behandlingTema = BehandlingTema.finnForKodeverkEiersKode(opprettSakDto.getBehandlingstemaOffisiellKode());
+        var journalpostId = Optional.ofNullable(opprettSakDto.journalpostId());
+        var behandlingTema = BehandlingTema.finnForKodeverkEiersKode(opprettSakDto.behandlingstemaOffisiellKode());
 
-        var aktørId = new AktørId(opprettSakDto.getAktørId());
+        var aktørId = new AktørId(opprettSakDto.aktørId());
 
         var ytelseType = opprettSakTjeneste.utledYtelseType(behandlingTema);
 
@@ -228,11 +223,11 @@ public class FordelRestTjeneste {
     public Response knyttSakOgJournalpost(@TilpassetAbacAttributt(supplierClass = JournalpostKnyttningDtoAbacDataSupplier.class)
         @Parameter(description = "Saksnummer og JournalpostId som skal knyttes sammen") @Valid JournalpostKnyttningDto journalpostKnytningDto) {
         ensureCallId();
-        var saksnummer = new Saksnummer(journalpostKnytningDto.getSaksnummer());
+        var saksnummer = new Saksnummer(journalpostKnytningDto.saksnummerDto().saksnummer());
         var fagsak = opprettSakTjeneste.finnSak(saksnummer);
 
         if (fagsak.isPresent()) {
-            opprettSakTjeneste.knyttSakOgJournalpost(saksnummer, new JournalpostId(journalpostKnytningDto.getJournalpostId()));
+            opprettSakTjeneste.knyttSakOgJournalpost(saksnummer, new JournalpostId(journalpostKnytningDto.journalpostIdDto().journalpostId()));
         } else {
             throw new TekniskException("FP-840572", "Finner ikke fagsak med angitt saksnummer " + saksnummer);
         }
@@ -245,7 +240,8 @@ public class FordelRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Ny journalpost skal behandles.", summary = "Varsel om en ny journalpost som skal behandles i systemet.", tags = "fordel")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
-    public Response mottaJournalpost(@Parameter(description = "Krever saksnummer, journalpostId og behandlingstemaOffisiellKode") @Valid AbacJournalpostMottakDto mottattJournalpost) {
+    public Response mottaJournalpost(@TilpassetAbacAttributt(supplierClass = JournalpostMottakDtoAbacDataSupplier.class)
+        @Parameter(description = "Krever saksnummer, journalpostId og behandlingstemaOffisiellKode") @Valid JournalpostMottakDto mottattJournalpost) {
         var dokumentTypeId = mottattJournalpost.getDokumentTypeIdOffisiellKode()
             .map(DokumentTypeId::finnForKodeverkEiersKode)
             .orElse(DokumentTypeId.UDEFINERT);
@@ -460,7 +456,7 @@ public class FordelRestTjeneste {
         return dto;
     }
 
-    private MottattDokument mapTilMottattDokument(AbacJournalpostMottakDto journalpostMottakDto, DokumentTypeId dokumentTypeId, Saksnummer saksnummer) {
+    private MottattDokument mapTilMottattDokument(JournalpostMottakDto journalpostMottakDto, DokumentTypeId dokumentTypeId, Saksnummer saksnummer) {
         var fagsak = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, false)
             .orElseThrow(() -> new IllegalStateException("Finner ingen fagsak for saksnummer " + saksnummer));
         var dokumentKategori = utledDokumentKategori(journalpostMottakDto.getDokumentKategoriOffisiellKode(), dokumentTypeId);
@@ -494,47 +490,14 @@ public class FordelRestTjeneste {
         return dokumentKategori != null ? DokumentKategori.finnForKodeverkEiersKode(dokumentKategori) : DokumentKategori.UDEFINERT;
     }
 
-    public static class AbacJournalpostMottakDto extends JournalpostMottakDto implements AbacDto {
-        public AbacJournalpostMottakDto() {
-            super();
-        }
-
-        public AbacJournalpostMottakDto(String saksnummer,
-                                        String journalpostId,
-                                        String behandlingstemaOffisiellKode,
-                                        String dokumentTypeIdOffisiellKode,
-                                        LocalDateTime forsendelseMottattTidspunkt,
-                                        String payloadXml) {
-            super(saksnummer, journalpostId, behandlingstemaOffisiellKode, dokumentTypeIdOffisiellKode, forsendelseMottattTidspunkt, payloadXml);
-        }
-
-        @JsonIgnore
-        public Optional<String> getPayloadXml() {
-            return getPayloadValiderLengde(base64EncodedPayloadXml, payloadLength);
-        }
-
-        static Optional<String> getPayloadValiderLengde(String base64EncodedPayload, Integer deklarertLengde) {
-            if (base64EncodedPayload == null) {
-                return Optional.empty();
-            }
-            if (deklarertLengde == null) {
-                throw new TekniskException("F-217605", "Input-validering-feil: Avsender sendte payload, men oppgav ikke lengde på innhold");
-            }
-            var bytes = Base64.getUrlDecoder().decode(base64EncodedPayload);
-            var streng = new String(bytes, StandardCharsets.UTF_8);
-            if (streng.length() != deklarertLengde) {
-                throw new TekniskException("F-483098",
-                    String.format("Input-validering-feil: Avsender oppgav at lengde på innhold var %s, men lengden var egentlig %s", deklarertLengde,
-                        streng.length()));
-            }
-            return Optional.of(streng);
-        }
+    public static class JournalpostMottakDtoAbacDataSupplier implements Function<Object, AbacDataAttributter> {
 
         @Override
-        public AbacDataAttributter abacAttributter() {
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, getSaksnummer());
+        public AbacDataAttributter apply(Object obj) {
+            var req = (JournalpostMottakDto) obj;
+            return AbacDataAttributter.opprett()
+                .leggTil(AppAbacAttributtType.SAKSNUMMER, req.getSaksnummer());
         }
-
     }
 
     public static class JournalpostKnyttningDtoAbacDataSupplier implements Function<Object, AbacDataAttributter> {
@@ -543,8 +506,8 @@ public class FordelRestTjeneste {
         public AbacDataAttributter apply(Object obj) {
             var req = (JournalpostKnyttningDto) obj;
             return AbacDataAttributter.opprett()
-                .leggTil(AppAbacAttributtType.JOURNALPOST_ID, req.getJournalpostId())
-                .leggTil(AppAbacAttributtType.SAKSNUMMER, req.getSaksnummer());
+                .leggTil(AppAbacAttributtType.JOURNALPOST_ID, req.journalpostIdDto().journalpostId())
+                .leggTil(AppAbacAttributtType.SAKSNUMMER, req.saksnummerDto().saksnummer());
         }
     }
 
@@ -566,7 +529,7 @@ public class FordelRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (OpprettSakDto) obj;
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.getAktørId());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.aktørId());
         }
     }
 
@@ -584,7 +547,7 @@ public class FordelRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (SaksnummerDto) obj;
-            return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.SAKSNUMMER, req.getSaksnummer());
+            return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.SAKSNUMMER, req.saksnummer());
         }
     }
 

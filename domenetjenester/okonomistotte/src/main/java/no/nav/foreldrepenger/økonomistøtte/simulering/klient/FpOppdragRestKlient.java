@@ -18,6 +18,8 @@ import jakarta.ws.rs.core.UriBuilder;
 import no.nav.foreldrepenger.kontrakter.fpwsproxy.error.FeilDto;
 import no.nav.foreldrepenger.kontrakter.fpwsproxy.error.FeilType;
 import no.nav.foreldrepenger.kontrakter.fpwsproxy.simulering.request.OppdragskontrollDto;
+import no.nav.foreldrepenger.kontrakter.fpwsproxy.simulering.request.StartSimuleringRequest;
+import no.nav.foreldrepenger.kontrakter.simulering.resultat.request.SimuleringResultatRequest;
 import no.nav.foreldrepenger.kontrakter.simulering.resultat.v1.SimuleringDto;
 import no.nav.foreldrepenger.kontrakter.simulering.resultat.v1.SimuleringResultatDto;
 import no.nav.vedtak.exception.IntegrasjonException;
@@ -60,12 +62,12 @@ public class FpOppdragRestKlient {
      * @return Optional med SimuleringResultatDto kan være tom
      */
     public Optional<SimuleringResultatDto> hentResultat(Long behandlingId, UUID behandlingUuid, String saksnummer) {
-        var rrequest = RestRequest.newPOSTJson(new BehandlingIdDto(behandlingId, behandlingUuid, saksnummer), uriHentResultat, restConfig);
+        var rrequest = RestRequest.newPOSTJson(new SimuleringResultatRequest(behandlingId, behandlingUuid, saksnummer), uriHentResultat, restConfig);
         return restClient.sendReturnOptional(rrequest, SimuleringResultatDto.class);
     }
 
     public Optional<SimuleringDto> hentSimuleringResultatMedOgUtenInntrekk(Long behandlingId, UUID behandlingUuid, String saksnummer) {
-        var rrequest = RestRequest.newPOSTJson(new BehandlingIdDto(behandlingId, behandlingUuid, saksnummer), uriHentResultatGui, restConfig);
+        var rrequest = RestRequest.newPOSTJson(new SimuleringResultatRequest(behandlingId, behandlingUuid, saksnummer), uriHentResultatGui, restConfig);
         return restClient.sendReturnOptional(rrequest, SimuleringDto.class);
     }
 
@@ -74,19 +76,15 @@ public class FpOppdragRestKlient {
      * @param oppdragskontrollDto med OppdragskontrollDto
      */
     public void startSimulering(OppdragskontrollDto oppdragskontrollDto, UUID behandlingUuid, String saksnummer) {
-        var utvidet = new UtvidetOppdragskontrollDto(oppdragskontrollDto, behandlingUuid, saksnummer);
+        var utvidet = new StartSimuleringRequest(oppdragskontrollDto, behandlingUuid, saksnummer);
         var request = RestRequest.newPOSTJson(utvidet, uriStartSimulering, restConfig).timeout(Duration.ofSeconds(30));
         handleResponse(restClient.sendReturnUnhandled(request));
     }
 
     public void kansellerSimulering(Long behandlingId, UUID behandlingUuid, String saksnummer) {
-        var request = RestRequest.newPOSTJson(new BehandlingIdDto(behandlingId, behandlingUuid, saksnummer), uriKansellerSimulering, restConfig);
+        var request = RestRequest.newPOSTJson(new SimuleringResultatRequest(behandlingId, behandlingUuid, saksnummer), uriKansellerSimulering, restConfig);
         restClient.sendReturnOptional(request, String.class);
     }
-
-    public record UtvidetOppdragskontrollDto(OppdragskontrollDto dto,
-                                             UUID behandlingUuid,
-                                             String saksnummer) {}
 
     private static void handleResponse(HttpResponse<String> response) {
         var status = response.statusCode();

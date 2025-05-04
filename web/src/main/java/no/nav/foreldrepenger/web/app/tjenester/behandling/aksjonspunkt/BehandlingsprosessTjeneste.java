@@ -146,7 +146,7 @@ public class BehandlingsprosessTjeneste {
     }
 
     private boolean kanSaksbehandle() {
-        return ansattInfoKlient.innloggetNavAnsatt().kanSaksbehandle();
+        return ansattInfoKlient.kanSaksbehandle();
     }
 
     public Behandling hentBehandling(Long behandlingsId) {

@@ -126,8 +126,8 @@ class FordelRestTjenesteTest {
         var result = fordelRestTjeneste.fagsak(new SaksnummerDto("TEST2"));
 
         assertThat(result).isNotNull();
-        assertThat(new AktørId(result.getAktørId())).isEqualTo(AKTØR_ID_MOR);
-        assertThat(result.getBehandlingstemaOffisiellKode()).isEqualTo(BehandlingTema.FORELDREPENGER_FØDSEL.getOffisiellKode());
+        assertThat(new AktørId(result.aktørId())).isEqualTo(AKTØR_ID_MOR);
+        assertThat(result.behandlingstemaOffisiellKode()).isEqualTo(BehandlingTema.FORELDREPENGER_FØDSEL.getOffisiellKode());
     }
 
     @Test
