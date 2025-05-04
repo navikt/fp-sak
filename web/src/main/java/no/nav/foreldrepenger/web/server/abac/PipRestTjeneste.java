@@ -45,12 +45,10 @@ public class PipRestTjeneste {
 
     protected static final String PIP_BASE_PATH = "/pip";
 
-    private static final String AKTOER_FOR_SAK = "/aktoer-for-sak";
-    private static final String IDENT_FOR_SAK = "/ident-for-sak"; // Midlertidig for å etterpopulere tilgang
-    private static final String FULL_FOR_SAK = "/full-for-sak";
-    private static final String AKTOER_FOR_BEHANDLING = "/aktoer-for-behandling";
-    private static final String SAKSNUMMER_FOR_BEHANDLING = "/saksnummer-for-behandling";
-    private static final String FULL_FOR_BEHANDLING = "/full-for-behandling";
+    private static final String AKTOER_FOR_SAK = "/aktoer-for-sak"; // Ekstern bruk fra SAF
+    private static final String IDENT_FOR_SAK = "/ident-for-sak"; // FP-tilgang - midlertidig for å etterpopulere. Kan antagelig fjernes sent mai
+    private static final String FULL_FOR_SAK = "/full-for-sak"; // FP-tilgang bruker gåde GET og POST
+    private static final String SAKSNUMMER_FOR_BEHANDLING = "/saksnummer-for-behandling"; // FP-tilgang
 
     private PipRepository pipRepository;
     private PersonopplysningRepository personopplysningRepository;
@@ -74,18 +72,6 @@ public class PipRestTjeneste {
         return personopplysningRepository.hentAktørIdKnyttetTilSaksnummer(new Saksnummer(saksnummerDto.getVerdi()));
     }
 
-    @POST // Bulk-metode
-    @Path(AKTOER_FOR_SAK)
-    @Operation(description = "Henter saksnummer, saksident og tilknyttede identer for en fagsak", tags = "pip")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP, sporingslogg = false)
-    public List<SakOgPersonerDto> hentAktørIdMapTilknyttetSaker(@TilpassetAbacAttributt(supplierClass = SakSetSupplier.class)
-                                                                       @NotNull @Valid SaksnummerSetDto saksnummerDto) {
-        return saksnummerDto.saksnummer().stream()
-            .map(SaksnummerPlainDto::saksnummer)
-            .map(this::lagSakMedPersonerDto)
-            .toList();
-    }
-
     @GET // Enkelt-sak
     @Path(IDENT_FOR_SAK)
     @Operation(description = "Henter saksident for en fagsak", tags = "pip")
@@ -93,18 +79,6 @@ public class PipRestTjeneste {
     public AktørId hentSaksIdent(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
                                                       @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         return pipRepository.hentAktørIdSomEierFagsak(new Saksnummer(saksnummerDto.getVerdi())).orElse(null);
-    }
-
-    @POST // Bulk-metode
-    @Path(IDENT_FOR_SAK)
-    @Operation(description = "Henter saksnummer og saksidenter for en gruppe saker", tags = "pip")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP, sporingslogg = false)
-    public List<SakOgPersonerDto> hentSakerIdenter(@TilpassetAbacAttributt(supplierClass = SakSetSupplier.class)
-                                                                 @NotNull @Valid SaksnummerSetDto saksnummerDto) {
-        return saksnummerDto.saksnummer().stream()
-            .map(SaksnummerPlainDto::saksnummer)
-            .map(this::lagSakMedIdentDto)
-            .toList();
     }
 
     @GET // Enkelt-sak
@@ -129,40 +103,12 @@ public class PipRestTjeneste {
     }
 
     @GET
-    @Path(AKTOER_FOR_BEHANDLING)
-    @Operation(description = "Henter aktørIder tilknyttet til en behandling", tags = "pip")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP, sporingslogg = false)
-    public Set<AktørId> hentAktørIdListeTilknyttetBehandling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-                                                       @NotNull @QueryParam("behandlingUuid") @Valid UuidDto uuidDto) {
-        return pipRepository.hentSaksnummerForBehandlingUuid(uuidDto.getBehandlingUuid())
-            .map(personopplysningRepository::hentAktørIdKnyttetTilSaksnummer)
-            .orElseGet(Set::of);
-    }
-
-    @GET
     @Path(SAKSNUMMER_FOR_BEHANDLING)
     @Operation(description = "Henter saksnummer for en behandling", tags = "pip")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP, sporingslogg = false)
     public String hentSaksnummerTilknyttetBehandling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                              @NotNull @QueryParam("behandlingUuid") @Valid UuidDto uuidDto) {
         return pipRepository.hentSaksnummerForBehandlingUuid(uuidDto.getBehandlingUuid()).map(Saksnummer::getVerdi).orElse(null);
-    }
-
-    @GET
-    @Path(FULL_FOR_BEHANDLING)
-    @Operation(description = "Henter saksnummer, saksident og tilknyttede identer for en behandling", tags = "pip")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP, sporingslogg = false)
-    public SakOgPersonerDto hentSaksnummerAktørIdFor(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-                                                                     @NotNull @QueryParam("behandlingUuid") @Valid UuidDto uuidDto) {
-        return pipRepository.hentSaksnummerForBehandlingUuid(uuidDto.getBehandlingUuid())
-            .map(Saksnummer::getVerdi)
-            .map(this::lagSakMedPersonerDto)
-            .orElse(null);
-    }
-
-    private SakOgPersonerDto lagSakMedIdentDto(String saksnummer) {
-        var eier = pipRepository.hentAktørIdSomEierFagsak(new Saksnummer(saksnummer)).map(AktørId::getId).orElse(null);
-        return new SakOgPersonerDto(saksnummer, eier, Set.of());
     }
 
     private SakOgPersonerDto lagSakMedPersonerDto(String saksnummer) {
