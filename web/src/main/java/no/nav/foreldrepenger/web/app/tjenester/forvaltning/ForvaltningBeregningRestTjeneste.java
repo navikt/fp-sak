@@ -232,7 +232,7 @@ public class ForvaltningBeregningRestTjeneste {
             .map(r -> new OverstyrInntektsmeldingTask.InntektsmeldingEndring.Refusjonsendring(r.getFom(), r.getBeløp()))
             .toList();
         var taskParam = new OverstyrInntektsmeldingTask.InntektsmeldingEndring(dto.getJournalpostId(), behandling.getId(), dto.getRefusjonOpphørFom(), dto.getRefusjonPrMndFraStart(),
-            KontekstHolder.getKontekst().getUid(), refusjonsendringer);
+            KontekstHolder.getKontekst().getUid(), refusjonsendringer, dto.getStartdatoPermisjon());
         var task = ProsessTaskData.forProsessTask(OverstyrInntektsmeldingTask.class);
         task.setPayload(DefaultJsonMapper.toJson(taskParam));
         task.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());

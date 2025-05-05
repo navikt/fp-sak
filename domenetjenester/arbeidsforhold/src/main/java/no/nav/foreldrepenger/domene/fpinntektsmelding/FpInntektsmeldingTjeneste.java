@@ -83,12 +83,14 @@ public class FpInntektsmeldingTjeneste {
                                         Optional<Long> refusjonPrMndFraStart,
                                         Optional<LocalDate> overstyrtOpphørFom,
                                         Map<LocalDate, Beløp> overstyrteRefusjonsendringer,
+                                        Optional<LocalDate> overstyrtStartdatoPermisjon,
                                         String saksbehandlerIdent,
                                         BehandlingReferanse ref) {
         var refusjonOpphørsdato = overstyrtOpphørFom.orElseGet(() -> Objects.requireNonNull(inntektsmeldingSomSkalOverstyres.getRefusjonOpphører()));
         var ytelse = ref.fagsakYtelseType().equals(FagsakYtelseType.FORELDREPENGER) ? OverstyrInntektsmeldingRequest.YtelseType.FORELDREPENGER : OverstyrInntektsmeldingRequest.YtelseType.SVANGERSKAPSPENGER;
-        var startdato = inntektsmeldingSomSkalOverstyres.getStartDatoPermisjon()
-            .orElseGet(() -> skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId()).getUtledetSkjæringstidspunkt());
+        var startdato = overstyrtStartdatoPermisjon
+            .orElseGet(() -> inntektsmeldingSomSkalOverstyres.getStartDatoPermisjon()
+            .orElseGet(() -> skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId()).getUtledetSkjæringstidspunkt()));
         // Hvis refusjon er endret fra start brukes denne, ellers brukes gammelt refusjonsbeløp
         var refusjon = refusjonPrMndFraStart.map(BigDecimal::valueOf)
             .orElseGet(() -> Optional.ofNullable(inntektsmeldingSomSkalOverstyres.getRefusjonBeløpPerMnd())
