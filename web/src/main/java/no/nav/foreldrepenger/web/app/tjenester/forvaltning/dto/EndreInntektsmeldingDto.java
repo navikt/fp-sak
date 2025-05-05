@@ -38,6 +38,11 @@ public class EndreInntektsmeldingDto implements AbacDto {
     @Pattern(regexp = DATO_PATTERN)
     private String refusjonOpphørFom;
 
+    @Parameter(description = "YYYY-MM-DD")
+    @QueryParam("startdatoPermisjon")
+    @Pattern(regexp = DATO_PATTERN)
+    private String startdatoPermisjon;
+
     @QueryParam("refusjonPrMndFraStart")
     @Min(value = 0)
     @Max(value = Long.MAX_VALUE)
@@ -67,6 +72,10 @@ public class EndreInntektsmeldingDto implements AbacDto {
 
     public LocalDate getRefusjonOpphørFom() {
         return getLocalDate(refusjonOpphørFom);
+    }
+
+    public LocalDate getStartdatoPermisjon() {
+        return getLocalDate(startdatoPermisjon);
     }
 
     public List<RefusjonsendringDto> getRefusjonsendringer() {

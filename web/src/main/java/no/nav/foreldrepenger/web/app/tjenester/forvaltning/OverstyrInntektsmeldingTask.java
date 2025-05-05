@@ -69,11 +69,12 @@ class OverstyrInntektsmeldingTask implements ProsessTaskHandler {
         fpInntektsmeldingTjeneste.overstyrInntektsmelding(inntektsmeldingSomSkalOverstyres, Optional.ofNullable(endringIInntektsmelding.refusjonPrMndFraStart()),
             Optional.ofNullable(endringIInntektsmelding.opphørdato()),
             refusjonsendringMap,
+            Optional.ofNullable(endringIInntektsmelding.startdatoPermisjon()),
             endringIInntektsmelding.saksbehandlerIdent(),
             ref);
     }
 
-    public record InntektsmeldingEndring(String journalpostId, Long behandlingId, LocalDate opphørdato, Long refusjonPrMndFraStart, String saksbehandlerIdent, List<Refusjonsendring> refusjonsendringer) {
+    public record InntektsmeldingEndring(String journalpostId, Long behandlingId, LocalDate opphørdato, Long refusjonPrMndFraStart, String saksbehandlerIdent, List<Refusjonsendring> refusjonsendringer, LocalDate startdatoPermisjon) {
         public List<Refusjonsendring> getRefusjonsendringer(){
             return refusjonsendringer == null ? List.of() : refusjonsendringer;
         }
