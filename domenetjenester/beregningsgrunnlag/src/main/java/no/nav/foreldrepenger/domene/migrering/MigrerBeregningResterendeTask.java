@@ -45,14 +45,15 @@ public class MigrerBeregningResterendeTask implements ProsessTaskHandler {
         var dryRun = Optional.ofNullable(prosessTaskData.getPropertyValue(DRY_RUN)).filter("false"::equalsIgnoreCase).isEmpty();
         var fagsaker = finnRest().toList();
         LOG.info("Fant {} saker å migrere ", fagsaker.size());
-        if (!dryRun) {
-            fagsaker.forEach(f -> {
-                LOG.info("Lager task for å migrere saksnummer {}.", f.getSaksnummer());
+        fagsaker.forEach(fag -> {
+            LOG.info("Resterende sak med saksnummer {} er kandidat for migrering", fag.getSaksnummer());
+            if (!dryRun) {
+                LOG.info("Lager task for å migrere saksnummer {}.", fag.getSaksnummer());
                 var migreringstask = ProsessTaskData.forProsessTask(MigrerBeregningSakTask.class);
-                migreringstask.setSaksnummer(f.getSaksnummer().getVerdi());
+                migreringstask.setSaksnummer(fag.getSaksnummer().getVerdi());
                 prosessTaskTjeneste.lagre(migreringstask);
-            });
-        }
+            }
+        });
         LOG.info("Avslutter task for å migrere resterende fagsaker.");
     }
 
