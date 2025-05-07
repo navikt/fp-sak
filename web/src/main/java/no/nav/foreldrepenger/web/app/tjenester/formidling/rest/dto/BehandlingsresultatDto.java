@@ -1,18 +1,18 @@
 package no.nav.foreldrepenger.web.app.tjenester.formidling.rest.dto;
 
-import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.AvslagÅrsak;
-import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.BehandlingResultatType;
-import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.KonsekvensForYtelsen;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.AvslagÅrsakDto;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.BehandlingResultatTypeDto;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.KonsekvensForYtelsenDto;
 
 import java.time.LocalDate;
 import java.util.List;
 
 public class BehandlingsresultatDto {
 
-    private BehandlingResultatType type;
-    private AvslagÅrsak avslagsarsak;
+    private BehandlingResultatTypeDto type;
+    private AvslagÅrsakDto avslagsarsak;
     private String avslagsarsakFritekst;
-    private List<KonsekvensForYtelsen> konsekvenserForYtelsen;
+    private List<KonsekvensForYtelsenDto> konsekvenserForYtelsen;
     private String overskrift;
     private String fritekstbrev;
     private SkjæringstidspunktDto skjæringstidspunkt;
@@ -23,11 +23,11 @@ public class BehandlingsresultatDto {
         // trengs for deserialisering av JSON
     }
 
-    public void setType(BehandlingResultatType type) {
+    public void setType(BehandlingResultatTypeDto type) {
         this.type = type;
     }
 
-    public void setAvslagsarsak(AvslagÅrsak avslagsarsak) {
+    public void setAvslagsarsak(AvslagÅrsakDto avslagsarsak) {
         this.avslagsarsak = avslagsarsak;
     }
 
@@ -35,15 +35,15 @@ public class BehandlingsresultatDto {
         this.avslagsarsakFritekst = avslagsarsakFritekst;
     }
 
-    public void setKonsekvenserForYtelsen(List<KonsekvensForYtelsen> konsekvenserForYtelsen) {
+    public void setKonsekvenserForYtelsen(List<KonsekvensForYtelsenDto> konsekvenserForYtelsen) {
         this.konsekvenserForYtelsen = konsekvenserForYtelsen;
     }
 
-    public BehandlingResultatType getType() {
+    public BehandlingResultatTypeDto getType() {
         return type;
     }
 
-    public AvslagÅrsak getAvslagsarsak() {
+    public AvslagÅrsakDto getAvslagsarsak() {
         return avslagsarsak;
     }
 
@@ -51,7 +51,7 @@ public class BehandlingsresultatDto {
         return avslagsarsakFritekst;
     }
 
-    public List<KonsekvensForYtelsen> getKonsekvenserForYtelsen() {
+    public List<KonsekvensForYtelsenDto> getKonsekvenserForYtelsen() {
         return konsekvenserForYtelsen;
     }
 

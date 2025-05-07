@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum AvslagÅrsak {
+public enum AvslagÅrsakDto {
 
     SØKT_FOR_TIDLIG("1001"),
     SØKER_ER_MEDMOR("1002"),
@@ -54,7 +54,7 @@ public enum AvslagÅrsak {
     @JsonValue
     private String kode;
 
-    AvslagÅrsak(String kode) {
+    AvslagÅrsakDto(String kode) {
         this.kode = kode;
     }
 

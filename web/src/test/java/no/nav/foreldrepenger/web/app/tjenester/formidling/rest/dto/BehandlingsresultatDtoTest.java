@@ -7,9 +7,9 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.AvslagÅrsak;
-import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.BehandlingResultatType;
-import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.KonsekvensForYtelsen;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.AvslagÅrsakDto;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.BehandlingResultatTypeDto;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.KonsekvensForYtelsenDto;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class BehandlingsresultatDtoTest {
@@ -18,9 +18,9 @@ class BehandlingsresultatDtoTest {
     void serdesMaksTest() {
         var now = LocalDate.now();
         var skjæringstidspunkt = new SkjæringstidspunktDto(now, true);
-        var resultatType = BehandlingResultatType.INNVILGET;
-        var avslagÅrsak = AvslagÅrsak.BARN_IKKE_UNDER_15_ÅR;
-        var konsekvenser = List.of(KonsekvensForYtelsen.ENDRING_I_BEREGNING, KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN);
+        var resultatType = BehandlingResultatTypeDto.INNVILGET;
+        var avslagÅrsak = AvslagÅrsakDto.BARN_IKKE_UNDER_15_ÅR;
+        var konsekvenser = List.of(KonsekvensForYtelsenDto.ENDRING_I_BEREGNING, KonsekvensForYtelsenDto.ENDRING_I_FORDELING_AV_YTELSEN);
         var fritekstÅrsakTekst = "Fritekst årsak";
         var overskriftFritekst = "Overskrift";
         var fritekst = "Fritekst";
@@ -45,7 +45,7 @@ class BehandlingsresultatDtoTest {
         assertThat(deserialized.getAvslagsarsak()).isEqualTo(avslagÅrsak);
         assertThat(deserialized.isEndretDekningsgrad()).isTrue();
         assertThat(deserialized.getSkjæringstidspunkt()).isEqualTo(skjæringstidspunkt);
-        assertThat(deserialized.getKonsekvenserForYtelsen()).containsExactlyInAnyOrder(konsekvenser.toArray(new KonsekvensForYtelsen[0]));
+        assertThat(deserialized.getKonsekvenserForYtelsen()).containsExactlyInAnyOrder(konsekvenser.toArray(new KonsekvensForYtelsenDto[0]));
         assertThat(deserialized.getAvslagsarsakFritekst()).isEqualTo(fritekstÅrsakTekst);
         assertThat(deserialized.getOverskrift()).isEqualTo(overskriftFritekst);
         assertThat(deserialized.getFritekstbrev()).isEqualTo(fritekst);
@@ -56,7 +56,7 @@ class BehandlingsresultatDtoTest {
     void serdesMinTest() {
         var now = LocalDate.now();
         var skjæringstidspunkt = new SkjæringstidspunktDto(now, true);
-        var resultatType = BehandlingResultatType.INNVILGET;
+        var resultatType = BehandlingResultatTypeDto.INNVILGET;
 
         BehandlingsresultatDto dto = new BehandlingsresultatDto();
         dto.setType(resultatType);

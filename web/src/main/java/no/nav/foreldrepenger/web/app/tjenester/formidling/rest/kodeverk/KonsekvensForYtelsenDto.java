@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk;
 
-public enum KonsekvensForYtelsen {
+public enum KonsekvensForYtelsenDto {
     FORELDREPENGER_OPPHØRER,
     ENDRING_I_BEREGNING,
     ENDRING_I_UTTAK,

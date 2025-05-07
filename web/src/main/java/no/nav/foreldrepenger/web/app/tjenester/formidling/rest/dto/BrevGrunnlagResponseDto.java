@@ -7,34 +7,29 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.*;
 
 public class BrevGrunnlagResponseDto {
 
     private UUID uuid;
-    private BehandlingType type;
-    private BehandlingStatus status;
+    private BehandlingTypeDto type;
+    private BehandlingStatusDto status;
     private LocalDateTime opprettet;
     private LocalDateTime avsluttet;
     private String behandlendeEnhetId;
-    private Språkkode språkkode;
+    private SpråkkodeDto språkkode;
     private boolean toTrinnsBehandling;
     private Boolean harAvklartAnnenForelderRett;
     private UUID originalBehandlingUuid;
-    private Avslagsårsak medlemskapOpphørsårsak;
+    private AvslagÅrsakDto medlemskapOpphørsårsak;
     private LocalDate medlemskapFom;
     private BehandlingsresultatDto behandlingsresultat; //
     private FagsakDto fagsak;
     private VergeDto verge;
 
-    private List<BehandlingÅrsakType> behandlingÅrsaker; //
-    private List<VilkårType> vilkår;
+    private List<BehandlingÅrsakTypeDto> behandlingÅrsaker; //
+    private List<VilkårTypeDto> vilkår;
     private List<ResourceLink> links = new ArrayList<>();
 
     public BrevGrunnlagResponseDto() {
@@ -57,11 +52,11 @@ public class BrevGrunnlagResponseDto {
         this.originalBehandlingUuid = originalBehandlingUuid;
     }
 
-    public void setMedlemskapOpphørsårsak(Avslagsårsak medlemskapOpphørsårsak) {
+    public void setMedlemskapOpphørsårsak(AvslagÅrsakDto medlemskapOpphørsårsak) {
         this.medlemskapOpphørsårsak = medlemskapOpphørsårsak;
     }
 
-    public Avslagsårsak getMedlemskapOpphørsårsak() {
+    public AvslagÅrsakDto getMedlemskapOpphørsårsak() {
         return medlemskapOpphørsårsak;
     }
 
@@ -81,7 +76,7 @@ public class BrevGrunnlagResponseDto {
         return uuid;
     }
 
-    public BehandlingType getType() {
+    public BehandlingTypeDto getType() {
         return type;
     }
 
@@ -93,7 +88,7 @@ public class BrevGrunnlagResponseDto {
         return avsluttet;
     }
 
-    public BehandlingStatus getStatus() {
+    public BehandlingStatusDto getStatus() {
         return status;
     }
 
@@ -105,7 +100,7 @@ public class BrevGrunnlagResponseDto {
         return behandlendeEnhetId;
     }
 
-    public List<VilkårType> getVilkår() {
+    public List<VilkårTypeDto> getVilkår() {
         return vilkår;
     }
 
@@ -117,7 +112,7 @@ public class BrevGrunnlagResponseDto {
         links.add(link);
     }
 
-    public Språkkode getSpråkkode() {
+    public SpråkkodeDto getSpråkkode() {
         return språkkode;
     }
 
@@ -125,11 +120,11 @@ public class BrevGrunnlagResponseDto {
         return toTrinnsBehandling;
     }
 
-    public List<BehandlingÅrsakType> getBehandlingÅrsaker() {
+    public List<BehandlingÅrsakTypeDto> getBehandlingÅrsaker() {
         return behandlingÅrsaker;
     }
 
-    public void setBehandlingÅrsaker(List<BehandlingÅrsakType> behandlingÅrsaker) {
+    public void setBehandlingÅrsaker(List<BehandlingÅrsakTypeDto> behandlingÅrsaker) {
         this.behandlingÅrsaker = behandlingÅrsaker;
     }
 
@@ -141,7 +136,7 @@ public class BrevGrunnlagResponseDto {
         this.uuid = uuid;
     }
 
-    public void setType(BehandlingType type) {
+    public void setType(BehandlingTypeDto type) {
         this.type = type;
     }
 
@@ -157,7 +152,7 @@ public class BrevGrunnlagResponseDto {
         this.behandlingsresultat = behandlingsresultat;
     }
 
-    public void setStatus(BehandlingStatus status) {
+    public void setStatus(BehandlingStatusDto status) {
         this.status = status;
     }
 
@@ -165,7 +160,7 @@ public class BrevGrunnlagResponseDto {
         this.behandlendeEnhetId = behandlendeEnhetId;
     }
 
-    public void setSpråkkode(Språkkode språkkode) {
+    public void setSpråkkode(SpråkkodeDto språkkode) {
         this.språkkode = språkkode;
     }
 
@@ -173,7 +168,7 @@ public class BrevGrunnlagResponseDto {
         this.toTrinnsBehandling = toTrinnsBehandling;
     }
 
-    public void setVilkår(List<VilkårType> vilkår) {
+    public void setVilkår(List<VilkårTypeDto> vilkår) {
         this.vilkår = vilkår;
     }
 
