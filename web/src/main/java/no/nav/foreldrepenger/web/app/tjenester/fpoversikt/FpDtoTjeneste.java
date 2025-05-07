@@ -1,11 +1,13 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
+import static java.lang.Boolean.TRUE;
 import static no.nav.foreldrepenger.web.app.tjenester.fpoversikt.DtoTjenesteFelles.statusForSøknad;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,7 +28,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -192,10 +196,28 @@ public class FpDtoTjeneste {
         if (søknad.isEmpty() || mottattEllerVenterDokumentasjonPåAtMorErIArbeid(søknad.get())) {
             return false;
         }
-        var søknadsperioder = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId())
-            .map(yfa -> yfa.getOppgittFordeling().getPerioder())
-            .orElse(List.of());
-        return søknadsperioder.stream().anyMatch(OppgittPeriodeEntitet::erAktivitetskravMedMorArbeid);
+        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId());
+        if (ytelseFordelingAggregat.isEmpty()) {
+            return false;
+        }
+        var søknadsperioder = ytelseFordelingAggregat.get().getOppgittFordeling().getPerioder();
+        return søknadsperioder.stream().anyMatch(
+            oppgittPeriodeEntitet -> harAktivitetskravMorArbeid(oppgittPeriodeEntitet, ytelseFordelingAggregat.get().getOppgittRettighet()));
+    }
+
+    private static boolean harAktivitetskravMorArbeid(OppgittPeriodeEntitet oppgittPeriodeEntitet, OppgittRettighetEntitet oppgittRettighet) {
+        if (!Objects.equals(oppgittPeriodeEntitet.getMorsAktivitet(), no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet.ARBEID)) {
+            return false;
+        }
+        if (Objects.equals(UttakPeriodeType.FELLESPERIODE, oppgittPeriodeEntitet.getPeriodeType())) {
+            return true;
+        }
+        return oppgittBareSøkerRett(oppgittRettighet);
+    }
+
+    private static boolean oppgittBareSøkerRett(OppgittRettighetEntitet oppgittRettighet) {
+        return !Objects.equals(oppgittRettighet.getHarAnnenForeldreRett(), TRUE) && !Objects.equals(oppgittRettighet.getHarAleneomsorgForBarnet(),
+            TRUE);
     }
 
     private boolean mottattEllerVenterDokumentasjonPåAtMorErIArbeid(SøknadEntitet søknad) {
