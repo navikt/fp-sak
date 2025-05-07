@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk;
 
-public enum BehandlingResultatType {
+public enum BehandlingResultatTypeDto {
 
     IKKE_FASTSATT,
     INNVILGET,

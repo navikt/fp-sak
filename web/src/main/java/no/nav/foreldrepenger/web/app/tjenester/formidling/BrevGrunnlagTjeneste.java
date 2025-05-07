@@ -11,6 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.*;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
@@ -47,9 +48,9 @@ import no.nav.foreldrepenger.web.app.tjenester.formidling.arbeidsforholdInntekts
 import no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag.BeregningsgrunnlagFormidlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.FormidlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.dto.*;
-import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.AvslagÅrsak;
-import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.BehandlingResultatType;
-import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.KonsekvensForYtelsen;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.*;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.BehandlingResultatTypeDto;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.rest.kodeverk.KonsekvensForYtelsenDto;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.tilkjentytelse.TilkjentYtelseFormidlingRestTjeneste;
 
 import java.util.Arrays;
@@ -124,38 +125,80 @@ public class BrevGrunnlagTjeneste {
 
     private void settBehandlingInfoForBrev(Behandling behandling, BrevGrunnlagResponseDto dto) {
         setStandardfelter(behandling, dto);
-        dto.setSpråkkode(getSpråkkode(behandling));
+        dto.setSpråkkode(mapSpråkkode(getSpråkkode(behandling)));
         var behandlingsresultat = getBehandlingsresultat(behandling.getId());
         dto.setVilkår(!erAktivPapirsøknad(behandling) ? hentVilkårTyper(behandlingsresultat) : List.of());
         dto.setBehandlingsresultat(lagBehandlingsresultatDto(behandling, behandlingsresultat).orElse(null));
     }
 
-    public static List<VilkårType> hentVilkårTyper(Behandlingsresultat behandlingsresultat) {
+    private SpråkkodeDto mapSpråkkode(Språkkode språkkode) {
+        return switch (språkkode) {
+            case EN -> SpråkkodeDto.EN;
+            case NB -> SpråkkodeDto.NB;
+            case NN -> SpråkkodeDto.NN;
+            case null, default -> null;
+        };
+    }
+
+    public static List<VilkårTypeDto> hentVilkårTyper(Behandlingsresultat behandlingsresultat) {
         return Optional.ofNullable(behandlingsresultat)
             .map(Behandlingsresultat::getVilkårResultat)
             .map(VilkårResultat::getVilkårene)
             .orElse(List.of())
             .stream()
             .map(Vilkår::getVilkårType)
+                .map(BrevGrunnlagTjeneste::mapTilDto)
             .toList();
+    }
+
+    private static VilkårTypeDto mapTilDto(VilkårType vilkårType) {
+        return VilkårTypeDto.valueOf(vilkårType.name());
     }
 
     static void setStandardfelter(Behandling behandling, BrevGrunnlagResponseDto dto) {
         dto.setUuid(behandling.getUuid());
-        dto.setType(behandling.getType());
+        dto.setType(mapBehandlingType(behandling.getType()));
         dto.setOpprettet(behandling.getOpprettetDato());
         dto.setAvsluttet(behandling.getAvsluttetDato());
-        dto.setStatus(behandling.getStatus());
+        dto.setStatus(mapBehandlingStatus(behandling.getStatus()));
         dto.setBehandlendeEnhetId(behandling.getBehandlendeOrganisasjonsEnhet().enhetId());
         dto.setToTrinnsBehandling(behandling.isToTrinnsBehandling());
         dto.setBehandlingÅrsaker(lagBehandlingÅrsakDto(behandling));
     }
 
-    private static List<BehandlingÅrsakType> lagBehandlingÅrsakDto(Behandling behandling) {
+    private static BehandlingStatusDto mapBehandlingStatus(BehandlingStatus status) {
+        return switch (status) {
+            case OPPRETTET -> BehandlingStatusDto.OPPRETTET;
+            case UTREDES -> BehandlingStatusDto.UTREDES;
+            case FATTER_VEDTAK -> BehandlingStatusDto.FATTER_VEDTAK;
+            case IVERKSETTER_VEDTAK -> BehandlingStatusDto.IVERKSETTER_VEDTAK;
+            case AVSLUTTET -> BehandlingStatusDto.AVSLUTTET;
+            case null -> null;
+        };
+    }
+
+    private static BehandlingTypeDto mapBehandlingType(BehandlingType type) {
+        return switch (type) {
+            case FØRSTEGANGSSØKNAD -> BehandlingTypeDto.FØRSTEGANGSSØKNAD;
+            case REVURDERING -> BehandlingTypeDto.REVURDERING;
+            case KLAGE -> BehandlingTypeDto.KLAGE;
+            case INNSYN -> BehandlingTypeDto.INNSYN;
+            case ANKE -> BehandlingTypeDto.ANKE;
+            case TILBAKEKREVING_ORDINÆR -> BehandlingTypeDto.TILBAKEKREVING_ORDINÆR;
+            case TILBAKEKREVING_REVURDERING -> BehandlingTypeDto.TILBAKEKREVING_REVURDERING;
+            case null, default -> null;
+        };
+    }
+
+    private static List<BehandlingÅrsakTypeDto> lagBehandlingÅrsakDto(Behandling behandling) {
         if (!behandling.getBehandlingÅrsaker().isEmpty()) {
-            return behandling.getBehandlingÅrsaker().stream().map(BehandlingÅrsak::getBehandlingÅrsakType).toList();
+            return behandling.getBehandlingÅrsaker().stream().map(BehandlingÅrsak::getBehandlingÅrsakType).map(BrevGrunnlagTjeneste::mapTilDto).toList();
         }
         return emptyList();
+    }
+
+    private static BehandlingÅrsakTypeDto mapTilDto(BehandlingÅrsakType behandlingÅrsakType) {
+        return BehandlingÅrsakTypeDto.valueOf(behandlingÅrsakType.name());
     }
 
     private static boolean erAktivPapirsøknad(Behandling behandling) {
@@ -167,9 +210,33 @@ public class BrevGrunnlagTjeneste {
 
     private void settFagsakInfoForBrev(Saksnummer saksnummer, BrevGrunnlagResponseDto dto) {
         var fagsak = fagsakTjeneste.hentFagsakDtoForSaksnummer(saksnummer).orElseThrow();
-        var fagsakDto = new FagsakDto(fagsak.saksnummer(), fagsak.fagsakYtelseType(), fagsak.relasjonsRolleType(), fagsak.aktørId(),
+        var fagsakDto = new FagsakDto(fagsak.saksnummer(), mapYtelseType(fagsak.fagsakYtelseType()), mapRelasjonsrolleType(fagsak.relasjonsRolleType()), fagsak.aktørId(),
             fagsak.dekningsgrad());
         dto.setFagsak(fagsakDto);
+    }
+
+    private RelasjonsRolleTypeDto mapRelasjonsrolleType(RelasjonsRolleType relasjonsRolleType) {
+        return switch (relasjonsRolleType) {
+            case BARN -> RelasjonsRolleTypeDto.BARN;
+            case EKTE -> RelasjonsRolleTypeDto.EKTE;
+            case FARA -> RelasjonsRolleTypeDto.FARA;
+            case MORA -> RelasjonsRolleTypeDto.MORA;
+            case MEDMOR -> RelasjonsRolleTypeDto.MEDMOR;
+            case REGISTRERT_PARTNER -> RelasjonsRolleTypeDto.REGISTRERT_PARTNER;
+            case ANNEN_PART_FRA_SØKNAD -> RelasjonsRolleTypeDto.ANNEN_PART_FRA_SØKNAD;
+            case UDEFINERT -> null;
+            case null -> null;
+        };
+    }
+
+    private FagsakYtelseTypeDto mapYtelseType(FagsakYtelseType fagsakYtelseType) {
+        return switch (fagsakYtelseType) {
+            case FORELDREPENGER -> FagsakYtelseTypeDto.FORELDREPENGER;
+            case SVANGERSKAPSPENGER -> FagsakYtelseTypeDto.SVANGERSKAPSPENGER;
+            case ENGANGSTØNAD -> FagsakYtelseTypeDto.ENGANGSTØNAD;
+            case UDEFINERT -> null;
+            case null -> null;
+        };
     }
 
     private Språkkode getSpråkkode(Behandling behandling) {
@@ -267,7 +334,7 @@ public class BrevGrunnlagTjeneste {
                     dto.leggTil(get(TilkjentYtelseFormidlingRestTjeneste.TILKJENT_YTELSE_DAGYTELSE_PATH, "tilkjentytelse-dagytelse", uuidDto));
                     uttak.filter(Uttak::harAvslagPgaMedlemskap).ifPresent(u -> {
                         var avslagsårsak = medlemTjeneste.hentAvslagsårsak(behandling.getId());
-                        dto.setMedlemskapOpphørsårsak(avslagsårsak.orElse(null));
+                        dto.setMedlemskapOpphørsårsak(mapAvslagÅrsak(avslagsårsak.orElse(null)));
                     });
                 }
 
@@ -313,22 +380,22 @@ public class BrevGrunnlagTjeneste {
         return Optional.of(dto);
     }
 
-    private AvslagÅrsak mapAvslagÅrsak(Avslagsårsak avslagsårsak) {
+    private AvslagÅrsakDto mapAvslagÅrsak(Avslagsårsak avslagsårsak) {
         if (avslagsårsak == null) {
-            return AvslagÅrsak.UDEFINERT;
+            return AvslagÅrsakDto.UDEFINERT;
         }
-        return AvslagÅrsak.valueOf(avslagsårsak.name());
+        return AvslagÅrsakDto.valueOf(avslagsårsak.name());
     }
 
-    private BehandlingResultatType mapBehandlingResultatType(no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType behandlingResultatType) {
+    private BehandlingResultatTypeDto mapBehandlingResultatType(no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType behandlingResultatType) {
         if (behandlingResultatType == null) {
             return null;
         }
-        return BehandlingResultatType.valueOf(behandlingResultatType.name());
+        return BehandlingResultatTypeDto.valueOf(behandlingResultatType.name());
     }
 
-    private List<KonsekvensForYtelsen> mapKonsekvensForYtelsen(List<no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen> konsekvenserForYtelsen) {
-        return konsekvenserForYtelsen.stream().map(k -> KonsekvensForYtelsen.valueOf(k.name())).toList();
+    private List<KonsekvensForYtelsenDto> mapKonsekvensForYtelsen(List<no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen> konsekvenserForYtelsen) {
+        return konsekvenserForYtelsen.stream().map(k -> KonsekvensForYtelsenDto.valueOf(k.name())).toList();
     }
 
     private Optional<SkjæringstidspunktDto> finnSkjæringstidspunktForBehandling(Behandling behandling, Behandlingsresultat behandlingsresultat) {
