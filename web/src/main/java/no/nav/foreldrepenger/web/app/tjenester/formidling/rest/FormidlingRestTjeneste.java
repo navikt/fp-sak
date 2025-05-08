@@ -36,11 +36,8 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 public class FormidlingRestTjeneste {
 
     public static final String BASE_PATH = "/formidling";
-    public static final String RESSURSER_PART_PATH = "/ressurser";
-    public static final String UTSATT_START_PART_PATH = "/utsattstart";
-    public static final String UTSATT_START_PATH = BASE_PATH + UTSATT_START_PART_PATH;
-    public static final String MOTTATT_DATO_SØKNADSFRIST_PART_PATH = "/motattDatoSøknad";
-    public static final String MOTTATT_DATO_SØKNADSFRIST_PATH = BASE_PATH + MOTTATT_DATO_SØKNADSFRIST_PART_PATH;
+    public static final String UTSATT_START_PATH = BASE_PATH + "/utsattstart";
+    public static final String MOTTATT_DATO_SØKNADSFRIST_PATH = BASE_PATH + "/motattDatoSøknad";
 
     private BehandlingRepository behandlingRepository;
     private BehandlingFormidlingDtoTjeneste behandlingFormidlingDtoTjeneste;
@@ -66,9 +63,9 @@ public class FormidlingRestTjeneste {
     }
 
     @GET
-    @Path("/brev/grunnlag/v2")
+    @Path("/brev/behandling")
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Henter brev data for brevproduksjon for angitt spesifikasjon. Spesifikasjonen kan angit hvilke data som ønskes.", tags = "formidling")
+    @Operation(description = "Henter felles brevdata for brevproduksjon.", tags = "formidling")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response hentBrevGrunnlag(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandlingHvisFinnes(uuidDto.getBehandlingUuid());
@@ -77,7 +74,7 @@ public class FormidlingRestTjeneste {
     }
 
     @GET
-    @Path(RESSURSER_PART_PATH)
+    @Path("/ressurser")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Hent behandling med tilhørende ressurslenker for bruk i formidling", tags = "formidling")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
@@ -89,7 +86,7 @@ public class FormidlingRestTjeneste {
     }
 
     @GET
-    @Path(UTSATT_START_PART_PATH)
+    @Path("/utsattstart")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Hent informasjon om sak er utsatt fra start og evt ny dato", tags = "formidling")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
@@ -102,7 +99,7 @@ public class FormidlingRestTjeneste {
     }
 
     @GET
-    @Path(MOTTATT_DATO_SØKNADSFRIST_PART_PATH)
+    @Path("/motattDatoSøknad")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Hent gjeldende mottatt dato for søknad", tags = "formidling")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
