@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
@@ -166,5 +167,95 @@ class VurderUttakDokumentasjonAksjonspunktUtlederTest {
 
         assertThat(behov.getFirst().registerVurdering()).isEqualTo(RegisterVurdering.MORS_AKTIVITET_GODKJENT);
         assertThat(behov.getFirst().vurdering()).isNull();
+    }
+
+    @Test
+    void skal_finne_over_75_ingen_permisjoner_ett_arbeid() {
+        var aaPerioder = new AktivitetskravArbeidPerioderEntitet.Builder()
+            .leggTil(new AktivitetskravArbeidPeriodeEntitet.Builder()
+                .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(1))
+                .medOrgNummer(OrgNummer.KUNSTIG_ORG)
+                .medSumStillingsprosent(BigDecimal.valueOf(100))
+                .medPermisjon(BigDecimal.ZERO, AktivitetskravPermisjonType.UDEFINERT))
+            .build();
+        var aaGrunnlag = AktivitetskravGrunnlagEntitet.Builder.oppdatere(Optional.empty())
+            .medPerioderMedAktivitetskravArbeid(aaPerioder)
+            .build();
+        assertThat(aaGrunnlag.mor75StillingOgIngenPermisjoner(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()))).isTrue();
+    }
+
+    @Test
+    void skal_finne_50_ingen_permisjoner_to_arbeid() {
+        var aaPerioder = new AktivitetskravArbeidPerioderEntitet.Builder()
+            .leggTil(new AktivitetskravArbeidPeriodeEntitet.Builder()
+                .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(1))
+                .medOrgNummer(OrgNummer.KUNSTIG_ORG)
+                .medSumStillingsprosent(BigDecimal.valueOf(50))
+                .medPermisjon(BigDecimal.ZERO, AktivitetskravPermisjonType.UDEFINERT))
+            .leggTil(new AktivitetskravArbeidPeriodeEntitet.Builder()
+                .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(1))
+                .medOrgNummer(OrgNummer.KUNSTIG_ORG)
+                .medSumStillingsprosent(BigDecimal.ZERO)
+                .medPermisjon(BigDecimal.ZERO, AktivitetskravPermisjonType.UDEFINERT))
+            .build();
+        var aaGrunnlag = AktivitetskravGrunnlagEntitet.Builder.oppdatere(Optional.empty())
+            .medPerioderMedAktivitetskravArbeid(aaPerioder)
+            .build();
+        assertThat(aaGrunnlag.mor75StillingOgIngenPermisjoner(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()))).isFalse();
+    }
+
+    @Test
+    void skal_finne_80_ingen_permisjoner_ett_arbeid() {
+        var aaPerioder = new AktivitetskravArbeidPerioderEntitet.Builder()
+            .leggTil(new AktivitetskravArbeidPeriodeEntitet.Builder()
+                .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(1))
+                .medOrgNummer(OrgNummer.KUNSTIG_ORG)
+                .medSumStillingsprosent(BigDecimal.valueOf(40))
+                .medPermisjon(BigDecimal.ZERO, AktivitetskravPermisjonType.UDEFINERT))
+            .leggTil(new AktivitetskravArbeidPeriodeEntitet.Builder()
+                .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(1))
+                .medOrgNummer(OrgNummer.KUNSTIG_ORG)
+                .medSumStillingsprosent(BigDecimal.valueOf(40))
+                .medPermisjon(BigDecimal.ZERO, AktivitetskravPermisjonType.UDEFINERT))
+            .build();
+        var aaGrunnlag = AktivitetskravGrunnlagEntitet.Builder.oppdatere(Optional.empty())
+            .medPerioderMedAktivitetskravArbeid(aaPerioder)
+            .build();
+        assertThat(aaGrunnlag.mor75StillingOgIngenPermisjoner(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()))).isTrue();
+    }
+
+    @Test
+    void skal_ikke_finne_over_75_permisjon_ett_arbeid() {
+        var aaPerioder = new AktivitetskravArbeidPerioderEntitet.Builder()
+            .leggTil(new AktivitetskravArbeidPeriodeEntitet.Builder()
+                .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(1))
+                .medOrgNummer(OrgNummer.KUNSTIG_ORG)
+                .medSumStillingsprosent(BigDecimal.valueOf(100))
+                .medPermisjon(BigDecimal.valueOf(50), AktivitetskravPermisjonType.FORELDREPENGER))
+            .build();
+        var aaGrunnlag = AktivitetskravGrunnlagEntitet.Builder.oppdatere(Optional.empty())
+            .medPerioderMedAktivitetskravArbeid(aaPerioder)
+            .build();
+        assertThat(aaGrunnlag.mor75StillingOgIngenPermisjoner(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()))).isFalse();
+    }
+
+    @Test
+    void skal_finne_over_75_permisjon_to_arbeid_perm_0_prosent() {
+        var aaPerioder = new AktivitetskravArbeidPerioderEntitet.Builder()
+            .leggTil(new AktivitetskravArbeidPeriodeEntitet.Builder()
+                .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(1))
+                .medOrgNummer(OrgNummer.KUNSTIG_ORG)
+                .medSumStillingsprosent(BigDecimal.valueOf(100))
+                .medPermisjon(BigDecimal.ZERO, AktivitetskravPermisjonType.UDEFINERT))
+            .leggTil(new AktivitetskravArbeidPeriodeEntitet.Builder()
+                .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(1))
+                .medOrgNummer(OrgNummer.KUNSTIG_ORG)
+                .medSumStillingsprosent(BigDecimal.ZERO)
+                .medPermisjon(BigDecimal.valueOf(50), AktivitetskravPermisjonType.FORELDREPENGER))
+            .build();
+        var aaGrunnlag = AktivitetskravGrunnlagEntitet.Builder.oppdatere(Optional.empty())
+            .medPerioderMedAktivitetskravArbeid(aaPerioder)
+            .build();
+        assertThat(aaGrunnlag.mor75StillingOgIngenPermisjoner(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()))).isTrue();
     }
 }
