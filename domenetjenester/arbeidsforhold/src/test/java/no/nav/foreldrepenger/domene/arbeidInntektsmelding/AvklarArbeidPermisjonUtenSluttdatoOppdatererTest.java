@@ -33,7 +33,6 @@ import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjen
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk.ArbeidPermHistorikkInnslagTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.person.PersonIdentTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYRepositoryProvider;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYScenarioBuilder;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
@@ -47,6 +46,7 @@ import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.vedtak.konfig.Tid;
@@ -63,7 +63,7 @@ class AvklarArbeidPermisjonUtenSluttdatoOppdatererTest {
     @Mock
     private VirksomhetTjeneste virksomhetTjeneste;
     @Mock
-    private PersonIdentTjeneste personIdentTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
     @Mock
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
 
@@ -76,7 +76,7 @@ class AvklarArbeidPermisjonUtenSluttdatoOppdatererTest {
     void setUp(EntityManager entityManager) {
         provider = new IAYRepositoryProvider(entityManager);
         Mockito.lenient().when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(lagVirksomhet(NAV_ORGNR));
-        arbeidsgiverTjeneste = new ArbeidsgiverTjeneste(personIdentTjeneste, virksomhetTjeneste);
+        arbeidsgiverTjeneste = new ArbeidsgiverTjeneste(personinfoAdapter, virksomhetTjeneste);
         var arbeidsforholdAdministrasjonTjeneste = new ArbeidsforholdAdministrasjonTjeneste(
                 iayTjeneste);
         var historikkRepository = new HistorikkinnslagRepository(entityManager);
