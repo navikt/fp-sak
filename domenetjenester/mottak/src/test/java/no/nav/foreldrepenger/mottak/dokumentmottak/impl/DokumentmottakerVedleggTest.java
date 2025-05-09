@@ -185,7 +185,7 @@ class DokumentmottakerVedleggTest {
         dokumentmottaker.mottaDokument(mottattDokument, klageBehandling.getFagsak(), null);
 
         // Assert
-        verify(dokumentmottakerFelles).opprettTaskForÅVurdereDokument(klageBehandling.getFagsak(), klageBehandling, mottattDokument);
+        verify(dokumentmottakerFelles).opprettTaskForÅVurdereDokument(klageBehandling.getFagsak(), null, mottattDokument);
 
         // Verifiser at korrekt prosesstask for vurder dokument blir opprettet
         verify(kompletthetskontroller, times(0)).persisterDokumentOgVurderKompletthet(klageBehandling, mottattDokument);
@@ -214,7 +214,31 @@ class DokumentmottakerVedleggTest {
     }
 
     @Test
-    void skal_opprette_task_for_å_vurdere_dokument_når_dokumenttype_er_udefinert() {
+    void skal_nåndtere_når_åpen_klage_nfp() {
+        var førstegangssøknadEnhetsId = ENHET.enhetId();
+        var klageEnhetsId = BehandlendeEnhetTjeneste.getNasjonalEnhet().enhetId();
+
+        // Arrange
+        var scenario = ScenarioKlageEngangsstønad.forUtenVurderingResultat(
+            ScenarioMorSøkerEngangsstønad.forFødsel().medBehandlendeEnhet(førstegangssøknadEnhetsId)).medBehandlendeEnhet(klageEnhetsId);
+        var klageBehandling = scenario.lagre(repositoryProvider, klageRepository);
+
+        var fagsakId = scenario.getFagsak().getId();
+        var dokumentTypeId = DokumentTypeId.UDEFINERT;
+
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
+
+        // Act
+        dokumentmottaker.mottaDokument(mottattDokument, klageBehandling.getFagsak(), null);
+
+        // Assert
+        verify(dokumentmottakerFelles, times(0)).opprettTaskForÅVurdereDokument(klageBehandling.getFagsak(), klageBehandling, mottattDokument);
+        verify(kompletthetskontroller).vedleggHåndteresGjennomÅpenKlage(klageBehandling, mottattDokument);
+        verify(kompletthetskontroller, times(0)).persisterDokumentOgVurderKompletthet(klageBehandling, mottattDokument);
+    }
+
+    @Test
+    void skal_opprette_task_for_å_vurdere_dokument_når_åpen_klage_ka() {
         var førstegangssøknadEnhetsId = ENHET.enhetId();
         var klageEnhetsId = BehandlendeEnhetTjeneste.getKlageInstans().enhetId();
 
@@ -234,8 +258,7 @@ class DokumentmottakerVedleggTest {
         dokumentmottaker.mottaDokument(mottattDokument, klageBehandling.getFagsak(), null);
 
         // Assert
-        verify(dokumentmottakerFelles).opprettTaskForÅVurdereDokument(klageBehandling.getFagsak(), klageBehandling, mottattDokument);
-        verifyNoInteractions(mottatteDokumentTjeneste);
+        verify(dokumentmottakerFelles).opprettTaskForÅVurdereDokument(klageBehandling.getFagsak(), null, mottattDokument);
 
         // Verifiser at korrekt prosesstask for vurder dokument blir opprettet
         verify(kompletthetskontroller, times(0)).persisterDokumentOgVurderKompletthet(klageBehandling, mottattDokument);
