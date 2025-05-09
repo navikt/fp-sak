@@ -1,15 +1,26 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
@@ -34,18 +45,6 @@ import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
 import no.nav.vedtak.exception.TekniskException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
@@ -59,11 +58,9 @@ public class EndringsdatoRevurderingUtleder {
     private RelevanteArbeidsforholdTjeneste relevanteArbeidsforholdTjeneste;
     private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
     private ForeldrepengerUttakTjeneste uttakTjeneste;
-    private BehandlingRepository behandlingRepository; // Kun for logging
 
     @Inject
     public EndringsdatoRevurderingUtleder(UttakRepositoryProvider repositoryProvider,
-                                          BehandlingRepository behandlingRepository,
                                           DekningsgradTjeneste dekningsgradTjeneste,
                                           RelevanteArbeidsforholdTjeneste relevanteArbeidsforholdTjeneste,
                                           StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste) {
@@ -73,7 +70,6 @@ public class EndringsdatoRevurderingUtleder {
         this.relevanteArbeidsforholdTjeneste = relevanteArbeidsforholdTjeneste;
         this.uttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
         this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
-        this.behandlingRepository = behandlingRepository;
     }
 
     EndringsdatoRevurderingUtleder() {
@@ -83,9 +79,7 @@ public class EndringsdatoRevurderingUtleder {
     public LocalDate utledEndringsdato(UttakInput input) {
         var ref = input.getBehandlingReferanse();
         var behandlingId = ref.behandlingId();
-        var årsaker = behandlingRepository.hentBehandlingHvisFinnes(ref.behandlingUuid())
-            .map(Behandling::getBehandlingÅrsaker).orElse(List.of()).stream()
-            .map(BehandlingÅrsak::getBehandlingÅrsakType).collect(Collectors.toSet());
+        var årsaker = input.getBehandlingÅrsaker();
         var endringsdatoTypeEnumSet = utledEndringsdatoTyper(input);
         if (endringsdatoTypeEnumSet.isEmpty()) {
             endringsdatoTypeEnumSet.add(EndringsdatoType.FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK);
@@ -131,11 +125,19 @@ public class EndringsdatoRevurderingUtleder {
         forrigeBehandlingUtenUttakEndringsdato(ref).ifPresent(endringsdatoTypeEnumSet::add);
         nesteSakEndringstype(ref, fpGrunnlag).ifPresent(endringsdatoTypeEnumSet::add);
         pleiepengerEndringstype(fpGrunnlag).ifPresent(endringsdatoTypeEnumSet::add);
-        if (endretDekningsgrad(ref)) {
+        if (endretDekningsgrad(ref) || endretRettighetstype(ref)) {
             endringsdatoTypeEnumSet.add(EndringsdatoType.FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK);
         }
 
         return endringsdatoTypeEnumSet;
+    }
+
+    private boolean endretRettighetstype(BehandlingReferanse ref) {
+        var overstyrtRettighetstypeOriginalBehandling = ytelsesFordelingRepository.hentAggregatHvisEksisterer(ref.originalBehandlingId())
+            .flatMap(YtelseFordelingAggregat::getOverstyrtRettighetstype);
+        var overstyrtRettighetstype = ytelsesFordelingRepository.hentAggregatHvisEksisterer(ref.behandlingId())
+            .flatMap(YtelseFordelingAggregat::getOverstyrtRettighetstype);
+        return !Objects.equals(overstyrtRettighetstypeOriginalBehandling, overstyrtRettighetstype);
     }
 
     private EnumSet<EndringsdatoType> utledEndringsdatoTypeBerørtBehandling(UttakInput input) {

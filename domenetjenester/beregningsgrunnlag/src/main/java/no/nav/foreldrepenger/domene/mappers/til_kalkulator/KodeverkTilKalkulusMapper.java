@@ -22,7 +22,9 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.SammenligningsgrunnlagType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.SkatteOgAvgiftsregelType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.UttakArbeidType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.VirksomhetType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.YtelseKilde;
 import no.nav.folketrygdloven.kalkulus.kodeverk.YtelseType;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 
@@ -396,6 +398,18 @@ public class KodeverkTilKalkulusMapper {
             case FASTSETT2 -> BeregningsgrunnlagPeriodeRegelType.FASTSETT2;
             case FINN_GRENSEVERDI -> BeregningsgrunnlagPeriodeRegelType.FINN_GRENSEVERDI    ;
             case UDEFINERT -> BeregningsgrunnlagPeriodeRegelType.UDEFINERT;
+        };
+    }
+
+    public static YtelseKilde mapYtelseKilde(Fagsystem kilde) {
+        return switch (kilde) {
+            case FPSAK -> YtelseKilde.FPSAK;
+            case INFOTRYGD -> YtelseKilde.INFOTRYGD;
+            case ARENA -> YtelseKilde.ARENA;
+            case K9SAK -> YtelseKilde.K9SAK;
+            case VLSP -> YtelseKilde.VLSP;
+            case UDEFINERT -> YtelseKilde.UDEFINERT;
+            case TPS, AAREGISTERET, ENHETSREGISTERET, GOSYS, MEDL, INNTEKT, JOARK -> null;
         };
     }
 }
