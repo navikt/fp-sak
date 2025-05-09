@@ -58,6 +58,7 @@ public class AksjonspunktKodeDefinisjon {
     public static final String OVERSTYRING_AV_BEREGNINGSAKTIVITETER_KODE = "6014";
     public static final String OVERSTYRING_AV_BEREGNINGSGRUNNLAG_KODE = "6015";
     public static final String OVERSTYRING_AV_DEKNINGSGRAD_KODE = "6016";
+    public static final String OVERSTYRING_AV_FAKTA_OM_FØDSEL_KODE = "6019";
 
     public static final String REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD_KODE = "5012";
 
@@ -68,6 +69,7 @@ public class AksjonspunktKodeDefinisjon {
     public static final String KONTROLLER_REVURDERINGSBEHANDLING_VARSEL_VED_UGUNST_KODE = "5055";
 
     public static final String SJEKK_MANGLENDE_FØDSEL_KODE = "5027";
+
 
     public static final String VENT_PÅ_SCANNING_KODE = "7007";
     public static final String VENT_PGA_FOR_TIDLIG_SØKNAD_KODE = "7008";
