@@ -115,7 +115,7 @@ public class AktivitetskravGrunnlagEntitet extends BaseEntitet {
         return per.getAktivitetskravArbeidPeriodeListe()
             .stream()
             .filter(p -> tidsperiode.erOmsluttetAv(p.getPeriode()))
-            .anyMatch(p -> p.getSumPermisjonsprosent().merEnn0());
+            .anyMatch(p -> p.getSumPermisjonsprosent().merEnn0() && p.getSumStillingsprosent().merEnn0());
     }
 
     public static class Builder {

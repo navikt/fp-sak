@@ -12,8 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.domene.arbeidsforhold.person.PersonIdentTjeneste;
-import no.nav.vedtak.exception.VLException;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.vedtak.util.LRUCache;
 
 @ApplicationScoped
@@ -24,7 +23,7 @@ public class ArbeidsgiverTjeneste {
     private static final LRUCache<String, ArbeidsgiverOpplysninger> CACHE = new LRUCache<>(2500, CACHE_ELEMENT_LIVE_TIME_MS);
     private static final LRUCache<String, ArbeidsgiverOpplysninger> FAIL_BACKOFF_CACHE = new LRUCache<>(100, SHORT_CACHE_ELEMENT_LIVE_TIME_MS);
 
-    private PersonIdentTjeneste personIdentTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
     private VirksomhetTjeneste virksomhetTjeneste;
 
     ArbeidsgiverTjeneste() {
@@ -32,8 +31,8 @@ public class ArbeidsgiverTjeneste {
     }
 
     @Inject
-    public ArbeidsgiverTjeneste(PersonIdentTjeneste personIdentTjeneste, VirksomhetTjeneste virksomhetTjeneste) {
-        this.personIdentTjeneste = personIdentTjeneste;
+    public ArbeidsgiverTjeneste(PersoninfoAdapter personinfoAdapter, VirksomhetTjeneste virksomhetTjeneste) {
+        this.personinfoAdapter = personinfoAdapter;
         this.virksomhetTjeneste = virksomhetTjeneste;
     }
 
@@ -69,13 +68,14 @@ public class ArbeidsgiverTjeneste {
                         info.getFødselsdato());
                 CACHE.put(arbeidsgiver.getIdentifikator(), nyOpplysninger);
                 return nyOpplysninger;
+            } else {
+                // Putter bevist ikke denne i cache da denne aktøren ikke er kjent, men legger
+                // denne i en backoff cache som benyttes for at vi ikke skal hamre på pdl ved
+                // sikkerhetsbegrensning
+                var opplysninger = new ArbeidsgiverOpplysninger(arbeidsgiver.getIdentifikator(), "N/A");
+                FAIL_BACKOFF_CACHE.put(arbeidsgiver.getIdentifikator(), opplysninger);
+                return opplysninger;
             }
-            // Putter bevist ikke denne i cache da denne aktøren ikke er kjent, men legger
-            // denne i en backoff cache som benyttes for at vi ikke skal hamre på pdl ved
-            // sikkerhetsbegrensning
-            var opplysninger = new ArbeidsgiverOpplysninger(arbeidsgiver.getIdentifikator(), "N/A");
-            FAIL_BACKOFF_CACHE.put(arbeidsgiver.getIdentifikator(), opplysninger);
-            return opplysninger;
         }
         return null;
     }
@@ -87,8 +87,8 @@ public class ArbeidsgiverTjeneste {
 
     private Optional<PersoninfoArbeidsgiver> hentInformasjonFraPDL(Arbeidsgiver arbeidsgiver) {
         try {
-            return personIdentTjeneste.hentBrukerForAktør(arbeidsgiver.getAktørId());
-        } catch (VLException feil) {
+            return personinfoAdapter.hentBrukerArbeidsgiverForAktør(arbeidsgiver.getAktørId());
+        } catch (Exception feil) {
             // Ønsker ikke å gi GUI problemer ved å eksponere exceptions
             return Optional.empty();
         }
