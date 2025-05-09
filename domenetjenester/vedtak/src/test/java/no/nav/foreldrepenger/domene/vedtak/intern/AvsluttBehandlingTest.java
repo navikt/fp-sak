@@ -60,12 +60,6 @@ class AvsluttBehandlingTest {
     @Mock
     private OppdatereFagsakRelasjonVedVedtak oppdatereFagsakRelasjonVedVedtak;
 
-    @Mock
-    private BeregningTjeneste beregningTjeneste;
-
-    @Mock
-    private InntektArbeidYtelseTjeneste iayTjeneste;
-
     private AvsluttBehandling avsluttBehandling;
     private Behandling behandling;
 
@@ -83,7 +77,7 @@ class AvsluttBehandlingTest {
                 repositoryProvider);
 
         avsluttBehandling = new AvsluttBehandling(repositoryProvider, behandlingskontrollTjeneste, behandlingVedtakEventPubliserer,
-            vurderBehandlingerUnderIverksettelse, behandlingProsesseringTjeneste, oppdatereFagsakRelasjonVedVedtak, beregningTjeneste, iayTjeneste);
+            vurderBehandlingerUnderIverksettelse, behandlingProsesseringTjeneste, oppdatereFagsakRelasjonVedVedtak);
 
         when(behandlingskontrollTjeneste.initBehandlingskontroll(Mockito.any(Behandling.class), Mockito.any(BehandlingLås.class)))
             .thenAnswer(invocation -> {
