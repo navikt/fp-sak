@@ -86,14 +86,14 @@ public class PersonBasisTjeneste {
             mapKjønn(person), getDiskresjonskode(person).getKode());
     }
 
-    public Optional<PersoninfoArbeidsgiver> hentArbeidsgiverPersoninfo(FagsakYtelseType ytelseType, AktørId aktørId, PersonIdent personIdent) {
+    public Optional<PersoninfoArbeidsgiver> hentPrivatArbeidsgiverPersoninfo(FagsakYtelseType ytelseType, AktørId aktørId, PersonIdent personIdent) {
         var query = new HentPersonQueryRequest();
         query.setIdent(aktørId.getId());
         var projection = new PersonResponseProjection()
                 .navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn())
                 .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato());
 
-        var person = pdlKlient.hentPerson(ytelseType, query, projection);
+        var person = pdlKlient.hentPersonTilgangsnektSomInfo(ytelseType, query, projection);
 
         var fødselsdato = person.getFoedselsdato().stream()
                 .map(Foedselsdato::getFoedselsdato)
@@ -104,6 +104,28 @@ public class PersonBasisTjeneste {
                 .medNavn(person.getNavn().stream().map(PersoninfoTjeneste::mapNavn).filter(Objects::nonNull).findFirst().orElse(null))
                 .medFødselsdato(fødselsdato)
                 .build();
+
+        return person.getNavn().isEmpty() || person.getFoedselsdato().isEmpty() ? Optional.empty() : Optional.of(arbeidsgiver);
+    }
+
+    public Optional<PersoninfoArbeidsgiver> hentVergePersoninfo(FagsakYtelseType ytelseType, AktørId aktørId, PersonIdent personIdent) {
+        var query = new HentPersonQueryRequest();
+        query.setIdent(aktørId.getId());
+        var projection = new PersonResponseProjection()
+            .navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn())
+            .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato());
+
+        var person = pdlKlient.hentPerson(ytelseType, query, projection);
+
+        var fødselsdato = person.getFoedselsdato().stream()
+            .map(Foedselsdato::getFoedselsdato)
+            .filter(Objects::nonNull)
+            .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
+
+        var arbeidsgiver = new PersoninfoArbeidsgiver.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
+            .medNavn(person.getNavn().stream().map(PersoninfoTjeneste::mapNavn).filter(Objects::nonNull).findFirst().orElse(null))
+            .medFødselsdato(fødselsdato)
+            .build();
 
         return person.getNavn().isEmpty() || person.getFoedselsdato().isEmpty() ? Optional.empty() : Optional.of(arbeidsgiver);
     }

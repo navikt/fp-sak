@@ -12,8 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.pdl.Folkeregisterpersonstatus;
 import no.nav.pdl.FolkeregisterpersonstatusResponseProjection;
-import no.nav.pdl.GeografiskTilknytningResponseProjection;
-import no.nav.pdl.HentGeografiskTilknytningQueryRequest;
 import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.PersonResponseProjection;
 
@@ -33,26 +31,6 @@ public class TilknytningTjeneste {
     @Inject
     public TilknytningTjeneste(PdlKlientLogCause pdlKlient) {
         this.pdlKlient = pdlKlient;
-    }
-
-    // Behold ut 2025 pga prosjekt nasjonal kø. Dersom lokale enheter gjeninnføres - kall via fptilgang / ruting-enhet
-    public String hentGeografiskTilknytning(FagsakYtelseType ytelseType, AktørId aktørId) {
-
-        var queryGT = new HentGeografiskTilknytningQueryRequest();
-        queryGT.setIdent(aktørId.getId());
-        var projectionGT = new GeografiskTilknytningResponseProjection()
-                .gtType().gtBydel().gtKommune().gtLand();
-
-        var geografiskTilknytning = pdlKlient.hentGT(ytelseType, queryGT, projectionGT);
-
-        if (geografiskTilknytning == null || geografiskTilknytning.getGtType() == null)
-            return null;
-        // Alle Utland + Udefinert til samme enhet.
-        return switch (geografiskTilknytning.getGtType()) {
-            case BYDEL -> geografiskTilknytning.getGtBydel();
-            case KOMMUNE -> geografiskTilknytning.getGtKommune();
-            case UTLAND, UDEFINERT -> null;
-        };
     }
 
     public boolean erIkkeBosattFreg(FagsakYtelseType ytelseType, AktørId aktørId) {

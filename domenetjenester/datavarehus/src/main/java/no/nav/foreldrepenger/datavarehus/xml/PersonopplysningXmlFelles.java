@@ -56,7 +56,7 @@ public class PersonopplysningXmlFelles {
     }
 
     public String hentVergeNavn(AktørId aktørId) {
-        return personinfoAdapter.hentBrukerArbeidsgiverForAktør(aktørId).map(PersoninfoArbeidsgiver::getNavn).orElse("Ukjent navn");
+        return personinfoAdapter.hentBrukerVergeForAktør(aktørId).map(PersoninfoArbeidsgiver::getNavn).orElse("Ukjent navn");
     }
 
     public PersonIdentifiserbar lagBruker(Skjæringstidspunkt stp, PersonopplysningerAggregat aggregat, PersonopplysningEntitet personopplysning) {

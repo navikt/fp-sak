@@ -21,7 +21,11 @@
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>arbeidsforhold</artifactId>
         </dependency>
-		<dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger</groupId>
+            <artifactId>beregningsgrunnlag</artifactId>
+        </dependency>
+        <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>behandlingskontroll</artifactId>
         </dependency>

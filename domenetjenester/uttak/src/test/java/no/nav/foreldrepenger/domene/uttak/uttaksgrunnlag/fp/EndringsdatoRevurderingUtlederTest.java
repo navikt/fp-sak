@@ -1,13 +1,39 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.BERØRT_BEHANDLING;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.FEIL_PRAKSIS_IVERKS_UTSET;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_HENDELSE_FØDSEL;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_OPPLYSNINGER_OM_DØD;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FORDELING;
+import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.AKTØR_ID_FAR;
+import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.AKTØR_ID_MOR;
+import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.FØDSELSDATO;
+import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK;
+import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.FØRSTE_UTTAKSDATO_SØKNAD_MOR_FPFF;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.junit.jupiter.api.Test;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Rettighetstype;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
@@ -54,31 +80,6 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorS�
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
-import org.junit.jupiter.api.Test;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.BERØRT_BEHANDLING;
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.FEIL_PRAKSIS_IVERKS_UTSET;
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE;
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN;
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING;
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER;
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_HENDELSE_FØDSEL;
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_OPPLYSNINGER_OM_DØD;
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FORDELING;
-import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.AKTØR_ID_FAR;
-import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.AKTØR_ID_MOR;
-import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.FØDSELSDATO;
-import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK;
-import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.FØRSTE_UTTAKSDATO_SØKNAD_MOR_FPFF;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 class EndringsdatoRevurderingUtlederTest {
 
@@ -94,8 +95,7 @@ class EndringsdatoRevurderingUtlederTest {
     private final UttakRevurderingTestUtil testUtil = new UttakRevurderingTestUtil(repositoryProvider, iayTjeneste);
     private final StønadskontoSaldoTjeneste saldoTjeneste = mock(StønadskontoSaldoTjeneste.class);
     private final EndringsdatoRevurderingUtleder utleder = new EndringsdatoRevurderingUtleder(
-        repositoryProvider, mock(BehandlingRepository.class), dekningsgradTjeneste,
-        new RelevanteArbeidsforholdTjeneste(repositoryProvider.getFpUttakRepository()), saldoTjeneste);
+        repositoryProvider, dekningsgradTjeneste, new RelevanteArbeidsforholdTjeneste(repositoryProvider.getFpUttakRepository()), saldoTjeneste);
 
     @Test
     void skal_utlede_at_endringsdatoen_er_første_uttaksdato_til_startdato_for_uttak_når_dekningsgrad_er_endret() {
@@ -827,6 +827,47 @@ class EndringsdatoRevurderingUtlederTest {
         var endringsdato = utleder.utledEndringsdato(input);
 
         assertThat(endringsdato).isEqualTo(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK);
+    }
+
+    @Test
+    void endringsdato_er_første_uttaksdato_fra_vedtak_ved_overstyrt_rettighetstype() {
+        var originalScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+
+        var originalOppgittPeriode = OppgittPeriodeBuilder.ny()
+            .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(1).minusDays(1))
+            .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+            .build();
+        originalScenario.medFordeling(
+            new OppgittFordelingEntitet(List.of(originalOppgittPeriode), true));
+        var originalBehandling = originalScenario.lagre(repositoryProvider);
+
+        var originaltUttak = new UttakResultatPerioderEntitet();
+        originaltUttak.leggTilPeriode(new UttakResultatPeriodeEntitet.Builder(LocalDate.now(),
+            LocalDate.now().plusWeeks(1).minusDays(1)).medResultatType(PeriodeResultatType.INNVILGET,
+            PeriodeResultatÅrsak.UKJENT).build());
+        repositoryProvider.getFpUttakRepository()
+            .lagreOpprinneligUttakResultatPerioder(originalBehandling.getId(), originaltUttak);
+
+        var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+
+        revurderingScenario.medDefaultInntektArbeidYtelse();
+        revurderingScenario.medOriginalBehandling(originalBehandling, RE_ENDRING_FRA_BRUKER);
+        var nyOppgittPeriode = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+            .medPeriode(LocalDate.now().plusWeeks(3), LocalDate.now().plusWeeks(4))
+            .build();
+
+        revurderingScenario.medFordeling(
+            new OppgittFordelingEntitet(List.of(nyOppgittPeriode), true));
+
+        var revurdering = lagre(revurderingScenario);
+        ytelsesFordelingRepository.lagre(revurdering.getId(), ytelsesFordelingRepository.opprettBuilder(revurdering.getId()).medOverstyrtRettighetstype(
+            Rettighetstype.BEGGE_RETT).build());
+
+        var input = lagInput(revurdering).medBehandlingÅrsaker(Set.of(RE_ENDRING_FRA_BRUKER));
+        var endringsdato = utleder.utledEndringsdato(input);
+
+        assertThat(endringsdato).isEqualTo(originalOppgittPeriode.getFom());
     }
 
     private YrkesaktivitetBuilder lagYrkesaktivitet(Arbeidsgiver arbeidsgiver, DatoIntervallEntitet periode) {
