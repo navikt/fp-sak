@@ -320,13 +320,14 @@ class FordelRestTjenesteTest {
         var b1 = mock(Behandling.class);
         var a1 = mock(Aksjonspunkt.class);
         var førsteUttaksdato = LocalDate.now().minusWeeks(5);
+        var skjæringstidspunkter = Skjæringstidspunkt.builder().medFørsteUttaksdato(førsteUttaksdato).medUtledetSkjæringstidspunkt(førsteUttaksdato).build();
         when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(1L)).thenReturn(Optional.of(b1));
         when(a1.getAksjonspunktDefinisjon()).thenReturn(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD);
         when(a1.getStatus()).thenReturn(AksjonspunktStatus.OPPRETTET);
         when(b1.getAksjonspunkter()).thenReturn(Set.of(a1));
         when(behandlingRepositoryProviderMock.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
         when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak1));
-        when(skjæringstidspunktTjenesteMock.getSkjæringstidspunkter(b1.getId())).thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(førsteUttaksdato).build());
+        when(skjæringstidspunktTjenesteMock.getSkjæringstidspunkter(b1.getId())).thenReturn(skjæringstidspunkter);
 
 
         var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock);

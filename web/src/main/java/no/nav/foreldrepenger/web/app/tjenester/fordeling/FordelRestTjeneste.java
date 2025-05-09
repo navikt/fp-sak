@@ -306,7 +306,7 @@ public class FordelRestTjeneste {
             .filter(sak -> !sak.getStatus().equals(FagsakStatus.AVSLUTTET) && ytelseDetSjekkesMot.equals(sak.getYtelseType()))
             .map(sak -> hentInfoOmSakIntektsmelding(sak.getId()))
             .findFirst()
-            .orElse(new InfoOmSakInntektsmeldingResponse(StatusSakInntektsmelding.INGEN_BEHANDLING, Tid.TIDENES_ENDE));
+            .orElse(new InfoOmSakInntektsmeldingResponse(StatusSakInntektsmelding.INGEN_BEHANDLING, Tid.TIDENES_ENDE, Tid.TIDENES_ENDE));
 
         return Response.ok(infoOmSakIMResponse).build();
     }
@@ -314,7 +314,7 @@ public class FordelRestTjeneste {
     private InfoOmSakInntektsmeldingResponse hentInfoOmSakIntektsmelding(Long fagsakId) {
         return behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId)
             .map(this::mapInfoOmSakInntektsmelding)
-            .orElseGet(() -> new InfoOmSakInntektsmeldingResponse(StatusSakInntektsmelding.INGEN_BEHANDLING, Tid.TIDENES_ENDE));
+            .orElseGet(() -> new InfoOmSakInntektsmeldingResponse(StatusSakInntektsmelding.INGEN_BEHANDLING, Tid.TIDENES_ENDE, Tid.TIDENES_ENDE));
     }
 
     private InfoOmSakInntektsmeldingResponse mapInfoOmSakInntektsmelding(Behandling behandling) {
@@ -324,13 +324,17 @@ public class FordelRestTjeneste {
             .map(Aksjonspunkt::getAksjonspunktDefinisjon)
             .collect(Collectors.toSet());
 
-        var førsteUttaksdato = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getFørsteUttaksdatoHvisFinnes();
+
+        var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+        var førsteUttaksdato = skjæringstidspunkter.getFørsteUttaksdatoHvisFinnes();
+
         var inntektsmeldingStatusSak = mapInntektsmeldingStatusSak(aksjonspunkterIkkeKlarForInntektsmelding);
         if (inntektsmeldingStatusSak.equals(StatusSakInntektsmelding.ÅPEN_FOR_BEHANDLING) && førsteUttaksdato.isEmpty()) {
             throw new IllegalStateException("Ulovlig tilstand-infoOmSakForInntektsmelding: Finner ikke førsteUttaksdato for behandling " + behandling.getId() + "med inntektsmeldingsstatus ÅPEN_FOR_BEHANDLING");
         }
 
-        return new InfoOmSakInntektsmeldingResponse(inntektsmeldingStatusSak, førsteUttaksdato.orElse(Tid.TIDENES_ENDE));
+        return new InfoOmSakInntektsmeldingResponse(inntektsmeldingStatusSak, førsteUttaksdato.orElse(Tid.TIDENES_ENDE),
+            skjæringstidspunkter.getSkjæringstidspunktHvisUtledet().orElse(Tid.TIDENES_ENDE));
     }
 
      StatusSakInntektsmelding mapInntektsmeldingStatusSak(Set<AksjonspunktDefinisjon> aksjonspunkterIkkeKlarForInntektsmelding) {
@@ -385,7 +389,8 @@ public class FordelRestTjeneste {
 
     public record SakInntektsmeldingResponse(boolean søkerHarSak){}
 
-    public record InfoOmSakInntektsmeldingResponse(StatusSakInntektsmelding statusInntektsmelding, LocalDate førsteUttaksdato) {}
+    public record InfoOmSakInntektsmeldingResponse(StatusSakInntektsmelding statusInntektsmelding, LocalDate førsteUttaksdato,
+                                                   LocalDate skjæringstidspunkt) {}
 
     public record SakInntektsmeldingDto(@NotNull @Valid AktørIdDto bruker, @NotNull @Valid YtelseType ytelse){
         protected enum YtelseType {
