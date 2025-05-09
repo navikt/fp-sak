@@ -28,7 +28,6 @@ import no.nav.folketrygdloven.kalkulator.modell.iay.RefusjonDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.RefusjonsperiodeDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YrkesaktivitetDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseAnvistDto;
-import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseFordelingDto;
 import no.nav.folketrygdloven.kalkulator.modell.typer.Arbeidsgiver;
 import no.nav.folketrygdloven.kalkulator.modell.typer.Beløp;
 import no.nav.folketrygdloven.kalkulator.modell.typer.InternArbeidsforholdRefDto;
@@ -68,23 +67,23 @@ import no.nav.folketrygdloven.kalkulus.iay.inntekt.v1.UtbetalingDto;
 import no.nav.folketrygdloven.kalkulus.iay.inntekt.v1.UtbetalingsPostDto;
 import no.nav.folketrygdloven.kalkulus.iay.v1.InntektArbeidYtelseGrunnlagDto;
 import no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseDto;
-import no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseGrunnlagDto;
 import no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelserDto;
 import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
 import no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidsforholdHandlingType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.Arbeidskategori;
 import no.nav.folketrygdloven.kalkulus.kodeverk.InntektskildeType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.InntektspostType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.NaturalYtelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.SkatteOgAvgiftsregelType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.VirksomhetType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.YtelseKilde;
 import no.nav.folketrygdloven.kalkulus.opptjening.v1.OppgittEgenNæringDto;
 import no.nav.folketrygdloven.kalkulus.opptjening.v1.OppgittFrilansDto;
 import no.nav.folketrygdloven.kalkulus.opptjening.v1.OppgittOpptjeningDto;
 import no.nav.folketrygdloven.kalkulus.opptjening.v1.OpptjeningAktiviteterDto;
 import no.nav.folketrygdloven.kalkulus.opptjening.v1.OpptjeningPeriodeDto;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulator.KodeverkTilKalkulusMapper;
 import no.nav.vedtak.konfig.Tid;
 
 /**
@@ -278,22 +277,7 @@ class MapTilKalkulatorInput {
         var ytelseAnvist = mapYtelseAnvistSet(ytelseDto.getYtelseAnvist());
         var relatertYtelseType = ytelseDto.getYtelseType();
         var periode = mapPeriode(ytelseDto.getPeriode());
-        var ytelseGrunnlag = mapYtelsegrunnlag(ytelseDto).orElse(null);
-        return new YtelseDto(vedtaksDagsats, ytelseAnvist, relatertYtelseType, periode, ytelseGrunnlag);
-    }
-
-    private static Optional<YtelseGrunnlagDto> mapYtelsegrunnlag(no.nav.folketrygdloven.kalkulator.modell.iay.YtelseDto ytelseDto) {
-            return ytelseDto.getYtelseGrunnlag().map(yg -> {
-                var ytelsefordelinger = yg.getFordeling().stream()
-                    .map(MapTilKalkulatorInput::mapYtelseFordeling)
-                    .toList();
-                return new YtelseGrunnlagDto(Arbeidskategori.fraKode(yg.getArbeidskategori() == null ? null : yg.getArbeidskategori().getKode()), ytelsefordelinger);
-            });
-    }
-
-    private static no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseFordelingDto mapYtelseFordeling(YtelseFordelingDto yf) {
-        var ag = mapArbeidsgiverNullsafe(yf.getArbeidsgiver());
-        return new no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseFordelingDto(ag, yf.getHyppighet(), mapTilBeløp(yf.getBeløp()), yf.getErRefusjon());
+        return new YtelseDto(vedtaksDagsats, ytelseAnvist, relatertYtelseType, periode, ytelseDto.getYtelseKilde().orElse(YtelseKilde.UDEFINERT));
     }
 
     private static Set<no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseAnvistDto> mapYtelseAnvistSet(Collection<YtelseAnvistDto> ytelseAnvist) {
