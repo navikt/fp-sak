@@ -94,7 +94,11 @@ public class BeregningMigreringTjeneste {
             .filter(Behandling::erAvsluttet)
             .toList();
         var sorterteBehandlinger = sorterBehandlinger(behandlinger);
-        sorterteBehandlinger.forEach(this::migrerBehandling);
+        sorterteBehandlinger.forEach(this::utførMigreringAvBehandling);
+    }
+
+    public void migrerBehandling(Behandling behandling) {
+        utførMigreringAvBehandling(behandling);
     }
 
     public Set<Behandling> sorterBehandlinger(List<Behandling> behandlinger) {
@@ -123,7 +127,7 @@ public class BeregningMigreringTjeneste {
         return sortertListe.stream().anyMatch(b -> b.getId().equals(id));
     }
 
-    private void migrerBehandling(Behandling behandling) {
+    private void utførMigreringAvBehandling(Behandling behandling) {
         var grunnlag = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId());
         var erHenlagt = behandling.getBehandlingsresultat().getBehandlingResultatType().erHenlagt();
         if (grunnlag.isEmpty()) {

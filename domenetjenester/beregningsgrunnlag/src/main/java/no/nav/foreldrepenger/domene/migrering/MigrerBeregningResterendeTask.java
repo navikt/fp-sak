@@ -44,7 +44,7 @@ public class MigrerBeregningResterendeTask implements ProsessTaskHandler {
         LOG.info("Starter task for å migrere resterende fagsaker.");
         var dryRun = Optional.ofNullable(prosessTaskData.getPropertyValue(DRY_RUN)).filter("false"::equalsIgnoreCase).isEmpty();
         var fagsaker = finnRest().toList();
-        LOG.info("Fant {} saker å migrere ", fagsaker.size());
+        LOG.info("Fant {} saker å migrere", fagsaker.size());
         fagsaker.forEach(fag -> {
             LOG.info("Resterende sak med saksnummer {} er kandidat for migrering", fag.getSaksnummer());
             if (!dryRun) {
