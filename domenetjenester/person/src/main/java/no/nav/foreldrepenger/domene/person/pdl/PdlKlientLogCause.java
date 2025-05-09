@@ -13,9 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.pdl.GeografiskTilknytning;
-import no.nav.pdl.GeografiskTilknytningResponseProjection;
-import no.nav.pdl.HentGeografiskTilknytningQueryRequest;
 import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
@@ -41,23 +38,6 @@ public class PdlKlientLogCause {
         this.pdlKlient = pdlKlient;
     }
 
-    // Behold ut 2025 pga nasjonal kø
-    public GeografiskTilknytning hentGT(FagsakYtelseType ytelseType, HentGeografiskTilknytningQueryRequest q, GeografiskTilknytningResponseProjection p) {
-        try {
-            var ytelse = utledYtelse(ytelseType);
-            return pdlKlient.hentGT(ytelse, q, p);
-        } catch (PdlException e) {
-            if (e.getStatus() == HTTP_NOT_FOUND) {
-                LOG.info("PDL FPSAK hentGT person ikke funnet");
-            } else {
-                LOG.warn("PDL FPSAK hentGT feil fra PDL pga {}", e.toString(), e);
-            }
-            throw e;
-        } catch (ProcessingException e) {
-            throw e.getCause() instanceof SocketTimeoutException ? new IntegrasjonException(PDL_TIMEOUT_KODE, PDL_TIMEOUT_MSG) : e;
-        }
-    }
-
     public Person hentPerson(FagsakYtelseType ytelseType, HentPersonQueryRequest q, PersonResponseProjection p) {
         try {
             var ytelse = utledYtelse(ytelseType);
@@ -66,7 +46,23 @@ public class PdlKlientLogCause {
             if (e.getStatus() == HTTP_NOT_FOUND) {
                 LOG.info("PDL FPSAK hentPerson ikke funnet");
             } else {
-                LOG.warn("PDL FPSAK hentPerson feil fra PDL pga {}", e.toString(), e);
+                LOG.warn("PDL FPSAK hentPerson feil fra PDL pga {}", e, e);
+            }
+            throw e;
+        } catch (ProcessingException e) {
+            throw e.getCause() instanceof SocketTimeoutException ? new IntegrasjonException(PDL_TIMEOUT_KODE, PDL_TIMEOUT_MSG) : e;
+        }
+    }
+
+    public Person hentPersonTilgangsnektSomInfo(FagsakYtelseType ytelseType, HentPersonQueryRequest q, PersonResponseProjection p) {
+        try {
+            var ytelse = utledYtelse(ytelseType);
+            return pdlKlient.hentPerson(ytelse, q, p);
+        } catch (PdlException e) {
+            if (e.getStatus() == HTTP_NOT_FOUND) {
+                LOG.info("PDL FPSAK hentPerson ikke funnet");
+            } else {
+                LOG.info("PDL FPSAK hentPerson feil fra PDL pga {}", e, e);
             }
             throw e;
         } catch (ProcessingException e) {
@@ -79,11 +75,7 @@ public class PdlKlientLogCause {
             var ytelse = utledYtelse(ytelseType);
             return pdlKlient.hentPerson(ytelse, q, p, ignoreNotFound);
         } catch (PdlException e) {
-            if (e.getStatus() == HTTP_NOT_FOUND) {
-                LOG.info("PDL FPSAK hentPerson ikke funnet");
-            } else if (e.getStatus() != HTTP_NOT_FOUND) {
-                LOG.warn("PDL FPSAK hentPerson feil fra PDL pga {}", e.toString(), e);
-            }
+            LOG.warn("PDL FPSAK hentPerson feil fra PDL pga {}", e, e);
             throw e;
         } catch (ProcessingException e) {
             throw e.getCause() instanceof SocketTimeoutException ? new IntegrasjonException(PDL_TIMEOUT_KODE, PDL_TIMEOUT_MSG) : e;

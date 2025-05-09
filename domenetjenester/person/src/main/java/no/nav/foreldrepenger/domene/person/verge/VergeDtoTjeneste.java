@@ -61,7 +61,7 @@ public class VergeDtoTjeneste {
     }
 
     private void setPersonIdent(AktørId aktørId, VergeDto dto) {
-        personinfoAdapter.hentBrukerArbeidsgiverForAktør(aktørId).ifPresent(pib -> {
+        personinfoAdapter.hentBrukerVergeForAktør(aktørId).ifPresent(pib -> {
             dto.setNavn(pib.getNavn());
             dto.setFnr(pib.getPersonIdent().getIdent());
         });
