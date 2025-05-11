@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingTransisjonEvent;
+import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -105,7 +106,7 @@ public class BehandlingskontrollFremoverhoppTransisjonEventObserver {
     }
 
     protected BehandlingModell getModell(BehandlingskontrollKontekst kontekst) {
-        return serviceProvider.getBehandlingModellRepository().getModell(kontekst.getBehandlingType(), kontekst.getYtelseType());
+        return BehandlingModellRepository.getModell(kontekst.getBehandlingType(), kontekst.getYtelseType());
     }
 
     private boolean skalBesøkeStegene(StegTransisjon transisjon) {

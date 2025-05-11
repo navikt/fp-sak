@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederResultat;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingModellTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
@@ -23,16 +23,16 @@ public abstract class KontrollerFaktaTjenesteInngangsVilkår implements Kontroll
     private static final Logger LOG = LoggerFactory.getLogger(KontrollerFaktaTjenesteInngangsVilkår.class);
 
     private KontrollerFaktaUtledere utlederTjeneste;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingModellTjeneste behandlingModellTjeneste;
 
     protected KontrollerFaktaTjenesteInngangsVilkår() {
         // for CDI proxy
     }
 
     protected KontrollerFaktaTjenesteInngangsVilkår(KontrollerFaktaUtledere utlederTjeneste,
-            BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
+                                                    BehandlingModellTjeneste behandlingModellTjeneste) {
         this.utlederTjeneste = utlederTjeneste;
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.behandlingModellTjeneste = behandlingModellTjeneste;
     }
 
     @Override
@@ -55,7 +55,7 @@ public abstract class KontrollerFaktaTjenesteInngangsVilkår implements Kontroll
 
     @Override
     public boolean skalOverstyringLøsesTilHøyreForStartpunkt(BehandlingReferanse ref, StartpunktType startpunktType, AksjonspunktDefinisjon apDef) {
-        return behandlingskontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(
+        return behandlingModellTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(
                 ref.fagsakYtelseType(), ref.behandlingType(), startpunktType.getBehandlingSteg(), apDef);
     }
 
@@ -70,7 +70,7 @@ public abstract class KontrollerFaktaTjenesteInngangsVilkår implements Kontroll
     }
 
     private boolean skalBeholdeAksjonspunkt(BehandlingReferanse ref, BehandlingStegType steg, AksjonspunktDefinisjon apDef) {
-        var skalBeholde = behandlingskontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(
+        var skalBeholde = behandlingModellTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(
                 ref.fagsakYtelseType(), ref.behandlingType(), steg, apDef);
         if (!skalBeholde) {
             LOG.debug("Fjerner aksjonspunkt {} da det skal løses før startsteg {}.",

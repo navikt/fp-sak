@@ -31,7 +31,11 @@ public interface BehandlingProsesseringTjeneste {
     void tvingInnhentingRegisteropplysninger(Behandling behandling);
 
     // Har behandlingen oppgitt steg i modellen?
-    boolean erStegAktueltForBehandling(Behandling behandling, BehandlingStegType behandlingStegType);
+    boolean erStegAktueltForBehandling(Behandling behandling, BehandlingStegType stegType);
+
+    boolean erBehandlingFørSteg(Behandling behandling, BehandlingStegType stegType);
+
+    boolean erBehandlingEtterSteg(Behandling behandling, BehandlingStegType stegType);
 
     // AV/PÅ Vent
     void taBehandlingAvVent(Behandling behandling);
@@ -64,7 +68,7 @@ public interface BehandlingProsesseringTjeneste {
     String opprettTasksForFortsettBehandlingSettUtført(Behandling behandling, Optional<AksjonspunktDefinisjon> autoPunktUtført);
 
     // Brukes kun der et steg har suspendet seg selv. Lagrer tasks. Returnerer gruppe-handle
-    String opprettTasksForFortsettBehandlingResumeStegNesteKjøring(Behandling behandling, BehandlingStegType behandlingStegType,
+    String opprettTasksForFortsettBehandlingResumeStegNesteKjøring(Behandling behandling, BehandlingStegType stegType,
                                                                    LocalDateTime nesteKjøringEtter);
 
     // Robust task til bruk ved gjenopptak fra vent (eller annen tilstand)

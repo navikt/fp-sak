@@ -16,7 +16,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -32,6 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval;
@@ -54,7 +54,7 @@ public class MedlemDtoTjeneste {
     private PersonopplysningTjeneste personopplysningTjeneste;
     private AvklarMedlemskapUtleder medlemskapUtleder;
     private VilkårResultatRepository vilkårResultatRepository;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
     @Inject
     public MedlemDtoTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
@@ -63,7 +63,7 @@ public class MedlemDtoTjeneste {
                              PersonopplysningTjeneste personopplysningTjeneste,
                              AvklarMedlemskapUtleder medlemskapUtleder,
                              VilkårResultatRepository vilkårResultatRepository,
-                             BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
+                             BehandlingProsesseringTjeneste behandlingProsesseringTjeneste) {
 
         this.medlemskapRepository = behandlingRepositoryProvider.getMedlemskapRepository();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -72,7 +72,7 @@ public class MedlemDtoTjeneste {
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.medlemskapUtleder = medlemskapUtleder;
         this.vilkårResultatRepository = vilkårResultatRepository;
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
     }
 
     MedlemDtoTjeneste() {
@@ -208,7 +208,7 @@ public class MedlemDtoTjeneste {
     }
 
     private boolean behandlingLiggerEtterMedlemskapsvilkårssteg(Behandling behandling) {
-        return behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling, BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR);
+        return !behandlingProsesseringTjeneste.erBehandlingFørSteg(behandling, BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR);
     }
 
     private static Optional<MedlemskapDto.Annenpart> annenpart(PersonopplysningerAggregat personopplysningerAggregat,

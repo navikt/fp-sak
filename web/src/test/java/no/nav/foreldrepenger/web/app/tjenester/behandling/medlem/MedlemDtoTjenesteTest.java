@@ -12,7 +12,6 @@ import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
@@ -33,6 +32,7 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
@@ -59,7 +59,7 @@ class MedlemDtoTjenesteTest {
     @Inject
     private PersonopplysningTjeneste poTjeneste;
     @Inject
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     @Inject
     private MedlemskapVurderingPeriodeTjeneste medlemVurderingPeriodeTjeneste;
     @Inject
@@ -188,6 +188,6 @@ class MedlemDtoTjenesteTest {
         var utleder = new AvklarMedlemskapUtleder(new MedlemRegelGrunnlagBygger(medlemTjeneste, poTjeneste, medlemVurderingPeriodeTjeneste,
             iayTjeneste, satsRepository, stpTjeneste, personinfoAdapter));
         return new MedlemDtoTjeneste(repositoryProvider, stpTjeneste, medlemTjeneste, poTjeneste, utleder,
-            new VilkårResultatRepository(repositoryProvider.getEntityManager()), behandlingskontrollTjeneste);
+            new VilkårResultatRepository(repositoryProvider.getEntityManager()), behandlingProsesseringTjeneste);
     }
 }

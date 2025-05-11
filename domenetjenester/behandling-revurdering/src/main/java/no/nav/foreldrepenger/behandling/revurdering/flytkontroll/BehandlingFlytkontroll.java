@@ -8,6 +8,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -15,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
@@ -66,7 +66,7 @@ public class BehandlingFlytkontroll {
         var annenPartHarBerørt = annenpartÅpneBehandlinger.stream()
                 .anyMatch(SpesialBehandling::skalIkkeKøes);
         var annenPartAktivUttak = annenpartÅpneBehandlinger.stream()
-                .anyMatch(b -> behandlingskontrollTjeneste.erStegPassert(b, SYNK_STEG));
+                .anyMatch(b -> behandlingProsesseringTjeneste.erBehandlingEtterSteg(b, SYNK_STEG));
         // Berørt skal bare køes dersom annenpart har en berørt som står i uttak.
         if (SpesialBehandling.skalIkkeKøes(behandling)) {
             // TODO fjern sjekk på ventVedSynk og fortsettAnnenPart dersom ikke inntreffer ila nov 2022
@@ -91,7 +91,7 @@ public class BehandlingFlytkontroll {
         var finnesBerørt = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId()).stream()
                 .anyMatch(SpesialBehandling::skalIkkeKøes);
         var annenPartRevurderingEllerAktivUttak = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(annenpartFagsak.getId()).stream()
-                .anyMatch(b -> b.erRevurdering() || behandlingskontrollTjeneste.erStegPassert(b, SYNK_STEG));
+                .anyMatch(b -> b.erRevurdering() || behandlingProsesseringTjeneste.erBehandlingEtterSteg(b, SYNK_STEG));
         // TODO avklare om aktivUttak skal ekskludere behandling.isBehandlingPåVent();
         return finnesBerørt || annenPartRevurderingEllerAktivUttak;
     }
@@ -107,7 +107,7 @@ public class BehandlingFlytkontroll {
     }
 
     private boolean passertUttakSynk(Behandling behandling) {
-        return behandlingskontrollTjeneste.erStegPassert(behandling, SYNK_STEG) || venterVedUttakSynk(behandling);
+        return behandlingProsesseringTjeneste.erBehandlingEtterSteg(behandling, SYNK_STEG) || venterVedUttakSynk(behandling);
     }
 
     private boolean venterVedUttakSynk(Behandling behandling) {

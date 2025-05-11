@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegOvergangEvent.BehandlingStegTilbakeføringEvent;
+import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollEventPubliserer;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -80,7 +81,7 @@ public class BehandlingskontrollTransisjonTilbakeføringEventObserver {
     }
 
     private BehandlingModell getModell(BehandlingskontrollKontekst kontekst) {
-        return serviceProvider.getBehandlingModellRepository().getModell(kontekst.getBehandlingType(), kontekst.getYtelseType());
+        return BehandlingModellRepository.getModell(kontekst.getBehandlingType(), kontekst.getYtelseType());
     }
 
     private List<Aksjonspunkt> håndterAksjonspunkter(Behandling behandling, Set<AksjonspunktDefinisjon> mellomliggendeAksjonspunkt,

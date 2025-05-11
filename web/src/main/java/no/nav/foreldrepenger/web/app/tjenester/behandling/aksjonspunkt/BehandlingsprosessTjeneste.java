@@ -84,7 +84,7 @@ public class BehandlingsprosessTjeneste {
      * @return ProsessTask gruppe
      */
     public String asynkStartBehandlingsprosess(Behandling behandling) {
-        return prosesseringAsynkTjeneste.asynkStartBehandlingProsess(behandling);
+        return behandlingProsesseringTjeneste.opprettTasksForStartBehandling(behandling);
     }
 
     /**

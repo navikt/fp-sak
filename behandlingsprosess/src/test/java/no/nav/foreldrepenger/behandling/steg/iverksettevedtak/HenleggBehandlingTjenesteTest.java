@@ -85,7 +85,6 @@ class HenleggBehandlingTjenesteTest {
                 repositoryProvider.getBehandlingRepository(),
                 repositoryProvider.getFagsakLåsRepository(),
                 repositoryProvider.getBehandlingLåsRepository(),
-                behandlingModellRepository,
                 aksjonspunktKontrollRepository);
 
         var behandlingskontrollTjenesteImpl = new BehandlingskontrollTjenesteImpl(serviceProvider);

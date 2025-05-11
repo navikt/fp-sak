@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
@@ -29,20 +28,17 @@ public class TilbakeførTilDekningsgradStegTask extends FagsakProsessTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(TilbakeførTilDekningsgradStegTask.class);
 
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlingRepository behandlingRepository;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
     @Inject
-    public TilbakeførTilDekningsgradStegTask(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                             BehandlingRepositoryProvider repositoryProvider,
+    public TilbakeførTilDekningsgradStegTask(BehandlingRepositoryProvider repositoryProvider,
                                              FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
                                              YtelseFordelingTjeneste ytelseFordelingTjeneste,
                                              BehandlingProsesseringTjeneste behandlingProsesseringTjeneste) {
         super(repositoryProvider.getFagsakLåsRepository(), repositoryProvider.getBehandlingLåsRepository());
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
@@ -56,6 +52,7 @@ public class TilbakeførTilDekningsgradStegTask extends FagsakProsessTask {
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId) {
         var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElseThrow();
+        behandlingRepository.taSkriveLås(behandling);
         if (behandling.erSaksbehandlingAvsluttet() || SpesialBehandling.erSpesialBehandling(behandling)) {
             return;
         }
@@ -73,21 +70,19 @@ public class TilbakeførTilDekningsgradStegTask extends FagsakProsessTask {
             LOG.info("Fagsakrel dekningsgrad og yfa dekningsgrad er lik. Tilbakefører ikke behandling");
             return;
         }
-        var lås = behandlingRepository.taSkriveLås(behandling);
         if (erIStegTidligereEnnDekningsgrad(behandling)) {
             LOG.info("Annen parts behandling ligger før dekningsgrad steget");
             return;
         }
 
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
         if (behandling.isBehandlingPåVent()) {
-            behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
+            behandlingProsesseringTjeneste.taBehandlingAvVent(behandling);
         }
-        behandlingskontrollTjeneste.behandlingTilbakeføringHvisTidligereBehandlingSteg(kontekst, BehandlingStegType.DEKNINGSGRAD);
+        behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, BehandlingStegType.DEKNINGSGRAD);
         behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
     }
 
     private boolean erIStegTidligereEnnDekningsgrad(Behandling behandling) {
-        return !behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling, BehandlingStegType.DEKNINGSGRAD);
+        return behandlingProsesseringTjeneste.erBehandlingFørSteg(behandling, BehandlingStegType.DEKNINGSGRAD);
     }
 }

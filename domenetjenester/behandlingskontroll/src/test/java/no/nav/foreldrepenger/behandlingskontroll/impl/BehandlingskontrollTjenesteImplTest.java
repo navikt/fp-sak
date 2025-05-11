@@ -50,8 +50,8 @@ class BehandlingskontrollTjenesteImplTest {
 
     @BeforeEach
     void setUp(EntityManager entityManager) {
-        serviceProvider = new BehandlingskontrollServiceProvider(entityManager, new BehandlingModellRepository(), eventPubliserer);
-        var modell = serviceProvider.getBehandlingModellRepository().getModell(BehandlingType.FØRSTEGANGSSØKNAD, FagsakYtelseType.ENGANGSTØNAD);
+        serviceProvider = new BehandlingskontrollServiceProvider(entityManager, eventPubliserer);
+        var modell = BehandlingModellRepository.getModell(BehandlingType.FØRSTEGANGSSØKNAD, FagsakYtelseType.ENGANGSTØNAD);
 
         steg2 = modell.hvertSteg().map(BehandlingStegModell::getBehandlingStegType).toList().get(8);
         steg3 = modell.finnNesteSteg(steg2).getBehandlingStegType();
@@ -138,27 +138,6 @@ class BehandlingskontrollTjenesteImplTest {
     }
 
     @Test
-    void skal_tolerere_tilbakehopp_til_senere_steg_enn_inneværende() {
-        var behandling = TestScenario.forEngangsstønad()
-                .lagre(serviceProvider);
-        forceOppdaterBehandlingSteg(behandling, steg3);
-        var lås = mock(BehandlingLås.class);
-        when(lås.getBehandlingId()).thenReturn(behandling.getId());
-        var kontekst = new BehandlingskontrollKontekst(behandling, lås);
-
-        kontrollTjeneste.behandlingTilbakeføringHvisTidligereBehandlingSteg(kontekst, steg4);
-
-        assertThat(behandling.getAktivtBehandlingSteg()).isEqualTo(steg3);
-        assertThat(behandling.getStatus()).isEqualTo(BehandlingStatus.UTREDES);
-        assertThat(behandling.getBehandlingStegStatus()).isNull();
-        assertThat(behandling.getBehandlingStegTilstand()).isNotNull();
-
-        assertThat(behandling.getBehandlingStegTilstandHvisSteg(steg3)).isPresent();
-        assertThat(behandling.getBehandlingStegTilstandHvisSteg(steg4)).isNotPresent();
-        assertThat(behandling.harBehandlingStegTilstandHistorikk(1)).isTrue();
-    }
-
-    @Test
     void skal_flytte_til__inngang_av_senere_steg_ved_framføring() {
         var behandling = TestScenario.forEngangsstønad()
                 .lagre(serviceProvider);
@@ -209,7 +188,7 @@ class BehandlingskontrollTjenesteImplTest {
         var lås = mock(BehandlingLås.class);
         when(lås.getBehandlingId()).thenReturn(behandling.getId());
         var kontekst = new BehandlingskontrollKontekst(behandling, lås);
-        var modell = serviceProvider.getBehandlingModellRepository().getModell(behandling.getType(), behandling.getFagsakYtelseType());
+        var modell = BehandlingModellRepository.getModell(behandling.getType(), behandling.getFagsakYtelseType());
         // Arrange
         var iverksettSteg = BehandlingStegType.IVERKSETT_VEDTAK;
         var forrigeSteg = modell.finnForrigeSteg(iverksettSteg).getBehandlingStegType();
@@ -277,35 +256,6 @@ class BehandlingskontrollTjenesteImplTest {
         assertThatThrownBy(() -> this.kontrollTjeneste.prosesserBehandling(kontekst))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Støtter ikke nøstet prosessering");
-    }
-
-    @Test
-    void skal_returnere_true_når_aksjonspunktet_skal_løses_etter_angitt_steg() {
-        var behandling = TestScenario.forEngangsstønad()
-                .lagre(serviceProvider);
-        forceOppdaterBehandlingSteg(behandling, steg3);
-        assertThat(kontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(behandling.getFagsakYtelseType(),
-                behandling.getType(), steg3, AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET)).isTrue();
-    }
-
-    @Test
-    void skal_returnere_true_når_aksjonspunktet_skal_løses_i_angitt_steg() {
-        var behandling = TestScenario.forEngangsstønad()
-                .lagre(serviceProvider);
-        forceOppdaterBehandlingSteg(behandling, steg3);
-        assertThat(kontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(behandling.getFagsakYtelseType(),
-                behandling.getType(), steg2, AksjonspunktDefinisjon.AVKLAR_VERGE))
-                        .isTrue();
-    }
-
-    @Test
-    void skal_returnere_false_når_aksjonspunktet_skal_løses_før_angitt_steg() {
-        var behandling = TestScenario.forEngangsstønad()
-                .lagre(serviceProvider);
-        forceOppdaterBehandlingSteg(behandling, steg3);
-        assertThat(kontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(behandling.getFagsakYtelseType(),
-                behandling.getType(), steg4, AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD))
-                        .isFalse();
     }
 
     private void sjekkBehandlingStegTilstandHistorikk(Behandling behandling, BehandlingStegType stegType,
