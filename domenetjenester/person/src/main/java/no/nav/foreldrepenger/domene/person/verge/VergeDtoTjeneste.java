@@ -5,6 +5,8 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.aktør.Aktør;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoArbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeOrganisasjonEntitet;
@@ -12,6 +14,7 @@ import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBackendDto;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeDto;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
 @ApplicationScoped
 public class VergeDtoTjeneste {
@@ -29,24 +32,20 @@ public class VergeDtoTjeneste {
     public Optional<VergeDto> lagVergeDto(VergeAggregat vergeAggregat) {
         if (vergeAggregat == null)
             return Optional.empty();
-        return vergeAggregat.getVerge().map(v -> mapTilVergeDto(vergeAggregat, v));
+        return vergeAggregat.getVerge().map(this::mapTilVergeDto);
     }
 
-    private VergeDto mapTilVergeDto(VergeAggregat vergeAggregat, VergeEntitet verge) {
-        var dto = new VergeDto();
-
-        dto.setGyldigFom(verge.getGyldigFom());
-        dto.setGyldigTom(verge.getGyldigTom());
-        dto.setVergeType(verge.getVergeType());
-
+    private VergeDto mapTilVergeDto(VergeEntitet verge) {
         if (verge.getVergeOrganisasjon().isPresent()) {
-            verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getOrganisasjonsnummer).ifPresent(dto::setOrganisasjonsnummer);
-            verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getNavn).ifPresent(dto::setNavn);
+            return VergeDto.organisasjon(verge.getVergeType(), verge.getGyldigFom(), verge.getGyldigTom(),
+                verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getNavn).orElse(null),
+                verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getOrganisasjonsnummer).orElse(null));
         } else {
-            vergeAggregat.getAktørId().ifPresent(a -> setPersonIdent(a, dto));
+            var vergeAktør = verge.getBruker().map(Aktør::getAktørId).flatMap(personinfoAdapter::hentBrukerVergeForAktør);
+            return VergeDto.person(verge.getVergeType(), verge.getGyldigFom(), verge.getGyldigTom(),
+                vergeAktør.map(PersoninfoArbeidsgiver::getNavn).orElse(null),
+                vergeAktør.map(PersoninfoArbeidsgiver::getPersonIdent).map(PersonIdent::getIdent).orElse(null));
         }
-
-        return dto;
     }
 
     public Optional<VergeBackendDto> lagVergeBackendDto(VergeAggregat vergeAggregat) {
@@ -58,12 +57,5 @@ public class VergeDtoTjeneste {
             verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getNavn).orElse(null),
             verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getOrganisasjonsnummer).orElse(null),
             verge.getGyldigFom(), verge.getGyldigTom(), verge.getVergeType());
-    }
-
-    private void setPersonIdent(AktørId aktørId, VergeDto dto) {
-        personinfoAdapter.hentBrukerVergeForAktør(aktørId).ifPresent(pib -> {
-            dto.setNavn(pib.getNavn());
-            dto.setFnr(pib.getPersonIdent().getIdent());
-        });
     }
 }

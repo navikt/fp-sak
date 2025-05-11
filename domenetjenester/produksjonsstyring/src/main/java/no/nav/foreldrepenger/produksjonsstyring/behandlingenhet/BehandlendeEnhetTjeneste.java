@@ -29,6 +29,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
@@ -48,6 +50,7 @@ public class BehandlendeEnhetTjeneste {
     private PersonopplysningRepository personopplysningRepository;
     private HistorikkinnslagRepository historikkinnslagRepository;
     private FagsakEgenskapRepository fagsakEgenskapRepository;
+    private VergeRepository vergeRepository;
 
     public BehandlendeEnhetTjeneste() {
         // For CDI
@@ -58,7 +61,8 @@ public class BehandlendeEnhetTjeneste {
                                     BehandlingEventPubliserer behandlingEventPubliserer,
                                     BehandlingRepositoryProvider provider,
                                     FagsakEgenskapRepository fagsakEgenskapRepository,
-                                    FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
+                                    FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
+                                    VergeRepository vergeRepository) {
         this.enhetsTjeneste = enhetsTjeneste;
         this.behandlingEventPubliserer = behandlingEventPubliserer;
         this.personopplysningRepository = provider.getPersonopplysningRepository();
@@ -67,6 +71,7 @@ public class BehandlendeEnhetTjeneste {
         this.behandlingRepository = provider.getBehandlingRepository();
         this.historikkinnslagRepository = provider.getHistorikkinnslagRepository();
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
+        this.vergeRepository = vergeRepository;
     }
 
     // Alle aktuelle enheter
@@ -126,28 +131,17 @@ public class BehandlendeEnhetTjeneste {
     }
 
     private Optional<OrganisasjonsEnhet> getOrganisasjonsEnhetEtterEndring(Behandling behandling, OrganisasjonsEnhet enhet) {
-        var hovedPerson = behandling.getAktørId();
-        Set<AktørId> allePersoner = new HashSet<>();
+        Set<AktørId> allePersoner = new HashSet<>(finnAktørIdFraPersonopplysninger(behandling));
 
+        allePersoner.add(behandling.getAktørId());
         finnAktørAnnenPart(behandling).ifPresent(allePersoner::add);
+        vergeRepository.hentAggregat(behandling.getId()).flatMap(VergeAggregat::getAktørId).ifPresent(allePersoner::add);
 
-        allePersoner.addAll(finnAktørIdFraPersonopplysninger(behandling));
-
-        return getOrganisasjonsEnhetEtterEndring(behandling.getFagsak(), enhet, hovedPerson, allePersoner);
-    }
-
-    private Optional<OrganisasjonsEnhet> getOrganisasjonsEnhetEtterEndring(Fagsak fagsak,
-                                                                           OrganisasjonsEnhet enhet,
-                                                                           AktørId hovedPerson,
-                                                                           Set<AktørId> allePersoner) {
-        allePersoner.add(hovedPerson);
-
-        var relasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak);
+        var relasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsak());
         relasjon.map(FagsakRelasjon::getFagsakNrEn).map(Fagsak::getAktørId).ifPresent(allePersoner::add);
         relasjon.flatMap(FagsakRelasjon::getFagsakNrTo).map(Fagsak::getAktørId).ifPresent(allePersoner::add);
 
-        return enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), allePersoner,
-            finnSaksmerking(fagsak));
+        return enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), allePersoner, finnSaksmerking(behandling.getFagsak()));
     }
 
 

@@ -60,7 +60,7 @@ public class InnhentPersonopplysningerTask extends BehandlingProsessTask {
         var personerEtter = personopplysningRepository.hentAktørIdKnyttetTilSaksnummer(behandling.getSaksnummer());
         if (personerFør.size() != personerEtter.size() || !personerFør.containsAll(personerEtter)) {
             LOG.info("Persongalleri er endret for sak: {}", behandling.getSaksnummer().getVerdi());
-            behandlingEventPubliserer.publiserBehandlingEvent(new SakensPersonerEndretEvent(behandling.getFagsakId(), behandling.getSaksnummer(), behandling.getId()));
+            behandlingEventPubliserer.publiserBehandlingEvent(new SakensPersonerEndretEvent(behandling, "Registerdata"));
         }
     }
 }
