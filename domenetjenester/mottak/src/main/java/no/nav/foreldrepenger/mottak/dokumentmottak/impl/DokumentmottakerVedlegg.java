@@ -40,7 +40,7 @@ class DokumentmottakerVedlegg implements Dokumentmottaker {
     public void mottaDokument(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
 
         var åpenBehandling = behandlingRevurderingTjeneste.finnÅpenYtelsesbehandling(fagsak.getId());
-        var andreÅpneBehandlinger = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
+        var andreÅpneBehandlinger = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId(), false).stream()
             .filter(b -> !b.erYtelseBehandling()).toList();
         var åpenKlageSomKanVurdereDokument = andreÅpneBehandlinger.stream()
             .filter(b -> BehandlingType.KLAGE.equals(b.getType()))
@@ -64,7 +64,7 @@ class DokumentmottakerVedlegg implements Dokumentmottaker {
     public void mottaDokumentForKøetBehandling(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
 
         var eksisterendeKøetBehandling = behandlingRevurderingTjeneste.finnKøetYtelsesbehandling(fagsak.getId());
-        var andreÅpneBehandlinger = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
+        var andreÅpneBehandlinger = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId(), false).stream()
             .filter(b -> !b.erYtelseBehandling()).toList();
         var åpenKlageSomKanVurdereDokument = andreÅpneBehandlinger.stream()
             .filter(b -> BehandlingType.KLAGE.equals(b.getType()))
