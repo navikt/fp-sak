@@ -51,49 +51,27 @@ public class FaktaFødselTjeneste {
     }
 
     private static FødselDto.Gjeldende.Termindato mapTermindato(FamilieHendelseGrunnlagEntitet familieHendelse) {
-        var kilde = getKildeForTermindato(familieHendelse);
         // TODO: Termindato kan aldri være i bekreftet/register?
-        var termindato = switch (kilde) {
-            case SBH -> familieHendelse.getOverstyrtVersjon().get().getTermindato().orElse(null);
-            case SØKNAD -> familieHendelse.getSøknadVersjon().getTermindato().orElse(null);
-            default -> null;
-        };
-
-        //        overstyrtTermindato.ifPresent(ot -> {
-        //            bekreftetTermindato.ifPresent(bt -> {
-        //                return new FødselDto.Gjeldende.Termindato(ot.equals(bt) ? Kilde.SBH : Kilde.FREG, ot, true);
-        //            });
-        //            if (søknadTermindato.isPresent()) {
-        //                søknadTermindato.get().map(
-        //            } return new FødselDto.Gjeldende.Termindato(Kilde.SBH, overstyrt.get().getTermindato().orElse(null), true);
-        //
-        //        });
-        return new FødselDto.Gjeldende.Termindato(kilde, termindato, true);
-    }
-
-    private static Kilde getKildeForTermindato(FamilieHendelseGrunnlagEntitet familieHendelse) {
         var overstyrtTermindato = familieHendelse.getOverstyrtVersjon().flatMap(FamilieHendelseEntitet::getTermindato).orElse(null);
         var søknadTermindato = familieHendelse.getSøknadVersjon().getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).orElse(null);
-
-        return Objects.equals(overstyrtTermindato, søknadTermindato) ? Kilde.SØKNAD : Kilde.FREG;
+        var kilde = Objects.equals(overstyrtTermindato, søknadTermindato) ? Kilde.SØKNAD : Kilde.FREG;
+        return new FødselDto.Gjeldende.Termindato(kilde, kilde == Kilde.SØKNAD ? søknadTermindato : overstyrtTermindato, true);
     }
 
     private FødselDto.Gjeldende.Barn mapBarn(FamilieHendelseGrunnlagEntitet familieHendelse) {
         var kilde = getKildeForBarn(familieHendelse);
         // TODO: Hvis det er fra bekreftet så kan man ikke overstyre, eller? Undersøk om det populeres fra søknad hvis null
-        // TODO: Sjekk om man kan løse .get() feilen på en måte
         var barn = switch (kilde) {
-            case SBH -> getBarn(familieHendelse.getOverstyrtVersjon().get());
-            case FREG -> getBarn(familieHendelse.getBekreftetVersjon().get());
+            case SBH -> getBarn(familieHendelse.getOverstyrtVersjon().orElse(null));
+            case FREG -> getBarn(familieHendelse.getBekreftetVersjon().orElse(null));
             case SØKNAD -> getBarn(familieHendelse.getSøknadVersjon());
         };
-        var kanOverstyre = kilde != Kilde.SBH;
-        return new FødselDto.Gjeldende.Barn(kilde, barn, kanOverstyre);
+        return new FødselDto.Gjeldende.Barn(kilde, barn, kilde != Kilde.SBH);
     }
 
-    // TODO: Gjør metoder static
     private List<AvklartBarnDto> getBarn(FamilieHendelseEntitet familieHendelse) {
-        return familieHendelse.getBarna().stream()
+        return familieHendelse == null ? Collections.emptyList() : familieHendelse.getBarna()
+            .stream()
             .map(barnEntitet -> new AvklartBarnDto(barnEntitet.getFødselsdato(), barnEntitet.getDødsdato().orElse(null)))
             .toList();
     }
