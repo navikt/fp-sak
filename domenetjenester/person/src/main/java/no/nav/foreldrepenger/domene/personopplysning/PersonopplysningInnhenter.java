@@ -51,6 +51,12 @@ public class PersonopplysningInnhenter {
         return personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(ytelseType, aktørId, intervaller);
     }
 
+    public List<FødtBarnInfo> innhentAlleFødteForIntervaller(FagsakYtelseType ytelseType, RelasjonsRolleType rolleType,
+                                                             AktørId aktørId, List<LocalDateInterval> intervaller) {
+        return personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(ytelseType, rolleType, aktørId, intervaller);
+    }
+
+
     public Optional<PersonIdent> hentPersonIdentForAktør(AktørId aktørId) {
         return personinfoAdapter.hentFnr(aktørId);
     }
