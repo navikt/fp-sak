@@ -10,6 +10,7 @@ public record FødselDto(FødselDto.Søknad søknad, FødselDto.Register registe
     public record Søknad(List<AvklartBarnDto> barn, LocalDate termindato, LocalDate utstedtDato) {
     }
 
+    // TODO: Undersøk forskjellen på AvklartBarnDto og UidentifisertBarn
     public record Register(List<AvklartBarnDto> barn) {
     }
 

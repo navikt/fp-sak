@@ -2,8 +2,9 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.stream.IntStream;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -38,6 +39,12 @@ public class FaktaFødselTjeneste {
         // TODO: Implementer overstyring av fakta om fødsel
         // TODO: Husk å overstyre antall barn også, ved å bruke dto.getAntallBarn()
         // TODO: Sjekk overstyring av antall barn hvis det er registrert noe i freg
+
+        // TODO: Case: Født i utlandet, ikke registrert i FREG. Barn dør like etter fødsel. Dødsdato må overstyres
+
+        // TODO: Undersøk prematur dødfødsel, hva skjer da med freg og denne overstyringen?
+
+        // TODO: Finnes det noen caser hvor det er registrert i freg og man likevel skal få lov til å overstyre?
     }
 
     public FødselDto hentFaktaOmFødsel(Long behandlingId) {
@@ -78,11 +85,14 @@ public class FaktaFødselTjeneste {
     }
 
     private static Kilde getKildeForBarn(FamilieHendelseGrunnlagEntitet familieHendelse) {
+        // TODO: Finnes det en situasjon er det ikke ligger barn i noen av disse? Kan overstyrer gå inn før sbh har løst ap?
         var overstyrteBarn = familieHendelse.getOverstyrtVersjon().map(FamilieHendelseEntitet::getBarna).orElse(Collections.emptyList());
         var bekreftedeBarn = familieHendelse.getBekreftetVersjon().map(FamilieHendelseEntitet::getBarna).orElse(Collections.emptyList());
         var søknadBarn = familieHendelse.getSøknadVersjon().getBarna();
+        // TODO: Kan man mangle bekreftede barn, og få ap som man løser og deretter får man inn bekreftede barn?
 
-        if (!harLikeBarn(overstyrteBarn, bekreftedeBarn)) {
+        // TODO: Tenk litt på om bekreftet og søknad alltid kan være like, og overstyrt er forskjellig
+        if (!harLikeBarn(overstyrteBarn, søknadBarn)) {
             return Kilde.SBH;
         }
 
@@ -90,13 +100,12 @@ public class FaktaFødselTjeneste {
     }
 
     private static boolean harLikeBarn(List<UidentifisertBarn> barn1, List<UidentifisertBarn> barn2) {
-        if (barn1.size() != barn2.size()) {
-            return false;
-        }
-        return IntStream.range(0, barn1.size()).allMatch(i -> {
-            var barnA = barn1.get(i);
-            var barnB = barn2.get(i);
-            return barnA.getFødselsdato().equals(barnB.getFødselsdato()) && barnA.getDødsdato().equals(barnB.getDødsdato());
-        });
+        // TODO: Sjekk om de er populert, hvis ikke må man ha null-sjekker
+        // TODO: Tror vi må ha null-sjekker, her og alle andre steder
+        return mapBarnPåFødselsOgDødsdato(barn1).equals(mapBarnPåFødselsOgDødsdato(barn2));
+    }
+
+    private static Map<List<Object>, Long> mapBarnPåFødselsOgDødsdato(List<UidentifisertBarn> barn) {
+        return barn.stream().collect(Collectors.groupingBy(b -> List.of(b.getFødselsdato(), b.getDødsdato()), Collectors.counting()));
     }
 }
