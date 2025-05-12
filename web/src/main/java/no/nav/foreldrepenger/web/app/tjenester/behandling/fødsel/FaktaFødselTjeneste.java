@@ -37,6 +37,7 @@ public class FaktaFødselTjeneste {
         // TODO: Legg til håndtering av om verdien kan endres
         // TODO: Implementer overstyring av fakta om fødsel
         // TODO: Husk å overstyre antall barn også, ved å bruke dto.getAntallBarn()
+        // TODO: Sjekk overstyring av antall barn hvis det er registrert noe i freg
     }
 
     public FødselDto hentFaktaOmFødsel(Long behandlingId) {
@@ -66,7 +67,7 @@ public class FaktaFødselTjeneste {
             case FREG -> getBarn(familieHendelse.getBekreftetVersjon().orElse(null));
             case SØKNAD -> getBarn(familieHendelse.getSøknadVersjon());
         };
-        return new FødselDto.Gjeldende.Barn(kilde, barn, kilde != Kilde.SBH);
+        return new FødselDto.Gjeldende.Barn(kilde, barn, kilde != Kilde.FREG);
     }
 
     private List<AvklartBarnDto> getBarn(FamilieHendelseEntitet familieHendelse) {
