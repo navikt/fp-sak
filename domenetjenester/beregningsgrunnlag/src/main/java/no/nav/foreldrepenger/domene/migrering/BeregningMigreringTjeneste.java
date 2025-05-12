@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.migrering;
 
+import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -10,6 +12,9 @@ import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 import org.jboss.weld.exceptions.IllegalStateException;
 import org.slf4j.Logger;
@@ -53,6 +58,7 @@ public class BeregningMigreringTjeneste {
     private BeregningsgrunnlagKoblingRepository koblingRepository;
     private BehandlingRepository behandlingRepository;
     private RegelsporingMigreringTjeneste regelsporingMigreringTjeneste;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     BeregningMigreringTjeneste() {
         // CDI
@@ -63,12 +69,14 @@ public class BeregningMigreringTjeneste {
                                       BeregningsgrunnlagRepository beregningsgrunnlagRepository,
                                       BeregningsgrunnlagKoblingRepository koblingRepository,
                                       BehandlingRepository behandlingRepository,
-                                      RegelsporingMigreringTjeneste regelsporingMigreringTjeneste) {
+                                      RegelsporingMigreringTjeneste regelsporingMigreringTjeneste,
+                                      SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.klient = klient;
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
         this.koblingRepository = koblingRepository;
         this.behandlingRepository = behandlingRepository;
         this.regelsporingMigreringTjeneste = regelsporingMigreringTjeneste;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
     public boolean skalBeregnesIKalkulus(BehandlingReferanse referanse) {
@@ -138,7 +146,7 @@ public class BeregningMigreringTjeneste {
             var aksjonspunkter = behandlingRepository.hentBehandling(behandling.getId()).getAksjonspunkter();
             var migreringsDto = BeregningMigreringMapper.map(grunnlag.get(), grunnlagSporinger, aksjonspunkter);
             var kobling = koblingRepository.hentKobling(behandling.getId()).orElseGet(() -> koblingRepository.opprettKobling(ref));
-            var request = lagMigreringRequest(ref, kobling, originalKobling, migreringsDto);
+            var request = lagMigreringRequest(ref, kobling, originalKobling, migreringsDto, true);
             var response = klient.migrerGrunnlag(request);
 
             // Sammenlign grunnlag fra kalkulus og fpsak
@@ -149,6 +157,11 @@ public class BeregningMigreringTjeneste {
                 oppdaterKoblingMedStpGrunnbeløpOgReguleringsbehov(kobling, response.grunnlag().getBeregningsgrunnlag());
             }
 
+            var førsteUttaksdato = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId()).getFørsteUttaksdato();
+            if (kanPåvirkesAvÅretsGregulering(førsteUttaksdato)) {
+                migrerAlleInaktiveGrunnlag(ref);
+            }
+
             LOG.info(String.format("Vellykket migrering og verifisering av beregningsgrunnlag på sak %s, behandlingId %s og grunnlag %s.", ref.saksnummer(),
                 behandling.getId(), grunnlag.map(BeregningsgrunnlagGrunnlagEntitet::getId)));
         } catch (Exception e) {
@@ -156,6 +169,33 @@ public class BeregningMigreringTjeneste {
                 behandling.getUuid(), grunnlag.map(BeregningsgrunnlagGrunnlagEntitet::getId), e);
             throw new IllegalStateException(msg);
         }
+    }
+
+    private void migrerAlleInaktiveGrunnlag(BehandlingReferanse ref) {
+        var kobling = koblingRepository.hentKobling(ref.behandlingId()).orElseThrow(() -> new IllegalStateException("Aktivt grunnlag skal allerede være migrert og ha en eksisterende kobling"));
+        Arrays.stream(BeregningsgrunnlagTilstand.values()).forEach(tilstand -> {
+            var entitet = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(ref.behandlingId(),
+                tilstand);
+            var grunnlag = entitet.map(gr -> BeregningMigreringMapper.map(gr, Collections.emptyMap(), Collections.emptySet())); // Sporinger og avklaringsbehov settes kun utifra aktivt grunnlag
+            grunnlag.ifPresent(gr -> {
+                var request = lagMigreringRequest(ref, kobling, Optional.empty(), gr, false);
+                var response = klient.migrerGrunnlag(request);
+                var fpsakGrunnlag = FraEntitetTilBehandlingsmodellMapper.mapBeregningsgrunnlagGrunnlag(entitet.orElseThrow());
+                var kalkulusGrunnlag = KalkulusTilFpsakMapper.map(response.grunnlag(), Optional.ofNullable(response.besteberegningGrunnlag()));
+                var fpJson = StandardJsonConfig.toJson(fpsakGrunnlag);
+                var kalkJson = StandardJsonConfig.toJson(kalkulusGrunnlag);
+                if (!fpJson.equals(kalkJson)) {
+                    logg(fpJson, kalkJson, false);
+                }
+            });
+
+        });
+    }
+
+    private boolean kanPåvirkesAvÅretsGregulering(LocalDate førsteUttaksdato) {
+        var datoForNyG = LocalDate.of(2025,5,1);
+        var nyGDatoMedBuffer = datoForNyG.minusWeeks(2);
+        return førsteUttaksdato.isAfter(nyGDatoMedBuffer);
     }
 
     private void oppdaterKoblingMedStpGrunnbeløpOgReguleringsbehov(BeregningsgrunnlagKobling kobling, BeregningsgrunnlagDto grunnlag) {
@@ -178,7 +218,7 @@ public class BeregningMigreringTjeneste {
         var fpJson = StandardJsonConfig.toJson(fpsakGrunnlag);
         var kalkJson = StandardJsonConfig.toJson(kalkulusGrunnlag);
         if (!fpJson.equals(kalkJson)) {
-            logg(fpJson, kalkJson);
+            logg(fpJson, kalkJson, true);
             if (erHenlagt) {
                 LOG.info("Sammenligning feilet, men behandling er henlagt, så fortsetter migrering. Saksnummer {} behandlingUUid {}", referanse.saksnummer(), referanse.behandlingUuid());
             } else {
@@ -208,8 +248,11 @@ public class BeregningMigreringTjeneste {
         return definisjonMatcher && statusMatcher && begrunnelseMatcher && vurdertAvMatcher && vurdertTidspunktMatcher;
     }
 
-    private void logg(String jsonFpsak, String jsonKalkulus) {
+    private void logg(String jsonFpsak, String jsonKalkulus, boolean erAktivt) {
         try {
+            if (!erAktivt) {
+                LOG.info("Sammenligning av inaktivt grunnlag feilet");
+            }
             var maskertFpsak = jsonFpsak.replaceAll("\\d{13}|\\d{11}|\\d{9}", "*");
             var maskertKalkulus = jsonKalkulus.replaceAll("\\d{13}|\\d{11}|\\d{9}", "*");
             LOG.info("Json fpsak: {}", maskertFpsak);
@@ -254,11 +297,11 @@ public class BeregningMigreringTjeneste {
 
     private MigrerBeregningsgrunnlagRequest lagMigreringRequest(BehandlingReferanse behandlingReferanse, BeregningsgrunnlagKobling kobling,
                                                                 Optional<BeregningsgrunnlagKobling> originalKobling,
-                                                                BeregningsgrunnlagGrunnlagMigreringDto migreringsDto) {
+                                                                BeregningsgrunnlagGrunnlagMigreringDto migreringsDto, boolean erAktiv) {
         var saksnummer = new Saksnummer(behandlingReferanse.saksnummer().getVerdi());
         var personIdent = new AktørIdPersonident(behandlingReferanse.aktørId().getId());
         var ytelse = mapYtelseSomSkalBeregnes(behandlingReferanse.fagsakYtelseType());
-        return new MigrerBeregningsgrunnlagRequest(saksnummer, kobling.getKoblingUuid(), personIdent, ytelse, originalKobling.map(BeregningsgrunnlagKobling::getKoblingUuid).orElse(null), migreringsDto);
+        return new MigrerBeregningsgrunnlagRequest(saksnummer, kobling.getKoblingUuid(), personIdent, ytelse, originalKobling.map(BeregningsgrunnlagKobling::getKoblingUuid).orElse(null), migreringsDto, erAktiv);
     }
 
     private no.nav.folketrygdloven.kalkulus.kodeverk.FagsakYtelseType mapYtelseSomSkalBeregnes(FagsakYtelseType fagsakYtelseType) {

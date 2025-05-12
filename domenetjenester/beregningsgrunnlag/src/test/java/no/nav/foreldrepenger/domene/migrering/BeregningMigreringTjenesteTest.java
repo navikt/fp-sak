@@ -18,6 +18,8 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagRegelType;
 
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningAktivitetAggregatDto;
 
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+
 import org.jboss.weld.exceptions.IllegalStateException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -65,12 +67,14 @@ class BeregningMigreringTjenesteTest {
     private BehandlingRepository behandlingRepository;
     @Mock
     private RegelsporingMigreringTjeneste regelsporingMigreringTjeneste;
+    @Mock
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     private BeregningMigreringTjeneste beregningMigreringTjeneste;
 
     @BeforeEach
     void setup() {
-        beregningMigreringTjeneste = new BeregningMigreringTjeneste(klient, beregningsgrunnlagRepository, koblingRepository, behandlingRepository, regelsporingMigreringTjeneste);
+        beregningMigreringTjeneste = new BeregningMigreringTjeneste(klient, beregningsgrunnlagRepository, koblingRepository, behandlingRepository, regelsporingMigreringTjeneste, skjæringstidspunktTjeneste);
     }
 
     @Test
