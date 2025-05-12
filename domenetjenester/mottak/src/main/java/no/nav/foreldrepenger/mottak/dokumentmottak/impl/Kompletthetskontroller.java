@@ -103,6 +103,14 @@ public class Kompletthetskontroller {
         mottatteDokumentTjeneste.persisterDokumentinnhold(behandling, mottattDokument, gjelderFra);
     }
 
+    public void vedleggHåndteresGjennomÅpenKlage(Behandling behandling, MottattDokument mottattDokument) {
+        mottatteDokumentTjeneste.oppdaterMottattDokumentMedBehandling(mottattDokument, behandling.getId());
+        if (behandling.isBehandlingPåVent()) {
+            behandlingProsesseringTjeneste.taBehandlingAvVent(behandling);
+            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
+        }
+    }
+
     public void vurderNyForretningshendelse(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
         // Forbi kompletthet: Sikre oppdatering dersom behandling står i FatteVedtak eller registerdata er innhentet samme dag.
         // Venter i kompletthet: Prøv på nytt i utvalgte tilfelle

@@ -7,11 +7,13 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef
@@ -38,19 +40,23 @@ class DokumentmottakerVedlegg implements Dokumentmottaker {
     public void mottaDokument(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
 
         var åpenBehandling = behandlingRevurderingTjeneste.finnÅpenYtelsesbehandling(fagsak.getId());
-        var åpenAnnenBehandling = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
-            .filter(b -> !b.erYtelseBehandling()).findFirst();
-        var historikkBehandling = åpenAnnenBehandling.orElse(åpenBehandling.orElse(null));
+        var andreÅpneBehandlinger = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId(), false).stream()
+            .filter(b -> !b.erYtelseBehandling()).toList();
+        var åpenKlageSomKanVurdereDokument = andreÅpneBehandlinger.stream()
+            .filter(b -> BehandlingType.KLAGE.equals(b.getType()))
+            .filter(b -> !BehandlendeEnhetTjeneste.getKlageInstans().equals(b.getBehandlendeOrganisasjonsEnhet()))
+            .findFirst();
+        var historikkBehandling = åpenBehandling.or(() -> åpenKlageSomKanVurdereDokument).orElse(null);
         dokumentmottakerFelles.opprettHistorikkinnslagForVedlegg(fagsak, historikkBehandling, mottattDokument);
 
-        if (åpenAnnenBehandling.isPresent()) { // Klage, anke, etc
-            dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, åpenAnnenBehandling.get(), mottattDokument);
-        } else if (åpenBehandling.isPresent()) {
+        if (åpenBehandling.isPresent()) {
             kompletthetskontroller.persisterDokumentOgVurderKompletthet(åpenBehandling.get(), mottattDokument);
         } else if (skalOppretteNyFørstegangsBehandlingSomFølgerAvVedlegget(mottattDokument, fagsak)) { //#V3
             dokumentmottakerFelles.opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak, behandlingÅrsakType);
+        } else if (åpenKlageSomKanVurdereDokument.isPresent()) {
+            kompletthetskontroller.vedleggHåndteresGjennomÅpenKlage(åpenKlageSomKanVurdereDokument.get(), mottattDokument);
         } else {
-            dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, null, mottattDokument); //#V1 og #V4
+            dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, null, mottattDokument);
         }
     }
 
@@ -58,18 +64,23 @@ class DokumentmottakerVedlegg implements Dokumentmottaker {
     public void mottaDokumentForKøetBehandling(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
 
         var eksisterendeKøetBehandling = behandlingRevurderingTjeneste.finnKøetYtelsesbehandling(fagsak.getId());
-        var åpenAnnenBehandling = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
-            .filter(b -> !b.erYtelseBehandling()).findFirst();
-        var historikkBehandling = åpenAnnenBehandling.orElse(eksisterendeKøetBehandling.orElse(null));
+        var andreÅpneBehandlinger = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId(), false).stream()
+            .filter(b -> !b.erYtelseBehandling()).toList();
+        var åpenKlageSomKanVurdereDokument = andreÅpneBehandlinger.stream()
+            .filter(b -> BehandlingType.KLAGE.equals(b.getType()))
+            .filter(b -> !BehandlendeEnhetTjeneste.getKlageInstans().equals(b.getBehandlendeOrganisasjonsEnhet()))
+            .findFirst();
+        var historikkBehandling = eksisterendeKøetBehandling.or(() -> åpenKlageSomKanVurdereDokument).orElse(null);
         dokumentmottakerFelles.opprettHistorikkinnslagForVedlegg(fagsak, historikkBehandling, mottattDokument);
-        if (åpenAnnenBehandling.isPresent()) { // Klage, anke, etc
-            dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, åpenAnnenBehandling.get(), mottattDokument);
-        } else if (eksisterendeKøetBehandling.isPresent()) { //#V5
+
+        if (eksisterendeKøetBehandling.isPresent()) {
             kompletthetskontroller.persisterKøetDokumentOgVurderKompletthet(eksisterendeKøetBehandling.get(), mottattDokument, Optional.empty());
         } else if (skalOppretteNyFørstegangsBehandlingSomFølgerAvVedlegget(mottattDokument, fagsak)) { //#V7
             dokumentmottakerFelles.opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak, behandlingÅrsakType);
+        } else if (åpenKlageSomKanVurdereDokument.isPresent()) {
+            kompletthetskontroller.vedleggHåndteresGjennomÅpenKlage(åpenKlageSomKanVurdereDokument.get(), mottattDokument);
         } else {
-            dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, null, mottattDokument); //#V1 og #V4
+            dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, null, mottattDokument);
         }
     }
 

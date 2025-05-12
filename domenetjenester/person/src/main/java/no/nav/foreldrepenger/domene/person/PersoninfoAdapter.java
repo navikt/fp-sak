@@ -120,7 +120,12 @@ public class PersoninfoAdapter {
 
     public Optional<PersoninfoArbeidsgiver> hentBrukerArbeidsgiverForAktør(AktørId aktørId) {
         var funnetFnr = hentFnr(aktørId);
-        return funnetFnr.flatMap(fnr -> basisTjeneste.hentArbeidsgiverPersoninfo(FagsakYtelseType.FORELDREPENGER, aktørId, fnr));
+        return funnetFnr.flatMap(fnr -> basisTjeneste.hentPrivatArbeidsgiverPersoninfo(FagsakYtelseType.FORELDREPENGER, aktørId, fnr));
+    }
+
+    public Optional<PersoninfoArbeidsgiver> hentBrukerVergeForAktør(AktørId aktørId) {
+        var funnetFnr = hentFnr(aktørId);
+        return funnetFnr.flatMap(fnr -> basisTjeneste.hentVergePersoninfo(FagsakYtelseType.FORELDREPENGER, aktørId, fnr));
     }
 
     public Optional<PersoninfoKjønn> hentBrukerKjønnForAktør(FagsakYtelseType ytelseType, AktørId aktørId) {

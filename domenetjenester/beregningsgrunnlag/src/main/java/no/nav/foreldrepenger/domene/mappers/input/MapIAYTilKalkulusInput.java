@@ -165,7 +165,7 @@ public class MapIAYTilKalkulusInput {
                 mapYtelseAnvist(ytelse.getYtelseAnvist()),
                 KodeverkTilKalkulusMapper.mapYtelsetype(ytelse.getRelatertYtelseType()),
                 mapPeriode(ytelse.getPeriode()),
-                null)) // TODO tfp-5742 trenger vi ytelsegrunnlag?
+                KodeverkTilKalkulusMapper.mapYtelseKilde(ytelse.getKilde())))
             .toList();
 
         if (!ytelserDto.isEmpty()) {
