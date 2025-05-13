@@ -94,14 +94,14 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         assertThat(oppdragRevurdering).isNotNull();
         var oppdrag110 = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(oppdragRevurdering.getOppdrag110Liste());
         assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
-       // assertThat(oppdrag110.getOmpostering116()).isPresent();
-       // var ompostering116 = oppdrag110.getOmpostering116().get();
-       // assertThat(ompostering116.getOmPostering()).isFalse();
-       // assertThat(ompostering116.getDatoOmposterFom()).isNull();
+        assertThat(oppdrag110.getOmpostering116()).isPresent();
+        var ompostering116 = oppdrag110.getOmpostering116().get();
+        assertThat(ompostering116.getOmPostering()).isFalse();
+        assertThat(ompostering116.getDatoOmposterFom()).isNull();
     }
 
     @Test
-    @Disabled(value = "Midlertidig slått av Ompostering siden økonomi klarer å utlede selv den beste datoen for ompostering.")
+//    @Disabled(value = "Midlertidig slått av Ompostering siden økonomi klarer å utlede selv den beste datoen for ompostering.")
     void skalSendeOppdragMedOmpostering116HvisIkkeAvslåttInntrekkOgDetFinnesForrigeOppdrag() {
         // Arrange
         var beregningsresultat = buildEmptyBeregningsresultatFP();
@@ -145,7 +145,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
 
     @Test
     @DisplayName("Tester tilfeller hvor ompostering116 ble ikke sendt fordi bruker har fått opphør på feriepenger men ikke selve ytelsen.")
-    @Disabled(value = "Midlertidig slått av Ompostering siden økonomi klarer å utlede selv den beste datoen for ompostering.")
+//    @Disabled(value = "Midlertidig slått av Ompostering siden økonomi klarer å utlede selv den beste datoen for ompostering.")
     void test_manglende_inntrekk_tfp_5130() {
         // Arrange
         // Arrange : Førstegangsbehandling
@@ -334,7 +334,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    @Disabled(value = "Midlertidig slått av Ompostering siden økonomi klarer å utlede selv den beste datoen for ompostering.")
+//    @Disabled(value = "Midlertidig slått av Ompostering siden økonomi klarer å utlede selv den beste datoen for ompostering.")
     void skalSendeOppdragMedOmpostering116OgSetteDatoOmposterFomTilFørsteUttaksdatoFraForrigeBehandlingForBrukerNårEndringsdatoErTidligere() {
         // Arrange
         var beregningsresultat = buildEmptyBeregningsresultatFP();
