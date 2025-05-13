@@ -41,7 +41,6 @@ public class VurderSøktForTidligSteg implements BehandlingSteg {
 
     private Kompletthetsjekker kompletthetsjekker;
     private BehandlingRepository behandlingRepository;
-    private BehandlingEventPubliserer behandlingEventPubliserer;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
@@ -51,10 +50,8 @@ public class VurderSøktForTidligSteg implements BehandlingSteg {
     @Inject
     public VurderSøktForTidligSteg(Kompletthetsjekker kompletthetsjekker,
                                    BehandlingRepositoryProvider provider,
-                                   BehandlingEventPubliserer behandlingEventPubliserer,
                                    SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.kompletthetsjekker = kompletthetsjekker;
-        this.behandlingEventPubliserer = behandlingEventPubliserer;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = provider.getBehandlingRepository();
         this.ytelsesFordelingRepository = provider.getYtelsesFordelingRepository();
@@ -63,10 +60,6 @@ public class VurderSøktForTidligSteg implements BehandlingSteg {
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        // Dekker tilfelle av lagret annen forelder fra søknad (papir/digital). Dessuten evt sakskobling i forrige steg. Primært pga test/polling
-        if (behandling.erYtelseBehandling() && !behandling.erRevurdering()) {
-            behandlingEventPubliserer.publiserBehandlingEvent(new SakensPersonerEndretEvent(behandling.getFagsakId(), behandling.getSaksnummer(), behandling.getId()));
-        }
         if (skalPassereKompletthet(behandling) || behandling.erRevurdering()) {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }

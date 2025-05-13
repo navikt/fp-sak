@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -40,16 +42,17 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.person.verge.OpprettVergeTjeneste;
 import no.nav.foreldrepenger.domene.person.verge.VergeDtoTjeneste;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBehandlingsmenyEnum;
+import no.nav.foreldrepenger.domene.person.verge.dto.VergeDto;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.NyVergeDto;
 import no.nav.vedtak.exception.TekniskException;
 
 @ExtendWith(MockitoExtension.class)
@@ -73,6 +76,8 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
 
     @Mock
     private VergeDtoTjeneste vergeDtoTjeneste;
+    @Mock
+    private BehandlingEventPubliserer behandlingEventPubliserer;
 
     private Behandling behandling;
 
@@ -86,7 +91,7 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
 
         var opprettVergeTjeneste = new OpprettVergeTjeneste(personinfoAdapter, brukerTjeneste, vergeRepository, historikkRepository);
         vergeTjeneste = new VergeTjeneste(behandlingskontrollTjeneste, vergeRepository, historikkRepository, personopplysningTjeneste,
-            opprettVergeTjeneste, vergeDtoTjeneste);
+            opprettVergeTjeneste, vergeDtoTjeneste, behandlingEventPubliserer);
 
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), RelasjonsRolleType.MORA,
             new Saksnummer("0123"));
@@ -178,18 +183,41 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
         @Test
         void skal_opprette_verge() {
             // Arrange
-            var opprettVergeDto = new NyVergeDto("Jenny", "12345678901", LocalDate.parse("2022-01-01"), LocalDate.parse("2024-01-01"), VergeType.BARN,
-                null);
+            var opprettVergeDto = VergeDto.person(VergeType.BARN, LocalDate.of(2022, Month.JANUARY, 1), LocalDate.of(2024, Month.JANUARY, 1),
+                "Jenny", "12345678901");
 
             var vergeAktørId = AktørId.dummy();
             when(personinfoAdapter.hentAktørForFnr(any())).thenReturn(Optional.of(vergeAktørId));
             when(brukerTjeneste.hentEllerOpprettFraAktørId(any())).thenReturn(NavBruker.opprettNyNB(vergeAktørId));
 
             // Act
-            vergeTjeneste.opprettVerge(behandling, opprettVergeDto);
+            vergeTjeneste.opprettVerge(behandling, opprettVergeDto, null);
 
             // Assert
-            assertThat(vergeRepository.hentAggregat(behandling.getId()).flatMap(VergeAggregat::getVerge)).isPresent();
+            var verge = vergeRepository.hentAggregat(behandling.getId()).flatMap(VergeAggregat::getVerge);
+            assertThat(verge).isPresent();
+            assertThat(verge.get().getBruker()).isPresent();
+            assertThat(verge.get().getBruker().get().getAktørId()).isEqualTo(vergeAktørId);
+            var historikkinnslag = historikkRepository.hent(behandling.getSaksnummer());
+            assertThat(historikkinnslag).hasSize(1);
+            assertThat(historikkinnslag.getFirst().getTekstLinjer().getLast()).isEqualTo("Opplysninger om verge/fullmektig er registrert.");
+        }
+
+        @Test
+        void skal_opprette_verge_organisasjon() {
+            // Arrange
+            var opprettVergeDto = VergeDto.organisasjon(VergeType.ADVOKAT, LocalDate.of(2022, Month.JANUARY, 1), LocalDate.of(2024, Month.JANUARY, 1),
+                "Kunstig virksomhet", OrgNummer.KUNSTIG_ORG);
+
+            // Act
+            vergeTjeneste.opprettVerge(behandling, opprettVergeDto, null);
+
+            // Assert
+            var verge = vergeRepository.hentAggregat(behandling.getId()).flatMap(VergeAggregat::getVerge);
+            assertThat(verge).isPresent();
+            assertThat(verge.get().getVergeOrganisasjon()).isPresent();
+            assertThat(verge.get().getVergeOrganisasjon().get().getOrganisasjonsnummer()).isEqualTo(OrgNummer.KUNSTIG_ORG);
+            assertThat(verge.get().getBruker()).isEmpty();
             var historikkinnslag = historikkRepository.hent(behandling.getSaksnummer());
             assertThat(historikkinnslag).hasSize(1);
             assertThat(historikkinnslag.getFirst().getTekstLinjer().getLast()).isEqualTo("Opplysninger om verge/fullmektig er registrert.");
@@ -248,7 +276,9 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
 
 
     private VergeEntitet.Builder opprettVergeBuilder() {
-        return new VergeEntitet.Builder().medVergeType(VergeType.BARN).gyldigPeriode(LocalDate.now().minusYears(1), LocalDate.now().plusYears(1));
+        return new VergeEntitet.Builder().medVergeType(VergeType.BARN)
+            .gyldigPeriode(LocalDate.now().minusYears(1), LocalDate.now().plusYears(1))
+            .medBruker(NavBruker.opprettNyNB(AktørId.dummy()));
     }
 
     private PersonopplysningerAggregat opprettPersonopplysningAggregatForPersonUnder18(AktørId aktørId) {
