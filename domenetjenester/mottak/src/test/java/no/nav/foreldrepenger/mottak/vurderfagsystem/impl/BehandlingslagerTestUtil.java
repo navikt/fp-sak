@@ -9,6 +9,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -23,6 +24,16 @@ public class BehandlingslagerTestUtil {
     public static final Fagsak buildFagsak(final Long fagsakid, final boolean erAvsluttet, FagsakYtelseType ytelseType) {
         var bruker = lagNavBruker();
         var fagsak = Fagsak.opprettNy(ytelseType, bruker, null, new Saksnummer(fagsakid * 2 + ""));
+        fagsak.setId(fagsakid);
+        if (erAvsluttet) {
+            fagsak.setAvsluttet();
+        }
+        return fagsak;
+    }
+
+    public static final Fagsak buildFagsak(final Long fagsakid, final boolean erAvsluttet, FagsakYtelseType ytelseType, RelasjonsRolleType relasjonsRolleType) {
+        var bruker = lagNavBruker();
+        var fagsak = Fagsak.opprettNy(ytelseType, bruker, relasjonsRolleType, new Saksnummer(fagsakid * 2 + ""));
         fagsak.setId(fagsakid);
         if (erAvsluttet) {
             fagsak.setAvsluttet();

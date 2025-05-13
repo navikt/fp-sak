@@ -29,6 +29,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -43,6 +44,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -59,6 +61,7 @@ import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesTjeneste;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesUtils;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemTjeneste;
+import no.nav.foreldrepenger.mottak.vurderfagsystem.impl.BehandlingslagerTestUtil;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
 @ExtendWith(MockitoExtension.class)
@@ -334,5 +337,41 @@ class VurderFagsystemTjenesteImplTest {
         var result = toVurderFagsystem(fagsystem);
         assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
         assertThat(result.getSaksnummer()).isEmpty();
+    }
+
+
+    @Test
+    void skalReturnereVLMedRiktigSakHvisBrukerHarFlereSakerIVLMedMatchendeFH() {
+        var vurderFagsystem = new VurderFagsystem();
+        vurderFagsystem.setBehandlingTema(BehandlingTema.FORELDREPENGER_FØDSEL);
+        vurderFagsystem.setAktørId(BRUKER_AKTØR_ID);
+        vurderFagsystem.setForsendelseMottattTidspunkt(LocalDateTime.now().minusDays(2));
+        vurderFagsystem.setDokumentTypeId(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
+        vurderFagsystem.setBarnTermindato(LocalDate.now().minusWeeks(2));
+        vurderFagsystem.setBarnFodselsdato(LocalDate.now().minusWeeks(2));
+        vurderFagsystem.setBrukerRolle(RelasjonsRolleType.MEDMOR);
+
+        vurderFagsystem.setStrukturertSøknad(true);
+
+        var fagsakM = BehandlingslagerTestUtil.buildFagsak(111L, false, FagsakYtelseType.FORELDREPENGER, RelasjonsRolleType.MORA);
+        var fagsakMM = BehandlingslagerTestUtil.buildFagsak(222L, false, FagsakYtelseType.FORELDREPENGER, RelasjonsRolleType.MEDMOR);
+        when(fagsakRepositoryMock.hentForBruker(BRUKER_AKTØR_ID)).thenReturn(List.of(fagsakM, fagsakMM));
+
+        var behandlingM = Behandling.forFørstegangssøknad(fagsakM).build();
+        lenient().when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(111L)).thenReturn(Optional.of(behandlingM));
+
+        var familieHendelseM = BehandlingslagerTestUtil.byggFødselGrunnlag(LocalDate.now().plusWeeks(2), null);
+        lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(behandlingM.getId())).thenReturn(Optional.of(familieHendelseM));
+
+        var behandlingMM = Behandling.forFørstegangssøknad(fagsakMM).build();
+        lenient().when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(222L)).thenReturn(Optional.of(behandlingMM));
+
+        var familieHendelseMM = BehandlingslagerTestUtil.byggFødselGrunnlag(LocalDate.now().minusWeeks(2), LocalDate.now().minusWeeks(2));
+        lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(behandlingMM.getId())).thenReturn(Optional.of(familieHendelseMM));
+
+        vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteFP));
+        var result = vurderFagsystemTjeneste.vurderFagsystem(vurderFagsystem);
+        assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
+        assertThat(result.getSaksnummer().filter(fagsakMM.getSaksnummer()::equals)).isPresent();
     }
 }

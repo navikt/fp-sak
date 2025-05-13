@@ -41,6 +41,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
@@ -49,6 +50,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.kontrakter.fordel.BehandlendeFagsystemDto;
+import no.nav.foreldrepenger.kontrakter.fordel.BrukerRolleDto;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostMottakDto;
@@ -437,6 +439,7 @@ public class FordelRestTjeneste {
         dto.getSaksnummer().ifPresent(sn -> v.setSaksnummer(new Saksnummer(sn)));
         dto.getAnnenPart().map(AktørId::new).ifPresent(v::setAnnenPart);
 
+        v.setBrukerRolle(mapBrukerRolle(dto.getBrukerRolle()));
         v.setDokumentTypeId(DokumentTypeId.UDEFINERT);
         v.setDokumentKategori(DokumentKategori.UDEFINERT);
         if (dto.getDokumentTypeIdOffisiellKode() != null) {
@@ -447,6 +450,17 @@ public class FordelRestTjeneste {
         }
 
         return v;
+    }
+
+    private RelasjonsRolleType mapBrukerRolle(BrukerRolleDto rolle) {
+        if (rolle == null) {
+            return RelasjonsRolleType.UDEFINERT;
+        }
+        return switch (rolle) {
+            case MOR -> RelasjonsRolleType.MORA;
+            case FAR -> RelasjonsRolleType.FARA;
+            case MEDMOR -> RelasjonsRolleType.MEDMOR;
+        };
     }
 
     private BehandlendeFagsystemDto map(BehandlendeFagsystem behandlendeFagsystem) {
