@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeType;
 import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
-import no.nav.foreldrepenger.domene.person.verge.dto.OpprettVergeDto;
+import no.nav.foreldrepenger.domene.person.verge.dto.VergeDto;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
 @ApplicationScoped
@@ -40,7 +40,7 @@ public class OpprettVergeTjeneste {
         // CDI
     }
 
-    public void opprettVerge(Long behandlingId, Long fagsakId, OpprettVergeDto dto) {
+    public void opprettVerge(Long behandlingId, Long fagsakId, VergeDto dto, String begrunnelse) {
         var vergeBuilder = new VergeEntitet.Builder().gyldigPeriode(dto.gyldigFom(), dto.gyldigTom()).medVergeType(dto.vergeType());
 
         if (VergeType.ADVOKAT.equals(dto.vergeType())) {
@@ -52,7 +52,7 @@ public class OpprettVergeTjeneste {
         var harEksisterendeVerge = vergeRepository.hentAggregat(behandlingId).isPresent();
 
         vergeRepository.lagreOgFlush(behandlingId, vergeBuilder);
-        opprettHistorikkinnslag(behandlingId, fagsakId, dto, harEksisterendeVerge);
+        opprettHistorikkinnslag(behandlingId, fagsakId, harEksisterendeVerge, begrunnelse);
     }
 
     private NavBruker hentEllerOpprettBruker(PersonIdent personIdent) {
@@ -62,17 +62,17 @@ public class OpprettVergeTjeneste {
             .orElseThrow(() -> new IllegalArgumentException("Ugyldig FNR for Verge"));
     }
 
-    private VergeOrganisasjonEntitet opprettVergeOrganisasjon(OpprettVergeDto dto) {
+    private VergeOrganisasjonEntitet opprettVergeOrganisasjon(VergeDto dto) {
         return new VergeOrganisasjonEntitet.Builder().medOrganisasjonsnummer(dto.organisasjonsnummer()).medNavn(dto.navn()).build();
     }
 
-    private void opprettHistorikkinnslag(Long behandlingId, Long fagsakId, OpprettVergeDto dto, boolean erEndring) {
+    private void opprettHistorikkinnslag(Long behandlingId, Long fagsakId, boolean erEndring, String begrunnelse) {
         var builder = new Historikkinnslag.Builder().medFagsakId(fagsakId)
             .medBehandlingId(behandlingId)
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medTittel(SkjermlenkeType.FAKTA_OM_VERGE)
             .addLinje(String.format("Opplysninger om verge/fullmektig er %s.", erEndring ? "endret" : "registrert"))
-            .addLinje(dto.begrunnelse());
+            .addLinje(begrunnelse);
 
         historikkinnslagRepository.lagre(builder.build());
     }

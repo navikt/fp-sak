@@ -295,6 +295,13 @@ public class PersonopplysningRepository {
             JOIN GR_PERSONOPPLYSNING grp ON grp.behandling_id = beh.ID
             JOIN SO_ANNEN_PART sa ON grp.so_annen_part_id = sa.ID
             WHERE fag.SAKSNUMMER = :saksnummer AND grp.aktiv = 'J' AND sa.AKTOER_ID IS NOT NULL
+             UNION ALL
+            SELECT bru.AKTOER_ID From Fagsak fag
+            JOIN BEHANDLING beh ON fag.ID = beh.FAGSAK_ID
+            JOIN GR_VERGE grv ON grv.behandling_id = beh.ID
+            JOIN VERGE v on grv.verge_id = v.id
+            JOIN BRUKER bru on v.bruker_id = bru.id
+            WHERE fag.SAKSNUMMER = :saksnummer AND grv.aktiv = 'J' AND bru.AKTOER_ID IS NOT NULL
             """;
 
         var query = entityManager.createNativeQuery(sql)

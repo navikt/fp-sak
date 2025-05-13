@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
@@ -48,12 +49,13 @@ public class FødselTjeneste {
         this.pdlKlient = pdlKlient;
     }
 
-    public List<FødtBarnInfo> hentFødteBarnInfoFor(FagsakYtelseType ytelseType, AktørId bruker, List<LocalDateInterval> intervaller) {
+    public List<FødtBarnInfo> hentFødteBarnInfoFor(FagsakYtelseType ytelseType, RelasjonsRolleType rolleType,
+                                                   AktørId bruker, List<LocalDateInterval> intervaller) {
         var request = new HentPersonQueryRequest();
         request.setIdent(bruker.getId());
         var projection = new PersonResponseProjection()
                 .doedfoedtBarn(new DoedfoedtBarnResponseProjection().dato())
-                .forelderBarnRelasjon(new ForelderBarnRelasjonResponseProjection().relatertPersonsIdent().relatertPersonsRolle());
+                .forelderBarnRelasjon(new ForelderBarnRelasjonResponseProjection().relatertPersonsIdent().relatertPersonsRolle().minRolleForPerson());
 
         var person = pdlKlient.hentPerson(ytelseType, request, projection);
 
@@ -66,6 +68,7 @@ public class FødselTjeneste {
             LOG.info("FPSAK PDL FØDSEL dødfødsel registrert");
         person.getForelderBarnRelasjon().stream()
             .filter(b -> ForelderBarnRelasjonRolle.BARN.equals(b.getRelatertPersonsRolle()))
+            .filter(b -> relevantForelder(rolleType, b))
             .map(ForelderBarnRelasjon::getRelatertPersonsIdent)
             .filter(Objects::nonNull)
             .map(i -> fraIdent(ytelseType, i))
@@ -99,6 +102,18 @@ public class FødselTjeneste {
                 .medFødselsdato(dato)
                 .medDødsdato(dato)
                 .build();
+    }
+
+    private static boolean relevantForelder(RelasjonsRolleType rolleType, ForelderBarnRelasjon forelderBarnRelasjon) {
+        if (rolleType == null || RelasjonsRolleType.UDEFINERT.equals(rolleType)) {
+            return true;
+        }
+        return switch (forelderBarnRelasjon.getMinRolleForPerson()) {
+            case MOR -> RelasjonsRolleType.MORA.equals(rolleType);
+            case FAR -> RelasjonsRolleType.FARA.equals(rolleType);
+            case MEDMOR -> RelasjonsRolleType.MEDMOR.equals(rolleType);
+            case BARN -> false;
+        };
     }
 
     private FødtBarnInfo fraIdent(FagsakYtelseType ytelseType, String barnIdent) {

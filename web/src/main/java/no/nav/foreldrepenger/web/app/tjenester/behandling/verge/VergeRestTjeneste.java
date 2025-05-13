@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.verge;
 
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Optional;
+import java.util.function.Function;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -21,13 +21,16 @@ import jakarta.ws.rs.core.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBackendDto;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.NyVergeDto;
+import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
+import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
@@ -89,10 +92,10 @@ public class VergeRestTjeneste {
     @Operation(description = "Oppretter verge/fullmektig på behandlingen", tags = "verge", responses = {@ApiResponse(responseCode = "200", description = "Verge/fullmektig opprettes", headers = @Header(name = HttpHeaders.LOCATION))})
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response opprettVerge(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @QueryParam(UuidDto.NAME) @Parameter(description = "Behandling uuid") @Valid UuidDto queryParam,
-                                 @Valid NyVergeDto body) {
+                                 @TilpassetAbacAttributt(supplierClass = NyVergeDtoAbacSupplier.class) @Valid VergeDto body) {
 
         var behandling = behandlingsprosessTjeneste.hentBehandling(queryParam.getBehandlingUuid());
-        vergeTjeneste.opprettVerge(behandling, body);
+        vergeTjeneste.opprettVerge(behandling, body, null);
 
         return Response.ok().build();
     }
@@ -107,5 +110,15 @@ public class VergeRestTjeneste {
         vergeTjeneste.fjernVerge(behandling);
 
         return Response.ok().build();
+    }
+
+    public static class NyVergeDtoAbacSupplier implements Function<Object, AbacDataAttributter> {
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var req = (VergeDto) obj;
+            var attributter = AbacDataAttributter.opprett();
+            Optional.ofNullable(req.fnr()).ifPresent(f -> attributter.leggTil(AppAbacAttributtType.FNR, f));
+            return attributter;
+        }
     }
 }

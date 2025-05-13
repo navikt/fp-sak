@@ -1,12 +1,14 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
@@ -48,11 +50,12 @@ public class TilbakeføringTilStegTask extends BehandlingProsessTask {
         if (behandling.isBehandlingPåVent()) {
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
         }
-        behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT);
+        behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, BehandlingStegType.FAKTA_UTTAK_DOKUMENTASJON);
         if (behandling.isBehandlingPåVent()) {
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
         }
-        // Eventuelt fortsettBehandling dersom registerdata ikke trengs hentes på nytt
-        prosesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, LocalDateTime.now());
+        // fortsettBehandling dersom registerdata ikke trengs hentes på nytt, for nye registerdata bruk GjenopptaOppdaterFortsett
+        //prosesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, LocalDateTime.now());
+        prosesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
     }
 }
