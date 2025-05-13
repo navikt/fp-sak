@@ -156,7 +156,14 @@ public class BeregningMigreringTjeneste {
                 oppdaterKoblingMedStpGrunnbeløpOgReguleringsbehov(kobling, response.grunnlag().getBeregningsgrunnlag());
             }
 
-            var førsteUttaksdato = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId()).getFørsteUttaksdatoHvisFinnes();
+            Optional<LocalDate> førsteUttaksdato;
+            try {
+                førsteUttaksdato = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId()).getFørsteUttaksdatoHvisFinnes();
+            } catch (Exception e) {
+                LOG.info("Fant ikke første uttaksdato for behandling {}, setter den til LocalDate.MIN", ref.behandlingUuid());
+                førsteUttaksdato = Optional.of(LocalDate.MIN);
+            }
+            // Må ha false toggle her til fpkalkulus er prodsatt
             if (false && førsteUttaksdato.map(this::kanPåvirkesAvÅretsGregulering).orElse(false)) {
                 migrerAlleInaktiveGrunnlag(ref);
             }
