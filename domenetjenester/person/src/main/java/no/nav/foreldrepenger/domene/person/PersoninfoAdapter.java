@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoSpråk;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoVisning;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.person.krr.KrrSpråkKlient;
@@ -98,7 +99,12 @@ public class PersoninfoAdapter {
     }
 
     public List<FødtBarnInfo> innhentAlleFødteForBehandlingIntervaller(FagsakYtelseType ytelseType, AktørId aktørId, List<LocalDateInterval> intervaller) {
-        return fødselTjeneste.hentFødteBarnInfoFor(ytelseType, aktørId, intervaller);
+        return fødselTjeneste.hentFødteBarnInfoFor(ytelseType, null, aktørId, intervaller);
+    }
+
+    public List<FødtBarnInfo> innhentAlleFødteForBehandlingIntervaller(FagsakYtelseType ytelseType, RelasjonsRolleType rolleType,
+                                                                       AktørId aktørId, List<LocalDateInterval> intervaller) {
+        return fødselTjeneste.hentFødteBarnInfoFor(ytelseType, rolleType, aktørId, intervaller);
     }
 
     public Optional<AktørId> hentAktørForFnr(PersonIdent fnr) {

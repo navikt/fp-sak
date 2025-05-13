@@ -191,16 +191,22 @@ public class BehandlingRepository {
      * Hent alle åpne behandlinger på fagsak.
      */
     public List<Behandling> hentÅpneBehandlingerForFagsakId(Long fagsakId) {
+        return hentÅpneBehandlingerForFagsakId(fagsakId, true);
+    }
+
+    public List<Behandling> hentÅpneBehandlingerForFagsakId(Long fagsakId, boolean readOnly) {
         Objects.requireNonNull(fagsakId, FAGSAK_ID);
 
         var query = entityManager.createQuery(
-                "SELECT beh from Behandling AS beh " +
-                        "WHERE beh.fagsak.id = :fagsakId " +
-                        "AND beh.status NOT IN (:status)",
-                Behandling.class);
+            "SELECT beh from Behandling AS beh " +
+                "WHERE beh.fagsak.id = :fagsakId " +
+                "AND beh.status NOT IN (:status)",
+            Behandling.class);
         query.setParameter(FAGSAK_ID, fagsakId);
         query.setParameter("status", BehandlingStatus.getFerdigbehandletStatuser());
-        query.setHint(HibernateHints.HINT_READ_ONLY, "true");
+        if (readOnly) {
+            query.setHint(HibernateHints.HINT_READ_ONLY, "true");
+        }
         return query.getResultList();
     }
 

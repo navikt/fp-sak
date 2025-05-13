@@ -121,9 +121,14 @@ public class RegisterdataInnhenter {
 
     public void innhentPersonopplysninger(Behandling behandling) {
         var fødselsIntervall = familieHendelseTjeneste.forventetFødselsIntervaller(BehandlingReferanse.fra(behandling));
+        var rolleFiltrertFødselFREG = personopplysningInnhenter.innhentAlleFødteForIntervaller(behandling.getFagsakYtelseType(), behandling.getRelasjonsRolleType(), behandling.getAktørId(), fødselsIntervall);
         var filtrertFødselFREG = personopplysningInnhenter.innhentAlleFødteForIntervaller(behandling.getFagsakYtelseType(), behandling.getAktørId(), fødselsIntervall);
+        if (rolleFiltrertFødselFREG.size() != filtrertFødselFREG.size()) {
+            LOG.info("Innhent FamilieHendelse ulike antall barn - sak {} rolle {} barn/rolle {} barn/alle {}", behandling.getSaksnummer().getVerdi(),
+                behandling.getRelasjonsRolleType(), rolleFiltrertFødselFREG, filtrertFødselFREG);
+        }
         innhentPersoninformasjon(behandling, filtrertFødselFREG);
-        innhentFamiliehendelse(behandling.getId(), filtrertFødselFREG);
+        innhentFamiliehendelse(behandling.getId(), rolleFiltrertFødselFREG.isEmpty() ? filtrertFødselFREG : rolleFiltrertFødselFREG);
         innhentPleiepenger(behandling, filtrertFødselFREG);
         // Logikk avhengig av familiehendelse som bør være innhentet
         stønadsperioderInnhenter.innhentNesteSak(behandling);
