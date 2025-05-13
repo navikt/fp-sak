@@ -8,7 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -24,7 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmg
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
@@ -35,27 +34,24 @@ public class KlageVurderingTjeneste {
 
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
-    private ProsesseringAsynkTjeneste prosesseringAsynkTjeneste;
     private KlageRepository klageRepository;
     private BehandlingRepository behandlingRepository;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BehandlingEventPubliserer behandlingEventPubliserer;
 
     @Inject
     public KlageVurderingTjeneste(DokumentBestillerTjeneste dokumentBestillerTjeneste,
                                   DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
-                                  ProsesseringAsynkTjeneste prosesseringAsynkTjeneste,
                                   BehandlingRepository behandlingRepository,
                                   KlageRepository klageRepository,
-                                  BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                  BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                                   BehandlingsresultatRepository behandlingsresultatRepository,
                                   BehandlingEventPubliserer behandlingEventPubliserer) {
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
-        this.prosesseringAsynkTjeneste = prosesseringAsynkTjeneste;
         this.klageRepository = klageRepository;
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.behandlingEventPubliserer = behandlingEventPubliserer;
@@ -142,9 +138,8 @@ public class KlageVurderingTjeneste {
         var endretBeslutterStatus = eksisterende != null && !uendret;
         var kabal = klageResultat.erBehandletAvKabal();
 
-        var tilbakeføres =
-            !kabal && endretBeslutterStatus && !behandling.harÅpentAksjonspunktMedType(aksjonspunkt) && behandlingskontrollTjeneste.erStegPassert(
-                behandling, vurderingsteg);
+        var tilbakeføres = !kabal && endretBeslutterStatus && !behandling.harÅpentAksjonspunktMedType(aksjonspunkt)
+            && behandlingProsesseringTjeneste.erBehandlingEtterSteg(behandling, vurderingsteg);
         klageRepository.lagreVurderingsResultat(behandling.getId(), nyttresultat);
         if (erVurderingOppdaterer || tilbakeføres || kabal) {
             settBehandlingResultatTypeBasertPaaUtfall(behandling, nyttresultat.getKlageVurdering(), nyttresultat.getKlageVurderingOmgjør(),
@@ -157,9 +152,8 @@ public class KlageVurderingTjeneste {
     }
 
     private void tilbakeførBehandling(Behandling behandling, BehandlingStegType vurderingSteg) {
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-        behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, vurderingSteg);
-        prosesseringAsynkTjeneste.asynkProsesserBehandling(behandling);
+        behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, vurderingSteg);
+        behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
     }
 
     private void settBehandlingResultatTypeBasertPaaUtfall(Behandling behandling, KlageVurdering klageVurdering, KlageVurderingOmgjør omgjør, KlageVurdertAv vurdertAv) {

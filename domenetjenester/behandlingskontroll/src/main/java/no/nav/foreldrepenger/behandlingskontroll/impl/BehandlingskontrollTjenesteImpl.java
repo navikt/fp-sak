@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -58,7 +57,6 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
 
     private AksjonspunktKontrollRepository aksjonspunktKontrollRepository;
     private BehandlingRepository behandlingRepository;
-    private BehandlingModellRepository behandlingModellRepository;
     private BehandlingskontrollEventPubliserer eventPubliserer;
 
     /**
@@ -82,7 +80,6 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
 
         this.serviceProvider = serviceProvider;
         this.behandlingRepository = serviceProvider.getBehandlingRepository();
-        this.behandlingModellRepository = serviceProvider.getBehandlingModellRepository();
         this.aksjonspunktKontrollRepository = serviceProvider.getAksjonspunktKontrollRepository();
         this.eventPubliserer = serviceProvider.getEventPubliserer();
     }
@@ -156,22 +153,6 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     }
 
     @Override
-    public boolean behandlingTilbakeføringHvisTidligereBehandlingSteg(BehandlingskontrollKontekst kontekst,
-            BehandlingStegType tidligereStegType) {
-        if (!erSenereSteg(kontekst, tidligereStegType)) {
-            behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, tidligereStegType);
-            return true;
-        }
-        return false;
-    }
-
-    private boolean erSenereSteg(BehandlingskontrollKontekst kontekst, BehandlingStegType tidligereStegType) {
-        var behandling = serviceProvider.hentBehandling(kontekst.getBehandlingId());
-        return sammenlignRekkefølge(kontekst.getYtelseType(), kontekst.getBehandlingType(),
-                behandling.getAktivtBehandlingSteg(), tidligereStegType) < 0;
-    }
-
-    @Override
     public void behandlingTilbakeføringTilTidligereBehandlingSteg(BehandlingskontrollKontekst kontekst,
             BehandlingStegType tidligereStegType) {
 
@@ -189,26 +170,6 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
         } finally {
             ferdigProsessering();
         }
-    }
-
-    @Override
-    public int sammenlignRekkefølge(FagsakYtelseType ytelseType, BehandlingType behandlingType, BehandlingStegType stegA, BehandlingStegType stegB) {
-        var modell = getModell(behandlingType, ytelseType);
-        return modell.erStegAFørStegB(stegA, stegB) ? -1
-                : modell.erStegAFørStegB(stegB, stegA) ? 1
-                        : 0;
-    }
-
-    @Override
-    public boolean erStegPassert(Behandling behandling, BehandlingStegType behandlingSteg) {
-        return sammenlignRekkefølge(behandling.getFagsakYtelseType(), behandling.getType(),
-                behandling.getAktivtBehandlingSteg(), behandlingSteg) > 0;
-    }
-
-    @Override
-    public boolean erIStegEllerSenereSteg(Behandling behandling, BehandlingStegType behandlingSteg) {
-        return sammenlignRekkefølge(behandling.getFagsakYtelseType(), behandling.getType(),
-            behandling.getAktivtBehandlingSteg(), behandlingSteg) >= 0;
     }
 
     @Override
@@ -551,32 +512,6 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
         eventPubliserer.fireEvent(event);
     }
 
-    @Override
-    public boolean skalAksjonspunktLøsesIEllerEtterSteg(FagsakYtelseType ytelseType, BehandlingType behandlingType,
-            BehandlingStegType behandlingSteg, AksjonspunktDefinisjon apDef) {
-
-        var modell = getModell(behandlingType, ytelseType);
-        var apLøsesteg = Optional.ofNullable(modell
-                .finnTidligsteStegForAksjonspunktDefinisjon(singletonList(apDef)))
-                .map(BehandlingStegModell::getBehandlingStegType)
-                .orElse(null);
-        if (apLøsesteg == null) {
-            // AksjonspunktDefinisjon finnes ikke på stegene til denne behandlingstypen. Ap
-            // kan derfor ikke løses.
-            return false;
-        }
-
-        return behandlingSteg.equals(apLøsesteg) || modell.erStegAFørStegB(behandlingSteg, apLøsesteg);
-    }
-
-    // TODO: (PK-49128) Midlertidig løsning for å filtrere aksjonspunkter til høyre
-    // for steg i hendelsemodul
-    @Override
-    public Set<AksjonspunktDefinisjon> finnAksjonspunktDefinisjonerFraOgMed(BehandlingskontrollKontekst kontekst, BehandlingStegType steg, boolean medInngangOgså) {
-        var modell = getModell(kontekst.getBehandlingType(), kontekst.getYtelseType());
-        return modell.finnAksjonspunktDefinisjonerFraOgMed(steg, medInngangOgså);
-    }
-
     protected BehandlingStegUtfall doProsesserBehandling(BehandlingskontrollKontekst kontekst, BehandlingModell modell,
             BehandlingModellVisitor visitor) {
 
@@ -695,7 +630,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     }
 
     protected BehandlingModell getModell(BehandlingType behandlingType, FagsakYtelseType ytelseType) {
-        return behandlingModellRepository.getModell(behandlingType, ytelseType);
+        return BehandlingModellRepository.getModell(behandlingType, ytelseType);
     }
 
     private void fyrEventBehandlingskontrollException(BehandlingskontrollKontekst kontekst, RuntimeException e) {
@@ -753,13 +688,6 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
         // tranisjonsregler)
         var event = new BehandlingTransisjonEvent(kontekst, transisjon, stegTilstandFør);
         eventPubliserer.fireEvent(event);
-    }
-
-    @Override
-    public boolean inneholderSteg(Behandling behandling, BehandlingStegType behandlingStegType) {
-        var modell = getModell(behandling.getType(), behandling.getFagsakYtelseType());
-        return modell.hvertSteg()
-                .anyMatch(steg -> steg.getBehandlingStegType().equals(behandlingStegType));
     }
 
     private boolean erSenereSteg(BehandlingModell modell, BehandlingStegType inneværendeSteg,

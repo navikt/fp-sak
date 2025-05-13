@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
@@ -74,10 +73,6 @@ public class Behandlingsoppretter {
         this.behandlingsresultatRepository = behandlingRepositoryProvider.getBehandlingsresultatRepository();
         this.behandlingVedtakRepository = behandlingRepositoryProvider.getBehandlingVedtakRepository();
         this.søknadRepository = behandlingRepositoryProvider.getSøknadRepository();
-    }
-
-    public boolean erKompletthetssjekkPassert(Behandling behandling) {
-        return behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.VURDER_KOMPLETT_BEH);
     }
 
     /**
@@ -145,8 +140,8 @@ public class Behandlingsoppretter {
             årsakBuilder.medManueltOpprettet(sisteYtelseBehandling.erManueltOpprettet()).buildFor(revurdering);
         }
 
-        var nyKontekst = behandlingskontrollTjeneste.initBehandlingskontroll(revurdering);
-        behandlingRepository.lagre(revurdering, nyKontekst.getSkriveLås());
+        var nyLås = behandlingRepository.taSkriveLås(revurdering);
+        behandlingRepository.lagre(revurdering, nyLås);
 
         return revurdering;
     }

@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingskontroll;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Consumer;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -15,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
 public interface BehandlingskontrollTjeneste {
 
@@ -63,9 +61,6 @@ public interface BehandlingskontrollTjeneste {
      * @see #prosesserBehandling(BehandlingskontrollKontekst)
      */
     void behandlingTilbakeføringTilTidligsteAksjonspunkt(BehandlingskontrollKontekst kontekst, Collection<AksjonspunktDefinisjon> endredeAksjonspunkt);
-
-    boolean behandlingTilbakeføringHvisTidligereBehandlingSteg(BehandlingskontrollKontekst kontekst,
-            BehandlingStegType tidligereStegType);
 
     /**
      * FLytt prosesen til et tidlligere steg.
@@ -209,31 +204,7 @@ public interface BehandlingskontrollTjeneste {
     /** Henlegg en behandling. */
     void henleggBehandling(BehandlingskontrollKontekst kontekst, BehandlingResultatType årsakKode);
 
-    Set<AksjonspunktDefinisjon> finnAksjonspunktDefinisjonerFraOgMed(BehandlingskontrollKontekst kontekst, BehandlingStegType steg, boolean medInngangOgså);
-
     void henleggBehandlingFraSteg(BehandlingskontrollKontekst kontekst, BehandlingResultatType årsak);
 
-    /**
-     * Sjekker i behandlingsmodellen om aksjonspunktet skal løses i eller etter det
-     * angitte steget.
-     *
-     * @param ytelseType             ytelsen som skal sjekkes
-     * @param behandlingType         behandlingstypen som skal sjekkes
-     * @param behandlingSteg         steget som aksjonspunktet skal sjekkes mot
-     * @param aksjonspunktDefinisjon aksjonspunktet som skal sjekkes
-     * @return true dersom aksjonspunktet skal løses i eller etter det angitte
-     *         steget.
-     */
-    boolean skalAksjonspunktLøsesIEllerEtterSteg(FagsakYtelseType ytelseType, BehandlingType behandlingType, BehandlingStegType behandlingSteg,
-            AksjonspunktDefinisjon aksjonspunktDefinisjon);
-
     void fremoverTransisjon(BehandlingStegType målSteg, BehandlingskontrollKontekst kontekst);
-
-    boolean inneholderSteg(Behandling behandling, BehandlingStegType registrerSøknad);
-
-    int sammenlignRekkefølge(FagsakYtelseType ytelseType, BehandlingType behandlingType, BehandlingStegType stegA, BehandlingStegType stegB);
-
-    boolean erStegPassert(Behandling behandling, BehandlingStegType stegType);
-
-    boolean erIStegEllerSenereSteg(Behandling behandling, BehandlingStegType stegType);
 }

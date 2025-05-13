@@ -94,6 +94,15 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
     }
 
     @Override
+    public boolean inneholderSteg(BehandlingStegType stegType) {
+        try {
+            return indexOf(stegType) >= 0;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
     public BehandlingStegModell finnSteg(BehandlingStegType stegType) {
         return internFinnSteg(stegType);
     }
@@ -395,6 +404,11 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
     @Override
     public boolean erStegAFørStegB(BehandlingStegType stegA, BehandlingStegType stegB) {
         return indexOfNullable(stegA) < indexOfNullable(stegB);
+    }
+
+    @Override
+    public boolean erStegAEtterStegB(BehandlingStegType stegA, BehandlingStegType stegB) {
+        return indexOfNullable(stegA) > indexOfNullable(stegB);
     }
 
     /** Legger til default. */

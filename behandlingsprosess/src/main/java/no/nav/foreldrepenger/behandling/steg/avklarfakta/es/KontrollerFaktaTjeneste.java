@@ -4,7 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.steg.avklarfakta.KontrollerFaktaTjenesteInngangsVilkår;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingModellTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
@@ -18,8 +18,8 @@ class KontrollerFaktaTjeneste extends KontrollerFaktaTjenesteInngangsVilkår {
 
     @Inject
     protected KontrollerFaktaTjeneste(KontrollerFaktaUtledereTjenesteImpl utlederTjeneste,
-            BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
-        super(utlederTjeneste, behandlingskontrollTjeneste);
+            BehandlingModellTjeneste behandlingModellTjeneste) {
+        super(utlederTjeneste, behandlingModellTjeneste);
     }
 
 }

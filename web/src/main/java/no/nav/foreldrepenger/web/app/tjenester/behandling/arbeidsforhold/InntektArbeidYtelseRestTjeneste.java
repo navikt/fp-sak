@@ -27,7 +27,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -41,6 +40,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.AlleInntektsmeldingerDtoMapper;
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.IAYYtelseDto;
@@ -103,7 +103,7 @@ public class InntektArbeidYtelseRestTjeneste {
 
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private FpOppdragRestKlient fpOppdragRestKlient;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
     public InntektArbeidYtelseRestTjeneste() {
         // for CDI proxy
@@ -120,7 +120,7 @@ public class InntektArbeidYtelseRestTjeneste {
                                            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                            AlleInntektsmeldingerDtoMapper alleInntektsmeldingerMapper,
                                            FpOppdragRestKlient fpOppdragRestKlient,
-                                           BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
+                                           BehandlingProsesseringTjeneste behandlingProsesseringTjeneste) {
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.iayTjeneste = iayTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -131,7 +131,7 @@ public class InntektArbeidYtelseRestTjeneste {
         this.svangerskapspengerRepository = svangerskapspengerRepository;
         this.alleInntektsmeldingerMapper = alleInntektsmeldingerMapper;
         this.fpOppdragRestKlient = fpOppdragRestKlient;
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
     }
 
     @GET
@@ -236,7 +236,7 @@ public class InntektArbeidYtelseRestTjeneste {
             alleReferanser.addAll(referanserFraOppgittOpptjening(iayg.getGjeldendeOppgittOpptjening()));
         });
 
-        if (behandling.erAvsluttet() || behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling, BehandlingStegType.SIMULER_OPPDRAG)) {
+        if (behandling.erAvsluttet() || !behandlingProsesseringTjeneste.erBehandlingFørSteg(behandling, BehandlingStegType.SIMULER_OPPDRAG)) {
             try {
                 var simuleringResultatDto = fpOppdragRestKlient.hentSimuleringResultatMedOgUtenInntrekk(behandling.getId(), behandling.getUuid(), behandling.getSaksnummer().getVerdi());
                 arbeidsgivere.addAll(simuleringResultatDto.map(this::finnArbeidsgivereFraSimulering).orElse(Collections.emptySet()));

@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjenesteFelles;
-import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollTjenesteImpl;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
@@ -42,7 +41,7 @@ class RevurderingTjenesteImplTest {
         var grunnlagProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
         var serviceProvider = new BehandlingskontrollServiceProvider(entityManager,
-                new BehandlingModellRepository(), null);
+                null);
         var revurderingEndringES = new RevurderingEndringImpl(behandlingRepository,
                 new LegacyESBeregningRepository(entityManager), repositoryProvider.getBehandlingsresultatRepository());
         var vergeRepository = new VergeRepository(entityManager);

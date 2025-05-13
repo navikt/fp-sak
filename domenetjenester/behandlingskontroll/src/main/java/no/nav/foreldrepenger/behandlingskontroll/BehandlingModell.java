@@ -43,6 +43,8 @@ public interface BehandlingModell {
 
     Set<AksjonspunktDefinisjon> finnAksjonspunktDefinisjonerUtgang(BehandlingStegType steg);
 
+    boolean inneholderSteg(BehandlingStegType stegType);
+
     BehandlingStegModell finnForrigeSteg(BehandlingStegType stegType);
 
     BehandlingStegModell finnFørsteSteg(BehandlingStegType... behandlingStegTyper);
@@ -65,7 +67,10 @@ public interface BehandlingModell {
 
     Stream<BehandlingStegModell> hvertStegFraOgMedTil(BehandlingStegType fraOgMedSteg, BehandlingStegType tilSteg, boolean tilOgMed);
 
+    // To metoder for bedre lesbarhet og redusert kognitiv belastning
     boolean erStegAFørStegB(BehandlingStegType stegA, BehandlingStegType stegB);
+
+    boolean erStegAEtterStegB(BehandlingStegType stegA, BehandlingStegType stegB);
 
     /**
      * Beregn relativ forflytning mellom to steg.
