@@ -117,7 +117,7 @@ class PersoninfoAdapterTest {
 
         var aktørId = AktørId.dummy();
         var personinfo = opprettPersonInfo(aktørId, antallBarn);
-        when(fødselTjeneste.hentFødteBarnInfoFor(any(), any(), any())).thenReturn(genererBarn(personinfo.getFamilierelasjoner(), mottattDato));
+        when(fødselTjeneste.hentFødteBarnInfoFor(any(), any(), any(), any())).thenReturn(genererBarn(personinfo.getFamilierelasjoner(), mottattDato));
 
         var fødslerRelatertTilBehandling = adapter.innhentAlleFødteForBehandlingIntervaller(FagsakYtelseType.FORELDREPENGER, aktørId, List.of(intervall));
 

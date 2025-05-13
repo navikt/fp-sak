@@ -1,10 +1,22 @@
 package no.nav.foreldrepenger.domene.person.verge;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.time.LocalDate;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoArbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
@@ -16,27 +28,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
-import no.nav.foreldrepenger.domene.person.verge.dto.OpprettVergeDto;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.LocalDate;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import no.nav.foreldrepenger.domene.person.verge.dto.VergeDto;
 
 @ExtendWith(MockitoExtension.class)
 class OpprettVergeTjenesteTest {
-
-    private static final AksjonspunktDefinisjon AKSJONSPUNKT_DEF = AksjonspunktDefinisjon.AVKLAR_VERGE;
 
     @Mock
     private HistorikkinnslagRepository historikkReposistory;
@@ -50,7 +45,7 @@ class OpprettVergeTjenesteTest {
     private Behandling behandling;
 
     @BeforeEach
-    public void oppsett() {
+    void oppsett() {
         behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
 
         var vergeBruker = NavBruker.opprettNyNB(behandling.getAktørId());
@@ -65,7 +60,7 @@ class OpprettVergeTjenesteTest {
         var dto = opprettDtoVerge();
         when(vergeRepository.hentAggregat(any())).thenReturn(Optional.empty());
         new OpprettVergeTjeneste(personinfoAdapter, brukerTjeneste, vergeRepository, historikkReposistory).opprettVerge(behandling.getId(),
-            behandling.getFagsakId(), dto);
+            behandling.getFagsakId(), dto, "Begrunnelse");
 
         // Verifiserer HistorikkinnslagDto
         var historikkCapture = ArgumentCaptor.forClass(Historikkinnslag.class);
@@ -89,7 +84,7 @@ class OpprettVergeTjenesteTest {
 
 
         new OpprettVergeTjeneste(personinfoAdapter, brukerTjeneste, vergeRepository, historikkReposistory).opprettVerge(behandling.getId(),
-            behandling.getFagsakId(), dto);
+            behandling.getFagsakId(), dto, "Begrunnelse");
 
         // Verifiserer HistorikkinnslagDto
         var historikkCapture = ArgumentCaptor.forClass(Historikkinnslag.class);
@@ -104,9 +99,9 @@ class OpprettVergeTjenesteTest {
         });
     }
 
-    private OpprettVergeDto opprettDtoVerge() {
-        return new OpprettVergeDto("Harald Hårfagre", "12345678901", LocalDate.of(2025, 1, 1), LocalDate.of(2025, 12, 31), VergeType.BARN, null,
-            "Begrunnelse");
+    private VergeDto opprettDtoVerge() {
+        return VergeDto.person(VergeType.BARN, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 12, 31),
+            "Harald Hårfagre", "12345678901");
     }
 }
 

@@ -6,26 +6,27 @@ import java.util.List;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.SakensPersonerEndretEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.domene.person.verge.OpprettVergeTjeneste;
 import no.nav.foreldrepenger.domene.person.verge.VergeDtoTjeneste;
-import no.nav.foreldrepenger.domene.person.verge.dto.OpprettVergeDto;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBackendDto;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBehandlingsmenyEnum;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeDto;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.dto.NyVergeDto;
 
 @ApplicationScoped
 public class VergeTjeneste {
@@ -36,6 +37,7 @@ public class VergeTjeneste {
     private PersonopplysningTjeneste personopplysningTjeneste;
     private OpprettVergeTjeneste opprettVergeTjeneste;
     private VergeDtoTjeneste vergeDtoTjeneste;
+    private BehandlingEventPubliserer behandlingEventPubliserer;
 
     @Inject
     public VergeTjeneste(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
@@ -43,13 +45,15 @@ public class VergeTjeneste {
                          HistorikkinnslagRepository historikkinnslagRepository,
                          PersonopplysningTjeneste personopplysningTjeneste,
                          OpprettVergeTjeneste opprettVergeTjeneste,
-                         VergeDtoTjeneste vergeDtoTjeneste) {
+                         VergeDtoTjeneste vergeDtoTjeneste,
+                         BehandlingEventPubliserer behandlingEventPubliserer) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.vergeRepository = vergeRepository;
         this.historikkinnslagRepository = historikkinnslagRepository;
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.opprettVergeTjeneste = opprettVergeTjeneste;
         this.vergeDtoTjeneste = vergeDtoTjeneste;
+        this.behandlingEventPubliserer = behandlingEventPubliserer;
     }
 
     VergeTjeneste() {
@@ -64,14 +68,21 @@ public class VergeTjeneste {
         return vergeRepository.hentAggregat(behandling.getId()).flatMap(vergeDtoTjeneste::lagVergeBackendDto).orElse(null);
     }
 
-    public void opprettVerge(Behandling behandling, NyVergeDto param) {
-        opprettVergeTjeneste.opprettVerge(behandling.getId(), behandling.getFagsakId(), map(param));
+    public void opprettVerge(Behandling behandling, VergeDto param, String begrunnelse) {
+        opprettVergeTjeneste.opprettVerge(behandling.getId(), behandling.getFagsakId(), param, begrunnelse);
+        if (param.fnr() != null) {
+            behandlingEventPubliserer.publiserBehandlingEvent(new SakensPersonerEndretEvent(behandling, "Verge"));
+        }
     }
 
     public void fjernVerge(Behandling behandling) {
+        var harPersonVerge = vergeRepository.hentAggregat(behandling.getId()).flatMap(VergeAggregat::getAktørId).isPresent();
         vergeRepository.fjernVergeFraEksisterendeGrunnlagHvisFinnes(behandling.getId());
         opprettHistorikkinnslagForFjernetVerge(behandling);
         avbrytVergeAksjonspunktHvisFinnes(behandling);
+        if (harPersonVerge) {
+            behandlingEventPubliserer.publiserBehandlingEvent(new SakensPersonerEndretEvent(behandling, "Verge"));
+        }
     }
 
     public VergeBehandlingsmenyEnum utledBehandlingOperasjon(Behandling behandling) {
@@ -115,10 +126,5 @@ public class VergeTjeneste {
             .map(PersonopplysningEntitet::getFødselsdato)
             .filter(d -> d.isAfter(LocalDate.now().minusYears(18)))
             .isPresent();
-    }
-
-    private OpprettVergeDto map(NyVergeDto dto) {
-        return new OpprettVergeDto(dto.getNavn(), dto.getFnr(), dto.getGyldigFom(), dto.getGyldigTom(), dto.getVergeType(),
-            dto.getOrganisasjonsnummer(), null);
     }
 }

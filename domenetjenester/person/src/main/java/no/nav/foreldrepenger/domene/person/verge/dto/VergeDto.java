@@ -2,62 +2,38 @@ package no.nav.foreldrepenger.domene.person.verge.dto;
 
 import java.time.LocalDate;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeType;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
+import no.nav.vedtak.util.InputValideringRegex;
 
-public class VergeDto {
+public record VergeDto(@NotNull @ValidKodeverk VergeType vergeType,
+                       LocalDate gyldigFom,
+                       LocalDate gyldigTom,
+                       @Size(max = 100) @Pattern(regexp = InputValideringRegex.FRITEKST) String navn,
+                       @Pattern(regexp = "^\\d{11}$") String fnr,
+                       @Pattern(regexp = "^\\d{9}$") String organisasjonsnummer) {
 
-    private String navn;
-    private String fnr;
-    private LocalDate gyldigFom;
-    private LocalDate gyldigTom;
-    private VergeType vergeType;
-    private String organisasjonsnummer;
-
-    public void setNavn(String navn) {
-        this.navn = navn;
+    public static VergeDto tomPayload() {
+        return new VergeDto(VergeType.ANNEN_F, null, null, null, null, null);
     }
 
-    public void setFnr(String fnr) {
-        this.fnr = fnr;
+    public static VergeDto person(VergeType vergeType, LocalDate gyldigFom, LocalDate gyldigTom,
+                                  String navn, String fnr) {
+        return new VergeDto(vergeType, gyldigFom, gyldigTom, navn, fnr, null);
     }
 
-    public void setGyldigFom(LocalDate gyldigFom) {
-        this.gyldigFom = gyldigFom;
+    public static VergeDto organisasjon(VergeType vergeType, LocalDate gyldigFom, LocalDate gyldigTom,
+                                  String navn, String organisasjonsnummer) {
+        return new VergeDto(vergeType, gyldigFom, gyldigTom, navn, null, organisasjonsnummer);
     }
 
-    public void setGyldigTom(LocalDate gyldigTom) {
-        this.gyldigTom = gyldigTom;
+    @Override
+    public String toString() {
+        return "VergeDto{" + "vergeType=" + vergeType + ", gyldigFom=" + gyldigFom + ", gyldigTom=" + gyldigTom + '}';
     }
 
-    public void setVergeType(VergeType vergeType) {
-        this.vergeType = vergeType;
-    }
-
-    public void setOrganisasjonsnummer(String organisasjonsnummer) {
-        this.organisasjonsnummer = organisasjonsnummer;
-    }
-
-    public String getNavn() {
-        return navn;
-    }
-
-    public String getFnr() {
-        return fnr;
-    }
-
-    public LocalDate getGyldigFom() {
-        return gyldigFom;
-    }
-
-    public LocalDate getGyldigTom() {
-        return gyldigTom;
-    }
-
-    public VergeType getVergeType() {
-        return vergeType;
-    }
-
-    public String getOrganisasjonsnummer() {
-        return organisasjonsnummer;
-    }
 }

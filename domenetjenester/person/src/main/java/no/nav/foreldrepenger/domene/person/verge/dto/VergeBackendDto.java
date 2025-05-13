@@ -4,45 +4,11 @@ import java.time.LocalDate;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeType;
 
-public class VergeBackendDto {
-
-    private String aktoerId;
-    private String navn;
-    private String organisasjonsnummer;
-    private LocalDate gyldigFom;
-    private LocalDate gyldigTom;
-    private VergeType vergeType;
-
-    public VergeBackendDto(String aktoerId, String navn, String organisasjonsnummer, LocalDate gyldigFom, LocalDate gyldigTom, VergeType vergeType) {
-        this.aktoerId = aktoerId;
-        this.navn = navn;
-        this.organisasjonsnummer = organisasjonsnummer;
-        this.gyldigFom = gyldigFom;
-        this.gyldigTom = gyldigTom;
-        this.vergeType = vergeType;
-    }
-
-    public String getAktoerId() {
-        return aktoerId;
-    }
-
-    public String getNavn() {
-        return navn;
-    }
-
-    public String getOrganisasjonsnummer() {
-        return organisasjonsnummer;
-    }
-
-    public LocalDate getGyldigFom() {
-        return gyldigFom;
-    }
-
-    public LocalDate getGyldigTom() {
-        return gyldigTom;
-    }
-
-    public VergeType getVergeType() {
-        return vergeType;
-    }
+/**
+ * Dto for verge som brukes av andre applikasjoner enn frontend - dvs formidling og tilbakekreving.
+ * Legg merke til aktørId i stedet for fødselsnummer (som frontend bruker).
+ * Ikke endre "aktoerId" uten expand/contract med konsumenter.
+ */
+public record VergeBackendDto(String aktoerId, String navn, String organisasjonsnummer,
+                              LocalDate gyldigFom, LocalDate gyldigTom, VergeType vergeType) {
 }
