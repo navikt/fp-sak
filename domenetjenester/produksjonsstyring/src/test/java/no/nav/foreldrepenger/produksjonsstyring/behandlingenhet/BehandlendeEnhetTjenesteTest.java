@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
@@ -42,6 +43,8 @@ class BehandlendeEnhetTjenesteTest {
     private FagsakEgenskapRepository egenskapRepository;
     @Mock
     private BehandlingEventPubliserer eventPubliserer;
+    @Mock
+    private VergeRepository vergeRepository;
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
 
@@ -110,7 +113,7 @@ class BehandlendeEnhetTjenesteTest {
         repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         behandlendeEnhetTjeneste = new BehandlendeEnhetTjeneste(enhetsTjeneste, eventPubliserer, repositoryProvider, egenskapRepository,
-            fagsakRelasjonTjeneste);
+            fagsakRelasjonTjeneste, vergeRepository);
         return behandling;
     }
 
@@ -125,7 +128,7 @@ class BehandlendeEnhetTjenesteTest {
         repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         behandlendeEnhetTjeneste = new BehandlendeEnhetTjeneste(enhetsTjeneste, eventPubliserer, repositoryProvider, egenskapRepository,
-            fagsakRelasjonTjeneste);
+            fagsakRelasjonTjeneste, vergeRepository);
         return behandling;
     }
 
@@ -141,7 +144,7 @@ class BehandlendeEnhetTjenesteTest {
         repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         behandlendeEnhetTjeneste = new BehandlendeEnhetTjeneste(enhetsTjeneste, eventPubliserer, repositoryProvider, egenskapRepository,
-            fagsakRelasjonTjeneste);
+            fagsakRelasjonTjeneste, vergeRepository);
         return behandling;
     }
 

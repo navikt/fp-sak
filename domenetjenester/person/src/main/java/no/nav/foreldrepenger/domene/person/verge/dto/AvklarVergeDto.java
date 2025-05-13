@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.person.verge.dto;
 
 import java.time.LocalDate;
 
-import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -21,7 +20,7 @@ public class AvklarVergeDto extends BekreftetAksjonspunktDto {
     @Size(max = 100)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String navn;
-    @Digits(integer = 11, fraction = 0)
+    @Pattern(regexp = "^\\d{11}$")
     private String fnr;
     private LocalDate gyldigFom;
     private LocalDate gyldigTom;
@@ -30,7 +29,7 @@ public class AvklarVergeDto extends BekreftetAksjonspunktDto {
     @ValidKodeverk
     private VergeType vergeType;
 
-    @Pattern(regexp = "[\\d]{9}")
+    @Pattern(regexp = "^\\d{9}$")
     private String organisasjonsnummer;
 
 
@@ -81,5 +80,11 @@ public class AvklarVergeDto extends BekreftetAksjonspunktDto {
     public String getOrganisasjonsnummer() {
         return organisasjonsnummer;
     }
+
+    @Override
+    public String toString() {
+        return "VergeDto{" + "vergeType=" + vergeType + ", gyldigFom=" + gyldigFom + ", gyldigTom=" + gyldigTom + '}';
+    }
+
 
 }
