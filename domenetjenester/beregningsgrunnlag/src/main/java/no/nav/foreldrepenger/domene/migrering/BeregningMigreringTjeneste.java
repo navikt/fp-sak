@@ -157,7 +157,7 @@ public class BeregningMigreringTjeneste {
             }
 
             var førsteUttaksdato = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId()).getFørsteUttaksdatoHvisFinnes();
-            if (førsteUttaksdato.map(this::kanPåvirkesAvÅretsGregulering).orElse(false)) {
+            if (false && førsteUttaksdato.map(this::kanPåvirkesAvÅretsGregulering).orElse(false)) {
                 migrerAlleInaktiveGrunnlag(ref);
             }
 
