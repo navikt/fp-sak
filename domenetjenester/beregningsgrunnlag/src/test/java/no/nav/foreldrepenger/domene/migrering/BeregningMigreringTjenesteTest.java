@@ -18,6 +18,7 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagRegelType;
 
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningAktivitetAggregatDto;
 
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 import org.jboss.weld.exceptions.IllegalStateException;
@@ -89,6 +90,7 @@ class BeregningMigreringTjenesteTest {
         when(koblingRepository.hentKobling(any())).thenReturn(Optional.empty());
         when(koblingRepository.opprettKobling(any())).thenReturn(new BeregningsgrunnlagKobling(ref.behandlingId(), ref.behandlingUuid()));
         when(klient.migrerGrunnlag(any())).thenReturn(new MigrerBeregningsgrunnlagResponse(lagGrunnlagDto(), null, List.of(), List.of(), List.of()));
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(LocalDate.of(2025,1,1)).build());
 
         // Act
         beregningMigreringTjeneste.migrerSak(saksnummer);
@@ -132,6 +134,7 @@ class BeregningMigreringTjenesteTest {
         when(koblingRepository.opprettKobling(any())).thenReturn(kobling);
         when(klient.migrerGrunnlag(any())).thenReturn(new MigrerBeregningsgrunnlagResponse(lagGrunnlagDto(), null, List.of(), List.of(new MigrerBeregningsgrunnlagResponse.RegelsporingGrunnlag(
             BeregningsgrunnlagRegelType.PERIODISERING, null, "input", null)), List.of()));
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(LocalDate.of(2025,1,1)).build());
 
         // Act
         beregningMigreringTjeneste.migrerSak(saksnummer);
@@ -156,6 +159,7 @@ class BeregningMigreringTjenesteTest {
         when(koblingRepository.opprettKobling(any())).thenReturn(kobling);
         when(klient.migrerGrunnlag(any())).thenReturn(new MigrerBeregningsgrunnlagResponse(lagGrunnlagDto(null), null, List.of(), List.of(new MigrerBeregningsgrunnlagResponse.RegelsporingGrunnlag(
             BeregningsgrunnlagRegelType.PERIODISERING, null, "input", null)), List.of()));
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(LocalDate.of(2025,1,1)).build());
 
         // Act
         beregningMigreringTjeneste.migrerSak(saksnummer);
