@@ -60,13 +60,13 @@ public class OppdragMapper {
         // - det er ikke en utbetaling til ny mottaker
         // - mottaker har gjeldende utbetalinger fra tidligere
         // - gjeldende oppdrag fører ikke til full opphør for mottaker
-//        var tidligerOppdragForMottaker = tidligereOppdrag.filter(oppdrag.getBetalingsmottaker());
-//        if (oppdrag.getBetalingsmottaker() == Betalingsmottaker.BRUKER
-//            && !oppdragErTilNyMottaker(oppdrag.getBetalingsmottaker())
-//            && harGjeldendeUtbetalingerFraTidligere(tidligerOppdragForMottaker)
-//            && !erOpphørForMottaker(tidligerOppdragForMottaker.utvidMed(oppdrag))) {
-//            builder.medOmpostering116(opprettOmpostering116(oppdrag, input.brukInntrekk()));
-//        }
+        var tidligerOppdragForMottaker = tidligereOppdrag.filter(oppdrag.getBetalingsmottaker());
+        if (oppdrag.getBetalingsmottaker() == Betalingsmottaker.BRUKER
+            && !oppdragErTilNyMottaker(oppdrag.getBetalingsmottaker())
+            && harGjeldendeUtbetalingerFraTidligere(tidligerOppdragForMottaker)
+            && !erOpphørForMottaker(tidligerOppdragForMottaker.utvidMed(oppdrag))) {
+            builder.medOmpostering116(opprettOmpostering116(oppdrag, input.brukInntrekk()));
+        }
 
         var oppdrag110 = builder.build();
 
