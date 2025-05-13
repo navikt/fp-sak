@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.person.verge.OpprettVergeTjeneste;
 import no.nav.foreldrepenger.domene.person.verge.VergeDtoTjeneste;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBackendDto;
@@ -32,6 +33,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 public class VergeTjeneste {
 
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private VergeRepository vergeRepository;
     private HistorikkinnslagRepository historikkinnslagRepository;
     private PersonopplysningTjeneste personopplysningTjeneste;
@@ -41,6 +43,7 @@ public class VergeTjeneste {
 
     @Inject
     public VergeTjeneste(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                         BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                          VergeRepository vergeRepository,
                          HistorikkinnslagRepository historikkinnslagRepository,
                          PersonopplysningTjeneste personopplysningTjeneste,
@@ -48,6 +51,7 @@ public class VergeTjeneste {
                          VergeDtoTjeneste vergeDtoTjeneste,
                          BehandlingEventPubliserer behandlingEventPubliserer) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.vergeRepository = vergeRepository;
         this.historikkinnslagRepository = historikkinnslagRepository;
         this.personopplysningTjeneste = personopplysningTjeneste;
@@ -90,8 +94,8 @@ public class VergeTjeneste {
         var vergeAggregat = vergeRepository.hentAggregat(behandlingId);
         var harRegistrertVerge = vergeAggregat.isPresent() && vergeAggregat.get().getVerge().isPresent();
         var harÅpentVergeAP = behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE);
-        var iForeslåVedtakllerSenereSteg = behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling, BehandlingStegType.FORESLÅ_VEDTAK);
-        var iFatteVedtakEllerSenereSteg = behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling, BehandlingStegType.FATTE_VEDTAK);
+        var iForeslåVedtakllerSenereSteg = !behandlingProsesseringTjeneste.erBehandlingFørSteg(behandling, BehandlingStegType.FORESLÅ_VEDTAK);
+        var iFatteVedtakEllerSenereSteg = !behandlingProsesseringTjeneste.erBehandlingFørSteg(behandling, BehandlingStegType.FATTE_VEDTAK);
         var under18År = erSøkerUnder18ar(behandlingId, behandling.getAktørId());
 
         if (harRegistrertVerge && under18År && iForeslåVedtakllerSenereSteg || SpesialBehandling.erSpesialBehandling(behandling)

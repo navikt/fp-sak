@@ -7,7 +7,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
-import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollEventPubliserer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKontrollRepository;
@@ -31,17 +30,13 @@ public class BehandlingskontrollServiceProvider {
     private AksjonspunktKontrollRepository aksjonspunktKontrollRepository;
     private BehandlingRepository behandlingRepository;
     private FagsakLåsRepository fagsakLåsRepository;
-    private BehandlingModellRepository behandlingModellRepository;
     private TekniskRepository tekniskRepository;
     private BehandlingskontrollEventPubliserer eventPubliserer;
 
     @Inject
-    public BehandlingskontrollServiceProvider(EntityManager entityManager, BehandlingModellRepository behandlingModellRepository,
-            BehandlingskontrollEventPubliserer eventPubliserer) {
+    public BehandlingskontrollServiceProvider(EntityManager entityManager, BehandlingskontrollEventPubliserer eventPubliserer) {
         Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
-
-        this.behandlingModellRepository = behandlingModellRepository;
 
         // behandling repositories
         this.behandlingRepository = new BehandlingRepository(entityManager);
@@ -56,14 +51,11 @@ public class BehandlingskontrollServiceProvider {
     public BehandlingskontrollServiceProvider(FagsakRepository fagsakRepository,
             BehandlingRepository behandlingRepository,
             FagsakLåsRepository fagsakLåsRepository,
-            BehandlingLåsRepository behandlingLåsRepository,
-            BehandlingModellRepository behandlingModellRepository,
-            AksjonspunktKontrollRepository aksjonspunktKontrollRepository) {
+            BehandlingLåsRepository behandlingLåsRepository, AksjonspunktKontrollRepository aksjonspunktKontrollRepository) {
         this.fagsakRepository = fagsakRepository;
         this.behandlingRepository = behandlingRepository;
         this.fagsakLåsRepository = fagsakLåsRepository;
         this.behandlingLåsRepository = behandlingLåsRepository;
-        this.behandlingModellRepository = behandlingModellRepository;
         this.aksjonspunktKontrollRepository = aksjonspunktKontrollRepository;
         this.eventPubliserer = BehandlingskontrollEventPubliserer.NULL_EVENT_PUB;
     }
@@ -78,10 +70,6 @@ public class BehandlingskontrollServiceProvider {
 
     public BehandlingskontrollEventPubliserer getEventPubliserer() {
         return eventPubliserer;
-    }
-
-    public BehandlingModellRepository getBehandlingModellRepository() {
-        return behandlingModellRepository;
     }
 
     public BehandlingRepository getBehandlingRepository() {

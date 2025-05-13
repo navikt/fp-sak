@@ -43,6 +43,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
@@ -60,6 +61,8 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
 
     @Mock
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    @Mock
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
     private BehandlingRepository behandlingRepository;
     private VergeRepository vergeRepository;
@@ -90,7 +93,7 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
         historikkRepository = new HistorikkinnslagRepository(entityManager);
 
         var opprettVergeTjeneste = new OpprettVergeTjeneste(personinfoAdapter, brukerTjeneste, vergeRepository, historikkRepository);
-        vergeTjeneste = new VergeTjeneste(behandlingskontrollTjeneste, vergeRepository, historikkRepository, personopplysningTjeneste,
+        vergeTjeneste = new VergeTjeneste(behandlingskontrollTjeneste, behandlingProsesseringTjeneste, vergeRepository, historikkRepository, personopplysningTjeneste,
             opprettVergeTjeneste, vergeDtoTjeneste, behandlingEventPubliserer);
 
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), RelasjonsRolleType.MORA,
@@ -111,7 +114,8 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
 
             var pa = opprettPersonopplysningAggregatForPersonUnder18(behandling.getAktørId());
             when(personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(any(), any())).thenReturn(Optional.of(pa));
-            when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling, BehandlingStegType.FORESLÅ_VEDTAK)).thenReturn(true);
+            when(behandlingProsesseringTjeneste.erBehandlingFørSteg(behandling, BehandlingStegType.FORESLÅ_VEDTAK)).thenReturn(false);
+            when(behandlingProsesseringTjeneste.erBehandlingFørSteg(behandling, BehandlingStegType.FATTE_VEDTAK)).thenReturn(true);
 
             // Act
             var behandlingOperasjon = vergeTjeneste.utledBehandlingOperasjon(behandling);
@@ -127,6 +131,8 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
 
             var pa = opprettPersonopplysningAggregatForPersonUnder18(behandling.getAktørId());
             when(personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(any(), any())).thenReturn(Optional.of(pa));
+            when(behandlingProsesseringTjeneste.erBehandlingFørSteg(behandling, BehandlingStegType.FORESLÅ_VEDTAK)).thenReturn(true);
+            when(behandlingProsesseringTjeneste.erBehandlingFørSteg(behandling, BehandlingStegType.FATTE_VEDTAK)).thenReturn(true);
 
             // Act
             var behandlingOperasjon = vergeTjeneste.utledBehandlingOperasjon(behandling);
@@ -140,6 +146,8 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
             // Arrange
             behandling.setStartpunkt(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
             behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
+            when(behandlingProsesseringTjeneste.erBehandlingFørSteg(behandling, BehandlingStegType.FORESLÅ_VEDTAK)).thenReturn(true);
+            when(behandlingProsesseringTjeneste.erBehandlingFørSteg(behandling, BehandlingStegType.FATTE_VEDTAK)).thenReturn(true);
 
             // Act
             var behandlingOperasjon = vergeTjeneste.utledBehandlingOperasjon(behandling);
@@ -154,6 +162,8 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
             behandling.setStartpunkt(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
             behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
             AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AVKLAR_VERGE);
+            when(behandlingProsesseringTjeneste.erBehandlingFørSteg(behandling, BehandlingStegType.FORESLÅ_VEDTAK)).thenReturn(true);
+            when(behandlingProsesseringTjeneste.erBehandlingFørSteg(behandling, BehandlingStegType.FATTE_VEDTAK)).thenReturn(true);
 
             // Act
             var behandlingOperasjon = vergeTjeneste.utledBehandlingOperasjon(behandling);
@@ -168,6 +178,8 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
             behandling.setStartpunkt(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
             behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
             vergeRepository.lagreOgFlush(behandling.getId(), opprettVergeBuilder());
+            when(behandlingProsesseringTjeneste.erBehandlingFørSteg(behandling, BehandlingStegType.FORESLÅ_VEDTAK)).thenReturn(true);
+            when(behandlingProsesseringTjeneste.erBehandlingFørSteg(behandling, BehandlingStegType.FATTE_VEDTAK)).thenReturn(true);
 
             // Act
             var behandlingOperasjon = vergeTjeneste.utledBehandlingOperasjon(behandling);

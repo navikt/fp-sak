@@ -18,7 +18,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -39,9 +38,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 class KompletthetskontrollerTest {
-
-    @Mock
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
 
     @Mock
     private DokumentmottakerFelles dokumentmottakerFelles;
@@ -65,7 +61,7 @@ class KompletthetskontrollerTest {
     public void oppsett() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenario.lagMocked();
-        kompletthetskontroller = new Kompletthetskontroller(dokumentmottakerFelles, mottatteDokumentTjeneste, behandlingskontrollTjeneste, behandlingProsesseringTjeneste, skjæringstidspunktTjeneste, kompletthetsjekker);
+        kompletthetskontroller = new Kompletthetskontroller(dokumentmottakerFelles, mottatteDokumentTjeneste, behandlingProsesseringTjeneste, skjæringstidspunktTjeneste, kompletthetsjekker);
         mottattDokument = DokumentmottakTestUtil.byggMottattDokument(DokumentTypeId.INNTEKTSMELDING, behandling.getFagsakId(), "", now(), true, null);
 
     }
@@ -95,7 +91,7 @@ class KompletthetskontrollerTest {
 
         when(kompletthetsjekker.vurderEtterlysningInntektsmelding(any(), any())).thenReturn(
             KompletthetResultat.ikkeOppfylt(ventefrist, Venteårsak.AVV_FODSEL));
-        lenient().when(behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.REGISTRER_SØKNAD)).thenReturn(true);
+        lenient().when(behandlingProsesseringTjeneste.erBehandlingEtterSteg(behandling, BehandlingStegType.REGISTRER_SØKNAD)).thenReturn(true);
 
         // Act
         kompletthetskontroller.persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
@@ -116,8 +112,8 @@ class KompletthetskontrollerTest {
     @Test
     void skal_gjenoppta_behandling_dersom_behandling_er_komplett_og_kompletthet_ikke_passert() {
         // Arrange
-        when(behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.INNHENT_REGISTEROPP)).thenReturn(false);
-        when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling, BehandlingStegType.VURDER_KOMPLETT_TIDLIG)).thenReturn(true);
+        when(behandlingProsesseringTjeneste.erBehandlingEtterSteg(behandling, BehandlingStegType.INNHENT_REGISTEROPP)).thenReturn(false);
+        when(behandlingProsesseringTjeneste.erBehandlingFørSteg(behandling, BehandlingStegType.VURDER_KOMPLETT_TIDLIG)).thenReturn(false);
 
         kompletthetskontroller.persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
 
@@ -127,7 +123,7 @@ class KompletthetskontrollerTest {
     @Test
     void skal_ikke_gjenoppta_behandling_dersom_behandling_er_komplett_og_regsok_ikke_passert() {
         // Arrange
-        when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling, BehandlingStegType.VURDER_KOMPLETT_TIDLIG)).thenReturn(false);
+        when(behandlingProsesseringTjeneste.erBehandlingFørSteg(behandling, BehandlingStegType.VURDER_KOMPLETT_TIDLIG)).thenReturn(true);
 
         kompletthetskontroller.persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
 
@@ -138,7 +134,7 @@ class KompletthetskontrollerTest {
     @Test
     void skal_gjenoppta_behandling_ved_mottak_av_ny_forretningshendelse() {
         // Arrange
-        when(behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.INNHENT_REGISTEROPP)).thenReturn(true);
+        when(behandlingProsesseringTjeneste.erBehandlingEtterSteg(behandling, BehandlingStegType.INNHENT_REGISTEROPP)).thenReturn(true);
 
         kompletthetskontroller.vurderNyForretningshendelse(behandling, BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
 
@@ -151,7 +147,7 @@ class KompletthetskontrollerTest {
         var scenario2 = ScenarioMorSøkerForeldrepenger.forFødsel()
             .leggTilAksjonspunkt(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD, BehandlingStegType.VURDER_KOMPLETT_TIDLIG);
         var behandling2 = scenario2.lagMocked();
-        when(behandlingskontrollTjeneste.erStegPassert(behandling2, BehandlingStegType.INNHENT_REGISTEROPP)).thenReturn(false);
+        when(behandlingProsesseringTjeneste.erBehandlingEtterSteg(behandling2, BehandlingStegType.INNHENT_REGISTEROPP)).thenReturn(false);
 
         kompletthetskontroller.vurderNyForretningshendelse(behandling2, BehandlingÅrsakType.RE_HENDELSE_DØD_FORELDER);
 
@@ -161,8 +157,8 @@ class KompletthetskontrollerTest {
     @Test
     void skal_spole_til_startpunkt_dersom_komplett_og_vurder_kompletthet_er_passert() {
         // Arrange
-        when(behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.INNHENT_REGISTEROPP)).thenReturn(true);
-        when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling, BehandlingStegType.VURDER_KOMPLETT_TIDLIG)).thenReturn(true);
+        when(behandlingProsesseringTjeneste.erBehandlingEtterSteg(behandling, BehandlingStegType.INNHENT_REGISTEROPP)).thenReturn(true);
+        when(behandlingProsesseringTjeneste.erBehandlingFørSteg(behandling, BehandlingStegType.VURDER_KOMPLETT_TIDLIG)).thenReturn(false);
 
         var endringsresultatSnapshot = EndringsresultatSnapshot.opprett();
         when(behandlingProsesseringTjeneste.taSnapshotAvBehandlingsgrunnlag(behandling)).thenReturn(endringsresultatSnapshot);

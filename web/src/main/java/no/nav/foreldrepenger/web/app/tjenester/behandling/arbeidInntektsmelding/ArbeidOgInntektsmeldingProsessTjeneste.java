@@ -68,13 +68,10 @@ public class ArbeidOgInntektsmeldingProsessTjeneste {
         } else if (behandling.isBehandlingPåVent()) {
             throw new IllegalStateException("FEIL: Prøver å tilbakestille en behandling som er på vent. Ugyldig aksjon.");
         }
-        if (!behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING)) {
+        if (!behandlingProsesseringTjeneste.erBehandlingEtterSteg(behandling, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING)) {
             throw new IllegalStateException("FEIL: Prøver å tilbakestille en behandling før den har kommet langt nok i behandlingsprosessen. Ugyldig aksjon.");
         }
-        if (!behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING)) {
-            throw new IllegalStateException("FEIL: Prøver å tilbakestille en behandling før den har kommet langt nok i behandlingsprosessen. Ugyldig aksjon.");
-        }
-        if (behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.FORESLÅ_VEDTAK)) {
+        if (behandlingProsesseringTjeneste.erBehandlingEtterSteg(behandling, BehandlingStegType.FORESLÅ_VEDTAK)) {
             throw new IllegalStateException("FEIL: Prøver å tilbakestille en behandling som har passert steg for å foreslå vedtak. Ugyldig aksjon.");
         }
         if (behandling.getStatus().equals(BehandlingStatus.FATTER_VEDTAK) || behandling.getStatus().equals(BehandlingStatus.IVERKSETTER_VEDTAK)) {

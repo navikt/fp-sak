@@ -30,7 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
-import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
@@ -55,9 +55,7 @@ class KlagevurderingOppdatererTest {
     @Mock
     private BehandlingsutredningTjeneste behandlingsutredningTjeneste;
     @Mock
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-    @Mock
-    private ProsesseringAsynkTjeneste prosesseringAsynkTjeneste;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
 
     @Test
@@ -114,7 +112,7 @@ class KlagevurderingOppdatererTest {
     private KlagevurderingOppdaterer getKlageVurderer(BehandlingRepositoryProvider repositoryProvider, KlageRepository klageRepository) {
         var behandlingRepository = repositoryProvider.getBehandlingRepository();
         var klageVurderingTjeneste = new KlageVurderingTjeneste(dokumentBestillerTjeneste, Mockito.mock(DokumentBehandlingTjeneste.class),
-            prosesseringAsynkTjeneste, behandlingRepository, klageRepository, behandlingskontrollTjeneste,
+            behandlingRepository, klageRepository, behandlingProsesseringTjeneste,
             repositoryProvider.getBehandlingsresultatRepository(), mock(BehandlingEventPubliserer.class));
         var klageHistorikk = new KlageHistorikkinnslag(repositoryProvider.getHistorikkinnslagRepository(),
             behandlingRepository, repositoryProvider.getBehandlingVedtakRepository(), mock(FptilbakeRestKlient.class));

@@ -32,8 +32,7 @@ class BehandlingModellTest {
         BehandlingTypeYtelseType tuple) {
         var behandlingType = tuple.behandlingType();
         var ytelseType = tuple.ytelseType();
-        var behandlingModellRepository = new BehandlingModellRepository();
-        var modell = behandlingModellRepository.getModell(behandlingType, ytelseType);
+        var modell = BehandlingModellRepository.getModell(behandlingType, ytelseType);
         for (var stegType : modell.hvertSteg().map(BehandlingStegModell::getBehandlingStegType).toList()) {
             var steg = modell.finnSteg(stegType);
             var description = String.format("Feilet for %s, %s, %s", ytelseType.getKode(), behandlingType.getKode(),

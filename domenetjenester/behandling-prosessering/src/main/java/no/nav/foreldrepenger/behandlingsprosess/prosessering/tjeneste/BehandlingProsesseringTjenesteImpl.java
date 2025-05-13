@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingModellTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -58,16 +59,19 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     private static final TaskType TASK_ABAKUS = TaskType.forProsessTask(InnhentIAYIAbakusTask.class);
 
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingModellTjeneste behandlingModellTjeneste;
     private RegisterdataEndringshåndterer registerdataEndringshåndterer;
     private EndringsresultatSjekker endringsresultatSjekker;
     private ProsessTaskTjeneste taskTjeneste;
 
     @Inject
     public BehandlingProsesseringTjenesteImpl(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-            RegisterdataEndringshåndterer registerdataEndringshåndterer,
-            EndringsresultatSjekker endringsresultatSjekker,
-            ProsessTaskTjeneste taskTjeneste) {
+                                              BehandlingModellTjeneste behandlingModellTjeneste,
+                                              RegisterdataEndringshåndterer registerdataEndringshåndterer,
+                                              EndringsresultatSjekker endringsresultatSjekker,
+                                              ProsessTaskTjeneste taskTjeneste) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.behandlingModellTjeneste = behandlingModellTjeneste;
         this.registerdataEndringshåndterer = registerdataEndringshåndterer;
         this.endringsresultatSjekker = endringsresultatSjekker;
         this.taskTjeneste = taskTjeneste;
@@ -88,8 +92,21 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     }
 
     @Override
-    public boolean erStegAktueltForBehandling(Behandling behandling, BehandlingStegType behandlingStegType) {
-        return behandlingskontrollTjeneste.inneholderSteg(behandling, behandlingStegType);
+    public boolean erStegAktueltForBehandling(Behandling behandling, BehandlingStegType stegType) {
+        return behandlingModellTjeneste.inneholderSteg(behandling.getFagsakYtelseType(), behandling.getType(), stegType);
+    }
+
+    @Override
+    public boolean erBehandlingFørSteg(Behandling behandling, BehandlingStegType stegType) {
+        return behandlingModellTjeneste.erStegAFørStegB(behandling.getFagsakYtelseType(), behandling.getType(),
+            behandling.getAktivtBehandlingSteg(), stegType);
+    }
+
+
+    @Override
+    public boolean erBehandlingEtterSteg(Behandling behandling, BehandlingStegType stegType) {
+        return behandlingModellTjeneste.erStegAEtterStegB(behandling.getFagsakYtelseType(), behandling.getType(),
+            behandling.getAktivtBehandlingSteg(), stegType);
     }
 
     // AV/PÅ Vent
@@ -117,9 +134,9 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
 
     @Override
     public void reposisjonerBehandlingTilbakeTil(Behandling behandling, BehandlingStegType stegType) {
-        if (behandlingskontrollTjeneste.inneholderSteg(behandling, stegType)) {
+        if (erStegAktueltForBehandling(behandling, stegType) && !erBehandlingFørSteg(behandling, stegType)) {
             var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-            behandlingskontrollTjeneste.behandlingTilbakeføringHvisTidligereBehandlingSteg(kontekst, stegType);
+            behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, stegType);
         }
     }
 
@@ -160,10 +177,10 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     }
 
     @Override
-    public String opprettTasksForFortsettBehandlingResumeStegNesteKjøring(Behandling behandling, BehandlingStegType behandlingStegType,
+    public String opprettTasksForFortsettBehandlingResumeStegNesteKjøring(Behandling behandling, BehandlingStegType stegType,
                                                                           LocalDateTime nesteKjøringEtter) {
         var taskData = lagTaskData(TASK_FORTSETT, behandling, nesteKjøringEtter, 2);
-        taskData.setProperty(FortsettBehandlingTask.GJENOPPTA_STEG, behandlingStegType.getKode());
+        taskData.setProperty(FortsettBehandlingTask.GJENOPPTA_STEG, stegType.getKode());
         return lagreEnkeltTask(taskData);
     }
 
