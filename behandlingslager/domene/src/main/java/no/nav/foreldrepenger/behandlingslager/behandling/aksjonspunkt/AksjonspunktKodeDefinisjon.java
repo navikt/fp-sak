@@ -33,7 +33,6 @@ public class AksjonspunktKodeDefinisjon {
     public static final String AVKLAR_VILKÅR_FOR_FORELDREANSVAR_KODE = "5054";
     public static final String AVKLAR_VERGE_KODE = "5030";
     public static final String AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE_KODE = "5031";
-    public static final String AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE_KODE = "5032";
 
     public static final String FATTER_VEDTAK_KODE = "5016";
 
@@ -149,14 +148,14 @@ public class AksjonspunktKodeDefinisjon {
     public static final boolean TILBAKE = true;
     public static final boolean FORBLI = false;
 
-    // Ledige aksjonspunktkoder 5001-5100
+    // Ledige aksjonspunktkoder 5001-5102
     // 5018, 5100
 
-    // Utgåtte aksjonspunktkode. Helst ikke gjenbruk 5nnn til andre formål enn det opprinnelige før det har gått noe tid
+    // Utgåtte aksjonspunktkoder. Helst ikke gjenbruk 5nnn til andre formål enn det opprinnelige før det har gått noe tid
     //  "5009"
     //  "5019"
     //  "5020"  "5021"  "5022"  "5023"  "5024"  "5025"
-    //  "5036"
+    //  "5032"  "5036"
     //  "5042"  "5044"  "5045"  "5048"
     //  "5050"  "5053"  "5056"
     //  "5067"

@@ -159,7 +159,6 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
         // Arrange
         List<AksjonspunktDefinisjon> aksjonspunktDefinisjons = new ArrayList<>();
         aksjonspunktDefinisjons.add(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
-        aksjonspunktDefinisjons.add(AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE);
         var ttvGodkjent = false;
         var apAvbrutt = false;
 
@@ -256,7 +255,6 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
         // Arrange
         List<AksjonspunktDefinisjon> aksjonspunktDefinisjons = new ArrayList<>();
         aksjonspunktDefinisjons.add(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
-        aksjonspunktDefinisjons.add(AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE);
         var ttvGodkjent = false;
         var apAvbrutt = false;
 
@@ -411,7 +409,6 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
 
         // Arrange
         var aksjonspunktDefinisjon1 = AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE;
-        var aksjonspunktDefinisjon2 = AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE;
         var ttv1Godkjent = false;
         var ttv2Godkjent = true;
 
@@ -431,14 +428,9 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
             var ttv1 = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon1, ttv1Godkjent);
             var totrinnskontrollAksjonspunkterDto1 = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon1), Optional.of(ttv1));
 
-            var ttv2 = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon2, ttv2Godkjent);
-            var totrinnskontrollAksjonspunkterDto2 = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon2), Optional.of(ttv2));
-
-            when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId())).thenReturn(List.of(ttv1, ttv2));
+            when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId())).thenReturn(List.of(ttv1));
             when(totrinnsaksjonspunktDtoTjeneste.lagTotrinnskontrollAksjonspunktDto(eq(ttv1), eq(behandling)))
                 .thenReturn(totrinnskontrollAksjonspunkterDto1);
-            when(totrinnsaksjonspunktDtoTjeneste.lagTotrinnskontrollAksjonspunktDto(eq(ttv2), eq(behandling)))
-                .thenReturn(totrinnskontrollAksjonspunkterDto2);
 
             // Act
             var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsvurderingSkjermlenkeContext(behandling, behandlingsresultat);
@@ -446,19 +438,15 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
             // Arrange
             assertThat(context).hasSize(1);
 
-            var totrinnskontrollSkjermlenkeContextDto = context.get(0);
+            var totrinnskontrollSkjermlenkeContextDto = context.getFirst();
             assertThat(totrinnskontrollSkjermlenkeContextDto.getSkjermlenkeType()).isEqualTo(vilkårTypeSkjermlenkeTypeMap.get(vilkårType).getKode());
 
             var totrinnskontrollAksjonspunkter = totrinnskontrollSkjermlenkeContextDto.getTotrinnskontrollAksjonspunkter();
-            assertThat(totrinnskontrollAksjonspunkter).hasSize(2);
+            assertThat(totrinnskontrollAksjonspunkter).hasSize(1);
 
-            var førsteTotrinnskontrollAksjonspunkt = totrinnskontrollAksjonspunkter.get(0);
+            var førsteTotrinnskontrollAksjonspunkt = totrinnskontrollAksjonspunkter.getFirst();
             assertThat(førsteTotrinnskontrollAksjonspunkt.getAksjonspunktKode()).isEqualTo(aksjonspunktDefinisjon1.getKode());
             assertThat(førsteTotrinnskontrollAksjonspunkt.getTotrinnskontrollGodkjent()).isFalse();
-
-            var andreTotrinnskontrollAksjonspunkt = totrinnskontrollAksjonspunkter.get(1);
-            assertThat(andreTotrinnskontrollAksjonspunkt.getAksjonspunktKode()).isEqualTo(aksjonspunktDefinisjon2.getKode());
-            assertThat(andreTotrinnskontrollAksjonspunkt.getTotrinnskontrollGodkjent()).isTrue();
 
         });
 

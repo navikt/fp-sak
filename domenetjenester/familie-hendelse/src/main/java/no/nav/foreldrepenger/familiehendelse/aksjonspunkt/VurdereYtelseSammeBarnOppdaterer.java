@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.VurdereYtelseSammeBarnSøkerAksjonspunktDto;
 import no.nav.vedtak.exception.FunksjonellException;
 
@@ -89,19 +88,6 @@ public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOp
 
         @Inject
         public VurdereYtelseSammeBarnSøkerOppdaterer(HistorikkSammeBarnTjeneste historikkSammeBarnTjeneste, BehandlingsresultatRepository behandlingsresultatRepository) {
-            super(historikkSammeBarnTjeneste, behandlingsresultatRepository);
-        }
-    }
-
-    @ApplicationScoped
-    @DtoTilServiceAdapter(dto = VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
-    public static class VurdereYtelseSammeBarnAnnenForelderOppdaterer extends VurdereYtelseSammeBarnOppdaterer {
-        public VurdereYtelseSammeBarnAnnenForelderOppdaterer() {
-            // for CDI proxy
-        }
-
-        @Inject
-        public VurdereYtelseSammeBarnAnnenForelderOppdaterer(HistorikkSammeBarnTjeneste historikkSammeBarnTjeneste, BehandlingsresultatRepository behandlingsresultatRepository) {
             super(historikkSammeBarnTjeneste, behandlingsresultatRepository);
         }
     }
