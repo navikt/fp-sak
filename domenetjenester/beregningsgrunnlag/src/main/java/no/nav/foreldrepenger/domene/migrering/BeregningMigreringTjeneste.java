@@ -156,8 +156,8 @@ public class BeregningMigreringTjeneste {
                 oppdaterKoblingMedStpGrunnbeløpOgReguleringsbehov(kobling, response.grunnlag().getBeregningsgrunnlag());
             }
 
-            var førsteUttaksdato = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId()).getFørsteUttaksdato();
-            if (kanPåvirkesAvÅretsGregulering(førsteUttaksdato)) {
+            var førsteUttaksdato = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId()).getFørsteUttaksdatoHvisFinnes();
+            if (førsteUttaksdato.map(this::kanPåvirkesAvÅretsGregulering).orElse(false)) {
                 migrerAlleInaktiveGrunnlag(ref);
             }
 
