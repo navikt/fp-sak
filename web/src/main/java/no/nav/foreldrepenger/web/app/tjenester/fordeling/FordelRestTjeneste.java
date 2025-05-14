@@ -453,13 +453,11 @@ public class FordelRestTjeneste {
     }
 
     private RelasjonsRolleType mapBrukerRolle(BrukerRolleDto rolle) {
-        if (rolle == null) {
-            return RelasjonsRolleType.UDEFINERT;
-        }
         return switch (rolle) {
             case MOR -> RelasjonsRolleType.MORA;
             case FAR -> RelasjonsRolleType.FARA;
             case MEDMOR -> RelasjonsRolleType.MEDMOR;
+            case null -> RelasjonsRolleType.UDEFINERT;
         };
     }
 
