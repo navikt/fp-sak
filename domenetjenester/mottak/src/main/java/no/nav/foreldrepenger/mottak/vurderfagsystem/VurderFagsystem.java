@@ -8,6 +8,7 @@ import java.util.Optional;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -40,6 +41,7 @@ public class VurderFagsystem {
     private String virksomhetsnummer;
     private AktørId arbeidsgiverAktørId;
     private String arbeidsforholdsid;
+    private RelasjonsRolleType brukerRolle;
 
 
     public Optional<JournalpostId> getJournalpostId() {
@@ -192,6 +194,14 @@ public class VurderFagsystem {
 
     public void setStartDatoForeldrepengerInntektsmelding(LocalDate startDatoForeldrepengerInntektsmelding) {
         this.startDatoForeldrepengerInntektsmelding = startDatoForeldrepengerInntektsmelding;
+    }
+
+    public RelasjonsRolleType getBrukerRolle() {
+        return brukerRolle;
+    }
+
+    public void setBrukerRolle(RelasjonsRolleType brukerRolle) {
+        this.brukerRolle = brukerRolle;
     }
 }
 
