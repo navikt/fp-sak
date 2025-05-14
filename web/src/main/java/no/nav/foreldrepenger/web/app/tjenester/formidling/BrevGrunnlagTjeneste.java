@@ -255,8 +255,8 @@ public class BrevGrunnlagTjeneste {
     private void settVergeInfoForBrev(Behandling behandling, BrevGrunnlagResponseDto dto) {
         var verge = vergeTjeneste.hentVergeForBackend(behandling);
         if (verge != null) {
-            var vergeV2Dto = new VergeDto(verge.getAktoerId(), verge.getNavn(), verge.getOrganisasjonsnummer(), verge.getGyldigFom(),
-                verge.getGyldigTom());
+            var vergeV2Dto = new VergeDto(verge.aktoerId(), verge.navn(), verge.organisasjonsnummer(), verge.gyldigFom(),
+                verge.gyldigTom());
             dto.setVerge(vergeV2Dto);
         }
     }
