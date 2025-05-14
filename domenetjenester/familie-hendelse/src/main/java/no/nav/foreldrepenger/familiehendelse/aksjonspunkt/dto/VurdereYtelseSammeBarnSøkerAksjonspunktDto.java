@@ -22,7 +22,7 @@ public class VurdereYtelseSammeBarnSøkerAksjonspunktDto extends BekreftetAksjon
     @Pattern(regexp = InputValideringRegex.KODEVERK)
     private String avslagskode;
 
-    VurdereYtelseSammeBarnSøkerAksjonspunktDto() {
+    public VurdereYtelseSammeBarnSøkerAksjonspunktDto() {
         // for jackson
     }
 

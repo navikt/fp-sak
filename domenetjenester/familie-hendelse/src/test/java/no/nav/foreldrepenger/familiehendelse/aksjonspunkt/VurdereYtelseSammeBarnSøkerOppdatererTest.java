@@ -18,9 +18,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Personopplysning;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.VurdereYtelseSammeBarnSøkerAksjonspunktDto;
 
-class VurdereYtelseSammeBarnAnnenForelderOppdatererTest {
+class VurdereYtelseSammeBarnSøkerOppdatererTest {
 
     private final VilkårResultat.Builder vilkårBuilder = VilkårResultat.builder();
 
@@ -30,7 +30,7 @@ class VurdereYtelseSammeBarnAnnenForelderOppdatererTest {
         var scenario = scenario();
         var behandling = scenario.lagMocked();
 
-        var dto = new VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto();
+        var dto = new VurdereYtelseSammeBarnSøkerAksjonspunktDto();
         dto.setErVilkarOk(true);
 
         utførAksjonspunktOppdaterer(behandling, dto, scenario.mockBehandlingRepositoryProvider());
@@ -46,7 +46,7 @@ class VurdereYtelseSammeBarnAnnenForelderOppdatererTest {
         var scenario = scenario();
         var behandling = scenario.lagMocked();
 
-        var dto = new VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto();
+        var dto = new VurdereYtelseSammeBarnSøkerAksjonspunktDto();
         dto.setErVilkarOk(false);
         dto.setAvslagskode("1006");
 
@@ -72,17 +72,17 @@ class VurdereYtelseSammeBarnAnnenForelderOppdatererTest {
             .build();
 
         scenario.medRegisterOpplysninger(forelder);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE, BehandlingStegType.KONTROLLER_FAKTA);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE, BehandlingStegType.KONTROLLER_FAKTA);
         scenario.leggTilVilkår(VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD, VilkårUtfallType.IKKE_VURDERT);
         return scenario;
     }
 
     private void utførAksjonspunktOppdaterer(Behandling behandling,
-                                             VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto dto,
+                                             VurdereYtelseSammeBarnSøkerAksjonspunktDto dto,
                                              BehandlingRepositoryProvider repositoryProvider) {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
-        var resultat = new VurdereYtelseSammeBarnOppdaterer.VurdereYtelseSammeBarnAnnenForelderOppdaterer(
+        var resultat = new VurdereYtelseSammeBarnOppdaterer.VurdereYtelseSammeBarnSøkerOppdaterer(
             new HistorikkSammeBarnTjeneste(repositoryProvider.getHistorikkinnslagRepository()), repositoryProvider.getBehandlingsresultatRepository())
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
         byggVilkårResultat(vilkårBuilder, resultat);
