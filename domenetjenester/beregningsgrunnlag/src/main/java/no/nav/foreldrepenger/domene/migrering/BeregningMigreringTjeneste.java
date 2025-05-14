@@ -164,7 +164,7 @@ public class BeregningMigreringTjeneste {
                 førsteUttaksdato = Optional.of(LocalDate.MIN);
             }
             // Må ha false toggle her til fpkalkulus er prodsatt
-            if (false && førsteUttaksdato.filter(this::kanPåvirkesAvÅretsGregulering).isPresent()) {
+            if (førsteUttaksdato.filter(this::kanPåvirkesAvÅretsGregulering).isPresent()) {
                 migrerAlleInaktiveGrunnlag(ref);
             }
 
@@ -182,8 +182,10 @@ public class BeregningMigreringTjeneste {
         Arrays.stream(BeregningsgrunnlagTilstand.values()).forEach(tilstand -> {
             var entitet = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(ref.behandlingId(),
                 tilstand);
-            var grunnlag = entitet.map(gr -> BeregningMigreringMapper.map(gr, Collections.emptyMap(), Collections.emptySet())); // Sporinger og avklaringsbehov settes kun utifra aktivt grunnlag
+            var grunnlag = entitet.filter(e -> !e.erAktivt()) // Trenger ikke migrere aktivt grunnlag igjen
+                .map(gr -> BeregningMigreringMapper.map(gr, Collections.emptyMap(), Collections.emptySet())); // Sporinger og avklaringsbehov settes kun utifra aktivt grunnlag
             grunnlag.ifPresent(gr -> {
+                LOG.info("Migrerer inaktivt grunnlag med tilstand {} for behandling {}", tilstand, ref.behandlingUuid());
                 var request = lagMigreringRequest(ref, kobling, Optional.empty(), gr, false);
                 var response = klient.migrerGrunnlag(request);
                 var fpsakGrunnlag = FraEntitetTilBehandlingsmodellMapper.mapBeregningsgrunnlagGrunnlag(entitet.orElseThrow());
