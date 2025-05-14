@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
@@ -36,7 +35,7 @@ class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityManagerAwar
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         var fhTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
         var ytelsetjeneste = new YtelserSammeBarnTjeneste(repositoryProvider, fhTjeneste);
-        utleder = new AksjonspunktUtlederForTidligereMottattYtelse(ytelsetjeneste, repositoryProvider.getPersonopplysningRepository());
+        utleder = new AksjonspunktUtlederForTidligereMottattYtelse(ytelsetjeneste);
     }
 
     @Test
@@ -137,26 +136,6 @@ class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityManagerAwar
 
         // Assert
         assertThat(aksjonspunktResultater).isEmpty();
-    }
-
-
-    @Test
-    void skal_opprette_aksjonspunkt_om_soker_annenpart_har_mottatt_fp_før() {
-        // Arrange
-        var aktørId = AktørId.dummy();
-        var annenAktørId = AktørId.dummy();
-        var scenarioFar = ScenarioFarSøkerForeldrepenger.forFødsel();
-        byggBehandlingFødsel(scenarioFar, annenAktørId, aktørId, FØDSELSDATO);
-        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        var behandling = byggBehandlingFødsel(scenario, aktørId, annenAktørId, FØDSELSDATO);
-
-        // Act
-        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
-
-        // Assert
-        assertThat(aksjonspunktResultater).hasSize(1);
-        assertThat(aksjonspunktResultater.getFirst().aksjonspunktDefinisjon())
-                .isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE);
     }
 
     private Behandling byggBehandlingFødsel(AbstractTestScenario<?> scenario, AktørId aktørId, AktørId annenAktørId, LocalDate fødselsdato) {
