@@ -106,10 +106,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE(
             AksjonspunktKodeDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE_KODE, AksjonspunktType.MANUELL, "Vurdere om søkers ytelse gjelder samme barn",
             BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, TOTRINN, EnumSet.of(ES, FP)),
-    AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE(
-            AksjonspunktKodeDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE_KODE, AksjonspunktType.MANUELL,
-            "Vurdere om annen forelder sin ytelse gjelder samme barn", BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE,
-            TOTRINN, EnumSet.of(ES, FP)),
     VURDERE_ANNEN_YTELSE_FØR_VEDTAK(
             AksjonspunktKodeDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK_KODE, AksjonspunktType.MANUELL, "Vurdere annen ytelse før vedtak",
             BehandlingStegType.FORESLÅ_VEDTAK, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP, SVP)),
@@ -380,6 +376,8 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     @Deprecated
     UTGÅTT_5025("5025", AksjonspunktType.MANUELL, "Varsel om revurdering ved automatisk etterkontroll"),
     @Deprecated
+    UTGÅTT_5032("5032", AksjonspunktType.MANUELL, "Vurdere om annen forelder sin ytelse gjelder samme barn"),
+    @Deprecated
     UTGÅTT_5036("5036", AksjonspunktType.MANUELL, "Manuell vurdering av klage (NK)"),
     @Deprecated // Håndteres nå sammen med 5039
     UTGÅTT_5042("5042", AksjonspunktType.MANUELL, "Fastsett beregningsgrunnlag for selvstendig næringsdrivende"),
@@ -497,7 +495,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     }
 
     private static final Set<AksjonspunktDefinisjon> DYNAMISK_SKJERMLENKE = Set.of(AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE,
-        AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE, AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE);
+        AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
 
     private static final Set<AksjonspunktDefinisjon> FORESLÅ_VEDTAK_AP = Set.of(AksjonspunktDefinisjon.FORESLÅ_VEDTAK,
         AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
