@@ -48,7 +48,6 @@ public class OpptjeningOversetter {
     private final VirksomhetTjeneste virksomhetTjeneste;
     private final InntektArbeidYtelseTjeneste iayTjeneste;
 
-    @Inject
     public OpptjeningOversetter(VirksomhetTjeneste virksomhetTjeneste,
                                 InntektArbeidYtelseTjeneste iayTjeneste) {
         this.iayTjeneste = iayTjeneste;
