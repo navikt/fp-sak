@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -15,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonRelasjonEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
@@ -145,10 +147,13 @@ public class FødselsvilkårOversetter {
         var søkersAktørId = søkerPersonopplysning.getAktørId();
 
         if (!alleBarnPåFødselsdato.isEmpty()) {
+            // i fall det skulle være flere barn, men andre roller.
+            var barnAktørId = alleBarnPåFødselsdato.stream().map(PersonopplysningEntitet::getAktørId).collect(Collectors.toSet());
             // Forutsetter at barn som er født er tvillinger, og sjekker derfor bare første barn.
             var personRelasjon = personopplysninger.getRelasjoner()
                 .stream()
                 .filter(relasjon -> relasjon.getTilAktørId().equals(søkersAktørId))
+                .filter(relasjon -> barnAktørId.contains(relasjon.getAktørId()))
                 .filter(familierelasjon -> RelasjonsRolleType.erRegistrertForeldre(familierelasjon.getRelasjonsrolle()))
                 .findFirst();
 
