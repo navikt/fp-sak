@@ -66,12 +66,11 @@ public class AksjonspunktDtoMapper {
         return dto;
     }
 
-    // AKsjonspunkt 5031 og 5032 er ikke knyttet til et bestemt vilkår da de skal ha 5 forskjellige.
+    // AKsjonspunkt 5031 er ikke knyttet til et bestemt vilkår da de skal ha 5 forskjellige.
     //TODO(OJR) modellen burde utvides til å støtte dette...
     private static VilkårType finnVilkårType(Aksjonspunkt aksjonspunkt, Behandlingsresultat behandlingsresultat) {
         var aksjonspunktDefinisjon = aksjonspunkt.getAksjonspunktDefinisjon();
-        if (AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE.equals(aksjonspunktDefinisjon) ||
-                AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE.equals(aksjonspunktDefinisjon)) {
+        if (AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE.equals(aksjonspunktDefinisjon)) {
             return Optional.ofNullable(behandlingsresultat)
                 .map(Behandlingsresultat::getVilkårResultat)
                 .flatMap(VilkårResultat::getVilkårForRelasjonTilBarn).orElse(null);
