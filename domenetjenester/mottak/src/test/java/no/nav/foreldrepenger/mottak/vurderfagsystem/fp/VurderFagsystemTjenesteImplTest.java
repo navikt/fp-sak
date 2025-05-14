@@ -357,17 +357,11 @@ class VurderFagsystemTjenesteImplTest {
         var fagsakMM = BehandlingslagerTestUtil.buildFagsak(222L, false, FagsakYtelseType.FORELDREPENGER, RelasjonsRolleType.MEDMOR);
         when(fagsakRepositoryMock.hentForBruker(BRUKER_AKTØR_ID)).thenReturn(List.of(fagsakM, fagsakMM));
 
-        var behandlingM = Behandling.forFørstegangssøknad(fagsakM).build();
-        lenient().when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(111L)).thenReturn(Optional.of(behandlingM));
-
-        var familieHendelseM = BehandlingslagerTestUtil.byggFødselGrunnlag(LocalDate.now().plusWeeks(2), null);
-        lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(behandlingM.getId())).thenReturn(Optional.of(familieHendelseM));
-
         var behandlingMM = Behandling.forFørstegangssøknad(fagsakMM).build();
-        lenient().when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(222L)).thenReturn(Optional.of(behandlingMM));
+        when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(222L)).thenReturn(Optional.of(behandlingMM));
 
         var familieHendelseMM = BehandlingslagerTestUtil.byggFødselGrunnlag(LocalDate.now().minusWeeks(2), LocalDate.now().minusWeeks(2));
-        lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(behandlingMM.getId())).thenReturn(Optional.of(familieHendelseMM));
+        when(grunnlagRepository.hentAggregatHvisEksisterer(behandlingMM.getId())).thenReturn(Optional.of(familieHendelseMM));
 
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteFP));
         var result = vurderFagsystemTjeneste.vurderFagsystem(vurderFagsystem);
