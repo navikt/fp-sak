@@ -164,7 +164,7 @@ public class BeregningMigreringTjeneste {
                 førsteUttaksdato = Optional.of(LocalDate.MIN);
             }
             // Må ha false toggle her til fpkalkulus er prodsatt
-            if (false && førsteUttaksdato.map(this::kanPåvirkesAvÅretsGregulering).orElse(false)) {
+            if (false && førsteUttaksdato.filter(this::kanPåvirkesAvÅretsGregulering).isPresent()) {
                 migrerAlleInaktiveGrunnlag(ref);
             }
 
