@@ -3,6 +3,8 @@ package no.nav.foreldrepenger.domene.migrering;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +16,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
 @ProsessTask(value = "beregningsgrunnlag.migrer.enkeltsak", prioritet = 4)
+@FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class MigrerBeregningSakTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(MigrerBeregningSakTask.class);
 
