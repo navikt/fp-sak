@@ -392,6 +392,9 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
         if (!aksjonspunkt.erAutopunkt()) {
             throw new IllegalArgumentException("Utviklerfeil: aksjonspunkt er ikke autopunkt " + aksjonspunkt.getAksjonspunktDefinisjon());
         }
+        if (aksjonspunkt.getAksjonspunktDefinisjon().tilbakehoppVedGjenopptakelse()) {
+            throw new IllegalArgumentException("Utviklerfeil: autopunkt med tilbakehopp må tas av vent " + aksjonspunkt.getAksjonspunktDefinisjon());
+        }
         lagreAutopunkterUtført(kontekst, behandling, List.of(aksjonspunkt));
     }
 
@@ -400,6 +403,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
         if (!aksjonspunkt.erAutopunkt()) {
             throw new IllegalArgumentException("Utviklerfeil: aksjonspunkt er ikke autopunkt " + aksjonspunkt.getAksjonspunktDefinisjon());
         }
+        // Her skal vi ikke sjekke på tilbakehopp, men aller helst finn en annen tilnærming for det ene klage-retur-tilfellet.
         lagreAutopunkterAvbrutt(kontekst, behandling, List.of(aksjonspunkt));
     }
 
