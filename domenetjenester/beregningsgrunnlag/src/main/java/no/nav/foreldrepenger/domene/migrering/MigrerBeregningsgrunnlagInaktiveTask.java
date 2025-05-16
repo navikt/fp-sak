@@ -57,23 +57,31 @@ class MigrerBeregningsgrunnlagInaktiveTask implements ProsessTaskHandler {
         saker.stream()
             .map(Fagsak::getId)
             .max(Long::compareTo)
-            .ifPresent(nesteId -> prosessTaskTjeneste.lagre(opprettNesteTask(nesteId+1, dryRun, tilOgMedId)));
+            .ifPresent(nesteId -> prosessTaskTjeneste.lagre(opprettNesteTask(nesteId + 1, dryRun, tilOgMedId)));
     }
 
     private Stream<Fagsak> finnNesteSaker(Long fraOgMedId, Long tilOgMedId) {
-        var sql ="""
-            select * from fagsak where id in (select distinct fag.id from FAGSAK fag
-            inner join behandling beh on beh.fagsak_id = fag.id
-            inner join gr_beregningsgrunnlag gr on gr.behandling_id = beh.id
-            inner join beregningsgrunnlag bg on bg.id = gr.beregningsgrunnlag_id
-            where fag.ID >= :fraOgMedId and fag.ID <= :tilOgMedId and bg.skjaringstidspunkt > to_date('2025-04-16', 'yyyy-mm-dd'))
-            and ROWNUM <= 10
-            order by fagsak.id
-            """;
+        var sql = """
+              select * from (
+                select *
+                from fagsak
+                where id in (
+                    select distinct fag.id
+                    from FAGSAK fag
+                             inner join behandling beh on beh.fagsak_id = fag.id
+                             inner join gr_beregningsgrunnlag gr on gr.behandling_id = beh.id
+                             inner join beregningsgrunnlag bg on bg.id = gr.beregningsgrunnlag_id
+                    where fag.ID >= :fraOgMedId
+                      and fag.ID <= :tilOgMedId
+                      AND gr.aktiv = 'J'
+                      and bg.skjaringstidspunkt > to_date('2025-04-16', 'yyyy-mm-dd')
+                )
+                order by id
+            )
+              where ROWNUM <= 10
+              """;
 
-        var query = entityManager.createNativeQuery(sql, Fagsak.class)
-            .setParameter("fraOgMedId", fraOgMedId)
-            .setParameter("tilOgMedId", tilOgMedId);
+        var query = entityManager.createNativeQuery(sql, Fagsak.class).setParameter("fraOgMedId", fraOgMedId).setParameter("tilOgMedId", tilOgMedId);
         return query.getResultStream();
     }
 
