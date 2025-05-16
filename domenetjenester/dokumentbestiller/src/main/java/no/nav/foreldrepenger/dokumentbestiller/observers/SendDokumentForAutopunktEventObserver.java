@@ -7,7 +7,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
+import no.nav.foreldrepenger.behandlingskontroll.events.AutopunktStatusEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -33,7 +33,7 @@ public class SendDokumentForAutopunktEventObserver {
         this.sendBrevForAutopunkt = sendBrevForAutopunkt;
     }
 
-    public void sendBrevForAutopunkt(@Observes AksjonspunktStatusEvent event) {
+    public void sendBrevForAutopunkt(@Observes AutopunktStatusEvent event) {
         var aksjonspunkter = event.getAksjonspunkter();
         var behandling = behandlingRepository.hentBehandling(event.getBehandlingId());
         finnAksjonspunkerMedDef(aksjonspunkter, AksjonspunktDefinisjon.VENT_PÅ_SØKNAD)

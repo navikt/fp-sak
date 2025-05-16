@@ -277,7 +277,7 @@ class EndringskontrollerTest {
 
         // Assert
         assertThat(behandling.getAktivtBehandlingSteg()).isEqualTo(BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
-        verify(behandlingskontrollTjenesteMock).lagreAksjonspunkterAvbrutt(any(), any(), any());
+        verify(behandlingskontrollTjenesteMock).lagreAksjonspunkterAvbrutt(any(), any());
         assertThat(behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE)).hasValueSatisfying(Aksjonspunkt::erAvbrutt);
     }
 
@@ -323,7 +323,7 @@ class EndringskontrollerTest {
 
         // Assert
         assertThat(behandling.getAktivtBehandlingSteg()).isEqualTo(BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
-        verify(behandlingskontrollTjenesteMock, times(0)).lagreAksjonspunkterAvbrutt(any(), any(), any());
+        verify(behandlingskontrollTjenesteMock, times(0)).lagreAksjonspunkterAvbrutt(any(), any());
         assertThat(behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE)).hasValueSatisfying(Aksjonspunkt::erOpprettet);
     }
 

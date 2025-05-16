@@ -14,6 +14,8 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.List;
 
+import no.nav.foreldrepenger.behandlingskontroll.events.AutopunktStatusEvent;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -70,7 +72,7 @@ class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
     @Test
     void skalMåleTidForFørsteAksjonspunktUtførtFødsel() {
 
-        var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(autopunkt), null);
+        var event = new AutopunktStatusEvent(behandlingskontrollKontekst, List.of(autopunkt));
 
         observer.oppretteHistorikkForBehandlingPåVent(event);
 
@@ -80,7 +82,7 @@ class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
     @Test
     void skalIkkeOppretteHistorikkForManuellPunkt() {
 
-        var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(manuellpunkt), null);
+        var event = new AutopunktStatusEvent(behandlingskontrollKontekst, List.of(manuellpunkt));
 
         observer.oppretteHistorikkForBehandlingPåVent(event);
 
@@ -94,7 +96,7 @@ class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
         when(behandlingRepository.hentBehandlingReadOnly(anyLong())).thenReturn(behandling);
         when(autopunkt.erUtført()).thenReturn(true);
 
-        var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(autopunkt), null);
+        var event = new AutopunktStatusEvent(behandlingskontrollKontekst, List.of(autopunkt));
 
         observer.oppretteHistorikkForGjenopptattBehandling(event);
 
@@ -104,7 +106,7 @@ class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
     @Test
     void skalOppretteEnHistorikkForAutoPunktOgSjekkPåResultat() {
 
-        var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(manuellpunkt, autopunkt), null);
+        var event = new AutopunktStatusEvent(behandlingskontrollKontekst, List.of(manuellpunkt, autopunkt));
 
         var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
 
@@ -120,7 +122,7 @@ class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
     @Test
     void skalOppretteToHistorikkForAutoPunkt() {
 
-        var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(autopunkt, autopunkt), null);
+        var event = new AutopunktStatusEvent(behandlingskontrollKontekst, List.of(autopunkt, autopunkt));
 
         observer.oppretteHistorikkForBehandlingPåVent(event);
 

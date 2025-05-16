@@ -130,7 +130,11 @@ public class ForvaltningTekniskRestTjeneste {
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon())
                 .orElseThrow(() -> new ForvaltningException(MANGLER_AP + dto.getAksjonspunktKode()));
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-        behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), List.of(aksjonspunkt));
+        if (aksjonspunkt.erAutopunkt()) {
+            behandlingskontrollTjeneste.settAutopunktTilAvbrutt(kontekst, behandling, aksjonspunkt);
+        } else {
+            behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, List.of(aksjonspunkt));
+        }
         behandlingRepository.lagre(behandling, lås);
         return Response.ok().build();
     }

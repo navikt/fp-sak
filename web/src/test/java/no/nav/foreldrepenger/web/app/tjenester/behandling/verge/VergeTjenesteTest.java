@@ -279,7 +279,7 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
             // Assert
             assertThat(vergeRepository.hentAggregat(behandling.getId())).isEmpty();
             var ap = behandling.getAksjonspunktFor(AksjonspunktDefinisjon.AVKLAR_VERGE);
-            verify(behandlingskontrollTjeneste).lagreAksjonspunkterAvbrutt(any(), any(), eq(List.of(ap)));
+            verify(behandlingskontrollTjeneste).lagreAksjonspunkterAvbrutt(any(), eq(List.of(ap)));
             var historikkinnslag = historikkRepository.hent(behandling.getSaksnummer());
             assertThat(historikkinnslag).hasSize(1);
             assertThat(historikkinnslag.getFirst().getTittel()).contains("verge", "fjernet");

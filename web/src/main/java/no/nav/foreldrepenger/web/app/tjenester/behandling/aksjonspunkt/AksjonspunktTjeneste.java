@@ -259,9 +259,9 @@ public class AksjonspunktTjeneste {
         if (aksjonspunkt.erAvbrutt()) {
             // Må reåpne avbrutte før de kan settes til utført (kunne ha vært én operasjon i aksjonspunktRepository)
             behandlingskontrollTjeneste.lagreAksjonspunkterReåpnet(kontekst, List.of(aksjonspunkt), true, false);
-            behandlingskontrollTjeneste.lagreAksjonspunkterUtført(kontekst, null, aksjonspunkt, dto.getBegrunnelse());
+            behandlingskontrollTjeneste.lagreAksjonspunkterUtført(kontekst, aksjonspunkt, dto.getBegrunnelse());
         } else {
-            behandlingskontrollTjeneste.lagreAksjonspunkterUtført(kontekst, null, aksjonspunkt, dto.getBegrunnelse());
+            behandlingskontrollTjeneste.lagreAksjonspunkterUtført(kontekst, aksjonspunkt, dto.getBegrunnelse());
         }
     }
 
@@ -280,13 +280,13 @@ public class AksjonspunktTjeneste {
         if (AksjonspunktStatus.OPPRETTET.equals(nyStatus)) {
             behandlingskontrollTjeneste.lagreAksjonspunkterReåpnet(kontekst, List.of(aksjonspunkt), true, false);
         } else if (AksjonspunktStatus.AVBRUTT.equals(nyStatus)) {
-            behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), List.of(aksjonspunkt));
+            behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, List.of(aksjonspunkt));
         } else {
             if (aksjonspunkt.erAvbrutt()) {
                 // Må reåpne avbrutte før de kan settes til utført (kunne ha vært én operasjon i aksjonspunktRepository)
                 behandlingskontrollTjeneste.lagreAksjonspunkterReåpnet(kontekst, List.of(aksjonspunkt), true, false);
             }
-            behandlingskontrollTjeneste.lagreAksjonspunkterUtført(kontekst, null, aksjonspunkt, aksjonspunkt.getBegrunnelse());
+            behandlingskontrollTjeneste.lagreAksjonspunkterUtført(kontekst, aksjonspunkt, aksjonspunkt.getBegrunnelse());
         }
     }
 
@@ -339,7 +339,7 @@ public class AksjonspunktTjeneste {
         }
 
         if (!aksjonspunkt.erAvbrutt() && delresultat.skalUtføreAksjonspunkt()) {
-            behandlingskontrollTjeneste.lagreAksjonspunkterUtført(kontekst, behandling.getAktivtBehandlingSteg(), aksjonspunkt, dto.getBegrunnelse());
+            behandlingskontrollTjeneste.lagreAksjonspunkterUtført(kontekst, aksjonspunkt, dto.getBegrunnelse());
         }
     }
 

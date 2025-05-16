@@ -9,7 +9,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
+import no.nav.foreldrepenger.behandlingskontroll.events.AutopunktStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingskontrollEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
@@ -43,7 +43,7 @@ public class BehandlingskontrollEventObserver {
 
     // Lytter på AksjonspunkterFunnetEvent, filtrer ut når behandling er satt
     // manuelt på vent og legger melding på kafka
-    public void observerAksjonspunkterFunnetEvent(@Observes AksjonspunktStatusEvent event) {
+    public void observerAksjonspunkterFunnetEvent(@Observes AutopunktStatusEvent event) {
         if (event.getAksjonspunkter().stream().anyMatch(e -> e.erOpprettet() && AUTO_MANUELT_SATT_PÅ_VENT.equals(e.getAksjonspunktDefinisjon()))) {
             try {
                 opprettProsessTask(event, HendelseForBehandling.AKSJONSPUNKT);

@@ -9,6 +9,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
+import no.nav.foreldrepenger.behandlingskontroll.events.AutopunktStatusEvent;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -75,7 +77,7 @@ class SendDokumentForAutopunktEventObserverTest {
 
     @Test
     void skalIkkeSendeBrevForAndreAksjonspunkter() {
-        var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(manuellpunkt), null);
+        var event = new AutopunktStatusEvent(behandlingskontrollKontekst, List.of(manuellpunkt));
 
         observer.sendBrevForAutopunkt(event);
 
@@ -85,21 +87,21 @@ class SendDokumentForAutopunktEventObserverTest {
 
     @Test
     void skalSendeBrevForSøknadIkkeMottatt() {
-        var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(autopunktIngenSøknad), null);
+        var event = new AutopunktStatusEvent(behandlingskontrollKontekst, List.of(autopunktIngenSøknad));
         observer.sendBrevForAutopunkt(event);
         verify(sendBrevForAutopunkt, times(1)).sendBrevForSøknadIkkeMottatt(any());
     }
 
     @Test
     void skalSendeBrevForTidligSøknad() {
-        var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(autopunktTidligSøknad), null);
+        var event = new AutopunktStatusEvent(behandlingskontrollKontekst, List.of(autopunktTidligSøknad));
         observer.sendBrevForAutopunkt(event);
         verify(sendBrevForAutopunkt, times(1)).sendBrevForTidligSøknad(any());
     }
 
     @Test
     void skalSendeBrevForEtterkontroll() {
-        var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(autopunktEtterkontroll), null);
+        var event = new AutopunktStatusEvent(behandlingskontrollKontekst, List.of(autopunktEtterkontroll));
         observer.sendBrevForAutopunkt(event);
         verify(sendBrevForAutopunkt, times(1)).sendBrevForEtterkontroll(any());
     }

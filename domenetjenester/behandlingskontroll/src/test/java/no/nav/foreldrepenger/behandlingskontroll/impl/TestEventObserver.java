@@ -12,6 +12,7 @@ import jakarta.enterprise.event.Observes;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
+import no.nav.foreldrepenger.behandlingskontroll.events.AutopunktStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegOvergangEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegStatusEvent;
@@ -51,6 +52,10 @@ public class TestEventObserver {
     }
 
     public void observer(@Observes AksjonspunktStatusEvent event) {
+        addEvent(event);
+    }
+
+    public void observer(@Observes AutopunktStatusEvent event) {
         addEvent(event);
     }
 

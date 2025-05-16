@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
+import no.nav.foreldrepenger.behandlingskontroll.events.AutopunktStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegOvergangEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingTransisjonEvent;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
@@ -137,7 +138,10 @@ class BehandlingStegVisitor {
 
         // Publiser de funnede aksjonspunktene
         if (!funnetAksjonspunkter.isEmpty()) {
-            eventPubliserer.fireEvent(new AksjonspunktStatusEvent(kontekst, funnetAksjonspunkter, stegType));
+            var funnetAutopunkt = funnetAksjonspunkter.stream().filter(Aksjonspunkt::erAutopunkt).toList();
+            eventPubliserer.fireEvent(new AutopunktStatusEvent(kontekst, funnetAutopunkt));
+            var funnetAksjonspunktIkkeAutopunkt = funnetAksjonspunkter.stream().filter(a -> !a.erAutopunkt()).toList();
+            eventPubliserer.fireEvent(new AksjonspunktStatusEvent(kontekst, funnetAksjonspunktIkkeAutopunkt));
         }
     }
 

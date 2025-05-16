@@ -200,10 +200,18 @@ public class Endringskontroller {
                 .map(Aksjonspunkt::getStatus).orElse(AksjonspunktStatus.OPPRETTET)))
             .toList();
         if (!avbrytes.isEmpty()) {
-            behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), avbrytes);
+            behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, avbrytes);
         }
         if (!opprettes.isEmpty()) {
-            behandlingskontrollTjeneste.lagreAksjonspunktResultat(kontekst, BehandlingStegType.KONTROLLER_FAKTA, opprettes);
+            var opprettAksjonspunkt = opprettes.stream().filter(ar -> !ar.getAksjonspunktDefinisjon().erAutopunkt()).toList();
+            if (!opprettAksjonspunkt.isEmpty()) {
+                behandlingskontrollTjeneste.lagreAksjonspunktResultat(kontekst, BehandlingStegType.KONTROLLER_FAKTA, opprettAksjonspunkt);
+            }
+            opprettes.stream()
+                .filter(ar -> ar.getAksjonspunktDefinisjon().erAutopunkt())
+                .findFirst()
+                .ifPresent(ar -> behandlingskontrollTjeneste.settBehandlingPåVent(behandling, ar.getAksjonspunktDefinisjon(),
+                    BehandlingStegType.KONTROLLER_FAKTA, ar.getFrist(), ar.getVenteårsak()));
         }
     }
 

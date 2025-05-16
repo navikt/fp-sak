@@ -65,11 +65,6 @@ public class AksjonspunktResultat {
         return new AksjonspunktResultat(aksjonspunktDefinisjon, venteårsak, ventefrist, OPPRETTET);
     }
 
-    public static AksjonspunktResultat opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon aksjonspunktDefinisjon, Venteårsak venteårsak,
-                                                                      LocalDateTime ventefrist, AksjonspunktStatus status) {
-        return new AksjonspunktResultat(aksjonspunktDefinisjon, venteårsak, ventefrist, status);
-    }
-
     public AksjonspunktDefinisjon getAksjonspunktDefinisjon() {
         return aksjonspunktDefinisjon;
     }
