@@ -130,7 +130,7 @@ public class BeregningFPSAK implements BeregningAPI {
     public void avslutt(BehandlingReferanse referanse) {
         // Beregning er kjørt i fpsak, lager task her for å migrere grunnlaget til kalkulus
         var migreringstask = ProsessTaskData.forProsessTask(MigrerBeregningSakTask.class);
-        migreringstask.setSaksnummer(referanse.saksnummer().getVerdi());
+        migreringstask.setBehandling(referanse.saksnummer().getVerdi(), referanse.fagsakId(), referanse.behandlingUuid(), referanse.behandlingId());
         prosessTaskTjeneste.lagre(migreringstask);
     }
 
