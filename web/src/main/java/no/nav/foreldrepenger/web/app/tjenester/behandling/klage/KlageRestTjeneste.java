@@ -43,8 +43,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmg
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.tilbakekreving.FptilbakeRestKlient;
 import no.nav.foreldrepenger.produksjonsstyring.tilbakekreving.TilbakeBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
@@ -81,7 +81,7 @@ public class KlageRestTjeneste {
     private BehandlingRepository behandlingRepository;
     private KlageVurderingTjeneste klageVurderingTjeneste;
     private FptilbakeRestKlient fptilbakeRestKlient;
-    private MottatteDokumentRepository mottatteDokumentRepository;
+    private MottatteDokumentTjeneste mottatteDokumentTjeneste;
     private KlageHistorikkinnslag klageFormkravHistorikk;
     private BehandlingEventPubliserer behandlingEventPubliserer;
 
@@ -93,13 +93,13 @@ public class KlageRestTjeneste {
     public KlageRestTjeneste(BehandlingRepository behandlingRepository,
                              KlageVurderingTjeneste klageVurderingTjeneste,
                              FptilbakeRestKlient fptilbakeRestKlient,
-                             MottatteDokumentRepository mottatteDokumentRepository,
+                             MottatteDokumentTjeneste mottatteDokumentTjeneste,
                              KlageHistorikkinnslag klageFormkravHistorikk,
                              BehandlingEventPubliserer behandlingEventPubliserer) {
         this.behandlingRepository = behandlingRepository;
         this.klageVurderingTjeneste = klageVurderingTjeneste;
         this.fptilbakeRestKlient = fptilbakeRestKlient;
-        this.mottatteDokumentRepository = mottatteDokumentRepository;
+        this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
         this.klageFormkravHistorikk = klageFormkravHistorikk;
         this.behandlingEventPubliserer = behandlingEventPubliserer;
     }
@@ -234,7 +234,7 @@ public class KlageRestTjeneste {
     public MottattKlagedokumentDto getMottattKlagedokument(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        var mottatteDokumenter = mottatteDokumentRepository.hentMottatteDokument(behandling.getId());
+        var mottatteDokumenter = mottatteDokumentTjeneste.hentMottatteDokument(behandling.getId());
         var mottattDokument = mottatteDokumenter.stream()
             .filter(dok -> DokumentTypeId.KLAGE_DOKUMENT.equals(dok.getDokumentType()))
             .min(Comparator.comparing(MottattDokument::getMottattDato));
