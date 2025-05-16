@@ -21,7 +21,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
 @ProsessTask(value = "behandling.avslutt.ekstern", prioritet = 2)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
+@FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class AvsluttEksterneGrunnlagTask extends GenerellProsessTask {
     private static final Logger LOG = LoggerFactory.getLogger(AvsluttEksterneGrunnlagTask.class);
 
