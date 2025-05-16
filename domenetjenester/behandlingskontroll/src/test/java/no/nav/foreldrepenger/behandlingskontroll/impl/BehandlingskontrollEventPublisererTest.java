@@ -72,7 +72,7 @@ class BehandlingskontrollEventPublisererTest {
 
         var aksjonspunkt = serviceProvider.getAksjonspunktKontrollRepository().leggTilAksjonspunkt(behandling,
                 AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, stegType);
-        kontrollTjeneste.aksjonspunkterEndretStatus(kontekst, stegType, List.of(aksjonspunkt));
+        kontrollTjeneste.aksjonspunkterEndretStatus(kontekst, List.of(aksjonspunkt));
 
         var ads = new AksjonspunktDefinisjon[]{AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT};
         assertThat(ads).isNotNull();

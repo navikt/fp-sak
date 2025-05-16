@@ -239,11 +239,14 @@ public class OppdateringResultat {
         }
 
         /*
-         * Brukes dersom man absolutt må endre status på andre aksjonspunkt enn det
-         * aktuelle for oppdatering/overstyring. NB: Vil legge til dersom ikke finnes
-         * fra før. Bruk helst andre mekanismer.
+         * Brukes dersom man absolutt må endre status på andre aksjonspunkt enn det aktuelle for oppdatering/overstyring.
+         * NB: Vil legge til dersom ikke finnes fra før. Bruk helst andre mekanismer.
+         * Aksepterer ikke autopunkt - hvis det er behov så ønsker vi en diskusjon
          */
         public Builder medEkstraAksjonspunktResultat(AksjonspunktDefinisjon aksjonspunktDefinisjon, AksjonspunktStatus nyStatus) {
+            if (aksjonspunktDefinisjon.erAutopunkt()) {
+                throw new IllegalArgumentException("Utviklerfeil: aksjonspunkt er autopunkt " + aksjonspunktDefinisjon);
+            }
             resultat.ekstraAksjonspunktResultat.add(new OppdateringAksjonspunktResultat(aksjonspunktDefinisjon, nyStatus));
             return this;
         }

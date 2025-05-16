@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
+import no.nav.foreldrepenger.behandlingskontroll.events.AutopunktStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -36,7 +37,13 @@ public class DatavarehusEventObserver {
     public void observerAksjonspunktStatusEvent(@Observes AksjonspunktStatusEvent event) {
         var aksjonspunkter = event.getAksjonspunkter();
         // Utvider behandlingStatus i DVH med VenteKategori
-        if (aksjonspunkter.stream().anyMatch(a -> a.erAutopunkt() || (a.erUtført() && gjelderKlage(a)))) {
+        if (aksjonspunkter.stream().anyMatch(a -> a.erUtført() && gjelderKlage(a))) {
+            tjeneste.lagreNedBehandling(event.getBehandlingId());
+        }
+    }
+
+    public void observerAutopunktStatusEvent(@Observes AutopunktStatusEvent event) {
+        if (!event.getAksjonspunkter().isEmpty()) {
             tjeneste.lagreNedBehandling(event.getBehandlingId());
         }
     }
