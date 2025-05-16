@@ -9,6 +9,7 @@ import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.Beregn
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
 import no.nav.foreldrepenger.domene.migrering.BeregningMigreringTjeneste;
@@ -46,7 +47,7 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
 
     @Override
     public Optional<BeregningsgrunnlagDto> hentGuiDto(BehandlingReferanse referanse) {
-        if (skalKalleKalkulus(referanse)) {
+        if (skalKalleKalkulusForGuiDto(referanse)) {
             return kalkulusBeregner.hentGUIDto(referanse);
         } else {
             return fpsakBeregner.hentGUIDto(referanse);
@@ -103,6 +104,13 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
             fpsakBeregner.avslutt(referanse);
         }
 
+    }
+
+    private boolean skalKalleKalkulusForGuiDto(BehandlingReferanse referanse) {
+        if (BehandlingStatus.AVSLUTTET.equals(referanse.behandlingStatus())) {
+            return true;
+        }
+        return skalKalleKalkulus(referanse);
     }
 
     private boolean skalKalleKalkulus(BehandlingReferanse referanse) {

@@ -78,21 +78,25 @@ public class KalkulusKlient {
     }
 
     public Optional<BeregningsgrunnlagGrunnlagDto> hentGrunnlag(EnkelFpkalkulusRequestDto request) {
+        LOG.info("Henter grunnlag fra fpkalkulus");
         var restRequest = RestRequest.newPOSTJson(request, hentGrunnlag, restConfig);
         return restClient.sendReturnOptional(restRequest, BeregningsgrunnlagGrunnlagDto.class);
     }
 
     public Optional<BeregningsgrunnlagDto> hentGrunnlagGUI(EnkelHentBeregningsgrunnlagGUIRequest request) {
+        LOG.info("Henter GUI dto fra fpkalkulus");
         var restRequest = RestRequest.newPOSTJson(request, hentGrunnlagGui, restConfig);
         return restClient.sendReturnOptional(restRequest, BeregningsgrunnlagDto.class);
     }
 
     public Optional<BesteberegningGrunnlagDto> hentGrunnlagBesteberegning(EnkelFpkalkulusRequestDto request) {
+        LOG.info("Henter besteberegningsgrunnlag fra fpkalkulus");
         var restRequest = RestRequest.newPOSTJson(request, hentGrunnlagBesteberegning, restConfig);
         return restClient.sendReturnOptional(restRequest, BesteberegningGrunnlagDto.class);
     }
 
     public void kopierGrunnlag(EnkelKopierBeregningsgrunnlagRequestDto request) {
+        LOG.info("Kopierer grunnlag i fpkalkulus");
         var restRequest = RestRequest.newPOSTJson(request, kopierGrunnlag, restConfig);
         var respons = restClient.sendReturnUnhandled(restRequest);
         if (respons.statusCode() != HttpURLConnection.HTTP_OK) {
@@ -101,6 +105,7 @@ public class KalkulusKlient {
     }
 
     public OppdateringRespons løsAvklaringsbehov(EnkelHåndterBeregningRequestDto request) {
+        LOG.info("Løser avklaringsbehov i fpkalkulus");
         var restRequest = RestRequest.newPOSTJson(request, avklaringsbehov, restConfig);
         try {
             return restClient.sendReturnOptional(restRequest, OppdateringRespons.class).orElseThrow(() -> new IllegalStateException("Klarte ikke sende avklaringsbehov til fpkalkulus"));
@@ -111,6 +116,7 @@ public class KalkulusKlient {
     }
 
     public void deaktiverGrunnlag(EnkelFpkalkulusRequestDto request) {
+        LOG.info("Deaktiverer grunnlag i fpkalkulus");
         var restRequest = RestRequest.newPOSTJson(request, deatkvier, restConfig);
         var respons = restClient.sendReturnUnhandled(restRequest);
         if (respons.statusCode() != HttpURLConnection.HTTP_OK) {
@@ -119,6 +125,7 @@ public class KalkulusKlient {
     }
 
     public void avsluttKobling(EnkelFpkalkulusRequestDto request) {
+        LOG.info("Avslutter kobling i fpkalkulus");
         var restRequest = RestRequest.newPOSTJson(request, avslutt, restConfig);
         var respons = restClient.sendReturnUnhandled(restRequest);
         if (respons.statusCode() != HttpURLConnection.HTTP_OK) {
