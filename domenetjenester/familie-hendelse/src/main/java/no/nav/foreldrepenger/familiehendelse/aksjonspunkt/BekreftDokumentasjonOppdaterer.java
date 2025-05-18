@@ -64,7 +64,7 @@ public class BekreftDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Be
             lagreHistorikk(param, dto, originalOmsorgsovertakelse, originalFødselsdatoer);
         }
 
-        var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandlingId);
+        var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderForOverstyring(behandlingId);
         oppdatertOverstyrtHendelse.tilbakestillBarn()
             .medAntallBarn(dto.getFodselsdatoer().keySet().size())
             .medAdopsjon(oppdatertOverstyrtHendelse.getAdopsjonBuilder().medOmsorgsovertakelseDato(dto.getOmsorgsovertakelseDato()));

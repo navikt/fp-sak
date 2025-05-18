@@ -123,7 +123,7 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
     private void oppdaterAksjonspunktGrunnlag(AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto, Long behandlingId) {
         var omsorgsovertakelseVilkårType = Optional.ofNullable(MAP_VILKÅR_OMSORGSVILKÅR.get(dto.getVilkårType()))
             .orElseThrow(() -> new FunksjonellException("FP-765341", "Mangler vilkårtype", "Oppgi vilkårtype"));
-        var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandlingId);
+        var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderForOverstyring(behandlingId);
         oppdatertOverstyrtHendelse.medAdopsjon(oppdatertOverstyrtHendelse.getAdopsjonBuilder()
             .medOmsorgovertalseVilkårType(omsorgsovertakelseVilkårType)
             .medOmsorgsovertakelseDato(dto.getOmsorgsovertakelseDato()));

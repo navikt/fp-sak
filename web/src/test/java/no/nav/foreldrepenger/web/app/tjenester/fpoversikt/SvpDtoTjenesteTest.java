@@ -8,11 +8,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import jakarta.inject.Inject;
-
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,8 +20,6 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
@@ -49,6 +44,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.UtsettelsePeriode;
@@ -185,9 +181,8 @@ class SvpDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     private Behandling lagAvsluttetSvpBehandling(LocalDate termindato, LocalDateTime vedtakstidspunkt) {
-        var fhBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
-        var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger()
-            .medSøknadHendelse(fhBuilder.medTerminbekreftelse(fhBuilder.getTerminbekreftelseBuilder().medTermindato(termindato)));
+        var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
+        scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder().medTermindato(termindato));
         scenario.medBehandlingVedtak().medVedtakResultatType(VedtakResultatType.INNVILGET).medVedtakstidspunkt(vedtakstidspunkt);
         var behandling = scenario.lagre(repositoryProvider);
         avsluttBehandling(behandling);

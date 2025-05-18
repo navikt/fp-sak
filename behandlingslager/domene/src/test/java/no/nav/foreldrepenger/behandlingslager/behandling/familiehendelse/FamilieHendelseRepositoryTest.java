@@ -31,38 +31,80 @@ class FamilieHendelseRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    void skal_lage_søknad_versjon() {
+    void skal_lagre_søknad_versjon_som_søknad_fjerne_register() {
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
         var builder = Behandling.forFørstegangssøknad(fagsak);
         var behandling = builder.build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
-        var hendelseBuilder = repository.opprettBuilderFor(behandling.getId());
+        var hendelseBuilder = repository.opprettBuilderForSøknad(behandling.getId());
         hendelseBuilder.medFødselsDato(LocalDate.now()).medAntallBarn(1);
-        repository.lagre(behandling.getId(), hendelseBuilder);
+        repository.lagreSøknadHendelse(behandling.getId(), hendelseBuilder);
+        var hendelseBuilderReg = repository.opprettBuilderForRegister(behandling.getId());
+        hendelseBuilderReg.medFødselsDato(LocalDate.now()).medAntallBarn(1);
+        repository.lagreRegisterHendelse(behandling.getId(), hendelseBuilderReg);
 
         var familieHendelseGrunnlag = repository.hentAggregat(behandling.getId());
 
         assertThat(familieHendelseGrunnlag.getOverstyrtVersjon()).isNotPresent();
-        assertThat(familieHendelseGrunnlag.getBekreftetVersjon()).isNotPresent();
+        assertThat(familieHendelseGrunnlag.getBekreftetVersjon()).isPresent();
+        assertThat(familieHendelseGrunnlag.getBekreftetVersjon().get().getBarna()).hasSize(1);
         assertThat(familieHendelseGrunnlag.getSøknadVersjon()).isNotNull();
         assertThat(familieHendelseGrunnlag.getSøknadVersjon().getBarna()).hasSize(1);
         assertThat(familieHendelseGrunnlag.getSøknadVersjon().getAntallBarn()).isEqualTo(1);
 
-        var hendelseBuilder1 = repository.opprettBuilderFor(behandling.getId());
+        var hendelseBuilder1 = repository.opprettBuilderForSøknad(behandling.getId());
         hendelseBuilder1.leggTilBarn(LocalDate.now()).medAntallBarn(2);
-        repository.lagre(behandling.getId(), hendelseBuilder1);
+        repository.lagreSøknadHendelse(behandling.getId(), hendelseBuilder1);
 
-        familieHendelseGrunnlag = repository.hentAggregat(behandling.getId());
+        var familieHendelseGrunnlag2 = repository.hentAggregat(behandling.getId());
+
+        assertThat(familieHendelseGrunnlag2.getId()).isNotEqualTo(familieHendelseGrunnlag.getId());
+        assertThat(familieHendelseGrunnlag2.getOverstyrtVersjon()).isNotPresent();
+        assertThat(familieHendelseGrunnlag2.getBekreftetVersjon()).isNotPresent();
+        assertThat(familieHendelseGrunnlag2.getSøknadVersjon()).isNotNull();
+        assertThat(familieHendelseGrunnlag2.getSøknadVersjon().getBarna()).hasSize(2);
+        assertThat(familieHendelseGrunnlag2.getSøknadVersjon().getAntallBarn()).isEqualTo(2);
+    }
+
+    @Test
+    void skal_ikke_lagre_nytt_grunnlag_dersom_ny_søknad_lik_forrige() {
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()));
+        fagsakRepository.opprettNy(fagsak);
+        var builder = Behandling.forFørstegangssøknad(fagsak);
+        var behandling = builder.build();
+        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
+
+        var hendelseBuilder = repository.opprettBuilderForSøknad(behandling.getId());
+        hendelseBuilder.medFødselsDato(LocalDate.now()).medAntallBarn(1);
+        repository.lagreSøknadHendelse(behandling.getId(), hendelseBuilder);
+        var hendelseBuilderReg = repository.opprettBuilderForRegister(behandling.getId());
+        hendelseBuilderReg.medFødselsDato(LocalDate.now()).medAntallBarn(1);
+        repository.lagreRegisterHendelse(behandling.getId(), hendelseBuilderReg);
+
+        var familieHendelseGrunnlag = repository.hentAggregat(behandling.getId());
 
         assertThat(familieHendelseGrunnlag.getOverstyrtVersjon()).isNotPresent();
         assertThat(familieHendelseGrunnlag.getBekreftetVersjon()).isPresent();
-        assertThat(familieHendelseGrunnlag.getBekreftetVersjon().get().getBarna()).hasSize(2);
-        assertThat(familieHendelseGrunnlag.getBekreftetVersjon().get().getAntallBarn()).isEqualTo(2);
+        assertThat(familieHendelseGrunnlag.getBekreftetVersjon().get().getBarna()).hasSize(1);
         assertThat(familieHendelseGrunnlag.getSøknadVersjon()).isNotNull();
         assertThat(familieHendelseGrunnlag.getSøknadVersjon().getBarna()).hasSize(1);
         assertThat(familieHendelseGrunnlag.getSøknadVersjon().getAntallBarn()).isEqualTo(1);
+
+        var hendelseBuilder1 = repository.opprettBuilderForSøknad(behandling.getId());
+        hendelseBuilder1.tilbakestillBarn().medFødselsDato(LocalDate.now()).medAntallBarn(1);
+        repository.lagreSøknadHendelse(behandling.getId(), hendelseBuilder1);
+
+        var familieHendelseGrunnlag2 = repository.hentAggregat(behandling.getId());
+
+        assertThat(familieHendelseGrunnlag2.getId()).isEqualTo(familieHendelseGrunnlag.getId());
+        assertThat(familieHendelseGrunnlag2.getOverstyrtVersjon()).isNotPresent();
+        assertThat(familieHendelseGrunnlag2.getBekreftetVersjon()).isPresent();
+        assertThat(familieHendelseGrunnlag2.getBekreftetVersjon().get().getBarna()).hasSize(1);
+        assertThat(familieHendelseGrunnlag2.getSøknadVersjon()).isNotNull();
+        assertThat(familieHendelseGrunnlag2.getSøknadVersjon().getBarna()).hasSize(1);
+        assertThat(familieHendelseGrunnlag2.getSøknadVersjon().getAntallBarn()).isEqualTo(1);
     }
 
     @Test
@@ -73,12 +115,12 @@ class FamilieHendelseRepositoryTest extends EntityManagerAwareTest {
         var behandling = builder.build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
-        var hendelseBuilder = repository.opprettBuilderFor(behandling.getId());
+        var hendelseBuilder = repository.opprettBuilderForSøknad(behandling.getId());
         hendelseBuilder.medAdopsjon(hendelseBuilder.getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()))
             .erOmsorgovertagelse()
             .medFødselsDato(LocalDate.now())
             .medAntallBarn(1);
-        repository.lagre(behandling.getId(), hendelseBuilder);
+        repository.lagreSøknadHendelse(behandling.getId(), hendelseBuilder);
         var familieHendelseGrunnlag = repository.hentAggregat(behandling.getId());
 
         assertThat(familieHendelseGrunnlag.getOverstyrtVersjon()).isNotPresent();
@@ -87,7 +129,7 @@ class FamilieHendelseRepositoryTest extends EntityManagerAwareTest {
         assertThat(familieHendelseGrunnlag.getSøknadVersjon().getBarna()).hasSize(1);
         assertThat(familieHendelseGrunnlag.getSøknadVersjon().getAntallBarn()).isEqualTo(1);
 
-        hendelseBuilder = repository.opprettBuilderFor(behandling.getId());
+        hendelseBuilder = repository.opprettBuilderForOverstyring(behandling.getId());
         hendelseBuilder.medAdopsjon(hendelseBuilder.getAdopsjonBuilder()
             .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_2_LEDD));
         repository.lagreOverstyrtHendelse(behandling.getId(), hendelseBuilder);
@@ -100,10 +142,10 @@ class FamilieHendelseRepositoryTest extends EntityManagerAwareTest {
         assertThat(familieHendelseGrunnlag.getSøknadVersjon().getBarna()).hasSize(1);
         assertThat(familieHendelseGrunnlag.getSøknadVersjon().getAntallBarn()).isEqualTo(1);
 
-        var hendelseBuilder1 = repository.opprettBuilderFor(behandling.getId());
+        var hendelseBuilder1 = repository.opprettBuilderForOverstyring(behandling.getId());
         hendelseBuilder1.medAdopsjon(hendelseBuilder1.getAdopsjonBuilder()
             .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_4_LEDD));
-        repository.lagre(behandling.getId(), hendelseBuilder1);
+        repository.lagreOverstyrtHendelse(behandling.getId(), hendelseBuilder1);
 
         familieHendelseGrunnlag = repository.hentAggregat(behandling.getId());
 
@@ -124,29 +166,29 @@ class FamilieHendelseRepositoryTest extends EntityManagerAwareTest {
         var behandling = builder.build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
-        var hendelseBuilder = repository.opprettBuilderFor(behandling.getId());
+        var hendelseBuilder = repository.opprettBuilderForSøknad(behandling.getId());
         hendelseBuilder.medAdopsjon(hendelseBuilder.getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()))
             .erOmsorgovertagelse()
             .medFødselsDato(LocalDate.now())
             .medAntallBarn(1);
-        repository.lagre(behandling.getId(), hendelseBuilder);
+        repository.lagreSøknadHendelse(behandling.getId(), hendelseBuilder);
 
         var grunnlagIdFørste = repository.hentIdPåAktivFamiliehendelse(behandling.getId());
 
-        hendelseBuilder = repository.opprettBuilderFor(behandling.getId());
+        hendelseBuilder = repository.opprettBuilderForOverstyring(behandling.getId());
         hendelseBuilder.medAdopsjon(hendelseBuilder.getAdopsjonBuilder()
             .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.OMSORGSVILKÅRET));
         repository.lagreOverstyrtHendelse(behandling.getId(), hendelseBuilder);
 
-        var hendelseBuilder1 = repository.opprettBuilderFor(behandling.getId());
+        var hendelseBuilder1 = repository.opprettBuilderForOverstyring(behandling.getId());
         hendelseBuilder1.medAdopsjon(hendelseBuilder1.getAdopsjonBuilder()
             .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_2_LEDD));
-        repository.lagre(behandling.getId(), hendelseBuilder1);
+        repository.lagreOverstyrtHendelse(behandling.getId(), hendelseBuilder1);
 
-        var hendelseBuilder2 = repository.opprettBuilderFor(behandling.getId());
+        var hendelseBuilder2 = repository.opprettBuilderForOverstyring(behandling.getId());
         hendelseBuilder2.medAdopsjon(hendelseBuilder2.getAdopsjonBuilder()
             .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_4_LEDD));
-        repository.lagre(behandling.getId(), hendelseBuilder2);
+        repository.lagreOverstyrtHendelse(behandling.getId(), hendelseBuilder2);
 
         var familieHendelseGrunnlag = repository.hentAggregat(behandling.getId());
         var førsteVersjonFamilieHendelseAggregat = repository.hentGrunnlagPåId(grunnlagIdFørste.get());

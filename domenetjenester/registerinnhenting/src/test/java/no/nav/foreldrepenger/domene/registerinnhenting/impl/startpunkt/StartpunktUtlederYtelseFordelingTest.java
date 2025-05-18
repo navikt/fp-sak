@@ -257,12 +257,12 @@ class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest {
 
     private FamilieHendelseEntitet byggFamilieHendelse(Long behandlingId) {
         var søknadHendelse = repositoryProvider.getFamilieHendelseRepository()
-            .opprettBuilderFor(behandlingId)
+            .opprettBuilderForSøknad(behandlingId)
             .medAntallBarn(1);
         søknadHendelse.medTerminbekreftelse(søknadHendelse.getTerminbekreftelseBuilder()
             .medTermindato(LocalDate.now())
             .medUtstedtDato(LocalDate.now()));
-        repositoryProvider.getFamilieHendelseRepository().lagre(behandlingId, søknadHendelse);
+        repositoryProvider.getFamilieHendelseRepository().lagreSøknadHendelse(behandlingId, søknadHendelse);
         return repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandlingId).getSøknadVersjon();
     }
 

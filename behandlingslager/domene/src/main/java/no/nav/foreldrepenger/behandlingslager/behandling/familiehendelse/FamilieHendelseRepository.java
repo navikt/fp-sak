@@ -106,24 +106,36 @@ public class FamilieHendelseRepository {
         }
     }
 
-    public void lagre(Long behandlingId, FamilieHendelseBuilder hendelseBuilder) {
+    public void lagreSøknadHendelse(Long behandlingId, FamilieHendelseBuilder hendelseBuilder) {
         Objects.requireNonNull(behandlingId, BEHANDLING_ID);
         Objects.requireNonNull(hendelseBuilder, "hendelseBuilder");
-
-        var aggregatBuilder = opprettAggregatBuilderFor(behandlingId);
-        var type = hendelseBuilder.getType();
-        switch (type) {
-            case SØKNAD -> aggregatBuilder.medSøknadVersjon(hendelseBuilder);
-            case BEKREFTET -> aggregatBuilder.medBekreftetVersjon(hendelseBuilder);
-            case OVERSTYRT -> aggregatBuilder.medOverstyrtVersjon(hendelseBuilder);
-            default -> throw new IllegalArgumentException("Støtter ikke HendelseVersjonType: " + type);
+        if (hendelseBuilder.getType() != HendelseVersjonType.SØKNAD) {
+            throw new IllegalArgumentException("HendelseBuilder må være opprettet for søknad");
         }
+        var hendelse = hendelseBuilder.build();
+        var tidligereAggregat = getAktivtFamilieHendelseGrunnlag(behandlingId);
+        if (tidligereAggregat.isPresent()) {
+            // En del søknad på søknad er identiske med forrige. Vil da ikke nullstille saksbehandlet versjon
+            var sammenligningsGrunnlag = opprettAggregatBuilderFor(behandlingId).medSøknadVersjon(hendelse).build();
+            var diff = new RegisterdataDiffsjekker(true).getDiffEntity().diff(tidligereAggregat.get(), sammenligningsGrunnlag);
+            if (diff.isEmpty()) {
+                return;
+            }
+        }
+
+        var aggregatBuilder = opprettAggregatBuilderFor(behandlingId)
+            .medSøknadVersjon(hendelse)
+            .medBekreftetVersjon(null)
+            .medOverstyrtVersjon(null);
         lagreOgFlush(behandlingId, aggregatBuilder.build());
     }
 
     public void lagreRegisterHendelse(Long behandlingId, FamilieHendelseBuilder hendelse) {
         Objects.requireNonNull(behandlingId, BEHANDLING_ID);
         Objects.requireNonNull(hendelse, "hendelse");
+        if (hendelse.getType() != HendelseVersjonType.BEKREFTET) {
+            throw new IllegalArgumentException("HendelseBuilder må være opprettet for register");
+        }
 
         var aggregatBuilder = opprettAggregatBuilderFor(behandlingId);
         // Fjern overstyr manglende fødsel i tilfelle første innhenting. Bevarer senere justering av dato
@@ -168,6 +180,9 @@ public class FamilieHendelseRepository {
     public void lagreOverstyrtHendelse(Long behandlingId, FamilieHendelseBuilder hendelse) {
         Objects.requireNonNull(behandlingId, BEHANDLING_ID);
         Objects.requireNonNull(hendelse, "hendelse");
+        if (hendelse.getType() != HendelseVersjonType.OVERSTYRT) {
+            throw new IllegalArgumentException("HendelseBuilder må være opprettet for saksbehandling");
+        }
 
         var aggregatBuilder = opprettAggregatBuilderFor(behandlingId);
         aggregatBuilder.medOverstyrtVersjon(hendelse);
@@ -242,15 +257,23 @@ public class FamilieHendelseRepository {
         return FamilieHendelseGrunnlagBuilder.oppdatere(familieHendelseAggregat);
     }
 
-    public FamilieHendelseBuilder opprettBuilderFor(Long behandlingId) {
-        return opprettBuilderFor(behandlingId, false);
+    public FamilieHendelseBuilder opprettBuilderForSøknad(Long behandlingId) {
+        return opprettBuilderFor(behandlingId, HendelseVersjonType.SØKNAD);
     }
 
-    public FamilieHendelseBuilder opprettBuilderFor(Long behandlingId, boolean register) {
+    public FamilieHendelseBuilder opprettBuilderForRegister(Long behandlingId) {
+        return opprettBuilderFor(behandlingId, HendelseVersjonType.BEKREFTET);
+    }
+
+    public FamilieHendelseBuilder opprettBuilderForOverstyring(Long behandlingId) {
+        return opprettBuilderFor(behandlingId, HendelseVersjonType.OVERSTYRT);
+    }
+
+    private FamilieHendelseBuilder opprettBuilderFor(Long behandlingId, HendelseVersjonType versjonType) {
         var familieHendelseAggregat = hentAggregatHvisEksisterer(behandlingId);
         var oppdatere = FamilieHendelseGrunnlagBuilder.oppdatere(familieHendelseAggregat);
         Objects.requireNonNull(oppdatere, "oppdatere");
-        return opprettBuilderFor(Optional.ofNullable(oppdatere.getKladd()), register);
+        return opprettBuilderFor(Optional.ofNullable(oppdatere.getKladd()), versjonType);
     }
 
     /**
@@ -261,57 +284,35 @@ public class FamilieHendelseRepository {
      * 3. Søknad
      *
      * @param aggregat nåværende aggregat
+     * @param versjonType ønsket versjonstype i builder - matcher lagring
      * @return Builder
      */
-    private FamilieHendelseBuilder opprettBuilderFor(Optional<FamilieHendelseGrunnlagEntitet> aggregat, boolean register) {
+    private FamilieHendelseBuilder opprettBuilderFor(Optional<FamilieHendelseGrunnlagEntitet> aggregat, HendelseVersjonType versjonType) {
         Objects.requireNonNull(aggregat, "aggregat");
-        if (aggregat.isPresent()) {
-            var type = register ? HendelseVersjonType.BEKREFTET : utledTypeFor(aggregat);
-            var hendelseAggregat = aggregat.get();
-            var hendelseAggregat1 = getFamilieHendelseBuilderForType(hendelseAggregat, type);
-            if (hendelseAggregat1 != null) {
-                hendelseAggregat1.setHendelseType(type);
-                return hendelseAggregat1;
-            }
-            throw FamilieHendelseFeil.ukjentVersjonstype();
+        if (aggregat.isEmpty()) {
+            throw FamilieHendelseFeil.aggregatKanIkkeVæreNull();
         }
-        throw FamilieHendelseFeil.aggregatKanIkkeVæreNull();
+        var hendelseBuilder = getFamilieHendelseBuilderForType(aggregat.get(), versjonType);
+        hendelseBuilder.setHendelseType(versjonType); // FHBuilder har en "type" = opprettetFra og "hendelseType" = måltype
+        return hendelseBuilder;
     }
 
+    // Velg hvilken av de tre versjonene (søknad, register/bekreftet, overstyrt) som skal brukes
     private FamilieHendelseBuilder getFamilieHendelseBuilderForType(FamilieHendelseGrunnlagEntitet aggregat, HendelseVersjonType type) {
-        switch (type) {
-            case SØKNAD:
-                return FamilieHendelseBuilder.oppdatere(Optional.ofNullable(aggregat.getSøknadVersjon()), type);
-            case BEKREFTET:
-                if (aggregat.getBekreftetVersjon().isEmpty()) {
-                    return getFamilieHendelseBuilderForType(aggregat, HendelseVersjonType.SØKNAD);
-                }
-                return FamilieHendelseBuilder.oppdatere(aggregat.getBekreftetVersjon(), type);
-            case OVERSTYRT:
-                if (aggregat.getOverstyrtVersjon().isEmpty()) {
-                    return getFamilieHendelseBuilderForType(aggregat, HendelseVersjonType.BEKREFTET);
-                }
-                return FamilieHendelseBuilder.oppdatere(aggregat.getOverstyrtVersjon(), type);
-            default:
-                throw new IllegalArgumentException("Støtter ikke HendelseVersjonType: " + type);
-        }
+        var søknadVersjon = Optional.ofNullable(aggregat.getSøknadVersjon());
+        return switch (type) {
+            case SØKNAD -> FamilieHendelseBuilder.oppdatere(søknadVersjon, type);
+            case BEKREFTET -> FamilieHendelseBuilder.oppdatere(aggregat.getBekreftetVersjon().or(() -> søknadVersjon),
+                originalFraBekreftetEllerSøknad(aggregat));
+            case OVERSTYRT -> FamilieHendelseBuilder.oppdatere(aggregat.getOverstyrtVersjon().or(aggregat::getBekreftetVersjon).or(() -> søknadVersjon),
+                aggregat.getOverstyrtVersjon().isPresent() ? type : originalFraBekreftetEllerSøknad(aggregat));
+        };
     }
 
-    private HendelseVersjonType utledTypeFor(Optional<FamilieHendelseGrunnlagEntitet> aggregat) {
-        if (aggregat.isPresent()) {
-            if (aggregat.get().getHarOverstyrteData()) {
-                return HendelseVersjonType.OVERSTYRT;
-            }
-            if (aggregat.get().getHarBekreftedeData() || aggregat.get().getSøknadVersjon() != null) {
-                return HendelseVersjonType.BEKREFTET;
-            }
-            if (aggregat.get().getSøknadVersjon() == null) {
-                return HendelseVersjonType.SØKNAD;
-            }
-            throw new IllegalStateException("Utvikler feil.");
-        }
-        return HendelseVersjonType.SØKNAD;
+    private HendelseVersjonType originalFraBekreftetEllerSøknad(FamilieHendelseGrunnlagEntitet aggregat) {
+        return aggregat.getBekreftetVersjon().isPresent() ? HendelseVersjonType.BEKREFTET : HendelseVersjonType.SØKNAD;
     }
+
 
     public Optional<Long> hentIdPåAktivFamiliehendelse(Long behandlingId) {
         return getAktivtFamilieHendelseGrunnlag(behandlingId)

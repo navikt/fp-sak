@@ -15,8 +15,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Adopsjo
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftMannAdoptererAksjonspunktDto;
@@ -48,7 +48,7 @@ public class BekreftMannAdoptererOppdaterer implements AksjonspunktOppdaterer<Be
         if (erEndret || param.erBegrunnelseEndret()) {
             lagreHistorikkinnslag(param, dto, eksisterendeMannAdoptererAlene.orElse(null));
         }
-        var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandlingReferanse.behandlingId());
+        var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderForOverstyring(behandlingReferanse.behandlingId());
         oppdatertOverstyrtHendelse
             .medAdopsjon(oppdatertOverstyrtHendelse.getAdopsjonBuilder()
                 .medAdoptererAlene(dto.getMannAdoptererAlene()));

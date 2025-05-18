@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3;
 
 import java.time.LocalDate;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.vedtak.felles.xml.soeknad.engangsstoenad.v3.Engangsstønad;
@@ -34,25 +36,35 @@ public class FamilieHendelseOversetter  {
         this.familieHendelseRepository = familieHendelseRepository;
     }
 
-
+    /**
+     * Rolle: Lagre førstegangssøknad for alle ytelser.
+     * Dersom behandlingen er førstegangsbehandling så er alt OK. Ditto hvis det mangler familieHendelseGrunnlag
+     *
+     * Det kan hende at det kommer inn ny førstegangssøknad i en revurdering. Det gjøres da en diffsjekk ved lagring:
+     * - Dersom ny søknad er identisk med eksisterende søknadshendelse blir det ikke lagret noe, alt beholdes
+     * - Dersom ny søknad er ulik eksisterende søknadshendelse blir lagret grunnlag uten bekreftet/overstyrt
+     * - Dersom søknad for Fødsel mangler termindato, så hentes den fra evt gjeldende terminbekreftelse
+     */
     void oversettPersisterFamilieHendelse(SøknadWrapper wrapper, Behandling behandling, SøknadEntitet.Builder søknadBuilder) {
         var loggFør = loggFamilieHendelseForFørstegangPåRevurdering(behandling, "FØR");
-        var hendelseBuilder = familieHendelseRepository.opprettBuilderFor(behandling.getId());
+        var hendelseBuilder = familieHendelseRepository.opprettBuilderForSøknad(behandling.getId());
         if (wrapper.getOmYtelse() instanceof Svangerskapspenger svangerskapspenger) {
             byggFamilieHendelseForSvangerskap(svangerskapspenger, hendelseBuilder);
         } else {
             var soekersRelasjonTilBarnet = getSoekersRelasjonTilBarnet(wrapper);
-            if (soekersRelasjonTilBarnet instanceof Foedsel foedsel) {
-                byggFødselsrelaterteFelter(foedsel, hendelseBuilder);
-            } else if (soekersRelasjonTilBarnet instanceof Termin termin) {
-                byggTerminrelaterteFelter(termin, hendelseBuilder);
-            } else if (soekersRelasjonTilBarnet instanceof Adopsjon adopsjon) {
-                byggAdopsjonsrelaterteFelter(adopsjon, hendelseBuilder);
-            } else if (soekersRelasjonTilBarnet instanceof Omsorgsovertakelse omsorgsovertakelse) {
-                byggOmsorgsovertakelsesrelaterteFelter(omsorgsovertakelse, hendelseBuilder, søknadBuilder);
-            }
+            switch (soekersRelasjonTilBarnet) {
+                case Foedsel foedsel -> {
+                    var gjeldendeTermin = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
+                        .flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeTerminbekreftelse);
+                    byggFødselsrelaterteFelter(foedsel, hendelseBuilder, gjeldendeTermin);
+                }
+                case Termin termin -> byggTerminrelaterteFelter(termin, hendelseBuilder);
+                case Adopsjon adopsjon -> byggAdopsjonsrelaterteFelter(adopsjon, hendelseBuilder);
+                case Omsorgsovertakelse omsorgsovertakelse -> byggOmsorgsovertakelsesrelaterteFelter(omsorgsovertakelse, hendelseBuilder, søknadBuilder);
+                default -> throw new IllegalArgumentException("Ukjent subklasse av SoekersRelasjonTilBarnet: " + soekersRelasjonTilBarnet.getClass().getSimpleName());
+            };
         }
-        familieHendelseRepository.lagre(behandling.getId(), hendelseBuilder);
+        familieHendelseRepository.lagreSøknadHendelse(behandling.getId(), hendelseBuilder);
         if (loggFør) {
             loggFamilieHendelseForFørstegangPåRevurdering(behandling, "ETTER");
         }
@@ -94,16 +106,19 @@ public class FamilieHendelseOversetter  {
         }
     }
 
-    private void byggFødselsrelaterteFelter(Foedsel fødsel, FamilieHendelseBuilder hendelseBuilder) {
+    private void byggFødselsrelaterteFelter(Foedsel fødsel, FamilieHendelseBuilder hendelseBuilder,
+                                            Optional<TerminbekreftelseEntitet> gjeldendeTermin) {
         if (fødsel.getFoedselsdato() == null) {
             throw new IllegalArgumentException("Utviklerfeil: Ved fødsel skal det være eksakt én fødselsdato");
         }
 
         var fødselsdato = fødsel.getFoedselsdato();
-        if (fødsel.getTermindato() != null) {
-            hendelseBuilder.medTerminbekreftelse(
-                hendelseBuilder.getTerminbekreftelseBuilder().medTermindato(fødsel.getTermindato()));
-        }
+        Optional.ofNullable(fødsel.getTermindato())
+            .or(() -> gjeldendeTermin.map(TerminbekreftelseEntitet::getTermindato))
+            .ifPresent(d -> {
+                var terminBuilder = hendelseBuilder.getTerminbekreftelseBuilder().medTermindato(d);
+                hendelseBuilder.medTerminbekreftelse(terminBuilder);
+            });
         var antallBarn = fødsel.getAntallBarn();
         hendelseBuilder.tilbakestillBarn().medAntallBarn(antallBarn);
         for (var i = 1; i <= antallBarn; i++) {
@@ -157,16 +172,12 @@ public class FamilieHendelseOversetter  {
     }
 
     private SoekersRelasjonTilBarnet getSoekersRelasjonTilBarnet(SøknadWrapper skjema) {
-        SoekersRelasjonTilBarnet relasjonTilBarnet = null;
-        var omYtelse = skjema.getOmYtelse();
-        if (omYtelse instanceof Foreldrepenger foreldrepenger) {
-            relasjonTilBarnet = foreldrepenger.getRelasjonTilBarnet();
-        } else if (omYtelse instanceof Engangsstønad engangsstønad) {
-            relasjonTilBarnet = engangsstønad.getSoekersRelasjonTilBarnet();
-        }
-
-        Objects.requireNonNull(relasjonTilBarnet, "Relasjon til barnet må være oppgitt");
-        return relasjonTilBarnet;
+        return switch (skjema.getOmYtelse()) {
+            case Foreldrepenger foreldrepenger -> foreldrepenger.getRelasjonTilBarnet();
+            case Engangsstønad engangsstønad -> engangsstønad.getSoekersRelasjonTilBarnet();
+            default -> throw new IllegalStateException("Relasjon til barnet må være oppgitt");
+        };
     }
+
 
 }
