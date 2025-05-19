@@ -78,10 +78,12 @@ spec:
           {{/each}}
   {{#if AZURE_IAC_RULES}}
   accessPolicy:
+    outbound:
+      rules:
+      - application: logging
+        namespace: nais-system
     inbound:
       rules:
-      - application: statuspoll
-        namespace: navdig
       {{#each AZURE_IAC_RULES}}
       - application: {{app}}
         namespace: {{namespace}}
