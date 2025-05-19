@@ -46,7 +46,6 @@ public class FamilieHendelseOversetter  {
      * - Dersom søknad for Fødsel mangler termindato, så hentes den fra evt gjeldende terminbekreftelse
      */
     void oversettPersisterFamilieHendelse(SøknadWrapper wrapper, Behandling behandling, SøknadEntitet.Builder søknadBuilder) {
-        var loggFør = loggFamilieHendelseForFørstegangPåRevurdering(behandling, "FØR");
         var hendelseBuilder = familieHendelseRepository.opprettBuilderForSøknad(behandling.getId());
         if (wrapper.getOmYtelse() instanceof Svangerskapspenger svangerskapspenger) {
             byggFamilieHendelseForSvangerskap(svangerskapspenger, hendelseBuilder);
@@ -62,37 +61,9 @@ public class FamilieHendelseOversetter  {
                 case Adopsjon adopsjon -> byggAdopsjonsrelaterteFelter(adopsjon, hendelseBuilder);
                 case Omsorgsovertakelse omsorgsovertakelse -> byggOmsorgsovertakelsesrelaterteFelter(omsorgsovertakelse, hendelseBuilder, søknadBuilder);
                 default -> throw new IllegalArgumentException("Ukjent subklasse av SoekersRelasjonTilBarnet: " + soekersRelasjonTilBarnet.getClass().getSimpleName());
-            };
+            }
         }
         familieHendelseRepository.lagreSøknadHendelse(behandling.getId(), hendelseBuilder);
-        if (loggFør) {
-            loggFamilieHendelseForFørstegangPåRevurdering(behandling, "ETTER");
-        }
-    }
-
-    private boolean loggFamilieHendelseForFørstegangPåRevurdering(Behandling behandling, String infix) {
-        var aggregat = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
-        if (aggregat.isEmpty()) {
-            return false;
-        }
-        var harBekreftetFamiliehendelse = aggregat.flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon).isPresent();
-        var søknadFamilieHendelseType = aggregat.map(FamilieHendelseGrunnlagEntitet::getSøknadVersjon).map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT);
-        var gjeldendeFamilieHendelseType = aggregat.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT);
-        LocalDate søknadFamiliehendelseDato = null;
-        LocalDate gjeldendeFamiliehendelseDato = null;
-        try {
-            søknadFamiliehendelseDato = aggregat.map(FamilieHendelseGrunnlagEntitet::getSøknadVersjon)
-                .map(FamilieHendelseEntitet::getSkjæringstidspunkt).orElse(null);
-            gjeldendeFamiliehendelseDato = aggregat.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-                .map(FamilieHendelseEntitet::getSkjæringstidspunkt).orElse(null);
-        } catch (Exception e) {
-            // Intentionally empty
-        }
-        LOG.info("OversettFørstegang {} {}: type {} dato {} gjeldende type {} dato {} for bId {} type {} yt {}", infix,
-            harBekreftetFamiliehendelse ? "bekreftet" : "søknad", søknadFamilieHendelseType.getKode(), søknadFamiliehendelseDato,
-            gjeldendeFamilieHendelseType.getKode(), gjeldendeFamiliehendelseDato, behandling.getId(), behandling.getType().getKode(),
-            behandling.getFagsakYtelseType().getKode());
-        return true;
     }
 
     private void byggFamilieHendelseForSvangerskap(Svangerskapspenger omYtelse,
