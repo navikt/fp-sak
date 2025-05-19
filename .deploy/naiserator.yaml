@@ -52,8 +52,9 @@ spec:
       enabled: true
       runtime: java
       destinations:
-        - id: "grafana-lgtm"
-        - id: "elastic-apm"
+        - id: elastic
+        - id: secure_logs
+        - id: loki
   vault:
     enabled: true
     paths:
