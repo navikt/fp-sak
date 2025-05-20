@@ -46,7 +46,7 @@ spec:
   kafka:
       pool: {{kafkaPool}}
   secureLogs:
-    enabled: true
+    enabled: false
   observability:
     autoInstrumentation:
       enabled: true
@@ -82,10 +82,6 @@ spec:
           {{/each}}
   {{#if AZURE_IAC_RULES}}
   accessPolicy:
-    outbound:
-      rules:
-      - application: logging
-        namespace: nais-system
     inbound:
       rules:
       {{#each AZURE_IAC_RULES}}
