@@ -54,6 +54,10 @@ spec:
       destinations:
         - id: "grafana-lgtm"
         - id: "elastic-apm"
+    logging:
+      destinations:
+        - id: elastic
+        - id: loki
   vault:
     enabled: true
     paths:
