@@ -36,6 +36,8 @@ import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.web.app.konfig.ApiConfig;
 import no.nav.foreldrepenger.web.app.konfig.InternalApiConfig;
 
+import org.slf4j.bridge.SLF4JBridgeHandler;
+
 public class JettyServer {
 
     private static final Logger LOG = LoggerFactory.getLogger(JettyServer.class);
@@ -63,6 +65,7 @@ public class JettyServer {
     }
 
     protected void bootStrap() throws Exception {
+        konfigurerLogging();
         konfigurerSikkerhet();
 
         // Sett System.setProperty("task.manager.runner.threads", 10); til å endre antal prosesstask tråder. Default 10.
@@ -79,6 +82,15 @@ public class JettyServer {
         if (ENV.isLocal()) {
             initTrustStore();
         }
+    }
+
+    /**
+     * Vi bruker SLF4J + logback, Jersey brukes JUL for logging.
+     * Setter opp en bridge til å få Jersey til å logge gjennom Logback også.
+     */
+    private void konfigurerLogging() {
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
     }
 
     private static void initTrustStore() {
