@@ -31,8 +31,7 @@ public class KobleFagsakerDto implements AbacDto {
     @Override
     public AbacDataAttributter abacAttributter() {
         return AbacDataAttributter.opprett()
-            .leggTil(AppAbacAttributtType.SAKSNUMMER, saksnummer1)
-            .leggTil(AppAbacAttributtType.SAKSNUMMER, saksnummer2);
+            .leggTil(AppAbacAttributtType.SAKSNUMMER, saksnummer1);
     }
 
     public String getSaksnummer1() {
