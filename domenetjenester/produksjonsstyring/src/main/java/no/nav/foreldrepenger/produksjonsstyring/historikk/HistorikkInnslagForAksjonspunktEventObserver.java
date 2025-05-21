@@ -7,7 +7,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
+import no.nav.foreldrepenger.behandlingskontroll.events.AutopunktStatusEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
@@ -39,7 +39,7 @@ public class HistorikkInnslagForAksjonspunktEventObserver {
     /**
      * @param event
      */
-    public void oppretteHistorikkForBehandlingPåVent(@Observes AksjonspunktStatusEvent event) {
+    public void oppretteHistorikkForBehandlingPåVent(@Observes AutopunktStatusEvent event) {
         for (var aksjonspunkt : event.getAksjonspunkter()) {
             if (aksjonspunkt.erOpprettet() && AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING.equals(aksjonspunkt.getAksjonspunktDefinisjon())) {
                 opprettHistorikkinnslagForVenteFristRelaterteInnslag(event.getBehandlingId(), event.getFagsakId(), "Behandlingen er satt på vent", null,
@@ -76,7 +76,7 @@ public class HistorikkInnslagForAksjonspunktEventObserver {
         historikkinnslagRepository.lagre(historikkinnslagBuilder.build());
     }
 
-    public void oppretteHistorikkForGjenopptattBehandling(@Observes AksjonspunktStatusEvent event) {
+    public void oppretteHistorikkForGjenopptattBehandling(@Observes AutopunktStatusEvent event) {
         for (var aksjonspunkt : event.getAksjonspunkter()) {
             if (aksjonspunkt.erUtført() && AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING.equals(aksjonspunkt.getAksjonspunktDefinisjon())) {
                 opprettHistorikkinnslagForVenteFristRelaterteInnslag(event.getBehandlingId(), event.getFagsakId(), "Køet behandling er gjenopptatt",

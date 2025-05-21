@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg.TransisjonType;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
+import no.nav.foreldrepenger.behandlingskontroll.events.AutopunktStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingTransisjonEvent;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
@@ -45,9 +46,7 @@ public class BehandlingskontrollFremoverhoppTransisjonEventObserver {
         if (!StegTransisjon.HOPPOVER.equals(transisjonEvent.getStegTransisjon())) {
             return;
         }
-        //         if (!FellesTransisjoner.erFremhoppTransisjon(transisjonEvent.getTransisjonIdentifikator()) || !transisjonEvent.erOverhopp()) {
-        //            return;
-        //        }
+
         var behandling = serviceProvider.hentBehandling(transisjonEvent.getBehandlingId());
         var modell = getModell(transisjonEvent.getKontekst());
 
@@ -86,8 +85,11 @@ public class BehandlingskontrollFremoverhoppTransisjonEventObserver {
         // Lagre oppdateringer; eventhåndteringen skal være autonom og selv ferdigstille
         // oppdateringer på behandlingen
         lagre(transisjonEvent, behandling);
-        if (!avbrutte.isEmpty() && serviceProvider.getEventPubliserer() != null) {
-            serviceProvider.getEventPubliserer().fireEvent(new AksjonspunktStatusEvent(transisjonEvent.getKontekst(), avbrutte, førsteSteg));
+        if (serviceProvider.getEventPubliserer() != null) {
+            var avbrutteAksjonspunkt = avbrutte.stream().filter(a -> !a.erAutopunkt()).toList();
+            serviceProvider.getEventPubliserer().fireEvent(new AksjonspunktStatusEvent(transisjonEvent.getKontekst(), avbrutteAksjonspunkt));
+            var avbrutteAutopunkt = avbrutte.stream().filter(Aksjonspunkt::erAutopunkt).toList();
+            serviceProvider.getEventPubliserer().fireEvent(new AutopunktStatusEvent(transisjonEvent.getKontekst(), avbrutteAutopunkt));
         }
 
     }

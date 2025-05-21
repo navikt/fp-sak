@@ -72,7 +72,8 @@ public class BehandlingskontrollTransisjonTilbakeføringEventObserver {
                 .descendingIterator() // stepper bakover
                 .forEachRemaining(s -> hoppBakover(s, event, førsteSteg, sisteSteg));
 
-        aksjonspunkterTilbakeført(event.getKontekst(), endredeAksjonspunkter, event.getFraStegType());
+        // endrete vil ikke inneholde autopunkt - de skal bli liggende ved tilbakehopp
+        aksjonspunkterTilbakeført(event.getKontekst(), endredeAksjonspunkter);
     }
 
     protected void hoppBakover(BehandlingStegModell s, BehandlingStegTilbakeføringEvent event, BehandlingStegType førsteSteg,
@@ -112,10 +113,9 @@ public class BehandlingskontrollTransisjonTilbakeføringEventObserver {
         }
     }
 
-    private void aksjonspunkterTilbakeført(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter,
-            BehandlingStegType behandlingStegType) {
+    private void aksjonspunkterTilbakeført(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter) {
         if (!aksjonspunkter.isEmpty()) {
-            eventPubliserer.fireEvent(new AksjonspunktStatusEvent(kontekst, aksjonspunkter, behandlingStegType));
+            eventPubliserer.fireEvent(new AksjonspunktStatusEvent(kontekst, aksjonspunkter));
         }
     }
 
