@@ -20,20 +20,15 @@ public class OverstyringFaktaOmFødselDto extends OverstyringAksjonspunktDto {
     @JsonProperty("termindato")
     private LocalDate termindato;
 
-    // TODO: Undersøk om denne trengs eller ikke
-    @JsonProperty("omsorgsovertakelsesdato")
-    private LocalDate omsorgsovertakelsesdato;
-
     // TODO: Kan vi bruke UidentifisertBarnDto eller bør vi lage en egen? Eller er det noe
     @JsonProperty("barn")
     private List<UidentifisertBarnDto> barn;
 
     // TODO: Skal man kunne overstyre dødsdato også?
 
-    public OverstyringFaktaOmFødselDto(String begrunnelse, LocalDate termindato, LocalDate omsorgsovertakelsesdato, List<UidentifisertBarnDto> barn) {
+    public OverstyringFaktaOmFødselDto(String begrunnelse, LocalDate termindato, List<UidentifisertBarnDto> barn) {
         super(begrunnelse);
         this.termindato = termindato;
-        this.omsorgsovertakelsesdato = omsorgsovertakelsesdato;
         this.barn = barn;
     }
 
@@ -45,10 +40,6 @@ public class OverstyringFaktaOmFødselDto extends OverstyringAksjonspunktDto {
 
     public LocalDate getTermindato() {
         return termindato;
-    }
-
-    public LocalDate getOmsorgsovertakelsesdato() {
-        return omsorgsovertakelsesdato;
     }
 
     public List<UidentifisertBarnDto> getBarn() {
@@ -75,7 +66,6 @@ public class OverstyringFaktaOmFødselDto extends OverstyringAksjonspunktDto {
 
     @Override
     public String toString() {
-        return "OverstyringFaktaOmFødselDto{" + "termindato=" + termindato + ", omsorgsovertakelsesdato=" + omsorgsovertakelsesdato + ", barna="
-            + barn + '}';
+        return "OverstyringFaktaOmFødselDto{" + "termindato=" + termindato + ", barn=" + barn + '}';
     }
 }

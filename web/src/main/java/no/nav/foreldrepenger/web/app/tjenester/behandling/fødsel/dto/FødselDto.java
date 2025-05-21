@@ -21,7 +21,5 @@ public record FødselDto(FødselDto.Søknad søknad, FødselDto.Register registe
 
         public record Barn(Kilde kilde, List<AvklartBarnDto> barn, boolean kanOverstyres) {
         }
-
-        // TODO: Undersøke om vi må ha noe relatert til omsorgsovertakelse, eller om vi slipper
     }
 }

@@ -39,10 +39,9 @@ public class FaktaFødselTjeneste {
         // TODO: Implementer overstyring av fakta om fødsel
         // TODO: Husk å overstyre antall barn også, ved å bruke dto.getAntallBarn()
         // TODO: Sjekk overstyring av antall barn hvis det er registrert noe i freg
+        // TODO: Lagres antall barn som en faktisk verdi, eller lagrer vi bare barna og regner ut antallet?
 
         // TODO: Case: Født i utlandet, ikke registrert i FREG. Barn dør like etter fødsel. Dødsdato må overstyres
-
-        // TODO: Undersøk prematur dødfødsel, hva skjer da med freg og denne overstyringen?
 
         // TODO: Finnes det noen caser hvor det er registrert i freg og man likevel skal få lov til å overstyre?
     }
@@ -59,22 +58,20 @@ public class FaktaFødselTjeneste {
     }
 
     private static FødselDto.Gjeldende.Termindato mapTermindato(FamilieHendelseGrunnlagEntitet familieHendelse) {
-        // TODO: Termindato kan aldri være i bekreftet/register?
         var overstyrtTermindato = familieHendelse.getOverstyrtVersjon().flatMap(FamilieHendelseEntitet::getTermindato).orElse(null);
         var søknadTermindato = familieHendelse.getSøknadVersjon().getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).orElse(null);
-        var kilde = Objects.equals(overstyrtTermindato, søknadTermindato) ? Kilde.SØKNAD : Kilde.SBH;
+        var kilde = Objects.equals(overstyrtTermindato, søknadTermindato) ? Kilde.SØKNAD : Kilde.SAKSBEHANDLER;
         return new FødselDto.Gjeldende.Termindato(kilde, kilde == Kilde.SØKNAD ? søknadTermindato : overstyrtTermindato, true);
     }
 
     private FødselDto.Gjeldende.Barn mapBarn(FamilieHendelseGrunnlagEntitet familieHendelse) {
         var kilde = getKildeForBarn(familieHendelse);
-        // TODO: Hvis det er fra bekreftet så kan man ikke overstyre, eller? Undersøk om det populeres fra søknad hvis null
         var barn = switch (kilde) {
-            case SBH -> getBarn(familieHendelse.getOverstyrtVersjon().orElse(null));
-            case FREG -> getBarn(familieHendelse.getBekreftetVersjon().orElse(null));
+            case SAKSBEHANDLER -> getBarn(familieHendelse.getOverstyrtVersjon().orElse(null));
+            case FOLKEREGISTER -> getBarn(familieHendelse.getBekreftetVersjon().orElse(null));
             case SØKNAD -> getBarn(familieHendelse.getSøknadVersjon());
         };
-        return new FødselDto.Gjeldende.Barn(kilde, barn, kilde != Kilde.FREG);
+        return new FødselDto.Gjeldende.Barn(kilde, barn, kilde != Kilde.FOLKEREGISTER);
     }
 
     private List<AvklartBarnDto> getBarn(FamilieHendelseEntitet familieHendelse) {
@@ -85,18 +82,34 @@ public class FaktaFødselTjeneste {
     }
 
     private static Kilde getKildeForBarn(FamilieHendelseGrunnlagEntitet familieHendelse) {
-        // TODO: Finnes det en situasjon er det ikke ligger barn i noen av disse? Kan overstyrer gå inn før sbh har løst ap?
+        // TODO: Sjekk populering
         var overstyrteBarn = familieHendelse.getOverstyrtVersjon().map(FamilieHendelseEntitet::getBarna).orElse(Collections.emptyList());
         var bekreftedeBarn = familieHendelse.getBekreftetVersjon().map(FamilieHendelseEntitet::getBarna).orElse(Collections.emptyList());
         var søknadBarn = familieHendelse.getSøknadVersjon().getBarna();
-        // TODO: Kan man mangle bekreftede barn, og få ap som man løser og deretter får man inn bekreftede barn?
 
-        // TODO: Tenk litt på om bekreftet og søknad alltid kan være like, og overstyrt er forskjellig
-        if (!harLikeBarn(overstyrteBarn, søknadBarn)) {
-            return Kilde.SBH;
+        /**
+         * Hvis det finnes overstyrte barn som er flere enn bekreftede, så er det alltid overstyrt som gjelder
+         * Hvis det finnes bekreftede barn så er det bekreftet som gjelder, så lenge ikke punkt ovenfor treffer
+         * Ellers er det bare søknad som gjelder? Eller?
+         */
+
+
+        if (overstyrteBarn.size() > bekreftedeBarn.size()) {
+            return Kilde.SAKSBEHANDLER;
         }
 
-        return harLikeBarn(bekreftedeBarn, søknadBarn) ? Kilde.SØKNAD : Kilde.FREG;
+        if (!bekreftedeBarn.isEmpty()) {
+            return Kilde.FOLKEREGISTER;
+        }
+
+        return Kilde.SØKNAD;
+
+        // TODO: Tenk litt på om bekreftet og søknad alltid kan være like, og overstyrt er forskjellig
+//        if (!harLikeBarn(overstyrteBarn, søknadBarn)) {
+//            return Kilde.SBH;
+//        }
+//
+//        return harLikeBarn(bekreftedeBarn, søknadBarn) ? Kilde.SØKNAD : Kilde.FREG;
     }
 
     private static boolean harLikeBarn(List<UidentifisertBarn> barn1, List<UidentifisertBarn> barn2) {
