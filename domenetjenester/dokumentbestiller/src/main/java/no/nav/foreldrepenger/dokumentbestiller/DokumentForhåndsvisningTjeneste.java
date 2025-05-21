@@ -23,6 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.dokumentbestiller.formidling.Dokument;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.kontrakter.formidling.kodeverk.Saksnummer;
 import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentBestillingHtmlDto;
 import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentForhåndsvisDto;
@@ -35,6 +36,7 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
+    private ForeldrepengerUttakTjeneste uttakTjeneste;
     private Dokument brev;
 
     DokumentForhåndsvisningTjeneste() {
@@ -46,11 +48,13 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
                                            BehandlingsresultatRepository behandlingsresultatRepository,
                                            DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
                                            KlageRepository klageRepository,
+                                           ForeldrepengerUttakTjeneste uttakTjeneste,
                                            Dokument brev) {
         super(klageRepository);
         this.behandlingRepository = behandlingRepository;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
+        this.uttakTjeneste = uttakTjeneste;
         this.brev = brev;
     }
 
@@ -61,18 +65,30 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
     }
 
     public String genererHtml(Behandling behandling) {
-        var dokumentBestillingHtmlDto = lagDokumentBestillingHtmlDto(behandling);
-        LOG.info("Genererer HTML for brev med mal {} for behandling {}", dokumentBestillingHtmlDto.dokumentMal(), behandling.getUuid());
-        return brev.genererHtml(dokumentBestillingHtmlDto);
-    }
-
-    private DokumentBestillingHtmlDto lagDokumentBestillingHtmlDto(Behandling behandling) {
         var dokumentMalType = utledDokumentmalTypeFraBehandling(behandling.getId(), behandling.getUuid(), DokumentForhandsvisning.DokumentType.AUTOMATISK);
-        return new DokumentBestillingHtmlDto(
+        if (DokumentMalType.FORELDREPENGER_INNVILGELSE.equals(dokumentMalType) && erUttakTomt(behandling)) {
+            LOG.info("Genererer annuleringsbrev som utgangspunkt for overstyring av foreldrepenger som med tomt uttak: {}", behandling.getFagsak().getSaksnummer());
+            dokumentMalType = DokumentMalType.FORELDREPENGER_ANNULLERT;
+        }
+
+        var dokumentBestillingHtmlDto = new DokumentBestillingHtmlDto(
             behandling.getUuid(),
             new Saksnummer(behandling.getSaksnummer().getVerdi()),
             mapDokumentMal(dokumentMalType)
         );
+
+        LOG.info("Genererer HTML for brev med mal {} for behandling {}", dokumentBestillingHtmlDto.dokumentMal(), behandling.getUuid());
+        return brev.genererHtml(dokumentBestillingHtmlDto);
+    }
+
+    private boolean erUttakTomt(Behandling behandling) {
+        var uttakOpt = uttakTjeneste.hentHvisEksisterer(behandling.getId());
+        if (uttakOpt.isEmpty() || uttakOpt.get().getGjeldendePerioder().isEmpty()) {
+            return true;
+        }
+
+        return uttakOpt.get().getGjeldendePerioder().stream()
+            .noneMatch(periode -> periode.harUtbetaling() || periode.harTrekkdager());
     }
 
     private DokumentMalType maltypeFraBestillingEllersUtledFraBehandling(Long behandlingId, DokumentForhandsvisning bestilling, UUID behandlingUuid) {
