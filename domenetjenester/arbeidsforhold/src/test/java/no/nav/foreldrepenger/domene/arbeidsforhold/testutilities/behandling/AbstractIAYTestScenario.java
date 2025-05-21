@@ -32,7 +32,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
@@ -172,16 +171,12 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
             }
 
             @Override
-            public void lagre(Long behandlingId, FamilieHendelseBuilder hendelseBuilder) {
+            public void lagreSøknadHendelse(Long behandlingId, FamilieHendelseBuilder hendelseBuilder) {
                 var kladd = hentAggregatHvisEksisterer(behandlingId);
-                var builder = FamilieHendelseGrunnlagBuilder.oppdatere(kladd);
-                var type = utledTypeFor(kladd);
-                switch (type) {
-                    case SØKNAD -> builder.medSøknadVersjon(hendelseBuilder);
-                    case BEKREFTET -> builder.medBekreftetVersjon(hendelseBuilder);
-                    case OVERSTYRT -> builder.medOverstyrtVersjon(hendelseBuilder);
-                    default -> throw new UnsupportedOperationException("Støtter ikke HendelseVersjonType:" + type);
-                }
+                var builder = FamilieHendelseGrunnlagBuilder.oppdatere(kladd)
+                    .medSøknadVersjon(hendelseBuilder)
+                    .medBekreftetVersjon(null)
+                    .medOverstyrtVersjon(null);
                 familieHendelseAggregatMap.remove(behandlingId);
                 familieHendelseAggregatMap.put(behandlingId, builder.build());
             }
@@ -218,24 +213,6 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
 
             @Override
             public void kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(Long gammelBehandlingId, Long nyBehandlingId) {
-                throw new UnsupportedOperationException();
-            }
-
-            private HendelseVersjonType utledTypeFor(Optional<FamilieHendelseGrunnlagEntitet> aggregat) {
-                if (aggregat.isPresent()) {
-                    if (aggregat.get().getHarOverstyrteData()) {
-                        return HendelseVersjonType.OVERSTYRT;
-                    }
-                    if (aggregat.get().getHarBekreftedeData() || aggregat.get().getSøknadVersjon() != null) {
-                        return HendelseVersjonType.BEKREFTET;
-                    }
-                    return HendelseVersjonType.SØKNAD;
-                }
-                return HendelseVersjonType.SØKNAD;
-            }
-
-            @Override
-            public FamilieHendelseBuilder opprettBuilderFor(Long behandlingId, boolean register) {
                 throw new UnsupportedOperationException();
             }
 

@@ -60,9 +60,10 @@ public class DekningsgradSteg implements BehandlingSteg {
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandlingId);
         var eksisterendeSakskompleksDekningsgrad = ytelseFordelingAggregat.getSakskompleksDekningsgrad();
         var annenPartsOppgittDekningsgrad = finnAnnenPartsOppgittDekningsgrad(kontekst.getFagsakId()).orElse(null);
-        var fh = familieHendelseTjeneste.hentAggregat(behandlingId).getGjeldendeVersjon();
+        var barna = familieHendelseTjeneste.hentAggregat(behandlingId).getGjeldendeVersjon().getBarna();
         return SakskompleksDekningsgradUtleder.utledFor(fagsakRelasjonDekningsgrad, eksisterendeSakskompleksDekningsgrad,
-            ytelseFordelingAggregat.getOppgittDekningsgrad(), annenPartsOppgittDekningsgrad, fh).map(utledingResultat -> {
+            ytelseFordelingAggregat.getOppgittDekningsgrad(), annenPartsOppgittDekningsgrad, barna)
+            .map(utledingResultat -> {
                 if (!Objects.equals(ytelseFordelingAggregat.getGjeldendeDekningsgrad(), utledingResultat.dekningsgrad())) {
                     lagHistorikkinnslag(kontekst, ytelseFordelingAggregat.getGjeldendeDekningsgrad(), utledingResultat);
                 }

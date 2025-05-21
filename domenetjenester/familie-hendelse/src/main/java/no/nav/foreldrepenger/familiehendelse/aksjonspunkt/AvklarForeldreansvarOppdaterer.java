@@ -47,7 +47,7 @@ public class AvklarForeldreansvarOppdaterer implements AksjonspunktOppdaterer<Av
 
     private void oppdaterAksjonspunktGrunnlag(AvklarFaktaForForeldreansvarAksjonspunktDto dto, Long behandlingId) {
 
-        var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandlingId);
+        var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderForOverstyring(behandlingId);
         oppdatertOverstyrtHendelse
             .medAdopsjon(oppdatertOverstyrtHendelse.getAdopsjonBuilder()
                 .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)

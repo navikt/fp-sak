@@ -94,12 +94,12 @@ public class ForvaltningSøknadRestTjeneste {
         var gjeldende = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId);
         if (gjeldende.isEmpty() || gjeldende.flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeTerminbekreftelse).isPresent())
             return Response.status(Response.Status.BAD_REQUEST).build();
-        var hendelsebuilder = familieHendelseRepository.opprettBuilderFor(behandlingId);
+        var hendelsebuilder = familieHendelseRepository.opprettBuilderForOverstyring(behandlingId);
         var terminbuilder = hendelsebuilder.getTerminbekreftelseBuilder()
             .medTermindato(dto.getTermindato())
             .medUtstedtDato(dto.getUtstedtdato())
             .medNavnPå(dto.getBegrunnelse());
-        familieHendelseRepository.lagre(behandlingId, hendelsebuilder.medTerminbekreftelse(terminbuilder));
+        familieHendelseRepository.lagreOverstyrtHendelse(behandlingId, hendelsebuilder.medTerminbekreftelse(terminbuilder));
 
         return Response.ok().build();
     }
@@ -121,7 +121,7 @@ public class ForvaltningSøknadRestTjeneste {
         ) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        var hendelsebuilder = familieHendelseRepository.opprettBuilderFor(behandlingId)
+        var hendelsebuilder = familieHendelseRepository.opprettBuilderForOverstyring(behandlingId)
             .medAntallBarn(1)
             .erFødsel() // Settes til fødsel for å sikre at typen blir fødsel selv om det ikke er født barn.
             .medErMorForSykVedFødsel(null)

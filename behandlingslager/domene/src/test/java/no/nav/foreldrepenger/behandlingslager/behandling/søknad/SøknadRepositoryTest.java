@@ -3,16 +3,13 @@ package no.nav.foreldrepenger.behandlingslager.behandling.søknad;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -47,9 +44,9 @@ class SøknadRepositoryTest extends EntityManagerAwareTest {
         var behandling2 = Behandling.forFørstegangssøknad(fagsak).build();
         behandlingRepository.lagre(behandling2, behandlingRepository.taSkriveLås(behandling2));
 
-        var fhBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
+        var fhBuilder = familieHendelseRepository.opprettBuilderForSøknad(behandling.getId());
         fhBuilder.medFødselsDato(LocalDate.now()).medAntallBarn(1);
-        familieHendelseRepository.lagre(behandling.getId(), fhBuilder);
+        familieHendelseRepository.lagreSøknadHendelse(behandling.getId(), fhBuilder);
         familieHendelseRepository.kopierGrunnlagFraEksisterendeBehandling(behandling.getId(), behandling2.getId());
 
         var søknad = opprettSøknad(false);
@@ -76,9 +73,9 @@ class SøknadRepositoryTest extends EntityManagerAwareTest {
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
-        var fhBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
+        var fhBuilder = familieHendelseRepository.opprettBuilderForSøknad(behandling.getId());
         fhBuilder.medFødselsDato(LocalDate.now()).medAntallBarn(1);
-        familieHendelseRepository.lagre(behandling.getId(), fhBuilder);
+        familieHendelseRepository.lagreSøknadHendelse(behandling.getId(), fhBuilder);
 
         var søknad = opprettSøknad(false);
         søknadRepository.lagreOgFlush(behandling, søknad);

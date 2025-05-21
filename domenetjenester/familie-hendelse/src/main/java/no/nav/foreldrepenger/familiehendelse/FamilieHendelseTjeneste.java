@@ -149,7 +149,7 @@ public class FamilieHendelseTjeneste {
             return;
         }
 
-        var hendelseBuilder = familieGrunnlagRepository.opprettBuilderFor(behandlingId, true).tilbakestillBarn();
+        var hendelseBuilder = familieGrunnlagRepository.opprettBuilderForRegister(behandlingId).tilbakestillBarn();
 
         bekreftetPdl.forEach(barn -> hendelseBuilder.leggTilBarn(barn.fødselsdato(), barn.getDødsdato().orElse(null)));
         hendelseBuilder.medAntallBarn(bekreftetPdl.size());
@@ -174,8 +174,8 @@ public class FamilieHendelseTjeneste {
     }
 
 
-    public FamilieHendelseBuilder opprettBuilderFor(Long behandlingId) {
-        return familieGrunnlagRepository.opprettBuilderFor(behandlingId);
+    public FamilieHendelseBuilder opprettBuilderForOverstyring(Long behandlingId) {
+        return familieGrunnlagRepository.opprettBuilderForOverstyring(behandlingId);
     }
 
 
