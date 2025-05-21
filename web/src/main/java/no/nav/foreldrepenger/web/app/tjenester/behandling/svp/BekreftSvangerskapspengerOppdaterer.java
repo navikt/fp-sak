@@ -402,7 +402,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         var erEndret = erEndretVerdi(orginalFødselsdato.orElse(null), dto.getFødselsdato());
 
         if (erEndret) {
-            var oppdatertOverstyrtHendelse = familieHendelseRepository.opprettBuilderFor(ref.behandlingId());
+            var oppdatertOverstyrtHendelse = familieHendelseRepository.opprettBuilderForOverstyring(ref.behandlingId());
             oppdatertOverstyrtHendelse.tilbakestillBarn();
             if (dto.getFødselsdato() != null) {
                 oppdatertOverstyrtHendelse.medFødselsDato(dto.getFødselsdato()).medAntallBarn(1);
@@ -422,7 +422,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         var erEndret = erEndretVerdi(orginalTermindato, dto.getTermindato());
 
         if (erEndret) {
-            var oppdatertOverstyrtHendelse = familieHendelseRepository.opprettBuilderFor(ref.behandlingId());
+            var oppdatertOverstyrtHendelse = familieHendelseRepository.opprettBuilderForOverstyring(ref.behandlingId());
             oppdatertOverstyrtHendelse.medTerminbekreftelse(oppdatertOverstyrtHendelse.getTerminbekreftelseBuilder().medTermindato(dto.getTermindato()));
             familieHendelseRepository.lagreOverstyrtHendelse(ref.behandlingId(), oppdatertOverstyrtHendelse);
         }

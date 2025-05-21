@@ -111,8 +111,8 @@ public class VergeTjeneste {
     private void avbrytVergeAksjonspunktHvisFinnes(Behandling behandling) {
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AVKLAR_VERGE)
-            .ifPresent(aksjonspunkt -> behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(),
-                List.of(aksjonspunkt)));
+            .ifPresent(aksjonspunkt -> behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst,
+                    List.of(aksjonspunkt)));
     }
 
     private void opprettHistorikkinnslagForFjernetVerge(Behandling behandling) {

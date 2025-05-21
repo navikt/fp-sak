@@ -8,14 +8,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-public class AksjonspunktStatusEvent implements BehandlingEvent {
+public class AutopunktStatusEvent implements BehandlingEvent {
 
     private final Long behandlingId;
     private final Saksnummer saksnummer;
     private final Long fagsakId;
     private final List<Aksjonspunkt> aksjonspunkter;
 
-    public AksjonspunktStatusEvent(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter) {
+    public AutopunktStatusEvent(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter) {
         this.behandlingId = kontekst.getBehandlingId();
         this.saksnummer = kontekst.getSaksnummer();
         this.fagsakId = kontekst.getFagsakId();

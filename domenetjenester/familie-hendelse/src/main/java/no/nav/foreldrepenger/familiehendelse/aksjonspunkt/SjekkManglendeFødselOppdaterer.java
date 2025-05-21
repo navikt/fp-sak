@@ -64,7 +64,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
         var totrinn = håndterEndringHistorikk(dto, param.getRef(), grunnlag);
         var utledetResultat = utledFødselsdata(dto, grunnlag);
 
-        var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandlingId);
+        var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderForOverstyring(behandlingId);
         oppdatertOverstyrtHendelse.tilbakestillBarn()
             .medAntallBarn(utledetResultat.size())
             .erFødsel() // Settes til fødsel for å sikre at typen blir fødsel selv om det ikke er født barn.

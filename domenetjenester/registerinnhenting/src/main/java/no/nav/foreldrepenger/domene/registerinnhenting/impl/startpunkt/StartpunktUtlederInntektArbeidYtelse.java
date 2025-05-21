@@ -182,7 +182,7 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
 
     private void avbrytAksjonspunkter(Behandling behandling, List<Aksjonspunkt> aksjonspunkter) {
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-        behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), aksjonspunkter);
+        behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, aksjonspunkter);
     }
 
     private void leggTilStartpunkt(List<StartpunktType> startpunkter, UUID grunnlagId1, UUID grunnlagId2, StartpunktType startpunkt, String endringLoggtekst) {

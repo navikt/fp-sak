@@ -65,11 +65,10 @@ public class FortsettBehandlingTask implements ProsessTaskHandler {
                     behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
                 }
             } else {
-                var utført = data.getPropertyValue(UTFORT_AUTOPUNKT);
-                if (utført != null) {
-                    var aksjonspunkt = AksjonspunktDefinisjon.fraKode(utført);
-                    behandlingskontrollTjeneste.settAutopunktTilUtført(behandling, aksjonspunkt, kontekst);
-                }
+                Optional.ofNullable(data.getPropertyValue(UTFORT_AUTOPUNKT))
+                    .map(AksjonspunktDefinisjon::fraKode)
+                    .flatMap(behandling::getÅpentAksjonspunktMedDefinisjonOptional)
+                    .ifPresent(a -> behandlingskontrollTjeneste.settAutopunktTilUtført(kontekst, behandling, a));
             }
             // Ingen åpne autopunkt her, takk
             validerBehandlingIkkeErSattPåVent(behandling);

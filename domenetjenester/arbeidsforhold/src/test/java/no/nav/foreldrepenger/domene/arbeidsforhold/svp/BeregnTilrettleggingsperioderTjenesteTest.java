@@ -215,12 +215,12 @@ class BeregnTilrettleggingsperioderTjenesteTest {
 
     private FamilieHendelseEntitet byggFamilieHendelse(Behandling behandling, LocalDate termindato) {
         var søknadHendelse = familieHendelseRepository
-                .opprettBuilderFor(behandling.getId())
+                .opprettBuilderForSøknad(behandling.getId())
                 .medAntallBarn(1);
         søknadHendelse.medTerminbekreftelse(søknadHendelse.getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medUtstedtDato(termindato.minusDays(21)));
-        familieHendelseRepository.lagre(behandling.getId(), søknadHendelse);
+        familieHendelseRepository.lagreSøknadHendelse(behandling.getId(), søknadHendelse);
         return familieHendelseRepository.hentAggregat(behandling.getId()).getSøknadVersjon();
     }
 

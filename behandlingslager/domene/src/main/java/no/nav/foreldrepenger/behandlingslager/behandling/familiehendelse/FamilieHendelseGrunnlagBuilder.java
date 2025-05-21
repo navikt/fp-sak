@@ -29,10 +29,12 @@ public class FamilieHendelseGrunnlagBuilder {
     }
 
     public FamilieHendelseGrunnlagBuilder medSøknadVersjon(FamilieHendelseBuilder hendelseBuilder) {
-        if (Optional.ofNullable(kladd.getSøknadVersjon()).isPresent()) {
-            throw FamilieHendelseFeil.kanIkkeOppdatereSøknadVersjon();
-        }
         kladd.setSøknadHendelse(hendelseBuilder.build());
+        return this;
+    }
+
+    public FamilieHendelseGrunnlagBuilder medSøknadVersjon(FamilieHendelseEntitet hendelse) {
+        kladd.setSøknadHendelse(hendelse);
         return this;
     }
 
@@ -60,7 +62,8 @@ public class FamilieHendelseGrunnlagBuilder {
         return this;
     }
 
-    FamilieHendelseGrunnlagEntitet getKladd() {
+    // Ikke bruk denne med mindre strengt nødvendig. Brukes nå kun ifm Repository og AbstractTestScenario
+    public FamilieHendelseGrunnlagEntitet getKladd() {
         return kladd;
     }
 

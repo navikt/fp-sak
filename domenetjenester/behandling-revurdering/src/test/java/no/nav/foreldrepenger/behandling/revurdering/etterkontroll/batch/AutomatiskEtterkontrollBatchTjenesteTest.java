@@ -209,12 +209,12 @@ class AutomatiskEtterkontrollBatchTjenesteTest {
         revurderingsBehandling.avsluttBehandling();
         behandlingRepository.lagre(revurderingsBehandling, behandlingRepository.taSkriveLås(revurderingsBehandling));
         grunnlagRepository.kopierGrunnlagFraEksisterendeBehandling(behandling.getId(), revurderingsBehandling.getId());
-        var oppdatere = grunnlagRepository.opprettBuilderFor(revurderingsBehandling.getId());
+        var oppdatere = grunnlagRepository.opprettBuilderForSøknad(revurderingsBehandling.getId());
         oppdatere.medTerminbekreftelse(oppdatere.getTerminbekreftelseBuilder()
                 .medTermindato(terminDato)
                 .medNavnPå("Lege Legsen")
                 .medUtstedtDato(terminDato.minusDays(40))).medAntallBarn(1);
-        grunnlagRepository.lagre(revurderingsBehandling.getId(), oppdatere);
+        grunnlagRepository.lagreSøknadHendelse(revurderingsBehandling.getId(), oppdatere);
         behandlingVedtakRepository.lagre(behandlingVedtak, behandlingRepository.taSkriveLås(revurderingsBehandling));
 
         var etterkontroll = new Etterkontroll.Builder(revurderingsBehandling.getFagsakId()).medErBehandlet(

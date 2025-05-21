@@ -45,7 +45,7 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
         this.behandling = scenario.lagMocked();
         this.repositoryProvider = scenario.mockBehandlingRepositoryProvider();
 
-        tjeneste = new DokumentForhåndsvisningTjeneste(repositoryProvider.getBehandlingRepository(), repositoryProvider.getBehandlingsresultatRepository(), dokumentBehandlingTjeneste, null, brevTjeneste);
+        tjeneste = new DokumentForhåndsvisningTjeneste(repositoryProvider.getBehandlingRepository(), repositoryProvider.getBehandlingsresultatRepository(), dokumentBehandlingTjeneste, null, null, brevTjeneste);
     }
     @Test
     @DisplayName("Brevet er ikke overstyrt med fritekst, skal forhåndsvise det automatiske brevet.")
