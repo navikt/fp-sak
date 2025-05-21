@@ -62,7 +62,7 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
             historikkinnslagRepository.lagre(historikkinnslag);
         }
 
-        var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandlingId);
+        var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderForOverstyring(behandlingId);
         if (FamilieHendelseType.TERMIN.equals(grunnlag.getGjeldendeVersjon().getType())) {
             oppdatertOverstyrtHendelse
                 .tilbakestillBarn()

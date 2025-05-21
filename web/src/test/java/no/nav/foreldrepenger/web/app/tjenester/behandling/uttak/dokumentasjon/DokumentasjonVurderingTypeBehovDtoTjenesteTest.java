@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import jakarta.inject.Inject;
 
@@ -14,8 +13,6 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
@@ -62,8 +59,8 @@ class DokumentasjonVurderingTypeBehovDtoTjenesteTest {
             .medÅrsak(OverføringÅrsak.SYKDOM_ANNEN_FORELDER)
             .build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medFordeling(new OppgittFordelingEntitet(List.of(mødrekvoteUtenBehov, overføringMedVurdering, overføringUtenVurdering), true))
-            .medBekreftetHendelse(FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.BEKREFTET).medFødselsDato(LocalDate.now()));
+            .medFordeling(new OppgittFordelingEntitet(List.of(mødrekvoteUtenBehov, overføringMedVurdering, overføringUtenVurdering), true));
+        scenario.medBekreftetHendelse().medAntallBarn(1).medFødselsDato(LocalDate.now());
         var behandling = scenario.lagre(repositoryProvider);
 
         var tjeneste = new DokumentasjonVurderingBehovDtoTjeneste(repositoryProvider.getBehandlingRepository(), uttakInputTjeneste,

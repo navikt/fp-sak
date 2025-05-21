@@ -7,7 +7,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 
-import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -379,37 +378,26 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             }
 
             @Override
-            public void lagre(Long behandlingId, FamilieHendelseBuilder hendelseBuilder) {
+            public void lagreSøknadHendelse(Long behandlingId, FamilieHendelseBuilder hendelse) {
                 var kladd = hentAggregatHvisEksisterer(behandlingId);
-                var builder = FamilieHendelseGrunnlagBuilder.oppdatere(kladd);
-                var type = utledTypeForMock(kladd);
-                switch (type) {
-                    case SØKNAD -> builder.medSøknadVersjon(hendelseBuilder);
-                    case BEKREFTET -> builder.medBekreftetVersjon(hendelseBuilder);
-                    case OVERSTYRT -> builder.medOverstyrtVersjon(hendelseBuilder);
-                    default -> throw new IllegalArgumentException("Støtter ikke HendelseVersjonType: " + type);
-                }
+                var oppdatere = FamilieHendelseGrunnlagBuilder.oppdatere(kladd)
+                        .medSøknadVersjon(hendelse)
+                        .medBekreftetVersjon(null)
+                        .medOverstyrtVersjon(null);
                 familieHendelseAggregatMap.remove(behandlingId);
-                familieHendelseAggregatMap.put(behandlingId, builder.build());
+                familieHendelseAggregatMap.put(behandlingId, oppdatere.build());
             }
 
             @Override
             public void lagreRegisterHendelse(Long behandlingId, FamilieHendelseBuilder hendelse) {
-                var kladd = hentAggregatHvisEksisterer(behandling.getId());
+                var kladd = hentAggregatHvisEksisterer(behandlingId);
                 var aggregatBuilder = FamilieHendelseGrunnlagBuilder.oppdatere(kladd);
                 aggregatBuilder.medBekreftetVersjon(hendelse);
-                try {
-                    var m = FamilieHendelseGrunnlagBuilder.class.getDeclaredMethod("getKladd");
-                    var invoke = (FamilieHendelseGrunnlagEntitet) m.invoke(aggregatBuilder);
-                    if (harOverstyrtTerminOgOvergangTilFødselMock(invoke)) {
-                        aggregatBuilder.medOverstyrtVersjon(null);
-                    }
-                    var id = behandling.getId();
-                    familieHendelseAggregatMap.remove(id);
-                    familieHendelseAggregatMap.put(id, aggregatBuilder.build());
-                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                    throw new IllegalStateException(e);
+                if (harOverstyrtTerminOgOvergangTilFødselMock(aggregatBuilder.getKladd())) {
+                    aggregatBuilder.medOverstyrtVersjon(null);
                 }
+                familieHendelseAggregatMap.remove(behandlingId);
+                familieHendelseAggregatMap.put(behandlingId, aggregatBuilder.build());
             }
 
             private boolean harOverstyrtTerminOgOvergangTilFødselMock(FamilieHendelseGrunnlagEntitet kladd) {
@@ -421,11 +409,11 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
             @Override
             public void lagreOverstyrtHendelse(Long behandlingId, FamilieHendelseBuilder hendelse) {
-                var kladd = hentAggregatHvisEksisterer(behandling.getId());
+                var kladd = hentAggregatHvisEksisterer(behandlingId);
                 var oppdatere = FamilieHendelseGrunnlagBuilder.oppdatere(kladd);
                 oppdatere.medOverstyrtVersjon(hendelse);
-                familieHendelseAggregatMap.remove(behandling.getId());
-                familieHendelseAggregatMap.put(behandling.getId(), oppdatere.build());
+                familieHendelseAggregatMap.remove(behandlingId);
+                familieHendelseAggregatMap.put(behandlingId, oppdatere.build());
             }
 
             @Override
@@ -461,50 +449,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
                 familieHendelseAggregatMap.remove(nyBehandlingId);
                 familieHendelseAggregatMap.put(nyBehandlingId, oppdatere.build());
-            }
-
-            @Override
-            public FamilieHendelseBuilder opprettBuilderFor(Long behandlingId, boolean register) {
-                var aggregatBuilder = FamilieHendelseGrunnlagBuilder.oppdatere(hentAggregatHvisEksisterer(behandlingId));
-                return opprettBuilderFor(aggregatBuilder);
-            }
-
-            FamilieHendelseBuilder opprettBuilderFor(Optional<FamilieHendelseGrunnlagEntitet> aggregat) {
-                var type = utledTypeForMock(aggregat);
-
-                if (type.equals(HendelseVersjonType.SØKNAD)) {
-                    return FamilieHendelseBuilder.oppdatere(aggregat.map(FamilieHendelseGrunnlagEntitet::getSøknadVersjon), type);
-                }
-                if (type.equals(HendelseVersjonType.BEKREFTET)) {
-                    return FamilieHendelseBuilder.oppdatere(aggregat.flatMap(FamilieHendelseGrunnlagEntitet::getBekreftetVersjon), type);
-                }
-                return FamilieHendelseBuilder.oppdatere(aggregat.flatMap(FamilieHendelseGrunnlagEntitet::getOverstyrtVersjon), type);
-            }
-
-            private HendelseVersjonType utledTypeForMock(Optional<FamilieHendelseGrunnlagEntitet> aggregat) {
-                if (aggregat.isPresent()) {
-                    if (aggregat.get().getHarOverstyrteData()) {
-                        return HendelseVersjonType.OVERSTYRT;
-                    }
-                    if (aggregat.get().getHarBekreftedeData() || aggregat.get().getSøknadVersjon() != null) {
-                        return HendelseVersjonType.BEKREFTET;
-                    }
-                    if (aggregat.get().getSøknadVersjon() == null) {
-                        return HendelseVersjonType.SØKNAD;
-                    }
-                    throw new IllegalStateException();
-                }
-                return HendelseVersjonType.SØKNAD;
-            }
-
-            private FamilieHendelseBuilder opprettBuilderFor(FamilieHendelseGrunnlagBuilder aggregatBuilder) {
-                try {
-                    var m = FamilieHendelseGrunnlagBuilder.class.getDeclaredMethod("getKladd");
-                    m.setAccessible(true);
-                    return opprettBuilderFor(Optional.ofNullable((FamilieHendelseGrunnlagEntitet) m.invoke(aggregatBuilder)));
-                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                    throw new IllegalStateException(e);
-                }
             }
         };
     }
@@ -861,7 +805,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         behandlingRepository.lagre(behandling, lås);
         var behandlingId = behandling.getId();
 
-        opprettHendelseGrunnlag(repositoryProvider);
+        opprettHendelseGrunnlag(repositoryProvider, behandlingId);
         lagrePersonopplysning(repositoryProvider, behandling);
         lagreMedlemskapOpplysninger(repositoryProvider, behandlingId);
         lagreYtelseFordelingOpplysninger(repositoryProvider, behandling);
@@ -921,14 +865,14 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         ytelsesFordelingRepository.lagre(behandling.getId(), yf.build());
     }
 
-    private FamilieHendelseRepository opprettHendelseGrunnlag(BehandlingRepositoryProvider repositoryProvider) {
+    private FamilieHendelseRepository opprettHendelseGrunnlag(BehandlingRepositoryProvider repositoryProvider, Long behandlingId) {
         var grunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
-        grunnlagRepository.lagre(behandling.getId(), medSøknadHendelse());
+        grunnlagRepository.lagreSøknadHendelse(behandlingId, medSøknadHendelse());
         if (bekreftetHendelseBuilder != null) {
-            grunnlagRepository.lagre(behandling.getId(), bekreftetHendelseBuilder);
+            grunnlagRepository.lagreRegisterHendelse(behandlingId, bekreftetHendelseBuilder);
         }
         if (overstyrtHendelseBuilder != null) {
-            grunnlagRepository.lagre(behandling.getId(), overstyrtHendelseBuilder);
+            grunnlagRepository.lagreOverstyrtHendelse(behandlingId, overstyrtHendelseBuilder);
         }
         resetBuilders();
         return grunnlagRepository;

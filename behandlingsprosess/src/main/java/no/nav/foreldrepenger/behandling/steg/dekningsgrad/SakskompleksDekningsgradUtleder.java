@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.behandling.steg.dekningsgrad;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -24,8 +24,7 @@ final class SakskompleksDekningsgradUtleder {
                                                            Dekningsgrad eksisterendeSakskompleksDekningsgrad,
                                                            Dekningsgrad oppgittDekningsgrad,
                                                            Dekningsgrad annenPartsOppgittDekningsgrad,
-                                                           FamilieHendelseEntitet familieHendelseEntitet) {
-        var barna = familieHendelseEntitet.getBarna();
+                                                           List<UidentifisertBarn> barna) {
         if (!barna.isEmpty() && barna.stream().allMatch(SakskompleksDekningsgradUtleder::dødeBarnetInnenDeFørsteSeksLeveuker)) {
             LOG.info("Dekningsgrad barn dødsfall {}", Dekningsgrad._100);
             return Optional.of(new DekningsgradUtledingResultat(Dekningsgrad._100, DekningsgradUtledingResultat.DekningsgradKilde.DØDSFALL));

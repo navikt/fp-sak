@@ -5,12 +5,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
@@ -42,8 +40,12 @@ class SvpHelper {
     }
 
     void lagreTerminbekreftelse(LocalDate termindato, Long behandlingId, LocalDate... fødselsdatoer) {
-        var familieHendelseBuilder = byggAggregat(termindato, fødselsdatoer);
-        behandlingRepositoryProvider.getFamilieHendelseRepository().lagre(behandlingId, familieHendelseBuilder);
+        var familieHendelseBuilderSøknad = byggSøknad(behandlingId, termindato);
+        behandlingRepositoryProvider.getFamilieHendelseRepository().lagreSøknadHendelse(behandlingId, familieHendelseBuilderSøknad);
+        if (fødselsdatoer.length > 0) {
+            var familieHendelseBuilderRegister = byggRegister(behandlingId, termindato, fødselsdatoer);
+            behandlingRepositoryProvider.getFamilieHendelseRepository().lagreRegisterHendelse(behandlingId, familieHendelseBuilderRegister);
+        }
     }
 
     void lagreIngenTilrettelegging(Behandling behandling, LocalDate jordmorsdato, LocalDate tidligstMottattDato) {
@@ -80,11 +82,19 @@ class SvpHelper {
         svangerskapspengerRepository.lagreOgFlush(svpGrunnlag);
     }
 
-    private FamilieHendelseBuilder byggAggregat(LocalDate termindato, LocalDate... fødselsdatoer) {
-        var builder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.BEKREFTET);
-        var terminBuilder = builder.getTerminbekreftelseBuilder();
-        terminBuilder.medTermindato(termindato);
-        terminBuilder.medUtstedtDato(termindato.minusMonths(7));
+    private FamilieHendelseBuilder byggSøknad(Long behandlingId, LocalDate termindato) {
+        var builder = behandlingRepositoryProvider.getFamilieHendelseRepository().opprettBuilderForSøknad(behandlingId);
+        var terminBuilder = builder.getTerminbekreftelseBuilder()
+            .medTermindato(termindato)
+            .medUtstedtDato(termindato.minusMonths(7));
+        return builder.medTerminbekreftelse(terminBuilder);
+    }
+
+    private FamilieHendelseBuilder byggRegister(Long behandlingId, LocalDate termindato, LocalDate... fødselsdatoer) {
+        var builder = behandlingRepositoryProvider.getFamilieHendelseRepository().opprettBuilderForRegister(behandlingId);
+        var terminBuilder = builder.getTerminbekreftelseBuilder()
+            .medTermindato(termindato)
+            .medUtstedtDato(termindato.minusMonths(7));
         Arrays.stream(fødselsdatoer).forEach(builder::leggTilBarn);
         return builder.medTerminbekreftelse(terminBuilder);
     }

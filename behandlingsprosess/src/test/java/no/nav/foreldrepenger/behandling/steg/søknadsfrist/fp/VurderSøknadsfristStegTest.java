@@ -158,8 +158,8 @@ class VurderSøknadsfristStegTest extends EntityManagerAwareTest {
     }
 
     private SøknadEntitet opprettSøknad(LocalDate fødselsdato, LocalDate mottattDato, Long behandlingId) {
-        var søknadHendelse = familieHendelseRepository.opprettBuilderFor(behandlingId).medAntallBarn(1).medFødselsDato(fødselsdato);
-        familieHendelseRepository.lagre(behandlingId, søknadHendelse);
+        var søknadHendelse = familieHendelseRepository.opprettBuilderForSøknad(behandlingId).medAntallBarn(1).medFødselsDato(fødselsdato);
+        familieHendelseRepository.lagreSøknadHendelse(behandlingId, søknadHendelse);
 
         return new SøknadEntitet.Builder()
                 .medSøknadsdato(LocalDate.now())

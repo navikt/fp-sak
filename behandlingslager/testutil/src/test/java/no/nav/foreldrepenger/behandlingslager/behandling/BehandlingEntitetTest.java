@@ -114,11 +114,11 @@ class BehandlingEntitetTest extends EntityManagerAwareTest {
         var behandling2 = behandlingBuilder2.build();
         lagreBehandling(behandling2);
         grunnlagRepository.kopierGrunnlagFraEksisterendeBehandling(behandling.getId(), behandling2.getId());
-        var oppdatere = grunnlagRepository.opprettBuilderFor(behandling.getId());
+        var oppdatere = grunnlagRepository.opprettBuilderForSøknad(behandling.getId());
         oppdatere.medTerminbekreftelse(oppdatere.getTerminbekreftelseBuilder()
                 .medTermindato(nyTerminDato)
                 .medUtstedtDato(terminDato).medNavnPå("Lege navn"));
-        grunnlagRepository.lagre(behandling2.getId(), oppdatere);
+        grunnlagRepository.lagreSøknadHendelse(behandling2.getId(), oppdatere);
 
         var oppdatertGrunnlag = grunnlagRepository.hentAggregat(behandling2.getId());
         assertThat(oppdatertGrunnlag).isNotSameAs(grunnlag);
