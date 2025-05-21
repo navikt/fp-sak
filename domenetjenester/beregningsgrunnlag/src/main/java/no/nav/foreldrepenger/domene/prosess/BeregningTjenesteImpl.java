@@ -17,8 +17,13 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @ApplicationScoped
 public class BeregningTjenesteImpl implements BeregningTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(BeregningTjenesteImpl.class);
+
     private BeregningFPSAK fpsakBeregner;
     private BeregningKalkulus kalkulusBeregner;
     private BeregningMigreringTjeneste beregningMigreringTjeneste;
@@ -48,7 +53,12 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
     @Override
     public Optional<BeregningsgrunnlagDto> hentGuiDto(BehandlingReferanse referanse) {
         if (skalKalleKalkulusForGuiDto(referanse)) {
-            return kalkulusBeregner.hentGUIDto(referanse);
+            try {
+                return kalkulusBeregner.hentGUIDto(referanse);
+            } catch (Exception e) {
+                LOG.warn("Kunne ikke hente fra kalkulus, defaulter til fpsak", e);
+                return fpsakBeregner.hentGUIDto(referanse);
+            }
         } else {
             return fpsakBeregner.hentGUIDto(referanse);
         }
