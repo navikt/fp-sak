@@ -9,6 +9,7 @@ import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.Beregn
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
 import no.nav.foreldrepenger.domene.migrering.BeregningMigreringTjeneste;
@@ -16,8 +17,13 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @ApplicationScoped
 public class BeregningTjenesteImpl implements BeregningTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(BeregningTjenesteImpl.class);
+
     private BeregningFPSAK fpsakBeregner;
     private BeregningKalkulus kalkulusBeregner;
     private BeregningMigreringTjeneste beregningMigreringTjeneste;
@@ -46,8 +52,13 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
 
     @Override
     public Optional<BeregningsgrunnlagDto> hentGuiDto(BehandlingReferanse referanse) {
-        if (skalKalleKalkulus(referanse)) {
-            return kalkulusBeregner.hentGUIDto(referanse);
+        if (skalKalleKalkulusForGuiDto(referanse)) {
+            try {
+                return kalkulusBeregner.hentGUIDto(referanse);
+            } catch (Exception e) {
+                LOG.warn("Kunne ikke hente fra kalkulus, defaulter til fpsak", e);
+                return fpsakBeregner.hentGUIDto(referanse);
+            }
         } else {
             return fpsakBeregner.hentGUIDto(referanse);
         }
@@ -103,6 +114,13 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
             fpsakBeregner.avslutt(referanse);
         }
 
+    }
+
+    private boolean skalKalleKalkulusForGuiDto(BehandlingReferanse referanse) {
+        if (BehandlingStatus.AVSLUTTET.equals(referanse.behandlingStatus())) {
+            return true;
+        }
+        return skalKalleKalkulus(referanse);
     }
 
     private boolean skalKalleKalkulus(BehandlingReferanse referanse) {

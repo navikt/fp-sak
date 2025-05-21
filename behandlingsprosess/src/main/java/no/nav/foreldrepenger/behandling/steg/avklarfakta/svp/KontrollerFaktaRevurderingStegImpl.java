@@ -21,11 +21,11 @@ import no.nav.foreldrepenger.behandling.steg.avklarfakta.KontrollerFaktaSteg;
 import no.nav.foreldrepenger.behandling.steg.avklarfakta.RyddRegisterData;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingModellTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -78,7 +78,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
     private static final StartpunktType DEFAULT_STARTPUNKT = StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
 
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingModellTjeneste behandlingModellTjeneste;
     private BehandlingRepository behandlingRepository;
     private KontrollerFaktaTjeneste tjeneste;
     private BehandlingRepositoryProvider repositoryProvider;
@@ -100,7 +100,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
     @Inject
     KontrollerFaktaRevurderingStegImpl(BehandlingRepositoryProvider repositoryProvider,
-                                       BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                       BehandlingModellTjeneste behandlingModellTjeneste,
                                        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                        @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) KontrollerFaktaTjeneste tjeneste,
                                        @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) StartpunktTjeneste startpunktTjeneste,
@@ -108,7 +108,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                                        SvangerskapspengerRepository svangerskapspengerRepository, BeregningTjeneste beregningTjeneste,
                                        MottatteDokumentTjeneste mottatteDokumentTjeneste, SatsRepository satsRepository) {
         this.repositoryProvider = repositoryProvider;
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.behandlingModellTjeneste = behandlingModellTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.tjeneste = tjeneste;
@@ -200,24 +200,27 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     }
 
     private StartpunktType sjekkÅpneAksjonspunkt(BehandlingReferanse ref, Behandling revurdering, StartpunktType gjeldendeStartpunkt) {
+        // Finn evt åpne aksjonspunkt ( overstyringer ) som må løses før startpunkt - ta vare på vurderingspunkt-steg.
         var stegForÅpneAksjonspunktFørStartpunkt = revurdering.getÅpneAksjonspunkter().stream()
             .map(Aksjonspunkt::getAksjonspunktDefinisjon)
             .map(AksjonspunktDefinisjon::getBehandlingSteg)
-            .filter(behandlingSteg -> sammenlignRekkefølge(ref, gjeldendeStartpunkt, behandlingSteg) > 0)
+            .filter(behandlingSteg -> erStartpunktEtterSteg(ref, gjeldendeStartpunkt, behandlingSteg))
             .toList();
         if (stegForÅpneAksjonspunktFørStartpunkt.isEmpty()) {
             return gjeldendeStartpunkt;
         }
+        // Det finnes åpne aksjonspunkt ( overstyringer ) som må løses før startpunkt - har vurderingspunkt-steg for disse.
+        // Finn seneste startpunkt som ligger før vurderingspunkt-stegene (ingen VP-steg er før startpunkt)
         return Arrays.stream(StartpunktType.values())
             .filter(stp -> !StartpunktType.UDEFINERT.equals(stp))
             .filter(stp -> stp.getRangering() >= DEFAULT_STARTPUNKT.getRangering()) // Se bort fra helt tidlige startpunkt her i KOFAK
-            .filter(stp -> stegForÅpneAksjonspunktFørStartpunkt.stream().allMatch(steg -> sammenlignRekkefølge(ref, stp, steg) <= 0))
+            .filter(stp -> stegForÅpneAksjonspunktFørStartpunkt.stream().noneMatch(steg -> erStartpunktEtterSteg(ref, stp, steg)))
             .max(Comparator.comparing(StartpunktType::getRangering))
             .orElse(gjeldendeStartpunkt);
     }
 
-    private int sammenlignRekkefølge(BehandlingReferanse ref, StartpunktType startpunkt, BehandlingStegType behandlingSteg) {
-        return behandlingskontrollTjeneste.sammenlignRekkefølge(ref.fagsakYtelseType(), ref.behandlingType(),
+    private boolean erStartpunktEtterSteg(BehandlingReferanse ref, StartpunktType startpunkt, BehandlingStegType behandlingSteg) {
+        return behandlingModellTjeneste.erStegAEtterStegB(ref.fagsakYtelseType(), ref.behandlingType(),
             startpunkt.getBehandlingSteg(), behandlingSteg);
     }
 

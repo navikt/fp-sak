@@ -131,8 +131,7 @@ public enum SkjermlenkeType implements Kodeverdi {
     @Deprecated
     public static SkjermlenkeType finnSkjermlenkeType(AksjonspunktDefinisjon aksjonspunktDefinisjon, Behandling behandling,
                                                       Behandlingsresultat behandlingsresultat) {
-        if (AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE.equals(aksjonspunktDefinisjon) ||
-            AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE.equals(aksjonspunktDefinisjon)) {
+        if (AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE.equals(aksjonspunktDefinisjon)) {
             return getSkjermlenkeTypeForMottattStotte(behandlingsresultat);
         }
         if (AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE.equals(aksjonspunktDefinisjon) ){

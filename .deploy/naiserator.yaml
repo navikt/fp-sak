@@ -46,7 +46,7 @@ spec:
   kafka:
       pool: {{kafkaPool}}
   secureLogs:
-    enabled: true
+    enabled: false
   observability:
     autoInstrumentation:
       enabled: true
@@ -54,6 +54,10 @@ spec:
       destinations:
         - id: "grafana-lgtm"
         - id: "elastic-apm"
+    logging:
+      destinations:
+        - id: elastic
+        - id: loki
   vault:
     enabled: true
     paths:
@@ -80,8 +84,6 @@ spec:
   accessPolicy:
     inbound:
       rules:
-      - application: statuspoll
-        namespace: navdig
       {{#each AZURE_IAC_RULES}}
       - application: {{app}}
         namespace: {{namespace}}

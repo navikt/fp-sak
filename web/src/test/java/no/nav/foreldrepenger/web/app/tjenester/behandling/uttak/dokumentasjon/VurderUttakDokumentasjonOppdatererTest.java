@@ -9,7 +9,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import jakarta.enterprise.inject.Any;
@@ -24,8 +23,6 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
@@ -215,11 +212,11 @@ class VurderUttakDokumentasjonOppdatererTest {
     }
 
     private Behandling behandlingMedAp(List<OppgittPeriodeEntitet> fordeling) {
-        return ScenarioMorSøkerForeldrepenger.forFødsel()
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_UTTAK_DOKUMENTASJON, BehandlingStegType.FAKTA_UTTAK)
-            .medBekreftetHendelse(FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.BEKREFTET).medFødselsDato(LocalDate.now()))
-            .medFordeling(new OppgittFordelingEntitet(fordeling, true))
-            .lagre(repositoryProvider);
+            .medFordeling(new OppgittFordelingEntitet(fordeling, true));
+        scenario.medBekreftetHendelse().medAntallBarn(1).medFødselsDato(LocalDate.now());
+        return scenario.lagre(repositoryProvider);
     }
 
     private OppdateringResultat kjørOppdatering(Behandling behandling, VurderUttakDokumentasjonDto dto) {

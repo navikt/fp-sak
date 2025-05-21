@@ -41,6 +41,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
@@ -49,6 +50,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.kontrakter.fordel.BehandlendeFagsystemDto;
+import no.nav.foreldrepenger.kontrakter.fordel.BrukerRolleDto;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostMottakDto;
@@ -306,7 +308,7 @@ public class FordelRestTjeneste {
             .filter(sak -> !sak.getStatus().equals(FagsakStatus.AVSLUTTET) && ytelseDetSjekkesMot.equals(sak.getYtelseType()))
             .map(sak -> hentInfoOmSakIntektsmelding(sak.getId()))
             .findFirst()
-            .orElse(new InfoOmSakInntektsmeldingResponse(StatusSakInntektsmelding.INGEN_BEHANDLING, Tid.TIDENES_ENDE));
+            .orElse(new InfoOmSakInntektsmeldingResponse(StatusSakInntektsmelding.INGEN_BEHANDLING, Tid.TIDENES_ENDE, Tid.TIDENES_ENDE));
 
         return Response.ok(infoOmSakIMResponse).build();
     }
@@ -314,7 +316,7 @@ public class FordelRestTjeneste {
     private InfoOmSakInntektsmeldingResponse hentInfoOmSakIntektsmelding(Long fagsakId) {
         return behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId)
             .map(this::mapInfoOmSakInntektsmelding)
-            .orElseGet(() -> new InfoOmSakInntektsmeldingResponse(StatusSakInntektsmelding.INGEN_BEHANDLING, Tid.TIDENES_ENDE));
+            .orElseGet(() -> new InfoOmSakInntektsmeldingResponse(StatusSakInntektsmelding.INGEN_BEHANDLING, Tid.TIDENES_ENDE, Tid.TIDENES_ENDE));
     }
 
     private InfoOmSakInntektsmeldingResponse mapInfoOmSakInntektsmelding(Behandling behandling) {
@@ -324,13 +326,17 @@ public class FordelRestTjeneste {
             .map(Aksjonspunkt::getAksjonspunktDefinisjon)
             .collect(Collectors.toSet());
 
-        var førsteUttaksdato = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getFørsteUttaksdatoHvisFinnes();
+
+        var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+        var førsteUttaksdato = skjæringstidspunkter.getFørsteUttaksdatoHvisFinnes();
+
         var inntektsmeldingStatusSak = mapInntektsmeldingStatusSak(aksjonspunkterIkkeKlarForInntektsmelding);
         if (inntektsmeldingStatusSak.equals(StatusSakInntektsmelding.ÅPEN_FOR_BEHANDLING) && førsteUttaksdato.isEmpty()) {
             throw new IllegalStateException("Ulovlig tilstand-infoOmSakForInntektsmelding: Finner ikke førsteUttaksdato for behandling " + behandling.getId() + "med inntektsmeldingsstatus ÅPEN_FOR_BEHANDLING");
         }
 
-        return new InfoOmSakInntektsmeldingResponse(inntektsmeldingStatusSak, førsteUttaksdato.orElse(Tid.TIDENES_ENDE));
+        return new InfoOmSakInntektsmeldingResponse(inntektsmeldingStatusSak, førsteUttaksdato.orElse(Tid.TIDENES_ENDE),
+            skjæringstidspunkter.getSkjæringstidspunktHvisUtledet().orElse(Tid.TIDENES_ENDE));
     }
 
      StatusSakInntektsmelding mapInntektsmeldingStatusSak(Set<AksjonspunktDefinisjon> aksjonspunkterIkkeKlarForInntektsmelding) {
@@ -385,7 +391,8 @@ public class FordelRestTjeneste {
 
     public record SakInntektsmeldingResponse(boolean søkerHarSak){}
 
-    public record InfoOmSakInntektsmeldingResponse(StatusSakInntektsmelding statusInntektsmelding, LocalDate førsteUttaksdato) {}
+    public record InfoOmSakInntektsmeldingResponse(StatusSakInntektsmelding statusInntektsmelding, LocalDate førsteUttaksdato,
+                                                   LocalDate skjæringstidspunkt) {}
 
     public record SakInntektsmeldingDto(@NotNull @Valid AktørIdDto bruker, @NotNull @Valid YtelseType ytelse){
         protected enum YtelseType {
@@ -432,6 +439,7 @@ public class FordelRestTjeneste {
         dto.getSaksnummer().ifPresent(sn -> v.setSaksnummer(new Saksnummer(sn)));
         dto.getAnnenPart().map(AktørId::new).ifPresent(v::setAnnenPart);
 
+        v.setBrukerRolle(mapBrukerRolle(dto.getBrukerRolle()));
         v.setDokumentTypeId(DokumentTypeId.UDEFINERT);
         v.setDokumentKategori(DokumentKategori.UDEFINERT);
         if (dto.getDokumentTypeIdOffisiellKode() != null) {
@@ -442,6 +450,15 @@ public class FordelRestTjeneste {
         }
 
         return v;
+    }
+
+    private RelasjonsRolleType mapBrukerRolle(BrukerRolleDto rolle) {
+        return switch (rolle) {
+            case MOR -> RelasjonsRolleType.MORA;
+            case FAR -> RelasjonsRolleType.FARA;
+            case MEDMOR -> RelasjonsRolleType.MEDMOR;
+            case null -> RelasjonsRolleType.UDEFINERT;
+        };
     }
 
     private BehandlendeFagsystemDto map(BehandlendeFagsystem behandlendeFagsystem) {

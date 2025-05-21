@@ -56,6 +56,7 @@ import no.nav.foreldrepenger.web.app.tjenester.fordeling.OpprettSakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.KobleFagsakerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerJournalpostDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
+import no.nav.foreldrepenger.web.server.abac.InvaliderSakPersonCacheObserverKlient;
 import no.nav.pdl.HentIdenterQueryRequest;
 import no.nav.pdl.IdentGruppe;
 import no.nav.pdl.IdentInformasjonResponseProjection;
@@ -86,6 +87,7 @@ public class ForvaltningFagsakRestTjeneste {
     private NavBrukerTjeneste brukerTjeneste;
     private Persondata pdlKlient;
     private BehandlingRepository behandlingRepository;
+    private InvaliderSakPersonCacheObserverKlient invaliderSakPersonCacheObserverKlient;
 
     public ForvaltningFagsakRestTjeneste() {
         // For CDI
@@ -98,7 +100,7 @@ public class ForvaltningFagsakRestTjeneste {
                                          AktørTjeneste aktørTjeneste,
                                          NavBrukerTjeneste brukerTjeneste,
                                          FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
-                                         Persondata pdlKlient) {
+                                         Persondata pdlKlient, InvaliderSakPersonCacheObserverKlient invaliderSakPersonCacheObserverKlient) {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
@@ -108,6 +110,7 @@ public class ForvaltningFagsakRestTjeneste {
         this.brukerTjeneste = brukerTjeneste;
         this.pdlKlient = pdlKlient;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.invaliderSakPersonCacheObserverKlient = invaliderSakPersonCacheObserverKlient;
     }
 
     @POST
@@ -360,6 +363,24 @@ public class ForvaltningFagsakRestTjeneste {
             return Response.status(HttpURLConnection.HTTP_BAD_REQUEST).build();
         }
         return Response.ok(finnAlleHistoriskeFødselsnummer(ident)).build();
+    }
+
+    @POST
+    @Path("/fagsak/oppdater-personer-tilgang")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    @Operation(description = "Avslutt fagsak uten noen behandlinger", tags = "FORVALTNING-fagsak", responses = {
+        @ApiResponse(responseCode = "200", description = "Avslutter fagsak.", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = String.class))),
+        @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."),
+        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
+    })
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
+    public Response oppdaterPersongalleriForTilgang(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
+                                                        @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
+        var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
+        fagsakRepository.hentSakGittSaksnummer(saksnummer).orElseThrow();
+        invaliderSakPersonCacheObserverKlient.invaliderSakCache(saksnummer);
+        return Response.ok().build();
     }
 
     private List<String> finnAlleHistoriskeFødselsnummer(String inputIdent) {

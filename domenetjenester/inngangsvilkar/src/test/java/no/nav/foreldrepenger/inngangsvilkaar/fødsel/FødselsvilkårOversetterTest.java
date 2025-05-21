@@ -36,7 +36,7 @@ class FødselsvilkårOversetterTest {
 
 
     @BeforeEach
-    public void oppsett() {
+    void oppsett() {
         fødselsoversetter = new FødselsvilkårOversetter(repositoryProvider, personopplysningTjeneste, null);
     }
 
@@ -48,7 +48,8 @@ class FødselsvilkårOversetterTest {
     void skal_mappe_fra_domenefødsel_til_regelfødsel() {
         var now = LocalDate.now();
         var fødselFødselsdato = now.plusDays(7);
-        var behandling = opprettBehandlingForFødsel(now, now, fødselFødselsdato, RelasjonsRolleType.MORA);
+        var søknadFødselsdato = now.plusDays(2);
+        var behandling = lagre(opprettBehandlingForFødsel(søknadFødselsdato, now, fødselFødselsdato, RelasjonsRolleType.MORA));
 
         var grunnlag = fødselsoversetter.oversettTilRegelModellFødsel(lagRef(behandling), false);
 
@@ -66,7 +67,8 @@ class FødselsvilkårOversetterTest {
     void skal_mappe_fra_domenefødsel_til_regelfødsel_dersom_søker_er_medmor() {
         var now = LocalDate.now();
         var fødselFødselsdato = now.plusDays(7);
-        var behandling = opprettBehandlingForFødsel(now, now, fødselFødselsdato, RelasjonsRolleType.FARA);
+        var søknadFødselsdato = now.plusDays(2);
+        var behandling = lagre(opprettBehandlingForFødsel(søknadFødselsdato, now, fødselFødselsdato, RelasjonsRolleType.FARA));
 
         var grunnlag = fødselsoversetter.oversettTilRegelModellFødsel(lagRef(behandling), false);
 
@@ -79,10 +81,37 @@ class FødselsvilkårOversetterTest {
         assertThat(grunnlag.erSøktOmTermin()).isFalse();
     }
 
-    private Behandling opprettBehandlingForFødsel(LocalDate now, LocalDate søknadsdato, LocalDate fødselFødselsdato,
-            RelasjonsRolleType rolle) {
-        // Arrange
+    @Test
+    void skal_mappe_tilfelle_medmor_2mnd_mor_fersk() {
+        var now = LocalDate.now();
+        var fødselFødselsdato = now.minusDays(1);
         var søknadFødselsdato = now.plusDays(2);
+        var barn0AktørId = AktørId.dummy();
+
+        var scenario = opprettBehandlingForFødsel(søknadFødselsdato, now, fødselFødselsdato, RelasjonsRolleType.MORA);
+
+        var fødtBarn0 = scenario.opprettBuilderForRegisteropplysninger()
+            .medPersonas()
+            .fødtBarn(barn0AktørId, fødselFødselsdato.minusMonths(2))
+            .relasjonTil(scenario.getDefaultBrukerAktørId(), RelasjonsRolleType.MEDMOR, null)
+            .build();
+        scenario.medRegisterOpplysninger(fødtBarn0);
+
+        var behandling = lagre(scenario);
+
+        var grunnlag = fødselsoversetter.oversettTilRegelModellFødsel(lagRef(behandling), false);
+
+        // Assert
+        assertThat(grunnlag.søkersKjønn()).isEqualTo(RegelKjønn.KVINNE);
+        assertThat(grunnlag.bekreftetFødselsdato()).isEqualTo(fødselFødselsdato);
+        assertThat(grunnlag.terminbekreftelseTermindato()).isNull();
+        assertThat(grunnlag.søkerRolle()).isEqualTo(RegelSøkerRolle.MORA);
+        assertThat(grunnlag.behandlingsdato()).isEqualTo(now);
+        assertThat(grunnlag.erSøktOmTermin()).isFalse();
+    }
+
+    private ScenarioMorSøkerEngangsstønad opprettBehandlingForFødsel(LocalDate søknadFødselsdato, LocalDate søknadsdato, LocalDate fødselFødselsdato,
+            RelasjonsRolleType rolle) {
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
 
@@ -102,7 +131,7 @@ class FødselsvilkårOversetterTest {
 
         var fødtBarn = builderForRegisteropplysninger
                 .medPersonas()
-                .fødtBarn(barnAktørId, LocalDate.now().plusDays(7))
+                .fødtBarn(barnAktørId, fødselFødselsdato)
                 .relasjonTil(søkerAktørId, rolle, null)
                 .build();
 
@@ -115,7 +144,7 @@ class FødselsvilkårOversetterTest {
         scenario.medRegisterOpplysninger(søker);
         scenario.medRegisterOpplysninger(fødtBarn);
 
-        return lagre(scenario);
+        return scenario;
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {

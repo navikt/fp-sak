@@ -49,7 +49,6 @@ class TilbakehoppTest {
 
     private final List<StegTransisjon> transisjoner = new ArrayList<>();
 
-    private final BehandlingModellRepository behandlingModellRepository = new BehandlingModellRepository();
     private BehandlingskontrollServiceProvider serviceProvider;
     private BehandlingRepository behandlingRepository;
 
@@ -60,9 +59,9 @@ class TilbakehoppTest {
 
     @BeforeEach
     void setUp(EntityManager entityManager) {
-        serviceProvider = new BehandlingskontrollServiceProvider(entityManager, behandlingModellRepository, null);
+        serviceProvider = new BehandlingskontrollServiceProvider(entityManager, null);
         behandlingRepository = serviceProvider.getBehandlingRepository();
-        var modell = behandlingModellRepository.getModell(BehandlingType.FØRSTEGANGSSØKNAD, FagsakYtelseType.FORELDREPENGER);
+        var modell = BehandlingModellRepository.getModell(BehandlingType.FØRSTEGANGSSØKNAD, FagsakYtelseType.FORELDREPENGER);
         observer = new BehandlingskontrollTransisjonTilbakeføringEventObserver(serviceProvider) {
             @Override
             protected void hoppBakover(BehandlingStegModell s,

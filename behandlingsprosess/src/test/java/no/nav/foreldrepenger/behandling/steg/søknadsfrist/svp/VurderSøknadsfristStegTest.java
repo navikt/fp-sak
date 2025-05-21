@@ -181,10 +181,10 @@ class VurderSøknadsfristStegTest {
 
     private SøknadEntitet opprettSøknad(LocalDate termindato, LocalDate mottattDato, Long behandlingId) {
         var søknadHendelse = repositoryProvider.getFamilieHendelseRepository()
-            .opprettBuilderFor(behandlingId)
+            .opprettBuilderForSøknad(behandlingId)
             .medAntallBarn(1)
             .medFødselsDato(termindato);
-        repositoryProvider.getFamilieHendelseRepository().lagre(behandlingId, søknadHendelse);
+        repositoryProvider.getFamilieHendelseRepository().lagreSøknadHendelse(behandlingId, søknadHendelse);
 
         return new SøknadEntitet.Builder()
                 .medSøknadsdato(LocalDate.now())

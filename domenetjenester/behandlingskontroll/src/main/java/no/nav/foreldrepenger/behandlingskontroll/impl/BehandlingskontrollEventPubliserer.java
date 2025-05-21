@@ -8,6 +8,7 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
+import no.nav.foreldrepenger.behandlingskontroll.events.AutopunktStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegOvergangEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegStatusEvent;
@@ -76,7 +77,15 @@ public class BehandlingskontrollEventPubliserer {
     }
 
     public void fireEvent(AksjonspunktStatusEvent event) {
-        doFireEvent(event);
+        if (event != null && event.getAksjonspunkter() != null && !event.getAksjonspunkter().isEmpty()) {
+            doFireEvent(event);
+        }
+    }
+
+    public void fireEvent(AutopunktStatusEvent event) {
+        if (event != null && event.getAksjonspunkter() != null && !event.getAksjonspunkter().isEmpty()) {
+            doFireEvent(event);
+        }
     }
 
     /**

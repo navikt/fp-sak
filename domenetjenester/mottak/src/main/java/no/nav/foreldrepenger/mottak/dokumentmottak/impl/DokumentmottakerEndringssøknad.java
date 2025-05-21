@@ -127,6 +127,6 @@ class DokumentmottakerEndringssøknad extends DokumentmottakerYtelsesesrelatertD
     }
 
     private boolean kompletthetErPassert(Behandling behandling) {
-        return behandlingsoppretter.erKompletthetssjekkPassert(behandling);
+        return kompletthetskontroller.erKompletthetssjekkPassert(behandling);
     }
 }

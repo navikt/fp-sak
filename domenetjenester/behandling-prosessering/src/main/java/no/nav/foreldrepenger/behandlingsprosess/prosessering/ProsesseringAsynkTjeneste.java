@@ -18,7 +18,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 @ApplicationScoped
 public class ProsesseringAsynkTjeneste {
 
-    private BehandlingProsesseringTjeneste prosesseringTjeneste;
     private FagsakProsessTaskRepository fagsakProsessTaskRepository;
 
     ProsesseringAsynkTjeneste() {
@@ -26,8 +25,7 @@ public class ProsesseringAsynkTjeneste {
     }
 
     @Inject
-    public ProsesseringAsynkTjeneste(BehandlingProsesseringTjeneste prosesseringTjeneste, FagsakProsessTaskRepository fagsakProsessTaskRepository) {
-        this.prosesseringTjeneste = prosesseringTjeneste;
+    public ProsesseringAsynkTjeneste(FagsakProsessTaskRepository fagsakProsessTaskRepository) {
         this.fagsakProsessTaskRepository = fagsakProsessTaskRepository;
     }
 
@@ -88,24 +86,6 @@ public class ProsesseringAsynkTjeneste {
     private Map<String, List<ProsessTaskData>> sjekkStatusProsessTasksGrouped(Long fagsakId, Long behandlingId, String gruppe) {
         var tasks = fagsakProsessTaskRepository.sjekkStatusProsessTasks(fagsakId, behandlingId, gruppe);
         return tasks.stream().collect(Collectors.groupingBy(ProsessTaskData::getGruppe));
-    }
-
-    /**
-     * Kjør prosess asynkront (i egen prosess task) videre.
-     *
-     * @return gruppe assignet til prosess task
-     */
-    public String asynkStartBehandlingProsess(Behandling behandling) {
-        return prosesseringTjeneste.opprettTasksForStartBehandling(behandling);
-    }
-
-    /**
-     * Kjør prosess asynkront (i egen prosess task) videre.
-     *
-     * @return gruppe assignet til prosess task
-     */
-    public String asynkProsesserBehandling(Behandling behandling) {
-        return prosesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
     }
 
 }

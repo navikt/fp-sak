@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -24,6 +23,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegUtfall;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
+import no.nav.foreldrepenger.behandlingskontroll.events.AutopunktStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegOvergangEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingTransisjonEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingskontrollEvent;
@@ -58,7 +58,6 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
 
     private AksjonspunktKontrollRepository aksjonspunktKontrollRepository;
     private BehandlingRepository behandlingRepository;
-    private BehandlingModellRepository behandlingModellRepository;
     private BehandlingskontrollEventPubliserer eventPubliserer;
 
     /**
@@ -82,7 +81,6 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
 
         this.serviceProvider = serviceProvider;
         this.behandlingRepository = serviceProvider.getBehandlingRepository();
-        this.behandlingModellRepository = serviceProvider.getBehandlingModellRepository();
         this.aksjonspunktKontrollRepository = serviceProvider.getAksjonspunktKontrollRepository();
         this.eventPubliserer = serviceProvider.getEventPubliserer();
     }
@@ -156,22 +154,6 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     }
 
     @Override
-    public boolean behandlingTilbakeføringHvisTidligereBehandlingSteg(BehandlingskontrollKontekst kontekst,
-            BehandlingStegType tidligereStegType) {
-        if (!erSenereSteg(kontekst, tidligereStegType)) {
-            behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, tidligereStegType);
-            return true;
-        }
-        return false;
-    }
-
-    private boolean erSenereSteg(BehandlingskontrollKontekst kontekst, BehandlingStegType tidligereStegType) {
-        var behandling = serviceProvider.hentBehandling(kontekst.getBehandlingId());
-        return sammenlignRekkefølge(kontekst.getYtelseType(), kontekst.getBehandlingType(),
-                behandling.getAktivtBehandlingSteg(), tidligereStegType) < 0;
-    }
-
-    @Override
     public void behandlingTilbakeføringTilTidligereBehandlingSteg(BehandlingskontrollKontekst kontekst,
             BehandlingStegType tidligereStegType) {
 
@@ -189,26 +171,6 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
         } finally {
             ferdigProsessering();
         }
-    }
-
-    @Override
-    public int sammenlignRekkefølge(FagsakYtelseType ytelseType, BehandlingType behandlingType, BehandlingStegType stegA, BehandlingStegType stegB) {
-        var modell = getModell(behandlingType, ytelseType);
-        return modell.erStegAFørStegB(stegA, stegB) ? -1
-                : modell.erStegAFørStegB(stegB, stegA) ? 1
-                        : 0;
-    }
-
-    @Override
-    public boolean erStegPassert(Behandling behandling, BehandlingStegType behandlingSteg) {
-        return sammenlignRekkefølge(behandling.getFagsakYtelseType(), behandling.getType(),
-                behandling.getAktivtBehandlingSteg(), behandlingSteg) > 0;
-    }
-
-    @Override
-    public boolean erIStegEllerSenereSteg(Behandling behandling, BehandlingStegType behandlingSteg) {
-        return sammenlignRekkefølge(behandling.getFagsakYtelseType(), behandling.getType(),
-            behandling.getAktivtBehandlingSteg(), behandlingSteg) >= 0;
     }
 
     @Override
@@ -252,61 +214,53 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
             behandling.getFagsakYtelseType(), behandling.getType());
     }
 
-    void aksjonspunkterEndretStatus(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType,
-            List<Aksjonspunkt> aksjonspunkter) {
+    void aksjonspunkterEndretStatus(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter) {
         // handlinger som skal skje når funnet
         if (!aksjonspunkter.isEmpty()) {
-            eventPubliserer.fireEvent(new AksjonspunktStatusEvent(kontekst, aksjonspunkter, behandlingStegType));
+            eventPubliserer.fireEvent(new AksjonspunktStatusEvent(kontekst, aksjonspunkter));
+        }
+    }
+
+    void autopunkterEndretStatus(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter) {
+        // handlinger som skal skje når funnet
+        if (!aksjonspunkter.isEmpty()) {
+            eventPubliserer.fireEvent(new AutopunktStatusEvent(kontekst, aksjonspunkter));
         }
     }
 
     @Override
     public List<Aksjonspunkt> lagreAksjonspunkterFunnet(BehandlingskontrollKontekst kontekst, List<AksjonspunktDefinisjon> aksjonspunkter) {
+        if (aksjonspunkter.stream().anyMatch(AksjonspunktDefinisjon::erAutopunkt)) {
+            throw new IllegalArgumentException("Utviklerfeil: aksjonspunkter inneholder autopunkt " + aksjonspunkter);
+        }
         var behandling = serviceProvider.hentBehandling(kontekst.getBehandlingId());
         List<Aksjonspunkt> nyeAksjonspunkt = new ArrayList<>();
-        forberedeOpprettAutopunkt(behandling, aksjonspunkter);
         aksjonspunkter.forEach(apdef -> nyeAksjonspunkt.add(aksjonspunktKontrollRepository.leggTilAksjonspunkt(behandling, apdef)));
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
-        aksjonspunkterEndretStatus(kontekst, null, nyeAksjonspunkt);
+        aksjonspunkterEndretStatus(kontekst, nyeAksjonspunkt);
         return nyeAksjonspunkt;
     }
 
     @Override
     public List<Aksjonspunkt> lagreAksjonspunkterFunnet(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType,
             List<AksjonspunktDefinisjon> aksjonspunkter) {
+        if (aksjonspunkter.stream().anyMatch(AksjonspunktDefinisjon::erAutopunkt)) {
+            throw new IllegalArgumentException("Utviklerfeil: aksjonspunkter inneholder autopunkt " + aksjonspunkter);
+        }
         var behandling = serviceProvider.hentBehandling(kontekst.getBehandlingId());
-        forberedeOpprettAutopunkt(behandling, aksjonspunkter);
         List<Aksjonspunkt> nyeAksjonspunkt = new ArrayList<>();
         aksjonspunkter.forEach(apdef -> nyeAksjonspunkt.add(aksjonspunktKontrollRepository.leggTilAksjonspunkt(behandling, apdef, behandlingStegType)));
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
-        aksjonspunkterEndretStatus(kontekst, behandlingStegType, nyeAksjonspunkt);
+        aksjonspunkterEndretStatus(kontekst, nyeAksjonspunkt);
         return nyeAksjonspunkt;
     }
 
-    private void forberedeOpprettAutopunkt(Behandling behandling, List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner) {
-        aksjonspunktDefinisjoner.stream()
-            .filter(apd -> AksjonspunktType.AUTOPUNKT.equals(apd.getAksjonspunktType()))
-            .findFirst()
-            .ifPresent(apd -> aksjonspunktKontrollRepository.forberedSettPåVentMedAutopunkt(behandling, apd));
-    }
-
     @Override
-    public void lagreAksjonspunkterUtført(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType,
-            List<Aksjonspunkt> aksjonspunkter) {
-        var behandling = serviceProvider.hentBehandling(kontekst.getBehandlingId());
-        List<Aksjonspunkt> utførte = new ArrayList<>();
-        aksjonspunkter.stream().filter(ap -> !ap.erUtført()).forEach(ap -> {
-            aksjonspunktKontrollRepository.setTilUtført(ap, null);
-            utførte.add(ap);
-        });
-        behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
-        aksjonspunkterEndretStatus(kontekst, behandlingStegType, utførte);
-    }
-
-    @Override
-    public void lagreAksjonspunkterUtført(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType,
-            Aksjonspunkt aksjonspunkt, String begrunnelse) {
+    public void lagreAksjonspunkterUtført(BehandlingskontrollKontekst kontekst, Aksjonspunkt aksjonspunkt, String begrunnelse) {
         Objects.requireNonNull(aksjonspunkt);
+        if (aksjonspunkt.erAutopunkt()) {
+            throw new IllegalArgumentException("Utviklerfeil: aksjonspunkt er autopunkt " + aksjonspunkt.getAksjonspunktDefinisjon());
+        }
         var behandling = serviceProvider.hentBehandling(kontekst.getBehandlingId());
         List<Aksjonspunkt> utførte = new ArrayList<>();
 
@@ -316,18 +270,16 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
         }
 
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
-        aksjonspunkterEndretStatus(kontekst, behandlingStegType, utførte);
+        aksjonspunkterEndretStatus(kontekst, utførte);
     }
 
     @Override
-    public void lagreAksjonspunkterAvbrutt(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType,
-            List<Aksjonspunkt> aksjonspunkter) {
+    public void lagreAksjonspunkterAvbrutt(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter) {
+        if (aksjonspunkter.stream().anyMatch(Aksjonspunkt::erAutopunkt)) {
+            throw new IllegalArgumentException("Utviklerfeil: aksjonspunkter inneholder autopunkt "
+                + aksjonspunkter.stream().map(Aksjonspunkt::getAksjonspunktDefinisjon).toList());
+        }
         var behandling = serviceProvider.hentBehandling(kontekst.getBehandlingId());
-        lagreAksjonspunkterAvbrutt(kontekst, behandling, behandlingStegType, aksjonspunkter);
-    }
-
-    private void lagreAksjonspunkterAvbrutt(BehandlingskontrollKontekst kontekst, Behandling behandling,
-                                            BehandlingStegType behandlingStegType, List<Aksjonspunkt> aksjonspunkter) {
 
         List<Aksjonspunkt> avbrutte = new ArrayList<>();
         aksjonspunkter.stream().filter(ap -> !ap.erAvbrutt()).forEach(ap -> {
@@ -335,12 +287,16 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
             avbrutte.add(ap);
         });
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
-        aksjonspunkterEndretStatus(kontekst, behandlingStegType, avbrutte);
+        aksjonspunkterEndretStatus(kontekst, avbrutte);
     }
 
     @Override
     public void lagreAksjonspunkterReåpnet(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter, boolean beholdToTrinnVurdering,
             boolean setTotrinn) {
+        if (aksjonspunkter.stream().anyMatch(Aksjonspunkt::erAutopunkt)) {
+            throw new IllegalArgumentException("Utviklerfeil: aksjonspunkter inneholder autopunkt "
+                + aksjonspunkter.stream().map(Aksjonspunkt::getAksjonspunktDefinisjon).toList());
+        }
         var behandling = serviceProvider.hentBehandling(kontekst.getBehandlingId());
         List<Aksjonspunkt> reåpnet = new ArrayList<>();
         aksjonspunkter.stream().filter(ap -> !ap.erOpprettet()).forEach(ap -> {
@@ -352,17 +308,21 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
             reåpnet.add(ap);
         });
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
-        aksjonspunkterEndretStatus(kontekst, null, reåpnet);
+        aksjonspunkterEndretStatus(kontekst, reåpnet);
     }
 
     @Override
     public void lagreAksjonspunktResultat(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType,
             List<AksjonspunktResultat> aksjonspunktResultater) {
+        if (aksjonspunktResultater.stream().map(AksjonspunktResultat::getAksjonspunktDefinisjon).anyMatch(AksjonspunktDefinisjon::erAutopunkt)) {
+            throw new IllegalArgumentException("Utviklerfeil: aksjonspunktResultater inneholder autopunkt "
+                + aksjonspunktResultater.stream().map(AksjonspunktResultat::getAksjonspunktDefinisjon).toList());
+        }
         var behandling = serviceProvider.hentBehandling(kontekst.getBehandlingId());
         var apHåndterer = new AksjonspunktResultatOppretter(aksjonspunktKontrollRepository, behandling);
         var endret = apHåndterer.opprettAksjonspunkter(aksjonspunktResultater, behandlingStegType);
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
-        aksjonspunkterEndretStatus(kontekst, behandlingStegType, endret);
+        aksjonspunkterEndretStatus(kontekst, endret);
     }
 
     @Override
@@ -376,7 +336,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
         }
         aksjonspunktKontrollRepository.setToTrinnsBehandlingKreves(aksjonspunkt, totrinn);
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
-        aksjonspunkterEndretStatus(kontekst, null, List.of(aksjonspunkt));
+        aksjonspunkterEndretStatus(kontekst, List.of(aksjonspunkt));
     }
 
     @Override
@@ -422,25 +382,49 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
                 venteårsak);
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
         if (aksjonspunkt != null) {
-            aksjonspunkterEndretStatus(kontekst, aksjonspunkt.getBehandlingStegFunnet(), singletonList(aksjonspunkt));
+            autopunkterEndretStatus(kontekst, singletonList(aksjonspunkt));
         }
         return aksjonspunkt;
     }
 
     @Override
-    public void settAutopunktTilUtført(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon, BehandlingskontrollKontekst kontekst) {
-        var åpneAksjonspunktAvDef = behandling.getÅpneAksjonspunkter(List.of(aksjonspunktDefinisjon));
-        lagreAksjonspunkterUtført(kontekst, behandling.getAktivtBehandlingSteg(), åpneAksjonspunktAvDef);
+    public void settAutopunktTilUtført(BehandlingskontrollKontekst kontekst, Behandling behandling, Aksjonspunkt aksjonspunkt) {
+        if (!aksjonspunkt.erAutopunkt()) {
+            throw new IllegalArgumentException("Utviklerfeil: aksjonspunkt er ikke autopunkt " + aksjonspunkt.getAksjonspunktDefinisjon());
+        }
+        if (aksjonspunkt.getAksjonspunktDefinisjon().tilbakehoppVedGjenopptakelse()) {
+            throw new IllegalArgumentException("Utviklerfeil: autopunkt med tilbakehopp må tas av vent " + aksjonspunkt.getAksjonspunktDefinisjon());
+        }
+        lagreAutopunkterUtført(kontekst, behandling, List.of(aksjonspunkt));
     }
 
-    private void settAutopunkterTilUtført(BehandlingskontrollKontekst kontekst, Behandling behandling) {
-        var åpneAutopunkter = behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT);
-        lagreAksjonspunkterUtført(kontekst, behandling.getAktivtBehandlingSteg(), åpneAutopunkter);
+    @Override
+    public void settAutopunktTilAvbrutt(BehandlingskontrollKontekst kontekst, Behandling behandling, Aksjonspunkt aksjonspunkt) {
+        if (!aksjonspunkt.erAutopunkt()) {
+            throw new IllegalArgumentException("Utviklerfeil: aksjonspunkt er ikke autopunkt " + aksjonspunkt.getAksjonspunktDefinisjon());
+        }
+        // Her skal vi ikke sjekke på tilbakehopp, men aller helst finn en annen tilnærming for det ene klage-retur-tilfellet.
+        lagreAutopunkterAvbrutt(kontekst, behandling, List.of(aksjonspunkt));
     }
 
-    private void settAutopunkterTilAvbrutt(BehandlingskontrollKontekst kontekst, Behandling behandling) {
-        var åpneAutopunkter = behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT);
-        lagreAksjonspunkterAvbrutt(kontekst, behandling, behandling.getAktivtBehandlingSteg(), åpneAutopunkter);
+    private void lagreAutopunkterUtført(BehandlingskontrollKontekst kontekst, Behandling behandling, List<Aksjonspunkt> aksjonspunkter) {
+        List<Aksjonspunkt> utførte = new ArrayList<>();
+        aksjonspunkter.stream().filter(ap -> !ap.erUtført()).forEach(ap -> {
+            aksjonspunktKontrollRepository.setTilUtført(ap, null);
+            utførte.add(ap);
+        });
+        behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
+        autopunkterEndretStatus(kontekst, utførte);
+    }
+
+    private void lagreAutopunkterAvbrutt(BehandlingskontrollKontekst kontekst, Behandling behandling, List<Aksjonspunkt> aksjonspunkter) {
+        List<Aksjonspunkt> avbrutte = new ArrayList<>();
+        aksjonspunkter.stream().filter(ap -> !ap.erAvbrutt()).forEach(ap -> {
+            aksjonspunktKontrollRepository.setTilAvbrutt(ap);
+            avbrutte.add(ap);
+        });
+        behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
+        autopunkterEndretStatus(kontekst, avbrutte);
     }
 
     @Override
@@ -463,16 +447,16 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
                 String.format("BehandlingId %s har flere enn et aksjonspunkt, hvor aksjonspunktet fører til tilbakehopp ved gjenopptakelse. Kan ikke gjenopptas.", behandling.getId()));
         }
         if (erHenleggelse) {
-            settAutopunkterTilAvbrutt(kontekst, behandling);
+            lagreAutopunkterAvbrutt(kontekst, behandling, behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT));
         } else {
-            settAutopunkterTilUtført(kontekst, behandling);
+            lagreAutopunkterUtført(kontekst, behandling, behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT));
         }
         if (aksjonspunkterSomMedførerTilbakehopp.size() == 1) {
             var ap = aksjonspunkterSomMedførerTilbakehopp.getFirst();
             var behandlingStegFunnet = ap.getBehandlingStegFunnet();
             behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, behandlingStegFunnet);
             // I tilfelle tilbakehopp reåpner autopunkt - de skal reutledes av steget.
-            settAutopunkterTilUtført(kontekst, behandling);
+            lagreAutopunkterUtført(kontekst, behandling, behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT));
         }
     }
 
@@ -530,17 +514,16 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
             Behandlingsresultat.builderEndreEksisterende(eksisterende).medBehandlingResultatType(årsak);
         }
 
-        BehandlingStegType behandlingStegType = null;
         var stegTilstandFør = BehandlingStegTilstandSnapshot.tilBehandlingsStegSnapshot(behandling);
-        if (stegTilstandFør != null) {
-            behandlingStegType = stegTilstandFør.steg();
-        }
 
         // avbryt aksjonspunkt
         var åpneAksjonspunkter = behandling.getÅpneAksjonspunkter();
         åpneAksjonspunkter.forEach(aksjonspunktKontrollRepository::setTilAvbrutt);
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-        eventPubliserer.fireEvent(new AksjonspunktStatusEvent(kontekst, åpneAksjonspunkter, behandlingStegType));
+        var åpneAksjonspunktIkkeAutopunkt = åpneAksjonspunkter.stream().filter(a -> !a.erAutopunkt()).toList();
+        eventPubliserer.fireEvent(new AksjonspunktStatusEvent(kontekst, åpneAksjonspunktIkkeAutopunkt));
+        var åpneAutopunkter = åpneAksjonspunkter.stream().filter(Aksjonspunkt::erAutopunkt).toList();
+        eventPubliserer.fireEvent(new AutopunktStatusEvent(kontekst, åpneAutopunkter));
         return stegTilstandFør;
     }
 
@@ -549,32 +532,6 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
         // Publiser transisjonsevent (eventobserver(e) håndterer tilhørende transisjonsregler)
         var event = new BehandlingTransisjonEvent(kontekst, new Transisjon(StegTransisjon.HOPPOVER, stegEtter), stegTilstandFør);
         eventPubliserer.fireEvent(event);
-    }
-
-    @Override
-    public boolean skalAksjonspunktLøsesIEllerEtterSteg(FagsakYtelseType ytelseType, BehandlingType behandlingType,
-            BehandlingStegType behandlingSteg, AksjonspunktDefinisjon apDef) {
-
-        var modell = getModell(behandlingType, ytelseType);
-        var apLøsesteg = Optional.ofNullable(modell
-                .finnTidligsteStegForAksjonspunktDefinisjon(singletonList(apDef)))
-                .map(BehandlingStegModell::getBehandlingStegType)
-                .orElse(null);
-        if (apLøsesteg == null) {
-            // AksjonspunktDefinisjon finnes ikke på stegene til denne behandlingstypen. Ap
-            // kan derfor ikke løses.
-            return false;
-        }
-
-        return behandlingSteg.equals(apLøsesteg) || modell.erStegAFørStegB(behandlingSteg, apLøsesteg);
-    }
-
-    // TODO: (PK-49128) Midlertidig løsning for å filtrere aksjonspunkter til høyre
-    // for steg i hendelsemodul
-    @Override
-    public Set<AksjonspunktDefinisjon> finnAksjonspunktDefinisjonerFraOgMed(BehandlingskontrollKontekst kontekst, BehandlingStegType steg, boolean medInngangOgså) {
-        var modell = getModell(kontekst.getBehandlingType(), kontekst.getYtelseType());
-        return modell.finnAksjonspunktDefinisjonerFraOgMed(steg, medInngangOgså);
     }
 
     protected BehandlingStegUtfall doProsesserBehandling(BehandlingskontrollKontekst kontekst, BehandlingModell modell,
@@ -695,7 +652,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     }
 
     protected BehandlingModell getModell(BehandlingType behandlingType, FagsakYtelseType ytelseType) {
-        return behandlingModellRepository.getModell(behandlingType, ytelseType);
+        return BehandlingModellRepository.getModell(behandlingType, ytelseType);
     }
 
     private void fyrEventBehandlingskontrollException(BehandlingskontrollKontekst kontekst, RuntimeException e) {
@@ -753,13 +710,6 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
         // tranisjonsregler)
         var event = new BehandlingTransisjonEvent(kontekst, transisjon, stegTilstandFør);
         eventPubliserer.fireEvent(event);
-    }
-
-    @Override
-    public boolean inneholderSteg(Behandling behandling, BehandlingStegType behandlingStegType) {
-        var modell = getModell(behandling.getType(), behandling.getFagsakYtelseType());
-        return modell.hvertSteg()
-                .anyMatch(steg -> steg.getBehandlingStegType().equals(behandlingStegType));
     }
 
     private boolean erSenereSteg(BehandlingModell modell, BehandlingStegType inneværendeSteg,

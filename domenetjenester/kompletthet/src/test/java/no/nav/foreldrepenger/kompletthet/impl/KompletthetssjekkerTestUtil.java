@@ -138,10 +138,10 @@ public class KompletthetssjekkerTestUtil {
     }
 
     private FamilieHendelseEntitet byggFamilieHendelse(Long behandlingId) {
-        var søknadHendelse = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(behandlingId)
+        var søknadHendelse = repositoryProvider.getFamilieHendelseRepository().opprettBuilderForSøknad(behandlingId)
             .medAntallBarn(1)
             .medFødselsDato(LocalDate.now().minusDays(1));
-        repositoryProvider.getFamilieHendelseRepository().lagre(behandlingId, søknadHendelse);
+        repositoryProvider.getFamilieHendelseRepository().lagreSøknadHendelse(behandlingId, søknadHendelse);
         return repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandlingId).getSøknadVersjon();
     }
 }

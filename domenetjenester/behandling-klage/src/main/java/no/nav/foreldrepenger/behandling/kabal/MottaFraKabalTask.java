@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandling.kabal;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -108,11 +107,9 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
                 kabalTjeneste.lagHistorikkinnslagForHenleggelse(klageBehandling, BehandlingResultatType.HENLAGT_KLAGE_TRUKKET);
             }
         } else if (KabalUtfall.RETUR.equals(utfall)) {
-            // Knoteri siden behandling tilbakeføres og deretter kanskje skal til Kabal på nytt. Gjennomgå retur-semantikk på nytt.
-            if (klageBehandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE)) {
-                behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, klageBehandling.getAktivtBehandlingSteg(),
-                    klageBehandling.getÅpneAksjonspunkter(List.of(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE)));
-            }
+            // Knoteri siden behandling tilbakeføres og deretter kanskje skal til Kabal på nytt. Avbrutt er viktig. Gjennomgå retur-semantikk på nytt.
+            klageBehandling.getÅpentAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE)
+                .ifPresent(a -> behandlingskontrollTjeneste.settAutopunktTilAvbrutt(kontekst, klageBehandling, a));
             if (klageBehandling.isBehandlingPåVent()) { // Autopunkt
                 behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(klageBehandling, kontekst);
             }

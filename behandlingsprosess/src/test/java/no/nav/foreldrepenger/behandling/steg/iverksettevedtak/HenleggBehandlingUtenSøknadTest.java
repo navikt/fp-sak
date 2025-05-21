@@ -7,7 +7,6 @@ import static org.mockito.Mockito.mock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollTjenesteImpl;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -32,7 +31,7 @@ class HenleggBehandlingUtenSøknadTest extends EntityManagerAwareTest {
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        var serviceProvider = new BehandlingskontrollServiceProvider(getEntityManager(), new BehandlingModellRepository(), null);
+        var serviceProvider = new BehandlingskontrollServiceProvider(getEntityManager(), null);
         var behandlingskontrollTjenesteImpl = new BehandlingskontrollTjenesteImpl(serviceProvider);
         henleggBehandlingTjeneste = new HenleggBehandlingTjeneste(repositoryProvider, behandlingskontrollTjenesteImpl,
                 mock(DokumentBestillerTjeneste.class), mock(ProsessTaskTjeneste.class));

@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.impl;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingModellTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
@@ -43,7 +45,9 @@ public class Endringskontroller {
     private static final Set<BehandlingStegType> STARTPUNKT_STEG_INNGANG_VILKÅR = Set.of(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT.getBehandlingSteg(),
         StartpunktType.SØKERS_RELASJON_TIL_BARNET.getBehandlingSteg());
     private static final AksjonspunktDefinisjon SPESIALHÅNDTERT_AKSJONSPUNKT = AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU;
+    private static final StartpunktType SPESIALHÅNDTERT_AKSJONSPUNKT_STARTPUNKT = StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingModellTjeneste behandlingModellTjeneste;
     private RegisterinnhentingHistorikkinnslagTjeneste historikkinnslagTjeneste;
     private Instance<KontrollerFaktaInngangsVilkårUtleder> kontrollerFaktaTjenester;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -56,12 +60,14 @@ public class Endringskontroller {
 
     @Inject
     public Endringskontroller(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                              BehandlingModellTjeneste behandlingModellTjeneste,
                               @Any Instance<StartpunktTjeneste> startpunktTjenester,
                               RegisterinnhentingHistorikkinnslagTjeneste historikkinnslagTjeneste,
                               @Any Instance<KontrollerFaktaInngangsVilkårUtleder> kontrollerFaktaTjenester,
                               SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                               TotrinnRepository totrinnRepository) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.behandlingModellTjeneste = behandlingModellTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.startpunktTjenester = startpunktTjenester;
         this.historikkinnslagTjeneste = historikkinnslagTjeneste;
@@ -70,7 +76,8 @@ public class Endringskontroller {
     }
 
     public boolean erRegisterinnhentingPassert(Behandling behandling) {
-        return behandling.getType().erYtelseBehandlingType() && behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.INNHENT_REGISTEROPP);
+        return behandling.getType().erYtelseBehandlingType()
+            && behandlingModellTjeneste.erStegAEtterStegB(behandling.getFagsakYtelseType(), behandling.getType(), behandling.getAktivtBehandlingSteg(), BehandlingStegType.INNHENT_REGISTEROPP);
     }
 
     // Kalles når behandlingen har ligget over natten (en dag) - selv om EndringsresultatDiff er tom. For å få med endringer i andre ytelser
@@ -114,8 +121,7 @@ public class Endringskontroller {
     private void doSpolTilStartpunkt(BehandlingReferanse ref, Skjæringstidspunkt stp, Behandling behandling, StartpunktType startpunktType) {
         var startPunktSteg = startpunktType.getBehandlingSteg();
         var skalSpesialHåndteres = behandling.getÅpentAksjonspunktMedDefinisjonOptional(SPESIALHÅNDTERT_AKSJONSPUNKT).isPresent() &&
-            behandlingskontrollTjeneste.sammenlignRekkefølge(behandling.getFagsakYtelseType(), behandling.getType(),
-                SPESIALHÅNDTERT_AKSJONSPUNKT.getBehandlingSteg(), startPunktSteg) < 0;
+            SPESIALHÅNDTERT_AKSJONSPUNKT_STARTPUNKT.getRangering() < startpunktType.getRangering();
         var tilSteg = skalSpesialHåndteres ? SPESIALHÅNDTERT_AKSJONSPUNKT.getBehandlingSteg() : startPunktSteg;
 
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
@@ -134,18 +140,21 @@ public class Endringskontroller {
         }
 
         if (tilbakeføres) {
-            // Eventuelt ta behandling av vent
+            // Eventuelt ta behandling av vent. Kan flytte på behandling dersom autopunkt med tilbakehopp
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
-            // Spol tilbake
-            behandlingskontrollTjeneste.behandlingTilbakeføringHvisTidligereBehandlingSteg(kontekst, tilSteg);
+            var tilbakeføresNySjekk = skalTilbakeføres(behandling, behandling.getAktivtBehandlingSteg(), tilSteg);
+            if (tilbakeføresNySjekk) {
+                // Spol tilbake
+                behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, tilSteg);
+            }
         }
         loggSpoleutfall(behandling, fraSteg, tilSteg, tilbakeføres);
     }
 
     private boolean skalTilbakeføres(Behandling behandling, BehandlingStegType fraSteg, BehandlingStegType tilSteg) {
         // Dersom vi står i UTGANG, og skal til samme steg som vi står i, vil det også være en tilbakeføring siden vi går UTGANG -> INNGANG
-        var sammenlign = behandlingskontrollTjeneste.sammenlignRekkefølge(behandling.getFagsakYtelseType(), behandling.getType(), fraSteg, tilSteg);
-        return sammenlign == 0 && BehandlingStegStatus.UTGANG.equals(behandling.getBehandlingStegStatus()) || sammenlign > 0;
+        return Objects.equals(fraSteg, tilSteg) && BehandlingStegStatus.UTGANG.equals(behandling.getBehandlingStegStatus())
+            || behandlingModellTjeneste.erStegAEtterStegB(behandling.getFagsakYtelseType(), behandling.getType(), fraSteg, tilSteg);
     }
 
     private boolean harUtførtKontrollerFakta(Behandling behandling) {
@@ -184,17 +193,25 @@ public class Endringskontroller {
             .filter(ap -> !ap.erManueltOpprettet() && !ap.erAutopunkt() && !SPESIALHÅNDTERT_AKSJONSPUNKT.equals(ap.getAksjonspunktDefinisjon()))
             .filter(ap -> !erReturBeslutter(ref, ap.getAksjonspunktDefinisjon()))
             .filter(ap -> !resultatDef.contains(ap.getAksjonspunktDefinisjon()))
-            .filter(ap -> behandlingskontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(ref.fagsakYtelseType(), ref.behandlingType(), fomSteg, ap.getAksjonspunktDefinisjon()))
+            .filter(ap -> behandlingModellTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(ref.fagsakYtelseType(), ref.behandlingType(), fomSteg, ap.getAksjonspunktDefinisjon()))
             .toList();
         var opprettes = resultater.stream()
             .filter(ar -> !AksjonspunktStatus.UTFØRT.equals(behandling.getAksjonspunktMedDefinisjonOptional(ar.getAksjonspunktDefinisjon())
                 .map(Aksjonspunkt::getStatus).orElse(AksjonspunktStatus.OPPRETTET)))
             .toList();
         if (!avbrytes.isEmpty()) {
-            behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), avbrytes);
+            behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, avbrytes);
         }
         if (!opprettes.isEmpty()) {
-            behandlingskontrollTjeneste.lagreAksjonspunktResultat(kontekst, BehandlingStegType.KONTROLLER_FAKTA, opprettes);
+            var opprettAksjonspunkt = opprettes.stream().filter(ar -> !ar.getAksjonspunktDefinisjon().erAutopunkt()).toList();
+            if (!opprettAksjonspunkt.isEmpty()) {
+                behandlingskontrollTjeneste.lagreAksjonspunktResultat(kontekst, BehandlingStegType.KONTROLLER_FAKTA, opprettAksjonspunkt);
+            }
+            opprettes.stream()
+                .filter(ar -> ar.getAksjonspunktDefinisjon().erAutopunkt())
+                .findFirst()
+                .ifPresent(ar -> behandlingskontrollTjeneste.settBehandlingPåVent(behandling, ar.getAksjonspunktDefinisjon(),
+                    BehandlingStegType.KONTROLLER_FAKTA, ar.getFrist(), ar.getVenteårsak()));
         }
     }
 

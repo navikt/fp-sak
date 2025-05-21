@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegOvergangEvent.BehandlingStegTilbakeføringEvent;
+import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollEventPubliserer;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -71,7 +72,8 @@ public class BehandlingskontrollTransisjonTilbakeføringEventObserver {
                 .descendingIterator() // stepper bakover
                 .forEachRemaining(s -> hoppBakover(s, event, førsteSteg, sisteSteg));
 
-        aksjonspunkterTilbakeført(event.getKontekst(), endredeAksjonspunkter, event.getFraStegType());
+        // endrete vil ikke inneholde autopunkt - de skal bli liggende ved tilbakehopp
+        aksjonspunkterTilbakeført(event.getKontekst(), endredeAksjonspunkter);
     }
 
     protected void hoppBakover(BehandlingStegModell s, BehandlingStegTilbakeføringEvent event, BehandlingStegType førsteSteg,
@@ -80,7 +82,7 @@ public class BehandlingskontrollTransisjonTilbakeføringEventObserver {
     }
 
     private BehandlingModell getModell(BehandlingskontrollKontekst kontekst) {
-        return serviceProvider.getBehandlingModellRepository().getModell(kontekst.getBehandlingType(), kontekst.getYtelseType());
+        return BehandlingModellRepository.getModell(kontekst.getBehandlingType(), kontekst.getYtelseType());
     }
 
     private List<Aksjonspunkt> håndterAksjonspunkter(Behandling behandling, Set<AksjonspunktDefinisjon> mellomliggendeAksjonspunkt,
@@ -111,10 +113,9 @@ public class BehandlingskontrollTransisjonTilbakeføringEventObserver {
         }
     }
 
-    private void aksjonspunkterTilbakeført(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter,
-            BehandlingStegType behandlingStegType) {
+    private void aksjonspunkterTilbakeført(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter) {
         if (!aksjonspunkter.isEmpty()) {
-            eventPubliserer.fireEvent(new AksjonspunktStatusEvent(kontekst, aksjonspunkter, behandlingStegType));
+            eventPubliserer.fireEvent(new AksjonspunktStatusEvent(kontekst, aksjonspunkter));
         }
     }
 

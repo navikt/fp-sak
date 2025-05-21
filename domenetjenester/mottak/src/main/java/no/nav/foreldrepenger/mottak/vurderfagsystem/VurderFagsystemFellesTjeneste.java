@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -78,7 +79,11 @@ public class VurderFagsystemFellesTjeneste {
     }
 
     private BehandlendeFagsystem håndterHenvendelse(VurderFagsystem vurderFagsystem, FagsakYtelseType ytelseType, List<Fagsak> alleBrukersFagsaker) {
-        var brukersSakerAvType = alleBrukersFagsaker.stream().filter(s -> ytelseType.equals(s.getYtelseType())).toList();
+        var alleRoller = vurderFagsystem.getBrukerRolle() == null || RelasjonsRolleType.UDEFINERT.equals(vurderFagsystem.getBrukerRolle());
+        var brukersSakerAvType = alleBrukersFagsaker.stream()
+            .filter(s -> ytelseType.equals(s.getYtelseType()))
+            .filter(s -> alleRoller || relevantRolle(vurderFagsystem.getBrukerRolle(), s))
+            .toList();
 
         var vurderFagsystemTjeneste = FagsakYtelseTypeRef.Lookup.find(vurderFagsystemTjenester, ytelseType)
             .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + ytelseType.getKode()));
@@ -92,6 +97,11 @@ public class VurderFagsystemFellesTjeneste {
         }
 
         return vurderFagsystemTjeneste.vurderFagsystemUstrukturert(vurderFagsystem, brukersSakerAvType);
+    }
+
+    private static boolean relevantRolle(RelasjonsRolleType request, Fagsak fagsak) {
+        return fagsak.getRelasjonsRolleType() == null || RelasjonsRolleType.UDEFINERT.equals(fagsak.getRelasjonsRolleType())
+            || request.equals(fagsak.getRelasjonsRolleType());
     }
 
     public BehandlendeFagsystem vurderFagsystemForKlageinstans(VurderFagsystem vurderFagsystem) {

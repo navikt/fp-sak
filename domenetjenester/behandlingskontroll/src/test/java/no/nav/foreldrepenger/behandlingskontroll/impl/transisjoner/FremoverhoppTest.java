@@ -49,7 +49,6 @@ class FremoverhoppTest {
     private final List<StegTransisjon> transisjoner = new ArrayList<>();
 
     private BehandlingRepository behandlingRepository;
-    private final BehandlingModellRepository behandlingModellRepository = new BehandlingModellRepository();
 
     private BehandlingskontrollServiceProvider serviceProvider;
 
@@ -63,7 +62,7 @@ class FremoverhoppTest {
 
     @BeforeEach
     void setUp(EntityManager entityManager) {
-        serviceProvider = new BehandlingskontrollServiceProvider(entityManager, behandlingModellRepository, null);
+        serviceProvider = new BehandlingskontrollServiceProvider(entityManager, null);
         behandlingRepository = serviceProvider.getBehandlingRepository();
         observer = new BehandlingskontrollFremoverhoppTransisjonEventObserver(serviceProvider) {
             @Override
@@ -74,7 +73,7 @@ class FremoverhoppTest {
             }
         };
 
-        var modell = behandlingModellRepository.getModell(BehandlingType.FØRSTEGANGSSØKNAD, FagsakYtelseType.FORELDREPENGER);
+        var modell = BehandlingModellRepository.getModell(BehandlingType.FØRSTEGANGSSØKNAD, FagsakYtelseType.FORELDREPENGER);
         steg1 = BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING;
         steg2 = modell.finnNesteSteg(steg1).getBehandlingStegType();
         steg3 = modell.finnNesteSteg(steg2).getBehandlingStegType();

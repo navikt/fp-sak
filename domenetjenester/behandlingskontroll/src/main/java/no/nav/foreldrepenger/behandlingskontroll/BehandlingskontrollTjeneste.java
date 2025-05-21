@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingskontroll;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Consumer;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -15,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
 public interface BehandlingskontrollTjeneste {
 
@@ -64,9 +62,6 @@ public interface BehandlingskontrollTjeneste {
      */
     void behandlingTilbakeføringTilTidligsteAksjonspunkt(BehandlingskontrollKontekst kontekst, Collection<AksjonspunktDefinisjon> endredeAksjonspunkt);
 
-    boolean behandlingTilbakeføringHvisTidligereBehandlingSteg(BehandlingskontrollKontekst kontekst,
-            BehandlingStegType tidligereStegType);
-
     /**
      * FLytt prosesen til et tidlligere steg.
      *
@@ -105,21 +100,12 @@ public interface BehandlingskontrollTjeneste {
      * Lagrer og håndterer utførte aksjonspunkt uten begrunnelse. Dersom man skal
      * lagre begrunnelse - bruk apRepository + aksjonspunkterUtført
      */
-    void lagreAksjonspunkterUtført(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType,
-            List<Aksjonspunkt> aksjonspunkter);
-
-    /**
-     * Lagrer og håndterer utførte aksjonspunkt uten begrunnelse. Dersom man skal
-     * lagre begrunnelse - bruk apRepository + aksjonspunkterUtført
-     */
-    void lagreAksjonspunkterUtført(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType,
-            Aksjonspunkt aksjonspunkt, String begrunnelse);
+    void lagreAksjonspunkterUtført(BehandlingskontrollKontekst kontekst, Aksjonspunkt aksjonspunkt, String begrunnelse);
 
     /**
      * Lagrer og håndterer avbrutte aksjonspunkt
      */
-    void lagreAksjonspunkterAvbrutt(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType,
-            List<Aksjonspunkt> aksjonspunkter);
+    void lagreAksjonspunkterAvbrutt(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter);
 
     /**
      * Lagrer og håndterer reåpning av aksjonspunkt
@@ -171,8 +157,7 @@ public interface BehandlingskontrollTjeneste {
             Venteårsak venteårsak);
 
     /**
-     * Setter behandlingen på vent med angitt hvilket steg det står i. NB IKKE BRUK
-     * FRA STEG
+     * Setter behandlingen på vent med angitt hvilket steg det står i. NB IKKE BRUK FRA STEG
      *
      * @param behandling
      * @param aksjonspunktDefinisjon hvilket Aksjonspunkt skal holde i 'ventingen'
@@ -186,21 +171,21 @@ public interface BehandlingskontrollTjeneste {
             Venteårsak venteårsak);
 
     /**
-     * Setter autopunkter av en spesifikk aksjonspunktdefinisjon til utført. Dette
-     * klargjør kun behandligen for prosessering, men vil ikke drive prosessen
-     * videre.
+     * Setter autopunkter av en spesifikk aksjonspunktdefinisjon til utført.
+     * Dette klargjør kun behandligen for prosessering, men vil ikke drive prosessen videre.
+     * Disse metodene bør bare brukes ved eksplisitt behov - bruk heller {@link #taBehandlingAvVentSetAlleAutopunktUtført}
      *
-     * @param aksjonspunktDefinisjon Aksjonspunktdefinisjon til de aksjonspunktene
-     *                               som skal lukkes Bruk
-     *                               {@link #prosesserBehandling(BehandlingskontrollKontekst)}
-     *                               el. tilsvarende for det.
+     * @param kontekst     Kontekst for prosessering med skrivelås for behandlingen
+     * @param aksjonspunkt Åpent aksjonspunkt som skal lukkes (utføres eller avbrytes)
      */
-    void settAutopunktTilUtført(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon, BehandlingskontrollKontekst kontekst);
+    void settAutopunktTilUtført(BehandlingskontrollKontekst kontekst, Behandling behandling, Aksjonspunkt aksjonspunkt);
+
+    void settAutopunktTilAvbrutt(BehandlingskontrollKontekst kontekst, Behandling behandling, Aksjonspunkt aksjonspunkt);
 
     /**
-     * Ny metode som forbereder en behandling for prosessering - setter autopunkt
-     * til utført og evt tilbakeføring ved gjenopptak. Behandlingen skal være klar
-     * til prosessering uten åpne autopunkt når kallet er ferdig.
+     * Ny metode som forbereder en behandling for prosessering
+     * Setter autopunkt til utført og foretar tilbakeføring ved gjenopptak dersom autopunkt har tilbakehoppVedGjenopptakelse = true.
+     * Behandlingen skal være klar til prosessering uten åpne autopunkt når kallet er ferdig.
      */
     void taBehandlingAvVentSetAlleAutopunktUtført(Behandling behandling, BehandlingskontrollKontekst kontekst);
 
@@ -209,31 +194,7 @@ public interface BehandlingskontrollTjeneste {
     /** Henlegg en behandling. */
     void henleggBehandling(BehandlingskontrollKontekst kontekst, BehandlingResultatType årsakKode);
 
-    Set<AksjonspunktDefinisjon> finnAksjonspunktDefinisjonerFraOgMed(BehandlingskontrollKontekst kontekst, BehandlingStegType steg, boolean medInngangOgså);
-
     void henleggBehandlingFraSteg(BehandlingskontrollKontekst kontekst, BehandlingResultatType årsak);
 
-    /**
-     * Sjekker i behandlingsmodellen om aksjonspunktet skal løses i eller etter det
-     * angitte steget.
-     *
-     * @param ytelseType             ytelsen som skal sjekkes
-     * @param behandlingType         behandlingstypen som skal sjekkes
-     * @param behandlingSteg         steget som aksjonspunktet skal sjekkes mot
-     * @param aksjonspunktDefinisjon aksjonspunktet som skal sjekkes
-     * @return true dersom aksjonspunktet skal løses i eller etter det angitte
-     *         steget.
-     */
-    boolean skalAksjonspunktLøsesIEllerEtterSteg(FagsakYtelseType ytelseType, BehandlingType behandlingType, BehandlingStegType behandlingSteg,
-            AksjonspunktDefinisjon aksjonspunktDefinisjon);
-
     void fremoverTransisjon(BehandlingStegType målSteg, BehandlingskontrollKontekst kontekst);
-
-    boolean inneholderSteg(Behandling behandling, BehandlingStegType registrerSøknad);
-
-    int sammenlignRekkefølge(FagsakYtelseType ytelseType, BehandlingType behandlingType, BehandlingStegType stegA, BehandlingStegType stegB);
-
-    boolean erStegPassert(Behandling behandling, BehandlingStegType stegType);
-
-    boolean erIStegEllerSenereSteg(Behandling behandling, BehandlingStegType stegType);
 }

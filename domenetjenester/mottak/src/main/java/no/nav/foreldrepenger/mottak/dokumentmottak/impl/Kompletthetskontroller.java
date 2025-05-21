@@ -15,7 +15,6 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -39,7 +38,6 @@ public class Kompletthetskontroller {
 
     private DokumentmottakerFelles dokumentmottakerFelles;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private Kompletthetsjekker kompletthetsjekker;
@@ -51,13 +49,11 @@ public class Kompletthetskontroller {
     @Inject
     public Kompletthetskontroller(DokumentmottakerFelles dokumentmottakerFelles,
                                   MottatteDokumentTjeneste mottatteDokumentTjeneste,
-                                  BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                   BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                                   SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                   Kompletthetsjekker kompletthetsjekker) {
         this.dokumentmottakerFelles = dokumentmottakerFelles;
         this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.kompletthetsjekker = kompletthetsjekker;
@@ -82,7 +78,7 @@ public class Kompletthetskontroller {
                 behandlingProsesseringTjeneste.settBehandlingPåVent(behandling, AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD, kompletthetResultat.ventefrist(), kompletthetResultat.venteårsak());
             }
         }
-        if (kompletthetResultat.erOppfylt() && (erKompletthetssjekkEllerPassert(behandling)
+        if (kompletthetResultat.erOppfylt() && (erTidligKompletthetssjekkEllerPassert(behandling)
             || behandling.isBehandlingPåVent() || mottattDokument.getDokumentType().erSøknadType() || mottattDokument.getDokumentType().erEndringsSøknadType())) {
             if (behandling.isBehandlingPåVent()) {
                 behandlingProsesseringTjeneste.taBehandlingAvVent(behandling);
@@ -167,10 +163,14 @@ public class Kompletthetskontroller {
     }
 
     private boolean erRegisterinnhentingPassert(Behandling behandling) {
-        return behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.INNHENT_REGISTEROPP);
+        return behandlingProsesseringTjeneste.erBehandlingEtterSteg(behandling, BehandlingStegType.INNHENT_REGISTEROPP);
     }
 
-    private boolean erKompletthetssjekkEllerPassert(Behandling behandling) {
-        return behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling, BehandlingStegType.VURDER_KOMPLETT_TIDLIG);
+    private boolean erTidligKompletthetssjekkEllerPassert(Behandling behandling) {
+        return !behandlingProsesseringTjeneste.erBehandlingFørSteg(behandling, BehandlingStegType.VURDER_KOMPLETT_TIDLIG);
+    }
+
+    public boolean erKompletthetssjekkPassert(Behandling behandling) {
+        return behandlingProsesseringTjeneste.erBehandlingEtterSteg(behandling, BehandlingStegType.VURDER_KOMPLETT_BEH);
     }
 }
