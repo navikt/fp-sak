@@ -175,9 +175,13 @@ public class FastsettUttaksgrunnlagTjeneste {
         var originalFamiliehendelser = originalBehandlingOpt.get().getFamilieHendelser();
         var familiehendelsedatoSøkerTokUtgangspunktIOriginalBehandling = originalFamiliehendelser.getSøknadFamilieHendelse().getFamilieHendelseDato();
         if (!familiehendelsedatoSøkerTokUtgangspunktIGjeldendeBehandling.isEqual(familiehendelsedatoSøkerTokUtgangspunktIOriginalBehandling)) {
-            // Juster i henhold til gjeldende familiehendelsesdato gjeldende behandling tok utgangspunkt i og ikke orginal behandling
-            // Denne kan inntreffe hvis det kommer inn en ny førstegangssøknad hvor familiehendelsegrunnlaget for søknaden er endret
-            // Eksempler: Søker søker på ny termindato. Søker med utgangspunkt i fødselsdato. I begge tilfellene eksisteres det allerede en behandling på barnet.
+            // Hvis familiehendelsesdatoen for søknaden i gjeldende behandling er forskjellig fra den i original behandling,
+            // skal vi bruke datoen fra gjeldende behandling. Dette gjelder typisk i tilfeller hvor en ny førstegangssøknad
+            // har endret familiehendelsesgrunnlaget.
+            //
+            // Eksempler:
+            // - Søker sender inn ny førstegangssøknad med oppdatert termindato.
+            // - Søker sender inn ny førstegangssøknad som baserer på fødselsdato i stedet for tidligere termindato.
             return familiehendelsedatoSøkerTokUtgangspunktIGjeldendeBehandling;
         }
 
