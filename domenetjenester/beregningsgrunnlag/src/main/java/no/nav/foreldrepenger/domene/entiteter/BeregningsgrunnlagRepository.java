@@ -351,15 +351,13 @@ public class BeregningsgrunnlagRepository {
             select *
             from (select *
                   from fpsak.FAGSAK fag
-                  where fag.id >= :fraOgMedId
-                    and fag.ID <= :tilOgMedId
-                    and fag.id in (select b.fagsak_id
+                  where fag.id in (select b.fagsak_id
                                    from fpsak.behandling b
                                             inner join GR_BEREGNINGSGRUNNLAG grbg
                                                        on (grbg.behandling_id = b.id and grbg.aktiv = 'J')
                                             inner join BG_AKTIVITET_STATUS aks
                                                        on aks.beregningsgrunnlag_id = grbg.beregningsgrunnlag_id
-                                   where aks.aktivitet_status = :status)
+                                   where aks.aktivitet_status = :status and b.fagsak_id >= :fraOgMedId and b.fagsak_id <= :tilOgMedId)
                   order by fag.id)
             where ROWNUM <= 100""");
         query.setParameter("status", "AAP");
