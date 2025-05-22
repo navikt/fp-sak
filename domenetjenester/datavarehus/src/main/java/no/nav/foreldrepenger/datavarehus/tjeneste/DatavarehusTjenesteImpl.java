@@ -38,6 +38,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -128,8 +129,10 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
 
     private void lagreNedBehandling(Behandling behandling, Optional<BehandlingVedtak> vedtak) {
         var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId());
-        var gjeldendeKlagevurderingresultat = klageRepository.hentKlageResultatHvisEksisterer(behandling.getId());
-        var gjeldendeAnkevurderingresultat = ankeRepository.hentAnkeResultat(behandling.getId());
+        Optional<KlageResultatEntitet> gjeldendeKlagevurderingresultat = behandling.getType().erKlageAnkeType()
+            ? klageRepository.hentKlageResultatHvisEksisterer(behandling.getId()) : Optional.empty();
+        Optional<AnkeResultatEntitet> gjeldendeAnkevurderingresultat = behandling.getType().erKlageAnkeType()
+            ? ankeRepository.hentAnkeResultat(behandling.getId()) : Optional.empty();
         var skjæringstidspunkt = familieHendelseGrunnlag.map(fhg -> skjæringstidspunkt(behandling, familieHendelseGrunnlag.get()));
         var mottatteDokumenter = mottatteDokumentRepository.hentMottatteDokument(behandling.getId()).stream()
             .filter(md -> md.getJournalpostId() != null && erRelevantDoument(behandling, md))

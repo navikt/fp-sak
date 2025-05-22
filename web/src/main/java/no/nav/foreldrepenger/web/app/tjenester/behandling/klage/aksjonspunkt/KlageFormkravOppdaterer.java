@@ -7,6 +7,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdateringTransisjon;
@@ -19,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.KlageOppdatertEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageAvvistÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
@@ -32,6 +34,7 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
     private KlageVurderingTjeneste klageVurderingTjeneste;
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingEventPubliserer eventPubliserer;
 
     private KlageHistorikkinnslag klageFormkravHistorikk;
 
@@ -43,10 +46,12 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
     public KlageFormkravOppdaterer(KlageVurderingTjeneste klageVurderingTjeneste,
                                    BehandlingRepository behandlingRepository,
                                    BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                   BehandlingEventPubliserer eventPubliserer,
                                    KlageHistorikkinnslag klageFormkravHistorikk) {
         this.behandlingRepository = behandlingRepository;
         this.klageVurderingTjeneste = klageVurderingTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.eventPubliserer = eventPubliserer;
         this.klageFormkravHistorikk = klageFormkravHistorikk;
     }
 
@@ -68,6 +73,7 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
         var optionalAvvistÅrsak = vurderOgLagreFormkrav(dto, klageBehandling, klageResultat, klageVurdertAv);
         if (optionalAvvistÅrsak.isPresent()) {
             lagreKlageVurderingResultatMedAvvistKlage(klageBehandling, klageVurdertAv, dto.fritekstTilBrev() != null ? dto.fritekstTilBrev() : null);
+            eventPubliserer.publiserBehandlingEvent(new KlageOppdatertEvent(klageBehandling));
             return OppdateringResultat.medFremoverHoppTotrinn(AksjonspunktOppdateringTransisjon.FORESLÅ_VEDTAK);
         }
         //Må fjerne fritekst om det ble lagret i formkrav-vurderingen
@@ -80,6 +86,8 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
         klageBehandling.getÅpentAksjonspunktMedDefinisjonOptional(apDefFormkrav)
             .filter(Aksjonspunkt::isToTrinnsBehandling)
             .ifPresent(ap -> fjernToTrinnsbehandling(klageBehandling, ap));
+
+        eventPubliserer.publiserBehandlingEvent(new KlageOppdatertEvent(klageBehandling));
 
         return OppdateringResultat.utenTransisjon().build();
     }
