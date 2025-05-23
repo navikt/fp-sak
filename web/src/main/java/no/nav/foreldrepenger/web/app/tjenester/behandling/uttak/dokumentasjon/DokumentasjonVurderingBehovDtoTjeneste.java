@@ -57,7 +57,7 @@ public class DokumentasjonVurderingBehovDtoTjeneste {
 
     private Set<AktivitetskravArbeidPeriodeEntitet> finnAktivitetskravArbeidPerioder(DatoIntervallEntitet tidsperiode,
                                                                                      AktivitetskravGrunnlagEntitet ag) {
-        return ag.getAktivitetskravPerioderMedArbeidEnitet()
+        return ag.getAktivitetskravPerioderMedArbeidEntitet()
             .map(perioder -> perioder.getAktivitetskravArbeidPeriodeListe()
                 .stream()
                 .filter(per -> per.getPeriode().overlapper(tidsperiode))
