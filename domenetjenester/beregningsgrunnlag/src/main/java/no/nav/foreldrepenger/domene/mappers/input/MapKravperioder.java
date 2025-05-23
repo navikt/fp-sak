@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -56,6 +57,7 @@ public class MapKravperioder {
             .stream()
             .filter(e -> sisteIMPrArbeidsforhold.containsKey(e.getKey()))
             .map(e -> mapTilKravPrArbeidsforhold(stp, yrkesaktiviteter, sisteIMPrArbeidsforhold, e))
+            .flatMap(Optional::stream)
             .toList();
     }
 
@@ -76,7 +78,7 @@ public class MapKravperioder {
         return grupperEneste(filtrerKunRefusjon(inntektsmeldinger));
     }
 
-    private static KravperioderPrArbeidsforhold mapTilKravPrArbeidsforhold(Skjæringstidspunkt stp,
+    private static Optional<KravperioderPrArbeidsforhold> mapTilKravPrArbeidsforhold(Skjæringstidspunkt stp,
                                                                            Collection<Yrkesaktivitet> yrkesaktiviteter,
                                                                            Map<Kravnøkkel, Inntektsmelding> sisteIMPrArbeidsforhold,
                                                                            Map.Entry<Kravnøkkel, List<Inntektsmelding>> e) {
@@ -85,11 +87,17 @@ public class MapKravperioder {
             sisteIMPrArbeidsforhold.get(e.getKey()),
             stp.getSkjæringstidspunktOpptjening(),
             yrkesaktiviteter);
-        return new KravperioderPrArbeidsforhold(
-            mapTilAktør(e.getKey().arbeidsgiver),
-            mapReferanse(e.getKey().referanse),
-            alleTidligereKravPerioder,
-            sistePerioder);
+        // Her kan vi ende opp uten refusjonsperioder hvis stp har flyttet seg til å være før opphørsdato i inntektsmeldingen,
+        // legger på filtrering for å ikke ta med disse da de er uinteressante
+        if (alleTidligereKravPerioder.isEmpty()) {
+            return Optional.empty();
+        } else {
+            return Optional.of(new KravperioderPrArbeidsforhold(
+                mapTilAktør(e.getKey().arbeidsgiver),
+                mapReferanse(e.getKey().referanse),
+                alleTidligereKravPerioder,
+                sistePerioder));
+        }
     }
 
     private static Aktør mapTilAktør(Arbeidsgiver arbeidsgiver) {
