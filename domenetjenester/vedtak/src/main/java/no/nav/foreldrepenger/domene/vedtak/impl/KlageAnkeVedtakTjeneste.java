@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.vedtak.impl;
 
-import java.util.Set;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -37,13 +35,6 @@ public class KlageAnkeVedtakTjeneste {
         return BehandlingType.ANKE.equals(behandling.getType()) || BehandlingType.KLAGE.equals(behandling.getType());
     }
 
-    public boolean skalOversendesTrygdretten(Behandling behandling) {
-        return BehandlingType.ANKE.equals(behandling.getType()) &&
-            ankeRepository.hentAnkeVurderingResultat(behandling.getId())
-                .map(AnkeVurderingResultatEntitet::getAnkeVurdering)
-                .filter(Set.of(AnkeVurdering.ANKE_AVVIS, AnkeVurdering.ANKE_STADFESTE_YTELSESVEDTAK)::contains).isPresent();
-    }
-
     public boolean erOversendtTrygdretten(Behandling behandling) {
         return BehandlingType.ANKE.equals(behandling.getType()) &&
             ankeRepository.hentAnkeVurderingResultat(behandling.getId()).map(AnkeVurderingResultatEntitet::getSendtTrygderettDato).isPresent();
@@ -54,13 +45,6 @@ public class KlageAnkeVedtakTjeneste {
             ankeRepository.hentAnkeVurderingResultat(behandling.getId())
                 .map(AnkeVurderingResultatEntitet::getTrygderettVurdering)
                 .filter(v -> !AnkeVurdering.UDEFINERT.equals(v))
-                .isPresent();
-    }
-
-    public boolean harSattOversendelseDato(Behandling behandling) {
-        return BehandlingType.ANKE.equals(behandling.getType()) &&
-            ankeRepository.hentAnkeVurderingResultat(behandling.getId())
-                .map(AnkeVurderingResultatEntitet::getSendtTrygderettDato)
                 .isPresent();
     }
 

@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -56,21 +55,15 @@ public class AnkeSteg implements BehandlingSteg {
          * - Anke avsluttet / andre utfall -> fortsett/avslutt uten flere AP.
         */
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        var kabalReferanse = ankeVurderingTjeneste.hentAnkeResultatHvisEksisterer(behandling)
-            .map(AnkeResultatEntitet::erBehandletAvKabal).orElse(false);
         var harVentKabal = behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_ANKE);
 
-        if (kabalReferanse) { // Skal ikke oversendes
-            // Første gang med kabalRef -> vent på kabal
-            // Tatt av vent med kabalref -> har mottatt resultat fra kabal. gå videre
-            if (!harVentKabal || manglerAnkeVurdering(behandling)) {
-                return BehandleStegResultat.utførtMedAksjonspunktResultat(ventPåKabal());
-            } else {
-                return BehandleStegResultat.utførtUtenAksjonspunkter();
-            }
+        // Første gang med kabalRef -> vent på kabal
+        // Tatt av vent med kabalref -> har mottatt resultat fra kabal. gå videre
+        if (!harVentKabal || manglerAnkeVurdering(behandling)) {
+            return BehandleStegResultat.utførtMedAksjonspunktResultat(ventPåKabal());
+        } else {
+            return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
-
-        return BehandleStegResultat.utførtMedAksjonspunktResultat(ventPåKabal());
     }
 
     private AksjonspunktResultat ventPåKabal() {
@@ -82,10 +75,5 @@ public class AnkeSteg implements BehandlingSteg {
         return ankeVurdering.isEmpty() || ankeVurdering.map(AnkeVurderingResultatEntitet::getAnkeVurdering)
             .filter(AnkeVurdering.UDEFINERT::equals)
             .isPresent();
-    }
-
-    private Long lagrePåanketBehandling(Behandling anke, Behandling klage) {
-        ankeVurderingTjeneste.oppdaterAnkeMedPåanketKlage(anke, klage.getId());
-        return klage.getId();
     }
 }
