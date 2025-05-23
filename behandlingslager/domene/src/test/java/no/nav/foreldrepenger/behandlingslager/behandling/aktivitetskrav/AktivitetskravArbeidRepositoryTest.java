@@ -47,27 +47,27 @@ class AktivitetskravArbeidRepositoryTest extends EntityManagerAwareTest {
 
         var lagretGrunnlag = repository.hentGrunnlag(behandling.getId()).orElseThrow();
 
-        assertThat(lagretGrunnlag.getAktivitetskravPerioderMedArbeidEnitet()
+        assertThat(lagretGrunnlag.getAktivitetskravPerioderMedArbeidEntitet()
             .map(AktivitetskravArbeidPerioderEntitet::getAktivitetskravArbeidPeriodeListe)
             .orElse(List.of())).hasSize(1);
         assertThat(lagretGrunnlag.getPeriode().getFomDato()).isEqualTo(grunnlagFraDato);
         assertThat(lagretGrunnlag.getPeriode().getTomDato()).isEqualTo(grunnlagTilDato);
         assertThat(
-            lagretGrunnlag.getAktivitetskravPerioderMedArbeidEnitet().get().getAktivitetskravArbeidPeriodeListe().getFirst().getPeriode()).isEqualTo(
+            lagretGrunnlag.getAktivitetskravPerioderMedArbeidEntitet().get().getAktivitetskravArbeidPeriodeListe().getFirst().getPeriode()).isEqualTo(
             DatoIntervallEntitet.fraOgMedTilOgMed(FRA, TIL));
-        assertThat(lagretGrunnlag.getAktivitetskravPerioderMedArbeidEnitet()
+        assertThat(lagretGrunnlag.getAktivitetskravPerioderMedArbeidEntitet()
             .get()
             .getAktivitetskravArbeidPeriodeListe()
             .getFirst()
             .getOrgNummer()
             .getId()).isEqualTo(ORG_NR);
-        assertThat(lagretGrunnlag.getAktivitetskravPerioderMedArbeidEnitet()
+        assertThat(lagretGrunnlag.getAktivitetskravPerioderMedArbeidEntitet()
             .get()
             .getAktivitetskravArbeidPeriodeListe()
             .getFirst()
             .getSumStillingsprosent()
             .getVerdi()).isEqualTo(STILLINGSPROSENT);
-        assertThat(lagretGrunnlag.getAktivitetskravPerioderMedArbeidEnitet()
+        assertThat(lagretGrunnlag.getAktivitetskravPerioderMedArbeidEntitet()
             .get()
             .getAktivitetskravArbeidPeriodeListe()
             .getFirst()
@@ -93,31 +93,31 @@ class AktivitetskravArbeidRepositoryTest extends EntityManagerAwareTest {
 
         var oppdatertGrunnlag = repository.hentGrunnlag(behandling.getId()).orElseThrow();
 
-        assertThat(oppdatertGrunnlag.getAktivitetskravPerioderMedArbeidEnitet()
+        assertThat(oppdatertGrunnlag.getAktivitetskravPerioderMedArbeidEntitet()
             .map(AktivitetskravArbeidPerioderEntitet::getAktivitetskravArbeidPeriodeListe)
             .orElse(List.of())).hasSize(2);
 
         assertThat(oppdatertGrunnlag.getPeriode().getFomDato()).isEqualTo(FRA);
         assertThat(oppdatertGrunnlag.getPeriode().getTomDato()).isEqualTo(TIL.plusWeeks(2));
 
-        assertThat(oppdatertGrunnlag.getAktivitetskravPerioderMedArbeidEnitet()
+        assertThat(oppdatertGrunnlag.getAktivitetskravPerioderMedArbeidEntitet()
             .get()
             .getAktivitetskravArbeidPeriodeListe()
             .getFirst()
             .getPeriode()).isEqualTo(DatoIntervallEntitet.fraOgMedTilOgMed(FRA, TIL));
-        assertThat(oppdatertGrunnlag.getAktivitetskravPerioderMedArbeidEnitet()
+        assertThat(oppdatertGrunnlag.getAktivitetskravPerioderMedArbeidEntitet()
             .get()
             .getAktivitetskravArbeidPeriodeListe()
             .getFirst()
             .getOrgNummer()
             .getId()).isEqualTo(ORG_NR);
-        assertThat(oppdatertGrunnlag.getAktivitetskravPerioderMedArbeidEnitet()
+        assertThat(oppdatertGrunnlag.getAktivitetskravPerioderMedArbeidEntitet()
             .get()
             .getAktivitetskravArbeidPeriodeListe()
             .getFirst()
             .getSumStillingsprosent()
             .getVerdi()).isEqualTo(STILLINGSPROSENT);
-        assertThat(oppdatertGrunnlag.getAktivitetskravPerioderMedArbeidEnitet()
+        assertThat(oppdatertGrunnlag.getAktivitetskravPerioderMedArbeidEntitet()
             .get()
             .getAktivitetskravArbeidPeriodeListe()
             .getFirst()
@@ -125,21 +125,21 @@ class AktivitetskravArbeidRepositoryTest extends EntityManagerAwareTest {
             .getVerdi()).isEqualTo(BigDecimal.ZERO);
 
         assertThat(
-            oppdatertGrunnlag.getAktivitetskravPerioderMedArbeidEnitet().get().getAktivitetskravArbeidPeriodeListe().get(1).getPeriode()).isEqualTo(
+            oppdatertGrunnlag.getAktivitetskravPerioderMedArbeidEntitet().get().getAktivitetskravArbeidPeriodeListe().get(1).getPeriode()).isEqualTo(
             DatoIntervallEntitet.fraOgMedTilOgMed(nyFra, nyTil));
-        assertThat(oppdatertGrunnlag.getAktivitetskravPerioderMedArbeidEnitet()
+        assertThat(oppdatertGrunnlag.getAktivitetskravPerioderMedArbeidEntitet()
             .get()
             .getAktivitetskravArbeidPeriodeListe()
             .get(1)
             .getOrgNummer()
             .getId()).isEqualTo(ORG_NR);
-        assertThat(oppdatertGrunnlag.getAktivitetskravPerioderMedArbeidEnitet()
+        assertThat(oppdatertGrunnlag.getAktivitetskravPerioderMedArbeidEntitet()
             .get()
             .getAktivitetskravArbeidPeriodeListe()
             .get(1)
             .getSumStillingsprosent()
             .getVerdi()).isEqualTo(stillingsprosentDesimaler);
-        assertThat(oppdatertGrunnlag.getAktivitetskravPerioderMedArbeidEnitet()
+        assertThat(oppdatertGrunnlag.getAktivitetskravPerioderMedArbeidEntitet()
             .get()
             .getAktivitetskravArbeidPeriodeListe()
             .get(1)
@@ -163,27 +163,27 @@ class AktivitetskravArbeidRepositoryTest extends EntityManagerAwareTest {
         assertThat(oppdatertGrunnlag.getPeriode().getFomDato()).isEqualTo(FRA);
         assertThat(oppdatertGrunnlag.getPeriode().getTomDato()).isEqualTo(TIL.plusWeeks(2));
 
-        assertThat(oppdatertGrunnlag.getAktivitetskravPerioderMedArbeidEnitet()
+        assertThat(oppdatertGrunnlag.getAktivitetskravPerioderMedArbeidEntitet()
             .map(AktivitetskravArbeidPerioderEntitet::getAktivitetskravArbeidPeriodeListe)
             .orElse(List.of())).hasSize(1);
-        assertThat(oppdatertGrunnlag.getAktivitetskravPerioderMedArbeidEnitet()
+        assertThat(oppdatertGrunnlag.getAktivitetskravPerioderMedArbeidEntitet()
             .get()
             .getAktivitetskravArbeidPeriodeListe()
             .getFirst()
             .getPeriode()).isEqualTo(DatoIntervallEntitet.fraOgMedTilOgMed(FRA, TIL));
-        assertThat(oppdatertGrunnlag.getAktivitetskravPerioderMedArbeidEnitet()
+        assertThat(oppdatertGrunnlag.getAktivitetskravPerioderMedArbeidEntitet()
             .get()
             .getAktivitetskravArbeidPeriodeListe()
             .getFirst()
             .getOrgNummer()
             .getId()).isEqualTo(ORG_NR);
-        assertThat(oppdatertGrunnlag.getAktivitetskravPerioderMedArbeidEnitet()
+        assertThat(oppdatertGrunnlag.getAktivitetskravPerioderMedArbeidEntitet()
             .get()
             .getAktivitetskravArbeidPeriodeListe()
             .getFirst()
             .getSumStillingsprosent()
             .getVerdi()).isEqualTo(STILLINGSPROSENT);
-        assertThat(oppdatertGrunnlag.getAktivitetskravPerioderMedArbeidEnitet()
+        assertThat(oppdatertGrunnlag.getAktivitetskravPerioderMedArbeidEntitet()
             .get()
             .getAktivitetskravArbeidPeriodeListe()
             .getFirst()

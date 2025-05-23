@@ -54,12 +54,12 @@ public class AktivitetskravGrunnlagEntitet extends BaseEntitet {
         //CDI
     }
 
-    public AktivitetskravGrunnlagEntitet(AktivitetskravGrunnlagEntitet grunnlagEnitet) {
-        grunnlagEnitet.getAktivitetskravPerioderMedArbeidEnitet().ifPresent(perioder -> this.perioderMedAktivitetskravArbeid = perioder);
-        this.periode = grunnlagEnitet.getPeriode();
+    public AktivitetskravGrunnlagEntitet(AktivitetskravGrunnlagEntitet grunnlagEntitet) {
+        grunnlagEntitet.getAktivitetskravPerioderMedArbeidEntitet().ifPresent(perioder -> this.perioderMedAktivitetskravArbeid = perioder);
+        this.periode = grunnlagEntitet.getPeriode();
     }
 
-    public Optional<AktivitetskravArbeidPerioderEntitet> getAktivitetskravPerioderMedArbeidEnitet() {
+    public Optional<AktivitetskravArbeidPerioderEntitet> getAktivitetskravPerioderMedArbeidEntitet() {
         return Optional.ofNullable(perioderMedAktivitetskravArbeid);
     }
 
@@ -97,18 +97,30 @@ public class AktivitetskravGrunnlagEntitet extends BaseEntitet {
         return Objects.hash(id, aktiv, behandlingId, perioderMedAktivitetskravArbeid, periode);
     }
 
-    public boolean mor75StillingOgIngenPermisjoner(DatoIntervallEntitet tidsperiode) {
-        return getAktivitetskravPerioderMedArbeidEnitet().map(per -> {
-            if (harPermisjoner(tidsperiode, per)) {
-                return false;
-            }
+    public boolean mor75ProsentStillingOgIngenPermisjoner(DatoIntervallEntitet tidsperiode) {
+        return getAktivitetskravPerioderMedArbeidEntitet()
+            .map(per -> arbeidsperiodeUtenPermisjonStillingMinst(per, tidsperiode, new Stillingsprosent(75)))
+            .orElse(false);
+    }
 
-            var morsArbeidsprosent = per.getAktivitetskravArbeidPeriodeListe().stream()
-                .filter(p -> tidsperiode.erOmsluttetAv(p.getPeriode()))
-                .map(AktivitetskravArbeidPeriodeEntitet::getSumStillingsprosent)
-                .reduce(Stillingsprosent.ZERO, Stillingsprosent::add);
-            return morsArbeidsprosent.merEllerLik(new Stillingsprosent(75));
-        }).orElse(false);
+    public boolean mor1ProsentStillingOgIngenPermisjoner(DatoIntervallEntitet tidsperiode) {
+        return getAktivitetskravPerioderMedArbeidEntitet()
+            .map(per -> arbeidsperiodeUtenPermisjonStillingMinst(per, tidsperiode, new Stillingsprosent(1)))
+            .orElse(false);
+    }
+
+    private boolean arbeidsperiodeUtenPermisjonStillingMinst(AktivitetskravArbeidPerioderEntitet perioder,
+                                                             DatoIntervallEntitet tidsperiode,
+                                                             Stillingsprosent minsteStillingsprosent) {
+        if (harPermisjoner(tidsperiode, perioder)) {
+            return false;
+        }
+
+        var morsArbeidsprosent = perioder.getAktivitetskravArbeidPeriodeListe().stream()
+            .filter(p -> tidsperiode.erOmsluttetAv(p.getPeriode()))
+            .map(AktivitetskravArbeidPeriodeEntitet::getSumStillingsprosent)
+            .reduce(Stillingsprosent.ZERO, Stillingsprosent::add);
+        return morsArbeidsprosent.merEllerLik(minsteStillingsprosent);
     }
 
     private static boolean harPermisjoner(DatoIntervallEntitet tidsperiode, AktivitetskravArbeidPerioderEntitet per) {
