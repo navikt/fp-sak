@@ -103,6 +103,9 @@ public class MapKravperioder {
                                                             Collection<Yrkesaktivitet> yrkesaktiviteter, List<Inntektsmelding> inntektsmeldinger) {
         return inntektsmeldinger.stream()
             .map(im -> lagPerioderForKrav(im, stp.getSkjæringstidspunktOpptjening(), yrkesaktiviteter))
+            // Her kan vi ende opp uten refusjonsperioder hvis stp har flyttet seg til å være før opphørsdato i inntektsmeldingen,
+            // legger på filtrering for å ikke ta med disse da de er uinteressante
+            .filter(kp -> !kp.getRefusjonsperioder().isEmpty())
             .toList();
     }
 
