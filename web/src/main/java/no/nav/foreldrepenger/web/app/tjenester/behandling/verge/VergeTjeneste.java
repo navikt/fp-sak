@@ -7,7 +7,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktkontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
@@ -32,7 +33,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 @ApplicationScoped
 public class VergeTjeneste {
 
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private VergeRepository vergeRepository;
     private HistorikkinnslagRepository historikkinnslagRepository;
@@ -42,7 +43,7 @@ public class VergeTjeneste {
     private BehandlingEventPubliserer behandlingEventPubliserer;
 
     @Inject
-    public VergeTjeneste(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+    public VergeTjeneste(AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste,
                          BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                          VergeRepository vergeRepository,
                          HistorikkinnslagRepository historikkinnslagRepository,
@@ -50,7 +51,7 @@ public class VergeTjeneste {
                          OpprettVergeTjeneste opprettVergeTjeneste,
                          VergeDtoTjeneste vergeDtoTjeneste,
                          BehandlingEventPubliserer behandlingEventPubliserer) {
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.aksjonspunktkontrollTjeneste = aksjonspunktkontrollTjeneste;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.vergeRepository = vergeRepository;
         this.historikkinnslagRepository = historikkinnslagRepository;
@@ -79,11 +80,11 @@ public class VergeTjeneste {
         }
     }
 
-    public void fjernVerge(Behandling behandling) {
+    public void fjernVerge(Behandling behandling, BehandlingLås skriveLås) {
         var harPersonVerge = vergeRepository.hentAggregat(behandling.getId()).flatMap(VergeAggregat::getAktørId).isPresent();
         vergeRepository.fjernVergeFraEksisterendeGrunnlagHvisFinnes(behandling.getId());
         opprettHistorikkinnslagForFjernetVerge(behandling);
-        avbrytVergeAksjonspunktHvisFinnes(behandling);
+        avbrytVergeAksjonspunktHvisFinnes(behandling, skriveLås);
         if (harPersonVerge) {
             behandlingEventPubliserer.publiserBehandlingEvent(new SakensPersonerEndretEvent(behandling, "Verge"));
         }
@@ -108,11 +109,10 @@ public class VergeTjeneste {
         return VergeBehandlingsmenyEnum.FJERN;
     }
 
-    private void avbrytVergeAksjonspunktHvisFinnes(Behandling behandling) {
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+    private void avbrytVergeAksjonspunktHvisFinnes(Behandling behandling, BehandlingLås skriveLås) {
         behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AVKLAR_VERGE)
-            .ifPresent(aksjonspunkt -> behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst,
-                    List.of(aksjonspunkt)));
+            .map(List::of)
+            .ifPresent(loa -> aksjonspunktkontrollTjeneste.lagreAksjonspunkterAvbrutt(behandling, skriveLås, loa));
     }
 
     private void opprettHistorikkinnslagForFjernetVerge(Behandling behandling) {

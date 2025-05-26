@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -97,7 +98,7 @@ public class RegisterdataEndringshåndterer {
         return opplysningerOppdatertTidspunkt.isPresent() && opplysningerOppdatertTidspunkt.get().isBefore(nårOppdatereRegisterdata);
     }
 
-    private void doReposisjonerBehandlingVedEndringer(Behandling behandling, EndringsresultatDiff endringsresultat, boolean utledÅrsaker) {
+    private void doReposisjonerBehandlingVedEndringer(Behandling behandling, BehandlingLås lås, EndringsresultatDiff endringsresultat, boolean utledÅrsaker) {
         var gåttOverTerminDatoOgIngenFødselsdato = isGåttOverTerminDatoOgIngenFødselsdato(behandling.getId());
         if (gåttOverTerminDatoOgIngenFødselsdato || endringsresultat.erSporedeFeltEndret()) {
             LOG.info("Starter behandlingId={} på nytt. gåttOverTerminDatoOgIngenFødselsdato={}, {}",
@@ -106,10 +107,10 @@ public class RegisterdataEndringshåndterer {
                 behandlingÅrsakTjeneste.lagHistorikkForRegisterEndringsResultat(behandling, endringsresultat);
             }
             // Sikre håndtering av manglende fødsel
-            endringskontroller.spolTilStartpunkt(behandling, endringsresultat,
+            endringskontroller.spolTilStartpunkt(behandling, lås, endringsresultat,
                 senesteStartpunkt(behandling, gåttOverTerminDatoOgIngenFødselsdato));
         }
-        endringskontroller.vurderNySimulering(behandling);
+        endringskontroller.vurderNySimulering(behandling, lås);
     }
 
     private StartpunktType senesteStartpunkt(Behandling behandling, boolean gåttOverTerminDatoOgIngenFødselsdato) {
@@ -122,10 +123,11 @@ public class RegisterdataEndringshåndterer {
         if (!endringskontroller.erRegisterinnhentingPassert(behandling)) {
             return;
         }
+        var lås = behandlingRepository.taSkriveLås(behandling);
         var endringsresultat = grunnlagSnapshot != null ?
             endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(behandling.getId(), grunnlagSnapshot) : opprettDiffUtenEndring();
 
-        doReposisjonerBehandlingVedEndringer(behandling, endringsresultat, utledÅrsaker);
+        doReposisjonerBehandlingVedEndringer(behandling, lås, endringsresultat, utledÅrsaker);
     }
 
     private boolean isGåttOverTerminDatoOgIngenFødselsdato(Long behandlingId) {

@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt;
 
-import static java.util.stream.Collectors.toList;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -28,6 +26,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.HenleggBehandlingTjeneste;
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktkontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -68,6 +67,8 @@ public class AksjonspunktTjeneste {
 
     private BehandlingEventPubliserer behandlingEventPubliserer;
 
+    private AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste;
+
     public AksjonspunktTjeneste() {
         // CDI proxy
     }
@@ -77,7 +78,8 @@ public class AksjonspunktTjeneste {
                                 BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                 BehandlingsprosessTjeneste behandlingsprosessTjeneste,
                                 HenleggBehandlingTjeneste henleggBehandlingTjeneste,
-                                BehandlingEventPubliserer behandlingEventPubliserer) {
+                                BehandlingEventPubliserer behandlingEventPubliserer,
+                                AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste) {
 
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -85,6 +87,7 @@ public class AksjonspunktTjeneste {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.henleggBehandlingTjeneste = henleggBehandlingTjeneste;
         this.behandlingEventPubliserer = behandlingEventPubliserer;
+        this.aksjonspunktkontrollTjeneste = aksjonspunktkontrollTjeneste;
     }
 
     void bekreftAksjonspunkter(Collection<BekreftetAksjonspunktDto> bekreftedeAksjonspunktDtoer, Behandling behandling, BehandlingLås skriveLås) {
@@ -93,10 +96,10 @@ public class AksjonspunktTjeneste {
 
         spoolTilbakeTilTidligsteAksjonspunkt(bekreftedeAksjonspunktDtoer, kontekst);
 
-        var overhoppResultat = bekreftAksjonspunkter(kontekst, bekreftedeAksjonspunktDtoer, behandling);
+        var overhoppResultat = bekreftAksjonspunkter(behandling, skriveLås, bekreftedeAksjonspunktDtoer);
 
-        behandlingRepository.lagre(getBehandlingsresultat(behandling.getId()).getVilkårResultat(), kontekst.getSkriveLås());
-        behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
+        behandlingRepository.lagre(getBehandlingsresultat(behandling.getId()).getVilkårResultat(), skriveLås);
+        behandlingRepository.lagre(behandling, skriveLås);
 
         håndterOverhopp(behandling, overhoppResultat, kontekst);
 
@@ -132,7 +135,7 @@ public class AksjonspunktTjeneste {
         // behandlingssteg er lenger fremme i sekvensen
         var bekreftedeApKoder = aksjonspunktDtoer.stream()
             .map(AksjonspunktKode::getAksjonspunktDefinisjon)
-            .collect(toList());
+            .toList();
 
         behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligsteAksjonspunkt(kontekst, bekreftedeApKoder);
     }
@@ -164,7 +167,7 @@ public class AksjonspunktTjeneste {
         // Tilbakestill gjeldende steg før fremføring
         spoolTilbakeTilTidligsteAksjonspunkt(overstyrteAksjonspunkter, kontekst);
 
-        var overhoppForOverstyring = overstyrVilkårEllerBeregning(overstyrteAksjonspunkter, behandling, kontekst);
+        var overhoppForOverstyring = overstyrVilkårEllerBeregning(overstyrteAksjonspunkter, behandling, skriveLås);
 
         // Fremoverhopp hvis vilkår settes til AVSLÅTT
         håndterOverhopp(behandling, overhoppForOverstyring, kontekst);
@@ -222,7 +225,7 @@ public class AksjonspunktTjeneste {
 
     @SuppressWarnings("unchecked")
     private OverhoppResultat overstyrVilkårEllerBeregning(Collection<OverstyringAksjonspunktDto> overstyrteAksjonspunkter,
-                                                          Behandling behandling, BehandlingskontrollKontekst kontekst) {
+                                                          Behandling behandling, BehandlingLås skriveLås) {
         var overhoppResultat = OverhoppResultat.tomtResultat();
         var ref = BehandlingReferanse.fra(behandling);
 
@@ -233,7 +236,7 @@ public class AksjonspunktTjeneste {
             var oppdateringResultat = overstyringshåndterer.håndterOverstyring(dto, ref);
             overhoppResultat.leggTil(oppdateringResultat);
 
-            settToTrinnPåOverstyrtAksjonspunktHvisKreves(behandling, kontekst, dto, oppdateringResultat.kreverTotrinnsKontroll());
+            settToTrinnPåOverstyrtAksjonspunktHvisKreves(behandling, skriveLås, dto, oppdateringResultat.kreverTotrinnsKontroll());
         });
 
         // legg til overstyring aksjonspunkt (normalt vil være utført) og historikk
@@ -242,65 +245,65 @@ public class AksjonspunktTjeneste {
             Overstyringshåndterer overstyringshåndterer = finnOverstyringshåndterer(dto);
             overstyringshåndterer.precondition(dto, ref);
             var aksjonspunktDefinisjon = dto.getAksjonspunktDefinisjon();
-            opprettAksjonspunktForOverstyring(kontekst, behandling, dto, aksjonspunktDefinisjon);
+            opprettAksjonspunktForOverstyring(behandling, skriveLås, dto, aksjonspunktDefinisjon);
             overstyringshåndterer.lagHistorikkInnslag(dto, ref);
         });
 
         var totrinn = overhoppResultat.finnTotrinn();
-        overhoppResultat.finnEkstraAksjonspunktResultat().forEach(res -> håndterEkstraAksjonspunktResultat(kontekst, behandling, totrinn, res, true));
+        overhoppResultat.finnEkstraAksjonspunktResultat()
+            .forEach(res -> håndterEkstraAksjonspunktResultat(behandling, skriveLås, totrinn, res, true));
 
         return overhoppResultat;
     }
 
-    private void opprettAksjonspunktForOverstyring(BehandlingskontrollKontekst kontekst, Behandling behandling, OverstyringAksjonspunkt dto, AksjonspunktDefinisjon apDef) {
-        var eksisterendeAksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(apDef);
-        var aksjonspunkt = eksisterendeAksjonspunkt.orElseGet(() -> behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst, List.of(apDef)).get(0));
+    private void opprettAksjonspunktForOverstyring(Behandling behandling, BehandlingLås skriveLås, OverstyringAksjonspunkt dto, AksjonspunktDefinisjon apDef) {
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(apDef)
+            .orElseGet(() -> aksjonspunktkontrollTjeneste.lagreAksjonspunkterFunnet(behandling, skriveLås, List.of(apDef)).getFirst());
 
         if (aksjonspunkt.erAvbrutt()) {
             // Må reåpne avbrutte før de kan settes til utført (kunne ha vært én operasjon i aksjonspunktRepository)
-            behandlingskontrollTjeneste.lagreAksjonspunkterReåpnet(kontekst, List.of(aksjonspunkt), true, false);
-            behandlingskontrollTjeneste.lagreAksjonspunkterUtført(kontekst, aksjonspunkt, dto.getBegrunnelse());
+            aksjonspunktkontrollTjeneste.lagreAksjonspunkterReåpnet(behandling, skriveLås, List.of(aksjonspunkt));
+            aksjonspunktkontrollTjeneste.lagreAksjonspunkterUtført(behandling, skriveLås, aksjonspunkt, dto.getBegrunnelse());
         } else {
-            behandlingskontrollTjeneste.lagreAksjonspunkterUtført(kontekst, aksjonspunkt, dto.getBegrunnelse());
+            aksjonspunktkontrollTjeneste.lagreAksjonspunkterUtført(behandling, skriveLås, aksjonspunkt, dto.getBegrunnelse());
         }
     }
 
-    private void håndterEkstraAksjonspunktResultat(BehandlingskontrollKontekst kontekst, Behandling behandling, boolean totrinn,
+    private void håndterEkstraAksjonspunktResultat(Behandling behandling, BehandlingLås skriveLås, boolean totrinn,
                                                    OppdateringAksjonspunktResultat apRes, boolean overstyring) {
         var nyStatus = apRes.aksjonspunktStatus();
         var eksisterendeAksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(apRes.aksjonspunktDefinisjon());
-        var aksjonspunkt = eksisterendeAksjonspunkt.orElseGet(() -> opprettEkstraAksjonspunktForResultat(kontekst, behandling, apRes, overstyring));
+        var aksjonspunkt = eksisterendeAksjonspunkt.orElseGet(() -> opprettEkstraAksjonspunktForResultat(behandling, skriveLås, apRes, overstyring));
 
         if (totrinn && !AksjonspunktStatus.AVBRUTT.equals(nyStatus)  && aksjonspunktStøtterTotrinn(aksjonspunkt)) {
-            behandlingskontrollTjeneste.setAksjonspunktToTrinn(kontekst, aksjonspunkt, true);
+            aksjonspunktkontrollTjeneste.setAksjonspunkterToTrinn(behandling, skriveLås, List.of(aksjonspunkt), true);
         }
         if (nyStatus.equals(aksjonspunkt.getStatus())) {
             return;
         }
         if (AksjonspunktStatus.OPPRETTET.equals(nyStatus)) {
-            behandlingskontrollTjeneste.lagreAksjonspunkterReåpnet(kontekst, List.of(aksjonspunkt), true, false);
+            aksjonspunktkontrollTjeneste.lagreAksjonspunkterReåpnet(behandling, skriveLås, List.of(aksjonspunkt));
         } else if (AksjonspunktStatus.AVBRUTT.equals(nyStatus)) {
-            behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, List.of(aksjonspunkt));
+            aksjonspunktkontrollTjeneste.lagreAksjonspunkterAvbrutt(behandling, skriveLås, List.of(aksjonspunkt));
         } else {
             if (aksjonspunkt.erAvbrutt()) {
                 // Må reåpne avbrutte før de kan settes til utført (kunne ha vært én operasjon i aksjonspunktRepository)
-                behandlingskontrollTjeneste.lagreAksjonspunkterReåpnet(kontekst, List.of(aksjonspunkt), true, false);
+                aksjonspunktkontrollTjeneste.lagreAksjonspunkterReåpnet(behandling, skriveLås, List.of(aksjonspunkt));
             }
-            behandlingskontrollTjeneste.lagreAksjonspunkterUtført(kontekst, aksjonspunkt, aksjonspunkt.getBegrunnelse());
+            aksjonspunktkontrollTjeneste.lagreAksjonspunkterUtført(behandling, skriveLås, aksjonspunkt, aksjonspunkt.getBegrunnelse());
         }
     }
 
-    private Aksjonspunkt opprettEkstraAksjonspunktForResultat(BehandlingskontrollKontekst kontekst, Behandling behandling, OppdateringAksjonspunktResultat apRes, boolean overstyring) {
+    private Aksjonspunkt opprettEkstraAksjonspunktForResultat(Behandling behandling, BehandlingLås skriveLås, OppdateringAksjonspunktResultat apRes, boolean overstyring) {
         if (overstyring) {
-            return behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst, List.of(apRes.aksjonspunktDefinisjon())).getFirst();
+            return aksjonspunktkontrollTjeneste.lagreAksjonspunkterFunnet(behandling, skriveLås, List.of(apRes.aksjonspunktDefinisjon())).getFirst();
         } else {
-            return behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst, behandling.getAktivtBehandlingSteg(), List.of(apRes.aksjonspunktDefinisjon())).getFirst();
+            return aksjonspunktkontrollTjeneste.lagreAksjonspunkterFunnet(behandling, skriveLås, behandling.getAktivtBehandlingSteg(), List.of(apRes.aksjonspunktDefinisjon())).getFirst();
         }
     }
 
-    private OverhoppResultat bekreftAksjonspunkter(BehandlingskontrollKontekst kontekst,
-                                                   Collection<BekreftetAksjonspunktDto> bekreftedeAksjonspunktDtoer,
-                                                   Behandling behandling) {
+    private OverhoppResultat bekreftAksjonspunkter(Behandling behandling, BehandlingLås skriveLås,
+                                                   Collection<BekreftetAksjonspunktDto> bekreftedeAksjonspunktDtoer) {
 
         var overhoppResultat = OverhoppResultat.tomtResultat();
 
@@ -309,20 +312,20 @@ public class AksjonspunktTjeneste {
             : VilkårResultat.builder();
 
         bekreftedeAksjonspunktDtoer
-            .forEach(dto -> bekreftAksjonspunkt(kontekst, behandling, vilkårBuilder, overhoppResultat, dto));
+            .forEach(dto -> bekreftAksjonspunkt(behandling, skriveLås, vilkårBuilder, overhoppResultat, dto));
 
         var vilkårResultat = vilkårBuilder.buildFor(behandling);
-        behandlingRepository.lagre(vilkårResultat, kontekst.getSkriveLås());
-        behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
+        behandlingRepository.lagre(vilkårResultat, skriveLås);
+        behandlingRepository.lagre(behandling, skriveLås);
 
         var totrinn = overhoppResultat.finnTotrinn();
-        overhoppResultat.finnEkstraAksjonspunktResultat().forEach(res -> håndterEkstraAksjonspunktResultat(kontekst, behandling, totrinn, res, false));
+        overhoppResultat.finnEkstraAksjonspunktResultat()
+            .forEach(res -> håndterEkstraAksjonspunktResultat(behandling, skriveLås, totrinn, res, false));
 
         return overhoppResultat;
     }
 
-    private void bekreftAksjonspunkt(BehandlingskontrollKontekst kontekst,
-                                     Behandling behandling, Builder vilkårBuilder,
+    private void bekreftAksjonspunkt(Behandling behandling, BehandlingLås skriveLås, Builder vilkårBuilder,
                                      OverhoppResultat overhoppResultat,
                                      BekreftetAksjonspunktDto dto) {
         // Endringskontroll for aksjonspunkt
@@ -335,11 +338,11 @@ public class AksjonspunktTjeneste {
         byggVilkårResultat(vilkårBuilder, delresultat);
 
         if (delresultat.kreverTotrinnsKontroll() && aksjonspunktStøtterTotrinn(aksjonspunkt)) {
-            behandlingskontrollTjeneste.setAksjonspunktToTrinn(kontekst, aksjonspunkt, true);
+            aksjonspunktkontrollTjeneste.setAksjonspunkterToTrinn(behandling, skriveLås, List.of(aksjonspunkt), true);
         }
 
         if (!aksjonspunkt.erAvbrutt() && delresultat.skalUtføreAksjonspunkt()) {
-            behandlingskontrollTjeneste.lagreAksjonspunkterUtført(kontekst, aksjonspunkt, dto.getBegrunnelse());
+            aksjonspunktkontrollTjeneste.lagreAksjonspunkterUtført(behandling, skriveLås, aksjonspunkt, dto.getBegrunnelse());
         }
     }
 
@@ -400,12 +403,12 @@ public class AksjonspunktTjeneste {
         return (Overstyringshåndterer<V>) minInstans;
     }
 
-    private void settToTrinnPåOverstyrtAksjonspunktHvisKreves(Behandling behandling, BehandlingskontrollKontekst kontekst,
+    private void settToTrinnPåOverstyrtAksjonspunktHvisKreves(Behandling behandling, BehandlingLås skriveLås,
                                                               OverstyringAksjonspunktDto dto, boolean resultatKreverTotrinn) {
         var aksjonspunktDefinisjon = dto.getAksjonspunktDefinisjon();
         if (resultatKreverTotrinn && behandling.harAksjonspunktMedType(aksjonspunktDefinisjon)) {
             var aksjonspunkt = behandling.getAksjonspunktFor(aksjonspunktDefinisjon);
-            behandlingskontrollTjeneste.setAksjonspunktToTrinn(kontekst,aksjonspunkt, true);
+            aksjonspunktkontrollTjeneste.setAksjonspunkterToTrinn(behandling, skriveLås, List.of(aksjonspunkt), true);
         }
     }
 

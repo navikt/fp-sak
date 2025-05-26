@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingBeh
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
@@ -117,16 +118,17 @@ public class KlageVurderingTjeneste {
         return eksisterende.map(KlageVurderingResultat::builder).orElse(KlageVurderingResultat.builder()).medKlageVurdertAv(vurdertAv);
     }
 
-    public void oppdaterBekreftetVurderingAksjonspunkt(Behandling behandling, KlageVurderingResultat.Builder builder, KlageVurdertAv vurdertAv) {
-        lagreKlageVurderingResultat(behandling, builder, vurdertAv, true);
+    public void oppdaterBekreftetVurderingAksjonspunkt(Behandling behandling, BehandlingLås lås, KlageVurderingResultat.Builder builder, KlageVurdertAv vurdertAv) {
+        lagreKlageVurderingResultat(behandling, lås, builder, vurdertAv, true);
     }
 
-    public void lagreKlageVurderingResultat(Behandling behandling, KlageVurderingResultat.Builder builder, KlageVurdertAv vurdertAv) {
-        lagreKlageVurderingResultat(behandling, builder, vurdertAv, false);
+    public void lagreKlageVurderingResultat(Behandling behandling, BehandlingLås lås, KlageVurderingResultat.Builder builder, KlageVurdertAv vurdertAv) {
+        lagreKlageVurderingResultat(behandling, lås, builder, vurdertAv, false);
     }
 
-    private void lagreKlageVurderingResultat(Behandling behandling, KlageVurderingResultat.Builder builder, KlageVurdertAv vurdertAv,
-            boolean erVurderingOppdaterer) {
+    private void lagreKlageVurderingResultat(Behandling behandling, BehandlingLås lås,
+                                             KlageVurderingResultat.Builder builder, KlageVurdertAv vurdertAv,
+                                             boolean erVurderingOppdaterer) {
         var aksjonspunkt = KlageVurdertAv.NK.equals(vurdertAv) ? null : AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP;
         var vurderingsteg = KlageVurdertAv.NK.equals(vurdertAv) ? BehandlingStegType.KLAGE_NK : BehandlingStegType.KLAGE_NFP;
 
@@ -147,12 +149,12 @@ public class KlageVurderingTjeneste {
         }
         if (tilbakeføres) {
             behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-            tilbakeførBehandling(behandling, vurderingsteg);
+            tilbakeførBehandling(behandling, lås, vurderingsteg);
         }
     }
 
-    private void tilbakeførBehandling(Behandling behandling, BehandlingStegType vurderingSteg) {
-        behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, vurderingSteg);
+    private void tilbakeførBehandling(Behandling behandling, BehandlingLås lås, BehandlingStegType vurderingSteg) {
+        behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, lås, vurderingSteg);
         behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
     }
 

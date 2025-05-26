@@ -49,8 +49,9 @@ public abstract class DokumentmottakerSøknad extends DokumentmottakerYtelsesesr
             }
             if (!mottattDokument.getElektroniskRegistrert()) { //#S3a
                 if (kompletthetskontroller.støtterBehandlingstypePapirsøknad(behandling)) {
+                    var lås = behandlingRepository.taSkriveLås(behandling.getId());
                     dokumentmottakerFelles.oppdaterMottattDokumentMedBehandling(mottattDokument, behandling.getId());
-                    kompletthetskontroller.flyttTilbakeTilRegistreringPapirsøknad(behandling);
+                    kompletthetskontroller.flyttTilbakeTilRegistreringPapirsøknad(behandling, lås);
                 } else { //#S3b
                     dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, behandling, mottattDokument);
                 }

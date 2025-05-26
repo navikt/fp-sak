@@ -23,10 +23,10 @@ import org.slf4j.LoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktkontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsessTaskRepository;
 import no.nav.foreldrepenger.poststed.PostnummerSynkroniseringTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
@@ -51,7 +51,7 @@ public class ForvaltningTekniskRestTjeneste {
     private OppgaveTjeneste oppgaveTjeneste;
     private PostnummerSynkroniseringTjeneste postnummerTjeneste;
     private FagsakProsessTaskRepository fagsakProsessTaskRepository;
-    private FagsakEgenskapRepository fagsakEgenskapRepository;
+    private AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste;
 
     public ForvaltningTekniskRestTjeneste() {
         // For CDI
@@ -63,13 +63,13 @@ public class ForvaltningTekniskRestTjeneste {
                                           OppgaveTjeneste oppgaveTjeneste,
                                           PostnummerSynkroniseringTjeneste postnummerTjeneste,
                                           BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                          FagsakEgenskapRepository fagsakEgenskapRepository) {
+                                          AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.oppgaveTjeneste = oppgaveTjeneste;
         this.postnummerTjeneste = postnummerTjeneste;
         this.fagsakProsessTaskRepository = fagsakProsessTaskRepository;
-        this.fagsakEgenskapRepository = fagsakEgenskapRepository;
+        this.aksjonspunktkontrollTjeneste = aksjonspunktkontrollTjeneste;
     }
 
     @POST
@@ -125,15 +125,15 @@ public class ForvaltningTekniskRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response setAksjonspunktAvbrutt(@BeanParam @Valid BehandlingAksjonspunktDto dto) {
         var behandlingId = dto.getBehandlingUuid();
+        var lås = behandlingRepository.taSkriveLås(dto.getBehandlingUuid());
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var lås = behandlingRepository.taSkriveLås(behandling.getId());
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon())
                 .orElseThrow(() -> new ForvaltningException(MANGLER_AP + dto.getAksjonspunktKode()));
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         if (aksjonspunkt.erAutopunkt()) {
+            var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
             behandlingskontrollTjeneste.settAutopunktTilAvbrutt(kontekst, behandling, aksjonspunkt);
         } else {
-            behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, List.of(aksjonspunkt));
+            aksjonspunktkontrollTjeneste.lagreAksjonspunkterAvbrutt(behandling, lås, List.of(aksjonspunkt));
         }
         behandlingRepository.lagre(behandling, lås);
         return Response.ok().build();

@@ -121,7 +121,7 @@ class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
             .utledDiffOgReposisjonerBehandlingVedEndringer(behandling, snapshotFør, false);
 
         // Assert
-        verify(endringskontroller, times(1)).spolTilStartpunkt(any(Behandling.class), any(), any());
+        verify(endringskontroller, times(1)).spolTilStartpunkt(any(Behandling.class), any(), any(), any());
     }
 
     @Test
@@ -183,7 +183,7 @@ class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
             .utledDiffOgReposisjonerBehandlingVedEndringer(behandling, null, false);
 
         // Assert
-        verify(endringskontroller, times(1)).spolTilStartpunkt(any(Behandling.class), any(EndringsresultatDiff.class), eq(StartpunktType.SØKERS_RELASJON_TIL_BARNET));
+        verify(endringskontroller, times(1)).spolTilStartpunkt(any(Behandling.class), any(), any(EndringsresultatDiff.class), eq(StartpunktType.SØKERS_RELASJON_TIL_BARNET));
     }
 
     @Test
