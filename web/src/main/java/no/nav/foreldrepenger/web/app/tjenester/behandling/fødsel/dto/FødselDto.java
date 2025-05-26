@@ -14,12 +14,12 @@ public record FødselDto(FødselDto.Søknad søknad, FødselDto.Register registe
     public record Register(List<AvklartBarnDto> barn) {
     }
 
-    public record Gjeldende(FødselDto.Gjeldende.Termindato termindato, FødselDto.Gjeldende.Barn barn) {
+    public record Gjeldende(FødselDto.Gjeldende.Termindato termindato, List<FødselDto.Gjeldende.Barn> barn) {
 
         public record Termindato(Kilde kilde, LocalDate termindato, boolean kanOverstyres) {
         }
 
-        public record Barn(Kilde kilde, List<AvklartBarnDto> barn, boolean kanOverstyres) {
+        public record Barn(Kilde kilde, AvklartBarnDto barn, boolean kanOverstyres) {
         }
     }
 }

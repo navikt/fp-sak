@@ -65,16 +65,16 @@ public class FaktaOmFødselOverstyringshåndterer implements Overstyringshåndte
 
         LOG.info("Overstyrer fakta rundt fødsel for behandlingId {} til {}", behandlingId, dto);
         var familieHendelse = familieHendelseTjeneste.hentAggregat(behandlingId);
-        faktaFødselTjeneste.overstyrFaktaOmFødsel(ref, dto);
-        opprettHistorikkinnslag(ref, dto, familieHendelse);
+        faktaFødselTjeneste.overstyrFaktaOmFødsel(behandlingId, dto);
+        opprettHistorikkinnslag(behandlingId, ref.fagsakId(), dto, familieHendelse);
         return OppdateringResultat.utenOverhopp();
     }
 
-    private void opprettHistorikkinnslag(BehandlingReferanse ref, OverstyringFaktaOmFødselDto dto, FamilieHendelseGrunnlagEntitet familieHendelse) {
+    private void opprettHistorikkinnslag(Long behandlingId, Long fagsakId, OverstyringFaktaOmFødselDto dto, FamilieHendelseGrunnlagEntitet familieHendelse) {
         // TODO: Legg inn linjer for barn
         var historikkinnslag = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
-            .medFagsakId(ref.fagsakId())
-            .medBehandlingId(ref.behandlingId())
+            .medFagsakId(fagsakId)
+            .medBehandlingId(behandlingId)
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medTittel(SkjermlenkeType.FAKTA_OM_FOEDSEL)
             .addLinje(new HistorikkinnslagLinjeBuilder().tekst("Overstyrt fakta om fødsel"))

@@ -34,7 +34,7 @@ public class FaktaFødselTjeneste {
         this.familieHendelseTjeneste = familieHendelseTjeneste;
     }
 
-    public void overstyrFaktaOmFødsel(BehandlingReferanse ref, OverstyringFaktaOmFødselDto dto) {
+    public void overstyrFaktaOmFødsel(Long behandlingId, OverstyringFaktaOmFødselDto dto) {
         // TODO: Legg til håndtering av om verdien kan endres
         // TODO: Implementer overstyring av fakta om fødsel
         // TODO: Husk å overstyre antall barn også, ved å bruke dto.getAntallBarn()
@@ -42,8 +42,6 @@ public class FaktaFødselTjeneste {
         // TODO: Lagres antall barn som en faktisk verdi, eller lagrer vi bare barna og regner ut antallet?
 
         // TODO: Case: Født i utlandet, ikke registrert i FREG. Barn dør like etter fødsel. Dødsdato må overstyres
-
-        // TODO: Finnes det noen caser hvor det er registrert i freg og man likevel skal få lov til å overstyre?
     }
 
     public FødselDto hentFaktaOmFødsel(Long behandlingId) {
@@ -60,18 +58,21 @@ public class FaktaFødselTjeneste {
     private static FødselDto.Gjeldende.Termindato mapTermindato(FamilieHendelseGrunnlagEntitet familieHendelse) {
         var overstyrtTermindato = familieHendelse.getOverstyrtVersjon().flatMap(FamilieHendelseEntitet::getTermindato).orElse(null);
         var søknadTermindato = familieHendelse.getSøknadVersjon().getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).orElse(null);
-        var kilde = Objects.equals(overstyrtTermindato, søknadTermindato) ? Kilde.SØKNAD : Kilde.SAKSBEHANDLER;
+        Kilde kilde = ((overstyrtTermindato == null && søknadTermindato != null) || Objects.equals(overstyrtTermindato, søknadTermindato))
+            ? Kilde.SØKNAD
+            : Kilde.SAKSBEHANDLER;
         return new FødselDto.Gjeldende.Termindato(kilde, kilde == Kilde.SØKNAD ? søknadTermindato : overstyrtTermindato, true);
     }
 
-    private FødselDto.Gjeldende.Barn mapBarn(FamilieHendelseGrunnlagEntitet familieHendelse) {
+    private List<FødselDto.Gjeldende.Barn> mapBarn(FamilieHendelseGrunnlagEntitet familieHendelse) {
         var kilde = getKildeForBarn(familieHendelse);
         var barn = switch (kilde) {
             case SAKSBEHANDLER -> getBarn(familieHendelse.getOverstyrtVersjon().orElse(null));
             case FOLKEREGISTER -> getBarn(familieHendelse.getBekreftetVersjon().orElse(null));
             case SØKNAD -> getBarn(familieHendelse.getSøknadVersjon());
         };
-        return new FødselDto.Gjeldende.Barn(kilde, barn, kilde != Kilde.FOLKEREGISTER);
+
+        return barn.stream().map(b -> new FødselDto.Gjeldende.Barn(kilde, b, kilde != Kilde.FOLKEREGISTER)).toList();
     }
 
     private List<AvklartBarnDto> getBarn(FamilieHendelseEntitet familieHendelse) {
@@ -105,11 +106,11 @@ public class FaktaFødselTjeneste {
         return Kilde.SØKNAD;
 
         // TODO: Tenk litt på om bekreftet og søknad alltid kan være like, og overstyrt er forskjellig
-//        if (!harLikeBarn(overstyrteBarn, søknadBarn)) {
-//            return Kilde.SBH;
-//        }
-//
-//        return harLikeBarn(bekreftedeBarn, søknadBarn) ? Kilde.SØKNAD : Kilde.FREG;
+        //        if (!harLikeBarn(overstyrteBarn, søknadBarn)) {
+        //            return Kilde.SAKSBEHANDLER;
+        //        }
+
+        //        return harLikeBarn(bekreftedeBarn, søknadBarn) ? Kilde.SØKNAD : Kilde.FOLKEREGISTER;
     }
 
     private static boolean harLikeBarn(List<UidentifisertBarn> barn1, List<UidentifisertBarn> barn2) {
