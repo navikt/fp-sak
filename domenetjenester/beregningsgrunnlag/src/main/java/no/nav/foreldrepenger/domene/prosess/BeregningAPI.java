@@ -27,4 +27,6 @@ public interface BeregningAPI {
     Optional<OppdaterBeregningsgrunnlagResultat> overstyrBeregning(OverstyringAksjonspunktDto overstyring, BehandlingReferanse referanse);
 
     void avslutt(BehandlingReferanse referanse);
+
+    boolean kanStartesISteg(BehandlingReferanse referanse, BehandlingStegType stegType);
 }

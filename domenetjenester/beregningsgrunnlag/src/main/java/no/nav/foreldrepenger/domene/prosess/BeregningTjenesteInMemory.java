@@ -72,4 +72,10 @@ public class BeregningTjenesteInMemory implements BeregningTjeneste {
         // Ikke relevant for in-memory tjenesten
     }
 
+    @Override
+    public boolean kanStartesISteg(BehandlingReferanse referanse, BehandlingStegType stegType) {
+        // Ikke relevant for in-memory tjenesten
+        return false;
+    }
+
 }

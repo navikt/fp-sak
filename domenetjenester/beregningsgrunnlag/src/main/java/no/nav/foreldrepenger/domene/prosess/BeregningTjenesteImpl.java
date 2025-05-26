@@ -116,6 +116,15 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
 
     }
 
+    @Override
+    public boolean kanStartesISteg(BehandlingReferanse referanse, BehandlingStegType stegType) {
+        if (skalKalleKalkulus(referanse)) {
+            return kalkulusBeregner.kanStartesISteg(referanse, stegType);
+        } else {
+            return fpsakBeregner.kanStartesISteg(referanse, stegType);
+        }
+    }
+
     private boolean skalKalleKalkulusForGuiDto(BehandlingReferanse referanse) {
         if (BehandlingStatus.AVSLUTTET.equals(referanse.behandlingStatus())) {
             return true;
