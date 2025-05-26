@@ -166,13 +166,16 @@ public class BeregningKalkulus implements BeregningAPI {
 
     @Override
     public boolean kanStartesISteg(BehandlingReferanse referanse, BehandlingStegType stegType) {
-        var kobling = koblingRepository.hentKobling(referanse.behandlingId()).orElseThrow();
+        var kobling = koblingRepository.hentKobling(referanse.behandlingId());
+        if (kobling.isEmpty()) {
+            return false;
+        }
         var originalKobling = referanse.getOriginalBehandlingId().flatMap(b -> koblingRepository.hentKobling(b));
         var saksnummer = new Saksnummer(referanse.saksnummer().getVerdi());
-        var request = new EnkelGrunnlagTilstanderRequestDto(saksnummer, kobling.getKoblingUuid(),
+        var request = new EnkelGrunnlagTilstanderRequestDto(saksnummer, kobling.orElseThrow().getKoblingUuid(),
             originalKobling.map(BeregningsgrunnlagKobling::getKoblingUuid).orElse(null));
         var response = klient.hentTilgjengeligeTilstander(request);
-        if (!kobling.getKoblingUuid().equals(response.behandlingMedTilstander().behandlingUuid())) {
+        if (!kobling.orElseThrow().getKoblingUuid().equals(response.behandlingMedTilstander().behandlingUuid())) {
             throw new IllegalStateException("Fikk tilbake annen koblingReferanse enn det som finnes på koblingen, ugyldig tilstand");
         }
         var kalkulusSteg = mapTilBeregningStegType(stegType); // Sjekke originalbehandling også?
