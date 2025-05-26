@@ -6,6 +6,7 @@ import java.util.List;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktkontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -55,7 +56,7 @@ public class TilbakeføringTilStegTask extends BehandlingProsessTask {
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
         }
         // fortsettBehandling dersom registerdata ikke trengs hentes på nytt, for nye registerdata bruk GjenopptaOppdaterFortsett
-        //prosesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, LocalDateTime.now());
-        prosesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
+        prosesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, LocalDateTime.now());
+        //prosesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
     }
 }
