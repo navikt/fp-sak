@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
@@ -35,11 +34,16 @@ public class FaktaFødselTjeneste {
     }
 
     public void overstyrFaktaOmFødsel(Long behandlingId, OverstyringFaktaOmFødselDto dto) {
-        // TODO: Legg til håndtering av om verdien kan endres
-        // TODO: Implementer overstyring av fakta om fødsel
-        // TODO: Husk å overstyre antall barn også, ved å bruke dto.getAntallBarn()
-        // TODO: Sjekk overstyring av antall barn hvis det er registrert noe i freg
-        // TODO: Lagres antall barn som en faktisk verdi, eller lagrer vi bare barna og regner ut antallet?
+        var oppdatere = familieHendelseTjeneste.opprettBuilderForOverstyring(behandlingId);
+        oppdatere.tilbakestillBarn().medAntallBarn(dto.getAntallBarn());
+        dto.getBarn().forEach(b -> oppdatere.leggTilBarn(b.getFodselsdato(), b.getDodsdato().orElse(null)));
+
+        if (dto.getTermindato() != null) {
+            oppdatere.medTerminbekreftelse(oppdatere.getTerminbekreftelseBuilder().medTermindato(dto.getTermindato()));
+        }
+
+        familieHendelseTjeneste.lagreOverstyrtHendelse(behandlingId, oppdatere);
+
 
         // TODO: Case: Født i utlandet, ikke registrert i FREG. Barn dør like etter fødsel. Dødsdato må overstyres
     }
