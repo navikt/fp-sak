@@ -50,7 +50,7 @@ public class AnnenPartGrunnlagBygger {
                     .uttaksperioder(uttaksperioder(uttakResultatEntitet)));
             });
             fpGrunnlag.getAktivitetskravGrunnlag()
-                .flatMap(AktivitetskravGrunnlagEntitet::getAktivitetskravPerioderMedArbeidEnitet)
+                .flatMap(AktivitetskravGrunnlagEntitet::getAktivitetskravPerioderMedArbeidEntitet)
                 .ifPresent(agp -> builder.aktivitetskravGrunnlag(map(agp)));
             return Optional.of(builder);
         }

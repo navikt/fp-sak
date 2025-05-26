@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -170,6 +171,72 @@ class VurderUttakDokumentasjonAksjonspunktUtlederTest {
     }
 
     @Test
+    void utleder_ikke_ap_hvis_bare_far_foreldrepenger_og_mor_er_i_arbeid() {
+        var fødselsdato = LocalDate.of(2025, Month.MAY, 14);
+
+        var foreldrepengerMinsterett = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .medPeriode(fødselsdato, fødselsdato.plusWeeks(2).minusDays(1))
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medMorsAktivitet(MorsAktivitet.IKKE_OPPGITT)
+            .build();
+        var foreldrepengerUtsettelse = OppgittPeriodeBuilder.ny()
+            .medÅrsak(UtsettelseÅrsak.FRI)
+            .medPeriode(fødselsdato.plusWeeks(6), fødselsdato.plusWeeks(10).minusDays(1))
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medMorsAktivitet(MorsAktivitet.ARBEID)
+            .build();
+        var foreldrepengerMedArbeid = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .medPeriode(fødselsdato.plusWeeks(10), fødselsdato.plusWeeks(14).minusDays(1))
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medMorsAktivitet(MorsAktivitet.ARBEID)
+            .build();
+
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medOppgittRettighet(OppgittRettighetEntitet.bareSøkerRett())
+            .medJustertFordeling(new OppgittFordelingEntitet(List.of(foreldrepengerMinsterett, foreldrepengerUtsettelse, foreldrepengerMedArbeid), true));
+        var behandling = scenario.lagre(uttakRepositoryProvider);
+
+        var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 0);
+        var fpGrunnlag = new ForeldrepengerGrunnlag()
+            .medMottattMorsArbeidDokument(true)
+            .medAktivitetskravGrunnlag(AktivitetskravGrunnlagEntitet.Builder.oppdatere(Optional.empty())
+                .medPerioderMedAktivitetskravArbeid(new AktivitetskravArbeidPerioderEntitet.Builder()
+                    .leggTil(new AktivitetskravArbeidPeriodeEntitet.Builder()
+                        .medPeriode(foreldrepengerUtsettelse.getFom(), foreldrepengerMedArbeid.getTom())
+                        .medSumStillingsprosent(BigDecimal.valueOf(100))
+                        .medOrgNummer(OrgNummer.KUNSTIG_ORG)
+                        .medPermisjon(BigDecimal.ZERO, AktivitetskravPermisjonType.UDEFINERT))
+                    .build())
+                .build())
+            .medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(familieHendelse));
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null, fpGrunnlag);
+        var utledetAp = utleder.utledAksjonspunktFor(input);
+
+        assertThat(utledetAp).isFalse();
+
+        var behov = utleder.utledDokumentasjonVurderingBehov(input)
+            .stream().sorted(Comparator.comparing(dokumentasjonVurderingBehov -> dokumentasjonVurderingBehov.oppgittPeriode().getFom()))
+            .toList();
+        assertThat(behov).hasSize(2);
+        assertThat(behov.getFirst().måVurderes()).isFalse();
+        assertThat(behov.getLast().måVurderes()).isFalse();
+
+        assertThat(behov.getFirst().behov().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_ARBEID);
+        assertThat(behov.getFirst().behov().type()).isEqualTo(DokumentasjonVurderingBehov.Behov.Type.UTSETTELSE);
+
+        assertThat(behov.getFirst().registerVurdering()).isEqualTo(RegisterVurdering.MORS_AKTIVITET_GODKJENT);
+        assertThat(behov.getFirst().vurdering()).isNull();
+
+        assertThat(behov.getLast().behov().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_ARBEID);
+        assertThat(behov.getLast().behov().type()).isEqualTo(DokumentasjonVurderingBehov.Behov.Type.UTTAK);
+
+        assertThat(behov.getLast().registerVurdering()).isEqualTo(RegisterVurdering.MORS_AKTIVITET_GODKJENT);
+        assertThat(behov.getLast().vurdering()).isNull();
+    }
+
+    @Test
     void skal_finne_over_75_ingen_permisjoner_ett_arbeid() {
         var aaPerioder = new AktivitetskravArbeidPerioderEntitet.Builder()
             .leggTil(new AktivitetskravArbeidPeriodeEntitet.Builder()
@@ -181,7 +248,7 @@ class VurderUttakDokumentasjonAksjonspunktUtlederTest {
         var aaGrunnlag = AktivitetskravGrunnlagEntitet.Builder.oppdatere(Optional.empty())
             .medPerioderMedAktivitetskravArbeid(aaPerioder)
             .build();
-        assertThat(aaGrunnlag.mor75StillingOgIngenPermisjoner(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()))).isTrue();
+        assertThat(aaGrunnlag.mor75ProsentStillingOgIngenPermisjoner(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()))).isTrue();
     }
 
     @Test
@@ -201,7 +268,7 @@ class VurderUttakDokumentasjonAksjonspunktUtlederTest {
         var aaGrunnlag = AktivitetskravGrunnlagEntitet.Builder.oppdatere(Optional.empty())
             .medPerioderMedAktivitetskravArbeid(aaPerioder)
             .build();
-        assertThat(aaGrunnlag.mor75StillingOgIngenPermisjoner(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()))).isFalse();
+        assertThat(aaGrunnlag.mor75ProsentStillingOgIngenPermisjoner(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()))).isFalse();
     }
 
     @Test
@@ -221,7 +288,7 @@ class VurderUttakDokumentasjonAksjonspunktUtlederTest {
         var aaGrunnlag = AktivitetskravGrunnlagEntitet.Builder.oppdatere(Optional.empty())
             .medPerioderMedAktivitetskravArbeid(aaPerioder)
             .build();
-        assertThat(aaGrunnlag.mor75StillingOgIngenPermisjoner(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()))).isTrue();
+        assertThat(aaGrunnlag.mor75ProsentStillingOgIngenPermisjoner(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()))).isTrue();
     }
 
     @Test
@@ -236,7 +303,7 @@ class VurderUttakDokumentasjonAksjonspunktUtlederTest {
         var aaGrunnlag = AktivitetskravGrunnlagEntitet.Builder.oppdatere(Optional.empty())
             .medPerioderMedAktivitetskravArbeid(aaPerioder)
             .build();
-        assertThat(aaGrunnlag.mor75StillingOgIngenPermisjoner(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()))).isFalse();
+        assertThat(aaGrunnlag.mor75ProsentStillingOgIngenPermisjoner(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()))).isFalse();
     }
 
     @Test
@@ -256,6 +323,41 @@ class VurderUttakDokumentasjonAksjonspunktUtlederTest {
         var aaGrunnlag = AktivitetskravGrunnlagEntitet.Builder.oppdatere(Optional.empty())
             .medPerioderMedAktivitetskravArbeid(aaPerioder)
             .build();
-        assertThat(aaGrunnlag.mor75StillingOgIngenPermisjoner(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()))).isTrue();
+        assertThat(aaGrunnlag.mor75ProsentStillingOgIngenPermisjoner(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()))).isTrue();
+    }
+
+    @Test
+    void skal_finne_over_1_prosent_ingen_permisjoner_ett_arbeid() {
+        var aaPerioder = new AktivitetskravArbeidPerioderEntitet.Builder()
+            .leggTil(new AktivitetskravArbeidPeriodeEntitet.Builder()
+                .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(1))
+                .medOrgNummer(OrgNummer.KUNSTIG_ORG)
+                .medSumStillingsprosent(BigDecimal.ONE)
+                .medPermisjon(BigDecimal.ZERO, AktivitetskravPermisjonType.UDEFINERT))
+            .build();
+        var aaGrunnlag = AktivitetskravGrunnlagEntitet.Builder.oppdatere(Optional.empty())
+            .medPerioderMedAktivitetskravArbeid(aaPerioder)
+            .build();
+        assertThat(aaGrunnlag.mor1ProsentStillingOgIngenPermisjoner(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()))).isTrue();
+    }
+
+    @Test
+    void skal_finne_0_prosent_ingen_permisjoner_to_arbeid() {
+        var aaPerioder = new AktivitetskravArbeidPerioderEntitet.Builder()
+            .leggTil(new AktivitetskravArbeidPeriodeEntitet.Builder()
+                .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(1))
+                .medOrgNummer(OrgNummer.KUNSTIG_ORG)
+                .medSumStillingsprosent(BigDecimal.ZERO)
+                .medPermisjon(BigDecimal.ZERO, AktivitetskravPermisjonType.UDEFINERT))
+            .leggTil(new AktivitetskravArbeidPeriodeEntitet.Builder()
+                .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(1))
+                .medOrgNummer(OrgNummer.KUNSTIG_ORG)
+                .medSumStillingsprosent(BigDecimal.ZERO)
+                .medPermisjon(BigDecimal.ZERO, AktivitetskravPermisjonType.UDEFINERT))
+            .build();
+        var aaGrunnlag = AktivitetskravGrunnlagEntitet.Builder.oppdatere(Optional.empty())
+            .medPerioderMedAktivitetskravArbeid(aaPerioder)
+            .build();
+        assertThat(aaGrunnlag.mor1ProsentStillingOgIngenPermisjoner(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()))).isFalse();
     }
 }

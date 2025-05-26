@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.klage;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -52,6 +51,10 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
     private KlageRepository klageRepository;
     @Mock
     private FptilbakeRestKlient mockFptilbakeRestKlient;
+    @Mock
+    private BehandlingEventPubliserer eventPubliserer;
+    @Mock
+    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
 
     private KlageFormkravOppdaterer klageFormkravOppdaterer;
     private Behandling behandling;
@@ -65,11 +68,11 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
         klageRepository = new KlageRepository(getEntityManager());
         KlageVurderingTjeneste klageVurderingTjeneste = new KlageVurderingTjeneste(null, null, behandlingRepository, klageRepository, null,
-            repositoryProvider.getBehandlingsresultatRepository(), mock(BehandlingEventPubliserer.class));
+            repositoryProvider.getBehandlingsresultatRepository(), eventPubliserer);
         var formHistorikk = new KlageHistorikkinnslag(repositoryProvider.getHistorikkinnslagRepository(), behandlingRepository,
             repositoryProvider.getBehandlingVedtakRepository(), mockFptilbakeRestKlient);
-        klageFormkravOppdaterer = new KlageFormkravOppdaterer(klageVurderingTjeneste, behandlingRepository, mock(BehandlingskontrollTjeneste.class),
-            formHistorikk);
+        klageFormkravOppdaterer = new KlageFormkravOppdaterer(klageVurderingTjeneste, behandlingRepository, behandlingskontrollTjeneste,
+            eventPubliserer, formHistorikk);
 
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP, BehandlingStegType.KLAGE_NFP);
         historikkinnslagRepository = repositoryProvider.getHistorikkinnslagRepository();

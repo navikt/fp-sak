@@ -2,5 +2,5 @@
    <logger name="no.nav.foreldrepenger" level="TRACE" />
    <logger name="no.nav.vedtak.sikkerhet" level="TRACE" />
    <logger name="no.nav.vedtak.felles.integrasjon.rest" level="INFO" />
-   <logger name="no.nav.vedtak.sikkerhet.oidc.token.impl.AzureBrukerTokenKlient" level="trace" />
+   <logger name="no.nav.vedtak.sikkerhet.oidc.token.impl.AzureBrukerTokenKlient" level="TRACE" />
 </included>

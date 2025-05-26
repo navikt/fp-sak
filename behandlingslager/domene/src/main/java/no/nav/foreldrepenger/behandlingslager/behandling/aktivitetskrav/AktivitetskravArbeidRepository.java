@@ -46,7 +46,7 @@ public class AktivitetskravArbeidRepository {
                 eksisterendeGrunnlag.deaktiver();
                 entityManager.persist(eksisterendeGrunnlag);
             });
-            nyttGrunnlag.getAktivitetskravPerioderMedArbeidEnitet().ifPresent(perioder -> {
+            nyttGrunnlag.getAktivitetskravPerioderMedArbeidEntitet().ifPresent(perioder -> {
                 entityManager.persist(perioder);
                 for (var entitet : perioder.getAktivitetskravArbeidPeriodeListe()) {
                     entityManager.persist(entitet);

@@ -50,7 +50,7 @@ public class VurderUttakDokumentasjonAksjonspunktUtleder {
             .orElse(List.of());
         ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
         var aktivitetskravArbeidPerioder = fpGrunnlag.getAktivitetskravGrunnlag()
-            .map(e -> e.getAktivitetskravPerioderMedArbeidEnitet()
+            .map(e -> e.getAktivitetskravPerioderMedArbeidEntitet()
                 .map(AktivitetskravArbeidPerioderEntitet::getAktivitetskravArbeidPeriodeListe)
                 .orElse(List.of()))
             .orElse(List.of());
@@ -112,8 +112,13 @@ public class VurderUttakDokumentasjonAksjonspunktUtleder {
 
     private static RegisterVurdering vurderMorsArbeid(OppgittPeriodeEntitet oppgittPeriode,
                                                       AktivitetskravGrunnlagEntitet aktivitetskravGrunnlag) {
-        return aktivitetskravGrunnlag.mor75StillingOgIngenPermisjoner(
-            oppgittPeriode.getTidsperiode()) ? RegisterVurdering.MORS_AKTIVITET_GODKJENT : RegisterVurdering.MORS_AKTIVITET_IKKE_GODKJENT;
+        if (oppgittPeriode.isUtsettelse()) {
+            return aktivitetskravGrunnlag.mor1ProsentStillingOgIngenPermisjoner(oppgittPeriode.getTidsperiode())
+                ? RegisterVurdering.MORS_AKTIVITET_GODKJENT : RegisterVurdering.MORS_AKTIVITET_IKKE_GODKJENT;
+        } else {
+            return aktivitetskravGrunnlag.mor75ProsentStillingOgIngenPermisjoner(oppgittPeriode.getTidsperiode())
+                ? RegisterVurdering.MORS_AKTIVITET_GODKJENT : RegisterVurdering.MORS_AKTIVITET_IKKE_GODKJENT;
+        }
     }
 
     private static List<PleiepengerInnleggelseEntitet> finnPerioderMedPleiepengerInnleggelse(UttakInput input) {

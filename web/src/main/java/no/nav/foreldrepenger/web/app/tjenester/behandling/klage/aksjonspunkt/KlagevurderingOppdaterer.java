@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
@@ -11,17 +12,18 @@ import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.KlageOppdatertEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = KlageVurderingResultatAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
 public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVurderingResultatAksjonspunktDto> {
-    private BehandlingsutredningTjeneste behandlingsutredningTjeneste;
+    private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
+    private BehandlingEventPubliserer eventPubliserer;
     private KlageHistorikkinnslag klageHistorikkinnslag;
     private KlageVurderingTjeneste klageVurderingTjeneste;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
@@ -33,12 +35,14 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
 
     @Inject
     public KlagevurderingOppdaterer(KlageHistorikkinnslag klageHistorikkinnslag,
-                                    BehandlingsutredningTjeneste behandlingsutredningTjeneste,
+                                    BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
+                                    BehandlingEventPubliserer eventPubliserer,
                                     BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                     KlageVurderingTjeneste klageVurderingTjeneste,
                                     BehandlingRepository behandlingRepository) {
         this.klageHistorikkinnslag = klageHistorikkinnslag;
-        this.behandlingsutredningTjeneste = behandlingsutredningTjeneste;
+        this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
+        this.eventPubliserer = eventPubliserer;
         this.klageVurderingTjeneste = klageVurderingTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingRepository = behandlingRepository;
@@ -92,9 +96,10 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
     private void oppdatereDatavarehus(KlageVurderingResultatAksjonspunktDto dto, Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         var klageVurdering = dto.getKlageVurdering();
         if (erNfpAksjonspunkt(aksjonspunktDefinisjon) && KlageVurderingTjeneste.skalBehandlesAvKlageInstans(KlageVurdertAv.NFP, klageVurdering)) {
-            behandlingsutredningTjeneste.byttBehandlendeEnhet(behandling.getId(),BehandlendeEnhetTjeneste.getKlageInstans(),
-                "", //Det er ikke behov for en begrunnelse i dette tilfellet.
-                HistorikkAktør.VEDTAKSLØSNINGEN);
+            behandlendeEnhetTjeneste.oppdaterBehandlendeEnhet(behandling, BehandlendeEnhetTjeneste.getKlageInstans(),
+                HistorikkAktør.VEDTAKSLØSNINGEN, ""); //Det er ikke behov for en begrunnelse i dette tilfellet.
+        } else {
+            eventPubliserer.publiserBehandlingEvent(new KlageOppdatertEvent(behandling));
         }
     }
 
