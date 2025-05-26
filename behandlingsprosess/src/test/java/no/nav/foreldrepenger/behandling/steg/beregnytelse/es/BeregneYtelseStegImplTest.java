@@ -132,7 +132,8 @@ class BeregneYtelseStegImplTest {
         // Arrange
         var antallBarn = 1;
         var behandling = byggGrunnlag(antallBarn, LocalDate.now());
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
         var beregningResultat = LegacyESBeregningsresultat.builder()
                 .medBeregning(new LegacyESBeregning(1000L, antallBarn, 1000L, LocalDateTime.now()))
                 .buildFor(behandling, getBehandlingsresultat(behandling));
@@ -152,7 +153,8 @@ class BeregneYtelseStegImplTest {
         // Arrange
         var antallBarn = 1;
         var behandling = byggGrunnlag(antallBarn, LocalDate.now());
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
         var beregningResultat = LegacyESBeregningsresultat.builder()
                 .medBeregning(new LegacyESBeregning(1000L, antallBarn, 1000L, LocalDateTime.now(), false, null))
                 .medBeregning(new LegacyESBeregning(500L, antallBarn, 1000L, LocalDateTime.now(), true, 1000L))
@@ -176,7 +178,8 @@ class BeregneYtelseStegImplTest {
         // Arrange
         var antallBarn = 1;
         var behandling = byggGrunnlag(antallBarn, LocalDate.now());
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
         var beregningResultat = LegacyESBeregningsresultat.builder()
                 .medBeregning(new LegacyESBeregning(1000L, antallBarn, 1000L, LocalDateTime.now(), false, null))
                 .medBeregning(new LegacyESBeregning(500L, antallBarn, 1000L, LocalDateTime.now(), true, 1000L))
@@ -218,7 +221,8 @@ class BeregneYtelseStegImplTest {
 
     private BehandlingskontrollKontekst byggBehandlingsgrunnlagForFødsel(int antallBarn, LocalDate fødselsdato) {
         var behandling = byggGrunnlag(antallBarn, fødselsdato);
-        return behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
+        return behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
     }
 
 }

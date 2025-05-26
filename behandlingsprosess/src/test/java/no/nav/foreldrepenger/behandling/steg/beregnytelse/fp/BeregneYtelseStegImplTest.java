@@ -88,7 +88,8 @@ class BeregneYtelseStegImplTest {
         when(beregnYtelseTjeneste.beregnYtelse(ArgumentMatchers.any())).thenReturn(opprettBeregningsresultat());
 
         var behandling = byggGrunnlag();
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
 
         // Act
         var stegResultat = steg.utførSteg(kontekst);
@@ -108,7 +109,8 @@ class BeregneYtelseStegImplTest {
     void skalSletteBeregningsresultatFPVedTilbakehopp() {
         // Arrange
         var behandling = byggGrunnlag();
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
         beregningsresultatRepository.lagre(behandling, opprettBeregningsresultat());
 
         // Act
