@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTask;
@@ -133,9 +134,9 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     }
 
     @Override
-    public void reposisjonerBehandlingTilbakeTil(Behandling behandling, BehandlingStegType stegType) {
+    public void reposisjonerBehandlingTilbakeTil(Behandling behandling, BehandlingLås lås, BehandlingStegType stegType) {
         if (erStegAktueltForBehandling(behandling, stegType) && !erBehandlingFørSteg(behandling, stegType)) {
-            var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+            var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
             behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, stegType);
         }
     }

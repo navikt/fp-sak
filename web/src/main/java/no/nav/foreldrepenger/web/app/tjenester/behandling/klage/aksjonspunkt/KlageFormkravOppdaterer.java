@@ -2,27 +2,31 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP;
 
+import java.util.List;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdateringTransisjon;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktkontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.KlageOppdatertEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageAvvistÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 
 @ApplicationScoped
@@ -31,7 +35,8 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
 
     private KlageVurderingTjeneste klageVurderingTjeneste;
     private BehandlingRepository behandlingRepository;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste;
+    private BehandlingEventPubliserer eventPubliserer;
 
     private KlageHistorikkinnslag klageFormkravHistorikk;
 
@@ -42,11 +47,13 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
     @Inject
     public KlageFormkravOppdaterer(KlageVurderingTjeneste klageVurderingTjeneste,
                                    BehandlingRepository behandlingRepository,
-                                   BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                   AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste,
+                                   BehandlingEventPubliserer eventPubliserer,
                                    KlageHistorikkinnslag klageFormkravHistorikk) {
         this.behandlingRepository = behandlingRepository;
         this.klageVurderingTjeneste = klageVurderingTjeneste;
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.aksjonspunktkontrollTjeneste = aksjonspunktkontrollTjeneste;
+        this.eventPubliserer = eventPubliserer;
         this.klageFormkravHistorikk = klageFormkravHistorikk;
     }
 
@@ -54,7 +61,7 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
     public OppdateringResultat oppdater(KlageFormkravAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         var apDefFormkrav = dto.getAksjonspunktDefinisjon();
         var klageVurdertAv = getKlageVurdertAv(apDefFormkrav);
-
+        var skriveLås = behandlingRepository.taSkriveLås(param.getBehandlingId());
         var klageBehandling = behandlingRepository.hentBehandling(param.getBehandlingId());
         var klageResultat = klageVurderingTjeneste.hentEvtOpprettKlageResultat(klageBehandling);
 
@@ -67,26 +74,28 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
         klageFormkravHistorikk.opprettHistorikkinnslagFormkrav(klageBehandling, apDefFormkrav, dto, klageFormkrav, klageResultat, dto.getBegrunnelse());
         var optionalAvvistÅrsak = vurderOgLagreFormkrav(dto, klageBehandling, klageResultat, klageVurdertAv);
         if (optionalAvvistÅrsak.isPresent()) {
-            lagreKlageVurderingResultatMedAvvistKlage(klageBehandling, klageVurdertAv, dto.fritekstTilBrev() != null ? dto.fritekstTilBrev() : null);
+            lagreKlageVurderingResultatMedAvvistKlage(klageBehandling, skriveLås, klageVurdertAv, dto.fritekstTilBrev() != null ? dto.fritekstTilBrev() : null);
+            eventPubliserer.publiserBehandlingEvent(new KlageOppdatertEvent(klageBehandling));
             return OppdateringResultat.medFremoverHoppTotrinn(AksjonspunktOppdateringTransisjon.FORESLÅ_VEDTAK);
         }
         //Må fjerne fritekst om det ble lagret i formkrav-vurderingen
         klageVurderingTjeneste.hentKlageVurderingResultat(klageBehandling, klageVurdertAv).ifPresent(klageVurderingResultat -> {
             if (klageVurderingResultat.getFritekstTilBrev() != null) {
                 var vurderingResultatBuilder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(klageBehandling, klageVurdertAv).medFritekstTilBrev(null);
-                klageVurderingTjeneste.lagreKlageVurderingResultat(klageBehandling, vurderingResultatBuilder, klageVurdertAv);
+                klageVurderingTjeneste.lagreKlageVurderingResultat(klageBehandling, skriveLås, vurderingResultatBuilder, klageVurdertAv);
             }
         });
         klageBehandling.getÅpentAksjonspunktMedDefinisjonOptional(apDefFormkrav)
             .filter(Aksjonspunkt::isToTrinnsBehandling)
-            .ifPresent(ap -> fjernToTrinnsbehandling(klageBehandling, ap));
+            .ifPresent(ap -> fjernToTrinnsbehandling(klageBehandling, skriveLås, ap));
+
+        eventPubliserer.publiserBehandlingEvent(new KlageOppdatertEvent(klageBehandling));
 
         return OppdateringResultat.utenTransisjon().build();
     }
 
-    private void fjernToTrinnsbehandling(Behandling behandling, Aksjonspunkt aksjonspunkt) {
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-        behandlingskontrollTjeneste.setAksjonspunktToTrinn(kontekst, aksjonspunkt, false);
+    private void fjernToTrinnsbehandling(Behandling behandling, BehandlingLås skriveLås, Aksjonspunkt aksjonspunkt) {
+        aksjonspunktkontrollTjeneste.setAksjonspunkterToTrinn(behandling, skriveLås, List.of(aksjonspunkt), false);
     }
 
     private Optional<KlageAvvistÅrsak> vurderOgLagreFormkrav(KlageFormkravAksjonspunktDto dto,
@@ -139,11 +148,12 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
         return Optional.empty();
     }
 
-    private void lagreKlageVurderingResultatMedAvvistKlage(Behandling klageBehandling, KlageVurdertAv vurdertAv, String fritekstTilBrev) {
+    private void lagreKlageVurderingResultatMedAvvistKlage(Behandling klageBehandling, BehandlingLås lås,
+                                                           KlageVurdertAv vurdertAv, String fritekstTilBrev) {
         var builder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(klageBehandling, vurdertAv)
             .medKlageVurdering(KlageVurdering.AVVIS_KLAGE)
             .medFritekstTilBrev(fritekstTilBrev);
-        klageVurderingTjeneste.oppdaterBekreftetVurderingAksjonspunkt(klageBehandling, builder, vurdertAv);
+        klageVurderingTjeneste.oppdaterBekreftetVurderingAksjonspunkt(klageBehandling, lås, builder, vurdertAv);
     }
 
     private KlageVurdertAv getKlageVurdertAv(AksjonspunktDefinisjon apdef) {

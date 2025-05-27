@@ -132,7 +132,7 @@ class ForeslåVedtakTjeneste {
         } else {
             behandling.nullstillToTrinnsBehandling();
             LOG.info("To-trinn fjernet på behandling={}", behandling.getId());
-            if (skalOppretteForeslåVedtakManuelt(behandling, aksjonspunktDefinisjoner)) {
+            if (skalOppretteForeslåVedtakManuelt(behandling)) {
                 aksjonspunktDefinisjoner.add(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
             } else {
                 dokumentBehandlingTjeneste.nullstillVedtakFritekstHvisFinnes(behandling.getId());
@@ -140,7 +140,7 @@ class ForeslåVedtakTjeneste {
         }
     }
 
-    private boolean skalOppretteForeslåVedtakManuelt(Behandling behandling, List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner) {
+    private boolean skalOppretteForeslåVedtakManuelt(Behandling behandling) {
         if (behandling.erRevurdering() && behandling.erManueltOpprettet()) {
             return true;
         }

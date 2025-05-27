@@ -52,7 +52,7 @@ public class TilbakeførTilDekningsgradStegTask extends FagsakProsessTask {
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId) {
         var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElseThrow();
-        behandlingRepository.taSkriveLås(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
         if (behandling.erSaksbehandlingAvsluttet() || SpesialBehandling.erSpesialBehandling(behandling)) {
             return;
         }
@@ -78,7 +78,7 @@ public class TilbakeførTilDekningsgradStegTask extends FagsakProsessTask {
         if (behandling.isBehandlingPåVent()) {
             behandlingProsesseringTjeneste.taBehandlingAvVent(behandling);
         }
-        behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, BehandlingStegType.DEKNINGSGRAD);
+        behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, lås, BehandlingStegType.DEKNINGSGRAD);
         behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
     }
 

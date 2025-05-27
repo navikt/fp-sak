@@ -3,12 +3,13 @@ package no.nav.foreldrepenger.domene.registerinnhenting.impl;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktkontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingModellTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
@@ -24,6 +25,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 public class ÅpneBehandlingForEndringerTask extends BehandlingProsessTask {
 
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste;
     private BehandlingRepository behandlingRepository;
     private ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste;
     private BehandlingModellTjeneste behandlingModellTjeneste;
@@ -34,11 +36,13 @@ public class ÅpneBehandlingForEndringerTask extends BehandlingProsessTask {
 
     @Inject
     public ÅpneBehandlingForEndringerTask(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                          AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste,
                                           ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste,
                                           BehandlingRepositoryProvider repositoryProvider,
                                           BehandlingModellTjeneste behandlingModellTjeneste) {
         super(repositoryProvider.getBehandlingLåsRepository());
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.aksjonspunktkontrollTjeneste = aksjonspunktkontrollTjeneste;
         this.arbeidsforholdAdministrasjonTjeneste = arbeidsforholdAdministrasjonTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingModellTjeneste = behandlingModellTjeneste;
@@ -57,7 +61,7 @@ public class ÅpneBehandlingForEndringerTask extends BehandlingProsessTask {
         }
         arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandler(behandling.getId());
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
-        reaktiverAksjonspunkter(kontekst, behandling, startpunkt);
+        reaktiverAksjonspunkter(behandling, lås, startpunkt);
         behandling.setÅpnetForEndring(true);
         behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, startpunkt.getBehandlingSteg());
         if (behandling.isBehandlingPåVent()) {
@@ -65,13 +69,13 @@ public class ÅpneBehandlingForEndringerTask extends BehandlingProsessTask {
         }
     }
 
-    private void reaktiverAksjonspunkter(BehandlingskontrollKontekst kontekst, Behandling behandling, StartpunktType startpunkt) {
+    private void reaktiverAksjonspunkter(Behandling behandling, BehandlingLås skriveLås, StartpunktType startpunkt) {
         var reåpnes = behandling.getAksjonspunkter().stream()
             .filter(ap -> !ap.getAksjonspunktDefinisjon().erUtgått())
             .filter(ap -> skalAksjonspunktLøsesIEllerEtterSteg(behandling, startpunkt, ap.getAksjonspunktDefinisjon()))
             .filter(ap -> !AksjonspunktType.AUTOPUNKT.equals(ap.getAksjonspunktDefinisjon().getAksjonspunktType()))
             .toList();
-        behandlingskontrollTjeneste.lagreAksjonspunkterReåpnet(kontekst, reåpnes, true, false);
+        aksjonspunktkontrollTjeneste.lagreAksjonspunkterReåpnet(behandling, skriveLås, reåpnes);
     }
 
     private boolean skalAksjonspunktLøsesIEllerEtterSteg(Behandling behandling, StartpunktType startpunkt, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
