@@ -25,6 +25,10 @@ public class ArbeidUnderAAPHistorikkTjeneste extends FaktaOmBeregningHistorikkTj
 
     private static final BigDecimal MÅNEDER_I_ET_ÅR = BigDecimal.valueOf(12);
 
+    public ArbeidUnderAAPHistorikkTjeneste() {
+        // For CDI
+    }
+
     @Override
     public List<HistorikkinnslagLinjeBuilder> lagHistorikk(FaktaBeregningLagreDto dto,
                                                            BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
