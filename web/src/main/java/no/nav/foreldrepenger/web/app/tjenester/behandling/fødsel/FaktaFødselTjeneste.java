@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
@@ -52,15 +51,23 @@ public class FaktaFødselTjeneste {
             terminbekreftelse.map(TerminbekreftelseEntitet::getTermindato).orElse(null),
             terminbekreftelse.map(TerminbekreftelseEntitet::getUtstedtdato).orElse(null)),
             new FødselDto.Register(familieHendelse.getBekreftetVersjon().map(this::getBarn).orElseGet(Collections::emptyList)),
-            new FødselDto.Gjeldende(mapTermindato(familieHendelse), mapBarn(familieHendelse)));
+            new FødselDto.Gjeldende(mapTermindato(familieHendelse), mapUtstedtdato(familieHendelse), mapBarn(familieHendelse)));
+    }
+
+    private FødselDto.Gjeldende.Utstedtdato mapUtstedtdato(FamilieHendelseGrunnlagEntitet familieHendelse) {
+        var overstyrtUtstedtdato = familieHendelse.getOverstyrtVersjon()
+            .flatMap(fhe -> fhe.getTerminbekreftelse().map(TerminbekreftelseEntitet::getUtstedtdato));
+        var søknadUtstedtdato = familieHendelse.getSøknadVersjon().getTerminbekreftelse().map(TerminbekreftelseEntitet::getUtstedtdato);
+        Kilde kilde = ((overstyrtUtstedtdato.isEmpty() && søknadUtstedtdato.isPresent()) || Objects.equals(overstyrtUtstedtdato,
+            søknadUtstedtdato)) ? Kilde.SØKNAD : Kilde.SAKSBEHANDLER;
+        return new FødselDto.Gjeldende.Utstedtdato(kilde, kilde == Kilde.SØKNAD ? søknadUtstedtdato.orElse(null) : overstyrtUtstedtdato.orElse(null));
     }
 
     private static FødselDto.Gjeldende.Termindato mapTermindato(FamilieHendelseGrunnlagEntitet familieHendelse) {
         var overstyrtTermindato = familieHendelse.getOverstyrtVersjon().flatMap(FamilieHendelseEntitet::getTermindato).orElse(null);
         var søknadTermindato = familieHendelse.getSøknadVersjon().getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).orElse(null);
-        Kilde kilde = ((overstyrtTermindato == null && søknadTermindato != null) || Objects.equals(overstyrtTermindato, søknadTermindato))
-            ? Kilde.SØKNAD
-            : Kilde.SAKSBEHANDLER;
+        Kilde kilde = ((overstyrtTermindato == null && søknadTermindato != null) || Objects.equals(overstyrtTermindato,
+            søknadTermindato)) ? Kilde.SØKNAD : Kilde.SAKSBEHANDLER;
         return new FødselDto.Gjeldende.Termindato(kilde, kilde == Kilde.SØKNAD ? søknadTermindato : overstyrtTermindato, true);
     }
 
