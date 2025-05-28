@@ -32,7 +32,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -45,6 +44,7 @@ import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.web.app.exceptions.FeilType;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
@@ -80,7 +80,7 @@ public class DokumentRestTjeneste {
     private DokumentArkivTjeneste dokumentArkivTjeneste;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private FagsakRepository fagsakRepository;
-    private MottatteDokumentRepository mottatteDokumentRepository;
+    private MottatteDokumentTjeneste mottatteDokumentTjeneste;
     private VirksomhetTjeneste virksomhetTjeneste;
     private BehandlingRepository behandlingRepository;
 
@@ -90,15 +90,15 @@ public class DokumentRestTjeneste {
 
     @Inject
     public DokumentRestTjeneste(DokumentArkivTjeneste dokumentArkivTjeneste,
-            InntektsmeldingTjeneste inntektsmeldingTjeneste,
-            FagsakRepository fagsakRepository,
-            MottatteDokumentRepository mottatteDokumentRepository,
-            VirksomhetTjeneste virksomhetTjeneste,
-            BehandlingRepository behandlingRepository) {
+                                InntektsmeldingTjeneste inntektsmeldingTjeneste,
+                                FagsakRepository fagsakRepository,
+                                MottatteDokumentTjeneste mottatteDokumentTjeneste,
+                                VirksomhetTjeneste virksomhetTjeneste,
+                                BehandlingRepository behandlingRepository) {
         this.dokumentArkivTjeneste = dokumentArkivTjeneste;
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.fagsakRepository = fagsakRepository;
-        this.mottatteDokumentRepository = mottatteDokumentRepository;
+        this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
         this.virksomhetTjeneste = virksomhetTjeneste;
         this.behandlingRepository = behandlingRepository;
     }
@@ -112,7 +112,7 @@ public class DokumentRestTjeneste {
     public Collection<MottattDokumentDto> hentAlleMottatteDokumenterForBehandling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        return mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandling.getFagsakId()).stream()
+        return mottatteDokumentTjeneste.hentMottatteDokumentFagsak(behandling.getFagsakId()).stream()
             .map(MottattDokumentDto::new)
             .toList();
     }
@@ -138,7 +138,7 @@ public class DokumentRestTjeneste {
                 .hentAlleInntektsmeldingerForAngitteBehandlinger(åpneBehandlinger).stream()
                 .collect(Collectors.groupingBy(Inntektsmelding::getJournalpostId));
         // Burde brukt map på dokumentid, men den lagres ikke i praksis.
-        var mottatteIMDokument = mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(fagsakId)
+        var mottatteIMDokument = mottatteDokumentTjeneste.hentMottatteDokumentFagsak(fagsakId)
                 .stream()
                 .filter(mdok -> DokumentTypeId.INNTEKTSMELDING.getKode().equals(mdok.getDokumentType().getKode()))
                 .collect(Collectors.groupingBy(MottattDokument::getJournalpostId));
