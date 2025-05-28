@@ -10,13 +10,14 @@ public record FødselDto(FødselDto.Søknad søknad, FødselDto.Register registe
     public record Søknad(List<AvklartBarnDto> barn, LocalDate termindato, LocalDate utstedtDato) {
     }
 
-    // TODO: Undersøk forskjellen på AvklartBarnDto og UidentifisertBarn
     public record Register(List<AvklartBarnDto> barn) {
     }
 
-    public record Gjeldende(FødselDto.Gjeldende.Termindato termindato, List<FødselDto.Gjeldende.Barn> barn) {
+    public record Gjeldende(FødselDto.Gjeldende.Termindato termindato, Utstedtdato utstedtdato, List<FødselDto.Gjeldende.Barn> barn) {
 
         public record Termindato(Kilde kilde, LocalDate termindato, boolean kanOverstyres) {
+        }
+        public record Utstedtdato(Kilde kilde, LocalDate utstedtdato) {
         }
 
         public record Barn(Kilde kilde, AvklartBarnDto barn, boolean kanOverstyres) {
