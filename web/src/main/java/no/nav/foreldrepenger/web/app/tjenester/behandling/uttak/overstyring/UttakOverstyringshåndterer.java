@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring;
 
-import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -15,8 +15,7 @@ import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderTje
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.aksjonspunkt.UttakPerioderMapper;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.OverstyringUttakDto;
 
-//Requestscoped pga at vi må mellomlagre forrige uttaksresultat i field for å bruke til historikk
-@RequestScoped
+@ApplicationScoped
 @DtoTilServiceAdapter(dto = OverstyringUttakDto.class, adapter = Overstyringshåndterer.class)
 public class UttakOverstyringshåndterer implements Overstyringshåndterer<OverstyringUttakDto> {
 
@@ -24,7 +23,6 @@ public class UttakOverstyringshåndterer implements Overstyringshåndterer<Overs
     private ForeldrepengerUttakTjeneste uttakTjeneste;
     private UttakInputTjeneste uttakInputTjeneste;
 
-    private ForeldrepengerUttak forrigeUttak;
     private HistorikkinnslagRepository historikkinnslagRepository;
 
     UttakOverstyringshåndterer() {
@@ -44,15 +42,15 @@ public class UttakOverstyringshåndterer implements Overstyringshåndterer<Overs
 
     @Override
     public OppdateringResultat håndterOverstyring(OverstyringUttakDto dto, BehandlingReferanse ref) {
-        this.forrigeUttak = uttakTjeneste.hent(ref.behandlingId());
+        var forrigeUttak = uttakTjeneste.hent(ref.behandlingId());
         var perioder = UttakPerioderMapper.map(dto.getPerioder(), forrigeUttak.getGjeldendePerioder());
         var uttakInput = uttakInputTjeneste.lagInput(ref.behandlingId());
         tjeneste.manueltFastsettePerioder(uttakInput, perioder);
+        lagreHistorikkInnslag(dto, ref, forrigeUttak);
         return OppdateringResultat.utenOverhopp();
     }
 
-    @Override
-    public void lagHistorikkInnslag(OverstyringUttakDto dto, BehandlingReferanse ref) {
+    private void lagreHistorikkInnslag(OverstyringUttakDto dto, BehandlingReferanse ref, ForeldrepengerUttak forrigeUttak) {
         var historikkinnslag = UttakHistorikkUtil.forOverstyring()
             .lagHistorikkinnslag(ref, dto.getPerioder(), forrigeUttak.getGjeldendePerioder());
         historikkinnslag.ifPresent(innslag -> historikkinnslagRepository.lagre(innslag));
