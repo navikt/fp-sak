@@ -41,7 +41,7 @@ public class KodeverkFraKalkulusMapper {
 
     public static FaktaOmBeregningTilfelle mapFaktaTilfelle(no.nav.folketrygdloven.kalkulus.kodeverk.FaktaOmBeregningTilfelle faktaOmBeregningTilfelle) {
         return switch (faktaOmBeregningTilfelle) {
-            case FASTSETT_INNTEKT_FOR_ARBEID_UNDER_AAP -> throw new IllegalArgumentException("Ikke implementert enda!");
+            case FASTSETT_INNTEKT_FOR_ARBEID_UNDER_AAP -> FaktaOmBeregningTilfelle.FASTSETT_INNTEKT_FOR_ARBEID_UNDER_AAP;
             case UDEFINERT -> FaktaOmBeregningTilfelle.UDEFINERT;
             case VURDER_TIDSBEGRENSET_ARBEIDSFORHOLD -> FaktaOmBeregningTilfelle.VURDER_TIDSBEGRENSET_ARBEIDSFORHOLD;
             case VURDER_SN_NY_I_ARBEIDSLIVET -> FaktaOmBeregningTilfelle.VURDER_SN_NY_I_ARBEIDSLIVET;
@@ -101,8 +101,9 @@ public class KodeverkFraKalkulusMapper {
             case VIDERE_ETTERUTDANNING -> OpptjeningAktivitetType.VIDERE_ETTERUTDANNING;
             case UTENLANDSK_ARBEIDSFORHOLD -> OpptjeningAktivitetType.UTENLANDSK_ARBEIDSFORHOLD;
             case UTDANNINGSPERMISJON -> OpptjeningAktivitetType.UTDANNINGSPERMISJON;
+            case ARBEID_UNDER_AAP -> OpptjeningAktivitetType.ARBEID_UNDER_AAP;
             case UDEFINERT -> OpptjeningAktivitetType.UDEFINERT;
-            case ARBEID_UNDER_AAP, SYKEPENGER_AV_DAGPENGER, PLEIEPENGER_AV_DAGPENGER -> throw new IllegalStateException(ukjentKodeFeil("opptjeningAktivitetType", opptjeningtype.getKode()));
+            case SYKEPENGER_AV_DAGPENGER, PLEIEPENGER_AV_DAGPENGER -> throw new IllegalStateException(ukjentKodeFeil("opptjeningAktivitetType", opptjeningtype.getKode()));
         };
     }
 
