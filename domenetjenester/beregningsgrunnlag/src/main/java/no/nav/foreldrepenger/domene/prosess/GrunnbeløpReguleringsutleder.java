@@ -1,18 +1,19 @@
 package no.nav.foreldrepenger.domene.prosess;
 
+import java.math.BigDecimal;
+import java.util.Comparator;
+import java.util.Set;
+
 import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 
-import java.math.BigDecimal;
-import java.util.Comparator;
-import java.util.Set;
-
 public class GrunnbeløpReguleringsutleder {
     private static final Set<AktivitetStatus> SN_REGULERING = Set.of(
         AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE, AktivitetStatus.KOMBINERT_AT_SN,
         AktivitetStatus.KOMBINERT_FL_SN, AktivitetStatus.KOMBINERT_AT_FL_SN);
+    private static final Set<AktivitetStatus> YTELSER_REGULERING = Set.of(AktivitetStatus.ARBEIDSAVKLARINGSPENGER, AktivitetStatus.DAGPENGER);
 
     private GrunnbeløpReguleringsutleder() {
         // Skjuler default konstruktør
@@ -20,7 +21,8 @@ public class GrunnbeløpReguleringsutleder {
     public static boolean kanPåvirkesAvGrunnbeløpRegulering(Beregningsgrunnlag bg) {
         return harGrunnlagSomBleAvkortet(bg)
             || erMilitærMedMinstekrav(bg)
-            || erBeregnetSomNæringsdrivende(bg);
+            || erBeregnetSomNæringsdrivende(bg)
+            || harYtelserSomReguleres(bg);
     }
 
     private static boolean erMilitærMedMinstekrav(Beregningsgrunnlag bg) {
@@ -49,5 +51,11 @@ public class GrunnbeløpReguleringsutleder {
         return bg.getAktivitetStatuser().stream()
             .map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus)
             .anyMatch(SN_REGULERING::contains);
+    }
+
+    private static boolean harYtelserSomReguleres(Beregningsgrunnlag bg) {
+        return bg.getAktivitetStatuser().stream()
+            .map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus)
+            .anyMatch(YTELSER_REGULERING::contains);
     }
 }

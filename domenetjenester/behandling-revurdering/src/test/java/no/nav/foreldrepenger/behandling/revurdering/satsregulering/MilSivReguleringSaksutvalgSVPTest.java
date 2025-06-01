@@ -54,7 +54,7 @@ class MilSivReguleringSaksutvalgSVPTest {
         opprettSVMS(em, BehandlingStatus.UTREDES, cutoff.plusDays(5), gammelSats, gammelSats * 3); // Har åpen behandling
         opprettSVMS(em, BehandlingStatus.AVSLUTTET, cutoff.minusDays(5), gammelSats, gammelSats * 3); // Uttak før "1/5"
 
-        tjeneste.doTask(SatsReguleringUtil.lagFinnSakerTask("SVP", "MS"));
+        tjeneste.doTask(SatsReguleringUtil.lagFinnSakerTask("SVP"));
 
         verifyNoInteractions(taskTjeneste);
     }
@@ -67,7 +67,7 @@ class MilSivReguleringSaksutvalgSVPTest {
         var kan4 = opprettSVMS(em, BehandlingStatus.AVSLUTTET, cutoff.minusDays(2), gammelSats, gammelSats * 2); // Uttak før "1/5"
         var kan5 = opprettSVMS(em, BehandlingStatus.AVSLUTTET, cutoff.plusWeeks(2), nySats, gammelSats * 2); // Har allerede ny G
 
-        tjeneste.doTask(SatsReguleringUtil.lagFinnSakerTask("SVP", "MS"));
+        tjeneste.doTask(SatsReguleringUtil.lagFinnSakerTask("SVP"));
 
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste, times(2)).lagre(captor.capture());
