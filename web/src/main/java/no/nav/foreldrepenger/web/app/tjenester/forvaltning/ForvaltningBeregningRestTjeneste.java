@@ -45,7 +45,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.SatsReguleringRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -95,7 +94,6 @@ public class ForvaltningBeregningRestTjeneste {
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private SatsRepository satsRepository;
-    private SatsReguleringRepository satsReguleringRepository;
 
     @Inject
     public ForvaltningBeregningRestTjeneste(ProsessTaskTjeneste taskTjeneste,
@@ -104,7 +102,7 @@ public class ForvaltningBeregningRestTjeneste {
                                             BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider,
                                             BeregningsgrunnlagRepository beregningsgrunnlagRepository,
                                             InntektArbeidYtelseTjeneste iayTjeneste,
-                                            SatsRepository satsRepository, SatsReguleringRepository satsReguleringRepository) {
+                                            SatsRepository satsRepository) {
         this.taskTjeneste = taskTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.fagsakRepository = fagsakRepository;
@@ -112,7 +110,6 @@ public class ForvaltningBeregningRestTjeneste {
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
         this.iayTjeneste = iayTjeneste;
         this.satsRepository = satsRepository;
-        this.satsReguleringRepository = satsReguleringRepository;
     }
 
     public ForvaltningBeregningRestTjeneste() {
@@ -373,16 +370,6 @@ public class ForvaltningBeregningRestTjeneste {
 
         LOG.info("Resultat av sjekkDiffInntektRegisterMotInntektsmelding {}", resultatAvDiffInntektImData);
         return Response.ok(resultatAvDiffInntektImData).build();
-    }
-
-    @POST
-    @Path("/reguleringsbehovAAPDAG")
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Operation(description = "Sett reguleringsbehov for saker med ", tags = "FORVALTNING-beregning")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
-    public Response setReguleringsbehovBehandlingerDagpengerAAP() {
-        var antall = satsReguleringRepository.setReguleringsbehovBehandlingerDagpengerAAP();
-        return Response.ok(antall).build();
     }
 
     private static List<Inntektspost> hentInntekterFraAInntektIBeregningsperioden(Behandling behandling,
