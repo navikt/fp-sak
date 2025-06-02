@@ -115,7 +115,7 @@ public class OppdatererDtoMapper {
             fakta.getMottarYtelse() == null ? null : mapMottarYtelse(fakta.getMottarYtelse()),
             fakta.getVurderMilitaer() == null ? null : mapVurderMilitær(fakta.getVurderMilitaer()),
             fakta.getRefusjonskravGyldighet() == null ? null : mapRefusjonskravPrArbeidsgiverVurderingDto(fakta.getRefusjonskravGyldighet()),
-            fakta.getFastsettInntektForArbeidUnderAAP() == null ? null : mapFastsettInntektForArbeidUnderAAP(fakta.getFastsettInntektForArbeidUnderAAP())
+            fakta.getFastsettArbeidUnderAap() == null ? null : mapFastsettInntektForArbeidUnderAAP(fakta.getFastsettArbeidUnderAap())
         );
     }
 

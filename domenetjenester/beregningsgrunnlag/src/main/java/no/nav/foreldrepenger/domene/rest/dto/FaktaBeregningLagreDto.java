@@ -42,7 +42,7 @@ public class FaktaBeregningLagreDto {
     @Size(max = 100)
     private List<RefusjonskravPrArbeidsgiverVurderingDto> refusjonskravGyldighet;
     @Valid
-    private FastsettInntektForArbeidUnderAAPDto fastsettInntektForArbeidUnderAAP;
+    private FastsettInntektForArbeidUnderAAPDto fastsettArbeidUnderAap;
 
     FaktaBeregningLagreDto() {
         // For Jackson
@@ -182,11 +182,11 @@ public class FaktaBeregningLagreDto {
         this.vurderMilitaer = vurderMilitaer;
     }
 
-    public FastsettInntektForArbeidUnderAAPDto getFastsettInntektForArbeidUnderAAP() {
-        return fastsettInntektForArbeidUnderAAP;
+    public FastsettInntektForArbeidUnderAAPDto getFastsettArbeidUnderAap() {
+        return fastsettArbeidUnderAap;
     }
 
-    public void setFastsettInntektForArbeidUnderAAP(FastsettInntektForArbeidUnderAAPDto fastsettInntektForArbeidUnderAAP) {
-        this.fastsettInntektForArbeidUnderAAP = fastsettInntektForArbeidUnderAAP;
+    public void setFastsettArbeidUnderAap(FastsettInntektForArbeidUnderAAPDto fastsettArbeidUnderAap) {
+        this.fastsettArbeidUnderAap = fastsettArbeidUnderAap;
     }
 }
