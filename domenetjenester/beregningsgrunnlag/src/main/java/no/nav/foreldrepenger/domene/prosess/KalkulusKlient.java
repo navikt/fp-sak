@@ -11,10 +11,12 @@ import no.nav.folketrygdloven.kalkulus.migrering.MigrerBeregningsgrunnlagRequest
 import no.nav.folketrygdloven.kalkulus.migrering.MigrerBeregningsgrunnlagResponse;
 import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelBeregnRequestDto;
 import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelFpkalkulusRequestDto;
+import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelGrunnlagTilstanderRequestDto;
 import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelHentBeregningsgrunnlagGUIRequest;
 import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelHåndterBeregningRequestDto;
 import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelKopierBeregningsgrunnlagRequestDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.besteberegning.BesteberegningGrunnlagDto;
+import no.nav.folketrygdloven.kalkulus.response.v1.tilstander.TilgjengeligeTilstanderDto;
 import no.nav.vedtak.exception.TekniskException;
 
 import org.slf4j.Logger;
@@ -44,6 +46,7 @@ public class KalkulusKlient {
     private URI kopierGrunnlag;
     private URI avklaringsbehov;
     private URI deatkvier;
+    private URI tilstand;
     private URI avslutt;
     private URI migrer;
     private final RestClient restClient;
@@ -56,6 +59,7 @@ public class KalkulusKlient {
         this.hentGrunnlag = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/grunnlag");
         this.hentGrunnlagGui = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/grunnlag/gui");
         this.hentGrunnlagBesteberegning = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/grunnlag/besteberegning");
+        this.tilstand = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/grunnlag/tilstander");
         this.kopierGrunnlag = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/kopier");
         this.avklaringsbehov = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/avklaringsbehov");
         this.deatkvier = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/deaktiver");
@@ -64,6 +68,7 @@ public class KalkulusKlient {
     }
 
     public KalkulusRespons beregn(EnkelBeregnRequestDto request) {
+        LOG.info("Kjører beregning i fpkalkulus for steg {}", request.stegType());
         var restRequest = RestRequest.newPOSTJson(request, beregn, restConfig);
         try {
             var respons = restClient.sendReturnOptional(restRequest, TilstandResponse.class).orElseThrow(() -> new IllegalStateException("Ugyldig tilstand, tomt svar fra kalkulus"));
@@ -141,7 +146,17 @@ public class KalkulusKlient {
         catch (Exception e) {
             throw new TekniskException("FP-503900", "Feil under migrering til kalkulus: " + e);
         }
+    }
 
+    public TilgjengeligeTilstanderDto hentTilgjengeligeTilstander(EnkelGrunnlagTilstanderRequestDto request) {
+        LOG.info("Henter tilgjengelige tilstander i fpkalkulus");
+        var restRequest = RestRequest.newPOSTJson(request, tilstand, restConfig);
+        try {
+            return restClient.sendReturnOptional(restRequest, TilgjengeligeTilstanderDto.class).orElseThrow(() -> new IllegalStateException("Klarte ikke hente tilgjengelige tilstander fra fpkalkulus"));
+        }
+        catch (Exception e) {
+            throw new TekniskException("FP-503900", "Feil under migrering til kalkulus: " + e);
+        }
     }
 
     private URI toUri(URI endpointURI, String path) {

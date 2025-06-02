@@ -5,7 +5,7 @@ import java.util.List;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktkontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -22,7 +22,7 @@ public class ArbeidOgInntektsmeldingProsessTjeneste {
     private BehandlingRepository behandlingRepository;
     private BehandlingsutredningTjeneste behandlingsutredningTjeneste;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste;
 
     ArbeidOgInntektsmeldingProsessTjeneste() {
         // CDI
@@ -32,11 +32,11 @@ public class ArbeidOgInntektsmeldingProsessTjeneste {
     ArbeidOgInntektsmeldingProsessTjeneste(BehandlingRepository behandlingRepository,
                                            BehandlingsutredningTjeneste behandlingsutredningTjeneste,
                                            BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
-                                           BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
+                                           AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.behandlingsutredningTjeneste = behandlingsutredningTjeneste;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.aksjonspunktkontrollTjeneste = aksjonspunktkontrollTjeneste;
     }
 
     public void tillTilbakeOgOpprettAksjonspunkt(BehandlingIdVersjonDto dto, boolean erOverstyringSomLagerAP) {
@@ -47,9 +47,9 @@ public class ArbeidOgInntektsmeldingProsessTjeneste {
         validerAtOperasjonErLovlig(behandling, erOverstyringSomLagerAP);
 
         behandlingsutredningTjeneste.kanEndreBehandling(behandling, dto.getBehandlingVersjon());
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
-        behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING);
-        behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst, List.of(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING));
+        behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, lås, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING);
+        aksjonspunktkontrollTjeneste.lagreAksjonspunkterFunnet(behandling, lås, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING,
+            List.of(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING));
         behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
     }
 

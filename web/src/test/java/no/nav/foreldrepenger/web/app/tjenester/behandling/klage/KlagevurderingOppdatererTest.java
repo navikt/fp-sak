@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktkontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -57,7 +57,7 @@ class KlagevurderingOppdatererTest {
     @Mock
     private BehandlingEventPubliserer eventPubliserer;
     @Mock
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste;
     @Mock
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
@@ -120,7 +120,7 @@ class KlagevurderingOppdatererTest {
             repositoryProvider.getBehandlingsresultatRepository(), eventPubliserer);
         var klageHistorikk = new KlageHistorikkinnslag(repositoryProvider.getHistorikkinnslagRepository(),
             behandlingRepository, repositoryProvider.getBehandlingVedtakRepository(), mock(FptilbakeRestKlient.class));
-        return new KlagevurderingOppdaterer(klageHistorikk, behandlendeEnhetTjeneste, eventPubliserer, behandlingskontrollTjeneste, klageVurderingTjeneste,
+        return new KlagevurderingOppdaterer(klageHistorikk, behandlendeEnhetTjeneste, eventPubliserer, aksjonspunktkontrollTjeneste, klageVurderingTjeneste,
             behandlingRepository);
     }
 

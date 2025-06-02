@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.Endringskontroller;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
@@ -122,11 +123,11 @@ public class Kompletthetskontroller {
         }
     }
 
-    void flyttTilbakeTilRegistreringPapirsøknad(Behandling behandling) {
+    void flyttTilbakeTilRegistreringPapirsøknad(Behandling behandling, BehandlingLås lås) {
         if (behandling.isBehandlingPåVent()) {
             behandlingProsesseringTjeneste.taBehandlingAvVent(behandling);
         }
-        behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, BehandlingStegType.REGISTRER_SØKNAD);
+        behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, lås, BehandlingStegType.REGISTRER_SØKNAD);
         dokumentmottakerFelles.opprettTaskForÅStarteBehandling(behandling);
     }
 

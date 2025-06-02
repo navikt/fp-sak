@@ -81,11 +81,13 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
             .orElseThrow(() -> RevurderingFeil.tjenesteFinnerIkkeBehandlingForRevurdering(fagsak.getId()));
 
         // lås original behandling først slik at ingen andre forsøker på samme
-        behandlingskontrollTjeneste.initBehandlingskontroll(origBehandling);
+        var originalLås = behandlingRepository.taSkriveLås(origBehandling.getId());
+        behandlingskontrollTjeneste.initBehandlingskontroll(origBehandling, originalLås);
 
         // deretter opprett kontekst for revurdering og opprett
         var revurdering = revurderingTjenesteFelles.opprettRevurderingsbehandling(revurderingsÅrsak, origBehandling, manueltOpprettet, enhet, opprettetAv);
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(revurdering);
+        var revurderingLås = behandlingRepository.taSkriveLås(revurdering.getId());
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(revurdering, revurderingLås);
         behandlingskontrollTjeneste.opprettBehandling(kontekst, revurdering);
         revurderingTjenesteFelles.opprettHistorikkInnslagForNyRevurdering(revurdering, revurderingsÅrsak, manueltOpprettet);
 

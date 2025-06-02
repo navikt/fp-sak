@@ -12,12 +12,13 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktkontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -39,7 +40,7 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
     private StartpunktUtlederInntektsmelding startpunktUtlederInntektsmelding;
     private ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste;
     private BehandlingRepository behandlingRepository;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste;
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
 
     public StartpunktUtlederInntektArbeidYtelse() {
@@ -48,7 +49,7 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
 
     @Inject
     StartpunktUtlederInntektArbeidYtelse(InntektArbeidYtelseTjeneste iayTjeneste,
-                                         BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                         AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste,
                                          BehandlingRepositoryProvider repositoryProvider,
                                          StartpunktUtlederInntektsmelding startpunktUtlederInntektsmelding,
                                          ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste,
@@ -56,7 +57,7 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
         this.iayTjeneste = iayTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.startpunktUtlederInntektsmelding = startpunktUtlederInntektsmelding;
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.aksjonspunktkontrollTjeneste = aksjonspunktkontrollTjeneste;
         this.arbeidsforholdAdministrasjonTjeneste = arbeidsforholdAdministrasjonTjeneste;
         this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
     }
@@ -161,28 +162,29 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
     Setter dermed aksjonspunktet til utført hvis det står til opprettet.
      */
     private void ryddOppAksjonspunktForInntektsmeldingHvisEksisterer(BehandlingReferanse behandlingReferanse) {
+        var skriveLås = behandlingRepository.taSkriveLås(behandlingReferanse.behandlingId());
         var behandling = behandlingRepository.hentBehandling(behandlingReferanse.behandlingId());
         var aksjonspunkter = behandling.getAksjonspunkter().stream()
             .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING))
             .filter(Aksjonspunkt::erÅpentAksjonspunkt)
             .toList();
 
-        avbrytAksjonspunkter(behandling, aksjonspunkter);
+        avbrytAksjonspunkter(behandling, skriveLås, aksjonspunkter);
     }
 
     private void ryddOppAksjonspunktForPermisjonUtenSluttdatoHvisEksisterer(BehandlingReferanse behandlingReferanse) {
+        var skriveLås = behandlingRepository.taSkriveLås(behandlingReferanse.behandlingId());
         var behandling = behandlingRepository.hentBehandling(behandlingReferanse.behandlingId());
         var aksjonspunkter = behandling.getAksjonspunkter().stream()
             .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO))
             .filter(Aksjonspunkt::erÅpentAksjonspunkt)
             .toList();
 
-        avbrytAksjonspunkter(behandling, aksjonspunkter);
+        avbrytAksjonspunkter(behandling, skriveLås, aksjonspunkter);
     }
 
-    private void avbrytAksjonspunkter(Behandling behandling, List<Aksjonspunkt> aksjonspunkter) {
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-        behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, aksjonspunkter);
+    private void avbrytAksjonspunkter(Behandling behandling, BehandlingLås skriveLås, List<Aksjonspunkt> aksjonspunkter) {
+        aksjonspunktkontrollTjeneste.lagreAksjonspunkterAvbrutt(behandling, skriveLås, aksjonspunkter);
     }
 
     private void leggTilStartpunkt(List<StartpunktType> startpunkter, UUID grunnlagId1, UUID grunnlagId2, StartpunktType startpunkt, String endringLoggtekst) {

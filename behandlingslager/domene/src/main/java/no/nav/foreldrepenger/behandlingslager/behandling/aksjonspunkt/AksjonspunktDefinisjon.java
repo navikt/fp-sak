@@ -512,9 +512,8 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         Map.entry(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, Set.of(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE)),
         Map.entry(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, Set.of(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL))
         /* TODO: Vurder om disse skal tas med
-        , Map.entry(AksjonspunktDefinisjon.FORESLÅ_VEDTAK, Set.of(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT, AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL))
-        , Map.entry(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL, Set.of(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT, AksjonspunktDefinisjon.FORESLÅ_VEDTAK))
-        , Map.entry(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT, Set.of(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL, AksjonspunktDefinisjon.FORESLÅ_VEDTAK))
+        , Map.entry(AksjonspunktDefinisjon.FORESLÅ_VEDTAK, Set.of(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT))
+        , Map.entry(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT, Set.of(AksjonspunktDefinisjon.FORESLÅ_VEDTAK))
          */
     );
 
