@@ -237,7 +237,7 @@ public class SatsReguleringRepository {
                SELECT distinct grbg.behandling_id
                from GR_BEREGNINGSGRUNNLAG grbg
                JOIN BG_AKTIVITET_STATUS bgs ON (bgs.BEREGNINGSGRUNNLAG_ID = grbg.BEREGNINGSGRUNNLAG_ID and bgs.AKTIVITET_STATUS in ('AAP', 'DP') )
-               where grbg.aktiv = 'J' and exists (select * from BG_EKSTERN_KOBLING beko where beko.behandling_id = grbg.id)
+               where grbg.aktiv = 'J' and exists (select * from BG_EKSTERN_KOBLING beko where beko.behandling_id = grbg.behandling_id)
                 ) b
              ON ( a.behandling_id = b.behandling_id )
              WHEN MATCHED THEN
