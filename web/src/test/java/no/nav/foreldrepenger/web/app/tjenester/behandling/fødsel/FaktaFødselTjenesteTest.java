@@ -191,8 +191,11 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
 
+        // Søker om foreldrepenger for 2 barn med termindato, hvor ingen av barna er født ennå.
         var søknadHendelse = scenario.medSøknadHendelse();
-        søknadHendelse.medTerminbekreftelse(scenario.medSøknadHendelse()
+        søknadHendelse
+                .medAntallBarn(2)
+                .medTerminbekreftelse(scenario.medSøknadHendelse()
                         .getTerminbekreftelseBuilder()
                         .medTermindato(TERMINDATO)
                         .medNavnPå("LEGEN LEGESEN")
@@ -208,7 +211,8 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
         // Assert
         var gjeldende = fødselDto.gjeldende();
         assertThat(gjeldende).isNotNull();
-        assertThat(gjeldende.barn()).hasSize(0);
+        assertThat(gjeldende.barn()).isEmpty(); // Ingen barn er født ennå, så listen skal være tom
+        assertThat(gjeldende.antallBarn()).isEqualTo(2); // Mor har søkt om foreldrepenger for 2 barn, men ingen av barna er født ennå
         assertThat(gjeldende.termindato())
                 .extracting(
                         FødselDto.Gjeldende.Termindato::termindato,
