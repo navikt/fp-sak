@@ -10,8 +10,6 @@ import java.time.LocalDate;
 
 import jakarta.persistence.EntityManager;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.SatsReguleringRepository;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -51,7 +49,7 @@ class GrunnbelopReguleringSaksutvalgTest {
         var gammelSats = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1)).getVerdi();
         var kandidat = opprettFPAT(em, BehandlingStatus.AVSLUTTET, cutoff.plusDays(5), gammelSats, 6 * gammelSats);
 
-        tjeneste.doTask(SatsReguleringUtil.lagFinnSakerTask("FP", "G6"));
+        tjeneste.doTask(SatsReguleringUtil.lagFinnSakerTask("FP"));
 
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste).lagre(captor.capture());
@@ -67,7 +65,7 @@ class GrunnbelopReguleringSaksutvalgTest {
         var gammelSats = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1)).getVerdi();
         opprettFPAT(em, BehandlingStatus.UTREDES, cutoff.plusDays(5), gammelSats, 6 * gammelSats);
 
-        tjeneste.doTask(SatsReguleringUtil.lagFinnSakerTask("FP", "G6"));
+        tjeneste.doTask(SatsReguleringUtil.lagFinnSakerTask("FP"));
 
         verifyNoInteractions(taskTjeneste);
     }
@@ -83,7 +81,7 @@ class GrunnbelopReguleringSaksutvalgTest {
         var kandidat4 = opprettFPAT(em, BehandlingStatus.AVSLUTTET, cutoff.plusDays(5), gammelSats, 4 * gammelSats); // Ikke avkortet
         var kandidat5 = opprettFPAT(em, BehandlingStatus.AVSLUTTET, cutoff.plusDays(5), nySats, 6 * nySats); // Ny sats
 
-        tjeneste.doTask(SatsReguleringUtil.lagFinnSakerTask("FP", "G6"));
+        tjeneste.doTask(SatsReguleringUtil.lagFinnSakerTask("FP"));
 
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste, times(2)).lagre(captor.capture());
