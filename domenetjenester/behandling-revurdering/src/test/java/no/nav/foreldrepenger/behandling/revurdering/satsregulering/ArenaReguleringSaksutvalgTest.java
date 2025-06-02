@@ -12,8 +12,6 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.EntityManager;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,12 +19,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.SatsReguleringRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
@@ -34,12 +33,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
-import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
-import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKoblingRepository;
+import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
@@ -49,20 +44,18 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 class ArenaReguleringSaksutvalgTest {
 
     private long gammelSats;
-    private final LocalDate arenaDato = LocalDate.of(LocalDate.now().getYear(), 5, 1);;
+    private final LocalDate arenaDato = LocalDate.of(LocalDate.now().getYear(), 5, 1);
     private LocalDate cutoff;
-    private LocalDate arenaFerdigRegulertDato;
     private GrunnbeløpFinnSakerTask task;
     @Mock
     private ProsessTaskTjeneste taskTjeneste;
 
     @BeforeEach
-    public void setUp(EntityManager entityManager) {
+    void setUp(EntityManager entityManager) {
         var satsRepo = new SatsRepository(entityManager);
         cutoff = arenaDato.isAfter(LocalDate.now()) ? arenaDato : LocalDate.now();
         var cutoffsats = satsRepo.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
         gammelSats = satsRepo.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoffsats.minusDays(1)).getVerdi();
-        arenaFerdigRegulertDato = cutoff.plusWeeks(3).plusDays(2);
         var satsReguleringRepository = new SatsReguleringRepository(entityManager);
         task = new GrunnbeløpFinnSakerTask(satsReguleringRepository, taskTjeneste, satsRepo);
     }
@@ -72,7 +65,7 @@ class ArenaReguleringSaksutvalgTest {
         opprettRevurderingsKandidat(em, BehandlingStatus.UTREDES, cutoff.minusDays(5));
         opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, arenaDato.minusDays(5));
 
-        task.doTask(SatsReguleringUtil.lagFinnArenaSakerTask(cutoff, arenaFerdigRegulertDato));
+        task.doTask(SatsReguleringUtil.lagFinnSakerTask("FP"));
 
         verifyNoInteractions(taskTjeneste);
     }
@@ -84,7 +77,7 @@ class ArenaReguleringSaksutvalgTest {
         var kandidat3 = opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, cutoff.plusMonths(2));
         var kandidat4 = opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, arenaDato.minusDays(5));
 
-        task.doTask(SatsReguleringUtil.lagFinnArenaSakerTask(cutoff, arenaFerdigRegulertDato));
+        task.doTask(SatsReguleringUtil.lagFinnSakerTask("FP"));
 
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste, times(3)).lagre(captor.capture());
@@ -99,7 +92,7 @@ class ArenaReguleringSaksutvalgTest {
 
     private Behandling opprettRevurderingsKandidat(EntityManager em, BehandlingStatus status, LocalDate uttakFom) {
         var repositoryProvider = new BehandlingRepositoryProvider(em);
-        var beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(em);
+        var beregningKoblingRepository = new BeregningsgrunnlagKoblingRepository(em);
 
         var terminDato = uttakFom.plusWeeks(3);
 
@@ -118,11 +111,9 @@ class ArenaReguleringSaksutvalgTest {
         var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling);
         repositoryProvider.getBehandlingRepository().lagre(behandling, lås);
 
-        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny().medGrunnbeløp(BigDecimal.valueOf(gammelSats)).medSkjæringstidspunkt(uttakFom).build();
-        BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSAVKLARINGSPENGER).build(beregningsgrunnlag);
-        var periode = BeregningsgrunnlagPeriode.ny().medBeregningsgrunnlagPeriode(uttakFom, uttakFom.plusMonths(3)).build(beregningsgrunnlag);
-        BeregningsgrunnlagPeriode.oppdater(periode).build(beregningsgrunnlag);
-        beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
+        var kobling = beregningKoblingRepository.opprettKobling(BehandlingReferanse.fra(behandling));
+        beregningKoblingRepository.oppdaterKoblingMedStpOgGrunnbeløp(kobling, Beløp.fra(BigDecimal.valueOf(gammelSats)), uttakFom);
+        beregningKoblingRepository.oppdaterKoblingMedReguleringsbehov(kobling, true);
 
         var virksomhetForUttak = SatsReguleringUtil.arbeidsgiver("456");
         var uttakAktivitet = SatsReguleringUtil.lagUttakAktivitet(virksomhetForUttak);

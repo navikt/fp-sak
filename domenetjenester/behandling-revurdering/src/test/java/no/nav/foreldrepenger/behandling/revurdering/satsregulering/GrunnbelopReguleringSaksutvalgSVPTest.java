@@ -51,7 +51,7 @@ class GrunnbelopReguleringSaksutvalgSVPTest {
         var gammelSats = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1)).getVerdi();
         var kandidat = opprettSVAT(em, BehandlingStatus.AVSLUTTET, cutoff.plusDays(5), gammelSats, 6 * gammelSats);
 
-        tjeneste.doTask(SatsReguleringUtil.lagFinnSakerTask("SVP", "G6"));
+        tjeneste.doTask(SatsReguleringUtil.lagFinnSakerTask("SVP"));
 
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste).lagre(captor.capture());
@@ -67,7 +67,7 @@ class GrunnbelopReguleringSaksutvalgSVPTest {
         var gammelSats = satsRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1)).getVerdi();
         opprettSVAT(em, BehandlingStatus.UTREDES, cutoff.plusDays(5), gammelSats, 6 * gammelSats);
 
-        tjeneste.doTask(SatsReguleringUtil.lagFinnSakerTask("SVP", "G6"));
+        tjeneste.doTask(SatsReguleringUtil.lagFinnSakerTask("SVP"));
 
         verifyNoInteractions(taskTjeneste);
     }
@@ -84,7 +84,7 @@ class GrunnbelopReguleringSaksutvalgSVPTest {
         var kan5 = opprettSVAT(em, BehandlingStatus.AVSLUTTET, cutoff.plusDays(5), gammelSats, 4 * gammelSats); // Ikke avkortet
         var kan6 = opprettSVAT(em, BehandlingStatus.AVSLUTTET, cutoff.plusDays(5), nySats, 6 * nySats); // Ny sats
 
-        tjeneste.doTask(SatsReguleringUtil.lagFinnSakerTask("SVP", "G6"));
+        tjeneste.doTask(SatsReguleringUtil.lagFinnSakerTask("SVP"));
 
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(taskTjeneste, times(2)).lagre(captor.capture());
