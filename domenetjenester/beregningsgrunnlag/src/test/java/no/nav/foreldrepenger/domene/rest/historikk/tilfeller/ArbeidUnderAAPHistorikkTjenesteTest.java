@@ -93,7 +93,7 @@ class ArbeidUnderAAPHistorikkTjenesteTest {
     private static FaktaBeregningLagreDto lagFaktaBeregningLagreDto(Integer fastsattPrMnd) {
         var faktaBeregningLagreDto = new FaktaBeregningLagreDto(
             Collections.singletonList(FaktaOmBeregningTilfelle.FASTSETT_INNTEKT_FOR_ARBEID_UNDER_AAP));
-        faktaBeregningLagreDto.setFastsettInntektForArbeidUnderAAP(new FastsettInntektForArbeidUnderAAPDto(fastsattPrMnd));
+        faktaBeregningLagreDto.setFastsettArbeidUnderAap(new FastsettInntektForArbeidUnderAAPDto(fastsattPrMnd));
         return faktaBeregningLagreDto;
     }
 

@@ -39,7 +39,7 @@ public class ArbeidUnderAAPHistorikkTjeneste extends FaktaOmBeregningHistorikkTj
 
     private List<HistorikkinnslagLinjeBuilder> lagHistorikkForFastsetting(FaktaBeregningLagreDto dto, Optional<BeregningsgrunnlagEntitet> forrigeBg) {
         var fraInntekt = forrigeBg.map(this::hentForrigeFastsattInntekt).orElse(null);
-        var tilInntekt = dto.getFastsettInntektForArbeidUnderAAP().getFastsattPrMnd();
+        var tilInntekt = dto.getFastsettArbeidUnderAap().getFastsattPrMnd();
         List<HistorikkinnslagLinjeBuilder> linjeBuilder = new ArrayList<>();
         if (!Objects.equals(tilInntekt, fraInntekt)) {
             linjeBuilder.add(new HistorikkinnslagLinjeBuilder().fraTil("Inntekten", fraInntekt, tilInntekt));
