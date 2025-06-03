@@ -55,6 +55,7 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
         // Assert
         var gjeldende = fødselDto.gjeldende();
         assertThat(gjeldende).isNotNull();
+        assertThat(gjeldende.antallBarn()).isEqualTo(2);
         assertThat(gjeldende.termindato())
                 .extracting(FødselDto.Gjeldende.Termindato::termindato,
                         FødselDto.Gjeldende.Termindato::kilde,
@@ -82,13 +83,6 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         byggSøknadhendelseTermin(scenario, TERMINDATO, 2);
-
-        scenario.medBruker(AktørId.dummy())
-                .medSøknad()
-                .medMottattDato(LocalDate.now().minusWeeks(2));
-
-        scenario.medSøknadAnnenPart()
-                .medAktørId(AktørId.dummy());
 
         scenario.medBekreftetHendelse()
                 .medAntallBarn(1)
@@ -124,6 +118,7 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
 
         // Sjekk at begge barn (overstyrt og bekreftet) er med
         assertThat(gjeldende.barn()).hasSize(2);
+        assertThat(gjeldende.antallBarn()).isEqualTo(2);
 
         // Sjekk at barn har riktige verdier for fødselsdato, dødsdato, kilde og kanOverstyres
         assertThat(gjeldende.barn())
@@ -172,6 +167,7 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
                         FødselDto.Gjeldende.Termindato::kanOverstyres)
                 .containsExactly(TERMINDATO, Kilde.SAKSBEHANDLER, true);
         assertThat(gjeldende.barn()).hasSize(1);
+        assertThat(gjeldende.antallBarn()).isEqualTo(1);
         assertThat(gjeldende.barn())
                 .extracting(
                         b -> b.barn().getFodselsdato(),
@@ -235,7 +231,7 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
 
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        byggSøknadhendelseTermin(scenario, TERMINDATO, 2);
+        byggSøknadhendelseTermin(scenario, TERMINDATO, 1);
 
         scenario.medBekreftetHendelse()
                 .medAntallBarn(2)
@@ -251,6 +247,7 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
         var gjeldende = fødselDto.gjeldende();
         assertThat(gjeldende).isNotNull();
         assertThat(gjeldende.barn()).hasSize(2);
+        assertThat(gjeldende.antallBarn()).isEqualTo(2);
         assertThat(gjeldende.termindato())
                 .extracting(
                         FødselDto.Gjeldende.Termindato::termindato,
