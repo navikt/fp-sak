@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 
 import org.slf4j.Logger;
@@ -86,7 +87,7 @@ class TilbakerullBeregningsgrunnlagBatchTask implements ProsessTaskHandler {
         if (behandling.isBehandlingPåVent()) {
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
         }
-        var tilSteg = BehandlingStegType.DEKNINGSGRAD;
+        var tilSteg = FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType()) ? BehandlingStegType.VURDER_SAMLET : BehandlingStegType.DEKNINGSGRAD;
         lagHistorikkinnslag(behandling, tilSteg.getNavn());
         behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, tilSteg);
         prosesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, LocalDateTime.now());
