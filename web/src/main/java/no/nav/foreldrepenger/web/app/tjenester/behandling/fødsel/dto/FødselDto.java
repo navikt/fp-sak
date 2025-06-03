@@ -11,7 +11,7 @@ public record FødselDto(FødselDto.Søknad søknad, FødselDto.Register registe
     * List<AvklartBarnDto> barn er listen over barn som er født (registrert i søknaden) og som det søkes foreldrepenger for.
     * int antallBarn er antall barn det er søkt om i søknaden, hvor barna ennå ikke er født.
     * */
-    public record Søknad(List<AvklartBarnDto> barn, LocalDate termindato, LocalDate utstedtDato, int antallBarn) {
+    public record Søknad(List<AvklartBarnDto> barn, LocalDate termindato, LocalDate utstedtdato, int antallBarn) {
     }
 
     public record Register(List<AvklartBarnDto> barn) {

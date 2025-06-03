@@ -30,6 +30,8 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
         tjeneste = new FaktaFødselTjeneste(fhTjeneste);
     }
 
+    // HentFaktaOmFødsel
+
     @Test
     void skal_kunne_hente_fakta_om_fødsel_med_både_overstyrt_og_bekreftet_barn() {
         // Hvis det finnes ett barn i overstyrt og et annet barn i bekreftet, skal gjeldende liste inneholde begge barnene:
@@ -113,8 +115,8 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
                 .extracting(
                         FødselDto.Gjeldende.Utstedtdato::utstedtdato,
                         FødselDto.Gjeldende.Utstedtdato::kilde
-                        )
-                        .containsExactly(UTSTEDTDATO, Kilde.SØKNAD);
+                )
+                .containsExactly(UTSTEDTDATO, Kilde.SØKNAD);
 
         // Sjekk at begge barn (overstyrt og bekreftet) er med
         assertThat(gjeldende.barn()).hasSize(2);
@@ -293,22 +295,27 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
 
         // Assert
         var gjeldende = fødselDto.gjeldende();
-        assertThat(gjeldende).isNotNull();
+        assertThat(gjeldende)
+                .isNotNull();
         assertThat(gjeldende.termindato().termindato()).isEqualTo(TERMINDATO);
         assertThat(gjeldende.termindato().kanOverstyres()).isTrue();
-        assertThat(gjeldende.barn()).hasSize(1);
-        assertThat(gjeldende.barn().getFirst().barn().getFodselsdato()).isEqualTo(FØDSELSDATO);
-        assertThat(gjeldende.barn().getFirst().kilde()).isEqualTo(Kilde.FOLKEREGISTER);
-        assertThat(gjeldende.barn().getFirst().kanOverstyres()).isFalse();
+        assertThat(gjeldende.barn())
+                .hasSize(1)
+                .extracting(
+                        b -> b.barn().getFodselsdato(),
+                        FødselDto.Gjeldende.Barn::kilde,
+                        FødselDto.Gjeldende.Barn::kanOverstyres
+                )
+                .containsExactly(tuple(FØDSELSDATO, Kilde.FOLKEREGISTER, false));
     }
 
     private void byggSøknadhendelseTermin(AbstractTestScenario<?> scenario, LocalDate termindato, int antallBarn) {
         var søknadshendelse = scenario.medSøknadHendelse();
         søknadshendelse.medTerminbekreftelse(scenario.medSøknadHendelse()
-                .getTerminbekreftelseBuilder()
-                .medTermindato(termindato)
-                .medNavnPå("LEGEN LEGESEN")
-                .medUtstedtDato(UTSTEDTDATO))
+                        .getTerminbekreftelseBuilder()
+                        .medTermindato(termindato)
+                        .medNavnPå("LEGEN LEGESEN")
+                        .medUtstedtDato(UTSTEDTDATO))
                 .medFødselsDato(FØDSELSDATO)
                 .medAntallBarn(antallBarn);
         if (antallBarn == 2) {
