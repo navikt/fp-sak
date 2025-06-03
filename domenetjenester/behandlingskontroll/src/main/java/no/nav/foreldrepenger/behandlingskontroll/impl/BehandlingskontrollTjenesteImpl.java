@@ -14,7 +14,6 @@ import java.util.function.Consumer;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingModellVisitor;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
@@ -214,129 +213,11 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
             behandling.getFagsakYtelseType(), behandling.getType());
     }
 
-    void aksjonspunkterEndretStatus(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter) {
-        // handlinger som skal skje når funnet
-        if (!aksjonspunkter.isEmpty()) {
-            eventPubliserer.fireEvent(new AksjonspunktStatusEvent(kontekst, aksjonspunkter));
-        }
-    }
-
     void autopunkterEndretStatus(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter) {
         // handlinger som skal skje når funnet
         if (!aksjonspunkter.isEmpty()) {
             eventPubliserer.fireEvent(new AutopunktStatusEvent(kontekst, aksjonspunkter));
         }
-    }
-
-    @Override
-    public List<Aksjonspunkt> lagreAksjonspunkterFunnet(BehandlingskontrollKontekst kontekst, List<AksjonspunktDefinisjon> aksjonspunkter) {
-        if (aksjonspunkter.stream().anyMatch(AksjonspunktDefinisjon::erAutopunkt)) {
-            throw new IllegalArgumentException("Utviklerfeil: aksjonspunkter inneholder autopunkt " + aksjonspunkter);
-        }
-        var behandling = serviceProvider.hentBehandling(kontekst.getBehandlingId());
-        List<Aksjonspunkt> nyeAksjonspunkt = new ArrayList<>();
-        aksjonspunkter.forEach(apdef -> nyeAksjonspunkt.add(aksjonspunktKontrollRepository.leggTilAksjonspunkt(behandling, apdef)));
-        behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
-        aksjonspunkterEndretStatus(kontekst, nyeAksjonspunkt);
-        return nyeAksjonspunkt;
-    }
-
-    @Override
-    public List<Aksjonspunkt> lagreAksjonspunkterFunnet(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType,
-            List<AksjonspunktDefinisjon> aksjonspunkter) {
-        if (aksjonspunkter.stream().anyMatch(AksjonspunktDefinisjon::erAutopunkt)) {
-            throw new IllegalArgumentException("Utviklerfeil: aksjonspunkter inneholder autopunkt " + aksjonspunkter);
-        }
-        var behandling = serviceProvider.hentBehandling(kontekst.getBehandlingId());
-        List<Aksjonspunkt> nyeAksjonspunkt = new ArrayList<>();
-        aksjonspunkter.forEach(apdef -> nyeAksjonspunkt.add(aksjonspunktKontrollRepository.leggTilAksjonspunkt(behandling, apdef, behandlingStegType)));
-        behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
-        aksjonspunkterEndretStatus(kontekst, nyeAksjonspunkt);
-        return nyeAksjonspunkt;
-    }
-
-    @Override
-    public void lagreAksjonspunkterUtført(BehandlingskontrollKontekst kontekst, Aksjonspunkt aksjonspunkt, String begrunnelse) {
-        Objects.requireNonNull(aksjonspunkt);
-        if (aksjonspunkt.erAutopunkt()) {
-            throw new IllegalArgumentException("Utviklerfeil: aksjonspunkt er autopunkt " + aksjonspunkt.getAksjonspunktDefinisjon());
-        }
-        var behandling = serviceProvider.hentBehandling(kontekst.getBehandlingId());
-        List<Aksjonspunkt> utførte = new ArrayList<>();
-
-        if (!aksjonspunkt.erUtført() || !Objects.equals(aksjonspunkt.getBegrunnelse(), begrunnelse)) {
-            aksjonspunktKontrollRepository.setTilUtført(aksjonspunkt, begrunnelse);
-            utførte.add(aksjonspunkt);
-        }
-
-        behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
-        aksjonspunkterEndretStatus(kontekst, utførte);
-    }
-
-    @Override
-    public void lagreAksjonspunkterAvbrutt(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter) {
-        if (aksjonspunkter.stream().anyMatch(Aksjonspunkt::erAutopunkt)) {
-            throw new IllegalArgumentException("Utviklerfeil: aksjonspunkter inneholder autopunkt "
-                + aksjonspunkter.stream().map(Aksjonspunkt::getAksjonspunktDefinisjon).toList());
-        }
-        var behandling = serviceProvider.hentBehandling(kontekst.getBehandlingId());
-
-        List<Aksjonspunkt> avbrutte = new ArrayList<>();
-        aksjonspunkter.stream().filter(ap -> !ap.erAvbrutt()).forEach(ap -> {
-            aksjonspunktKontrollRepository.setTilAvbrutt(ap);
-            avbrutte.add(ap);
-        });
-        behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
-        aksjonspunkterEndretStatus(kontekst, avbrutte);
-    }
-
-    @Override
-    public void lagreAksjonspunkterReåpnet(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter, boolean beholdToTrinnVurdering,
-            boolean setTotrinn) {
-        if (aksjonspunkter.stream().anyMatch(Aksjonspunkt::erAutopunkt)) {
-            throw new IllegalArgumentException("Utviklerfeil: aksjonspunkter inneholder autopunkt "
-                + aksjonspunkter.stream().map(Aksjonspunkt::getAksjonspunktDefinisjon).toList());
-        }
-        var behandling = serviceProvider.hentBehandling(kontekst.getBehandlingId());
-        List<Aksjonspunkt> reåpnet = new ArrayList<>();
-        aksjonspunkter.stream().filter(ap -> !ap.erOpprettet()).forEach(ap -> {
-            if (beholdToTrinnVurdering) {
-                aksjonspunktKontrollRepository.setReåpnet(ap);
-            } else {
-                aksjonspunktKontrollRepository.setReåpnetMedTotrinn(ap, setTotrinn);
-            }
-            reåpnet.add(ap);
-        });
-        behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
-        aksjonspunkterEndretStatus(kontekst, reåpnet);
-    }
-
-    @Override
-    public void lagreAksjonspunktResultat(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType,
-            List<AksjonspunktResultat> aksjonspunktResultater) {
-        if (aksjonspunktResultater.stream().map(AksjonspunktResultat::getAksjonspunktDefinisjon).anyMatch(AksjonspunktDefinisjon::erAutopunkt)) {
-            throw new IllegalArgumentException("Utviklerfeil: aksjonspunktResultater inneholder autopunkt "
-                + aksjonspunktResultater.stream().map(AksjonspunktResultat::getAksjonspunktDefinisjon).toList());
-        }
-        var behandling = serviceProvider.hentBehandling(kontekst.getBehandlingId());
-        var apHåndterer = new AksjonspunktResultatOppretter(aksjonspunktKontrollRepository, behandling);
-        var endret = apHåndterer.opprettAksjonspunkter(aksjonspunktResultater, behandlingStegType);
-        behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
-        aksjonspunkterEndretStatus(kontekst, endret);
-    }
-
-    @Override
-    public void setAksjonspunktToTrinn(BehandlingskontrollKontekst kontekst, Aksjonspunkt aksjonspunkt, boolean totrinn) {
-        if (aksjonspunkt.isToTrinnsBehandling() == totrinn) {
-            return;
-        }
-        var behandling = serviceProvider.hentBehandling(kontekst.getBehandlingId());
-        if (!aksjonspunkt.erÅpentAksjonspunkt()) {
-            aksjonspunktKontrollRepository.setReåpnet(aksjonspunkt);
-        }
-        aksjonspunktKontrollRepository.setToTrinnsBehandlingKreves(aksjonspunkt, totrinn);
-        behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
-        aksjonspunkterEndretStatus(kontekst, List.of(aksjonspunkt));
     }
 
     @Override
@@ -376,7 +257,8 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     @Override
     public Aksjonspunkt settBehandlingPåVent(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjonIn,
             BehandlingStegType stegType, LocalDateTime fristTid, Venteårsak venteårsak) {
-        var kontekst = initBehandlingskontroll(behandling);
+        var lås = serviceProvider.taLås(behandling.getId());
+        var kontekst = initBehandlingskontroll(behandling, lås);
         aksjonspunktKontrollRepository.forberedSettPåVentMedAutopunkt(behandling, aksjonspunktDefinisjonIn);
         var aksjonspunkt = aksjonspunktKontrollRepository.settBehandlingPåVent(behandling, aksjonspunktDefinisjonIn, stegType, fristTid,
                 venteårsak);

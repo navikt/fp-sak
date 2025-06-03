@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
+import no.nav.foreldrepenger.behandlingskontroll.impl.AksjonspunktkontrollTjenesteImpl;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollEventPubliserer;
-import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollTjenesteImpl;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -59,7 +59,7 @@ class ForeslåOgFatteVedtakAksjonspunktTest extends EntityManagerAwareTest {
     @BeforeEach
     void setup() {
         var em = getEntityManager();
-        var behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(
+        var behandlingskontrollTjeneste = new AksjonspunktkontrollTjenesteImpl(
             new BehandlingskontrollServiceProvider(em, mock(BehandlingskontrollEventPubliserer.class)));
         var lagretVedtakRepository = new LagretVedtakRepository(em);
         repositoryProvider = new BehandlingRepositoryProvider(em);

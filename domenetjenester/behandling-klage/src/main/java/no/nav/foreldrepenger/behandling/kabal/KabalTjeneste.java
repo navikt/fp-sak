@@ -28,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEnti
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeOrganisasjonEntitet;
@@ -95,11 +96,11 @@ public class KabalTjeneste {
         kabalKlient.sendTilKabal(request);
     }
 
-    public void lagreKlageUtfallFraKabal(Behandling behandling, KabalUtfall utfall) {
+    public void lagreKlageUtfallFraKabal(Behandling behandling, BehandlingLås lås, KabalUtfall utfall) {
         var builder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(behandling, KlageVurdertAv.NK)
             .medKlageVurdering(klageVurderingFraUtfall(utfall))
             .medKlageVurderingOmgjør(klageVurderingOmgjørFraUtfall(utfall));
-        klageVurderingTjeneste.oppdaterBekreftetVurderingAksjonspunkt(behandling, builder, KlageVurdertAv.NK);
+        klageVurderingTjeneste.oppdaterBekreftetVurderingAksjonspunkt(behandling, lås, builder, KlageVurdertAv.NK);
         opprettHistorikkinnslagKlage(behandling, utfall);
     }
 

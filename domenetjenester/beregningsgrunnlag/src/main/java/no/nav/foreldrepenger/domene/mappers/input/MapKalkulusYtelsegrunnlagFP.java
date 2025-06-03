@@ -56,7 +56,7 @@ public class MapKalkulusYtelsegrunnlagFP implements MapKalkulusYtelsegrunnlag {
         var dekningsgrad = BigDecimal.valueOf(dekningsgradTjeneste.finnGjeldendeDekningsgrad(referanse).getVerdi());
         var kanBesteberegnes = besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(referanse, stp);
         var ytelsegrunlagDto = besteberegningFødendeKvinneTjeneste.lagYtelsegrunnlagKalkulus(referanse, stp);
-        return new ForeldrepengerGrunnlag(dekningsgrad, kanBesteberegnes, aktivitetGraderinger, ytelsegrunlagDto);
+        return new ForeldrepengerGrunnlag(dekningsgrad, kanBesteberegnes, aktivitetGraderinger, ytelsegrunlagDto, stp.getFørsteUttaksdatoGrunnbeløp());
     }
 
     public AktivitetGraderingDto finnAktivitetGraderingerKalkulus(BehandlingReferanse ref) {

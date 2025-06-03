@@ -132,6 +132,7 @@ public class KlageRestTjeneste {
 
         var vurdertAv = AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP.getKode().equals(apDto.getKode()) ? KlageVurdertAv.NFP
                 : KlageVurdertAv.NK;
+        var lås = behandlingRepository.taSkriveLås(apDto.getBehandlingUuid());
         var behandling = behandlingRepository.hentBehandling(apDto.getBehandlingUuid());
         var builder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(behandling, vurdertAv);
 
@@ -151,7 +152,7 @@ public class KlageRestTjeneste {
 
         builder.medFritekstTilBrev(apDto.getFritekstTilBrev());
 
-        klageVurderingTjeneste.lagreKlageVurderingResultat(behandling, builder, vurdertAv);
+        klageVurderingTjeneste.lagreKlageVurderingResultat(behandling, lås, builder, vurdertAv);
         return Response.ok().build();
     }
 
@@ -173,6 +174,7 @@ public class KlageRestTjeneste {
 
         var vurdertAv = AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP.getKode().equals(apDto.getKode()) ? KlageVurdertAv.NFP
             : KlageVurdertAv.NK;
+        var lås = behandlingRepository.taSkriveLås(apDto.behandlingUuid());
         var behandling = behandlingRepository.hentBehandling(apDto.behandlingUuid());
         var klageResultat = klageVurderingTjeneste.hentEvtOpprettKlageResultat(behandling);
         var lagretFormkrav = klageVurderingTjeneste.hentKlageFormkrav(behandling, vurdertAv);
@@ -196,7 +198,7 @@ public class KlageRestTjeneste {
 
         vurderingResultatBuilder.medFritekstTilBrev(apDto.fritekstTilBrev());
 
-        klageVurderingTjeneste.lagreKlageVurderingResultat(behandling, vurderingResultatBuilder, vurdertAv);
+        klageVurderingTjeneste.lagreKlageVurderingResultat(behandling, lås, vurderingResultatBuilder, vurdertAv);
         return Response.ok().build();
     }
 

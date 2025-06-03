@@ -3,6 +3,8 @@ package no.nav.foreldrepenger.behandlingskontroll.impl;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -18,6 +20,7 @@ import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegOvergangEv
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingskontrollEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
@@ -67,17 +70,25 @@ public class TestEventObserver {
         addEvent(event);
     }
 
-    public static void containsExactly(AksjonspunktDefinisjon[]... ads) {
+    public static void containsExactly(AksjonspunktDefinisjon... ads) {
+        var vanlig = Arrays.stream(ads).filter(a -> !a.erAutopunkt()).toList();
         List<AksjonspunktStatusEvent> aksjonspunkterEvents = getEvents(AksjonspunktStatusEvent.class);
-        assertThat(aksjonspunkterEvents).hasSize(ads.length);
-        for (var i = 0; i < ads.length; i++) {
-            var aps = aksjonspunkterEvents.get(i).getAksjonspunkter();
-            assertThat(aps).hasSize(ads[i].length);
-
-            for (var j = 0; j < ads[i].length; j++) {
-                assertThat(aps.get(j).getAksjonspunktDefinisjon()).as("(%s, %s)", i, j).isEqualTo(ads[i][j]);
-            }
-        }
+        var vanligeAksjonspunkter = aksjonspunkterEvents.stream()
+            .map(AksjonspunktStatusEvent::getAksjonspunkter)
+            .flatMap(Collection::stream)
+            .map(Aksjonspunkt::getAksjonspunktDefinisjon)
+            .toList();
+        var auto = Arrays.stream(ads).filter(AksjonspunktDefinisjon::erAutopunkt).toList();
+        List<AutopunktStatusEvent> autopunkterEvents = getEvents(AutopunktStatusEvent.class);
+        var autoAksjonspunkter = autopunkterEvents.stream()
+            .map(AutopunktStatusEvent::getAksjonspunkter)
+            .flatMap(Collection::stream)
+            .map(Aksjonspunkt::getAksjonspunktDefinisjon)
+            .toList();
+        assertThat(vanligeAksjonspunkter).hasSize(vanlig.size());
+        assertThat(vanligeAksjonspunkter).containsExactlyInAnyOrderElementsOf(vanlig);
+        assertThat(autoAksjonspunkter).hasSize(auto.size());
+        assertThat(autoAksjonspunkter).containsExactlyInAnyOrderElementsOf(auto);
     }
 
     @SuppressWarnings("unchecked")

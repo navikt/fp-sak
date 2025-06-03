@@ -29,10 +29,6 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import no.nav.foreldrepenger.domene.migrering.BeregningMigreringMapper;
-
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +45,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.SatsReguleringRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -65,6 +62,7 @@ import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
+import no.nav.foreldrepenger.domene.migrering.BeregningMigreringMapper;
 import no.nav.foreldrepenger.domene.migrering.MigrerBeregningSakTask;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
@@ -72,11 +70,12 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.BeregningSatsDto;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.EndreInntektsmeldingDto;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
@@ -96,6 +95,7 @@ public class ForvaltningBeregningRestTjeneste {
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private SatsRepository satsRepository;
+    private SatsReguleringRepository satsReguleringRepository;
 
     @Inject
     public ForvaltningBeregningRestTjeneste(ProsessTaskTjeneste taskTjeneste,
@@ -104,7 +104,7 @@ public class ForvaltningBeregningRestTjeneste {
                                             BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider,
                                             BeregningsgrunnlagRepository beregningsgrunnlagRepository,
                                             InntektArbeidYtelseTjeneste iayTjeneste,
-                                            SatsRepository satsRepository) {
+                                            SatsRepository satsRepository, SatsReguleringRepository satsReguleringRepository) {
         this.taskTjeneste = taskTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.fagsakRepository = fagsakRepository;
@@ -112,6 +112,7 @@ public class ForvaltningBeregningRestTjeneste {
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
         this.iayTjeneste = iayTjeneste;
         this.satsRepository = satsRepository;
+        this.satsReguleringRepository = satsReguleringRepository;
     }
 
     public ForvaltningBeregningRestTjeneste() {
@@ -372,6 +373,16 @@ public class ForvaltningBeregningRestTjeneste {
 
         LOG.info("Resultat av sjekkDiffInntektRegisterMotInntektsmelding {}", resultatAvDiffInntektImData);
         return Response.ok(resultatAvDiffInntektImData).build();
+    }
+
+    @POST
+    @Path("/reguleringsbehovAAPDAG")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Operation(description = "Sett reguleringsbehov for saker med ", tags = "FORVALTNING-beregning")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
+    public Response setReguleringsbehovBehandlingerDagpengerAAP() {
+        var antall = satsReguleringRepository.setReguleringsbehovBehandlingerDagpengerAAP();
+        return Response.ok(antall).build();
     }
 
     private static List<Inntektspost> hentInntekterFraAInntektIBeregningsperioden(Behandling behandling,

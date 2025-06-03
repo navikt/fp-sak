@@ -72,6 +72,7 @@ class UttakOverstyringshåndtererTest {
             .medArbeidsgiver(new ArbeidsgiverLagreDto(ORGNR, null))
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .medTrekkdager(BigDecimal.ZERO)
+            .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
             .build();
         var aktiviteter = List.of(aktivitetLagreDto);
         var periodeResultatType = PeriodeResultatType.INNVILGET;

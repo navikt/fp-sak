@@ -66,17 +66,15 @@ class BehandlingskontrollEventPublisererTest {
         var scenario = TestScenario.forEngangsstønad();
         var behandling = scenario.lagre(serviceProvider);
 
-        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling);
+        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling, serviceProvider.taLås(behandling.getId()));
 
         var stegType = BehandlingStegType.SØKERS_RELASJON_TIL_BARN;
 
         var aksjonspunkt = serviceProvider.getAksjonspunktKontrollRepository().leggTilAksjonspunkt(behandling,
                 AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, stegType);
-        kontrollTjeneste.aksjonspunkterEndretStatus(kontekst, List.of(aksjonspunkt));
+        kontrollTjeneste.autopunkterEndretStatus(kontekst, List.of(aksjonspunkt));
 
-        var ads = new AksjonspunktDefinisjon[]{AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT};
-        assertThat(ads).isNotNull();
-        TestEventObserver.containsExactly(ads);
+        TestEventObserver.containsExactly(AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT);
     }
 
     @Test
@@ -86,7 +84,7 @@ class BehandlingskontrollEventPublisererTest {
 
         var behandling = scenario.lagre(serviceProvider);
 
-        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling);
+        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling, serviceProvider.taLås(behandling.getId()));
 
         // Act
         kontrollTjeneste.prosesserBehandling(kontekst);
@@ -108,7 +106,7 @@ class BehandlingskontrollEventPublisererTest {
 
         var behandling = scenario.lagre(serviceProvider);
 
-        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling);
+        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling, serviceProvider.taLås(behandling.getId()));
 
         // Act
         kontrollTjeneste.prosesserBehandling(kontekst);
@@ -145,7 +143,7 @@ class BehandlingskontrollEventPublisererTest {
 
         var behandling = scenario.lagre(serviceProvider);
 
-        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling);
+        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling, serviceProvider.taLås(behandling.getId()));
 
         // Act
         kontrollTjeneste.prosesserBehandling(kontekst);
@@ -164,7 +162,7 @@ class BehandlingskontrollEventPublisererTest {
 
         var behandling = scenario.lagre(serviceProvider);
 
-        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling);
+        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling, serviceProvider.taLås(behandling.getId()));
 
         // Act
         kontrollTjeneste.prosesserBehandling(kontekst);
@@ -185,7 +183,7 @@ class BehandlingskontrollEventPublisererTest {
 
         var behandling = scenario.lagre(serviceProvider);
 
-        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling);
+        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling, serviceProvider.taLås(behandling.getId()));
 
         // Act
         kontrollTjeneste.prosesserBehandling(kontekst);

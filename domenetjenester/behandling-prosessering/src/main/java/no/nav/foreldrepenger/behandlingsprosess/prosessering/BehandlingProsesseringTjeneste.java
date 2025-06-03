@@ -9,6 +9,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 
 /**
@@ -49,7 +50,7 @@ public interface BehandlingProsesseringTjeneste {
     void utledDiffOgReposisjonerBehandlingVedEndringer(Behandling behandling, EndringsresultatSnapshot snapshot);
 
     // Spole til spesifikt steg
-    void reposisjonerBehandlingTilbakeTil(Behandling behandling, BehandlingStegType stegType);
+    void reposisjonerBehandlingTilbakeTil(Behandling behandling, BehandlingLås lås, BehandlingStegType stegType);
 
     /**
      * Returnerer tasks for oppdatering/fortsett for bruk med

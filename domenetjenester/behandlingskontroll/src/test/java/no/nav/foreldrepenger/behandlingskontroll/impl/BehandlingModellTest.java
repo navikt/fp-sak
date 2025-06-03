@@ -317,13 +317,13 @@ class BehandlingModellTest {
     }
 
     private BehandlingStegVisitorUtenLagring lagVisitor(Behandling behandling) {
-        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling);
+        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling, serviceProvider.taLås(behandling.getId()));
         var lokalServiceProvider = new BehandlingskontrollServiceProvider(serviceProvider.getEntityManager(), null);
         return new BehandlingStegVisitorUtenLagring(lokalServiceProvider, kontekst);
     }
 
     private BehandlingStegVisitorVenterUtenLagring lagVisitorVenter(Behandling behandling) {
-        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling);
+        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling, serviceProvider.taLås(behandling.getId()));
         var lokalServiceProvider = new BehandlingskontrollServiceProvider(serviceProvider.getEntityManager(), null);
         return new BehandlingStegVisitorVenterUtenLagring(lokalServiceProvider, kontekst);
     }

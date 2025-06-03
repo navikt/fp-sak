@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktkontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingModellTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
@@ -27,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.totrinn.TotrinnRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
@@ -47,6 +49,7 @@ public class Endringskontroller {
     private static final AksjonspunktDefinisjon SPESIALHÅNDTERT_AKSJONSPUNKT = AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU;
     private static final StartpunktType SPESIALHÅNDTERT_AKSJONSPUNKT_STARTPUNKT = StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste;
     private BehandlingModellTjeneste behandlingModellTjeneste;
     private RegisterinnhentingHistorikkinnslagTjeneste historikkinnslagTjeneste;
     private Instance<KontrollerFaktaInngangsVilkårUtleder> kontrollerFaktaTjenester;
@@ -60,6 +63,7 @@ public class Endringskontroller {
 
     @Inject
     public Endringskontroller(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                              AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste,
                               BehandlingModellTjeneste behandlingModellTjeneste,
                               @Any Instance<StartpunktTjeneste> startpunktTjenester,
                               RegisterinnhentingHistorikkinnslagTjeneste historikkinnslagTjeneste,
@@ -67,6 +71,7 @@ public class Endringskontroller {
                               SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                               TotrinnRepository totrinnRepository) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.aksjonspunktkontrollTjeneste = aksjonspunktkontrollTjeneste;
         this.behandlingModellTjeneste = behandlingModellTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.startpunktTjenester = startpunktTjenester;
@@ -81,7 +86,7 @@ public class Endringskontroller {
     }
 
     // Kalles når behandlingen har ligget over natten (en dag) - selv om EndringsresultatDiff er tom. For å få med endringer i andre ytelser
-    public void vurderNySimulering(Behandling behandling) {
+    public void vurderNySimulering(Behandling behandling, BehandlingLås lås) {
         // Engangsstønad påvirkes ikke av andre ytelser. Hvis det ikke ble feilutbetaling i forrige simulering så oppstår den ikke plutselig
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) ||
             !behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_FEILUTBETALING)) {
@@ -89,14 +94,13 @@ public class Endringskontroller {
         }
         if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_FEILUTBETALING) ||
             !behandling.getÅpneAksjonspunkter(AksjonspunktDefinisjon.getForeslåVedtakAksjonspunkter()).isEmpty()) {
-            var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-            doSpolTilSteg(kontekst, behandling, BehandlingStegType.SIMULER_OPPDRAG, null, null);
+            var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
+            doSpolTilSteg(kontekst, behandling, lås, BehandlingStegType.SIMULER_OPPDRAG, null, null);
         }
     }
 
-    public void spolTilStartpunkt(Behandling behandling, EndringsresultatDiff endringsresultat, StartpunktType senesteStartpunkt) {
-        var behandlingId = behandling.getId();
-        var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
+    public void spolTilStartpunkt(Behandling behandling, BehandlingLås lås, EndringsresultatDiff endringsresultat, StartpunktType senesteStartpunkt) {
+        var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         var ref = BehandlingReferanse.fra(behandling);
 
         var startpunkt = FagsakYtelseTypeRef.Lookup.find(startpunktTjenester, behandling.getFagsakYtelseType())
@@ -109,34 +113,33 @@ public class Endringskontroller {
 
         if (startpunkt.equals(StartpunktType.UDEFINERT)) {
             if (harUtførtKontrollerFakta(behandling) && STARTPUNKT_STEG_INNGANG_VILKÅR.contains(behandling.getAktivtBehandlingSteg())) {
-                var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-                utledAksjonspunkterTilHøyreForStartpunkt(kontekst, behandling.getAktivtBehandlingSteg(), ref, skjæringstidspunkter, behandling);
+                utledAksjonspunkterTilHøyreForStartpunkt(behandling, lås, behandling.getAktivtBehandlingSteg(), ref, skjæringstidspunkter);
             }
             return; // Ingen detekterte endringer - ingen tilbakespoling
         }
 
-        doSpolTilStartpunkt(ref, skjæringstidspunkter, behandling, startpunkt);
+        doSpolTilStartpunkt(ref, skjæringstidspunkter, behandling, lås, startpunkt);
     }
 
-    private void doSpolTilStartpunkt(BehandlingReferanse ref, Skjæringstidspunkt stp, Behandling behandling, StartpunktType startpunktType) {
+    private void doSpolTilStartpunkt(BehandlingReferanse ref, Skjæringstidspunkt stp, Behandling behandling, BehandlingLås lås, StartpunktType startpunktType) {
         var startPunktSteg = startpunktType.getBehandlingSteg();
         var skalSpesialHåndteres = behandling.getÅpentAksjonspunktMedDefinisjonOptional(SPESIALHÅNDTERT_AKSJONSPUNKT).isPresent() &&
             SPESIALHÅNDTERT_AKSJONSPUNKT_STARTPUNKT.getRangering() < startpunktType.getRangering();
         var tilSteg = skalSpesialHåndteres ? SPESIALHÅNDTERT_AKSJONSPUNKT.getBehandlingSteg() : startPunktSteg;
 
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
         oppdaterStartpunktVedBehov(behandling, startpunktType);
-        doSpolTilSteg(kontekst, behandling, tilSteg, ref, stp);
+        doSpolTilSteg(kontekst, behandling, lås, tilSteg, ref, stp);
     }
 
-    private void doSpolTilSteg(BehandlingskontrollKontekst kontekst, Behandling behandling, BehandlingStegType tilSteg, BehandlingReferanse ref, Skjæringstidspunkt stp) {
+    private void doSpolTilSteg(BehandlingskontrollKontekst kontekst, Behandling behandling, BehandlingLås lås, BehandlingStegType tilSteg, BehandlingReferanse ref, Skjæringstidspunkt stp) {
         // Inkluderer tilbakeføring samme steg UTGANG->INNGANG
         var fraSteg = behandling.getAktivtBehandlingSteg();
         var tilbakeføres = skalTilbakeføres(behandling, fraSteg, tilSteg);
         // Gjør aksjonspunktutledning utenom steg kun dersom man står i eller skal gå tilbake til inngangsvilkår
         var sjekkSteg = tilbakeføres ? tilSteg : fraSteg;
         if (ref != null && harUtførtKontrollerFakta(behandling) && STARTPUNKT_STEG_INNGANG_VILKÅR.contains(sjekkSteg)) {
-            utledAksjonspunkterTilHøyreForStartpunkt(kontekst, sjekkSteg, ref, stp, behandling);
+            utledAksjonspunkterTilHøyreForStartpunkt(behandling, lås, sjekkSteg, ref, stp);
         }
 
         if (tilbakeføres) {
@@ -184,7 +187,7 @@ public class Endringskontroller {
     }
 
     // Orkestrerer aksjonspunktene for kontroll av fakta som utføres ifm tilbakehopp til et sted innen inngangsvilkår
-    private void utledAksjonspunkterTilHøyreForStartpunkt(BehandlingskontrollKontekst kontekst, BehandlingStegType fomSteg, BehandlingReferanse ref, Skjæringstidspunkt stp, Behandling behandling) {
+    private void utledAksjonspunkterTilHøyreForStartpunkt(Behandling behandling, BehandlingLås skriveLås, BehandlingStegType fomSteg, BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var resultater = FagsakYtelseTypeRef.Lookup.find(KontrollerFaktaInngangsVilkårUtleder.class, kontrollerFaktaTjenester, ref.fagsakYtelseType())
             .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + ref.fagsakYtelseType().getKode()))
             .utledAksjonspunkterFomSteg(ref, stp, fomSteg);
@@ -200,12 +203,12 @@ public class Endringskontroller {
                 .map(Aksjonspunkt::getStatus).orElse(AksjonspunktStatus.OPPRETTET)))
             .toList();
         if (!avbrytes.isEmpty()) {
-            behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, avbrytes);
+            aksjonspunktkontrollTjeneste.lagreAksjonspunkterAvbrutt(behandling, skriveLås, avbrytes);
         }
         if (!opprettes.isEmpty()) {
             var opprettAksjonspunkt = opprettes.stream().filter(ar -> !ar.getAksjonspunktDefinisjon().erAutopunkt()).toList();
             if (!opprettAksjonspunkt.isEmpty()) {
-                behandlingskontrollTjeneste.lagreAksjonspunktResultat(kontekst, BehandlingStegType.KONTROLLER_FAKTA, opprettAksjonspunkt);
+                aksjonspunktkontrollTjeneste.lagreAksjonspunktResultat(behandling, skriveLås, BehandlingStegType.KONTROLLER_FAKTA, opprettAksjonspunkt);
             }
             opprettes.stream()
                 .filter(ar -> ar.getAksjonspunktDefinisjon().erAutopunkt())

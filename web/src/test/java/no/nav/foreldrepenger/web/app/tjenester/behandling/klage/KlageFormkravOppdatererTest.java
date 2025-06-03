@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktkontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -54,7 +54,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
     @Mock
     private BehandlingEventPubliserer eventPubliserer;
     @Mock
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste;
 
     private KlageFormkravOppdaterer klageFormkravOppdaterer;
     private Behandling behandling;
@@ -71,7 +71,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
             repositoryProvider.getBehandlingsresultatRepository(), eventPubliserer);
         var formHistorikk = new KlageHistorikkinnslag(repositoryProvider.getHistorikkinnslagRepository(), behandlingRepository,
             repositoryProvider.getBehandlingVedtakRepository(), mockFptilbakeRestKlient);
-        klageFormkravOppdaterer = new KlageFormkravOppdaterer(klageVurderingTjeneste, behandlingRepository, behandlingskontrollTjeneste,
+        klageFormkravOppdaterer = new KlageFormkravOppdaterer(klageVurderingTjeneste, behandlingRepository, aksjonspunktkontrollTjeneste,
             eventPubliserer, formHistorikk);
 
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP, BehandlingStegType.KLAGE_NFP);

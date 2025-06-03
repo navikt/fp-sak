@@ -24,9 +24,9 @@ import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBackendDto;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
@@ -52,7 +52,7 @@ public class VergeRestTjeneste {
     private static final String VERGE_OPPRETT_PART_PATH = "/opprett";
     public static final String VERGE_OPPRETT_PATH = BASE_PATH + VERGE_OPPRETT_PART_PATH;
 
-    private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
+    private BehandlingRepository behandlingRepository;
     private VergeTjeneste vergeTjeneste;
 
     public VergeRestTjeneste() {
@@ -60,9 +60,9 @@ public class VergeRestTjeneste {
     }
 
     @Inject
-    public VergeRestTjeneste(BehandlingsprosessTjeneste behandlingsprosessTjeneste,
+    public VergeRestTjeneste(BehandlingRepository behandlingRepository,
                              VergeTjeneste vergeTjeneste) {
-        this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
+        this.behandlingRepository = behandlingRepository;
         this.vergeTjeneste = vergeTjeneste;
     }
 
@@ -70,7 +70,7 @@ public class VergeRestTjeneste {
     @Operation(description = "Henter verge/fullmektig på behandlingen", tags = "verge", responses = {@ApiResponse(responseCode = "200", description = "Verge/fullmektig funnet"), @ApiResponse(responseCode = "204", description = "Ingen verge/fullmektig")})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public VergeDto hentVerge(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @QueryParam(UuidDto.NAME) @Parameter(description = "Behandling uuid") @Valid UuidDto queryParam) {
-        var behandling = behandlingsprosessTjeneste.hentBehandling(queryParam.getBehandlingUuid());
+        var behandling = behandlingRepository.hentBehandling(queryParam.getBehandlingUuid());
         return vergeTjeneste.hentVerge(behandling);
     }
 
@@ -82,7 +82,7 @@ public class VergeRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public VergeBackendDto getVergeBackend(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto queryParam) {
-        var behandling = behandlingsprosessTjeneste.hentBehandling(queryParam.getBehandlingUuid());
+        var behandling = behandlingRepository.hentBehandling(queryParam.getBehandlingUuid());
         return vergeTjeneste.hentVergeForBackend(behandling);
     }
 
@@ -94,7 +94,7 @@ public class VergeRestTjeneste {
     public Response opprettVerge(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @QueryParam(UuidDto.NAME) @Parameter(description = "Behandling uuid") @Valid UuidDto queryParam,
                                  @TilpassetAbacAttributt(supplierClass = NyVergeDtoAbacSupplier.class) @Valid VergeDto body) {
 
-        var behandling = behandlingsprosessTjeneste.hentBehandling(queryParam.getBehandlingUuid());
+        var behandling = behandlingRepository.hentBehandling(queryParam.getBehandlingUuid());
         vergeTjeneste.opprettVerge(behandling, body, null);
 
         return Response.ok().build();
@@ -105,9 +105,9 @@ public class VergeRestTjeneste {
     @Operation(tags = "verge", description = "Fjerner verge/fullmektig på behandlingen", responses = {@ApiResponse(responseCode = "200", description = "Verge/fullmektig fjernet", headers = @Header(name = HttpHeaders.LOCATION))})
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response fjernVerge(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @QueryParam(UuidDto.NAME) @Parameter(description = "Behandling uuid") @Valid UuidDto queryParam) {
-
-        var behandling = behandlingsprosessTjeneste.hentBehandling(queryParam.getBehandlingUuid());
-        vergeTjeneste.fjernVerge(behandling);
+        var lås = behandlingRepository.taSkriveLås(queryParam.getBehandlingUuid());
+        var behandling = behandlingRepository.hentBehandling(queryParam.getBehandlingUuid());
+        vergeTjeneste.fjernVerge(behandling, lås);
 
         return Response.ok().build();
     }

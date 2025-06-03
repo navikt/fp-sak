@@ -44,4 +44,11 @@ public interface BeregningTjeneste {
      */
     void avslutt(BehandlingReferanse referanse);
 
+    /**
+     *
+     * @param referanse referanse til behandlingen som sjekkes
+     * @param stegType steg vi ønsker å se om behandlingen kan startes i
+     * @return en boolean for om steget er et gyldig startpunkt eller ikke.
+     */
+    boolean kanStartesISteg(BehandlingReferanse referanse, BehandlingStegType stegType);
 }

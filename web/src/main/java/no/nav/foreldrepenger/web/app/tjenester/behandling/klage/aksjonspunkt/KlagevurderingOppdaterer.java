@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt;
 
+import java.util.List;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -9,13 +11,14 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktkontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.KlageOppdatertEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 
@@ -26,7 +29,7 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
     private BehandlingEventPubliserer eventPubliserer;
     private KlageHistorikkinnslag klageHistorikkinnslag;
     private KlageVurderingTjeneste klageVurderingTjeneste;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste;
     private BehandlingRepository behandlingRepository;
 
     KlagevurderingOppdaterer() {
@@ -37,24 +40,25 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
     public KlagevurderingOppdaterer(KlageHistorikkinnslag klageHistorikkinnslag,
                                     BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                                     BehandlingEventPubliserer eventPubliserer,
-                                    BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                    AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste,
                                     KlageVurderingTjeneste klageVurderingTjeneste,
                                     BehandlingRepository behandlingRepository) {
         this.klageHistorikkinnslag = klageHistorikkinnslag;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.eventPubliserer = eventPubliserer;
         this.klageVurderingTjeneste = klageVurderingTjeneste;
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.aksjonspunktkontrollTjeneste = aksjonspunktkontrollTjeneste;
         this.behandlingRepository = behandlingRepository;
     }
 
     @Override
     public OppdateringResultat oppdater(KlageVurderingResultatAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
+        var skriveLås = behandlingRepository.taSkriveLås(param.getBehandlingId());
         var behandling = behandlingRepository.hentBehandling(param.getBehandlingId());
         var aksjonspunktDefinisjon = dto.getAksjonspunktDefinisjon();
-        var totrinn = håndterToTrinnsBehandling(behandling, aksjonspunktDefinisjon, dto.getKlageVurdering());
+        var totrinn = håndterToTrinnsBehandling(behandling, skriveLås, aksjonspunktDefinisjon, dto.getKlageVurdering());
 
-        håndterKlageVurdering(dto, behandling, aksjonspunktDefinisjon);
+        håndterKlageVurdering(dto, behandling, skriveLås, aksjonspunktDefinisjon);
 
         klageHistorikkinnslag.opprettHistorikkinnslagVurdering(behandling, aksjonspunktDefinisjon, dto, dto.getBegrunnelse());
         oppdatereDatavarehus(dto, behandling, aksjonspunktDefinisjon);
@@ -62,7 +66,8 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();
     }
 
-    private void håndterKlageVurdering(KlageVurderingResultatAksjonspunktDto dto, Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
+    private void håndterKlageVurdering(KlageVurderingResultatAksjonspunktDto dto, Behandling behandling,
+                                       BehandlingLås lås, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         var vurdertAv = erNfpAksjonspunkt(aksjonspunktDefinisjon) ? KlageVurdertAv.NFP : KlageVurdertAv.NK;
         var builder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(behandling, vurdertAv)
             .medKlageVurdering(dto.getKlageVurdering())
@@ -72,24 +77,24 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
             .medBegrunnelse(dto.getBegrunnelse())
             .medFritekstTilBrev(dto.getFritekstTilBrev());
 
-        klageVurderingTjeneste.oppdaterBekreftetVurderingAksjonspunkt(behandling, builder, vurdertAv);
+        klageVurderingTjeneste.oppdaterBekreftetVurderingAksjonspunkt(behandling, lås, builder, vurdertAv);
     }
 
-    private boolean håndterToTrinnsBehandling(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon, KlageVurdering klageVurdering) {
+    private boolean håndterToTrinnsBehandling(Behandling behandling, BehandlingLås skriveLås,
+                                              AksjonspunktDefinisjon aksjonspunktDefinisjon, KlageVurdering klageVurdering) {
         if (erNfpAksjonspunkt(aksjonspunktDefinisjon) && KlageVurderingTjeneste.skalBehandlesAvKlageInstans(KlageVurdertAv.NFP, klageVurdering)) {
             // Må fjerne totrinnsbehandling i tilfeller hvor totrinn er satt for NFP (klagen ikke er innom NK),
             // beslutter sender behandlingen tilbake til NFP, og NFP deretter gjør et valgt som sender
             // behandlingen til NK. Da skal ikke aksjonspunkt NFP totrinnsbehandles.
-            fjernToTrinnsBehandling(behandling, aksjonspunktDefinisjon);
+            fjernToTrinnsBehandling(behandling, skriveLås, aksjonspunktDefinisjon);
         }
         return erNfpAksjonspunkt(aksjonspunktDefinisjon) && !KlageVurderingTjeneste.skalBehandlesAvKlageInstans(KlageVurdertAv.NFP, klageVurdering);
     }
 
-    private void fjernToTrinnsBehandling(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
+    private void fjernToTrinnsBehandling(Behandling behandling, BehandlingLås skriveLås, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         var aksjonspunkt = behandling.getAksjonspunktFor(aksjonspunktDefinisjon);
         if (aksjonspunkt.isToTrinnsBehandling()) {
-            var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-            behandlingskontrollTjeneste.setAksjonspunktToTrinn(kontekst, aksjonspunkt, false);
+            aksjonspunktkontrollTjeneste.setAksjonspunkterToTrinn(behandling, skriveLås, List.of(aksjonspunkt), false);
         }
     }
 

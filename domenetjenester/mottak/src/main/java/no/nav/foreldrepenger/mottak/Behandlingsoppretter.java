@@ -147,7 +147,8 @@ public class Behandlingsoppretter {
     }
 
     public void henleggBehandling(Behandling behandling) {
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
         behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtførtForHenleggelse(behandling, kontekst);
         behandlingskontrollTjeneste.henleggBehandling(kontekst, BehandlingResultatType.MERGET_OG_HENLAGT);
     }

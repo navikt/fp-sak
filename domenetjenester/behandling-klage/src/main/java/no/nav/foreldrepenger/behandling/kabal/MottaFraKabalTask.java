@@ -96,7 +96,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(klageBehandling, lås);
         kabalTjeneste.settKabalReferanse(klageBehandling, ref);
         if (!UTEN_VURDERING.contains(utfall)) {
-            kabalTjeneste.lagreKlageUtfallFraKabal(klageBehandling, utfall);
+            kabalTjeneste.lagreKlageUtfallFraKabal(klageBehandling, lås, utfall);
         }
         if (KabalUtfall.TRUKKET.equals(utfall) || KabalUtfall.HEVET.equals(utfall)) {
             if (klageBehandling.isBehandlingPåVent()) {

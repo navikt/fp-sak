@@ -9,7 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktkontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrsak;
@@ -26,19 +26,19 @@ public class FatterVedtakAksjonspunkt {
 
     private VedtakTjeneste vedtakTjeneste;
     private TotrinnTjeneste totrinnTjeneste;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private BehandlingRepository behandlingRepository;
 
     @Inject
-    public FatterVedtakAksjonspunkt(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+    public FatterVedtakAksjonspunkt(AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste,
                                     VedtakTjeneste vedtakTjeneste,
                                     TotrinnTjeneste totrinnTjeneste,
                                     InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
                                     BehandlingRepository behandlingRepository) {
         this.vedtakTjeneste = vedtakTjeneste;
         this.totrinnTjeneste = totrinnTjeneste;
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.aksjonspunktkontrollTjeneste = aksjonspunktkontrollTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.behandlingRepository = behandlingRepository;
     }
@@ -48,8 +48,8 @@ public class FatterVedtakAksjonspunkt {
     }
 
     public void oppdater(BehandlingReferanse behandlingReferanse, Collection<VedtakAksjonspunktData> aksjonspunkter) {
+        var lås = behandlingRepository.taSkriveLås(behandlingReferanse.behandlingId());
         var behandling = behandlingRepository.hentBehandling(behandlingReferanse.behandlingId());
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         behandling.setAnsvarligBeslutter(KontekstHolder.getKontekst().getUid());
 
         List<Totrinnsvurdering> totrinnsvurderinger = new ArrayList<>();
@@ -75,7 +75,8 @@ public class FatterVedtakAksjonspunkt {
         vedtakTjeneste.lagHistorikkinnslagFattVedtak(behandling);
         // Noe spesialhåndtering ifm totrinn og tilbakeføring fra FVED
         if (!skalReåpnes.isEmpty()) {
-            behandlingskontrollTjeneste.lagreAksjonspunkterReåpnet(kontekst, skalReåpnes, false, true);
+            aksjonspunktkontrollTjeneste.lagreAksjonspunkterReåpnet(behandling, lås, skalReåpnes);
+            aksjonspunktkontrollTjeneste.setAksjonspunkterToTrinn(behandling, lås, skalReåpnes, true);
             // Litt spesialbehandling siden dette aksjonspunktet er ekstra sticky pga mange tilbakehopp - nå kan det løses på nytt
             if (skalReåpnes.stream().map(Aksjonspunkt::getAksjonspunktDefinisjon).anyMatch(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING::equals)) {
                 inntektArbeidYtelseTjeneste.fjernSaksbehandletVersjon(behandling.getId());

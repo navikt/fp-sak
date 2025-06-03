@@ -44,7 +44,6 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.GrunnbeløpReguleringsutleder;
 import no.nav.foreldrepenger.domene.prosess.KalkulusKlient;
 import no.nav.foreldrepenger.domene.typer.Beløp;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.exception.TekniskException;
 
@@ -79,9 +78,6 @@ public class BeregningMigreringTjeneste {
     }
 
     public boolean skalBeregnesIKalkulus(BehandlingReferanse referanse) {
-        if (Environment.current().isProd()) {
-            return false;
-        }
         var harAktivtGrunnlagIFpsak = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(referanse.behandlingId()).isPresent();
         if (harAktivtGrunnlagIFpsak) {
             return false;

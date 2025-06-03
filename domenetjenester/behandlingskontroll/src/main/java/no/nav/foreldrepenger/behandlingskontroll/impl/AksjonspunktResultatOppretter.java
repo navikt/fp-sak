@@ -27,7 +27,7 @@ class AksjonspunktResultatOppretter {
 
     private final AksjonspunktKontrollRepository aksjonspunktKontrollRepository;
 
-    private Map<AksjonspunktDefinisjon, Aksjonspunkt> eksisterende = new LinkedHashMap<>();
+    private final Map<AksjonspunktDefinisjon, Aksjonspunkt> eksisterende = new LinkedHashMap<>();
 
     AksjonspunktResultatOppretter(AksjonspunktKontrollRepository aksjonspunktKontrollRepository, Behandling behandling) {
         this.behandling = Objects.requireNonNull(behandling, "behandling");
@@ -77,7 +77,8 @@ class AksjonspunktResultatOppretter {
         }
         var oppdatert = eksisterende.get(resultat.getAksjonspunktDefinisjon());
         if (oppdatert == null) {
-            oppdatert = aksjonspunktKontrollRepository.leggTilAksjonspunkt(behandling, resultat.getAksjonspunktDefinisjon(), behandlingStegType);
+            oppdatert = behandlingStegType == null ? aksjonspunktKontrollRepository.leggTilAksjonspunkt(behandling, resultat.getAksjonspunktDefinisjon())
+                : aksjonspunktKontrollRepository.leggTilAksjonspunkt(behandling, resultat.getAksjonspunktDefinisjon(), behandlingStegType);
             eksisterende.putIfAbsent(oppdatert.getAksjonspunktDefinisjon(), oppdatert);
         }
         switch (resultat.getMålStatus()) {

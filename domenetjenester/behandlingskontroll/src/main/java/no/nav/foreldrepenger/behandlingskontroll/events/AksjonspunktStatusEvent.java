@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -16,9 +17,17 @@ public class AksjonspunktStatusEvent implements BehandlingEvent {
     private final List<Aksjonspunkt> aksjonspunkter;
 
     public AksjonspunktStatusEvent(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter) {
-        this.behandlingId = kontekst.getBehandlingId();
-        this.saksnummer = kontekst.getSaksnummer();
-        this.fagsakId = kontekst.getFagsakId();
+        this(kontekst.getBehandlingId(), kontekst.getSaksnummer(), kontekst.getFagsakId(), aksjonspunkter);
+    }
+
+    public AksjonspunktStatusEvent(Behandling behandling, List<Aksjonspunkt> aksjonspunkter) {
+        this(behandling.getId(), behandling.getSaksnummer(), behandling.getFagsakId(), aksjonspunkter);
+    }
+
+    public AksjonspunktStatusEvent(Long behandlingId, Saksnummer saksnummer, Long fagsakId, List<Aksjonspunkt> aksjonspunkter) {
+        this.behandlingId = behandlingId;
+        this.saksnummer = saksnummer;
+        this.fagsakId = fagsakId;
         this.aksjonspunkter = Collections.unmodifiableList(aksjonspunkter);
     }
 

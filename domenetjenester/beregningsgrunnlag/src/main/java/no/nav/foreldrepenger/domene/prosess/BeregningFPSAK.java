@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
+import no.nav.foreldrepenger.domene.input.MapStegTilTilstand;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulator.OppdatererDtoMapper;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
@@ -132,6 +133,12 @@ public class BeregningFPSAK implements BeregningAPI {
         var migreringstask = ProsessTaskData.forProsessTask(MigrerBeregningSakTask.class);
         migreringstask.setBehandling(referanse.saksnummer().getVerdi(), referanse.fagsakId(), referanse.behandlingUuid(), referanse.behandlingId());
         prosessTaskTjeneste.lagre(migreringstask);
+    }
+
+    @Override
+    public boolean kanStartesISteg(BehandlingReferanse referanse, BehandlingStegType stegType) {
+        var tilstand = MapStegTilTilstand.mapTilStegTilstand(stegType);
+        return beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(referanse.behandlingId(), tilstand).isPresent();
     }
 
     private Optional<OppdaterBeregningsgrunnlagResultat> overstyr(OverstyringAksjonspunktDto overstyring, BeregningsgrunnlagInput input) {

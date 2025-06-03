@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandlingskontroll;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.List;
 import java.util.function.Consumer;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -40,7 +39,7 @@ public interface BehandlingskontrollTjeneste {
      * (inngang- og utgang-kriterier) vil steget kjøres på nytt.
      *
      * @param kontekst - kontekst for prosessering. Opprettes gjennom
-     *                 {@link #initBehandlingskontroll(Behandling)}
+     *                 {@link #initBehandlingskontroll(Behandling, BehandlingLås)}
      */
     void prosesserBehandling(BehandlingskontrollKontekst kontekst);
 
@@ -49,7 +48,7 @@ public interface BehandlingskontrollTjeneste {
      * Vil kalle gjenopptaSteg for angitt steg, senere vanlig framdrift
      *
      * @param kontekst           - kontekst for prosessering. Opprettes gjennom
-     *                           {@link #initBehandlingskontroll(Behandling)}
+     *                           {@link #initBehandlingskontroll(Behandling, BehandlingLås skriveLås)}
      * @param behandlingStegType - precondition steg
      */
     void prosesserBehandlingGjenopptaHvisStegVenter(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType);
@@ -84,46 +83,6 @@ public interface BehandlingskontrollTjeneste {
      *                               gitt BehandlingType).
      */
     void behandlingFramføringTilSenereBehandlingSteg(BehandlingskontrollKontekst kontekst, BehandlingStegType senereSteg);
-
-    /**
-     * Oppretter og håndterer nye aksjonspunkt
-     */
-    List<Aksjonspunkt> lagreAksjonspunkterFunnet(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType,
-            List<AksjonspunktDefinisjon> aksjonspunkter);
-
-    /**
-     * Oppretter og håndterer nye overstyringsaksjonspunkt
-     */
-    List<Aksjonspunkt> lagreAksjonspunkterFunnet(BehandlingskontrollKontekst kontekst, List<AksjonspunktDefinisjon> aksjonspunkter);
-
-    /**
-     * Lagrer og håndterer utførte aksjonspunkt uten begrunnelse. Dersom man skal
-     * lagre begrunnelse - bruk apRepository + aksjonspunkterUtført
-     */
-    void lagreAksjonspunkterUtført(BehandlingskontrollKontekst kontekst, Aksjonspunkt aksjonspunkt, String begrunnelse);
-
-    /**
-     * Lagrer og håndterer avbrutte aksjonspunkt
-     */
-    void lagreAksjonspunkterAvbrutt(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter);
-
-    /**
-     * Lagrer og håndterer reåpning av aksjonspunkt
-     */
-    void lagreAksjonspunkterReåpnet(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter, boolean beholdToTrinnVurdering,
-            boolean setTotrinn);
-
-    /**
-     * Lagrer og håndterer aksjonspunktresultater fra utledning utenom steg
-     */
-    void lagreAksjonspunktResultat(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType,
-            List<AksjonspunktResultat> aksjonspunktResultater);
-
-    /**
-     * Lagrer og publiserer totrinns-setting for aksjonspunkt
-     */
-    void setAksjonspunktToTrinn(BehandlingskontrollKontekst kontekst, Aksjonspunkt aksjonspunkt, boolean totrinn);
-
 
     /**
      * Lagrer en ny behandling i behandlingRepository og fyrer av event om at en

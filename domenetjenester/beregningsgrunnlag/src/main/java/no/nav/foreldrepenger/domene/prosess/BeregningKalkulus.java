@@ -6,14 +6,6 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelBeregnRequestDto;
-import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelFpkalkulusRequestDto;
-
-import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelHentBeregningsgrunnlagGUIRequest;
-import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelHåndterBeregningRequestDto;
-import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelKopierBeregningsgrunnlagRequestDto;
-import no.nav.folketrygdloven.kalkulus.response.v1.besteberegning.BesteberegningGrunnlagDto;
-
 import org.jboss.weld.exceptions.IllegalStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +14,14 @@ import no.nav.folketrygdloven.kalkulus.felles.v1.AktørIdPersonident;
 import no.nav.folketrygdloven.kalkulus.felles.v1.Saksnummer;
 import no.nav.folketrygdloven.kalkulus.håndtering.v1.HåndterBeregningDto;
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningSteg;
+import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelBeregnRequestDto;
+import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelFpkalkulusRequestDto;
+import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelGrunnlagTilstanderRequestDto;
+import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelHentBeregningsgrunnlagGUIRequest;
+import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelHåndterBeregningRequestDto;
+import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelKopierBeregningsgrunnlagRequestDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
+import no.nav.folketrygdloven.kalkulus.response.v1.besteberegning.BesteberegningGrunnlagDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
@@ -163,6 +162,24 @@ public class BeregningKalkulus implements BeregningAPI {
                 LOG.info("Lukker kalkuluskobling med koblingUuid {}", k.getKoblingUuid());
                 klient.avsluttKobling(new EnkelFpkalkulusRequestDto(k.getKoblingUuid(), new Saksnummer(referanse.saksnummer().getVerdi())));
             });
+    }
+
+    @Override
+    public boolean kanStartesISteg(BehandlingReferanse referanse, BehandlingStegType stegType) {
+        var kobling = koblingRepository.hentKobling(referanse.behandlingId());
+        if (kobling.isEmpty()) {
+            return false;
+        }
+        var originalKobling = referanse.getOriginalBehandlingId().flatMap(b -> koblingRepository.hentKobling(b));
+        var saksnummer = new Saksnummer(referanse.saksnummer().getVerdi());
+        var request = new EnkelGrunnlagTilstanderRequestDto(saksnummer, kobling.orElseThrow().getKoblingUuid(),
+            originalKobling.map(BeregningsgrunnlagKobling::getKoblingUuid).orElse(null));
+        var response = klient.hentTilgjengeligeTilstander(request);
+        if (!kobling.orElseThrow().getKoblingUuid().equals(response.behandlingMedTilstander().behandlingUuid())) {
+            throw new IllegalStateException("Fikk tilbake annen koblingReferanse enn det som finnes på koblingen, ugyldig tilstand");
+        }
+        var kalkulusSteg = mapTilBeregningStegType(stegType); // Sjekke originalbehandling også?
+        return response.behandlingMedTilstander().tilgjengeligeSteg().stream().anyMatch(s -> s.equals(kalkulusSteg));
     }
 
     private Optional<OppdaterBeregningsgrunnlagResultat> utførOppdatering(BehandlingReferanse referanse,

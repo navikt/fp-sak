@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.prosess;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -9,6 +10,9 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningSteg;
+import no.nav.folketrygdloven.kalkulus.response.v1.tilstander.TilgjengeligeTilstanderDto;
 
 import org.jboss.weld.exceptions.IllegalStateException;
 import org.junit.jupiter.api.BeforeEach;
@@ -120,6 +124,22 @@ class BeregningKalkulusTest {
         // Act + Assert
         assertThrows(IllegalStateException.class, () -> beregningKalkulus.kopier(behandlingReferanse, behandlingReferanse2, BeregningsgrunnlagTilstand.FASTSATT));
     }
+
+    @Test
+    void skal_returnere_hvilke_steg_som_er_tilgjengelige() {
+        // Arrange
+        var behandlingReferanse = lagRef(1L, "123");
+        when(koblingRepository.hentKobling(behandlingReferanse.behandlingId())).thenReturn(Optional.of(new BeregningsgrunnlagKobling(behandlingReferanse
+            .behandlingId(), behandlingReferanse.behandlingUuid())));
+        when(kalkulusKlient.hentTilgjengeligeTilstander(any())).thenReturn(new TilgjengeligeTilstanderDto(new TilgjengeligeTilstanderDto.TilgjengeligeTilstandDto(behandlingReferanse.behandlingUuid(), List.of(
+            BeregningSteg.FASTSETT_STP_BER, BeregningSteg.KOFAKBER, BeregningSteg.FORS_BERGRUNN, BeregningSteg.FORS_BERGRUNN_2, BeregningSteg.VURDER_VILKAR_BERGRUNN)), null));
+
+        // Act
+        var kanStarteISteg = beregningKalkulus.kanStartesISteg(behandlingReferanse, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG);
+
+        assertThat(kanStarteISteg).isTrue();
+    }
+
 
     private static BehandlingReferanse lagRef() {
         return lagRef(1L, "1234");

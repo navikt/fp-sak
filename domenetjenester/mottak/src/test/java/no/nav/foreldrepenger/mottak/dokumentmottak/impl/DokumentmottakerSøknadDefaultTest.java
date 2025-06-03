@@ -183,7 +183,7 @@ class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
 
         // Assert
         verify(dokumentmottaker).oppdaterÅpenBehandlingMedDokument(behandling, mottattDokument, null);
-        verify(kompletthetskontroller).flyttTilbakeTilRegistreringPapirsøknad(behandling);
+        verify(kompletthetskontroller).flyttTilbakeTilRegistreringPapirsøknad(eq(behandling), any());
     }
 
     @Test

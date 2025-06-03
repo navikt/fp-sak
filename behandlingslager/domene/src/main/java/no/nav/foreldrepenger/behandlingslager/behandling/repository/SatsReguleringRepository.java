@@ -7,12 +7,10 @@ import java.util.Objects;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -51,7 +49,18 @@ public class SatsReguleringRepository {
         return entityManager;
     }
 
-    private static final String REGULERING_SELECT_STD_FP = """
+    /*
+     * Tabeller og joins
+     * - Velger siste vedtatte behandling for fagsk - basert på med seneste vedtakstidspunkt
+     * - Finner tidligste uttaksdato for sist vedtatte behandling
+     * - Finner sats med periode som er brukt i beregningen
+     * Where
+     * - Ytelse Foreldrepenger
+     * - Første utbetalingsdato er etter tom-dato for grunnbeløpet som er brukt
+     * - Det er en sak med kjent reguleringsbehov
+     * - Det ikke finnes noen åpne behandlinger (utenom berørt) for saken
+     */
+    private static final String REGULERING_FP = """
         SELECT DISTINCT f.id , f.saksnummer
           from Fagsak f
           join behandling b on b.fagsak_id=f.id
@@ -63,118 +72,33 @@ public class SatsReguleringRepository {
                 join behandling_vedtak bvsq on brsq.id = bvsq.behandling_resultat_id
                 where beh.behandling_type in (:ytelsebeh) and beh.behandling_status in (:avsluttet) and bvsq.vedtak_resultat_type in (:restyper)
                 group by beh.fagsak_id) on (fsmax=b.fagsak_id and bv.vedtak_dato = maxbv)
-          join GR_BEREGNINGSGRUNNLAG grbg on (grbg.behandling_id=b.id and grbg.aktiv = 'J')
-          join BEREGNINGSGRUNNLAG bglag on grbg.beregningsgrunnlag_id=bglag.id
-          join br_sats sats on (sats.verdi = bglag.grunnbeloep and sats_type=:grunnbelop)
           join (select ur.behandling_resultat_id bruttak, min(per.fom) uttakfom
             from uttak_resultat_periode per
             join uttak_resultat ur on per.uttak_resultat_perioder_id = nvl(ur.overstyrt_perioder_id,ur.opprinnelig_perioder_id)
             where ur.aktiv = 'J'
             and (per.PERIODE_RESULTAT_AARSAK = :sokfrist or per.PERIODE_RESULTAT_TYPE = :utinnvilg)
             group by ur.behandling_resultat_id) futtak on (futtak.bruttak = br.id)
-        """;
-
-    private static final String REGULERING_WHERE_STD_FP = """
+          join BG_EKSTERN_KOBLING beko on beko.behandling_id = b.id
+          join br_sats sats on (sats.verdi = beko.grunnbeloep and sats_type=:grunnbelop)
         where b.behandling_status in (:avsluttet) and b.behandling_type in (:ytelsebeh) and bv.vedtak_resultat_type in (:restyper)
           and futtak.uttakfom > sats.tom
           and futtak.uttakfom >= :fomdato
           and f.ytelse_type = :stonad
+          and beko.reguleringsbehov = 'J'
           and f.id not in ( select beh.fagsak_id from behandling beh
             where beh.behandling_status not in (:avsluttet) and beh.behandling_type in (:ytelsebeh)
               and beh.id not in (select ba.behandling_id from behandling_arsak ba where behandling_arsak_type in (:berort)) )
         """;
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering over 6G og det ikke finnes åpen behandling */
-    public List<FagsakIdSaksnummer> finnSakerMedBehovForGrunnbeløpRegulering(LocalDate gjeldendeFom, Long satsmultiplikator) {
+    public List<FagsakIdSaksnummer> finnFpSakerMedBehovForGrunnbeløpReguleringKobling(LocalDate gjeldendeFom) {
         /*
-         * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
-         * - Saker som har siste avsluttet behandling med gammel sats, brutto overstiger 6G og har uttak etter gammel sats sin utløpsdato
+         * Plukker fagsakId, saksnummer fra fagsaker som møter disse kriteriene:
+         * - Saker som har siste avsluttet behandling med gammel sats, med reguleringsbehov og uttak starter etter gammel sats sin utløpsdato
          * - Saken har ikke noen åpne ytelsesbehandlinger (berørt telles ikke)
          */
-        var query = getEntityManager().createNativeQuery(
-                REGULERING_SELECT_STD_FP + """
-                    join (select beregningsgrunnlag_id bgid, max(brutto_pr_aar) brutto
-                        from BEREGNINGSGRUNNLAG_PERIODE
-                        group by beregningsgrunnlag_id
-                    ) bgmax on bgmax.bgid=grbg.beregningsgrunnlag_id
-                    """ +
-                    REGULERING_WHERE_STD_FP +
-                    "  and bgmax.brutto >= (bglag.grunnbeloep * :avkorting ) ")
-            .setParameter("avkorting", satsmultiplikator);
-        setStandardParametersFP(query, gjeldendeFom);
-        @SuppressWarnings("unchecked")
-        List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdSaksnummer(Long.parseLong(row[0].toString()), new Saksnummer((String) row[1]))).toList();
-    }
-
-    /** Liste av fagsakId, aktørId for saker som trenger G-regulering (MS under 3G) og det ikke finnes åpen behandling */
-    public List<FagsakIdSaksnummer> finnSakerMedBehovForMilSivRegulering(LocalDate gjeldendeFom, Long satsmultiplikator) {
-        /*
-         * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
-         * - Saker som har siste avsluttet behandling med gammel sats, status MS, brutto understiger 3G og har uttak etter gammel sats sin utløpsdato
-         * - Saken har ikke noen åpne ytelsesbehandlinger (berørt telles ikke)
-         */
-        var query = getEntityManager().createNativeQuery(
-                REGULERING_SELECT_STD_FP + """
-                  JOIN BG_AKTIVITET_STATUS bgs ON (bgs.BEREGNINGSGRUNNLAG_ID = grbg.BEREGNINGSGRUNNLAG_ID and bgs.AKTIVITET_STATUS in (:milsiv) )
-                  join (select beregningsgrunnlag_id bgid, min(brutto_pr_aar) brutto
-                        from BEREGNINGSGRUNNLAG_PERIODE
-                        group by beregningsgrunnlag_id
-                    ) bgmin on bgmin.bgid=grbg.beregningsgrunnlag_id
-                """ +
-                    REGULERING_WHERE_STD_FP +
-                    "  and bgmin.brutto <= (bglag.grunnbeloep * :gulv ) " )
-            .setParameter("gulv", satsmultiplikator)
-            .setParameter("milsiv", List.of(AktivitetStatus.MILITÆR_ELLER_SIVIL.getKode()));
-        setStandardParametersFP(query, gjeldendeFom);
-        @SuppressWarnings("unchecked")
-        List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdSaksnummer(Long.parseLong(row[0].toString()), new Saksnummer((String) row[1]))).toList();
-    }
-
-    /** Liste av fagsakId, aktørId for saker som trenger G-regulering (SN og kombinasjon) og det ikke finnes åpen behandling */
-    @SuppressWarnings("unused")
-    public List<FagsakIdSaksnummer> finnSakerMedBehovForNæringsdrivendeRegulering(LocalDate gjeldendeFom, Long satsmultiplikator) {
-        /*
-         * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
-         * - Saker som har siste avsluttet behandling med gammel sats, status SN/KOMB og har uttak etter gammel sats sin utløpsdato
-         * - Saken har ikke noen åpne ytelsesbehandlinger (berørt telles ikke)
-         */
-        var query = getEntityManager().createNativeQuery(
-                REGULERING_SELECT_STD_FP +
-                    "  JOIN BG_AKTIVITET_STATUS bgs ON (bgs.BEREGNINGSGRUNNLAG_ID = grbg.BEREGNINGSGRUNNLAG_ID and bgs.AKTIVITET_STATUS in (:snring) ) " +
-                    REGULERING_WHERE_STD_FP)
-            .setParameter("snring", List.of(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE.getKode(), AktivitetStatus.KOMBINERT_AT_SN.getKode(),
-                AktivitetStatus.KOMBINERT_FL_SN.getKode(), AktivitetStatus.KOMBINERT_AT_FL_SN.getKode()));
-        setStandardParametersFP(query, gjeldendeFom);
-        @SuppressWarnings("unchecked")
-        List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdSaksnummer(Long.parseLong(row[0].toString()), new Saksnummer((String) row[1]))).toList();
-    }
-
-    /** Liste av fagsakId, aktørId for saker som trenger Arena-regulering og det ikke finnes åpen behandling */
-    public List<FagsakIdSaksnummer> finnSakerMedBehovForArenaRegulering(LocalDate gjeldendeFom, LocalDate nySatsDato) {
-        /*
-         * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
-         * - Saker som er beregnet med AAP/DP og har uttak etter gammel sats sin utløpsdato
-         * - Saken har ikke noen åpne ytelsesbehandlinger (berørt telles ikke)
-         * OBS på regulering utenom G-sato - da trengs en fom-dato og kriteriet "and futtak.uttakfom >= input-fom" (isf > sats.tom)
-         */
-        var query = getEntityManager().createNativeQuery(
-                REGULERING_SELECT_STD_FP +
-                    "  JOIN BG_AKTIVITET_STATUS bgs ON (bgs.BEREGNINGSGRUNNLAG_ID = grbg.BEREGNINGSGRUNNLAG_ID and bgs.AKTIVITET_STATUS in (:asarena) ) " +
-                    REGULERING_WHERE_STD_FP +
-                    "and nvl(b.sist_oppdatert_tidspunkt, b.opprettet_tid) < :satsdato ")
-            .setParameter("satsdato", nySatsDato)
-            .setParameter("asarena", List.of(AktivitetStatus.ARBEIDSAVKLARINGSPENGER.getKode(), AktivitetStatus.DAGPENGER.getKode()));
-        setStandardParametersFP(query, gjeldendeFom);
-        @SuppressWarnings("unchecked")
-        List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdSaksnummer(Long.parseLong(row[0].toString()), new Saksnummer((String) row[1]))).toList();
-    }
-
-    private void setStandardParametersFP(Query query, LocalDate gjeldendeFom) {
-        query.setParameter(RESTYPER_KEY, VRES_TYPER_REGULERES)
+        var query = getEntityManager().createNativeQuery(REGULERING_FP)
+            .setParameter(RESTYPER_KEY, VRES_TYPER_REGULERES)
             .setParameter(AVSLUTTET_KEY, STATUS_FERDIG)
             .setParameter(FOMDATO_KEY, gjeldendeFom)
             .setParameter(YTELSE_BEH_KEY, YTELSE_TYPER)
@@ -183,9 +107,23 @@ public class SatsReguleringRepository {
             .setParameter("grunnbelop", BeregningSatsType.GRUNNBELØP.getKode())
             .setParameter("sokfrist", PeriodeResultatÅrsak.SØKNADSFRIST.getKode())
             .setParameter("utinnvilg", PeriodeResultatType.INNVILGET.getKode());
+        @SuppressWarnings("unchecked")
+        List<Object[]> resultatList = query.getResultList();
+        return resultatList.stream().map(row -> new FagsakIdSaksnummer(Long.parseLong(row[0].toString()), new Saksnummer((String) row[1]))).toList();
     }
 
-    private static final String REGULERING_SELECT_STD_SVP = """
+    /*
+     * Tabeller og joins
+     * - Velger siste vedtatte behandling for fagsk - basert på med seneste vedtakstidspunkt
+     * - Finner tidligste utbetalingsdato for sist vedtatte behandling
+     * - Finner sats med periode som er brukt i beregningen
+     * Where
+     * - Ytelse Svangerskapspenger
+     * - Første utbetalingsdato er etter tom-dato for grunnbeløpet som er brukt
+     * - Det er en sak med kjent reguleringsbehov
+     * - Det ikke finnes noen åpne behandlinger for saken
+     */
+    private static final String REGULERING_SVP = """
         SELECT DISTINCT f.id , f.saksnummer
           from Fagsak f
           join behandling b on b.fagsak_id=f.id
@@ -197,98 +135,37 @@ public class SatsReguleringRepository {
                 join behandling_vedtak bvsq on brsq.id = bvsq.behandling_resultat_id
                 where beh.behandling_type in (:ytelsebeh) and beh.behandling_status in (:avsluttet) and bvsq.vedtak_resultat_type in (:restyper)
                 group by beh.fagsak_id) on (fsmax=b.fagsak_id and bv.vedtak_dato = maxbv)
-          join GR_BEREGNINGSGRUNNLAG grbg on (grbg.behandling_id=b.id and grbg.aktiv = 'J')
-          join BEREGNINGSGRUNNLAG bglag on grbg.beregningsgrunnlag_id=bglag.id
-          join br_sats sats on (sats.verdi = bglag.grunnbeloep and sats_type = :grunnbelop)
           join BR_RESULTAT_BEHANDLING grbr on (grbr.behandling_id=b.id and grbr.aktiv = 'J')
           join (select BEREGNINGSRESULTAT_FP_ID brfpid, min(BR_PERIODE_FOM) fom
                 from br_periode brp left join br_andel bra on bra.br_periode_id = brp.id
                 where (dagsats>0) group by BEREGNINGSRESULTAT_FP_ID
                ) brnetto on brnetto.brfpid=grbr.BG_BEREGNINGSRESULTAT_FP_ID
-        """;
-
-    private static final String REGULERING_WHERE_STD_SVP = """
+          join BG_EKSTERN_KOBLING beko on beko.behandling_id = b.id
+          join br_sats sats on (sats.verdi = beko.grunnbeloep and sats_type=:grunnbelop)
         where b.behandling_status in (:avsluttet) and b.behandling_type in (:ytelsebeh) and bv.vedtak_resultat_type in (:restyper)
           and brnetto.fom > sats.tom
           and brnetto.fom >= :fomdato
           and f.ytelse_type = :stonad
+          and beko.reguleringsbehov = 'J'
           and f.id not in ( select beh.fagsak_id from behandling beh
             where beh.behandling_status not in (:avsluttet) and beh.behandling_type in (:ytelsebeh) )
         """;
 
-    private void setStandardParametersSVP(Query query, LocalDate gjeldendeFom) {
-        query.setParameter(RESTYPER_KEY, VRES_TYPER_REGULERES)
+    /** Liste av fagsakId, aktørId for saker som trenger G-regulering over 6G og det ikke finnes åpen behandling */
+    public List<FagsakIdSaksnummer> finnSvpSakerMedBehovForGrunnbeløpReguleringKobling(LocalDate gjeldendeFom) {
+        /*
+         * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
+         * - Saker som har siste avsluttet behandling med gammel sats, med et reguleringsbehov og har uttak etter gammel sats sin utløpsdato
+         * - Saken har ikke noen åpne ytelsesbehandlinger (berørt telles ikke)
+         */
+        var query = getEntityManager().createNativeQuery(REGULERING_SVP)
+            .setParameter(RESTYPER_KEY, VRES_TYPER_REGULERES)
             .setParameter(AVSLUTTET_KEY, STATUS_FERDIG)
             .setParameter(FOMDATO_KEY, gjeldendeFom)
             .setParameter(YTELSE_BEH_KEY, YTELSE_TYPER)
             .setParameter(STONAD_KEY, FagsakYtelseType.SVANGERSKAPSPENGER.getKode())
             .setParameter("grunnbelop", BeregningSatsType.GRUNNBELØP.getKode());
-    }
 
-    /** Liste av fagsakId, aktørId for saker som trenger G-regulering over 6G og det ikke finnes åpen behandling */
-    public List<FagsakIdSaksnummer> finnSakerMedBehovForGrunnbeløpReguleringSVP(LocalDate gjeldendeFom, Long satsmultiplikator) {
-        /*
-         * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
-         * - Saker som har siste avsluttet behandling med gammel sats, brutto overstiger 6G og har uttak etter gammel sats sin utløpsdato
-         * - Saken har ikke noen åpne ytelsesbehandlinger (berørt telles ikke)
-         */
-        var query = getEntityManager().createNativeQuery(
-                REGULERING_SELECT_STD_SVP + """
-                    join (select beregningsgrunnlag_id bgid, max(brutto_pr_aar) brutto
-                        from BEREGNINGSGRUNNLAG_PERIODE
-                        group by beregningsgrunnlag_id
-                    ) bgmax on bgmax.bgid=grbg.beregningsgrunnlag_id
-                    """ +
-                    REGULERING_WHERE_STD_SVP +
-                    "  and bgmax.brutto >= (bglag.grunnbeloep * :avkorting ) ")
-            .setParameter("avkorting", satsmultiplikator);
-        setStandardParametersSVP(query, gjeldendeFom);
-        @SuppressWarnings("unchecked")
-        List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdSaksnummer(Long.parseLong(row[0].toString()), new Saksnummer((String) row[1]))).toList();
-    }
-
-    /** Liste av fagsakId, aktørId for saker som trenger G-regulering (MS under 3G) og det ikke finnes åpen behandling */
-    @SuppressWarnings("unused")
-    public List<FagsakIdSaksnummer> finnSakerMedBehovForMilSivReguleringSVP(LocalDate gjeldendeFom, Long satsmultiplikator) {
-        /*
-         * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
-         * - Saker som har siste avsluttet behandling med gammel sats, status MS, brutto understiger 3G og har uttak etter gammel sats sin utløpsdato
-         * - Saken har ikke noen åpne ytelsesbehandlinger (berørt telles ikke)
-         */
-        var query = getEntityManager().createNativeQuery(
-                REGULERING_SELECT_STD_SVP + """
-                  JOIN BG_AKTIVITET_STATUS bgs ON (bgs.BEREGNINGSGRUNNLAG_ID = grbg.BEREGNINGSGRUNNLAG_ID and bgs.AKTIVITET_STATUS in (:milsiv) )
-                  join (select beregningsgrunnlag_id bgid, min(brutto_pr_aar) brutto
-                        from BEREGNINGSGRUNNLAG_PERIODE
-                        group by beregningsgrunnlag_id
-                    ) bgmin on bgmin.bgid=grbg.beregningsgrunnlag_id
-                """ +
-                    REGULERING_WHERE_STD_SVP +
-                    "  and bgmin.brutto <= (bglag.grunnbeloep * :gulv ) " )
-            .setParameter("gulv", satsmultiplikator)
-            .setParameter("milsiv", List.of(AktivitetStatus.MILITÆR_ELLER_SIVIL.getKode()));
-        setStandardParametersSVP(query, gjeldendeFom);
-        @SuppressWarnings("unchecked")
-        List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdSaksnummer(Long.parseLong(row[0].toString()), new Saksnummer((String) row[1]))).toList();
-    }
-
-    /** Liste av fagsakId, aktørId for saker som trenger G-regulering (SN og kombinasjon) og det ikke finnes åpen behandling */
-    @SuppressWarnings("unused")
-    public List<FagsakIdSaksnummer> finnSakerMedBehovForNæringsdrivendeReguleringSVP(LocalDate gjeldendeFom, Long satsmultiplikator) {
-        /*
-         * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
-         * - Saker som har siste avsluttet behandling med gammel sats, status SN/KOMB og har uttak etter gammel sats sin utløpsdato
-         * - Saken har ikke noen åpne ytelsesbehandlinger (berørt telles ikke)
-         */
-        var query = getEntityManager().createNativeQuery(
-                REGULERING_SELECT_STD_SVP +
-                    "  JOIN BG_AKTIVITET_STATUS bgs ON (bgs.BEREGNINGSGRUNNLAG_ID = grbg.BEREGNINGSGRUNNLAG_ID and bgs.AKTIVITET_STATUS in (:snring) ) " +
-                    REGULERING_WHERE_STD_SVP )
-            .setParameter("snring", List.of(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE.getKode(), AktivitetStatus.KOMBINERT_AT_SN.getKode(),
-                AktivitetStatus.KOMBINERT_FL_SN.getKode(), AktivitetStatus.KOMBINERT_AT_FL_SN.getKode()));
-        setStandardParametersSVP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
         return resultatList.stream().map(row -> new FagsakIdSaksnummer(Long.parseLong(row[0].toString()), new Saksnummer((String) row[1]))).toList();
@@ -351,6 +228,25 @@ public class SatsReguleringRepository {
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
         return resultatList.stream().map(row -> new FagsakIdSaksnummer(Long.parseLong(row[0].toString()), new Saksnummer((String) row[1]))).toList();
+    }
+
+    public int setReguleringsbehovBehandlingerDagpengerAAP() {
+        var antall = entityManager.createNativeQuery("""
+            MERGE INTO BG_EKSTERN_KOBLING a
+            USING (
+               SELECT distinct grbg.behandling_id
+               from GR_BEREGNINGSGRUNNLAG grbg
+               JOIN BG_AKTIVITET_STATUS bgs ON (bgs.BEREGNINGSGRUNNLAG_ID = grbg.BEREGNINGSGRUNNLAG_ID and bgs.AKTIVITET_STATUS in ('AAP', 'DP') )
+               where grbg.aktiv = 'J' and exists (select * from BG_EKSTERN_KOBLING beko where beko.behandling_id = grbg.behandling_id)
+                ) b
+             ON ( a.behandling_id = b.behandling_id )
+             WHEN MATCHED THEN
+                UPDATE SET a.reguleringsbehov = 'J'
+            """)
+            .executeUpdate();
+        entityManager.flush();
+
+        return antall;
     }
 
 }

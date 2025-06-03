@@ -229,6 +229,7 @@ public class BeregningsgrunnlagFormidlingV2DtoTjeneste {
             case VENTELØNN_VARTPENGER -> OpptjeningAktivitetDto.VENTELØNN_VARTPENGER;
             case SVANGERSKAPSPENGER -> OpptjeningAktivitetDto.SVANGERSKAPSPENGER;
             case ARBEID -> OpptjeningAktivitetDto.ARBEID;
+            case ARBEID_UNDER_AAP -> OpptjeningAktivitetDto.ARBEID_UNDER_AAP;
             case NÆRING -> OpptjeningAktivitetDto.NÆRING;
             case FRILANS -> OpptjeningAktivitetDto.FRILANS;
             case FRISINN -> OpptjeningAktivitetDto.FRISINN;

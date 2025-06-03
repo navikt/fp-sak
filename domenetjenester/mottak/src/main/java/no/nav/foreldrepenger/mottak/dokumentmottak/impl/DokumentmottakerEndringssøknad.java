@@ -57,7 +57,8 @@ class DokumentmottakerEndringssøknad extends DokumentmottakerYtelsesesrelatertD
             // Oppdater åpen behandling med Endringssøknad
             dokumentmottakerFelles.leggTilBehandlingsårsak(behandling, brukÅrsakType);
             if (!mottattDokument.getElektroniskRegistrert()) {
-                kompletthetskontroller.flyttTilbakeTilRegistreringPapirsøknad(behandling);
+                var lås = behandlingRepository.taSkriveLås(behandling.getId());
+                kompletthetskontroller.flyttTilbakeTilRegistreringPapirsøknad(behandling, lås);
                 return;
             }
             kompletthetskontroller.persisterDokumentOgVurderKompletthet(behandling, mottattDokument);

@@ -333,11 +333,13 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
      * @return Startpunkt for g-regulering
      */
     private StartpunktType finnStartpunktForGRegulering(Behandling revurdering) {
-        var gr = beregningTjeneste.hent(BehandlingReferanse.fra(revurdering));
+        var referanse = BehandlingReferanse.fra(revurdering);
+        var gr = beregningTjeneste.hent(referanse);
         if (mottarYtelseForAktivitet(gr) || harBesteberegning(gr)) {
             return StartpunktType.BEREGNING;
         }
-        return StartpunktType.BEREGNING_FORESLÅ;
+        var kanStarteIForeslå = beregningTjeneste.kanStartesISteg(referanse, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG);
+        return kanStarteIForeslå ? StartpunktType.BEREGNING_FORESLÅ : StartpunktType.BEREGNING;
     }
 
     private boolean harBesteberegning(Optional<BeregningsgrunnlagGrunnlag> gr) {

@@ -29,7 +29,10 @@ final class JusterFordelingTjeneste {
                                                                 LocalDate nyFamiliehendelse,
                                                                 RelasjonsRolleType relasjonsRolleType,
                                                                 boolean ønskerJustertVedFødsel) {
-        if (gammelFamiliehendelse == null || nyFamiliehendelse == null || bareFpffEtterGammelFamiliehendelse(oppgittePerioder, gammelFamiliehendelse)) {
+        if (gammelFamiliehendelse == null || nyFamiliehendelse == null || oppgittePerioder.isEmpty()) {
+            return oppgittePerioder;
+        }
+        if (bareFpffEtterGammelFamiliehendelse(oppgittePerioder, gammelFamiliehendelse)) {
             return oppgittePerioder;
         }
         gammelFamiliehendelse = flyttFraHelgTilMandag(gammelFamiliehendelse);
