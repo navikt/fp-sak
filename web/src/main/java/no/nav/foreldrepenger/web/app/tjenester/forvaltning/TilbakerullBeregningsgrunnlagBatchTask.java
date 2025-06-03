@@ -17,6 +17,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 
 import org.slf4j.Logger;
@@ -86,10 +88,21 @@ class TilbakerullBeregningsgrunnlagBatchTask implements ProsessTaskHandler {
         if (behandling.isBehandlingPåVent()) {
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
         }
-        var tilSteg = BehandlingStegType.DEKNINGSGRAD;
+        var tilSteg = finnStegÅHoppeTil(behandling);
         lagHistorikkinnslag(behandling, tilSteg.getNavn());
         behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, tilSteg);
         prosesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, LocalDateTime.now());
+    }
+
+    private BehandlingStegType finnStegÅHoppeTil(Behandling behandling) {
+        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
+            // SVP har ikke dekningsgradsteg
+            return BehandlingStegType.VURDER_SAMLET;
+        }
+        // Ved start i uttak / tilkjent må vi kopiere beregningsgrunnlaget fra originalbehandling i KOFAK steget
+        var harStartPunktEtterBeregning = StartpunktType.UTTAKSVILKÅR.equals(behandling.getStartpunkt())
+            || StartpunktType.TILKJENT_YTELSE.equals(behandling.getStartpunkt());
+        return harStartPunktEtterBeregning ? BehandlingStegType.KONTROLLER_FAKTA : BehandlingStegType.DEKNINGSGRAD;
     }
 
 
