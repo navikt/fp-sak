@@ -1,5 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -7,15 +12,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
-import no.nav.foreldrepenger.familiehendelse.rest.AvklartBarnDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.aksjonspunkt.OverstyringFaktaOmFødselDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto.FødselDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto.Kilde;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
 
 @ApplicationScoped
 public class FaktaFødselTjeneste {
@@ -31,16 +29,6 @@ public class FaktaFødselTjeneste {
         this.familieHendelseTjeneste = familieHendelseTjeneste;
     }
 
-    public void overstyrFaktaOmFødsel(Long behandlingId, OverstyringFaktaOmFødselDto dto) {
-        // TODO: Legg til håndtering av om verdien kan endres
-        // TODO: Implementer overstyring av fakta om fødsel
-        // TODO: Husk å overstyre antall barn også, ved å bruke dto.getAntallBarn()
-        // TODO: Sjekk overstyring av antall barn hvis det er registrert noe i freg
-        // TODO: Lagres antall barn som en faktisk verdi, eller lagrer vi bare barna og regner ut antallet?
-
-        // TODO: Case: Født i utlandet, ikke registrert i FREG. Barn dør like etter fødsel. Dødsdato må overstyres
-    }
-
     public FødselDto hentFaktaOmFødsel(Long behandlingId) {
         var familieHendelse = familieHendelseTjeneste.hentAggregat(behandlingId);
         var terminbekreftelse = familieHendelse.getSøknadVersjon().getTerminbekreftelse();
@@ -54,7 +42,7 @@ public class FaktaFødselTjeneste {
                 mapGjeldendeAntallBarn(familieHendelse, gjeldendeBarnListe)));
     }
 
-    private int mapGjeldendeAntallBarn(FamilieHendelseGrunnlagEntitet familieHendelse, List<FødselDto.Gjeldende.Barn> gjeldendeBarnListe) {
+    private int mapGjeldendeAntallBarn(FamilieHendelseGrunnlagEntitet familieHendelse, List<FødselDto.Gjeldende.GjeldendeBarn> gjeldendeBarnListe) {
         return gjeldendeBarnListe.isEmpty() ? familieHendelse.getSøknadVersjon().getAntallBarn() : gjeldendeBarnListe.size();
     }
 
@@ -84,32 +72,33 @@ public class FaktaFødselTjeneste {
             true);
     }
 
-    private List<FødselDto.Gjeldende.Barn> mapBarn(FamilieHendelseGrunnlagEntitet familieHendelse) {
-        var gjeldendeBarn = new ArrayList<FødselDto.Gjeldende.Barn>();
+    private List<FødselDto.Gjeldende.GjeldendeBarn> mapBarn(FamilieHendelseGrunnlagEntitet familieHendelse) {
+        var gjeldendeBarn = new ArrayList<FødselDto.Gjeldende.GjeldendeBarn>();
         var søknadBarn = familieHendelse.getSøknadVersjon().getBarna();
         var bekreftedeBarn = familieHendelse.getBekreftetVersjon().map(this::getBarn).orElseGet(Collections::emptyList);
         var overstyrtBarn = familieHendelse.getOverstyrtVersjon().map(this::getBarn).orElseGet(Collections::emptyList);
 
         if (!overstyrtBarn.isEmpty()) {
-            gjeldendeBarn.addAll(overstyrtBarn.stream().map(barn -> new FødselDto.Gjeldende.Barn(Kilde.SAKSBEHANDLER, barn, true)).toList());
+            gjeldendeBarn.addAll(overstyrtBarn.stream().map(barn -> new FødselDto.Gjeldende.GjeldendeBarn(Kilde.SAKSBEHANDLER, barn, true)).toList());
         }
         if (!bekreftedeBarn.isEmpty()) {
-            gjeldendeBarn.addAll(bekreftedeBarn.stream().map(barn -> new FødselDto.Gjeldende.Barn(Kilde.FOLKEREGISTER, barn, false)).toList());
+            gjeldendeBarn.addAll(
+                bekreftedeBarn.stream().map(barn -> new FødselDto.Gjeldende.GjeldendeBarn(Kilde.FOLKEREGISTER, barn, false)).toList());
         }
         if (overstyrtBarn.isEmpty() && bekreftedeBarn.isEmpty() && !søknadBarn.isEmpty()) {
             gjeldendeBarn.addAll(søknadBarn.stream()
-                .map(barn -> new FødselDto.Gjeldende.Barn(Kilde.SØKNAD, new AvklartBarnDto(barn.getFødselsdato(), barn.getDødsdato().orElse(null)),
-                    true))
+                .map(barn -> new FødselDto.Gjeldende.GjeldendeBarn(Kilde.SØKNAD,
+                    new FødselDto.BarnHendelseData(barn.getFødselsdato(), barn.getDødsdato().orElse(null)), true))
                 .toList());
         }
 
         return gjeldendeBarn;
     }
 
-    private List<AvklartBarnDto> getBarn(FamilieHendelseEntitet familieHendelse) {
+    private List<FødselDto.BarnHendelseData> getBarn(FamilieHendelseEntitet familieHendelse) {
         return familieHendelse == null ? Collections.emptyList() : familieHendelse.getBarna()
             .stream()
-            .map(barnEntitet -> new AvklartBarnDto(barnEntitet.getFødselsdato(), barnEntitet.getDødsdato().orElse(null)))
+            .map(barnEntitet -> new FødselDto.BarnHendelseData(barnEntitet.getFødselsdato(), barnEntitet.getDødsdato().orElse(null)))
             .toList();
     }
 }

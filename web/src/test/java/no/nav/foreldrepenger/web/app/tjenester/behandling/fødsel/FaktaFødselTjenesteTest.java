@@ -67,9 +67,9 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
         assertThat(gjeldende.barn())
                 .hasSize(2)
                 .extracting(
-                        b -> b.barn().getFodselsdato(),
-                        FødselDto.Gjeldende.Barn::kilde,
-                        FødselDto.Gjeldende.Barn::kanOverstyres)
+                        b -> b.barn().fødselsdato(),
+                        FødselDto.Gjeldende.GjeldendeBarn::kilde,
+                        FødselDto.Gjeldende.GjeldendeBarn::kanOverstyres)
                 .containsExactlyInAnyOrder(
                         tuple(FØDSELSDATO, Kilde.SAKSBEHANDLER, true),
                         tuple(FØDSELSDATO, Kilde.FOLKEREGISTER, false)
@@ -125,10 +125,10 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
         // Sjekk at barn har riktige verdier for fødselsdato, dødsdato, kilde og kanOverstyres
         assertThat(gjeldende.barn())
                 .extracting(
-                        b -> b.barn().getFodselsdato(),
-                        b -> b.barn().getDodsdato(),
-                        FødselDto.Gjeldende.Barn::kilde,
-                        FødselDto.Gjeldende.Barn::kanOverstyres)
+                        b -> b.barn().fødselsdato(),
+                        b -> b.barn().dødsdato(),
+                        FødselDto.Gjeldende.GjeldendeBarn::kilde,
+                        FødselDto.Gjeldende.GjeldendeBarn::kanOverstyres)
                 .containsExactlyInAnyOrder(
                         tuple(FØDSELSDATO, dødsdato, Kilde.SAKSBEHANDLER, true),
                         tuple(FØDSELSDATO, null, Kilde.FOLKEREGISTER, false)
@@ -172,10 +172,10 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
         assertThat(gjeldende.antallBarn()).isEqualTo(1);
         assertThat(gjeldende.barn())
                 .extracting(
-                        b -> b.barn().getFodselsdato(),
-                        b -> b.barn().getDodsdato(),
-                        FødselDto.Gjeldende.Barn::kilde,
-                        FødselDto.Gjeldende.Barn::kanOverstyres
+                        b -> b.barn().fødselsdato(),
+                        b -> b.barn().dødsdato(),
+                        FødselDto.Gjeldende.GjeldendeBarn::kilde,
+                        FødselDto.Gjeldende.GjeldendeBarn::kanOverstyres
                 )
                 .containsExactlyInAnyOrder(
                         tuple(FØDSELSDATO, null, Kilde.SAKSBEHANDLER, true)
@@ -259,10 +259,10 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
 
         assertThat(gjeldende.barn())
                 .extracting(
-                        b -> b.barn().getFodselsdato(),
-                        b -> b.barn().getDodsdato(),
-                        FødselDto.Gjeldende.Barn::kilde,
-                        FødselDto.Gjeldende.Barn::kanOverstyres)
+                        b -> b.barn().fødselsdato(),
+                        b -> b.barn().dødsdato(),
+                        FødselDto.Gjeldende.GjeldendeBarn::kilde,
+                        FødselDto.Gjeldende.GjeldendeBarn::kanOverstyres)
                 .containsExactlyInAnyOrder(
                         tuple(FØDSELSDATO, null, Kilde.FOLKEREGISTER, false),
                         tuple(FØDSELSDATO.plusDays(1), null, Kilde.FOLKEREGISTER, false)
@@ -302,9 +302,9 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
         assertThat(gjeldende.barn())
                 .hasSize(1)
                 .extracting(
-                        b -> b.barn().getFodselsdato(),
-                        FødselDto.Gjeldende.Barn::kilde,
-                        FødselDto.Gjeldende.Barn::kanOverstyres
+                        b -> b.barn().fødselsdato(),
+                        FødselDto.Gjeldende.GjeldendeBarn::kilde,
+                        FødselDto.Gjeldende.GjeldendeBarn::kanOverstyres
                 )
                 .containsExactly(tuple(FØDSELSDATO, Kilde.FOLKEREGISTER, false));
     }
