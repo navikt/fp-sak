@@ -148,7 +148,7 @@ public interface BehandlingskontrollTjeneste {
      */
     void taBehandlingAvVentSetAlleAutopunktUtført(Behandling behandling, BehandlingskontrollKontekst kontekst);
 
-    void taBehandlingAvVentSetAlleAutopunktUtførtForHenleggelse(Behandling behandling, BehandlingskontrollKontekst kontekst);
+    void taBehandlingAvVentSetAlleAutopunktAvbruttForHenleggelse(Behandling behandling, BehandlingskontrollKontekst kontekst);
 
     /** Henlegg en behandling. */
     void henleggBehandling(BehandlingskontrollKontekst kontekst, BehandlingResultatType årsakKode);

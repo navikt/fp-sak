@@ -6,6 +6,7 @@ import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.post;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -35,6 +36,7 @@ import no.nav.foreldrepenger.dokumentbestiller.brevmal.BrevmalTjeneste;
 import no.nav.foreldrepenger.domene.uttak.Uttak;
 import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktDtoMapper;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktRestTjeneste;
@@ -243,16 +245,21 @@ public class FagsakBehandlingDtoTjeneste {
             !FagsakYtelseType.ENGANGSTØNAD.equals(b.getFagsakYtelseType());
         var totrinnRetur = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(b.getId()).stream()
             .anyMatch(tt -> !tt.isGodkjent());
+        var behandlingIkkeHosKlageInstans = !behandlingHosKlageInstans(b);
         return new BehandlingOperasjonerDto(b.getUuid(),
             !b.erKøet(), // Bytte enhet
-            SpesialBehandling.kanHenlegges(b), // Henlegges
-            b.isBehandlingPåVent() && !b.erKøet(), // Gjenopptas
+            SpesialBehandling.kanHenlegges(b) && behandlingIkkeHosKlageInstans, // Henlegges
+            b.isBehandlingPåVent() && !b.erKøet() && behandlingIkkeHosKlageInstans, // Gjenopptas
             kanÅpnesForEndring, // Åpnes for endring
             !b.isBehandlingPåVent(), // Settes på vent
             true, // Sende melding
             !b.isBehandlingPåVent() && totrinnRetur, // Fra beslutter
             false, // Til godkjenning
             vergeTjeneste.utledBehandlingOperasjon(b));
+    }
+
+    private static boolean behandlingHosKlageInstans(Behandling behandling) {
+        return Objects.equals(behandling.getBehandlendeOrganisasjonsEnhet(), BehandlendeEnhetTjeneste.getKlageInstans());
     }
 
 }

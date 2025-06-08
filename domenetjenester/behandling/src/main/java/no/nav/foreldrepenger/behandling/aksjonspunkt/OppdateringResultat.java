@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
@@ -16,35 +14,23 @@ public class OppdateringResultat {
 
     private static final String MULTI_ENDRING = "Kan ikke fjerne vilkårtype med resultat som er lagt til i samme transisjon";
 
-    private BehandlingStegType nesteSteg;
     private final List<VilkårType> vilkårTyperNyeIkkeVurdert = new ArrayList<>();
     private final List<VilkårOppdateringResultat> vilkårUtfallSomSkalLeggesTil = new ArrayList<>();
     private final List<VilkårType> vilkårTyperSomSkalFjernes = new ArrayList<>(); // Eksisterer for å håndtere vilkåropprydding for Omsorg
     private OverhoppKontroll overhoppKontroll;
-    private BehandlingResultatType henleggelseResultat;
-    private String henleggingsbegrunnelse;
     private boolean beholdAksjonspunktÅpent = false;
     private boolean totrinnsKontroll = false;
     private AksjonspunktOppdateringTransisjon transisjon;
     private final List<OppdateringAksjonspunktResultat> ekstraAksjonspunktResultat = new ArrayList<>();
 
-    private OppdateringResultat(BehandlingStegType nesteSteg, OverhoppKontroll overhoppKontroll, AksjonspunktOppdateringTransisjon transisjon,
-            boolean totrinn) {
+    private OppdateringResultat(OverhoppKontroll overhoppKontroll, AksjonspunktOppdateringTransisjon transisjon, boolean totrinn) {
         this.overhoppKontroll = overhoppKontroll;
-        this.nesteSteg = nesteSteg;
         this.transisjon = transisjon;
         this.totrinnsKontroll = totrinn;
     }
 
     private OppdateringResultat(OverhoppKontroll overhoppKontroll) {
         this.overhoppKontroll = overhoppKontroll;
-        this.nesteSteg = null;
-    }
-
-    private OppdateringResultat(OverhoppKontroll overhoppKontroll, BehandlingResultatType henleggelseResultat, String henleggingsbegrunnelse) {
-        this.overhoppKontroll = overhoppKontroll;
-        this.henleggelseResultat = henleggelseResultat;
-        this.henleggingsbegrunnelse = henleggingsbegrunnelse;
     }
 
     /**
@@ -66,7 +52,7 @@ public class OppdateringResultat {
      * Brukes typisk ved avslag på Vilår for å hoppe fram til uttak/vedtak
      */
     public static OppdateringResultat medFremoverHopp(AksjonspunktOppdateringTransisjon transisjon) {
-        return new OppdateringResultat(null, OverhoppKontroll.FREMOVERHOPP, transisjon, false);
+        return new OppdateringResultat(OverhoppKontroll.FREMOVERHOPP, transisjon, false);
     }
 
     /**
@@ -74,19 +60,7 @@ public class OppdateringResultat {
      * setter totrinnskontroll
      */
     public static OppdateringResultat medFremoverHoppTotrinn(AksjonspunktOppdateringTransisjon transisjon) {
-        return new OppdateringResultat(null, OverhoppKontroll.FREMOVERHOPP, transisjon, true);
-    }
-
-    /**
-     * Vil avbryte alle åpne aksjonspunkt hoppe til iverksetting og avslutte uten
-     * vedtak
-     */
-    public static OppdateringResultat medHenleggelse(BehandlingResultatType henleggelseResultat, String henleggingsbegrunnelse) {
-        return new OppdateringResultat(OverhoppKontroll.HENLEGGELSE, henleggelseResultat, henleggingsbegrunnelse);
-    }
-
-    public BehandlingStegType getNesteSteg() {
-        return nesteSteg;
+        return new OppdateringResultat(OverhoppKontroll.FREMOVERHOPP, transisjon, true);
     }
 
     public AksjonspunktOppdateringTransisjon getTransisjon() {
@@ -95,14 +69,6 @@ public class OppdateringResultat {
 
     public OverhoppKontroll getOverhoppKontroll() {
         return overhoppKontroll;
-    }
-
-    public BehandlingResultatType getHenleggelseResultat() {
-        return henleggelseResultat;
-    }
-
-    public String getHenleggingsbegrunnelse() {
-        return henleggingsbegrunnelse;
     }
 
     public boolean skalUtføreAksjonspunkt() {
@@ -142,10 +108,6 @@ public class OppdateringResultat {
         public Builder medBeholdAksjonspunktÅpent(boolean holdÅpent) {
             resultat.beholdAksjonspunktÅpent = holdÅpent;
             return this;
-        }
-
-        public Builder medBeholdAksjonspunktÅpent() {
-            return medBeholdAksjonspunktÅpent(true);
         }
 
         public Builder leggTilIkkeVurdertVilkår(VilkårType vilkårType) {
@@ -259,11 +221,8 @@ public class OppdateringResultat {
     @Override
     public String toString() {
         return "OppdateringResultat{" +
-                "nesteSteg=" + nesteSteg +
-                ", transisjon=" + transisjon +
+                "transisjon=" + transisjon +
                 ", overhoppKontroll=" + overhoppKontroll +
-                ", henleggelseResultat=" + henleggelseResultat +
-                ", henleggingsbegrunnelse='" + henleggingsbegrunnelse + '\'' +
                 '}';
     }
 }
