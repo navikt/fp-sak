@@ -21,7 +21,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.HenleggFlyttFagsakTask;
+import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.HenleggBehandlingTask;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
@@ -114,7 +114,7 @@ public class ForvaltningBehandlingRestTjeneste {
         var behandlinger = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId());
         if (!behandlinger.isEmpty()) {
             LOG.info("Henlegger behandlinger for fagsak med saksnummer: {} ", saksnummer.getVerdi());
-            behandlinger.forEach(behandling -> opprettHenleggelseTask(behandling, BehandlingResultatType.HENLAGT_FEILOPPRETTET));
+            behandlinger.forEach(this::opprettHenleggelseTask);
         }
         return Response.ok().build();
     }
@@ -133,15 +133,15 @@ public class ForvaltningBehandlingRestTjeneste {
         var behandling = behandlingRepository.hentBehandling(dto.getBehandlingUuid());
         if (!behandling.erSaksbehandlingAvsluttet()) {
             LOG.info("Henlegger behandling for fagsak med saksnummer: {} ", behandling.getSaksnummer().getVerdi());
-            opprettHenleggelseTask(behandling, BehandlingResultatType.HENLAGT_FEILOPPRETTET);
+            opprettHenleggelseTask(behandling);
         }
         return Response.ok().build();
     }
 
-    private void opprettHenleggelseTask(Behandling behandling, BehandlingResultatType henleggelseType) {
-        var prosessTaskData = ProsessTaskData.forProsessTask(HenleggFlyttFagsakTask.class);
+    private void opprettHenleggelseTask(Behandling behandling) {
+        var prosessTaskData = ProsessTaskData.forProsessTask(HenleggBehandlingTask.class);
         prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
-        prosessTaskData.setProperty(HenleggFlyttFagsakTask.HENLEGGELSE_TYPE_KEY, henleggelseType.getKode());
+        prosessTaskData.setProperty(HenleggBehandlingTask.HENLEGGELSE_TYPE_KEY, BehandlingResultatType.HENLAGT_FEILOPPRETTET.getKode());
 
         taskTjeneste.lagre(prosessTaskData);
     }

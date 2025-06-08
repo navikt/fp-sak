@@ -9,9 +9,11 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingHenlagtEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingVedtakEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.mottak.vedtak.StartBerørtBehandlingTask;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.VurderOpphørAvYtelserTask;
@@ -63,9 +65,20 @@ public class VedtaksHendelseObserver {
         }
     }
 
+    public void observerBehandlingHenlagtEvent(@Observes BehandlingHenlagtEvent event) {
+        if (event.behandlingType().erYtelseBehandlingType() && FagsakYtelseType.FORELDREPENGER.equals(event.ytelseType())) {
+            lagreProsesstaskFor(event.getBehandlingId(), event.getSaksnummer(), event.getFagsakId(),
+                TaskType.forProsessTask(StartBerørtBehandlingTask.class), 0);
+        }
+    }
+
     void lagreProsesstaskFor(Behandling behandling, TaskType taskType, int delaysecs) {
+        lagreProsesstaskFor(behandling.getId(), behandling.getSaksnummer(), behandling.getFagsakId(), taskType, delaysecs);
+    }
+
+    void lagreProsesstaskFor(Long behandlingId, Saksnummer saksnummer, Long fagsakId, TaskType taskType, int delaysecs) {
         var data = ProsessTaskData.forTaskType(taskType);
-        data.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+        data.setBehandling(saksnummer.getVerdi(), fagsakId, behandlingId);
         data.setNesteKjøringEtter(LocalDateTime.now().plusSeconds(delaysecs));
         taskTjeneste.lagre(data);
     }
