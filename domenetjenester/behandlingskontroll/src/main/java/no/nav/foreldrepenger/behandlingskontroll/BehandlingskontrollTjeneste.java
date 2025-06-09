@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.function.Consumer;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
@@ -151,9 +150,9 @@ public interface BehandlingskontrollTjeneste {
     void taBehandlingAvVentSetAlleAutopunktAvbruttForHenleggelse(Behandling behandling, BehandlingskontrollKontekst kontekst);
 
     /** Henlegg en behandling. */
-    void henleggBehandling(BehandlingskontrollKontekst kontekst, BehandlingResultatType årsakKode);
+    void henleggBehandling(BehandlingskontrollKontekst kontekst);
 
-    void henleggBehandlingFraSteg(BehandlingskontrollKontekst kontekst, BehandlingResultatType årsak);
+    void henleggBehandlingFraSteg(BehandlingskontrollKontekst kontekst);
 
     void fremoverTransisjon(BehandlingStegType målSteg, BehandlingskontrollKontekst kontekst);
 }

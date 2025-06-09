@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegUtfall;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.AutopunktStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegOvergangEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingTransisjonEvent;
@@ -30,12 +29,10 @@ import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceP
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.Transisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -335,77 +332,41 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     }
 
     @Override
-    public void henleggBehandling(BehandlingskontrollKontekst kontekst, BehandlingResultatType årsak) {
-        // valider invarianter
-        Objects.requireNonNull(årsak, "årsak");
+    public void henleggBehandling(BehandlingskontrollKontekst kontekst) {
         var behandling = hentBehandling(kontekst);
-
-        var stegTilstandFør = doHenleggBehandling(kontekst, behandling, årsak);
-        var sluttSteg = getModell(kontekst.getBehandlingType(), kontekst.getYtelseType()).getSluttSteg().getBehandlingStegType();
-
-        // FIXME (MAUR): Bør løses via FellesTransisjoner og unngå hardkoding av
-        // BehandlingStegType her.
-        // må fremoverføres for å trigge riktig events for opprydding
-        behandlingFramføringTilSenereBehandlingSteg(kontekst, sluttSteg);
-
-        publiserFremhoppTransisjonHenleggelse(kontekst, stegTilstandFør, sluttSteg);
-
-        // sett Avsluttet og fyr status
-        avsluttBehandling(kontekst);
+        doHenleggBehandling(kontekst, behandling, true);
     }
 
     @Override
-    public void henleggBehandlingFraSteg(BehandlingskontrollKontekst kontekst, BehandlingResultatType årsak) {
-        // valider invarianter
-        Objects.requireNonNull(årsak, "årsak");
+    public void henleggBehandlingFraSteg(BehandlingskontrollKontekst kontekst) {
         var behandling = hentBehandling(kontekst);
-
-        var stegTilstandFør = doHenleggBehandling(kontekst, behandling, årsak);
-        var sluttSteg = getModell(kontekst.getBehandlingType(), kontekst.getYtelseType()).getSluttSteg().getBehandlingStegType();
-
-        // TODO håndter henleggelse fra tidlig steg. Nå avbrytes steget og behandlingen
-        // framoverføres ikke (ok?).
-        // OBS mulig rekursiv prosessering kan oppstå (evt må BehKtrl framføre til ived
-        // og fortsette)
-        publiserFremhoppTransisjonHenleggelse(kontekst, stegTilstandFør, sluttSteg);
-
-        // sett Avsluttet og fyr status
-        avsluttBehandling(kontekst);
+        doHenleggBehandling(kontekst, behandling, false);
     }
 
-    private BehandlingStegTilstandSnapshot doHenleggBehandling(BehandlingskontrollKontekst kontekst, Behandling behandling, BehandlingResultatType årsak) {
-
-        if (behandling.erSaksbehandlingAvsluttet()) {
-            throw new TekniskException( "FP-143308", String.format("BehandlingId %s er allerede avsluttet, kan ikke henlegges",
+    private void doHenleggBehandling(BehandlingskontrollKontekst kontekst, Behandling behandling, boolean gjørFramhopp) {
+        if (behandling.getAksjonspunkter().stream().anyMatch(Aksjonspunkt::erOpprettet)) {
+            throw new IllegalStateException("Utviklerfeil: Behandling har åpne aksjonspunkt, kan ikke henlegges");
+        }
+        if (Objects.equals(BehandlingStatus.AVSLUTTET, behandling.getStatus()) || Objects.equals(BehandlingStatus.IVERKSETTER_VEDTAK, behandling.getStatus())) {
+            throw new TekniskException("FP-143308", String.format("BehandlingId %s er allerede avsluttet, kan ikke henlegges",
                 behandling.getId()));
         }
 
-        // sett årsak
-        var eksisterende = behandling.getBehandlingsresultat();
-        if (eksisterende == null) {
-            Behandlingsresultat.builder().medBehandlingResultatType(årsak).buildFor(behandling);
-        } else {
-            Behandlingsresultat.builderEndreEksisterende(eksisterende).medBehandlingResultatType(årsak);
+        var stegTilstandFør =  BehandlingStegTilstandSnapshot.tilBehandlingsStegSnapshot(behandling);
+        var sluttSteg = getModell(kontekst.getBehandlingType(), kontekst.getYtelseType()).getSluttSteg().getBehandlingStegType();
+
+        // FIXME (MAUR): Løses via FellesTransisjoner? Må da fremoverføres for å trigge riktig events for opprydding (mange unødvendige ryddinger)
+        // TODO håndter henleggelse fra tidlig steg. Nå avbrytes steget og henlegg kalles fra steg-transisjon-observer. OK?.
+        // OBS mulig rekursiv prosessering kan oppstå (evt må BehKtrl framføre til ived og fortsette)
+        if (gjørFramhopp) {
+            behandlingFramføringTilSenereBehandlingSteg(kontekst, sluttSteg);
         }
-
-        var stegTilstandFør = BehandlingStegTilstandSnapshot.tilBehandlingsStegSnapshot(behandling);
-
-        // avbryt aksjonspunkt
-        var åpneAksjonspunkter = behandling.getÅpneAksjonspunkter();
-        åpneAksjonspunkter.forEach(aksjonspunktKontrollRepository::setTilAvbrutt);
-        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-        var åpneAksjonspunktIkkeAutopunkt = åpneAksjonspunkter.stream().filter(a -> !a.erAutopunkt()).toList();
-        eventPubliserer.fireEvent(new AksjonspunktStatusEvent(kontekst, åpneAksjonspunktIkkeAutopunkt));
-        var åpneAutopunkter = åpneAksjonspunkter.stream().filter(Aksjonspunkt::erAutopunkt).toList();
-        eventPubliserer.fireEvent(new AutopunktStatusEvent(kontekst, åpneAutopunkter));
-        return stegTilstandFør;
-    }
-
-    private void publiserFremhoppTransisjonHenleggelse(BehandlingskontrollKontekst kontekst, BehandlingStegTilstandSnapshot stegTilstandFør,
-                                                       BehandlingStegType stegEtter) {
-        // Publiser transisjonsevent (eventobserver(e) håndterer tilhørende transisjonsregler)
-        var event = new BehandlingTransisjonEvent(kontekst, new Transisjon(StegTransisjon.HOPPOVER, stegEtter), stegTilstandFør);
+        // Publiser transisjonsevent (eventobserver(e) håndterer tilhørende transisjonsregler - for tiden avbrytes aksjonspunkt)
+        var event = new BehandlingTransisjonEvent(kontekst, new Transisjon(StegTransisjon.HOPPOVER, sluttSteg), stegTilstandFør);
         eventPubliserer.fireEvent(event);
+
+        // sett Avsluttet og fyr status
+        avsluttBehandling(kontekst);
     }
 
     protected BehandlingStegUtfall doProsesserBehandling(BehandlingskontrollKontekst kontekst, BehandlingModell modell,

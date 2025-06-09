@@ -104,17 +104,6 @@ public class HistorikkinnslagTjeneste {
         return historikkinnslagDokumentLink;
     }
 
-    public void opprettHistorikkinnslagForAutomatiskHenlegelsePgaNySøknad(Behandling behandling) {
-        var historikk = new Historikkinnslag.Builder().medTittel("Behandlingen er henlagt")
-            .medBehandlingId(behandling.getId())
-            .medFagsakId(behandling.getFagsakId())
-            .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
-            .addLinje("Mottatt ny søknad")
-            .build();
-
-        historikkinnslagRepository.lagre(historikk);
-    }
-
     public void opprettHistorikkinnslagForVedlegg(Fagsak fagsak,
                                                   Behandling behandling,
                                                   JournalpostId journalpostId,

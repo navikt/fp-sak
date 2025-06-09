@@ -19,7 +19,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.HenleggBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
@@ -37,8 +36,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.HenleggBehandlingTjeneste;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
@@ -85,20 +86,18 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
         if (alleDokumentSak.isEmpty()) {
             // Behandlingen er startet uten noe dokument, f.eks. gjennom en
             // forretningshendselse eller behov for utgående brev
-            return resultatVedIngenMottatteDokument(behandling);
+            return resultatVedIngenMottatteDokument(behandling, kontekst.getSkriveLås());
         }
 
         var ref = BehandlingReferanse.fra(behandling);
         var søknadMottatt = kompletthetsjekker.vurderSøknadMottatt(ref);
         if (!søknadMottatt.erOppfylt()) {
-            return evaluerSøknadMottattUoppfylt(behandling, søknadMottatt, VENT_PÅ_SØKNAD);
+            return evaluerSøknadMottattUoppfylt(behandling, kontekst.getSkriveLås(), søknadMottatt, VENT_PÅ_SØKNAD);
         }
 
         if (behandling.harNoenBehandlingÅrsaker(Set.of(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE, BehandlingÅrsakType.FEIL_PRAKSIS_IVERKS_UTSET)) && !behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
-            if (henleggBehandling(behandling)) {
-                henleggBehandlingTjeneste.lagHistorikkInnslagForHenleggelseFraSteg(behandling, BehandlingResultatType.HENLAGT_SØKNAD_MANGLER,
-                    null);
-                return BehandleStegResultat.henlagtBehandling();
+            if (skalHenleggeBehandling(behandling)) {
+                return henlegg(behandling, kontekst.getSkriveLås());
             }
             if (!behandling.harAksjonspunktMedType(VENT_PÅ_SØKNAD)) {
                 var ventefrist = FRIST_PRAKSIS_UTSETTELSE.atStartOfDay();
@@ -161,13 +160,13 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
                 .orElse(null);
     }
 
-    private BehandleStegResultat resultatVedIngenMottatteDokument(Behandling behandling) {
+    private BehandleStegResultat resultatVedIngenMottatteDokument(Behandling behandling, BehandlingLås behandlingLås) {
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.INFOBREV_BEHANDLING)
                 || behandling.harBehandlingÅrsak(BehandlingÅrsakType.INFOBREV_OPPHOLD)
                 || behandling.harBehandlingÅrsak(BehandlingÅrsakType.INFOBREV_PÅMINNELSE)) {
             var kResultat = KompletthetResultat.ikkeOppfylt(LocalDate.now().plus(VENT_PÅ_SØKNAD_PERIODE).atStartOfDay(),
                     Venteårsak.VENT_SØKNAD_SENDT_INFORMASJONSBREV);
-            return evaluerSøknadMottattUoppfylt(behandling, kResultat, VENT_PÅ_SØKNAD);
+            return evaluerSøknadMottattUoppfylt(behandling, behandlingLås, kResultat, VENT_PÅ_SØKNAD);
         }
         return BehandleStegResultat.utførtUtenAksjonspunkter();
     }
@@ -195,22 +194,25 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
             dokument.getDokumentKategori()));
     }
 
-    private boolean henleggBehandling(Behandling behandling) {
-        return behandling.getAksjonspunkter().stream().anyMatch(
-                a -> a.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD) && a.getFristTid().isBefore(LocalDateTime.now()));
-    }
-
-    private BehandleStegResultat evaluerSøknadMottattUoppfylt(Behandling behandling, KompletthetResultat kompletthetResultat,
-            AksjonspunktDefinisjon apDef) {
-        if (henleggBehandling(behandling)) {
-            henleggBehandlingTjeneste.lagHistorikkInnslagForHenleggelseFraSteg(behandling, BehandlingResultatType.HENLAGT_SØKNAD_MANGLER,
-                    null);
-            return BehandleStegResultat.henlagtBehandling();
+    private BehandleStegResultat evaluerSøknadMottattUoppfylt(Behandling behandling, BehandlingLås lås,
+                                                              KompletthetResultat kompletthetResultat, AksjonspunktDefinisjon apDef) {
+        if (skalHenleggeBehandling(behandling)) {
+            return henlegg(behandling, lås);
         }
         // TODO: Bestill brev (Venter på PK-50295)
         var venteårsak = kompletthetResultat.venteårsak() != null ? kompletthetResultat.venteårsak() : Venteårsak.AVV_DOK;
 
         var aksjonspunktResultat = AksjonspunktResultat.opprettForAksjonspunktMedFrist(apDef, venteårsak, kompletthetResultat.ventefrist());
         return BehandleStegResultat.utførtMedAksjonspunktResultat(aksjonspunktResultat);
+    }
+
+    private boolean skalHenleggeBehandling(Behandling behandling) {
+        return behandling.getAksjonspunkter().stream().anyMatch(
+            a -> a.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD) && a.getFristTid().isBefore(LocalDateTime.now()));
+    }
+
+    private BehandleStegResultat henlegg(Behandling behandling, BehandlingLås behandlingLås) {
+        henleggBehandlingTjeneste.forberedHenleggelseFraSteg(behandling, behandlingLås, BehandlingResultatType.HENLAGT_SØKNAD_MANGLER, "Ikke mottatt søknad");
+        return BehandleStegResultat.henlagtBehandling();
     }
 }

@@ -14,7 +14,6 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.anke.AnkeVurderingTjeneste;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
@@ -266,17 +265,6 @@ public class KabalTjeneste {
             case UGUNST -> AnkeVurderingOmgjør.ANKE_TIL_UGUNST;
             default -> AnkeVurderingOmgjør.UDEFINERT;
         };
-    }
-
-    public void lagHistorikkinnslagForHenleggelse(Behandling behandling, BehandlingResultatType aarsak) {
-        var historikkinnslag = new Historikkinnslag.Builder()
-            .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
-            .medBehandlingId(behandling.getId())
-            .medFagsakId(behandling.getFagsakId())
-            .medTittel("Behandling er henlagt")
-            .addLinje(aarsak.getNavn())
-            .build();
-        historikkinnslagRepository.lagre(historikkinnslag);
     }
 
     public void lagHistorikkinnslagForBrevSendt(Behandling behandling, JournalpostId journalpostId) {

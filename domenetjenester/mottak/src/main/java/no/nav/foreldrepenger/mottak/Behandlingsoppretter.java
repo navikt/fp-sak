@@ -24,13 +24,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.HenleggBehandlingTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentPersisterer;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
@@ -43,11 +43,11 @@ public class Behandlingsoppretter {
     private BehandlingOpprettingTjeneste behandlingOpprettingTjeneste;
     private MottattDokumentPersisterer mottattDokumentPersisterer;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
-    private MottatteDokumentRepository mottatteDokumentRepository;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
+    private HenleggBehandlingTjeneste henleggBehandlingTjeneste;
     private SøknadRepository søknadRepository;
 
     public Behandlingsoppretter() {
@@ -61,18 +61,19 @@ public class Behandlingsoppretter {
                                 MottattDokumentPersisterer mottattDokumentPersisterer,
                                 MottatteDokumentTjeneste mottatteDokumentTjeneste,
                                 BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
-                                BehandlingRevurderingTjeneste behandlingRevurderingTjeneste) {
+                                BehandlingRevurderingTjeneste behandlingRevurderingTjeneste,
+                                HenleggBehandlingTjeneste henleggBehandlingTjeneste) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingOpprettingTjeneste = behandlingOpprettingTjeneste;
         this.mottattDokumentPersisterer = mottattDokumentPersisterer;
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
-        this.mottatteDokumentRepository = behandlingRepositoryProvider.getMottatteDokumentRepository();
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.behandlingRevurderingTjeneste = behandlingRevurderingTjeneste;
         this.behandlingsresultatRepository = behandlingRepositoryProvider.getBehandlingsresultatRepository();
         this.behandlingVedtakRepository = behandlingRepositoryProvider.getBehandlingVedtakRepository();
         this.søknadRepository = behandlingRepositoryProvider.getSøknadRepository();
+        this.henleggBehandlingTjeneste = henleggBehandlingTjeneste;
     }
 
     /**
@@ -148,9 +149,7 @@ public class Behandlingsoppretter {
 
     public void henleggBehandling(Behandling behandling) {
         var lås = behandlingRepository.taSkriveLås(behandling);
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
-        behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktAvbruttForHenleggelse(behandling, kontekst);
-        behandlingskontrollTjeneste.henleggBehandling(kontekst, BehandlingResultatType.MERGET_OG_HENLAGT);
+        henleggBehandlingTjeneste.henleggBehandlingTeknisk(behandling, lås, BehandlingResultatType.MERGET_OG_HENLAGT, "Mottatt ny søknad");
     }
 
     public void opprettInntektsmeldingerFraMottatteDokumentPåNyBehandling(Behandling nyBehandling) {
@@ -183,7 +182,7 @@ public class Behandlingsoppretter {
             var dokument = new MottattDokument.Builder(s)
                 .medBehandlingId(nyBehandling.getId())
                 .build();
-            mottatteDokumentRepository.lagre(dokument);
+            mottatteDokumentTjeneste.lagreMottattDokumentPåFagsak(dokument);
         });
     }
 
@@ -195,7 +194,7 @@ public class Behandlingsoppretter {
                 var dokument = new MottattDokument.Builder(vedlegget)
                     .medBehandlingId(nyBehandling.getId())
                     .build();
-                mottatteDokumentRepository.lagre(dokument);
+                mottatteDokumentTjeneste.lagreMottattDokumentPåFagsak(dokument);
             });
         }
     }

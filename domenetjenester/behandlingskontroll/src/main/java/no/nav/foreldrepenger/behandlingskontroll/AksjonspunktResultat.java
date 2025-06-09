@@ -40,12 +40,12 @@ public class AksjonspunktResultat {
      * Factory-metode direkte basert på {@link AksjonspunktDefinisjon}. Ingen frist
      * eller årsak.
      */
-    public static AksjonspunktResultat opprettForAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon, AksjonspunktStatus aksjonspunktStatus) {
+    public static AksjonspunktResultat statusForAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon, AksjonspunktStatus aksjonspunktStatus) {
         return new AksjonspunktResultat(aksjonspunktDefinisjon, null, null, aksjonspunktStatus);
     }
 
     public static AksjonspunktResultat opprettForAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        return opprettForAksjonspunkt(aksjonspunktDefinisjon, OPPRETTET);
+        return statusForAksjonspunkt(aksjonspunktDefinisjon, OPPRETTET);
     }
 
     /**
@@ -53,7 +53,7 @@ public class AksjonspunktResultat {
      * liste. Ingen frist og årsak.
      */
     public static List<AksjonspunktResultat> opprettListeForAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        return singletonList(new AksjonspunktResultat(aksjonspunktDefinisjon));
+        return singletonList(opprettForAksjonspunkt(aksjonspunktDefinisjon));
     }
 
     /**
