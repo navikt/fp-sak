@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollTjenesteImpl;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -18,9 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 class HenleggBehandlingUtenSøknadTest extends EntityManagerAwareTest {
 
@@ -34,7 +33,7 @@ class HenleggBehandlingUtenSøknadTest extends EntityManagerAwareTest {
         var serviceProvider = new BehandlingskontrollServiceProvider(getEntityManager(), null);
         var behandlingskontrollTjenesteImpl = new BehandlingskontrollTjenesteImpl(serviceProvider);
         henleggBehandlingTjeneste = new HenleggBehandlingTjeneste(repositoryProvider, behandlingskontrollTjenesteImpl,
-                mock(DokumentBestillerTjeneste.class), mock(ProsessTaskTjeneste.class));
+                mock(BehandlingEventPubliserer.class));
     }
 
     @Test
@@ -47,7 +46,7 @@ class HenleggBehandlingUtenSøknadTest extends EntityManagerAwareTest {
         var behandling = scenario.lagre(repositoryProvider);
         forceOppdaterBehandlingSteg(behandling, BehandlingStegType.REGISTRER_SØKNAD);
         var behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
-        henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse");
+        henleggBehandlingTjeneste.henleggBehandlingManuell(behandling.getId(), behandlingsresultat, "begrunnelse");
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
         assertThat(behandling.getAksjonspunkter().stream().map(Aksjonspunkt::getStatus).filter(AksjonspunktStatus.AVBRUTT::equals).count())
                 .isEqualTo(1);

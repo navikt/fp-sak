@@ -100,7 +100,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
         }
         if (KabalUtfall.TRUKKET.equals(utfall) || KabalUtfall.HEVET.equals(utfall)) {
             if (klageBehandling.isBehandlingPåVent()) {
-                behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtførtForHenleggelse(klageBehandling, kontekst);
+                behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktAvbruttForHenleggelse(klageBehandling, kontekst);
             }
             if (erIkkeHenlagt(klageBehandling)) {
                 behandlingskontrollTjeneste.henleggBehandling(kontekst, BehandlingResultatType.HENLAGT_KLAGE_TRUKKET);
@@ -170,7 +170,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
         kabalTjeneste.settKabalReferanse(ankeBehandling, ref);
         if (KabalUtfall.TRUKKET.equals(utfall) || KabalUtfall.HEVET.equals(utfall)) {
             if (ankeBehandling.isBehandlingPåVent()) {
-                behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtførtForHenleggelse(ankeBehandling, kontekst);
+                behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktAvbruttForHenleggelse(ankeBehandling, kontekst);
             }
             if (erIkkeHenlagt(ankeBehandling)) {
                 behandlingskontrollTjeneste.henleggBehandling(kontekst, BehandlingResultatType.HENLAGT_ANKE_TRUKKET);
@@ -202,7 +202,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
         kabalTjeneste.settKabalReferanse(behandling, ref);
         if (behandling.isBehandlingPåVent()) {
-            behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtførtForHenleggelse(behandling, kontekst);
+            behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktAvbruttForHenleggelse(behandling, kontekst);
         }
         if (erIkkeHenlagt(behandling)) {
             behandlingskontrollTjeneste.henleggBehandling(kontekst, BehandlingResultatType.HENLAGT_FEILOPPRETTET);

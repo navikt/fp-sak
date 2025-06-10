@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
@@ -155,6 +156,10 @@ public class BehandlingsprosessTjeneste {
 
     public Behandling hentBehandling(UUID behandlingUuid) {
         return behandlingRepository.hentBehandling(behandlingUuid);
+    }
+
+    public BehandlingLås låsBehandling(UUID behandlingUuid) {
+        return behandlingRepository.taSkriveLås(behandlingUuid);
     }
 
     /**

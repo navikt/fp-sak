@@ -32,12 +32,6 @@ public class OverhoppResultat {
                 .findFirst();
     }
 
-    public Optional<OppdateringResultat> finnHenleggelse() {
-        return oppdatereResultater.stream()
-                .filter(delresultat -> delresultat.getOverhoppKontroll().equals(OverhoppKontroll.HENLEGGELSE))
-                .findFirst();
-    }
-
     public Set<OppdateringAksjonspunktResultat> finnEkstraAksjonspunktResultat() {
         return oppdatereResultater.stream()
             .map(OppdateringResultat::getEkstraAksjonspunktResultat)

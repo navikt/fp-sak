@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-bom</artifactId>
-        <version>3.6.11</version>
+        <version>3.6.12</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger</groupId>
@@ -29,7 +29,7 @@
         <fp-tidsserie.version>2.7.3</fp-tidsserie.version>
         <fp-nare.version>2.6.3</fp-nare.version>
         <fp-inngangsvilkar.version>1.1.4</fp-inngangsvilkar.version>
-        <beregning.version>5.8.8</beregning.version>
+        <beregning.version>5.8.10</beregning.version>
         <fp-uttak.version>15.4.5</fp-uttak.version>
         <fp-stonadskonto.version>2.1.1</fp-stonadskonto.version>
         <svp-uttak.version>2.4.5</svp-uttak.version>
@@ -54,7 +54,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>fp-bom</artifactId>
-                <version>3.6.11</version>
+                <version>3.6.12</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>

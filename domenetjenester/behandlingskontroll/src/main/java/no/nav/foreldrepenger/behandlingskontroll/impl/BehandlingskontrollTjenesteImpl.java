@@ -311,28 +311,15 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
 
     @Override
     public void taBehandlingAvVentSetAlleAutopunktUtført(Behandling behandling, BehandlingskontrollKontekst kontekst) {
-        doForberedGjenopptak(behandling, kontekst, false);
-    }
-
-    @Override
-    public void taBehandlingAvVentSetAlleAutopunktUtførtForHenleggelse(Behandling behandling, BehandlingskontrollKontekst kontekst) {
-        doForberedGjenopptak(behandling, kontekst, true);
-    }
-
-    private void doForberedGjenopptak(Behandling behandling, BehandlingskontrollKontekst kontekst, boolean erHenleggelse) {
         var aksjonspunkterSomMedførerTilbakehopp = behandling.getÅpneAksjonspunkter().stream()
-                .filter(a -> a.getAksjonspunktDefinisjon().tilbakehoppVedGjenopptakelse())
-                .toList();
+            .filter(a -> a.getAksjonspunktDefinisjon().tilbakehoppVedGjenopptakelse())
+            .toList();
 
         if (aksjonspunkterSomMedførerTilbakehopp.size() > 1) {
             throw new TekniskException("FP-105126",
                 String.format("BehandlingId %s har flere enn et aksjonspunkt, hvor aksjonspunktet fører til tilbakehopp ved gjenopptakelse. Kan ikke gjenopptas.", behandling.getId()));
         }
-        if (erHenleggelse) {
-            lagreAutopunkterAvbrutt(kontekst, behandling, behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT));
-        } else {
-            lagreAutopunkterUtført(kontekst, behandling, behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT));
-        }
+        lagreAutopunkterUtført(kontekst, behandling, behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT));
         if (aksjonspunkterSomMedførerTilbakehopp.size() == 1) {
             var ap = aksjonspunkterSomMedførerTilbakehopp.getFirst();
             var behandlingStegFunnet = ap.getBehandlingStegFunnet();
@@ -340,6 +327,11 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
             // I tilfelle tilbakehopp reåpner autopunkt - de skal reutledes av steget.
             lagreAutopunkterUtført(kontekst, behandling, behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT));
         }
+    }
+
+    @Override
+    public void taBehandlingAvVentSetAlleAutopunktAvbruttForHenleggelse(Behandling behandling, BehandlingskontrollKontekst kontekst) {
+        lagreAutopunkterAvbrutt(kontekst, behandling, behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT));
     }
 
     @Override

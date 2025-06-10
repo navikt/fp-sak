@@ -230,23 +230,4 @@ public class SatsReguleringRepository {
         return resultatList.stream().map(row -> new FagsakIdSaksnummer(Long.parseLong(row[0].toString()), new Saksnummer((String) row[1]))).toList();
     }
 
-    public int setReguleringsbehovBehandlingerDagpengerAAP() {
-        var antall = entityManager.createNativeQuery("""
-            MERGE INTO BG_EKSTERN_KOBLING a
-            USING (
-               SELECT distinct grbg.behandling_id
-               from GR_BEREGNINGSGRUNNLAG grbg
-               JOIN BG_AKTIVITET_STATUS bgs ON (bgs.BEREGNINGSGRUNNLAG_ID = grbg.BEREGNINGSGRUNNLAG_ID and bgs.AKTIVITET_STATUS in ('AAP', 'DP') )
-               where grbg.aktiv = 'J' and exists (select * from BG_EKSTERN_KOBLING beko where beko.behandling_id = grbg.behandling_id)
-                ) b
-             ON ( a.behandling_id = b.behandling_id )
-             WHEN MATCHED THEN
-                UPDATE SET a.reguleringsbehov = 'J'
-            """)
-            .executeUpdate();
-        entityManager.flush();
-
-        return antall;
-    }
-
 }

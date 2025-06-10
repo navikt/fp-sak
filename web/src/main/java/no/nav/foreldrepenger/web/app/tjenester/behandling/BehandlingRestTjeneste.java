@@ -205,10 +205,11 @@ public class BehandlingRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public void henleggBehandling(@TilpassetAbacAttributt(supplierClass = LocalBehandlingIdAbacDataSupplier.class)
         @Parameter(description = "Henleggelsesårsak") @Valid HenleggBehandlingDto dto) {
+        var lås = behandlingsprosessTjeneste.låsBehandling(dto.getBehandlingUuid());
         var behandling = getBehandling(dto);
         behandlingsutredningTjeneste.kanEndreBehandling(behandling, dto.getBehandlingVersjon());
         var årsakKode = tilHenleggBehandlingResultatType(dto.getÅrsakKode());
-        henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), årsakKode, dto.getBegrunnelse());
+        henleggBehandlingTjeneste.henleggBehandlingManuell(behandling, lås, årsakKode, dto.getBegrunnelse());
     }
 
     private Behandling getBehandling(DtoMedBehandlingId dto) {
