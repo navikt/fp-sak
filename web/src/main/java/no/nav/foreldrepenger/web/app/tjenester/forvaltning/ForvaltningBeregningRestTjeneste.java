@@ -29,6 +29,8 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import no.nav.foreldrepenger.domene.mappers.KalkulusInputTjeneste;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,6 +96,7 @@ public class ForvaltningBeregningRestTjeneste {
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private SatsRepository satsRepository;
+    private KalkulusInputTjeneste kalkulusInputTjeneste;
 
     @Inject
     public ForvaltningBeregningRestTjeneste(ProsessTaskTjeneste taskTjeneste,
@@ -102,7 +105,8 @@ public class ForvaltningBeregningRestTjeneste {
                                             BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider,
                                             BeregningsgrunnlagRepository beregningsgrunnlagRepository,
                                             InntektArbeidYtelseTjeneste iayTjeneste,
-                                            SatsRepository satsRepository) {
+                                            SatsRepository satsRepository,
+                                            KalkulusInputTjeneste kalkulusInputTjeneste) {
         this.taskTjeneste = taskTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.fagsakRepository = fagsakRepository;
@@ -110,6 +114,7 @@ public class ForvaltningBeregningRestTjeneste {
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
         this.iayTjeneste = iayTjeneste;
         this.satsRepository = satsRepository;
+        this.kalkulusInputTjeneste = kalkulusInputTjeneste;
     }
 
     public ForvaltningBeregningRestTjeneste() {
@@ -256,12 +261,12 @@ public class ForvaltningBeregningRestTjeneste {
     }
 
     @POST
-    @Path("/hentBeregningsgrunnlagInput")
+    @Path("/hentBeregningsgrunnlagInputLegacy")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Henter input for beregning", tags = "FORVALTNING-beregning")
+    @Operation(description = "Henter input for beregning (legacy, avvikles når vi ikke lenger beregner noen saker i fpsak)", tags = "FORVALTNING-beregning")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
-    public Response hentBeregningsgrunnlagInput(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
+    public Response hentBeregningsgrunnlagInputLegacy(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         var behandling = getBehandling(dto);
         var inputTjeneste = beregningsgrunnlagInputProvider.getTjeneste(behandling.getFagsakYtelseType());
         var beregningsgrunnlagInput = inputTjeneste.lagInput(BehandlingReferanse.fra(behandling));
@@ -271,6 +276,22 @@ public class ForvaltningBeregningRestTjeneste {
         }
         return Response.ok(kalkulatorInputDto).build();
     }
+
+    @POST
+    @Path("/hentBeregningsgrunnlagInput")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Henter input for beregning som sendes til kalkulus", tags = "FORVALTNING-beregning")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
+    public Response hentBeregningsgrunnlagInput(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
+        var behandling = getBehandling(dto);
+        var kalkulatorInputDto = kalkulusInputTjeneste.lagKalkulusInput(BehandlingReferanse.fra(behandling));
+        if (kalkulatorInputDto == null) {
+            return Response.noContent().build();
+        }
+        return Response.ok(kalkulatorInputDto).build();
+    }
+
 
     @POST
     @Path("/migrerSak")
