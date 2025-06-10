@@ -9,7 +9,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -21,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingModell;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollTjenesteImpl;
@@ -34,15 +34,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKontrollRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingHenlagtEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @CdiDbAwareTest
 class HenleggBehandlingTjenesteTest {
@@ -53,7 +51,7 @@ class HenleggBehandlingTjenesteTest {
     private HistorikkinnslagRepository historikkRepositoryMock;
 
     @Mock
-    private DokumentBestillerTjeneste dokumentBestillerTjenesteMock;
+    private BehandlingEventPubliserer eventPubliserer;
 
     @Inject
     private BehandlingModellRepository behandlingModellRepository;
@@ -63,15 +61,13 @@ class HenleggBehandlingTjenesteTest {
 
     @Inject
     private AksjonspunktKontrollRepository aksjonspunktKontrollRepository;
-    @Mock
-    private ProsessTaskTjeneste taskTjenesteMock;
 
     private HenleggBehandlingTjeneste henleggBehandlingTjeneste;
 
     private Behandling behandling;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         behandling = scenario.lagMocked();
         repositoryProvider = scenario.mockBehandlingRepositoryProvider();
@@ -90,8 +86,7 @@ class HenleggBehandlingTjenesteTest {
         var behandlingskontrollTjenesteImpl = new BehandlingskontrollTjenesteImpl(serviceProvider);
         lenient().when(modell.erStegAFørStegB(any(), any())).thenReturn(true);
 
-        henleggBehandlingTjeneste = new HenleggBehandlingTjeneste(repositoryProvider,
-                behandlingskontrollTjenesteImpl, dokumentBestillerTjenesteMock, taskTjenesteMock);
+        henleggBehandlingTjeneste = new HenleggBehandlingTjeneste(repositoryProvider, behandlingskontrollTjenesteImpl, eventPubliserer);
     }
 
     @Test
@@ -100,12 +95,12 @@ class HenleggBehandlingTjenesteTest {
         var behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
 
         // Act
-        henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse");
+        henleggBehandlingTjeneste.henleggBehandlingManuell(behandling.getId(), behandlingsresultat, "begrunnelse");
 
         // Assert
         verify(historikkRepositoryMock).lagre(any(Historikkinnslag.class));
         verify(repositoryProvider.getBehandlingRepository(), atLeast(2)).lagre(eq(behandling), any(BehandlingLås.class));
-        verify(dokumentBestillerTjenesteMock).bestillDokument(any(DokumentBestilling.class));
+        verify(eventPubliserer).publiserBehandlingEvent(any(BehandlingHenlagtEvent.class));
     }
 
     @Test
@@ -114,12 +109,11 @@ class HenleggBehandlingTjenesteTest {
         var behandlingsresultat = BehandlingResultatType.HENLAGT_FEILOPPRETTET;
 
         // Act
-        henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse");
+        henleggBehandlingTjeneste.henleggBehandlingManuell(behandling.getId(), behandlingsresultat, "begrunnelse");
 
         // Assert
         verify(historikkRepositoryMock).lagre(any(Historikkinnslag.class));
         verify(repositoryProvider.getBehandlingRepository(), atLeast(2)).lagre(eq(behandling), any(BehandlingLås.class));
-        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(DokumentBestilling.class));
     }
 
     @Test
@@ -131,12 +125,11 @@ class HenleggBehandlingTjenesteTest {
         assertThat(aksjonspunkt.getStatus()).isEqualTo(AksjonspunktStatus.OPPRETTET);
 
         // Act
-        henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse");
+        henleggBehandlingTjeneste.henleggBehandlingManuell(behandling.getId(), behandlingsresultat, "begrunnelse");
 
         // Assert
         verify(historikkRepositoryMock).lagre(any(Historikkinnslag.class));
         verify(repositoryProvider.getBehandlingRepository(), atLeastOnce()).lagre(eq(behandling), any(BehandlingLås.class));
-        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(DokumentBestilling.class));
         assertThat(aksjonspunkt.getStatus()).isEqualTo(AksjonspunktStatus.AVBRUTT);
     }
 
@@ -146,12 +139,11 @@ class HenleggBehandlingTjenesteTest {
         var behandlingsresultat = BehandlingResultatType.HENLAGT_BRUKER_DØD;
 
         // Act
-        henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse");
+        henleggBehandlingTjeneste.henleggBehandlingManuell(behandling.getId(), behandlingsresultat, "begrunnelse");
 
         // Assert
         verify(historikkRepositoryMock).lagre(any(Historikkinnslag.class));
         verify(repositoryProvider.getBehandlingRepository(), atLeast(2)).lagre(eq(behandling), any(BehandlingLås.class));
-        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(DokumentBestilling.class));
     }
 
     @Test
@@ -166,7 +158,7 @@ class HenleggBehandlingTjenesteTest {
         var behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
 
         // Act
-        henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse");
+        henleggBehandlingTjeneste.henleggBehandlingManuell(behandling.getId(), behandlingsresultat, "begrunnelse");
         assertThat(behandling.getStatus()).isEqualTo(BehandlingStatus.AVSLUTTET);
     }
 
@@ -177,7 +169,7 @@ class HenleggBehandlingTjenesteTest {
         var behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
 
         // Act
-        henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse");
+        henleggBehandlingTjeneste.henleggBehandlingManuell(behandling.getId(), behandlingsresultat, "begrunnelse");
         assertThat(behandling.getStatus()).isEqualTo(BehandlingStatus.AVSLUTTET);
     }
 
@@ -189,7 +181,7 @@ class HenleggBehandlingTjenesteTest {
         forceOppdaterBehandlingSteg(behandling, IVERKSETT_VEDTAK);
 
         // Act
-        assertThatThrownBy(() -> henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse"))
+        assertThatThrownBy(() -> henleggBehandlingTjeneste.henleggBehandlingManuell(behandling.getId(), behandlingsresultat, "begrunnelse"))
                 .hasMessageContaining("FP-143308");
     }
 
@@ -200,7 +192,7 @@ class HenleggBehandlingTjenesteTest {
         var behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
 
         // Act
-        assertThatThrownBy(() -> henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse"))
+        assertThatThrownBy(() -> henleggBehandlingTjeneste.henleggBehandlingManuell(behandling.getId(), behandlingsresultat, "begrunnelse"))
                 .hasMessageContaining("FP-143308");
     }
 

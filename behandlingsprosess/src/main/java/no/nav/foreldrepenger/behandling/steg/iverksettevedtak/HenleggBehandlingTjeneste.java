@@ -3,32 +3,24 @@ package no.nav.foreldrepenger.behandling.steg.iverksettevedtak;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingHenlagtEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
-import no.nav.foreldrepenger.mottak.vedtak.StartBerørtBehandlingTask;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 public class HenleggBehandlingTjeneste {
 
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-    private DokumentBestillerTjeneste dokumentBestillerTjeneste;
-    private ProsessTaskTjeneste taskTjeneste;
-    private SøknadRepository søknadRepository;
+    private BehandlingEventPubliserer eventPubliserer;
     private HistorikkinnslagRepository historikkRepository;
 
 
@@ -39,82 +31,50 @@ public class HenleggBehandlingTjeneste {
     @Inject
     public HenleggBehandlingTjeneste(BehandlingRepositoryProvider repositoryProvider,
             BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-            DokumentBestillerTjeneste dokumentBestillerTjeneste,
-            ProsessTaskTjeneste taskTjeneste) {
+            BehandlingEventPubliserer eventPubliserer) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
-        this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
-        this.taskTjeneste = taskTjeneste;
-        this.søknadRepository = repositoryProvider.getSøknadRepository();
+        this.eventPubliserer = eventPubliserer;
         this.historikkRepository = repositoryProvider.getHistorikkinnslagRepository();
     }
 
-    public void henleggBehandling(Long behandlingId, BehandlingResultatType årsakKode, String begrunnelse) {
-        doHenleggBehandling(behandlingId, årsakKode, begrunnelse, false);
-    }
-
-    private void doHenleggBehandling(Long behandlingId, BehandlingResultatType årsakKode, String begrunnelse, boolean avbrytVentendeAutopunkt) {
+    public void henleggBehandlingManuell(Long behandlingId, BehandlingResultatType resultat, String begrunnelse) {
         var lås = behandlingRepository.taSkriveLås(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
+        doHenleggBehandling(behandling, lås, resultat, HistorikkAktør.SAKSBEHANDLER, begrunnelse);
+    }
+
+    public void henleggBehandlingManuell(Behandling behandling, BehandlingLås lås, BehandlingResultatType resultat, String begrunnelse) {
+        doHenleggBehandling(behandling, lås, resultat, HistorikkAktør.SAKSBEHANDLER, begrunnelse);
+    }
+
+    public void henleggBehandlingTeknisk(Behandling behandling, BehandlingLås lås, BehandlingResultatType resultat, String begrunnelse) {
+        doHenleggBehandling(behandling, lås, resultat, HistorikkAktør.VEDTAKSLØSNINGEN, begrunnelse);
+    }
+
+    private void doHenleggBehandling(Behandling behandling, BehandlingLås lås, BehandlingResultatType resultat, HistorikkAktør historikkAktør, String begrunnelse) {
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
-        if (avbrytVentendeAutopunkt && behandling.isBehandlingPåVent()) {
-            behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtførtForHenleggelse(behandling, kontekst);
-        } else {
-            håndterHenleggelseUtenOppgitteSøknadsopplysninger(behandling, kontekst);
+        if (behandling.isBehandlingPåVent()) {
+            // Må ta behandling av vent for å tillate henleggelse (krav i Behandlingskontroll)
+            behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktAvbruttForHenleggelse(behandling, kontekst);
         }
-        behandlingskontrollTjeneste.henleggBehandling(kontekst, årsakKode);
+        behandlingskontrollTjeneste.henleggBehandling(kontekst, resultat);
+        eventPubliserer.publiserBehandlingEvent(new BehandlingHenlagtEvent(behandling, resultat));
 
-        if (BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET.equals(årsakKode)
-                || BehandlingResultatType.HENLAGT_KLAGE_TRUKKET.equals(årsakKode)
-                || BehandlingResultatType.HENLAGT_INNSYN_TRUKKET.equals(årsakKode)) {
-            sendHenleggelsesbrev(behandling);
-        }
-        lagHistorikkinnslagForHenleggelse(behandling, årsakKode, begrunnelse, HistorikkAktør.SAKSBEHANDLER);
-
-        if (behandling.erYtelseBehandling() && FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
-            startTaskForDekøingAvBerørtBehandling(behandling);
-        }
+        lagHistorikkinnslagForHenleggelse(behandling, resultat, begrunnelse, historikkAktør);
     }
 
-    public void henleggBehandlingAvbrytAutopunkter(Long behandlingId, BehandlingResultatType årsakKode, String begrunnelse) {
-        doHenleggBehandling(behandlingId, årsakKode, begrunnelse, true);
+    public void lagHistorikkInnslagForHenleggelseFraSteg(Behandling behandling, BehandlingResultatType resultat, String begrunnelse) {
+        lagHistorikkinnslagForHenleggelse(behandling, resultat, begrunnelse, HistorikkAktør.VEDTAKSLØSNINGEN);
     }
 
-    public void lagHistorikkInnslagForHenleggelseFraSteg(Behandling behandling, BehandlingResultatType årsakKode, String begrunnelse) {
-        lagHistorikkinnslagForHenleggelse(behandling, årsakKode, begrunnelse, HistorikkAktør.VEDTAKSLØSNINGEN);
-    }
-
-    private void håndterHenleggelseUtenOppgitteSøknadsopplysninger(Behandling behandling, BehandlingskontrollKontekst kontekst) {
-        var søknad = søknadRepository.hentSøknad(behandling.getId());
-        if (søknad == null) {
-            // Må ta behandling av vent for å tillate henleggelse (krav i
-            // Behandlingskontroll)
-            behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtførtForHenleggelse(behandling, kontekst);
-        }
-    }
-
-    private void startTaskForDekøingAvBerørtBehandling(Behandling behandling) {
-        var taskData = ProsessTaskData.forProsessTask(StartBerørtBehandlingTask.class);
-        taskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
-        taskTjeneste.lagre(taskData);
-    }
-
-    private void sendHenleggelsesbrev(Behandling behandling) {
-        var dokumentBestilling = DokumentBestilling.builder()
-            .medBehandlingUuid(behandling.getUuid())
-            .medSaksnummer(behandling.getSaksnummer())
-            .medDokumentMal(DokumentMalType.INFO_OM_HENLEGGELSE)
-            .build();
-        dokumentBestillerTjeneste.bestillDokument(dokumentBestilling);
-    }
-
-    private void lagHistorikkinnslagForHenleggelse(Behandling behandling, BehandlingResultatType aarsak, String begrunnelse, HistorikkAktør aktør) {
+    private void lagHistorikkinnslagForHenleggelse(Behandling behandling, BehandlingResultatType resultat, String begrunnelse, HistorikkAktør aktør) {
         var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(aktør)
             .medBehandlingId(behandling.getId())
             .medFagsakId(behandling.getFagsakId())
             .medTittel("Behandling er henlagt")
-            .addLinje(aarsak.getNavn())
+            .addLinje(resultat.getNavn())
             .addLinje(begrunnelse)
             .build();
 

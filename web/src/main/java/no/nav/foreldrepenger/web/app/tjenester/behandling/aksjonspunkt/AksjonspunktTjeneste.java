@@ -141,19 +141,10 @@ public class AksjonspunktTjeneste {
     }
 
     private void håndterOverhopp(Behandling behandling, OverhoppResultat overhoppResultat, BehandlingskontrollKontekst kontekst) {
-        // TODO (essv): PKMANTIS-1992 Skrive om alle overhopp til å bruke stegTransisjon (se fremoverTransisjon nedenfor)
-        var funnetHenleggelse = overhoppResultat.finnHenleggelse();
-        if (funnetHenleggelse.isPresent()) {
-            var henleggelse = funnetHenleggelse.get();
-            henleggBehandlingTjeneste.henleggBehandling(kontekst.getBehandlingId(),
-                henleggelse.getHenleggelseResultat(), henleggelse.getHenleggingsbegrunnelse());
-        } else {
-            var fremoverTransisjon = overhoppResultat.finnFremoverTransisjon();
-            if (fremoverTransisjon.isPresent()) {
-                var riktigSteg = utledFremhoppSteg(behandling, fremoverTransisjon.get());
-                behandlingskontrollTjeneste.fremoverTransisjon(riktigSteg, kontekst);
-            }
-        }
+        overhoppResultat.finnFremoverTransisjon().ifPresent(framoverTransisjon -> {
+            var riktigSteg = utledFremhoppSteg(behandling, framoverTransisjon);
+            behandlingskontrollTjeneste.fremoverTransisjon(riktigSteg, kontekst);
+        });
     }
 
     public void overstyrAksjonspunkter(Collection<OverstyringAksjonspunktDto> overstyrteAksjonspunkter, Behandling behandling, BehandlingLås skriveLås) {
