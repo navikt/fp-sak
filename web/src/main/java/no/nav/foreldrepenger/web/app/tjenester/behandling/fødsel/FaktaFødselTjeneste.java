@@ -35,16 +35,24 @@ public class FaktaFødselTjeneste {
         var terminbekreftelse = familieHendelse.getSøknadVersjon().getTerminbekreftelse();
         var gjeldendeBarnListe = mapBarn(familieHendelse);
 
-        return new FødselDto(new FødselDto.Søknad(getBarn(familieHendelse.getSøknadVersjon()),
+        var søknadData = new FødselDto.Søknad(
+            getBarn(familieHendelse.getSøknadVersjon()),
             terminbekreftelse.map(TerminbekreftelseEntitet::getTermindato).orElse(null),
-            terminbekreftelse.map(TerminbekreftelseEntitet::getUtstedtdato).orElse(null), familieHendelse.getSøknadVersjon().getAntallBarn()),
-            new FødselDto.Register(familieHendelse.getBekreftetVersjon().map(this::getBarn).orElseGet(Collections::emptyList)),
-            new FødselDto.Gjeldende(mapTermindato(familieHendelse), mapUtstedtdato(familieHendelse), gjeldendeBarnListe,
-                mapGjeldendeAntallBarn(familieHendelse, gjeldendeBarnListe)));
-    }
+            terminbekreftelse.map(TerminbekreftelseEntitet::getUtstedtdato).orElse(null),
+            familieHendelse.getSøknadVersjon().getAntallBarn()
+        );
 
-    private int mapGjeldendeAntallBarn(FamilieHendelseGrunnlagEntitet familieHendelse, List<FødselDto.Gjeldende.GjeldendeBarn> gjeldendeBarnListe) {
-        return gjeldendeBarnListe.isEmpty() ? familieHendelse.getSøknadVersjon().getAntallBarn() : gjeldendeBarnListe.size();
+        var registerData = new FødselDto.Register(
+            familieHendelse.getBekreftetVersjon().map(this::getBarn).orElseGet(Collections::emptyList)
+        );
+
+        var gjeldendeData = new FødselDto.Gjeldende(
+            mapTermin(familieHendelse, gjeldendeBarnListe),
+            mapUtstedtdato(familieHendelse),
+            gjeldendeBarnListe
+        );
+
+        return new FødselDto(søknadData, registerData, gjeldendeData);
     }
 
     private FødselDto.Gjeldende.Utstedtdato mapUtstedtdato(FamilieHendelseGrunnlagEntitet familieHendelse) {
@@ -56,11 +64,13 @@ public class FaktaFødselTjeneste {
             return null; // Ingen utstedtdato tilgjengelig
         }
 
-        Kilde kilde = overstyrtUtstedtdato.isEmpty() || Objects.equals(overstyrtUtstedtdato, søknadUtstedtdato) ? Kilde.SØKNAD : Kilde.SAKSBEHANDLER;
-        return new FødselDto.Gjeldende.Utstedtdato(kilde, kilde == Kilde.SØKNAD ? søknadUtstedtdato.orElse(null) : overstyrtUtstedtdato.orElse(null));
+        var kilde = bestemKilde(overstyrtUtstedtdato, søknadUtstedtdato);
+        var utstedtDato = utledUtstedtDato(kilde, søknadUtstedtdato, overstyrtUtstedtdato);
+        return new FødselDto.Gjeldende.Utstedtdato(kilde, utstedtDato);
     }
 
-    private static FødselDto.Gjeldende.Termindato mapTermindato(FamilieHendelseGrunnlagEntitet familieHendelse) {
+    private static FødselDto.Gjeldende.Termin mapTermin(FamilieHendelseGrunnlagEntitet familieHendelse,
+                                                        List<FødselDto.Gjeldende.GjeldendeBarn> gjeldendeBarnListe) {
         var overstyrtTermindato = familieHendelse.getOverstyrtVersjon().flatMap(FamilieHendelseEntitet::getTermindato);
         var søknadTermindato = familieHendelse.getSøknadVersjon().getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato);
 
@@ -68,9 +78,26 @@ public class FaktaFødselTjeneste {
             return null; // Ingen termindato tilgjengelig
         }
 
-        var kilde = overstyrtTermindato.isEmpty() || Objects.equals(overstyrtTermindato, søknadTermindato) ? Kilde.SØKNAD : Kilde.SAKSBEHANDLER;
-        return new FødselDto.Gjeldende.Termindato(kilde, kilde == Kilde.SØKNAD ? søknadTermindato.orElse(null) : overstyrtTermindato.orElse(null),
-            true);
+        var kilde = bestemKilde(overstyrtTermindato, søknadTermindato);
+        var gjeldeneTermindato = utledTermindato(kilde, søknadTermindato, overstyrtTermindato);
+        var antallBarn = utledAntallBarn(gjeldendeBarnListe, familieHendelse);
+        return new FødselDto.Gjeldende.Termin(kilde, gjeldeneTermindato, antallBarn);
+    }
+
+    private static Kilde bestemKilde(java.util.Optional<LocalDate> overstyrtDato, java.util.Optional<LocalDate> søknadDato) {
+        return overstyrtDato.isEmpty() || Objects.equals(overstyrtDato, søknadDato) ? Kilde.SØKNAD : Kilde.SAKSBEHANDLER;
+    }
+
+    private static LocalDate utledUtstedtDato(Kilde kilde, java.util.Optional<LocalDate> søknadDato, java.util.Optional<LocalDate> overstyrtDato) {
+        return kilde == Kilde.SØKNAD ? søknadDato.orElse(null) : overstyrtDato.orElse(null);
+    }
+
+    private static LocalDate utledTermindato(Kilde kilde, java.util.Optional<LocalDate> søknadDato, java.util.Optional<LocalDate> overstyrtDato) {
+        return kilde == Kilde.SØKNAD ? søknadDato.orElse(null) : overstyrtDato.orElse(null);
+    }
+
+    private static int utledAntallBarn(List<FødselDto.Gjeldende.GjeldendeBarn> gjeldendeBarnListe, FamilieHendelseGrunnlagEntitet familieHendelse) {
+        return gjeldendeBarnListe.isEmpty() ? familieHendelse.getSøknadVersjon().getAntallBarn() : gjeldendeBarnListe.size();
     }
 
     private List<FødselDto.Gjeldende.GjeldendeBarn> mapBarn(FamilieHendelseGrunnlagEntitet familieHendelse) {
@@ -80,14 +107,13 @@ public class FaktaFødselTjeneste {
         var overstyrtBarn = familieHendelse.getOverstyrtVersjon().map(this::getBarn).orElseGet(Collections::emptyList);
 
         if (!bekreftedeBarn.isEmpty()) {
-            bekreftedeBarn.stream()
-                .map(barn -> new FødselDto.Gjeldende.GjeldendeBarn(Kilde.FOLKEREGISTER, barn, false))
-                .forEach(gjeldendeBarn::add);
+            bekreftedeBarn.stream().map(barn -> new FødselDto.Gjeldende.GjeldendeBarn(Kilde.FOLKEREGISTER, barn, false)).forEach(gjeldendeBarn::add);
         }
 
         if (!overstyrtBarn.isEmpty()) {
             var bekreftedeBarnMap = bekreftedeBarn.stream()
-                .collect(java.util.stream.Collectors.groupingBy(b -> new BarnNøkkel(b.fødselsdato(), b.dødsdato()), java.util.stream.Collectors.counting()));
+                .collect(java.util.stream.Collectors.groupingBy(b -> new BarnNøkkel(b.fødselsdato(), b.dødsdato()),
+                    java.util.stream.Collectors.counting()));
 
             overstyrtBarn.stream()
                 .collect(java.util.stream.Collectors.groupingBy(b -> new BarnNøkkel(b.fødselsdato(), b.dødsdato())))
@@ -117,5 +143,6 @@ public class FaktaFødselTjeneste {
             .toList();
     }
 
-    private record BarnNøkkel(LocalDate fødselsdato, LocalDate dødsdato) {}
+    private record BarnNøkkel(LocalDate fødselsdato, LocalDate dødsdato) {
+    }
 }

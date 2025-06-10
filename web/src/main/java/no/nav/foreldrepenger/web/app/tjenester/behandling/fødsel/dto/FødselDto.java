@@ -18,9 +18,9 @@ public record FødselDto(FødselDto.Søknad søknad, FødselDto.Register registe
     public record Register(List<BarnHendelseData> barn) {
     }
 
-    public record Gjeldende(FødselDto.Gjeldende.Termindato termindato, FødselDto.Gjeldende.Utstedtdato utstedtdato, List<FødselDto.Gjeldende.GjeldendeBarn> barn, int antallBarn) {
+    public record Gjeldende(Termin termin, FødselDto.Gjeldende.Utstedtdato utstedtdato, List<FødselDto.Gjeldende.GjeldendeBarn> barn) {
 
-        public record Termindato(Kilde kilde, LocalDate termindato, boolean kanOverstyres) {
+        public record Termin(Kilde kilde, LocalDate termindato, int antallBarn) {
         }
         public record Utstedtdato(Kilde kilde, LocalDate utstedtdato) {
         }
