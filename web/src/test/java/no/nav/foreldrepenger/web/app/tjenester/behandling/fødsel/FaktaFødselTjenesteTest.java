@@ -227,7 +227,6 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
 
         // Act
         var fødselDto = tjeneste.hentFaktaOmFødsel(behandling.getId());
-        var fhFraRepo = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
 
         // Assert
         var gjeldende = fødselDto.gjeldende();
