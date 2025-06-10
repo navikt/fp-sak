@@ -27,7 +27,6 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
 @Path(FødselRestTjeneste.BASE_PATH)
 @ApplicationScoped
-@Produces(MediaType.APPLICATION_JSON)
 @Transactional
 public class FødselRestTjeneste {
 
