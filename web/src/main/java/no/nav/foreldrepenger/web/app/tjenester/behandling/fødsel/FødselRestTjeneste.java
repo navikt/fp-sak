@@ -32,7 +32,7 @@ public class FødselRestTjeneste {
 
     static final String BASE_PATH = "/behandling/fodsel";
     private static final String FAKTA_FODSEL_PART_PATH = "/fakta-fodsel";
-    public static final String FAKTA_FODSEL_PATH = BASE_PATH + FAKTA_FODSEL_PART_PATH; // TODO: Sjekk om denne skal legges inn flere steder
+    public static final String FAKTA_FODSEL_PATH = BASE_PATH + FAKTA_FODSEL_PART_PATH;
 
     private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
     private FaktaFødselTjeneste faktaFødselTjeneste;
