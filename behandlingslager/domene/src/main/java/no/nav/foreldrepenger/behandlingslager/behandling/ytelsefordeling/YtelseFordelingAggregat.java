@@ -188,7 +188,7 @@ public class YtelseFordelingAggregat {
         if (robustHarAleneomsorg(relasjonsRolleType)) {
             return Rettighetstype.ALENEOMSORG;
         }
-        if (morMottarUføretrygd(uføretrygdGrunnlag)) {
+        if (relasjonsRolleType.erFarEllerMedMor() && morMottarUføretrygd(uføretrygdGrunnlag)) { //Legger gamle saker med avklart annenpart ufør selv om søker er mor
             return Rettighetstype.BARE_FAR_RETT_MOR_UFØR;
         }
         return Boolean.TRUE.equals(Optional.ofNullable(getAnnenForelderRettAvklaring())
