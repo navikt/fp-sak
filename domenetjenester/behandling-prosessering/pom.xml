@@ -27,6 +27,11 @@
             <artifactId>registerinnhenting</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>no.nav.foreldrepenger</groupId>
+            <artifactId>produksjonsstyring</artifactId>
+        </dependency>
+
         <!-- Test dependencies -->
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>

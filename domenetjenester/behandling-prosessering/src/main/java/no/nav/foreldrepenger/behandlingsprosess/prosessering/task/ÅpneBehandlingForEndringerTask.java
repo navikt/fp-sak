@@ -1,11 +1,10 @@
-package no.nav.foreldrepenger.domene.registerinnhenting.impl;
+package no.nav.foreldrepenger.behandlingsprosess.prosessering.task;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktkontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingModellTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktType;
@@ -15,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -24,7 +24,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class ÅpneBehandlingForEndringerTask extends BehandlingProsessTask {
 
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste;
     private BehandlingRepository behandlingRepository;
     private ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste;
@@ -35,13 +35,13 @@ public class ÅpneBehandlingForEndringerTask extends BehandlingProsessTask {
     }
 
     @Inject
-    public ÅpneBehandlingForEndringerTask(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+    public ÅpneBehandlingForEndringerTask(BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                                           AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste,
                                           ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste,
                                           BehandlingRepositoryProvider repositoryProvider,
                                           BehandlingModellTjeneste behandlingModellTjeneste) {
         super(repositoryProvider.getBehandlingLåsRepository());
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.aksjonspunktkontrollTjeneste = aksjonspunktkontrollTjeneste;
         this.arbeidsforholdAdministrasjonTjeneste = arbeidsforholdAdministrasjonTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -60,12 +60,11 @@ public class ÅpneBehandlingForEndringerTask extends BehandlingProsessTask {
             return;
         }
         arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandler(behandling.getId());
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
         reaktiverAksjonspunkter(behandling, lås, startpunkt);
         behandling.setÅpnetForEndring(true);
-        behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, startpunkt.getBehandlingSteg());
+        behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, lås, startpunkt.getBehandlingSteg());
         if (behandling.isBehandlingPåVent()) {
-            behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
+            behandlingProsesseringTjeneste.taBehandlingAvVent(behandling);
         }
     }
 
