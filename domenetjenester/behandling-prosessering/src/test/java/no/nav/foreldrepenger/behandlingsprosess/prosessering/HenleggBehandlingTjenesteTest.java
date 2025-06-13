@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling.steg.iverksettevedtak;
+package no.nav.foreldrepenger.behandlingsprosess.prosessering;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType.IVERKSETT_VEDTAK;
 import static no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling.forceOppdaterBehandlingSteg;
@@ -22,6 +22,7 @@ import org.mockito.Mock;
 
 import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingModell;
+import no.nav.foreldrepenger.behandlingskontroll.impl.AksjonspunktkontrollTjenesteImpl;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollTjenesteImpl;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
@@ -84,9 +85,11 @@ class HenleggBehandlingTjenesteTest {
                 aksjonspunktKontrollRepository);
 
         var behandlingskontrollTjenesteImpl = new BehandlingskontrollTjenesteImpl(serviceProvider);
+        var aksjonspunktKontrollTjenesteImpl = new AksjonspunktkontrollTjenesteImpl(serviceProvider);
         lenient().when(modell.erStegAFørStegB(any(), any())).thenReturn(true);
 
-        henleggBehandlingTjeneste = new HenleggBehandlingTjeneste(repositoryProvider, behandlingskontrollTjenesteImpl, eventPubliserer);
+        henleggBehandlingTjeneste = new HenleggBehandlingTjeneste(repositoryProvider, aksjonspunktKontrollTjenesteImpl,
+                behandlingskontrollTjenesteImpl, eventPubliserer);
     }
 
     @Test
@@ -179,17 +182,6 @@ class HenleggBehandlingTjenesteTest {
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(behandling);
         var behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
         forceOppdaterBehandlingSteg(behandling, IVERKSETT_VEDTAK);
-
-        // Act
-        assertThatThrownBy(() -> henleggBehandlingTjeneste.henleggBehandlingManuell(behandling.getId(), behandlingsresultat, "begrunnelse"))
-                .hasMessageContaining("FP-143308");
-    }
-
-    @Test
-    void kan_ikke_henlegge_behandling_som_allerede_er_henlagt() {
-        // Arrange
-        Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.HENLAGT_FEILOPPRETTET).buildFor(behandling);
-        var behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
 
         // Act
         assertThatThrownBy(() -> henleggBehandlingTjeneste.henleggBehandlingManuell(behandling.getId(), behandlingsresultat, "begrunnelse"))

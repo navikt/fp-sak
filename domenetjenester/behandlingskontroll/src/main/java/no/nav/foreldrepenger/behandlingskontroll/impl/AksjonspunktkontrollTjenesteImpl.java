@@ -87,7 +87,7 @@ public class AksjonspunktkontrollTjenesteImpl implements AksjonspunktkontrollTje
     public void lagreAksjonspunkterAvbrutt(Behandling behandling, BehandlingLås skriveLås, List<Aksjonspunkt> aksjonspunkter) {
         var aksjonspunktResultater = aksjonspunkter.stream()
             .filter(a -> !a.erAvbrutt())
-            .map(a -> AksjonspunktResultat.opprettForAksjonspunkt(a.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT))
+            .map(a -> AksjonspunktResultat.statusForAksjonspunkt(a.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT))
             .toList();
         internLagreAksjonspunktResultat(behandling, skriveLås, null, aksjonspunktResultater);
     }
@@ -130,6 +130,9 @@ public class AksjonspunktkontrollTjenesteImpl implements AksjonspunktkontrollTje
     private List<Aksjonspunkt> internLagreAksjonspunktResultat(Behandling behandling, BehandlingLås skriveLås,
                                                                BehandlingStegType behandlingStegType,
                                                                List<AksjonspunktResultat> aksjonspunktResultater) {
+        if (aksjonspunktResultater.isEmpty()) {
+            return List.of();
+        }
         if (aksjonspunktResultater.stream().map(AksjonspunktResultat::getAksjonspunktDefinisjon).anyMatch(AksjonspunktDefinisjon::erAutopunkt)) {
             throw new IllegalArgumentException("Utviklerfeil: aksjonspunktResultater inneholder autopunkt "
                 + aksjonspunktResultater.stream().map(AksjonspunktResultat::getAksjonspunktDefinisjon).toList());

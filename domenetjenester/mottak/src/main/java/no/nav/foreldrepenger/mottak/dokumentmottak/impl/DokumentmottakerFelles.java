@@ -101,8 +101,7 @@ public class DokumentmottakerFelles {
         historikkinnslagTjeneste.opprettHistorikkinnslagForVenteFristRelaterteInnslag(køetBehandling, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
     }
 
-    void opprettHistorikkinnslagForAutomatiskHenlegelsePgaNySøknad(Behandling behandling, Behandling nyBehandling, MottattDokument mottattDokument) {
-        historikkinnslagTjeneste.opprettHistorikkinnslagForAutomatiskHenlegelsePgaNySøknad(behandling);
+    void opprettHistorikkinnslagForAutomatiskHenlegelsePgaNySøknad(Behandling nyBehandling, MottattDokument mottattDokument) {
         historikkinnslagTjeneste.opprettHistorikkinnslag(nyBehandling, mottattDokument.getJournalpostId(), mottattDokument.getElektroniskRegistrert(), DokumentTypeId.INNTEKTSMELDING.equals(mottattDokument.getDokumentType()));
     }
 
@@ -175,7 +174,7 @@ public class DokumentmottakerFelles {
 
     Behandling oppdatereViaHenleggelse(Behandling behandling, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsak) {
         var nyBehandling = behandlingsoppretter.oppdaterBehandlingViaHenleggelse(behandling, behandlingÅrsak);
-        opprettHistorikkinnslagForAutomatiskHenlegelsePgaNySøknad(behandling, nyBehandling, mottattDokument);
+        opprettHistorikkinnslagForAutomatiskHenlegelsePgaNySøknad(nyBehandling, mottattDokument);
         var søknadsdato = behandlingRevurderingTjeneste.finnSøknadsdatoFraHenlagtBehandling(nyBehandling);
         mottatteDokumentTjeneste.persisterDokumentinnhold(nyBehandling, mottattDokument, søknadsdato);
         return nyBehandling;
@@ -183,7 +182,7 @@ public class DokumentmottakerFelles {
 
     Behandling oppdatereViaHenleggelseEnkø(Behandling behandling, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsak) {
         var nyBehandling = behandlingsoppretter.oppdaterBehandlingViaHenleggelse(behandling, behandlingÅrsak);
-        opprettHistorikkinnslagForAutomatiskHenlegelsePgaNySøknad(behandling, nyBehandling, mottattDokument);
+        opprettHistorikkinnslagForAutomatiskHenlegelsePgaNySøknad(nyBehandling, mottattDokument);
         var søknadsdato = behandlingRevurderingTjeneste.finnSøknadsdatoFraHenlagtBehandling(nyBehandling);
         mottatteDokumentTjeneste.persisterDokumentinnhold(nyBehandling, mottattDokument, søknadsdato);
         behandlingsoppretter.settSomKøet(nyBehandling);

@@ -17,12 +17,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.HenleggBehandlingTjeneste;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
@@ -48,6 +50,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private BehandlingOpprettingTjeneste behandlingOpprettingTjeneste;
+    private HenleggBehandlingTjeneste henleggBehandlingTjeneste;
     private KabalTjeneste kabalTjeneste;
 
     MottaFraKabalTask() {
@@ -60,10 +63,12 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
                              BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                              BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                              BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
+                             HenleggBehandlingTjeneste henleggBehandlingTjeneste,
                              KabalTjeneste kabalTjeneste) {
         super(repositoryProvider.getBehandlingLåsRepository());
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
+        this.henleggBehandlingTjeneste = henleggBehandlingTjeneste;
         this.kabalTjeneste = kabalTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
@@ -99,13 +104,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
             kabalTjeneste.lagreKlageUtfallFraKabal(klageBehandling, lås, utfall);
         }
         if (KabalUtfall.TRUKKET.equals(utfall) || KabalUtfall.HEVET.equals(utfall)) {
-            if (klageBehandling.isBehandlingPåVent()) {
-                behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktAvbruttForHenleggelse(klageBehandling, kontekst);
-            }
-            if (erIkkeHenlagt(klageBehandling)) {
-                behandlingskontrollTjeneste.henleggBehandling(kontekst, BehandlingResultatType.HENLAGT_KLAGE_TRUKKET);
-                kabalTjeneste.lagHistorikkinnslagForHenleggelse(klageBehandling, BehandlingResultatType.HENLAGT_KLAGE_TRUKKET);
-            }
+            henleggBehandling(klageBehandling, lås, BehandlingResultatType.HENLAGT_KLAGE_TRUKKET);
         } else if (KabalUtfall.RETUR.equals(utfall)) {
             // Knoteri siden behandling tilbakeføres og deretter kanskje skal til Kabal på nytt. Avbrutt er viktig. Gjennomgå retur-semantikk på nytt.
             klageBehandling.getÅpentAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE)
@@ -169,13 +168,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(ankeBehandling, lås);
         kabalTjeneste.settKabalReferanse(ankeBehandling, ref);
         if (KabalUtfall.TRUKKET.equals(utfall) || KabalUtfall.HEVET.equals(utfall)) {
-            if (ankeBehandling.isBehandlingPåVent()) {
-                behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktAvbruttForHenleggelse(ankeBehandling, kontekst);
-            }
-            if (erIkkeHenlagt(ankeBehandling)) {
-                behandlingskontrollTjeneste.henleggBehandling(kontekst, BehandlingResultatType.HENLAGT_ANKE_TRUKKET);
-                kabalTjeneste.lagHistorikkinnslagForHenleggelse(ankeBehandling, BehandlingResultatType.HENLAGT_ANKE_TRUKKET);
-            }
+            henleggBehandling(ankeBehandling, lås, BehandlingResultatType.HENLAGT_ANKE_TRUKKET);
         } else if (KabalUtfall.RETUR.equals(utfall)) {
             throw new IllegalStateException("KABAL sender ankeutfall RETUR sak " + ankeBehandling.getSaksnummer().getVerdi());
         } else {
@@ -199,15 +192,8 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
                 .orElseThrow(() -> new IllegalStateException("Finner ike ankebehandling for behandling " + behandlingId));
         var lås = behandlingRepository.taSkriveLås(behandling);
         kabalTjeneste.settKabalReferanse(behandling, ref);
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
         kabalTjeneste.settKabalReferanse(behandling, ref);
-        if (behandling.isBehandlingPåVent()) {
-            behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktAvbruttForHenleggelse(behandling, kontekst);
-        }
-        if (erIkkeHenlagt(behandling)) {
-            behandlingskontrollTjeneste.henleggBehandling(kontekst, BehandlingResultatType.HENLAGT_FEILOPPRETTET);
-            kabalTjeneste.lagHistorikkinnslagForHenleggelse(behandling, BehandlingResultatType.HENLAGT_FEILOPPRETTET);
-        }
+        henleggBehandling(behandling, lås, BehandlingResultatType.HENLAGT_FEILOPPRETTET);
     }
 
     private void endreAnsvarligEnhetTilNFPVedTilbakeføringOgLagreHistorikkinnslag(Behandling behandling) {
@@ -218,6 +204,12 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
         }
         var tilEnhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(behandling.getFagsak());
         behandlendeEnhetTjeneste.oppdaterBehandlendeEnhet(behandling, tilEnhet, HistorikkAktør.VEDTAKSLØSNINGEN, "");
+    }
+
+    private void henleggBehandling(Behandling behandling, BehandlingLås lås, BehandlingResultatType behandlingResultatType) {
+        if (erIkkeHenlagt(behandling)) {
+            henleggBehandlingTjeneste.henleggBehandlingTeknisk(behandling, lås, behandlingResultatType, null);
+        }
     }
 
     private boolean erIkkeHenlagt(Behandling behandling) {
