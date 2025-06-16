@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandling.kabal;
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -30,10 +29,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
-import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeOrganisasjonEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
@@ -86,12 +86,12 @@ public class KabalTjeneste {
             .orElseGet(() -> KlageHjemmel.standardHjemmelForYtelse(klageBehandling.getFagsakYtelseType()));
         var enhet = utledEnhet(klageBehandling.getFagsak());
         var klageMottattDato  = kabalDokumenter.utledDokumentMottattDato(klageBehandling);
-        var klager = utledKlager(klageBehandling, Optional.of(resultat.getKlageResultat()));
-        var sakMottattKaDato = LocalDateTime.now();
+        var sakenGjelder = utledSakenGjelder(klageBehandling);
+        var fullmektig = utledFullmektig(klageBehandling, Optional.of(resultat.getKlageResultat()));
         var dokumentReferanser = kabalDokumenter.finnDokumentReferanserForKlage(klageBehandling.getId(),
             klageBehandling.getSaksnummer(), resultat.getKlageResultat(), brukHjemmel);
-        var request = TilKabalDto.klage(klageBehandling, klager, enhet, dokumentReferanser,
-            klageMottattDato, klageMottattDato, sakMottattKaDato, List.of(brukHjemmel.getKabal()), resultat.getBegrunnelse());
+        var request = TilKabalDto.klage(klageBehandling, sakenGjelder, fullmektig, enhet, dokumentReferanser,
+            klageMottattDato, List.of(brukHjemmel.getKabal()), resultat.getBegrunnelse());
         kabalKlient.sendTilKabal(request);
     }
 
@@ -187,16 +187,30 @@ public class KabalTjeneste {
         return behandlendeEnhetTjeneste.finnBehandlendeEnhetFra(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId()).orElseThrow()).enhetId();
     }
 
-    private TilKabalDto.Klager utledKlager(Behandling behandling, Optional<KlageResultatEntitet> resultat) {
+    private TilKabalDto.Klager utledSakenGjelder(Behandling behandling) {
+        var klagerPart = utledPartId(behandling.getAktørId());
+        return new TilKabalDto.Klager(klagerPart);
+    }
+
+    private TilKabalDto.Fullmektig utledFullmektig(Behandling behandling, Optional<KlageResultatEntitet> resultat) {
         var verge = vergeRepository.hentAggregat(behandling.getId())
             .or(() -> resultat.flatMap(KlageResultatEntitet::getPåKlagdBehandlingId).flatMap(b -> vergeRepository.hentAggregat(b)))
-            .flatMap(VergeAggregat::getVerge)
-            .map(v -> v.getVergeOrganisasjon().isPresent() ?
-                new TilKabalDto.Part(TilKabalDto.PartsType.VIRKSOMHET, v.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getOrganisasjonsnummer).orElseThrow()) :
-                new TilKabalDto.Part(TilKabalDto.PartsType.PERSON, personinfoAdapter.hentFnr(v.getBruker().get().getAktørId()).map(PersonIdent::getIdent).orElseThrow()))
-            .map(p -> new TilKabalDto.Fullmektig(p, true));
-        var klagerPart = new TilKabalDto.Part(TilKabalDto.PartsType.PERSON, personinfoAdapter.hentFnr(behandling.getAktørId()).map(PersonIdent::getIdent).orElseThrow());
-        return new TilKabalDto.Klager(klagerPart, verge.orElse(null));
+            .flatMap(VergeAggregat::getVerge);
+        if (verge.flatMap(VergeEntitet::getVergeOrganisasjon).isPresent()) {
+            var vergeOrganisasjon = verge.flatMap(VergeEntitet::getVergeOrganisasjon).orElseThrow();
+            var partId = new TilKabalDto.PartId(TilKabalDto.PartsType.VIRKSOMHET, vergeOrganisasjon.getOrganisasjonsnummer());
+            return new TilKabalDto.Fullmektig(partId, vergeOrganisasjon.getNavn());
+        } else if (verge.flatMap(VergeEntitet::getBruker).isPresent()) {
+            var vergeBruker = verge.flatMap(VergeEntitet::getBruker).orElseThrow();
+            return new TilKabalDto.Fullmektig(utledPartId(vergeBruker.getAktørId()), null);
+        } else {
+            return null;
+        }
+    }
+
+    private TilKabalDto.PartId utledPartId(AktørId aktørId) {
+        return new TilKabalDto.PartId(TilKabalDto.PartsType.PERSON,
+            personinfoAdapter.hentFnr(aktørId).map(PersonIdent::getIdent).orElseThrow());
     }
 
     private void opprettHistorikkinnslagKlage(Behandling behandling, KabalUtfall utfall) {
