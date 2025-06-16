@@ -11,13 +11,13 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.innsyn.InnsynTjeneste;
 import no.nav.foreldrepenger.validering.FeltFeilDto;
 import no.nav.foreldrepenger.validering.Valideringsfeil;
@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.validering.Valideringsfeil;
 @DtoTilServiceAdapter(dto = VurderInnsynDto.class, adapter = AksjonspunktOppdaterer.class)
 public class VurderInnsynOppdaterer implements AksjonspunktOppdaterer<VurderInnsynDto> {
 
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private InnsynTjeneste innsynTjeneste;
     private BehandlingRepository behandlingRepository;
 
@@ -35,10 +35,10 @@ public class VurderInnsynOppdaterer implements AksjonspunktOppdaterer<VurderInns
     }
 
     @Inject
-    public VurderInnsynOppdaterer(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+    public VurderInnsynOppdaterer(BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                                   InnsynTjeneste innsynTjeneste,
                                   BehandlingRepository behandlingRepository) {
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.innsynTjeneste = innsynTjeneste;
         this.behandlingRepository = behandlingRepository;
     }
@@ -58,8 +58,8 @@ public class VurderInnsynOppdaterer implements AksjonspunktOppdaterer<VurderInns
         innsynTjeneste.lagreVurderInnsynResultat(behandling, builder.build());
 
         if (dto.isSattPaVent()) {
-            behandlingskontrollTjeneste.settBehandlingPåVent(behandling, AksjonspunktDefinisjon.VENT_PÅ_SCANNING,
-                BehandlingStegType.VURDER_INNSYN, frist(dto.getFristDato()), Venteårsak.SCANN);
+            behandlingProsesseringTjeneste.settBehandlingPåVent(behandling, BehandlingStegType.VURDER_INNSYN,
+                AksjonspunktDefinisjon.VENT_PÅ_SCANNING, frist(dto.getFristDato()), Venteårsak.SCANN);
         }
 
         return OppdateringResultat.utenOverhopp();

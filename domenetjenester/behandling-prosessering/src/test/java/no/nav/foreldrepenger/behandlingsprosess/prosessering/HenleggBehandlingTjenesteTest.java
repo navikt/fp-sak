@@ -23,7 +23,6 @@ import org.mockito.Mock;
 import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingModell;
 import no.nav.foreldrepenger.behandlingskontroll.impl.AksjonspunktkontrollTjenesteImpl;
-import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollTjenesteImpl;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -53,9 +52,6 @@ class HenleggBehandlingTjenesteTest {
 
     @Mock
     private BehandlingEventPubliserer eventPubliserer;
-
-    @Inject
-    private BehandlingModellRepository behandlingModellRepository;
 
     @Mock
     private BehandlingModell modell;

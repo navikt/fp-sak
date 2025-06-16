@@ -65,7 +65,7 @@ public class HenleggBehandlingTjeneste {
 
         // Avbryt alle åpne autopunkt
         if (behandling.isBehandlingPåVent()) {
-            behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktAvbruttForHenleggelse(behandling, kontekst);
+            behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktAvbruttForHenleggelse(kontekst, behandling);
         }
 
         doForberedHenleggelse(behandling, lås, resultat, historikkAktør, begrunnelse);

@@ -41,7 +41,10 @@ public interface BehandlingProsesseringTjeneste {
     // AV/PÅ Vent
     void taBehandlingAvVent(Behandling behandling);
 
-    void settBehandlingPåVent(Behandling behandling, AksjonspunktDefinisjon apDef, LocalDateTime fristTid, Venteårsak venteårsak);
+    // Steg ikke vesentlig
+    void settBehandlingPåVentUtenSteg(Behandling behandling, AksjonspunktDefinisjon apDef, LocalDateTime fristTid, Venteårsak venteårsak);
+    // Steg kan ha betydning for gjenopptak
+    void settBehandlingPåVent(Behandling behandling, BehandlingStegType steg, AksjonspunktDefinisjon apDef, LocalDateTime fristTid, Venteårsak venteårsak);
 
     // For snapshot av grunnlag før man gjør andre endringer enn registerinnhenting
     EndringsresultatSnapshot taSnapshotAvBehandlingsgrunnlag(Behandling behandling);

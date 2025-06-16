@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.vedtak.innsyn.InnsynTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
@@ -53,6 +54,8 @@ class VurderInnsynOppdatererTest {
     private BehandlingsresultatRepository behandlingsresultatRepository;
     @Inject
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    @Inject
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste = Mockito.mock(BehandlendeEnhetTjeneste.class);
     private InnsynTjeneste innsynTjeneste;
@@ -65,7 +68,7 @@ class VurderInnsynOppdatererTest {
         var oppretter = new BehandlingOpprettingTjeneste(behandlingskontrollTjeneste, behandlendeEnhetTjeneste, repositoryProvider.getHistorikkinnslagRepository(),
                 mock(ProsessTaskTjeneste.class));
         innsynTjeneste = new InnsynTjeneste(oppretter, fagsakRepository, behandlingRepository, behandlingsresultatRepository, innsynRepository);
-        oppdaterer = new VurderInnsynOppdaterer(behandlingskontrollTjeneste, innsynTjeneste, behandlingRepository);
+        oppdaterer = new VurderInnsynOppdaterer(behandlingProsesseringTjeneste, innsynTjeneste, behandlingRepository);
     }
 
     @Test

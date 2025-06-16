@@ -104,6 +104,7 @@ public class BrevRestTjeneste {
     @Operation(description = "Bestiller generering og sending av brevet", tags = "brev")
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public void bestillDokument(@TilpassetAbacAttributt(supplierClass = BrevAbacDataSupplier.class) @Parameter(description = "Inneholder kode til brevmal og data som skal flettes inn i brevet") @Valid BestillDokumentDto bestillBrevDto) {
+        behandlingRepository.taSkriveLås(bestillBrevDto.behandlingUuid());
         var behandling = behandlingRepository.hentBehandling(bestillBrevDto.behandlingUuid());
         LOG.info("Brev med brevmalkode={} bestilt på behandlingId={}", bestillBrevDto.brevmalkode(), behandling.getId());
 

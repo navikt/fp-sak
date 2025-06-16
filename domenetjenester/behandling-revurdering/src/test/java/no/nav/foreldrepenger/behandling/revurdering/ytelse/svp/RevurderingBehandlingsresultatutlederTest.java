@@ -139,11 +139,9 @@ class RevurderingBehandlingsresultatutlederTest {
                 beregningTjeneste,
                 medlemTjeneste, dekningsgradTjeneste, uttakTjeneste);
 
-        var behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(
-                serviceProvider);
-        var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider, behandlingRevurderingTjeneste);
-        revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider, grunnlagRepositoryProvider, behandlingskontrollTjeneste,
-                iayTjeneste, revurderingEndring, revurderingTjenesteFelles, vergeRepository);
+        var behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider);
+        var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider, behandlingRevurderingTjeneste, behandlingskontrollTjeneste);
+        revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider, grunnlagRepositoryProvider, iayTjeneste, revurderingEndring, revurderingTjenesteFelles, vergeRepository);
         revurdering = revurderingTjeneste
                 .opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(),
                         BehandlingÅrsakType.RE_HENDELSE_FØDSEL, new OrganisasjonsEnhet("1234", "Test"));

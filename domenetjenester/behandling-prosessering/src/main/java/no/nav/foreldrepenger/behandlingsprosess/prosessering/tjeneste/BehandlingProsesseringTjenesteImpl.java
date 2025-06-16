@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapsho
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTask;
@@ -43,14 +44,13 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 /**
  * Grensesnitt for å kjøre behandlingsprosess, herunder gjenopptak,
- * registeroppdatering, koordinering av sakskompleks mv. Alle kall til
- * utføringsmetode i behandlingskontroll bør gå gjennom tasks opprettet her.
- * Merk Dem: - ta av vent og grunnlagsoppdatering kan føre til reposisjonering
- * av behandling til annet steg - grunnlag endres ved ankomst av dokument, ved
- * registerinnhenting og ved senere overstyring ("bekreft AP" eller egne
- * overstyringAP) - Hendelser: Ny behandling (Manuell, dokument, mv), Gjenopptak
- * (Manuell/Frist), Interaktiv (Oppdater/Fortsett), Dokument, Datahendelse,
- * Vedtak, KØ-hendelser
+ * registeroppdatering, koordinering av sakskompleks mv.
+ * Alle kall til utføringsmetode i behandlingskontroll bør gå gjennom tasks opprettet her.
+ * Merk Dem:
+ * - ta av vent og grunnlagsoppdatering kan føre til reposisjonering av behandling til annet steg
+ * - grunnlag endres ved ankomst av dokument, ved registerinnhenting og ved senere overstyring ("bekreft AP" eller egne overstyringAP)
+ * - Hendelser: Ny behandling (Manuell, dokument, mv), Gjenopptak (Manuell/Frist), Interaktiv (Oppdater/Fortsett),
+ *              Dokument, Datahendelse, Vedtak, KØ-hendelser
  **/
 @ApplicationScoped
 public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesseringTjeneste {
@@ -60,6 +60,7 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     private static final TaskType TASK_ABAKUS = TaskType.forProsessTask(InnhentIAYIAbakusTask.class);
 
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingLåsRepository behandlingLåsRepository;
     private BehandlingModellTjeneste behandlingModellTjeneste;
     private RegisterdataEndringshåndterer registerdataEndringshåndterer;
     private EndringsresultatSjekker endringsresultatSjekker;
@@ -67,11 +68,13 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
 
     @Inject
     public BehandlingProsesseringTjenesteImpl(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                              BehandlingLåsRepository behandlingLåsRepository,
                                               BehandlingModellTjeneste behandlingModellTjeneste,
                                               RegisterdataEndringshåndterer registerdataEndringshåndterer,
                                               EndringsresultatSjekker endringsresultatSjekker,
                                               ProsessTaskTjeneste taskTjeneste) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.behandlingLåsRepository = behandlingLåsRepository;
         this.behandlingModellTjeneste = behandlingModellTjeneste;
         this.registerdataEndringshåndterer = registerdataEndringshåndterer;
         this.endringsresultatSjekker = endringsresultatSjekker;
@@ -103,7 +106,6 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
             behandling.getAktivtBehandlingSteg(), stegType);
     }
 
-
     @Override
     public boolean erBehandlingEtterSteg(Behandling behandling, BehandlingStegType stegType) {
         return behandlingModellTjeneste.erStegAEtterStegB(behandling.getFagsakYtelseType(), behandling.getType(),
@@ -113,13 +115,23 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     // AV/PÅ Vent
     @Override
     public void taBehandlingAvVent(Behandling behandling) {
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-        behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
+        var lås = behandlingLåsRepository.taLås(behandling.getId());
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
+        behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(kontekst, behandling);
     }
 
     @Override
-    public void settBehandlingPåVent(Behandling behandling, AksjonspunktDefinisjon apDef, LocalDateTime fristTid, Venteårsak venteårsak) {
-        behandlingskontrollTjeneste.settBehandlingPåVent(behandling, apDef, behandling.getAktivtBehandlingSteg(), fristTid, venteårsak);
+    public void settBehandlingPåVentUtenSteg(Behandling behandling, AksjonspunktDefinisjon apDef, LocalDateTime fristTid, Venteårsak venteårsak) {
+        var lås = behandlingLåsRepository.taLås(behandling.getId());
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
+        behandlingskontrollTjeneste.settBehandlingPåVentUtenSteg(kontekst, behandling, apDef, fristTid, venteårsak);
+    }
+
+    @Override
+    public void settBehandlingPåVent(Behandling behandling, BehandlingStegType steg, AksjonspunktDefinisjon apDef, LocalDateTime fristTid, Venteårsak venteårsak) {
+        var lås = behandlingLåsRepository.taLås(behandling.getId());
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
+        behandlingskontrollTjeneste.settBehandlingPåVent(kontekst, behandling, steg, apDef, fristTid, venteårsak);
     }
 
     // For snapshot av grunnlag før man gjør andre endringer enn registerinnhenting
