@@ -14,7 +14,8 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "kabal.api.url", endpointDefault = "https://kabal-api.intern.nav.no/api/oversendelse/v3/sak",
+@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "kabal.api.url",
+    endpointDefault = "https://kabal-api.intern.nav.no/api/oversendelse/v4/sak",
     scopesProperty = "kabal.api.scopes", scopesDefault = "api://prod-gcp.klage.kabal-api/.default")
 public class KabalKlient {
 
