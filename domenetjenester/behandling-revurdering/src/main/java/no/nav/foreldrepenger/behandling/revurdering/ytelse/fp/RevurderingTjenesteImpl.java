@@ -9,7 +9,6 @@ import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingFeil;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjenesteFelles;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -44,7 +43,6 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
 
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private FamilieHendelseRepository familieHendelseRepository;
     private PersonopplysningRepository personopplysningRepository;
     private MedlemskapRepository medlemskapRepository;
@@ -67,7 +65,6 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
     @Inject
     public RevurderingTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
                                    BehandlingGrunnlagRepositoryProvider grunnlagProvider,
-                                   BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                    InntektArbeidYtelseTjeneste iayTjeneste,
                                    @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) RevurderingEndring revurderingEndring,
                                    RevurderingTjenesteFelles revurderingTjenesteFelles,
@@ -75,7 +72,6 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         this.iayTjeneste = iayTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.ytelsesFordelingRepository = grunnlagProvider.getYtelsesFordelingRepository();
         this.familieHendelseRepository = grunnlagProvider.getFamilieHendelseRepository();
         this.personopplysningRepository = grunnlagProvider.getPersonopplysningRepository();
@@ -114,19 +110,14 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
             .orElseThrow(() -> RevurderingFeil.tjenesteFinnerIkkeBehandlingForRevurdering(fagsak.getId()));
 
         // lås original behandling først
-        var originalLås = behandlingRepository.taSkriveLås(origBehandling.getId());
-        behandlingskontrollTjeneste.initBehandlingskontroll(origBehandling, originalLås);
+        behandlingRepository.taSkriveLås(origBehandling.getId());
 
         // deretter opprett revurdering
-        var revurdering = revurderingTjenesteFelles.opprettRevurderingsbehandling(revurderingsÅrsak, origBehandling,
-            manueltOpprettet, enhet, opprettetAv);
-        var revurderingLås = behandlingRepository.taSkriveLås(revurdering.getId());
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(revurdering, revurderingLås);
-        behandlingskontrollTjeneste.opprettBehandling(kontekst, revurdering);
-        revurderingTjenesteFelles.opprettHistorikkInnslagForNyRevurdering(revurdering, revurderingsÅrsak, manueltOpprettet);
+        var revurdering = revurderingTjenesteFelles.opprettRevurderingsbehandling(revurderingsÅrsak, origBehandling, manueltOpprettet, enhet, opprettetAv);
 
         // Kopier vilkår (samme vilkår vurderes i Revurdering)
-        revurderingTjenesteFelles.kopierVilkårsresultat(origBehandling, revurdering, kontekst);
+        var revurderingLås = behandlingRepository.taSkriveLås(revurdering.getId());
+        revurderingTjenesteFelles.kopierVilkårsresultat(origBehandling, revurdering, revurderingLås);
 
         // Kopier grunnlagsdata
         this.kopierAlleGrunnlagFraTidligereBehandling(origBehandling, revurdering);

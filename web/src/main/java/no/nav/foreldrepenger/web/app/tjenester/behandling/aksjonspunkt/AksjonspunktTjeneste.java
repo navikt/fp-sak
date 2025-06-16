@@ -138,7 +138,7 @@ public class AksjonspunktTjeneste {
     private void håndterOverhopp(Behandling behandling, OverhoppResultat overhoppResultat, BehandlingskontrollKontekst kontekst) {
         overhoppResultat.finnFremoverTransisjon().ifPresent(framoverTransisjon -> {
             var riktigSteg = utledFremhoppSteg(behandling, framoverTransisjon);
-            behandlingskontrollTjeneste.fremoverTransisjon(riktigSteg, kontekst);
+            behandlingskontrollTjeneste.fremoverTransisjon(kontekst, riktigSteg);
         });
     }
 

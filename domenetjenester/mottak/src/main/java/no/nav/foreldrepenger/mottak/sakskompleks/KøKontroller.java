@@ -7,7 +7,6 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.flytkontroll.BehandlingFlytkontroll;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -39,7 +38,6 @@ public class KøKontroller {
 
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlingRepository behandlingRepository;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private Behandlingsoppretter behandlingsoppretter;
@@ -53,14 +51,12 @@ public class KøKontroller {
 
     @Inject
     public KøKontroller(BehandlingProsesseringTjeneste prosesseringTjeneste,
-                        BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                         BehandlingRepositoryProvider repositoryProvider,
                         ProsessTaskTjeneste taskTjeneste,
                         BehandlingRevurderingTjeneste behandlingRevurderingTjeneste,
                         Behandlingsoppretter behandlingsoppretter,
                         BehandlingFlytkontroll flytkontroll) {
         this.behandlingProsesseringTjeneste = prosesseringTjeneste;
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingRevurderingTjeneste = behandlingRevurderingTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
@@ -87,13 +83,12 @@ public class KøKontroller {
     }
 
     public void enkøBehandling(Behandling behandling) {
-        behandlingskontrollTjeneste.settBehandlingPåVent(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
+        behandlingProsesseringTjeneste.settBehandlingPåVentUtenSteg(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
     }
 
     public void submitBerørtBehandling(Behandling behandling, Optional<Behandling> åpenBehandling) {
         if (!behandling.harNoenBehandlingÅrsaker(BehandlingÅrsakType.alleTekniskeÅrsaker())) throw new IllegalArgumentException("Behandling er ikke berørt");
-        åpenBehandling.ifPresent(b -> behandlingskontrollTjeneste.settBehandlingPåVent(b, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING,
-            null, null, Venteårsak.VENT_ÅPEN_BEHANDLING));
+        åpenBehandling.ifPresent(b -> behandlingProsesseringTjeneste.settBehandlingPåVentUtenSteg(b, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, Venteårsak.VENT_ÅPEN_BEHANDLING));
         behandlingProsesseringTjeneste.opprettTasksForStartBehandling(behandling);
     }
 
@@ -160,7 +155,6 @@ public class KøKontroller {
     public void oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling(Long behandlingId) {
         var lås = behandlingRepository.taSkriveLås(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
         oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling(behandling);
     }
 

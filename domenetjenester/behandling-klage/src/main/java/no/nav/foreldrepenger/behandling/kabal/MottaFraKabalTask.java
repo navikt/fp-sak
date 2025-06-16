@@ -98,7 +98,6 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
             .map(KabalUtfall::valueOf).orElseThrow(() -> new IllegalStateException("Utviklerfeil: Kabal-klage avsluttet men mangler utfall"));
         var lås = behandlingRepository.taSkriveLås(behandlingId);
         var klageBehandling = behandlingRepository.hentBehandling(behandlingId);
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(klageBehandling, lås);
         kabalTjeneste.settKabalReferanse(klageBehandling, ref);
         if (!UTEN_VURDERING.contains(utfall)) {
             kabalTjeneste.lagreKlageUtfallFraKabal(klageBehandling, lås, utfall);
@@ -108,17 +107,20 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
         } else if (KabalUtfall.RETUR.equals(utfall)) {
             // Knoteri siden behandling tilbakeføres og deretter kanskje skal til Kabal på nytt. Avbrutt er viktig. Gjennomgå retur-semantikk på nytt.
             klageBehandling.getÅpentAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE)
-                .ifPresent(a -> behandlingskontrollTjeneste.settAutopunktTilAvbrutt(kontekst, klageBehandling, a));
+                .ifPresent(a -> {
+                    var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(klageBehandling, lås);
+                    behandlingskontrollTjeneste.settAutopunktTilAvbrutt(kontekst, klageBehandling, a);
+                });
             if (klageBehandling.isBehandlingPåVent()) { // Autopunkt
-                behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(klageBehandling, kontekst);
+                behandlingProsesseringTjeneste.taBehandlingAvVent(klageBehandling);
             }
             kabalTjeneste.fjerneKabalFlagg(klageBehandling);
-            behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, BehandlingStegType.KLAGE_NFP);
+            behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(klageBehandling, lås, BehandlingStegType.KLAGE_NFP);
             endreAnsvarligEnhetTilNFPVedTilbakeføringOgLagreHistorikkinnslag(klageBehandling);
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(klageBehandling);
         } else {
             if (klageBehandling.isBehandlingPåVent()) { // Autopunkt
-                behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(klageBehandling, kontekst);
+                behandlingProsesseringTjeneste.taBehandlingAvVent(klageBehandling);
             }
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(klageBehandling);
         }
@@ -165,7 +167,6 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
         var ankeBehandling = kabalTjeneste.finnAnkeBehandling(behandlingId, ref)
             .orElseThrow(() -> new IllegalStateException("Mangler ankebehandling for behandling " + behandlingId));
         var lås = behandlingRepository.taSkriveLås(ankeBehandling);
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(ankeBehandling, lås);
         kabalTjeneste.settKabalReferanse(ankeBehandling, ref);
         if (KabalUtfall.TRUKKET.equals(utfall) || KabalUtfall.HEVET.equals(utfall)) {
             henleggBehandling(ankeBehandling, lås, BehandlingResultatType.HENLAGT_ANKE_TRUKKET);
@@ -174,7 +175,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
         } else {
             kabalTjeneste.lagreAnkeUtfallFraKabal(ankeBehandling, utfall, sendtTrygderetten);
             if (ankeBehandling.isBehandlingPåVent()) { // Autopunkt
-                behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(ankeBehandling, kontekst);
+                behandlingProsesseringTjeneste.taBehandlingAvVent(ankeBehandling);
             }
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(ankeBehandling);
         }

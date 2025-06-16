@@ -9,7 +9,6 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -30,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.HenleggBehandlingTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentPersisterer;
@@ -39,7 +39,7 @@ import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhet
 public class Behandlingsoppretter {
 
     private BehandlingRepository behandlingRepository;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private BehandlingOpprettingTjeneste behandlingOpprettingTjeneste;
     private MottattDokumentPersisterer mottattDokumentPersisterer;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
@@ -56,14 +56,14 @@ public class Behandlingsoppretter {
 
     @Inject
     public Behandlingsoppretter(BehandlingRepositoryProvider behandlingRepositoryProvider,
-                                BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                                 BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
                                 MottattDokumentPersisterer mottattDokumentPersisterer,
                                 MottatteDokumentTjeneste mottatteDokumentTjeneste,
                                 BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                                 BehandlingRevurderingTjeneste behandlingRevurderingTjeneste,
                                 HenleggBehandlingTjeneste henleggBehandlingTjeneste) {
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.behandlingOpprettingTjeneste = behandlingOpprettingTjeneste;
         this.mottattDokumentPersisterer = mottattDokumentPersisterer;
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
@@ -207,7 +207,7 @@ public class Behandlingsoppretter {
 
 
     public void settSomKøet(Behandling nyKøetBehandling) {
-        behandlingskontrollTjeneste.settBehandlingPåVent(nyKøetBehandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
+        behandlingProsesseringTjeneste.settBehandlingPåVentUtenSteg(nyKøetBehandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
     }
 
     public boolean erOpphørtBehandling(Behandling behandling) {

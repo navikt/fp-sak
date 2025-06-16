@@ -190,17 +190,6 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     }
 
     @Override
-    public BehandlingskontrollKontekst initBehandlingskontroll(Behandling behandling) {
-        Objects.requireNonNull(behandling, "behandling");
-        // først lås
-        var lås = serviceProvider.taLås(behandling.getId());
-
-        // så les
-        return new BehandlingskontrollKontekst(behandling.getSaksnummer(), behandling.getFagsakId(), lås,
-            behandling.getFagsakYtelseType(), behandling.getType());
-    }
-
-    @Override
     public BehandlingskontrollKontekst initBehandlingskontroll(Behandling behandling, BehandlingLås skriveLås) {
         Objects.requireNonNull(behandling, "behandling");
         Objects.requireNonNull(skriveLås, "lås");
@@ -231,7 +220,9 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
         var nyBehandling = behandlingBuilder.build();
         behandlingOppdaterer.accept(nyBehandling);
 
-        var kontekst = this.initBehandlingskontroll(nyBehandling);
+        var lås = serviceProvider.taLås(nyBehandling.getId());
+
+        var kontekst = initBehandlingskontroll(nyBehandling, lås);
         this.opprettBehandling(kontekst, nyBehandling);
         return nyBehandling;
     }
@@ -246,16 +237,14 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     }
 
     @Override
-    public Aksjonspunkt settBehandlingPåVentUtenSteg(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjonIn,
-            LocalDateTime fristTid, Venteårsak venteårsak) {
-        return settBehandlingPåVent(behandling, aksjonspunktDefinisjonIn, null, fristTid, venteårsak);
+    public Aksjonspunkt settBehandlingPåVentUtenSteg(BehandlingskontrollKontekst kontekst, Behandling behandling,
+                                                     AksjonspunktDefinisjon aksjonspunktDefinisjonIn, LocalDateTime fristTid, Venteårsak venteårsak) {
+        return settBehandlingPåVent(kontekst, behandling, null, aksjonspunktDefinisjonIn, fristTid, venteårsak);
     }
 
     @Override
-    public Aksjonspunkt settBehandlingPåVent(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjonIn,
-            BehandlingStegType stegType, LocalDateTime fristTid, Venteårsak venteårsak) {
-        var lås = serviceProvider.taLås(behandling.getId());
-        var kontekst = initBehandlingskontroll(behandling, lås);
+    public Aksjonspunkt settBehandlingPåVent(BehandlingskontrollKontekst kontekst, Behandling behandling, BehandlingStegType stegType,
+                                             AksjonspunktDefinisjon aksjonspunktDefinisjonIn, LocalDateTime fristTid, Venteårsak venteårsak) {
         aksjonspunktKontrollRepository.forberedSettPåVentMedAutopunkt(behandling, aksjonspunktDefinisjonIn);
         var aksjonspunkt = aksjonspunktKontrollRepository.settBehandlingPåVent(behandling, aksjonspunktDefinisjonIn, stegType, fristTid,
                 venteårsak);
@@ -307,7 +296,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     }
 
     @Override
-    public void taBehandlingAvVentSetAlleAutopunktUtført(Behandling behandling, BehandlingskontrollKontekst kontekst) {
+    public void taBehandlingAvVentSetAlleAutopunktUtført(BehandlingskontrollKontekst kontekst, Behandling behandling) {
         var aksjonspunkterSomMedførerTilbakehopp = behandling.getÅpneAksjonspunkter().stream()
             .filter(a -> a.getAksjonspunktDefinisjon().tilbakehoppVedGjenopptakelse())
             .toList();
@@ -327,7 +316,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     }
 
     @Override
-    public void taBehandlingAvVentSetAlleAutopunktAvbruttForHenleggelse(Behandling behandling, BehandlingskontrollKontekst kontekst) {
+    public void taBehandlingAvVentSetAlleAutopunktAvbruttForHenleggelse(BehandlingskontrollKontekst kontekst, Behandling behandling) {
         lagreAutopunkterAvbrutt(kontekst, behandling, behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT));
     }
 
@@ -521,7 +510,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     }
 
     @Override
-    public void fremoverTransisjon(BehandlingStegType målSteg, BehandlingskontrollKontekst kontekst) {
+    public void fremoverTransisjon(BehandlingskontrollKontekst kontekst, BehandlingStegType målSteg) {
         if (målSteg == null) {
             throw new IllegalArgumentException("Må oppgit målsteg");
         }

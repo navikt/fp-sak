@@ -95,13 +95,14 @@ public class Endringskontroller {
         if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_FEILUTBETALING) ||
             !behandling.getÅpneAksjonspunkter(AksjonspunktDefinisjon.getForeslåVedtakAksjonspunkter()).isEmpty()) {
             var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
-            doSpolTilSteg(kontekst, behandling, lås, BehandlingStegType.SIMULER_OPPDRAG, null, null);
+            doSpolTilSteg(kontekst, behandling, BehandlingStegType.SIMULER_OPPDRAG, null, null);
         }
     }
 
     public void spolTilStartpunkt(Behandling behandling, BehandlingLås lås, EndringsresultatDiff endringsresultat, StartpunktType senesteStartpunkt) {
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         var ref = BehandlingReferanse.fra(behandling);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
 
         var startpunkt = FagsakYtelseTypeRef.Lookup.find(startpunktTjenester, behandling.getFagsakYtelseType())
             .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + behandling.getFagsakYtelseType().getKode()))
@@ -113,38 +114,38 @@ public class Endringskontroller {
 
         if (startpunkt.equals(StartpunktType.UDEFINERT)) {
             if (harUtførtKontrollerFakta(behandling) && STARTPUNKT_STEG_INNGANG_VILKÅR.contains(behandling.getAktivtBehandlingSteg())) {
-                utledAksjonspunkterTilHøyreForStartpunkt(behandling, lås, behandling.getAktivtBehandlingSteg(), ref, skjæringstidspunkter);
+                utledAksjonspunkterTilHøyreForStartpunkt(kontekst, behandling, behandling.getAktivtBehandlingSteg(), ref, skjæringstidspunkter);
             }
             return; // Ingen detekterte endringer - ingen tilbakespoling
         }
 
-        doSpolTilStartpunkt(ref, skjæringstidspunkter, behandling, lås, startpunkt);
+        doSpolTilStartpunkt(ref, skjæringstidspunkter, kontekst, behandling, startpunkt);
     }
 
-    private void doSpolTilStartpunkt(BehandlingReferanse ref, Skjæringstidspunkt stp, Behandling behandling, BehandlingLås lås, StartpunktType startpunktType) {
+    private void doSpolTilStartpunkt(BehandlingReferanse ref, Skjæringstidspunkt stp, BehandlingskontrollKontekst kontekst,
+                                     Behandling behandling, StartpunktType startpunktType) {
         var startPunktSteg = startpunktType.getBehandlingSteg();
         var skalSpesialHåndteres = behandling.getÅpentAksjonspunktMedDefinisjonOptional(SPESIALHÅNDTERT_AKSJONSPUNKT).isPresent() &&
             SPESIALHÅNDTERT_AKSJONSPUNKT_STARTPUNKT.getRangering() < startpunktType.getRangering();
         var tilSteg = skalSpesialHåndteres ? SPESIALHÅNDTERT_AKSJONSPUNKT.getBehandlingSteg() : startPunktSteg;
 
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
         oppdaterStartpunktVedBehov(behandling, startpunktType);
-        doSpolTilSteg(kontekst, behandling, lås, tilSteg, ref, stp);
+        doSpolTilSteg(kontekst, behandling, tilSteg, ref, stp);
     }
 
-    private void doSpolTilSteg(BehandlingskontrollKontekst kontekst, Behandling behandling, BehandlingLås lås, BehandlingStegType tilSteg, BehandlingReferanse ref, Skjæringstidspunkt stp) {
+    private void doSpolTilSteg(BehandlingskontrollKontekst kontekst, Behandling behandling, BehandlingStegType tilSteg, BehandlingReferanse ref, Skjæringstidspunkt stp) {
         // Inkluderer tilbakeføring samme steg UTGANG->INNGANG
         var fraSteg = behandling.getAktivtBehandlingSteg();
         var tilbakeføres = skalTilbakeføres(behandling, fraSteg, tilSteg);
         // Gjør aksjonspunktutledning utenom steg kun dersom man står i eller skal gå tilbake til inngangsvilkår
         var sjekkSteg = tilbakeføres ? tilSteg : fraSteg;
         if (ref != null && harUtførtKontrollerFakta(behandling) && STARTPUNKT_STEG_INNGANG_VILKÅR.contains(sjekkSteg)) {
-            utledAksjonspunkterTilHøyreForStartpunkt(behandling, lås, sjekkSteg, ref, stp);
+            utledAksjonspunkterTilHøyreForStartpunkt(kontekst, behandling, sjekkSteg, ref, stp);
         }
 
         if (tilbakeføres) {
             // Eventuelt ta behandling av vent. Kan flytte på behandling dersom autopunkt med tilbakehopp
-            behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
+            behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(kontekst, behandling);
             var tilbakeføresNySjekk = skalTilbakeføres(behandling, behandling.getAktivtBehandlingSteg(), tilSteg);
             if (tilbakeføresNySjekk) {
                 // Spol tilbake
@@ -187,7 +188,7 @@ public class Endringskontroller {
     }
 
     // Orkestrerer aksjonspunktene for kontroll av fakta som utføres ifm tilbakehopp til et sted innen inngangsvilkår
-    private void utledAksjonspunkterTilHøyreForStartpunkt(Behandling behandling, BehandlingLås skriveLås, BehandlingStegType fomSteg, BehandlingReferanse ref, Skjæringstidspunkt stp) {
+    private void utledAksjonspunkterTilHøyreForStartpunkt(BehandlingskontrollKontekst kontekst, Behandling behandling, BehandlingStegType fomSteg, BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var resultater = FagsakYtelseTypeRef.Lookup.find(KontrollerFaktaInngangsVilkårUtleder.class, kontrollerFaktaTjenester, ref.fagsakYtelseType())
             .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + ref.fagsakYtelseType().getKode()))
             .utledAksjonspunkterFomSteg(ref, stp, fomSteg);
@@ -203,18 +204,18 @@ public class Endringskontroller {
                 .map(Aksjonspunkt::getStatus).orElse(AksjonspunktStatus.OPPRETTET)))
             .toList();
         if (!avbrytes.isEmpty()) {
-            aksjonspunktkontrollTjeneste.lagreAksjonspunkterAvbrutt(behandling, skriveLås, avbrytes);
+            aksjonspunktkontrollTjeneste.lagreAksjonspunkterAvbrutt(behandling, kontekst.getSkriveLås(), avbrytes);
         }
         if (!opprettes.isEmpty()) {
             var opprettAksjonspunkt = opprettes.stream().filter(ar -> !ar.getAksjonspunktDefinisjon().erAutopunkt()).toList();
             if (!opprettAksjonspunkt.isEmpty()) {
-                aksjonspunktkontrollTjeneste.lagreAksjonspunktResultat(behandling, skriveLås, BehandlingStegType.KONTROLLER_FAKTA, opprettAksjonspunkt);
+                aksjonspunktkontrollTjeneste.lagreAksjonspunktResultat(behandling, kontekst.getSkriveLås(), BehandlingStegType.KONTROLLER_FAKTA, opprettAksjonspunkt);
             }
             opprettes.stream()
                 .filter(ar -> ar.getAksjonspunktDefinisjon().erAutopunkt())
                 .findFirst()
-                .ifPresent(ar -> behandlingskontrollTjeneste.settBehandlingPåVent(behandling, ar.getAksjonspunktDefinisjon(),
-                    BehandlingStegType.KONTROLLER_FAKTA, ar.getFrist(), ar.getVenteårsak()));
+                .ifPresent(ar -> behandlingskontrollTjeneste.settBehandlingPåVent(kontekst, behandling, BehandlingStegType.KONTROLLER_FAKTA,
+                    ar.getAksjonspunktDefinisjon(), ar.getFrist(), ar.getVenteårsak()));
         }
     }
 

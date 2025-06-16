@@ -18,20 +18,19 @@ import jakarta.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.HoppTilbakeDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -43,8 +42,7 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @Transactional
 public class ForvaltningStegRestTjeneste {
 
-    private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste;
     private HistorikkinnslagRepository historikkinnslagRepository;
     private FamilieHendelseRepository familieHendelseRepository;
@@ -52,13 +50,11 @@ public class ForvaltningStegRestTjeneste {
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
 
     @Inject
-    public ForvaltningStegRestTjeneste(BehandlingsprosessTjeneste behandlingsprosessTjeneste,
-                                       BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+    public ForvaltningStegRestTjeneste(BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                                        ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste,
                                        BehandlingRepositoryProvider repositoryProvider,
                                        ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste) {
-        this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.arbeidsforholdAdministrasjonTjeneste = arbeidsforholdAdministrasjonTjeneste;
         this.historikkinnslagRepository = repositoryProvider.getHistorikkinnslagRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
@@ -127,11 +123,10 @@ public class ForvaltningStegRestTjeneste {
     private void hoppTilbake(UUID behandlingUuid, BehandlingStegType tilSteg) {
         var lås = behandlingRepository.taSkriveLås(behandlingUuid);
         var behandling = behandlingRepository.hentBehandling(behandlingUuid);
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
-        hoppTilbake(kontekst, behandling, tilSteg);
+        hoppTilbake(behandling, lås, tilSteg);
     }
 
-    private void hoppTilbake(BehandlingskontrollKontekst kontekst, Behandling behandling, BehandlingStegType tilSteg) {
+    private void hoppTilbake(Behandling behandling, BehandlingLås lås, BehandlingStegType tilSteg) {
         if (KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING.equals(tilSteg)) {
             arbeidsforholdInntektsmeldingMangelTjeneste.ryddVekkAlleValgPåBehandling(BehandlingReferanse.fra(behandling));
             arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandler(behandling.getId());
@@ -140,13 +135,15 @@ public class ForvaltningStegRestTjeneste {
         if (KONTROLLER_FAKTA.equals(tilSteg)) {
             resetStartpunkt(behandling);
         }
-        behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
+        behandlingProsesseringTjeneste.taBehandlingAvVent(behandling);
         lagHistorikkinnslag(behandling, tilSteg.getNavn());
-        behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, tilSteg);
+        behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, lås, tilSteg);
         if (behandling.isBehandlingPåVent()) {
-            behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
+            behandlingProsesseringTjeneste.taBehandlingAvVent(behandling);
         }
-        behandlingsprosessTjeneste.asynkKjørProsess(behandling);
+        if (behandlingProsesseringTjeneste.finnesTasksForPolling(behandling).isEmpty()) {
+            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
+        }
     }
 
     private void lagHistorikkinnslag(Behandling behandling, String tilStegNavn) {

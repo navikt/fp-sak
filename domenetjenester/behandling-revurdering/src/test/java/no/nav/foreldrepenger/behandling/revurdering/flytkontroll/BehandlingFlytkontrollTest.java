@@ -17,7 +17,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -37,7 +36,6 @@ class BehandlingFlytkontrollTest {
     private final BehandlingRepository behandlingRepository = mock(BehandlingRepository.class);
     private final BehandlingRevurderingTjeneste behandlingRevurderingTjeneste = mock(
         BehandlingRevurderingTjeneste.class);
-    private final BehandlingskontrollTjeneste behandlingskontrollTjeneste = mock(BehandlingskontrollTjeneste.class);
     private final BehandlingProsesseringTjeneste behandlingProsesseringTjeneste = mock(BehandlingProsesseringTjeneste.class);
     private BehandlingFlytkontroll flytkontroll;
     private final Behandling behandling = mock(Behandling.class);
@@ -65,8 +63,7 @@ class BehandlingFlytkontrollTest {
         when(fagsakAnnenPart.getId()).thenReturn(FAGSAK_AP_ID);
         when(behandlingRepository.hentBehandling(BEHANDLING_ID)).thenReturn(behandling);
         when(behandlingRepository.hentBehandling(EGEN_BERØRT_ID)).thenReturn(behandlingSammeSakBerørt);
-        flytkontroll = new BehandlingFlytkontroll(behandlingRevurderingTjeneste, behandlingskontrollTjeneste,
-                behandlingProsesseringTjeneste, behandlingRepository);
+        flytkontroll = new BehandlingFlytkontroll(behandlingRevurderingTjeneste, behandlingProsesseringTjeneste, behandlingRepository);
     }
 
     @Test
@@ -222,7 +219,7 @@ class BehandlingFlytkontrollTest {
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_ID)).thenReturn(
                 List.of(behandlingSammeSak));
         assertThat(flytkontroll.nyRevurderingSkalVente(fagsak)).isFalse();
-        verifyNoInteractions(behandlingskontrollTjeneste);
+        verifyNoInteractions(behandlingProsesseringTjeneste);
     }
 
     @Test

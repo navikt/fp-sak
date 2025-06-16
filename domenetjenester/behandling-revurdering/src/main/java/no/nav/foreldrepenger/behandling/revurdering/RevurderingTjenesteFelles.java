@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VilkårMedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
@@ -41,6 +42,8 @@ public class RevurderingTjenesteFelles {
     private VilkårMedlemskapRepository vilkårMedlemskapRepository;
     private OpptjeningRepository opptjeningRepository;
     private RevurderingHistorikk revurderingHistorikk;
+    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+
 
     public RevurderingTjenesteFelles() {
         // for CDI proxy
@@ -48,7 +51,8 @@ public class RevurderingTjenesteFelles {
 
     @Inject
     public RevurderingTjenesteFelles(BehandlingRepositoryProvider repositoryProvider,
-                                     BehandlingRevurderingTjeneste behandlingRevurderingTjeneste) {
+                                     BehandlingRevurderingTjeneste behandlingRevurderingTjeneste,
+                                     BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.behandlingRevurderingTjeneste = behandlingRevurderingTjeneste;
@@ -56,6 +60,7 @@ public class RevurderingTjenesteFelles {
         this.opptjeningRepository = repositoryProvider.getOpptjeningRepository();
         this.revurderingHistorikk = new RevurderingHistorikk(repositoryProvider.getHistorikkinnslagRepository());
         this.vilkårMedlemskapRepository = repositoryProvider.getVilkårMedlemskapRepository();
+        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
     }
 
     public Behandling opprettRevurderingsbehandling(BehandlingÅrsakType revurderingsÅrsak, Behandling opprinneligBehandling,
@@ -80,11 +85,11 @@ public class RevurderingTjenesteFelles {
         if (manueltOpprettet && opprettetAv != null) {
             revurdering.setAnsvarligSaksbehandler(opprettetAv);
         }
-        return revurdering;
-    }
-
-    public void opprettHistorikkInnslagForNyRevurdering(Behandling revurdering, BehandlingÅrsakType revurderingsÅrsak, boolean manueltOpprettet) {
+        var revurderingLås = behandlingRepository.taSkriveLås(revurdering.getId());
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(revurdering, revurderingLås);
+        behandlingskontrollTjeneste.opprettBehandling(kontekst, revurdering);
         revurderingHistorikk.opprettHistorikkinnslagOmRevurdering(revurdering, revurderingsÅrsak, manueltOpprettet);
+        return revurdering;
     }
 
     public OppgittFordelingEntitet kopierOppgittFordelingFraForrigeBehandling(OppgittFordelingEntitet forrigeBehandlingFordeling) {
@@ -99,11 +104,11 @@ public class RevurderingTjenesteFelles {
         return fagsakRevurdering.kanRevurderingOpprettes(fagsak);
     }
 
-    public void kopierVilkårsresultat(Behandling origBehandling, Behandling revurdering, BehandlingskontrollKontekst kontekst) {
-        kopierVilkårsresultat(origBehandling, revurdering, kontekst, Set.of());
+    public void kopierVilkårsresultat(Behandling origBehandling, Behandling revurdering, BehandlingLås lås) {
+        kopierVilkårsresultat(origBehandling, revurdering, lås, Set.of());
     }
 
-    public void kopierVilkårsresultat(Behandling origBehandling, Behandling revurdering, BehandlingskontrollKontekst kontekst, Set<VilkårType> nullstilles) {
+    public void kopierVilkårsresultat(Behandling origBehandling, Behandling revurdering, BehandlingLås lås, Set<VilkårType> nullstilles) {
         var origVilkårResultat = behandlingsresultatRepository.hent(origBehandling.getId()).getVilkårResultat();
         Objects.requireNonNull(origVilkårResultat, "Vilkårsresultat må være satt på revurderingens originale behandling");
 
@@ -112,8 +117,8 @@ public class RevurderingTjenesteFelles {
             .filter(v -> v.getVilkårType().erInngangsvilkår())
             .forEach(vilkår -> vilkårBuilder.kopierVilkårFraAnnenBehandling(vilkår, true, nullstilles.contains(vilkår.getVilkårType())));
         var vilkårResultat = vilkårBuilder.buildFor(revurdering);
-        behandlingRepository.lagre(vilkårResultat, kontekst.getSkriveLås());
-        behandlingRepository.lagre(revurdering, kontekst.getSkriveLås());
+        behandlingRepository.lagre(vilkårResultat, lås);
+        behandlingRepository.lagre(revurdering, lås);
 
         vilkårMedlemskapRepository.kopierGrunnlagFraEksisterendeBehandling(origBehandling, revurdering);
 

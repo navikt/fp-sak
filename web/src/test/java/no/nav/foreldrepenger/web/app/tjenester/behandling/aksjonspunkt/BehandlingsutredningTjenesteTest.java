@@ -15,8 +15,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollTjenesteImpl;
-import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
@@ -25,6 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
@@ -39,7 +38,7 @@ class BehandlingsutredningTjenesteTest {
     private BehandlingRepository behandlingRepository;
 
     @Inject
-    private BehandlingskontrollServiceProvider behandlingskontrollServiceProvider;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
     @Mock
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
@@ -56,8 +55,6 @@ class BehandlingsutredningTjenesteTest {
                 .lagre(repositoryProvider);
         behandlingId = behandling.getId();
 
-        var behandlingskontrollTjenesteImpl = new BehandlingskontrollTjenesteImpl(behandlingskontrollServiceProvider);
-
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class)))
                 .thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
 
@@ -65,7 +62,7 @@ class BehandlingsutredningTjenesteTest {
                 Period.parse("P4W"),
                 repositoryProvider,
                 behandlendeEnhetTjeneste,
-                behandlingskontrollTjenesteImpl);
+                behandlingProsesseringTjeneste);
     }
 
     @Test

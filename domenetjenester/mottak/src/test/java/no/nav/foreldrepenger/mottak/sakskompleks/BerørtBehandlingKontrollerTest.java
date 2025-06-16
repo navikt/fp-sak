@@ -15,8 +15,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +25,6 @@ import org.mockito.quality.Strictness;
 
 import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.BerørtBehandlingTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -36,6 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
@@ -68,8 +66,6 @@ class BerørtBehandlingKontrollerTest {
     private BehandlingsresultatRepository behandlingsresultatRepository;
     @Mock
     private HistorikkinnslagRepository historikkinnslagRepository;
-    @Mock
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     @Mock
     private BerørtBehandlingTjeneste berørtBehandlingTjeneste;
     @Mock
@@ -141,7 +137,7 @@ class BerørtBehandlingKontrollerTest {
         when(ytelseFordelingTjeneste.hentAggregat(anyLong())).thenReturn(YtelseFordelingAggregat.oppdatere(Optional.empty()).medSakskompleksDekningsgrad(
             Dekningsgrad._100).build());
 
-        var køkontroller = new KøKontroller(behandlingProsesseringTjeneste, behandlingskontrollTjeneste, repositoryProvider, null, behandlingRevurderingTjeneste,
+        var køkontroller = new KøKontroller(behandlingProsesseringTjeneste, repositoryProvider, null, behandlingRevurderingTjeneste,
             behandlingsoppretter, null);
         berørtBehandlingKontroller =
             new BerørtBehandlingKontroller(repositoryProvider, behandlingRevurderingTjeneste, berørtBehandlingTjeneste, behandlingsoppretter,

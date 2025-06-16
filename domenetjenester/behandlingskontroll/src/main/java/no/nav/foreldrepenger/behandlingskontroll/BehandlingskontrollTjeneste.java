@@ -16,17 +16,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 public interface BehandlingskontrollTjeneste {
 
     /**
-     * Initierer ny behandlingskontroll for en ny behandling, som ikke er lagret i
-     * behandlingsRepository og derfor ikke har fått tildelt behandlingId
-     * Vil forsøke ta skrivelås - som helst bør være tatt før man leser opp behandlingen
-     *
-     * @param behandling - må være med.
-     */
-    BehandlingskontrollKontekst initBehandlingskontroll(Behandling behandling);
-
-    /**
-     * Initierer ny behandlingskontroll for en ny behandling, som ikke er lagret i
-     * behandlingsRepository og derfor ikke har fått tildelt behandlingId
+     * Initierer ny behandlingskontroll for en behandling, som ikke nødvendigvis er lagret i
+     * behandlingsRepository (og fått tildelt behandlingId)
      *
      * @param behandling - må være med
      * @param skriveLås - behandlingen må være låst - helst med behandlingId før den er lest opp fra behandlingRepository
@@ -111,8 +102,8 @@ public interface BehandlingskontrollTjeneste {
      * @param venteårsak             Årsak til ventingen.
      *
      */
-    Aksjonspunkt settBehandlingPåVentUtenSteg(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon, LocalDateTime fristTid,
-            Venteårsak venteårsak);
+    Aksjonspunkt settBehandlingPåVentUtenSteg(BehandlingskontrollKontekst kontekst, Behandling behandling,
+                                              AksjonspunktDefinisjon aksjonspunktDefinisjon, LocalDateTime fristTid, Venteårsak venteårsak);
 
     /**
      * Setter behandlingen på vent med angitt hvilket steg det står i. NB IKKE BRUK FRA STEG
@@ -124,16 +115,15 @@ public interface BehandlingskontrollTjeneste {
      * @param venteårsak             Årsak til ventingen.
      *
      */
-    Aksjonspunkt settBehandlingPåVent(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon, BehandlingStegType stegType,
-            LocalDateTime fristTid,
-            Venteårsak venteårsak);
+    Aksjonspunkt settBehandlingPåVent(BehandlingskontrollKontekst kontekst, Behandling behandling, BehandlingStegType stegType,
+                                      AksjonspunktDefinisjon aksjonspunktDefinisjon, LocalDateTime fristTid, Venteårsak venteårsak);
 
     /**
      * Setter autopunkter av en spesifikk aksjonspunktdefinisjon til utført.
      * Dette klargjør kun behandligen for prosessering, men vil ikke drive prosessen videre.
      * Disse metodene bør bare brukes ved eksplisitt behov - bruk heller {@link #taBehandlingAvVentSetAlleAutopunktUtført}
      *
-     * @param kontekst     Kontekst for prosessering med skrivelås for behandlingen
+     * @param behandling   Kontekst for prosessering med skrivelås for behandlingen
      * @param aksjonspunkt Åpent aksjonspunkt som skal lukkes (utføres eller avbrytes)
      */
     void settAutopunktTilUtført(BehandlingskontrollKontekst kontekst, Behandling behandling, Aksjonspunkt aksjonspunkt);
@@ -145,14 +135,14 @@ public interface BehandlingskontrollTjeneste {
      * Setter autopunkt til utført og foretar tilbakeføring ved gjenopptak dersom autopunkt har tilbakehoppVedGjenopptakelse = true.
      * Behandlingen skal være klar til prosessering uten åpne autopunkt når kallet er ferdig.
      */
-    void taBehandlingAvVentSetAlleAutopunktUtført(Behandling behandling, BehandlingskontrollKontekst kontekst);
+    void taBehandlingAvVentSetAlleAutopunktUtført(BehandlingskontrollKontekst kontekst, Behandling behandling);
 
-    void taBehandlingAvVentSetAlleAutopunktAvbruttForHenleggelse(Behandling behandling, BehandlingskontrollKontekst kontekst);
+    void taBehandlingAvVentSetAlleAutopunktAvbruttForHenleggelse(BehandlingskontrollKontekst kontekst, Behandling behandling);
 
     /** Henlegg en behandling. */
     void henleggBehandling(BehandlingskontrollKontekst kontekst);
 
     void henleggBehandlingFraSteg(BehandlingskontrollKontekst kontekst);
 
-    void fremoverTransisjon(BehandlingStegType målSteg, BehandlingskontrollKontekst kontekst);
+    void fremoverTransisjon(BehandlingskontrollKontekst kontekst, BehandlingStegType målSteg);
 }
