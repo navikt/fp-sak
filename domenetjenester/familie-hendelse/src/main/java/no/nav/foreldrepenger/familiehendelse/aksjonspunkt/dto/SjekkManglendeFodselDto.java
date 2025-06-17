@@ -21,7 +21,6 @@ public class SjekkManglendeFodselDto extends BekreftetAksjonspunktDto {
     private boolean brukAntallBarnITps; //TDP = PDL
 
     @Valid
-    @NotNull
     @Size(min = 1, max = 9)
     private List<UidentifisertBarnDto> uidentifiserteBarn;
 
