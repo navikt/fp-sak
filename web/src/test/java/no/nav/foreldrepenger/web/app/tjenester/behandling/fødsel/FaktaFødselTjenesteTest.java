@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.UidentifisertBarnD
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.aksjonspunkt.OverstyringFaktaOmFødselDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto.FødselDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto.Kilde;
-
+import no.nav.vedtak.exception.FunksjonellException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,6 +22,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
     private static final LocalDate FØDSELSDATO = LocalDate.now();
@@ -240,6 +241,40 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
     // Overstyring
 
     @Test
+    void skal_kaste_exception_når_fødselsdato_ikke_er_innenfor_gyldig_intervall_for_termindato() {
+        // Arrange
+        var fødselsdato = TERMINDATO.plusWeeks(8);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var barnDtoListe = List.of(new UidentifisertBarnDto(fødselsdato, null));
+        var behandling = byggBehandlingBekreftetFødsel(scenario, barnDtoListe);
+        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto("Legger til fødselsdato 8 uker etter termindato.", TERMINDATO, barnDtoListe);
+
+        // Act & Assert
+        var behandlingId = behandling.getId();
+        var exception = assertThrows(FunksjonellException.class, () -> tjeneste.overstyrFaktaOmFødsel(behandlingId, overstyringFaktaOmFødselDto));
+        assertThat(exception)
+                .extracting("kode", "msg", "løsningsforslag")
+                .containsExactly("FP-076346", "For stort avvik termin/fødsel", "Sjekk datoer eller meld sak i Porten");
+    }
+
+    @Test
+    void skal_kaste_exception_når_dødsdato_er_før_fødselsdato() {
+        // Arrange
+        var fødselsdato = TERMINDATO.plusDays(1);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var barnDtoListe = List.of(new UidentifisertBarnDto(fødselsdato, null), new UidentifisertBarnDto(fødselsdato, fødselsdato.minusDays(1)));
+        var behandling = byggBehandlingBekreftetFødsel(scenario, barnDtoListe);
+        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto("Legger til dødsdato før fødselsdato", TERMINDATO, barnDtoListe);
+
+        // Act og Assert
+        var behandlingId = behandling.getId();
+        var exception = assertThrows(FunksjonellException.class, () -> tjeneste.overstyrFaktaOmFødsel(behandlingId, overstyringFaktaOmFødselDto));
+        assertThat(exception)
+                .extracting("kode", "msg", "løsningsforslag")
+                .containsExactly("FP-076345", "Dødsdato før fødselsdato", "Se over fødsels- og dødsdato");
+    }
+
+    @Test
     void skal_lagre_overstyrt_fødselsdato_og_termindato_når_register_har_en_annen_eksisterende_fødselsdato() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
@@ -331,7 +366,7 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
 
         var søknadHendelse = scenario.medSøknadHendelse();
         søknadHendelse.medAntallBarn(1)
-                .medFødselsDato(FØDSELSDATO,1)
+                .medFødselsDato(FØDSELSDATO, 1)
                 .medTerminbekreftelse(scenario.medSøknadHendelse()
                         .getTerminbekreftelseBuilder()
                         .medTermindato(TERMINDATO)

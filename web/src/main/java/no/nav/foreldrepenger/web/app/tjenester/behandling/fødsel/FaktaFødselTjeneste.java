@@ -1,22 +1,20 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.*;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.UidentifisertBarnDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.aksjonspunkt.OverstyringFaktaOmFødselDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto.FødselDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto.Kilde;
+import no.nav.vedtak.exception.FunksjonellException;
 
 @ApplicationScoped
 public class FaktaFødselTjeneste {
@@ -36,9 +34,10 @@ public class FaktaFødselTjeneste {
         var oppdatere = familieHendelseTjeneste.opprettBuilderForOverstyring(behandlingId);
         var familieHendelse = familieHendelseTjeneste.hentAggregat(behandlingId);
 
-        if (dto.getBarn() != null && !dto.getBarn().isEmpty() && !finnUlikeBarn(dto, familieHendelse).isEmpty()) {
-            oppdatere.tilbakestillBarn().medAntallBarn(dto.getAntallBarn());
-            dto.getBarn().forEach(b -> oppdatere.leggTilBarn(b.getFodselsdato(), b.getDodsdato().orElse(null)));
+        validerFødselsdataForOverstyring(dto);
+
+        if (harEndringerIBarnData(dto, familieHendelse)) {
+            oppdaterBarnData(dto, oppdatere);
         }
 
         if (dto.getTermindato() != null) {
@@ -73,30 +72,64 @@ public class FaktaFødselTjeneste {
         return new FødselDto(søknadData, registerData, gjeldendeData);
     }
 
-    private static List<BarnNøkkel> finnUlikeBarn(OverstyringFaktaOmFødselDto dto, FamilieHendelseGrunnlagEntitet familieHendelse) {
-        // Samler inn barn fra dto og lages BarnNøkkel for hvert barn. Teller så opp hvor mange barn som har identiske nøkler.
-        var dtoBarnNøkler = dto.getBarn().stream()
-                .map(b -> new BarnNøkkel(b.getFodselsdato(), b.getDodsdato().orElse(null)))
-                .collect(Collectors.groupingBy(n -> n, Collectors.counting()));
+    private static void oppdaterBarnData(OverstyringFaktaOmFødselDto dto, FamilieHendelseBuilder oppdatere) {
+        oppdatere.tilbakestillBarn().medAntallBarn(dto.getAntallBarn());
+        dto.getBarn().forEach(b -> oppdatere.leggTilBarn(b.getFodselsdato(), b.getDodsdato().orElse(null)));
+    }
 
-        var grunnlagBarnNøkler = familieHendelse.getGjeldendeVersjon().getBarna().stream()
-                .map(b -> new BarnNøkkel(b.getFødselsdato(), b.getDødsdato().orElse(null)))
-                .collect(Collectors.groupingBy(n -> n, Collectors.counting()));
+    private static boolean harEndringerIBarnData(OverstyringFaktaOmFødselDto dto, FamilieHendelseGrunnlagEntitet familieHendelse) {
+        return dto.getBarn() != null && !dto.getBarn().isEmpty() && finnesUlikeBarn(dto, familieHendelse);
+    }
 
-        var ulike = new ArrayList<BarnNøkkel>();
+    private static void validerFødselsdataForOverstyring(OverstyringFaktaOmFødselDto dto) {
+        if (dto.getBarn() == null || dto.getBarn().isEmpty()) {
+            return; // Ingen fødselsdato/barn å validere
+        }
 
-        var alleNøkler = new java.util.HashSet<>(dtoBarnNøkler.keySet());
-        alleNøkler.addAll(grunnlagBarnNøkler.keySet());
+        validerDødsdatoerMotFødselsdatoer(dto);
+        sjekkGyldigTerminFødsel(dto);
+    }
 
-        // Finn barn som er ulike (når de har forskjellig antall eller finnes i bare ett av stedene)
-        for (var nøkkel : alleNøkler) {
-            long dtoCount = dtoBarnNøkler.getOrDefault(nøkkel, 0L);
-            long grunnlagCount = grunnlagBarnNøkler.getOrDefault(nøkkel, 0L);
-            if (dtoCount != grunnlagCount) {
-                ulike.add(nøkkel);
+    private static void sjekkGyldigTerminFødsel(OverstyringFaktaOmFødselDto dto) {
+        var fødselsdato = dto.getBarn().stream().map(UidentifisertBarnDto::getFodselsdato).min(Comparator.naturalOrder());
+        if (dto.getTermindato()!= null && fødselsdato.isPresent()) {
+            var fødselsintervall = FamilieHendelseTjeneste.intervallForTermindato(dto.getTermindato());
+            if (!fødselsintervall.encloses(fødselsdato.get())) {
+                throw new FunksjonellException("FP-076346", "For stort avvik termin/fødsel", "Sjekk datoer eller meld sak i Porten");
             }
         }
-        return ulike;
+    }
+
+    private static void validerDødsdatoerMotFødselsdatoer(OverstyringFaktaOmFødselDto dto) {
+        dto.getBarn().forEach(barn -> {
+            if (barn.getDodsdato().isPresent() && barn.getDodsdato().get().isBefore(barn.getFodselsdato())) {
+                throw new FunksjonellException("FP-076345", "Dødsdato før fødselsdato", "Se over fødsels- og dødsdato");
+            }
+        });
+    }
+
+    private static boolean finnesUlikeBarn(OverstyringFaktaOmFødselDto dto, FamilieHendelseGrunnlagEntitet familieHendelse) {
+        var dtoBarnNøkler = grupperBarnEtterNøkkel(dto.getBarn().stream()
+                .map(b -> new BarnNøkkel(b.getFodselsdato(), b.getDodsdato().orElse(null))));
+
+        var grunnlagBarnNøkler = grupperBarnEtterNøkkel(familieHendelse.getGjeldendeVersjon().getBarna().stream()
+                .map(b -> new BarnNøkkel(b.getFødselsdato(), b.getDødsdato().orElse(null))));
+
+        return finnUlikeNøkler(dtoBarnNøkler, grunnlagBarnNøkler);
+    }
+
+    private static Map<BarnNøkkel, Long> grupperBarnEtterNøkkel(Stream<BarnNøkkel> barn) {
+        return barn.collect(Collectors.groupingBy(n -> n, Collectors.counting()));
+    }
+
+    private static boolean finnUlikeNøkler(Map<BarnNøkkel, Long> dtoBarnNøkler, Map<BarnNøkkel, Long> grunnlagBarnNøkler) {
+        var alleNøkler = new HashSet<>(dtoBarnNøkler.keySet());
+        alleNøkler.addAll(grunnlagBarnNøkler.keySet());
+
+        return alleNøkler.stream()
+                .anyMatch(nøkkel -> !Objects.equals(
+                        dtoBarnNøkler.getOrDefault(nøkkel, 0L),
+                        grunnlagBarnNøkler.getOrDefault(nøkkel, 0L)));
     }
 
     private FødselDto.Gjeldende.Utstedtdato mapUtstedtdato(FamilieHendelseGrunnlagEntitet familieHendelse) {

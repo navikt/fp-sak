@@ -8,6 +8,9 @@ import java.util.List;
 
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
+
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -74,34 +77,25 @@ public class FaktaOmFødselOverstyringshåndtererTest {
         assertThat(familieHendelseEtterOverstyring.getOverstyrtVersjon().flatMap(FamilieHendelseEntitet::getTermindato).orElseThrow()).as(
             "Termindato skal være oppdatert").isEqualTo(termindatoFraDto);
         assertThat(historikkinnslag.getLinjer()).extracting(HistorikkinnslagLinje::getTekst)
-            .containsAll(List.of("Overstyrt fakta om fødsel.",
-                begrunnelse,
+            .containsAll(List.of("Overstyrt fakta om fødsel.", begrunnelse,
                 "__Termindato__ er endret fra " + format(termindato) + " til __" + format(termindatoFraDto) + "__."));
     }
 
     @Test
-    void skal_oppdatere_og_lage_historikk_når_barn_legges_til() {
+    void skal_oppdatere_og_lage_historikk_når_ett_barn_legges_til() {
         var termindato = LocalDate.now().minusDays(1);
         var fødselsdato = LocalDate.now();
 
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.medSøknadHendelse()
-            .medAntallBarn(1)
-            .medFødselsDato(fødselsdato)
-            .medTerminbekreftelse(scenario.medSøknadHendelse()
-                .getTerminbekreftelseBuilder()
-                .medTermindato(termindato)
-                .medNavnPå("LEGEN LEGESEN")
-                .medUtstedtDato(termindato.minusMonths(1)));
-        scenario.medBruker(AktørId.dummy()).medSøknad().medMottattDato(termindato.minusWeeks(2));
-        scenario.medSøknadAnnenPart().medAktørId(AktørId.dummy());
+        byggSøknadhendelse(scenario, termindato, fødselsdato);
 
         scenario.medBekreftetHendelse().leggTilBarn(fødselsdato).medAntallBarn(1);
-        scenario.medOverstyrtHendelse().medAntallBarn(1).leggTilBarn(fødselsdato);
+        scenario.medOverstyrtHendelse().medAntallBarn(1).leggTilBarn(fødselsdato); // overstyrt versjon inneholder 1 barn fra bekreftet hendelse
 
         var behandling = scenario.lagre(repositoryProvider);
         var ref = BehandlingReferanse.fra(behandling);
+        // barnDtoListe inneholder gjeldende barn fra register i tillegg til det som skal legges til. Dette vil overstyre fra overstyrt versjon som inneholder 1 barn fra bekreftet hendelse.
         var barnDtoListe = List.of(new UidentifisertBarnDto(fødselsdato, null), new UidentifisertBarnDto(fødselsdato, null));
         var begrunnelse = "Legger til ekstra barn i overstyring.";
         var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto(begrunnelse, termindato, barnDtoListe);
@@ -131,22 +125,116 @@ public class FaktaOmFødselOverstyringshåndtererTest {
     }
 
     @Test
-    void skal_lage_historikk_nar_barn_fjernes() {
+    void skal_oppdatere_og_lage_historikk_når_tre_barn_legges_til_med_to_forskjellige_fødselsdatoer() {
+        var termindato = LocalDate.now().minusDays(1);
+        var fødselsdato = LocalDate.now();
+        var fødselsdato2 = fødselsdato.plusDays(1);
+
+        // Arrange
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        byggSøknadhendelse(scenario, termindato, fødselsdato);
+
+        scenario.medBekreftetHendelse().leggTilBarn(fødselsdato).medAntallBarn(1);
+        scenario.medOverstyrtHendelse().medAntallBarn(1).leggTilBarn(fødselsdato); // overstyrt versjon inneholder 1 barn fra bekreftet hendelse
+
+        var behandling = scenario.lagre(repositoryProvider);
+        var ref = BehandlingReferanse.fra(behandling);
+        // barnDtoListe inneholder gjeldende barn fra register i tillegg til det som skal legges til. Det vil si 1 barn fra bekreftet hendelse og 3 barn som skal legges til.
+        var barnDtoListe = List.of(new UidentifisertBarnDto(fødselsdato, null), new UidentifisertBarnDto(fødselsdato, null),
+            new UidentifisertBarnDto(fødselsdato, null), new UidentifisertBarnDto(fødselsdato2, null));
+        var begrunnelse = "Legger til ekstra barn i overstyring.";
+        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto(begrunnelse, termindato, barnDtoListe);
+
+        // Act
+        var familieHendelseFørOverstyring = familieHendelseTjeneste.hentAggregat(ref.behandlingId());
+        oppdaterer.håndterOverstyring(overstyringFaktaOmFødselDto, ref);
+        var familieHendelseEtterOverstyring = familieHendelseTjeneste.hentAggregat(ref.behandlingId());
+        var historikkinnslag = historikkinnslagRepository.hent(ref.saksnummer()).getFirst();
+
+
+        // Assert
+        assertThat(familieHendelseFørOverstyring.getOverstyrtVersjon()).get()
+            .extracting(v -> v.getBarna().size())
+            .as("Antall barn før overstyring")
+            .isEqualTo(1);
+        assertThat(familieHendelseEtterOverstyring.getOverstyrtVersjon()).get()
+            .extracting(v -> v.getBarna().size())
+            .as("Antall barn etter overstyring")
+            .isEqualTo(4);
+
+        assertThat(historikkinnslag.getLinjer()).extracting(HistorikkinnslagLinje::getTekst)
+            .containsAll(List.of("Overstyrt fakta om fødsel.", begrunnelse,
+                "__Antall barn__ er endret fra " + familieHendelseFørOverstyring.getGjeldendeAntallBarn() + " til __"
+                    + familieHendelseEtterOverstyring.getOverstyrtVersjon().map(FamilieHendelseEntitet::getAntallBarn).orElse(0) + "__."));
+
+        assertThat(historikkinnslag.getLinjer()).filteredOn(linje -> linje.getTekst().equals("Barn lagt til med fødselsdato: " + fødselsdato + "."))
+            .hasSize(2);
+
+        assertThat(historikkinnslag.getLinjer()).filteredOn(linje -> linje.getTekst().equals("Barn lagt til med fødselsdato: " + fødselsdato2 + "."))
+            .hasSize(1);
+    }
+
+    @Test
+    void skal_oppdatere_og_lage_historikk_når_to_barn_legges_til_hvor_to_er_i_overstyrt_fra_før() {
+        var termindato = LocalDate.now().minusDays(1);
+        var fødselsdato = LocalDate.now();
+        var fødselsdato2 = fødselsdato.plusDays(1);
+
+        // Arrange
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        byggSøknadhendelse(scenario, termindato, fødselsdato);
+
+        scenario.medBekreftetHendelse().leggTilBarn(fødselsdato).medAntallBarn(1);
+        scenario.medOverstyrtHendelse()
+            .medAntallBarn(2)
+            .leggTilBarn(fødselsdato)
+            .leggTilBarn(fødselsdato); // overstyrt versjon inneholder 1 barn fra bekreftet hendelse
+
+        var behandling = scenario.lagre(repositoryProvider);
+        var ref = BehandlingReferanse.fra(behandling);
+        // barnDtoListe inneholder gjeldende barn fra register i tillegg til det som skal legges til. Det vil si 1 barn fra bekreftet hendelse og 3 barn som skal legges til.
+        var barnDtoListe = List.of(new UidentifisertBarnDto(fødselsdato, null), new UidentifisertBarnDto(fødselsdato, null),
+            new UidentifisertBarnDto(fødselsdato, fødselsdato), new UidentifisertBarnDto(fødselsdato2, null));
+        var begrunnelse = "Legger til ekstra barn i overstyring.";
+        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto(begrunnelse, termindato, barnDtoListe);
+
+        // Act
+        var familieHendelseFørOverstyring = familieHendelseTjeneste.hentAggregat(ref.behandlingId());
+        oppdaterer.håndterOverstyring(overstyringFaktaOmFødselDto, ref);
+        var familieHendelseEtterOverstyring = familieHendelseTjeneste.hentAggregat(ref.behandlingId());
+        var historikkinnslag = historikkinnslagRepository.hent(ref.saksnummer()).getFirst();
+
+
+        // Assert
+        assertThat(familieHendelseFørOverstyring.getOverstyrtVersjon()).get()
+            .extracting(v -> v.getBarna().size())
+            .as("Antall barn før overstyring")
+            .isEqualTo(2);
+        assertThat(familieHendelseEtterOverstyring.getOverstyrtVersjon()).get()
+            .extracting(v -> v.getBarna().size())
+            .as("Antall barn etter overstyring")
+            .isEqualTo(4);
+
+        assertThat(historikkinnslag.getLinjer()).extracting(HistorikkinnslagLinje::getTekst)
+            .containsAll(List.of("Overstyrt fakta om fødsel.", begrunnelse,
+                "__Antall barn__ er endret fra " + familieHendelseFørOverstyring.getGjeldendeAntallBarn() + " til __"
+                    + familieHendelseEtterOverstyring.getOverstyrtVersjon().map(FamilieHendelseEntitet::getAntallBarn).orElse(0) + "__."));
+
+        assertThat(historikkinnslag.getLinjer()).filteredOn(
+            linje -> linje.getTekst().equals("Barn lagt til med fødselsdato: " + fødselsdato + " og dødsdato: " + fødselsdato + ".")).hasSize(1);
+
+        assertThat(historikkinnslag.getLinjer()).filteredOn(linje -> linje.getTekst().equals("Barn lagt til med fødselsdato: " + fødselsdato2 + "."))
+            .hasSize(1);
+    }
+
+    @Test
+    void skal_oppdatere_og_lage_historikk_når_barn_fjernes() {
         var termindato = LocalDate.now().minusDays(1);
         var fødselsdato = LocalDate.now();
 
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.medSøknadHendelse()
-            .medAntallBarn(1)
-            .medFødselsDato(fødselsdato)
-            .medTerminbekreftelse(scenario.medSøknadHendelse()
-                .getTerminbekreftelseBuilder()
-                .medTermindato(termindato)
-                .medNavnPå("LEGEN LEGESEN")
-                .medUtstedtDato(termindato.minusMonths(1)));
-        scenario.medBruker(AktørId.dummy()).medSøknad().medMottattDato(termindato.minusWeeks(2));
-        scenario.medSøknadAnnenPart().medAktørId(AktørId.dummy());
+        byggSøknadhendelse(scenario, termindato, fødselsdato);
 
         scenario.medBekreftetHendelse().leggTilBarn(fødselsdato).medAntallBarn(1);
         // Overstyrt versjon inneholder 1 barn fra bekreftet hendelse og det som skal fjernes. Dersom det kun inneholder 1 barn fra bekreftet hendelse, blir de andre barna fjernet fra overstyring.
@@ -180,5 +268,165 @@ public class FaktaOmFødselOverstyringshåndtererTest {
                 "__Antall barn__ er endret fra " + familieHendelseFørOverstyring.getGjeldendeAntallBarn() + " til __"
                     + familieHendelseEtterOverstyring.getOverstyrtVersjon().map(FamilieHendelseEntitet::getAntallBarn).orElse(0) + "__.",
                 "Barn fjernet med fødselsdato: " + fødselsdato + "."));
+    }
+
+    @Test
+    void skal_oppdatere_og_lage_historikk_når_tre_barn_fjernes_med_to_forskjellige_fødselsdatoer() {
+        var termindato = LocalDate.now().minusDays(1);
+        var fødselsdato = LocalDate.now();
+        var fødselsdato2 = fødselsdato.plusDays(1);
+
+        // Arrange
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        byggSøknadhendelse(scenario, termindato, fødselsdato);
+
+        scenario.medBekreftetHendelse().leggTilBarn(fødselsdato).medAntallBarn(1);
+        // Overstyrt versjon inneholder 1 barn fra bekreftet hendelse og 3 andre barn som kan overstyres.
+        scenario.medOverstyrtHendelse()
+            .medAntallBarn(4)
+            .leggTilBarn(fødselsdato)
+            .leggTilBarn(fødselsdato)
+            .leggTilBarn(fødselsdato2)
+            .leggTilBarn(fødselsdato2);
+
+        var behandling = scenario.lagre(repositoryProvider);
+        var ref = BehandlingReferanse.fra(behandling);
+        var barnDtoListe = List.of(new UidentifisertBarnDto(fødselsdato, null));
+        var begrunnelse = "Fjernet 3 barn fra overstyring.";
+        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto(begrunnelse, termindato, barnDtoListe);
+
+        // Act
+        var familieHendelseFørOverstyring = familieHendelseTjeneste.hentAggregat(ref.behandlingId());
+        oppdaterer.håndterOverstyring(overstyringFaktaOmFødselDto, ref);
+        var familieHendelseEtterOverstyring = familieHendelseTjeneste.hentAggregat(ref.behandlingId());
+        var historikkinnslag = historikkinnslagRepository.hent(ref.saksnummer()).getFirst();
+
+        // Assert
+        assertThat(familieHendelseFørOverstyring.getOverstyrtVersjon()).get()
+            .extracting(v -> v.getBarna().size())
+            .as("Antall barn før overstyring")
+            .isEqualTo(4);
+        assertThat(familieHendelseEtterOverstyring.getOverstyrtVersjon()).get()
+            .extracting(v -> v.getBarna().size())
+            .as("Antall barn etter overstyring")
+            .isEqualTo(1);
+
+        assertThat(historikkinnslag.getLinjer()).extracting(HistorikkinnslagLinje::getTekst)
+            .containsAll(List.of("Overstyrt fakta om fødsel.", begrunnelse,
+                "__Antall barn__ er endret fra " + familieHendelseFørOverstyring.getGjeldendeAntallBarn() + " til __"
+                    + familieHendelseEtterOverstyring.getOverstyrtVersjon().map(FamilieHendelseEntitet::getAntallBarn).orElse(0) + "__."));
+
+        assertThat(historikkinnslag.getLinjer()).filteredOn(linje -> linje.getTekst().equals("Barn fjernet med fødselsdato: " + fødselsdato + "."))
+            .hasSize(1);
+
+        assertThat(historikkinnslag.getLinjer()).filteredOn(linje -> linje.getTekst().equals("Barn fjernet med fødselsdato: " + fødselsdato2 + "."))
+            .hasSize(2);
+    }
+
+    @Test
+    void skal_oppdatere_og_lage_historikk_ved_endret_dødsdato() {
+        var termindato = LocalDate.now().minusDays(1);
+        var fødselsdato = LocalDate.now();
+        var dødsdato = fødselsdato.plusDays(1);
+
+        // Arrange
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        byggSøknadhendelse(scenario, termindato, fødselsdato);
+
+        scenario.medBekreftetHendelse().leggTilBarn(fødselsdato).medAntallBarn(1);
+        // Overstyrt versjon inneholder 1 barn fra bekreftet og 1 andre barn som kan overstyres.
+        scenario.medOverstyrtHendelse().medAntallBarn(2).leggTilBarn(fødselsdato).leggTilBarn(fødselsdato);
+
+        var behandling = scenario.lagre(repositoryProvider);
+        var ref = BehandlingReferanse.fra(behandling);
+        // barnDtoListe inneholder gjeldende barn. Et barn fra bekreftet og et barn som skal overstyres.
+        var barnDtoListe = List.of(new UidentifisertBarnDto(fødselsdato, null), new UidentifisertBarnDto(fødselsdato, dødsdato));
+        var begrunnelse = "Endret på dødsdato.";
+        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto(begrunnelse, termindato, barnDtoListe);
+
+        // Act
+        oppdaterer.håndterOverstyring(overstyringFaktaOmFødselDto, ref);
+        var familieHendelseEtterOverstyring = familieHendelseTjeneste.hentAggregat(ref.behandlingId());
+        var historikkinnslag = historikkinnslagRepository.hent(ref.saksnummer()).getFirst();
+
+        // Assert
+        assertThat(familieHendelseEtterOverstyring.getOverstyrtVersjon().map(FamilieHendelseEntitet::getBarna).orElseThrow()).hasSize(2)
+            .satisfiesExactlyInAnyOrder(barn -> {
+                assertThat(barn.getFødselsdato()).isEqualTo(fødselsdato);
+                assertThat(barn.getDødsdato()).isEmpty();
+            }, barn -> {
+                assertThat(barn.getFødselsdato()).isEqualTo(fødselsdato);
+                assertThat(barn.getDødsdato()).contains(dødsdato);
+            });
+
+        assertThat(historikkinnslag.getLinjer()).extracting(HistorikkinnslagLinje::getTekst)
+            .containsAll(List.of("Overstyrt fakta om fødsel.", begrunnelse, "__Dødsdato__ er satt til __" + format(dødsdato) + "__.",
+                "__Antall barn__ som brukes i behandlingen: __" + barnDtoListe.size() + "__."));
+    }
+
+    @Test
+    void skal_oppdatere_og_lage_historikk_når_barn_fjernes_og_legges_til_et_nytt_barn_samtidig() {
+        var termindato = LocalDate.now().minusDays(1);
+        var fødselsdato = LocalDate.now();
+        var fødselsdato2 = fødselsdato.plusDays(1);
+
+        // Arrange
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        byggSøknadhendelse(scenario, termindato, fødselsdato);
+
+        scenario.medBekreftetHendelse().leggTilBarn(fødselsdato).medAntallBarn(1);
+        // Overstyrt versjon inneholder 1 barn fra bekreftet hendelse og 1 barn som kan overstyres.
+        scenario.medOverstyrtHendelse().medAntallBarn(2).leggTilBarn(fødselsdato).leggTilBarn(fødselsdato);
+
+        var behandling = scenario.lagre(repositoryProvider);
+        var ref = BehandlingReferanse.fra(behandling);
+        // barnDtoListe inneholder gjeldende barn fra register. Barn med fødselsdato er fjernet og barn med fødselsdato2 er lagt til.
+        var barnDtoListe = List.of(new UidentifisertBarnDto(fødselsdato, null), new UidentifisertBarnDto(fødselsdato2, fødselsdato2));
+        var begrunnelse = "Fjernet 1 barn med fødselsdato og lagt til 1 barn med fødselsdato2.";
+        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto(begrunnelse, termindato, barnDtoListe);
+
+        // Act
+        var familieHendelseFørOverstyring = familieHendelseTjeneste.hentAggregat(ref.behandlingId());
+        oppdaterer.håndterOverstyring(overstyringFaktaOmFødselDto, ref);
+        var familieHendelseEtterOverstyring = familieHendelseTjeneste.hentAggregat(ref.behandlingId());
+        var historikkinnslag = historikkinnslagRepository.hent(ref.saksnummer()).getFirst();
+
+        // Assert
+        assertThat(familieHendelseFørOverstyring.getOverstyrtVersjon().map(FamilieHendelseEntitet::getBarna).orElseThrow()).as("Barn før overstyring")
+            .hasSize(2)
+            .satisfiesExactlyInAnyOrder(barn -> {
+                assertThat(barn.getFødselsdato()).isEqualTo(fødselsdato);
+                assertThat(barn.getDødsdato()).isEmpty();
+            }, barn -> {
+                assertThat(barn.getFødselsdato()).isEqualTo(fødselsdato);
+                assertThat(barn.getDødsdato()).isEmpty();
+            });
+
+        assertThat(familieHendelseEtterOverstyring.getOverstyrtVersjon().map(FamilieHendelseEntitet::getBarna).orElseThrow()).as(
+            "Barn etter overstyring hvor barn2 har fødselsdato2 med dødsdato satt").hasSize(2).satisfiesExactlyInAnyOrder(barn -> {
+            assertThat(barn.getFødselsdato()).isEqualTo(fødselsdato);
+            assertThat(barn.getDødsdato()).isEmpty();
+        }, barn -> {
+            assertThat(barn.getFødselsdato()).isEqualTo(fødselsdato2);
+            assertThat(barn.getDødsdato()).contains(fødselsdato2);
+        });
+
+        assertThat(historikkinnslag.getLinjer()).extracting(HistorikkinnslagLinje::getTekst)
+            .containsAll(List.of("Overstyrt fakta om fødsel.", begrunnelse, "Barn fjernet med fødselsdato: " + fødselsdato + ".",
+                "Barn lagt til med fødselsdato: " + fødselsdato2 + " og dødsdato: " + fødselsdato2 + ".",
+                "__Antall barn__ som brukes i behandlingen: __" + barnDtoListe.size() + "__."));
+    }
+
+    private void byggSøknadhendelse(AbstractTestScenario<?> scenario, LocalDate termindato, LocalDate fødselsdato) {
+        scenario.medSøknadHendelse()
+            .medAntallBarn(1)
+            .medFødselsDato(fødselsdato)
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
+                .medTermindato(termindato)
+                .medNavnPå("LEGEN LEGESEN")
+                .medUtstedtDato(termindato.minusMonths(1)));
+        scenario.medBruker(AktørId.dummy()).medSøknad().medMottattDato(termindato.minusWeeks(2));
+        scenario.medSøknadAnnenPart().medAktørId(AktørId.dummy());
     }
 }
