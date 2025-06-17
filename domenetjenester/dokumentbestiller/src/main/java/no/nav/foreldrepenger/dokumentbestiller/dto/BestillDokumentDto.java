@@ -4,14 +4,16 @@ import java.util.UUID;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
+import no.nav.folketrygdloven.kalkulus.opptjening.v1.Fritekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 
 public record BestillDokumentDto(@Valid UUID behandlingUuid,
                                  @ValidKodeverk @NotNull DokumentMalType brevmalkode,
-                                 @Valid FritekstDto fritekst,
+                                 @Valid @Fritekst @Size(max = 20_000) String fritekst,
                                  @ValidKodeverk RevurderingVarslingÅrsak arsakskode) {
 }
 
