@@ -80,11 +80,13 @@ public class BeregningMigreringTjeneste {
     public boolean skalBeregnesIKalkulus(BehandlingReferanse referanse) {
         var harAktivtGrunnlagIFpsak = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(referanse.behandlingId()).isPresent();
         if (harAktivtGrunnlagIFpsak) {
+            LOG.info("Har aktivt grunnlag i fpsak, beregner videre i fpsak");
             return false;
         }
         var originalKobling = referanse.getOriginalBehandlingId().flatMap(koblingRepository::hentKobling);
         if (referanse.erRevurdering() && originalKobling.isEmpty()) {
             // Revurderinger er avhengig av at originalkobling ligger i kalkulus så vi har et grunnlag å basere oss på
+            LOG.info("Revurdering der orginal behandling ikke er migrert, beregner i fpsak");
             return false;
         }
         return true;
