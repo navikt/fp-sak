@@ -1,22 +1,33 @@
-CREATE TABLE EOS_UTTAKSPERIODER (
-    ID NUMBER(19, 0) NOT NULL PRIMARY KEY
+CREATE TABLE EOS_UTTAKSPERIODER
+(
+    ID            NUMBER(19, 0)                          NOT NULL PRIMARY KEY,
+    OPPRETTET_AV  VARCHAR2(20 char) default 'VL'         not null,
+    OPPRETTET_TID TIMESTAMP(3)      default systimestamp not null
 );
 
-CREATE TABLE EOS_UTTAKSPERIODE (
-    ID NUMBER(19, 0) NOT NULL PRIMARY KEY,
-    EOS_UTTAKSPERIODER_ID NUMBER(19, 0) NOT NULL,
-    FOM DATE NOT NULL,
-    TOM DATE NOT NULL,
-    TREKKONTO VARCHAR2(100 CHAR) NOT NULL,
-    TREKKDAGER NUMBER(4, 1) NOT NULL,
+CREATE TABLE EOS_UTTAKSPERIODE
+(
+    ID                    NUMBER(19, 0)                          NOT NULL PRIMARY KEY,
+    EOS_UTTAKSPERIODER_ID NUMBER(19, 0)                          NOT NULL,
+    FOM                   DATE                                   NOT NULL,
+    TOM                   DATE                                   NOT NULL,
+    TREKKONTO             VARCHAR2(100 CHAR)                     NOT NULL,
+    TREKKDAGER            NUMBER(4, 1)                           NOT NULL,
+    OPPRETTET_AV          VARCHAR2(20 char) default 'VL'         not null,
+    OPPRETTET_TID         TIMESTAMP(3)      default systimestamp not null,
     CONSTRAINT FK_EOS_UTTAKSPERIODER_1 FOREIGN KEY (EOS_UTTAKSPERIODER_ID) REFERENCES EOS_UTTAKSPERIODER (ID)
 );
 
-CREATE TABLE GR_EOS_UTTAK (
-    ID NUMBER(19, 0) NOT NULL PRIMARY KEY,
-    AKTIV VARCHAR2(1 char) CHECK (aktiv IN ('J', 'N')) NOT NULL,
-    BEHANDLING_ID NUMBER(19, 0) NOT NULL,
+CREATE TABLE GR_EOS_UTTAK
+(
+    ID                        NUMBER(19, 0)                                NOT NULL PRIMARY KEY,
+    AKTIV                     VARCHAR2(1 char) CHECK (aktiv IN ('J', 'N')) NOT NULL,
+    BEHANDLING_ID             NUMBER(19, 0)                                NOT NULL,
     SAKSBEHANDLER_PERIODER_ID NUMBER(19, 0),
+    OPPRETTET_AV              VARCHAR2(20 char) default 'VL'               not null,
+    OPPRETTET_TID             TIMESTAMP(3)      default systimestamp       not null,
+    ENDRET_AV                 VARCHAR2(20 char),
+    ENDRET_TID                TIMESTAMP(3),
     CONSTRAINT FK_GR_EOS_UTTAK_1 FOREIGN KEY (SAKSBEHANDLER_PERIODER_ID) REFERENCES EOS_UTTAKSPERIODER (ID)
 );
 
@@ -26,7 +37,7 @@ CREATE SEQUENCE SEQ_EOS_UTTAKSPERIODE INCREMENT BY 50;
 CREATE SEQUENCE SEQ_GR_EOS_UTTAK INCREMENT BY 50;
 
 -- Indexes for performance optimization
-CREATE INDEX IDX_GR_EOS_UTTAK_1 ON GR_EOS_UTTAK(BEHANDLING_ID);
+CREATE INDEX IDX_GR_EOS_UTTAK_1 ON GR_EOS_UTTAK (BEHANDLING_ID);
 CREATE INDEX IDX_GR_EOS_UTTAKSPERIODE_1 ON EOS_UTTAKSPERIODE (EOS_UTTAKSPERIODER_ID);
 
 -- Comments for clarity
