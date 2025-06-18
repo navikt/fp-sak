@@ -56,8 +56,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.folketrygdloven.kalkulus.opptjening.v1.Fritekst;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.dokumentbestiller.dto.FritekstDto;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.foreldrepenger.web.app.IndexClasses;
@@ -95,14 +95,14 @@ class RestApiOppdragInputValideringDtoTest extends RestApiTester {
 
             // Enforces av UUID selv
             put(UUID.class, singletonList(emptyList()));
-            put(FritekstDto.class, singletonList(List.of(Valid.class))); // Fritekst kan inneholde HTML og en kan derfor ikke bruke @Pattern validering på String
         }
     };
 
     @SuppressWarnings("rawtypes")
     private static final Map<Class, List<List<Class<? extends Annotation>>>> VALIDERINGSALTERNATIVER = new HashMap<>() {
         {
-            put(String.class, asList(asList(Pattern.class, Size.class), List.of(Pattern.class), singletonList(Digits.class)));
+            put(String.class, asList(asList(Pattern.class, Size.class), List.of(Pattern.class), List.of(Digits.class),
+                List.of(Fritekst.class, Size.class), List.of(Fritekst.class)));
             put(Long.class, asList(asList(Min.class, Max.class), List.of(Digits.class)));
             put(long.class, asList(asList(Min.class, Max.class), List.of(Digits.class)));
             put(Integer.class, singletonList(asList(Min.class, Max.class)));

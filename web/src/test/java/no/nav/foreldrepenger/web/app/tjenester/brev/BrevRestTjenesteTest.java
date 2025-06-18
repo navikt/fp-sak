@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentForhåndsvisningTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillDokumentDto;
-import no.nav.foreldrepenger.dokumentbestiller.dto.FritekstDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
@@ -40,7 +39,7 @@ class BrevRestTjenesteTest {
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         dokumentBestillerTjenesteMock = mock(DokumentBestillerTjeneste.class);
         dokumentForhåndsvisningTjenesteMock = mock(DokumentForhåndsvisningTjeneste.class);
         dokumentBehandlingTjenesteMock = mock(DokumentBehandlingTjeneste.class);
@@ -62,7 +61,7 @@ class BrevRestTjenesteTest {
         when(behandlingRepository.hentBehandling(behandlingUuid)).thenReturn(behandlingMock);
         var fritekst = "Dette er en fritekst";
         var dokumentMal = INNHENTE_OPPLYSNINGER;
-        var bestillBrevDto = new BestillDokumentDto(behandlingUuid, dokumentMal, new FritekstDto(fritekst), null);
+        var bestillBrevDto = new BestillDokumentDto(behandlingUuid, dokumentMal, fritekst, null);
 
         // Act
         brevRestTjeneste.bestillDokument(bestillBrevDto);
@@ -159,7 +158,7 @@ class BrevRestTjenesteTest {
         when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(behandling);
 
         // Act
-        brevRestTjeneste.mellomlagringAvOverstyring(new BrevRestTjeneste.MellomlagreHtmlDto(behandling.getUuid(), new FritekstDto("HTML")));
+        brevRestTjeneste.mellomlagringAvOverstyring(new BrevRestTjeneste.MellomlagreHtmlDto(behandling.getUuid(), "HTML"));
 
         var captorHtml = ArgumentCaptor.forClass(String.class);
 
