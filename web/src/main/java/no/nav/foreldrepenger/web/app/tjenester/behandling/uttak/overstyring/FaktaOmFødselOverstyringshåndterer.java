@@ -73,9 +73,7 @@ public class FaktaOmFødselOverstyringshåndterer implements Overstyringshåndte
         return OppdateringResultat.utenOverhopp();
     }
 
-    private void leggTilDødsdatoEndretHistorikk(Historikkinnslag.Builder historikkinnslag,
-                                                List<?> dtoBarn,
-                                                List<?> gjeldendeBarn) {
+    private void leggTilDødsdatoEndretHistorikk(Historikkinnslag.Builder historikkinnslag, List<?> dtoBarn, List<?> gjeldendeBarn) {
         if (dtoBarn.size() != gjeldendeBarn.size()) {
             return; // Ikke logg endringer i fødselsdato/dødsdato når antall barn endres
         }
@@ -98,8 +96,7 @@ public class FaktaOmFødselOverstyringshåndterer implements Overstyringshåndte
             .medBehandlingId(ref.behandlingId())
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medTittel(SkjermlenkeType.FAKTA_OM_FOEDSEL)
-            .addLinje(new HistorikkinnslagLinjeBuilder().tekst("Overstyrt fakta om fødsel"))
-            .addLinje(dto.getBegrunnelse());
+            .addLinje(new HistorikkinnslagLinjeBuilder().bold("Overstyrt fakta om fødsel"));
 
         if (dto.getBarn() != null && !dto.getBarn().isEmpty()) {
             historikkinnslag.addLinje(fraTilEquals("Antall barn", familieHendelse.getGjeldendeAntallBarn(), dto.getAntallBarn()));
@@ -119,10 +116,6 @@ public class FaktaOmFødselOverstyringshåndterer implements Overstyringshåndte
                     leggTilBarnHistorikk(historikkinnslag, dtoBarn, gjeldendeBarn);
                 }
             }
-
-            historikkinnslag.addLinje(
-                new HistorikkinnslagLinjeBuilder().bold("Antall barn").tekst("som brukes i behandlingen:").bold(dto.getAntallBarn()));
-
         }
 
         var gjeldendeTerminDato = familieHendelse.getGjeldendeVersjon().getTermindato().orElse(null);
@@ -130,6 +123,11 @@ public class FaktaOmFødselOverstyringshåndterer implements Overstyringshåndte
             historikkinnslag.addLinje(lagTermindatoLinje(dto, familieHendelse));
         }
 
+        if (dto.getBarn() != null && dto.getAntallBarn() > 0) {
+            historikkinnslag.addLinje(
+                    new HistorikkinnslagLinjeBuilder().bold("Antall barn").tekst("som brukes i behandlingen:").bold(dto.getAntallBarn()));
+        }
+        historikkinnslag.addLinje(dto.getBegrunnelse());
         historikkRepository.lagre(historikkinnslag.build());
     }
 
@@ -153,8 +151,8 @@ public class FaktaOmFødselOverstyringshåndterer implements Overstyringshåndte
             var dtoBarnDto = (UidentifisertBarnDto) dtoBarn.get(i);
             var gjeldendeBarnEntitet = (UidentifisertBarnEntitet) gjeldendeBarn.get(i);
 
-            if (!dtoBarnDto.getFodselsdato().equals(gjeldendeBarnEntitet.getFødselsdato()) ||
-                !Objects.equals(dtoBarnDto.getDodsdato(), gjeldendeBarnEntitet.getDødsdato())) {
+            if (!dtoBarnDto.getFodselsdato().equals(gjeldendeBarnEntitet.getFødselsdato()) || !Objects.equals(dtoBarnDto.getDodsdato(),
+                gjeldendeBarnEntitet.getDødsdato())) {
                 return true;
             }
         }
@@ -189,9 +187,11 @@ public class FaktaOmFødselOverstyringshåndterer implements Overstyringshåndte
         }
 
         nyeBarn.stream().map(barn -> (UidentifisertBarnDto) barn).forEach(barnDto -> {
-            var tekst =
-                "Barn lagt til med fødselsdato: " + barnDto.getFodselsdato() + barnDto.getDodsdato().map(d -> " og dødsdato: " + d).orElse("");
-            historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().tekst(tekst));
+            var builder = new HistorikkinnslagLinjeBuilder().bold("Barn lagt til").tekst("med fødselsdato:").bold(barnDto.getFodselsdato());
+            if (barnDto.getDodsdato().isPresent()) {
+                builder.tekst("og dødsdato:").bold(barnDto.getDodsdato().get());
+            }
+            historikkinnslag.addLinje(builder);
         });
     }
 
@@ -212,9 +212,11 @@ public class FaktaOmFødselOverstyringshåndterer implements Overstyringshåndte
         }
 
         fjernedeBarn.stream().map(barn -> (UidentifisertBarnEntitet) barn).forEach(barnEntitet -> {
-            var tekst =
-                "Barn fjernet med fødselsdato: " + barnEntitet.getFødselsdato() + barnEntitet.getDødsdato().map(d -> " og dødsdato: " + d).orElse("");
-            historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().tekst(tekst));
+            var builder = new HistorikkinnslagLinjeBuilder().bold("Barn fjernet").tekst("med fødselsdato:").bold(barnEntitet.getFødselsdato());
+            if (barnEntitet.getDødsdato().isPresent()) {
+                builder.tekst("og dødsdato:").bold(barnEntitet.getDødsdato().get());
+            }
+            historikkinnslag.addLinje(builder);
         });
     }
 

@@ -77,8 +77,8 @@ public class FaktaOmFødselOverstyringshåndtererTest {
         assertThat(familieHendelseEtterOverstyring.getOverstyrtVersjon().flatMap(FamilieHendelseEntitet::getTermindato).orElseThrow()).as(
             "Termindato skal være oppdatert").isEqualTo(termindatoFraDto);
         assertThat(historikkinnslag.getLinjer()).extracting(HistorikkinnslagLinje::getTekst)
-            .containsAll(List.of("Overstyrt fakta om fødsel.", begrunnelse,
-                "__Termindato__ er endret fra " + format(termindato) + " til __" + format(termindatoFraDto) + "__."));
+            .containsAll(List.of("__Overstyrt fakta om fødsel__.",
+                "__Termindato__ er endret fra " + format(termindato) + " til __" + format(termindatoFraDto) + "__.", begrunnelse));
     }
 
     @Test
@@ -118,10 +118,10 @@ public class FaktaOmFødselOverstyringshåndtererTest {
             .isEqualTo(2);
 
         assertThat(historikkinnslag.getLinjer()).extracting(HistorikkinnslagLinje::getTekst)
-            .containsAll(List.of("Overstyrt fakta om fødsel.", begrunnelse,
+            .containsAll(List.of("__Overstyrt fakta om fødsel__.",
                 "__Antall barn__ er endret fra " + familieHendelseFørOverstyring.getGjeldendeAntallBarn() + " til __"
                     + familieHendelseEtterOverstyring.getOverstyrtVersjon().map(FamilieHendelseEntitet::getAntallBarn).orElse(0) + "__.",
-                "Barn lagt til med fødselsdato: " + fødselsdato + "."));
+                "__Barn lagt til__ med fødselsdato: __" + format(fødselsdato) + "__.", begrunnelse));
     }
 
     @Test
@@ -163,15 +163,15 @@ public class FaktaOmFødselOverstyringshåndtererTest {
             .isEqualTo(4);
 
         assertThat(historikkinnslag.getLinjer()).extracting(HistorikkinnslagLinje::getTekst)
-            .containsAll(List.of("Overstyrt fakta om fødsel.", begrunnelse,
+            .containsAll(List.of("__Overstyrt fakta om fødsel__.", begrunnelse,
                 "__Antall barn__ er endret fra " + familieHendelseFørOverstyring.getGjeldendeAntallBarn() + " til __"
                     + familieHendelseEtterOverstyring.getOverstyrtVersjon().map(FamilieHendelseEntitet::getAntallBarn).orElse(0) + "__."));
 
-        assertThat(historikkinnslag.getLinjer()).filteredOn(linje -> linje.getTekst().equals("Barn lagt til med fødselsdato: " + fødselsdato + "."))
-            .hasSize(2);
+        assertThat(historikkinnslag.getLinjer()).filteredOn(
+            linje -> linje.getTekst().equals("__Barn lagt til__ med fødselsdato: __" + format(fødselsdato) + "__.")).hasSize(2);
 
-        assertThat(historikkinnslag.getLinjer()).filteredOn(linje -> linje.getTekst().equals("Barn lagt til med fødselsdato: " + fødselsdato2 + "."))
-            .hasSize(1);
+        assertThat(historikkinnslag.getLinjer()).filteredOn(
+            linje -> linje.getTekst().equals("__Barn lagt til__ med fødselsdato: __" + format(fødselsdato2) + "__.")).hasSize(1);
     }
 
     @Test
@@ -216,15 +216,15 @@ public class FaktaOmFødselOverstyringshåndtererTest {
             .isEqualTo(4);
 
         assertThat(historikkinnslag.getLinjer()).extracting(HistorikkinnslagLinje::getTekst)
-            .containsAll(List.of("Overstyrt fakta om fødsel.", begrunnelse,
+            .containsAll(List.of("__Overstyrt fakta om fødsel__.", begrunnelse,
                 "__Antall barn__ er endret fra " + familieHendelseFørOverstyring.getGjeldendeAntallBarn() + " til __"
                     + familieHendelseEtterOverstyring.getOverstyrtVersjon().map(FamilieHendelseEntitet::getAntallBarn).orElse(0) + "__."));
 
-        assertThat(historikkinnslag.getLinjer()).filteredOn(
-            linje -> linje.getTekst().equals("Barn lagt til med fødselsdato: " + fødselsdato + " og dødsdato: " + fødselsdato + ".")).hasSize(1);
+        assertThat(historikkinnslag.getLinjer()).filteredOn(linje -> linje.getTekst()
+            .equals("__Barn lagt til__ med fødselsdato: __" + format(fødselsdato) + "__ og dødsdato: __" + format(fødselsdato) + "__.")).hasSize(1);
 
-        assertThat(historikkinnslag.getLinjer()).filteredOn(linje -> linje.getTekst().equals("Barn lagt til med fødselsdato: " + fødselsdato2 + "."))
-            .hasSize(1);
+        assertThat(historikkinnslag.getLinjer()).filteredOn(
+            linje -> linje.getTekst().equals("__Barn lagt til__ med fødselsdato: __" + format(fødselsdato2) + "__.")).hasSize(1);
     }
 
     @Test
@@ -264,10 +264,10 @@ public class FaktaOmFødselOverstyringshåndtererTest {
             .isEqualTo(1);
 
         assertThat(historikkinnslag.getLinjer()).extracting(HistorikkinnslagLinje::getTekst)
-            .containsAll(List.of("Overstyrt fakta om fødsel.", begrunnelse,
+            .containsAll(List.of("__Overstyrt fakta om fødsel__.", begrunnelse,
                 "__Antall barn__ er endret fra " + familieHendelseFørOverstyring.getGjeldendeAntallBarn() + " til __"
                     + familieHendelseEtterOverstyring.getOverstyrtVersjon().map(FamilieHendelseEntitet::getAntallBarn).orElse(0) + "__.",
-                "Barn fjernet med fødselsdato: " + fødselsdato + "."));
+                "__Barn fjernet__ med fødselsdato: __" + format(fødselsdato) + "__."));
     }
 
     @Test
@@ -312,15 +312,15 @@ public class FaktaOmFødselOverstyringshåndtererTest {
             .isEqualTo(1);
 
         assertThat(historikkinnslag.getLinjer()).extracting(HistorikkinnslagLinje::getTekst)
-            .containsAll(List.of("Overstyrt fakta om fødsel.", begrunnelse,
+            .containsAll(List.of("__Overstyrt fakta om fødsel__.", begrunnelse,
                 "__Antall barn__ er endret fra " + familieHendelseFørOverstyring.getGjeldendeAntallBarn() + " til __"
                     + familieHendelseEtterOverstyring.getOverstyrtVersjon().map(FamilieHendelseEntitet::getAntallBarn).orElse(0) + "__."));
 
-        assertThat(historikkinnslag.getLinjer()).filteredOn(linje -> linje.getTekst().equals("Barn fjernet med fødselsdato: " + fødselsdato + "."))
-            .hasSize(1);
+        assertThat(historikkinnslag.getLinjer()).filteredOn(
+            linje -> linje.getTekst().equals("__Barn fjernet__ med fødselsdato: __" + format(fødselsdato) + "__.")).hasSize(1);
 
-        assertThat(historikkinnslag.getLinjer()).filteredOn(linje -> linje.getTekst().equals("Barn fjernet med fødselsdato: " + fødselsdato2 + "."))
-            .hasSize(2);
+        assertThat(historikkinnslag.getLinjer()).filteredOn(
+            linje -> linje.getTekst().equals("__Barn fjernet__ med fødselsdato: __" + format(fødselsdato2) + "__.")).hasSize(2);
     }
 
     @Test
@@ -360,7 +360,7 @@ public class FaktaOmFødselOverstyringshåndtererTest {
             });
 
         assertThat(historikkinnslag.getLinjer()).extracting(HistorikkinnslagLinje::getTekst)
-            .containsAll(List.of("Overstyrt fakta om fødsel.", begrunnelse, "__Dødsdato__ er satt til __" + format(dødsdato) + "__.",
+            .containsAll(List.of("__Overstyrt fakta om fødsel__.", begrunnelse, "__Dødsdato__ er satt til __" + format(dødsdato) + "__.",
                 "__Antall barn__ som brukes i behandlingen: __" + barnDtoListe.size() + "__."));
     }
 
@@ -412,8 +412,8 @@ public class FaktaOmFødselOverstyringshåndtererTest {
         });
 
         assertThat(historikkinnslag.getLinjer()).extracting(HistorikkinnslagLinje::getTekst)
-            .containsAll(List.of("Overstyrt fakta om fødsel.", begrunnelse, "Barn fjernet med fødselsdato: " + fødselsdato + ".",
-                "Barn lagt til med fødselsdato: " + fødselsdato2 + " og dødsdato: " + fødselsdato2 + ".",
+            .containsAll(List.of("__Overstyrt fakta om fødsel__.", begrunnelse, "__Barn fjernet__ med fødselsdato: __" + format(fødselsdato) + "__.",
+                "__Barn lagt til__ med fødselsdato: __" + format(fødselsdato2) + "__ og dødsdato: __" + format(fødselsdato2) + "__.",
                 "__Antall barn__ som brukes i behandlingen: __" + barnDtoListe.size() + "__."));
     }
 
