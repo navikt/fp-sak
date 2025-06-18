@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.eøs;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -21,7 +22,7 @@ public class EøsUttaksperioderEntitet extends BaseCreateableEntitet {
     private Long id;
 
     @OneToMany(mappedBy = "eosUttaksperioder")
-    private List<EøsUttaksperiodeEntitet> perioder;
+    private List<EøsUttaksperiodeEntitet> perioder = new ArrayList<>();
 
     EøsUttaksperioderEntitet() {
         // For Hibernate
