@@ -53,7 +53,7 @@ public class FaktaUttakDokumentasjonSteg implements UttakSteg {
             return BehandleStegResultat.utførtMedAksjonspunkt(VURDER_UTTAK_DOKUMENTASJON);
         }
         if (behandling.harAvbruttAksjonspunktMedType(VURDER_UTTAK_DOKUMENTASJON) && uttakDokAvklartAvSaksbehandler(uttakInput)) {
-            var aksjonspunktResultat = AksjonspunktResultat.opprettForAksjonspunkt(VURDER_UTTAK_DOKUMENTASJON, AksjonspunktStatus.UTFØRT);
+            var aksjonspunktResultat = AksjonspunktResultat.statusForAksjonspunkt(VURDER_UTTAK_DOKUMENTASJON, AksjonspunktStatus.UTFØRT);
             return BehandleStegResultat.utførtMedAksjonspunktResultat(aksjonspunktResultat);
         }
         return BehandleStegResultat.utførtUtenAksjonspunkter();

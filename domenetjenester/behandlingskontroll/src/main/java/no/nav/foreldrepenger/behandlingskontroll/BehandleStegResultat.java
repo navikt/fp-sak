@@ -116,8 +116,7 @@ public class BehandleStegResultat {
         return new BehandleStegResultat(StegTransisjon.STARTET, List.of());
     }
 
-    // Må selv lage historikkinnslag i steget + ingen støtte for kø-håndtering (ikke
-    // relevant før INSØK.UT).
+    // Må selv sette behandlingsresultat og lage historikkinnslag i steget. Ved behov også bestille brev.
     public static BehandleStegResultat henlagtBehandling() {
         return new BehandleStegResultat(StegTransisjon.HENLEGG, List.of());
     }

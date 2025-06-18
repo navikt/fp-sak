@@ -36,7 +36,7 @@ class RevurderingTjenesteImplTest {
     private RevurderingTjeneste revurderingTjeneste;
 
     @BeforeEach
-    public void setup(EntityManager entityManager) {
+    void setup(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         var grunnlagProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
@@ -47,9 +47,9 @@ class RevurderingTjenesteImplTest {
         var vergeRepository = new VergeRepository(entityManager);
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         var behandlingRevurderingTjeneste = new BehandlingRevurderingTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
-        var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider, behandlingRevurderingTjeneste);
-        revurderingTjeneste = new RevurderingTjenesteImpl(behandlingRepository, grunnlagProvider,
-                new BehandlingskontrollTjenesteImpl(serviceProvider), revurderingEndringES, revurderingTjenesteFelles,
+        var behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider);
+        var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider, behandlingRevurderingTjeneste, behandlingskontrollTjeneste);
+        revurderingTjeneste = new RevurderingTjenesteImpl(behandlingRepository, grunnlagProvider, revurderingEndringES, revurderingTjenesteFelles,
                 vergeRepository);
     }
 

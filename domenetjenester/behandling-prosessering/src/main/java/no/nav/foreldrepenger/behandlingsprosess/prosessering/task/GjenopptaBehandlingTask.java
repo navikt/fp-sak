@@ -3,11 +3,11 @@ package no.nav.foreldrepenger.behandlingsprosess.prosessering.task;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -21,31 +21,28 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 public class GjenopptaBehandlingTask extends BehandlingProsessTask {
 
     private BehandlingRepository behandlingRepository;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
     GjenopptaBehandlingTask() {
         // for CDI proxy
     }
 
     @Inject
-    public GjenopptaBehandlingTask(BehandlingRepository behandlingRepository,
-            BehandlingLåsRepository låsRepository,
-            BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
+    public GjenopptaBehandlingTask(BehandlingRepository behandlingRepository, BehandlingLåsRepository låsRepository,
+                                   BehandlingProsesseringTjeneste behandlingProsesseringTjeneste) {
         super(låsRepository);
         this.behandlingRepository = behandlingRepository;
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
     }
 
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
 
-        var lås = behandlingRepository.taSkriveLås(behandlingId);
+        behandlingRepository.taSkriveLås(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
-
 
         if (behandling.isBehandlingPåVent()) {
-            behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
+            behandlingProsesseringTjeneste.taBehandlingAvVent(behandling);
         }
     }
 

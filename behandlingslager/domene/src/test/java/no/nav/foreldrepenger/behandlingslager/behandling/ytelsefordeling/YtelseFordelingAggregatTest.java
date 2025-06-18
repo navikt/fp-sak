@@ -54,7 +54,17 @@ class YtelseFordelingAggregatTest {
             .medOppgittRettighet(OppgittRettighetEntitet.bareSøkerRett())
             .build();
 
-        assertThat(yfa.getGjeldendeRettighetstype(false, RelasjonsRolleType.MORA, uføretrygdGrunnlag)).isEqualTo(Rettighetstype.BARE_FAR_RETT_MOR_UFØR);
+        assertThat(yfa.getGjeldendeRettighetstype(false, RelasjonsRolleType.FARA, uføretrygdGrunnlag)).isEqualTo(Rettighetstype.BARE_FAR_RETT_MOR_UFØR);
+    }
+
+    @Test
+    void rettighetstype_mor_mottar_uforetrygd_rolle_mor() {
+        var uføretrygdGrunnlag = UføretrygdGrunnlagEntitet.Builder.oppdatere(Optional.empty()).medRegisterUføretrygd(true, LocalDate.now().minusYears(1), LocalDate.now().minusYears(1)).build();
+        var yfa = YtelseFordelingAggregat.oppdatere(Optional.empty())
+            .medOppgittRettighet(OppgittRettighetEntitet.bareSøkerRett())
+            .build();
+
+        assertThat(yfa.getGjeldendeRettighetstype(false, RelasjonsRolleType.MORA, uføretrygdGrunnlag)).isEqualTo(Rettighetstype.BARE_MOR_RETT);
     }
 
     @Test
@@ -74,4 +84,5 @@ class YtelseFordelingAggregatTest {
 
         assertThat(yfa.getGjeldendeRettighetstype(false, RelasjonsRolleType.MORA, null)).isEqualTo(Rettighetstype.BARE_MOR_RETT);
     }
+
 }

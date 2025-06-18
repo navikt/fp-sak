@@ -7,7 +7,6 @@ import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingFeil;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjenesteFelles;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -27,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 @ApplicationScoped
 public class RevurderingTjenesteImpl implements RevurderingTjeneste {
     private BehandlingRepository behandlingRepository;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private FamilieHendelseRepository familieHendelseRepository;
     private PersonopplysningRepository personopplysningRepository;
     private MedlemskapRepository medlemskapRepository;
@@ -43,12 +41,10 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
     @Inject
     public RevurderingTjenesteImpl(BehandlingRepository behandlingRepository,
                                    BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider,
-                                   BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                    @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD) RevurderingEndring revurderingEndring,
                                    RevurderingTjenesteFelles revurderingTjenesteFelles,
                                    VergeRepository vergeRepository) {
         this.behandlingRepository = behandlingRepository;
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.familieHendelseRepository = grunnlagRepositoryProvider.getFamilieHendelseRepository();
         this.personopplysningRepository = grunnlagRepositoryProvider.getPersonopplysningRepository();
         this.medlemskapRepository = grunnlagRepositoryProvider.getMedlemskapRepository();
@@ -81,15 +77,10 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
             .orElseThrow(() -> RevurderingFeil.tjenesteFinnerIkkeBehandlingForRevurdering(fagsak.getId()));
 
         // lås original behandling først slik at ingen andre forsøker på samme
-        var originalLås = behandlingRepository.taSkriveLås(origBehandling.getId());
-        behandlingskontrollTjeneste.initBehandlingskontroll(origBehandling, originalLås);
+        behandlingRepository.taSkriveLås(origBehandling.getId());
 
         // deretter opprett kontekst for revurdering og opprett
         var revurdering = revurderingTjenesteFelles.opprettRevurderingsbehandling(revurderingsÅrsak, origBehandling, manueltOpprettet, enhet, opprettetAv);
-        var revurderingLås = behandlingRepository.taSkriveLås(revurdering.getId());
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(revurdering, revurderingLås);
-        behandlingskontrollTjeneste.opprettBehandling(kontekst, revurdering);
-        revurderingTjenesteFelles.opprettHistorikkInnslagForNyRevurdering(revurdering, revurderingsÅrsak, manueltOpprettet);
 
         // Kopier søknadsdata
         søknadRepository.hentSøknadHvisEksisterer(origBehandling.getId())

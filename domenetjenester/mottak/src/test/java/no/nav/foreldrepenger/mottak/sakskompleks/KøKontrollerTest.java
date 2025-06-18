@@ -16,13 +16,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.flytkontroll.BehandlingFlytkontroll;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
@@ -43,8 +42,6 @@ class KøKontrollerTest {
     @Mock
     private BehandlingRepositoryProvider behandlingRepositoryProvider;
     @Mock
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-    @Mock
     private SøknadRepository søknadRepository;
     @Mock
     private YtelsesFordelingRepository ytelsesFordelingRepository;
@@ -62,8 +59,8 @@ class KøKontrollerTest {
         when(behandlingRepositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         when(behandlingRepositoryProvider.getSøknadRepository()).thenReturn(søknadRepository);
         when(behandlingRepositoryProvider.getYtelsesFordelingRepository()).thenReturn(ytelsesFordelingRepository);
-        køKontroller = new KøKontroller(behandlingProsesseringTjeneste, behandlingskontrollTjeneste,
-                behandlingRepositoryProvider, taskTjeneste, behandlingRevurderingTjeneste, behandlingsoppretter, flytkontroll);
+        køKontroller = new KøKontroller(behandlingProsesseringTjeneste, behandlingRepositoryProvider, taskTjeneste,
+            behandlingRevurderingTjeneste, behandlingsoppretter, flytkontroll);
     }
 
     @Test

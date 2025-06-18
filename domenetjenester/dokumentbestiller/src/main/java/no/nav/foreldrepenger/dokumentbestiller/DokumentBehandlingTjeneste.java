@@ -14,7 +14,6 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -29,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
 @ApplicationScoped
@@ -39,7 +39,7 @@ public class DokumentBehandlingTjeneste {
     private static final Period MANUELT_VENT_FRIST = Period.ofDays(28);
 
     private BehandlingRepository behandlingRepository;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private FamilieHendelseRepository familieHendelseRepository;
     private BehandlingDokumentRepository behandlingDokumentRepository;
     private HistorikkinnslagRepository historikkinnslagRepository;
@@ -50,12 +50,12 @@ public class DokumentBehandlingTjeneste {
 
     @Inject
     public DokumentBehandlingTjeneste(BehandlingRepositoryProvider repositoryProvider,
-                                      BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                      BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                                       BehandlingDokumentRepository behandlingDokumentRepository) {
         Objects.requireNonNull(repositoryProvider, "repositoryProvider");
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.behandlingDokumentRepository = behandlingDokumentRepository;
         this.historikkinnslagRepository = repositoryProvider.getHistorikkinnslagRepository();
     }
@@ -107,9 +107,10 @@ public class DokumentBehandlingTjeneste {
     }
 
     public void settBehandlingPåVent(Long behandlingId, Venteårsak venteårsak) {
+        behandlingRepository.taSkriveLås(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (!behandling.isBehandlingPåVent() || behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT)) {
-            behandlingskontrollTjeneste.settBehandlingPåVentUtenSteg(behandling, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT,
+            behandlingProsesseringTjeneste.settBehandlingPåVentUtenSteg(behandling, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT,
                 LocalDateTime.now().plus(MANUELT_VENT_FRIST), venteårsak);
         }
     }

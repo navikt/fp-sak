@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.registerinnhenting.impl;
+package no.nav.foreldrepenger.behandlingsprosess.prosessering.task;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -6,13 +6,13 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.registerinnhenting.RegisterdataEndringshåndterer;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
@@ -29,7 +29,7 @@ public class RegisterdataOppdatererTask extends BehandlingProsessTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(RegisterdataOppdatererTask.class);
 
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private RegisterdataEndringshåndterer registerdataOppdaterer;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private BehandlingRepository behandlingRepository;
@@ -41,11 +41,11 @@ public class RegisterdataOppdatererTask extends BehandlingProsessTask {
     @Inject
     public RegisterdataOppdatererTask(BehandlingRepository behandlingRepository,
                                       BehandlingLåsRepository låsRepository,
-                                      BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                      BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                                       BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                                       RegisterdataEndringshåndterer registerdataOppdaterer) {
         super(låsRepository);
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.registerdataOppdaterer = registerdataOppdaterer;
         this.behandlingRepository = behandlingRepository;
@@ -54,18 +54,17 @@ public class RegisterdataOppdatererTask extends BehandlingProsessTask {
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingsId) {
         // NB lås før hent behandling
-        var lås = behandlingRepository.taSkriveLås(behandlingsId);
+        behandlingRepository.taSkriveLås(behandlingsId);
         var behandling = behandlingRepository.hentBehandling(behandlingsId);
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
         if (behandling.erSaksbehandlingAvsluttet()) return;
 
         if (behandling.isBehandlingPåVent()) {
-            behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
+            behandlingProsesseringTjeneste.taBehandlingAvVent(behandling);
         }
         registerdataOppdaterer.utledDiffOgReposisjonerBehandlingVedEndringer(behandling, hentUtSnapshotFraPayload(prosessTaskData), true);
         // I tilfelle tilbakehopp reåpner aksjonspunkt
         if (behandling.isBehandlingPåVent()) {
-            behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
+            behandlingProsesseringTjeneste.taBehandlingAvVent(behandling);
         }
         behandlendeEnhetTjeneste.sjekkEnhetEtterEndring(behandling)
             .ifPresent(enhet -> behandlendeEnhetTjeneste.oppdaterBehandlendeEnhet(behandling, enhet, HistorikkAktør.VEDTAKSLØSNINGEN, ""));

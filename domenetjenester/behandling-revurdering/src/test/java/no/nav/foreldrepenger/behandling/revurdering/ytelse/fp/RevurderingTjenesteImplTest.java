@@ -123,10 +123,9 @@ class RevurderingTjenesteImplTest {
         revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
 
         var behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider);
-        var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider, behandlingRevurderingTjeneste);
+        var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider, behandlingRevurderingTjeneste, behandlingskontrollTjeneste);
         RevurderingTjeneste revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider,
-                grunnlagRepositoryProvider, behandlingskontrollTjeneste,
-                iayTjeneste, revurderingEndringES, revurderingTjenesteFelles, vergeRepository);
+                grunnlagRepositoryProvider, iayTjeneste, revurderingEndringES, revurderingTjenesteFelles, vergeRepository);
 
         // Act
         var revurdering = revurderingTjeneste

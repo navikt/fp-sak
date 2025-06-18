@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingHistorikk;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.tjeneste.EtterkontrollTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
@@ -39,7 +38,6 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
     private RevurderingHistorikk revurderingHistorikk;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private RevurderingTjeneste revurderingTjeneste;
 
     private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
@@ -52,7 +50,6 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     public EtterkontrollTjenesteImpl(HistorikkinnslagRepository historikkinnslagRepository,
                                      BehandlingRevurderingTjeneste behandlingRevurderingTjeneste,
                                      ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
-                                     BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                      @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) RevurderingTjeneste revurderingTjeneste,
                                      BehandlingProsesseringTjeneste behandlingProsesseringTjeneste) {
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
@@ -60,7 +57,6 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
         this.revurderingTjeneste = revurderingTjeneste;
         this.behandlingRevurderingTjeneste = behandlingRevurderingTjeneste;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
     }
 
     @Override
@@ -146,8 +142,7 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     }
 
     public void enkøBehandling(Behandling behandling) {
-        behandlingskontrollTjeneste.settBehandlingPåVent(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, null,
-                Venteårsak.VENT_ÅPEN_BEHANDLING);
+        behandlingProsesseringTjeneste.settBehandlingPåVentUtenSteg(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING,  null, Venteårsak.VENT_ÅPEN_BEHANDLING);
     }
 
 }

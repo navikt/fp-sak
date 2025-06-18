@@ -7,7 +7,6 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingTransisjonEvent;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 
 @ApplicationScoped
 class BehandlingskontrollHenleggelseTransisjonEventObserver {
@@ -26,7 +25,7 @@ class BehandlingskontrollHenleggelseTransisjonEventObserver {
     public void observerBehandlingSteg(@Observes BehandlingTransisjonEvent event) {
 
         if (StegTransisjon.HENLEGG.equals(event.getStegTransisjon())) {
-            behandlingskontrollTjeneste.henleggBehandlingFraSteg(event.getKontekst(), BehandlingResultatType.HENLAGT_SØKNAD_MANGLER);
+            behandlingskontrollTjeneste.henleggBehandlingFraSteg(event.getKontekst());
 
         }
     }

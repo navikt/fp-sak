@@ -8,28 +8,28 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 @ApplicationScoped
 public class VarselRevurderingTjeneste {
 
     private Period defaultVenteFrist;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
     private BehandlingRepository behandlingRepository;
 
     @Inject
     public VarselRevurderingTjeneste(@KonfigVerdi(value = "behandling.default.ventefrist.periode", defaultVerdi = "P4W") Period defaultVenteFrist,
-                                     BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                     BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                                      DokumentBestillerTjeneste dokumentBestillerTjeneste,
                                      BehandlingRepository behandlingRepository) {
         this.defaultVenteFrist = defaultVenteFrist;
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.behandlingRepository = behandlingRepository;
     }
@@ -51,8 +51,9 @@ public class VarselRevurderingTjeneste {
     }
 
     private void settBehandlingPaVent(BehandlingReferanse ref, LocalDate frist, Venteårsak venteårsak) {
+        behandlingRepository.taSkriveLås(ref.behandlingId());
         var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
-        behandlingskontrollTjeneste.settBehandlingPåVentUtenSteg(behandling, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT,
+        behandlingProsesseringTjeneste.settBehandlingPåVentUtenSteg(behandling, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT,
             bestemFristForBehandlingVent(frist), venteårsak);
     }
 

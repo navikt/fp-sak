@@ -9,7 +9,6 @@ import java.util.Objects;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
@@ -18,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsa
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
@@ -29,7 +29,7 @@ public class BehandlingsutredningTjeneste {
 
     private Period defaultVenteFrist;
     private BehandlingRepository behandlingRepository;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
 
     BehandlingsutredningTjeneste() {
@@ -40,11 +40,11 @@ public class BehandlingsutredningTjeneste {
     public BehandlingsutredningTjeneste(@KonfigVerdi(value = "behandling.default.ventefrist.periode", defaultVerdi = "P4W") Period defaultVenteFrist,
                                         BehandlingRepositoryProvider behandlingRepositoryProvider,
                                         BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
-                                        BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
+                                        BehandlingProsesseringTjeneste behandlingProsesseringTjeneste) {
         this.defaultVenteFrist = defaultVenteFrist;
         Objects.requireNonNull(behandlingRepositoryProvider, "behandlingRepositoryProvider");
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
     }
 
@@ -73,7 +73,7 @@ public class BehandlingsutredningTjeneste {
         var behandlingStegFunnet = behandling.getAksjonspunktMedDefinisjonOptional(apDef)
             .map(Aksjonspunkt::getBehandlingStegFunnet)
             .orElse(null); // Dersom autopunkt ikke allerede er opprettet, så er det ikke tilknyttet steg
-        behandlingskontrollTjeneste.settBehandlingPåVent(behandling, apDef, behandlingStegFunnet, fristTid, venteårsak);
+        behandlingProsesseringTjeneste.settBehandlingPåVent(behandling, behandlingStegFunnet, apDef, fristTid, venteårsak);
     }
 
     public void endreBehandlingPaVent(Long behandlingsId, LocalDate frist, Venteårsak venteårsak) {

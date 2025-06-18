@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling.steg.iverksettevedtak;
+package no.nav.foreldrepenger.behandlingsprosess.prosessering;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling.forceOppdaterBehandlingSteg;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
+import no.nav.foreldrepenger.behandlingskontroll.impl.AksjonspunktkontrollTjenesteImpl;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollTjenesteImpl;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -32,8 +33,9 @@ class HenleggBehandlingUtenSøknadTest extends EntityManagerAwareTest {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         var serviceProvider = new BehandlingskontrollServiceProvider(getEntityManager(), null);
         var behandlingskontrollTjenesteImpl = new BehandlingskontrollTjenesteImpl(serviceProvider);
-        henleggBehandlingTjeneste = new HenleggBehandlingTjeneste(repositoryProvider, behandlingskontrollTjenesteImpl,
-                mock(BehandlingEventPubliserer.class));
+        var aksjonspunktKontrollTjenesteImpl = new AksjonspunktkontrollTjenesteImpl(serviceProvider);
+        henleggBehandlingTjeneste = new HenleggBehandlingTjeneste(repositoryProvider, aksjonspunktKontrollTjenesteImpl,
+            behandlingskontrollTjenesteImpl, mock(BehandlingEventPubliserer.class));
     }
 
     @Test

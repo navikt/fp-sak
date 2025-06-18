@@ -15,11 +15,6 @@
         <!-- Domenetjeneste avhengigheter -->
 		<dependency>
             <groupId>no.nav.foreldrepenger</groupId>
-            <artifactId>produksjonsstyring</artifactId>
-        </dependency>
-
-		<dependency>
-            <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>person</artifactId>
         </dependency>
 

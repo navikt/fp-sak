@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.registerinnhenting.impl;
+package no.nav.foreldrepenger.behandlingsprosess.prosessering.task;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -17,7 +17,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
@@ -26,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.registerinnhenting.RegisterdataEndringshåndterer;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
@@ -39,7 +39,7 @@ class RegisterdataOppdatererTaskTest {
     @Mock
     private BehandlingRepository mockBehandlingRepository;
     @Mock
-    private BehandlingskontrollTjeneste mockBehandlingskontrollTjeneste;
+    private BehandlingProsesseringTjeneste mockBehandlingProsesseringTjeneste;
     @Mock
     private RegisterdataEndringshåndterer mockRegisterdataEndringshåndterer;
     @Mock
@@ -47,8 +47,8 @@ class RegisterdataOppdatererTaskTest {
     private OrganisasjonsEnhet organisasjonsEnhet = new OrganisasjonsEnhet("4802", "Nav Bærum");
 
     @BeforeEach
-    public void setup() {
-        task = new RegisterdataOppdatererTask(mockBehandlingRepository, mock(BehandlingLåsRepository.class), mockBehandlingskontrollTjeneste,
+    void setup() {
+        task = new RegisterdataOppdatererTask(mockBehandlingRepository, mock(BehandlingLåsRepository.class), mockBehandlingProsesseringTjeneste,
             mockEnhetsTjeneste, mockRegisterdataEndringshåndterer);
     }
 
@@ -68,7 +68,6 @@ class RegisterdataOppdatererTaskTest {
         when(mockBehandlingRepository.hentBehandling(any(Long.class))).thenReturn(behandling);
         when(mockBehandlingRepository.taSkriveLås(any(Long.class))).thenReturn(new BehandlingLås(behandling.getId()));
         lenient().when(mockBehandlingRepository.lagre(any(Behandling.class), any())).thenReturn(0L);
-        when(mockBehandlingskontrollTjeneste.initBehandlingskontroll(any(Behandling.class), any(BehandlingLås.class))).thenReturn(kontekst);
         lenient().when(kontekst.getSkriveLås()).thenReturn(lås);
         when(mockEnhetsTjeneste.sjekkEnhetEtterEndring(any())).thenReturn(Optional.of(enhet));
 
@@ -77,7 +76,6 @@ class RegisterdataOppdatererTaskTest {
 
         task.doTask(prosessTaskData);
 
-        verify(mockBehandlingskontrollTjeneste).initBehandlingskontroll(any(Behandling.class), any(BehandlingLås.class));
         verify(mockRegisterdataEndringshåndterer).utledDiffOgReposisjonerBehandlingVedEndringer(any(), eq(null), anyBoolean());
         verify(mockEnhetsTjeneste).oppdaterBehandlendeEnhet(any(), eq(enhet), any(), any());
     }
@@ -97,7 +95,6 @@ class RegisterdataOppdatererTaskTest {
         when(mockBehandlingRepository.hentBehandling(any(Long.class))).thenReturn(behandling);
         when(mockBehandlingRepository.taSkriveLås(any(Long.class))).thenReturn(new BehandlingLås(behandling.getId()));
         lenient().when(mockBehandlingRepository.lagre(any(Behandling.class), any())).thenReturn(0L);
-        when(mockBehandlingskontrollTjeneste.initBehandlingskontroll(any(Behandling.class), any(BehandlingLås.class))).thenReturn(kontekst);
         lenient().when(kontekst.getSkriveLås()).thenReturn(lås);
         when(mockEnhetsTjeneste.sjekkEnhetEtterEndring(any())).thenReturn(Optional.of(enhet));
 
@@ -109,7 +106,6 @@ class RegisterdataOppdatererTaskTest {
 
         task.doTask(prosessTaskData);
 
-        verify(mockBehandlingskontrollTjeneste).initBehandlingskontroll(any(Behandling.class), any(BehandlingLås.class));
         verify(mockRegisterdataEndringshåndterer).utledDiffOgReposisjonerBehandlingVedEndringer(any(), eq(snapshot), anyBoolean());
         verify(mockEnhetsTjeneste).oppdaterBehandlendeEnhet(any(), eq(enhet), any(), any());
     }

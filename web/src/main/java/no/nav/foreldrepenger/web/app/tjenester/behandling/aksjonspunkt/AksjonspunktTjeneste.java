@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OverhoppResultat;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
-import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.HenleggBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktkontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
@@ -61,8 +60,6 @@ public class AksjonspunktTjeneste {
 
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
 
-    private HenleggBehandlingTjeneste henleggBehandlingTjeneste;
-
     private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
 
     private BehandlingEventPubliserer behandlingEventPubliserer;
@@ -77,7 +74,6 @@ public class AksjonspunktTjeneste {
     public AksjonspunktTjeneste(BehandlingRepositoryProvider repositoryProvider,
                                 BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                 BehandlingsprosessTjeneste behandlingsprosessTjeneste,
-                                HenleggBehandlingTjeneste henleggBehandlingTjeneste,
                                 BehandlingEventPubliserer behandlingEventPubliserer,
                                 AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste) {
 
@@ -85,7 +81,6 @@ public class AksjonspunktTjeneste {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
-        this.henleggBehandlingTjeneste = henleggBehandlingTjeneste;
         this.behandlingEventPubliserer = behandlingEventPubliserer;
         this.aksjonspunktkontrollTjeneste = aksjonspunktkontrollTjeneste;
     }
@@ -143,7 +138,7 @@ public class AksjonspunktTjeneste {
     private void håndterOverhopp(Behandling behandling, OverhoppResultat overhoppResultat, BehandlingskontrollKontekst kontekst) {
         overhoppResultat.finnFremoverTransisjon().ifPresent(framoverTransisjon -> {
             var riktigSteg = utledFremhoppSteg(behandling, framoverTransisjon);
-            behandlingskontrollTjeneste.fremoverTransisjon(riktigSteg, kontekst);
+            behandlingskontrollTjeneste.fremoverTransisjon(kontekst, riktigSteg);
         });
     }
 

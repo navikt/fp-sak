@@ -9,6 +9,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -23,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import no.nav.folketrygdloven.kalkulus.opptjening.v1.Fritekst;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
@@ -39,7 +41,6 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentKvittering;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillDokumentDto;
 import no.nav.foreldrepenger.dokumentbestiller.dto.ForhåndsvisDokumentDto;
-import no.nav.foreldrepenger.dokumentbestiller.dto.FritekstDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus;
 import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentKvitteringDto;
@@ -104,6 +105,7 @@ public class BrevRestTjeneste {
     @Operation(description = "Bestiller generering og sending av brevet", tags = "brev")
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public void bestillDokument(@TilpassetAbacAttributt(supplierClass = BrevAbacDataSupplier.class) @Parameter(description = "Inneholder kode til brevmal og data som skal flettes inn i brevet") @Valid BestillDokumentDto bestillBrevDto) {
+        behandlingRepository.taSkriveLås(bestillBrevDto.behandlingUuid());
         var behandling = behandlingRepository.hentBehandling(bestillBrevDto.behandlingUuid());
         LOG.info("Brev med brevmalkode={} bestilt på behandlingId={}", bestillBrevDto.brevmalkode(), behandling.getId());
 
@@ -112,7 +114,7 @@ public class BrevRestTjeneste {
             .medSaksnummer(behandling.getSaksnummer())
             .medDokumentMal(bestillBrevDto.brevmalkode())
             .medRevurderingÅrsak(bestillBrevDto.arsakskode())
-            .medFritekst(bestillBrevDto.fritekst() != null ? bestillBrevDto.fritekst().verdi() : null)
+            .medFritekst(bestillBrevDto.fritekst() != null ? bestillBrevDto.fritekst() : null)
             .build();
 
         if (DokumentMalType.ETTERLYS_INNTEKTSMELDING.equals(bestillBrevDto.brevmalkode())) {
@@ -187,12 +189,12 @@ public class BrevRestTjeneste {
         if (mellomlagring.redigertInnhold() == null) {
             dokumentBehandlingTjeneste.fjernOverstyringAvBrev(behandling);
         } else {
-            dokumentBehandlingTjeneste.lagreOverstyrtBrev(behandling, mellomlagring.redigertInnhold().verdi());
+            dokumentBehandlingTjeneste.lagreOverstyrtBrev(behandling, mellomlagring.redigertInnhold());
         }
         return Response.ok().build();
     }
 
-    public record MellomlagreHtmlDto(@Valid @NotNull UUID behandlingUuid, @Valid FritekstDto redigertInnhold) {
+    public record MellomlagreHtmlDto(@Valid @NotNull UUID behandlingUuid, @Valid @Fritekst @Size(max = 20_000) String redigertInnhold) {
     }
 
     @POST
@@ -208,7 +210,7 @@ public class BrevRestTjeneste {
             .medSaksnummer(behandling.getSaksnummer())
             .medDokumentMal(forhåndsvisDto.dokumentMal())
             .medRevurderingÅrsak(forhåndsvisDto.arsakskode())
-            .medFritekst(forhåndsvisDto.fritekst() != null ? forhåndsvisDto.fritekst().verdi() : null)
+            .medFritekst(forhåndsvisDto.fritekst() != null ? forhåndsvisDto.fritekst() : null)
             .medTittel(forhåndsvisDto.tittel())
             .medDokumentType(utledDokumentType(forhåndsvisDto.automatiskVedtaksbrev()))
             .build();

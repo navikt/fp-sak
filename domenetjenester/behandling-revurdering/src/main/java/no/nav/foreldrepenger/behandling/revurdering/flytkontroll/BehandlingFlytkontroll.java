@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
@@ -34,7 +33,6 @@ public class BehandlingFlytkontroll {
     private static final BehandlingStegType SYNK_STEG = StartpunktType.UTTAKSVILKÅR.getBehandlingSteg();
 
     private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private BehandlingRepository behandlingRepository;
 
@@ -44,10 +42,8 @@ public class BehandlingFlytkontroll {
 
     @Inject
     public BehandlingFlytkontroll(BehandlingRevurderingTjeneste behandlingRevurderingTjeneste,
-                                  BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                   BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                                   BehandlingRepository behandlingRepository) {
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingRevurderingTjeneste = behandlingRevurderingTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
@@ -97,8 +93,7 @@ public class BehandlingFlytkontroll {
     }
 
     public void settNyRevurderingPåVent(Behandling behandling) {
-        behandlingskontrollTjeneste.settBehandlingPåVent(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, null,
-                Venteårsak.VENT_ÅPEN_BEHANDLING);
+        behandlingProsesseringTjeneste.settBehandlingPåVentUtenSteg(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
     }
 
     public boolean finnesÅpenBerørtForFagsak(Long fagsakId, Long behandlingId) {

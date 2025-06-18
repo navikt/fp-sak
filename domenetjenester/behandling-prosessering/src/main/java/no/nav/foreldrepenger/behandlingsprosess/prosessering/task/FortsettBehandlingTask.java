@@ -62,7 +62,7 @@ public class FortsettBehandlingTask implements ProsessTaskHandler {
             var stegtype = getBehandlingStegType(gjenoppta);
             if (gjenoppta != null || manuellFortsettelse) {
                 if (behandling.isBehandlingPåVent()) { // Autopunkt
-                    behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
+                    behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(kontekst, behandling);
                 }
             } else {
                 Optional.ofNullable(data.getPropertyValue(UTFORT_AUTOPUNKT))

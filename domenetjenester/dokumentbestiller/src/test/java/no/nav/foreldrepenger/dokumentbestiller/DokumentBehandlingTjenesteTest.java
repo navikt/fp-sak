@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
@@ -21,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 
 @CdiDbAwareTest
@@ -30,7 +30,7 @@ class DokumentBehandlingTjenesteTest {
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
     @Mock
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
     private AbstractTestScenario<?> scenario;
     private BehandlingDokumentRepository behandlingDokumentRepository;
@@ -43,7 +43,7 @@ class DokumentBehandlingTjenesteTest {
     void setUp() {
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingDokumentRepository = new BehandlingDokumentRepository(repositoryProvider.getEntityManager());
-        dokumentBehandlingTjeneste = new DokumentBehandlingTjeneste(repositoryProvider, behandlingskontrollTjeneste, behandlingDokumentRepository);
+        dokumentBehandlingTjeneste = new DokumentBehandlingTjeneste(repositoryProvider, behandlingProsesseringTjeneste, behandlingDokumentRepository);
         this.scenario = ScenarioMorSøkerEngangsstønad
                 .forFødsel()
                 .medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().minusDays(3)));

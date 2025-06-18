@@ -8,23 +8,19 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -40,19 +36,16 @@ class TilbakerullBeregningsgrunnlagBatchTask implements ProsessTaskHandler {
     private static final String AKSJONSPUNKT_KODE = "apKode";
     private static final String DRY_RUN = "dryRun";
 
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-    private BehandlingProsesseringTjeneste prosesseringTjeneste;
-    private EntityManager entityManager;
-    private ProsessTaskTjeneste prosessTaskTjeneste;
-    private BehandlingRepository behandlingRepository;
-    private HistorikkinnslagRepository historikkinnslagRepository;
+    private final BehandlingProsesseringTjeneste prosesseringTjeneste;
+    private final EntityManager entityManager;
+    private final ProsessTaskTjeneste prosessTaskTjeneste;
+    private final BehandlingRepository behandlingRepository;
+    private final HistorikkinnslagRepository historikkinnslagRepository;
 
     @Inject
-    public TilbakerullBeregningsgrunnlagBatchTask(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                                  BehandlingProsesseringTjeneste prosesseringTjeneste,
+    public TilbakerullBeregningsgrunnlagBatchTask(BehandlingProsesseringTjeneste prosesseringTjeneste,
                                                   EntityManager entityManager,
                                                   ProsessTaskTjeneste prosessTaskTjeneste) {
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.prosesseringTjeneste = prosesseringTjeneste;
         this.entityManager = entityManager;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
@@ -84,13 +77,12 @@ class TilbakerullBeregningsgrunnlagBatchTask implements ProsessTaskHandler {
 
     private void rullTilbakeBehandling(Behandling behandling) {
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
         if (behandling.isBehandlingPåVent()) {
-            behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
+            prosesseringTjeneste.taBehandlingAvVent(behandling);
         }
         var tilSteg = finnStegÅHoppeTil(behandling);
         lagHistorikkinnslag(behandling, tilSteg.getNavn());
-        behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, tilSteg);
+        prosesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, lås, tilSteg);
         prosesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, LocalDateTime.now());
     }
 
