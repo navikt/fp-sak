@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.eøs;
 
 import java.util.Objects;
 
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
@@ -38,6 +39,7 @@ public class EøsUttaksperiodeEntitet extends BaseCreateableEntitet {
     private UttakPeriodeType trekkonto = UttakPeriodeType.UDEFINERT;
 
     @Embedded
+    @AttributeOverride(name = "verdi", column = @Column(name = "trekkdager"))
     private Trekkdager trekkdager;
 
     EøsUttaksperiodeEntitet() {
