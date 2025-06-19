@@ -33,7 +33,7 @@ public class EøsUttaksperioderEntitet extends BaseCreateableEntitet {
     }
 
     void leggTilEøsUttaksperiode(EøsUttaksperiodeEntitet eøsUttaksperiode) {
-        eøsUttaksperiode.setEosUttaksperioder(this); // TODO: ??
+        eøsUttaksperiode.setEosUttaksperioder(this);
         perioder.add(eøsUttaksperiode);
     }
 
@@ -57,8 +57,8 @@ public class EøsUttaksperioderEntitet extends BaseCreateableEntitet {
             this.kladd = new EøsUttaksperioderEntitet();
         }
 
-        public Builder leggTil(EøsUttaksperiodeEntitet.Builder builder) {
-            kladd.leggTilEøsUttaksperiode(builder.build());
+        public Builder leggTil(List<EøsUttaksperiodeEntitet> perioder) {
+            perioder.forEach(kladd::leggTilEøsUttaksperiode);
             return this;
         }
 

@@ -136,6 +136,7 @@ public class AksjonspunktKodeDefinisjon {
 
     public static final String VURDER_MEDLEMSKAPSVILKÅRET = "5101";
     public static final String VURDER_FORUTGÅENDE_MEDLEMSKAPSVILKÅR = "5102";
+    public static final String AVKLAR_UTTAK_I_EØS_FOR_ANNENPART = "5103";
 
     // Andre koder
     public static final SkjermlenkeType UTEN_SKJERMLENKE = null;
