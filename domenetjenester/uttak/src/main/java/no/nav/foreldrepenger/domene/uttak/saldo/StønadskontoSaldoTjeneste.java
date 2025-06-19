@@ -60,13 +60,13 @@ public class StønadskontoSaldoTjeneste {
         var ref = uttakInput.getBehandlingReferanse();
         var stønadskontoer = stønadskontoer(ref);
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
-        var saldoUtregningGrunnlag = saldoUtregningGrunnlag(perioderSøker, uttakInput, fpGrunnlag.isBerørtBehandling(), stønadskontoer);
+        var saldoUtregningGrunnlag = saldoUtregningGrunnlag(perioderSøker, uttakInput, fpGrunnlag.isTapendeBehandling(), stønadskontoer);
         return SaldoUtregningTjeneste.lagUtregning(saldoUtregningGrunnlag);
     }
 
     private SaldoUtregningGrunnlag saldoUtregningGrunnlag(List<FastsattUttakPeriode> perioderSøker,
                                                           UttakInput uttakInput,
-                                                          boolean berørtBehandling,
+                                                          boolean tapendeBehandling,
                                                           Map<StønadskontoType, Integer> stønadskontoer) {
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         var søknadOpprettetTidspunkt = uttakInput.getSøknadOpprettetTidspunkt();
@@ -75,12 +75,15 @@ public class StønadskontoSaldoTjeneste {
             .orElse(null);
         if (!stønadskontoer.isEmpty() && !perioderSøker.isEmpty()) {
             var perioderAnnenpart = perioderAnnenpart(fpGrunnlag);
+            if (fpGrunnlag.getEøsUttakGrunnlag().isPresent()) {
+                tapendeBehandling = true; // EØS uttak er alltid tapende behandling
+            }
             var kontoer  = KontoerGrunnlagBygger.byggGrunnlag(uttakInput, stønadskontoer).build();
             return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(perioderSøker,
-                berørtBehandling, perioderAnnenpart, kontoer, søknadOpprettetTidspunkt,
+                tapendeBehandling, perioderAnnenpart, kontoer, søknadOpprettetTidspunkt,
                 sisteSøknadOpprettetTidspunktAnnenpart, UtsettelseCore2021.kreverSammenhengendeUttakTilOgMed());
         }
-        return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(List.of(), berørtBehandling,
+        return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(List.of(), tapendeBehandling,
             List.of(), new Kontoer.Builder().build(), søknadOpprettetTidspunkt, sisteSøknadOpprettetTidspunktAnnenpart,
             UtsettelseCore2021.kreverSammenhengendeUttakTilOgMed());
     }
@@ -104,18 +107,17 @@ public class StønadskontoSaldoTjeneste {
     }
 
     private List<AnnenpartUttakPeriode> perioderAnnenpart(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
+        var eøsUttakGrunnlagOpt = foreldrepengerGrunnlag.getEøsUttakGrunnlag();
+        if (eøsUttakGrunnlagOpt.isPresent()) {
+            return AnnenPartGrunnlagBygger.map(eøsUttakGrunnlagOpt.get());
+        }
+
         var opt = annenPartUttak(foreldrepengerGrunnlag);
         return opt.map(uttakResultatEntitet -> uttakResultatEntitet.getGjeldendePerioder()
             .getPerioder()
             .stream()
             .map(AnnenPartGrunnlagBygger::map)
             .toList())
-            .orElseGet(() -> registrerteEøsUttaksperioder(foreldrepengerGrunnlag));
-    }
-
-    private static List<AnnenpartUttakPeriode> registrerteEøsUttaksperioder(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
-        return foreldrepengerGrunnlag.getEøsUttakGrunnlag()
-            .map(AnnenPartGrunnlagBygger::map)
             .orElse(List.of());
     }
 
