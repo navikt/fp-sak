@@ -91,7 +91,7 @@ public class SaldoerDtoTjeneste {
         var kontoutregning = utregnetStønadskontoTjeneste.gjeldendeKontoutregning(input.getBehandlingReferanse());
         var annenpart = annenPartUttak(fpGrunnlag);
         Map<SaldoVisningStønadskontoType, StønadskontoDto> stønadskontoMap = new EnumMap<>(SaldoVisningStønadskontoType.class);
-        var saldoValidering = new SaldoValidering(saldoUtregning, annenpart.isPresent(), fpGrunnlag.isBerørtBehandling());
+        var saldoValidering = new SaldoValidering(saldoUtregning, annenpart.isPresent(), fpGrunnlag.isTapendeBehandling());
         for (var stønadskontotype : saldoUtregning.stønadskontoer()) {
             List<AktivitetSaldoDto> aktivitetSaldoListe = new ArrayList<>();
             for (var aktivitet : saldoUtregning.aktiviteterForSøker()) {
