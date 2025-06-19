@@ -10,6 +10,8 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttakGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttaksperioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
@@ -41,6 +43,13 @@ public class AnnenPartGrunnlagBygger {
 
     public Optional<AnnenPart.Builder> byggGrunnlag(ForeldrepengerGrunnlag fpGrunnlag) {
         var apOpt = fpGrunnlag.getAnnenpart();
+        if (fpGrunnlag.getEøsUttakGrunnlag().isPresent()) {
+            var eøsUttak = fpGrunnlag.getEøsUttakGrunnlag().get();
+            var annenpartMedUttakBuilder = new AnnenPart.Builder()
+                .eøs(true)
+                .uttaksperioder(map(eøsUttak));
+            return Optional.of(annenpartMedUttakBuilder);
+        }
 
         if (apOpt.isPresent() || fpGrunnlag.getAktivitetskravGrunnlag().isPresent()) {
             var builder = new AnnenPart.Builder();
@@ -55,6 +64,23 @@ public class AnnenPartGrunnlagBygger {
             return Optional.of(builder);
         }
         return Optional.empty();
+    }
+
+    public static List<AnnenpartUttakPeriode> map(EøsUttakGrunnlagEntitet eøsUttak) {
+        return eøsUttak.getSaksbehandlerPerioder()
+            .getPerioder()
+            .stream()
+            .map(p -> AnnenpartUttakPeriode.Builder.eøs(p.getPeriode().getFomDato(), p.getPeriode().getTomDato(),
+                UttakEnumMapper.map(p.getTrekkonto()), new Trekkdager(p.getTrekkdager().decimalValue())).build())
+            .toList();
+    }
+
+    public static List<AnnenpartUttakPeriode> map(EøsUttaksperioderEntitet eøsUttak) {
+        return eøsUttak.getPerioder()
+            .stream()
+            .map(p -> AnnenpartUttakPeriode.Builder.eøs(p.getPeriode().getFomDato(), p.getPeriode().getTomDato(),
+                UttakEnumMapper.map(p.getTrekkonto()), new Trekkdager(p.getTrekkdager().decimalValue())).build())
+            .toList();
     }
 
     private AktivitetskravGrunnlag map(AktivitetskravArbeidPerioderEntitet aktivitetskravPerioderMedArbeidEnitet) {
