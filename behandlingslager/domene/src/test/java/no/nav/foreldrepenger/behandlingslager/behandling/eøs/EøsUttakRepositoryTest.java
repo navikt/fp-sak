@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.List;
 
 import jakarta.persistence.EntityManager;
 
@@ -31,7 +32,7 @@ class EøsUttakRepositoryTest {
         var tidsperiode = DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now().plusMonths(1));
         var trekkonto = UttakPeriodeType.FELLESPERIODE;
         var trekkdager = new Trekkdager(5);
-        var perioder = new EøsUttaksperioderEntitet.Builder().leggTil(periode(tidsperiode, trekkdager, trekkonto)).build();
+        var perioder = new EøsUttaksperioderEntitet.Builder().leggTil(perioder(tidsperiode, trekkdager, trekkonto)).build();
         repository.lagreEøsUttak(1L, perioder);
 
         var entitet1 = repository.hentGrunnlag(1L).orElseThrow();
@@ -51,8 +52,8 @@ class EøsUttakRepositoryTest {
         var trekkdager2 = new Trekkdager(10);
         var trekkdager3 = new Trekkdager(123);
         var trekkonto3 = UttakPeriodeType.MØDREKVOTE;
-        var perioder2 = new EøsUttaksperioderEntitet.Builder().leggTil(periode(tidsperiode2, trekkdager2, trekkonto2))
-            .leggTil(periode(tidsperiode3, trekkdager3, trekkonto3))
+        var perioder2 = new EøsUttaksperioderEntitet.Builder().leggTil(perioder(tidsperiode2, trekkdager2, trekkonto2))
+            .leggTil(perioder(tidsperiode3, trekkdager3, trekkonto3))
             .build();
         repository.lagreEøsUttak(1L, perioder2);
 
@@ -77,7 +78,8 @@ class EøsUttakRepositoryTest {
         assertThat(repository.hentGrunnlag(2L)).isEmpty();
     }
 
-    private static EøsUttaksperiodeEntitet.Builder periode(DatoIntervallEntitet tidsperiode, Trekkdager trekkdager, UttakPeriodeType trekkonto) {
-        return new EøsUttaksperiodeEntitet.Builder().medPeriode(tidsperiode).medTrekkdager(trekkdager).medTrekkonto(trekkonto);
+    private static List<EøsUttaksperiodeEntitet> perioder(DatoIntervallEntitet tidsperiode, Trekkdager trekkdager, UttakPeriodeType trekkonto) {
+        var eøsUttakperiodeEntitet = new EøsUttaksperiodeEntitet.Builder().medPeriode(tidsperiode).medTrekkdager(trekkdager).medTrekkonto(trekkonto);
+        return List.of(eøsUttakperiodeEntitet.build());
     }
 }
