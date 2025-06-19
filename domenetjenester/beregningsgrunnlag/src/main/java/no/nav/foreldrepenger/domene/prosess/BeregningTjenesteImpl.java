@@ -43,7 +43,7 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
 
     @Override
     public Optional<BeregningsgrunnlagGrunnlag> hent(BehandlingReferanse referanse) {
-        if (skalKalleKalkulus(referanse)) {
+        if (skalKalleKalkulusHvisAvsluttetBehandling(referanse)) {
             return kalkulusBeregner.hent(referanse);
         } else {
             return fpsakBeregner.hent(referanse);
@@ -52,13 +52,8 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
 
     @Override
     public Optional<BeregningsgrunnlagDto> hentGuiDto(BehandlingReferanse referanse) {
-        if (skalKalleKalkulusForGuiDto(referanse)) {
-            try {
-                return kalkulusBeregner.hentGUIDto(referanse);
-            } catch (Exception e) {
-                LOG.warn("Kunne ikke hente fra kalkulus, defaulter til fpsak", e);
-                return fpsakBeregner.hentGUIDto(referanse);
-            }
+        if (skalKalleKalkulusHvisAvsluttetBehandling(referanse)) {
+            return kalkulusBeregner.hentGUIDto(referanse);
         } else {
             return fpsakBeregner.hentGUIDto(referanse);
         }
@@ -69,6 +64,7 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
         if (skalKalleKalkulus(referanse)) {
             return kalkulusBeregner.beregn(referanse, stegType);
         } else {
+            LOG.info("Beregner videre i fpsak, steg {}", stegType);
             return fpsakBeregner.beregn(referanse, stegType);
         }
     }
@@ -93,6 +89,7 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
         if (skalKalleKalkulus(referanse)) {
             return kalkulusBeregner.oppdaterBeregning(oppdatering, referanse);
         } else {
+            LOG.info("Løser aksjonspunkt i fpsak, aksjonspunkt {}", oppdatering.getAksjonspunktDefinisjon());
             return fpsakBeregner.oppdaterBeregning(oppdatering, referanse);
         }
     }
@@ -102,6 +99,7 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
         if (skalKalleKalkulus(referanse)) {
             return kalkulusBeregner.overstyrBeregning(overstyring, referanse);
         } else {
+            LOG.info("Overstyrer aksjonspunkt i fpsak, aksjonspunkt {}", overstyring.getAksjonspunktDefinisjon());
             return fpsakBeregner.overstyrBeregning(overstyring, referanse);
         }
     }
@@ -125,7 +123,7 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
         }
     }
 
-    private boolean skalKalleKalkulusForGuiDto(BehandlingReferanse referanse) {
+    private boolean skalKalleKalkulusHvisAvsluttetBehandling(BehandlingReferanse referanse) {
         if (BehandlingStatus.AVSLUTTET.equals(referanse.behandlingStatus())) {
             return true;
         }
