@@ -110,7 +110,13 @@ public class StønadskontoSaldoTjeneste {
             .stream()
             .map(AnnenPartGrunnlagBygger::map)
             .toList())
-            .orElseGet(List::of);
+            .orElseGet(() -> registrerteEøsUttaksperioder(foreldrepengerGrunnlag));
+    }
+
+    private static List<AnnenpartUttakPeriode> registrerteEøsUttaksperioder(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
+        return foreldrepengerGrunnlag.getEøsUttakGrunnlag()
+            .map(AnnenPartGrunnlagBygger::map)
+            .orElse(List.of());
     }
 
     private Optional<UttakResultatEntitet> annenPartUttak(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {

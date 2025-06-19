@@ -32,6 +32,17 @@ public class EøsUttakRepository {
         return HibernateVerktøy.hentUniktResultat(query);
     }
 
+    public void deaktiverAktivtGrunnlagHvisFinnes(Long behandlingId) {
+        var aktivtGrunnlagOpt = hentGrunnlag(behandlingId);
+        if (aktivtGrunnlagOpt.isEmpty()) {
+            return;
+        }
+        var aktivtGrunnlag = aktivtGrunnlagOpt.get();
+        aktivtGrunnlag.deaktiver();
+        entityManager.persist(aktivtGrunnlag);
+        entityManager.flush();
+    }
+
     public void lagreEøsUttak(Long behandlingId, EøsUttaksperioderEntitet eøsUttak) {
         var aktivtGrunnlag = hentGrunnlag(behandlingId);
         var nyttGrunnlag = EøsUttakGrunnlagEntitet.Builder.ny()
@@ -40,14 +51,30 @@ public class EøsUttakRepository {
         lagreGrunnlag(aktivtGrunnlag, nyttGrunnlag.build());
     }
 
+    public void kopierGrunnlagFraEksisterendeBehandling(Long originalBehandlingId, Long nyBehandlingId) {
+        var eksisterendeGrunnlagOpt = hentGrunnlag(originalBehandlingId);
+        if (eksisterendeGrunnlagOpt.isEmpty()) {
+            return;
+        }
+        var eksisterendeGrunnlag = eksisterendeGrunnlagOpt.get();
+        var nyttGrunnlag = EøsUttakGrunnlagEntitet.Builder.ny()
+            .medEøsUttaksperioder(eksisterendeGrunnlag.getSaksbehandlerPerioder())
+            .medBehandlingId(nyBehandlingId)
+            .build();
+        lagreNyttGrunnlag(nyttGrunnlag);
+    }
+
     private void lagreGrunnlag(Optional<EøsUttakGrunnlagEntitet> aktivtGrunnlag, EøsUttakGrunnlagEntitet nyttGrunnlag) {
         // Deaktiver eksisterende grunnlag hvis det finnes
         aktivtGrunnlag.ifPresent(eksisterendeGrunnlag -> {
             eksisterendeGrunnlag.deaktiver();
             entityManager.persist(eksisterendeGrunnlag);
         });
+        lagreNyttGrunnlag(nyttGrunnlag);
+        entityManager.flush();
+    }
 
-        // Lagre nytt grunnlag
+    private void lagreNyttGrunnlag(EøsUttakGrunnlagEntitet nyttGrunnlag) {
         var perioder = nyttGrunnlag.getSaksbehandlerPerioder();
         entityManager.persist(perioder);
         for (var entitet : perioder.getPerioder()) {
@@ -55,11 +82,5 @@ public class EøsUttakRepository {
         }
 
         entityManager.persist(nyttGrunnlag);
-        entityManager.flush();
     }
-
-
-
-
-
 }
