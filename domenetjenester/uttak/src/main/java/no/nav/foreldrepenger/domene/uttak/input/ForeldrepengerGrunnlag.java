@@ -48,6 +48,13 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
         return berørtBehandling;
     }
 
+    public boolean isTapendeBehandling() {
+        if (getEøsUttakGrunnlag().isPresent()) {
+            return true;
+        }
+        return isBerørtBehandling();
+    }
+
     public boolean isOppgittAnnenForelderHarEngangsstønadForSammeBarn() {
         return oppgittAnnenForelderHarEngangsstønadForSammeBarn;
     }
