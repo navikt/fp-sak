@@ -63,6 +63,9 @@ public class EøsUttaksperioderEntitet extends BaseCreateableEntitet {
         }
 
         public EøsUttaksperioderEntitet build() {
+            if (kladd.getPerioder().isEmpty()) {
+                throw new IllegalStateException("EøsUttaksperioderEntitet må ha minst én periode");
+            }
             return this.kladd;
         }
 

@@ -67,8 +67,7 @@ public class AnnenPartGrunnlagBygger {
     }
 
     public static List<AnnenpartUttakPeriode> map(EøsUttakGrunnlagEntitet eøsUttak) {
-        return eøsUttak.getSaksbehandlerPerioder()
-            .getPerioder()
+        return eøsUttak.getPerioder()
             .stream()
             .map(p -> AnnenpartUttakPeriode.Builder.eøs(p.getPeriode().getFomDato(), p.getPeriode().getTomDato(),
                 UttakEnumMapper.map(p.getTrekkonto()), new Trekkdager(p.getTrekkdager().decimalValue())).build())
