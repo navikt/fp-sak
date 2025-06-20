@@ -32,7 +32,7 @@ public class AvklarUttakEøsForAnnenforelderTjeneste {
         var behandlingId = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid()).getId();
         var grunnlagOpt = eøsUttakRepository.hentGrunnlag(behandlingId);
         return grunnlagOpt.stream()
-            .flatMap(g -> g.getSaksbehandlerPerioder().getPerioder().stream())
+            .flatMap(g -> g.getPerioder().stream())
             .map(this::tilDto)
             .toList();
     }
