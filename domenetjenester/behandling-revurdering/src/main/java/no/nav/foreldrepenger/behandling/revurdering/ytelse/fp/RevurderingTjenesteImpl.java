@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValgRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakRepository;
@@ -57,6 +58,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
     private SøknadRepository søknadRepository;
     private ArbeidsforholdValgRepository arbeidsforholdValgRepository;
     private AktivitetskravArbeidRepository aktivitetskravArbeidRepository;
+    private EøsUttakRepository eøsUttakRepository;
 
     public RevurderingTjenesteImpl() {
         // for CDI proxy
@@ -85,6 +87,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         this.søknadRepository = grunnlagProvider.getSøknadRepository();
         this.arbeidsforholdValgRepository = grunnlagProvider.getArbeidsforholdValgRepository();
         this.aktivitetskravArbeidRepository = grunnlagProvider.getAktivitetskravArbeidRepository();
+        this.eøsUttakRepository = grunnlagProvider.getEøsUttakRepository();
     }
 
     @Override
@@ -136,6 +139,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         uføretrygdRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
         nesteSakRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
         aktivitetskravArbeidRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
+        eøsUttakRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
 
         if (BehandlingType.REVURDERING.equals(ny.getType())) {
             ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, ny);

@@ -55,7 +55,6 @@ import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.intern.VedtaksbrevStatusUtleder;
-import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjeneste;
@@ -458,6 +457,9 @@ public class BehandlingDtoTjeneste {
                     if (!faktaUttakPeriodeDtoTjeneste.lagDtos(uuidDto).isEmpty() || behandling.harÅpentAksjonspunktMedType(
                         AksjonspunktDefinisjon.FAKTA_UTTAK_INGEN_PERIODER)) {
                         dto.leggTil(get(UttakRestTjeneste.FAKTA_UTTAK_PATH, "uttak-kontroller-fakta-perioder-v2", uuidDto));
+                    }
+                    if (behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_UTTAK_I_EØS_FOR_ANNENPART)) {
+                        dto.leggTil(get(UttakRestTjeneste.FAKTA_UTTAK_EØS_PATH, "uttak-annen-forelder-eos", uuidDto));
                     }
                 }
                 var uttakResultat = uttakTjeneste.hentHvisEksisterer(behandling.getId());
