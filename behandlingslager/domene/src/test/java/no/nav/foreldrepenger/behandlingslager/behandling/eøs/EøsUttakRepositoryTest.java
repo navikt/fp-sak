@@ -39,9 +39,9 @@ class EøsUttakRepositoryTest {
 
         assertThat(entitet1.getBehandlingId()).isEqualTo(1L);
         assertThat(entitet1.isAktiv()).isTrue();
-        assertThat(entitet1.getSaksbehandlerPerioder().getPerioder()).hasSize(1);
+        assertThat(entitet1.getPerioder()).hasSize(1);
 
-        var førstePeriode1 = entitet1.getSaksbehandlerPerioder().getPerioder().getFirst();
+        var førstePeriode1 = entitet1.getPerioder().getFirst();
         assertThat(førstePeriode1.getPeriode()).isEqualTo(tidsperiode);
         assertThat(førstePeriode1.getTrekkonto()).isEqualTo(trekkonto);
         assertThat(førstePeriode1.getTrekkdager()).isEqualTo(trekkdager);
@@ -61,9 +61,9 @@ class EøsUttakRepositoryTest {
 
         assertThat(entitet2.getBehandlingId()).isEqualTo(1L);
         assertThat(entitet2.isAktiv()).isTrue();
-        assertThat(entitet2.getSaksbehandlerPerioder().getPerioder()).hasSize(2);
+        assertThat(entitet2.getPerioder()).hasSize(2);
 
-        var sortertePerioder = entitet2.getSaksbehandlerPerioder().getPerioder().stream().sorted(
+        var sortertePerioder = entitet2.getPerioder().stream().sorted(
             Comparator.comparing(EøsUttaksperiodeEntitet::getPeriode)).toList();
         var førstePeriode2 = sortertePerioder.getFirst();
         assertThat(førstePeriode2.getPeriode()).isEqualTo(tidsperiode3);

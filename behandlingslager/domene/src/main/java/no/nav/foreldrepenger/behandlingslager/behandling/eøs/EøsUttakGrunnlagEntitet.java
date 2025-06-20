@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.eøs;
 
+import java.util.List;
 import java.util.Objects;
 
 import jakarta.persistence.Column;
@@ -53,8 +54,12 @@ public class EøsUttakGrunnlagEntitet extends BaseEntitet {
         return behandlingId;
     }
 
-    public EøsUttaksperioderEntitet getSaksbehandlerPerioder() {
+    public EøsUttaksperioderEntitet getSaksbehandlerPerioderEntitet() {
         return saksbehandlerPerioder;
+    }
+
+    public List<EøsUttaksperiodeEntitet> getPerioder() {
+        return saksbehandlerPerioder.getPerioder();
     }
 
     public void deaktiver() {
