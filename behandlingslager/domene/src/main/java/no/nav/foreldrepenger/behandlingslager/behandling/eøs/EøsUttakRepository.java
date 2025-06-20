@@ -58,7 +58,7 @@ public class EøsUttakRepository {
         }
         var eksisterendeGrunnlag = eksisterendeGrunnlagOpt.get();
         var nyttGrunnlag = EøsUttakGrunnlagEntitet.Builder.ny()
-            .medEøsUttaksperioder(eksisterendeGrunnlag.getSaksbehandlerPerioder())
+            .medEøsUttaksperioder(eksisterendeGrunnlag.getSaksbehandlerPerioderEntitet())
             .medBehandlingId(nyBehandlingId)
             .build();
         lagreNyttGrunnlag(nyttGrunnlag);
@@ -75,7 +75,7 @@ public class EøsUttakRepository {
     }
 
     private void lagreNyttGrunnlag(EøsUttakGrunnlagEntitet nyttGrunnlag) {
-        var perioder = nyttGrunnlag.getSaksbehandlerPerioder();
+        var perioder = nyttGrunnlag.getSaksbehandlerPerioderEntitet();
         entityManager.persist(perioder);
         for (var entitet : perioder.getPerioder()) {
             entityManager.persist(entitet);
