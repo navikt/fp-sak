@@ -18,8 +18,6 @@ public class SjekkManglendeFodselDto extends BekreftetAksjonspunktDto {
     @NotNull
     private Boolean dokumentasjonForeligger;
 
-    private boolean brukAntallBarnITps; //TDP = PDL
-
     @Valid
     @Size(min = 1, max = 9)
     private List<UidentifisertBarnDto> uidentifiserteBarn;
@@ -28,20 +26,15 @@ public class SjekkManglendeFodselDto extends BekreftetAksjonspunktDto {
         //For Jackson
     }
 
-    public SjekkManglendeFodselDto(String begrunnelse, Boolean dokumentasjonForeligger, boolean brukAntallBarnITps,
+    public SjekkManglendeFodselDto(String begrunnelse, Boolean dokumentasjonForeligger,
         List<UidentifisertBarnDto> uidentifiserteBarn) {
         super(begrunnelse);
         this.dokumentasjonForeligger = dokumentasjonForeligger;
-        this.brukAntallBarnITps = brukAntallBarnITps;
         this.uidentifiserteBarn = new ArrayList<>(uidentifiserteBarn);
     }
 
     public Boolean getDokumentasjonForeligger() {
         return dokumentasjonForeligger;
-    }
-
-    public boolean isBrukAntallBarnITps() {
-        return Boolean.FALSE.equals(dokumentasjonForeligger) || brukAntallBarnITps;
     }
 
     public List<UidentifisertBarnDto> getUidentifiserteBarn() {

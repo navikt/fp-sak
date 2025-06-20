@@ -81,7 +81,7 @@ class AksjonspunktRestTjenesteTest {
     void skal_bekrefte_fødsel() throws Exception {
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
         var uidentifiserteBarn = new UidentifisertBarnDto[]{new UidentifisertBarnDto(fødselsdato, null)};
-        aksjonspunkt.add(new SjekkManglendeFodselDto(BEGRUNNELSE, true, false, List.of(uidentifiserteBarn)));
+        aksjonspunkt.add(new SjekkManglendeFodselDto(BEGRUNNELSE, true, List.of(uidentifiserteBarn)));
 
         aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class),
             BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, BEHANDLING_VERSJON, aksjonspunkt));
@@ -92,7 +92,7 @@ class AksjonspunktRestTjenesteTest {
     @Test
     void skal_bekrefte_antall_barn() throws Exception {
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
-        aksjonspunkt.add(new SjekkManglendeFodselDto(BEGRUNNELSE, false, false, new ArrayList<>()));
+        aksjonspunkt.add(new SjekkManglendeFodselDto(BEGRUNNELSE, false, new ArrayList<>()));
 
         aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class),
             BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, BEHANDLING_VERSJON, aksjonspunkt));
@@ -120,7 +120,7 @@ class AksjonspunktRestTjenesteTest {
     void skal_ikke_kunne_bekrefte_andre_aksjonspunkt_ved_status_fatter_vedtak() {
         when(behandling.getStatus()).thenReturn(BehandlingStatus.FATTER_VEDTAK);
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
-        aksjonspunkt.add(new SjekkManglendeFodselDto(BEGRUNNELSE, false, false, new ArrayList<>()));
+        aksjonspunkt.add(new SjekkManglendeFodselDto(BEGRUNNELSE, false, new ArrayList<>()));
         var dto = BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, BEHANDLING_VERSJON, aksjonspunkt);
         var request = mock(HttpServletRequest.class);
         assertThrows(FunksjonellException.class, () -> aksjonspunktRestTjeneste.bekreft(request, dto));
