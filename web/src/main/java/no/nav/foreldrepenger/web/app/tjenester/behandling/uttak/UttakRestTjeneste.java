@@ -38,6 +38,8 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BehandlingMe
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SaldoerDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SvangerskapspengerUttakResultatDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPerioderDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.eøs.AvklarUttakEøsForAnnenforelderDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.eøs.AvklarUttakEøsForAnnenforelderTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta.FaktaUttakPeriodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta.FaktaUttakPeriodeDtoTjeneste;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
@@ -62,6 +64,8 @@ public class UttakRestTjeneste {
     public static final String RESULTAT_PERIODER_PATH = BASE_PATH + RESULTAT_PERIODER_PART_PATH;
     private static final String FAKTA_UTTAK_PART_PATH = "/kontroller-fakta-perioder-v2";
     public static final String FAKTA_UTTAK_PATH = BASE_PATH + FAKTA_UTTAK_PART_PATH;
+    private static final String FAKTA_UTTAK_ANNENPART_EØS_PART_PATH = "/uttak-eos-annenpart";
+    public static final String FAKTA_UTTAK_EØS_PATH = BASE_PATH + FAKTA_UTTAK_ANNENPART_EØS_PART_PATH;
     private static final String STONADSKONTOER_GITT_UTTAKSPERIODER_PART_PATH = "/stonadskontoerGittUttaksperioder";
     public static final String STONADSKONTOER_GITT_UTTAKSPERIODER_PATH = BASE_PATH + STONADSKONTOER_GITT_UTTAKSPERIODER_PART_PATH;
     private static final String STONADSKONTOER_PART_PATH = "/stonadskontoer";
@@ -77,6 +81,7 @@ public class UttakRestTjeneste {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private DokumentasjonVurderingBehovDtoTjeneste dokumentasjonVurderingBehovDtoTjeneste;
     private FaktaUttakPeriodeDtoTjeneste faktaUttakPeriodeDtoTjeneste;
+    private AvklarUttakEøsForAnnenforelderTjeneste avklarUttakEøsForAnnenforelderTjeneste;
 
     @Inject
     public UttakRestTjeneste(BehandlingRepository behandlingRepository,
@@ -86,7 +91,8 @@ public class UttakRestTjeneste {
                              UttakInputTjeneste uttakInputTjeneste,
                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                              DokumentasjonVurderingBehovDtoTjeneste dokumentasjonVurderingBehovDtoTjeneste,
-                             FaktaUttakPeriodeDtoTjeneste faktaUttakPeriodeDtoTjeneste) {
+                             FaktaUttakPeriodeDtoTjeneste faktaUttakPeriodeDtoTjeneste,
+                             AvklarUttakEøsForAnnenforelderTjeneste avklarUttakEøsForAnnenforelderTjeneste) {
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.uttakResultatPerioderDtoTjeneste = uttakResultatPerioderDtoTjeneste;
@@ -95,6 +101,7 @@ public class UttakRestTjeneste {
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.dokumentasjonVurderingBehovDtoTjeneste = dokumentasjonVurderingBehovDtoTjeneste;
         this.faktaUttakPeriodeDtoTjeneste = faktaUttakPeriodeDtoTjeneste;
+        this.avklarUttakEøsForAnnenforelderTjeneste = avklarUttakEøsForAnnenforelderTjeneste;
     }
 
     public UttakRestTjeneste() {
@@ -181,6 +188,14 @@ public class UttakRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public List<FaktaUttakPeriodeDto> hentFaktaUttakPerioder(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return faktaUttakPeriodeDtoTjeneste.lagDtos(uuidDto);
+    }
+
+    @GET
+    @Path(FAKTA_UTTAK_ANNENPART_EØS_PART_PATH)
+    @Operation(description = "Hent eøs uttaksperioder for annenpart registert i EØS", tags = "uttak")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
+    public List<AvklarUttakEøsForAnnenforelderDto.EøsUttakPeriodeDto> hentAnnenpartPerioder(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        return avklarUttakEøsForAnnenforelderTjeneste.annenpartsPerioder(uuidDto);
     }
 
     private Behandling hentBehandling(UuidDto uuidDto) {

@@ -458,6 +458,9 @@ public class BehandlingDtoTjeneste {
                         AksjonspunktDefinisjon.FAKTA_UTTAK_INGEN_PERIODER)) {
                         dto.leggTil(get(UttakRestTjeneste.FAKTA_UTTAK_PATH, "uttak-kontroller-fakta-perioder-v2", uuidDto));
                     }
+                    if (behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_UTTAK_I_EØS_FOR_ANNENPART)) {
+                        dto.leggTil(get(UttakRestTjeneste.FAKTA_UTTAK_EØS_PATH, "uttak-annen-forelder-eos", uuidDto));
+                    }
                 }
                 var uttakResultat = uttakTjeneste.hentHvisEksisterer(behandling.getId());
                 var stønadskontoberegning = utregnetStønadskontoTjeneste.gjeldendeKontoutregning(BehandlingReferanse.fra(behandling));
