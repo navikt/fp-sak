@@ -144,7 +144,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>jms-integrasjon</artifactId>
-                <version>3.2.12</version>
+                <version>3.2.13</version>
             </dependency>
 
             <dependency>
