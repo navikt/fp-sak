@@ -45,7 +45,7 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
 @OpenAPIDefinition(tags = @Tag(name = "ytelse"), servers = @Server())
-@Path("/vedtak")
+@Path("/ytelseinfo")
 @ApplicationScoped
 @Transactional
 public class EksternDelingYtelseInfoRestTjeneste {
@@ -73,11 +73,11 @@ public class EksternDelingYtelseInfoRestTjeneste {
     }
 
     @POST
-    @Path("/hent-ytelse-info")
+    @Path("/basis")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(tags = "ytelse",
-        description = "Henter informasjon om ytelser fra siste vedtak for alle ytelser for en gitt person, med periode etter en fom-dato"
+        description = "Henter informasjon fra siste vedtak for alle ytelser for en gitt person, med periode etter en fom-dato"
     )
     @RequestBody(required = true, description = "Aksepterer både aktørid og fnr som gyldig ident.", content = @Content(schema = @Schema(implementation = YtelseInfoEksternRequest.class)))
     @ApiResponses(value = {
