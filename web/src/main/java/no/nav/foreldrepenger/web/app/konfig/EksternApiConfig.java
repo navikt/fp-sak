@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.web.app.exceptions.GeneralRestExceptionMapper;
 import no.nav.foreldrepenger.web.app.exceptions.JsonMappingExceptionMapper;
 import no.nav.foreldrepenger.web.app.exceptions.JsonParseExceptionMapper;
 import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
-import no.nav.foreldrepenger.web.app.tjenester.vedtak.EksternDelingYtelseInfoRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.vedtak.ytelseinfo.EksternDelingYtelseInfoRestTjeneste;
 
 @ApplicationPath(EksternApiConfig.EKSTERN_API_URI)
 public class EksternApiConfig extends ResourceConfig {

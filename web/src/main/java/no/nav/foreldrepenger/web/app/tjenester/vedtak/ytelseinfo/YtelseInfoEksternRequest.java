@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.vedtak.ekstern;
+package no.nav.foreldrepenger.web.app.tjenester.vedtak.ytelseinfo;
 
 import java.time.LocalDate;
 

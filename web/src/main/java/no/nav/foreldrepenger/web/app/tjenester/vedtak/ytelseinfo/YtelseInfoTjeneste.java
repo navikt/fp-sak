@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.vedtak.ekstern;
+package no.nav.foreldrepenger.web.app.tjenester.vedtak.ytelseinfo;
 
 
 import java.math.BigDecimal;
@@ -10,6 +10,9 @@ import java.util.Set;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
@@ -19,10 +22,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 
 @ApplicationScoped
 public class YtelseInfoTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(YtelseInfoTjeneste.class);
 
     private static final Set<VedtakResultatType> AKTUELLE_VEDTAK_RESULTAT = Set.of(VedtakResultatType.INNVILGET, VedtakResultatType.OPPHØR);
 
@@ -53,11 +57,8 @@ public class YtelseInfoTjeneste {
         if (utbetalinger.isEmpty()) {
             return Optional.empty();
         }
-        var ytelseInfo = new YtelseInfoEksternResponse(behandling.getUuid(),
-            utbetalinger,
-            vedtak.get().getVedtakstidspunkt(),
-            mapYtelse(behandling.getFagsakYtelseType()),
-            behandling.getSaksnummer().getVerdi());
+        var ytelseInfo = new YtelseInfoEksternResponse(mapYtelse(behandling.getFagsakYtelseType()),
+            behandling.getSaksnummer().getVerdi(), utbetalinger);
 
 
         return Optional.of(ytelseInfo);
@@ -69,15 +70,7 @@ public class YtelseInfoTjeneste {
 
     private List<YtelseInfoEksternResponse.UtbetalingEksternDto> map(Behandling behandling, BehandlingVedtak vedtak) {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
-            try {
-                var stp = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
-                    .map(a -> a.getGjeldendeVersjon().getSkjæringstidspunkt())
-                    .orElse(vedtak.getVedtaksdato());
-                var periode = new YtelseInfoEksternResponse.UtbetalingEksternDto(stp, stp, BigDecimal.valueOf(100));
-                return List.of(periode);
-            } catch (Exception e) {
-                return List.of();
-            }
+            return mapEngangsstønad(behandling, vedtak);
         } else {
             var berResultat = tilkjentYtelseRepository.hentUtbetBeregningsresultat(behandling.getId());
             return berResultat.map(this::mapBeregningsresultat).orElse(List.of());
@@ -99,11 +92,24 @@ public class YtelseInfoTjeneste {
 
     private YtelseInfoEksternResponse.Ytelse mapYtelse(FagsakYtelseType type) {
         return switch (type) {
-            case ENGANGSTØNAD -> YtelseInfoEksternResponse.Ytelse.ENGANGSTØNAD;
+            case ENGANGSTØNAD -> YtelseInfoEksternResponse.Ytelse.ENGANGSSTØNAD;
             case FORELDREPENGER -> YtelseInfoEksternResponse.Ytelse.FORELDREPENGER;
             case SVANGERSKAPSPENGER -> YtelseInfoEksternResponse.Ytelse.SVANGERSKAPSPENGER;
             default -> throw new IllegalStateException("Ukjent ytelsestype " + type);
         };
+    }
+
+    private List<YtelseInfoEksternResponse.UtbetalingEksternDto> mapEngangsstønad(Behandling behandling, BehandlingVedtak vedtak) {
+        try {
+            var stp = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
+                .map(a -> a.getGjeldendeVersjon().getSkjæringstidspunkt())
+                .orElse(vedtak.getVedtaksdato());
+            var periode = new YtelseInfoEksternResponse.UtbetalingEksternDto(stp, stp, BigDecimal.valueOf(100));
+            return List.of(periode);
+        } catch (Exception e) {
+            LOG.warn("Finner ikke familiehendelsedato for sak {} behandling {}", behandling.getSaksnummer().getVerdi(), behandling.getId());
+            return List.of();
+        }
     }
 
 }

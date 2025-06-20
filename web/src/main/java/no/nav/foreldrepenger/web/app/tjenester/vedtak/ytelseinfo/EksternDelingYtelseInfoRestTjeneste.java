@@ -1,5 +1,6 @@
-package no.nav.foreldrepenger.web.app.tjenester.vedtak;
+package no.nav.foreldrepenger.web.app.tjenester.vedtak.ytelseinfo;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -28,15 +29,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.web.app.tjenester.vedtak.ekstern.YtelseInfoEksternRequest;
-import no.nav.foreldrepenger.web.app.tjenester.vedtak.ekstern.YtelseInfoEksternResponse;
-import no.nav.foreldrepenger.web.app.tjenester.vedtak.ekstern.YtelseInfoTjeneste;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.konfig.Tid;
@@ -102,7 +99,6 @@ public class EksternDelingYtelseInfoRestTjeneste {
         var innvilget = saker.stream()
             .map(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()))
             .flatMap(Optional::stream)
-            .filter(Behandling::erYtelseBehandling)
             .toList();
 
         return innvilget.stream()
@@ -124,8 +120,12 @@ public class EksternDelingYtelseInfoRestTjeneste {
     }
 
     private boolean innenforIntervall(YtelseInfoEksternResponse ytelseInfo, LocalDateInterval intervall) {
-        return ytelseInfo.utbetalinger().stream()
-            .anyMatch(u -> new LocalDateInterval(u.fom(), u.tom()).overlaps(intervall));
+        if (ytelseInfo.utbetalinger().isEmpty()) {
+            return false;
+        }
+        var min = ytelseInfo.utbetalinger().stream().map(YtelseInfoEksternResponse.UtbetalingEksternDto::fom).min(Comparator.naturalOrder()).orElseThrow();
+        var max = ytelseInfo.utbetalinger().stream().map(YtelseInfoEksternResponse.UtbetalingEksternDto::tom).max(Comparator.naturalOrder()).orElseThrow();
+        return intervall.overlaps(new LocalDateInterval(min, max));
     }
 
     public static class YtelseInfoRequestAbacDataSupplier implements Function<Object, AbacDataAttributter> {
