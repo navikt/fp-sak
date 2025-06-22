@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.vedtak.observer;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -18,8 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdReferanse;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class VedtattYtelseForeldrepengerMapperTest {
 
@@ -55,8 +55,7 @@ class VedtattYtelseForeldrepengerMapperTest {
             .build(periode);
 
         var arbeidsforholdReferanser = List.of(arbeidsforholdReferanse);
-        var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
-            .mapForeldrepenger(resultat);
+        var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser).mapTilkjent(resultat);
 
         assertThat(anvisninger).hasSize(1);
         assertThat(anvisninger.get(0).getAndeler()).hasSize(1);
@@ -95,8 +94,7 @@ class VedtattYtelseForeldrepengerMapperTest {
         fullRefusjon(arbeidsgiver2, periode, arbeidsforholdRef2, dagsats2);
 
         var arbeidsforholdReferanser = List.of(arbeidsforholdReferanse1, arbeidsforholdReferanse2);
-        var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
-            .mapForeldrepenger(resultat);
+        var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser).mapTilkjent(resultat);
 
         assertThat(anvisninger).hasSize(1);
         assertThat(anvisninger.get(0).getAndeler()).hasSize(2);
@@ -140,8 +138,7 @@ class VedtattYtelseForeldrepengerMapperTest {
         fullRefusjon(arbeidsgiver, periode, arbeidsforholdRef, dagsats);
 
         var arbeidsforholdReferanser = List.of(arbeidsforholdReferanse);
-        var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
-            .mapForeldrepenger(resultat);
+        var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser).mapTilkjent(resultat);
 
         assertThat(anvisninger).hasSize(1);
         assertThat(anvisninger.get(0).getAndeler()).hasSize(1);
@@ -172,8 +169,7 @@ class VedtattYtelseForeldrepengerMapperTest {
         fullRefusjon(arbeidsgiver, periode, arbeidsforholdRef, dagsats);
 
         var arbeidsforholdReferanser = new ArrayList<ArbeidsforholdReferanse>();
-        var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
-            .mapForeldrepenger(resultat);
+        var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser).mapTilkjent(resultat);
 
         assertThat(anvisninger).hasSize(1);
         assertThat(anvisninger.get(0).getAndeler()).hasSize(1);
@@ -212,8 +208,7 @@ class VedtattYtelseForeldrepengerMapperTest {
             .build(periode);
 
         var arbeidsforholdReferanser = new ArrayList<ArbeidsforholdReferanse>();
-        var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
-            .mapForeldrepenger(resultat);
+        var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser).mapTilkjent(resultat);
 
         assertThat(anvisninger).hasSize(1);
         assertThat(anvisninger.get(0).getAndeler()).hasSize(1);
