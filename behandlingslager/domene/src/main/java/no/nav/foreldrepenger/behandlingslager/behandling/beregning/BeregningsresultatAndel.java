@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.beregning;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -130,6 +131,18 @@ public class BeregningsresultatAndel extends BaseEntitet {
 
     public int getDagsatsFraBg() {
         return dagsatsFraBg;
+    }
+
+    public int getUtledetDagsatsFraBg() {
+        if (getDagsats() == 0 || utbetalingsgrad.compareTo(BigDecimal.ZERO) == 0) {
+            return dagsatsFraBg;
+        } else if (getDagsats() == getDagsatsFraBg() && utbetalingsgrad.compareTo(BigDecimal.valueOf(100)) < 0) {
+            // Tilfelle der utbetalingsgrad er mindre enn 100% men dagsatsFraBg er lik dagsats. Regn ut dagsatsFraBg
+            var utledet = BigDecimal.valueOf(dagsats).multiply(BigDecimal.valueOf(100)).divide(utbetalingsgrad, 0, RoundingMode.HALF_UP);
+            return utledet.intValue();
+        } else {
+            return dagsatsFraBg;
+        }
     }
 
     public AktivitetStatus getAktivitetStatus() {

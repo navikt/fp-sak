@@ -79,13 +79,7 @@ public class VedtattYtelseTjeneste {
         var arbeidsforholdReferanser = inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getId())
                 .flatMap(InntektArbeidYtelseGrunnlag::getArbeidsforholdInformasjon)
                 .map(ArbeidsforholdInformasjon::getArbeidsforholdReferanser).orElse(List.of());
-        if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
-            return VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser).mapForeldrepenger(tilkjentYtelse);
-        } else if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
-            return VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser).mapSvangerskapspenger(tilkjentYtelse);
-        } else {
-            return List.of();
-        }
+        return VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser).mapTilkjent(tilkjentYtelse);
     }
 
 
