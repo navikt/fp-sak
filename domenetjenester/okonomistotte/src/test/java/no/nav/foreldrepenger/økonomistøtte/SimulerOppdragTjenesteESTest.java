@@ -60,7 +60,7 @@ class SimulerOppdragTjenesteESTest {
     private long behandlingId;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         var behandling = Behandling.nyBehandlingFor(
             Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()), new Saksnummer("123456789")),
             BehandlingType.FØRSTEGANGSSØKNAD).build();
@@ -74,7 +74,7 @@ class SimulerOppdragTjenesteESTest {
             .build()));
         when(personinfoAdapter.hentFnrForAktør(any())).thenReturn(PersonIdent.fra("0987654321"));
         when(beregningRepository.getSisteBeregning(behandlingId)).thenReturn(
-            Optional.of(new LegacyESBeregning(15000, 1, 15000, LocalDateTime.now())));
+            Optional.of(new LegacyESBeregning(behandlingId, 15000, 1, 15000, LocalDateTime.now())));
         var familieHendelseGrunnlag = mock(FamilieHendelseGrunnlagEntitet.class);
         when(familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId)).thenReturn(Optional.of(familieHendelseGrunnlag));
         var familieHendelse = mock(FamilieHendelseEntitet.class);

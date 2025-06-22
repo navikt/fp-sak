@@ -737,7 +737,7 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
         if (innvilget) {
             LegacyESBeregningsresultat.builder()
-                .medBeregning(new LegacyESBeregning(48500L, 1L, 48500L, LocalDateTime.now()))
+                .medBeregning(new LegacyESBeregning(behandling.getId(), 48500L, 1L, 48500L, LocalDateTime.now()))
                 .buildFor(behandling, behandlingsresultat);
             beregningRepository.lagre(behandlingsresultat.getBeregningResultat(), lås);
         }

@@ -77,7 +77,7 @@ public class BeregneYtelseEngangsstønadStegImpl implements BeregneYtelseSteg {
             var satsDato = getSatsDato(behandlingId);
             var sats = satsRepository.finnEksaktSats(BeregningSatsType.ENGANG, satsDato);
             var beregnetYtelse = sats.getVerdi() * antallBarn;
-            var beregning = new LegacyESBeregning(sats.getVerdi(), antallBarn, beregnetYtelse, LocalDateTime.now());
+            var beregning = new LegacyESBeregning(behandlingId, sats.getVerdi(), antallBarn, beregnetYtelse, LocalDateTime.now());
 
             var behandling = behandlingRepository.hentBehandling(behandlingId);
             var behResultat = resultatRepository.hentHvisEksisterer(behandlingId).orElse(null);

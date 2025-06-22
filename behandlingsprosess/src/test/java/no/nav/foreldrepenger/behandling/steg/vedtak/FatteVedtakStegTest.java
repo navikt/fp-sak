@@ -487,7 +487,7 @@ class FatteVedtakStegTest {
                 .medBehandlendeEnhet(BEHANDLENDE_ENHET)
                 .medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET))
                 .lagre(repositoryProvider);
-        var beregning = new LegacyESBeregning(1L, 1L, 1L, LocalDateTime.now());
+        var beregning = new LegacyESBeregning(behandling.getId(), 1L, 1L, 1L, LocalDateTime.now());
         var bres = repositoryProvider.getBehandlingsresultatRepository().hentHvisEksisterer(behandling.getId()).orElse(null);
         var beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling, bres);
         beregningRepository.lagre(beregningResultat, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
@@ -528,7 +528,7 @@ class FatteVedtakStegTest {
             behandlingRepository.lagre(vilkårResultat, lås);
             var bres = repositoryProvider.getBehandlingsresultatRepository().hentHvisEksisterer(behandling.getId()).orElse(null);
             var beregningResultat = LegacyESBeregningsresultat.builder()
-                    .medBeregning(new LegacyESBeregning(48500L, antallBarn, 48500L * antallBarn, LocalDateTime.now()))
+                    .medBeregning(new LegacyESBeregning(behandling.getId(), 48500L, antallBarn, 48500L * antallBarn, LocalDateTime.now()))
                     .buildFor(behandling, bres);
             beregningRepository.lagre(beregningResultat, lås);
             Behandlingsresultat.builderEndreEksisterende(getBehandlingsresultat(behandling))

@@ -29,8 +29,15 @@ public class LegacyESBeregning extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
+    @Column(name = "behandling_id", updatable = false) // Todo: legg til nullable = false, unique = true
+    private Long behandlingId;
+
+    @Convert(converter = BooleanToStringConverter.class)
+    @Column(name = "aktiv", nullable = false)
+    private boolean aktiv = true;
+
     @ManyToOne(optional = false)
-    @JoinColumn(name = "beregning_resultat_id", nullable = false, updatable = false)
+    @JoinColumn(name = "beregning_resultat_id", updatable = false)
     private LegacyESBeregningsresultat beregningResultat;
 
     @Column(name = "sats_verdi", nullable = false)
@@ -60,16 +67,19 @@ public class LegacyESBeregning extends BaseEntitet {
         // for hibernate
     }
 
-    public LegacyESBeregning(long satsVerdi, long antallBarn, long beregnetTilkjentYtelse, LocalDateTime beregnetTidspunkt, boolean overstyrt, Long opprinneligBeregnetTilkjentYtelse) {
-        this(null, satsVerdi, antallBarn, beregnetTilkjentYtelse, beregnetTidspunkt, overstyrt, opprinneligBeregnetTilkjentYtelse);
+    public LegacyESBeregning(Long behandlingId,
+                             long satsVerdi, long antallBarn, long beregnetTilkjentYtelse, LocalDateTime beregnetTidspunkt, boolean overstyrt, Long opprinneligBeregnetTilkjentYtelse) {
+        this(behandlingId, null, satsVerdi, antallBarn, beregnetTilkjentYtelse, beregnetTidspunkt, overstyrt, opprinneligBeregnetTilkjentYtelse);
     }
 
-    public LegacyESBeregning(long satsVerdi, long antallBarn, long beregnetTilkjentYtelse, LocalDateTime beregnetTidspunkt) {
-        this(null, satsVerdi, antallBarn, beregnetTilkjentYtelse, beregnetTidspunkt, false, null);
+    public LegacyESBeregning(Long behandlingId, long satsVerdi, long antallBarn, long beregnetTilkjentYtelse, LocalDateTime beregnetTidspunkt) {
+        this(behandlingId, null, satsVerdi, antallBarn, beregnetTilkjentYtelse, beregnetTidspunkt, false, null);
     }
 
-    LegacyESBeregning(LegacyESBeregningsresultat beregningResultat, long satsVerdi, long antallBarn, long beregnetTilkjentYtelse, LocalDateTime beregnetTidspunkt, boolean overstyrt, Long opprinneligBeregnetTilkjentYtelse) {
+    LegacyESBeregning(Long behandlingId, LegacyESBeregningsresultat beregningResultat, long satsVerdi, long antallBarn, long beregnetTilkjentYtelse, LocalDateTime beregnetTidspunkt, boolean overstyrt, Long opprinneligBeregnetTilkjentYtelse) {
+        Objects.requireNonNull(behandlingId, "behandlingId må være satt");
         Objects.requireNonNull(beregnetTidspunkt, "beregnetTidspunkt må være satt");
+        this.behandlingId = behandlingId;
         this.beregningResultat = beregningResultat;
         this.satsVerdi = satsVerdi;
         this.antallBarn = antallBarn;
@@ -85,6 +95,18 @@ public class LegacyESBeregning extends BaseEntitet {
 
     public Long getId() {
         return id;
+    }
+
+    public Long getBehandlingId() {
+        return behandlingId;
+    }
+
+    public boolean erAktivt() {
+        return aktiv;
+    }
+
+    public void setAktiv(boolean aktiv) {
+        this.aktiv = aktiv;
     }
 
     public long getSatsVerdi() {

@@ -64,7 +64,7 @@ class TilkjentYtelseFormidlingDtoTjenesteTest {
     @Test
     void skal_teste_engangsstønad_mapping() {
         // Arrange
-        var resultat = new LegacyESBeregning(93000, 1, 93000, LocalDateTime.now());
+        var resultat = new LegacyESBeregning(1L, 93000, 1, 93000, LocalDateTime.now());
 
         // Act
         var mappetResultat = TilkjentYtelseFormidlingDtoTjeneste.mapEngangsstønad(resultat);

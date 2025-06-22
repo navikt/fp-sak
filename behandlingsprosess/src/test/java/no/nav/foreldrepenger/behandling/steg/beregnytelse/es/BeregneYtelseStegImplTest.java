@@ -135,7 +135,7 @@ class BeregneYtelseStegImplTest {
         var lås = behandlingRepository.taSkriveLås(behandling);
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
         var beregningResultat = LegacyESBeregningsresultat.builder()
-                .medBeregning(new LegacyESBeregning(1000L, antallBarn, 1000L, LocalDateTime.now()))
+                .medBeregning(new LegacyESBeregning(behandling.getId(), 1000L, antallBarn, 1000L, LocalDateTime.now()))
                 .buildFor(behandling, getBehandlingsresultat(behandling));
         beregningRepository.lagre(beregningResultat, kontekst.getSkriveLås());
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
@@ -156,8 +156,8 @@ class BeregneYtelseStegImplTest {
         var lås = behandlingRepository.taSkriveLås(behandling);
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
         var beregningResultat = LegacyESBeregningsresultat.builder()
-                .medBeregning(new LegacyESBeregning(1000L, antallBarn, 1000L, LocalDateTime.now(), false, null))
-                .medBeregning(new LegacyESBeregning(500L, antallBarn, 1000L, LocalDateTime.now(), true, 1000L))
+                .medBeregning(new LegacyESBeregning(behandling.getId(), 1000L, antallBarn, 1000L, LocalDateTime.now(), false, null))
+                .medBeregning(new LegacyESBeregning(behandling.getId(), 500L, antallBarn, 1000L, LocalDateTime.now(), true, 1000L))
                 .buildFor(behandling, getBehandlingsresultat(behandling));
         beregningRepository.lagre(beregningResultat, kontekst.getSkriveLås());
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
@@ -181,8 +181,8 @@ class BeregneYtelseStegImplTest {
         var lås = behandlingRepository.taSkriveLås(behandling);
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
         var beregningResultat = LegacyESBeregningsresultat.builder()
-                .medBeregning(new LegacyESBeregning(1000L, antallBarn, 1000L, LocalDateTime.now(), false, null))
-                .medBeregning(new LegacyESBeregning(500L, antallBarn, 1000L, LocalDateTime.now(), true, 1000L))
+                .medBeregning(new LegacyESBeregning(behandling.getId(), 1000L, antallBarn, 1000L, LocalDateTime.now(), false, null))
+                .medBeregning(new LegacyESBeregning(behandling.getId(), 500L, antallBarn, 1000L, LocalDateTime.now(), true, 1000L))
                 .buildFor(behandling, getBehandlingsresultat(behandling));
         beregningRepository.lagre(beregningResultat, kontekst.getSkriveLås());
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());

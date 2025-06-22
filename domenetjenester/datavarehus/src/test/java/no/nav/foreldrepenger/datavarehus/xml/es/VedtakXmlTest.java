@@ -217,7 +217,7 @@ class VedtakXmlTest {
         var behandlingsresultat = opprettBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET);
         entityManager.persist(behandlingsresultat);
         opprettBehandlingsvedtak(behandling, behandlingsresultat);
-        var beregning = new LegacyESBeregning(1L, 1L, 1L, LocalDateTime.now());
+        var beregning = new LegacyESBeregning(behandling.getId(), 1L, 1L, 1L, LocalDateTime.now());
         var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
         var beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling, bres);
         beregningRepository.lagre(beregningResultat, behandlingRepository.taSkriveLås(behandling));
@@ -231,7 +231,7 @@ class VedtakXmlTest {
         var behandlingsresultat = opprettBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET);
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         opprettBehandlingsvedtak(behandling, behandlingsresultat);
-        var beregning = new LegacyESBeregning(1L, 1L, 1L, LocalDateTime.now());
+        var beregning = new LegacyESBeregning(behandling.getId(), 1L, 1L, 1L, LocalDateTime.now());
         var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
         var beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling, bres);
         beregningRepository.lagre(beregningResultat, behandlingRepository.taSkriveLås(behandling));
@@ -266,7 +266,7 @@ class VedtakXmlTest {
                 .buildFor(behandling);
             var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
             LegacyESBeregningsresultat.builder()
-                    .medBeregning(new LegacyESBeregning(48500L, 1L, 48500L, LocalDateTime.now()))
+                    .medBeregning(new LegacyESBeregning(behandling.getId(), 48500L, 1L, 48500L, LocalDateTime.now()))
                     .buildFor(behandling, bres);
         } else {
             VilkårResultat.builder()
@@ -287,7 +287,7 @@ class VedtakXmlTest {
         var behandlingsresultat = opprettBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET);
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         opprettBehandlingsvedtak(behandling, behandlingsresultat);
-        var beregning = new LegacyESBeregning(1L, 1L, 1L, LocalDateTime.now());
+        var beregning = new LegacyESBeregning(behandling.getId(), 1L, 1L, 1L, LocalDateTime.now());
         var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
         var beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling, bres);
         beregningRepository.lagre(beregningResultat, behandlingRepository.taSkriveLås(behandling));
@@ -335,7 +335,7 @@ class VedtakXmlTest {
         var behandlingsresultat = opprettBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET);
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         opprettBehandlingsvedtak(behandling, behandlingsresultat);
-        var beregning = new LegacyESBeregning(1L, 1L, 1L, LocalDateTime.now());
+        var beregning = new LegacyESBeregning(behandling.getId(), 1L, 1L, 1L, LocalDateTime.now());
         var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
         var beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling, bres);
         beregningRepository.lagre(beregningResultat, behandlingRepository.taSkriveLås(behandling));

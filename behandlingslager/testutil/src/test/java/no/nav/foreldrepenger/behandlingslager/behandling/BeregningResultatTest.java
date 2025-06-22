@@ -65,9 +65,9 @@ class BeregningResultatTest extends EntityManagerAwareTest {
 
     @Test
     void skal_koble_beregning_til_beregningsresultat() {
-        var beregning = new LegacyESBeregning(1000L, antallBarn, antallBarn*1000, LocalDateTime.now());
-        assertThat(beregning.getBeregningResultat()).isNull();
         var behandling1 = opprettBehandling();
+        var beregning = new LegacyESBeregning(behandling1.getId(), 1000L, antallBarn, antallBarn*1000, LocalDateTime.now());
+        assertThat(beregning.getBeregningResultat()).isNull();
         var beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning)
             .buildFor(behandling1, null);
         assertThat(beregning.getBeregningResultat()).isNull();
@@ -85,8 +85,8 @@ class BeregningResultatTest extends EntityManagerAwareTest {
     void skal_opprette_nytt_beregningsresultat_med_beregning_dersom_ikke_finnes_fra_før() {
         // Act
         // TX_1: Opprette nytt beregningsresultat med beregningsinfo
-        var beregning = new LegacyESBeregning(sats, antallBarn, tilkjentYtelse, LocalDateTime.now());
         var behandling1 = opprettBehandling();
+        var beregning = new LegacyESBeregning(behandling1.getId(), sats, antallBarn, tilkjentYtelse, LocalDateTime.now());
         var beregningResultat = LegacyESBeregningsresultat.builder()
                 .medBeregning(beregning)
                 .buildFor(behandling1, null);
@@ -103,8 +103,8 @@ class BeregningResultatTest extends EntityManagerAwareTest {
     void skal_gjenbruke_beregningsresultat_fra_tidligere_behandling_ved_opprettelse_av_ny_behandling() {
         // Act
         // TX_1: Opprette nytt beregningsresultat
-        var beregning = new LegacyESBeregning(sats, antallBarn, tilkjentYtelse, LocalDateTime.now());
         var behandling1 = opprettBehandling();
+        var beregning = new LegacyESBeregning(behandling1.getId(), sats, antallBarn, tilkjentYtelse, LocalDateTime.now());
         var beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling1, null);
         lagreBeregningResultat(behandling1, beregningResultat);
 
@@ -134,8 +134,8 @@ class BeregningResultatTest extends EntityManagerAwareTest {
     void skal_opprette_nytt_beregningsresultat_dersom_gjenbrukt_resultat_fra_tidligere_behandling_oppdateres() {
         // Act
         // TX_1: Opprette nytt beregningsresultat
-        var beregning1 = new LegacyESBeregning(sats, antallBarn, tilkjentYtelse, LocalDateTime.now());
         var behandling1 = opprettBehandling();
+        var beregning1 = new LegacyESBeregning(behandling1.getId(), sats, antallBarn, tilkjentYtelse, LocalDateTime.now());
         var beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning1)
             .buildFor(behandling1, null);
         lagreBeregningResultat(behandling1, beregningResultat);
@@ -150,7 +150,7 @@ class BeregningResultatTest extends EntityManagerAwareTest {
 
         // TX_3: Oppdatere nyTerminbekreftelse behandling med beregning
         behandling2 = behandlingRepository.hentBehandling(behandling2.getId());
-        var beregning2 = new LegacyESBeregning(sats + 1, antallBarn, tilkjentYtelse, LocalDateTime.now());
+        var beregning2 = new LegacyESBeregning(behandling2.getId(), sats + 1, antallBarn, tilkjentYtelse, LocalDateTime.now());
         LegacyESBeregningsresultat.builder().medBeregning(beregning2).buildFor(behandling2, getBehandlingsresultat(behandling2));
         lagreBeregningResultat(behandling2, getBehandlingsresultat(behandling2).getBeregningResultat());
 
@@ -169,8 +169,8 @@ class BeregningResultatTest extends EntityManagerAwareTest {
     void skal_ikke_opprette_nytt_beregningsresultat_dersom_resultat_fra_tidligere_behandling_allerede_er_oppdatert() {
         // Act
         // TX_1: Opprette nytt beregningsresultat
-        var beregning1 = new LegacyESBeregning(sats, antallBarn, tilkjentYtelse, LocalDateTime.now());
         var behandling1 = opprettBehandling();
+        var beregning1 = new LegacyESBeregning(behandling1.getId(), sats, antallBarn, tilkjentYtelse, LocalDateTime.now());
         var beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning1).buildFor(behandling1, null);
         lagreBeregningResultat(behandling1, beregningResultat);
 
@@ -184,13 +184,13 @@ class BeregningResultatTest extends EntityManagerAwareTest {
 
         // TX_3: Oppdatere nyTerminbekreftelse behandling med beregning
         behandling2 = behandlingRepository.hentBehandling(behandling2.getId());
-        var beregning2 = new LegacyESBeregning(sats + 1, antallBarn, tilkjentYtelse, LocalDateTime.now());
+        var beregning2 = new LegacyESBeregning(behandling2.getId(), sats + 1, antallBarn, tilkjentYtelse, LocalDateTime.now());
         LegacyESBeregningsresultat.builder().medBeregning(beregning2).buildFor(behandling2, getBehandlingsresultat(behandling2));
         lagreBeregningResultat(behandling2, getBehandlingsresultat(behandling2).getBeregningResultat());
 
         // TX_4: Oppdatere nyTerminbekreftelse behandling med beregning (samme som TX_3, men nyTerminbekreftelse beregning med nyTerminbekreftelse verdi)
         behandling2 = behandlingRepository.hentBehandling(behandling2.getId());
-        var beregning3 = new LegacyESBeregning(sats + 2, antallBarn, tilkjentYtelse, LocalDateTime.now());
+        var beregning3 = new LegacyESBeregning(behandling2.getId(), sats + 2, antallBarn, tilkjentYtelse, LocalDateTime.now());
         LegacyESBeregningsresultat.builder().medBeregning(beregning3).buildFor(behandling2, getBehandlingsresultat(behandling2));
         lagreBeregningResultat(behandling2, getBehandlingsresultat(behandling2).getBeregningResultat());
 
@@ -213,8 +213,8 @@ class BeregningResultatTest extends EntityManagerAwareTest {
     void skal_bevare_vilkårresultat_ved_oppdatering_av_beregingsresultat() {
         // Act
         // TX_1: Opprette Behandlingsresultat med Beregningsresultat
-        var beregning1 = new LegacyESBeregning(sats, antallBarn, tilkjentYtelse, LocalDateTime.now());
         var behandling1 = opprettBehandling();
+        var beregning1 = new LegacyESBeregning(behandling1.getId(), sats, antallBarn, tilkjentYtelse, LocalDateTime.now());
         var beregningResultat1 = LegacyESBeregningsresultat.builder().medBeregning(beregning1)
             .buildFor(behandling1, null);
         lagreBeregningResultat(behandling1, beregningResultat1);
@@ -230,7 +230,7 @@ class BeregningResultatTest extends EntityManagerAwareTest {
 
         // TX_3: Oppdatere Behandlingsresultat med BeregningResultat
         behandling1 = behandlingRepository.hentBehandling(behandling1.getId());
-        var oppdatertBeregning = new LegacyESBeregning(sats + 1, antallBarn, tilkjentYtelse, LocalDateTime.now());
+        var oppdatertBeregning = new LegacyESBeregning(behandling1.getId(), sats + 1, antallBarn, tilkjentYtelse, LocalDateTime.now());
         var beregningResultat2 = LegacyESBeregningsresultat.builder().medBeregning(oppdatertBeregning).buildFor(behandling1, getBehandlingsresultat(behandling1));
         lagreBeregningResultat(behandling1, beregningResultat2);
 
