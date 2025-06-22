@@ -10,6 +10,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.CascadeType;
@@ -106,11 +108,23 @@ public class BeregningsresultatPeriode extends BaseEntitet {
     }
 
     public BigDecimal getKalkulertUtbetalingsgrad() {
-        var dagsats = getDagsats();
-        var bgsats = getDagsatsFraBg();
-        if (dagsats == 0 || bgsats == 0)
+        var utbetalingsgrader = getBeregningsresultatAndelList().stream()
+            .map(BeregningsresultatAndel::getUtbetalingsgrad)
+            .collect(Collectors.toCollection(TreeSet::new)); // TreeSet bruker compareTo (ref BigDecimal)
+        if (utbetalingsgrader.isEmpty()) {
             return BigDecimal.ZERO;
-        return new BigDecimal(100).multiply(new BigDecimal(dagsats)).divide(new BigDecimal(bgsats), RoundingMode.HALF_UP);
+        } else if (utbetalingsgrader.size() == 1) {
+            return utbetalingsgrader.getFirst();
+        } else {
+            // Andeler med ulike utbetalingsgrader, regn ut på tvers av alle andeler
+            var dagsats = getDagsats();
+            var bgsats = beregningsresultatAndelList.stream()
+                .mapToInt(BeregningsresultatAndel::getUtledetDagsatsFraBg)
+                .sum();
+            if (dagsats == 0 || bgsats == 0)
+                return BigDecimal.ZERO;
+            return new BigDecimal(100).multiply(new BigDecimal(dagsats)).divide(new BigDecimal(bgsats), 2, RoundingMode.HALF_UP);
+        }
     }
 
     @Override

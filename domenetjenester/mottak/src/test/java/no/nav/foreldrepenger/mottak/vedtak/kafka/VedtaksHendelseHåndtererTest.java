@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -13,7 +12,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +29,6 @@ import no.nav.abakus.vedtak.ytelse.Status;
 import no.nav.abakus.vedtak.ytelse.Ytelser;
 import no.nav.abakus.vedtak.ytelse.v1.YtelseV1;
 import no.nav.abakus.vedtak.ytelse.v1.anvisning.Anvisning;
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -62,7 +59,6 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
-import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.HåndterOverlappPleiepengerTask;
@@ -82,8 +78,6 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     @Mock
     private ProsessTaskTjeneste taskTjeneste;
     @Mock
-    private BeregningTjeneste beregningTjeneste;
-    @Mock
     private HendelsemottakRepository mottakRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
     private OverlappVedtakRepository overlappInfotrygdRepository;
@@ -101,7 +95,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         var fagsakTjeneste = new FagsakTjeneste(new FagsakRepository(getEntityManager()),
             new SøknadRepository(getEntityManager(), behandlingRepository));
         var overlappOppgaveTjeneste = new OverlappOppgaveTjeneste(oppgaveTjenesteMock);
-        var overlappTjeneste = new LoggOverlappEksterneYtelserTjeneste(beregningTjeneste, beregningsresultatRepository, null,
+        var overlappTjeneste = new LoggOverlappEksterneYtelserTjeneste(beregningsresultatRepository, null,
             null, null, null, null,
             overlappInfotrygdRepository, behandlingRepository, overlappOppgaveTjeneste);
         lenient().when(mottakRepository.hendelseErNy(any())).thenReturn(true);
@@ -377,8 +371,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
                         .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999")))
                     .medAktivitetStatus(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus.ARBEIDSTAKER).build()).build())
             .build();
-        var gr = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(BeregningsgrunnlagTilstand.FASTSATT);
-        when(beregningTjeneste.hent(BehandlingReferanse.fra(b))).thenReturn(Optional.of(gr));
+        BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(BeregningsgrunnlagTilstand.FASTSATT);
     }
 
     private BeregningsresultatEntitet lagBeregningsresultat(LocalDate periodeFom, LocalDate periodeTom, BigDecimal utbetalingsgrad) {
