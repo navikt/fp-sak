@@ -28,9 +28,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregning;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -65,7 +64,7 @@ class AutomatiskEtterkontrollTaskTest {
 
     private FamilieHendelseTjeneste familieHendelseTjeneste;
 
-    private LegacyESBeregningRepository legacyESBeregningRepository;
+    private EngangsstønadBeregningRepository engangsstønadBeregningRepository;
 
     private SatsRepository satsRepository;
 
@@ -75,7 +74,7 @@ class AutomatiskEtterkontrollTaskTest {
     public void setUp(EntityManager entityManager) {
         em = entityManager;
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        legacyESBeregningRepository = new LegacyESBeregningRepository(entityManager);
+        engangsstønadBeregningRepository = new EngangsstønadBeregningRepository(entityManager);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         satsRepository = new SatsRepository(entityManager);
         etterkontrollRepository = new EtterkontrollRepository(entityManager);
@@ -276,11 +275,8 @@ class AutomatiskEtterkontrollTaskTest {
         repositoryProvider.getBehandlingVedtakRepository().lagre(vedtak, lås);
 
         var sats = satsRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.now()).getVerdi();
-        var beregning = new LegacyESBeregning(behandling.getId(), sats, antallBarn, antallBarn * sats, LocalDateTime.now());
-        var beregningResultat = LegacyESBeregningsresultat.builder()
-                .medBeregning(beregning)
-                .buildFor(behandling, behandling.getBehandlingsresultat());
-        legacyESBeregningRepository.lagre(beregningResultat, lås);
+        var beregning = new EngangsstønadBeregning(behandling.getId(), sats, antallBarn, antallBarn * sats, LocalDateTime.now());
+        engangsstønadBeregningRepository.lagre(behandling.getId(), beregning);
         em.flush();
         em.clear();
 

@@ -7,7 +7,7 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.BeregningsresultatEngangsstønadDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.BeregningsresultatMedUttaksplanDto;
@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto
 @ApplicationScoped
 public class BeregningsresultatTjeneste {
 
-    private LegacyESBeregningRepository beregningRepository;
+    private EngangsstønadBeregningRepository beregningRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
     private BeregningsresultatMedUttaksplanMapper beregningsresultatMedUttaksplanMapper;
@@ -25,7 +25,7 @@ public class BeregningsresultatTjeneste {
     }
 
     @Inject
-    public BeregningsresultatTjeneste(LegacyESBeregningRepository beregningRepository,
+    public BeregningsresultatTjeneste(EngangsstønadBeregningRepository beregningRepository,
                                       BeregningsresultatRepository beregningsresultatRepository,
                                       ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
                                       BeregningsresultatMedUttaksplanMapper beregningsresultatMedUttaksplanMapper) {
@@ -44,7 +44,7 @@ public class BeregningsresultatTjeneste {
     }
 
     public Optional<BeregningsresultatEngangsstønadDto> lagBeregningsresultatEnkel(Long behandlingId) {
-        var sisteBeregningOpt = beregningRepository.getSisteBeregning(behandlingId);
+        var sisteBeregningOpt = beregningRepository.hentEngangsstønadBeregning(behandlingId);
         if (sisteBeregningOpt.isPresent()) {
             var dto = new BeregningsresultatEngangsstønadDto();
             var beregning = sisteBeregningOpt.get();

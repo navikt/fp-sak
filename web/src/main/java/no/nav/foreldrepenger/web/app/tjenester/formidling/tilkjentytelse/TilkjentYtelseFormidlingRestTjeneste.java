@@ -17,7 +17,7 @@ import jakarta.ws.rs.core.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.app.BeregningsresultatTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
@@ -44,7 +44,7 @@ public class TilkjentYtelseFormidlingRestTjeneste {
 
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
-    private LegacyESBeregningRepository beregningRepository;
+    private EngangsstønadBeregningRepository beregningRepository;
 
     public TilkjentYtelseFormidlingRestTjeneste() {
         // CDI
@@ -54,7 +54,7 @@ public class TilkjentYtelseFormidlingRestTjeneste {
     public TilkjentYtelseFormidlingRestTjeneste(BehandlingRepository behandlingRepository,
                                                 BeregningsresultatRepository beregningsresultatRepository,
                                                 BeregningsresultatTjeneste beregningsresultatTjeneste,
-                                                LegacyESBeregningRepository beregningRepository) {
+                                                EngangsstønadBeregningRepository beregningRepository) {
         this.behandlingRepository = behandlingRepository;
         this.beregningsresultatRepository = beregningsresultatRepository;
         this.beregningRepository = beregningRepository;
@@ -86,7 +86,7 @@ public class TilkjentYtelseFormidlingRestTjeneste {
                                                           @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var uid = Optional.ofNullable(uuidDto.getBehandlingUuid());
         var dto = uid.flatMap(behandlingRepository::hentBehandlingHvisFinnes)
-            .flatMap(beh -> beregningRepository.getSisteBeregning(beh.getId()))
+            .flatMap(beh -> beregningRepository.hentEngangsstønadBeregning(beh.getId()))
             .map(TilkjentYtelseFormidlingDtoTjeneste::mapEngangsstønad);
         if (dto.isEmpty()) {
             var responseBuilder = Response.ok();

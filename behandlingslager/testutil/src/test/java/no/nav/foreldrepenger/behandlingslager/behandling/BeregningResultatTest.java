@@ -7,12 +7,9 @@ import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregning;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
@@ -26,7 +23,7 @@ class BeregningResultatTest extends EntityManagerAwareTest {
 
     private BehandlingRepository behandlingRepository;
     private FagsakRepository fagsakReposiory;
-    private LegacyESBeregningRepository beregningRepository;
+    private EngangsstønadBeregningRepository beregningRepository;
 
 
     private final long sats = 1L;
@@ -38,7 +35,7 @@ class BeregningResultatTest extends EntityManagerAwareTest {
         var entityManager = getEntityManager();
         behandlingRepository = new BehandlingRepository(entityManager);
         fagsakReposiory = new FagsakRepository(entityManager);
-        beregningRepository = new LegacyESBeregningRepository(entityManager);
+        beregningRepository = new EngangsstønadBeregningRepository(entityManager);
     }
 
     private Behandling opprettBehandling() {
@@ -49,36 +46,8 @@ class BeregningResultatTest extends EntityManagerAwareTest {
         return behandling;
     }
 
-    @Test
-    void skal_opprette_nytt_beregningsresultat_uten_beregning_dersom_ikke_finnes_fra_før() {
-        // Act
-        // TX_1: Opprette nytt beregningsresultat
-        var behandling1 = opprettBehandling();
-        var beregningResultat = LegacyESBeregningsresultat.builder().buildFor(behandling1, null);
-        lagreBeregningResultat(behandling1, beregningResultat);
-
-        // Assert
-        var hentetBehandling = behandlingRepository.hentBehandling(behandling1.getId());
-        var hentetResultat = getBehandlingsresultat(hentetBehandling).getBeregningResultat();
-        assertThat(hentetResultat).isNotNull();
-    }
-
-    @Test
-    void skal_koble_beregning_til_beregningsresultat() {
-        var behandling1 = opprettBehandling();
-        var beregning = new LegacyESBeregning(behandling1.getId(), 1000L, antallBarn, antallBarn*1000, LocalDateTime.now());
-        assertThat(beregning.getBeregningResultat()).isNull();
-        var beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning)
-            .buildFor(behandling1, null);
-        assertThat(beregning.getBeregningResultat()).isNull();
-
-        assertThat(beregningResultat.getBeregninger()).hasSize(1);
-        assertThat(beregningResultat.getBeregninger().get(0).getBeregningResultat()).isNotNull();
-    }
-
-    private void lagreBeregningResultat(Behandling behandling, LegacyESBeregningsresultat beregningResultat) {
-        var lås = behandlingRepository.taSkriveLås(behandling);
-        beregningRepository.lagre(beregningResultat, lås);
+    private void lagreBeregningResultat(Behandling behandling, EngangsstønadBeregning beregningResultat) {
+        beregningRepository.lagre(behandling.getId(), beregningResultat);
     }
 
     @Test
@@ -86,43 +55,12 @@ class BeregningResultatTest extends EntityManagerAwareTest {
         // Act
         // TX_1: Opprette nytt beregningsresultat med beregningsinfo
         var behandling1 = opprettBehandling();
-        var beregning = new LegacyESBeregning(behandling1.getId(), sats, antallBarn, tilkjentYtelse, LocalDateTime.now());
-        var beregningResultat = LegacyESBeregningsresultat.builder()
-                .medBeregning(beregning)
-                .buildFor(behandling1, null);
-        lagreBeregningResultat(behandling1, beregningResultat);
+        var beregning = new EngangsstønadBeregning(behandling1.getId(), sats, antallBarn, tilkjentYtelse, LocalDateTime.now());
+        lagreBeregningResultat(behandling1, beregning);
 
         // Assert
-        var hentetBehandling = behandlingRepository.hentBehandling(behandling1.getId());
-        var hentetResultat = getBehandlingsresultat(hentetBehandling).getBeregningResultat();
-        assertThat(hentetResultat.getBeregninger()).hasSize(1);
-        assertThat(hentetResultat.getBeregninger().get(0)).isEqualTo(beregning);
-    }
-
-    @Test
-    void skal_gjenbruke_beregningsresultat_fra_tidligere_behandling_ved_opprettelse_av_ny_behandling() {
-        // Act
-        // TX_1: Opprette nytt beregningsresultat
-        var behandling1 = opprettBehandling();
-        var beregning = new LegacyESBeregning(behandling1.getId(), sats, antallBarn, tilkjentYtelse, LocalDateTime.now());
-        var beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling1, null);
-        lagreBeregningResultat(behandling1, beregningResultat);
-
-        // TX_2: Opprette nyTerminbekreftelse behandling fra tidligere behandling
-        behandling1 = behandlingRepository.hentBehandling(behandling1.getId());
-        var behandling2 = Behandling.fraTidligereBehandling(behandling1, BehandlingType.REVURDERING)
-            .medKopiAvForrigeBehandlingsresultat()
-            .build();
-        lagreBeregningResultat(behandling2, getBehandlingsresultat(behandling2).getBeregningResultat());
-        lagreBehandling(behandling2);
-
-        // Assert
-        behandling2 = behandlingRepository.hentBehandling(behandling2.getId());
-        assertThat(getBehandlingsresultat(behandling2)).isNotSameAs(getBehandlingsresultat(behandling1));
-        assertThat(getBehandlingsresultat(behandling2).getBeregningResultat())
-                .isSameAs(getBehandlingsresultat(behandling1).getBeregningResultat());
-        assertThat(getBehandlingsresultat(behandling2).getBeregningResultat())
-                .isEqualTo(getBehandlingsresultat(behandling1).getBeregningResultat());
+        var hentetResultat = beregningRepository.hentEngangsstønadBeregning(behandling1.getId());
+        assertThat(hentetResultat).isPresent().contains(beregning);
     }
 
     private void lagreBehandling(Behandling behandling) {
@@ -135,34 +73,27 @@ class BeregningResultatTest extends EntityManagerAwareTest {
         // Act
         // TX_1: Opprette nytt beregningsresultat
         var behandling1 = opprettBehandling();
-        var beregning1 = new LegacyESBeregning(behandling1.getId(), sats, antallBarn, tilkjentYtelse, LocalDateTime.now());
-        var beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning1)
-            .buildFor(behandling1, null);
-        lagreBeregningResultat(behandling1, beregningResultat);
+        var beregning1 = new EngangsstønadBeregning(behandling1.getId(), sats, antallBarn, tilkjentYtelse, LocalDateTime.now());
+        lagreBeregningResultat(behandling1, beregning1);
 
         // TX_2: Opprette nyTerminbekreftelse behandling fra tidligere behandling
         behandling1 = behandlingRepository.hentBehandling(behandling1.getId());
         var behandling2 = Behandling.fraTidligereBehandling(behandling1, BehandlingType.REVURDERING)
             .medKopiAvForrigeBehandlingsresultat()
             .build();
-        lagreBeregningResultat(behandling2, getBehandlingsresultat(behandling2).getBeregningResultat());
         lagreBehandling(behandling2);
 
         // TX_3: Oppdatere nyTerminbekreftelse behandling med beregning
         behandling2 = behandlingRepository.hentBehandling(behandling2.getId());
-        var beregning2 = new LegacyESBeregning(behandling2.getId(), sats + 1, antallBarn, tilkjentYtelse, LocalDateTime.now());
-        LegacyESBeregningsresultat.builder().medBeregning(beregning2).buildFor(behandling2, getBehandlingsresultat(behandling2));
-        lagreBeregningResultat(behandling2, getBehandlingsresultat(behandling2).getBeregningResultat());
+        var beregning2 = new EngangsstønadBeregning(behandling2.getId(), sats + 1, antallBarn, tilkjentYtelse, LocalDateTime.now());
+        lagreBeregningResultat(behandling2, beregning2);
 
         // Assert
-        behandling2 = behandlingRepository.hentBehandling(behandling2.getId());
-        assertThat(getBehandlingsresultat(behandling2)).isNotSameAs(getBehandlingsresultat(behandling1));
-        assertThat(getBehandlingsresultat(behandling2).getBeregningResultat())
-                .isNotSameAs(getBehandlingsresultat(behandling1).getBeregningResultat());
-        assertThat(getBehandlingsresultat(behandling2).getBeregningResultat())
-                .isNotEqualTo(getBehandlingsresultat(behandling1).getBeregningResultat());
-        assertThat(getBehandlingsresultat(behandling2).getBeregningResultat().getBeregninger().get(0))
-                .isEqualTo(beregning2);
+        var hentetResultat1 = beregningRepository.hentEngangsstønadBeregning(behandling1.getId());
+        var hentetResultat2 = beregningRepository.hentEngangsstønadBeregning(behandling2.getId());
+        assertThat(hentetResultat1).isPresent().contains(beregning1);
+        assertThat(hentetResultat2).isPresent().contains(beregning2);
+        assertThat(hentetResultat2.get()).isNotSameAs(hentetResultat1.get());
     }
 
     @Test
@@ -170,73 +101,32 @@ class BeregningResultatTest extends EntityManagerAwareTest {
         // Act
         // TX_1: Opprette nytt beregningsresultat
         var behandling1 = opprettBehandling();
-        var beregning1 = new LegacyESBeregning(behandling1.getId(), sats, antallBarn, tilkjentYtelse, LocalDateTime.now());
-        var beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning1).buildFor(behandling1, null);
-        lagreBeregningResultat(behandling1, beregningResultat);
+        var beregning1 = new EngangsstønadBeregning(behandling1.getId(), sats, antallBarn, tilkjentYtelse, LocalDateTime.now());
+        lagreBeregningResultat(behandling1, beregning1);
 
         // TX_2: Opprette nyTerminbekreftelse behandling fra tidligere behandling
         behandling1 = behandlingRepository.hentBehandling(behandling1.getId());
         var behandling2 = Behandling.fraTidligereBehandling(behandling1, BehandlingType.REVURDERING)
             .medKopiAvForrigeBehandlingsresultat()
             .build();
-        lagreBeregningResultat(behandling2, getBehandlingsresultat(behandling2).getBeregningResultat());
         lagreBehandling(behandling2);
 
         // TX_3: Oppdatere nyTerminbekreftelse behandling med beregning
         behandling2 = behandlingRepository.hentBehandling(behandling2.getId());
-        var beregning2 = new LegacyESBeregning(behandling2.getId(), sats + 1, antallBarn, tilkjentYtelse, LocalDateTime.now());
-        LegacyESBeregningsresultat.builder().medBeregning(beregning2).buildFor(behandling2, getBehandlingsresultat(behandling2));
-        lagreBeregningResultat(behandling2, getBehandlingsresultat(behandling2).getBeregningResultat());
+        var beregning2 = new EngangsstønadBeregning(behandling2.getId(), sats + 1, antallBarn, tilkjentYtelse, LocalDateTime.now());
+        lagreBeregningResultat(behandling2, beregning2);
 
         // TX_4: Oppdatere nyTerminbekreftelse behandling med beregning (samme som TX_3, men nyTerminbekreftelse beregning med nyTerminbekreftelse verdi)
         behandling2 = behandlingRepository.hentBehandling(behandling2.getId());
-        var beregning3 = new LegacyESBeregning(behandling2.getId(), sats + 2, antallBarn, tilkjentYtelse, LocalDateTime.now());
-        LegacyESBeregningsresultat.builder().medBeregning(beregning3).buildFor(behandling2, getBehandlingsresultat(behandling2));
-        lagreBeregningResultat(behandling2, getBehandlingsresultat(behandling2).getBeregningResultat());
+        var beregning3 = new EngangsstønadBeregning(behandling2.getId(), sats + 2, antallBarn, tilkjentYtelse, LocalDateTime.now());
+        lagreBeregningResultat(behandling2, beregning3);
 
         // Assert
-        behandling2 = behandlingRepository.hentBehandling(behandling2.getId());
-        assertThat(getBehandlingsresultat(behandling2)).isNotSameAs(getBehandlingsresultat(behandling1));
-        assertThat(getBehandlingsresultat(behandling2).getBeregningResultat())
-                .isNotSameAs(getBehandlingsresultat(behandling1).getBeregningResultat());
-        assertThat(getBehandlingsresultat(behandling2).getBeregningResultat())
-                .isNotEqualTo(getBehandlingsresultat(behandling1).getBeregningResultat());
-        assertThat(getBehandlingsresultat(behandling2).getBeregningResultat().getBeregninger().get(0))
-                .isEqualTo(beregning3);
+        var hentetResultat1 = beregningRepository.hentEngangsstønadBeregning(behandling1.getId());
+        var hentetResultat2 = beregningRepository.hentEngangsstønadBeregning(behandling2.getId());
+        assertThat(hentetResultat1).isPresent().contains(beregning1);
+        assertThat(hentetResultat2).isPresent().contains(beregning3);
+        assertThat(hentetResultat2.get()).isNotSameAs(hentetResultat1.get());
     }
 
-    private Behandlingsresultat getBehandlingsresultat(Behandling behandling) {
-        return behandling.getBehandlingsresultat();
-    }
-
-    @Test
-    void skal_bevare_vilkårresultat_ved_oppdatering_av_beregingsresultat() {
-        // Act
-        // TX_1: Opprette Behandlingsresultat med Beregningsresultat
-        var behandling1 = opprettBehandling();
-        var beregning1 = new LegacyESBeregning(behandling1.getId(), sats, antallBarn, tilkjentYtelse, LocalDateTime.now());
-        var beregningResultat1 = LegacyESBeregningsresultat.builder().medBeregning(beregning1)
-            .buildFor(behandling1, null);
-        lagreBeregningResultat(behandling1, beregningResultat1);
-
-        // TX_2: Oppdatere Behandlingsresultat med VilkårResultat
-        behandling1 = behandlingRepository.hentBehandling(behandling1.getId());
-        var vilkårResultat = VilkårResultat.builder()
-                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
-                .buildFor(behandling1);
-
-        var lås = behandlingRepository.taSkriveLås(behandling1);
-        behandlingRepository.lagre(vilkårResultat, lås);
-
-        // TX_3: Oppdatere Behandlingsresultat med BeregningResultat
-        behandling1 = behandlingRepository.hentBehandling(behandling1.getId());
-        var oppdatertBeregning = new LegacyESBeregning(behandling1.getId(), sats + 1, antallBarn, tilkjentYtelse, LocalDateTime.now());
-        var beregningResultat2 = LegacyESBeregningsresultat.builder().medBeregning(oppdatertBeregning).buildFor(behandling1, getBehandlingsresultat(behandling1));
-        lagreBeregningResultat(behandling1, beregningResultat2);
-
-        // Assert
-        var hentetBehandling = behandlingRepository.hentBehandling(behandling1.getId());
-        assertThat(getBehandlingsresultat(hentetBehandling).getVilkårResultat())
-                .isEqualTo(vilkårResultat);
-    }
 }

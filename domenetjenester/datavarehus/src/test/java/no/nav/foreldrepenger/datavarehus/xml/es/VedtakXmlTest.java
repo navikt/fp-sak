@@ -28,12 +28,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregning;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -44,6 +42,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -73,8 +72,8 @@ class VedtakXmlTest {
     private EntityManager entityManager;
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingRepository behandlingRepository;
-    private BehandlingsresultatRepository behandlingsresultatRepository;
-    private LegacyESBeregningRepository beregningRepository;
+    private VilkårResultatRepository vilkårResultatRepository;
+    private EngangsstønadBeregningRepository beregningRepository;
     private FagsakRepository fagsakRepository;
 
     @Inject
@@ -106,8 +105,8 @@ class VedtakXmlTest {
         entityManager = em;
         repositoryProvider = new BehandlingRepositoryProvider(em);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
-        behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
-        beregningRepository = new LegacyESBeregningRepository(em);
+        vilkårResultatRepository = new VilkårResultatRepository(em);
+        beregningRepository = new EngangsstønadBeregningRepository(em);
         fagsakRepository = new FagsakRepository(em);
 
         var søknadRepository = mock(SøknadRepository.class);
@@ -217,10 +216,8 @@ class VedtakXmlTest {
         var behandlingsresultat = opprettBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET);
         entityManager.persist(behandlingsresultat);
         opprettBehandlingsvedtak(behandling, behandlingsresultat);
-        var beregning = new LegacyESBeregning(behandling.getId(), 1L, 1L, 1L, LocalDateTime.now());
-        var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
-        var beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling, bres);
-        beregningRepository.lagre(beregningResultat, behandlingRepository.taSkriveLås(behandling));
+        var beregning = new EngangsstønadBeregning(behandling.getId(), 1L, 1L, 1L, LocalDateTime.now());
+        beregningRepository.lagre(behandling.getId(), beregning);
         return behandling;
     }
 
@@ -231,10 +228,8 @@ class VedtakXmlTest {
         var behandlingsresultat = opprettBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET);
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         opprettBehandlingsvedtak(behandling, behandlingsresultat);
-        var beregning = new LegacyESBeregning(behandling.getId(), 1L, 1L, 1L, LocalDateTime.now());
-        var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
-        var beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling, bres);
-        beregningRepository.lagre(beregningResultat, behandlingRepository.taSkriveLås(behandling));
+        var beregning = new EngangsstønadBeregning(behandling.getId(), 1L, 1L, 1L, LocalDateTime.now());
+        beregningRepository.lagre(behandling.getId(), beregning);
         forceOppdaterBehandlingSteg(behandling, behandlingStegType);
         var fgRepo = repositoryProvider.getFamilieHendelseRepository();
         var søknadVersjon = fgRepo.opprettBuilderForSøknad(behandling.getId());
@@ -261,13 +256,12 @@ class VedtakXmlTest {
 
     private void oppdaterMedBehandlingsresultat(Behandling behandling, boolean innvilget) {
         if (innvilget) {
-            VilkårResultat.builder()
+            var vr = VilkårResultat.builder()
                 .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
                 .buildFor(behandling);
-            var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
-            LegacyESBeregningsresultat.builder()
-                    .medBeregning(new LegacyESBeregning(behandling.getId(), 48500L, 1L, 48500L, LocalDateTime.now()))
-                    .buildFor(behandling, bres);
+            vilkårResultatRepository.lagre(behandling.getId(), vr);
+            behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
+            beregningRepository.lagre(behandling.getId(), new EngangsstønadBeregning(behandling.getId(), 48500L, 1L, 48500L, LocalDateTime.now()));
         } else {
             VilkårResultat.builder()
                 .leggTilVilkårAvslått(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallMerknad.VM_1026)
@@ -287,10 +281,8 @@ class VedtakXmlTest {
         var behandlingsresultat = opprettBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET);
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         opprettBehandlingsvedtak(behandling, behandlingsresultat);
-        var beregning = new LegacyESBeregning(behandling.getId(), 1L, 1L, 1L, LocalDateTime.now());
-        var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
-        var beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling, bres);
-        beregningRepository.lagre(beregningResultat, behandlingRepository.taSkriveLås(behandling));
+        var beregning = new EngangsstønadBeregning(behandling.getId(), 1L, 1L, 1L, LocalDateTime.now());
+        beregningRepository.lagre(behandling.getId(), beregning);
         var hendelseBuilder = repositoryProvider.getFamilieHendelseRepository()
             .opprettBuilderForSøknad(behandling.getId())
             .medFødselsDato(fødselsdato)
@@ -335,10 +327,8 @@ class VedtakXmlTest {
         var behandlingsresultat = opprettBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET);
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         opprettBehandlingsvedtak(behandling, behandlingsresultat);
-        var beregning = new LegacyESBeregning(behandling.getId(), 1L, 1L, 1L, LocalDateTime.now());
-        var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
-        var beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling, bres);
-        beregningRepository.lagre(beregningResultat, behandlingRepository.taSkriveLås(behandling));
+        var beregning = new EngangsstønadBeregning(behandling.getId(), 1L, 1L, 1L, LocalDateTime.now());
+        beregningRepository.lagre(behandling.getId(), beregning);
         forceOppdaterBehandlingSteg(behandling, stegType);
 
         var søknadVersjon = repositoryProvider.getFamilieHendelseRepository().opprettBuilderForSøknad(behandling.getId());

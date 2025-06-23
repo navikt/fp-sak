@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -50,7 +50,7 @@ class EngangsstønadReguleringTaskTest {
     @Mock
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
 
-    private LegacyESBeregningRepository legacyESBeregningRepository;
+    private EngangsstønadBeregningRepository engangsstønadBeregningRepository;
     private SatsRepository satsRepository;
 
     private EngangsstønadReguleringTask task;
@@ -58,11 +58,11 @@ class EngangsstønadReguleringTaskTest {
     @BeforeEach
     public void setUp(EntityManager entityManager) {
         var repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        legacyESBeregningRepository = new LegacyESBeregningRepository(entityManager);
+        engangsstønadBeregningRepository = new EngangsstønadBeregningRepository(entityManager);
         satsRepository = new SatsRepository(entityManager);
         FamilieHendelseTjeneste familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
         task = new EngangsstønadReguleringTask(repositoryProvider, familieHendelseTjeneste, personinfoAdapter, behandlendeEnhetTjeneste,
-            legacyESBeregningRepository, behandlingProsesseringTjeneste, revurderingTjeneste);
+            engangsstønadBeregningRepository, behandlingProsesseringTjeneste, revurderingTjeneste);
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class)))
                 .thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
     }

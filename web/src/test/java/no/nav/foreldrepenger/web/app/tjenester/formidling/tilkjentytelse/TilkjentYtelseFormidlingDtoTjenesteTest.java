@@ -12,8 +12,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStat
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.kontrakter.fpsak.tilkjentytelse.TilkjentYtelseDagytelseDto;
@@ -64,7 +64,7 @@ class TilkjentYtelseFormidlingDtoTjenesteTest {
     @Test
     void skal_teste_engangsstønad_mapping() {
         // Arrange
-        var resultat = new LegacyESBeregning(1L, 93000, 1, 93000, LocalDateTime.now());
+        var resultat = new EngangsstønadBeregning(1L, 93000, 1, 93000, LocalDateTime.now());
 
         // Act
         var mappetResultat = TilkjentYtelseFormidlingDtoTjeneste.mapEngangsstønad(resultat);
