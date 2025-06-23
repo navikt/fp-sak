@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Sivils
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Personopplysning;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
@@ -89,7 +90,8 @@ class BehandlingRestTjenesteESTest {
 
         henleggBehandlingTjeneste = mock(HenleggBehandlingTjeneste.class);
         behandlingRestTjeneste = new BehandlingRestTjeneste(behandlingsutredningTjeneste, behandlingsoppretterTjeneste,
-            behandlingOpprettingTjeneste, behandlingsprosessTjenste, fagsakTjeneste, henleggBehandlingTjeneste, behandlingDtoTjeneste);
+            behandlingOpprettingTjeneste, behandlingsprosessTjenste, fagsakTjeneste, henleggBehandlingTjeneste, behandlingDtoTjeneste,
+            mock(FagsakEgenskapRepository.class));
     }
 
     @Test
