@@ -27,7 +27,7 @@ public class EngangsstønadBeregning extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
-    @Column(name = "behandling_id", updatable = false) // Todo: legg til nullable = false, unique = true
+    @Column(name = "behandling_id", nullable = false, updatable = false)
     private Long behandlingId;
 
     @Convert(converter = BooleanToStringConverter.class)
