@@ -19,10 +19,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregning;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -237,7 +236,7 @@ public class SatsReguleringUtil {
 
     static Behandling opprettES(EntityManager em, BehandlingStatus status, LocalDate fødselsdato, long sats) {
         var repositoryProvider = new BehandlingRepositoryProvider(em);
-        var beregningRepository = new LegacyESBeregningRepository(em);
+        var beregningRepository = new EngangsstønadBeregningRepository(em);
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
             .medSøknadDato(fødselsdato.minusDays(40));
@@ -262,10 +261,8 @@ public class SatsReguleringUtil {
         var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling);
         repositoryProvider.getBehandlingRepository().lagre(behandling, lås);
 
-        var beregning = new LegacyESBeregning(behandling.getId(), sats, 1, sats, LocalDateTime.now());
-        var beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning)
-            .buildFor(behandling, repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId()));
-        beregningRepository.lagre(beregningResultat, lås);
+        var beregning = new EngangsstønadBeregning(behandling.getId(), sats, 1, sats, LocalDateTime.now());
+        beregningRepository.lagre(behandling.getId(), beregning);
         repositoryProvider.getBehandlingRepository().lagre(behandling, lås);
 
         em.flush();

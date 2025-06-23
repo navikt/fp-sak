@@ -15,9 +15,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregning;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingKandidaterRepository;
@@ -62,7 +61,7 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
     private KlageRepository klageRepository;
 
-    private LegacyESBeregningRepository beregningRepository;
+    private EngangsstønadBeregningRepository beregningRepository;
 
     private final Saksnummer saksnummer = new Saksnummer("29999");
     private final Fagsak fagsak = FagsakBuilder.nyEngangstønadForMor().medSaksnummer(saksnummer).build();
@@ -81,7 +80,7 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
         behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
         fagsakRepository = new FagsakRepository(entityManager);
         klageRepository = new KlageRepository(entityManager);
-        beregningRepository = new LegacyESBeregningRepository(entityManager);
+        beregningRepository = new EngangsstønadBeregningRepository(entityManager);
     }
 
     @Test
@@ -736,10 +735,8 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
         behandlingRepository.lagre(behandlingsresultat.getVilkårResultat(), lås);
 
         if (innvilget) {
-            LegacyESBeregningsresultat.builder()
-                .medBeregning(new LegacyESBeregning(behandling.getId(), 48500L, 1L, 48500L, LocalDateTime.now()))
-                .buildFor(behandling, behandlingsresultat);
-            beregningRepository.lagre(behandlingsresultat.getBeregningResultat(), lås);
+            var beregning = new EngangsstønadBeregning(behandling.getId(), 48500L, 1L, 48500L, LocalDateTime.now());
+            beregningRepository.lagre(behandling.getId(), beregning);
         }
         return behandlingsresultat;
     }

@@ -15,9 +15,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregning;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
@@ -31,7 +30,7 @@ class RevurderingEndringTest {
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
     @Inject
-    private LegacyESBeregningRepository beregningRepository;
+    private EngangsstønadBeregningRepository beregningRepository;
 
     @Test
     void erRevurderingMedUendretUtfall() {
@@ -128,8 +127,7 @@ class RevurderingEndringTest {
 
     private void opprettBeregning(Behandling behandling) {
         var beregningResultat = opprettBeregning(behandling, 1L);
-        var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling);
-        beregningRepository.lagre(beregningResultat, lås);
+        beregningRepository.lagre(behandling.getId(), beregningResultat);
     }
 
     private RevurderingTjeneste tjeneste() {
@@ -178,7 +176,7 @@ class RevurderingEndringTest {
 
         if (behandlingResultatType.equals(BehandlingResultatType.INNVILGET)) {
             var originalBeregning = opprettBeregning(behandling, antallBarn);
-            beregningRepository.lagre(originalBeregning, behandlingLås);
+            beregningRepository.lagre(behandling.getId(), originalBeregning);
         }
         var behandlingsresultat = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId());
         var originalVedtak = BehandlingVedtak.builder()
@@ -193,10 +191,8 @@ class RevurderingEndringTest {
         return behandling;
     }
 
-    private LegacyESBeregningsresultat opprettBeregning(Behandling behandling, long antallBarn) {
-        var beregning = new LegacyESBeregning(behandling.getId(), 1000L, antallBarn, antallBarn * 1000, LocalDateTime.now());
-        var behandlingsresultat = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId());
-        return LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling, behandlingsresultat);
+    private EngangsstønadBeregning opprettBeregning(Behandling behandling, long antallBarn) {
+        return new EngangsstønadBeregning(behandling.getId(), 1000L, antallBarn, antallBarn * 1000, LocalDateTime.now());
     }
 
 }

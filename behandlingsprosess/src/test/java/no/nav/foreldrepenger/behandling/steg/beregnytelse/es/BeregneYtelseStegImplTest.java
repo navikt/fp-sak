@@ -20,10 +20,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregning;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -41,7 +39,6 @@ class BeregneYtelseStegImplTest {
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
-    private BeregningsresultatRepository beregningsresultatRepository;
     private SatsRepository satsRepository;
 
     @Inject
@@ -50,7 +47,7 @@ class BeregneYtelseStegImplTest {
     @Inject
     @KonfigVerdi(value = "es.maks.stønadsalder.adopsjon", defaultVerdi = "15")
     private int maksStønadsalder = 15;
-    private LegacyESBeregningRepository beregningRepository;
+    private EngangsstønadBeregningRepository beregningRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     private BeregneYtelseEngangsstønadStegImpl beregneYtelseSteg;
@@ -62,11 +59,10 @@ class BeregneYtelseStegImplTest {
     public void oppsett(EntityManager em) {
         entityManager = em;
         satsRepository = new SatsRepository(em);
-        beregningRepository = new LegacyESBeregningRepository(em);
+        beregningRepository = new EngangsstønadBeregningRepository(em);
         repositoryProvider = new BehandlingRepositoryProvider(em);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
-        beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider);
         entityManager.persist(fagsak.getNavBruker());
         entityManager.persist(fagsak);
@@ -92,12 +88,10 @@ class BeregneYtelseStegImplTest {
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
 
         // Assert
-        var beregningResultat = getBehandlingsresultat(
-            entityManager.find(Behandling.class, kontekst.getBehandlingId()))
-                .getBeregningResultat();
-        assertThat(beregningResultat.getSisteBeregning().get()).isNotNull();
+        var beregningResultat = beregningRepository.hentEngangsstønadBeregning(behandling.getId());
+        assertThat(beregningResultat).isPresent();
 
-        var beregning = beregningResultat.getSisteBeregning().get();
+        var beregning = beregningResultat.get();
         assertThat(beregning.getSatsVerdi()).isEqualTo(sats.getVerdi());
         assertThat(beregning.getBeregnetTilkjentYtelse()).isEqualTo(sats.getVerdi() * antallBarn);
     }
@@ -115,10 +109,10 @@ class BeregneYtelseStegImplTest {
 
         // Assert
         behandling = entityManager.find(Behandling.class, kontekst.getBehandlingId());
-        var beregningResultat = getBehandlingsresultat(behandling).getBeregningResultat();
-        assertThat(beregningResultat.getSisteBeregning().get()).isNotNull();
+        var beregningResultat = beregningRepository.hentEngangsstønadBeregning(behandling.getId());
+        assertThat(beregningResultat).isPresent();
 
-        var beregning = beregningResultat.getSisteBeregning().get();
+        var beregning = beregningResultat.get();
         assertThat(beregning.getSatsVerdi()).isEqualTo(sats2017.getVerdi());
         assertThat(beregning.getBeregnetTilkjentYtelse()).isEqualTo(sats2017.getVerdi() * antallBarn);
     }
@@ -134,65 +128,33 @@ class BeregneYtelseStegImplTest {
         var behandling = byggGrunnlag(antallBarn, LocalDate.now());
         var lås = behandlingRepository.taSkriveLås(behandling);
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
-        var beregningResultat = LegacyESBeregningsresultat.builder()
-                .medBeregning(new LegacyESBeregning(behandling.getId(), 1000L, antallBarn, 1000L, LocalDateTime.now()))
-                .buildFor(behandling, getBehandlingsresultat(behandling));
-        beregningRepository.lagre(beregningResultat, kontekst.getSkriveLås());
+        beregningRepository.lagre(behandling.getId(), new EngangsstønadBeregning(behandling.getId(), 1000L, antallBarn, 1000L, LocalDateTime.now()));
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
 
         // Act
         beregneYtelseSteg.vedTransisjon(kontekst, null, BehandlingSteg.TransisjonType.HOPP_OVER_BAKOVER, null, null);
 
         // Assert
-        var behandlingsresultat = getBehandlingsresultat(entityManager.find(Behandling.class, kontekst.getBehandlingId()));
-        assertThat(behandlingsresultat.getBeregningResultat().getBeregninger()).isEmpty();
+        var beregning = beregningRepository.hentEngangsstønadBeregning(behandling.getId());
+        assertThat(beregning).isEmpty();
     }
 
     @Test
-    void skal_ved_tilbakehopp_fremover_ikke_rydde_overstyrte_beregninger() {
+    void skal_ved_fremhopp_rydde_avklarte_fakta_inkludert_beregninger() {
         // Arrange
         var antallBarn = 1;
         var behandling = byggGrunnlag(antallBarn, LocalDate.now());
         var lås = behandlingRepository.taSkriveLås(behandling);
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
-        var beregningResultat = LegacyESBeregningsresultat.builder()
-                .medBeregning(new LegacyESBeregning(behandling.getId(), 1000L, antallBarn, 1000L, LocalDateTime.now(), false, null))
-                .medBeregning(new LegacyESBeregning(behandling.getId(), 500L, antallBarn, 1000L, LocalDateTime.now(), true, 1000L))
-                .buildFor(behandling, getBehandlingsresultat(behandling));
-        beregningRepository.lagre(beregningResultat, kontekst.getSkriveLås());
-        behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
-
-        // Act
-        beregneYtelseSteg.vedTransisjon(kontekst, null, BehandlingSteg.TransisjonType.HOPP_OVER_BAKOVER, null, null);
-
-        // Assert
-        var behandlingsresultat = getBehandlingsresultat(entityManager.find(Behandling.class, kontekst.getBehandlingId()));
-        assertThat(behandlingsresultat.getBeregningResultat().getBeregninger()).hasSize(2);
-        assertThat(behandlingsresultat.getBeregningResultat().getBeregninger()).extracting(LegacyESBeregning::isOverstyrt)
-                .contains(true)
-                .contains(false); // en av hver
-    }
-
-    @Test
-    void skal_ved_fremhopp_rydde_avklarte_fakta_inkludert_overstyrte_beregninger() {
-        // Arrange
-        var antallBarn = 1;
-        var behandling = byggGrunnlag(antallBarn, LocalDate.now());
-        var lås = behandlingRepository.taSkriveLås(behandling);
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
-        var beregningResultat = LegacyESBeregningsresultat.builder()
-                .medBeregning(new LegacyESBeregning(behandling.getId(), 1000L, antallBarn, 1000L, LocalDateTime.now(), false, null))
-                .medBeregning(new LegacyESBeregning(behandling.getId(), 500L, antallBarn, 1000L, LocalDateTime.now(), true, 1000L))
-                .buildFor(behandling, getBehandlingsresultat(behandling));
-        beregningRepository.lagre(beregningResultat, kontekst.getSkriveLås());
+        beregningRepository.lagre(behandling.getId(), new EngangsstønadBeregning(behandling.getId(), 1000L, antallBarn, 1000L, LocalDateTime.now()));
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
 
         // Act
         beregneYtelseSteg.vedTransisjon(kontekst, null, BehandlingSteg.TransisjonType.HOPP_OVER_FRAMOVER, null, null);
 
         // Assert
-        var behandlingsresultat = getBehandlingsresultat(entityManager.find(Behandling.class, kontekst.getBehandlingId()));
-        assertThat(behandlingsresultat.getBeregningResultat().getSisteBeregning()).isEmpty();
+        var beregning = beregningRepository.hentEngangsstønadBeregning(behandling.getId());
+        assertThat(beregning).isEmpty();
     }
 
     private Behandling byggGrunnlag(int antallBarn, LocalDate fødselsdato) {

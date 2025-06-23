@@ -8,7 +8,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStat
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregning;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.kontrakter.fpsak.tilkjentytelse.TilkjentYtelseDagytelseDto;
 import no.nav.foreldrepenger.kontrakter.fpsak.tilkjentytelse.TilkjentYtelseEngangsstønadDto;
@@ -19,8 +19,8 @@ public final class TilkjentYtelseFormidlingDtoTjeneste {
         // Skjuler default konstruktør
     }
 
-    public static TilkjentYtelseEngangsstønadDto mapEngangsstønad(LegacyESBeregning legacyESBeregning) {
-        return new TilkjentYtelseEngangsstønadDto(legacyESBeregning.getBeregnetTilkjentYtelse());
+    public static TilkjentYtelseEngangsstønadDto mapEngangsstønad(EngangsstønadBeregning engangsstønadBeregning) {
+        return new TilkjentYtelseEngangsstønadDto(engangsstønadBeregning.getBeregnetTilkjentYtelse());
     }
 
     public static TilkjentYtelseDagytelseDto mapDagytelse(BeregningsresultatEntitet bgRes) {

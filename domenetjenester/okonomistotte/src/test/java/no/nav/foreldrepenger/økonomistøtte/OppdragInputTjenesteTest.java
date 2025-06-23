@@ -20,8 +20,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregning;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -65,7 +65,7 @@ class OppdragInputTjenesteTest {
     @Mock
     private ØkonomioppdragRepository økonomioppdragRepository;
     @Mock
-    private LegacyESBeregningRepository beregningRepository;
+    private EngangsstønadBeregningRepository beregningRepository;
     @Mock
     private FamilieHendelseRepository familieHendelseRepository;
     @Mock
@@ -104,8 +104,8 @@ class OppdragInputTjenesteTest {
     @DisplayName("Simulering oppdrag input for ES fødsel uten tidligere utbetalinger.")
     void oppdragInputSimuleringESFørstegang() {
         // Prepare
-        when(beregningRepository.getSisteBeregning(behandlingId)).thenReturn(
-            Optional.of(new LegacyESBeregning(behandlingId, TILKJENT_YTELSE, 1, TILKJENT_YTELSE, LocalDateTime.now())));
+        when(beregningRepository.hentEngangsstønadBeregning(behandlingId)).thenReturn(
+            Optional.of(new EngangsstønadBeregning(behandlingId, TILKJENT_YTELSE, 1, TILKJENT_YTELSE, LocalDateTime.now())));
 
         // Act
         var input = oppdragInputTjeneste.lagSimuleringInput(behandlingId);
@@ -126,8 +126,8 @@ class OppdragInputTjenesteTest {
     void oppdragInputSimuleringESRevurderingMedTidligereOppdrag() {
         // Prepare
         var saksnummer = behandling.getSaksnummer();
-        when(beregningRepository.getSisteBeregning(behandlingId)).thenReturn(
-            Optional.of(new LegacyESBeregning(behandlingId, TILKJENT_YTELSE, 1, TILKJENT_YTELSE, LocalDateTime.now())));
+        when(beregningRepository.hentEngangsstønadBeregning(behandlingId)).thenReturn(
+            Optional.of(new EngangsstønadBeregning(behandlingId, TILKJENT_YTELSE, 1, TILKJENT_YTELSE, LocalDateTime.now())));
 
         var oppdragskontroll = lagOppdragskontroll(saksnummer);
         var oppdrag = lagOppdrag(oppdragskontroll, saksnummer);
@@ -152,8 +152,8 @@ class OppdragInputTjenesteTest {
     void oppdragInputSimuleringESRevurderingMedToTidligereOppdrag() {
         // Prepare
         var saksnummer = behandling.getSaksnummer();
-        when(beregningRepository.getSisteBeregning(behandlingId)).thenReturn(
-            Optional.of(new LegacyESBeregning(behandlingId, TILKJENT_YTELSE, 1, TILKJENT_YTELSE, LocalDateTime.now())));
+        when(beregningRepository.hentEngangsstønadBeregning(behandlingId)).thenReturn(
+            Optional.of(new EngangsstønadBeregning(behandlingId, TILKJENT_YTELSE, 1, TILKJENT_YTELSE, LocalDateTime.now())));
 
         var oppdragskontroll = lagOppdragskontroll(saksnummer);
         var oppdrag = lagOppdrag(oppdragskontroll, saksnummer);
@@ -184,8 +184,8 @@ class OppdragInputTjenesteTest {
     void oppdragInputSimuleringESRevurderingMedToTidligereOppdragMenKunEnPositivKvittering() {
         // Prepare
         var saksnummer = behandling.getSaksnummer();
-        when(beregningRepository.getSisteBeregning(behandlingId)).thenReturn(
-            Optional.of(new LegacyESBeregning(behandlingId, TILKJENT_YTELSE, 1, TILKJENT_YTELSE, LocalDateTime.now())));
+        when(beregningRepository.hentEngangsstønadBeregning(behandlingId)).thenReturn(
+            Optional.of(new EngangsstønadBeregning(behandlingId, TILKJENT_YTELSE, 1, TILKJENT_YTELSE, LocalDateTime.now())));
 
         var oppdragskontroll = lagOppdragskontroll(saksnummer);
         var oppdrag = lagOppdrag(oppdragskontroll, saksnummer);

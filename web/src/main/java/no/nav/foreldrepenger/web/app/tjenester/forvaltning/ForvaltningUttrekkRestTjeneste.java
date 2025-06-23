@@ -311,40 +311,4 @@ public class ForvaltningUttrekkRestTjeneste {
         return Response.ok(restanse).build();
     }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Flytt behandling til steg", tags = "FORVALTNING-uttrekk")
-    @Path("/populerESBeregningMedBehandlingId")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
-    public Response populerESBeregningMedBehandlingId() {
-        var antall = entityManager.createNativeQuery("""
-            merge into BR_LEGACY_ES_BEREGNING a
-            using (select behandling_id bid, beregning_resultat_id brid
-                   from BEHANDLING_RESULTAT where beregning_resultat_id is not null) b
-            on (a.beregning_resultat_id = b.brid)
-            when matched then update set a.behandling_id = b.bid
-            """)
-            .executeUpdate();
-        return Response.ok(antall).build();
-    }
-
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Flytt behandling til steg", tags = "FORVALTNING-uttrekk")
-    @Path("/deaktiverInaktiveESBeregning")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
-    public Response deaktiverESBeregning() {
-        var antall = entityManager.createNativeQuery("""
-            update BR_LEGACY_ES_BEREGNING b
-            set b.aktiv = 'N'
-            where exists (select * from fpsak.BR_LEGACY_ES_BEREGNING bi
-                          where bi.beregning_resultat_id = b.beregning_resultat_id
-                          and bi.beregnet_tidspunkt > b.beregnet_tidspunkt )
-            """)
-            .executeUpdate();
-        return Response.ok(antall).build();
-    }
-
 }

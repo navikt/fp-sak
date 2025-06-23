@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -55,7 +55,6 @@ import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.intern.VedtaksbrevStatusUtleder;
-import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjeneste;
@@ -103,7 +102,6 @@ import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRe
  * Bygger et sammensatt resultat av BehandlingDto ved å samle data fra ulike tjenester, for å kunne levere dette ut på en REST tjeneste.
  */
 
-//FIXME (TEAM SVP) denne burde splittes til å støtte en enkelt ytelse
 @ApplicationScoped
 public class BehandlingDtoTjeneste {
 
@@ -117,6 +115,7 @@ public class BehandlingDtoTjeneste {
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
+    private EngangsstønadBeregningRepository engangsstønadBeregningRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private BehandlingDokumentRepository behandlingDokumentRepository;
     private TotrinnTjeneste totrinnTjeneste;
@@ -135,6 +134,7 @@ public class BehandlingDtoTjeneste {
                                  UttakTjeneste uttakTjeneste,
                                  TilbakekrevingRepository tilbakekrevingRepository,
                                  SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                 EngangsstønadBeregningRepository engangsstønadBeregningRepository,
                                  BehandlingDokumentRepository behandlingDokumentRepository,
                                  TotrinnTjeneste totrinnTjeneste,
                                  DokumentasjonVurderingBehovDtoTjeneste dokumentasjonVurderingBehovDtoTjeneste,
@@ -146,6 +146,7 @@ public class BehandlingDtoTjeneste {
                                  VedtaksbrevStatusUtleder vedtaksbrevStatusUtleder) {
         this.beregningTjeneste = beregningTjeneste;
         this.uttakTjeneste = uttakTjeneste;
+        this.engangsstønadBeregningRepository = engangsstønadBeregningRepository;
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.tilbakekrevingRepository = tilbakekrevingRepository;
         this.søknadRepository = repositoryProvider.getSøknadRepository();
@@ -389,10 +390,7 @@ public class BehandlingDtoTjeneste {
 
         var harSimuleringAksjonspunkt = behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_FEILUTBETALING);
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
-            var beregning = Optional.ofNullable(getBehandlingsresultat(behandling.getId()))
-                .map(Behandlingsresultat::getBeregningResultat)
-                .flatMap(LegacyESBeregningsresultat::getSisteBeregning)
-                .isPresent();
+            var beregning = engangsstønadBeregningRepository.hentEngangsstønadBeregning(behandling.getId()).isPresent();
             if (beregning || harSimuleringAksjonspunkt) {
                 dto.leggTil(get(BeregningsresultatRestTjeneste.ENGANGSTONAD_PATH, "beregningsresultat-engangsstonad", uuidDto));
                 dto.setSjekkSimuleringResultat(true);

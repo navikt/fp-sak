@@ -26,9 +26,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregning;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -61,7 +60,7 @@ class DokumentmottakerKlageTest {
     private ProsessTaskTjeneste taskTjeneste;
 
     @Inject
-    private LegacyESBeregningRepository beregningRepository;
+    private EngangsstønadBeregningRepository beregningRepository;
 
     @Inject
     private HistorikkinnslagTjeneste historikkinnslagTjeneste;
@@ -198,9 +197,6 @@ class DokumentmottakerKlageTest {
                 .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
                 .buildFor(behandling);
         var behandlingsresultat = behandling.getBehandlingsresultat();
-        LegacyESBeregningsresultat.builder()
-                .medBeregning(new LegacyESBeregning(behandling.getId(), 48500L, 1L, 48500L, LocalDateTime.now()))
-                .buildFor(behandling, behandlingsresultat);
         var vedtak = BehandlingVedtak.builder()
                 .medVedtakResultatType(VedtakResultatType.INNVILGET)
                 .medBehandlingsresultat(behandlingsresultat)
@@ -211,13 +207,10 @@ class DokumentmottakerKlageTest {
         behandling.avsluttBehandling();
         var lås = kontekst.getSkriveLås();
         behandlingRepository.lagre(behandlingsresultat.getVilkårResultat(), lås);
-        beregningRepository.lagre(behandlingsresultat.getBeregningResultat(), lås);
+        beregningRepository.lagre(behandling.getId(), new EngangsstønadBeregning(behandling.getId(), 48500L, 1L, 48500L, LocalDateTime.now()));
         behandlingRepository.lagre(behandling, lås);
         repositoryProvider.getBehandlingVedtakRepository().lagre(vedtak, lås);
         return behandling;
     }
 
-    private Fagsak nyMorFødselFagsak() {
-        return ScenarioMorSøkerEngangsstønad.forFødselUtenSøknad().lagreFagsak(repositoryProvider);
-    }
 }

@@ -21,8 +21,7 @@
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr"/>
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet"/>
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.beregning.BehandlingBeregningsresultatEntitet"/>
-    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat"/>
-    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregning"/>
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats"/>
 
 </entity-mappings>

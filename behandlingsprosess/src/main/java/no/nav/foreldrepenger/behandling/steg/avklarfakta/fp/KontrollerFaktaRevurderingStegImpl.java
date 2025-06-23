@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.steg.avklarfakta.KontrollerFaktaSteg;
-import no.nav.foreldrepenger.behandling.steg.avklarfakta.RyddRegisterData;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingModellTjeneste;
@@ -319,8 +318,9 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     @Override
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
             BehandlingStegType fraSteg) {
-        var rydder = new RyddRegisterData(repositoryProvider, kontekst);
-        rydder.ryddRegisterdataStartpunktRevurdering();
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        behandling.nullstillToTrinnsBehandling();
+        behandling.setStartpunkt(StartpunktType.UDEFINERT);
     }
 
     /**

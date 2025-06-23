@@ -42,9 +42,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregning;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -96,7 +95,7 @@ class FatteVedtakStegTest {
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
     @Inject
-    private LegacyESBeregningRepository beregningRepository;
+    private EngangsstønadBeregningRepository beregningRepository;
     @Inject
     private KlageRepository klageRepository;
     @Inject
@@ -487,10 +486,8 @@ class FatteVedtakStegTest {
                 .medBehandlendeEnhet(BEHANDLENDE_ENHET)
                 .medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET))
                 .lagre(repositoryProvider);
-        var beregning = new LegacyESBeregning(behandling.getId(), 1L, 1L, 1L, LocalDateTime.now());
-        var bres = repositoryProvider.getBehandlingsresultatRepository().hentHvisEksisterer(behandling.getId()).orElse(null);
-        var beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling, bres);
-        beregningRepository.lagre(beregningResultat, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
+        var beregning = new EngangsstønadBeregning(behandling.getId(), 1L, 1L, 1L, LocalDateTime.now());
+        beregningRepository.lagre(behandling.getId(), beregning);
 
         return new BehandlingskontrollKontekst(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
     }
@@ -526,11 +523,7 @@ class FatteVedtakStegTest {
 
             var lås = kontekst.getSkriveLås();
             behandlingRepository.lagre(vilkårResultat, lås);
-            var bres = repositoryProvider.getBehandlingsresultatRepository().hentHvisEksisterer(behandling.getId()).orElse(null);
-            var beregningResultat = LegacyESBeregningsresultat.builder()
-                    .medBeregning(new LegacyESBeregning(behandling.getId(), 48500L, antallBarn, 48500L * antallBarn, LocalDateTime.now()))
-                    .buildFor(behandling, bres);
-            beregningRepository.lagre(beregningResultat, lås);
+            beregningRepository.lagre(behandling.getId(), new EngangsstønadBeregning(behandling.getId(), 48500L, antallBarn, 48500L * antallBarn, LocalDateTime.now()));
             Behandlingsresultat.builderEndreEksisterende(getBehandlingsresultat(behandling))
                 .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
                 .buildFor(behandling);
