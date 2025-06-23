@@ -199,7 +199,7 @@ class DokumentmottakerKlageTest {
                 .buildFor(behandling);
         var behandlingsresultat = behandling.getBehandlingsresultat();
         LegacyESBeregningsresultat.builder()
-                .medBeregning(new LegacyESBeregning(48500L, 1L, 48500L, LocalDateTime.now()))
+                .medBeregning(new LegacyESBeregning(behandling.getId(), 48500L, 1L, 48500L, LocalDateTime.now()))
                 .buildFor(behandling, behandlingsresultat);
         var vedtak = BehandlingVedtak.builder()
                 .medVedtakResultatType(VedtakResultatType.INNVILGET)

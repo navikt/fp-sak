@@ -262,7 +262,7 @@ public class SatsReguleringUtil {
         var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling);
         repositoryProvider.getBehandlingRepository().lagre(behandling, lås);
 
-        var beregning = new LegacyESBeregning(sats, 1, sats, LocalDateTime.now());
+        var beregning = new LegacyESBeregning(behandling.getId(), sats, 1, sats, LocalDateTime.now());
         var beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning)
             .buildFor(behandling, repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId()));
         beregningRepository.lagre(beregningResultat, lås);

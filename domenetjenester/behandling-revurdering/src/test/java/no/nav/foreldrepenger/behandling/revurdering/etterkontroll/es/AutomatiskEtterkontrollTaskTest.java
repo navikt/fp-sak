@@ -276,7 +276,7 @@ class AutomatiskEtterkontrollTaskTest {
         repositoryProvider.getBehandlingVedtakRepository().lagre(vedtak, lås);
 
         var sats = satsRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.now()).getVerdi();
-        var beregning = new LegacyESBeregning(sats, antallBarn, antallBarn * sats, LocalDateTime.now());
+        var beregning = new LegacyESBeregning(behandling.getId(), sats, antallBarn, antallBarn * sats, LocalDateTime.now());
         var beregningResultat = LegacyESBeregningsresultat.builder()
                 .medBeregning(beregning)
                 .buildFor(behandling, behandling.getBehandlingsresultat());

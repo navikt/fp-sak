@@ -137,17 +137,17 @@ public class LegacyESBeregningsresultat extends BaseEntitet {
                     // samme behandling som originalt, oppdaterer original
                     return eksisterendeResultat; // samme som før
                 }
-                oppdaterBeregninger(eksisterendeResultat);
+                oppdaterBeregninger(behandlingsresultat.getBehandlingId(), eksisterendeResultat);
                 return eksisterendeResultat;
             }
-            oppdaterBeregninger(resultatMal);
+            oppdaterBeregninger(behandlingsresultat.getBehandlingId(), resultatMal);
             behandlingsresultat.medOppdatertBeregningResultat(resultatMal);
             return resultatMal;
         }
 
-        private void oppdaterBeregninger(LegacyESBeregningsresultat resultat) {
+        private void oppdaterBeregninger(Long behandlingId, LegacyESBeregningsresultat resultat) {
             var nye = oppdaterteBeregninger.stream()
-                .map(beregning -> new LegacyESBeregning(resultat, beregning.getSatsVerdi(), beregning.getAntallBarn(),
+                .map(beregning -> new LegacyESBeregning(behandlingId, resultat, beregning.getSatsVerdi(), beregning.getAntallBarn(),
                     beregning.getBeregnetTilkjentYtelse(), beregning.getBeregnetTidspunkt(), beregning.isOverstyrt(),
                     beregning.getOpprinneligBeregnetTilkjentYtelse()))
                 .collect(toSet());

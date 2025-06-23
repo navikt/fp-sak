@@ -194,7 +194,7 @@ class RevurderingEndringTest {
     }
 
     private LegacyESBeregningsresultat opprettBeregning(Behandling behandling, long antallBarn) {
-        var beregning = new LegacyESBeregning(1000L, antallBarn, antallBarn * 1000, LocalDateTime.now());
+        var beregning = new LegacyESBeregning(behandling.getId(), 1000L, antallBarn, antallBarn * 1000, LocalDateTime.now());
         var behandlingsresultat = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId());
         return LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling, behandlingsresultat);
     }

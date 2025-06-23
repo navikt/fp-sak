@@ -76,7 +76,7 @@ class OppdragInputTjenesteTest {
     private OppdragInputTjeneste oppdragInputTjeneste;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         behandling = Behandling.nyBehandlingFor(
             Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()), new Saksnummer("123456789")),
             BehandlingType.FØRSTEGANGSSØKNAD).build();
@@ -102,10 +102,10 @@ class OppdragInputTjenesteTest {
 
     @Test
     @DisplayName("Simulering oppdrag input for ES fødsel uten tidligere utbetalinger.")
-    public void oppdragInputSimuleringESFørstegang() {
+    void oppdragInputSimuleringESFørstegang() {
         // Prepare
         when(beregningRepository.getSisteBeregning(behandlingId)).thenReturn(
-            Optional.of(new LegacyESBeregning(TILKJENT_YTELSE, 1, TILKJENT_YTELSE, LocalDateTime.now())));
+            Optional.of(new LegacyESBeregning(behandlingId, TILKJENT_YTELSE, 1, TILKJENT_YTELSE, LocalDateTime.now())));
 
         // Act
         var input = oppdragInputTjeneste.lagSimuleringInput(behandlingId);
@@ -123,11 +123,11 @@ class OppdragInputTjenesteTest {
 
     @Test
     @DisplayName("Simulering oppdrag input for ES fødsel med en tidligere utbetaling.")
-    public void oppdragInputSimuleringESRevurderingMedTidligereOppdrag() {
+    void oppdragInputSimuleringESRevurderingMedTidligereOppdrag() {
         // Prepare
         var saksnummer = behandling.getSaksnummer();
         when(beregningRepository.getSisteBeregning(behandlingId)).thenReturn(
-            Optional.of(new LegacyESBeregning(TILKJENT_YTELSE, 1, TILKJENT_YTELSE, LocalDateTime.now())));
+            Optional.of(new LegacyESBeregning(behandlingId, TILKJENT_YTELSE, 1, TILKJENT_YTELSE, LocalDateTime.now())));
 
         var oppdragskontroll = lagOppdragskontroll(saksnummer);
         var oppdrag = lagOppdrag(oppdragskontroll, saksnummer);
@@ -149,11 +149,11 @@ class OppdragInputTjenesteTest {
 
     @Test
     @DisplayName("Simulering oppdrag input for ES fødsel med to tidligere utbetalinger.")
-    public void oppdragInputSimuleringESRevurderingMedToTidligereOppdrag() {
+    void oppdragInputSimuleringESRevurderingMedToTidligereOppdrag() {
         // Prepare
         var saksnummer = behandling.getSaksnummer();
         when(beregningRepository.getSisteBeregning(behandlingId)).thenReturn(
-            Optional.of(new LegacyESBeregning(TILKJENT_YTELSE, 1, TILKJENT_YTELSE, LocalDateTime.now())));
+            Optional.of(new LegacyESBeregning(behandlingId, TILKJENT_YTELSE, 1, TILKJENT_YTELSE, LocalDateTime.now())));
 
         var oppdragskontroll = lagOppdragskontroll(saksnummer);
         var oppdrag = lagOppdrag(oppdragskontroll, saksnummer);
@@ -181,11 +181,11 @@ class OppdragInputTjenesteTest {
 
     @Test
     @DisplayName("Simulering oppdrag input for ES fødsel med to tidligere utbetalinger men med en positiv kvittering.")
-    public void oppdragInputSimuleringESRevurderingMedToTidligereOppdragMenKunEnPositivKvittering() {
+    void oppdragInputSimuleringESRevurderingMedToTidligereOppdragMenKunEnPositivKvittering() {
         // Prepare
         var saksnummer = behandling.getSaksnummer();
         when(beregningRepository.getSisteBeregning(behandlingId)).thenReturn(
-            Optional.of(new LegacyESBeregning(TILKJENT_YTELSE, 1, TILKJENT_YTELSE, LocalDateTime.now())));
+            Optional.of(new LegacyESBeregning(behandlingId, TILKJENT_YTELSE, 1, TILKJENT_YTELSE, LocalDateTime.now())));
 
         var oppdragskontroll = lagOppdragskontroll(saksnummer);
         var oppdrag = lagOppdrag(oppdragskontroll, saksnummer);
