@@ -39,6 +39,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
@@ -110,6 +112,7 @@ public class BehandlingRestTjeneste {
     private HenleggBehandlingTjeneste henleggBehandlingTjeneste;
     private BehandlingDtoTjeneste behandlingDtoTjeneste;
     private FagsakEgenskapRepository fagsakEgenskapRepository;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     public BehandlingRestTjeneste() {
         // CDI
@@ -122,7 +125,7 @@ public class BehandlingRestTjeneste {
                                   BehandlingsprosessTjeneste behandlingsprosessTjeneste,
                                   FagsakTjeneste fagsakTjeneste, HenleggBehandlingTjeneste henleggBehandlingTjeneste,
                                   BehandlingDtoTjeneste behandlingDtoTjeneste,
-                                  FagsakEgenskapRepository fagsakEgenskapRepository) {
+                                  FagsakEgenskapRepository fagsakEgenskapRepository, HistorikkinnslagRepository historikkinnslagRepository) {
         this.behandlingsutredningTjeneste = behandlingsutredningTjeneste;
         this.behandlingsoppretterTjeneste = behandlingsoppretterTjeneste;
         this.behandlingOpprettingTjeneste = behandlingOpprettingTjeneste;
@@ -131,6 +134,7 @@ public class BehandlingRestTjeneste {
         this.henleggBehandlingTjeneste = henleggBehandlingTjeneste;
         this.behandlingDtoTjeneste = behandlingDtoTjeneste;
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
+        this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     @POST
@@ -216,6 +220,11 @@ public class BehandlingRestTjeneste {
         behandlingsutredningTjeneste.kanEndreBehandling(behandling, dto.getBehandlingVersjon());
         if (!behandling.erAvsluttet() && !fagsakEgenskapRepository.harFagsakMarkering(behandling.getFagsakId(), FagsakMarkering.HASTER)) {
             fagsakEgenskapRepository.leggTilFagsakMarkering(behandling.getFagsakId(), FagsakMarkering.HASTER);
+            var builder = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
+                .medBehandlingId(behandling.getId())
+                .medFagsakId(behandling.getFagsakId())
+                .medTittel("Merket som hastesak");
+            historikkinnslagRepository.lagre(builder.build());
         }
     }
 
