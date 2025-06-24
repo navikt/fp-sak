@@ -61,10 +61,9 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
 
 
         var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderForOverstyring(behandlingId);
-        if (Boolean.FALSE.equals(dto.getDokumentasjonForeligger())) {
             oppdatertOverstyrtHendelse.erFødsel();
 
-        } else {
+        if (Boolean.TRUE.equals(dto.getDokumentasjonForeligger())) {
             var utledetResultat = utledFødselsdata(dto, grunnlag);
             oppdatertOverstyrtHendelse.tilbakestillBarn()
                 .medAntallBarn(utledetResultat.size())
@@ -72,8 +71,8 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
                 .medErMorForSykVedFødsel(null);
             utledetResultat.forEach(it -> oppdatertOverstyrtHendelse.leggTilBarn(it.getFødselsdato(), it.getDødsdato().orElse(null)));
 
+            familieHendelseTjeneste.lagreOverstyrtHendelse(behandlingId, oppdatertOverstyrtHendelse);
         }
-        familieHendelseTjeneste.lagreOverstyrtHendelse(behandlingId, oppdatertOverstyrtHendelse);
 
         var forrigeFikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandlingId, param.getRef().fagsakYtelseType());
         var sistefikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandlingId, param.getRef().fagsakYtelseType());

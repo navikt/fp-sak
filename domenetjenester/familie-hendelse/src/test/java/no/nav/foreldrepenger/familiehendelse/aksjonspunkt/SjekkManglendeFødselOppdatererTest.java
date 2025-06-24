@@ -122,7 +122,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         assertThat(historikkinnslag.getTekstLinjer()).containsExactly("__Finnes det dokumentasjon på at barnet er født?__ er satt til __Ja__.",
             "__Antall barn__ som brukes i behandlingen: __2__.", "Barn er hentet fra Folkergisteret.", "begrunnelse.");
 
-        assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
+        assertThat(resultat.kreverTotrinnsKontroll()).isFalse();
     }
 
     @Test
