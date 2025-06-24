@@ -19,7 +19,6 @@ public class SjekkManglendeFodselDto extends BekreftetAksjonspunktDto {
     private Boolean dokumentasjonForeligger;
 
     @Valid
-    @Size(min = 1, max = 9)
     private List<UidentifisertBarnDto> uidentifiserteBarn;
 
     SjekkManglendeFodselDto() {
