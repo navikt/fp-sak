@@ -99,7 +99,7 @@ public class BehandlingRestTjeneste {
     private static final String ENDRE_VENTEFRIST_PART_PATH = "/endre-pa-vent";
     public static final String ENDRE_VENTEFRIST_PATH = BASE_PATH + ENDRE_VENTEFRIST_PART_PATH;
     private static final String HASTER_PART_PATH = "/haster";
-    public static final String HASTER_PATH = BASE_PATH + ENDRE_VENTEFRIST_PART_PATH;
+    public static final String HASTER_PATH = BASE_PATH + HASTER_PART_PATH;
     private static final String ANNEN_PART_BEHANDLING_PART_PATH = "/annen-part-behandling";
 
     private BehandlingsutredningTjeneste behandlingsutredningTjeneste;
