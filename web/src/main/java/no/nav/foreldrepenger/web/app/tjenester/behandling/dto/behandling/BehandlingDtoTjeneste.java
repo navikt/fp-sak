@@ -267,6 +267,7 @@ public class BehandlingDtoTjeneste {
         dto.leggTil(post(BehandlingRestTjeneste.GJENOPPTA_PATH, "gjenoppta-behandling", new GjenopptaBehandlingDto()));
         dto.leggTil(post(BehandlingRestTjeneste.SETT_PA_VENT_PATH, "sett-behandling-pa-vent", new SettBehandlingPaVentDto()));
         dto.leggTil(post(BehandlingRestTjeneste.ENDRE_VENTEFRIST_PATH, "endre-pa-vent", new SettBehandlingPaVentDto()));
+        dto.leggTil(post(BehandlingRestTjeneste.HASTER_PATH, "merk-haster", new ReåpneBehandlingDto()));
         dto.leggTil(post(AksjonspunktRestTjeneste.AKSJONSPUNKT_PATH, "lagre-aksjonspunkter", new BekreftedeAksjonspunkterDto()));
 
         var uuidDto = new UuidDto(behandling.getUuid());
