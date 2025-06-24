@@ -251,6 +251,7 @@ public class FagsakBehandlingDtoTjeneste {
             SpesialBehandling.kanHenlegges(b) && behandlingIkkeHosKlageInstans, // Henlegges
             b.isBehandlingPåVent() && !b.erKøet() && behandlingIkkeHosKlageInstans, // Gjenopptas
             kanÅpnesForEndring, // Åpnes for endring
+            b.erYtelseBehandling(), // Merkes med Haster
             !b.isBehandlingPåVent(), // Settes på vent
             true, // Sende melding
             !b.isBehandlingPåVent() && totrinnRetur, // Fra beslutter

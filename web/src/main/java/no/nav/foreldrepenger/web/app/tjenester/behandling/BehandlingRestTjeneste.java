@@ -39,6 +39,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.HenleggBehandlingTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -96,6 +98,8 @@ public class BehandlingRestTjeneste {
     public static final String SETT_PA_VENT_PATH = BASE_PATH + SETT_PA_VENT_PART_PATH;
     private static final String ENDRE_VENTEFRIST_PART_PATH = "/endre-pa-vent";
     public static final String ENDRE_VENTEFRIST_PATH = BASE_PATH + ENDRE_VENTEFRIST_PART_PATH;
+    private static final String HASTER_PART_PATH = "/haster";
+    public static final String HASTER_PATH = BASE_PATH + ENDRE_VENTEFRIST_PART_PATH;
     private static final String ANNEN_PART_BEHANDLING_PART_PATH = "/annen-part-behandling";
 
     private BehandlingsutredningTjeneste behandlingsutredningTjeneste;
@@ -105,6 +109,7 @@ public class BehandlingRestTjeneste {
     private FagsakTjeneste fagsakTjeneste;
     private HenleggBehandlingTjeneste henleggBehandlingTjeneste;
     private BehandlingDtoTjeneste behandlingDtoTjeneste;
+    private FagsakEgenskapRepository fagsakEgenskapRepository;
 
     public BehandlingRestTjeneste() {
         // CDI
@@ -116,7 +121,8 @@ public class BehandlingRestTjeneste {
                                   BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
                                   BehandlingsprosessTjeneste behandlingsprosessTjeneste,
                                   FagsakTjeneste fagsakTjeneste, HenleggBehandlingTjeneste henleggBehandlingTjeneste,
-                                  BehandlingDtoTjeneste behandlingDtoTjeneste) {
+                                  BehandlingDtoTjeneste behandlingDtoTjeneste,
+                                  FagsakEgenskapRepository fagsakEgenskapRepository) {
         this.behandlingsutredningTjeneste = behandlingsutredningTjeneste;
         this.behandlingsoppretterTjeneste = behandlingsoppretterTjeneste;
         this.behandlingOpprettingTjeneste = behandlingOpprettingTjeneste;
@@ -124,6 +130,7 @@ public class BehandlingRestTjeneste {
         this.fagsakTjeneste = fagsakTjeneste;
         this.henleggBehandlingTjeneste = henleggBehandlingTjeneste;
         this.behandlingDtoTjeneste = behandlingDtoTjeneste;
+        this.fagsakEgenskapRepository = fagsakEgenskapRepository;
     }
 
     @POST
@@ -196,6 +203,20 @@ public class BehandlingRestTjeneste {
         var behandling = getBehandling(dto);
         behandlingsutredningTjeneste.kanEndreBehandling(behandling, dto.getBehandlingVersjon());
         behandlingsutredningTjeneste.endreBehandlingPaVent(behandling.getId(), dto.getFrist(), dto.getVentearsak());
+    }
+
+    @POST
+    @Path(HASTER_PART_PATH)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "Merker sak som hastesak basert på åpen behandling", tags = "behandlinger")
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.VENTEFRIST, sporingslogg = true) // Tillatt for veileder
+    public void behandlingErHasteSak(@TilpassetAbacAttributt(supplierClass = LocalBehandlingIdAbacDataSupplier.class)
+                                         @Parameter(description = "BehandlingId for behandling som merkes som Haster") @Valid ReåpneBehandlingDto dto) {
+        var behandling = getBehandling(dto);
+        behandlingsutredningTjeneste.kanEndreBehandling(behandling, dto.getBehandlingVersjon());
+        if (!behandling.erAvsluttet() && !fagsakEgenskapRepository.harFagsakMarkering(behandling.getFagsakId(), FagsakMarkering.HASTER)) {
+            fagsakEgenskapRepository.leggTilFagsakMarkering(behandling.getFagsakId(), FagsakMarkering.HASTER);
+        }
     }
 
     @POST
