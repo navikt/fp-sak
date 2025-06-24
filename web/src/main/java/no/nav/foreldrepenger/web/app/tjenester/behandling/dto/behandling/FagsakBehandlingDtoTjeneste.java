@@ -30,7 +30,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dokumentbestiller.brevmal.BrevmalTjeneste;
 import no.nav.foreldrepenger.domene.uttak.Uttak;
@@ -70,6 +72,7 @@ public class FagsakBehandlingDtoTjeneste {
     private KontrollDtoTjeneste kontrollDtoTjeneste;
     private DekningsgradTjeneste dekningsgradTjeneste;
     private UttakTjeneste uttakTjeneste;
+    private FagsakEgenskapRepository fagsakEgenskapRepository;
 
     @Inject
     public FagsakBehandlingDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
@@ -81,7 +84,7 @@ public class FagsakBehandlingDtoTjeneste {
                                        VergeTjeneste vergeTjeneste,
                                        KontrollDtoTjeneste kontrollDtoTjeneste,
                                        DekningsgradTjeneste dekningsgradTjeneste,
-                                       UttakTjeneste uttakTjeneste) {
+                                       UttakTjeneste uttakTjeneste, FagsakEgenskapRepository fagsakEgenskapRepository) {
 
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -96,6 +99,7 @@ public class FagsakBehandlingDtoTjeneste {
         this.kontrollDtoTjeneste = kontrollDtoTjeneste;
         this.dekningsgradTjeneste = dekningsgradTjeneste;
         this.uttakTjeneste = uttakTjeneste;
+        this.fagsakEgenskapRepository = fagsakEgenskapRepository;
     }
 
     FagsakBehandlingDtoTjeneste() {
@@ -246,12 +250,13 @@ public class FagsakBehandlingDtoTjeneste {
         var totrinnRetur = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(b.getId()).stream()
             .anyMatch(tt -> !tt.isGodkjent());
         var behandlingIkkeHosKlageInstans = !behandlingHosKlageInstans(b);
+        var kanMerkesHaster = b.erYtelseBehandling() && !fagsakEgenskapRepository.harFagsakMarkering(b.getFagsakId(), FagsakMarkering.HASTER);
         return new BehandlingOperasjonerDto(b.getUuid(),
             !b.erKøet(), // Bytte enhet
             SpesialBehandling.kanHenlegges(b) && behandlingIkkeHosKlageInstans, // Henlegges
             b.isBehandlingPåVent() && !b.erKøet() && behandlingIkkeHosKlageInstans, // Gjenopptas
             kanÅpnesForEndring, // Åpnes for endring
-            b.erYtelseBehandling(), // Merkes med Haster
+            kanMerkesHaster, // Merkes med Haster
             !b.isBehandlingPåVent(), // Settes på vent
             true, // Sende melding
             !b.isBehandlingPåVent() && totrinnRetur, // Fra beslutter
