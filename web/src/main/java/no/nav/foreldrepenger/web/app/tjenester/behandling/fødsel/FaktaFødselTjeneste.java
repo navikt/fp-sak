@@ -51,14 +51,19 @@ public class FaktaFødselTjeneste {
         return new FødselDto(søknadData, registerData, gjeldendeData);
     }
 
-    private FødselDto.Gjeldende.FødselDokumetasjonStatus mapFødselDokumetasjonStatus(FamilieHendelseGrunnlagEntitet familieHendelse, Long behandlingId) {
-        var harUtførtAP = behandlingRepository.hentBehandling(behandlingId).harUtførtAksjonspunktMedType(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL);
-        var harOverstyrteBarn = familieHendelse.getOverstyrtVersjon()
+    private FødselDto.Gjeldende.FødselDokumetasjonStatus mapFødselDokumetasjonStatus(FamilieHendelseGrunnlagEntitet familieHendelse,
+                                                                                     Long behandlingId) {
+        var harUtførtAP = behandlingRepository.hentBehandling(behandlingId)
+            .harUtførtAksjonspunktMedType(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL);
+
+        if (!harUtførtAP) {
+            return FødselDto.Gjeldende.FødselDokumetasjonStatus.IKKE_VURDERT;
+        }
+
+        return familieHendelse.getOverstyrtVersjon()
             .filter(o -> !o.getBarna().isEmpty())
             .map(o -> FødselDto.Gjeldende.FødselDokumetasjonStatus.DOKUMENTERT)
             .orElse(FødselDto.Gjeldende.FødselDokumetasjonStatus.IKKE_DOKUMENTERT);
-
-        return harUtførtAP ? harOverstyrteBarn : FødselDto.Gjeldende.FødselDokumetasjonStatus.IKKE_VURDERT;
     }
 
     private FødselDto.Gjeldende.Utstedtdato mapUtstedtdato(FamilieHendelseGrunnlagEntitet familieHendelse) {

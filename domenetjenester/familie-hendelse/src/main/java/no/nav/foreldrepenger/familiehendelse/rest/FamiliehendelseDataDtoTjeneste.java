@@ -160,9 +160,10 @@ public class FamiliehendelseDataDtoTjeneste {
 
     private static Boolean mapDokumentasjonForligger(FamilieHendelseGrunnlagEntitet familieHendelse, Behandling behandling) {
         var harUtførtAP = behandling.harUtførtAksjonspunktMedType(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL);
-        var harOverstyrteBarn = familieHendelse.getOverstyrtVersjon().filter(o -> !o.getBarna().isEmpty()).map(o -> true).orElse(false);
-
-        return harUtførtAP ? harOverstyrteBarn : null;
+        if (!harUtførtAP) {
+            return null;
+        }
+        return familieHendelse.getOverstyrtVersjon().filter(o -> !o.getBarna().isEmpty()).isPresent();
     }
 
 
