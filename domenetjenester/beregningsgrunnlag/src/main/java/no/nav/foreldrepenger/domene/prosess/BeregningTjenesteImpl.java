@@ -9,64 +9,39 @@ import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.Beregn
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
-import no.nav.foreldrepenger.domene.migrering.BeregningMigreringTjeneste;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 @ApplicationScoped
 public class BeregningTjenesteImpl implements BeregningTjeneste {
-    private static final Logger LOG = LoggerFactory.getLogger(BeregningTjenesteImpl.class);
 
-    private BeregningFPSAK fpsakBeregner;
     private BeregningKalkulus kalkulusBeregner;
-    private BeregningMigreringTjeneste beregningMigreringTjeneste;
 
     BeregningTjenesteImpl() {
         // CDI
     }
 
     @Inject
-    public BeregningTjenesteImpl(BeregningFPSAK fpsakBeregner,
-                                 BeregningKalkulus kalkulusBeregner,
-                                 BeregningMigreringTjeneste beregningMigreringTjeneste) {
-        this.fpsakBeregner = fpsakBeregner;
+    public BeregningTjenesteImpl(BeregningKalkulus kalkulusBeregner) {
         this.kalkulusBeregner = kalkulusBeregner;
-        this.beregningMigreringTjeneste = beregningMigreringTjeneste;
     }
 
     @Override
     public Optional<BeregningsgrunnlagGrunnlag> hent(BehandlingReferanse referanse) {
-        if (skalKalleKalkulusHvisAvsluttetBehandling(referanse)) {
-            return kalkulusBeregner.hent(referanse);
-        } else {
-            return fpsakBeregner.hent(referanse);
-        }
+        return kalkulusBeregner.hent(referanse);
     }
 
     @Override
     public Optional<BeregningsgrunnlagDto> hentGuiDto(BehandlingReferanse referanse) {
-        if (skalKalleKalkulusHvisAvsluttetBehandling(referanse)) {
-            return kalkulusBeregner.hentGUIDto(referanse);
-        } else {
-            return fpsakBeregner.hentGUIDto(referanse);
-        }
+        return kalkulusBeregner.hentGUIDto(referanse);
     }
 
     @Override
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat beregn(BehandlingReferanse referanse, BehandlingStegType stegType) {
-        if (skalKalleKalkulus(referanse)) {
-            return kalkulusBeregner.beregn(referanse, stegType);
-        } else {
-            LOG.info("Beregner videre i fpsak, steg {}", stegType);
-            return fpsakBeregner.beregn(referanse, stegType);
-        }
+        return kalkulusBeregner.beregn(referanse, stegType);
     }
 
     @Override
@@ -76,61 +51,27 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
 
     @Override
     public void kopier(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling, BeregningsgrunnlagTilstand tilstand) {
-        if (skalKalleKalkulus(revurdering)) {
-            kalkulusBeregner.kopier(revurdering, originalbehandling, tilstand);
-        } else {
-            fpsakBeregner.kopier(revurdering, originalbehandling, tilstand);
-        }
+        kalkulusBeregner.kopier(revurdering, originalbehandling, tilstand);
 
     }
 
     @Override
     public Optional<OppdaterBeregningsgrunnlagResultat> oppdaterBeregning(BekreftetAksjonspunktDto oppdatering, BehandlingReferanse referanse) {
-        if (skalKalleKalkulus(referanse)) {
-            return kalkulusBeregner.oppdaterBeregning(oppdatering, referanse);
-        } else {
-            LOG.info("Løser aksjonspunkt i fpsak, aksjonspunkt {}", oppdatering.getAksjonspunktDefinisjon());
-            return fpsakBeregner.oppdaterBeregning(oppdatering, referanse);
-        }
+        return kalkulusBeregner.oppdaterBeregning(oppdatering, referanse);
     }
 
     @Override
     public Optional<OppdaterBeregningsgrunnlagResultat> overstyrBeregning(OverstyringAksjonspunktDto overstyring, BehandlingReferanse referanse) {
-        if (skalKalleKalkulus(referanse)) {
-            return kalkulusBeregner.overstyrBeregning(overstyring, referanse);
-        } else {
-            LOG.info("Overstyrer aksjonspunkt i fpsak, aksjonspunkt {}", overstyring.getAksjonspunktDefinisjon());
-            return fpsakBeregner.overstyrBeregning(overstyring, referanse);
-        }
+        return kalkulusBeregner.overstyrBeregning(overstyring, referanse);
     }
 
     @Override
     public void avslutt(BehandlingReferanse referanse) {
-        if (skalKalleKalkulus(referanse)) {
-            kalkulusBeregner.avslutt(referanse);
-        } else {
-            fpsakBeregner.avslutt(referanse);
-        }
-
+        kalkulusBeregner.avslutt(referanse);
     }
 
     @Override
     public boolean kanStartesISteg(BehandlingReferanse referanse, BehandlingStegType stegType) {
-        if (skalKalleKalkulus(referanse)) {
-            return kalkulusBeregner.kanStartesISteg(referanse, stegType);
-        } else {
-            return fpsakBeregner.kanStartesISteg(referanse, stegType);
-        }
-    }
-
-    private boolean skalKalleKalkulusHvisAvsluttetBehandling(BehandlingReferanse referanse) {
-        if (BehandlingStatus.AVSLUTTET.equals(referanse.behandlingStatus())) {
-            return true;
-        }
-        return skalKalleKalkulus(referanse);
-    }
-
-    private boolean skalKalleKalkulus(BehandlingReferanse referanse) {
-        return beregningMigreringTjeneste.skalBeregnesIKalkulus(referanse);
+        return kalkulusBeregner.kanStartesISteg(referanse, stegType);
     }
 }
