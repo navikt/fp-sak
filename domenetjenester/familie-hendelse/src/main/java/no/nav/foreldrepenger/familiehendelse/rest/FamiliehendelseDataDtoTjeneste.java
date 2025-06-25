@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 
 /**
  * Bygger et sammen satt resultat av avklarte data for en Familiehendelse (fødsel, adopsjon, omsorgsovertagelse)
@@ -148,10 +147,9 @@ public class FamiliehendelseDataDtoTjeneste {
             mapTerminbekreftelse(hendelse, dto, vedtaksdato);
             mapFødsler(hendelse, dto);
             if (grunnlag.getHarOverstyrteData() && grunnlag.getOverstyrtVersjon().get().getType().equals(FamilieHendelseType.FØDSEL)) {
-                var brukAntallBarnFraPDL = harValgtSammeSomBekreftet(grunnlag);
-                dto.setBrukAntallBarnFraTps(brukAntallBarnFraPDL);
-                dto.setDokumentasjonForligger(mapDokumentasjonForligger(grunnlag, behandling));
+                dto.setBrukAntallBarnFraTps(harValgtSammeSomBekreftet(grunnlag));
             }
+            dto.setDokumentasjonForligger(mapDokumentasjonForligger(grunnlag, behandling));
             dto.setMorForSykVedFodsel(hendelse.erMorForSykVedFødsel());
             dto.setSkjæringstidspunkt(hendelse.getSkjæringstidspunkt());
         });
