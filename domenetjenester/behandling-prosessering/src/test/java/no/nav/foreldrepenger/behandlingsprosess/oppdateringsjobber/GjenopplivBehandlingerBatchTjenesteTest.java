@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandlingsprosess.hjelpemetoder;
+package no.nav.foreldrepenger.behandlingsprosess.oppdateringsjobber;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -21,7 +21,7 @@ class GjenopplivBehandlingerBatchTjenesteTest {
 
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         mockTjeneste = mock(AutomatiskGjenopptagelseTjeneste.class);
         batchTjeneste = new GjenopplivBehandlingerBatchTjeneste(mockTjeneste);
     }
