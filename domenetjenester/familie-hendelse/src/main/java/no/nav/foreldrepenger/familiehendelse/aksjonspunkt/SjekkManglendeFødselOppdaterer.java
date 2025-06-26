@@ -67,7 +67,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
         var grunnlag = familieHendelseTjeneste.hentAggregat(behandlingId);
 
 
-        if (Boolean.TRUE.equals(dto.getDokumentasjonForeligger())) {
+        if (Boolean.TRUE.equals(dto.getErBarnFødt())) {
             var utledetResultat = utledFødselsdata(dto, grunnlag);
             var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderForOverstyring(behandlingId)
                 .tilbakestillBarn()
@@ -92,14 +92,14 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
     }
 
     private void valider(SjekkManglendeFodselDto dto) {
-        if (Boolean.TRUE.equals(dto.getDokumentasjonForeligger())) {
-            if (dto.getDokumenterteBarn() == null || dto.getDokumenterteBarn().isEmpty()) {
+        if (Boolean.TRUE.equals(dto.getErBarnFødt())) {
+            if (dto.getBarn() == null || dto.getBarn().isEmpty()) {
                 throw new FunksjonellException("FP-076343", "Mangler barn", "Oppgi mellom 1 og 9 barn");
             }
-            if (dto.getDokumenterteBarn().size() > 9) {
+            if (dto.getBarn().size() > 9) {
                 throw new FunksjonellException("FP-076347", "For mange barn", "Oppgi mellom 1 og 9 barn");
             }
-            if (dto.getDokumenterteBarn().stream().anyMatch(b -> b.getDødsdato().isPresent() && b.getDødsdato().get().isBefore(b.getFødselsdato()))) {
+            if (dto.getBarn().stream().anyMatch(b -> b.getDødsdato().isPresent() && b.getDødsdato().get().isBefore(b.getFødselsdato()))) {
                 throw new FunksjonellException("FP-076345", "Dødsdato før fødselsdato", "Se over fødsels- og dødsdato");
             }
         }
@@ -108,7 +108,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
     private List<? extends UidentifisertBarn> utledFødselsdata(SjekkManglendeFodselDto dto, FamilieHendelseGrunnlagEntitet grunnlag) {
         var termindato = grunnlag.getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato);
 
-        var barn = dto.getDokumenterteBarn().stream().map(FødselStatus::new).sorted().toList();
+        var barn = dto.getBarn().stream().map(FødselStatus::new).sorted().toList();
 
         var fødselsdato = barn.stream().map(UidentifisertBarn::getFødselsdato).min(Comparator.naturalOrder());
         if (termindato.isPresent() && fødselsdato.isPresent()) {
@@ -141,13 +141,13 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
             .medFagsakId(behandlingReferanse.fagsakId())
             .medBehandlingId(behandlingReferanse.behandlingId());
 
-        if (!Objects.equals(dto.getDokumentasjonForeligger(), originalDokumentasjonForeligger)) {
+        if (!Objects.equals(dto.getErBarnFødt(), originalDokumentasjonForeligger)) {
             historikkinnslag.addLinje(
                 new HistorikkinnslagLinjeBuilder().fraTil("Finnes det dokumentasjon på at barnet er født?", originalDokumentasjonForeligger,
-                    dto.getDokumentasjonForeligger()));
+                    dto.getErBarnFødt()));
         }
 
-        if (Boolean.TRUE.equals(dto.getDokumentasjonForeligger())) {
+        if (Boolean.TRUE.equals(dto.getErBarnFødt())) {
             lagHistorikkForBarn(historikkinnslag, grunnlag, dto);
         }
 
@@ -159,7 +159,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
     private void lagHistorikkForBarn(Historikkinnslag.Builder historikkinnslag,
                                      FamilieHendelseGrunnlagEntitet grunnlag,
                                      SjekkManglendeFodselDto dto) {
-        var oppdatertFødselStatus = dto.getDokumenterteBarn().stream().map(FødselStatus::new).sorted().toList();
+        var oppdatertFødselStatus = dto.getBarn().stream().map(FødselStatus::new).sorted().toList();
         var gjeldendeFødselStatus = grunnlag.getGjeldendeBarna().stream().map(FødselStatus::new).sorted().toList();
 
         if (!Objects.equals(oppdatertFødselStatus.size(), grunnlag.getGjeldendeAntallBarn())) {

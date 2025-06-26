@@ -17,30 +17,31 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 public class SjekkManglendeFodselDto extends BekreftetAksjonspunktDto {
 
     @NotNull
-    private Boolean dokumentasjonForeligger;
+    @JsonProperty("erBarnFødt")
+    @JsonAlias("dokumentasjonForeligger")
+    private Boolean erBarnFødt;
 
     @Valid
-    @JsonProperty("dokumenterteBarn")
+    @JsonProperty("barn")
     @JsonAlias("uidentifiserteBarn")
-    private List<BekreftetBarnDto> dokumenterteBarn;
+    private List<BekreftetBarnDto> barn;
 
     SjekkManglendeFodselDto() {
         //For Jackson
     }
 
-    public SjekkManglendeFodselDto(String begrunnelse, Boolean dokumentasjonForeligger, List<BekreftetBarnDto> dokumenterteBarn) {
+    public SjekkManglendeFodselDto(String begrunnelse, Boolean dokumentasjonForeligger, List<BekreftetBarnDto> barn) {
         super(begrunnelse);
-        this.dokumentasjonForeligger = dokumentasjonForeligger;
-
-        this.dokumenterteBarn = dokumenterteBarn;
+        this.erBarnFødt = dokumentasjonForeligger;
+        this.barn = barn;
     }
 
-    public Boolean getDokumentasjonForeligger() {
-        return dokumentasjonForeligger;
+    public Boolean getErBarnFødt() {
+        return erBarnFødt;
     }
 
-    public List<BekreftetBarnDto> getDokumenterteBarn() {
-        return dokumenterteBarn;
+    public List<BekreftetBarnDto> getBarn() {
+        return barn;
     }
 
 }
