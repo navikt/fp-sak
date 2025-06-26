@@ -68,17 +68,21 @@ class OppdaterEtterAordningFristTask implements ProsessTaskHandler {
         var rapporteringsfrist = finnFristDato(LocalDate.now());
         var nesteVirkedagEtterFrist = Virkedager.plusVirkedager(rapporteringsfrist, 1);
 
+        // vil gjøre tilbakehopp for revurderinger, mens oppdateringsmekanikken for førstegang vil håndtere inntektsendringer
         finnBehandlingerForOppdateringOpptjeningBeregning(nesteVirkedagEtterFrist.getDayOfMonth())
             .filter(b -> !b.isBehandlingPåVent())
             .forEach(this::rullTilbakeBehandling);
 
+        // Denne kan ha så liten effekt vs volum at den muligens kuttes ut.
+        // StartpunktutlederIAY håndterer aksjonspunkter som ikke lenger trengs - del av registeroppdatering
         finnBehandlingerForOppdateringIM(nesteVirkedagEtterFrist.getDayOfMonth())
             .filter(b -> !b.isBehandlingPåVent())
-            .forEach(this::rullTilbakeBehandling);
+            .forEach(b -> prosesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(b, LocalDateTime.now()));
 
+        // StartpunktutlederIAY håndterer aksjonspunkter som ikke lenger trengs - del av registeroppdatering
         finnBehandlingerForOppdateringPermisjon(nesteVirkedagEtterFrist.getDayOfMonth())
             .filter(b -> !b.isBehandlingPåVent())
-            .forEach(this::rullTilbakeBehandling);
+            .forEach(b -> prosesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(b, LocalDateTime.now()));
 
         // Kjør neste task om en måned
         var nesteMånedFrist = finnFristDato(LocalDate.now().plusMonths(1));
@@ -90,21 +94,17 @@ class OppdaterEtterAordningFristTask implements ProsessTaskHandler {
 
     private void rullTilbakeBehandling(Behandling behandling) {
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
-        if (behandling.isBehandlingPåVent()) {
-            prosesseringTjeneste.taBehandlingAvVent(behandling);
+        // Startpunkt for endring av inntekt før STP er opptjening i førstegang (vil gjøre tilbakehopp) og udefinert for revurderinger
+        if (behandling.erRevurdering()) {
+            var tilSteg = finnStegÅHoppeTil(behandling);
+            lagHistorikkinnslag(behandling, tilSteg.getNavn());
+            prosesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, lås, tilSteg);
         }
-        var tilSteg = finnStegÅHoppeTil(behandling);
-        lagHistorikkinnslag(behandling, tilSteg.getNavn());
-        prosesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, lås, tilSteg);
         prosesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, LocalDateTime.now());
     }
 
     private BehandlingStegType finnStegÅHoppeTil(Behandling behandling) {
-        if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING)) {
-            return BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING;
-        } else if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO)) {
-            return BehandlingStegType.VURDER_ARB_FORHOLD_PERMISJON;
-        } else if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING)) {
+        if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING)) {
             return BehandlingStegType.VURDER_OPPTJENING_FAKTA;
         } else if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
             // SVP har ikke dekningsgradsteg
@@ -138,6 +138,7 @@ class OppdaterEtterAordningFristTask implements ProsessTaskHandler {
 
     @SuppressWarnings("unchecked") // getresultList
     private Stream<Behandling> finnBehandlingerForOppdateringOpptjeningBeregning(int offset) {
+        // Her skal vi vurdere om behandling er oppdatert etter rapporteringsfrist for siste hele måned før STP
         var sql = """
             select * from (
               select distinct b.*
@@ -163,6 +164,8 @@ class OppdaterEtterAordningFristTask implements ProsessTaskHandler {
 
     @SuppressWarnings("unchecked") // getresultList
     private Stream<Behandling> finnBehandlingerForOppdateringIM(int offset) {
+        // Ser på inngang til steg VURDER_KOMPLETT_BEH - da skal vi ære 4 uker før skjæringstidspunktet (STP)
+        // Aksjonspunktet avhenger av status for arbeidsforhold på STP, så tar med fram til rapporteringsfrist for STP-måneden
         var sql = """
             select * from (
               select distinct b.*
@@ -173,7 +176,6 @@ class OppdaterEtterAordningFristTask implements ProsessTaskHandler {
                 and aksjonspunkt_def = :apkode
                 and aksjonspunkt_status = :astatus
                 and behandling_steg_status in (:ferdig)
-                and sist_oppdatert_tidspunkt < st.opprettet_tid + 28
                 and sist_oppdatert_tidspunkt < trunc(add_months(st.opprettet_tid + 28, 1), 'mm') + :offset
             )
           """;
@@ -190,6 +192,8 @@ class OppdaterEtterAordningFristTask implements ProsessTaskHandler {
 
     @SuppressWarnings("unchecked") // getresultList
     private Stream<Behandling> finnBehandlingerForOppdateringPermisjon(int offset) {
+        // Gjelder arbeidsforhold med permisjon på STP uten sluttdato
+        // Disse kan rapporteres når som helst så sjekker om sist oppdatert før rapporteringsfrist for forrige måned er passert
         var sql = """
             select * from (
               select distinct b.*
