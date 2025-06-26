@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -88,7 +89,10 @@ public class Kompletthetskontroller {
             if (erRegisterinnhentingPassert(behandling)) {
                 // Reposisjoner basert på grunnlagsendring i nylig mottatt dokument. Videre reposisjonering gjøres i task etter registeroppdatering
                 behandlingProsesseringTjeneste.utledDiffOgReposisjonerBehandlingVedEndringer(behandling, grunnlagSnapshot);
-                behandlingProsesseringTjeneste.tvingInnhentingRegisteropplysninger(behandling);
+                // Det kan komme flere inntektsmeldinger pr dag, trenger ikke oppdatering for hver av dem.
+                if (!DokumentTypeId.INNTEKTSMELDING.equals(mottattDokument.getDokumentType())) {
+                    behandlingProsesseringTjeneste.tvingInnhentingRegisteropplysninger(behandling);
+                }
                 behandlingProsesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, LocalDateTime.now());
             } else {
                 behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
