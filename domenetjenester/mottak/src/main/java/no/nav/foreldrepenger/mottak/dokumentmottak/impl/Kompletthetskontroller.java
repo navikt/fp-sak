@@ -89,8 +89,8 @@ public class Kompletthetskontroller {
             if (erRegisterinnhentingPassert(behandling)) {
                 // Reposisjoner basert på grunnlagsendring i nylig mottatt dokument. Videre reposisjonering gjøres i task etter registeroppdatering
                 behandlingProsesseringTjeneste.utledDiffOgReposisjonerBehandlingVedEndringer(behandling, grunnlagSnapshot);
-                // Det kan komme flere inntektsmeldinger pr dag, trenger ikke oppdatering for hver av dem.
-                if (!DokumentTypeId.INNTEKTSMELDING.equals(mottattDokument.getDokumentType())) {
+                // Må sikre oppdatering av registerdata for søknader - de kan endre perioder og innhentingsbehov
+                if (mottattDokument.getDokumentType().erSøknadType() || mottattDokument.getDokumentType().erEndringsSøknadType()) {
                     behandlingProsesseringTjeneste.tvingInnhentingRegisteropplysninger(behandling);
                 }
                 behandlingProsesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, LocalDateTime.now());
