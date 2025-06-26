@@ -120,30 +120,30 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
         return barn;
     }
 
-    private Boolean hentOriginalDokumentasjonForeligger(FamilieHendelseGrunnlagEntitet grunnlag, Behandling behandling) {
+    private Optional<Boolean> hentOriginalErBarnetFødt(FamilieHendelseGrunnlagEntitet grunnlag, Behandling behandling) {
         var harUtførtAP = behandling.harUtførtAksjonspunktMedType(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL);
 
         if (!harUtførtAP) {
-            return null;
+            return Optional.empty();
         }
 
-        return grunnlag.getOverstyrtVersjon().filter(o -> !o.getBarna().isEmpty()).isPresent();
+        return Optional.of(grunnlag.getOverstyrtVersjon().filter(o -> !o.getBarna().isEmpty()).isPresent());
     }
 
     private void opprettHistorikkinnslag(SjekkManglendeFodselDto dto,
                                          BehandlingReferanse behandlingReferanse,
                                          FamilieHendelseGrunnlagEntitet grunnlag,
                                          Behandling behandling) {
-        var originalDokumentasjonForeligger = hentOriginalDokumentasjonForeligger(grunnlag, behandling);
+        var originalErBarnetFødt = hentOriginalErBarnetFødt(grunnlag, behandling).orElse(null);
 
         var historikkinnslag = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medTittel(SkjermlenkeType.FAKTA_OM_FOEDSEL)
             .medFagsakId(behandlingReferanse.fagsakId())
             .medBehandlingId(behandlingReferanse.behandlingId());
 
-        if (!Objects.equals(dto.getErBarnFødt(), originalDokumentasjonForeligger)) {
+        if (!Objects.equals(dto.getErBarnFødt(), originalErBarnetFødt)) {
             historikkinnslag.addLinje(
-                new HistorikkinnslagLinjeBuilder().fraTil("Finnes det dokumentasjon på at barnet er født?", originalDokumentasjonForeligger,
+                new HistorikkinnslagLinjeBuilder().fraTil("Finnes det dokumentasjon på at barnet er født?", originalErBarnetFødt,
                     dto.getErBarnFødt()));
         }
 
@@ -210,13 +210,18 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
         }
 
         public String formaterLevetid() {
-            return getDødsdato().map(dødsdato -> String.format("f. %s - d. %s", fødselsdato.format(DATE_FORMATTER), dødsdato.format(DATE_FORMATTER)))
+            return getDødsdato().map(d -> String.format("f. %s - d. %s", fødselsdato.format(DATE_FORMATTER), d.format(DATE_FORMATTER)))
                 .orElseGet(() -> String.format("f. %s", fødselsdato.format(DATE_FORMATTER)));
         }
 
         @Override
         public Integer getBarnNummer() {
             return barnNummer;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(fødselsdato, dødsdato, barnNummer);
         }
 
         @Override

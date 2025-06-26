@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import jakarta.validation.constraints.NotNull;
-
 import java.time.LocalDate;
 import java.util.Optional;
 
