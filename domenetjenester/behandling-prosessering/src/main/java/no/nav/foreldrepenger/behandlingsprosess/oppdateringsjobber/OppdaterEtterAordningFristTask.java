@@ -40,6 +40,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 class OppdaterEtterAordningFristTask implements ProsessTaskHandler {
 
     private static final int A_ORDNING_FRIST_DAG = 5;
+    private static final String OFFSET = "offset";
+    private static final String AKSJONSPUNKT_KODE = "apkode";
+    private static final String AKSJONSPUNKT_OPPRETTET = "astatus";
 
     private static final Set<AksjonspunktDefinisjon> REFRESH = Set.of(AksjonspunktDefinisjon.AVKLAR_AKTIVITETER,
         AksjonspunktDefinisjon.VURDER_FAKTA_FOR_ATFL_SN, AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING,
@@ -156,9 +159,9 @@ class OppdaterEtterAordningFristTask implements ProsessTaskHandler {
           """;
 
         var query = entityManager.createNativeQuery(sql, Behandling.class)
-            .setParameter("offset", offset)
-            .setParameter("apkode", REFRESH.stream().map(Kodeverdi::getKode).toList())
-            .setParameter("astatus", AksjonspunktStatus.OPPRETTET.getKode());
+            .setParameter(OFFSET, offset)
+            .setParameter(AKSJONSPUNKT_KODE, REFRESH.stream().map(Kodeverdi::getKode).toList())
+            .setParameter(AKSJONSPUNKT_OPPRETTET, AksjonspunktStatus.OPPRETTET.getKode());
         return query.getResultStream();
     }
 
@@ -181,9 +184,9 @@ class OppdaterEtterAordningFristTask implements ProsessTaskHandler {
           """;
 
         var query = entityManager.createNativeQuery(sql, Behandling.class)
-            .setParameter("offset", offset)
-            .setParameter("apkode", AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING.getKode())
-            .setParameter("astatus", AksjonspunktStatus.OPPRETTET.getKode())
+            .setParameter(OFFSET, offset)
+            .setParameter(AKSJONSPUNKT_KODE, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING.getKode())
+            .setParameter(AKSJONSPUNKT_OPPRETTET, AksjonspunktStatus.OPPRETTET.getKode())
             .setParameter("forste", BehandlingType.FØRSTEGANGSSØKNAD.getKode())
             .setParameter("steg", BehandlingStegType.VURDER_KOMPLETT_BEH.getKode())
             .setParameter("ferdig", List.of(BehandlingStegStatus.UTFØRT.getKode(), BehandlingStegStatus.AVBRUTT.getKode()));
@@ -206,9 +209,9 @@ class OppdaterEtterAordningFristTask implements ProsessTaskHandler {
           """;
 
         var query = entityManager.createNativeQuery(sql, Behandling.class)
-            .setParameter("offset", offset)
-            .setParameter("apkode", AksjonspunktDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO.getKode())
-            .setParameter("astatus", AksjonspunktStatus.OPPRETTET.getKode());
+            .setParameter(OFFSET, offset)
+            .setParameter(AKSJONSPUNKT_KODE, AksjonspunktDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO.getKode())
+            .setParameter(AKSJONSPUNKT_OPPRETTET, AksjonspunktStatus.OPPRETTET.getKode());
         return query.getResultStream();
     }
 
