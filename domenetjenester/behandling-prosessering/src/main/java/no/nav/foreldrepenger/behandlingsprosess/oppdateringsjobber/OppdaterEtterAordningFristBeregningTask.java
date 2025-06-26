@@ -34,7 +34,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 @Dependent
 @ProsessTask(value = "batch.oppdater.aordningfrist", prioritet = 4, maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-class OppdaterEtterAordningFristBeregning implements ProsessTaskHandler {
+class OppdaterEtterAordningFristBeregningTask implements ProsessTaskHandler {
 
     private static final int A_ORDNING_FRIST_DAG = 5;
 
@@ -50,9 +50,9 @@ class OppdaterEtterAordningFristBeregning implements ProsessTaskHandler {
     private final ProsessTaskTjeneste prosessTaskTjeneste;
 
     @Inject
-    public OppdaterEtterAordningFristBeregning(BehandlingProsesseringTjeneste prosesseringTjeneste,
-                                               EntityManager entityManager,
-                                               ProsessTaskTjeneste prosessTaskTjeneste) {
+    public OppdaterEtterAordningFristBeregningTask(BehandlingProsesseringTjeneste prosesseringTjeneste,
+                                                   EntityManager entityManager,
+                                                   ProsessTaskTjeneste prosessTaskTjeneste) {
         this.prosesseringTjeneste = prosesseringTjeneste;
         this.entityManager = entityManager;
         this.behandlingRepository = new BehandlingRepository(entityManager);
@@ -72,7 +72,7 @@ class OppdaterEtterAordningFristBeregning implements ProsessTaskHandler {
         // Kjør neste task om en måned
         var nesteMånedFrist = finnFristDato(LocalDate.now().plusMonths(1));
         var nesteKjøring = Virkedager.plusVirkedager(nesteMånedFrist, 2);
-        var nesteTask = ProsessTaskData.forProsessTask(OppdaterEtterAordningFristBeregning.class);
+        var nesteTask = ProsessTaskData.forProsessTask(OppdaterEtterAordningFristBeregningTask.class);
         nesteTask.setNesteKjøringEtter(nesteKjøring.atStartOfDay());
         prosessTaskTjeneste.lagre(nesteTask);
     }
