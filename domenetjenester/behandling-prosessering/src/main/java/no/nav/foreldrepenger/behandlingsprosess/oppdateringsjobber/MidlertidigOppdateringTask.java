@@ -125,8 +125,7 @@ class MidlertidigOppdateringTask implements ProsessTaskHandler {
                 and aksjonspunkt_def = :apkode
                 and aksjonspunkt_status = :astatus
                 and behandling_steg_status in (:ferdig)
-                and sist_oppdatert_tidspunkt < st.opprettet_tid + 28
-                and sist_oppdatert_tidspunkt < trunc(st.opprettet_tid + 28, 'mm') + :offset
+                and sist_oppdatert_tidspunkt < trunc(add_months(st.opprettet_tid + 28, 1), 'mm') + :offset
             )
           """;
 
