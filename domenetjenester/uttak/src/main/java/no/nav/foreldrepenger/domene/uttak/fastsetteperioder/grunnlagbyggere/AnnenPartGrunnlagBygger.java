@@ -44,11 +44,7 @@ public class AnnenPartGrunnlagBygger {
     public Optional<AnnenPart.Builder> byggGrunnlag(ForeldrepengerGrunnlag fpGrunnlag) {
         var apOpt = fpGrunnlag.getAnnenpart();
         if (fpGrunnlag.getEøsUttakGrunnlag().isPresent()) {
-            var eøsUttak = fpGrunnlag.getEøsUttakGrunnlag().get();
-            var annenpartMedUttakBuilder = new AnnenPart.Builder()
-                .eøs(true)
-                .uttaksperioder(map(eøsUttak));
-            return Optional.of(annenpartMedUttakBuilder);
+            return eøsAnnenPart(fpGrunnlag);
         }
 
         if (apOpt.isPresent() || fpGrunnlag.getAktivitetskravGrunnlag().isPresent()) {
@@ -64,6 +60,17 @@ public class AnnenPartGrunnlagBygger {
             return Optional.of(builder);
         }
         return Optional.empty();
+    }
+
+    private Optional<AnnenPart.Builder> eøsAnnenPart(ForeldrepengerGrunnlag fpGrunnlag) {
+        var eøsUttak = fpGrunnlag.getEøsUttakGrunnlag().orElseThrow();
+        var annenpartMedUttakBuilder = new AnnenPart.Builder()
+            .eøs(true)
+            .uttaksperioder(map(eøsUttak));
+        fpGrunnlag.getAktivitetskravGrunnlag()
+            .flatMap(AktivitetskravGrunnlagEntitet::getAktivitetskravPerioderMedArbeidEntitet)
+            .ifPresent(agp -> annenpartMedUttakBuilder.aktivitetskravGrunnlag(map(agp)));
+        return Optional.of(annenpartMedUttakBuilder);
     }
 
     public static List<AnnenpartUttakPeriode> map(EøsUttakGrunnlagEntitet eøsUttak) {
