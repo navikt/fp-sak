@@ -35,9 +35,9 @@ class OppdaterEtterAordningenFristBeregningTaskTest extends EntityManagerAwareTe
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
     @Test
-    void kan_henlegge_behandling_uten_søknad_som_er_satt_på_vent() {
+    void behandling_aksjonspunkt_beregning() {
         var repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        var oppdateringTask = new OppdaterEtterAordningFristBeregningTask(behandlingProsesseringTjeneste, getEntityManager(), prosessTaskTjeneste);
+        var oppdateringTask = new OppdaterEtterAordningFristTask(behandlingProsesseringTjeneste, getEntityManager(), prosessTaskTjeneste);
 
         var scenario = ScenarioMorSøkerForeldrepenger // Oppretter scenario uten søknad for å simulere sitausjoner som
             // f.eks der inntektsmelding kommer først.
@@ -52,9 +52,56 @@ class OppdaterEtterAordningenFristBeregningTaskTest extends EntityManagerAwareTe
         var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling.getId());
         repositoryProvider.getBehandlingRepository().lagre(behandling, lås);
 
-        oppdateringTask.doTask(ProsessTaskData.forProsessTask(OppdaterEtterAordningFristBeregningTask.class));
+        oppdateringTask.doTask(ProsessTaskData.forProsessTask(OppdaterEtterAordningFristTask.class));
 
         verify(behandlingProsesseringTjeneste, times(1)).reposisjonerBehandlingTilbakeTil(eq(behandling), any(), eq(BehandlingStegType.DEKNINGSGRAD));
+        verify(behandlingProsesseringTjeneste, times(1)).opprettTasksForGjenopptaOppdaterFortsett(eq(behandling), any());
+        verify(prosessTaskTjeneste, times(1)).lagre(any(ProsessTaskData.class));
+    }
+
+    @Test
+    void behandling_aksjonspunkt_inntektsmelding() {
+        var repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        var oppdateringTask = new OppdaterEtterAordningFristTask(behandlingProsesseringTjeneste, getEntityManager(), prosessTaskTjeneste);
+
+        var scenario = ScenarioMorSøkerForeldrepenger // Oppretter scenario uten søknad for å simulere sitausjoner som
+            // f.eks der inntektsmelding kommer først.
+            .forFødselUtenSøknad(AktørId.dummy())
+            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING);
+        var behandling = scenario.lagre(repositoryProvider);
+        forceOppdaterBehandlingSteg(behandling, BehandlingStegType.VURDER_KOMPLETT_BEH);
+        repositoryProvider.getBehandlingRepository().oppdaterSistOppdatertTidspunkt(behandling, LocalDateTime.now().minusWeeks(4).minusDays(1));
+        forceOppdaterBehandlingSteg(behandling, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING);
+        var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling.getId());
+        repositoryProvider.getBehandlingRepository().lagre(behandling, lås);
+
+        oppdateringTask.doTask(ProsessTaskData.forProsessTask(OppdaterEtterAordningFristTask.class));
+
+        verify(behandlingProsesseringTjeneste, times(1)).reposisjonerBehandlingTilbakeTil(eq(behandling), any(), eq(BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING));
+        verify(behandlingProsesseringTjeneste, times(1)).opprettTasksForGjenopptaOppdaterFortsett(eq(behandling), any());
+        verify(prosessTaskTjeneste, times(1)).lagre(any(ProsessTaskData.class));
+    }
+
+    @Test
+    void behandling_aksjonspunkt_permisjon() {
+        var repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        var oppdateringTask = new OppdaterEtterAordningFristTask(behandlingProsesseringTjeneste, getEntityManager(), prosessTaskTjeneste);
+
+        var scenario = ScenarioMorSøkerForeldrepenger // Oppretter scenario uten søknad for å simulere sitausjoner som
+            // f.eks der inntektsmelding kommer først.
+            .forFødselUtenSøknad(AktørId.dummy())
+            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO, BehandlingStegType.VURDER_ARB_FORHOLD_PERMISJON);
+        var behandling = scenario.lagre(repositoryProvider);
+        repositoryProvider.getBehandlingRepository().oppdaterSistOppdatertTidspunkt(behandling, LocalDateTime.now().minusWeeks(4).minusDays(1));
+        forceOppdaterBehandlingSteg(behandling, BehandlingStegType.VURDER_ARB_FORHOLD_PERMISJON);
+        var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling.getId());
+        repositoryProvider.getBehandlingRepository().lagre(behandling, lås);
+
+        oppdateringTask.doTask(ProsessTaskData.forProsessTask(OppdaterEtterAordningFristTask.class));
+
+        verify(behandlingProsesseringTjeneste, times(1)).reposisjonerBehandlingTilbakeTil(eq(behandling), any(), eq(BehandlingStegType.VURDER_ARB_FORHOLD_PERMISJON));
         verify(behandlingProsesseringTjeneste, times(1)).opprettTasksForGjenopptaOppdaterFortsett(eq(behandling), any());
         verify(prosessTaskTjeneste, times(1)).lagre(any(ProsessTaskData.class));
     }
