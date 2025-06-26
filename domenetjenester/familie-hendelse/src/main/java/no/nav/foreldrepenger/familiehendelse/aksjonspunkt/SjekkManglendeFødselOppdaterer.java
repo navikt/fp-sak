@@ -143,7 +143,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
 
         if (!Objects.equals(dto.getErBarnFødt(), originalErBarnetFødt)) {
             historikkinnslag.addLinje(
-                new HistorikkinnslagLinjeBuilder().fraTil("Finnes det dokumentasjon på at barnet er født?", originalErBarnetFødt,
+                new HistorikkinnslagLinjeBuilder().fraTil("Er barnet født?", originalErBarnetFødt,
                     dto.getErBarnFødt()));
         }
 
