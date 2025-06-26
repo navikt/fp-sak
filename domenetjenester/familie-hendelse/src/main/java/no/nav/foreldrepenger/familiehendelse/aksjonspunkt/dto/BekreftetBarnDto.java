@@ -9,9 +9,9 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Optional;
 
-// TODO: fjern JSON-annotering når fakta-fødsel er ute (TFP-6071)
+// TODO(Siri): fjern JSON-annotering når fakta-fødsel er ute (TFP-6071)
 public class BekreftetBarnDto {
-    @NotNull
+    // TODO(Siri): Legg til når @NotNull når fakta-fødsel er ute (TFP-6071)
     @JsonProperty("fødselsdato")
     @JsonAlias("fodselsdato")
     private LocalDate fødselsdato;
