@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 // TODO: fjern JSON-annotering når fakta-fødsel er ute (TFP-6071)
-public class UidentifisertBarnDto {
+public class BekreftetBarnDto {
     @NotNull
     @JsonProperty("fødselsdato")
     @JsonAlias("fodselsdato")
@@ -20,11 +20,11 @@ public class UidentifisertBarnDto {
     @JsonAlias("dodsdato")
     private LocalDate dødsdato;
 
-    UidentifisertBarnDto() {
+    BekreftetBarnDto() {
         // For Jackson
     }
 
-    public UidentifisertBarnDto(LocalDate fødselsdato, LocalDate dødsdato) {
+    public BekreftetBarnDto(LocalDate fødselsdato, LocalDate dødsdato) {
         this.fødselsdato = fødselsdato;
         this.dødsdato = dødsdato;
     }

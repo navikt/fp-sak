@@ -1,11 +1,12 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -19,25 +20,27 @@ public class SjekkManglendeFodselDto extends BekreftetAksjonspunktDto {
     private Boolean dokumentasjonForeligger;
 
     @Valid
-    private List<UidentifisertBarnDto> uidentifiserteBarn;
+    @JsonProperty("dokumenterteBarn")
+    @JsonAlias("uidentifiserteBarn")
+    private List<BekreftetBarnDto> dokumenterteBarn;
 
     SjekkManglendeFodselDto() {
         //For Jackson
     }
 
-    public SjekkManglendeFodselDto(String begrunnelse, Boolean dokumentasjonForeligger,
-        List<UidentifisertBarnDto> uidentifiserteBarn) {
+    public SjekkManglendeFodselDto(String begrunnelse, Boolean dokumentasjonForeligger, List<BekreftetBarnDto> dokumenterteBarn) {
         super(begrunnelse);
         this.dokumentasjonForeligger = dokumentasjonForeligger;
-        this.uidentifiserteBarn = new ArrayList<>(uidentifiserteBarn);
+
+        this.dokumenterteBarn = dokumenterteBarn;
     }
 
     public Boolean getDokumentasjonForeligger() {
         return dokumentasjonForeligger;
     }
 
-    public List<UidentifisertBarnDto> getUidentifiserteBarn() {
-        return uidentifiserteBarn;
+    public List<BekreftetBarnDto> getDokumenterteBarn() {
+        return dokumenterteBarn;
     }
 
 }
