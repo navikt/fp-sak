@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.aksjonspunkt;
 
 import java.util.List;
 
-import no.nav.folketrygdloven.kalkulus.felles.v1.Periode;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 public class BeregningsgrunnlagPeriodeEndring {
