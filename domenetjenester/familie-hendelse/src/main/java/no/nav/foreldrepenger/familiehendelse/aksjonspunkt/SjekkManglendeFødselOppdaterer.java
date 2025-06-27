@@ -142,9 +142,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
             .medBehandlingId(behandlingReferanse.behandlingId());
 
         if (!Objects.equals(dto.getErBarnFødt(), originalErBarnetFødt)) {
-            historikkinnslag.addLinje(
-                new HistorikkinnslagLinjeBuilder().fraTil("Er barnet født?", originalErBarnetFødt,
-                    dto.getErBarnFødt()));
+            historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().fraTil("Er barnet født?", originalErBarnetFødt, dto.getErBarnFødt()));
         }
 
         if (Boolean.TRUE.equals(dto.getErBarnFødt())) {
@@ -171,11 +169,12 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
         }
 
         if (!oppdatertFødselStatus.equals(gjeldendeFødselStatus)) {
-            for (int i = 0; i < oppdatertFødselStatus.size(); i++) {
-                var til = oppdatertFødselStatus.get(i).formaterLevetid();
+            var lengsteListeStørrelse = Math.max(oppdatertFødselStatus.size(), gjeldendeFødselStatus.size());
+            for (int i = 0; i < lengsteListeStørrelse; i++) {
+                var til = safeGet(oppdatertFødselStatus, i).map(FødselStatus::formaterLevetid);
                 var fra = safeGet(gjeldendeFødselStatus, i).map(FødselStatus::formaterLevetid).orElse(null);
-                var barn = oppdatertFødselStatus.size() > 1 ? "Barn " + (i + 1) : "Barn";
-                historikkinnslag.addLinje(fraTilEquals(barn, fra, til));
+                var barn = lengsteListeStørrelse > 1 ? "Barn " + (i + 1) : "Barn";
+                historikkinnslag.addLinje(fraTilEquals(barn, fra, til.orElse(null)));
             }
         }
     }
