@@ -13,8 +13,6 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -194,8 +192,8 @@ public class FamilieHendelseTjeneste {
             familiehendelseEventPubliserer.fireEventTerminFødsel(behandlingId, tidligereGjeldendeFødselsdato, sisteGjeldendeFødselsdato);
         }
     }
-    public void fjernOverstyrtHendelse(Long behandlingId, BehandlingLås behandlingLås) {
-        familieGrunnlagRepository.slettAvklarteData(behandlingId,behandlingLås);
+    public void fjernOverstyrtHendelse(Long behandlingId) {
+        familieGrunnlagRepository.slettOverstyrtData(behandlingId);
     }
 
     public FamilieHendelseGrunnlagEntitet hentAggregat(Long behandlingId) {

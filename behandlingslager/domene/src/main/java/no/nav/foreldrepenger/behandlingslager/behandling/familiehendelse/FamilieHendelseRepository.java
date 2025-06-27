@@ -189,7 +189,10 @@ public class FamilieHendelseRepository {
         lagreOgFlush(behandlingId, aggregatBuilder.build());
     }
 
-    private void fjernBekreftetData(Long behandlingId) {
+    /**
+     * Sletter overstyr data på en Behandling.
+     */
+    public void slettOverstyrtData(Long behandlingId) {
         Objects.requireNonNull(behandlingId, BEHANDLING_ID);
         var grunnlag = hentAggregatHvisEksisterer(behandlingId);
         if (grunnlag.isEmpty()) {
@@ -241,7 +244,7 @@ public class FamilieHendelseRepository {
      * @see BehandlingLås
      */
     public void slettAvklarteData(Long behandlingId, BehandlingLås lås) {
-        fjernBekreftetData(behandlingId);
+        slettOverstyrtData(behandlingId);
 
         verifiserBehandlingLås(lås);
         entityManager.flush();
