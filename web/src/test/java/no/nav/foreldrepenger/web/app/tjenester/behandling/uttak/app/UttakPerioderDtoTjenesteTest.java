@@ -504,7 +504,7 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
             .build();
         var periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
             .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
-            .medErSøktGradering(false)
+            .medErSøktGradering(true)
             .medArbeidsprosent(BigDecimal.valueOf(60))
             .medUtbetalingsgrad(new Utbetalingsgrad(40))
             .build();
