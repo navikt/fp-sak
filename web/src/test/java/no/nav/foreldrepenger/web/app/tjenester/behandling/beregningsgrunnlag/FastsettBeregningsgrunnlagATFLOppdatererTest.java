@@ -29,8 +29,7 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBeregningsgrunnlagATFLDto;
-import no.nav.foreldrepenger.domene.rest.historikk.FastsettBeregningsgrunnlagATFLHistorikkTjeneste;
-import no.nav.foreldrepenger.domene.rest.historikk.kalkulus.FastsettBeregningsgrunnlagATFLHistorikkKalkulusTjeneste;
+import no.nav.foreldrepenger.domene.rest.historikk.FastsettBeregningsgrunnlagATFLHistorikkKalkulusTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 class FastsettBeregningsgrunnlagATFLOppdatererTest {
@@ -41,9 +40,6 @@ class FastsettBeregningsgrunnlagATFLOppdatererTest {
 
     @Mock
     private BeregningTjeneste beregningTjeneste;
-
-    @Mock
-    private FastsettBeregningsgrunnlagATFLHistorikkTjeneste historikk;
 
     @Mock
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
@@ -63,8 +59,7 @@ class FastsettBeregningsgrunnlagATFLOppdatererTest {
     @BeforeEach
     public void setup() {
         when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
-        oppdaterer = new FastsettBeregningsgrunnlagATFLOppdaterer(beregningsgrunnlagTjeneste, historikk,
-                behandlingRepository, historikkKalkulusTjeneste, beregningTjeneste);
+        oppdaterer = new FastsettBeregningsgrunnlagATFLOppdaterer(behandlingRepository, historikkKalkulusTjeneste, beregningTjeneste);
     }
 
     @Test

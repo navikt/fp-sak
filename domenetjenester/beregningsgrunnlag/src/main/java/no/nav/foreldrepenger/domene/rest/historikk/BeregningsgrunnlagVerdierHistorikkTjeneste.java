@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.rest.historikk.kalkulus;
+package no.nav.foreldrepenger.domene.rest.historikk;
 
 import java.util.ArrayList;
 import java.util.List;

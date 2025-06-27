@@ -14,19 +14,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBeregningsgrunnlagATFLDto;
-import no.nav.foreldrepenger.domene.rest.historikk.FastsettBeregningsgrunnlagATFLHistorikkTjeneste;
-import no.nav.foreldrepenger.domene.rest.historikk.kalkulus.FastsettBeregningsgrunnlagATFLHistorikkKalkulusTjeneste;
+import no.nav.foreldrepenger.domene.rest.historikk.FastsettBeregningsgrunnlagATFLHistorikkKalkulusTjeneste;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = FastsettBeregningsgrunnlagATFLDto.class, adapter = AksjonspunktOppdaterer.class)
 public class FastsettBeregningsgrunnlagATFLOppdaterer implements AksjonspunktOppdaterer<FastsettBeregningsgrunnlagATFLDto> {
 
-    private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
-    private FastsettBeregningsgrunnlagATFLHistorikkTjeneste fastsettBeregningsgrunnlagATFLHistorikkTjeneste;
     private BehandlingRepository behandlingRepository;
     private FastsettBeregningsgrunnlagATFLHistorikkKalkulusTjeneste fastsettBeregningsgrunnlagATFLHistorikkKalkulusTjeneste;
     private BeregningTjeneste beregningTjeneste;
@@ -36,13 +31,9 @@ public class FastsettBeregningsgrunnlagATFLOppdaterer implements AksjonspunktOpp
     }
 
     @Inject
-    public FastsettBeregningsgrunnlagATFLOppdaterer(HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
-                                                    FastsettBeregningsgrunnlagATFLHistorikkTjeneste fastsettBeregningsgrunnlagATFLHistorikkTjeneste,
-                                                    BehandlingRepository behandlingRepository,
+    public FastsettBeregningsgrunnlagATFLOppdaterer(BehandlingRepository behandlingRepository,
                                                     FastsettBeregningsgrunnlagATFLHistorikkKalkulusTjeneste fastsettBeregningsgrunnlagATFLHistorikkKalkulusTjeneste,
                                                     BeregningTjeneste beregningTjeneste) {
-        this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
-        this.fastsettBeregningsgrunnlagATFLHistorikkTjeneste = fastsettBeregningsgrunnlagATFLHistorikkTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.fastsettBeregningsgrunnlagATFLHistorikkKalkulusTjeneste = fastsettBeregningsgrunnlagATFLHistorikkKalkulusTjeneste;
         this.beregningTjeneste = beregningTjeneste;
@@ -51,14 +42,10 @@ public class FastsettBeregningsgrunnlagATFLOppdaterer implements AksjonspunktOpp
     @Override
     public OppdateringResultat oppdater(FastsettBeregningsgrunnlagATFLDto dto, AksjonspunktOppdaterParameter param) {
         var ref = param.getRef();
-        var forrigeGrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId())
-            .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
         var endringsaggregat = beregningTjeneste.oppdaterBeregning(dto, ref);
-        if (endringsaggregat.isPresent()) {
-            fastsettBeregningsgrunnlagATFLHistorikkKalkulusTjeneste.lagHistorikk(param, dto, endringsaggregat.get());
-        } else {
-            fastsettBeregningsgrunnlagATFLHistorikkTjeneste.lagHistorikk(param, dto, forrigeGrunnlag.orElseThrow());
-        }
+        endringsaggregat.ifPresent(
+            oppdaterBeregningsgrunnlagResultat -> fastsettBeregningsgrunnlagATFLHistorikkKalkulusTjeneste.lagHistorikk(param, dto,
+                oppdaterBeregningsgrunnlagResultat));
         var builder = OppdateringResultat.utenTransisjon();
         var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
         håndterEventueltOverflødigAksjonspunkt(behandling)
