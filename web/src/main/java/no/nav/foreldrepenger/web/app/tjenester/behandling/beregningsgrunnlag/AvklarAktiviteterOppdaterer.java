@@ -8,20 +8,14 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.rest.dto.AvklarteAktiviteterDto;
-import no.nav.foreldrepenger.domene.rest.historikk.BeregningsaktivitetHistorikkTjeneste;
-import no.nav.foreldrepenger.domene.rest.historikk.kalkulus.BeregningsaktivitetHistorikkKalkulusTjeneste;
+import no.nav.foreldrepenger.domene.rest.historikk.BeregningsaktivitetHistorikkKalkulusTjeneste;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = AvklarteAktiviteterDto.class, adapter = AksjonspunktOppdaterer.class)
 public class AvklarAktiviteterOppdaterer implements AksjonspunktOppdaterer<AvklarteAktiviteterDto> {
 
-    private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
-    private BeregningsaktivitetHistorikkTjeneste beregningsaktivitetHistorikkTjeneste;
     private BeregningsaktivitetHistorikkKalkulusTjeneste beregningsaktivitetHistorikkKalkulusTjeneste;
     private BeregningTjeneste beregningTjeneste;
 
@@ -30,12 +24,8 @@ public class AvklarAktiviteterOppdaterer implements AksjonspunktOppdaterer<Avkla
     }
 
     @Inject
-    public AvklarAktiviteterOppdaterer(HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
-                                       BeregningsaktivitetHistorikkTjeneste beregningsaktivitetHistorikkTjeneste,
-                                       BeregningsaktivitetHistorikkKalkulusTjeneste beregningsaktivitetHistorikkKalkulusTjeneste,
+    public AvklarAktiviteterOppdaterer(BeregningsaktivitetHistorikkKalkulusTjeneste beregningsaktivitetHistorikkKalkulusTjeneste,
                                        BeregningTjeneste beregningTjeneste) {
-        this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
-        this.beregningsaktivitetHistorikkTjeneste = beregningsaktivitetHistorikkTjeneste;
         this.beregningsaktivitetHistorikkKalkulusTjeneste = beregningsaktivitetHistorikkKalkulusTjeneste;
         this.beregningTjeneste = beregningTjeneste;
     }
@@ -44,23 +34,10 @@ public class AvklarAktiviteterOppdaterer implements AksjonspunktOppdaterer<Avkla
     public OppdateringResultat oppdater(AvklarteAktiviteterDto dto, AksjonspunktOppdaterParameter param) {
 
         var behandlingReferanse = param.getRef();
-        var originalBehandlingId = behandlingReferanse.getOriginalBehandlingId();
-        var behandlingId = param.getBehandlingId();
-        var forrige = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandlingId, originalBehandlingId,
-            BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER)
-            .flatMap(BeregningsgrunnlagGrunnlagEntitet::getSaksbehandletAktiviteter);
-
         var endringsaggregat = beregningTjeneste.oppdaterBeregning(dto, behandlingReferanse);
-        if (endringsaggregat.isPresent()) {
-            beregningsaktivitetHistorikkKalkulusTjeneste.lagHistorikk(behandlingReferanse, dto.getBegrunnelse(), endringsaggregat.get());
-        } else {
-            var lagretGrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(behandlingId)
-                .orElseThrow(() -> new IllegalStateException("Har ikke et aktivt grunnlag"));
-            var registerAktiviteter = lagretGrunnlag.getRegisterAktiviteter();
-            var saksbehandledeAktiviteter = lagretGrunnlag.getSaksbehandletAktiviteter()
-                .orElseThrow(() -> new IllegalStateException("Forventer å ha lagret ned saksbehandlet grunnlag"));
-            beregningsaktivitetHistorikkTjeneste.lagHistorikk(behandlingReferanse, registerAktiviteter, saksbehandledeAktiviteter, dto.getBegrunnelse(), forrige);
-        }
+        endringsaggregat.ifPresent(
+            oppdaterBeregningsgrunnlagResultat -> beregningsaktivitetHistorikkKalkulusTjeneste.lagHistorikk(behandlingReferanse, dto.getBegrunnelse(),
+                oppdaterBeregningsgrunnlagResultat));
         return OppdateringResultat.utenOverhopp();
     }
 

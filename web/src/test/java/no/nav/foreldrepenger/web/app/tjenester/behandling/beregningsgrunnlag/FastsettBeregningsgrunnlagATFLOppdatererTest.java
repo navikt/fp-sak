@@ -29,8 +29,7 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBeregningsgrunnlagATFLDto;
-import no.nav.foreldrepenger.domene.rest.historikk.FastsettBeregningsgrunnlagATFLHistorikkTjeneste;
-import no.nav.foreldrepenger.domene.rest.historikk.kalkulus.FastsettBeregningsgrunnlagATFLHistorikkKalkulusTjeneste;
+import no.nav.foreldrepenger.domene.rest.historikk.FastsettBeregningsgrunnlagATFLHistorikkKalkulusTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 class FastsettBeregningsgrunnlagATFLOppdatererTest {
@@ -43,16 +42,7 @@ class FastsettBeregningsgrunnlagATFLOppdatererTest {
     private BeregningTjeneste beregningTjeneste;
 
     @Mock
-    private FastsettBeregningsgrunnlagATFLHistorikkTjeneste historikk;
-
-    @Mock
-    private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
-
-    @Mock
     private Behandling behandling;
-
-    @Mock
-    private Fagsak fagsak;
 
     @Mock
     private Aksjonspunkt ap;
@@ -63,18 +53,12 @@ class FastsettBeregningsgrunnlagATFLOppdatererTest {
     @BeforeEach
     public void setup() {
         when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
-        oppdaterer = new FastsettBeregningsgrunnlagATFLOppdaterer(beregningsgrunnlagTjeneste, historikk,
-                behandlingRepository, historikkKalkulusTjeneste, beregningTjeneste);
+        oppdaterer = new FastsettBeregningsgrunnlagATFLOppdaterer(behandlingRepository, historikkKalkulusTjeneste, beregningTjeneste);
     }
 
     @Test
     void skal_håndtere_overflødig_fastsett_tidsbegrenset_arbeidsforhold_aksjonspunkt() {
         // Arrange
-        var bg = BeregningsgrunnlagEntitet.ny().medSkjæringstidspunkt(LocalDate.now()).build();
-        var gr = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(bg).build(1L, BeregningsgrunnlagTilstand.FASTSATT);
-        when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(anyLong()))
-                .thenReturn(Optional.of(gr));
-
         when(behandling.getÅpentAksjonspunktMedDefinisjonOptional(any())).thenReturn(Optional.of(ap));
         when(ap.getAksjonspunktDefinisjon()).thenReturn(AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD);
 

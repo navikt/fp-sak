@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.rest.historikk.kalkulus;
+package no.nav.foreldrepenger.domene.rest.historikk;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBeregningsgrunnlagATFLDto;
 import no.nav.foreldrepenger.domene.rest.dto.InntektPrAndelDto;
-import no.nav.foreldrepenger.domene.rest.historikk.ArbeidsgiverHistorikkinnslag;
 
 @ApplicationScoped
 public class FastsettBeregningsgrunnlagATFLHistorikkKalkulusTjeneste {
@@ -58,7 +57,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkKalkulusTjeneste {
             .map(BeregningsgrunnlagEndring::getBeregningsgrunnlagPeriodeEndringer)
             .orElse(Collections.emptyList());
         var andelerIFørstePeriode = bgPerioder.stream()
-            .min(Comparator.comparing(bgp -> bgp.getPeriode().getFom()))
+            .min(Comparator.comparing(bgp -> bgp.getPeriode().getFomDato()))
             .map(BeregningsgrunnlagPeriodeEndring::getBeregningsgrunnlagPrStatusOgAndelEndringer)
             .orElse(Collections.emptyList());
 

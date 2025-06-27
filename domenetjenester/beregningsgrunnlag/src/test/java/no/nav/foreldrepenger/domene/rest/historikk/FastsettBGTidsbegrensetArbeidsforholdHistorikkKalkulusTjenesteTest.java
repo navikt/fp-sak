@@ -1,6 +1,6 @@
-package no.nav.foreldrepenger.domene.rest.historikk.kalkulus;
+package no.nav.foreldrepenger.domene.rest.historikk;
 
-import static no.nav.foreldrepenger.domene.rest.historikk.kalkulus.FastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste.oppdaterFrilansInntektVedEndretVerdi;
+import static no.nav.foreldrepenger.domene.rest.historikk.FastsettBGTidsbegrensetArbeidsforholdHistorikkKalkulusTjeneste.oppdaterFrilansInntektVedEndretVerdi;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
