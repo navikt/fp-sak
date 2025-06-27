@@ -55,7 +55,7 @@ class UttakPerioderMapperTest {
         var gjeldendePerioder = List.of(opprinneligPeriode);
         var mapped = UttakPerioderMapper.map(dto.getPerioder(), gjeldendePerioder);
 
-        assertThat(mapped.get(0).getAktiviteter().get(0).getArbeidsprosent()).isEqualTo(periodeAktivitet.getArbeidsprosent());
+        assertThat(mapped.getFirst().getAktiviteter().getFirst().getArbeidsprosent()).isEqualTo(periodeAktivitet.getArbeidsprosent());
     }
 
     @Test
@@ -98,8 +98,8 @@ class UttakPerioderMapperTest {
                 .build();
         var mapped = UttakPerioderMapper.map(dto.getPerioder(), List.of(opprinneligPeriode));
 
-        assertThat(mapped.get(0).getAktiviteter().get(0).getUttakArbeidType()).isIn(UttakArbeidType.FRILANS, UttakArbeidType.ANNET);
-        assertThat(mapped.get(0).getAktiviteter().get(1).getUttakArbeidType()).isIn(UttakArbeidType.FRILANS, UttakArbeidType.ANNET);
+        assertThat(mapped.getFirst().getAktiviteter().get(0).getUttakArbeidType()).isIn(UttakArbeidType.FRILANS, UttakArbeidType.ANNET);
+        assertThat(mapped.getFirst().getAktiviteter().get(1).getUttakArbeidType()).isIn(UttakArbeidType.FRILANS, UttakArbeidType.ANNET);
     }
 
     @Test
@@ -109,14 +109,14 @@ class UttakPerioderMapperTest {
         var aktivitetDto = new UttakResultatPeriodeAktivitetLagreDto.Builder()
                 .medUttakArbeidType(UttakArbeidType.FRILANS)
                 .medStønadskontoType(UttakPeriodeType.FELLESPERIODE)
-                .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
-                .medTrekkdager(BigDecimal.ZERO)
+                .medUtbetalingsgrad(Utbetalingsgrad.TEN)
+                .medTrekkdager(BigDecimal.TEN)
                 .build();
         var periode = new UttakResultatPeriodeLagreDto.Builder()
                 .medTidsperiode(fom, tom)
                 .medGraderingAvslåttÅrsak(GraderingAvslagÅrsak.GRADERING_FØR_UKE_7)
                 .medGraderingInnvilget(true)
-                .medAktiviteter(Collections.singletonList(aktivitetDto))
+                .medAktiviteter(List.of(aktivitetDto))
                 .build();
         var dto = new OverstyringUttakDto(Collections.singletonList(periode));
         var periodeAktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder()
@@ -134,8 +134,8 @@ class UttakPerioderMapperTest {
                 .build();
         var mapped = UttakPerioderMapper.map(dto.getPerioder(), List.of(opprinneligPeriode));
 
-        assertThat(mapped.get(0).isGraderingInnvilget()).isTrue();
-        assertThat(mapped.get(0).getGraderingAvslagÅrsak()).isEqualTo(GraderingAvslagÅrsak.UKJENT);
+        assertThat(mapped.getFirst().isGraderingInnvilget()).isTrue();
+        assertThat(mapped.getFirst().getGraderingAvslagÅrsak()).isEqualTo(GraderingAvslagÅrsak.UKJENT);
     }
 
     private UttakResultatPeriodeAktivitetLagreDto.Builder minimal() {

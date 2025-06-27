@@ -134,7 +134,12 @@ public class ForeldrepengerUttakPeriode {
     }
 
     public boolean isGraderingInnvilget() {
-        return graderingInnvilget;
+        return graderingInnvilget && gradertAktivitetHarUtbetaling();
+    }
+
+    private boolean gradertAktivitetHarUtbetaling() {
+        //Kan oppstå hvis bruker går tom for dager på gradert aktivitet, men annet arbeidsforhold har igjen dager
+        return aktiviteter.stream().anyMatch(a -> a.isSøktGraderingForAktivitetIPeriode() && a.getUtbetalingsgrad().harUtbetaling());
     }
 
     public LocalDate getFom() {

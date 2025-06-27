@@ -324,11 +324,11 @@ class ForeldrepengerUttakTest {
         var dato = LocalDate.now();
 
         var uttakResultatOriginal = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100),
+            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(50), List.of(50),
             List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         var uttakResultatRevurdering = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(false), List.of(100), List.of(100),
+            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(false), List.of(60), List.of(40),
             List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         // Act
