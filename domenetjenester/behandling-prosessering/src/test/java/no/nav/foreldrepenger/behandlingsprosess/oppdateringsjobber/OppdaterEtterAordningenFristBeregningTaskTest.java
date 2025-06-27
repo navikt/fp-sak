@@ -54,6 +54,30 @@ class OppdaterEtterAordningenFristBeregningTaskTest extends EntityManagerAwareTe
 
         oppdateringTask.doTask(ProsessTaskData.forProsessTask(OppdaterEtterAordningFristTask.class));
 
+        verify(behandlingProsesseringTjeneste, times(1)).opprettTasksForGjenopptaOppdaterFortsett(eq(behandling), any());
+        verify(prosessTaskTjeneste, times(1)).lagre(any(ProsessTaskData.class));
+    }
+
+    @Test
+    void behandling_aksjonspunkt_beregning_revurdering() {
+        var repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        var oppdateringTask = new OppdaterEtterAordningFristTask(behandlingProsesseringTjeneste, getEntityManager(), prosessTaskTjeneste);
+
+        var scenario = ScenarioMorSøkerForeldrepenger // Oppretter scenario uten søknad for å simulere sitausjoner som
+            // f.eks der inntektsmelding kommer først.
+            .forFødselUtenSøknad(AktørId.dummy())
+            .medBehandlingType(BehandlingType.REVURDERING);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG);
+        scenario.leggTilVilkår(VilkårType.OPPTJENINGSPERIODEVILKÅR, VilkårUtfallType.OPPFYLT);
+        var behandling = scenario.lagre(repositoryProvider);
+        repositoryProvider.getBehandlingRepository().oppdaterSistOppdatertTidspunkt(behandling, LocalDateTime.now().minusWeeks(4).minusDays(1));
+        repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(behandling, LocalDate.now().minusMonths(10), LocalDate.now().minusDays(1), false);
+        forceOppdaterBehandlingSteg(behandling, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG);
+        var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling.getId());
+        repositoryProvider.getBehandlingRepository().lagre(behandling, lås);
+
+        oppdateringTask.doTask(ProsessTaskData.forProsessTask(OppdaterEtterAordningFristTask.class));
+
         verify(behandlingProsesseringTjeneste, times(1)).reposisjonerBehandlingTilbakeTil(eq(behandling), any(), eq(BehandlingStegType.DEKNINGSGRAD));
         verify(behandlingProsesseringTjeneste, times(1)).opprettTasksForGjenopptaOppdaterFortsett(eq(behandling), any());
         verify(prosessTaskTjeneste, times(1)).lagre(any(ProsessTaskData.class));
@@ -78,7 +102,6 @@ class OppdaterEtterAordningenFristBeregningTaskTest extends EntityManagerAwareTe
 
         oppdateringTask.doTask(ProsessTaskData.forProsessTask(OppdaterEtterAordningFristTask.class));
 
-        verify(behandlingProsesseringTjeneste, times(1)).reposisjonerBehandlingTilbakeTil(eq(behandling), any(), eq(BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING));
         verify(behandlingProsesseringTjeneste, times(1)).opprettTasksForGjenopptaOppdaterFortsett(eq(behandling), any());
         verify(prosessTaskTjeneste, times(1)).lagre(any(ProsessTaskData.class));
     }
@@ -101,7 +124,6 @@ class OppdaterEtterAordningenFristBeregningTaskTest extends EntityManagerAwareTe
 
         oppdateringTask.doTask(ProsessTaskData.forProsessTask(OppdaterEtterAordningFristTask.class));
 
-        verify(behandlingProsesseringTjeneste, times(1)).reposisjonerBehandlingTilbakeTil(eq(behandling), any(), eq(BehandlingStegType.VURDER_ARB_FORHOLD_PERMISJON));
         verify(behandlingProsesseringTjeneste, times(1)).opprettTasksForGjenopptaOppdaterFortsett(eq(behandling), any());
         verify(prosessTaskTjeneste, times(1)).lagre(any(ProsessTaskData.class));
     }

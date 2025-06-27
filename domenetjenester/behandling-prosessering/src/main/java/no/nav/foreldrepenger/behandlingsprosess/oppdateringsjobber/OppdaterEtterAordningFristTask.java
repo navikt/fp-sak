@@ -40,6 +40,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 class OppdaterEtterAordningFristTask implements ProsessTaskHandler {
 
     private static final int A_ORDNING_FRIST_DAG = 5;
+    private static final String OFFSET = "offset";
+    private static final String AKSJONSPUNKT_KODE = "apkode";
+    private static final String AKSJONSPUNKT_OPPRETTET = "astatus";
 
     private static final Set<AksjonspunktDefinisjon> REFRESH = Set.of(AksjonspunktDefinisjon.AVKLAR_AKTIVITETER,
         AksjonspunktDefinisjon.VURDER_FAKTA_FOR_ATFL_SN, AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING,
@@ -68,17 +71,21 @@ class OppdaterEtterAordningFristTask implements ProsessTaskHandler {
         var rapporteringsfrist = finnFristDato(LocalDate.now());
         var nesteVirkedagEtterFrist = Virkedager.plusVirkedager(rapporteringsfrist, 1);
 
+        // vil gjøre tilbakehopp for revurderinger, mens oppdateringsmekanikken for førstegang vil håndtere inntektsendringer
         finnBehandlingerForOppdateringOpptjeningBeregning(nesteVirkedagEtterFrist.getDayOfMonth())
             .filter(b -> !b.isBehandlingPåVent())
             .forEach(this::rullTilbakeBehandling);
 
+        // Denne kan ha så liten effekt vs volum at den muligens kuttes ut.
+        // StartpunktutlederIAY håndterer aksjonspunkter som ikke lenger trengs - del av registeroppdatering
         finnBehandlingerForOppdateringIM(nesteVirkedagEtterFrist.getDayOfMonth())
             .filter(b -> !b.isBehandlingPåVent())
-            .forEach(this::rullTilbakeBehandling);
+            .forEach(b -> prosesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(b, LocalDateTime.now()));
 
+        // StartpunktutlederIAY håndterer aksjonspunkter som ikke lenger trengs - del av registeroppdatering
         finnBehandlingerForOppdateringPermisjon(nesteVirkedagEtterFrist.getDayOfMonth())
             .filter(b -> !b.isBehandlingPåVent())
-            .forEach(this::rullTilbakeBehandling);
+            .forEach(b -> prosesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(b, LocalDateTime.now()));
 
         // Kjør neste task om en måned
         var nesteMånedFrist = finnFristDato(LocalDate.now().plusMonths(1));
@@ -90,21 +97,17 @@ class OppdaterEtterAordningFristTask implements ProsessTaskHandler {
 
     private void rullTilbakeBehandling(Behandling behandling) {
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
-        if (behandling.isBehandlingPåVent()) {
-            prosesseringTjeneste.taBehandlingAvVent(behandling);
+        // Startpunkt for endring av inntekt før STP er opptjening i førstegang (vil gjøre tilbakehopp) og udefinert for revurderinger
+        if (behandling.erRevurdering()) {
+            var tilSteg = finnStegÅHoppeTil(behandling);
+            lagHistorikkinnslag(behandling, tilSteg.getNavn());
+            prosesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, lås, tilSteg);
         }
-        var tilSteg = finnStegÅHoppeTil(behandling);
-        lagHistorikkinnslag(behandling, tilSteg.getNavn());
-        prosesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, lås, tilSteg);
         prosesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, LocalDateTime.now());
     }
 
     private BehandlingStegType finnStegÅHoppeTil(Behandling behandling) {
-        if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING)) {
-            return BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING;
-        } else if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO)) {
-            return BehandlingStegType.VURDER_ARB_FORHOLD_PERMISJON;
-        } else if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING)) {
+        if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING)) {
             return BehandlingStegType.VURDER_OPPTJENING_FAKTA;
         } else if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
             // SVP har ikke dekningsgradsteg
@@ -138,6 +141,7 @@ class OppdaterEtterAordningFristTask implements ProsessTaskHandler {
 
     @SuppressWarnings("unchecked") // getresultList
     private Stream<Behandling> finnBehandlingerForOppdateringOpptjeningBeregning(int offset) {
+        // Her skal vi vurdere om behandling er oppdatert etter rapporteringsfrist for siste hele måned før STP
         var sql = """
             select * from (
               select distinct b.*
@@ -155,14 +159,16 @@ class OppdaterEtterAordningFristTask implements ProsessTaskHandler {
           """;
 
         var query = entityManager.createNativeQuery(sql, Behandling.class)
-            .setParameter("offset", offset)
-            .setParameter("apkode", REFRESH.stream().map(Kodeverdi::getKode).toList())
-            .setParameter("astatus", AksjonspunktStatus.OPPRETTET.getKode());
+            .setParameter(OFFSET, offset)
+            .setParameter(AKSJONSPUNKT_KODE, REFRESH.stream().map(Kodeverdi::getKode).toList())
+            .setParameter(AKSJONSPUNKT_OPPRETTET, AksjonspunktStatus.OPPRETTET.getKode());
         return query.getResultStream();
     }
 
     @SuppressWarnings("unchecked") // getresultList
     private Stream<Behandling> finnBehandlingerForOppdateringIM(int offset) {
+        // Ser på inngang til steg VURDER_KOMPLETT_BEH - da skal vi ære 4 uker før skjæringstidspunktet (STP)
+        // Aksjonspunktet avhenger av status for arbeidsforhold på STP, så tar med fram til rapporteringsfrist for STP-måneden
         var sql = """
             select * from (
               select distinct b.*
@@ -173,15 +179,14 @@ class OppdaterEtterAordningFristTask implements ProsessTaskHandler {
                 and aksjonspunkt_def = :apkode
                 and aksjonspunkt_status = :astatus
                 and behandling_steg_status in (:ferdig)
-                and sist_oppdatert_tidspunkt < st.opprettet_tid + 28
                 and sist_oppdatert_tidspunkt < trunc(add_months(st.opprettet_tid + 28, 1), 'mm') + :offset
             )
           """;
 
         var query = entityManager.createNativeQuery(sql, Behandling.class)
-            .setParameter("offset", offset)
-            .setParameter("apkode", AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING.getKode())
-            .setParameter("astatus", AksjonspunktStatus.OPPRETTET.getKode())
+            .setParameter(OFFSET, offset)
+            .setParameter(AKSJONSPUNKT_KODE, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING.getKode())
+            .setParameter(AKSJONSPUNKT_OPPRETTET, AksjonspunktStatus.OPPRETTET.getKode())
             .setParameter("forste", BehandlingType.FØRSTEGANGSSØKNAD.getKode())
             .setParameter("steg", BehandlingStegType.VURDER_KOMPLETT_BEH.getKode())
             .setParameter("ferdig", List.of(BehandlingStegStatus.UTFØRT.getKode(), BehandlingStegStatus.AVBRUTT.getKode()));
@@ -190,6 +195,8 @@ class OppdaterEtterAordningFristTask implements ProsessTaskHandler {
 
     @SuppressWarnings("unchecked") // getresultList
     private Stream<Behandling> finnBehandlingerForOppdateringPermisjon(int offset) {
+        // Gjelder arbeidsforhold med permisjon på STP uten sluttdato
+        // Disse kan rapporteres når som helst så sjekker om sist oppdatert før rapporteringsfrist for forrige måned er passert
         var sql = """
             select * from (
               select distinct b.*
@@ -202,9 +209,9 @@ class OppdaterEtterAordningFristTask implements ProsessTaskHandler {
           """;
 
         var query = entityManager.createNativeQuery(sql, Behandling.class)
-            .setParameter("offset", offset)
-            .setParameter("apkode", AksjonspunktDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO.getKode())
-            .setParameter("astatus", AksjonspunktStatus.OPPRETTET.getKode());
+            .setParameter(OFFSET, offset)
+            .setParameter(AKSJONSPUNKT_KODE, AksjonspunktDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO.getKode())
+            .setParameter(AKSJONSPUNKT_OPPRETTET, AksjonspunktStatus.OPPRETTET.getKode());
         return query.getResultStream();
     }
 
