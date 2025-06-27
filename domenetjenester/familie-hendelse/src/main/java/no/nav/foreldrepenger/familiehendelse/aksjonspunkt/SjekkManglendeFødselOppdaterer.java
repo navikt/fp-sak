@@ -77,6 +77,9 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
             utledetResultat.forEach(it -> oppdatertOverstyrtHendelse.leggTilBarn(it.getFødselsdato(), it.getDødsdato().orElse(null)));
 
             familieHendelseTjeneste.lagreOverstyrtHendelse(behandlingId, oppdatertOverstyrtHendelse);
+        } else {
+            var skriveLås = behandlingRepository.taSkriveLås(behandlingId);
+            familieHendelseTjeneste.fjernOverstyrtHendelse(behandlingId, skriveLås);
         }
 
         var forrigeFikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandlingId, param.getRef().fagsakYtelseType());
