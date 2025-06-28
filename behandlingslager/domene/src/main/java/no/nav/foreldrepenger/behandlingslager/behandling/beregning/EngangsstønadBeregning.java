@@ -9,8 +9,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
@@ -19,7 +17,7 @@ import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Entity(name = "LegacyESBeregning")
 @Table(name = "BR_LEGACY_ES_BEREGNING")
-public class LegacyESBeregning extends BaseEntitet {
+public class EngangsstønadBeregning extends BaseEntitet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_BR_LEGACY_ES_BEREGNING")
@@ -29,9 +27,12 @@ public class LegacyESBeregning extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "beregning_resultat_id", nullable = false, updatable = false)
-    private LegacyESBeregningsresultat beregningResultat;
+    @Column(name = "behandling_id", nullable = false, updatable = false)
+    private Long behandlingId;
+
+    @Convert(converter = BooleanToStringConverter.class)
+    @Column(name = "aktiv", nullable = false)
+    private boolean aktiv = true;
 
     @Column(name = "sats_verdi", nullable = false)
     private long satsVerdi;
@@ -56,27 +57,21 @@ public class LegacyESBeregning extends BaseEntitet {
     private boolean overstyrt = false;
 
     @SuppressWarnings("unused")
-    LegacyESBeregning() {
+    EngangsstønadBeregning() {
         // for hibernate
     }
 
-    public LegacyESBeregning(long satsVerdi, long antallBarn, long beregnetTilkjentYtelse, LocalDateTime beregnetTidspunkt, boolean overstyrt, Long opprinneligBeregnetTilkjentYtelse) {
-        this(null, satsVerdi, antallBarn, beregnetTilkjentYtelse, beregnetTidspunkt, overstyrt, opprinneligBeregnetTilkjentYtelse);
-    }
 
-    public LegacyESBeregning(long satsVerdi, long antallBarn, long beregnetTilkjentYtelse, LocalDateTime beregnetTidspunkt) {
-        this(null, satsVerdi, antallBarn, beregnetTilkjentYtelse, beregnetTidspunkt, false, null);
-    }
-
-    LegacyESBeregning(LegacyESBeregningsresultat beregningResultat, long satsVerdi, long antallBarn, long beregnetTilkjentYtelse, LocalDateTime beregnetTidspunkt, boolean overstyrt, Long opprinneligBeregnetTilkjentYtelse) {
+    public EngangsstønadBeregning(Long behandlingId, long satsVerdi, long antallBarn, long beregnetTilkjentYtelse, LocalDateTime beregnetTidspunkt) {
+        Objects.requireNonNull(behandlingId, "behandlingId må være satt");
         Objects.requireNonNull(beregnetTidspunkt, "beregnetTidspunkt må være satt");
-        this.beregningResultat = beregningResultat;
+        this.behandlingId = behandlingId;
         this.satsVerdi = satsVerdi;
         this.antallBarn = antallBarn;
         this.beregnetTilkjentYtelse = beregnetTilkjentYtelse;
         this.beregnetTidspunkt = beregnetTidspunkt;
-        this.overstyrt = overstyrt;
-        this.opprinneligBeregnetTilkjentYtelse = opprinneligBeregnetTilkjentYtelse;
+        this.overstyrt = false;
+        this.opprinneligBeregnetTilkjentYtelse = null;
     }
 
     public boolean isOverstyrt() {
@@ -85,6 +80,18 @@ public class LegacyESBeregning extends BaseEntitet {
 
     public Long getId() {
         return id;
+    }
+
+    public Long getBehandlingId() {
+        return behandlingId;
+    }
+
+    public boolean erAktivt() {
+        return aktiv;
+    }
+
+    public void setAktiv(boolean aktiv) {
+        this.aktiv = aktiv;
     }
 
     public long getSatsVerdi() {
@@ -107,10 +114,6 @@ public class LegacyESBeregning extends BaseEntitet {
         return opprinneligBeregnetTilkjentYtelse;
     }
 
-    public LegacyESBeregningsresultat getBeregningResultat() {
-        return beregningResultat;
-    }
-
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<>";
@@ -121,16 +124,27 @@ public class LegacyESBeregning extends BaseEntitet {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        var beregning = (LegacyESBeregning) o;
+        var beregning = (EngangsstønadBeregning) o;
         return Objects.equals(this.overstyrt, beregning.overstyrt)
             && Objects.equals(this.satsVerdi, beregning.satsVerdi)
             && Objects.equals(this.beregnetTilkjentYtelse, beregning.beregnetTilkjentYtelse)
-            && Objects.equals(this.beregnetTidspunkt, beregning.beregnetTidspunkt);
+            && Objects.equals(this.beregnetTidspunkt, beregning.beregnetTidspunkt)
+            && Objects.equals(this.behandlingId, beregning.behandlingId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(overstyrt, satsVerdi, beregnetTilkjentYtelse, beregnetTidspunkt);
+        return Objects.hash(overstyrt, satsVerdi, beregnetTilkjentYtelse, beregnetTidspunkt, behandlingId);
+    }
+
+    public boolean likBeregning(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        var beregning = (EngangsstønadBeregning) o;
+        return Objects.equals(this.satsVerdi, beregning.satsVerdi)
+            && Objects.equals(this.beregnetTilkjentYtelse, beregning.beregnetTilkjentYtelse)
+            && Objects.equals(this.behandlingId, beregning.behandlingId);
     }
 
 }

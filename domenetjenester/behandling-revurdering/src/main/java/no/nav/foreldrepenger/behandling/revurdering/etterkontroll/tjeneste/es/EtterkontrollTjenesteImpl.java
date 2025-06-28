@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
@@ -33,7 +33,7 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     private RevurderingTjeneste revurderingTjeneste;
 
     private BehandlingVedtakRepository behandlingVedtakRepository;
-    private LegacyESBeregningRepository esBeregningRepository;
+    private EngangsstønadBeregningRepository esBeregningRepository;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
     EtterkontrollTjenesteImpl() {
@@ -41,7 +41,7 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
 
     @Inject
     public EtterkontrollTjenesteImpl(BehandlingVedtakRepository vedtakRepository,
-            LegacyESBeregningRepository esBeregningRepository,
+            EngangsstønadBeregningRepository esBeregningRepository,
             BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
             @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD) RevurderingTjeneste revurderingTjeneste,
             @KonfigVerdi(value = "etterkontroll.pdlregistrering.periode", defaultVerdi = "P11W") Period pdlRegistreringsTidsrom) {

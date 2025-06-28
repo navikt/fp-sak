@@ -33,9 +33,13 @@ import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @ApplicationScoped
 public class PersonBasisTjeneste {
 
+    private static final Logger LOG = LoggerFactory.getLogger(PersonBasisTjeneste.class);
     private static final boolean IS_PROD = Environment.current().isProd();
 
     private PdlKlientLogCause pdlKlient;
@@ -58,7 +62,7 @@ public class PersonBasisTjeneste {
 
         var person = pdlKlient.hentPerson(ytelseType, query, projection);
 
-        return new PersoninfoVisning(aktørId, personIdent, mapNavn(person), getDiskresjonskode(person));
+        return new PersoninfoVisning(aktørId, personIdent, mapNavnVisning(person, aktørId), getDiskresjonskode(person));
     }
 
     public PersoninfoBasis hentBasisPersoninfo(FagsakYtelseType ytelseType, AktørId aktørId, PersonIdent personIdent) {
@@ -82,7 +86,7 @@ public class PersonBasisTjeneste {
                 .map(Doedsfall::getDoedsdato)
                 .filter(Objects::nonNull)
                 .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
-        return new PersoninfoBasis(aktørId, personIdent, mapNavn(person), fødselsdato, dødsdato,
+        return new PersoninfoBasis(aktørId, personIdent, mapNavn(person, aktørId), fødselsdato, dødsdato,
             mapKjønn(person), getDiskresjonskode(person).getKode());
     }
 
@@ -154,11 +158,24 @@ public class PersonBasisTjeneste {
         return AdressebeskyttelseGradering.FORTROLIG.equals(kode) ? Diskresjonskode.KODE7 : Diskresjonskode.UDEFINERT;
     }
 
-    private String mapNavn(Person person) {
+    private String mapNavnVisning(Person person, AktørId aktørId) {
         return person.getNavn().stream()
-            .map(PersoninfoTjeneste::mapNavn)
             .filter(Objects::nonNull)
-            .findFirst().orElseGet(() -> IS_PROD ? null : "Navnløs i Folkeregister");
+            .map(PersoninfoTjeneste::mapNavn)
+            .findFirst().orElseGet(() -> {
+                LOG.info("PDL mangler navn for aktørId={}", aktørId);
+                return "Navn ikke tilgjengelig";
+            });
+    }
+
+    private String mapNavn(Person person, AktørId aktørId) {
+        return person.getNavn().stream()
+            .filter(Objects::nonNull)
+            .map(PersoninfoTjeneste::mapNavn)
+            .findFirst().orElseGet(() -> {
+                LOG.warn("PDL mangler navn for aktørId={}", aktørId);
+                return IS_PROD ? null : "Navn ikke tilgjengelig";
+            });
     }
 
     private static NavBrukerKjønn mapKjønn(Person person) {

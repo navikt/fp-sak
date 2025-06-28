@@ -185,7 +185,7 @@ public class SatsReguleringRepository {
                 group by beh.fagsak_id) on (fsmax=b.fagsak_id and bv.vedtak_dato = maxbv)
         join gr_familie_hendelse gf on (gf.behandling_id = b.id and gf.aktiv='J')
         join fh_familie_hendelse fh on fh.id=nvl(gf.overstyrt_familie_hendelse_id, gf.bekreftet_familie_hendelse_id)
-        join BR_LEGACY_ES_BEREGNING esbr on esbr.beregning_resultat_id = br.beregning_resultat_id
+        join BR_LEGACY_ES_BEREGNING esbr on esbr.behandling_id = b.id
         join br_sats sats on (sats.fom = :fomdato and sats_type=:engang)
         where b.behandling_status in (:avsluttet) and b.behandling_type in (:ytelsebeh) and bv.vedtak_resultat_type in (:innvilget)
           and f.ytelse_type = :stonad

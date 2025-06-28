@@ -1,12 +1,11 @@
-package no.nav.foreldrepenger.behandlingsprosess.hjelpemetoder;
-
-import java.util.Properties;
+package no.nav.foreldrepenger.behandlingsprosess.oppdateringsjobber;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.gjenopptak.AutomatiskGjenopptagelseTjeneste;
+
+import java.util.Properties;
 
 /**
  * Batchservice som finner alle behandlinger som ikke er aktive og lager en
@@ -19,7 +18,7 @@ public class GjenopplivBehandlingerBatchTjeneste implements BatchTjeneste {
 
     static final String BATCHNAME = "BVL007";
 
-    private AutomatiskGjenopptagelseTjeneste automatiskGjenopptagelseTjeneste;
+    private final AutomatiskGjenopptagelseTjeneste automatiskGjenopptagelseTjeneste;
 
     @Inject
     public GjenopplivBehandlingerBatchTjeneste(AutomatiskGjenopptagelseTjeneste automatiskGjenopptagelseTjeneste) {

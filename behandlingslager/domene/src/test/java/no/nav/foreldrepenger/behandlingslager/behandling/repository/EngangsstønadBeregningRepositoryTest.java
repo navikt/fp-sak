@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.vedtak.exception.TekniskException;
 
 @ExtendWith(JpaExtension.class)
-class LegacyESBeregningRepositoryTest extends EntityManagerAwareTest {
+class EngangsstønadBeregningRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     @Disabled("Feiler random siden PK sequence i baseline ligger før id fra insert i baseline")

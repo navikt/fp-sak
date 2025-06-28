@@ -8,26 +8,29 @@ import java.util.stream.Stream;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.UidentifisertBarnDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.aksjonspunkt.OverstyringFaktaOmFødselDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto.FødselDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto.Kilde;
-import no.nav.vedtak.exception.FunksjonellException;
 
 @ApplicationScoped
 public class FaktaFødselTjeneste {
 
     private FamilieHendelseTjeneste familieHendelseTjeneste;
+    private BehandlingRepository behandlingRepository;
 
     FaktaFødselTjeneste() {
         // For CDI proxy
     }
 
     @Inject
-    public FaktaFødselTjeneste(FamilieHendelseTjeneste familieHendelseTjeneste) {
+    public FaktaFødselTjeneste(FamilieHendelseTjeneste familieHendelseTjeneste, BehandlingRepository behandlingRepository) {
         this.familieHendelseTjeneste = familieHendelseTjeneste;
+        this.behandlingRepository = behandlingRepository;
     }
 
     public void overstyrFaktaOmFødsel(Long behandlingId, OverstyringFaktaOmFødselDto dto) {
@@ -52,24 +55,31 @@ public class FaktaFødselTjeneste {
         var terminbekreftelse = familieHendelse.getSøknadVersjon().getTerminbekreftelse();
         var gjeldendeBarnListe = mapBarn(familieHendelse);
 
-        var søknadData = new FødselDto.Søknad(
-                getBarn(familieHendelse.getSøknadVersjon()),
-                terminbekreftelse.map(TerminbekreftelseEntitet::getTermindato).orElse(null),
-                terminbekreftelse.map(TerminbekreftelseEntitet::getUtstedtdato).orElse(null),
-                familieHendelse.getSøknadVersjon().getAntallBarn()
-        );
+        var søknadData = new FødselDto.Søknad(getBarn(familieHendelse.getSøknadVersjon()),
+            terminbekreftelse.map(TerminbekreftelseEntitet::getTermindato).orElse(null),
+            terminbekreftelse.map(TerminbekreftelseEntitet::getUtstedtdato).orElse(null), familieHendelse.getSøknadVersjon().getAntallBarn());
 
-        var registerData = new FødselDto.Register(
-                familieHendelse.getBekreftetVersjon().map(this::getBarn).orElseGet(Collections::emptyList)
-        );
+        var registerData = new FødselDto.Register(familieHendelse.getBekreftetVersjon().map(this::getBarn).orElseGet(Collections::emptyList));
 
-        var gjeldendeData = new FødselDto.Gjeldende(
-                mapTermin(familieHendelse, gjeldendeBarnListe),
-                mapUtstedtdato(familieHendelse),
-                gjeldendeBarnListe
-        );
+        var gjeldendeData = new FødselDto.Gjeldende(mapTermin(familieHendelse, gjeldendeBarnListe), mapUtstedtdato(familieHendelse),
+            gjeldendeBarnListe, mapFødselDokumetasjonStatus(familieHendelse, behandlingId));
 
         return new FødselDto(søknadData, registerData, gjeldendeData);
+    }
+
+    private FødselDto.Gjeldende.FødselDokumetasjonStatus mapFødselDokumetasjonStatus(FamilieHendelseGrunnlagEntitet familieHendelse,
+                                                                                     Long behandlingId) {
+        var harUtførtAP = behandlingRepository.hentBehandling(behandlingId)
+            .harUtførtAksjonspunktMedType(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL);
+
+        if (!harUtførtAP) {
+            return FødselDto.Gjeldende.FødselDokumetasjonStatus.IKKE_VURDERT;
+        }
+
+        return familieHendelse.getOverstyrtVersjon()
+            .filter(o -> !o.getBarna().isEmpty())
+            .map(o -> FødselDto.Gjeldende.FødselDokumetasjonStatus.DOKUMENTERT)
+            .orElse(FødselDto.Gjeldende.FødselDokumetasjonStatus.IKKE_DOKUMENTERT);
     }
 
     private static void oppdaterBarnData(OverstyringFaktaOmFødselDto dto, FamilieHendelseBuilder oppdatere) {

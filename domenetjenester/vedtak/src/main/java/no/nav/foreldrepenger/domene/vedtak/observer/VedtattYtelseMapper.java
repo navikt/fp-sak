@@ -35,42 +35,21 @@ class VedtattYtelseMapper {
         return new VedtattYtelseMapper(arbeidsforholdReferanser);
     }
 
-    List<Anvisning> mapForeldrepenger(BeregningsresultatEntitet tilkjent) {
+    List<Anvisning> mapTilkjent(BeregningsresultatEntitet tilkjent) {
         return tilkjent.getBeregningsresultatPerioder().stream()
             .filter(periode -> periode.getDagsats() > 0)
-            .map(this::mapForeldrepengerPeriode)
+            .map(this::mapPeriode)
             .toList();
     }
 
-    private Anvisning mapForeldrepengerPeriode(BeregningsresultatPeriode periode) {
-        return mapPeriode(periode, periode.getKalkulertUtbetalingsgrad());
-    }
-
-    List<Anvisning> mapSvangerskapspenger(BeregningsresultatEntitet tilkjent) {
-        return tilkjent.getBeregningsresultatPerioder().stream()
-            .filter(periode -> periode.getDagsats() > 0)
-            .map(this::mapSvangerskapspengerPeriode)
-            .toList();
-    }
-
-    private Anvisning mapSvangerskapspengerPeriode(BeregningsresultatPeriode periode) {
-        var stipulertBruttoDagsats = periode.getBeregningsresultatAndelList().stream()
-            .filter(a -> a.getDagsats() > 0 && a.getUtbetalingsgrad().compareTo(BigDecimal.ZERO) > 0)
-            .map(a -> BigDecimal.valueOf(a.getDagsats()).multiply(BigDecimal.valueOf(100)).divide(a.getUtbetalingsgrad(), 10, RoundingMode.HALF_EVEN))
-            .reduce(BigDecimal::add)
-            .orElse(BigDecimal.ZERO);
-        var stipulertUtbetalingsgrad = BigDecimal.valueOf(100).multiply(BigDecimal.valueOf(periode.getDagsats())).divide(stipulertBruttoDagsats, 10, RoundingMode.HALF_EVEN);
-        return mapPeriode(periode, stipulertUtbetalingsgrad.setScale(2, RoundingMode.HALF_EVEN));
-    }
-
-    private Anvisning mapPeriode(BeregningsresultatPeriode periode, BigDecimal utbetalingsgrad) {
+    private Anvisning mapPeriode(BeregningsresultatPeriode periode) {
         var anvisning = new Anvisning();
         var p = new Periode();
         p.setFom(periode.getBeregningsresultatPeriodeFom());
         p.setTom(periode.getBeregningsresultatPeriodeTom());
         anvisning.setPeriode(p);
         anvisning.setDagsats(new Desimaltall(BigDecimal.valueOf(periode.getDagsats())));
-        anvisning.setUtbetalingsgrad(new Desimaltall(utbetalingsgrad));
+        anvisning.setUtbetalingsgrad(new Desimaltall(periode.getKalkulertUtbetalingsgrad()));
         anvisning.setAndeler(mapAndeler(periode.getBeregningsresultatAndelList()));
         return anvisning;
     }

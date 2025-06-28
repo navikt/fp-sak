@@ -28,7 +28,7 @@ public class AvklartDataFodselDto extends FamiliehendelseDto {
         this.brukAntallBarnFraTps = brukAntallBarnFraTps;
     }
 
-    void setErOverstyrt(Boolean erOverstyrt) {
+    void setDokumentasjonForligger(Boolean erOverstyrt) {
         this.erOverstyrt = erOverstyrt;
     }
 
@@ -75,8 +75,7 @@ public class AvklartDataFodselDto extends FamiliehendelseDto {
         return utstedtdato;
     }
 
-    @JsonProperty("dokumentasjonForeligger")
-    public Boolean getErOverstyrt() {
+    public Boolean getDokumentasjonForeligger() {
         return erOverstyrt;
     }
 

@@ -35,7 +35,7 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         var fhTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
-        tjeneste = new FaktaFødselTjeneste(fhTjeneste);
+        tjeneste = new FaktaFødselTjeneste(fhTjeneste, repositoryProvider.getBehandlingRepository());
     }
 
     // HentFaktaOmFødsel

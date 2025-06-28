@@ -95,7 +95,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         var behandlingRepository = new BehandlingRepository(getEntityManager());
         beregningsresultatRepository = new BeregningsresultatRepository(getEntityManager());
         var overlappOppgaveTjeneste = new OverlappOppgaveTjeneste(oppgaveTjenesteMock);
-        overlappendeInfotrygdYtelseTjeneste = new LoggOverlappEksterneYtelserTjeneste(null,
+        overlappendeInfotrygdYtelseTjeneste = new LoggOverlappEksterneYtelserTjeneste(
             beregningsresultatRepository, personinfoAdapter, infotrygdPSGrTjenesteMock, infotrygdSPGrTjenesteMock,
             abakusMock, spøkelseMock, overlappRepository, behandlingRepository, overlappOppgaveTjeneste);
         førsteUttaksdatoFp = LocalDate.now().minusMonths(4).minusWeeks(2);

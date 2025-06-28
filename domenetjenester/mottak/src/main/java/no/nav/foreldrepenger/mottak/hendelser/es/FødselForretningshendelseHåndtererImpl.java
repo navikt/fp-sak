@@ -9,7 +9,7 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
@@ -26,7 +26,7 @@ public class FødselForretningshendelseHåndtererImpl implements Forretningshend
     private ForretningshendelseHåndtererFelles forretningshendelseHåndtererFelles;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private Period pdlRegistreringsTidsrom;
-    private LegacyESBeregningRepository legacyESBeregningRepository;
+    private EngangsstønadBeregningRepository engangsstønadBeregningRepository;
 
 
     /**
@@ -36,11 +36,11 @@ public class FødselForretningshendelseHåndtererImpl implements Forretningshend
     public FødselForretningshendelseHåndtererImpl(ForretningshendelseHåndtererFelles forretningshendelseHåndtererFelles,
                                                   @KonfigVerdi(value = "etterkontroll.tid.tilbake", defaultVerdi = "P60D") Period pdlRegistreringsTidsrom,
                                                   SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                                  LegacyESBeregningRepository legacyESBeregningRepository) {
+                                                  EngangsstønadBeregningRepository engangsstønadBeregningRepository) {
         this.forretningshendelseHåndtererFelles = forretningshendelseHåndtererFelles;
         this.pdlRegistreringsTidsrom = pdlRegistreringsTidsrom;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
-        this.legacyESBeregningRepository = legacyESBeregningRepository;
+        this.engangsstønadBeregningRepository = engangsstønadBeregningRepository;
     }
 
     @Override
@@ -61,6 +61,6 @@ public class FødselForretningshendelseHåndtererImpl implements Forretningshend
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getUtledetSkjæringstidspunkt();
         var idag = LocalDate.now().minusDays(1);
         // Gjelder terminsøknader pluss intervall. Øvrige tilfelle fanges opp i etterkontroll.
-        return idag.isBefore(stp.plus(pdlRegistreringsTidsrom)) && legacyESBeregningRepository.skalReberegne(behandling.getId(), idag);
+        return idag.isBefore(stp.plus(pdlRegistreringsTidsrom)) && engangsstønadBeregningRepository.skalReberegne(behandling.getId(), idag);
     }
 }

@@ -89,6 +89,11 @@
       "cluster": "prod-fss"
     },
     {
+      "app": "modiapersonoversikt-api",
+      "namespace": "personoversikt",
+      "cluster": "prod-gcp"
+    },
+    {
       "app": "infotrygd-feed-proxy-v2",
       "namespace": "infotrygd",
       "cluster": "prod-fss"

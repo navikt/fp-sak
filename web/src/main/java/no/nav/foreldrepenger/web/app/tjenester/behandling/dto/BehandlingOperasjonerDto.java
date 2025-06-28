@@ -9,6 +9,7 @@ public record BehandlingOperasjonerDto(UUID uuid,
                                        boolean behandlingKanHenlegges,
                                        boolean behandlingKanGjenopptas,
                                        boolean behandlingKanOpnesForEndringer,
+                                       boolean behandlingKanMerkesHaster,
                                        boolean behandlingKanSettesPaVent,
                                        boolean behandlingKanSendeMelding,
                                        boolean behandlingFraBeslutter,
@@ -17,13 +18,13 @@ public record BehandlingOperasjonerDto(UUID uuid,
 
 
     public BehandlingOperasjonerDto(UUID uuid) {
-        this(uuid, false, false, false,
+        this(uuid, false, false, false, false,
             false, false, false, false,
             false, VergeBehandlingsmenyEnum.SKJUL);
     }
 
     public BehandlingOperasjonerDto(UUID uuid, boolean behandlingTilGodkjenning) {
-        this(uuid, false, false, false,
+        this(uuid, false, false, false, false,
             false, false, false, false,
             behandlingTilGodkjenning, VergeBehandlingsmenyEnum.SKJUL);
     }

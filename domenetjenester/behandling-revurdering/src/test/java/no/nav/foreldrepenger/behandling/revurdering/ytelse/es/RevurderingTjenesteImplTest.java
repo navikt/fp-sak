@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceP
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -43,7 +43,7 @@ class RevurderingTjenesteImplTest {
         var serviceProvider = new BehandlingskontrollServiceProvider(entityManager,
                 null);
         var revurderingEndringES = new RevurderingEndringImpl(behandlingRepository,
-                new LegacyESBeregningRepository(entityManager), repositoryProvider.getBehandlingsresultatRepository());
+                new EngangsstønadBeregningRepository(entityManager), repositoryProvider.getBehandlingsresultatRepository());
         var vergeRepository = new VergeRepository(entityManager);
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         var behandlingRevurderingTjeneste = new BehandlingRevurderingTjeneste(repositoryProvider, fagsakRelasjonTjeneste);

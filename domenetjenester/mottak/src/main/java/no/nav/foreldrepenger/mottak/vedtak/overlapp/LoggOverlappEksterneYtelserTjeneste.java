@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -25,19 +24,14 @@ import no.nav.abakus.vedtak.ytelse.v1.YtelseV1;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.domene.abakus.AbakusTjeneste;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
-import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
@@ -68,7 +62,6 @@ public class LoggOverlappEksterneYtelserTjeneste {
     private static final List<Duration> SPOKELSE_TIMEOUTS = List.of(Duration.ofMillis(100), Duration.ofMillis(500), Duration.ofMillis(2500),
         Duration.ofMillis(12), Duration.ofSeconds(60));
 
-    private BeregningTjeneste beregningTjeneste;
     private BeregningsresultatRepository beregningsresultatRepository;
     private BehandlingRepository behandlingRepository;
     private PersoninfoAdapter personinfoAdapter;
@@ -81,8 +74,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
 
 
     @Inject
-    public LoggOverlappEksterneYtelserTjeneste(BeregningTjeneste beregningTjeneste,
-                                               BeregningsresultatRepository beregningsresultatRepository,
+    public LoggOverlappEksterneYtelserTjeneste(BeregningsresultatRepository beregningsresultatRepository,
                                                PersoninfoAdapter personinfoAdapter,
                                                InfotrygdPSGrunnlag infotrygdPSGrTjeneste,
                                                InfotrygdSPGrunnlag infotrygdSPGrTjeneste,
@@ -91,7 +83,6 @@ public class LoggOverlappEksterneYtelserTjeneste {
                                                OverlappVedtakRepository overlappRepository,
                                                BehandlingRepository behandlingRepository,
                                                OverlappOppgaveTjeneste oppgaveTjeneste) {
-        this.beregningTjeneste = beregningTjeneste;
         this.beregningsresultatRepository = beregningsresultatRepository;
         this.behandlingRepository = behandlingRepository;
         this.personinfoAdapter = personinfoAdapter;
@@ -176,15 +167,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
     }
 
     private LocalDateTimeline<BigDecimal> getTidslinjeForBehandling(BehandlingReferanse ref) {
-        if (FagsakYtelseType.FORELDREPENGER.equals(ref.fagsakYtelseType())) {
-            return getTidslinjeForBehandlingFP(ref.behandlingId());
-        }
-        return FagsakYtelseType.SVANGERSKAPSPENGER.equals(ref.fagsakYtelseType()) ? getTidslinjeForBehandlingSVP(
-            ref) : new LocalDateTimeline<>(Collections.emptyList());
-    }
-
-    private LocalDateTimeline<BigDecimal> getTidslinjeForBehandlingFP(Long behandlingId) {
-        var segments = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId)
+        var segments = beregningsresultatRepository.hentUtbetBeregningsresultat(ref.behandlingId())
             .map(BeregningsresultatEntitet::getBeregningsresultatPerioder)
             .orElse(Collections.emptyList())
             .stream()
@@ -195,54 +178,6 @@ public class LoggOverlappEksterneYtelserTjeneste {
 
         return new LocalDateTimeline<>(segments, LoggOverlappEksterneYtelserTjeneste::max)
             .compress(this::like, this::kombiner);
-    }
-
-    private LocalDateTimeline<BigDecimal> getTidslinjeForBehandlingSVP(BehandlingReferanse ref) {
-        var resultatPerioder = beregningsresultatRepository.hentUtbetBeregningsresultat(ref.behandlingId())
-            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder)
-            .orElse(Collections.emptyList())
-            .stream()
-            .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
-            .toList();
-        if (resultatPerioder.isEmpty()) {
-            return new LocalDateTimeline<>(Collections.emptyList());
-        }
-        var beregningsgrunnlag = beregningTjeneste.hent(ref).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag)
-            .orElse(null);
-        if (beregningsgrunnlag == null) {
-            return new LocalDateTimeline<>(Collections.emptyList());
-        }
-        var grunnlagUtbetGrad = beregningsgrunnlag.getBeregningsgrunnlagPerioder()
-            .stream()
-            .filter(p -> p.getDagsats() != null && p.getDagsats() > 0)
-            .map(p -> new LocalDateSegment<>(p.getBeregningsgrunnlagPeriodeFom(), p.getBeregningsgrunnlagPeriodeTom(),
-                beregnGrunnlagUtbetGradSvp(p, beregningsgrunnlag.getGrunnbeløp().getVerdi())))
-            .toList();
-        var resultatsegments = resultatPerioder.stream()
-            .map(p -> finnUtbetalingsgradFor(p, grunnlagUtbetGrad))
-            .filter(Objects::nonNull)
-            .toList();
-        return new LocalDateTimeline<>(resultatsegments, LoggOverlappEksterneYtelserTjeneste::max)
-            .compress(this::like, this::kombiner);
-    }
-
-    private BigDecimal beregnGrunnlagUtbetGradSvp(BeregningsgrunnlagPeriode bgPeriode, BigDecimal grunnbeløp) {
-        var seksG = new BigDecimal(6).multiply(grunnbeløp);
-        var avkortet = bgPeriode.getBruttoPrÅr().compareTo(seksG) > 0 ? seksG : bgPeriode.getBruttoPrÅr();
-        return BigDecimal.ZERO.compareTo(avkortet) == 0 ? BigDecimal.ZERO : BigDecimal.TEN.multiply(BigDecimal.TEN)
-            .multiply(bgPeriode.getRedusertPrÅr())
-            .divide(avkortet, RoundingMode.HALF_EVEN);
-    }
-
-    private LocalDateSegment<BigDecimal> finnUtbetalingsgradFor(BeregningsresultatPeriode periode,
-                                                                List<LocalDateSegment<BigDecimal>> grader) {
-        return grader.stream()
-            .filter(d -> d.getLocalDateInterval()
-                .encloses(periode.getBeregningsresultatPeriodeFom())) // Antar at BR-perioder ikke krysser BG-perioder
-            .findFirst()
-            .map(v -> new LocalDateSegment<>(periode.getBeregningsresultatPeriodeFom(),
-                periode.getBeregningsresultatPeriodeTom(), v.getValue()))
-            .orElse(null);
     }
 
     private LocalDateTimeline<BigDecimal> lagTidslinjeforYtelseV1(YtelseV1 ytelse) {

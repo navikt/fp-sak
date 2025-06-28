@@ -14,8 +14,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregning;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.vedtak.exception.TekniskException;
@@ -27,13 +27,13 @@ import no.nav.vedtak.exception.TekniskException;
 @ApplicationScoped
 public class RevurderingEndringImpl implements RevurderingEndring {
 
-    private LegacyESBeregningRepository beregningRepository;
+    private EngangsstønadBeregningRepository beregningRepository;
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
 
     @Inject
     public RevurderingEndringImpl(BehandlingRepository behandlingRepository,
-                                  LegacyESBeregningRepository beregningRepository,
+                                  EngangsstønadBeregningRepository beregningRepository,
                                   BehandlingsresultatRepository behandlingsresultatRepository) {
         this.beregningRepository = beregningRepository;
         this.behandlingRepository = behandlingRepository;
@@ -60,8 +60,8 @@ public class RevurderingEndringImpl implements RevurderingEndring {
 
         // Begge har utfall INNVILGET
         if (nyResultatType.equals(BehandlingResultatType.INNVILGET)) {
-            var nyBeregning = beregningRepository.getSisteBeregning(behandling.getId());
-            var originalBeregning = beregningRepository.getSisteBeregning(originalBehandlingId);
+            var nyBeregning = beregningRepository.hentEngangsstønadBeregning(behandling.getId());
+            var originalBeregning = beregningRepository.hentEngangsstønadBeregning(originalBehandlingId);
             if (originalBeregning.isPresent() && nyBeregning.isPresent()) {
                 return harSammeBeregnetYtelse(nyBeregning.get(), originalBeregning.get());
             }
@@ -91,7 +91,7 @@ public class RevurderingEndringImpl implements RevurderingEndring {
         return erRevurderingMedUendretUtfall(behandling, behandlingResultat.get().getBehandlingResultatType());
     }
 
-    private boolean harSammeBeregnetYtelse(LegacyESBeregning nyBeregning, LegacyESBeregning originalBeregning) {
+    private boolean harSammeBeregnetYtelse(EngangsstønadBeregning nyBeregning, EngangsstønadBeregning originalBeregning) {
         return Objects.equals(nyBeregning.getBeregnetTilkjentYtelse(), originalBeregning.getBeregnetTilkjentYtelse());
     }
 

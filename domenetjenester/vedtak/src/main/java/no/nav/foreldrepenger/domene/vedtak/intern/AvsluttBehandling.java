@@ -14,6 +14,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.impl.VurderBehandlingerUnderIverksettelse;
 
@@ -29,6 +31,7 @@ public class AvsluttBehandling {
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private VurderBehandlingerUnderIverksettelse vurderBehandlingerUnderIverksettelse;
     private OppdatereFagsakRelasjonVedVedtak oppdatereFagsakRelasjonVedVedtak;
+    private FagsakEgenskapRepository fagsakEgenskapRepository;
 
     public AvsluttBehandling() {
         // CDI
@@ -40,7 +43,8 @@ public class AvsluttBehandling {
                              BehandlingEventPubliserer behandlingEventPubliserer,
                              VurderBehandlingerUnderIverksettelse vurderBehandlingerUnderIverksettelse,
                              BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
-                             OppdatereFagsakRelasjonVedVedtak oppdatereFagsakRelasjonVedVedtak) {
+                             OppdatereFagsakRelasjonVedVedtak oppdatereFagsakRelasjonVedVedtak,
+                             FagsakEgenskapRepository fagsakEgenskapRepository) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
@@ -48,6 +52,7 @@ public class AvsluttBehandling {
         this.vurderBehandlingerUnderIverksettelse = vurderBehandlingerUnderIverksettelse;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.oppdatereFagsakRelasjonVedVedtak = oppdatereFagsakRelasjonVedVedtak;
+        this.fagsakEgenskapRepository = fagsakEgenskapRepository;
     }
 
     void avsluttBehandling(Long behandlingId) {
@@ -71,6 +76,14 @@ public class AvsluttBehandling {
         behandlingskontrollTjeneste.prosesserBehandlingGjenopptaHvisStegVenter(kontekst, BehandlingStegType.IVERKSETT_VEDTAK);
 
         LOG.info("Avslutter behandling har avsluttet behandling: {}", behandlingId);
+
+        if (fagsakEgenskapRepository.harFagsakMarkering(behandling.getFagsakId(), FagsakMarkering.HASTER) && behandling.erYtelseBehandling()) {
+            var andreÅpneYtelsesbehandlinger = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(behandling.getFagsakId()).stream()
+                .anyMatch(b -> !b.getId().equals(behandlingId));
+            if (!andreÅpneYtelsesbehandlinger) {
+                fagsakEgenskapRepository.fjernFagsakMarkering(behandling.getFagsakId(), FagsakMarkering.HASTER);
+            }
+        }
 
         // TODO (Fluoritt): Kunne vi flyttet dette ut i en Event observer (ref BehandlingStatusEvent) Hilsen FC.
         var ventendeBehandlingOpt = vurderBehandlingerUnderIverksettelse.finnBehandlingSomVenterIverksetting(behandling);

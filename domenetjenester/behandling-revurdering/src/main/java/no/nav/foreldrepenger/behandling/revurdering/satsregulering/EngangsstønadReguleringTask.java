@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
@@ -41,7 +41,7 @@ public class EngangsstønadReguleringTask extends FagsakProsessTask {
     private static final Logger LOG = LoggerFactory.getLogger(EngangsstønadReguleringTask.class);
 
     private final RevurderingTjeneste revurderingTjeneste;
-    private final LegacyESBeregningRepository esBeregningRepository;
+    private final EngangsstønadBeregningRepository esBeregningRepository;
     private final BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private final PersoninfoAdapter personinfoAdapter;
     private final BehandlingRepository behandlingRepository;
@@ -54,7 +54,7 @@ public class EngangsstønadReguleringTask extends FagsakProsessTask {
                                        FamilieHendelseTjeneste familieHendelseTjeneste,
                                        PersoninfoAdapter personinfoAdapter,
                                        BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
-                                       LegacyESBeregningRepository esBeregningRepository,
+                                       EngangsstønadBeregningRepository esBeregningRepository,
                                        BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                                        @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD) RevurderingTjeneste revurderingTjeneste) {
         super(repositoryProvider.getFagsakLåsRepository(), repositoryProvider.getBehandlingLåsRepository());

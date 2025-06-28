@@ -7,7 +7,6 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.steg.avklarfakta.KontrollerFaktaSteg;
-import no.nav.foreldrepenger.behandling.steg.avklarfakta.RyddRegisterData;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
@@ -18,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -39,9 +39,9 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
 
     private KontrollerFaktaTjeneste tjeneste;
 
-    private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
+    private EngangsstønadBeregningRepository engangsstønadBeregningRepository;
 
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
@@ -53,9 +53,10 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
 
     @Inject
     public KontrollerFaktaStegImpl(BehandlingRepositoryProvider repositoryProvider,
-            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-            @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD) KontrollerFaktaTjeneste tjeneste) {
-        this.repositoryProvider = repositoryProvider;
+                                   SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                   @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD) KontrollerFaktaTjeneste tjeneste,
+                                   EngangsstønadBeregningRepository engangsstønadBeregningRepository) {
+        this.engangsstønadBeregningRepository = engangsstønadBeregningRepository;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
@@ -88,8 +89,7 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
             BehandlingStegType fraSteg) {
         if (!BehandlingStegType.KONTROLLER_FAKTA.equals(fraSteg) || BehandlingStegType.KONTROLLER_FAKTA.equals(tilSteg)) {
-            var rydder = new RyddRegisterData(repositoryProvider, kontekst);
-            rydder.ryddRegisterdataLegacyEngangsstønad();
+            engangsstønadBeregningRepository.deaktiverTidligereEngangsstønadBeregning(kontekst.getBehandlingId());
         }
     }
 

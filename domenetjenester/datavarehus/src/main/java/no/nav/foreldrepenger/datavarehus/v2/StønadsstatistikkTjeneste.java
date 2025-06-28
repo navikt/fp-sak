@@ -43,8 +43,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregning;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -107,7 +107,7 @@ public class StønadsstatistikkTjeneste {
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private UttakInputTjeneste uttakInputTjeneste;
     private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
-    private LegacyESBeregningRepository legacyESBeregningRepository;
+    private EngangsstønadBeregningRepository engangsstønadBeregningRepository;
     private BeregningTjeneste beregningTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
@@ -128,7 +128,7 @@ public class StønadsstatistikkTjeneste {
                                      YtelseFordelingTjeneste ytelseFordelingTjeneste,
                                      UttakInputTjeneste uttakInputTjeneste,
                                      StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste,
-                                     LegacyESBeregningRepository legacyESBeregningRepository,
+                                     EngangsstønadBeregningRepository engangsstønadBeregningRepository,
                                      BeregningTjeneste beregningTjeneste,
                                      InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
                                      SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository,
@@ -146,7 +146,7 @@ public class StønadsstatistikkTjeneste {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
-        this.legacyESBeregningRepository = legacyESBeregningRepository;
+        this.engangsstønadBeregningRepository = engangsstønadBeregningRepository;
         this.beregningTjeneste = beregningTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.svangerskapspengerUttakResultatRepository = svangerskapspengerUttakResultatRepository;
@@ -252,7 +252,7 @@ public class StønadsstatistikkTjeneste {
     }
 
     private Long utledTilkjentEngangsstønad(Long behandlingId) {
-        return legacyESBeregningRepository.getSisteBeregning(behandlingId).map(LegacyESBeregning::getBeregnetTilkjentYtelse).orElse(null);
+        return engangsstønadBeregningRepository.hentEngangsstønadBeregning(behandlingId).map(EngangsstønadBeregning::getBeregnetTilkjentYtelse).orElse(null);
     }
 
     private List<StønadsstatistikkUtbetalingPeriode> mapUtbetalingssperioder(Behandling behandling) {

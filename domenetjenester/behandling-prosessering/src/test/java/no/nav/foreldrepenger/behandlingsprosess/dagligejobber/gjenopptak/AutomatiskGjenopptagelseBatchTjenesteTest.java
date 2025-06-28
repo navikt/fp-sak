@@ -18,7 +18,7 @@ class AutomatiskGjenopptagelseBatchTjenesteTest {
     private static final String BATCHNAME = AutomatiskGjenopptagelseBatchTjeneste.BATCHNAME;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         mockTjeneste = mock(AutomatiskGjenopptagelseTjeneste.class);
         batchTjeneste = new AutomatiskGjenopptagelseBatchTjeneste(mockTjeneste);
     }

@@ -66,7 +66,7 @@ class SendVedtaksbrevTaskTest {
     void send_vedtaksbrev_når_ingen_endring_men_det_foreligger_fritekstbrev() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medBehandlingVedtak().medVedtakResultatType(VedtakResultatType.INNVILGET).medBeslutning(true);
-        scenario.medBehandlingsresultat(Behandlingsresultat.builderForBeregningResultat().medVedtaksbrev(Vedtaksbrev.FRITEKST));
+        scenario.medBehandlingsresultat(Behandlingsresultat.builder().medVedtaksbrev(Vedtaksbrev.FRITEKST));
         var behandling = scenario.lagre(repositoryProvider);
         when(revurderingTjeneste.erRevurderingMedUendretUtfall(behandling)).thenReturn(true);
 
@@ -81,7 +81,7 @@ class SendVedtaksbrevTaskTest {
     void send_vedtaksbrev_vedtak_innvilget() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medBehandlingVedtak().medVedtakResultatType(VedtakResultatType.INNVILGET).medBeslutning(true);
-        scenario.medBehandlingsresultat(Behandlingsresultat.builderForBeregningResultat().medVedtaksbrev(Vedtaksbrev.AUTOMATISK));
+        scenario.medBehandlingsresultat(Behandlingsresultat.builder().medVedtaksbrev(Vedtaksbrev.AUTOMATISK));
         var behandling = scenario.lagre(repositoryProvider);
 
         // Act
@@ -94,7 +94,7 @@ class SendVedtaksbrevTaskTest {
     @Test
     void test_ingen_brev_om_vedtaksbrev_INGEN() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.medBehandlingsresultat(Behandlingsresultat.builderForBeregningResultat().medVedtaksbrev(Vedtaksbrev.INGEN));
+        scenario.medBehandlingsresultat(Behandlingsresultat.builder().medVedtaksbrev(Vedtaksbrev.INGEN));
         var behandling = scenario.lagre(repositoryProvider);
 
         // Act

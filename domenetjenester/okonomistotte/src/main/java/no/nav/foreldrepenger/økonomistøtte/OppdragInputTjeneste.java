@@ -11,8 +11,8 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregning;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -48,7 +48,7 @@ public class OppdragInputTjeneste {
     private static final long DUMMY_PT_SIMULERING_ID = -1L;
     private static final String DEFAULT_ANSVARLIG_SAKSBEHANDLER = "VL";
 
-    private LegacyESBeregningRepository beregningRepository;
+    private EngangsstønadBeregningRepository beregningRepository;
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
@@ -69,7 +69,7 @@ public class OppdragInputTjeneste {
                                 TilbakekrevingRepository tilbakekrevingRepository,
                                 PersoninfoAdapter personinfoAdapter,
                                 ØkonomioppdragRepository økonomioppdragRepository,
-                                LegacyESBeregningRepository beregningRepository) {
+                                EngangsstønadBeregningRepository beregningRepository) {
         this.behandlingRepository = behandlingRepository;
         this.beregningsresultatRepository = beregningsresultatRepository;
         this.behandlingVedtakRepository = behandlingVedtakRepository;
@@ -159,8 +159,8 @@ public class OppdragInputTjeneste {
     }
 
     private Optional<Long> hentSatsFraBehandling(long behandlingId) {
-        var beregning = beregningRepository.getSisteBeregning(behandlingId);
-        return beregning.map(LegacyESBeregning::getBeregnetTilkjentYtelse);
+        var beregning = beregningRepository.hentEngangsstønadBeregning(behandlingId);
+        return beregning.map(EngangsstønadBeregning::getBeregnetTilkjentYtelse);
     }
 
     private FamilieYtelseType getFamilieYtelseType(long behandlingId, Fagsak fagsak) {

@@ -17,8 +17,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregning;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -51,7 +51,7 @@ class SimulerOppdragTjenesteESTest {
     @Mock
     private ØkonomioppdragRepository økonomioppdragRepository;
     @Mock
-    private LegacyESBeregningRepository beregningRepository;
+    private EngangsstønadBeregningRepository beregningRepository;
     @Mock
     private FamilieHendelseRepository familieHendelseRepository;
     @Mock
@@ -60,7 +60,7 @@ class SimulerOppdragTjenesteESTest {
     private long behandlingId;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         var behandling = Behandling.nyBehandlingFor(
             Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()), new Saksnummer("123456789")),
             BehandlingType.FØRSTEGANGSSØKNAD).build();
@@ -73,8 +73,8 @@ class SimulerOppdragTjenesteESTest {
             .medVedtakResultatType(VedtakResultatType.INNVILGET)
             .build()));
         when(personinfoAdapter.hentFnrForAktør(any())).thenReturn(PersonIdent.fra("0987654321"));
-        when(beregningRepository.getSisteBeregning(behandlingId)).thenReturn(
-            Optional.of(new LegacyESBeregning(15000, 1, 15000, LocalDateTime.now())));
+        when(beregningRepository.hentEngangsstønadBeregning(behandlingId)).thenReturn(
+            Optional.of(new EngangsstønadBeregning(behandlingId, 15000, 1, 15000, LocalDateTime.now())));
         var familieHendelseGrunnlag = mock(FamilieHendelseGrunnlagEntitet.class);
         when(familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId)).thenReturn(Optional.of(familieHendelseGrunnlag));
         var familieHendelse = mock(FamilieHendelseEntitet.class);

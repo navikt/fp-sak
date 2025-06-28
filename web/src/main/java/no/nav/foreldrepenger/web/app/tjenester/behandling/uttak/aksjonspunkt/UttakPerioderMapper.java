@@ -66,6 +66,7 @@ public final class UttakPerioderMapper {
                 matchendeGjeldendeAktivitet.getArbeidsgiver().orElse(null),
                 matchendeGjeldendeAktivitet.getArbeidsforholdRef()))
             .medTrekkdager(dto.getTrekkdagerDesimaler())
+            .medSøktGraderingForAktivitetIPeriode(matchendeGjeldendeAktivitet.isSøktGraderingForAktivitetIPeriode())
             .build();
     }
 }

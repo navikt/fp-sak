@@ -377,31 +377,6 @@ public class BehandlingRepository {
         return låsRepository.taLås(behandlingUuid);
     }
 
-    /**
-     * Slette tidligere beregning på en Behandling. Sørger for at samtidige
-     * oppdateringer på samme Behandling, eller andre Behandlinger på samme Fagsak
-     * ikke kan gjøres samtidig.
-     *
-     * @see BehandlingLås
-     * @deprecated Gjelder kun Engangsstønad. Skal flyttes
-     */
-    @Deprecated
-    public void slettTidligereBeregningerES(Behandling behandling, BehandlingLås lås) {
-        var behandlingsresultat = getBehandlingsresultat(behandling);
-        if (behandlingsresultat != null
-                && behandlingsresultat.getBeregningResultat() != null) {
-            behandlingsresultat.getBeregningResultat().getBeregninger()
-                    .forEach(beregning -> {
-                        var query = entityManager.createQuery(
-                                "DELETE FROM LegacyESBeregning b WHERE b.id=:beregningId");
-                        query.setParameter("beregningId", beregning.getId());
-                        query.executeUpdate();
-                    });
-            verifiserBehandlingLås(lås);
-            entityManager.flush();
-        }
-    }
-
     private Optional<Behandling> finnSisteBehandling(Long fagsakId, Set<BehandlingType> behandlingType, boolean readOnly) {
         Objects.requireNonNull(fagsakId, FAGSAK_ID);
         Objects.requireNonNull(behandlingType, "behandlingType");

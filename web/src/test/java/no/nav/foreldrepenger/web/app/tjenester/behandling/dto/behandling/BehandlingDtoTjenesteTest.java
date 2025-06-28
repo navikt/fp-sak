@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
@@ -74,15 +75,15 @@ class BehandlingDtoTjenesteTest {
     private VergeRepository vergeRepository;
 
     @Inject
-    private VedtaksbrevStatusUtleder vedtaksbrevStatusUtleder; // TODO INJECT
+    private VedtaksbrevStatusUtleder vedtaksbrevStatusUtleder;
 
     private BehandlingDtoTjeneste tjeneste;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         tjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste, uttakTjeneste, tilbakekrevingRepository,
-            skjæringstidspunktTjeneste, behandlingDokumentRepository, mock(TotrinnTjeneste.class), dokumentasjonVurderingBehovDtoTjeneste,
-            faktaUttakPeriodeDtoTjeneste, fagsakRelasjonTjeneste,
+            skjæringstidspunktTjeneste, mock(EngangsstønadBeregningRepository.class), behandlingDokumentRepository, mock(TotrinnTjeneste.class),
+            dokumentasjonVurderingBehovDtoTjeneste, faktaUttakPeriodeDtoTjeneste, fagsakRelasjonTjeneste,
             new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, foreldrepengerUttakTjeneste), dekningsgradTjeneste, vergeRepository,
             vedtaksbrevStatusUtleder);
     }
