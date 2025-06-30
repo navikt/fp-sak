@@ -57,7 +57,7 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
         // Assert
         var gjeldende = fødselDto.gjeldende();
         assertThat(gjeldende).isNotNull();
-        assertThat(gjeldende.termin().antallBarn()).isEqualTo(2);
+        assertThat(gjeldende.antallBarn()).extracting(FødselDto.Gjeldende.AntallBarn::antall, FødselDto.Gjeldende.AntallBarn::kilde).containsExactly(2, Kilde.SAKSBEHANDLER);
         assertThat(gjeldende.termin()).extracting(FødselDto.Gjeldende.Termin::termindato, FødselDto.Gjeldende.Termin::kilde).containsExactly(TERMINDATO, Kilde.SØKNAD);
 
         assertThat(gjeldende.barn()).hasSize(2)
@@ -73,7 +73,7 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
 
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        byggSøknadhendelseTermin(scenario, TERMINDATO, 2);
+        byggSøknadhendelseTermin(scenario, TERMINDATO, 1);
 
         scenario.medBekreftetHendelse().medAntallBarn(1).leggTilBarn(FØDSELSDATO);
 
@@ -97,7 +97,8 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
 
         // Sjekk at begge barn (overstyrt og bekreftet) er med
         assertThat(gjeldende.barn()).hasSize(2);
-        assertThat(gjeldende.termin().antallBarn()).isEqualTo(2);
+        assertThat(gjeldende.antallBarn()).extracting(FødselDto.Gjeldende.AntallBarn::antall, FødselDto.Gjeldende.AntallBarn::kilde).containsExactly(2, Kilde.SAKSBEHANDLER);
+
 
         // Sjekk at barn har riktige verdier for fødselsdato, dødsdato, kilde og kanOverstyres
         assertThat(gjeldende.barn()).extracting(b -> b.barn().fødselsdato(), b -> b.barn().dødsdato(), FødselDto.Gjeldende.GjeldendeBarn::kilde,
@@ -130,7 +131,7 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
         assertThat(gjeldende).isNotNull();
         assertThat(gjeldende.termin()).extracting(FødselDto.Gjeldende.Termin::termindato, FødselDto.Gjeldende.Termin::kilde).containsExactly(TERMINDATO, Kilde.SAKSBEHANDLER);
         assertThat(gjeldende.barn()).hasSize(1);
-        assertThat(gjeldende.termin().antallBarn()).isEqualTo(1);
+        assertThat(gjeldende.antallBarn()).extracting(FødselDto.Gjeldende.AntallBarn::antall, FødselDto.Gjeldende.AntallBarn::kilde).containsExactly(1, Kilde.SAKSBEHANDLER);
         assertThat(gjeldende.barn()).extracting(b -> b.barn().fødselsdato(), b -> b.barn().dødsdato(), FødselDto.Gjeldende.GjeldendeBarn::kilde,
                 FødselDto.Gjeldende.GjeldendeBarn::kanOverstyres).containsExactlyInAnyOrder(tuple(FØDSELSDATO, null, Kilde.SAKSBEHANDLER, true));
     }
@@ -162,7 +163,9 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
         var gjeldende = fødselDto.gjeldende();
         assertThat(gjeldende).isNotNull();
         assertThat(gjeldende.barn()).isEmpty(); // Ingen barn er født ennå, så listen skal være tom
-        assertThat(gjeldende.termin().antallBarn()).isEqualTo(2); // Mor har søkt om foreldrepenger for 2 barn, men ingen av barna er født ennå
+
+        // Mor har søkt om foreldrepenger for 2 barn, men ingen av barna er født ennå
+        assertThat(gjeldende.antallBarn()).extracting(FødselDto.Gjeldende.AntallBarn::antall, FødselDto.Gjeldende.AntallBarn::kilde).containsExactly(2, Kilde.SØKNAD);
         assertThat(gjeldende.termin()).extracting(FødselDto.Gjeldende.Termin::termindato, FødselDto.Gjeldende.Termin::kilde).containsExactly(TERMINDATO, Kilde.SØKNAD);
 
         assertThat(gjeldende.utstedtdato()).extracting(FødselDto.Gjeldende.Utstedtdato::utstedtdato, FødselDto.Gjeldende.Utstedtdato::kilde)
@@ -189,7 +192,8 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
         var gjeldende = fødselDto.gjeldende();
         assertThat(gjeldende).isNotNull();
         assertThat(gjeldende.barn()).hasSize(2);
-        assertThat(gjeldende.termin().antallBarn()).isEqualTo(2);
+
+        assertThat(gjeldende.antallBarn()).extracting(FødselDto.Gjeldende.AntallBarn::antall, FødselDto.Gjeldende.AntallBarn::kilde).containsExactly(2, Kilde.FOLKEREGISTER);
         assertThat(gjeldende.termin()).extracting(FødselDto.Gjeldende.Termin::termindato, FødselDto.Gjeldende.Termin::kilde).containsExactly(TERMINDATO, Kilde.SØKNAD);
 
         assertThat(gjeldende.barn()).extracting(b -> b.barn().fødselsdato(), b -> b.barn().dødsdato(), FødselDto.Gjeldende.GjeldendeBarn::kilde,
