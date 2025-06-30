@@ -125,7 +125,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
     private Optional<Boolean> hentOriginalErBarnetFødt(FamilieHendelseGrunnlagEntitet grunnlag, Behandling behandling) {
         var harUtførtAP = behandling.harUtførtAksjonspunktMedType(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL);
 
-        if (!harUtførtAP) {
+        if (!harUtførtAP && grunnlag.getOverstyrtVersjon().isEmpty()) {
             return Optional.empty();
         }
 

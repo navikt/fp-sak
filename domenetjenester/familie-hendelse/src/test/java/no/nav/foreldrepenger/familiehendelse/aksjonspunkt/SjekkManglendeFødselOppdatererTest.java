@@ -326,7 +326,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
 
         var historikkinnslag2 = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
         assertThat(historikkinnslag2.getTekstLinjer()).containsExactly("__Er barnet født?__ er satt til __Ja__.",
-            "__Antall barn__ er endret fra 2 til __1__.", "__Barn 2__ __f. 24.06.2025__ er fjernet.", "begrunnelse.");
+            "__Antall barn__ er endret fra 2 til __1__.", String.format("__Barn 2__ __f. %s__ er fjernet.", format(fødselsdatoFraSøknad)), "begrunnelse.");
 
     }
 
