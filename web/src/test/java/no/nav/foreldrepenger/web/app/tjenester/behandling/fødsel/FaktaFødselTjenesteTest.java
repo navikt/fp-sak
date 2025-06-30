@@ -73,7 +73,7 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
 
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        byggSøknadhendelseTermin(scenario, TERMINDATO, 2);
+        byggSøknadhendelseTermin(scenario, TERMINDATO, 1);
 
         scenario.medBekreftetHendelse().medAntallBarn(1).leggTilBarn(FØDSELSDATO);
 
