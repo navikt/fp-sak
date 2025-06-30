@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkManglendeFodselDto;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftetBarnDto;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.DokumentertBarnDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.FastsetteUttakDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.AksjonspunktGodkjenningDto;
 import no.nav.vedtak.exception.FunksjonellException;
@@ -80,7 +80,7 @@ class AksjonspunktRestTjenesteTest {
     @Test
     void skal_bekrefte_fødsel() throws Exception {
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
-        var uidentifiserteBarn = new BekreftetBarnDto[]{new BekreftetBarnDto(fødselsdato, null)};
+        var uidentifiserteBarn = new DokumentertBarnDto[]{new DokumentertBarnDto(fødselsdato, null)};
         aksjonspunkt.add(new SjekkManglendeFodselDto(BEGRUNNELSE, true, List.of(uidentifiserteBarn)));
 
         aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class),

@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 // TODO(Siri): fjern JSON-annotering når fakta-fødsel er ute (TFP-6071)
-public class BekreftetBarnDto {
+public class DokumentertBarnDto {
     // TODO(Siri): Legg til når @NotNull når fakta-fødsel er ute (TFP-6071)
     @JsonProperty("fødselsdato")
     @JsonAlias("fodselsdato")
@@ -18,11 +18,11 @@ public class BekreftetBarnDto {
     @JsonAlias("dodsdato")
     private LocalDate dødsdato;
 
-    BekreftetBarnDto() {
+    DokumentertBarnDto() {
         // For Jackson
     }
 
-    public BekreftetBarnDto(LocalDate fødselsdato, LocalDate dødsdato) {
+    public DokumentertBarnDto(LocalDate fødselsdato, LocalDate dødsdato) {
         this.fødselsdato = fødselsdato;
         this.dødsdato = dødsdato;
     }

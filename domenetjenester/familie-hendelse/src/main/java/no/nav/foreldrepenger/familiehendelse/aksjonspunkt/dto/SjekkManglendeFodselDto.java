@@ -24,13 +24,13 @@ public class SjekkManglendeFodselDto extends BekreftetAksjonspunktDto {
     @Valid
     @JsonProperty("barn")
     @JsonAlias("uidentifiserteBarn")
-    private List<BekreftetBarnDto> barn;
+    private List<DokumentertBarnDto> barn;
 
     SjekkManglendeFodselDto() {
         //For Jackson
     }
 
-    public SjekkManglendeFodselDto(String begrunnelse, Boolean dokumentasjonForeligger, List<BekreftetBarnDto> barn) {
+    public SjekkManglendeFodselDto(String begrunnelse, Boolean dokumentasjonForeligger, List<DokumentertBarnDto> barn) {
         super(begrunnelse);
         this.erBarnFødt = dokumentasjonForeligger;
         this.barn = barn;
@@ -40,7 +40,7 @@ public class SjekkManglendeFodselDto extends BekreftetAksjonspunktDto {
         return erBarnFødt;
     }
 
-    public List<BekreftetBarnDto> getBarn() {
+    public List<DokumentertBarnDto> getBarn() {
         return barn;
     }
 

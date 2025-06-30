@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkManglendeFodselDto;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftetBarnDto;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.DokumentertBarnDto;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
 
@@ -196,7 +196,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
             this.barnNummer = barn.getBarnNummer();
         }
 
-        FødselStatus(BekreftetBarnDto barn) {
+        FødselStatus(DokumentertBarnDto barn) {
             this.fødselsdato = barn.getFødselsdato();
             this.dødsdato = barn.getDødsdato().orElse(null);
             this.barnNummer = 0;
