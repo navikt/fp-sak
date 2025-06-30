@@ -9,14 +9,12 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagDto;
-import no.nav.foreldrepenger.domene.rest.historikk.FordelBeregningsgrunnlagHistorikkTjeneste;
-import no.nav.foreldrepenger.domene.rest.historikk.kalkulus.FordelBeregningsgrunnlagHistorikkKalkulusTjeneste;
+import no.nav.foreldrepenger.domene.rest.historikk.FordelBeregningsgrunnlagHistorikkKalkulusTjeneste;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = FordelBeregningsgrunnlagDto.class, adapter = AksjonspunktOppdaterer.class)
 public class FordelBeregningsgrunnlagOppdaterer implements AksjonspunktOppdaterer<FordelBeregningsgrunnlagDto>  {
 
-    private FordelBeregningsgrunnlagHistorikkTjeneste fordelBeregningsgrunnlagHistorikkTjeneste;
     private FordelBeregningsgrunnlagHistorikkKalkulusTjeneste fordelBeregningsgrunnlagHistorikkKalkulusTjeneste;
     private BeregningTjeneste beregningTjeneste;
 
@@ -25,10 +23,8 @@ public class FordelBeregningsgrunnlagOppdaterer implements AksjonspunktOppdatere
     }
 
     @Inject
-    public FordelBeregningsgrunnlagOppdaterer(FordelBeregningsgrunnlagHistorikkTjeneste fordelBeregningsgrunnlagHistorikkTjeneste,
-                                              FordelBeregningsgrunnlagHistorikkKalkulusTjeneste fordelBeregningsgrunnlagHistorikkKalkulusTjeneste,
+    public FordelBeregningsgrunnlagOppdaterer(FordelBeregningsgrunnlagHistorikkKalkulusTjeneste fordelBeregningsgrunnlagHistorikkKalkulusTjeneste,
                                               BeregningTjeneste beregningTjeneste) {
-        this.fordelBeregningsgrunnlagHistorikkTjeneste = fordelBeregningsgrunnlagHistorikkTjeneste;
         this.fordelBeregningsgrunnlagHistorikkKalkulusTjeneste = fordelBeregningsgrunnlagHistorikkKalkulusTjeneste;
         this.beregningTjeneste = beregningTjeneste;
     }
@@ -36,11 +32,7 @@ public class FordelBeregningsgrunnlagOppdaterer implements AksjonspunktOppdatere
     @Override
     public OppdateringResultat oppdater(FordelBeregningsgrunnlagDto dto, AksjonspunktOppdaterParameter param) {
         var endringsaggregat = beregningTjeneste.oppdaterBeregning(dto, param.getRef());
-        if (endringsaggregat.isPresent()) {
-            fordelBeregningsgrunnlagHistorikkKalkulusTjeneste.lagHistorikk(dto, endringsaggregat, param);
-        } else {
-            fordelBeregningsgrunnlagHistorikkTjeneste.lagHistorikk(dto, param);
-        }
+        fordelBeregningsgrunnlagHistorikkKalkulusTjeneste.lagHistorikk(dto, endringsaggregat, param);
         return OppdateringResultat.utenOverhopp();
     }
 
