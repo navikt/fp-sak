@@ -109,10 +109,10 @@ public class FaktaFødselTjeneste {
                                      java.util.Optional<Integer> overstyrtAntallBarn) {
 
         if (overstyrtAntallBarn.isPresent()) {
-            return Objects.equals(overstyrtAntallBarn, søknadAntallBarn) ? Kilde.SØKNAD : Kilde.SAKSBEHANDLER;
+            return Objects.equals(overstyrtAntallBarn.get(), søknadAntallBarn) ? Kilde.SØKNAD : Kilde.SAKSBEHANDLER;
         }
         if (bekreftetAntallBarn.isPresent()) {
-            return Objects.equals(bekreftetAntallBarn, søknadAntallBarn) ? Kilde.SØKNAD : Kilde.FOLKEREGISTER;
+            return Objects.equals(bekreftetAntallBarn.get(), søknadAntallBarn) ? Kilde.SØKNAD : Kilde.FOLKEREGISTER;
         }
 
         return Kilde.SØKNAD;
