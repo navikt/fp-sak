@@ -1,21 +1,31 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.UidentifisertBarnDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.aksjonspunkt.OverstyringFaktaOmFødselDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto.FødselDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto.Kilde;
+import no.nav.vedtak.exception.FunksjonellException;
 
 @ApplicationScoped
 public class FaktaFødselTjeneste {
@@ -71,7 +81,7 @@ public class FaktaFødselTjeneste {
         var harUtførtAP = behandlingRepository.hentBehandling(behandlingId)
             .harUtførtAksjonspunktMedType(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL);
 
-        if (!harUtførtAP) {
+        if (!harUtførtAP && familieHendelse.getOverstyrtVersjon().isEmpty()) {
             return FødselDto.Gjeldende.FødselDokumetasjonStatus.IKKE_VURDERT;
         }
 
