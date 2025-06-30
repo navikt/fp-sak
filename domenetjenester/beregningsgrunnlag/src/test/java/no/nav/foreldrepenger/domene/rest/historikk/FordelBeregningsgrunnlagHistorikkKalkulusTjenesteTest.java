@@ -9,9 +9,23 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.aksjonspunkt.BeløpEndring;
+import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningsgrunnlagEndring;
+import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningsgrunnlagPeriodeEndring;
+import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningsgrunnlagPrStatusOgAndelEndring;
+import no.nav.foreldrepenger.domene.aksjonspunkt.InntektskategoriEndring;
+import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
+import no.nav.foreldrepenger.domene.aksjonspunkt.RefusjonEndring;
+import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,38 +42,28 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagAndelDto;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagDto;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagPeriodeDto;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelFastsatteVerdierDto;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.Beløp;
 
-class FordelBeregningsgrunnlagHistorikkTjenesteTest {
+class FordelBeregningsgrunnlagHistorikkKalkulusTjenesteTest {
     private static final String ARBEIDSFORHOLDINFO = "DYNAMISK OPPSTEMT HAMSTER KF (311343483)";
-    private final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
-    private final Beløp GRUNNBELØP = new Beløp(600000);
 
-    private final HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste = mock(HentOgLagreBeregningsgrunnlagTjeneste.class);
     private final ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste = mock(ArbeidsgiverHistorikkinnslag.class);
     private final HistorikkinnslagRepository historikkRepository = mock(HistorikkinnslagRepository.class);
     private final InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = mock(InntektArbeidYtelseTjeneste.class);
 
-    private FordelBeregningsgrunnlagHistorikkTjeneste fordelBeregningsgrunnlagHistorikkTjeneste;
+    private FordelBeregningsgrunnlagHistorikkKalkulusTjeneste fordelBeregningsgrunnlagHistorikkTjeneste;
 
     @BeforeEach
     void setup() {
-        fordelBeregningsgrunnlagHistorikkTjeneste = new FordelBeregningsgrunnlagHistorikkTjeneste(beregningsgrunnlagTjeneste,
-                arbeidsgiverHistorikkinnslagTjeneste, inntektArbeidYtelseTjeneste, historikkRepository);
+        fordelBeregningsgrunnlagHistorikkTjeneste = new FordelBeregningsgrunnlagHistorikkKalkulusTjeneste(arbeidsgiverHistorikkinnslagTjeneste, historikkRepository, inntektArbeidYtelseTjeneste);
 
         when(arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(any(), any(), any(), anyList())).thenReturn(ARBEIDSFORHOLDINFO);
-
-        when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(anyLong())).thenReturn(lagBeregningsgrunnlag());
 
         when(inntektArbeidYtelseTjeneste.hentGrunnlag(anyLong())).thenReturn(InntektArbeidYtelseGrunnlagBuilder.nytt().build());
     }
@@ -71,9 +75,19 @@ class FordelBeregningsgrunnlagHistorikkTjenesteTest {
         var behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
         behandling.setId(12L);
 
+        var fom = LocalDate.of(2024, 2, 1);
+        var tom = LocalDate.of(2024, 4, 22);
+        var andelEndring = new BeregningsgrunnlagPrStatusOgAndelEndring(
+            new BeløpEndring(null, BigDecimal.valueOf(2231)), new InntektskategoriEndring(null, Inntektskategori.ARBEIDSTAKER), new RefusjonEndring(null, BigDecimal.valueOf(5045)), AktivitetStatus.ARBEIDSTAKER, OpptjeningAktivitetType.ARBEID,
+            Arbeidsgiver.virksomhet("999999999"), null);
+        var perioder = List.of(new BeregningsgrunnlagPeriodeEndring(List.of(andelEndring),
+            DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom)));
+        var bge = new BeregningsgrunnlagEndring(perioder);
+        var endringsaggregat = new OppdaterBeregningsgrunnlagResultat(bge, null, null, null, List.of());
+
         var dto = lagFordelBeregningsgrunnlagDto();
         var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto);
-        var resultat = fordelBeregningsgrunnlagHistorikkTjeneste.lagHistorikk(dto, param);
+        var resultat = fordelBeregningsgrunnlagHistorikkTjeneste.lagHistorikk(dto, Optional.of(endringsaggregat), param);
         var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
 
         assertThat(resultat).isNotNull();
@@ -99,16 +113,4 @@ class FordelBeregningsgrunnlagHistorikkTjenesteTest {
                 List.of(fordelBeregningsgrunnlagAndelDto), fom, tom);
         return new FordelBeregningsgrunnlagDto(Collections.singletonList(fordelBeregningsgrunnlagPeriodeDto), "Test testesen");
     }
-
-    private BeregningsgrunnlagEntitet lagBeregningsgrunnlag() {
-        var fom = LocalDate.of(2024, 2, 1);
-        var tom = LocalDate.of(2024, 4, 22);
-
-        return BeregningsgrunnlagEntitet.ny()
-                .medGrunnbeløp(GRUNNBELØP)
-                .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
-                .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.ny().medBeregningsgrunnlagPeriode(fom, tom))
-                .build();
-    }
-
 }
