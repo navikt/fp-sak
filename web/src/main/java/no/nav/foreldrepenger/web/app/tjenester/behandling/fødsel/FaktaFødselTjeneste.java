@@ -126,15 +126,13 @@ public class FaktaFødselTjeneste {
 
         var kilde = bestemKilde(søknadAntallBarn, bekreftetAntallBarn, overstyrtAntallBarn);
 
-        if (overstyrtAntallBarn.isPresent()) {
-            return new FødselDto.Gjeldende.AntallBarn(kilde, overstyrtAntallBarn.get());
-        }
+        var antallBarn = switch (kilde) {
+            case SØKNAD -> søknadAntallBarn;
+            case FOLKEREGISTER -> bekreftetAntallBarn.orElse(søknadAntallBarn);
+            case SAKSBEHANDLER -> overstyrtAntallBarn.orElse(søknadAntallBarn);
+        };
 
-        if (bekreftetAntallBarn.isPresent()) {
-            return new FødselDto.Gjeldende.AntallBarn(kilde, bekreftetAntallBarn.get());
-        }
-
-        return new FødselDto.Gjeldende.AntallBarn(kilde, søknadAntallBarn);
+        return new FødselDto.Gjeldende.AntallBarn(kilde, antallBarn);
     }
 
 
