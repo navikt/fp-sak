@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.rest.historikk.kalkulus;
+package no.nav.foreldrepenger.domene.rest.historikk;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.LINJESKIFT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.Skjermlenke
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningAktivitetEndring;
 import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.rest.historikk.ArbeidsgiverHistorikkinnslag;
 
 @ApplicationScoped
 public class BeregningsaktivitetHistorikkKalkulusTjeneste {

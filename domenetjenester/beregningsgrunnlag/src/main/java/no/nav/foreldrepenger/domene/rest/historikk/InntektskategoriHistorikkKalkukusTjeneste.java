@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.rest.historikk.kalkulus;
+package no.nav.foreldrepenger.domene.rest.historikk;
 
 import java.util.List;
 import java.util.Optional;
@@ -10,7 +10,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningsgrunnlagPrStatusOgAndelEndring;
 import no.nav.foreldrepenger.domene.aksjonspunkt.InntektskategoriEndring;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
-import no.nav.foreldrepenger.domene.rest.historikk.ArbeidsgiverHistorikkinnslag;
 
 /**
  * Historikktjeneste for endring av inntektskategori

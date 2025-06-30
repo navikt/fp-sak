@@ -7,21 +7,15 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.rest.dto.VurderFaktaOmBeregningDto;
-import no.nav.foreldrepenger.domene.rest.historikk.FaktaBeregningHistorikkHåndterer;
-import no.nav.foreldrepenger.domene.rest.historikk.kalkulus.FaktaBeregningHistorikkKalkulusTjeneste;
+import no.nav.foreldrepenger.domene.rest.historikk.FaktaBeregningHistorikkKalkulusTjeneste;
 
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = VurderFaktaOmBeregningDto.class, adapter = AksjonspunktOppdaterer.class)
 public class VurderFaktaOmBeregningOppdaterer implements AksjonspunktOppdaterer<VurderFaktaOmBeregningDto> {
 
-    private FaktaBeregningHistorikkHåndterer faktaBeregningHistorikkHåndterer;
-    private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
     private BeregningTjeneste beregningTjeneste;
     private FaktaBeregningHistorikkKalkulusTjeneste faktaOmBeregningHistorikkKalkulusTjeneste;
 
@@ -30,12 +24,8 @@ public class VurderFaktaOmBeregningOppdaterer implements AksjonspunktOppdaterer<
     }
 
     @Inject
-    public VurderFaktaOmBeregningOppdaterer(FaktaBeregningHistorikkHåndterer faktaBeregningHistorikkHåndterer,
-                                            HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
-                                            BeregningTjeneste beregningTjeneste,
+    public VurderFaktaOmBeregningOppdaterer(BeregningTjeneste beregningTjeneste,
                                             FaktaBeregningHistorikkKalkulusTjeneste faktaOmBeregningHistorikkKalkulusTjeneste)  {
-        this.faktaBeregningHistorikkHåndterer = faktaBeregningHistorikkHåndterer;
-        this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.beregningTjeneste = beregningTjeneste;
         this.faktaOmBeregningHistorikkKalkulusTjeneste = faktaOmBeregningHistorikkKalkulusTjeneste;
     }
@@ -43,22 +33,10 @@ public class VurderFaktaOmBeregningOppdaterer implements AksjonspunktOppdaterer<
     @Override
     public OppdateringResultat oppdater(VurderFaktaOmBeregningDto dto, AksjonspunktOppdaterParameter param) {
         var ref = param.getRef();
-        var forrigeGrunnlag = beregningsgrunnlagTjeneste
-            .hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(
-                ref.behandlingId(),
-                ref.getOriginalBehandlingId(),
-                BeregningsgrunnlagTilstand.KOFAKBER_UT);
-
         var endringsaggregat = beregningTjeneste.oppdaterBeregning(dto, ref);
-        if (endringsaggregat.isPresent()) {
-            faktaOmBeregningHistorikkKalkulusTjeneste.lagHistorikk(ref, endringsaggregat.get(), dto.getBegrunnelse());
-        } else {
-            var nyttBeregningsgrunnlag = beregningsgrunnlagTjeneste
-                .hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(), BeregningsgrunnlagTilstand.KOFAKBER_UT)
-                .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag)
-                .orElseThrow(() -> new IllegalStateException("Skal ha lagret beregningsgrunnlag fra KOFAKBER_UT."));
-            faktaBeregningHistorikkHåndterer.lagHistorikk(param, dto, nyttBeregningsgrunnlag, forrigeGrunnlag);
-        }
+        endringsaggregat.ifPresent(
+            oppdaterBeregningsgrunnlagResultat -> faktaOmBeregningHistorikkKalkulusTjeneste.lagHistorikk(ref, oppdaterBeregningsgrunnlagResultat,
+                dto.getBegrunnelse()));
         return OppdateringResultat.utenOverhopp();
     }
 }

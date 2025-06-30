@@ -48,7 +48,7 @@ public final class FordelBeregningsgrunnlagHistorikkUtil {
     public static BeregningsgrunnlagPeriodeEndring getKorrektPeriodeEndring(List<BeregningsgrunnlagPeriodeEndring> perioder,
                                                                             FordelBeregningsgrunnlagPeriodeDto endretPeriode) {
         return perioder.stream()
-            .filter(periode -> periode.getPeriode().getFom().equals(endretPeriode.getFom()))
+            .filter(periode -> periode.getPeriode().getFomDato().equals(endretPeriode.getFom()))
             .findFirst()
             .orElseThrow(() -> new IllegalStateException("Finner ikke periode"));
     }

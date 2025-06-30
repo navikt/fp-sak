@@ -53,7 +53,6 @@ public class FaktaFødselTjeneste {
     public FødselDto hentFaktaOmFødsel(Long behandlingId) {
         var familieHendelse = familieHendelseTjeneste.hentAggregat(behandlingId);
         var terminbekreftelse = familieHendelse.getSøknadVersjon().getTerminbekreftelse();
-        var gjeldendeBarnListe = mapBarn(familieHendelse);
 
         var søknadData = new FødselDto.Søknad(getBarn(familieHendelse.getSøknadVersjon()),
             terminbekreftelse.map(TerminbekreftelseEntitet::getTermindato).orElse(null),
@@ -61,8 +60,8 @@ public class FaktaFødselTjeneste {
 
         var registerData = new FødselDto.Register(familieHendelse.getBekreftetVersjon().map(this::getBarn).orElseGet(Collections::emptyList));
 
-        var gjeldendeData = new FødselDto.Gjeldende(mapTermin(familieHendelse, gjeldendeBarnListe), mapUtstedtdato(familieHendelse),
-            gjeldendeBarnListe, mapFødselDokumetasjonStatus(familieHendelse, behandlingId));
+        var gjeldendeData = new FødselDto.Gjeldende(mapTermin(familieHendelse), mapUtstedtdato(familieHendelse), mapAntallBarn(familieHendelse),
+            mapBarn(familieHendelse), mapFødselDokumetasjonStatus(familieHendelse, behandlingId));
 
         return new FødselDto(søknadData, registerData, gjeldendeData);
     }
@@ -159,8 +158,7 @@ public class FaktaFødselTjeneste {
         return new FødselDto.Gjeldende.Utstedtdato(kilde, utstedtDato);
     }
 
-    private static FødselDto.Gjeldende.Termin mapTermin(FamilieHendelseGrunnlagEntitet familieHendelse,
-                                                        List<FødselDto.Gjeldende.GjeldendeBarn> gjeldendeBarnListe) {
+    private static FødselDto.Gjeldende.Termin mapTermin(FamilieHendelseGrunnlagEntitet familieHendelse) {
         var overstyrtTermindato = familieHendelse.getOverstyrtVersjon().flatMap(FamilieHendelseEntitet::getTermindato);
         var søknadTermindato = familieHendelse.getSøknadVersjon().getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato);
 
@@ -170,8 +168,7 @@ public class FaktaFødselTjeneste {
 
         var kilde = bestemKilde(overstyrtTermindato, søknadTermindato);
         var gjeldeneTermindato = utledTermindato(kilde, søknadTermindato, overstyrtTermindato);
-        var antallBarn = utledAntallBarn(gjeldendeBarnListe, familieHendelse);
-        return new FødselDto.Gjeldende.Termin(kilde, gjeldeneTermindato, antallBarn);
+        return new FødselDto.Gjeldende.Termin(kilde, gjeldeneTermindato);
     }
 
     private static Kilde bestemKilde(java.util.Optional<LocalDate> overstyrtDato, java.util.Optional<LocalDate> søknadDato) {
@@ -186,9 +183,36 @@ public class FaktaFødselTjeneste {
         return kilde == Kilde.SØKNAD ? søknadDato.orElse(null) : overstyrtDato.orElse(null);
     }
 
-    private static int utledAntallBarn(List<FødselDto.Gjeldende.GjeldendeBarn> gjeldendeBarnListe, FamilieHendelseGrunnlagEntitet familieHendelse) {
-        return gjeldendeBarnListe.isEmpty() ? familieHendelse.getSøknadVersjon().getAntallBarn() : gjeldendeBarnListe.size();
+    private static Kilde bestemKilde(int søknadAntallBarn,
+                                     java.util.Optional<Integer> bekreftetAntallBarn,
+                                     java.util.Optional<Integer> overstyrtAntallBarn) {
+
+        if (overstyrtAntallBarn.isPresent()) {
+            return Objects.equals(overstyrtAntallBarn.get(), søknadAntallBarn) ? Kilde.SØKNAD : Kilde.SAKSBEHANDLER;
+        }
+        if (bekreftetAntallBarn.isPresent()) {
+            return Objects.equals(bekreftetAntallBarn.get(), søknadAntallBarn) ? Kilde.SØKNAD : Kilde.FOLKEREGISTER;
+        }
+
+        return Kilde.SØKNAD;
     }
+
+    private static FødselDto.Gjeldende.AntallBarn mapAntallBarn(FamilieHendelseGrunnlagEntitet familieHendelse) {
+        var søknadAntallBarn = familieHendelse.getSøknadVersjon().getAntallBarn();
+        var bekreftetAntallBarn = familieHendelse.getBekreftetVersjon().map(FamilieHendelseEntitet::getAntallBarn);
+        var overstyrtAntallBarn = familieHendelse.getOverstyrtVersjon().map(FamilieHendelseEntitet::getAntallBarn);
+
+        var kilde = bestemKilde(søknadAntallBarn, bekreftetAntallBarn, overstyrtAntallBarn);
+
+        var antallBarn = switch (kilde) {
+            case SØKNAD -> søknadAntallBarn;
+            case FOLKEREGISTER -> bekreftetAntallBarn.orElse(søknadAntallBarn);
+            case SAKSBEHANDLER -> overstyrtAntallBarn.orElse(søknadAntallBarn);
+        };
+
+        return new FødselDto.Gjeldende.AntallBarn(kilde, antallBarn);
+    }
+
 
     private List<FødselDto.Gjeldende.GjeldendeBarn> mapBarn(FamilieHendelseGrunnlagEntitet familieHendelse) {
         var gjeldendeBarn = new ArrayList<FødselDto.Gjeldende.GjeldendeBarn>();

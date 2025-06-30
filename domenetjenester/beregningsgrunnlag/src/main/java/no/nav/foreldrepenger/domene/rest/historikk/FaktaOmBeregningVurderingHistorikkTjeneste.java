@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.rest.historikk.kalkulus;
+package no.nav.foreldrepenger.domene.rest.historikk;
 
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.domene.aksjonspunkt.ErTidsbegrensetArbeidsforholdEn
 import no.nav.foreldrepenger.domene.aksjonspunkt.FaktaOmBeregningVurderinger;
 import no.nav.foreldrepenger.domene.aksjonspunkt.RefusjonskravGyldighetEndring;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.rest.historikk.ArbeidsgiverHistorikkinnslag;
 
 /**
  * Lager historikk for radioknapp-vurderinger i fakta om beregning.

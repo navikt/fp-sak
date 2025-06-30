@@ -18,10 +18,13 @@ public record FødselDto(FødselDto.Søknad søknad, FødselDto.Register registe
     public record Register(List<BarnHendelseData> barn) {
     }
 
-    public record Gjeldende(Termin termin, FødselDto.Gjeldende.Utstedtdato utstedtdato, List<FødselDto.Gjeldende.GjeldendeBarn> barn,
-                            FødselDokumetasjonStatus fødselDokumetasjonStatus) {
+    public record Gjeldende(Termin termin, FødselDto.Gjeldende.Utstedtdato utstedtdato,
+                            AntallBarn antallBarn, List<FødselDto.Gjeldende.GjeldendeBarn> barn, FødselDokumetasjonStatus fødselDokumetasjonStatus) {
 
-        public record Termin(Kilde kilde, LocalDate termindato, int antallBarn) {
+        public record Termin(Kilde kilde, LocalDate termindato) {
+        }
+
+        public record AntallBarn(Kilde kilde, int antall) {
         }
 
         public record Utstedtdato(Kilde kilde, LocalDate utstedtdato) {

@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.rest.historikk.kalkulus;
+package no.nav.foreldrepenger.domene.rest.historikk;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAk
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeløpEndring;
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningsgrunnlagPrStatusOgAndelEndring;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
-import no.nav.foreldrepenger.domene.rest.historikk.ArbeidsgiverHistorikkinnslag;
 
 /**
  * Historikktjeneste for endring av inntekt
