@@ -37,7 +37,6 @@ public class FaktaFødselTjeneste {
     public FødselDto hentFaktaOmFødsel(Long behandlingId) {
         var familieHendelse = familieHendelseTjeneste.hentAggregat(behandlingId);
         var terminbekreftelse = familieHendelse.getSøknadVersjon().getTerminbekreftelse();
-        var gjeldendeBarnListe = mapBarn(familieHendelse);
 
         var søknadData = new FødselDto.Søknad(getBarn(familieHendelse.getSøknadVersjon()),
             terminbekreftelse.map(TerminbekreftelseEntitet::getTermindato).orElse(null),
@@ -46,7 +45,7 @@ public class FaktaFødselTjeneste {
         var registerData = new FødselDto.Register(familieHendelse.getBekreftetVersjon().map(this::getBarn).orElseGet(Collections::emptyList));
 
         var gjeldendeData = new FødselDto.Gjeldende(mapTermin(familieHendelse), mapUtstedtdato(familieHendelse), mapAntallBarn(familieHendelse),
-            gjeldendeBarnListe, mapFødselDokumetasjonStatus(familieHendelse, behandlingId));
+            mapBarn(familieHendelse), mapFødselDokumetasjonStatus(familieHendelse, behandlingId));
 
         return new FødselDto(søknadData, registerData, gjeldendeData);
     }
