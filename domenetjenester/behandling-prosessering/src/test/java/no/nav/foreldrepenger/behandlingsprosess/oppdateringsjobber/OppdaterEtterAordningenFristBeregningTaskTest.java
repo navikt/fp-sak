@@ -47,7 +47,7 @@ class OppdaterEtterAordningenFristBeregningTaskTest extends EntityManagerAwareTe
         scenario.leggTilVilkår(VilkårType.OPPTJENINGSPERIODEVILKÅR, VilkårUtfallType.OPPFYLT);
         var behandling = scenario.lagre(repositoryProvider);
         repositoryProvider.getBehandlingRepository().oppdaterSistOppdatertTidspunkt(behandling, LocalDateTime.now().minusWeeks(4).minusDays(1));
-        repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(behandling, LocalDate.now().minusMonths(10), LocalDate.now().minusDays(1), false);
+        repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(behandling, LocalDate.now().minusMonths(10), LocalDate.now().minusMonths(1).withDayOfMonth(15), false);
         forceOppdaterBehandlingSteg(behandling, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG);
         var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling.getId());
         repositoryProvider.getBehandlingRepository().lagre(behandling, lås);
@@ -71,7 +71,7 @@ class OppdaterEtterAordningenFristBeregningTaskTest extends EntityManagerAwareTe
         scenario.leggTilVilkår(VilkårType.OPPTJENINGSPERIODEVILKÅR, VilkårUtfallType.OPPFYLT);
         var behandling = scenario.lagre(repositoryProvider);
         repositoryProvider.getBehandlingRepository().oppdaterSistOppdatertTidspunkt(behandling, LocalDateTime.now().minusWeeks(4).minusDays(1));
-        repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(behandling, LocalDate.now().minusMonths(10), LocalDate.now().minusDays(1), false);
+        repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(behandling, LocalDate.now().minusMonths(10), LocalDate.now().minusMonths(1).withDayOfMonth(15), false);
         forceOppdaterBehandlingSteg(behandling, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG);
         var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling.getId());
         repositoryProvider.getBehandlingRepository().lagre(behandling, lås);
