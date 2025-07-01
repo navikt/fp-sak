@@ -1,11 +1,12 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -16,37 +17,31 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 public class SjekkManglendeFodselDto extends BekreftetAksjonspunktDto {
 
     @NotNull
-    private Boolean dokumentasjonForeligger;
-
-    private boolean brukAntallBarnITps; //TDP = PDL
+    @JsonProperty("erBarnFødt")
+    @JsonAlias("dokumentasjonForeligger")
+    private Boolean erBarnFødt;
 
     @Valid
-    @NotNull
-    @Size(min = 1, max = 9)
-    private List<UidentifisertBarnDto> uidentifiserteBarn;
+    @JsonProperty("barn")
+    @JsonAlias("uidentifiserteBarn")
+    private List<DokumentertBarnDto> barn;
 
     SjekkManglendeFodselDto() {
         //For Jackson
     }
 
-    public SjekkManglendeFodselDto(String begrunnelse, Boolean dokumentasjonForeligger, boolean brukAntallBarnITps,
-        List<UidentifisertBarnDto> uidentifiserteBarn) {
+    public SjekkManglendeFodselDto(String begrunnelse, Boolean dokumentasjonForeligger, List<DokumentertBarnDto> barn) {
         super(begrunnelse);
-        this.dokumentasjonForeligger = dokumentasjonForeligger;
-        this.brukAntallBarnITps = brukAntallBarnITps;
-        this.uidentifiserteBarn = new ArrayList<>(uidentifiserteBarn);
+        this.erBarnFødt = dokumentasjonForeligger;
+        this.barn = barn;
     }
 
-    public Boolean getDokumentasjonForeligger() {
-        return dokumentasjonForeligger;
+    public Boolean getErBarnFødt() {
+        return erBarnFødt;
     }
 
-    public boolean isBrukAntallBarnITps() {
-        return Boolean.FALSE.equals(dokumentasjonForeligger) || brukAntallBarnITps;
-    }
-
-    public List<UidentifisertBarnDto> getUidentifiserteBarn() {
-        return uidentifiserteBarn;
+    public List<DokumentertBarnDto> getBarn() {
+        return barn;
     }
 
 }

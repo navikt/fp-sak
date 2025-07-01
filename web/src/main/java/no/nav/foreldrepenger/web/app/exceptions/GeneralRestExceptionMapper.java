@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.KanIkkeUtledeGjeldendeFødselsdatoException;
 import no.nav.foreldrepenger.validering.FeltFeilDto;
 import no.nav.foreldrepenger.validering.Valideringsfeil;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingEndretException;
@@ -38,7 +37,7 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
     }
 
     public static Response handleException(Throwable feil) {
-        if (feil instanceof KanIkkeUtledeGjeldendeFødselsdatoException || feil instanceof TomtResultatException) {
+        if (feil instanceof TomtResultatException) {
             return handleTomtResultatFeil(getExceptionMelding(feil));
         }
         if (feil instanceof ManglerTilgangException) {

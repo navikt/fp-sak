@@ -149,19 +149,21 @@ public class FamiliehendelseDataDtoTjeneste {
             if (grunnlag.getHarOverstyrteData() && grunnlag.getOverstyrtVersjon().get().getType().equals(FamilieHendelseType.FØDSEL)) {
                 dto.setBrukAntallBarnFraTps(harValgtSammeSomBekreftet(grunnlag));
             }
-            dto.setDokumentasjonForligger(mapDokumentasjonForligger(grunnlag, behandling));
             dto.setMorForSykVedFodsel(hendelse.erMorForSykVedFødsel());
             dto.setSkjæringstidspunkt(hendelse.getSkjæringstidspunkt());
         });
+        dto.setDokumentasjonForligger(mapDokumentasjonForeligger(grunnlag, behandling).orElse(null));
         return Optional.of(dto);
     }
 
-    private static Boolean mapDokumentasjonForligger(FamilieHendelseGrunnlagEntitet familieHendelse, Behandling behandling) {
+    private static Optional<Boolean> mapDokumentasjonForeligger(FamilieHendelseGrunnlagEntitet familieHendelse, Behandling behandling) {
         var harUtførtAP = behandling.harUtførtAksjonspunktMedType(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL);
-        if (!harUtførtAP) {
-            return null;
+
+        if (!harUtførtAP && familieHendelse.getOverstyrtVersjon().isEmpty()) {
+            return Optional.empty();
         }
-        return familieHendelse.getOverstyrtVersjon().filter(o -> !o.getBarna().isEmpty()).isPresent();
+
+        return Optional.of(familieHendelse.getOverstyrtVersjon().filter(o -> !o.getBarna().isEmpty()).isPresent());
     }
 
 
