@@ -55,7 +55,7 @@ public class FaktaFødselTjeneste {
         var harUtførtAP = behandlingRepository.hentBehandling(behandlingId)
             .harUtførtAksjonspunktMedType(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL);
 
-        if (!harUtførtAP) {
+        if (!harUtførtAP && familieHendelse.getOverstyrtVersjon().isEmpty()) {
             return FødselDto.Gjeldende.FødselDokumetasjonStatus.IKKE_VURDERT;
         }
 
