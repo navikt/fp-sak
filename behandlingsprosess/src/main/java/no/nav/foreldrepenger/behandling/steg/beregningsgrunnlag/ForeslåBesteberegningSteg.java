@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
 
     private BehandlingRepository behandlingRepository;
-    private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private BeregningTjeneste beregningTjeneste;
@@ -41,11 +40,9 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
 
     @Inject
     public ForeslåBesteberegningSteg(BehandlingRepository behandlingRepository,
-                                     BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
                                      BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste,
                                      SkjæringstidspunktTjeneste skjæringstidspunktTjeneste, BeregningTjeneste beregningTjeneste) {
         this.behandlingRepository = behandlingRepository;
-        this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.besteberegningFødendeKvinneTjeneste = besteberegningFødendeKvinneTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.beregningTjeneste = beregningTjeneste;
@@ -72,12 +69,5 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
 
     private boolean skalBeregnesAutomatisk(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         return besteberegningFødendeKvinneTjeneste.kvalifisererTilAutomatiskBesteberegning(ref, stp);
-    }
-
-    @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg, BehandlingStegType fraSteg) {
-        if (tilSteg.equals(BehandlingStegType.FORESLÅ_BESTEBEREGNING)) {
-            beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst).ryddForeslåBesteberegningVedTilbakeføring();
-        }
     }
 }
