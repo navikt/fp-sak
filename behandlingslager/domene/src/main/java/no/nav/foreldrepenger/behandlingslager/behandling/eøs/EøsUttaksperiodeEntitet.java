@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.eøs;
 
+import java.time.LocalDate;
 import java.util.Objects;
 
 import jakarta.persistence.AttributeOverride;
@@ -85,6 +86,10 @@ public class EøsUttaksperiodeEntitet extends BaseCreateableEntitet {
         public Builder medPeriode(DatoIntervallEntitet periode) {
             kladd.periode = periode;
             return this;
+        }
+
+        public Builder medPeriode(LocalDate fom, LocalDate tom) {
+            return medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
         }
 
         public Builder medTrekkonto(UttakPeriodeType trekkonto) {

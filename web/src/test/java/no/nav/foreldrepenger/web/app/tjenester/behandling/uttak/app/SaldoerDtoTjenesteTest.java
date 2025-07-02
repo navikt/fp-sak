@@ -26,6 +26,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttakGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttaksperiodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttaksperioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
@@ -1018,6 +1021,63 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var gjenværendeFpff = dto.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FORELDREPENGER_FØR_FØDSEL).saldo();
         assertThat(gjenværendeFpff).isEqualTo(5);
         assertThat(dto.tapteDagerFpff()).isEqualTo(5);
+    }
+
+    @Test
+    void skal_beregne_eøs_reduksjon() {
+        var termindato = LocalDate.of(2025, 7, 2);
+
+        var uttakAktivitet = lagUttakAktivitet(arbeidsgiver("123"));
+        var uttak = new UttakResultatPerioderEntitet();
+
+        var fellesperiode = new UttakResultatPeriodeEntitet.Builder(termindato.plusWeeks(17), termindato.plusWeeks(19).minusDays(1)).medResultatType(
+            PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.FORELDREPENGER_FELLESPERIODE_TIL_FAR).build();
+        new UttakResultatPeriodeAktivitetEntitet.Builder(fellesperiode, uttakAktivitet).medTrekkonto(FELLESPERIODE)
+            .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
+            .medTrekkdager(new Trekkdager(10))
+            .medArbeidsprosent(BigDecimal.ZERO);
+
+        uttak.leggTilPeriode(fellesperiode);
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medOppgittRettighet(beggeRettEøs())
+            .medUttak(uttak);
+        var stønadskontoberegning = lagStønadskontoberegning(lagStønadskonto(StønadskontoType.FORELDREPENGER_FØR_FØDSEL, 15),
+            lagStønadskonto(StønadskontoType.MØDREKVOTE, 75), lagStønadskonto(StønadskontoType.FEDREKVOTE, 75),
+            lagStønadskonto(StønadskontoType.FELLESPERIODE, 80));
+        scenario.medStønadskontoberegning(stønadskontoberegning);
+        var behandling = scenario.lagre(repositoryProvider);
+
+        var eøsUttak = EøsUttakGrunnlagEntitet.Builder.ny()
+            .medEøsUttaksperioder(new EøsUttaksperioderEntitet.Builder().leggTil(
+                List.of(eøsPeriode(termindato, termindato.plusWeeks(15).minusDays(1), MØDREKVOTE, new Trekkdager(75)),
+                    eøsPeriode(termindato.plusWeeks(15), termindato.plusWeeks(17).minusDays(1), FELLESPERIODE, new Trekkdager(20)))).build())
+            .medBehandlingId(behandling.getId())
+            .build();
+        var fpGrunnlag = fpGrunnlag().medFamilieHendelser(
+            new FamilieHendelser().medSøknadHendelse(FamilieHendelse.forFødsel(termindato, null, List.of(), 0)))
+            .medEøsUttakGrunnlag(eøsUttak);
+        var input = inputFAB(behandling, fpGrunnlag, termindato);
+        var dto = tjeneste.lagStønadskontoerDto(input);
+
+        assertThat(dto.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FORELDREPENGER_FØR_FØDSEL).saldo()).isEqualTo(15);
+        assertThat(dto.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FORELDREPENGER_FØR_FØDSEL).kontoReduksjoner()).isNull();
+        assertThat(dto.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.MØDREKVOTE).saldo()).isEqualTo(0);
+        assertThat(dto.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.MØDREKVOTE).kontoReduksjoner().annenForelderEøsUttak()).isEqualTo(75);
+        assertThat(dto.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FELLESPERIODE).saldo()).isEqualTo(80 - 20 - 10);
+        assertThat(dto.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FELLESPERIODE).kontoReduksjoner().annenForelderEøsUttak()).isEqualTo(20);
+        assertThat(dto.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FEDREKVOTE).saldo()).isEqualTo(75);
+        assertThat(dto.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FEDREKVOTE).kontoReduksjoner()).isNull();
+    }
+
+    private static EøsUttaksperiodeEntitet eøsPeriode(LocalDate fom, LocalDate tom, UttakPeriodeType uttakPeriodeType, Trekkdager trekkdager) {
+        return new EøsUttaksperiodeEntitet.Builder().medTrekkonto(uttakPeriodeType)
+            .medTrekkdager(trekkdager)
+            .medPeriode(fom, tom)
+            .build();
+    }
+
+    private static OppgittRettighetEntitet beggeRettEøs() {
+        return new OppgittRettighetEntitet(false, false, false, true, true);
     }
 
     private Optional<AktivitetSaldoDto> finnRiktigAktivitetSaldo(List<AktivitetSaldoDto> aktivitetSaldoer,
