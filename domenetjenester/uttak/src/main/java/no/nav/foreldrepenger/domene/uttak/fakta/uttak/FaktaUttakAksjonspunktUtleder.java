@@ -70,10 +70,15 @@ public class FaktaUttakAksjonspunktUtleder {
             list.add(FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET);
         }
         var erMor = RelasjonsRolleType.erMor(input.getBehandlingReferanse().relasjonRolle());
-        ytelseFordelingTjeneste.hentAggregat(input.getBehandlingReferanse().behandlingId()).getAvklarteDatoer()
+        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(input.getBehandlingReferanse().behandlingId());
+        ytelseFordelingAggregat.getAvklarteDatoer()
             .map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato)
             .filter(fud -> !avklartStartdatLikFørsteDagIPerioder(perioder, erMor, fud))
             .ifPresent(fud -> list.add(FAKTA_UTTAK_MANUELT_SATT_STARTDATO_ULIK_SØKNAD_STARTDATO));
+
+        if (ytelseFordelingAggregat.avklartAnnenForelderHarRettEØS()) {
+            list.add(AksjonspunktDefinisjon.AVKLAR_UTTAK_I_EØS_FOR_ANNENPART);
+        }
         return list;
     }
 

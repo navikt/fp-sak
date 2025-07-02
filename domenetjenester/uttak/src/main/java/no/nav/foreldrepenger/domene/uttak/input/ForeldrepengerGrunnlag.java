@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.uttak.input;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
@@ -21,6 +22,7 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
     private boolean dødsfall;
     private AktivitetskravGrunnlagEntitet aktivitetskravGrunnlag;
     private boolean mottattMorsArbeidDokument;
+    private EøsUttakGrunnlagEntitet eøsUttakGrunnlag;
 
     public ForeldrepengerGrunnlag() {
 
@@ -39,10 +41,18 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
         this.dødsfall = foreldrepengerGrunnlag.dødsfall;
         this.aktivitetskravGrunnlag = foreldrepengerGrunnlag.aktivitetskravGrunnlag;
         this.mottattMorsArbeidDokument = foreldrepengerGrunnlag.mottattMorsArbeidDokument;
+        this.eøsUttakGrunnlag = foreldrepengerGrunnlag.eøsUttakGrunnlag;
     }
 
     public boolean isBerørtBehandling() {
         return berørtBehandling;
+    }
+
+    public boolean isTapendeBehandling() {
+        if (getEøsUttakGrunnlag().isPresent()) {
+            return true;
+        }
+        return isBerørtBehandling();
     }
 
     public boolean isOppgittAnnenForelderHarEngangsstønadForSammeBarn() {
@@ -87,6 +97,10 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
 
     public boolean isMottattMorsArbeidDokument() {
         return mottattMorsArbeidDokument;
+    }
+
+    public Optional<EøsUttakGrunnlagEntitet> getEøsUttakGrunnlag() {
+        return Optional.ofNullable(eøsUttakGrunnlag);
     }
 
     public ForeldrepengerGrunnlag medErBerørtBehandling(boolean berørtBehandling) {
@@ -158,6 +172,12 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
     public ForeldrepengerGrunnlag medMottattMorsArbeidDokument(boolean mottattMorsArbeidDokument) {
         var nyttGrunnlag = new ForeldrepengerGrunnlag(this);
         nyttGrunnlag.mottattMorsArbeidDokument = mottattMorsArbeidDokument;
+        return nyttGrunnlag;
+    }
+
+    public ForeldrepengerGrunnlag medEøsUttakGrunnlag(EøsUttakGrunnlagEntitet eøsUttakGrunnlag) {
+        var nyttGrunnlag = new ForeldrepengerGrunnlag(this);
+        nyttGrunnlag.eøsUttakGrunnlag = eøsUttakGrunnlag;
         return nyttGrunnlag;
     }
 }
