@@ -262,7 +262,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         TOTRINN, EnumSet.of(ES)),
     AVKLAR_UTTAK_I_EØS_FOR_ANNENPART(
         AksjonspunktKodeDefinisjon.AVKLAR_UTTAK_I_EØS_FOR_ANNENPART, AksjonspunktType.MANUELL, "Avklar uttak i EØS for annen forelder",
-        BehandlingStegType.FAKTA_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.FAKTA_UTTAK, TOTRINN, EnumSet.of(FP)),
+        BehandlingStegType.FAKTA_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.FAKTA_UTTAK, TOTRINN, EnumSet.of(FP)), //TODO TFP-6302 riktig skjermlenke
 
     // Gruppe : 600
 
