@@ -38,16 +38,14 @@ public class AvklarUttakEøsForAnnenforelderOppdaterer implements AksjonspunktOp
     public OppdateringResultat oppdater(AvklarUttakEøsForAnnenforelderDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingId = param.getBehandlingId();
         if (dto.getPerioder().isEmpty()) {
-            eøsUttakRepository.deaktiverAktivtGrunnlagHvisFinnes(behandlingId);
             historikkinnslagRepository.lagre(historikkinnslagIngenPerioder(dto, param));
         } else {
-            var eøsUttaksperioderEntitet = new EøsUttaksperioderEntitet.Builder()
-                .leggTil(tilPerioderEntitet(dto.getPerioder()))
-                .build();
-            eøsUttakRepository.lagreEøsUttak(behandlingId, eøsUttaksperioderEntitet);
             historikkinnslagRepository.lagre(historikkinnslagRegistreringAvUttaksperioder(dto, param));
         }
-
+        var eøsUttaksperioderEntitet = new EøsUttaksperioderEntitet.Builder()
+            .leggTil(tilPerioderEntitet(dto.getPerioder())) //lagrer tomme hvis ingen perioder for å vise saksbehandlers avklaring
+            .build();
+        eøsUttakRepository.lagreEøsUttak(behandlingId, eøsUttaksperioderEntitet);
         return OppdateringResultat.utenTransisjon().build();
     }
 
