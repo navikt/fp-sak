@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.domene.rest.dto.FastsettBeregningsgrunnlagAndelDto;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBgKunYtelseDto;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettEtterlønnSluttpakkeDto;
-import no.nav.foreldrepenger.domene.rest.dto.FastsettInntektForArbeidUnderAAPDto;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettMånedsinntektFLDto;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettMånedsinntektUtenInntektsmeldingAndelDto;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettMånedsinntektUtenInntektsmeldingDto;
@@ -109,8 +108,7 @@ public class OppdatererDtoMapper {
                 fakta.getFastsettEtterlønnSluttpakke() == null ? null : mapFastsettEtterlønnSluttpakker(fakta.getFastsettEtterlønnSluttpakke()),
                 fakta.getMottarYtelse() == null ? null : mapMottarYtelse(fakta.getMottarYtelse()),
                 fakta.getVurderMilitaer() == null ? null : mapVurderMilitær(fakta.getVurderMilitaer()),
-                fakta.getRefusjonskravGyldighet() == null ? null : mapRefusjonskravPrArbeidsgiverVurderingDto(fakta.getRefusjonskravGyldighet()),
-                fakta.getFastsettArbeidUnderAap() == null ? null : mapFastsettInntektForArbeidUnderAAP(fakta.getFastsettArbeidUnderAap())
+                fakta.getRefusjonskravGyldighet() == null ? null : mapRefusjonskravPrArbeidsgiverVurderingDto(fakta.getRefusjonskravGyldighet())
         );
     }
 
@@ -402,10 +400,5 @@ public class OppdatererDtoMapper {
         return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.RedigerbarAndelDto(
             redigerbarAndel.getAndelsnr(),
             redigerbarAndel.getLagtTilAvSaksbehandler());
-    }
-
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FastsettInntektForArbeidUnderAAPDto mapFastsettInntektForArbeidUnderAAP(
-        FastsettInntektForArbeidUnderAAPDto fastsettInntektForArbeidUnderAAP) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FastsettInntektForArbeidUnderAAPDto(fastsettInntektForArbeidUnderAAP.getFastsattPrMnd());
     }
 }

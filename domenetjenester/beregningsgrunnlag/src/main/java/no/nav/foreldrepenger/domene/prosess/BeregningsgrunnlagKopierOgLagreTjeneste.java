@@ -36,7 +36,6 @@ import no.nav.folketrygdloven.kalkulator.output.RegelSporingAggregat;
 import no.nav.folketrygdloven.kalkulator.output.RegelSporingPeriode;
 import no.nav.folketrygdloven.kalkulator.steg.BeregningsgrunnlagTjeneste;
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagPeriodeRegelType;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagBuilder;
@@ -213,10 +212,6 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
         lagreOgKopier(input, beregningResultatAggregat, nyttBg, FORESLÅTT_2, FORESLÅTT_2_UT);
         return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(
             beregningResultatAggregat.getBeregningAvklaringsbehovResultater().stream().map(BeregningAksjonspunktResultatMapper::map).toList());
-    }
-
-    public RyddBeregningsgrunnlag getRyddBeregningsgrunnlag(BehandlingskontrollKontekst kontekst) {
-        return new RyddBeregningsgrunnlag(beregningsgrunnlagRepository, kontekst);
     }
 
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat kontrollerFaktaBeregningsgrunnlag(BeregningsgrunnlagInput input) {

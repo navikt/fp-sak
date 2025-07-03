@@ -9,7 +9,6 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -21,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsa
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.fp.SykemeldingVentTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
-import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @FagsakYtelseTypeRef
@@ -31,7 +29,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg {
     private BehandlingRepository behandlingRepository;
     private BeregningTjeneste beregningTjeneste;
-    private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private SykemeldingVentTjeneste sykemeldingVentTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
@@ -42,12 +39,10 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
     @Inject
     public FastsettBeregningsaktiviteterSteg(BehandlingRepository behandlingRepository,
                                              BeregningTjeneste beregningTjeneste,
-                                             BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
                                              SykemeldingVentTjeneste sykemeldingVentTjeneste,
                                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.beregningTjeneste = beregningTjeneste;
-        this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.sykemeldingVentTjeneste = sykemeldingVentTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
@@ -76,15 +71,5 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
             AksjonspunktDefinisjon.AUTO_VENT_PÅ_SYKEMELDING,
             Venteårsak.VENT_MANGLENDE_SYKEMELDING,
             LocalDateTime.of(ventefrist.get(), LocalDateTime.now().toLocalTime())));
-    }
-
-    @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
-            BehandlingStegType fraSteg) {
-        if (BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING.equals(tilSteg)) {
-            beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst).gjenopprettFastsattBeregningAktivitetBeregningsgrunnlag();
-        } else {
-            beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst).ryddFastsettSkjæringstidspunktVedTilbakeføring();
-        }
     }
 }

@@ -13,14 +13,12 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
-import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 
 @BehandlingStegRef(BehandlingStegType.VURDER_VILKAR_BERGRUNN)
 @BehandlingTypeRef
 @FagsakYtelseTypeRef
 @ApplicationScoped
 public class VurderBeregningsgrunnlagVilkårSteg implements BeregningsgrunnlagSteg {
-    private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private BehandlingRepository behandlingRepository;
     private BeregningsgrunnlagVilkårTjeneste beregningsgrunnlagVilkårTjeneste;
     private BeregningTjeneste beregningTjeneste;
@@ -30,11 +28,9 @@ public class VurderBeregningsgrunnlagVilkårSteg implements BeregningsgrunnlagSt
     }
 
     @Inject
-    public VurderBeregningsgrunnlagVilkårSteg(BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
-                                              BehandlingRepository behandlingRepository,
+    public VurderBeregningsgrunnlagVilkårSteg(BehandlingRepository behandlingRepository,
                                               BeregningsgrunnlagVilkårTjeneste beregningsgrunnlagVilkårTjeneste,
                                               BeregningTjeneste beregningTjeneste) {
-        this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.beregningsgrunnlagVilkårTjeneste = beregningsgrunnlagVilkårTjeneste;
         this.beregningTjeneste = beregningTjeneste;
@@ -54,9 +50,7 @@ public class VurderBeregningsgrunnlagVilkårSteg implements BeregningsgrunnlagSt
     @Override
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
             BehandlingStegType fraSteg) {
-        if (tilSteg.equals(BehandlingStegType.VURDER_VILKAR_BERGRUNN)) {
-            beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst).ryddVurderVilkårBeregningsgrunnlagVedTilbakeføring();
-        } else {
+        if (!tilSteg.equals(BehandlingStegType.VURDER_VILKAR_BERGRUNN)) {
             beregningsgrunnlagVilkårTjeneste.ryddVedtaksresultatOgVilkår(kontekst);
         }
     }

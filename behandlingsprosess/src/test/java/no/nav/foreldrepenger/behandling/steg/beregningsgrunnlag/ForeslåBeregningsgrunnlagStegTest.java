@@ -31,8 +31,6 @@ import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjene
 class ForeslåBeregningsgrunnlagStegTest {
 
     @Mock
-    private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
-    @Mock
     private BeregningsgrunnlagVilkårOgAkjonspunktResultat beregningsgrunnlagRegelResultat;
     @Mock
     private BehandlingRepository behandlingRepository;
@@ -53,7 +51,7 @@ class ForeslåBeregningsgrunnlagStegTest {
         when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
         when(beregningTjeneste.beregn(any(), any())).thenReturn(beregningsgrunnlagRegelResultat);
 
-        steg = new ForeslåBeregningsgrunnlagSteg(behandlingRepository, beregningsgrunnlagKopierOgLagreTjeneste, beregningTjeneste);
+        steg = new ForeslåBeregningsgrunnlagSteg(behandlingRepository, beregningTjeneste);
 
         iayTjeneste.lagreInntektsmeldinger(behandling.getSaksnummer(), behandling.getId(), List.of());
     }

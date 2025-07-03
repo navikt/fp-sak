@@ -5,8 +5,8 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.AndelKilde;
 import no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningAktivitetHandlingType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagRegelType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagPeriodeRegelType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagRegelType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.folketrygdloven.kalkulus.kodeverk.FagsakYtelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.FaktaOmBeregningTilfelle;
@@ -104,7 +104,6 @@ public class KodeverkTilKalkulusMapper {
         return switch (opptjeningtype) {
             case ARBEIDSAVKLARING -> OpptjeningAktivitetType.AAP;
             case ARBEID -> OpptjeningAktivitetType.ARBEID;
-            case ARBEID_UNDER_AAP -> OpptjeningAktivitetType.ARBEID_UNDER_AAP;
             case DAGPENGER -> OpptjeningAktivitetType.DAGPENGER;
             case FORELDREPENGER -> OpptjeningAktivitetType.FORELDREPENGER;
             case FRILANS, FRILOPP -> OpptjeningAktivitetType.FRILANS;
@@ -267,7 +266,6 @@ public class KodeverkTilKalkulusMapper {
             case FASTSETT_BG_KUN_YTELSE -> FaktaOmBeregningTilfelle.FASTSETT_BG_KUN_YTELSE;
             case TILSTØTENDE_YTELSE -> FaktaOmBeregningTilfelle.TILSTØTENDE_YTELSE;
             case FASTSETT_ENDRET_BEREGNINGSGRUNNLAG -> FaktaOmBeregningTilfelle.FASTSETT_ENDRET_BEREGNINGSGRUNNLAG;
-            case FASTSETT_INNTEKT_FOR_ARBEID_UNDER_AAP -> FaktaOmBeregningTilfelle.FASTSETT_INNTEKT_FOR_ARBEID_UNDER_AAP;
             case UDEFINERT -> FaktaOmBeregningTilfelle.UDEFINERT;
         };
     }
