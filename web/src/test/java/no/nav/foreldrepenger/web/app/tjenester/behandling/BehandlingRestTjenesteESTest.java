@@ -9,8 +9,6 @@ import java.time.LocalDate;
 
 import jakarta.persistence.EntityManager;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +21,8 @@ import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
@@ -88,7 +88,7 @@ class BehandlingRestTjenesteESTest {
         var behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste, uttakTjeneste, tilbakekrevingRepository,
             skjæringstidspunktTjeneste, esBeregningRepository, behandlingDokumentRepository, mock(TotrinnTjeneste.class), null, null, fagsakRelasjonTjeneste,
             new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, mock(ForeldrepengerUttakTjeneste.class)), mock(DekningsgradTjeneste.class), vergeRepository,
-            vedtaksbrevStatusUtleder);
+            vedtaksbrevStatusUtleder, mock(EøsUttakRepository.class));
 
         henleggBehandlingTjeneste = mock(HenleggBehandlingTjeneste.class);
         behandlingRestTjeneste = new BehandlingRestTjeneste(behandlingsutredningTjeneste, behandlingsoppretterTjeneste,

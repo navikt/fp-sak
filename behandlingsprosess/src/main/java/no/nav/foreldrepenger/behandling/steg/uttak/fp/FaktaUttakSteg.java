@@ -69,7 +69,7 @@ public class FaktaUttakSteg implements UttakSteg {
 
     private void fjernEøsUttak(BehandlingskontrollKontekst kontekst) {
         var behandlingId = kontekst.getBehandlingId();
-        eøsUttakRepository.hentGrunnlag(behandlingId).ifPresent(grunnlag -> {
+        eøsUttakRepository.hentGrunnlag(behandlingId).filter(g -> !g.getPerioder().isEmpty()).ifPresent(grunnlag -> {
             historikkinnslagRepository.lagre(historikkinnslagForFjerningAvEøsUttak(kontekst, behandlingId));
             eøsUttakRepository.deaktiverAktivtGrunnlagHvisFinnes(behandlingId);
         });
