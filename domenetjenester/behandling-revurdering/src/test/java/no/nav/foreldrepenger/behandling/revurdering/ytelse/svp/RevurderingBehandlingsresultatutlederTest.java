@@ -126,7 +126,7 @@ class RevurderingBehandlingsresultatutlederTest {
         scenario.medBehandlingVedtak()
                 .medVedtakstidspunkt(LocalDateTime.now())
                 .medVedtakResultatType(VedtakResultatType.INNVILGET);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE,
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE,
                 BehandlingStegType.KONTROLLER_FAKTA);
         behandlingSomSkalRevurderes = scenario.lagre(repositoryProvider);
         repositoryProvider.getOpptjeningRepository()

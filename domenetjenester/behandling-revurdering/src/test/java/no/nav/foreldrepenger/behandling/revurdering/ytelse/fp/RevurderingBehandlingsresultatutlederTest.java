@@ -121,7 +121,7 @@ class RevurderingBehandlingsresultatutlederTest {
             .medDefaultFordeling(endringsdato)
             .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(endringsdato).build());
         scenario.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now()).medVedtakResultatType(VedtakResultatType.INNVILGET);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.KONTROLLER_FAKTA);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE, BehandlingStegType.KONTROLLER_FAKTA);
         var førstegangsbehandling = scenario.lagre(repositoryProvider);
         opptjeningRepository.lagreOpptjeningsperiode(førstegangsbehandling, LocalDate.now().minusYears(1), LocalDate.now(), false);
         revurderingTestUtil.avsluttBehandling(førstegangsbehandling);

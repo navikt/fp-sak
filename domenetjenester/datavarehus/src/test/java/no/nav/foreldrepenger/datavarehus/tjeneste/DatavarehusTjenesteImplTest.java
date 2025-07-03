@@ -79,7 +79,7 @@ class DatavarehusTjenesteImplTest {
     void lagreNedBehandling() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.medBehandlendeEnhet(BEHANDLENDE_ENHET);
         var behandling = scenario.lagMocked();
         forceOppdaterBehandlingSteg(behandling, BEHANDLING_STEG_TYPE);
@@ -100,7 +100,7 @@ class DatavarehusTjenesteImplTest {
     void lagreNedBehandlingMedMottattSøknadDokument() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.medBehandlendeEnhet(BEHANDLENDE_ENHET);
         var behandling = scenario.lagMocked();
         forceOppdaterBehandlingSteg(behandling, BEHANDLING_STEG_TYPE);
@@ -132,7 +132,7 @@ class DatavarehusTjenesteImplTest {
     void lagreNedBehandlingMedId() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.medBehandlendeEnhet(BEHANDLENDE_ENHET);
 
         var behandling = scenario.lagMocked();

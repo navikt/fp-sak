@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkTerminbekreftelseDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkManglendeFodselDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.DokumentertBarnDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.FastsetteUttakDto;
@@ -69,7 +69,7 @@ class AksjonspunktRestTjenesteTest {
     @Test
     void skal_bekrefte_terminbekreftelse() throws Exception {
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
-        aksjonspunkt.add(new BekreftTerminbekreftelseAksjonspunktDto(BEGRUNNELSE, termindato, utstedtdato, 1));
+        aksjonspunkt.add(new SjekkTerminbekreftelseDto(BEGRUNNELSE, termindato, utstedtdato, 1));
 
         aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class),
             BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, BEHANDLING_VERSJON, aksjonspunkt));

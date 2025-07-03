@@ -21,33 +21,33 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkTerminbekreftelseDto;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 
 @ApplicationScoped
-@DtoTilServiceAdapter(dto = BekreftTerminbekreftelseAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
-public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdaterer<BekreftTerminbekreftelseAksjonspunktDto> {
+@DtoTilServiceAdapter(dto = SjekkTerminbekreftelseDto.class, adapter = AksjonspunktOppdaterer.class)
+public class SjekkTerminbekreftelseOppdaterer implements AksjonspunktOppdaterer<SjekkTerminbekreftelseDto> {
 
 
     private HistorikkinnslagRepository historikkinnslagRepository;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
 
-    BekreftTerminbekreftelseOppdaterer() {
+    SjekkTerminbekreftelseOppdaterer() {
         // for CDI proxy
     }
 
     @Inject
-    public BekreftTerminbekreftelseOppdaterer(HistorikkinnslagRepository historikkinnslagRepository,
-                                              OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
-                                              FamilieHendelseTjeneste familieHendelseTjeneste) {
+    public SjekkTerminbekreftelseOppdaterer(HistorikkinnslagRepository historikkinnslagRepository,
+                                            OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
+                                            FamilieHendelseTjeneste familieHendelseTjeneste) {
         this.historikkinnslagRepository = historikkinnslagRepository;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
     }
 
     @Override
-    public OppdateringResultat oppdater(BekreftTerminbekreftelseAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
+    public OppdateringResultat oppdater(SjekkTerminbekreftelseDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingReferanse = param.getRef();
         var behandlingId = behandlingReferanse.behandlingId();
         var grunnlag = familieHendelseTjeneste.hentAggregat(behandlingId);
@@ -96,7 +96,7 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
         return builder.build();
     }
 
-    private Historikkinnslag lagHistorikkinnslag(BekreftTerminbekreftelseAksjonspunktDto dto,
+    private Historikkinnslag lagHistorikkinnslag(SjekkTerminbekreftelseDto dto,
                                                  BehandlingReferanse behandlingReferanse,
                                                  FamilieHendelseGrunnlagEntitet grunnlag,
                                                  boolean erEndret) {
