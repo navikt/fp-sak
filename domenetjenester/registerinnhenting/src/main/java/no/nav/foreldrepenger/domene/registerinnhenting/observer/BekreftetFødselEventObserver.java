@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.RegisterinnhentingHistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
 public class BekreftetFødselEventObserver {
@@ -32,7 +31,6 @@ public class BekreftetFødselEventObserver {
     private RegisterinnhentingHistorikkinnslagTjeneste historikkinnslagTjeneste;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private BehandlingRepository behandlingRepository;
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     public BekreftetFødselEventObserver() {
         //Cool Devices Installed
@@ -43,14 +41,11 @@ public class BekreftetFødselEventObserver {
      */
     @Inject
     public BekreftetFødselEventObserver(BehandlingRepositoryProvider repositoryProvider,
-                                        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                         RegisterinnhentingHistorikkinnslagTjeneste historikkinnslagTjeneste) {
         this.historikkinnslagTjeneste = historikkinnslagTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
-        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
-
 
     public void observerFamiliehendelseEvent(@Observes FamiliehendelseEvent event) {
         if (FamiliehendelseEvent.EventType.TERMIN_TIL_FØDSEL.equals(event.getEventType()) &&

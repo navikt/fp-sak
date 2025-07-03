@@ -18,10 +18,9 @@ class VedtakEntityTest {
     private static final LocalDateTime VEDTAKSDATO = LocalDateTime.now();
     private static final String ANSVARLIG_SAKSBEHBANDLER = "Ola Normann";
     private static final VedtakResultatType VEDTAK_RESULTAT_TYPE = VedtakResultatType.INNVILGET;
-    private static final String FORVENTET_EXCEPTION = "forventet exception";
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         vedtakBuilder = BehandlingVedtak.builder();
         vedtak = null;
     }

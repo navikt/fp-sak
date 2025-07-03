@@ -28,8 +28,6 @@ import no.nav.foreldrepenger.xmlutils.DateUtil;
 
 class ØkonomioppdragMapperTest {
 
-    private static final String REFUNDERES_ID = "123456789";
-
     private static final String TYPE_ENHET = "BOS";
     private static final String ENHET = "8020";
     private static final LocalDate DATO_ENHET_FOM = LocalDate.of(1900, 1, 1);

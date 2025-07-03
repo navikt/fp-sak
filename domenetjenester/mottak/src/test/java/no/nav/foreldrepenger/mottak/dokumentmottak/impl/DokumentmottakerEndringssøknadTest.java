@@ -64,8 +64,6 @@ class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest {
     private FagsakRepository fagsakRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
 
-    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
-
     @Mock
     private Behandlingsoppretter behandlingsoppretter;
     @Mock
@@ -92,7 +90,6 @@ class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest {
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         fagsakRepository = repositoryProvider.getFagsakRepository();
         var fpUttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
-        fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
 
         lenient().when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(ENHET);

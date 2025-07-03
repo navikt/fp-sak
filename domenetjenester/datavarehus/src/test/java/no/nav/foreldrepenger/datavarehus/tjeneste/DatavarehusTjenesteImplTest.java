@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
@@ -59,14 +58,10 @@ class DatavarehusTjenesteImplTest {
     private MottattDokument mottattDokument;
 
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private BehandlingRepositoryProvider repositoryProvider;
-    private BehandlingRepository behandlingRepository;
 
     @BeforeEach
-    public void setUp(EntityManager entityManager) {
-        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        behandlingRepository = new BehandlingRepository(entityManager);
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider);
+    void setUp(EntityManager entityManager) {
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(new BehandlingRepositoryProvider(entityManager));
     }
 
     private DatavarehusTjenesteImpl nyDatavarehusTjeneste(BehandlingRepositoryProvider repositoryProvider) {
@@ -126,28 +121,6 @@ class DatavarehusTjenesteImplTest {
         assertThat(captor.getValue().getBehandlingId()).isEqualTo(behandling.getId());
         assertThat(captor.getValue().getBehandlingUuid()).isEqualTo(behandling.getUuid());
         assertThat(captor.getValue().getMottattTid()).isEqualTo(mottattDokument.getMottattTidspunkt());
-    }
-
-    @Test
-    void lagreNedBehandlingMedId() {
-        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
-        scenario.medBehandlendeEnhet(BEHANDLENDE_ENHET);
-
-        var behandling = scenario.lagMocked();
-        forceOppdaterBehandlingSteg(behandling, BEHANDLING_STEG_TYPE);
-        behandling.setAnsvarligBeslutter(ANSVARLIG_BESLUTTER);
-        behandling.setAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER);
-
-        var captor = ArgumentCaptor.forClass(BehandlingDvh.class);
-        DatavarehusTjeneste datavarehusTjeneste = nyDatavarehusTjeneste(scenario.mockBehandlingRepositoryProvider());
-        // Act
-        datavarehusTjeneste.lagreNedBehandling(behandling.getId());
-
-        verify(datavarehusRepository).lagre(captor.capture());
-        assertThat(captor.getValue().getBehandlingId()).isEqualTo(behandling.getId());
-        assertThat(captor.getValue().getBehandlingUuid()).isEqualTo(behandling.getUuid());
     }
 
 }

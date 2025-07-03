@@ -23,9 +23,6 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
@@ -83,11 +80,8 @@ import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 @Produces(MediaType.APPLICATION_JSON)
 public class BehandlingRestTjeneste {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BehandlingRestTjeneste.class);
-
     static final String BASE_PATH = "/behandlinger";
     private static final String BEHANDLINGER_ALLE_PART_PATH = "/alle"; // Brukes i autotest ++
-    private static final String BEHANDLINGER_PART_PATH = "";
     private static final String BYTT_ENHET_PART_PATH = "/bytt-enhet";
     public static final String BYTT_ENHET_PATH = BASE_PATH + BYTT_ENHET_PART_PATH;
     private static final String GJENOPPTA_PART_PATH = "/gjenoppta";

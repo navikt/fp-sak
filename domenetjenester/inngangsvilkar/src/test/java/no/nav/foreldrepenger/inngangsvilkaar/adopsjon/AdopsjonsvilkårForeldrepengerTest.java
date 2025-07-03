@@ -21,22 +21,17 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
 class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
 
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private PersonopplysningTjeneste personopplysningTjeneste;
     private AdopsjonsvilkårOversetter oversetter;
 
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider
-        );
         personopplysningTjeneste = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
         oversetter = new AdopsjonsvilkårOversetter(repositoryProvider, personopplysningTjeneste);
     }
@@ -58,7 +53,6 @@ class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
 
     @Test
     void skal_gi_innvilgelse_dersom_stønadsperiode_for_annen_forelder_ikke_er_brukt_opp() {
-        var maksdatoForeldrepenger = LocalDate.of(2018, 6, 1);
         var omsorgsovertakelsedato = LocalDate.of(2018, 5, 1);
 
         var oversetter = new AdopsjonsvilkårOversetter(repositoryProvider, personopplysningTjeneste);

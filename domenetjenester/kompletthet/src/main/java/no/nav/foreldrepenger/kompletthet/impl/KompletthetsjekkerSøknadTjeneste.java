@@ -10,9 +10,6 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -26,8 +23,6 @@ import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 
 @ApplicationScoped
 public class KompletthetsjekkerSøknadTjeneste {
-    private static final Logger LOG = LoggerFactory.getLogger(KompletthetsjekkerSøknadTjeneste.class);
-
     /**
      * Disse konstantene ligger hardkodet (og ikke i KonfigVerdi), da endring i en eller flere av disse vil
      * sannsynnlig kreve kodeendring

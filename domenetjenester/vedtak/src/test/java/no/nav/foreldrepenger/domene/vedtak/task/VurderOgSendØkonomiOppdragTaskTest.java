@@ -40,8 +40,6 @@ class VurderOgSendØkonomiOppdragTaskTest {
 
     private static final Long TASK_ID = 238L;
 
-    private static final String AKTØR_ID = AktørId.dummy().getId();
-
     @Mock
     private ProsessTaskTjeneste repo;
 

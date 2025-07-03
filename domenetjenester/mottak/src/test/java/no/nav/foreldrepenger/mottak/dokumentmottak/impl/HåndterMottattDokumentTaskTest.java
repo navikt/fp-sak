@@ -39,7 +39,6 @@ class HåndterMottattDokumentTaskTest extends EntityManagerAwareTest {
     private static final DokumentTypeId DOKUMENTTYPE = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
     private static final LocalDate FORSENDELSE_MOTTATT = LocalDate.now();
     private static final String PAYLOAD_XML = "inntektsmelding.xml";
-    private static final  AktørId AKTØR_ID = new AktørId("0000000000000");
 
     private InnhentDokumentTjeneste innhentDokumentTjeneste;
     private HåndterMottattDokumentTask håndterMottattDokumentTask;

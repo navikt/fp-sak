@@ -6,9 +6,6 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoKjønn;
@@ -53,8 +50,6 @@ import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Svangerskapspenger
 @NamespaceRef(SøknadConstants.NAMESPACE)
 @ApplicationScoped
 public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapper> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SøknadOversetter.class);
 
     private VirksomhetTjeneste virksomhetTjeneste;
     private PersonopplysningRepository personopplysningRepository;
