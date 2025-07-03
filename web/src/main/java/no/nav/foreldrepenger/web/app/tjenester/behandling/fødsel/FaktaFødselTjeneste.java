@@ -14,6 +14,9 @@ import java.util.stream.Stream;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
@@ -21,7 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.UidentifisertBarnDto;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.DokumentertBarnDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.aksjonspunkt.OverstyringFaktaOmFødselDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto.FødselDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto.Kilde;
@@ -29,7 +32,7 @@ import no.nav.vedtak.exception.FunksjonellException;
 
 @ApplicationScoped
 public class FaktaFødselTjeneste {
-
+    private static final Logger LOG = LoggerFactory.getLogger(FaktaFødselTjeneste.class);
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private BehandlingRepository behandlingRepository;
 
@@ -44,6 +47,7 @@ public class FaktaFødselTjeneste {
     }
 
     public void overstyrFaktaOmFødsel(Long behandlingId, OverstyringFaktaOmFødselDto dto) {
+        LOG.info("Overstyrer fakta rundt fødsel for behandlingId {} til {}", behandlingId, dto);
         var oppdatere = familieHendelseTjeneste.opprettBuilderForOverstyring(behandlingId);
         var familieHendelse = familieHendelseTjeneste.hentAggregat(behandlingId);
 
@@ -95,8 +99,8 @@ public class FaktaFødselTjeneste {
         // Filtrer bort barn uten fødselsdato. Dette skjer ved overstyring av kun termindato når barn ikke er født ennå.
         oppdatere.tilbakestillBarn().medAntallBarn(dto.getAntallBarn());
         dto.getBarn().stream()
-            .filter(b -> b.getFodselsdato() != null)
-            .forEach(b -> oppdatere.leggTilBarn(b.getFodselsdato(), b.getDodsdato().orElse(null)));
+            .filter(b -> b.getFødselsdato() != null)
+            .forEach(b -> oppdatere.leggTilBarn(b.getFødselsdato(), b.getDødsdato().orElse(null)));
     }
 
     private static boolean harEndringerIBarnData(OverstyringFaktaOmFødselDto dto, FamilieHendelseGrunnlagEntitet familieHendelse) {
@@ -113,7 +117,7 @@ public class FaktaFødselTjeneste {
     }
 
     private static void sjekkGyldigTerminFødsel(OverstyringFaktaOmFødselDto dto) {
-       var fødselsdato = dto.getBarn().stream().map(UidentifisertBarnDto::getFodselsdato).filter(Objects::nonNull).min(Comparator.naturalOrder());
+       var fødselsdato = dto.getBarn().stream().map(DokumentertBarnDto::getFødselsdato).filter(Objects::nonNull).min(Comparator.naturalOrder());
         if (dto.getTermindato()!= null && fødselsdato.isPresent()) {
             var fødselsintervall = FamilieHendelseTjeneste.intervallForTermindato(dto.getTermindato());
             if (!fødselsintervall.encloses(fødselsdato.get())) {
@@ -124,7 +128,7 @@ public class FaktaFødselTjeneste {
 
     private static void validerDødsdatoerMotFødselsdatoer(OverstyringFaktaOmFødselDto dto) {
         dto.getBarn().forEach(barn -> {
-            if (barn.getDodsdato().isPresent() && barn.getDodsdato().get().isBefore(barn.getFodselsdato())) {
+            if (barn.getDødsdato().isPresent() && barn.getDødsdato().get().isBefore(barn.getFødselsdato())) {
                 throw new FunksjonellException("FP-076345", "Dødsdato før fødselsdato", "Se over fødsels- og dødsdato");
             }
         });
@@ -132,7 +136,7 @@ public class FaktaFødselTjeneste {
 
     private static boolean finnesUlikeBarn(OverstyringFaktaOmFødselDto dto, FamilieHendelseGrunnlagEntitet familieHendelse) {
         var dtoBarnNøkler = grupperBarnEtterNøkkel(dto.getBarn().stream()
-                .map(b -> new BarnNøkkel(b.getFodselsdato(), b.getDodsdato().orElse(null))));
+                .map(b -> new BarnNøkkel(b.getFødselsdato(), b.getDødsdato().orElse(null))));
 
         var grunnlagBarnNøkler = grupperBarnEtterNøkkel(familieHendelse.getGjeldendeVersjon().getBarna().stream()
                 .map(b -> new BarnNøkkel(b.getFødselsdato(), b.getDødsdato().orElse(null))));

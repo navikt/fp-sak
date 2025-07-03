@@ -12,9 +12,10 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
+import no.nav.foreldrepenger.familiehendelse.rest.BarnInfoProvider;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.SJEKK_MANGLENDE_FØDSEL_KODE)
-public class SjekkManglendeFodselDto extends BekreftetAksjonspunktDto {
+public class SjekkManglendeFodselDto extends BekreftetAksjonspunktDto implements BarnInfoProvider {
 
     @NotNull
     @JsonProperty("erBarnFødt")
@@ -40,6 +41,7 @@ public class SjekkManglendeFodselDto extends BekreftetAksjonspunktDto {
         return erBarnFødt;
     }
 
+    @Override
     public List<DokumentertBarnDto> getBarn() {
         return barn;
     }
