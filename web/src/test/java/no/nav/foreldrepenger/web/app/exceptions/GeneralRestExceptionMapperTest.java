@@ -32,7 +32,7 @@ class GeneralRestExceptionMapperTest {
     }
 
     @AfterEach
-    public void afterEach() {
+    void afterEach() {
         logSniffer.reset();
     }
 

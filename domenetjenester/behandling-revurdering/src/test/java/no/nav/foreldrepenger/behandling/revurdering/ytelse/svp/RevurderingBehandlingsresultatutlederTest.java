@@ -121,7 +121,7 @@ class RevurderingBehandlingsresultatutlederTest {
     private final LocalDate endringsdato = LocalDate.now().minusMonths(3);
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
         scenario.medBehandlingVedtak()
                 .medVedtakstidspunkt(LocalDateTime.now())

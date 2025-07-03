@@ -71,7 +71,7 @@ class AutomatiskEtterkontrollTaskTest {
     private EntityManager em;
 
     @BeforeEach
-    public void setUp(EntityManager entityManager) {
+    void setUp(EntityManager entityManager) {
         em = entityManager;
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         engangsstønadBeregningRepository = new EngangsstønadBeregningRepository(entityManager);

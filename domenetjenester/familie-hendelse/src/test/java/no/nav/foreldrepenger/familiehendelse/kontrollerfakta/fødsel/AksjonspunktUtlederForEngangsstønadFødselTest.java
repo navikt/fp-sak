@@ -41,7 +41,7 @@ class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManagerAware
     private AksjonspunktUtlederForEngangsstønadFødsel apUtleder;
 
     @BeforeEach
-    public void oppsett() {
+    void oppsett() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         var familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
         apUtleder = Mockito.spy(new AksjonspunktUtlederForEngangsstønadFødsel(mock(InntektArbeidYtelseTjeneste.class), familieHendelseTjeneste));

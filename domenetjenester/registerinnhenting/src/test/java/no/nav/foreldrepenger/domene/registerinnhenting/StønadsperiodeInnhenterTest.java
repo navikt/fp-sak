@@ -77,7 +77,7 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
     private StønadsperioderInnhenter stønadsperioderInnhenter;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         var grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);

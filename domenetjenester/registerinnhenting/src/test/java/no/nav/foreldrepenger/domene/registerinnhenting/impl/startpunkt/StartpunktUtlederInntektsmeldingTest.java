@@ -76,7 +76,7 @@ class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest {
     private StartpunktUtlederInntektsmelding utleder;
 
     @BeforeEach
-    public void oppsett() {
+    void oppsett() {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);

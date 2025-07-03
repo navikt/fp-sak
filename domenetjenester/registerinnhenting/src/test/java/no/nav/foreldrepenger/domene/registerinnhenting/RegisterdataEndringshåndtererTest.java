@@ -64,7 +64,7 @@ class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
     private BehandlingRepositoryProvider repositoryProvider;
 
     @BeforeEach
-    public void before() {
+    void before() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         when(endringskontroller.erRegisterinnhentingPassert(any())).thenReturn(Boolean.TRUE);
         snapshotFør = EndringsresultatSnapshot.opprett();

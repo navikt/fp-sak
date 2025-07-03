@@ -31,7 +31,7 @@ class SjekkDbStrukturTest {
     private static String schema;
 
     @BeforeAll
-    public static void setup() {
+    static void setup() {
         schema = TestDatabaseInit.DEFAULT_DS_SCHEMA;
         var testDatabase = new OracleContainer(DockerImageName.parse(TestDatabaseInit.TEST_DB_CONTAINER))
             .withCopyFileToContainer(MountableFile.forHostPath(TestDatabaseInit.DB_SETUP_SCRIPT_PATH), "/docker-entrypoint-initdb.d/init.sql")

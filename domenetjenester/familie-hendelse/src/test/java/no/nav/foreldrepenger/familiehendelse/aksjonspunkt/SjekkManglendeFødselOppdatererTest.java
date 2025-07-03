@@ -47,7 +47,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
     private FamilieHendelseTjeneste familieHendelseTjeneste;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         familieHendelseTjeneste = new FamilieHendelseTjeneste(familiehendelseEventPubliserer, repositoryProvider.getFamilieHendelseRepository());
     }

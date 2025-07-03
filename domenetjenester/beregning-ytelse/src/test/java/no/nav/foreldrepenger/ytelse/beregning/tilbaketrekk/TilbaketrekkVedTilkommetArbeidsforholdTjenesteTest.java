@@ -47,7 +47,7 @@ class TilbaketrekkVedTilkommetArbeidsforholdTjenesteTest {
     private BeregningsresultatPeriode originalPeriode;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         var revurderingResultat = BeregningsresultatEntitet.builder()
                 .medRegelInput("regelinput")
                 .medRegelSporing("Regelsporing")

@@ -60,7 +60,7 @@ class VurderOgSendØkonomiOppdragTaskTest {
     private VurderOgSendØkonomiOppdragTask task;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         when(prosessTaskData.getBehandlingIdAsLong()).thenReturn(BEHANDLING_ID);
         lenient().when(prosessTaskData.getSaksnummer()).thenReturn(SAKSNUMMER);
         lenient().when(prosessTaskData.getId()).thenReturn(TASK_ID);
