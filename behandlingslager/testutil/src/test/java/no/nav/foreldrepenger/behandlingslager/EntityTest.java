@@ -87,7 +87,7 @@ class EntityTest {
 
     @ParameterizedTest
     @MethodSource("parameters")
-    public void skal_ha_registrert_alle_entiteter_i_orm_xml(Class<?> entityClass) {
+    void skal_ha_registrert_alle_entiteter_i_orm_xml(Class<?> entityClass) {
         try {
             entityManagerFactory.getMetamodel().managedType(entityClass);
         } catch (IllegalArgumentException e) {
@@ -99,7 +99,7 @@ class EntityTest {
     //@Disabled("Venter til etter migrering av aliased tables")
     @ParameterizedTest
     @MethodSource("parameters")
-    public void sjekk_felt_mapping_primitive_felt_i_entiteter_må_ha_not_nullable_i_db(Class<?> entityClass) throws Exception {
+    void sjekk_felt_mapping_primitive_felt_i_entiteter_må_ha_not_nullable_i_db(Class<?> entityClass) throws Exception {
         var managedType = entityManagerFactory.getMetamodel().managedType(entityClass);
 
         for (Attribute<?, ?> att : managedType.getAttributes()) {
@@ -131,7 +131,7 @@ class EntityTest {
     @Disabled("Venter til etter migrering av aliased tables")
     @ParameterizedTest
     @MethodSource("parameters")
-    public void sjekk_felt_ikke_primitive_wrappere_kan_ikke_være_not_nullable_i_db(Class<?> entityClass) throws Exception {
+    void sjekk_felt_ikke_primitive_wrappere_kan_ikke_være_not_nullable_i_db(Class<?> entityClass) throws Exception {
         var managedType = entityManagerFactory.getMetamodel().managedType(entityClass);
 
         if (Modifier.isAbstract(entityClass.getModifiers())) {
@@ -193,7 +193,7 @@ class EntityTest {
 
     @ParameterizedTest
     @MethodSource("parameters")
-    public void sjekk_felt_ikke_er_Float_eller_Double(Class<?> entityClass) throws Exception {
+    void sjekk_felt_ikke_er_Float_eller_Double(Class<?> entityClass) throws Exception {
         var managedType = entityManagerFactory.getMetamodel().managedType(entityClass);
 
         for (Attribute<?, ?> att : managedType.getAttributes()) {

@@ -38,7 +38,7 @@ class HistorikkinnslagTjenesteTest {
     private HistorikkinnslagTjeneste historikkinnslagTjeneste;
 
     @BeforeEach
-    public void before() {
+    void before() {
         historikkRepository = mock(HistorikkinnslagRepository.class);
         dokumentArkivTjeneste = mock(DokumentArkivTjeneste.class);
         historikkinnslagTjeneste = new HistorikkinnslagTjeneste(historikkRepository, dokumentArkivTjeneste);

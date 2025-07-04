@@ -31,7 +31,7 @@ class OppdragKvitteringEntityTest {
     private static final String FORVENTET_EXCEPTION = "forventet exception";
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         oppdragKvitteringBuilder = OppdragKvittering.builder();
         oppdragKvittering = null;
     }

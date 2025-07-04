@@ -44,7 +44,7 @@ class FastsettBeregningsgrunnlagATFLOppdatererTest {
     private BehandlingRepository behandlingRepository;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
         oppdaterer = new FastsettBeregningsgrunnlagATFLOppdaterer(behandlingRepository, historikkKalkulusTjeneste, beregningTjeneste);
     }

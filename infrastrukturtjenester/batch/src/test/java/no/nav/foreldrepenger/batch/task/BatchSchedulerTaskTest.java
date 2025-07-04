@@ -27,7 +27,7 @@ class BatchSchedulerTaskTest {
     private final LocalDate enStengtDag = LocalDate.of(2023, Month.MAY, 17);
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         testsupport = new BatchSupportTjenesteTest();
         task = new BatchSchedulerTask(testsupport);
     }

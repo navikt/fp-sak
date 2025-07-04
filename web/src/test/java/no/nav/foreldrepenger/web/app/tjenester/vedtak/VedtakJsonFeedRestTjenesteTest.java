@@ -31,7 +31,7 @@ class VedtakJsonFeedRestTjenesteTest {
     private VedtakFattetTjeneste vedtakFattetTjeneste;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         tjeneste = new VedtakJsonFeedRestTjeneste(vedtakFattetTjeneste);
     }
 

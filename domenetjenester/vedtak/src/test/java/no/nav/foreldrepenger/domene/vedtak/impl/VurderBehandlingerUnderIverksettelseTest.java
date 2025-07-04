@@ -36,7 +36,7 @@ class VurderBehandlingerUnderIverksettelseTest {
     private VurderBehandlingerUnderIverksettelse tjeneste;
 
     @BeforeEach
-    public void setup(EntityManager entityManager) {
+    void setup(EntityManager entityManager) {
         this.entityManager = entityManager;
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingRepository = repositoryProvider.getBehandlingRepository();

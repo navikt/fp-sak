@@ -50,7 +50,7 @@ class OpprettSakTjenesteTest {
     private OpprettSakTjeneste opprettSakTjeneste;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         this.opprettSakTjeneste = new OpprettSakTjeneste(fagsakTjeneste, brukerTjeneste);
     }
 

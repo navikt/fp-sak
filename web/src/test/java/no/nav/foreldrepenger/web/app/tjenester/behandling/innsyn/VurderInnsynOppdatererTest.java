@@ -62,7 +62,7 @@ class VurderInnsynOppdatererTest {
     private VurderInnsynOppdaterer oppdaterer;
 
     @BeforeEach
-    public void konfigurerMocker() {
+    void konfigurerMocker() {
         var enhet = new OrganisasjonsEnhet("enhetId", "enhetNavn");
         when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
         var oppretter = new BehandlingOpprettingTjeneste(behandlingskontrollTjeneste, behandlendeEnhetTjeneste, repositoryProvider.getHistorikkinnslagRepository(),

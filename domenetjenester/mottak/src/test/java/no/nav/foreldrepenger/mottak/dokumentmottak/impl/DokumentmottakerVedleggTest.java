@@ -73,7 +73,7 @@ class DokumentmottakerVedleggTest {
     private Kompletthetskontroller kompletthetskontroller;
 
     @BeforeEach
-    public void oppsett() {
+    void oppsett() {
 
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(ENHET);
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(), any(String.class))).thenReturn(ENHET);

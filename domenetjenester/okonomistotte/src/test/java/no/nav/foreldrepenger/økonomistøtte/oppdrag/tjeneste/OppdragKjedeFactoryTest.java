@@ -128,7 +128,7 @@ class OppdragKjedeFactoryTest {
 
     @Test
     @Disabled("Feiler på mandager")
-    public void skal_støtte_fotsettelse_etter_opphør() {
+    void skal_støtte_fotsettelse_etter_opphør() {
         var tidligereOppdrag = OppdragKjede.builder()
             .medOppdragslinje(OppdragLinje.builder()
                 .medPeriode(p1)

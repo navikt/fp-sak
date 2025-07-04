@@ -55,7 +55,7 @@ class SøknadMapperFellesTest {
     private VirksomhetTjeneste virksomhetTjeneste;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         var virksomhetEntitet = new Virksomhet.Builder().medOrgnr("123").medRegistrert(LocalDate.now()).build();
         lenient().when(virksomhetTjeneste.hentOrganisasjon(anyString())).thenReturn(virksomhetEntitet);
     }

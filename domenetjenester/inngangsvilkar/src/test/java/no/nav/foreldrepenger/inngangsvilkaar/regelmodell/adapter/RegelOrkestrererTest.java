@@ -34,7 +34,7 @@ class RegelOrkestrererTest {
     private InngangsvilkårTjeneste inngangsvilkårTjeneste;
 
     @BeforeEach
-    public void oppsett() {
+    void oppsett() {
         inngangsvilkårTjeneste = Mockito.mock(InngangsvilkårTjeneste.class);
         orkestrerer = new RegelOrkestrerer(inngangsvilkårTjeneste);
     }

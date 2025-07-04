@@ -34,7 +34,7 @@ class OpprettProsessTaskIverksettTest {
     private OpprettProsessTaskIverksett opprettProsessTaskIverksettFP;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenario.lagMocked();
         opprettProsessTaskIverksettFP = new OpprettProsessTaskIverksett(taskTjeneste);

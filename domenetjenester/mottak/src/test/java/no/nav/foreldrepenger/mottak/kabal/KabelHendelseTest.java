@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.behandling.kabal.KabalUtfall;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 
-public class KabelHendelseTest  {
+class KabelHendelseTest  {
 
     @Test
     void kabalJsonParse() throws IOException {

@@ -21,7 +21,7 @@ class OppdragskontrollEntityTest {
     private static final Long BEHANDLINGID = 321L;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         oppdragskontrollBuilder = Oppdragskontroll.builder();
         oppdragskontroll = null;
     }

@@ -69,7 +69,7 @@ class AvsluttBehandlingTest {
     private Fagsak fagsak;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         behandling = lagBehandling(LocalDateTime.now().minusHours(1), LocalDateTime.now());
         fagsak = behandling.getFagsak();
 

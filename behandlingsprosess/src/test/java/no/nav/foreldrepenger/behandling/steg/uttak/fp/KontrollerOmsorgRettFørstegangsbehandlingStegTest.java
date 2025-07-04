@@ -80,7 +80,7 @@ class KontrollerOmsorgRettFørstegangsbehandlingStegTest {
     }
 
     @BeforeEach
-    public void oppsett() {
+    void oppsett() {
         var scenario = opprettBehandlingForFarSomSøker();
         behandling = scenario.lagre(repositoryProvider);
         steg = new KontrollerOmsorgRettFørstegangsbehandlingSteg(uttakInputTjeneste, tjeneste, ryddOmsorgRettTjeneste);

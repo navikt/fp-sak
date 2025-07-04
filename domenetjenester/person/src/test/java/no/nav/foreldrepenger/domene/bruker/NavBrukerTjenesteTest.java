@@ -27,7 +27,7 @@ class NavBrukerTjenesteTest {
     private NavBrukerRepository navBrukerRepository;
 
     @BeforeEach
-    public void oppsett() {
+    void oppsett() {
         brukerTjeneste = new NavBrukerTjeneste(navBrukerRepository, personinfoAdapter);
     }
 

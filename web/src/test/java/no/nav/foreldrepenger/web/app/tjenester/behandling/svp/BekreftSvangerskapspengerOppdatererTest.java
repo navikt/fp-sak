@@ -82,7 +82,7 @@ class BekreftSvangerskapspengerOppdatererTest {
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
 
     @BeforeEach
-    public void beforeEach(EntityManager entityManager) {
+    void beforeEach(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         grunnlagProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
         var arbeidsforholdAdministrasjonTjeneste = new ArbeidsforholdAdministrasjonTjeneste(

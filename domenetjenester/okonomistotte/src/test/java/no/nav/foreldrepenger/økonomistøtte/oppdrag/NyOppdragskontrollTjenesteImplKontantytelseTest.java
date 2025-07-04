@@ -47,7 +47,7 @@ class NyOppdragskontrollTjenesteImplKontantytelseTest {
     protected OppdragskontrollTjenesteImpl oppdragskontrollTjeneste;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         oppdragskontrollTjeneste = new OppdragskontrollTjenesteImpl(mock(ØkonomioppdragRepository.class));
     }
 

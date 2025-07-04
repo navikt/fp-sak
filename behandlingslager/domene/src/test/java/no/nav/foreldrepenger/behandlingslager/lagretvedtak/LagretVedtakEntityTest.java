@@ -16,7 +16,7 @@ class LagretVedtakEntityTest {
     private static final String STRING_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><element>test av xml</element>";
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         lagretVedtakBuilder = LagretVedtak.builder();
         lagretVedtak = null;
     }

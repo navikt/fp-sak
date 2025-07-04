@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 
-public class DokumentmottakerInntektsmeldingHåndteringVedAvslåttBehandlingTest extends DokumentmottakerTestsupport {
+class DokumentmottakerInntektsmeldingHåndteringVedAvslåttBehandlingTest extends DokumentmottakerTestsupport {
 
     private DokumentmottakerInntektsmelding dokumentmottakerInntektsmelding;
     private Behandlingsoppretter behandlingsoppretterSpied;

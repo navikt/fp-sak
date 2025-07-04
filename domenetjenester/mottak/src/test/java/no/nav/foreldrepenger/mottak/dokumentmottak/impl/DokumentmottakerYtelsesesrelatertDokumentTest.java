@@ -66,7 +66,7 @@ class DokumentmottakerYtelsesesrelatertDokumentTest {
     private DokumentmottakerYtelsesesrelatertDokument dokumentmottaker;
 
     @BeforeEach
-    public void oppsett() {
+    void oppsett() {
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(ENHET);
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(), any(String.class))).thenReturn(ENHET);
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFra(any())).thenReturn(ENHET);

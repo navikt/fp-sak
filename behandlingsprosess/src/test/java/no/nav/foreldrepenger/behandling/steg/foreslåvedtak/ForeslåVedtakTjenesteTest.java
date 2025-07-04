@@ -85,7 +85,7 @@ class ForeslåVedtakTjenesteTest {
     private ForeslåVedtakTjeneste tjeneste;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         behandling = ScenarioMorSøkerEngangsstønad.forFødsel().lagre(repositoryProvider);
 
         lenient().when(oppgaveTjeneste.hentÅpneVurderDokumentOgVurderKonsekvensOppgaver(any(AktørId.class))).thenReturn(Collections.emptyList());

@@ -43,7 +43,7 @@ class SaksbehandlingDokumentmottakTjenesteTest {
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
 
     @BeforeEach
-    public void before() {
+    void before() {
         taskTjeneste = mock(ProsessTaskTjeneste.class);
         mottatteDokumentTjeneste = mock(MottatteDokumentTjeneste.class);
         saksbehandlingDokumentmottakTjeneste = new SaksbehandlingDokumentmottakTjeneste(taskTjeneste, mottatteDokumentTjeneste);
