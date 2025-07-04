@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
 import java.util.List;
-import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatGrun
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.ytelse.beregning.BeregningsresultatInputVerifiserer;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Arbeidsforhold;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Beregningsgrunnlag;

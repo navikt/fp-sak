@@ -145,7 +145,6 @@ class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         // Arrange
         var fagsak = nyMorFødselFagsak();
         var fagsakId = fagsak.getId();
-        var dokumentTypeId = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
 
         var mottattDokument = DokumentmottakTestUtil.byggMottattPapirsøknad(DokumentTypeId.UDEFINERT, fagsakId, "", now(), true, null);
 
@@ -570,7 +569,6 @@ class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         when(behandlingsoppretter.oppdaterBehandlingViaHenleggelse(behandling2, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)).thenReturn(behandling3);
 
         var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsak.getId(), "<søknad>", now(), true, null);
-        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         // Act
         dokumentmottaker.mottaDokument(mottattDokument, behandling2.getFagsak(), null);

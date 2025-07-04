@@ -240,9 +240,6 @@ class StønadsstatistikkTjenesteTest {
         var uttaksperiode = uttak.getPerioder().getFirst();
         var beregningsresultat = lagBeregningsresultatMedAndel(uttaksperiode);
         repositoryProvider.getBeregningsresultatRepository().lagre(behandling, beregningsresultat);
-        var beregningsresultatPeriode = beregningsresultat.getBeregningsresultatPerioder().getFirst();
-        var andel = beregningsresultatPeriode.getBeregningsresultatAndelList().getFirst();
-
 
         var ref = BehandlingReferanse.fra(behandling);
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());

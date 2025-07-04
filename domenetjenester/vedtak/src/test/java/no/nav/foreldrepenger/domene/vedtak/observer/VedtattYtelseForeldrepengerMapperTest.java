@@ -41,7 +41,7 @@ class VedtattYtelseForeldrepengerMapperTest {
         var eksternReferanse = "jifesjsioejf";
         var dagsats = 500;
         var arbeidsforholdReferanse = lagReferanser(arbeidsgiver, arbeidsforholdRef, eksternReferanse);
-        var arbeidsforhold = BeregningsresultatAndel.builder()
+        BeregningsresultatAndel.builder()
             .medArbeidsforholdRef(arbeidsforholdRef)
             .medArbeidsgiver(arbeidsgiver)
             .medStillingsprosent(BigDecimal.valueOf(100))
@@ -194,7 +194,6 @@ class VedtattYtelseForeldrepengerMapperTest {
         var periode = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusDays(10))
             .build(resultat);
-        var arbeidsforholdRef = InternArbeidsforholdRef.nyRef();
         var dagsats = 500;
         BeregningsresultatAndel.builder()
             .medStillingsprosent(BigDecimal.valueOf(100))

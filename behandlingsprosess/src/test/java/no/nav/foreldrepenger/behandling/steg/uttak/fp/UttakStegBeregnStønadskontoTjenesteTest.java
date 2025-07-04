@@ -76,7 +76,7 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
         var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medOriginalBehandling(førsteBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
-            .medOppgittDekningsgrad(Dekningsgrad._100);;
+            .medOppgittDekningsgrad(Dekningsgrad._100);
         revurderingScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         var revurdering = revurderingScenario.lagre(repositoryProvider);
 

@@ -414,7 +414,6 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
         // Arrange
         var aksjonspunktDefinisjon1 = AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE;
         var ttv1Godkjent = false;
-        var ttv2Godkjent = true;
 
         Map<VilkårType, SkjermlenkeType> vilkårTypeSkjermlenkeTypeMap = new HashMap<>();
         vilkårTypeSkjermlenkeTypeMap.put(VilkårType.FØDSELSVILKÅRET_MOR, SkjermlenkeType.PUNKT_FOR_FOEDSEL);

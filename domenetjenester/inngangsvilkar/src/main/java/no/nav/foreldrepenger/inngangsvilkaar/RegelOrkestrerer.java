@@ -3,13 +3,10 @@ package no.nav.foreldrepenger.inngangsvilkaar;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -22,8 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
-
 
 @ApplicationScoped
 public class RegelOrkestrerer {
@@ -80,23 +75,6 @@ public class RegelOrkestrerer {
     protected VilkårData vurderVilkår(VilkårType vilkårType, BehandlingReferanse ref) {
         var inngangsvilkår = inngangsvilkårTjeneste.finnVilkår(vilkårType, ref.fagsakYtelseType());
         return inngangsvilkår.vurderVilkår(ref);
-    }
-
-    private Set<VilkårUtfallType> sammenslåVilkårUtfall(VilkårResultat vilkårResultat,
-                                                        VilkårData vdRegelmotor) {
-        var vilkårTyper = vilkårResultat.getVilkårene().stream()
-            .collect(toMap(Vilkår::getVilkårType, v -> v));
-        var vilkårUtfall = vilkårResultat.getVilkårene().stream()
-            .collect(toMap(Vilkår::getVilkårType, Vilkår::getGjeldendeVilkårUtfall));
-
-        var matchendeVilkår = vilkårTyper.get(vdRegelmotor.vilkårType());
-        Objects.requireNonNull(matchendeVilkår, "skal finnes match");
-        // Utfall fra automatisk regelvurdering skal legges til settet av utfall, dersom vilkår ikke er manuelt vurdert
-        if (!(matchendeVilkår.erManueltVurdert() || matchendeVilkår.erOverstyrt())) {
-            vilkårUtfall.put(vdRegelmotor.vilkårType(), vdRegelmotor.utfallType());
-        }
-
-        return new HashSet<>(vilkårUtfall.values());
     }
 
     private VilkårData kjørRegelmotor(BehandlingReferanse ref, Vilkår vilkår) {

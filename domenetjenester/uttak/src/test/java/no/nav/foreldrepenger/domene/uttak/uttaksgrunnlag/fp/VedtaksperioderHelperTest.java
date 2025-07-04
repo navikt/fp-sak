@@ -38,7 +38,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEnti
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.uttak.KodeMapper;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 
 class VedtaksperioderHelperTest {
@@ -898,14 +897,4 @@ class VedtaksperioderHelperTest {
 
         return uttakResultatPeriode;
     }
-
-    private static KodeMapper<StønadskontoType, UttakPeriodeType> initStønadskontoTypeMapper() {
-        return KodeMapper.medMapping(StønadskontoType.FORELDREPENGER, UttakPeriodeType.FORELDREPENGER)
-            .medMapping(StønadskontoType.FORELDREPENGER_FØR_FØDSEL, UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
-            .medMapping(StønadskontoType.FELLESPERIODE, UttakPeriodeType.FELLESPERIODE)
-            .medMapping(StønadskontoType.MØDREKVOTE, UttakPeriodeType.MØDREKVOTE)
-            .medMapping(StønadskontoType.FEDREKVOTE, UttakPeriodeType.FEDREKVOTE)
-            .build();
-    }
-
 }

@@ -20,10 +20,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
-import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
@@ -34,13 +32,10 @@ import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
-import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -195,35 +190,6 @@ public class FeilPraksisOpprettBehandlingTjeneste {
             .filter(a -> a.getTrekkdager().merEnn0() && !a.getUtbetalingsgrad().harUtbetaling())
             .map(a -> new UttakAktivitetTapteDager(new UttakAktivitetGruppering(a), a.getTrekkdager()))
             .toList();
-    }
-
-    private static Map<UttakAktivitetGruppering, Trekkdager> tapteDagerGradering(List<UttakResultatPeriodeEntitet> perioder) {
-        return perioder.stream()
-            .filter(p -> GraderingAvslagÅrsak.FOR_SEN_SØKNAD.equals(p.getGraderingAvslagÅrsak()) && p.getSamtidigUttaksprosent() == null)
-            .map(FeilPraksisOpprettBehandlingTjeneste::tapteDagerGraderingPeriode)
-            .flatMap(Collection::stream)
-            .collect(Collectors.groupingBy(UttakAktivitetTapteDager::grupperingsnøkkel,
-                Collectors.reducing(Trekkdager.ZERO, UttakAktivitetTapteDager::taptedager, Trekkdager::add)));
-    }
-
-    private static List<UttakAktivitetTapteDager> tapteDagerGraderingPeriode(UttakResultatPeriodeEntitet periode) {
-        return periode.getAktiviteter().stream()
-            .filter(a -> a.getUtbetalingsgrad().compareTo(Utbetalingsgrad.HUNDRED) < 0 && feilPraksisGraderingAktivitet(periode, a))
-            .map(a -> new UttakAktivitetTapteDager(new UttakAktivitetGruppering(a),
-                a.getTrekkdager().subtract(graderingForventetTrekkdager(periode, a))))
-            .toList();
-    }
-
-
-    private static boolean feilPraksisGraderingAktivitet(UttakResultatPeriodeEntitet periode, UttakResultatPeriodeAktivitetEntitet aktivitet) {
-        var forventetTrekkdager = graderingForventetTrekkdager(periode, aktivitet);
-        return aktivitet.getTrekkdager().compareTo(forventetTrekkdager) > 0;
-    }
-
-    private static Trekkdager graderingForventetTrekkdager(UttakResultatPeriodeEntitet periode, UttakResultatPeriodeAktivitetEntitet aktivitet) {
-        var virkedager = Virkedager.beregnAntallVirkedager(periode.getFom(), periode.getTom());
-        var forventetTrekkdager = new BigDecimal(virkedager).multiply(aktivitet.getUtbetalingsgrad().decimalValue()).divide(BigDecimal.valueOf(100L), 1, RoundingMode.DOWN);
-        return new Trekkdager(forventetTrekkdager);
     }
 
     private boolean harÅpenBehandling(Fagsak fagsak) {

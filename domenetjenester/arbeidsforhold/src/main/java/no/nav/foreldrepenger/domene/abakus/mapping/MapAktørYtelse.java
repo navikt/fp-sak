@@ -42,7 +42,7 @@ public class MapAktørYtelse {
     static class MapFraDto {
         private InntektArbeidYtelseAggregatBuilder aggregatBuilder;
 
-        MapFraDto(AktørId søkerAktørId, InntektArbeidYtelseAggregatBuilder aggregatBuilder) {
+        MapFraDto(InntektArbeidYtelseAggregatBuilder aggregatBuilder) {
             this.aggregatBuilder = aggregatBuilder;
         }
 

@@ -6,8 +6,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -15,7 +13,6 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
@@ -123,14 +120,13 @@ public class OpplysningsPeriodeTjeneste {
 
     public LocalDate utledFikspunktForRegisterInnhenting(Long behandlingId, FagsakYtelseType ytelseType) {
         return switch (ytelseType) {
-            case ENGANGSTØNAD -> utledFikspunktForRegisterInnhentingFraFamilieHendelse(behandlingId, FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon);
-            case FORELDREPENGER -> utledFikspunktForRegisterInnhentingFraFamilieHendelse(behandlingId, fha -> Optional.of(fha.getGjeldendeVersjon()));
+            case ENGANGSTØNAD -> utledFikspunktForRegisterInnhentingFraFamilieHendelse(behandlingId);
+            case FORELDREPENGER -> utledFikspunktForRegisterInnhentingFraFamilieHendelse(behandlingId);
             case SVANGERSKAPSPENGER -> utledFikspunktRegisterinnhentingForSVP(behandlingId);
             default -> throw new IllegalStateException("Utvikler-feil: mangler ytelsetype " + ytelseType);
         };
     }
-    public LocalDate utledFikspunktForRegisterInnhentingFraFamilieHendelse(Long behandlingId,
-                                                                           Function<FamilieHendelseGrunnlagEntitet, Optional<FamilieHendelseEntitet>> gjeldende) {
+    public LocalDate utledFikspunktForRegisterInnhentingFraFamilieHendelse(Long behandlingId) {
         return familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId)
             .map(OpplysningsPeriodeTjeneste::utledFikspunktForRegisterInnhentingFraFamilieHendelse)
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: finner ikke fikspunkt for registerinnhenting behandling " + behandlingId));
@@ -155,7 +151,7 @@ public class OpplysningsPeriodeTjeneste {
 
     public LocalDate utledFikspunktRegisterinnhentingForSVP(Long behandlingId) {
         // Logger for å vurdere om vi skal gå over til å bruke termindato som baseline. Man bekrefter termin sammen med behovFom og tilretteleggingFom
-        var familiehendelse = utledFikspunktForRegisterInnhentingFraFamilieHendelse(behandlingId, FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon);
+        var familiehendelse = utledFikspunktForRegisterInnhentingFraFamilieHendelse(behandlingId);
         var tilrettelegging = utledFikspunktRegisterinnhentingFraTilretteleggingsbehov(behandlingId);
         var avstand1 = ChronoUnit.DAYS.between(tilrettelegging, familiehendelse);
         var avstand2 = ChronoUnit.DAYS.between(familiehendelse.minusWeeks(42), tilrettelegging);
