@@ -105,7 +105,7 @@ class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
         relasjonRepository.kobleFagsaker(fagsak1, fagsak2);
         // Act
         var fagsakRelasjon = relasjonRepository.finnRelasjonFor(fagsak1);
-        relasjonRepository.oppdaterMedAvsluttningsdato(fagsakRelasjon, LocalDate.now(), null, Optional.empty(), Optional.empty());
+        relasjonRepository.oppdaterMedAvsluttningsdato(fagsakRelasjon, LocalDate.now(), Optional.empty(), Optional.empty());
         var fagsakRelasjon1 = relasjonRepository.finnRelasjonFor(fagsak1);
         var fagsakRelasjon2 = relasjonRepository.finnRelasjonFor(fagsak2);
         // Assert
